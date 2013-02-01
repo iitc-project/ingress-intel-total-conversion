@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             www.ingress.com-4e3ebacd-9e95-410c-8b88-6f3647f6a7a8@scriptish
 // @name           intel map total conversion
-// @version        0.1-2013-02-01-134835
+// @version        0.1-2013-02-01-135544
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
@@ -566,8 +566,9 @@ window.setupStyles = function() {
     [ '#largepreview.res img { border:2px solid '+COLORS[TEAM_RES]+'; } ',
       '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
       '#largepreview.none img { border:2px solid '+COLORS[TEAM_NONE]+'; } ',
-      '#sidebar, #updatestatus, #gamestat, #gamestat span, ' +
-      'input, .imgpreview img { width:'+SIDEBAR_WIDTH+'px;  }'].join("\n")
+      '#updatestatus { width:'+(SIDEBAR_WIDTH-2*4)+'px;  } ',
+      '#sidebar, #gamestat, #gamestat span, input, ',
+      '.imgpreview img { width:'+SIDEBAR_WIDTH+'px;  }'].join("\n")
     + '</style>');
 }
 
@@ -817,7 +818,7 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
 
     var style = 'width:'+fillGrade+'%; background:'+COLORS_LVL[level]+'; color:'+COLORS_LVL[level];
     var fill  = '<span style="'+style+'"></span>';
-    var meter = '<span class="meter '+cls+'" title="'+inf+'">'
+    var meter = '<span class="meter" title="'+inf+'">'
                   + fill + '</span>';
   }
   var cls = slot <= 3 ? 'left' : 'right';

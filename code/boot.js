@@ -28,8 +28,9 @@ window.setupStyles = function() {
     [ '#largepreview.res img { border:2px solid '+COLORS[TEAM_RES]+'; } ',
       '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
       '#largepreview.none img { border:2px solid '+COLORS[TEAM_NONE]+'; } ',
-      '#sidebar, #updatestatus, #gamestat, #gamestat span, ' +
-      'input, .imgpreview img { width:'+SIDEBAR_WIDTH+'px;  }'].join("\n")
+      '#updatestatus { width:'+(SIDEBAR_WIDTH-2*4)+'px;  } ',
+      '#sidebar, #gamestat, #gamestat span, input, ',
+      '.imgpreview img { width:'+SIDEBAR_WIDTH+'px;  }'].join("\n")
     + '</style>');
 }
 
