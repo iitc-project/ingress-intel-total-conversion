@@ -20,6 +20,7 @@ window.setupLargeImagePreview = function() {
       '<div id="largepreview" class="'+c+'" style="margin-left: '+(-SIDEBAR_WIDTH/2-w-2)+'px; margin-top: '+(-h-2)+'px">' + img + '</div>'
     );
     $('#largepreview').click(function() { $(this).remove() });
+    $('#largepreview img').attr('title', '');
   });
 }
 
