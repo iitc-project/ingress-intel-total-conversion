@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.1-2013-02-01-222700
+// @version        0.1-2013-02-02-003549
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
@@ -81,6 +81,13 @@ var REFRESH_GAME_SCORE = 5*60; // refresh game score every 5 minutes
 var MAX_IDLE_TIME = 4; // stop updating map after 4min idling
 var PRECACHE_PLAYER_NAMES_ZOOM = 17; // zoom level to start pre-resolving player names
 var SIDEBAR_WIDTH = 300;
+// this controls how far data is being drawn outside the viewport. Set
+// it 0 to only draw entities that intersect the current view. A value
+// of one will render an area twice the size of the viewport (or some-
+// thing like that, Leaflet doc isn’t too specific). Setting it too low
+// makes the missing data on move/zoom out more obvious. Setting it too
+// high causes too many items to be drawn, making drag&drop sluggish.
+var VIEWPORT_PAD_RATIO = 0.3;
 
 
 var COLOR_SELECTED_PORTAL = '#f00';
@@ -227,6 +234,12 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
 
   var portalUpdateAvailable = false;
   var m = data.result.map;
+  // defer rendering of portals because there is no z-index in SVG.
+  // this means that what’s rendered last ends up on top. While the
+  // portals can be brought to front, this costs extra time. They need
+  // to be in the foreground, or they cannot be clicked. See
+  // https://github.com/Leaflet/Leaflet/issues/185
+  var ppp = [];
   $.each(m, function(qk, val) {
     $.each(val.deletedGameEntityGuids, function(ind, guid) {
       window.removeByGuid(guid);
@@ -246,7 +259,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
           urlPortal = null; // only pre-select it once
           window.renderPortalDetails(ent[0]);
         }
-        renderPortal(ent);
+        ppp.push(ent); // delay portal render
       } else if(ent[2].edge !== undefined)
         renderLink(ent);
       else if(ent[2].capturedRegion !== undefined)
@@ -256,11 +269,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
     });
   });
 
-  $.each(portals, function(ind, portal) {
-    // otherwise some portals will not be clickable. See
-    // https://github.com/Leaflet/Leaflet/issues/185
-    portal.bringToFront();
-  });
+  $.each(ppp, function(ind, portal) { renderPortal(portal); });
 
   if(portals[selectedPortal]) portals[selectedPortal].bringToFront();
 
@@ -272,7 +281,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
 // do not intersect the current viewport.
 window.cleanUp = function() {
   var cnt = [0,0,0];
-  var b = map.getBounds();
+  var b = getPaddedBounds();
   portalsLayer.eachLayer(function(portal) {
     if(b.contains(portal.getLatLng())) return;
     cnt[0]++;
@@ -321,7 +330,7 @@ window.removeByGuid = function(guid) {
 window.renderPortal = function(ent) {
   removeByGuid(ent[0]);
   var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
-  if(!map.getBounds().contains(latlng)) return;
+  if(!getPaddedBounds().contains(latlng)) return;
 
   // pre-load player names for high zoom levels
   if(map.getZoom() >= PRECACHE_PLAYER_NAMES_ZOOM) {
@@ -372,7 +381,7 @@ window.renderLink = function(ent) {
     guid: ent[0]
   });
 
-  if(!map.getBounds().intersects(poly.getBounds())) return;
+  if(!getPaddedBounds().intersects(poly.getBounds())) return;
 
   poly.on('remove', function() { delete window.links[this.options.guid]; });
   poly.on('add',    function() { window.links[this.options.guid] = this; });
@@ -396,7 +405,7 @@ window.renderField = function(ent) {
     clickable: false,
     guid: ent[0]});
 
-  if(!map.getBounds().intersects(poly.getBounds())) return;
+  if(!getPaddedBounds().intersects(poly.getBounds())) return;
 
   poly.on('remove', function() { delete window.fields[this.options.guid]; });
   poly.on('add',    function() { window.fields[this.options.guid] = this; });
@@ -514,16 +523,14 @@ window.digits = function(d) {
 // error: see above. Additionally it is logged if the request failed.
 window.postAjax = function(action, data, success, error) {
   data = JSON.stringify($.extend({method: 'dashboard.'+action}, data));
+  var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
   return $.ajax({
     url: 'rpc/dashboard.'+action,
     type: 'POST',
     data: data,
     dataType: 'json',
     success: success,
-    error: [
-      function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); },
-      error || null
-    ],
+    error: error ? [errCnt, error] : errCnt,
     contentType: 'application/json; charset=utf-8',
     beforeSend: function(req) {
       req.setRequestHeader('X-CSRFToken', readCookie('csrftoken'));
@@ -566,6 +573,20 @@ window.reportPortalIssue = function(info) {
 }
 
 
+window._storedPaddedBounds = undefined;
+window.getPaddedBounds = function() {
+  if(_storedPaddedBounds === undefined) {
+    map.on('zoomstart zoomend movestart moveend', function() {
+      window._storedPaddedBounds = null;
+    });
+  }
+  if(window._storedPaddedBounds) return window._storedPaddedBounds;
+  var p = window.map.getBounds().pad(VIEWPORT_PAD_RATIO);
+  window._storedPaddedBounds = p;
+  return p;
+}
+
+
 
 
 // SETUP /////////////////////////////////////////////////////////////
@@ -588,6 +609,7 @@ window.setupLargeImagePreview = function() {
       '<div id="largepreview" class="'+c+'" style="margin-left: '+(-SIDEBAR_WIDTH/2-w-2)+'px; margin-top: '+(-h-2)+'px">' + img + '</div>'
     );
     $('#largepreview').click(function() { $(this).remove() });
+    $('#largepreview img').attr('title', '');
   });
 }
 
