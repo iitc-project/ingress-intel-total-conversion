@@ -1,0 +1,317 @@
+/* general rules ******************************************************/
+* {
+  border: 0;
+  font-family: "coda",arial,helvetica,sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #map {
+  height: 100%;
+}
+
+body {
+  font-size: 14px;
+}
+
+#map {
+  width: calc(100% - 302px);
+}
+
+#sidebar {
+  background: #000;
+  border-left: 2px solid #c3c3c3;
+  color: #888;
+  height: 100%;
+  position: fixed;
+  right: 0;
+  top: 0;
+}
+
+.enl {
+  color: #03fe03 !important;
+}
+
+.res {
+  color: #00c5ff !important;
+}
+
+.none {
+  color: #fff;
+}
+
+a {
+  color: #ffce00;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+[title] {
+  cursor: help;
+}
+
+[title=""] {
+  cursor: auto !important;
+}
+
+/* map display, required because GMaps uses a high z-index which is
+ * normally above Leaflet’s vector pane */
+.leaflet-map-pane {
+  z-index: 1000;
+}
+
+
+/* sidebar ************************************************************/
+
+#sidebar > * {
+  border-bottom: 1px solid #c3c3c3;
+}
+
+
+/* player stats */
+#playerstat {
+  height: 30px;
+}
+
+h2 {
+  color: #ffce00;
+  font-size: 21px;
+  padding: 0 4px;
+}
+
+h2 span {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: "~";
+  vertical-align: top;
+  white-space: nowrap;
+  width: 205px;
+}
+
+h2 div {
+  float: right;
+  height: 100%;
+  overflow: hidden;
+}
+
+h2 sup, h2 sub {
+  display: block;
+  font-size: 11px;
+  margin-bottom: -1px;
+}
+
+
+/* gamestats */
+#gamestat, #gamestat span {
+  height: 22px;
+  line-height: 22px;
+}
+
+#gamestat span {
+  display: block;
+  float: left;
+  font-weight: bold;
+}
+
+#gamestat .res {
+  background: #005684;
+  text-align: right;
+}
+
+#gamestat .enl {
+  background: #017f01;
+}
+
+
+/* geosearch input, and others */
+input {
+  background: #313131;
+  color: #ffce00;
+  height: 22px;
+  line-height: 22px;
+  padding: 0 4px;
+}
+
+::-webkit-input-placeholder {
+  font-style: italic;
+}
+
+:-moz-placeholder {
+  font-style: italic;
+}
+
+::-moz-placeholder {
+  font-style: italic;
+}
+
+
+/* portal title and image */
+h3 {
+  font-size: 17px;
+  padding: 0 4px;
+}
+
+.imgpreview {
+  height: 200px;
+  overflow: hidden;
+}
+
+#level {
+  font-size: 40px;
+  position: absolute;
+  right: 10px;
+  text-shadow: 0 0 2px #000000, 0 0 5px #ffffff;
+  top: 100px;
+}
+
+/* portal mods */
+.mods {
+  margin-bottom: 1px;
+  margin-top: 5px;
+}
+
+.mods span {
+  background: #313131;
+  display: inline-block;
+  height: 63.7px;
+  margin-left: 4px;
+  overflow: hidden;
+  padding: 2px;
+  text-align: center;
+  width: 63.7px;
+}
+
+.res .mods span, .res .meter {
+  border: 1px solid #0076b6;
+}
+.enl .mods span, .enl .meter {
+  border: 1px solid #017f01;
+}
+
+/* random details list */
+#randdetails {
+  margin: 0 4px;
+  margin-top: 11px;
+}
+
+aside {
+  display: inline-block;
+  width: 140px;
+}
+
+aside span {
+  overflow: hidden;
+  text-overflow: "~";
+  white-space: nowrap;
+  width: 74px;
+}
+
+aside:nth-child(odd) {
+  margin-right: 4px;
+  text-align: right;
+}
+
+aside:nth-child(even) {
+  margin-left: 4px;
+  text-align: left;
+}
+
+aside:nth-child(even) span {
+  float: right;
+  padding-left: 4px;
+  text-align: left;
+}
+
+aside:nth-child(odd) span {
+  float: left;
+  padding-right: 4px;
+  text-align: right;
+}
+
+
+/* resonators */
+#resodetails {
+  margin: 16px 0;
+  moz-column-gap: 10px;
+  moz-column-width: 141px;
+  webkit-column-gap: 10px;
+  webkit-column-width: 141px;
+}
+
+.meter {
+  background: #000;
+  cursor: help;
+  display: inline-block;
+  height: 14px;
+  padding: 1px;
+  width: 58px;
+}
+
+.meter-text {
+  display: inline-block;
+  height: 18px;
+  margin: 0 4px;
+  overflow: hidden;
+  text-overflow: "~";
+  vertical-align: top;
+  white-space: nowrap;
+  width: 75px;
+}
+
+.meter-text.left {
+  text-align: right;
+}
+
+.meter span {
+  display: block;
+  height: 14px;
+}
+
+/* links below resos */
+
+.linkdetails {
+  text-align: center;
+}
+.linkdetails aside {
+  margin: 0 4px;
+  width: 140px;
+}
+
+/* a common portal display takes this much space (prevents moving
+ * content when first selecting a portal) */
+
+#portaldetails {
+  min-height: 532px;
+}
+
+
+/* update status */
+#updatestatus {
+  border-bottom: 0;
+  border-top: 1px solid #c3c3c3;
+  bottom: 0;
+  color: #ffce00;
+  padding: 4px;
+  position: fixed;
+  right: 0;
+}
+
+
+/* preview */
+
+#largepreview {
+  left: 50%;
+  position: fixed;
+  top: 50%;
+  z-index: 2000;
+}
+#largepreview img {
+  box-shadow: 0 0 40px #000;
+}
+#largepreview img {
+  border: 2px solid #f8ff5e;
+}
