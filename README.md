@@ -17,7 +17,7 @@ Currently only works in Firefox with [Greasemonkey](https://addons.mozilla.org/e
 If one of these addons is installed, clicking this should work:
 
 
-[**INSTALL**](https://raw.github.com/breunigs/ingress-intel-total-conversion/master/total-conversion-build.user.js)
+[**INSTALL**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js)
 
 
 
