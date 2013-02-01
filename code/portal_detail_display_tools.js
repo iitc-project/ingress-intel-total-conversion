@@ -108,7 +108,7 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
 
     var style = 'width:'+fillGrade+'%; background:'+COLORS_LVL[level]+'; color:'+COLORS_LVL[level];
     var fill  = '<span style="'+style+'"></span>';
-    var meter = '<span class="meter '+cls+'" title="'+inf+'">'
+    var meter = '<span class="meter" title="'+inf+'">'
                   + fill + '</span>';
   }
   var cls = slot <= 3 ? 'left' : 'right';
