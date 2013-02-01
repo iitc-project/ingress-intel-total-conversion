@@ -48,16 +48,14 @@ window.digits = function(d) {
 // error: see above. Additionally it is logged if the request failed.
 window.postAjax = function(action, data, success, error) {
   data = JSON.stringify($.extend({method: 'dashboard.'+action}, data));
+  var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
   return $.ajax({
     url: 'rpc/dashboard.'+action,
     type: 'POST',
     data: data,
     dataType: 'json',
     success: success,
-    error: [
-      function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); },
-      error || null
-    ],
+    error: error ? [errCnt, error] : errCnt,
     contentType: 'application/json; charset=utf-8',
     beforeSend: function(req) {
       req.setRequestHeader('X-CSRFToken', readCookie('csrftoken'));
