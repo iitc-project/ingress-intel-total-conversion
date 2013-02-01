@@ -10,6 +10,9 @@
 // not be guessed automatically. Especially useful if a little delay
 // is required, for example when zooming.
 window.startRefreshTimeout = function(override) {
+  // may be required to remove 'paused during interaction' message in
+  // status bar
+  window.renderUpdateStatus();
   if(refreshTimeout) clearTimeout(refreshTimeout);
   if(override) {
     console.log('refreshing in ' + override + 'ms');
