@@ -236,10 +236,10 @@ aside:nth-child(odd) span {
 /* resonators */
 #resodetails {
   margin: 16px 0;
-  moz-column-gap: 10px;
-  moz-column-width: 141px;
-  webkit-column-gap: 10px;
-  webkit-column-width: 141px;
+  -moz-column-gap: 10px;
+  -moz-column-width: 141px;
+  -webkit-column-gap: 10px;
+  -webkit-column-width: 141px;
 }
 
 .meter {
