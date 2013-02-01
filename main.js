@@ -81,6 +81,13 @@ var REFRESH_GAME_SCORE = 5*60; // refresh game score every 5 minutes
 var MAX_IDLE_TIME = 4; // stop updating map after 4min idling
 var PRECACHE_PLAYER_NAMES_ZOOM = 17; // zoom level to start pre-resolving player names
 var SIDEBAR_WIDTH = 300;
+// this controls how far data is being drawn outside the viewport. Set
+// it 0 to only draw entities that intersect the current view. A value
+// of one will render an area twice the size of the viewport (or some-
+// thing like that, Leaflet doc isn’t too specific). Setting it too low
+// makes the missing data on move/zoom out more obvious. Setting it too
+// high causes too many items to be drawn, making drag&drop sluggish.
+var VIEWPORT_PAD_RATIO = 0.3;
 
 
 var COLOR_SELECTED_PORTAL = '#f00';

@@ -98,3 +98,17 @@ window.reportPortalIssue = function(info) {
   if(prompt(t, info) !== null)
     location.href = 'https://support.google.com/ingress?hl=en';
 }
+
+
+window._storedPaddedBounds = undefined;
+window.getPaddedBounds = function() {
+  if(_storedPaddedBounds === undefined) {
+    map.on('zoomstart zoomend movestart moveend', function() {
+      window._storedPaddedBounds = null;
+    });
+  }
+  if(window._storedPaddedBounds) return window._storedPaddedBounds;
+  var p = window.map.getBounds().pad(VIEWPORT_PAD_RATIO);
+  window._storedPaddedBounds = p;
+  return p;
+}

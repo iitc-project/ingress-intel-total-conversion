@@ -89,6 +89,12 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
 
   var portalUpdateAvailable = false;
   var m = data.result.map;
+  // defer rendering of portals because there is no z-index in SVG.
+  // this means that what’s rendered last ends up on top. While the
+  // portals can be brought to front, this costs extra time. They need
+  // to be in the foreground, or they cannot be clicked. See
+  // https://github.com/Leaflet/Leaflet/issues/185
+  var ppp = [];
   $.each(m, function(qk, val) {
     $.each(val.deletedGameEntityGuids, function(ind, guid) {
       window.removeByGuid(guid);
@@ -108,7 +114,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
           urlPortal = null; // only pre-select it once
           window.renderPortalDetails(ent[0]);
         }
-        renderPortal(ent);
+        ppp.push(ent); // delay portal render
       } else if(ent[2].edge !== undefined)
         renderLink(ent);
       else if(ent[2].capturedRegion !== undefined)
@@ -118,11 +124,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
     });
   });
 
-  $.each(portals, function(ind, portal) {
-    // otherwise some portals will not be clickable. See
-    // https://github.com/Leaflet/Leaflet/issues/185
-    portal.bringToFront();
-  });
+  $.each(ppp, function(ind, portal) { renderPortal(portal); });
 
   if(portals[selectedPortal]) portals[selectedPortal].bringToFront();
 
@@ -134,7 +136,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
 // do not intersect the current viewport.
 window.cleanUp = function() {
   var cnt = [0,0,0];
-  var b = map.getBounds();
+  var b = getPaddedBounds();
   portalsLayer.eachLayer(function(portal) {
     if(b.contains(portal.getLatLng())) return;
     cnt[0]++;
@@ -183,7 +185,7 @@ window.removeByGuid = function(guid) {
 window.renderPortal = function(ent) {
   removeByGuid(ent[0]);
   var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
-  if(!map.getBounds().contains(latlng)) return;
+  if(!getPaddedBounds().contains(latlng)) return;
 
   // pre-load player names for high zoom levels
   if(map.getZoom() >= PRECACHE_PLAYER_NAMES_ZOOM) {
@@ -234,7 +236,7 @@ window.renderLink = function(ent) {
     guid: ent[0]
   });
 
-  if(!map.getBounds().intersects(poly.getBounds())) return;
+  if(!getPaddedBounds().intersects(poly.getBounds())) return;
 
   poly.on('remove', function() { delete window.links[this.options.guid]; });
   poly.on('add',    function() { window.links[this.options.guid] = this; });
@@ -258,7 +260,7 @@ window.renderField = function(ent) {
     clickable: false,
     guid: ent[0]});
 
-  if(!map.getBounds().intersects(poly.getBounds())) return;
+  if(!getPaddedBounds().intersects(poly.getBounds())) return;
 
   poly.on('remove', function() { delete window.fields[this.options.guid]; });
   poly.on('add',    function() { window.fields[this.options.guid] = this; });
