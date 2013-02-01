@@ -38,12 +38,12 @@ window.renderUpdateStatus = function() {
   else if(isIdle())
     t += 'Idle, not updating.';
   else if(window.activeRequests.length > 0)
-    t += window.activeRequests.length + ' requests running';
+    t += window.activeRequests.length + ' requests running.';
   else
     t += 'Up to date.';
 
   if(window.failedRequestCount > 0)
-    t += ' ' + window.failedRequestCount + ' requests  failed.'
+    t += ' ' + window.failedRequestCount + ' requests failed.'
 
   t += '<br/><span title="not removing portals as long as you keep them in view, though">(';
   var conv = ['impossible', 8,8,7,7,6,6,5,5,4,4,3,3,2,2,1];

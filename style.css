@@ -64,6 +64,83 @@ a:hover {
   z-index: 1000;
 }
 
+/* chat ***************************************************************/
+
+#chatcontrols {
+  color: #FFCE00;
+  background: rgba(8, 48, 78, 0.9);
+  position: absolute;
+  left: 0;
+  z-index: 3001;
+  height: 26px;
+  padding-left:1px;
+}
+
+#chatcontrols a {
+  margin-left: -1px;
+  display: inline-block;
+  width: 94px;
+  text-align: center;
+  height: 24px;
+  line-height: 24px;
+  border: 1px solid #20A8B1;
+}
+
+#chatcontrols a.active {
+  border-color: #FFCE00;
+  border-bottom-width:0px;
+  font-weight:bold
+}
+
+#chatcontrols a.active + a {
+  border-left-color: #FFCE00
+}
+
+#chat {
+  position: absolute;
+  width: 704px;
+  bottom:0;
+  left: 0;
+  z-index: 3000;
+  background: rgba(8, 48, 78, 0.9);
+  overflow-y: scroll;
+  overflow-x: hidden;
+  font-size: 90%;
+  color: #eee;
+  padding: 2px;
+  border-right: 1px solid #20A8B1;
+  border-top: 1px solid #20A8B1;
+},
+
+#chat p {
+  display: block;
+  padding: 1px 2px;
+}
+
+time, mark, #chat span {
+  font-family: Verdana, sans-serif;
+  vertical-align: top;
+}
+
+time {
+  display: inline-block;
+  width: 44px;
+  color: #bbb;
+}
+
+mark {
+  display: inline-block;
+  width: 95px;
+  overflow:hidden;
+  vertical-align: top;
+  background: transparent;
+}
+
+#chat span {
+  display: inline-block;
+  width: 542px;
+}
+
 
 /* sidebar ************************************************************/
 

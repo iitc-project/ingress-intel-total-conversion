@@ -28,7 +28,7 @@ window.resolvePlayerNames = function() {
   playersToResolve = [];
   postAjax('getPlayersByGuids', d, function(dat) {
     $.each(dat.result, function(ind, player) {
-      localStorage[player.guid] = player.nickname;
+      window.setPlayerName(player.guid, player.nickname);
       // remove from array
       window.playersInResolving.splice(window.playersInResolving.indexOf(player.guid), 1);
     });
@@ -40,4 +40,9 @@ window.resolvePlayerNames = function() {
     console.warn('resolving player guids failed: ' + p.join(', '));
     window.playersToResolve.concat(p);
   });
+}
+
+
+window.setPlayerName = function(guid, nick) {
+  localStorage[guid] = nick;
 }

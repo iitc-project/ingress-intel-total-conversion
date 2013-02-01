@@ -45,7 +45,15 @@ document.getElementsByTagName('head')[0].innerHTML = ''
   + '<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Coda"/>';
 
 document.getElementsByTagName('body')[0].innerHTML = ''
-  +  '<div id="map">Loading, please wait</div>'
+  + '<div id="map">Loading, please wait</div>'
+  + '<div id="chatcontrols">'
+  + '  <a>expand</a><a>automated</a><a>public</a><a class="active">faction</a>'
+  + '</div>'
+  + '<div id="chat">'
+  + '  <div id="chatfaction"></div>'
+  + '  <div id="chatpublic"></div>'
+  + '  <div id="chatbot"></div>'
+  + '</div>'
   + '<div id="sidebar" style="display: none">'
   + '  <div id="playerstat">t</div>'
   + '  <div id="gamestat">&nbsp;loading global control stats</div>'
@@ -100,6 +108,7 @@ var TEAM_NONE = 0, TEAM_RES = 1, TEAM_ENL = 2;
 var TEAM_TO_CSS = ['none', 'res', 'enl'];
 // make PLAYER variable available in site context
 var PLAYER = window.PLAYER;
+var CHAT_SHRINKED = 60;
 
 // STORAGE ///////////////////////////////////////////////////////////
 // global variables used for storage. Most likely READ ONLY. Proper

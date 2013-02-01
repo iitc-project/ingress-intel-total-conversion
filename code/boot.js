@@ -28,6 +28,8 @@ window.setupStyles = function() {
     [ '#largepreview.res img { border:2px solid '+COLORS[TEAM_RES]+'; } ',
       '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
       '#largepreview.none img { border:2px solid '+COLORS[TEAM_NONE]+'; } ',
+      '#chatcontrols { bottom: '+(CHAT_SHRINKED+4)+'px; }',
+      '#chat { height: '+CHAT_SHRINKED+'px; } ',
       '#updatestatus { width:'+(SIDEBAR_WIDTH-2*4)+'px;  } ',
       '#sidebar, #gamestat, #gamestat span, input, ',
       '.imgpreview img { width:'+SIDEBAR_WIDTH+'px;  }'].join("\n")
@@ -148,6 +150,7 @@ function boot() {
   window.setupLargeImagePreview();
   window.updateGameScore();
   window.setupPlayerStat();
+  window.setupChat();
   // read here ONCE, so the URL is only evaluated one time after the
   // necessary data has been loaded.
   urlPortal = getURLParam('pguid');

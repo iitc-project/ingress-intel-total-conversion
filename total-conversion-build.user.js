@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.1-2013-02-01-142037
+// @version        0.1-2013-02-01-222700
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
@@ -45,7 +45,15 @@ document.getElementsByTagName('head')[0].innerHTML = ''
   + '<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Coda"/>';
 
 document.getElementsByTagName('body')[0].innerHTML = ''
-  +  '<div id="map">Loading, please wait</div>'
+  + '<div id="map">Loading, please wait</div>'
+  + '<div id="chatcontrols">'
+  + '  <a>expand</a><a>automated</a><a>public</a><a class="active">faction</a>'
+  + '</div>'
+  + '<div id="chat">'
+  + '  <div id="chatfaction"></div>'
+  + '  <div id="chatpublic"></div>'
+  + '  <div id="chatbot"></div>'
+  + '</div>'
   + '<div id="sidebar" style="display: none">'
   + '  <div id="playerstat">t</div>'
   + '  <div id="gamestat">&nbsp;loading global control stats</div>'
@@ -100,6 +108,7 @@ var TEAM_NONE = 0, TEAM_RES = 1, TEAM_ENL = 2;
 var TEAM_TO_CSS = ['none', 'res', 'enl'];
 // make PLAYER variable available in site context
 var PLAYER = window.PLAYER;
+var CHAT_SHRINKED = 60;
 
 // STORAGE ///////////////////////////////////////////////////////////
 // global variables used for storage. Most likely READ ONLY. Proper
@@ -139,6 +148,9 @@ window.fields = {};
 // not be guessed automatically. Especially useful if a little delay
 // is required, for example when zooming.
 window.startRefreshTimeout = function(override) {
+  // may be required to remove 'paused during interaction' message in
+  // status bar
+  window.renderUpdateStatus();
   if(refreshTimeout) clearTimeout(refreshTimeout);
   if(override) {
     console.log('refreshing in ' + override + 'ms');
@@ -432,12 +444,21 @@ window.renderUpdateStatus = function() {
   else if(isIdle())
     t += 'Idle, not updating.';
   else if(window.activeRequests.length > 0)
-    t += window.activeRequests.length + ' requests running';
+    t += window.activeRequests.length + ' requests running.';
   else
     t += 'Up to date.';
 
   if(window.failedRequestCount > 0)
-    t += ' ' + window.failedRequestCount + ' requests  failed.'
+    t += ' ' + window.failedRequestCount + ' requests failed.'
+
+  t += '<br/><span title="not removing portals as long as you keep them in view, though">(';
+  var conv = ['impossible', 8,8,7,7,6,6,5,5,4,4,3,3,2,2,1];
+  var z = map.getZoom();
+  if(z >= 16)
+    t += 'requesting all portals';
+  else
+    t+= 'only requesting portals with level '+conv[z]+' and up';
+  t += ')</span>';
 
   $('#updatestatus').html(t);
 }
@@ -512,13 +533,22 @@ window.postAjax = function(action, data, success, error) {
 
 // converts unix timestamps to HH:mm:ss format if it was today;
 // otherwise it returns YYYY-MM-DD
-window.unixTimeToString = function(time) {
+window.unixTimeToString = function(time, full) {
   if(!time) return null;
   var d = new Date(typeof time === 'string' ? parseInt(time) : time);
+  var time = d.toLocaleTimeString();
+  var date = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+  if(typeof full !== 'undefined' && full) return date + ' ' + time;
   if(d.toDateString() == new Date().toDateString())
-    return d.toLocaleTimeString();
+    return time;
   else
-    return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+    return date;
+}
+
+window.unixTimeToHHmm = function(time) {
+  if(!time) return null;
+  var d = new Date(typeof time === 'string' ? parseInt(time) : time);
+  return d.toLocaleTimeString().slice(0, -3);
 }
 
 
@@ -566,6 +596,8 @@ window.setupStyles = function() {
     [ '#largepreview.res img { border:2px solid '+COLORS[TEAM_RES]+'; } ',
       '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
       '#largepreview.none img { border:2px solid '+COLORS[TEAM_NONE]+'; } ',
+      '#chatcontrols { bottom: '+(CHAT_SHRINKED+4)+'px; }',
+      '#chat { height: '+CHAT_SHRINKED+'px; } ',
       '#updatestatus { width:'+(SIDEBAR_WIDTH-2*4)+'px;  } ',
       '#sidebar, #gamestat, #gamestat span, input, ',
       '.imgpreview img { width:'+SIDEBAR_WIDTH+'px;  }'].join("\n")
@@ -573,6 +605,8 @@ window.setupStyles = function() {
 }
 
 window.setupMap = function() {
+  $('#map').text('');
+
   var osmOpt = {attribution: 'Map data © OpenStreetMap contributors', maxZoom: 18};
   var osm = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', osmOpt);
 
@@ -684,6 +718,7 @@ function boot() {
   window.setupLargeImagePreview();
   window.updateGameScore();
   window.setupPlayerStat();
+  window.setupChat();
   // read here ONCE, so the URL is only evaluated one time after the
   // necessary data has been loaded.
   urlPortal = getURLParam('pguid');
@@ -706,6 +741,124 @@ var LEAFLET = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.js';
 
 // after all scripts have loaded, boot the actual app
 load(JQUERY, LEAFLET).then(LLGMAPS).thenRun(boot);
+
+
+window.chat = function() {}
+
+window.getOldestTimestampChat = function(public) {
+  if(public) {
+    var a = $('#chatpublic time:first').data('timestamp');
+    var b = $('#chatbot time:first').data('timestamp');
+    if(a && b) return Math.min(a, b);
+    return a || b || -1;
+  } else {
+    return $('#chatfaction time').first().data('timestamp') || -1;
+  }
+}
+
+window.getNewestTimestampChat = function(public) {
+  if(public) {
+    var a = $('#chatpublic time:last').data('timestamp');
+    var b = $('#chatbot time:last').data('timestamp');
+    if(a && b) return Math.max(a, b);
+    return a || b || -1;
+  } else {
+    return $('#chatfaction time').last().data('timestamp') || -1;
+  }
+}
+
+window.getPostDataForChat = function(public, getOlderMsgs) {
+  if(typeof public !== 'boolean') throw('Need to know if public or faction chat.');
+
+  var b = map.getBounds();
+  var ne = b.getNorthEast();
+  var sw = b.getSouthWest();
+
+  var data = {
+    desiredNumItems: 10,
+    minLatE6: Math.round(sw.lat*1E6),
+    minLngE6: Math.round(sw.lng*1E6),
+    maxLatE6: Math.round(ne.lat*1E6),
+    maxLngE6: Math.round(ne.lng*1E6),
+    minTimestampMs: -1,
+    maxTimestampMs: -1,
+    factionOnly: !public
+  }
+
+  if(getOlderMsgs) {
+    // ask for older chat when scrolling up
+    data = $.extend(data, {maxTimestampMs: getOldestTimestampChat(public)});
+  } else {
+    // ask for newer chat
+    $.extend(data, {minTimestampMs: getNewestTimestampChat(public)});
+  }
+  return data;
+}
+
+window.requestFactionChat  = function(getOlderMsgs) {
+  if(window.idleTime >= MAX_IDLE_TIME) {
+    console.log('user has been idle for ' + idleTime + ' minutes. Skipping faction chat.');
+    renderUpdateStatus();
+    return;
+  }
+
+  data = getPostDataForChat(false, false);
+  window.requests.add(window.postAjax('getPaginatedPlextsV2', data, window.handleFactionChat));
+}
+
+window.renderChatMsg = function(msg, nick, time, team) {
+  var ta = unixTimeToHHmm(time);
+  var tb = unixTimeToString(time, true);
+  var t = '<time title="'+tb+'" data-timestamp="'+time+'">'+ta+'</time>';
+  var s = 'style="color:'+COLORS[team]+'"';
+  return '<p>'+t+'<mark '+s+'>'+nick+'</mark><span>'+msg+'</span></p>';
+}
+
+window.handleFactionChat = function(data, textStatus, jqXHR) {
+  var appMsg = '';
+  var first = null;
+  var last;
+  $.each(data.result.reverse(), function(ind, chat) {
+    var time = chat[1];
+    var msg = chat[2].plext.markup[2][1].plain;
+    var team = chat[2].plext.team === 'ALIENS' ? TEAM_ENL : TEAM_RES;
+    var nick = chat[2].plext.markup[1][1].plain.slice(0, -2); // cut “: ” at end
+    var guid = chat[2].plext.markup[1][1].guid;
+    window.setPlayerName(guid, nick); // free nick name resolves
+
+    if(!first) first = time;
+    last = time;
+    appMsg += renderChatMsg(msg, nick, time, team);
+  });
+
+  $('#chatfaction').html(appMsg);
+}
+
+window.toggleChat = function() {
+  var c = $('#chat');
+  var cc = $('#chatcontrols');
+  if(c.data('toggle')) {
+    $('#chatcontrols a:first').text('expand');
+    c.css('height', CHAT_SHRINKED+'px');
+    c.css('top', 'auto');
+    c.data('toggle', false);
+    cc.css('top', 'auto');
+    cc.css('bottom', (CHAT_SHRINKED+4)+'px');
+  } else {
+    $('#chatcontrols a:first').text('shrink');
+    c.css('height', 'auto');
+    c.css('top', '25px');
+    c.data('toggle', true);
+    cc.css('top', '0');
+    cc.css('bottom', 'auto');
+  }
+}
+
+
+window.setupChat = function() {
+  $('#chatcontrols a').first().click(window.toggleChat);
+  requestFactionChat();
+}
 
 
 
@@ -1170,7 +1323,7 @@ window.resolvePlayerNames = function() {
   playersToResolve = [];
   postAjax('getPlayersByGuids', d, function(dat) {
     $.each(dat.result, function(ind, player) {
-      localStorage[player.guid] = player.nickname;
+      window.setPlayerName(player.guid, player.nickname);
       // remove from array
       window.playersInResolving.splice(window.playersInResolving.indexOf(player.guid), 1);
     });
@@ -1182,6 +1335,11 @@ window.resolvePlayerNames = function() {
     console.warn('resolving player guids failed: ' + p.join(', '));
     window.playersToResolve.concat(p);
   });
+}
+
+
+window.setPlayerName = function(guid, nick) {
+  localStorage[guid] = nick;
 }
 
 

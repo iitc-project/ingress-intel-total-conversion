@@ -67,13 +67,22 @@ window.postAjax = function(action, data, success, error) {
 
 // converts unix timestamps to HH:mm:ss format if it was today;
 // otherwise it returns YYYY-MM-DD
-window.unixTimeToString = function(time) {
+window.unixTimeToString = function(time, full) {
   if(!time) return null;
   var d = new Date(typeof time === 'string' ? parseInt(time) : time);
+  var time = d.toLocaleTimeString();
+  var date = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+  if(typeof full !== 'undefined' && full) return date + ' ' + time;
   if(d.toDateString() == new Date().toDateString())
-    return d.toLocaleTimeString();
+    return time;
   else
-    return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+    return date;
+}
+
+window.unixTimeToHHmm = function(time) {
+  if(!time) return null;
+  var d = new Date(typeof time === 'string' ? parseInt(time) : time);
+  return d.toLocaleTimeString().slice(0, -3);
 }
 
 
