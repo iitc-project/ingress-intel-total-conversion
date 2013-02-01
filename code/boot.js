@@ -35,6 +35,8 @@ window.setupStyles = function() {
 }
 
 window.setupMap = function() {
+  $('#map').text('');
+
   var osmOpt = {attribution: 'Map data © OpenStreetMap contributors', maxZoom: 18};
   var osm = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', osmOpt);
 
