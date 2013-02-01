@@ -1,4 +1,4 @@
-**NOTEL: this is a work in progress and not yet finished. **
+*NOTE: this is a work in progress and not yet finished. *
 
 
 ingress.com/intel total conversion
