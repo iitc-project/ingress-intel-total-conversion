@@ -39,6 +39,17 @@ Execute `./build.js` to effectively concatenate `main.js` with all the files in 
 `leaflet_google.js` contains some code to display Google Maps imagery with Leaflet, which is a slightly modified version [of this gist](https://gist.github.com/4504864). I tried to track down the original author, but failed.
 
 
+My dev setup is like this:
+- checked out git repository
+- symlinked the user script to the version in the repo. It should work like this:
+  ```sh
+  cd ~/.mozilla/firefox/<YOUR FF PROFILE>/scriptish_scripts/ingress-intel-total-conversion@breunigs
+  ln -s ~/<PATH TO REPO>/total-conversion-build.user.js ingress-intel-total-conversion@breunigs.user.js
+  ```
+- if you are working on styles or scripts that are normally served via HTTP, you can setup an HTTP server for the current directory at `http://0.0.0.0:8000` using `python -m SimpleHTTPServer`.
+- run `./autobuild.sh` to re-build the user script whenever you make changes
+- Focus the location bar and hit enter instead of reloading. This way your browser doesn’t look for new versions of cached files.
+
 Attribution & License
 ---------------------
 
