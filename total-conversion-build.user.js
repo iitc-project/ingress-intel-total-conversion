@@ -1,7 +1,7 @@
 // ==UserScript==
-// @id             www.ingress.com-4e3ebacd-9e95-410c-8b88-6f3647f6a7a8@scriptish
+// @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.1-2013-02-01-135544
+// @version        0.1-2013-02-01-142037
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
