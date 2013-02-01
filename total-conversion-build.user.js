@@ -1,10 +1,10 @@
 // ==UserScript==
 // @id             www.ingress.com-4e3ebacd-9e95-410c-8b88-6f3647f6a7a8@scriptish
 // @name           intel map total conversion
-// @version        0.1-2013-02-01-131053
+// @version        0.1-2013-02-01-134835
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
-// @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/master/total-conversion-build.user.js
-// @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/master/total-conversion-build.user.js
+// @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
+// @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @description    total conversion for the ingress intel map.
 // @include        http://www.ingress.com/intel*
 // ==/UserScript==
@@ -39,13 +39,13 @@ for(var i = 0; i < d.length; i++) {
 // remove complete page. We only wanted the user-data and the page’s
 // security context so we can access the API easily. Setup as much as
 // possible without requiring scripts.
-document.getElementsByTagName('head')[0].innerHTML =
-    '<link rel="stylesheet" href="https://raw.github.com/breunigs/ingress-intel-total-conversion/master/style.css" />'
-    '<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.css" />'
-  + '<link href="http://fonts.googleapis.com/css?family=Coda" rel="stylesheet" type="text/css" />';
+document.getElementsByTagName('head')[0].innerHTML = ''
+  + '<link rel="stylesheet" type="text/css" href="http://breunigs.github.com/ingress-intel-total-conversion/style.css"/>'
+  + '<link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.css"/>'
+  + '<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Coda"/>';
 
-document.getElementsByTagName('body')[0].innerHTML =
-    '<div id="map">Loading, please wait</div>'
+document.getElementsByTagName('body')[0].innerHTML = ''
+  +  '<div id="map">Loading, please wait</div>'
   + '<div id="sidebar" style="display: none">'
   + '  <div id="playerstat">t</div>'
   + '  <div id="gamestat">&nbsp;loading global control stats</div>'
@@ -699,7 +699,7 @@ function asyncLoadScript(a){return function(b,c){var d=document.createElement("s
 
 // modified version of https://github.com/shramov/leaflet-plugins. Also
 // contains the default Ingress map style.
-var LLGMAPS = 'https://raw.github.com/breunigs/ingress-intel-total-conversion/master/leaflet_google.js';
+var LLGMAPS = 'http://breunigs.github.com/ingress-intel-total-conversion/leaflet_google.js';
 var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js';
 var LEAFLET = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.js';
 
