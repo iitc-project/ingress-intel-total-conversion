@@ -76,6 +76,11 @@ a:hover {
   padding-left:1px;
 }
 
+#chatcontrols.expand {
+  top: 0;
+  bottom: auto;
+}
+
 #chatcontrols a {
   margin-left: -1px;
   display: inline-block;
@@ -98,19 +103,32 @@ a:hover {
 
 #chat {
   position: absolute;
-  width: 704px;
-  bottom:0;
+  width: 708px;
+  bottom: 24px;
   left: 0;
   z-index: 3000;
   background: rgba(8, 48, 78, 0.9);
-  overflow-y: scroll;
-  overflow-x: hidden;
-  font-size: 90%;
+  font-size: 12.6px;
   color: #eee;
+  border: 1px solid #20A8B1;
+  border-bottom: 0;
+}
+
+#chat.expand {
+  height:auto;
+  top: 25px;
+}
+
+#chatpublic, #chatbot {
+  display: none;
+}
+
+#chat > div {
+  overflow-x:hidden;
+  overflow-y:scroll;
+  height: calc(100% - 4px);
   padding: 2px;
-  border-right: 1px solid #20A8B1;
-  border-top: 1px solid #20A8B1;
-},
+}
 
 #chat p {
   display: block;
@@ -119,6 +137,7 @@ a:hover {
 
 time, mark, #chat span {
   font-family: Verdana, sans-serif;
+  font-size: 12.6px;
   vertical-align: top;
 }
 
@@ -138,8 +157,39 @@ mark {
 
 #chat span {
   display: inline-block;
-  width: 542px;
+  width: 550px;
 }
+
+#chatinput {
+  line-height:22px;
+  padding: 0 2px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  background: rgba(8, 48, 78, 0.9);
+  width: 704px;
+  border: 1px solid #20A8B1;
+  z-index: 3001;
+}
+
+#chatinput span {
+  font-family: Verdana,sans-serif;
+  padding: 0 4px;
+  display: inline-block;
+  font-size: 12.6px;
+  width: 86px;
+  color: red;
+  padding-left: 2px;
+}
+
+#chatinput input {
+  background: transparent;
+  font-size: 12.6px;
+  font-family: Verdana,sans-serif;
+  color: #EEEEEE;
+  width: 560px
+}
+
 
 
 /* sidebar ************************************************************/
