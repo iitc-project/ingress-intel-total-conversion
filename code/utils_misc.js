@@ -48,13 +48,14 @@ window.digits = function(d) {
 // error: see above. Additionally it is logged if the request failed.
 window.postAjax = function(action, data, success, error) {
   data = JSON.stringify($.extend({method: 'dashboard.'+action}, data));
+  var remove = function(data, textStatus, jqXHR) { window.requests.remove(jqXHR); };
   var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
   return $.ajax({
     url: 'rpc/dashboard.'+action,
     type: 'POST',
     data: data,
     dataType: 'json',
-    success: success,
+    success: [remove, success],
     error: error ? [errCnt, error] : errCnt,
     contentType: 'application/json; charset=utf-8',
     beforeSend: function(req) {
@@ -109,4 +110,12 @@ window.getPaddedBounds = function() {
   var p = window.map.getBounds().pad(VIEWPORT_PAD_RATIO);
   window._storedPaddedBounds = p;
   return p;
+}
+
+
+// returns number of pixels left to scroll down before reaching the
+// bottom. Works similar to the native scrollTop function.
+window.scrollBottom = function(elm) {
+  if(typeof elm === 'string') elm = $(elm);
+  return elm.get(0).scrollHeight - elm.innerHeight() - elm.scrollTop();
 }

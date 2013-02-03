@@ -25,7 +25,6 @@ window.requests.abort = function() {
   window.activeRequests = [];
   window.failedRequestCount = 0;
 
-  startRefreshTimeout();
   renderUpdateStatus();
 }
 
@@ -55,4 +54,50 @@ window.renderUpdateStatus = function() {
   t += ')</span>';
 
   $('#updatestatus').html(t);
+}
+
+
+// sets the timer for the next auto refresh. Ensures only one timeout
+// is queued. May be given 'override' in milliseconds if time should
+// not be guessed automatically. Especially useful if a little delay
+// is required, for example when zooming.
+window.startRefreshTimeout = function(override) {
+  // may be required to remove 'paused during interaction' message in
+  // status bar
+  window.renderUpdateStatus();
+  if(refreshTimeout) clearTimeout(refreshTimeout);
+  var t = 0;
+  if(override) {
+    t = override;
+  } else {
+    t = REFRESH*1000;
+    var adj = ZOOM_LEVEL_ADJ * (18 - window.map.getZoom());
+    if(adj > 0) t += adj*1000;
+  }
+  var next = new Date(new Date().getTime() + t).toLocaleTimeString();
+  console.log('planned refresh: ' + next);
+  refreshTimeout = setTimeout(window.requests._callOnRefreshFunctions, t);
+}
+
+window.requests._onRefreshFunctions = [];
+window.requests._callOnRefreshFunctions = function() {
+  startRefreshTimeout();
+
+  if(isIdle()) {
+    console.log('user has been idle for ' + idleTime + ' minutes. Skipping refresh.');
+    renderUpdateStatus();
+    return;
+  }
+
+  console.log('refreshing');
+
+  $.each(window.requests._onRefreshFunctions, function(ind, f) {
+    f();
+  });
+}
+
+
+// add method here to be notified of auto-refreshes
+window.requests.addRefreshFunction = function(f) {
+  window.requests._onRefreshFunctions.push(f);
 }

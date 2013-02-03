@@ -5,36 +5,9 @@
 // action.
 
 
-// sets the timer for the next auto refresh. Ensures only one timeout
-// is queued. May be given 'override' in milliseconds if time should
-// not be guessed automatically. Especially useful if a little delay
-// is required, for example when zooming.
-window.startRefreshTimeout = function(override) {
-  // may be required to remove 'paused during interaction' message in
-  // status bar
-  window.renderUpdateStatus();
-  if(refreshTimeout) clearTimeout(refreshTimeout);
-  if(override) {
-    console.log('refreshing in ' + override + 'ms');
-    refreshTimeout = setTimeout(window.requestData, override);
-    return;
-  }
-  var t = REFRESH*1000;
-  var adj = ZOOM_LEVEL_ADJ * (18 - window.map.getZoom());
-  if(adj > 0) t += adj*1000;
-  console.log("next auto refresh in " + t/1000 + " seconds.");
-  refreshTimeout = setTimeout(window.requestData, t);
-}
-
 // requests map data for current viewport. For details on how this
 // works, refer to the description in “MAP DATA REQUEST CALCULATORS”
 window.requestData = function() {
-  if(window.idleTime >= MAX_IDLE_TIME) {
-    console.log('user has been idle for ' + idleTime + ' minutes. Skipping refresh.');
-    renderUpdateStatus();
-    return;
-  }
-
   console.log('refreshing data');
   requests.abort();
   cleanUp();
@@ -81,7 +54,6 @@ window.requestData = function() {
 // works on map data response and ensures entities are drawn/updated.
 window.handleDataResponse = function(data, textStatus, jqXHR) {
   // remove from active ajax queries list
-  window.requests.remove(jqXHR);
   if(!data || !data.result) {
     console.warn(data);
     return;
@@ -158,7 +130,12 @@ window.cleanUp = function() {
 // removes given entity from map
 window.removeByGuid = function(guid) {
   // portals end in “.11” or “.12“, links in “.9", fields in “.b”
-  // .c == player/creator
+  // .11 == portals
+  // .12 == portals
+  // .9  == links
+  // .b  == fields
+  // .c  == player/creator
+  // .d  == chat messages
   switch(guid.slice(33)) {
     case '11':
     case '12':
@@ -240,7 +217,7 @@ window.renderLink = function(ent) {
 
   poly.on('remove', function() { delete window.links[this.options.guid]; });
   poly.on('add',    function() { window.links[this.options.guid] = this; });
-  poly.addTo(linksLayer);
+  poly.addTo(linksLayer).bringToBack();
 }
 
 // renders a field on the map from a given entity
@@ -264,5 +241,5 @@ window.renderField = function(ent) {
 
   poly.on('remove', function() { delete window.fields[this.options.guid]; });
   poly.on('add',    function() { window.fields[this.options.guid] = this; });
-  poly.addTo(fieldsLayer);
+  poly.addTo(fieldsLayer).bringToBack();
 }

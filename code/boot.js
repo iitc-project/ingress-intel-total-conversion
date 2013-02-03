@@ -24,12 +24,13 @@ window.setupLargeImagePreview = function() {
   });
 }
 
+
 window.setupStyles = function() {
   $('head').append('<style>' +
     [ '#largepreview.res img { border:2px solid '+COLORS[TEAM_RES]+'; } ',
       '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
       '#largepreview.none img { border:2px solid '+COLORS[TEAM_NONE]+'; } ',
-      '#chatcontrols { bottom: '+(CHAT_SHRINKED+4)+'px; }',
+      '#chatcontrols { bottom: '+(CHAT_SHRINKED+24)+'px; }',
       '#chat { height: '+CHAT_SHRINKED+'px; } ',
       '#updatestatus { width:'+(SIDEBAR_WIDTH-2*4)+'px;  } ',
       '#sidebar, #gamestat, #gamestat span, input, ',
@@ -82,21 +83,19 @@ window.setupMap = function() {
   });
 
   // map update status handling
-  map.on('zoomstart', function() { window.mapRunsUserAction = true });
-  map.on('movestart', function() { window.mapRunsUserAction = true });
-  map.on('zoomend', function() { window.mapRunsUserAction = false });
-  map.on('moveend', function() { window.mapRunsUserAction = false });
-
+  map.on('movestart zoomstart', function() { window.mapRunsUserAction = true });
+  map.on('moveend zoomend', function() { window.mapRunsUserAction = false });
 
   // update map hooks
-  map.on('zoomstart', window.requests.abort);
-  map.on('zoomend', function() { window.startRefreshTimeout(500) });
-  map.on('movestart', window.requests.abort );
-  map.on('moveend', function() { window.startRefreshTimeout(500) });
+  map.on('movestart zoomstart', window.requests.abort);
+  map.on('moveend zoomend', function() { window.startRefreshTimeout(500) });
 
   // run once on init
   window.requestData();
   window.startRefreshTimeout();
+
+  window.addResumeFunction(window.requestData);
+  window.requests.addRefreshFunction(window.requestData);
 };
 
 // renders player details into the website. Since the player info is
@@ -151,7 +150,7 @@ function boot() {
   window.setupLargeImagePreview();
   window.updateGameScore();
   window.setupPlayerStat();
-  window.setupChat();
+  window.chat.setup();
   // read here ONCE, so the URL is only evaluated one time after the
   // necessary data has been loaded.
   urlPortal = getURLParam('pguid');
