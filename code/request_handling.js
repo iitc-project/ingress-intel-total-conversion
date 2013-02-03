@@ -22,8 +22,13 @@ window.requests.abort = function() {
   $.each(window.activeRequests, function(ind, actReq) {
     if(actReq) actReq.abort();
   });
+
   window.activeRequests = [];
   window.failedRequestCount = 0;
+  window.chat._requestOldPublicRunning  = false;
+  window.chat._requestNewPublicRunning  = false;
+  window.chat._requestOldFactionRunning  = false;
+  window.chat._requestNewFactionRunning  = false;
 
   renderUpdateStatus();
 }

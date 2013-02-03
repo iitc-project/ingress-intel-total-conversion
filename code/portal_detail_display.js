@@ -4,8 +4,14 @@
 // methods that highlight the portal in the map view.
 
 window.renderPortalDetails = function(guid) {
-  var update = selectPortal(guid);
   var d = portalsDetail[guid];
+  if(!d) {
+    unselectOldPortal();
+    urlPortal = guid;
+    return;
+  }
+
+  var update = selectPortal(guid);
 
   // collect some random data that’s not worth to put in an own method
   var links = {incoming: 0, outgoing: 0};
@@ -105,4 +111,13 @@ window.selectPortal = function(guid) {
     portals[guid].bringToFront().setStyle({color: COLOR_SELECTED_PORTAL});
 
   return update;
+}
+
+
+window.unselectOldPortal = function() {
+  var oldPortal = portals[selectedPortal];
+  if(oldPortal)
+    oldPortal.setStyle({color: oldPortal.options.fillColor});
+  selectedPortal = null;
+  $('#portaldetails').html('');
 }

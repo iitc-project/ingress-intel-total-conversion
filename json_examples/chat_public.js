@@ -2665,3 +2665,114 @@
     ]
   ]
 }
+
+
+
+
+
+
+
+
+
+
+
+
+{
+  "gameBasket": {
+    "deletedEntityGuids": [
+
+    ],
+    "gameEntities": [
+
+    ],
+    "inventory": [
+
+    ]
+  },
+  "result": [
+    [
+      "ca3de97465fb43f2b45ec34ca9cea2de.d",
+      1359702662465,
+      {
+        "plext": {
+          "text": "Your L6 Resonator on Universit\u00e4tazeichen Heidelberg (Im Neuenheimer Feld 330, Campus Im Neunheimer Feld, 69120 Heidelberg, Germany) was destroyed by MohSai1r",
+          "markup": [
+            [
+              "TEXT",
+              {
+                "plain": "Your "
+              }
+            ],
+            [
+              "TEXT",
+              {
+                "plain": "L6"
+              }
+            ],
+            [
+              "TEXT",
+              {
+                "plain": " Resonator on "
+              }
+            ],
+            [
+              "PORTAL",
+              {
+                "name": "Universit\u00e4tazeichen Heidelberg",
+                "plain": "Universit\u00e4tazeichen Heidelberg (Im Neuenheimer Feld 330, Campus Im Neunheimer Feld, 69120 Heidelberg, Germany)",
+                "team": "ALIENS",
+                "latE6": 49418303,
+                "address": "Im Neuenheimer Feld 330, Campus Im Neunheimer Feld, 69120 Heidelberg, Germany",
+                "lngE6": 8669490,
+                "guid": "b6cab1983f5d4795816e0d3ad3af3459.11"
+              }
+            ],
+            [
+              "TEXT",
+              {
+                "plain": " was destroyed by "
+              }
+            ],
+            [
+              "PLAYER",
+              {
+                "plain": "MohSai1r",
+                "guid": "a0c2e839783f4e889ca570e2cd5c7819.c",
+                "team": "RESISTANCE"
+              }
+            ]
+          ],
+          "plextType": "SYSTEM_NARROWCAST",
+          "team": "RESISTANCE"
+        }
+      }
+    ],
+    [
+      "0b511244557349e6ad98a6d9b1332a3d.d",
+      1359915357570,
+      {
+        "plext": {
+          "text": "xn37: x",
+          "markup": [
+            [
+              "SENDER",
+              {
+                "plain": "xn37: ",
+                "guid": "e015c2eecf2c424e82f375774c9e5446.c",
+                "team": "ALIENS"
+              }
+            ],
+            [
+              "TEXT",
+              {
+                "plain": "x"
+              }
+            ]
+          ],
+          "plextType": "PLAYER_GENERATED",
+          "team": "ALIENS"
+        }
+      }
+    ]
+  ]
+}

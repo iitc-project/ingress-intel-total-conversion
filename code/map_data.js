@@ -81,7 +81,9 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
         if(selectedPortal == ent[0]) portalUpdateAvailable = true;
 
         portalsDetail[ent[0]] = ent[2];
-        // immediately render portal details if selected by URL
+        // immediately render portal details if selected by URL.
+        // is also used internally to select a portal that may not have
+        // been loaded yet. See utils_misc#zoomToAndShowPortal.
         if(urlPortal && ent[0] == urlPortal && !selectedPortal) {
           urlPortal = null; // only pre-select it once
           window.renderPortalDetails(ent[0]);

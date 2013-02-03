@@ -52,7 +52,7 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '<div id="chat" style="display:none">'
   + '  <div id="chatfaction"></div>'
   + '  <div id="chatpublic"></div>'
-  + '  <div id="chatbot"></div>'
+  + '  <div id="chatautomated"></div>'
   + '</div>'
   + '<form id="chatinput" style="display:none"><time></time><span>tell faction:</span><input type="text"/></form>'
   + '<div id="sidebar" style="display: none">'
@@ -85,7 +85,7 @@ var SIDEBAR_WIDTH = 300;
 // chat messages are requested for the visible viewport. On high zoom
 // levels this gets pretty pointless, so request messages in at least a
 // X km radius.
-var CHAT_MIN_RANGE = 15;
+var CHAT_MIN_RANGE = 6;
 // this controls how far data is being drawn outside the viewport. Set
 // it 0 to only draw entities that intersect the current view. A value
 // of one will render an area twice the size of the viewport (or some-

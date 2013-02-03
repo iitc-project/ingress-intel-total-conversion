@@ -119,3 +119,9 @@ window.scrollBottom = function(elm) {
   if(typeof elm === 'string') elm = $(elm);
   return elm.get(0).scrollHeight - elm.innerHeight() - elm.scrollTop();
 }
+
+
+window.zoomToAndShowPortal = function(guid, latlng) {
+  renderPortalDetails(guid);
+  map.setView(latlng, 17);
+}
