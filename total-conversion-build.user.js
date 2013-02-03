@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.1-2013-02-03-131520
+// @version        0.1-2013-02-03-141935
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
@@ -82,6 +82,10 @@ var REFRESH_GAME_SCORE = 5*60; // refresh game score every 5 minutes
 var MAX_IDLE_TIME = 4; // stop updating map after 4min idling
 var PRECACHE_PLAYER_NAMES_ZOOM = 17; // zoom level to start pre-resolving player names
 var SIDEBAR_WIDTH = 300;
+// chat messages are requested for the visible viewport. On high zoom
+// levels this gets pretty pointless, so request messages in at least a
+// X km radius.
+var CHAT_MIN_RANGE = 15;
 // this controls how far data is being drawn outside the viewport. Set
 // it 0 to only draw entities that intersect the current view. A value
 // of one will render an area twice the size of the viewport (or some-
@@ -799,6 +803,7 @@ load(JQUERY, LEAFLET).then(LLGMAPS).thenRun(boot);
 window.chat = function() {};
 
 window.chat.getOldestTimestamp = function(public) {
+  if(chat._needsClearing) return -1;
   if(public) {
     var a = $('#chatpublic time:first').data('timestamp');
     var b = $('#chatbot time:first').data('timestamp');
@@ -810,6 +815,7 @@ window.chat.getOldestTimestamp = function(public) {
 }
 
 window.chat.getNewestTimestamp = function(public) {
+  if(chat._needsClearing) return -1;
   if(public) {
     var a = $('#chatpublic time:last').data('timestamp');
     var b = $('#chatbot time:last').data('timestamp');
@@ -820,13 +826,21 @@ window.chat.getNewestTimestamp = function(public) {
   }
 }
 
+window.chat._needsClearing = false;
+window.chat._oldBBox = null;
 window.chat.genPostData = function(public, getOlderMsgs) {
   if(typeof public !== 'boolean') throw('Need to know if public or faction chat.');
 
-  var b = map.getBounds();
+  chat._localRangeCircle.setLatLng(map.getCenter());
+  var b = map.getBounds().extend(chat._localRangeCircle.getBounds());
+
+  var bbs = b.toBBoxString();
+  chat._needsClearing = chat._oldBBox && chat._oldBBox !== bbs;
+  if(chat._needsClearing) console.log('Bounding Box changed, chat will be cleared (old: '+chat._oldBBox+' ; new: '+bbs+' )');
+  chat._oldBBox = bbs;
+
   var ne = b.getNorthEast();
   var sw = b.getSouthWest();
-
   var data = {
     desiredNumItems: 10,
     minLatE6: Math.round(sw.lat*1E6),
@@ -922,7 +936,12 @@ window.chat.handleNewFaction = function(data, textStatus, jqXHR) {
 
 window.chat._displayedFactionGuids = [];
 window.chat.handleFaction = function(data, textStatus, jqXHR, isOldMsgs) {
-  if(!data || !data.result) return console.warn('Couldn’t get chat data. Pausing chat for now.');
+  if(!data || !data.result) {
+    window.failedRequestCount++;
+    return console.warn('Couldn’t get chat data. Waiting for next auto-refresh.');
+  }
+
+  chat.clearIfRequired();
 
   var msgs = '';
   var prevTime = null;
@@ -941,13 +960,19 @@ window.chat.handleFaction = function(data, textStatus, jqXHR, isOldMsgs) {
 
     var nowTime = new Date(time).toLocaleDateString();
     if(prevTime && prevTime !== nowTime)
-      msgs += '<summary>'+nowTime+'</summary>';
+      msgs += chat.renderDivider(nowTime);
 
     msgs += chat.renderMsg(msg, nick, time, team);
-
-
     prevTime = nowTime;
   });
+
+  // if there is a change of day between two requests, handle the
+  // divider insertion here.
+  if(isOldMsgs) {
+    var nextTime = new Date($('#chatfaction time:last').data('timestamp')).toLocaleDateString();
+    if(prevTime && prevTime !== nextTime)
+      msgs += chat.renderDivider(nextTime);
+  }
 
   var c = $('#chatfaction');
   var scrollBefore = scrollBottom(c);
@@ -967,6 +992,19 @@ window.chat.handleFaction = function(data, textStatus, jqXHR, isOldMsgs) {
   }
 
   chat.needMoreMessages();
+}
+
+window.chat.clear = function() {
+  console.log('clearing now');
+  window.chat._displayedFactionGuids = [];
+  window.chat._displayedPublicGuids = [];
+  $('#chatfaction, #chatpublic, #chatbot').data('ignoreNextScroll', true).html('');
+}
+
+window.chat.clearIfRequired = function() {
+  if(!chat._needsClearing) return;
+  chat.clear();
+  chat._needsClearing = false;
 }
 
 window.chat.toggle = function() {
@@ -1013,6 +1051,8 @@ window.chat.setupTime = function() {
 }
 
 window.chat.setup = function() {
+  window.chat._localRangeCircle =  L.circle(map.getCenter(), CHAT_MIN_RANGE*1000);
+
   $('#chatcontrols, #chat, #chatinput').show();
 
   $('#chatcontrols a:first').click(window.chat.toggle);
@@ -1036,7 +1076,6 @@ window.chat.setup = function() {
     if(scrollBottom(t) === 0) chat.requestNewPublic();
   });
 
-
   chat.requestNewFaction();
   window.addResumeFunction(chat.request);
   window.requests.addRefreshFunction(chat.request);
@@ -1049,6 +1088,10 @@ window.chat.renderMsg = function(msg, nick, time, team) {
   var t = '<time title="'+tb+'" data-timestamp="'+time+'">'+ta+'</time>';
   var s = 'style="color:'+COLORS[team]+'"';
   return '<p>'+t+'<mark '+s+'>'+nick+'</mark><span>'+msg+'</span></p>';
+}
+
+window.chat.renderDivider = function(text) {
+  return '<summary>─ '+text+' ────────────────────────────────────────────────────────────────────────────</summary>';
 }
 
 

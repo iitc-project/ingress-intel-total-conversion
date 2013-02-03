@@ -82,6 +82,10 @@ var REFRESH_GAME_SCORE = 5*60; // refresh game score every 5 minutes
 var MAX_IDLE_TIME = 4; // stop updating map after 4min idling
 var PRECACHE_PLAYER_NAMES_ZOOM = 17; // zoom level to start pre-resolving player names
 var SIDEBAR_WIDTH = 300;
+// chat messages are requested for the visible viewport. On high zoom
+// levels this gets pretty pointless, so request messages in at least a
+// X km radius.
+var CHAT_MIN_RANGE = 15;
 // this controls how far data is being drawn outside the viewport. Set
 // it 0 to only draw entities that intersect the current view. A value
 // of one will render an area twice the size of the viewport (or some-
