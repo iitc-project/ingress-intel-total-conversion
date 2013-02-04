@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.2-2013-02-04-151143
+// @version        0.2-2013-02-04-163542
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
@@ -145,7 +145,6 @@ window.portalRangeIndicator = null;
 window.portalAccessIndicator = null;
 window.mapRunsUserAction = false;
 var portalsLayer, linksLayer, fieldsLayer;
-var portalsDetail = {};
 
 // contain references to all entities shown on the map. These are
 // automatically kept in sync with the items on *sLayer, so never ever
@@ -215,11 +214,13 @@ window.requestData = function() {
 window.handleDataResponse = function(data, textStatus, jqXHR) {
   // remove from active ajax queries list
   if(!data || !data.result) {
+    window.failedRequestCount++;
     console.warn(data);
     return;
   }
 
   var portalUpdateAvailable = false;
+  var portalInUrlAvailable = false;
   var m = data.result.map;
   // defer rendering of portals because there is no z-index in SVG.
   // this means that what’s rendered last ends up on top. While the
@@ -239,15 +240,16 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
 
       if(ent[2].turret !== undefined) {
         if(selectedPortal == ent[0]) portalUpdateAvailable = true;
+        if(urlPortal && ent[0] == urlPortal) portalInUrlAvailable = true;
 
-        portalsDetail[ent[0]] = ent[2];
-        // immediately render portal details if selected by URL.
-        // is also used internally to select a portal that may not have
-        // been loaded yet. See utils_misc#zoomToAndShowPortal.
-        if(urlPortal && ent[0] == urlPortal && !selectedPortal) {
-          urlPortal = null; // only pre-select it once
-          window.renderPortalDetails(ent[0]);
-        }
+        var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
+        if(!window.getPaddedBounds().contains(latlng)
+              && selectedPortal != ent[0]
+              && urlPortal != ent[0]
+          ) return;
+
+
+
         ppp.push(ent); // delay portal render
       } else if(ent[2].edge !== undefined)
         renderLink(ent);
@@ -259,8 +261,12 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   });
 
   $.each(ppp, function(ind, portal) { renderPortal(portal); });
-
   if(portals[selectedPortal]) portals[selectedPortal].bringToFront();
+
+  if(portalInUrlAvailable) {
+    renderPortalDetails(urlPortal);
+    urlPortal = null; // select it only once
+  }
 
   if(portalUpdateAvailable) renderPortalDetails(selectedPortal);
   resolvePlayerNames();
@@ -332,7 +338,9 @@ window.renderPortal = function(ent) {
     return;
 
   var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
-  if(!getPaddedBounds().contains(latlng)) return;
+  // needs to be checked before, so the portal isn’t added to the
+  // details list and other places
+  //if(!getPaddedBounds().contains(latlng)) return;
 
   // hide low level portals on low zooms
   var portalLevel = getPortalLevel(ent[2]);
@@ -359,6 +367,7 @@ window.renderPortal = function(ent) {
     fillOpacity: 0.5,
     clickable: true,
     level: portalLevel,
+    details: ent[2],
     guid: ent[0]});
 
   p.on('remove',   function() { delete window.portals[this.options.guid]; });
@@ -468,7 +477,7 @@ window.renderUpdateStatus = function() {
   if(mapRunsUserAction)
     t += 'paused during interaction';
   else if(isIdle())
-    t += 'Idle, not updating.';
+    t += '<span style="color:red">Idle, not updating.</span>';
   else if(window.activeRequests.length > 0)
     t += window.activeRequests.length + ' requests running.';
   else
@@ -1804,7 +1813,7 @@ window.getPosition = function() {
 // methods that highlight the portal in the map view.
 
 window.renderPortalDetails = function(guid) {
-  var d = portalsDetail[guid];
+  var d = window.portals[guid].options.details;
   if(!d) {
     unselectOldPortal();
     urlPortal = guid;
