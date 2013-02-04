@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.2-2013-02-04-142146
+// @version        0.2-2013-02-04-150321
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
@@ -879,26 +879,10 @@ window.chat.getNewestTimestamp = function(public) {
   return chat['_new'+(public ? 'Public' : 'Faction')+'Timestamp'];
 }
 
-window.chat._needsClearing = false;
-window.chat.clear = function() {
-  console.log('clearing now');
-  window.chat._displayedFactionGuids = [];
-  window.chat._displayedPublicGuids = [];
-  window.chat._displayedPlayerActionTime = {};
-  window.chat._oldFactionTimestamp = -1;
-  window.chat._newFactionTimestamp = -1;
-  window.chat._oldPublicTimestamp = -1;
-  window.chat._newPublicTimestamp = -1;
-  $('#chatfaction, #chatpublic, #chatautomated').data('ignoreNextScroll', true).html('');
+window.chat.clearIfRequired = function(elm) {
+  if(!elm.data('needsClearing')) return;
+  elm.data('ignoreNextScroll', true).data('needsClearing', false).html('');
 }
-
-window.chat.clearIfRequired = function() {
-  if(!chat._needsClearing) return;
-  chat.clear();
-  chat._needsClearing = false;
-}
-
-
 
 window.chat._oldBBox = null;
 window.chat.genPostData = function(public, getOlderMsgs) {
@@ -906,10 +890,25 @@ window.chat.genPostData = function(public, getOlderMsgs) {
 
   chat._localRangeCircle.setLatLng(map.getCenter());
   var b = map.getBounds().extend(chat._localRangeCircle.getBounds());
+  var ne = b.getNorthEast();
+  var sw = b.getSouthWest();
 
-  var bbs = b.toBBoxString();
-  chat._needsClearing = chat._needsClearing || chat._oldBBox && chat._oldBBox !== bbs;
-  if(chat._needsClearing) console.log('Bounding Box changed, chat will be cleared (old: '+chat._oldBBox+' ; new: '+bbs+' )');
+  // round bounds in order to ignore rounding errors
+  var bbs = $.map([ne.lat, ne.lng, sw.lat, sw.lng], function(x) { return Math.round(x*1E4) }).join();
+  if(chat._oldBBox && chat._oldBBox !== bbs) {
+    $('#chat > div').data('needsClearing', true);
+    console.log('Bounding Box changed, chat will be cleared (old: '+chat._oldBBox+' ; new: '+bbs+' )');
+    // need to reset these flags now because clearing will only occur
+    // after the request is finished – i.e. there would be one almost
+    // useless request.
+    chat._displayedFactionGuids = [];
+    chat._displayedPublicGuids = [];
+    chat._displayedPlayerActionTime = {};
+    chat._oldFactionTimestamp = -1;
+    chat._newFactionTimestamp = -1;
+    chat._oldPublicTimestamp = -1;
+    chat._newPublicTimestamp = -1;
+  }
   chat._oldBBox = bbs;
 
   var ne = b.getNorthEast();
@@ -1019,15 +1018,14 @@ window.chat.handleFaction = function(data, textStatus, jqXHR, isOldMsgs) {
     return console.warn('faction chat error. Waiting for next auto-refresh.');
   }
 
-  chat.clearIfRequired();
+  var c = $('#chatfaction');
+  chat.clearIfRequired(c);
 
   if(data.result.length === 0) return;
 
   chat._newFactionTimestamp = data.result[0][1];
   chat._oldFactionTimestamp = data.result[data.result.length-1][1];
 
-
-  var c = $('#chatfaction');
   var scrollBefore = scrollBottom(c);
   chat.renderPlayerMsgsTo(true, data, isOldMsgs, chat._displayedFactionGuids);
   chat.keepScrollPosition(c, scrollBefore, isOldMsgs);
@@ -1104,22 +1102,25 @@ window.chat.handlePublic = function(data, textStatus, jqXHR, isOldMsgs) {
     return console.warn('public chat error. Waiting for next auto-refresh.');
   }
 
-  chat.clearIfRequired();
+  var ca = $('#chatautomated');
+  var cp = $('#chatpublic');
+  chat.clearIfRequired(ca);
+  chat.clearIfRequired(cp);
 
   if(data.result.length === 0) return;
 
   chat._newPublicTimestamp = data.result[0][1];
   chat._oldPublicTimestamp = data.result[data.result.length-1][1];
 
-  var c = $('#chatautomated');
-  var scrollBefore = scrollBottom(c);
-  chat.handlePublicAutomated(data);
-  chat.keepScrollPosition(c, scrollBefore, isOldMsgs);
 
-  c = $('#chatpublic');
-  var scrollBefore = scrollBottom(c);
+  var scrollBefore = scrollBottom(ca);
+  chat.handlePublicAutomated(data);
+  chat.keepScrollPosition(ca, scrollBefore, isOldMsgs);
+
+
+  var scrollBefore = scrollBottom(cp);
   chat.renderPlayerMsgsTo(false, data, isOldMsgs, chat._displayedPublicGuids);
-  chat.keepScrollPosition(c, scrollBefore, isOldMsgs);
+  chat.keepScrollPosition(cp, scrollBefore, isOldMsgs);
 
   if(data.result.length >= CHAT_PUBLIC_ITEMS) chat.needMoreMessages();
 }
@@ -1291,7 +1292,7 @@ window.chat.toggle = function() {
     c.removeClass('expand');
     var div = $('#chat > div:visible');
     div.data('ignoreNextScroll', true);
-    div.scrollTop(9999999999999); // scroll to bottom
+    div.scrollTop(99999999); // scroll to bottom
   } else {
     $('#chatcontrols a:first').text('shrink');
     c.addClass('expand');
@@ -1330,25 +1331,34 @@ window.chat.chooser = function(event) {
 
   $('#chat > div').hide();
 
+  var elm;
+
   switch(tt) {
     case 'faction':
       span.css('color', '');
       span.text('tell faction:');
-      $('#chatfaction').show();
+      elm = $('#chatfaction');
       break;
 
     case 'public':
       span.css('cssText', 'color: red !important');
       span.text('tell public:');
-      $('#chatpublic').show();
+      elm = $('#chatpublic');
       break;
 
     case 'automated':
       span.css('cssText', 'color: #bbb !important');
       span.text('tell Jarvis:');
       chat.renderAutomatedMsgsTo();
-      $('#chatautomated').show();
+      elm = $('#chatautomated');
       break;
+  }
+
+  elm.show();
+  if(elm.data('needsScrollTop')) {
+    elm.data('ignoreNextScroll', true);
+    elm.scrollTop(elm.data('needsScrollTop'));
+    elm.data('needsScrollTop', null);
   }
 
   chat.needMoreMessages();
@@ -1362,6 +1372,12 @@ window.chat.keepScrollPosition = function(box, scrollBefore, isOldMsgs) {
   // when old messages are added. New messages added at the bottom don’t
   // change the view and enabling this would make the chat scroll down
   // for every added message, even if the user wants to read old stuff.
+
+  if(box.is(':hidden') && !isOldMsgs) {
+    box.data('needsScrollTop', 99999999);
+    return;
+  }
+
   if(scrollBefore === 0 || isOldMsgs) {
     box.data('ignoreNextScroll', true);
     box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore));
