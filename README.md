@@ -20,7 +20,7 @@ Features
   - separated automated/public/faction
   - only showing the last automated message for each user. Makes a great “where are they now” guide.
 - automatic idle resume
-- portal details actually update themselves
+- portal details get updated while portal is visible on map
 - links to portals made easy (partly works with the vanilla map, too)
 - info porn. Everything with the help cursor has more info hidden in a tooltip.
 - may toggle portals/links/fields
