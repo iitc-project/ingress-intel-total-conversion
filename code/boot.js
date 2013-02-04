@@ -27,7 +27,7 @@ window.setupLargeImagePreview = function() {
 
 window.setupStyles = function() {
   $('head').append('<style>' +
-    [ '#largepreview.res img { border:2px solid '+COLORS[TEAM_RES]+'; } ',
+    [ '#sidebar { margin-right: '+(SIDEBAR_WIDTH+2)+'px } ',
       '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
       '#largepreview.none img { border:2px solid '+COLORS[TEAM_NONE]+'; } ',
       '#chatcontrols { bottom: '+(CHAT_SHRINKED+24)+'px; }',

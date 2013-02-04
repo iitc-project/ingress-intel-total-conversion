@@ -15,7 +15,7 @@ body {
 }
 
 #map {
-  width: calc(100% - 302px);
+  margin-right:302px;
 }
 
 #sidebar {
@@ -127,6 +127,8 @@ a:hover {
   overflow-x:hidden;
   overflow-y:scroll;
   height: calc(100% - 4px);
+  height: -webkit-calc(100% - 4px);
+  height: -moz-calc(100% - 4px);
   padding: 2px;
 }
 
@@ -431,6 +433,7 @@ aside:nth-child(odd) span {
 
 /* update status */
 #updatestatus {
+  background: #000;
   border-bottom: 0;
   border-top: 1px solid #c3c3c3;
   bottom: 0;
