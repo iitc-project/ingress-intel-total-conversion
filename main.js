@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.1-@@BUILDDATE@@
+// @version        0.2-@@BUILDDATE@@
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
@@ -93,6 +93,16 @@ var CHAT_MIN_RANGE = 6;
 // makes the missing data on move/zoom out more obvious. Setting it too
 // high causes too many items to be drawn, making drag&drop sluggish.
 var VIEWPORT_PAD_RATIO = 0.3;
+
+// how many items to request each query
+var CHAT_PUBLIC_ITEMS = 200
+var CHAT_FACTION_ITEMS = 50
+
+// Leaflet will get very slow for MANY items. It’s better to display
+// only some instead of crashing the browser.
+var MAX_DRAWN_PORTALS = 1000;
+var MAX_DRAWN_LINKS = 400;
+var MAX_DRAWN_FIELDS = 200;
 
 
 var COLOR_SELECTED_PORTAL = '#f00';

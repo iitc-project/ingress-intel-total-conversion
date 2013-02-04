@@ -111,8 +111,12 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
 window.cleanUp = function() {
   var cnt = [0,0,0];
   var b = getPaddedBounds();
+  var minlvl = getMinPortalLevel();
   portalsLayer.eachLayer(function(portal) {
-    if(b.contains(portal.getLatLng())) return;
+    // portal must be in bounds and have a high enough level. Also don’t
+    // remove if it is selected.
+    if(portal.options.guid == window.selectedPortal ||
+      (b.contains(portal.getLatLng()) && portal.options.level >= minlvl)) return;
     cnt[0]++;
     portalsLayer.removeLayer(portal);
   });
@@ -154,7 +158,7 @@ window.removeByGuid = function(guid) {
       break;
     default:
       console.warn('unknown GUID type: ' + guid);
-      window.debug.printStackTrace();
+      //window.debug.printStackTrace();
   }
 }
 
@@ -163,8 +167,16 @@ window.removeByGuid = function(guid) {
 // renders a portal on the map from the given entity
 window.renderPortal = function(ent) {
   removeByGuid(ent[0]);
+
+  if(Object.keys(portals).length >= MAX_DRAWN_PORTALS && ent[0] != selectedPortal)
+    return;
+
   var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
   if(!getPaddedBounds().contains(latlng)) return;
+
+  // hide low level portals on low zooms
+  var portalLevel = getPortalLevel(ent[2]);
+  if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal) return;
 
   // pre-load player names for high zoom levels
   if(map.getZoom() >= PRECACHE_PLAYER_NAMES_ZOOM) {
@@ -186,6 +198,7 @@ window.renderPortal = function(ent) {
     fillColor: COLORS[team],
     fillOpacity: 0.5,
     clickable: true,
+    level: portalLevel,
     guid: ent[0]});
 
   p.on('remove',   function() { delete window.portals[this.options.guid]; });
@@ -201,6 +214,8 @@ window.renderPortal = function(ent) {
 // renders a link on the map from the given entity
 window.renderLink = function(ent) {
   removeByGuid(ent[0]);
+  if(Object.keys(links).length >= MAX_DRAWN_LINKS) return;
+
   var team = getTeam(ent[2]);
   var edge = ent[2].edge;
   var latlngs = [
@@ -209,10 +224,11 @@ window.renderLink = function(ent) {
   ];
   var poly = L.polyline(latlngs, {
     color: COLORS[team],
-    opacity: 0.5,
+    opacity: 1,
     weight:2,
     clickable: false,
-    guid: ent[0]
+    guid: ent[0],
+    smoothFactor: 10
   });
 
   if(!getPaddedBounds().intersects(poly.getBounds())) return;
@@ -225,6 +241,8 @@ window.renderLink = function(ent) {
 // renders a field on the map from a given entity
 window.renderField = function(ent) {
   window.removeByGuid(ent[0]);
+  if(Object.keys(fields).length >= MAX_DRAWN_FIELDS) return;
+
   var team = getTeam(ent[2]);
   var reg = ent[2].capturedRegion;
   var latlngs = [
@@ -237,6 +255,7 @@ window.renderField = function(ent) {
     fillOpacity: 0.25,
     stroke: false,
     clickable: false,
+    smoothFactor: 10,
     guid: ent[0]});
 
   if(!getPaddedBounds().intersects(poly.getBounds())) return;

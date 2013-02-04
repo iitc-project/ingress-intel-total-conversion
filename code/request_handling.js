@@ -46,16 +46,18 @@ window.renderUpdateStatus = function() {
   else
     t += 'Up to date.';
 
+  if(renderLimitReached())
+    t += ' <span style="color:red" title="Can only render so much before it gets unbearably slow. Not all entities are shown. Zoom in or increase the limit (search for MAX_DRAWN_*).">RENDER LIMIT</span> '
+
   if(window.failedRequestCount > 0)
     t += ' ' + window.failedRequestCount + ' requests failed.'
 
-  t += '<br/><span title="not removing portals as long as you keep them in view, though">(';
-  var conv = ['impossible', 8,8,7,7,6,6,5,5,4,4,3,3,2,2,1];
-  var z = map.getZoom();
-  if(z >= 16)
-    t += 'requesting all portals';
+  t += '<br/>(';
+  var minlvl = getMinPortalLevel();
+  if(minlvl === 0)
+    t += 'showing all portals';
   else
-    t+= 'only requesting portals with level '+conv[z]+' and up';
+    t+= 'only showing portals with level '+minlvl+' and up';
   t += ')</span>';
 
   $('#updatestatus').html(t);

@@ -1,5 +1,3 @@
-*NOTE: this is a work in progress and not yet finished. *
-
 
 ingress.com/intel total conversion
 ==================================
@@ -7,6 +5,31 @@ ingress.com/intel total conversion
 It’s annoying to extend the intel page with new features because the minified code makes it hard to grasp what’s going on. Also, one has to play catch up each time Ninantic put up a new version because all the variables might get new names.
 
 So instead, here’s a userscript that starts from scratch. 
+
+Features
+--------
+
+- feels faster. (Likely because [leaflet](http://leafletjs.com/) is faster, although there are some other tricks.)
+– full view of portal images
+- better chat
+  - separated automated/public/faction
+  - only showing the last automated message for each user. Makes a great “where are they now” guide.
+- automatic idle resume
+- portal details actually update themselves
+- links to portals made easy (the location/zoom part is supported by the normal intel map as well, so there’s *some* backwards compability)
+- info porn. Everything with the help cursor has more info hidden in a tooltip.
+- may toggle portals/links/fields
+- hack range (yellow circle) and link range (large red circle) for portals. You can click on the range link in the sidebar to zoom to link range.
+- double clicking a portal zooms in and focuses it
+
+
+Missing
+-------
+
+(and probably not going to implement it)
+
+- logout link (but you wouldn’t want to *quit*, would you?), privacy link, etc.
+- redeem pretty display
 
 
 Install

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.1-2013-02-03-194418
+// @version        0.2-2013-02-04-025217
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
@@ -93,6 +93,16 @@ var CHAT_MIN_RANGE = 6;
 // makes the missing data on move/zoom out more obvious. Setting it too
 // high causes too many items to be drawn, making drag&drop sluggish.
 var VIEWPORT_PAD_RATIO = 0.3;
+
+// how many items to request each query
+var CHAT_PUBLIC_ITEMS = 200
+var CHAT_FACTION_ITEMS = 50
+
+// Leaflet will get very slow for MANY items. It’s better to display
+// only some instead of crashing the browser.
+var MAX_DRAWN_PORTALS = 1000;
+var MAX_DRAWN_LINKS = 400;
+var MAX_DRAWN_FIELDS = 200;
 
 
 var COLOR_SELECTED_PORTAL = '#f00';
@@ -261,8 +271,12 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
 window.cleanUp = function() {
   var cnt = [0,0,0];
   var b = getPaddedBounds();
+  var minlvl = getMinPortalLevel();
   portalsLayer.eachLayer(function(portal) {
-    if(b.contains(portal.getLatLng())) return;
+    // portal must be in bounds and have a high enough level. Also don’t
+    // remove if it is selected.
+    if(portal.options.guid == window.selectedPortal ||
+      (b.contains(portal.getLatLng()) && portal.options.level >= minlvl)) return;
     cnt[0]++;
     portalsLayer.removeLayer(portal);
   });
@@ -304,7 +318,7 @@ window.removeByGuid = function(guid) {
       break;
     default:
       console.warn('unknown GUID type: ' + guid);
-      window.debug.printStackTrace();
+      //window.debug.printStackTrace();
   }
 }
 
@@ -313,8 +327,16 @@ window.removeByGuid = function(guid) {
 // renders a portal on the map from the given entity
 window.renderPortal = function(ent) {
   removeByGuid(ent[0]);
+
+  if(Object.keys(portals).length >= MAX_DRAWN_PORTALS && ent[0] != selectedPortal)
+    return;
+
   var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
   if(!getPaddedBounds().contains(latlng)) return;
+
+  // hide low level portals on low zooms
+  var portalLevel = getPortalLevel(ent[2]);
+  if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal) return;
 
   // pre-load player names for high zoom levels
   if(map.getZoom() >= PRECACHE_PLAYER_NAMES_ZOOM) {
@@ -336,6 +358,7 @@ window.renderPortal = function(ent) {
     fillColor: COLORS[team],
     fillOpacity: 0.5,
     clickable: true,
+    level: portalLevel,
     guid: ent[0]});
 
   p.on('remove',   function() { delete window.portals[this.options.guid]; });
@@ -351,6 +374,8 @@ window.renderPortal = function(ent) {
 // renders a link on the map from the given entity
 window.renderLink = function(ent) {
   removeByGuid(ent[0]);
+  if(Object.keys(links).length >= MAX_DRAWN_LINKS) return;
+
   var team = getTeam(ent[2]);
   var edge = ent[2].edge;
   var latlngs = [
@@ -359,10 +384,11 @@ window.renderLink = function(ent) {
   ];
   var poly = L.polyline(latlngs, {
     color: COLORS[team],
-    opacity: 0.5,
+    opacity: 1,
     weight:2,
     clickable: false,
-    guid: ent[0]
+    guid: ent[0],
+    smoothFactor: 10
   });
 
   if(!getPaddedBounds().intersects(poly.getBounds())) return;
@@ -375,6 +401,8 @@ window.renderLink = function(ent) {
 // renders a field on the map from a given entity
 window.renderField = function(ent) {
   window.removeByGuid(ent[0]);
+  if(Object.keys(fields).length >= MAX_DRAWN_FIELDS) return;
+
   var team = getTeam(ent[2]);
   var reg = ent[2].capturedRegion;
   var latlngs = [
@@ -387,6 +415,7 @@ window.renderField = function(ent) {
     fillOpacity: 0.25,
     stroke: false,
     clickable: false,
+    smoothFactor: 10,
     guid: ent[0]});
 
   if(!getPaddedBounds().intersects(poly.getBounds())) return;
@@ -445,16 +474,18 @@ window.renderUpdateStatus = function() {
   else
     t += 'Up to date.';
 
+  if(renderLimitReached())
+    t += ' <span style="color:red" title="Can only render so much before it gets unbearably slow. Not all entities are shown. Zoom in or increase the limit (search for MAX_DRAWN_*).">RENDER LIMIT</span> '
+
   if(window.failedRequestCount > 0)
     t += ' ' + window.failedRequestCount + ' requests failed.'
 
-  t += '<br/><span title="not removing portals as long as you keep them in view, though">(';
-  var conv = ['impossible', 8,8,7,7,6,6,5,5,4,4,3,3,2,2,1];
-  var z = map.getZoom();
-  if(z >= 16)
-    t += 'requesting all portals';
+  t += '<br/>(';
+  var minlvl = getMinPortalLevel();
+  if(minlvl === 0)
+    t += 'showing all portals';
   else
-    t+= 'only requesting portals with level '+conv[z]+' and up';
+    t+= 'only showing portals with level '+minlvl+' and up';
   t += ')</span>';
 
   $('#updatestatus').html(t);
@@ -616,9 +647,24 @@ window.getPaddedBounds = function() {
     });
   }
   if(window._storedPaddedBounds) return window._storedPaddedBounds;
+
   var p = window.map.getBounds().pad(VIEWPORT_PAD_RATIO);
   window._storedPaddedBounds = p;
   return p;
+}
+
+window.renderLimitReached = function() {
+  if(Object.keys(portals).length >= MAX_DRAWN_PORTALS) return true;
+  if(Object.keys(links).length >= MAX_DRAWN_LINKS) return true;
+  if(Object.keys(fields).length >= MAX_DRAWN_FIELDS) return true;
+  return false;
+}
+
+window.getMinPortalLevel = function() {
+  var z = map.getZoom();
+  if(z >= 16) return 0;
+  var conv = ['impossible', 8,7,7,6,6,5,5,4,4,3,3,2,2,1,1];
+  return conv[z];
 }
 
 
@@ -815,6 +861,10 @@ load(JQUERY, LEAFLET).then(LLGMAPS).thenRun(boot);
 
 window.chat = function() {};
 
+//
+// timestamp and clear management
+//
+
 window.chat._oldFactionTimestamp = -1;
 window.chat._newFactionTimestamp = -1;
 window.chat._oldPublicTimestamp = -1;
@@ -828,8 +878,27 @@ window.chat.getNewestTimestamp = function(public) {
   return chat['_new'+(public ? 'Public' : 'Faction')+'Timestamp'];
 }
 
-
 window.chat._needsClearing = false;
+window.chat.clear = function() {
+  console.log('clearing now');
+  window.chat._displayedFactionGuids = [];
+  window.chat._displayedPublicGuids = [];
+  window.chat._displayedPlayerActionTime = {};
+  window.chat._oldFactionTimestamp = -1;
+  window.chat._newFactionTimestamp = -1;
+  window.chat._oldPublicTimestamp = -1;
+  window.chat._newPublicTimestamp = -1;
+  $('#chatfaction, #chatpublic, #chatautomated').data('ignoreNextScroll', true).html('');
+}
+
+window.chat.clearIfRequired = function() {
+  if(!chat._needsClearing) return;
+  chat.clear();
+  chat._needsClearing = false;
+}
+
+
+
 window.chat._oldBBox = null;
 window.chat.genPostData = function(public, getOlderMsgs) {
   if(typeof public !== 'boolean') throw('Need to know if public or faction chat.');
@@ -838,14 +907,14 @@ window.chat.genPostData = function(public, getOlderMsgs) {
   var b = map.getBounds().extend(chat._localRangeCircle.getBounds());
 
   var bbs = b.toBBoxString();
-  chat._needsClearing = chat._oldBBox && chat._oldBBox !== bbs;
+  chat._needsClearing = chat._needsClearing || chat._oldBBox && chat._oldBBox !== bbs;
   if(chat._needsClearing) console.log('Bounding Box changed, chat will be cleared (old: '+chat._oldBBox+' ; new: '+bbs+' )');
   chat._oldBBox = bbs;
 
   var ne = b.getNorthEast();
   var sw = b.getSouthWest();
   var data = {
-    desiredNumItems: public ? 100 : 50, // public contains so much crap
+    desiredNumItems: public ? CHAT_PUBLIC_ITEMS : CHAT_FACTION_ITEMS,
     minLatE6: Math.round(sw.lat*1E6),
     minLngE6: Math.round(sw.lng*1E6),
     maxLatE6: Math.round(ne.lat*1E6),
@@ -880,6 +949,8 @@ window.chat.genPostData = function(public, getOlderMsgs) {
   }
   return data;
 }
+
+
 
 //
 // requesting faction
@@ -923,6 +994,7 @@ window.chat.requestNewFaction = function(isRetry) {
   requests.add(r);
 }
 
+
 //
 // handle faction
 //
@@ -937,6 +1009,8 @@ window.chat.handleNewFaction = function(data, textStatus, jqXHR) {
   chat.handleFaction(data, textStatus, jqXHR, false);
 }
 
+
+
 window.chat._displayedFactionGuids = [];
 window.chat.handleFaction = function(data, textStatus, jqXHR, isOldMsgs) {
   if(!data || !data.result) {
@@ -944,53 +1018,23 @@ window.chat.handleFaction = function(data, textStatus, jqXHR, isOldMsgs) {
     return console.warn('faction chat error. Waiting for next auto-refresh.');
   }
 
+  chat.clearIfRequired();
+
+  if(data.result.length === 0) return;
+
   chat._newFactionTimestamp = data.result[0][1];
   chat._oldFactionTimestamp = data.result[data.result.length-1][1];
 
-  chat.clearIfRequired();
-
-  var msgs = '';
-  var prevTime = null;
-  $.each(data.result.reverse(), function(ind, json) { // oldest first!
-    // avoid duplicates
-    if(window.chat._displayedFactionGuids.indexOf(json[0]) !== -1) return;
-    window.chat._displayedFactionGuids.push(json[0]);
-
-    var time = json[1];
-    var msg = json[2].plext.markup[2][1].plain;
-    var team = json[2].plext.team === 'ALIENS' ? TEAM_ENL : TEAM_RES;
-    var nick = json[2].plext.markup[1][1].plain.slice(0, -2); // cut “: ” at end
-    var pguid = json[2].plext.markup[1][1].guid;
-    window.setPlayerName(pguid, nick); // free nick name resolves
-
-
-    var nowTime = new Date(time).toLocaleDateString();
-    if(prevTime && prevTime !== nowTime)
-      msgs += chat.renderDivider(nowTime);
-
-    msgs += chat.renderMsg(msg, nick, time, team);
-    prevTime = nowTime;
-  });
-
-  // if there is a change of day between two requests, handle the
-  // divider insertion here.
-  if(isOldMsgs) {
-    var ts = $('#chatfaction time:first').data('timestamp');
-    var nextTime = new Date(ts).toLocaleDateString();
-    if(prevTime && prevTime !== nextTime && ts)
-      msgs += chat.renderDivider(nextTime);
-  }
 
   var c = $('#chatfaction');
   var scrollBefore = scrollBottom(c);
-  if(isOldMsgs)
-    c.prepend(msgs);
-  else
-    c.append(msgs);
-
+  chat.renderPlayerMsgsTo(true, data, isOldMsgs, chat._displayedFactionGuids);
   chat.keepScrollPosition(c, scrollBefore, isOldMsgs);
-  chat.needMoreMessages();
+
+  if(data.result.length >= CHAT_FACTION_ITEMS) chat.needMoreMessages();
 }
+
+
 
 
 //
@@ -1059,23 +1103,25 @@ window.chat.handlePublic = function(data, textStatus, jqXHR, isOldMsgs) {
     return console.warn('public chat error. Waiting for next auto-refresh.');
   }
 
+  chat.clearIfRequired();
+
+  if(data.result.length === 0) return;
+
   chat._newPublicTimestamp = data.result[0][1];
   chat._oldPublicTimestamp = data.result[data.result.length-1][1];
 
-  chat.clearIfRequired();
-
-  var c = $('#chat > div:visible');
+  var c = $('#chatautomated');
   var scrollBefore = scrollBottom(c);
-
   chat.handlePublicAutomated(data);
-  //chat.handlePublicPlayer(data, isOldMsgs);
-
   chat.keepScrollPosition(c, scrollBefore, isOldMsgs);
-  chat.needMoreMessages();
+
+  c = $('#chatpublic');
+  var scrollBefore = scrollBottom(c);
+  chat.renderPlayerMsgsTo(false, data, isOldMsgs, chat._displayedPublicGuids);
+  chat.keepScrollPosition(c, scrollBefore, isOldMsgs);
+
+  if(data.result.length >= CHAT_PUBLIC_ITEMS) chat.needMoreMessages();
 }
-
-
-
 
 
 window.chat.handlePublicAutomated = function(data) {
@@ -1125,14 +1171,10 @@ window.chat.handlePublicAutomated = function(data) {
  });
 
   if(chat.getActive() === 'automated')
-    window.chat.renderAutomatedMsgsToBox();
+    window.chat.renderAutomatedMsgsTo();
 }
 
-window.chat.getActive = function() {
-  return $('#chatcontrols .active').text();
-}
-
-window.chat.renderAutomatedMsgsToBox = function() {
+window.chat.renderAutomatedMsgsTo = function() {
   var x = window.chat._displayedPlayerActionTime;
   // we don’t care about the GUIDs anymore
   var vals = $.map(x, function(v, k) { return [v]; });
@@ -1157,23 +1199,88 @@ window.chat.renderAutomatedMsgsToBox = function() {
 
 
 
-window.chat.clear = function() {
-  console.log('clearing now');
-  window.chat._displayedFactionGuids = [];
-  window.chat._displayedPublicGuids = [];
-  window.chat._displayedPlayerActionTime = {};
-  window.chat._oldFactionTimestamp = -1;
-  window.chat._newFactionTimestamp = -1;
-  window.chat._oldPublicTimestamp = -1;
-  window.chat._newPublicTimestamp = -1;
-  $('#chatfaction, #chatpublic, #chatautomated').data('ignoreNextScroll', true).html('');
+//
+// common
+//
+
+
+window.chat.renderPlayerMsgsTo = function(isFaction, data, isOldMsgs, dupCheckArr) {
+  var msgs = '';
+  var prevTime = null;
+
+  $.each(data.result.reverse(), function(ind, json) { // oldest first!
+    if(json[2].plext.plextType !== 'PLAYER_GENERATED') return true;
+
+    // avoid duplicates
+    if(dupCheckArr.indexOf(json[0]) !== -1) return true;
+    dupCheckArr.push(json[0]);
+
+    var time = json[1];
+    var team = json[2].plext.team === 'ALIENS' ? TEAM_ENL : TEAM_RES;
+    var msg, nick, pguid;
+    $.each(json[2].plext.markup, function(ind, markup) {
+      if(markup[0] === 'SENDER') {
+        nick = markup[1].plain.slice(0, -2); // cut “: ” at end
+        pguid = markup[1].guid;
+        window.setPlayerName(pguid, nick); // free nick name resolves
+      }
+
+      if(markup[0] === 'TEXT') msg = markup[1].plain;
+
+      if(!isFaction && markup[0] === 'SECURE') {
+        nick = null;
+        return false; // aka break
+      }
+    });
+
+    if(!nick) return true; // aka next
+
+    var nowTime = new Date(time).toLocaleDateString();
+    if(prevTime && prevTime !== nowTime)
+      msgs += chat.renderDivider(nowTime);
+
+    msgs += chat.renderMsg(msg, nick, time, team);
+    prevTime = nowTime;
+  });
+
+  var addTo = isFaction ? $('#chatfaction') : $('#chatpublic');
+
+  // if there is a change of day between two requests, handle the
+  // divider insertion here.
+  if(isOldMsgs) {
+    var ts = addTo.find('time:first').data('timestamp');
+    var nextTime = new Date(ts).toLocaleDateString();
+    if(prevTime && prevTime !== nextTime && ts)
+      msgs += chat.renderDivider(nextTime);
+  }
+
+  if(isOldMsgs)
+    addTo.prepend(msgs);
+  else
+    addTo.append(msgs);
 }
 
-window.chat.clearIfRequired = function() {
-  if(!chat._needsClearing) return;
-  chat.clear();
-  chat._needsClearing = false;
+
+window.chat.renderDivider = function(text) {
+  return '<summary>─ '+text+' ────────────────────────────────────────────────────────────────────────────</summary>';
 }
+
+
+window.chat.renderMsg = function(msg, nick, time, team) {
+  var ta = unixTimeToHHmm(time);
+  var tb = unixTimeToString(time, true);
+  var t = '<time title="'+tb+'" data-timestamp="'+time+'">'+ta+'</time>';
+  var s = 'style="color:'+COLORS[team]+'"';
+  var title = nick.length >= 8 ? 'title="'+nick+'"' : '';
+  return '<p>'+t+'<mark '+s+'>'+nick+'</mark><span>'+msg+'</span></p>';
+}
+
+
+
+window.chat.getActive = function() {
+  return $('#chatcontrols .active').text();
+}
+
 
 window.chat.toggle = function() {
   var c = $('#chat, #chatcontrols');
@@ -1190,11 +1297,13 @@ window.chat.toggle = function() {
   }
 }
 
+
 window.chat.request = function() {
   console.log('refreshing chat');
   chat.requestNewFaction();
   chat.requestNewPublic();
 }
+
 
 // checks if there are enough messages in the selected chat tab and
 // loads more if not.
@@ -1208,18 +1317,61 @@ window.chat.needMoreMessages = function() {
     chat.requestOldPublic();
 }
 
-window.chat.setupTime = function() {
-  var inputTime = $('#chatinput time');
-  var updateTime = function() {
-    if(window.isIdle()) return;
-    var d = new Date();
-    inputTime.text(d.toLocaleTimeString().slice(0, 5));
-    // update ON the minute (1ms after)
-    setTimeout(updateTime, (60 - d.getSeconds()) * 1000 + 1);
-  };
-  updateTime();
-  window.addResumeFunction(updateTime);
+
+window.chat.chooser = function(event) {
+  var t = $(event.target);
+  var tt = t.text();
+  var span = $('#chatinput span');
+
+  $('#chatcontrols .active').removeClass('active');
+  t.addClass('active');
+
+  $('#chat > div').hide();
+
+  switch(tt) {
+    case 'faction':
+      span.css('color', '');
+      span.text('tell faction:');
+      $('#chatfaction').show();
+      break;
+
+    case 'public':
+      span.css('cssText', 'color: red !important');
+      span.text('tell public:');
+      $('#chatpublic').show();
+      break;
+
+    case 'automated':
+      span.css('cssText', 'color: #bbb !important');
+      span.text('tell Jarvis:');
+      chat.renderAutomatedMsgsTo();
+      $('#chatautomated').show();
+      break;
+  }
+
+  chat.needMoreMessages();
 }
+
+
+// contains the logic to keep the correct scroll position.
+window.chat.keepScrollPosition = function(box, scrollBefore, isOldMsgs) {
+  // If scrolled down completely, keep it that way so new messages can
+  // be seen easily. If scrolled up, only need to fix scroll position
+  // when old messages are added. New messages added at the bottom don’t
+  // change the view and enabling this would make the chat scroll down
+  // for every added message, even if the user wants to read old stuff.
+  if(scrollBefore === 0 || isOldMsgs) {
+    box.data('ignoreNextScroll', true);
+    box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore));
+  }
+}
+
+
+
+
+//
+// setup
+//
 
 window.chat.setup = function() {
   window.chat._localRangeCircle =  L.circle(map.getCenter(), CHAT_MIN_RANGE*1000);
@@ -1235,6 +1387,7 @@ window.chat.setup = function() {
   });
 
   window.chat.setupTime();
+  window.chat.setupPosting();
 
   $('#chatfaction').scroll(function() {
     var t = $(this);
@@ -1259,63 +1412,63 @@ window.chat.setup = function() {
 }
 
 
-window.chat.renderMsg = function(msg, nick, time, team) {
-  var ta = unixTimeToHHmm(time);
-  var tb = unixTimeToString(time, true);
-  var t = '<time title="'+tb+'" data-timestamp="'+time+'">'+ta+'</time>';
-  var s = 'style="color:'+COLORS[team]+'"';
-  var title = nick.length >= 8 ? 'title="'+nick+'"' : '';
-  return '<p>'+t+'<mark '+s+'>'+nick+'</mark><span>'+msg+'</span></p>';
-}
-
-window.chat.renderDivider = function(text) {
-  return '<summary>─ '+text+' ────────────────────────────────────────────────────────────────────────────</summary>';
-}
-
-window.chat.chooser = function(event) {
-  var t = $(event.target);
-  var tt = t.text();
-  var span = $('#chatinput span');
-
-  $('#chatcontrols .active').removeClass('active');
-  t.addClass('active');
-
-  $('#chat > div').hide();
-
-  switch(tt) {
-    case 'faction':
-      span.css('color', '');
-      span.text('tell faction:');
-      $('#chatfaction').show();
-      break;
-
-    case 'public':
-      span.css('cssText', 'color: red !important');
-      span.text('spam public:');
-      $('#chatpublic').show();
-      break;
-
-    case 'automated':
-      span.css('cssText', 'color: #bbb !important');
-      span.text('tell Jarvis:');
-      chat.renderAutomatedMsgsToBox();
-      $('#chatautomated').show();
-      break;
-  }
+window.chat.setupTime = function() {
+  var inputTime = $('#chatinput time');
+  var updateTime = function() {
+    if(window.isIdle()) return;
+    var d = new Date();
+    inputTime.text(d.toLocaleTimeString().slice(0, 5));
+    // update ON the minute (1ms after)
+    setTimeout(updateTime, (60 - d.getSeconds()) * 1000 + 1);
+  };
+  updateTime();
+  window.addResumeFunction(updateTime);
 }
 
 
-// contains the logic to keep the correct scroll position.
-window.chat.keepScrollPosition = function(box, scrollBefore, isOldMsgs) {
-  // If scrolled down completely, keep it that way so new messages can
-  // be seen easily. If scrolled up, only need to fix scroll position
-  // when old messages are added. New messages added at the bottom don’t
-  // change the view and enabling this would make the chat scroll down
-  // for every added message, even if the user wants to read old stuff.
-  if(scrollBefore === 0 || isOldMsgs) {
-    box.data('ignoreNextScroll', true);
-    box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore));
-  }
+//
+// posting
+//
+
+
+window.chat.setupPosting = function() {
+  $('#chatinput input').keypress(function(e) {
+    if((e.keyCode ? e.keyCode : e.which) != 13) return;
+    chat.postMsg();
+    e.preventDefault();
+  });
+
+  $('#chatinput').submit(function(e) {
+    chat.postMsg();
+    e.preventDefault();
+  });
+}
+
+
+window.chat.postMsg = function() {
+  var c = chat.getActive();
+  if(c === 'automated') return alert('Jarvis: A strange game. The only winning move is not to play. How about a nice game of chess?');
+
+  var msg = $.trim($('#chatinput input').val());
+  if(!msg || msg === '') return;
+
+  var public = c === 'public';
+  var latlng = map.getCenter();
+
+  var data = {message: msg,
+              latE6: Math.round(latlng.lat*1E6),
+              lngE6: Math.round(latlng.lng*1E6),
+              factionOnly: !public};
+
+  window.postAjax('sendPlext', data,
+    function() { if(public) chat.requestNewPublic(); else chat.requestNewFaction(); },
+    function() {
+      alert('Your message could not be delivered. You can copy&' +
+            'paste it here and try again if you want:\n\n'+msg);
+    }
+  );
+
+  $('#chatinput input').val('');
 }
 
 
@@ -1563,7 +1716,7 @@ window.getTeam = function(details) {
 window.idleTime = 0; // in minutes
 
 setInterval('window.idleTime += 1', 60*1000);
-var idleReset = function (e) {
+var idleReset = function () {
   // update immediately when the user comes back
   if(isIdle()) {
     window.idleTime = 0;
@@ -1659,11 +1812,11 @@ window.renderPortalDetails = function(guid) {
 
   // collect and html-ify random data
   var randDetails = [playerText, sinceText, getRangeText(d), getEnergyText(d), linksText, getAvgResoDistText(d)];
-  randDetails = randDetails.map(function(e) {
-    if(!e) return '';
-    e = e.split(':');
-    e = '<aside>'+e.shift()+'<span>'+e.join(':')+'</span></aside>';
-    return e;
+  randDetails = randDetails.map(function(detail) {
+    if(!detail) return '';
+    detail = detail.split(':');
+    detail = '<aside>'+detail.shift()+'<span>'+detail.join(':')+'</span></aside>';
+    return detail;
   }).join('\n');
 
   // replacing causes flicker, so if the selected portal does not

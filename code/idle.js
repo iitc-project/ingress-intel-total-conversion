@@ -3,7 +3,7 @@
 window.idleTime = 0; // in minutes
 
 setInterval('window.idleTime += 1', 60*1000);
-var idleReset = function (e) {
+var idleReset = function () {
   // update immediately when the user comes back
   if(isIdle()) {
     window.idleTime = 0;

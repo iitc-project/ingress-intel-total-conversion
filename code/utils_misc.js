@@ -107,9 +107,24 @@ window.getPaddedBounds = function() {
     });
   }
   if(window._storedPaddedBounds) return window._storedPaddedBounds;
+
   var p = window.map.getBounds().pad(VIEWPORT_PAD_RATIO);
   window._storedPaddedBounds = p;
   return p;
+}
+
+window.renderLimitReached = function() {
+  if(Object.keys(portals).length >= MAX_DRAWN_PORTALS) return true;
+  if(Object.keys(links).length >= MAX_DRAWN_LINKS) return true;
+  if(Object.keys(fields).length >= MAX_DRAWN_FIELDS) return true;
+  return false;
+}
+
+window.getMinPortalLevel = function() {
+  var z = map.getZoom();
+  if(z >= 16) return 0;
+  var conv = ['impossible', 8,7,7,6,6,5,5,4,4,3,3,2,2,1,1];
+  return conv[z];
 }
 
 

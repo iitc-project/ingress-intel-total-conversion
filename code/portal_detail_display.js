@@ -30,11 +30,11 @@ window.renderPortalDetails = function(guid) {
 
   // collect and html-ify random data
   var randDetails = [playerText, sinceText, getRangeText(d), getEnergyText(d), linksText, getAvgResoDistText(d)];
-  randDetails = randDetails.map(function(e) {
-    if(!e) return '';
-    e = e.split(':');
-    e = '<aside>'+e.shift()+'<span>'+e.join(':')+'</span></aside>';
-    return e;
+  randDetails = randDetails.map(function(detail) {
+    if(!detail) return '';
+    detail = detail.split(':');
+    detail = '<aside>'+detail.shift()+'<span>'+detail.join(':')+'</span></aside>';
+    return detail;
   }).join('\n');
 
   // replacing causes flicker, so if the selected portal does not
