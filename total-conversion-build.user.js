@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.2-2013-02-04-150429
+// @version        0.2-2013-02-04-151143
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
@@ -58,7 +58,7 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '<div id="sidebar" style="display: none">'
   + '  <div id="playerstat">t</div>'
   + '  <div id="gamestat">&nbsp;loading global control stats</div>'
-  + '  <input id="geosearch" placeholder="Search location…" type="search"/>'
+  + '  <input id="geosearch" placeholder="Search location…" type="text"/>'
   + '  <div id="portaldetails"></div>'
   + '  <input id="redeem" placeholder="Redeem code…" type="text"/>'
   + '  <div id="updatestatus"></div>'
