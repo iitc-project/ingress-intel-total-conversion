@@ -14,6 +14,7 @@ window.updateGameScore = function(data) {
   var rs = '<span class="res" style="width:'+rp+'%;">'+Math.round(rp)+'%&nbsp;</span>';
   var es = '<span class="enl" style="width:'+ep+'%;">&nbsp;'+Math.round(ep)+'%</span>';
   $('#gamestat').html(rs+es).one('click', function() { window.updateGameScore() });
+  // help cursor via “#gamestat span”
   $('#gamestat').attr('title', 'Resistance:\t\t'+r+' MindUnits\nEnlightenment:\t'+e+' MindUnits');
 
   window.setTimeout('window.updateGameScore', REFRESH_GAME_SCORE*1000);

@@ -59,6 +59,7 @@ window.renderPortalDetails = function(guid) {
       .attr('class', TEAM_TO_CSS[getTeam(d)])
       .html(''
         + '<h3>'+d.portalV2.descriptiveText.TITLE+'</h3>'
+        // help cursor via “.imgpreview img”
         + '<div class="imgpreview"><img src="'+img+'" title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."/></div>'
         + '<span id="level">'+Math.floor(getPortalLevel(d))+'</span>'
         + '<div class="mods">'+getModDetails(d)+'</div>'

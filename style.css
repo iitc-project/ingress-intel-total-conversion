@@ -1,10 +1,4 @@
 /* general rules ******************************************************/
-* {
-  border: 0;
-  font-family: "coda",arial,helvetica,sans-serif;
-  margin: 0;
-  padding: 0;
-}
 
 html, body, #map {
   height: 100%;
@@ -12,6 +6,8 @@ html, body, #map {
 
 body {
   font-size: 14px;
+  font-family: "coda",arial,helvetica,sans-serif;
+  margin: 0;
 }
 
 #map {
@@ -50,18 +46,14 @@ a:hover {
   text-decoration: underline;
 }
 
-[title] {
-  cursor: help;
-}
-
-[title=""] {
-  cursor: auto !important;
-}
-
 /* map display, required because GMaps uses a high z-index which is
  * normally above Leaflet’s vector pane */
 .leaflet-map-pane {
   z-index: 1000;
+}
+
+.help {
+  cursor: help;
 }
 
 /* chat ***************************************************************/
@@ -133,17 +125,14 @@ a:hover {
   position:relative;
 }
 
-/* make text stick to the bottom */
-#chat > div > div {
-  position: absolute;
-  bottom:0;
-  left:2px;
-}
-
-
 #chat p {
   display: block;
   padding: 1px 2px;
+  margin:0;
+}
+
+#chat time {
+  cursor: help;
 }
 
 time, mark, #chat span, #chat a {
@@ -231,6 +220,8 @@ h2 {
   color: #ffce00;
   font-size: 21px;
   padding: 0 4px;
+  margin: 0;
+  cursor:help;
 }
 
 h2 span {
@@ -265,6 +256,7 @@ h2 sup, h2 sub {
   display: block;
   float: left;
   font-weight: bold;
+  cursor:help;
 }
 
 #gamestat .res {
@@ -285,6 +277,8 @@ input {
   line-height: 22px;
   padding: 0 4px;
   font-size: 14px;
+  border:0;
+  font-family:inherit;
 }
 
 ::-webkit-input-placeholder {
@@ -304,11 +298,16 @@ input {
 h3 {
   font-size: 17px;
   padding: 0 4px;
+  margin:0;
 }
 
 .imgpreview {
   height: 200px;
   overflow: hidden;
+}
+
+.imgpreview img {
+  cursor: help;
 }
 
 #level {
@@ -334,6 +333,11 @@ h3 {
   padding: 2px;
   text-align: center;
   width: 63.7px;
+  cursor:help;
+}
+
+.mods span[title=""] {
+  cursor: auto;
 }
 
 .res .mods span, .res .meter {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.2-2013-02-04-025253
+// @version        0.2-2013-02-04-142146
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
@@ -40,7 +40,8 @@ for(var i = 0; i < d.length; i++) {
 // security context so we can access the API easily. Setup as much as
 // possible without requiring scripts.
 document.getElementsByTagName('head')[0].innerHTML = ''
-  + '<link rel="stylesheet" type="text/css" href="http://breunigs.github.com/ingress-intel-total-conversion/style.css"/>'
+  //~ + '<link rel="stylesheet" type="text/css" href="http://breunigs.github.com/ingress-intel-total-conversion/style.css"/>'
+  + '<link rel="stylesheet" type="text/css" href="http://0.0.0.0:8000/style.css"/>'
   + '<link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.css"/>'
   + '<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Coda"/>';
 
@@ -475,7 +476,7 @@ window.renderUpdateStatus = function() {
     t += 'Up to date.';
 
   if(renderLimitReached())
-    t += ' <span style="color:red" title="Can only render so much before it gets unbearably slow. Not all entities are shown. Zoom in or increase the limit (search for MAX_DRAWN_*).">RENDER LIMIT</span> '
+    t += ' <span style="color:red" class="help" title="Can only render so much before it gets unbearably slow. Not all entities are shown. Zoom in or increase the limit (search for MAX_DRAWN_*).">RENDER LIMIT</span> '
 
   if(window.failedRequestCount > 0)
     t += ' ' + window.failedRequestCount + ' requests failed.'
@@ -711,7 +712,7 @@ window.setupLargeImagePreview = function() {
 
 window.setupStyles = function() {
   $('head').append('<style>' +
-    [ '#largepreview.res img { border:2px solid '+COLORS[TEAM_RES]+'; } ',
+    [ '#map { margin-right: '+(SIDEBAR_WIDTH+2)+'px } ',
       '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
       '#largepreview.none img { border:2px solid '+COLORS[TEAM_NONE]+'; } ',
       '#chatcontrols { bottom: '+(CHAT_SHRINKED+24)+'px; }',
@@ -1157,7 +1158,7 @@ window.chat.handlePublicAutomated = function(data) {
         case 'PORTAL':
           var latlng = [part[1].latE6/1E6, part[1].lngE6/1E6];
           var js = 'window.zoomToAndShowPortal(\''+part[1].guid+'\', ['+latlng[0]+', '+latlng[1]+'])';
-          tmpmsg += '<a onclick="'+js+'" title="'+part[1].address+'">'+part[1].name+'</a>';
+          tmpmsg += '<a onclick="'+js+'" title="'+part[1].address+'" class="help">'+part[1].name+'</a>';
           break;
       }
     });
@@ -1269,9 +1270,10 @@ window.chat.renderDivider = function(text) {
 window.chat.renderMsg = function(msg, nick, time, team) {
   var ta = unixTimeToHHmm(time);
   var tb = unixTimeToString(time, true);
+  // help cursor via “#chat time”
   var t = '<time title="'+tb+'" data-timestamp="'+time+'">'+ta+'</time>';
   var s = 'style="color:'+COLORS[team]+'"';
-  var title = nick.length >= 8 ? 'title="'+nick+'"' : '';
+  var title = nick.length >= 8 ? 'title="'+nick+'" class="help"' : '';
   return '<p>'+t+'<mark '+s+'>'+nick+'</mark><span>'+msg+'</span></p>';
 }
 
@@ -1607,6 +1609,7 @@ window.updateGameScore = function(data) {
   var rs = '<span class="res" style="width:'+rp+'%;">'+Math.round(rp)+'%&nbsp;</span>';
   var es = '<span class="enl" style="width:'+ep+'%;">&nbsp;'+Math.round(ep)+'%</span>';
   $('#gamestat').html(rs+es).one('click', function() { window.updateGameScore() });
+  // help cursor via “#gamestat span”
   $('#gamestat').attr('title', 'Resistance:\t\t'+r+' MindUnits\nEnlightenment:\t'+e+' MindUnits');
 
   window.setTimeout('window.updateGameScore', REFRESH_GAME_SCORE*1000);
@@ -1841,6 +1844,7 @@ window.renderPortalDetails = function(guid) {
       .attr('class', TEAM_TO_CSS[getTeam(d)])
       .html(''
         + '<h3>'+d.portalV2.descriptiveText.TITLE+'</h3>'
+        // help cursor via “.imgpreview img”
         + '<div class="imgpreview"><img src="'+img+'" title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."/></div>'
         + '<span id="level">'+Math.floor(getPortalLevel(d))+'</span>'
         + '<div class="mods">'+getModDetails(d)+'</div>'

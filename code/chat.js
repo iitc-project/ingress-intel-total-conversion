@@ -27,7 +27,7 @@ window.chat.clear = function() {
   window.chat._newFactionTimestamp = -1;
   window.chat._oldPublicTimestamp = -1;
   window.chat._newPublicTimestamp = -1;
-  $('#chatfaction, #chatpublic, #chatautomated').data('ignoreNextScroll', true).html('<div></div>');
+  $('#chatfaction, #chatpublic, #chatautomated').data('ignoreNextScroll', true).html('');
 }
 
 window.chat.clearIfRequired = function() {
@@ -296,7 +296,7 @@ window.chat.handlePublicAutomated = function(data) {
         case 'PORTAL':
           var latlng = [part[1].latE6/1E6, part[1].lngE6/1E6];
           var js = 'window.zoomToAndShowPortal(\''+part[1].guid+'\', ['+latlng[0]+', '+latlng[1]+'])';
-          tmpmsg += '<a onclick="'+js+'" title="'+part[1].address+'">'+part[1].name+'</a>';
+          tmpmsg += '<a onclick="'+js+'" title="'+part[1].address+'" class="help">'+part[1].name+'</a>';
           break;
       }
     });
@@ -332,7 +332,7 @@ window.chat.renderAutomatedMsgsTo = function() {
     return val;
   }).join('\n');
 
-  $('#chatautomated').html('<div>'+msgs+'</div>');
+  $('#chatautomated').html(msgs);
 }
 
 
@@ -382,7 +382,7 @@ window.chat.renderPlayerMsgsTo = function(isFaction, data, isOldMsgs, dupCheckAr
     prevTime = nowTime;
   });
 
-  var addTo = isFaction ? $('#chatfaction > div') : $('#chatpublic > div');
+  var addTo = isFaction ? $('#chatfaction') : $('#chatpublic');
 
   // if there is a change of day between two requests, handle the
   // divider insertion here.
@@ -408,9 +408,10 @@ window.chat.renderDivider = function(text) {
 window.chat.renderMsg = function(msg, nick, time, team) {
   var ta = unixTimeToHHmm(time);
   var tb = unixTimeToString(time, true);
+  // help cursor via “#chat time”
   var t = '<time title="'+tb+'" data-timestamp="'+time+'">'+ta+'</time>';
   var s = 'style="color:'+COLORS[team]+'"';
-  var title = nick.length >= 8 ? 'title="'+nick+'"' : '';
+  var title = nick.length >= 8 ? 'title="'+nick+'" class="help"' : '';
   return '<p>'+t+'<mark '+s+'>'+nick+'</mark><span>'+msg+'</span></p>';
 }
 
