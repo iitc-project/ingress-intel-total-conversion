@@ -40,7 +40,7 @@ window.renderUpdateStatus = function() {
   if(mapRunsUserAction)
     t += 'paused during interaction';
   else if(isIdle())
-    t += 'Idle, not updating.';
+    t += '<span style="color:red">Idle, not updating.</span>';
   else if(window.activeRequests.length > 0)
     t += window.activeRequests.length + ' requests running.';
   else

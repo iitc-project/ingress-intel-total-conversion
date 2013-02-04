@@ -4,7 +4,7 @@
 // methods that highlight the portal in the map view.
 
 window.renderPortalDetails = function(guid) {
-  var d = portalsDetail[guid];
+  var d = window.portals[guid].options.details;
   if(!d) {
     unselectOldPortal();
     urlPortal = guid;
