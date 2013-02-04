@@ -4,22 +4,27 @@ ingress.com/intel total conversion
 
 It’s annoying to extend the intel page with new features because the minified code makes it hard to grasp what’s going on. Also, one has to play catch up each time Ninantic put up a new version because all the variables might get new names.
 
-So instead, here’s a userscript that starts from scratch. 
+So instead, here’s a userscript that starts from scratch:
+
+
+[![Screenshot of the total conversion in Johannesburg](http://breunigs.github.com/ingress-intel-total-conversion/screen_small.png)](http://breunigs.github.com/ingress-intel-total-conversion/screen.png)
+
+(click to zoom)
 
 Features
 --------
 
 - feels faster. (Likely because [leaflet](http://leafletjs.com/) is faster, although there are some other tricks.)
-– full view of portal images
+- full view of portal images
 - better chat
   - separated automated/public/faction
   - only showing the last automated message for each user. Makes a great “where are they now” guide.
 - automatic idle resume
 - portal details actually update themselves
-- links to portals made easy (the location/zoom part is supported by the normal intel map as well, so there’s *some* backwards compability)
+- links to portals made easy (partly works with the vanilla map, too)
 - info porn. Everything with the help cursor has more info hidden in a tooltip.
 - may toggle portals/links/fields
-- hack range (yellow circle) and link range (large red circle) for portals. You can click on the range link in the sidebar to zoom to link range.
+- hack range (yellow circle) and link range (large red circle) for portals. Click on the range link in the sidebar to zoom to link range.
 - double clicking a portal zooms in and focuses it
 
 
@@ -35,9 +40,21 @@ Missing
 Install
 -------
 
-Currently only works in Firefox with [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) or [Scriptish](https://addons.mozilla.org/en-US/firefox/addon/scriptish/).
+[**INSTALL**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js)
 
-If one of these addons is installed, clicking this should work:
+
+**Firefox:** Install [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) or [Scriptish](https://addons.mozilla.org/en-US/firefox/addon/scriptish/). Click install link. Install. Reload page.
+
+**Chrome:** The user script works in vanilla Chrome.
+
+1. Click install link and ignore the warning.
+2. The file should be downloaded and appear in your download bar.
+3. Goto `Menu Button` → `Tools` → `Extensions`.
+4. Drag and drop the download over the window and Chrome will offer you to install the script.
+
+*Note:* if Chrome only shows you the text, but does not offer an install dialog, make sure the file ends in `.user.js`. If it’s something like `.user(2).js` it won’t work.
+
+**Opera:** Download the script and put it into your user_js folder (that’s `~/.opera/user_js` on Unix). If you can’t find it [see Opera’s docs](http://www.opera.com/docs/userjs/using/#writingscripts).
 
 
 [**INSTALL**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js)

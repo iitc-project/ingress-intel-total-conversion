@@ -137,7 +137,7 @@ a:hover {
   padding: 1px 2px;
 }
 
-time, mark, #chat span {
+time, mark, #chat span, #chat a {
   font-family: Verdana, sans-serif;
   font-size: 12.6px;
   vertical-align: top;
