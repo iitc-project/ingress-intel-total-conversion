@@ -27,7 +27,7 @@ window.chat.clear = function() {
   window.chat._newFactionTimestamp = -1;
   window.chat._oldPublicTimestamp = -1;
   window.chat._newPublicTimestamp = -1;
-  $('#chatfaction, #chatpublic, #chatautomated').data('ignoreNextScroll', true).html('');
+  $('#chatfaction, #chatpublic, #chatautomated').data('ignoreNextScroll', true).html('<div></div>');
 }
 
 window.chat.clearIfRequired = function() {
@@ -332,7 +332,7 @@ window.chat.renderAutomatedMsgsTo = function() {
     return val;
   }).join('\n');
 
-  $('#chatautomated').html(msgs);
+  $('#chatautomated').html('<div>'+msgs+'</div>');
 }
 
 
@@ -382,7 +382,7 @@ window.chat.renderPlayerMsgsTo = function(isFaction, data, isOldMsgs, dupCheckAr
     prevTime = nowTime;
   });
 
-  var addTo = isFaction ? $('#chatfaction') : $('#chatpublic');
+  var addTo = isFaction ? $('#chatfaction > div') : $('#chatpublic > div');
 
   // if there is a change of day between two requests, handle the
   // divider insertion here.

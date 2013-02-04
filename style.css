@@ -130,7 +130,16 @@ a:hover {
   height: -webkit-calc(100% - 4px);
   height: -moz-calc(100% - 4px);
   padding: 2px;
+  position:relative;
 }
+
+/* make text stick to the bottom */
+#chat > div > div {
+  position: absolute;
+  bottom:0;
+  left:2px;
+}
+
 
 #chat p {
   display: block;
