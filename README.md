@@ -19,6 +19,8 @@ Features
 - better chat
   - separated automated/public/faction
   - only showing the last automated message for each user. Makes a great “where are they now” guide.
+  - nick tab completion
+  - clickable links
 - automatic idle resume
 - portal details get updated while portal is visible on map
 - links to portals made easy (partly works with the vanilla map, too)
@@ -26,6 +28,7 @@ Features
 - may toggle portals/links/fields
 - hack range (yellow circle) and link range (large red circle) for portals. Click on the range link in the sidebar to zoom to link range.
 - double clicking a portal zooms in and focuses it
+
 
 
 Missing
