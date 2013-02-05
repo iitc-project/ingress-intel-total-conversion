@@ -81,7 +81,7 @@ window.unixTimeToString = function(time, full) {
 window.unixTimeToHHmm = function(time) {
   if(!time) return null;
   var d = new Date(typeof time === 'string' ? parseInt(time) : time);
-  return d.toLocaleTimeString().slice(0, -3);
+  return d.getHours() + ':' + d.getSeconds();
 }
 
 
