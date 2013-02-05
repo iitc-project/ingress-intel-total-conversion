@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.2-2013-02-05-142635
+// @version        0.2-2013-02-05-150753
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
@@ -863,9 +863,10 @@ function asyncLoadScript(a){return function(b,c){var d=document.createElement("s
 var LLGMAPS = 'http://breunigs.github.com/ingress-intel-total-conversion/leaflet_google.js';
 var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js';
 var LEAFLET = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.js';
+var AUTOLINK = 'https://raw.github.com/bryanwoods/autolink-js/master/autolink.js';
 
 // after all scripts have loaded, boot the actual app
-load(JQUERY, LEAFLET).then(LLGMAPS).thenRun(boot);
+load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS).thenRun(boot);
 
 
 window.chat = function() {};
@@ -1235,7 +1236,7 @@ window.chat.renderPlayerMsgsTo = function(isFaction, data, isOldMsgs, dupCheckAr
         window.setPlayerName(pguid, nick); // free nick name resolves
       }
 
-      if(markup[0] === 'TEXT') msg = markup[1].plain;
+      if(markup[0] === 'TEXT') msg = markup[1].plain.autoLink();
 
       if(!isFaction && markup[0] === 'SECURE') {
         nick = null;

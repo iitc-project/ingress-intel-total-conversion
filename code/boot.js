@@ -170,6 +170,7 @@ function asyncLoadScript(a){return function(b,c){var d=document.createElement("s
 var LLGMAPS = 'http://breunigs.github.com/ingress-intel-total-conversion/leaflet_google.js';
 var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js';
 var LEAFLET = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.js';
+var AUTOLINK = 'https://raw.github.com/bryanwoods/autolink-js/master/autolink.js';
 
 // after all scripts have loaded, boot the actual app
-load(JQUERY, LEAFLET).then(LLGMAPS).thenRun(boot);
+load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS).thenRun(boot);

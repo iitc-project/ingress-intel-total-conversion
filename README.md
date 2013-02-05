@@ -95,6 +95,7 @@ Attribution & License
 This project is licensed under the permissive ISC license. Parts imported from other projects remain under their respective licenses:
 
 - [load.js by Chris O'Hara; MIT](https://github.com/chriso/load.js)
+- [autolink-js by Bryan Woods; MIT](https://github.com/bryanwoods/autolink-js)
 - [leaflet.js; custom license (but appears free)](http://leafletjs.com/)
 - `leaflet_google.js`; unknown
 - StackOverflow-CopyPasta is attributed in the source; [CC-Wiki](https://creativecommons.org/licenses/by-sa/3.0/)
