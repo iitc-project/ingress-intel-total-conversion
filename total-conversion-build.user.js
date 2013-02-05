@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.2-2013-02-05-153309
+// @version        0.2-2013-02-05-172500
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
@@ -875,6 +875,45 @@ load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS).thenRun(boot);
 
 window.chat = function() {};
 
+window.chat._lastNicksForAutocomplete = [[], []];
+window.chat.addNickForAutocomplete = function(nick, isFaction) {
+  var r = chat._lastNicksForAutocomplete[isFaction ? 0 : 1];
+  if(r.indexOf(nick) !== -1) return;
+  r.push(nick);
+  if(r.length >= 15)
+    r.shift();
+}
+
+window.chat.handleTabCompletion = function() {
+  var el = $('#chatinput input');
+  var curPos = el.get(0).selectionStart;
+  var text = el.val();
+  var word = text.slice(0, curPos).replace(/.*\b([a-z0-9-_])/, '$1').toLowerCase();
+
+  var list = window.chat._lastNicksForAutocomplete;
+  list = list[1].concat(list[0]);
+
+  var nick = null;
+  for(var i = 0; i < list.length; i++) {
+    if(!list[i].toLowerCase().startsWith(word)) continue;
+    if(nick && nick !== list[i]) {
+      console.log('More than one nick matches, aborting. ('+list[i]+' vs '+nick+')');
+      return;
+    }
+    nick = list[i];
+  }
+  if(!nick) {
+    console.log('No matches for ' + word);
+    return;
+  }
+
+  var posStart = curPos - word.length;
+  var newText = text.substring(0, posStart);
+  newText += nick + (posStart === 0 ? ': ' : ' ');
+  newText += text.substring(curPos);
+  el.val(newText);
+}
+
 //
 // timestamp and clear management
 //
@@ -1238,6 +1277,7 @@ window.chat.renderPlayerMsgsTo = function(isFaction, data, isOldMsgs, dupCheckAr
         nick = markup[1].plain.slice(0, -2); // cut “: ” at end
         pguid = markup[1].guid;
         window.setPlayerName(pguid, nick); // free nick name resolves
+        if(!isOldMsgs) window.chat.addNickForAutocomplete(nick, isFaction);
       }
 
       if(markup[0] === 'TEXT') {
@@ -1466,15 +1506,28 @@ window.chat.setupTime = function() {
 
 
 window.chat.setupPosting = function() {
-  $('#chatinput input').keypress(function(e) {
-    if((e.keyCode ? e.keyCode : e.which) != 13) return;
-    chat.postMsg();
-    e.preventDefault();
+  $('#chatinput input').keypress(function(event) {
+try{
+
+    var kc = (event.keyCode ? event.keyCode : event.which);
+    if(kc === 13) { // enter
+      chat.postMsg();
+      event.preventDefault();
+    } else if (kc === 9) { // tab
+      event.preventDefault();
+      window.chat.handleTabCompletion();
+    }
+
+
+} catch(error) {
+  console.log(error);
+  debug.printStackTrace();
+}
   });
 
-  $('#chatinput').submit(function(e) {
+  $('#chatinput').submit(function(event) {
     chat.postMsg();
-    e.preventDefault();
+    event.preventDefault();
   });
 }
 
@@ -2111,6 +2164,17 @@ window.getPortalEnergy = function(d) {
 window.getPortalRange = function(d) {
   // formula by the great gals and guys at
   // http://decodeingress.me/2012/11/18/ingress-portal-levels-and-link-range/
+
+  var lvl = 0;
+  var resoMissing = false;
+  $.each(d.resonatorArray.resonators, function(ind, reso) {
+    if(!reso) {
+      resoMissing = true;
+      return false;
+    }
+    lvl += parseInt(reso.level);
+  });
+  if(resoMissing) return 0;
   return 160*Math.pow(getPortalLevel(d), 4);
 }
 
