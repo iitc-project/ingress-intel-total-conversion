@@ -365,7 +365,10 @@ window.chat.renderPlayerMsgsTo = function(isFaction, data, isOldMsgs, dupCheckAr
         window.setPlayerName(pguid, nick); // free nick name resolves
       }
 
-      if(markup[0] === 'TEXT') msg = markup[1].plain.autoLink();
+      if(markup[0] === 'TEXT') {
+        msg = markup[1].plain.autoLink();
+        msg = msg.replace(window.PLAYER['nickMatcher'], '<em>$1</em>');
+      }
 
       if(!isFaction && markup[0] === 'SECURE') {
         nick = null;

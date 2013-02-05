@@ -155,6 +155,10 @@ function boot() {
   // necessary data has been loaded.
   urlPortal = getURLParam('pguid');
 
+  // load only once
+  var n = window.PLAYER['nickname'];
+  window.PLAYER['nickMatcher'] = new RegExp('\\b('+n+')\\b');
+
   $('#sidebar').show();
 }
 

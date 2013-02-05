@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.2-2013-02-05-150753
+// @version        0.2-2013-02-05-153309
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
@@ -848,6 +848,10 @@ function boot() {
   // necessary data has been loaded.
   urlPortal = getURLParam('pguid');
 
+  // load only once
+  var n = window.PLAYER['nickname'];
+  window.PLAYER['nickMatcher'] = new RegExp('\\b('+n+')\\b');
+
   $('#sidebar').show();
 }
 
@@ -1236,7 +1240,10 @@ window.chat.renderPlayerMsgsTo = function(isFaction, data, isOldMsgs, dupCheckAr
         window.setPlayerName(pguid, nick); // free nick name resolves
       }
 
-      if(markup[0] === 'TEXT') msg = markup[1].plain.autoLink();
+      if(markup[0] === 'TEXT') {
+        msg = markup[1].plain.autoLink();
+        msg = msg.replace(window.PLAYER['nickMatcher'], '<em>$1</em>');
+      }
 
       if(!isFaction && markup[0] === 'SECURE') {
         nick = null;
