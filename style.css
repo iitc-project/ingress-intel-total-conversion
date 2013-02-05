@@ -306,6 +306,10 @@ h3 {
   font-size: 17px;
   padding: 0 4px;
   margin:0;
+  height: 25px;
+  width: 100%;
+  overflow:hidden;
+  text-overflow: "~";
 }
 
 .imgpreview {
