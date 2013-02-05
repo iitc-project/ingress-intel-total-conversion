@@ -14,7 +14,7 @@ window.getPortalLevel = function(d) {
     lvl += parseInt(reso.level);
     hasReso = true;
   });
-  return hasReso ? Math.min(1, lvl/8) : 0;
+  return hasReso ? Math.max(1, lvl/8) : 0;
 }
 
 window.getPortalEnergy = function(d) {

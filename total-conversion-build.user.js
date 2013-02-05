@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.2-2013-02-04-163559
+// @version        0.2-2013-02-05-142635
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
@@ -2082,11 +2082,13 @@ window.setupGeosearch = function() {
 // that value.
 window.getPortalLevel = function(d) {
   var lvl = 0;
+  var hasReso = false;
   $.each(d.resonatorArray.resonators, function(ind, reso) {
     if(!reso) return true;
     lvl += parseInt(reso.level);
+    hasReso = true;
   });
-  return lvl/8;
+  return hasReso ? Math.max(1, lvl/8) : 0;
 }
 
 window.getPortalEnergy = function(d) {
