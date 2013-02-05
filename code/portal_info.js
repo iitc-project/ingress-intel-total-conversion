@@ -8,11 +8,13 @@
 // that value.
 window.getPortalLevel = function(d) {
   var lvl = 0;
+  var hasReso = false;
   $.each(d.resonatorArray.resonators, function(ind, reso) {
     if(!reso) return true;
     lvl += parseInt(reso.level);
+    hasReso = true;
   });
-  return lvl/8;
+  return hasReso ? Math.min(1, lvl/8) : 0;
 }
 
 window.getPortalEnergy = function(d) {
