@@ -29,6 +29,17 @@ window.getPortalEnergy = function(d) {
 window.getPortalRange = function(d) {
   // formula by the great gals and guys at
   // http://decodeingress.me/2012/11/18/ingress-portal-levels-and-link-range/
+
+  var lvl = 0;
+  var resoMissing = false;
+  $.each(d.resonatorArray.resonators, function(ind, reso) {
+    if(!reso) {
+      resoMissing = true;
+      return false;
+    }
+    lvl += parseInt(reso.level);
+  });
+  if(resoMissing) return 0;
   return 160*Math.pow(getPortalLevel(d), 4);
 }
 
