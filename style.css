@@ -184,14 +184,16 @@ summary {
   z-index: 3001;
 }
 
+
+
 #chatinput span {
   font-family: Verdana,sans-serif;
-  padding: 0 4px;
   display: inline-block;
   font-size: 12.6px;
   width: 84px;
   color: red;
-  padding-left: 2px;
+  padding: 0 4px 0 1px;
+  width: 85px;
 }
 
 #chatinput input {
