@@ -310,6 +310,7 @@ h3 {
   width: 100%;
   overflow:hidden;
   text-overflow: "~";
+  white-space: nowrap;
 }
 
 .imgpreview {
