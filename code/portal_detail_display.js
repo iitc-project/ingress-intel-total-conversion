@@ -18,7 +18,8 @@ window.renderPortalDetails = function(guid) {
   if(d.portalV2.linkedEdges) $.each(d.portalV2.linkedEdges, function(ind, link) {
     links[link.isOrigin ? 'outgoing' : 'incoming']++;
   });
-  var linksText = 'links: ↳ ' + links.incoming+'&nbsp;&nbsp;•&nbsp;&nbsp;'+links.outgoing+' ↴';
+  function linkExpl(t) { return '<tt title="↳ incoming links\n↴ outgoing links\n• is meant to be the portal.">'+t+'</tt>'; }
+  var linksText = linkExpl('links')+':'+linkExpl(' ↳ ' + links.incoming+'&nbsp;&nbsp;•&nbsp;&nbsp;'+links.outgoing+' ↴');
 
   var player = d.captured && d.captured.capturingPlayerId
     ? getPlayerName(d.captured.capturingPlayerId)

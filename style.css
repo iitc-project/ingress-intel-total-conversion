@@ -399,6 +399,11 @@ aside:nth-child(odd) span {
   text-align: right;
 }
 
+#randdetails tt {
+  font-family: inherit;
+  cursor: help;
+}
+
 
 /* resonators */
 #resodetails {
