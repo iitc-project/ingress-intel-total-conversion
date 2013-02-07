@@ -82,7 +82,7 @@ window.unixTimeToHHmm = function(time) {
   if(!time) return null;
   var d = new Date(typeof time === 'string' ? parseInt(time) : time);
   var h = '' + d.getHours(); h = h.length === 1 ? '0' + h : h;
-  var s = '' + d.getSeconds(); s = s.length === 1 ? '0' + s : s;
+  var s = '' + d.getMinutes(); s = s.length === 1 ? '0' + s : s;
   return  h + ':' + s;
 }
 

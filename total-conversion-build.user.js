@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.2-2013-02-05-200309
+// @version        0.2-2013-02-07-160508
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
@@ -631,7 +631,7 @@ window.unixTimeToHHmm = function(time) {
   if(!time) return null;
   var d = new Date(typeof time === 'string' ? parseInt(time) : time);
   var h = '' + d.getHours(); h = h.length === 1 ? '0' + h : h;
-  var s = '' + d.getSeconds(); s = s.length === 1 ? '0' + s : s;
+  var s = '' + d.getMinutes(); s = s.length === 1 ? '0' + s : s;
   return  h + ':' + s;
 }
 
