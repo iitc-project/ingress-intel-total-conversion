@@ -1,12 +1,13 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.2-2013-02-07-163236
+// @version        0.2-2013-02-08-000955
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @description    total conversion for the ingress intel map.
 // @include        http://www.ingress.com/intel*
+// @match          http://www.ingress.com/intel*
 // ==/UserScript==
 
 
@@ -423,7 +424,7 @@ window.renderField = function(ent) {
     fillColor: COLORS[team],
     fillOpacity: 0.25,
     stroke: false,
-    clickable: false,
+    clickable: true,
     smoothFactor: 10,
     guid: ent[0]});
 
@@ -431,6 +432,7 @@ window.renderField = function(ent) {
 
   poly.on('remove', function() { delete window.fields[this.options.guid]; });
   poly.on('add',    function() { window.fields[this.options.guid] = this; });
+  poly.bindLabel('Look revealing label!', { noHide: true });
   poly.addTo(fieldsLayer).bringToBack();
 }
 
@@ -870,9 +872,10 @@ var LLGMAPS = 'http://breunigs.github.com/ingress-intel-total-conversion/leaflet
 var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js';
 var LEAFLET = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.js';
 var AUTOLINK = 'https://raw.github.com/bryanwoods/autolink-js/master/autolink.js';
+var LABELS = 'https://raw.github.com/Leaflet/Leaflet.label/master/dist/leaflet.label.js';
 
 // after all scripts have loaded, boot the actual app
-load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS).thenRun(boot);
+load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS, LABELS).thenRun(boot);
 
 
 window.chat = function() {};
@@ -2121,7 +2124,7 @@ window.debug.forceSync = function() {
 window.setupGeosearch = function() {
   $('#geosearch').keypress(function(e) {
     if((e.keyCode ? e.keyCode : e.which) != 13) return;
-    $.getJSON(NOMINATIM + escape($(this).val()), function(data) {
+    $.getJSON(NOMINATIM + encodeURIComponent($(this).val()), function(data) {
       if(!data || !data[0]) return;
       var b = data[0].boundingbox;
       if(!b) return;
