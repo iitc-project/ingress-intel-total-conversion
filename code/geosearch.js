@@ -4,7 +4,7 @@
 window.setupGeosearch = function() {
   $('#geosearch').keypress(function(e) {
     if((e.keyCode ? e.keyCode : e.which) != 13) return;
-    $.getJSON(NOMINATIM + escape($(this).val()), function(data) {
+    $.getJSON(NOMINATIM + encodeURIComponent($(this).val()), function(data) {
       if(!data || !data[0]) return;
       var b = data[0].boundingbox;
       if(!b) return;
