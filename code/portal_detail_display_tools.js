@@ -64,7 +64,7 @@ window.getReportIssueInfoText = function(d) {
   return ('Your Nick: '+PLAYER.nickname+'        '
     + 'Portal: '+d.portalV2.descriptiveText.TITLE+'        '
     + 'Location: '+d.portalV2.descriptiveText.ADDRESS
-    +' (lat '+(d.locationE6.latE6/1E6)+'; lng '+(d.locationE6.latE6/1E6)+')'
+    +' (lat '+(d.locationE6.latE6/1E6)+'; lng '+(d.locationE6.lngE6/1E6)+')'
   ).replace(/['"]/, '');
 }
 

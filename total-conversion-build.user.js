@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.2-2013-02-07-162416
+// @version        0.2-2013-02-07-163236
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
@@ -1627,7 +1627,7 @@ window.getReportIssueInfoText = function(d) {
   return ('Your Nick: '+PLAYER.nickname+'        '
     + 'Portal: '+d.portalV2.descriptiveText.TITLE+'        '
     + 'Location: '+d.portalV2.descriptiveText.ADDRESS
-    +' (lat '+(d.locationE6.latE6/1E6)+'; lng '+(d.locationE6.latE6/1E6)+')'
+    +' (lat '+(d.locationE6.latE6/1E6)+'; lng '+(d.locationE6.lngE6/1E6)+')'
   ).replace(/['"]/, '');
 }
 
