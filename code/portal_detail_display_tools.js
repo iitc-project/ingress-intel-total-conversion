@@ -34,8 +34,19 @@ window.getModDetails = function(d) {
       mods.push('');
       modsTitle.push('');
     } else if(mod.type === 'RES_SHIELD') {
-      mods.push(mod.rarity + ' ' + mod.displayName);
-      modsTitle.push(mod.rarity + ' ' + mod.displayName + '\ninstalled by: '+getPlayerName(mod.installingUser));
+
+      var title = mod.rarity.capitalize() + ' ' + mod.displayName + '\n';
+      title += 'Installed by: '+ getPlayerName(mod.installingUser);
+
+      title += '\nStats:';
+      for (var key in mod.stats) {
+        if (mod.stats.hasOwnProperty(key)) {
+          title += '\n+' +  mod.stats[key] + ' ' + key.capitalize();
+        }
+      }
+
+      mods.push(mod.rarity.capitalize() + ' ' + mod.displayName);
+      modsTitle.push(title);
     } else {
       mods.push(mod.type);
       modsTitle.push('Unknown mod. No further details available.');
