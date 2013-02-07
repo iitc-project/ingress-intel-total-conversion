@@ -133,8 +133,11 @@ window.scrollBottom = function(elm) {
   return elm.get(0).scrollHeight - elm.innerHeight() - elm.scrollTop();
 }
 
-
 window.zoomToAndShowPortal = function(guid, latlng) {
   renderPortalDetails(guid);
   map.setView(latlng, 17);
+}
+
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
 }
