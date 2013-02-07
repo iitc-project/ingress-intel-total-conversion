@@ -28,7 +28,7 @@ Features
 - may toggle portals/links/fields
 - hack range (yellow circle) and link range (large red circle) for portals. Click on the range link in the sidebar to zoom to link range.
 - double clicking a portal zooms in and focuses it
-
+- display of XM and AP rewards for redeemed passcodes by [Dovahkiin](http://bit.ly/mjcode)
 
 
 Missing
@@ -37,7 +37,6 @@ Missing
 (and probably not going to implement it)
 
 - logout link (but you wouldn’t want to *quit*, would you?), privacy link, etc.
-- redeem pretty display
 
 
 Install
