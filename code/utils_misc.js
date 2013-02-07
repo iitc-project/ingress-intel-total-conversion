@@ -86,8 +86,6 @@ window.unixTimeToHHmm = function(time) {
   return  h + ':' + s;
 }
 
-
-
 window.rangeLinkClick = function() {
   if(window.portalRangeIndicator)
     window.map.fitBounds(window.portalRangeIndicator.getBounds());
@@ -99,7 +97,6 @@ window.reportPortalIssue = function(info) {
   if(prompt(t, info) !== null)
     location.href = 'https://support.google.com/ingress?hl=en';
 }
-
 
 window._storedPaddedBounds = undefined;
 window.getPaddedBounds = function() {
@@ -128,7 +125,6 @@ window.getMinPortalLevel = function() {
   var conv = ['impossible', 8,7,7,6,6,5,5,4,4,3,3,2,2,1,1];
   return conv[z];
 }
-
 
 // returns number of pixels left to scroll down before reaching the
 // bottom. Works similar to the native scrollTop function.
