@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.2-2013-02-07-160508
+// @version        0.2-2013-02-07-162416
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
@@ -799,7 +799,7 @@ window.setupMap = function() {
 window.setupPlayerStat = function() {
   var level;
   var ap = parseInt(PLAYER.ap);
-  for(level = 0; level < 7; level++) {
+  for(level = 0; level < MIN_AP_FOR_LEVEL.length; level++) {
     if(ap < MIN_AP_FOR_LEVEL[level]) break;
   }
 

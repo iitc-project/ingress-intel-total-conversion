@@ -104,7 +104,7 @@ window.setupMap = function() {
 window.setupPlayerStat = function() {
   var level;
   var ap = parseInt(PLAYER.ap);
-  for(level = 0; level < 7; level++) {
+  for(level = 0; level < MIN_AP_FOR_LEVEL.length; level++) {
     if(ap < MIN_AP_FOR_LEVEL[level]) break;
   }
 
