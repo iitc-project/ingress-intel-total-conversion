@@ -1,8 +1,7 @@
-
 ingress.com/intel total conversion
 ==================================
 
-It’s annoying to extend the intel page with new features because the minified code makes it hard to grasp what’s going on. Also, one has to play catch up each time Ninantic put up a new version because all the variables might get new names.
+It’s annoying to extend the intel page with new features because the minified code makes it hard to grasp what’s going on. Also, one has to play catch up each time Niantic put up a new version because all the variables might get new names.
 
 So instead, here’s a userscript that starts from scratch:
 
@@ -105,4 +104,4 @@ This project is licensed under the permissive ISC license. Parts imported from o
 - [leaflet.js; custom license (but appears free)](http://leafletjs.com/)
 - `leaflet_google.js`; unknown
 - StackOverflow-CopyPasta is attributed in the source; [CC-Wiki](https://creativecommons.org/licenses/by-sa/3.0/)
-- all Ingress/Ninantic related stuff obviously remains non-free and is still copyrighted by Ninantic/Google
+- all Ingress/Niantic related stuff obviously remains non-free and is still copyrighted by Niantic/Google
