@@ -117,10 +117,15 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
             + 'owner:\t\t'  + nick  + '\n'
             + 'cardinal:\t' + SLOT_TO_CARDINAL[slot];
 
+
     var style = 'width:'+fillGrade+'%; background:'+COLORS_LVL[level]+'; color:'+COLORS_LVL[level];
+
+    var lbar = '<div style="position: absolute; top: -2px; left: 25px; color: white;"> ' + level + ' </div>';
+
     var fill  = '<span style="'+style+'"></span>';
-    var meter = '<span class="meter" title="'+inf+'">'
-                  + fill + '</span>';
+
+    var meter = '<span style="position: relative; left: 0; top: 0;" class="meter" title="'+inf+'">'
+                   + fill + lbar + '</span>';
   }
   var cls = slot <= 3 ? 'left' : 'right';
   var text = '<span class="meter-text '+cls+'">'+(nick||'')+'</span>';
