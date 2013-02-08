@@ -94,7 +94,7 @@ Execute `./build.rb` or `./build.py` to effectively concatenate `main.js` with a
 
 `style.css` contains most styles required for the user-script. The extra ones can be found in `code/boot.js#window.setupStyles`. Only CSS rules that depend on config variables should be defined there.
 
-`leaflet_google.js` contains some code to display Google Maps imagery with Leaflet, which is a slightly modified version [of this gist](https://gist.github.com/4504864). I tried to track down the original author, but failed.
+`leaflet_google.js` contains some code to display Google Maps imagery with Leaflet, which is a slightly modified version [of this gist](https://gist.github.com/4504864). The code likely was originally written by Pavel Shramov.
 
 
 My dev setup is like this:
@@ -114,6 +114,6 @@ This project is licensed under the permissive ISC license. Parts imported from o
 - [load.js by Chris O'Hara; MIT](https://github.com/chriso/load.js)
 - [autolink-js by Bryan Woods; MIT](https://github.com/bryanwoods/autolink-js)
 - [leaflet.js; custom license (but appears free)](http://leafletjs.com/)
-- `leaflet_google.js`; unknown
+- [`leaflet_google.js` by Pavel Shramov; same as Leaftlet](https://github.com/shramov/leaflet-plugins) (modified, though)
 - StackOverflow-CopyPasta is attributed in the source; [CC-Wiki](https://creativecommons.org/licenses/by-sa/3.0/)
 - all Ingress/Niantic related stuff obviously remains non-free and is still copyrighted by Niantic/Google
