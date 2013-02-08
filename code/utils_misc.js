@@ -141,3 +141,10 @@ window.zoomToAndShowPortal = function(guid, latlng) {
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
 }
+
+// http://stackoverflow.com/a/646643/1684530 by Bergi and CMS
+if (typeof String.prototype.startsWith !== 'function') {
+  String.prototype.startsWith = function (str){
+    return this.slice(0, str.length) === str;
+  };
+}
