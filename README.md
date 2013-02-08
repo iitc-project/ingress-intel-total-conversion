@@ -81,13 +81,10 @@ Please do!
 Contributors
 ------------
 
-[integ3r](https://github.com/integ3r)
-
-[Bananeweizen](https://github.com/Bananeweizen)
-
-[epf](https://github.com/epf)
-
-[JasonMillward](https://github.com/JasonMillward)
+- [integ3r](https://github.com/integ3r)
+- [Bananeweizen](https://github.com/Bananeweizen)
+- [epf](https://github.com/epf)
+- [JasonMillward](https://github.com/JasonMillward)
 
 
 Hacking
