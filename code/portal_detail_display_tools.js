@@ -120,11 +120,15 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
 
     var style = 'width:'+fillGrade+'%; background:'+COLORS_LVL[level]+'; color:'+COLORS_LVL[level];
 
-    var lbar = '<div style="position: absolute; top: -2px; left: 25px; color: white;"> ' + level + ' </div>';
+    var colour = "#FFFFFF";
+    if (level < 3) {
+      colour = "#9900FF";
+    }
+    var lbar = '<div class="meter-level" style="color: ' + colour + ';"> ' + level + ' </div>';
 
     var fill  = '<span style="'+style+'"></span>';
 
-    var meter = '<span style="position: relative; left: 0; top: 0;" class="meter" title="'+inf+'">'
+    var meter = '<span class="meter meter-rel" title="'+inf+'">'
                    + fill + lbar + '</span>';
   }
   var cls = slot <= 3 ? 'left' : 'right';
