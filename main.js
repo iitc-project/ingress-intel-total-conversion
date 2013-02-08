@@ -42,6 +42,7 @@ for(var i = 0; i < d.length; i++) {
 // possible without requiring scripts.
 document.getElementsByTagName('head')[0].innerHTML = ''
   //~ + '<link rel="stylesheet" type="text/css" href="http://0.0.0.0:8000/style.css"/>'
+  + '<title>Ingress Intel Map</title>'
   + '<link rel="stylesheet" type="text/css" href="http://breunigs.github.com/ingress-intel-total-conversion/style.css?@@BUILDDATE@@"/>'
   + '<link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.css"/>'
   + '<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Coda"/>';
