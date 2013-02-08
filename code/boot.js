@@ -173,7 +173,7 @@ function boot() {
 
   // load only once
   var n = window.PLAYER['nickname'];
-  window.PLAYER['nickMatcher'] = new RegExp('\\b('+n+')\\b');
+  window.PLAYER['nickMatcher'] = new RegExp('\\b('+n+')\\b', 'ig');
 
   $('#sidebar').show();
 }
