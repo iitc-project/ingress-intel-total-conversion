@@ -146,6 +146,7 @@ em {
 #chat > div {
   overflow-x:hidden;
   overflow-y:scroll;
+  height: 100%; /* fallback for Opera which doesn’t support calc */
   height: calc(100% - 4px);
   height: -webkit-calc(100% - 4px);
   height: -moz-calc(100% - 4px);
