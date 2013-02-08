@@ -523,7 +523,7 @@ window.chat.chooser = function(event) {
 
     case 'public':
       span.css('cssText', 'color: red !important');
-      span.text('tell public:');
+      span.text('broadcast:');
       elm = $('#chatpublic');
       break;
 
