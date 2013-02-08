@@ -14,15 +14,33 @@ body {
   margin-right:302px;
 }
 
+#scrollwrapper {
+  height: 100%;
+  overflow: hidden;
+  position: fixed;
+  right: -38px;
+  top: 0;
+  width: 340px;
+}
+
 #sidebar {
   background: #000;
   border-left: 2px solid #c3c3c3;
   color: #888;
   height: 100%;
-  position: fixed;
-  right: 0;
+  position: relative;
+  left: 0;
   top: 0;
+  overflow-y:scroll;
+  overflow-x:hidden;
 }
+
+#redeem {
+  /* cheap hack to prevent sidebar content being overlayed by the map
+   * status box */
+  margin-bottom: 55px;
+}
+
 
 .enl {
   color: #03fe03 !important;

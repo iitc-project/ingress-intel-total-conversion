@@ -41,6 +41,7 @@ for(var i = 0; i < d.length; i++) {
 // security context so we can access the API easily. Setup as much as
 // possible without requiring scripts.
 document.getElementsByTagName('head')[0].innerHTML = ''
+  //~ + '<link rel="stylesheet" type="text/css" href="http://0.0.0.0:8000/style.css"/>'
   + '<link rel="stylesheet" type="text/css" href="http://breunigs.github.com/ingress-intel-total-conversion/style.css"/>'
   + '<link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.css"/>'
   + '<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Coda"/>';
@@ -56,13 +57,15 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '  <div id="chatautomated"></div>'
   + '</div>'
   + '<form id="chatinput" style="display:none"><time></time><span>tell faction:</span><input type="text"/></form>'
-  + '<div id="sidebar" style="display: none">'
-  + '  <div id="playerstat">t</div>'
-  + '  <div id="gamestat">&nbsp;loading global control stats</div>'
-  + '  <input id="geosearch" placeholder="Search location…" type="text"/>'
-  + '  <div id="portaldetails"></div>'
-  + '  <input id="redeem" placeholder="Redeem code…" type="text"/>'
-  + '  <div id="updatestatus"></div>'
+  + '<div id="scrollwrapper">' // enable scrolling for small screens
+  + '  <div id="sidebar" style="display: none">'
+  + '    <div id="playerstat">t</div>'
+  + '    <div id="gamestat">&nbsp;loading global control stats</div>'
+  + '    <input id="geosearch" placeholder="Search location…" type="text"/>'
+  + '    <div id="portaldetails"></div>'
+  + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
+  + '    <div id="updatestatus"></div>'
+  + '  </div>';
   + '</div>';
 
 // putting everything in a wrapper function that in turn is placed in a
@@ -82,6 +85,7 @@ var ZOOM_LEVEL_ADJ = 5; // add 5 seconds per zoom level
 var REFRESH_GAME_SCORE = 5*60; // refresh game score every 5 minutes
 var MAX_IDLE_TIME = 4; // stop updating map after 4min idling
 var PRECACHE_PLAYER_NAMES_ZOOM = 17; // zoom level to start pre-resolving player names
+var HIDDEN_SCROLLBAR_ASSUMED_WIDTH = 20;
 var SIDEBAR_WIDTH = 300;
 // chat messages are requested for the visible viewport. On high zoom
 // levels this gets pretty pointless, so request messages in at least a

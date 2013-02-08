@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.2-2013-02-08-000955
+// @version        0.2-2013-02-08-024305
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
@@ -41,6 +41,7 @@ for(var i = 0; i < d.length; i++) {
 // security context so we can access the API easily. Setup as much as
 // possible without requiring scripts.
 document.getElementsByTagName('head')[0].innerHTML = ''
+  //~ + '<link rel="stylesheet" type="text/css" href="http://0.0.0.0:8000/style.css"/>'
   + '<link rel="stylesheet" type="text/css" href="http://breunigs.github.com/ingress-intel-total-conversion/style.css"/>'
   + '<link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.css"/>'
   + '<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Coda"/>';
@@ -56,13 +57,15 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '  <div id="chatautomated"></div>'
   + '</div>'
   + '<form id="chatinput" style="display:none"><time></time><span>tell faction:</span><input type="text"/></form>'
-  + '<div id="sidebar" style="display: none">'
-  + '  <div id="playerstat">t</div>'
-  + '  <div id="gamestat">&nbsp;loading global control stats</div>'
-  + '  <input id="geosearch" placeholder="Search location…" type="text"/>'
-  + '  <div id="portaldetails"></div>'
-  + '  <input id="redeem" placeholder="Redeem code…" type="text"/>'
-  + '  <div id="updatestatus"></div>'
+  + '<div id="scrollwrapper">' // enable scrolling for small screens
+  + '  <div id="sidebar" style="display: none">'
+  + '    <div id="playerstat">t</div>'
+  + '    <div id="gamestat">&nbsp;loading global control stats</div>'
+  + '    <input id="geosearch" placeholder="Search location…" type="text"/>'
+  + '    <div id="portaldetails"></div>'
+  + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
+  + '    <div id="updatestatus"></div>'
+  + '  </div>';
   + '</div>';
 
 // putting everything in a wrapper function that in turn is placed in a
@@ -82,6 +85,7 @@ var ZOOM_LEVEL_ADJ = 5; // add 5 seconds per zoom level
 var REFRESH_GAME_SCORE = 5*60; // refresh game score every 5 minutes
 var MAX_IDLE_TIME = 4; // stop updating map after 4min idling
 var PRECACHE_PLAYER_NAMES_ZOOM = 17; // zoom level to start pre-resolving player names
+var HIDDEN_SCROLLBAR_ASSUMED_WIDTH = 20;
 var SIDEBAR_WIDTH = 300;
 // chat messages are requested for the visible viewport. On high zoom
 // levels this gets pretty pointless, so request messages in at least a
@@ -424,7 +428,7 @@ window.renderField = function(ent) {
     fillColor: COLORS[team],
     fillOpacity: 0.25,
     stroke: false,
-    clickable: true,
+    clickable: false,
     smoothFactor: 10,
     guid: ent[0]});
 
@@ -432,7 +436,6 @@ window.renderField = function(ent) {
 
   poly.on('remove', function() { delete window.fields[this.options.guid]; });
   poly.on('add',    function() { window.fields[this.options.guid] = this; });
-  poly.bindLabel('Look revealing label!', { noHide: true });
   poly.addTo(fieldsLayer).bringToBack();
 }
 
@@ -637,8 +640,6 @@ window.unixTimeToHHmm = function(time) {
   return  h + ':' + s;
 }
 
-
-
 window.rangeLinkClick = function() {
   if(window.portalRangeIndicator)
     window.map.fitBounds(window.portalRangeIndicator.getBounds());
@@ -650,7 +651,6 @@ window.reportPortalIssue = function(info) {
   if(prompt(t, info) !== null)
     location.href = 'https://support.google.com/ingress?hl=en';
 }
-
 
 window._storedPaddedBounds = undefined;
 window.getPaddedBounds = function() {
@@ -680,7 +680,6 @@ window.getMinPortalLevel = function() {
   return conv[z];
 }
 
-
 // returns number of pixels left to scroll down before reaching the
 // bottom. Works similar to the native scrollTop function.
 window.scrollBottom = function(elm) {
@@ -688,10 +687,13 @@ window.scrollBottom = function(elm) {
   return elm.get(0).scrollHeight - elm.innerHeight() - elm.scrollTop();
 }
 
-
 window.zoomToAndShowPortal = function(guid, latlng) {
   renderPortalDetails(guid);
   map.setView(latlng, 17);
+}
+
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
 }
 
 
@@ -730,8 +732,10 @@ window.setupStyles = function() {
       '#chatcontrols { bottom: '+(CHAT_SHRINKED+24)+'px; }',
       '#chat { height: '+CHAT_SHRINKED+'px; } ',
       '#updatestatus { width:'+(SIDEBAR_WIDTH-2*4)+'px;  } ',
-      '#sidebar, #gamestat, #gamestat span, input, ',
-      '.imgpreview img { width:'+SIDEBAR_WIDTH+'px;  }'].join("\n")
+      '#sidebar { width:'+(SIDEBAR_WIDTH + HIDDEN_SCROLLBAR_ASSUMED_WIDTH + 2 /*border*/)+'px;  } ',
+      '#scrollwrapper  { width:'+(SIDEBAR_WIDTH + 2*HIDDEN_SCROLLBAR_ASSUMED_WIDTH)+'px; right:-'+(2*HIDDEN_SCROLLBAR_ASSUMED_WIDTH-2)+'px } ',
+      'input, h2, #updatestatus  { width:'+(SIDEBAR_WIDTH - 2*4)+'px !important } ',
+      '#sidebar > *, #gamestat span, .imgpreview img { width:'+SIDEBAR_WIDTH+'px;  }'].join("\n")
     + '</style>');
 }
 
@@ -872,10 +876,9 @@ var LLGMAPS = 'http://breunigs.github.com/ingress-intel-total-conversion/leaflet
 var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js';
 var LEAFLET = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.js';
 var AUTOLINK = 'https://raw.github.com/bryanwoods/autolink-js/master/autolink.js';
-var LABELS = 'https://raw.github.com/Leaflet/Leaflet.label/master/dist/leaflet.label.js';
 
 // after all scripts have loaded, boot the actual app
-load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS, LABELS).thenRun(boot);
+load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS).thenRun(boot);
 
 
 window.chat = function() {};
@@ -1600,8 +1603,18 @@ window.getModDetails = function(d) {
       mods.push('');
       modsTitle.push('');
     } else if(mod.type === 'RES_SHIELD') {
-      mods.push(mod.rarity + ' ' + mod.displayName);
-      modsTitle.push(mod.rarity + ' ' + mod.displayName + '\ninstalled by: '+getPlayerName(mod.installingUser));
+
+      var title = mod.rarity.capitalize() + ' ' + mod.displayName + '\n';
+      title += 'Installed by: '+ getPlayerName(mod.installingUser);
+
+      title += '\nStats:';
+      for (var key in mod.stats) {
+        if (!mod.stats.hasOwnProperty(key)) continue;
+        title += '\n+' +  mod.stats[key] + ' ' + key.capitalize();
+      }
+
+      mods.push(mod.rarity.capitalize().replace('_', ' ') + ' ' + mod.displayName);
+      modsTitle.push(title);
     } else {
       mods.push(mod.type);
       modsTitle.push('Unknown mod. No further details available.');
@@ -1893,7 +1906,8 @@ window.renderPortalDetails = function(guid) {
   if(d.portalV2.linkedEdges) $.each(d.portalV2.linkedEdges, function(ind, link) {
     links[link.isOrigin ? 'outgoing' : 'incoming']++;
   });
-  var linksText = 'links: ↳ ' + links.incoming+'&nbsp;&nbsp;•&nbsp;&nbsp;'+links.outgoing+' ↴';
+  function linkExpl(t) { return '<tt title="↳ incoming links\n↴ outgoing links\n• is meant to be the portal.">'+t+'</tt>'; }
+  var linksText = linkExpl('links')+':'+linkExpl(' ↳ ' + links.incoming+'&nbsp;&nbsp;•&nbsp;&nbsp;'+links.outgoing+' ↴');
 
   var player = d.captured && d.captured.capturingPlayerId
     ? getPlayerName(d.captured.capturingPlayerId)
