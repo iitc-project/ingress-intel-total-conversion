@@ -57,7 +57,9 @@ window.setupMap = function() {
   portalsLayer = L.layerGroup([]);
   linksLayer = L.layerGroup([]);
   fieldsLayer = L.layerGroup([]);
-  window.map = new L.Map('map', $.extend(getPosition(), {zoomControl: false}));
+  window.map = new L.Map('map', $.extend(getPosition(),
+    {zoomControl: !(localStorage['iitc.zoom.buttons'] === 'false')}
+  ));
   try {
     map.addLayer(views[readCookie('ingress.intelmap.type')]);
   } catch(e) { map.addLayer(views[0]); }
