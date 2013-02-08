@@ -149,7 +149,7 @@ window.selectedPortal = null;
 window.portalRangeIndicator = null;
 window.portalAccessIndicator = null;
 window.mapRunsUserAction = false;
-var portalsLayer, linksLayer, fieldsLayer;
+var portalsLayers, linksLayer, fieldsLayer;
 
 // contain references to all entities shown on the map. These are
 // automatically kept in sync with the items on *sLayer, so never ever

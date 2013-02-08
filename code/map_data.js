@@ -119,14 +119,17 @@ window.cleanUp = function() {
   var cnt = [0,0,0];
   var b = getPaddedBounds();
   var minlvl = getMinPortalLevel();
-  portalsLayer.eachLayer(function(portal) {
-    // portal must be in bounds and have a high enough level. Also don’t
-    // remove if it is selected.
-    if(portal.options.guid == window.selectedPortal ||
-      (b.contains(portal.getLatLng()) && portal.options.level >= minlvl)) return;
-    cnt[0]++;
-    portalsLayer.removeLayer(portal);
-  });
+  for(var i = 0; i < portalsLayers.length; i++) {
+    // i is also the portal level
+    portalsLayers[i].eachLayer(function(portal) {
+      // portal must be in bounds and have a high enough level. Also don’t
+      // remove if it is selected.
+      if(portal.options.guid == window.selectedPortal ||
+        (b.contains(portal.getLatLng()) && i >= minlvl)) return;
+      cnt[0]++;
+      portalsLayers[i].removeLayer(portal);
+    });
+  }
   linksLayer.eachLayer(function(link) {
     if(b.intersects(link.getBounds())) return;
     cnt[1]++;
@@ -153,7 +156,9 @@ window.removeByGuid = function(guid) {
     case '11':
     case '12':
       if(!window.portals[guid]) return;
-      portalsLayer.removeLayer(window.portals[guid]);
+      var p = window.portals[guid];
+      for(var i = 0; i < portalsLayers.length; i++)
+        portalsLayers[i].removeLayer(p);
       break;
     case '9':
       if(!window.links[guid]) return;
@@ -212,13 +217,24 @@ window.renderPortal = function(ent) {
     guid: ent[0]});
 
   p.on('remove',   function() { delete window.portals[this.options.guid]; });
-  p.on('add',      function() { window.portals[this.options.guid] = this; });
+  p.on('add',      function() {
+    window.portals[this.options.guid] = this;
+    // handles the case where a selected portal gets removed from the
+    // map by hiding all portals with said level
+    if(window.selectedPortal != this.options.guid)
+      window.portalResetColor(this);
+  });
   p.on('click',    function() { window.renderPortalDetails(ent[0]); });
   p.on('dblclick', function() {
     window.renderPortalDetails(ent[0]);
     window.map.setView(latlng, 17);
   });
-  p.addTo(portalsLayer);
+  // portalLevel contains a float, need to round down
+  p.addTo(portalsLayers[parseInt(portalLevel)]);
+}
+
+window.portalResetColor = function(portal) {
+  portal.setStyle({color: portal.options.fillColor});
 }
 
 // renders a link on the map from the given entity

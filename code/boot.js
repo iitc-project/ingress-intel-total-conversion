@@ -54,18 +54,33 @@ window.setupMap = function() {
   var views = [cmMid, cmMin, osm, new L.Google('INGRESS'), new L.Google('ROADMAP'),
                new L.Google('SATELLITE'), new L.Google('HYBRID')];
 
-  portalsLayer = L.layerGroup([]);
-  linksLayer = L.layerGroup([]);
-  fieldsLayer = L.layerGroup([]);
+
   window.map = new L.Map('map', $.extend(getPosition(),
     {zoomControl: !(localStorage['iitc.zoom.buttons'] === 'false')}
   ));
+
   try {
     map.addLayer(views[readCookie('ingress.intelmap.type')]);
   } catch(e) { map.addLayer(views[0]); }
-  map.addLayer(portalsLayer);
+
+  var addLayers = {};
+
+  portalsLayers = [];
+  for(var i = 0; i <= 8; i++) {
+    portalsLayers[i] = L.layerGroup([]);
+    map.addLayer(portalsLayers[i]);
+    var t = (i === 0 ? 'Unclaimed' : 'Level ' + i) + ' Portals';
+    addLayers[t] = portalsLayers[i];
+  }
+
+  fieldsLayer = L.layerGroup([]);
   map.addLayer(fieldsLayer, true);
+  addLayers['Fields'] = fieldsLayer;
+
+  linksLayer = L.layerGroup([]);
   map.addLayer(linksLayer, true);
+  addLayers['Links'] = linksLayer;
+
   map.addControl(new L.Control.Layers({
     'OSM Cloudmade Midnight': views[0],
     'OSM Cloudmade Minimal': views[1],
@@ -74,11 +89,7 @@ window.setupMap = function() {
     'Google Roads':  views[4],
     'Google Satellite':  views[5],
     'Google Hybrid':  views[6]
-    }, {
-    'Portals': portalsLayer,
-    'Links': linksLayer,
-    'Fields': fieldsLayer
-    }));
+    }, addLayers));
   map.attributionControl.setPrefix('');
   // listen for changes and store them in cookies
   map.on('moveend', window.storeMapPosition);
@@ -179,7 +190,7 @@ function asyncLoadScript(a){return function(b,c){var d=document.createElement("s
 var LLGMAPS = 'http://breunigs.github.com/ingress-intel-total-conversion/leaflet_google.js';
 var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js';
 var LEAFLET = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.js';
-var AUTOLINK = 'https://raw.github.com/bryanwoods/autolink-js/master/autolink.js';
+var AUTOLINK = 'http://raw.github.com/bryanwoods/autolink-js/master/autolink.js';
 
 // after all scripts have loaded, boot the actual app
 load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS).thenRun(boot);

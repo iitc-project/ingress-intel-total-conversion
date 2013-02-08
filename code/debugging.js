@@ -16,7 +16,8 @@ window.debug.printStackTrace = function() {
 }
 
 window.debug.clearPortals = function() {
-  portalsLayer.clearLayers();
+  for(var i = 0; i < portalsLayers.length; i++)
+    portalsLayers[i].clearLayers();
 }
 
 window.debug.clearLinks = function() {

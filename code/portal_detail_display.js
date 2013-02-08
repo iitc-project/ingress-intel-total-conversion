@@ -104,8 +104,7 @@ window.setPortalIndicators = function(d) {
 window.selectPortal = function(guid) {
   var update = selectedPortal === guid;
   var oldPortal = portals[selectedPortal];
-  if(!update && oldPortal)
-    oldPortal.setStyle({color: oldPortal.options.fillColor});
+  if(!update && oldPortal) portalResetColor(oldPortal);
 
   selectedPortal = guid;
 

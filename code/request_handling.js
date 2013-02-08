@@ -34,7 +34,7 @@ window.requests.abort = function() {
 }
 
 // gives user feedback about pending operations. Draws current status
-// to website.
+// to website. Updates info in layer chooser.
 window.renderUpdateStatus = function() {
   var t = '<b>map status:</b> ';
   if(mapRunsUserAction)
@@ -50,15 +50,20 @@ window.renderUpdateStatus = function() {
     t += ' <span style="color:red" class="help" title="Can only render so much before it gets unbearably slow. Not all entities are shown. Zoom in or increase the limit (search for MAX_DRAWN_*).">RENDER LIMIT</span> '
 
   if(window.failedRequestCount > 0)
-    t += ' ' + window.failedRequestCount + ' requests failed.'
+    t += ' <span style="color:red">' + window.failedRequestCount + ' requests failed</span>.'
 
   t += '<br/>(';
   var minlvl = getMinPortalLevel();
   if(minlvl === 0)
-    t += 'showing all portals';
+    t += 'loading all portals';
   else
-    t+= 'only showing portals with level '+minlvl+' and up';
-  t += ')</span>';
+    t+= 'only loading portals with level '+minlvl+' and up';
+  t += ')';
+
+  var portalSelection = $('.leaflet-control-layers-overlays label');
+  portalSelection.slice(0, minlvl+1).addClass('disabled').attr('title', 'Zoom in to show those.');
+  portalSelection.slice(minlvl, 8).removeClass('disabled').attr('title', '');
+
 
   $('#updatestatus').html(t);
 }
