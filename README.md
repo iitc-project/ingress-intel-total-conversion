@@ -1,3 +1,7 @@
+**WEBSITE LOOKS BROKEN?** Update the script. On the upside you may scroll the portal details if there’s not enough screen space.
+
+
+
 ingress.com/intel total conversion
 ==================================
 
