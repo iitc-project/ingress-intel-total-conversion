@@ -631,7 +631,7 @@ window.chat.setupTime = function() {
 
 
 window.chat.setupPosting = function() {
-  $('#chatinput input').keypress(function(event) {
+  $('#chatinput input').keydown(function(event) {
 try{
 
     var kc = (event.keyCode ? event.keyCode : event.which);
