@@ -616,7 +616,7 @@ window.chat.setupTime = function() {
   var updateTime = function() {
     if(window.isIdle()) return;
     var d = new Date();
-    inputTime.text(d.toLocaleTimeString().slice(0, 5));
+    inputTime.text(d.toISOString().slice(11, 16));
     // update ON the minute (1ms after)
     setTimeout(updateTime, (60 - d.getSeconds()) * 1000 + 1);
   };

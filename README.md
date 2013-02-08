@@ -93,7 +93,7 @@ Contributors
 Hacking
 -------
 
-Execute `./build.rb` to effectively concatenate `main.js` with all the files in `code/`. It generates the user script which may be installed into your browser.
+Execute `./build.rb` or `./build.py` to effectively concatenate `main.js` with all the files in `code/`. It generates the user script which may be installed into your browser.
 
 `style.css` contains most styles required for the user-script. The extra ones can be found in `code/boot.js#window.setupStyles`. Only CSS rules that depend on config variables should be defined there.
 
