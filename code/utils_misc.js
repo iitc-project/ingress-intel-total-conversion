@@ -86,8 +86,6 @@ window.unixTimeToHHmm = function(time) {
   return  h + ':' + s;
 }
 
-
-
 window.rangeLinkClick = function() {
   if(window.portalRangeIndicator)
     window.map.fitBounds(window.portalRangeIndicator.getBounds());
@@ -99,7 +97,6 @@ window.reportPortalIssue = function(info) {
   if(prompt(t, info) !== null)
     location.href = 'https://support.google.com/ingress?hl=en';
 }
-
 
 window._storedPaddedBounds = undefined;
 window.getPaddedBounds = function() {
@@ -129,7 +126,6 @@ window.getMinPortalLevel = function() {
   return conv[z];
 }
 
-
 // returns number of pixels left to scroll down before reaching the
 // bottom. Works similar to the native scrollTop function.
 window.scrollBottom = function(elm) {
@@ -137,8 +133,11 @@ window.scrollBottom = function(elm) {
   return elm.get(0).scrollHeight - elm.innerHeight() - elm.scrollTop();
 }
 
-
 window.zoomToAndShowPortal = function(guid, latlng) {
   renderPortalDetails(guid);
   map.setView(latlng, 17);
+}
+
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
 }
