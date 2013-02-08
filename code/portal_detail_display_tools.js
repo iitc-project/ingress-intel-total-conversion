@@ -40,12 +40,11 @@ window.getModDetails = function(d) {
 
       title += '\nStats:';
       for (var key in mod.stats) {
-        if (mod.stats.hasOwnProperty(key)) {
-          title += '\n+' +  mod.stats[key] + ' ' + key.capitalize();
-        }
+        if (!mod.stats.hasOwnProperty(key)) continue;
+        title += '\n+' +  mod.stats[key] + ' ' + key.capitalize();
       }
 
-      mods.push(mod.rarity.capitalize() + ' ' + mod.displayName);
+      mods.push(mod.rarity.capitalize().replace('_', ' ') + ' ' + mod.displayName);
       modsTitle.push(title);
     } else {
       mods.push(mod.type);
