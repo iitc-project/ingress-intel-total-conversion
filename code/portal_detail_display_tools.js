@@ -114,7 +114,7 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
             + 'level:\t\t'  + level +'\n'
             + 'distance:\t' + dist  + 'm\n'
             + 'owner:\t\t'  + nick  + '\n'
-            + 'cardinal:\t' + SLOT_TO_CARDINAL[slot];
+            + 'octant:\t' + OCTANTS[slot];
 
     var style = 'width:'+fillGrade+'%; background:'+COLORS_LVL[level]+';';
 
