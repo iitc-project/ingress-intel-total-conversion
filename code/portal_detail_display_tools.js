@@ -110,7 +110,7 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
     var max = RESO_NRG[level];
     var fillGrade = nrg/max*100;
 
-    var inf = 'energy:\t\t' + nrg   + ' / ' + max + '\n'
+    var inf = 'energy:\t\t' + nrg   + ' / ' + max + ' (' + Math.round(fillGrade) + '%)' + '\n'
             + 'level:\t\t'  + level +'\n'
             + 'distance:\t' + dist  + 'm\n'
             + 'owner:\t\t'  + nick  + '\n'
@@ -120,8 +120,7 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
 
     var color = (level < 3 ? "#9900FF" : "#FFFFFF");
 
-    var lbar = '<span class="meter-level" style="color: ' + color + ';"> ' + 'L' + level + '&nbsp;&nbsp;&nbsp' + Math.round(fillGrade) + '%' + ' </span>';
-
+    var lbar = '<span class="meter-level" style="color: ' + color + ';"> ' + level + ' </span>';
 
     var fill  = '<span style="'+style+'"></span>';
 
