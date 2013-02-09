@@ -87,7 +87,7 @@ Contributors
 Hacking
 -------
 
-Execute `./build.rb` or `./build.py` to effectively concatenate `main.js` with all the files in `code/`. It generates the user script which may be installed into your browser. Do not modify `total-conversion-build.user.js` manually, because it is automatically generated. Please don’t include it in patches either, because it makes merging harder. Instead, modify the files in `code/` and have that file built for you.
+Execute `./build.py` to effectively concatenate `main.js` with all the files in `code/`. It generates the user script which may be installed into your browser. Do not modify `total-conversion-build.user.js` manually, because it is automatically generated. Please don’t include it in patches either, because it makes merging harder. Instead, modify the files in `code/` and have that file built for you.
 
 `style.css` contains most styles required for the user-script. The extra ones can be found in `code/boot.js#window.setupStyles`. Only CSS rules that depend on config variables should be defined there.
 
