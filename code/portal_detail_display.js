@@ -66,6 +66,7 @@ window.renderPortalDetails = function(guid) {
         + '<div class="mods">'+getModDetails(d)+'</div>'
         + '<div id="randdetails">'+randDetails+'</div>'
         + '<div id="resodetails">'+getResonatorDetails(d)+'</div>'
+        + '<div id="destroydetails">'+getDestroyAP(d)+'</div>'
         + '<div class="linkdetails">'
         + '<aside><a href="'+perma+'">portal link</a></aside>'
         + '<aside><a onclick="window.reportPortalIssue(\''+getReportIssueInfoText(d)+'\')">report issue</a></aside>'

@@ -128,6 +128,8 @@ var MIN_AP_FOR_LEVEL = [0, 10000, 30000, 70000, 150000, 300000, 600000, 1200000]
 var HACK_RANGE = 35; // in meters, max. distance from portal to be able to access it
 var OCTANTS = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
 var DEFAULT_PORTAL_IMG = 'http://commondatastorage.googleapis.com/ingress/img/default-portal-image.png';
+var DESTROY_RESONATOR = 75; //AP for destroying portal
+var DESTROY_LINK = 187; //AP fro destroying link
 
 // OTHER MORE-OR-LESS CONSTANTS //////////////////////////////////////
 var NOMINATIM = 'http://nominatim.openstreetmap.org/search?format=json&limit=1&q=';

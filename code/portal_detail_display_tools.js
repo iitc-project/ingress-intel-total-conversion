@@ -131,3 +131,25 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
   var text = '<span class="meter-text '+cls+'">'+(nick||'')+'</span>';
   return (slot <= 3 ? text+meter : meter+text) + '<br/>';
 }
+
+// calculate AP gain from destroying portal
+// so far it counts only resonators + links
+window.getDestroyAP = function(d) {
+  console.log('rendering destroy AP');
+  var res_count = 0;
+  var links = 0;
+
+  $.each(d.resonatorArray.resonators, function(ind, reso) 
+  {
+    res_count += 1;
+  });
+
+  if(d.portalV2.linkedEdges) $.each(d.portalV2.linkedEdges, function(ind, link) 
+  {
+    links++;
+  });
+
+  var ap_count = (res_count * DESTROY_RESONATOR) + (links * DESTROY_LINK);
+  
+  return 'Destroy ' + res_count + 'x res + ' + links + 'x link -> <strong style="color: #FFCE00">' + ap_count + '</strong>AP';
+}
