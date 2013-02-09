@@ -148,3 +148,7 @@ if (typeof String.prototype.startsWith !== 'function') {
     return this.slice(0, str.length) === str;
   };
 }
+
+window.prettyEnergy = function(nrg) {
+  return nrg> 1000 ? Math.round(nrg/1000) + ' k': nrg;
+}

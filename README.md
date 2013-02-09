@@ -82,6 +82,7 @@ Contributors
 [OshiHidra](https://github.com/OshiHidra),
 [Xelio](https://github.com/Xelio),
 [ZauberNerd](https://github.com/ZauberNerd)
+[Scrool](https://github.com/Scrool)
 
 
 Hacking

@@ -65,8 +65,12 @@ window.getModDetails = function(d) {
 }
 
 window.getEnergyText = function(d) {
-  var nrg = getPortalEnergy(d);
-  return 'energy: ' + (nrg > 1000 ? Math.round(nrg/1000) +' k': nrg);
+  var currentNrg = getCurrentPortalEnergy(d);
+  var totalNrg = getTotalPortalEnergy(d);
+  var inf = currentNrg + ' / ' + totalNrg;
+  var fill = prettyEnergy(currentNrg) + ' / ' + prettyEnergy(totalNrg)
+  var meter = 'energy: <tt title="'+inf+'">' + fill + '</tt>';
+  return meter;
 }
 
 window.getAvgResoDistText = function(d) {
