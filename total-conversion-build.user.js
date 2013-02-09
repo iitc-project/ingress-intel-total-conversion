@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.3-2013-02-08-030330
+// @version        0.4-2013-02-09-141136
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
@@ -42,7 +42,8 @@ for(var i = 0; i < d.length; i++) {
 // possible without requiring scripts.
 document.getElementsByTagName('head')[0].innerHTML = ''
   //~ + '<link rel="stylesheet" type="text/css" href="http://0.0.0.0:8000/style.css"/>'
-  + '<link rel="stylesheet" type="text/css" href="http://breunigs.github.com/ingress-intel-total-conversion/style.css"/>'
+  + '<title>Ingress Intel Map</title>'
+  + '<link rel="stylesheet" type="text/css" href="http://breunigs.github.com/ingress-intel-total-conversion/style.css?2013-02-09-141136"/>'
   + '<link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.css"/>'
   + '<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Coda"/>';
 
@@ -64,6 +65,8 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '    <input id="geosearch" placeholder="Search location…" type="text"/>'
   + '    <div id="portaldetails"></div>'
   + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
+  + '    <div id="toolbox"></div>'
+  + '    <div id="spacer"></div>'
   + '    <div id="updatestatus"></div>'
   + '  </div>';
   + '</div>';
@@ -113,6 +116,9 @@ var MAX_DRAWN_FIELDS = 200;
 var COLOR_SELECTED_PORTAL = '#f00';
 var COLORS = ['#FFCE00', '#0088FF', '#03FE03']; // none, res, enl
 var COLORS_LVL = ['#000', '#FECE5A', '#FFA630', '#FF7315', '#E40000', '#FD2992', '#EB26CD', '#C124E0', '#9627F4'];
+var COLORS_MOD = {VERY_RARE: '#F78AF6', RARE: '#AD8AFF', COMMON: '#84FBBD'};
+
+
 // circles around a selected portal that show from where you can hack
 // it and how far the portal reaches (i.e. how far links may be made
 // from this portal)
@@ -125,7 +131,7 @@ var RESO_NRG = [0, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 6000];
 var MAX_XM_PER_LEVEL = [0, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000];
 var MIN_AP_FOR_LEVEL = [0, 10000, 30000, 70000, 150000, 300000, 600000, 1200000];
 var HACK_RANGE = 35; // in meters, max. distance from portal to be able to access it
-var SLOT_TO_CARDINAL = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
+var OCTANTS = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
 var DEFAULT_PORTAL_IMG = 'http://commondatastorage.googleapis.com/ingress/img/default-portal-image.png';
 
 // OTHER MORE-OR-LESS CONSTANTS //////////////////////////////////////
@@ -149,7 +155,7 @@ window.selectedPortal = null;
 window.portalRangeIndicator = null;
 window.portalAccessIndicator = null;
 window.mapRunsUserAction = false;
-var portalsLayer, linksLayer, fieldsLayer;
+var portalsLayers, linksLayer, fieldsLayer;
 
 // contain references to all entities shown on the map. These are
 // automatically kept in sync with the items on *sLayer, so never ever
@@ -158,6 +164,9 @@ window.portals = {};
 window.links = {};
 window.fields = {};
 
+// plugin framework. Plugins may load earlier than iitc, so don’t
+// overwrite data
+if(typeof window.plugin !== 'function') window.plugin = function() {};
 
 
 
@@ -283,14 +292,17 @@ window.cleanUp = function() {
   var cnt = [0,0,0];
   var b = getPaddedBounds();
   var minlvl = getMinPortalLevel();
-  portalsLayer.eachLayer(function(portal) {
-    // portal must be in bounds and have a high enough level. Also don’t
-    // remove if it is selected.
-    if(portal.options.guid == window.selectedPortal ||
-      (b.contains(portal.getLatLng()) && portal.options.level >= minlvl)) return;
-    cnt[0]++;
-    portalsLayer.removeLayer(portal);
-  });
+  for(var i = 0; i < portalsLayers.length; i++) {
+    // i is also the portal level
+    portalsLayers[i].eachLayer(function(portal) {
+      // portal must be in bounds and have a high enough level. Also don’t
+      // remove if it is selected.
+      if(portal.options.guid == window.selectedPortal ||
+        (b.contains(portal.getLatLng()) && i >= minlvl)) return;
+      cnt[0]++;
+      portalsLayers[i].removeLayer(portal);
+    });
+  }
   linksLayer.eachLayer(function(link) {
     if(b.intersects(link.getBounds())) return;
     cnt[1]++;
@@ -317,7 +329,9 @@ window.removeByGuid = function(guid) {
     case '11':
     case '12':
       if(!window.portals[guid]) return;
-      portalsLayer.removeLayer(window.portals[guid]);
+      var p = window.portals[guid];
+      for(var i = 0; i < portalsLayers.length; i++)
+        portalsLayers[i].removeLayer(p);
       break;
     case '9':
       if(!window.links[guid]) return;
@@ -376,13 +390,24 @@ window.renderPortal = function(ent) {
     guid: ent[0]});
 
   p.on('remove',   function() { delete window.portals[this.options.guid]; });
-  p.on('add',      function() { window.portals[this.options.guid] = this; });
+  p.on('add',      function() {
+    window.portals[this.options.guid] = this;
+    // handles the case where a selected portal gets removed from the
+    // map by hiding all portals with said level
+    if(window.selectedPortal != this.options.guid)
+      window.portalResetColor(this);
+  });
   p.on('click',    function() { window.renderPortalDetails(ent[0]); });
   p.on('dblclick', function() {
     window.renderPortalDetails(ent[0]);
     window.map.setView(latlng, 17);
   });
-  p.addTo(portalsLayer);
+  // portalLevel contains a float, need to round down
+  p.addTo(portalsLayers[parseInt(portalLevel)]);
+}
+
+window.portalResetColor = function(portal) {
+  portal.setStyle({color: portal.options.fillColor});
 }
 
 // renders a link on the map from the given entity
@@ -476,7 +501,7 @@ window.requests.abort = function() {
 }
 
 // gives user feedback about pending operations. Draws current status
-// to website.
+// to website. Updates info in layer chooser.
 window.renderUpdateStatus = function() {
   var t = '<b>map status:</b> ';
   if(mapRunsUserAction)
@@ -492,15 +517,20 @@ window.renderUpdateStatus = function() {
     t += ' <span style="color:red" class="help" title="Can only render so much before it gets unbearably slow. Not all entities are shown. Zoom in or increase the limit (search for MAX_DRAWN_*).">RENDER LIMIT</span> '
 
   if(window.failedRequestCount > 0)
-    t += ' ' + window.failedRequestCount + ' requests failed.'
+    t += ' <span style="color:red">' + window.failedRequestCount + ' requests failed</span>.'
 
   t += '<br/>(';
   var minlvl = getMinPortalLevel();
   if(minlvl === 0)
-    t += 'showing all portals';
+    t += 'loading all portals';
   else
-    t+= 'only showing portals with level '+minlvl+' and up';
-  t += ')</span>';
+    t+= 'only loading portals with level '+minlvl+' and up';
+  t += ')';
+
+  var portalSelection = $('.leaflet-control-layers-overlays label');
+  portalSelection.slice(0, minlvl+1).addClass('disabled').attr('title', 'Zoom in to show those.');
+  portalSelection.slice(minlvl, 8).removeClass('disabled').attr('title', '');
+
 
   $('#updatestatus').html(t);
 }
@@ -696,6 +726,13 @@ String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
 }
 
+// http://stackoverflow.com/a/646643/1684530 by Bergi and CMS
+if (typeof String.prototype.startsWith !== 'function') {
+  String.prototype.startsWith = function (str){
+    return this.slice(0, str.length) === str;
+  };
+}
+
 
 
 
@@ -728,13 +765,14 @@ window.setupStyles = function() {
   $('head').append('<style>' +
     [ '#map { margin-right: '+(SIDEBAR_WIDTH+2)+'px } ',
       '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
+      '#largepreview.res img { border:2px solid '+COLORS[TEAM_RES]+'; } ',
       '#largepreview.none img { border:2px solid '+COLORS[TEAM_NONE]+'; } ',
       '#chatcontrols { bottom: '+(CHAT_SHRINKED+24)+'px; }',
       '#chat { height: '+CHAT_SHRINKED+'px; } ',
       '#updatestatus { width:'+(SIDEBAR_WIDTH-2*4)+'px;  } ',
       '#sidebar { width:'+(SIDEBAR_WIDTH + HIDDEN_SCROLLBAR_ASSUMED_WIDTH + 2 /*border*/)+'px;  } ',
       '#scrollwrapper  { width:'+(SIDEBAR_WIDTH + 2*HIDDEN_SCROLLBAR_ASSUMED_WIDTH)+'px; right:-'+(2*HIDDEN_SCROLLBAR_ASSUMED_WIDTH-2)+'px } ',
-      'input, h2, #updatestatus  { width:'+(SIDEBAR_WIDTH - 2*4)+'px !important } ',
+      '#sidebar input, h2, #updatestatus  { width:'+(SIDEBAR_WIDTH - 2*4)+'px !important } ',
       '#sidebar > *, #gamestat span, .imgpreview img { width:'+SIDEBAR_WIDTH+'px;  }'].join("\n")
     + '</style>');
 }
@@ -752,16 +790,33 @@ window.setupMap = function() {
   var views = [cmMid, cmMin, osm, new L.Google('INGRESS'), new L.Google('ROADMAP'),
                new L.Google('SATELLITE'), new L.Google('HYBRID')];
 
-  portalsLayer = L.layerGroup([]);
-  linksLayer = L.layerGroup([]);
-  fieldsLayer = L.layerGroup([]);
-  window.map = new L.Map('map', $.extend(getPosition(), {zoomControl: false}));
+
+  window.map = new L.Map('map', $.extend(getPosition(),
+    {zoomControl: !(localStorage['iitc.zoom.buttons'] === 'false')}
+  ));
+
   try {
     map.addLayer(views[readCookie('ingress.intelmap.type')]);
   } catch(e) { map.addLayer(views[0]); }
-  map.addLayer(portalsLayer);
+
+  var addLayers = {};
+
+  portalsLayers = [];
+  for(var i = 0; i <= 8; i++) {
+    portalsLayers[i] = L.layerGroup([]);
+    map.addLayer(portalsLayers[i]);
+    var t = (i === 0 ? 'Unclaimed' : 'Level ' + i) + ' Portals';
+    addLayers[t] = portalsLayers[i];
+  }
+
+  fieldsLayer = L.layerGroup([]);
   map.addLayer(fieldsLayer, true);
+  addLayers['Fields'] = fieldsLayer;
+
+  linksLayer = L.layerGroup([]);
   map.addLayer(linksLayer, true);
+  addLayers['Links'] = linksLayer;
+
   map.addControl(new L.Control.Layers({
     'OSM Cloudmade Midnight': views[0],
     'OSM Cloudmade Minimal': views[1],
@@ -770,11 +825,7 @@ window.setupMap = function() {
     'Google Roads':  views[4],
     'Google Satellite':  views[5],
     'Google Hybrid':  views[6]
-    }, {
-    'Portals': portalsLayer,
-    'Links': linksLayer,
-    'Fields': fieldsLayer
-    }));
+    }, addLayers));
   map.attributionControl.setPrefix('');
   // listen for changes and store them in cookies
   map.on('moveend', window.storeMapPosition);
@@ -858,9 +909,14 @@ function boot() {
 
   // load only once
   var n = window.PLAYER['nickname'];
-  window.PLAYER['nickMatcher'] = new RegExp('\\b('+n+')\\b');
+  window.PLAYER['nickMatcher'] = new RegExp('\\b('+n+')\\b', 'ig');
 
   $('#sidebar').show();
+
+  if(window.bootPlugins)
+    $.each(window.bootPlugins, function(ind, ref) { ref(); });
+
+  window.iitcLoaded = true;
 }
 
 // this is the minified load.js script that allows us to easily load
@@ -875,7 +931,7 @@ function asyncLoadScript(a){return function(b,c){var d=document.createElement("s
 var LLGMAPS = 'http://breunigs.github.com/ingress-intel-total-conversion/leaflet_google.js';
 var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js';
 var LEAFLET = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.js';
-var AUTOLINK = 'https://raw.github.com/bryanwoods/autolink-js/master/autolink.js';
+var AUTOLINK = 'http://raw.github.com/bryanwoods/autolink-js/master/autolink.js';
 
 // after all scripts have loaded, boot the actual app
 load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS).thenRun(boot);
@@ -1406,7 +1462,7 @@ window.chat.chooser = function(event) {
 
     case 'public':
       span.css('cssText', 'color: red !important');
-      span.text('tell public:');
+      span.text('broadcast:');
       elm = $('#chatpublic');
       break;
 
@@ -1499,7 +1555,9 @@ window.chat.setupTime = function() {
   var updateTime = function() {
     if(window.isIdle()) return;
     var d = new Date();
-    inputTime.text(d.toLocaleTimeString().slice(0, 5));
+    var h = d.getHours() + ''; if(h.length === 1) h = '0' + h;
+    var m = d.getMinutes() + ''; if(m.length === 1) m = '0' + m;
+    inputTime.text(h+':'+m);
     // update ON the minute (1ms after)
     setTimeout(updateTime, (60 - d.getSeconds()) * 1000 + 1);
   };
@@ -1514,7 +1572,7 @@ window.chat.setupTime = function() {
 
 
 window.chat.setupPosting = function() {
-  $('#chatinput input').keypress(function(event) {
+  $('#chatinput input').keydown(function(event) {
 try{
 
     var kc = (event.keyCode ? event.keyCode : event.which);
@@ -1598,10 +1656,12 @@ window.getPortalDescriptionFromDetails = function(details) {
 window.getModDetails = function(d) {
   var mods = [];
   var modsTitle = [];
+  var modsColor = [];
   $.each(d.portalV2.linkedModArray, function(ind, mod) {
     if(!mod) {
       mods.push('');
       modsTitle.push('');
+      modsColor.push('#000');
     } else if(mod.type === 'RES_SHIELD') {
 
       var title = mod.rarity.capitalize() + ' ' + mod.displayName + '\n';
@@ -1615,16 +1675,18 @@ window.getModDetails = function(d) {
 
       mods.push(mod.rarity.capitalize().replace('_', ' ') + ' ' + mod.displayName);
       modsTitle.push(title);
+      modsColor.push(COLORS_MOD[mod.rarity]);
     } else {
       mods.push(mod.type);
       modsTitle.push('Unknown mod. No further details available.');
+      modsColor.push('#FFF');
     }
   });
 
-  var t = '<span title="'+modsTitle[0]+'">'+mods[0]+'</span>'
-        + '<span title="'+modsTitle[1]+'">'+mods[1]+'</span>'
-        + '<span title="'+modsTitle[2]+'">'+mods[2]+'</span>'
-        + '<span title="'+modsTitle[3]+'">'+mods[3]+'</span>'
+  var t = '<span title="'+modsTitle[0]+'" style="color:'+modsColor[0]+'">'+mods[0]+'</span>'
+        + '<span title="'+modsTitle[1]+'" style="color:'+modsColor[1]+'">'+mods[1]+'</span>'
+        + '<span title="'+modsTitle[2]+'" style="color:'+modsColor[2]+'">'+mods[2]+'</span>'
+        + '<span title="'+modsTitle[3]+'" style="color:'+modsColor[3]+'">'+mods[3]+'</span>'
 
   return t;
 }
@@ -1679,16 +1741,22 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
     var max = RESO_NRG[level];
     var fillGrade = nrg/max*100;
 
-    var inf = 'energy:\t\t' + nrg   + ' / ' + max + '\n'
+    var inf = 'energy:\t\t' + nrg   + ' / ' + max + ' (' + Math.round(fillGrade) + '%)' + '\n'
             + 'level:\t\t'  + level +'\n'
             + 'distance:\t' + dist  + 'm\n'
             + 'owner:\t\t'  + nick  + '\n'
-            + 'cardinal:\t' + SLOT_TO_CARDINAL[slot];
+            + 'octant:\t' + OCTANTS[slot];
 
-    var style = 'width:'+fillGrade+'%; background:'+COLORS_LVL[level]+'; color:'+COLORS_LVL[level];
+    var style = 'width:'+fillGrade+'%; background:'+COLORS_LVL[level]+';';
+
+    var color = (level < 3 ? "#9900FF" : "#FFFFFF");
+
+    var lbar = '<span class="meter-level" style="color: ' + color + ';"> ' + level + ' </span>';
+
     var fill  = '<span style="'+style+'"></span>';
-    var meter = '<span class="meter" title="'+inf+'">'
-                  + fill + '</span>';
+
+    var meter = '<span class="meter meter-rel" title="'+inf+'">'
+                   + fill + lbar + '</span>';
   }
   var cls = slot <= 3 ? 'left' : 'right';
   var text = '<span class="meter-text '+cls+'">'+(nick||'')+'</span>';
@@ -1992,8 +2060,7 @@ window.setPortalIndicators = function(d) {
 window.selectPortal = function(guid) {
   var update = selectedPortal === guid;
   var oldPortal = portals[selectedPortal];
-  if(!update && oldPortal)
-    oldPortal.setStyle({color: oldPortal.options.fillColor});
+  if(!update && oldPortal) portalResetColor(oldPortal);
 
   selectedPortal = guid;
 
@@ -2137,7 +2204,8 @@ window.debug.printStackTrace = function() {
 }
 
 window.debug.clearPortals = function() {
-  portalsLayer.clearLayers();
+  for(var i = 0; i < portalsLayers.length; i++)
+    portalsLayers[i].clearLayers();
 }
 
 window.debug.clearLinks = function() {

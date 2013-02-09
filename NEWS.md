@@ -1,5 +1,25 @@
-CHANGES IN 0.3
+CHANGES in 0.4
 ==============
+
+- Feature: display resonator charge percentage in tooltip (by Xelio)
+- Feature: display resonator level in reso bar (by JasonMillward)
+- Feature: portals may be filtered by level (using the layer switcher)
+- Feature: build script in Python (by epf)
+- Feature: plugins
+- Change: Portal mods are colored according to their rare-ness (by OshiHidra)
+- Change: nick highlight in chat now case-insensitive
+- Change: +/- zoom buttons visible by default now
+- Bugfix: title bar text broken
+- Bugfix: rename cardinal to octant (by mledoze)
+- Bugfix: Chat display broken in Opera
+- Bugfix: Chat tab completion in Chrome
+- Bugfix: wrong timestamps displayed in chat input bar
+- Bugfix: don’t autobuild when git meta info changes (by ZauberNerd)
+- Bugfix: resistance owned portals had wrong border when viewing the full image
+
+
+CHANGES IN 0.3
+--------------
 
 - Feature: more info for shields in tooltip (by JasonMillward)
 - Feature: pretty display for redeemed codes (by integ3r)
