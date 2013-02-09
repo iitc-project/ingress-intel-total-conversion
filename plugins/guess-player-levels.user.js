@@ -24,18 +24,29 @@ window.plugin.guessPlayerLevels.setupCallback = function() {
   $('#toolbox').append('<a onclick="window.plugin.guessPlayerLevels.guess()">guess player levels</a> ');
 }
 
+
+window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
+  //expects dom node with nick in its child text node
+  var playersNamed = window.plugin.guessPlayerLevels.prepareGuess();
+  var el = $(dom);
+  var nick = el.text();
+  var text;
+  if (nick in playersNamed) {
+    text = 'Player level: ' + playersNamed[nick] + ' (guessed)';
+  } else {
+    text = 'Player level unknown';
+  }
+  el.attr('title', text);
+  el.addClass('help');
+}
+
 window.plugin.guessPlayerLevels.setupChatNickHelper = function() {
+  $('#portaldetails').delegate('#resodetails .meter-text', 'mouseenter', function() {
+    window.plugin.guessPlayerLevels.setLevelTitle(this);
+  });
+
   $('#chat').delegate('mark', 'mouseenter', function() {
-    var playersNamed = window.plugin.guessPlayerLevels.prepareGuess();
-    var nick = $(this).text();
-    var text;
-    if (nick in playersNamed) {
-      text = 'Player level: ' + playersNamed[nick] + ' (guessed)';
-    } else {
-      text = 'Player level unknown';
-    }
-    $(this).attr('title', text);
-    $(this).addClass('help');
+    window.plugin.guessPlayerLevels.setLevelTitle(this);
   });
 }
 
