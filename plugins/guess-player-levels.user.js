@@ -11,16 +11,20 @@
 // ==/UserScript==
 
 function wrapper() {
-console.log('hello from plugin');
-
+// ensure plugin framework is there, even if iitc is not yet loaded
 if(typeof window.plugin !== 'function') window.plugin = function() {};
 
-console.log('window.plugin now is:');
-console.log(window.plugin);
 
+// PLUGIN START ////////////////////////////////////////////////////////
 
+// use own namespace for plugin
+window.plugin.guessPlayerLevels = function() {};
 
-window.plugin.guessPlayerLevels = function() {
+window.plugin.guessPlayerLevels.setupCallback = function() {
+  $('#toolbox').append('<a onclick="window.plugin.guessPlayerLevels.guess()">guess player levels</a> ');
+}
+
+window.plugin.guessPlayerLevels.guess = function() {
   var players = {};
   $.each(window.portals, function(ind, portal) {
     var r = portal.options.details.resonatorArray.resonators;
@@ -37,19 +41,30 @@ window.plugin.guessPlayerLevels = function() {
     playersNamed[getPlayerName(guid)] = level;
   });
 
-  var s = '';
-  $.each(Object.keys(playersNamed).sort, function(ind, playerName) {
-    s += playerName + ': ' + level;
+  var s = 'the players have at least the following level:\n\n';
+  $.each(Object.keys(playersNamed).sort(), function(ind, playerName) {
+    var level = playersNamed[playerName];
+    var nick = (playerName + ':                              ').slice(0, 20);
+    s += nick + '\t' + level + '\n';
   });
+
+  s += '\n\nIf there are some unresolved names, simply try again.'
 
   alert(s);
 }
 
+var setup = window.plugin.guessPlayerLevels.setupCallback;
 
-console.log('window.plugin.guessPlayerLevels now is:');
-console.log(window.plugin.guessPlayerLevels);
+// PLUGIN END //////////////////////////////////////////////////////////
 
-
+if(window.iitcLoaded && typeof setup === 'function') {
+  setup();
+} else {
+  if(window.bootPlugins)
+    window.bootPlugins.push(setup);
+  else
+    window.bootPlugins = [setup];
+}
 } // wrapper end
 // inject code into site context
 var script = document.createElement('script');
