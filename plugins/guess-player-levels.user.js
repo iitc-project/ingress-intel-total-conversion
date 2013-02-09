@@ -24,7 +24,33 @@ window.plugin.guessPlayerLevels.setupCallback = function() {
   $('#toolbox').append('<a onclick="window.plugin.guessPlayerLevels.guess()">guess player levels</a> ');
 }
 
-window.plugin.guessPlayerLevels.guess = function() {
+
+window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
+  //expects dom node with nick in its child text node
+  var playersNamed = window.plugin.guessPlayerLevels.prepareGuess();
+  var el = $(dom);
+  var nick = el.text();
+  var text;
+  if (nick in playersNamed) {
+    text = 'Min player level: ' + playersNamed[nick] + ' (guessed)';
+  } else {
+    text = 'Min player level unknown';
+  }
+  el.attr('title', text);
+  el.addClass('help');
+}
+
+window.plugin.guessPlayerLevels.setupChatNickHelper = function() {
+  $('#portaldetails').delegate('#resodetails .meter-text', 'mouseenter', function() {
+    window.plugin.guessPlayerLevels.setLevelTitle(this);
+  });
+
+  $('#chat').delegate('mark', 'mouseenter', function() {
+    window.plugin.guessPlayerLevels.setLevelTitle(this);
+  });
+}
+
+window.plugin.guessPlayerLevels.prepareGuess = function() {
   var players = {};
   $.each(window.portals, function(ind, portal) {
     var r = portal.options.details.resonatorArray.resonators;
@@ -40,6 +66,11 @@ window.plugin.guessPlayerLevels.guess = function() {
   $.each(players, function(guid, level) {
     playersNamed[getPlayerName(guid)] = level;
   });
+  return playersNamed;
+}
+
+window.plugin.guessPlayerLevels.guess = function() {
+  var playersNamed = window.plugin.guessPlayerLevels.prepareGuess();
 
   var s = 'the players have at least the following level:\n\n';
   $.each(Object.keys(playersNamed).sort(), function(ind, playerName) {
@@ -53,7 +84,10 @@ window.plugin.guessPlayerLevels.guess = function() {
   alert(s);
 }
 
-var setup = window.plugin.guessPlayerLevels.setupCallback;
+var setup =  function() {
+  window.plugin.guessPlayerLevels.setupCallback();
+  window.plugin.guessPlayerLevels.setupChatNickHelper();
+}
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
