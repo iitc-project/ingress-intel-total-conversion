@@ -32,7 +32,7 @@ window.renderPortalDetails = function(guid) {
   var linkedFields = 'fields: ' + d.portalV2.linkedFields.length;
 
   // collect and html-ify random data
-  var randDetails = [playerText, sinceText, linkedFields, getRangeText(d), getEnergyText(d), linksText, getAvgResoDistText(d)];
+  var randDetails = [playerText, sinceText, getRangeText(d), getEnergyText(d), linksText, getAvgResoDistText(d), linkedFields];
   randDetails = randDetails.map(function(detail) {
     if(!detail) return '';
     detail = detail.split(':');
