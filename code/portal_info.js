@@ -17,7 +17,21 @@ window.getPortalLevel = function(d) {
   return hasReso ? Math.max(1, lvl/8) : 0;
 }
 
-window.getPortalEnergy = function(d) {
+window.getTotalPortalEnergy = function(d) {
+  var nrg = 0;
+  $.each(d.resonatorArray.resonators, function(ind, reso) {
+    if(!reso) return true;
+    var level = parseInt(reso.level);
+    var max = RESO_NRG[level];
+    nrg += max;
+  });
+  return nrg;
+}
+
+// For backwards compatibility
+window.getPortalEnergy = window.getTotalPortalEnergy;
+
+window.getCurrentPortalEnergy = function(d) {
   var nrg = 0;
   $.each(d.resonatorArray.resonators, function(ind, reso) {
     if(!reso) return true;
