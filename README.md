@@ -80,7 +80,7 @@ Contributors
 [JasonMillward](https://github.com/JasonMillward),
 [mledoze](https://github.com/mledoze),
 [OshiHidra](https://github.com/OshiHidra),
-[Scrool](https://github.com/Scrool)
+[Scrool](https://github.com/Scrool),
 [Xelio](https://github.com/Xelio),
 [ZauberNerd](https://github.com/ZauberNerd)
 
