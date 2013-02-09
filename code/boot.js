@@ -198,4 +198,6 @@ var LEAFLET = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.js';
 var AUTOLINK = 'http://breunigs.github.com/ingress-intel-total-conversion/external/autolink.js';
 
 // after all scripts have loaded, boot the actual app
-load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS).thenRun(boot);
+load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS).onError(function (err) {
+  alert('Could not all resources, the script likely won’t work.\n\nIf this happend the first time for you, it’s probably a temporary issue. Just wait a bit and try again.\n\nIf you installed the script for the first time and this happens:\n– try disabling NoScript if you have it installed\n– press CTRL+SHIFT+K in Firefox or CTRL+SHIFT+I in Chrome/Opera and reload the page. Additional info may be available in the console.\n– Open an issue at https://github.com/breunigs/ingress-intel-total-conversion/issues');
+}).thenRun(boot);

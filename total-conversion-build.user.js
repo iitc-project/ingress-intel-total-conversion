@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.4-2013-02-09-150641
+// @version        0.4-2013-02-09-151927
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
@@ -43,7 +43,7 @@ for(var i = 0; i < d.length; i++) {
 document.getElementsByTagName('head')[0].innerHTML = ''
   //~ + '<link rel="stylesheet" type="text/css" href="http://0.0.0.0:8000/style.css"/>'
   + '<title>Ingress Intel Map</title>'
-  + '<link rel="stylesheet" type="text/css" href="http://breunigs.github.com/ingress-intel-total-conversion/style.css?2013-02-09-150641"/>'
+  + '<link rel="stylesheet" type="text/css" href="http://breunigs.github.com/ingress-intel-total-conversion/style.css?2013-02-09-151927"/>'
   + '<link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.css"/>'
   + '<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Coda"/>';
 
@@ -934,7 +934,9 @@ var LEAFLET = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.js';
 var AUTOLINK = 'http://breunigs.github.com/ingress-intel-total-conversion/external/autolink.js';
 
 // after all scripts have loaded, boot the actual app
-load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS).thenRun(boot);
+load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS).onError(function (err) {
+  alert('Could not all resources, the script likely won’t work.\n\nIf this happend the first time for you, it’s probably a temporary issue. Just wait a bit and try again.\n\nIf you installed the script for the first time and this happens:\n– try disabling NoScript if you have it installed\n– press CTRL+SHIFT+K in Firefox or CTRL+SHIFT+I in Chrome/Opera and reload the page. Additional info may be available in the console.\n– Open an issue at https://github.com/breunigs/ingress-intel-total-conversion/issues');
+}).thenRun(boot);
 
 
 window.chat = function() {};
