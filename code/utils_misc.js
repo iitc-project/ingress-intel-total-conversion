@@ -138,6 +138,37 @@ window.zoomToAndShowPortal = function(guid, latlng) {
   map.setView(latlng, 17);
 }
 
+// translates guids to entity types
+window.getTypeByGuid = function(guid) {
+  // portals end in “.11” or “.12“, links in “.9", fields in “.b”
+  // .11 == portals
+  // .12 == portals
+  // .9  == links
+  // .b  == fields
+  // .c  == player/creator
+  // .d  == chat messages
+  switch(guid.slice(33)) {
+    case '11':
+    case '12':
+      return TYPE_PORTAL;
+
+    case '9':
+      return TYPE_LINK;
+
+    case 'b':
+      return TYPE_FIELD;
+
+    case 'c':
+      return TYPE_PLAYER;
+
+    case 'd':
+      return TYPE_CHAT;
+
+    default:
+      return TYPE_UNKNOWN;
+  }
+}
+
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
 }

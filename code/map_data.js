@@ -165,36 +165,6 @@ window.cleanUp = function() {
   console.log('removed out-of-bounds: '+cnt[0]+' portals, '+cnt[1]+' links, '+cnt[2]+' fields');
 }
 
-// translates guids to entity types
-window.getTypeByGuid = function(guid) {
-  // portals end in “.11” or “.12“, links in “.9", fields in “.b”
-  // .11 == portals
-  // .12 == portals
-  // .9  == links
-  // .b  == fields
-  // .c  == player/creator
-  // .d  == chat messages
-  switch(guid.slice(33)) {
-    case '11':
-    case '12':
-      return TYPE_PORTAL;
-      break;
-    case '9':
-      return TYPE_LINK;
-      break;
-    case 'b':
-      return TYPE_FIELD;
-      break;
-    case 'c':
-      return TYPE_PLAYER;
-      break;
-    case 'd':
-      return TYPE_CHAT;
-      break;
-    default:
-      return TYPE_UNKNOWN;
-  }
-}
 
 // removes given entity from map
 window.removeByGuid = function(guid) {
