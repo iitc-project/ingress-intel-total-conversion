@@ -29,10 +29,12 @@ window.getPortalDescriptionFromDetails = function(details) {
 window.getModDetails = function(d) {
   var mods = [];
   var modsTitle = [];
+  var modsColor = [];
   $.each(d.portalV2.linkedModArray, function(ind, mod) {
     if(!mod) {
       mods.push('');
       modsTitle.push('');
+      modsColor.push('#000');
     } else if(mod.type === 'RES_SHIELD') {
 
       var title = mod.rarity.capitalize() + ' ' + mod.displayName + '\n';
@@ -46,16 +48,18 @@ window.getModDetails = function(d) {
 
       mods.push(mod.rarity.capitalize().replace('_', ' ') + ' ' + mod.displayName);
       modsTitle.push(title);
+      modsColor.push(COLORS_MOD[mod.rarity]);
     } else {
       mods.push(mod.type);
       modsTitle.push('Unknown mod. No further details available.');
+      modsColor.push('#FFF');
     }
   });
 
-  var t = '<span title="'+modsTitle[0]+'">'+mods[0]+'</span>'
-        + '<span title="'+modsTitle[1]+'">'+mods[1]+'</span>'
-        + '<span title="'+modsTitle[2]+'">'+mods[2]+'</span>'
-        + '<span title="'+modsTitle[3]+'">'+mods[3]+'</span>'
+  var t = '<span title="'+modsTitle[0]+'" style="color:'+modsColor[0]+'">'+mods[0]+'</span>'
+        + '<span title="'+modsTitle[1]+'" style="color:'+modsColor[1]+'">'+mods[1]+'</span>'
+        + '<span title="'+modsTitle[2]+'" style="color:'+modsColor[2]+'">'+mods[2]+'</span>'
+        + '<span title="'+modsTitle[3]+'" style="color:'+modsColor[3]+'">'+mods[3]+'</span>'
 
   return t;
 }
