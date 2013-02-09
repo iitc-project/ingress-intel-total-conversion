@@ -69,8 +69,17 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   // to be in the foreground, or they cannot be clicked. See
   // https://github.com/Leaflet/Leaflet/issues/185
   var ppp = [];
+  var p2f = {};
   $.each(m, function(qk, val) {
     $.each(val.deletedGameEntityGuids, function(ind, guid) {
+      if(getTypeByGuid(guid) === TYPE_FIELD) {
+        if(window.fields[guid] === undefined) return true;
+        $.each(window.fields[guid].options.vertices, function(ind, vertex) {
+          if(window.portals[vertex.guid] === undefined) return true;
+          fieldArray = window.portals[vertex.guid].options.portalV2.linkedFields;
+          fieldArray.splice($.inArray(guid, fieldArray), 1);
+        });
+      }
       window.removeByGuid(guid);
     });
 
@@ -92,13 +101,26 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
 
 
         ppp.push(ent); // delay portal render
-      } else if(ent[2].edge !== undefined)
+      } else if(ent[2].edge !== undefined) {
         renderLink(ent);
-      else if(ent[2].capturedRegion !== undefined)
+      } else if(ent[2].capturedRegion !== undefined) {
+        $.each(ent[2].capturedRegion, function(ind, vertex) {
+          if(p2f[vertex.guid] === undefined)
+            p2f[vertex.guid] = new Array();
+          p2f[vertex.guid].push(ent[0]);
+        });
         renderField(ent);
-      else
+      } else {
         throw('Unknown entity: ' + JSON.stringify(ent));
+      }
     });
+  });
+
+  $.each(ppp, function(ind, portal) {
+    if(p2f[portal[0]] === undefined)
+      portal[2].portalV2['linkedFields'] = [];
+    else
+      portal[2].portalV2['linkedFields'] = $.unique(p2f[portal[0]]);
   });
 
   $.each(ppp, function(ind, portal) { renderPortal(portal); });
@@ -143,8 +165,8 @@ window.cleanUp = function() {
   console.log('removed out-of-bounds: '+cnt[0]+' portals, '+cnt[1]+' links, '+cnt[2]+' fields');
 }
 
-// removes given entity from map
-window.removeByGuid = function(guid) {
+// translates guids to entity types
+window.getTypeByGuid = function(guid) {
   // portals end in “.11” or “.12“, links in “.9", fields in “.b”
   // .11 == portals
   // .12 == portals
@@ -155,16 +177,39 @@ window.removeByGuid = function(guid) {
   switch(guid.slice(33)) {
     case '11':
     case '12':
+      return TYPE_PORTAL;
+      break;
+    case '9':
+      return TYPE_LINK;
+      break;
+    case 'b':
+      return TYPE_FIELD;
+      break;
+    case 'c':
+      return TYPE_PLAYER;
+      break;
+    case 'd':
+      return TYPE_CHAT;
+      break;
+    default:
+      return TYPE_UNKNOWN;
+  }
+}
+
+// removes given entity from map
+window.removeByGuid = function(guid) {
+  switch(getTypeByGuid(guid)) {
+    case TYPE_PORTAL:
       if(!window.portals[guid]) return;
       var p = window.portals[guid];
       for(var i = 0; i < portalsLayers.length; i++)
         portalsLayers[i].removeLayer(p);
       break;
-    case '9':
+    case TYPE_LINK:
       if(!window.links[guid]) return;
       linksLayer.removeLayer(window.links[guid]);
       break;
-    case 'b':
+    case TYPE_FIELD:
       if(!window.fields[guid]) return;
       fieldsLayer.removeLayer(window.fields[guid]);
       break;
@@ -282,6 +327,7 @@ window.renderField = function(ent) {
     stroke: false,
     clickable: false,
     smoothFactor: 10,
+    vertices: ent[2].capturedRegion,
     guid: ent[0]});
 
   if(!getPaddedBounds().intersects(poly.getBounds())) return;

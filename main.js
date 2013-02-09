@@ -139,6 +139,7 @@ var NOMINATIM = 'http://nominatim.openstreetmap.org/search?format=json&limit=1&q
 var DEG2RAD = Math.PI / 180;
 var TEAM_NONE = 0, TEAM_RES = 1, TEAM_ENL = 2;
 var TEAM_TO_CSS = ['none', 'res', 'enl'];
+var TYPE_UNKNOWN = 0, TYPE_PORTAL = 1, TYPE_LINK = 2, TYPE_FIELD = 3, TYPE_PLAYER = 4, TYPE_CHAT = 5;
 // make PLAYER variable available in site context
 var PLAYER = window.PLAYER;
 var CHAT_SHRINKED = 60;
