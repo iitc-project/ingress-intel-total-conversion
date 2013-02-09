@@ -32,9 +32,9 @@ window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
   var nick = el.text();
   var text;
   if (nick in playersNamed) {
-    text = 'Player level: ' + playersNamed[nick] + ' (guessed)';
+    text = 'Min player level: ' + playersNamed[nick] + ' (guessed)';
   } else {
-    text = 'Player level unknown';
+    text = 'Min player level unknown';
   }
   el.attr('title', text);
   el.addClass('help');
