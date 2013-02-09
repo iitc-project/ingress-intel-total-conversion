@@ -65,6 +65,8 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '    <input id="geosearch" placeholder="Search location…" type="text"/>'
   + '    <div id="portaldetails"></div>'
   + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
+  + '    <div id="toolbox"></div>'
+  + '    <div id="spacer"></div>'
   + '    <div id="updatestatus"></div>'
   + '  </div>';
   + '</div>';
@@ -162,6 +164,9 @@ window.portals = {};
 window.links = {};
 window.fields = {};
 
+// plugin framework. Plugins may load earlier than iitc, so don’t
+// overwrite data
+if(typeof window.plugin !== 'function') window.plugin = function() {};
 
 
 @@INJECTHERE@@

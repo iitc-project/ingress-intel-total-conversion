@@ -176,6 +176,11 @@ function boot() {
   window.PLAYER['nickMatcher'] = new RegExp('\\b('+n+')\\b', 'ig');
 
   $('#sidebar').show();
+
+  if(window.bootPlugins)
+    $.each(window.bootPlugins, function(ind, ref) { ref(); });
+
+  window.iitcLoaded = true;
 }
 
 // this is the minified load.js script that allows us to easily load

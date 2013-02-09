@@ -35,12 +35,6 @@ body {
   overflow-x:hidden;
 }
 
-#redeem {
-  /* cheap hack to prevent sidebar content being overlayed by the map
-   * status box */
-  margin-bottom: 55px;
-}
-
 
 .enl {
   color: #03fe03 !important;
@@ -487,6 +481,17 @@ aside:nth-child(odd) span {
 .linkdetails aside {
   margin: 0 4px;
   width: 140px;
+}
+
+#toolbox {
+  padding: 4px;
+  font-size:90%;
+}
+
+#spacer {
+  /* cheap hack to prevent sidebar content being overlayed by the map
+   * status box */
+  height: 55px;
 }
 
 /* a common portal display takes this much space (prevents moving
