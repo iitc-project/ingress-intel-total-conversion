@@ -24,7 +24,22 @@ window.plugin.guessPlayerLevels.setupCallback = function() {
   $('#toolbox').append('<a onclick="window.plugin.guessPlayerLevels.guess()">guess player levels</a> ');
 }
 
-window.plugin.guessPlayerLevels.guess = function() {
+window.plugin.guessPlayerLevels.setupChatNickHelper = function() {
+  $('#chat').delegate('mark', 'mouseenter', function() {
+    var playersNamed = window.plugin.guessPlayerLevels.prepareGuess();
+    var nick = $(this).text();
+    var text;
+    if (nick in playersNamed) {
+      text = 'Player level: ' + playersNamed[nick] + ' (guessed)';
+    } else {
+      text = 'Player level unknown';
+    }
+    $(this).attr('title', text);
+    $(this).addClass('help');
+  });
+}
+
+window.plugin.guessPlayerLevels.prepareGuess = function() {
   var players = {};
   $.each(window.portals, function(ind, portal) {
     var r = portal.options.details.resonatorArray.resonators;
@@ -40,6 +55,11 @@ window.plugin.guessPlayerLevels.guess = function() {
   $.each(players, function(guid, level) {
     playersNamed[getPlayerName(guid)] = level;
   });
+  return playersNamed;
+}
+
+window.plugin.guessPlayerLevels.guess = function() {
+  var playersNamed = window.plugin.guessPlayerLevels.prepareGuess();
 
   var s = 'the players have at least the following level:\n\n';
   $.each(Object.keys(playersNamed).sort(), function(ind, playerName) {
@@ -53,7 +73,10 @@ window.plugin.guessPlayerLevels.guess = function() {
   alert(s);
 }
 
-var setup = window.plugin.guessPlayerLevels.setupCallback;
+var setup =  function() {
+  window.plugin.guessPlayerLevels.setupCallback();
+  window.plugin.guessPlayerLevels.setupChatNickHelper();
+}
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
