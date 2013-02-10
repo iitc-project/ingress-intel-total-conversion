@@ -35,6 +35,19 @@ body {
   overflow-x:hidden;
 }
 
+#sidebartoggle {
+  display: block;
+  padding: 5px;
+  position: absolute;
+  top: 50%;
+  z-index: 3000;
+  background-color: rgba(8, 48, 78, 0.9);
+  color: #FFCE00;
+  border: 1px solid #20A8B1;
+  border-right: none;
+  border-radius: 5px 0 0 5px;
+  text-decoration: none;
+}
 
 .enl {
   color: #03fe03 !important;
@@ -357,11 +370,16 @@ h3 {
 .mods {
   margin-bottom: 1px;
   margin-top: 5px;
+  height: 75px;
 }
 
 .mods span {
   background: #313131;
-  display: inline-block;
+  /* can’t use inline-block because Webkit’s implementation is buggy and
+   * introduces additional margins in random cases. No clear necessary,
+   * as that’s solved by setting height on .mods. */
+  display: block;
+  float:left;
   height: 63.7px;
   margin-left: 4px;
   overflow: hidden;
