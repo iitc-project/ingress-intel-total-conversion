@@ -392,6 +392,7 @@ h3 {
   text-align: center;
   width: 63.7px;
   cursor:help;
+  border: 1px solid #666;
 }
 
 .mods span[title=""] {
