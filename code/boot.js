@@ -94,7 +94,22 @@ window.setupMap = function() {
   map.attributionControl.setPrefix('');
   // listen for changes and store them in cookies
   map.on('moveend', window.storeMapPosition);
-  map.on('zoomend', window.storeMapPosition);
+  map.on('zoomend', function() {
+    window.storeMapPosition;
+
+    // remove all resonators if zoom out to < RESONATOR_DISPLAY_ZOOM_LEVEL
+    if(isResonatorsShow()) return;
+    for(var i = 1; i < portalsLayers.length; i++) {
+      portalsLayers[i].eachLayer(function(item) {
+        var itemGuid = item.options.guid;
+        // check if 'item' is a resonator
+        if(getTypeByGuid(itemGuid) != TYPE_RESONATOR) return true;
+        portalsLayers[i].removeLayer(item);
+      });
+    }
+
+    console.log('Remove all resonators');
+  });
   $("[name='leaflet-base-layers']").change(function () {
     writeCookie('ingress.intelmap.type', $(this).parent().index());
   });

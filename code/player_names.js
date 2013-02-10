@@ -46,3 +46,18 @@ window.resolvePlayerNames = function() {
 window.setPlayerName = function(guid, nick) {
   localStorage[guid] = nick;
 }
+
+
+window.loadPlayerNamesForPortal = function(portal_details) {
+  if(map.getZoom() < PRECACHE_PLAYER_NAMES_ZOOM) return;
+  var e = portal_details;
+
+  if(e.captured && e.captured.capturingPlayerId)
+    getPlayerName(e.captured.capturingPlayerId);
+
+  if(!e.resonatorArray || !e.resonatorArray.resonators) return;
+
+  $.each(e.resonatorArray.resonators, function(ind, reso) {
+    if(reso) getPlayerName(reso.ownerGuid);
+  });
+}

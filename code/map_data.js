@@ -123,7 +123,11 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   });
 
   $.each(ppp, function(ind, portal) { renderPortal(portal); });
-  if(portals[selectedPortal]) portals[selectedPortal].bringToFront();
+  if(portals[selectedPortal]) {
+    try {
+      portals[selectedPortal].bringToFront();
+    } catch(e) { /* portal is now visible, catch Leaflet error */ }
+  }
 
   if(portalInUrlAvailable) {
     renderPortalDetails(urlPortal);
@@ -142,13 +146,16 @@ window.cleanUp = function() {
   var minlvl = getMinPortalLevel();
   for(var i = 0; i < portalsLayers.length; i++) {
     // i is also the portal level
-    portalsLayers[i].eachLayer(function(portal) {
+    portalsLayers[i].eachLayer(function(item) {
+      var itemGuid = item.options.guid;
+      // check if 'item' is a portal
+      if(getTypeByGuid(itemGuid) != TYPE_PORTAL) return true;
       // portal must be in bounds and have a high enough level. Also don’t
       // remove if it is selected.
-      if(portal.options.guid == window.selectedPortal ||
-        (b.contains(portal.getLatLng()) && i >= minlvl)) return;
+      if(itemGuid == window.selectedPortal ||
+        (b.contains(item.getLatLng()) && i >= minlvl)) return true;
       cnt[0]++;
-      portalsLayers[i].removeLayer(portal);
+      portalsLayers[i].removeLayer(item);
     });
   }
   linksLayer.eachLayer(function(link) {
@@ -182,6 +189,12 @@ window.removeByGuid = function(guid) {
       if(!window.fields[guid]) return;
       fieldsLayer.removeLayer(window.fields[guid]);
       break;
+    case TYPE_RESONATOR:
+      if(!window.resonators[guid]) return;
+      var r = window.resonators[guid];
+      for(var i = 1; i < portalsLayers.length; i++)
+        portalsLayers[i].removeLayer(r);
+      break;
     default:
       console.warn('unknown GUID type: ' + guid);
       //window.debug.printStackTrace();
@@ -192,45 +205,62 @@ window.removeByGuid = function(guid) {
 
 // renders a portal on the map from the given entity
 window.renderPortal = function(ent) {
-  removeByGuid(ent[0]);
-
   if(Object.keys(portals).length >= MAX_DRAWN_PORTALS && ent[0] != selectedPortal)
-    return;
-
-  var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
-  // needs to be checked before, so the portal isn’t added to the
-  // details list and other places
-  //if(!getPaddedBounds().contains(latlng)) return;
+    return removeByGuid(ent[0]);
 
   // hide low level portals on low zooms
   var portalLevel = getPortalLevel(ent[2]);
-  if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal) return;
-
-  // pre-load player names for high zoom levels
-  if(map.getZoom() >= PRECACHE_PLAYER_NAMES_ZOOM) {
-    if(ent[2].captured && ent[2].captured.capturingPlayerId)
-      getPlayerName(ent[2].captured.capturingPlayerId);
-    if(ent[2].resonatorArray && ent[2].resonatorArray.resonators)
-      $.each(ent[2].resonatorArray.resonators, function(ind, reso) {
-        if(reso) getPlayerName(reso.ownerGuid);
-      });
-  }
+  if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal)
+    return removeByGuid(ent[0]);
 
   var team = getTeam(ent[2]);
 
+  // do nothing if portal did not change
+  var old = window.portals[ent[0]];
+  if(old && old.options.level === portalLevel && old.options.team === team)
+    return;
+
+  // there were changes, remove old portal
+  removeByGuid(ent[0]);
+
+  var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
+
+  // pre-loads player names for high zoom levels
+  loadPlayerNamesForPortal(ent[2]);
+
+
+  var lvWeight = Math.max(2, portalLevel / 1.5);
+  var lvRadius = portalLevel + 3;
+
   var p = L.circleMarker(latlng, {
-    radius: 7,
+    radius: lvRadius,
     color: ent[0] == selectedPortal ? COLOR_SELECTED_PORTAL : COLORS[team],
     opacity: 1,
-    weight: 3,
+    weight: lvWeight,
     fillColor: COLORS[team],
     fillOpacity: 0.5,
     clickable: true,
     level: portalLevel,
+    team: team,
     details: ent[2],
     guid: ent[0]});
 
-  p.on('remove',   function() { delete window.portals[this.options.guid]; });
+  p.on('remove',   function() {
+    var portalGuid = this.options.guid
+
+    // remove attached resonators, skip if
+    // all resonators have already removed by zooming
+    if(isResonatorsShow()) {
+      for(var i = 0; i <= 7; i++)
+        removeByGuid(portalResonatorGuid(portalGuid,i));
+    }
+    delete window.portals[portalGuid];
+    if(window.selectedPortal === portalGuid) {
+      window.unselectOldPortal();
+      window.map.removeLayer(window.portalAccessIndicator);
+      window.portalAccessIndicator = null;
+    }
+  });
   p.on('add',      function() {
     window.portals[this.options.guid] = this;
     // handles the case where a selected portal gets removed from the
@@ -243,8 +273,69 @@ window.renderPortal = function(ent) {
     window.renderPortalDetails(ent[0]);
     window.map.setView(latlng, 17);
   });
+
+  window.renderResonators(ent);
+
+  window.runHooks('portalAdded', {portal: p});
+
   // portalLevel contains a float, need to round down
   p.addTo(portalsLayers[parseInt(portalLevel)]);
+}
+
+window.renderResonators = function(ent) {
+
+  var portalLevel = getPortalLevel(ent[2]);
+  if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal) return;
+
+  if(!isResonatorsShow()) return;
+
+  for(var i=0; i < ent[2].resonatorArray.resonators.length; i++) {
+    var rdata = ent[2].resonatorArray.resonators[i];
+
+    if(rdata == null) continue;
+
+    if(window.resonators[portalResonatorGuid(ent[0],i)]) continue;
+
+    // offset in meters
+    var dn = rdata.distanceToPortal*SLOT_TO_LAT[rdata.slot];
+    var de = rdata.distanceToPortal*SLOT_TO_LNG[rdata.slot];
+
+    // Coordinate offset in radians
+    var dLat = dn/EARTH_RADIUS;
+    var dLon = de/(EARTH_RADIUS*Math.cos(Math.PI/180*(ent[2].locationE6.latE6/1E6)));
+
+    // OffsetPosition, decimal degrees
+    var lat0 = ent[2].locationE6.latE6/1E6 + dLat * 180/Math.PI;
+    var lon0 = ent[2].locationE6.lngE6/1E6 + dLon * 180/Math.PI;
+    var Rlatlng = [lat0, lon0];
+    var r =  L.circleMarker(Rlatlng, {
+        radius: 3,
+        // #AAAAAA outline seems easier to see the fill opacity
+        color: '#AAAAAA',
+        opacity: 1,
+        weight: 1,
+        fillColor: COLORS_LVL[rdata.level],
+        fillOpacity: rdata.energyTotal/RESO_NRG[rdata.level],
+        clickable: false,
+        level: rdata.level,
+        details: rdata,
+        pDetails: ent[2],
+        guid: portalResonatorGuid(ent[0],i) });
+
+    r.on('remove',   function() { delete window.resonators[this.options.guid]; });
+    r.on('add',      function() { window.resonators[this.options.guid] = this; });
+
+    r.addTo(portalsLayers[parseInt(portalLevel)]);
+  }
+}
+
+// append portal guid with -resonator-[slot] to get guid for resonators
+window.portalResonatorGuid = function(portalGuid, slot) {
+  return portalGuid + '-resonator-' + slot;
+}
+
+window.isResonatorsShow = function() {
+  return map.getZoom() >= RESONATOR_DISPLAY_ZOOM_LEVEL;
 }
 
 window.portalResetColor = function(portal) {
@@ -274,8 +365,11 @@ window.renderLink = function(ent) {
   if(!getPaddedBounds().intersects(poly.getBounds())) return;
 
   poly.on('remove', function() { delete window.links[this.options.guid]; });
-  poly.on('add',    function() { window.links[this.options.guid] = this; });
-  poly.addTo(linksLayer).bringToBack();
+  poly.on('add',    function() {
+    window.links[this.options.guid] = this;
+    this.bringToBack();
+  });
+  poly.addTo(linksLayer);
 }
 
 // renders a field on the map from a given entity
@@ -302,6 +396,9 @@ window.renderField = function(ent) {
   if(!getPaddedBounds().intersects(poly.getBounds())) return;
 
   poly.on('remove', function() { delete window.fields[this.options.guid]; });
-  poly.on('add',    function() { window.fields[this.options.guid] = this; });
-  poly.addTo(fieldsLayer).bringToBack();
+  poly.on('add',    function() {
+    window.fields[this.options.guid] = this;
+    this.bringToBack();
+  });
+  poly.addTo(fieldsLayer);
 }

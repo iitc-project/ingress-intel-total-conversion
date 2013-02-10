@@ -28,6 +28,19 @@ for(var x in scr) {
   break;
 }
 
+
+if(!d) {
+  // page doesn’t have a script tag with player information.
+  if(document.getElementById('header_email')) {
+    // however, we are logged in.
+    setTimeout('location.reload();', 10*1000);
+    throw('Page doesn’t have player data, but you are logged in. Reloading in 10s.');
+  }
+  // FIXME: handle nia takedown in progress
+  throw('Couldn’t retrieve player data. Are you logged in?');
+}
+
+
 for(var i = 0; i < d.length; i++) {
   if(!d[i].match('var PLAYER = ')) continue;
   eval(d[i].match(/^var /, 'window.'));
@@ -50,7 +63,7 @@ document.getElementsByTagName('head')[0].innerHTML = ''
 document.getElementsByTagName('body')[0].innerHTML = ''
   + '<div id="map">Loading, please wait</div>'
   + '<div id="chatcontrols" style="display:none">'
-  + '  <a>expand</a><a>automated</a><a>public</a><a class="active">faction</a>'
+  + '  <a>◢◣</a><a>automated</a><a>public</a><a class="active">faction</a>'
   + '</div>'
   + '<div id="chat" style="display:none">'
   + '  <div id="chatfaction"></div>'
@@ -66,7 +79,7 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '    <input id="geosearch" placeholder="Search location…" type="text"/>'
   + '    <div id="portaldetails"></div>'
   + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
-  + '    <div id="toolbox"></div>'
+  + '    <div id="toolbox"><a onmouseover="setPermaLink(this)">permalink</a></div>'
   + '    <div id="spacer"></div>'
   + '    <div id="updatestatus"></div>'
   + '  </div>';
@@ -131,7 +144,7 @@ var RANGE_INDICATOR_COLOR = 'red';
 var RESO_NRG = [0, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 6000];
 var MAX_XM_PER_LEVEL = [0, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000];
 var MIN_AP_FOR_LEVEL = [0, 10000, 30000, 70000, 150000, 300000, 600000, 1200000];
-var HACK_RANGE = 35; // in meters, max. distance from portal to be able to access it
+var HACK_RANGE = 40; // in meters, max. distance from portal to be able to access it
 var OCTANTS = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
 var DEFAULT_PORTAL_IMG = 'http://commondatastorage.googleapis.com/ingress/img/default-portal-image.png';
 
@@ -140,10 +153,18 @@ var NOMINATIM = 'http://nominatim.openstreetmap.org/search?format=json&limit=1&q
 var DEG2RAD = Math.PI / 180;
 var TEAM_NONE = 0, TEAM_RES = 1, TEAM_ENL = 2;
 var TEAM_TO_CSS = ['none', 'res', 'enl'];
-var TYPE_UNKNOWN = 0, TYPE_PORTAL = 1, TYPE_LINK = 2, TYPE_FIELD = 3, TYPE_PLAYER = 4, TYPE_CHAT = 5;
+var TYPE_UNKNOWN = 0, TYPE_PORTAL = 1, TYPE_LINK = 2, TYPE_FIELD = 3, TYPE_PLAYER = 4, TYPE_CHAT = 5, TYPE_RESONATOR = 6;
 // make PLAYER variable available in site context
 var PLAYER = window.PLAYER;
 var CHAT_SHRINKED = 60;
+
+// Minimum zoom level resonator will display
+var RESONATOR_DISPLAY_ZOOM_LEVEL = 17;
+
+// Constants for resonator positioning
+var SLOT_TO_LAT = [0, Math.sqrt(2)/2, 1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2];
+var SLOT_TO_LNG = [1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2, 0, Math.sqrt(2)/2];
+var EARTH_RADIUS=6378137;
 
 // STORAGE ///////////////////////////////////////////////////////////
 // global variables used for storage. Most likely READ ONLY. Proper
@@ -165,6 +186,7 @@ var portalsLayers, linksLayer, fieldsLayer;
 window.portals = {};
 window.links = {};
 window.fields = {};
+window.resonators = {};
 
 // plugin framework. Plugins may load earlier than iitc, so don’t
 // overwrite data
