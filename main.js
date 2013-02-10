@@ -58,7 +58,7 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '  <div id="chatautomated"></div>'
   + '</div>'
   + '<form id="chatinput" style="display:none"><time></time><span>tell faction:</span><input type="text"/></form>'
-  + '<a id="sidebartoggle"></a>'
+  + '<a id="sidebartoggle">◣<br>◤</a>'
   + '<div id="scrollwrapper">' // enable scrolling for small screens
   + '  <div id="sidebar" style="display: none">'
   + '    <div id="playerstat">t</div>'

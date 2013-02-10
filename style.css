@@ -37,7 +37,9 @@ body {
 
 #sidebartoggle {
   display: block;
-  padding: 5px;
+  padding: 10px 5px;
+  margin-top: -31px;
+  line-height: 10px;
   position: absolute;
   top: 50%;
   z-index: 3000;
