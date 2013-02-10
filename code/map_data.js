@@ -245,7 +245,7 @@ window.renderPortal = function(ent) {
 
     // remove attached resonators, skip if 
     // all resonators have already removed by zooming
-    if (isResonatorsShow()) {
+    if(isResonatorsShow()) {
       for(var i = 0; i <= 7; i++)
         removeByGuid(portalResonatorGuid(portalGuid,i));
     }
@@ -280,9 +280,9 @@ window.renderResonators = function(ent) {
   for(var i=0; i < ent[2].resonatorArray.resonators.length; i++) {
     var rdata = ent[2].resonatorArray.resonators[i];
     
-    if (rdata == null) continue;
+    if(rdata == null) continue;
     
-    if (window.resonators[portalResonatorGuid(ent[0],i)]) continue;
+    if(window.resonators[portalResonatorGuid(ent[0],i)]) continue;
 
     // offset in meters
     var dn = rdata.distanceToPortal*SLOT_TO_LAT[rdata.slot];
@@ -320,7 +320,7 @@ window.renderResonators = function(ent) {
 // replace .11 or .12 in portal guid with .r[slot] to
 // get guid for resonators
 window.portalResonatorGuid = function(portalGuid, slot){
-  return portalGuid.slice(0,32) + '.r' + slot;
+  return portalGuid + '-resonator-' + slot;
 }
 
 window.isResonatorsShow = function(){

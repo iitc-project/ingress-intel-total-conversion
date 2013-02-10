@@ -97,7 +97,7 @@ window.setupMap = function() {
     window.storeMapPosition;
 
     // remove all resonators if zoom out to < RESONATOR_DISPLAY_ZOOM_LEVEL
-    if (isResonatorsShow()) return;
+    if(isResonatorsShow()) return;
     for(var i = 1; i < portalsLayers.length; i++) {
       portalsLayers[i].eachLayer(function(item) {
         var itemGuid = item.options.guid;
