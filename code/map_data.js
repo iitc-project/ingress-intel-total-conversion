@@ -123,7 +123,11 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   });
 
   $.each(ppp, function(ind, portal) { renderPortal(portal); });
-  if(portals[selectedPortal]) portals[selectedPortal].bringToFront();
+  if(portals[selectedPortal]) {
+    try {
+      portals[selectedPortal].bringToFront();
+    } catch(e) { /* portal is now visible, catch Leaflet error */ }
+  }
 
   if(portalInUrlAvailable) {
     renderPortalDetails(urlPortal);
@@ -359,8 +363,11 @@ window.renderLink = function(ent) {
   if(!getPaddedBounds().intersects(poly.getBounds())) return;
 
   poly.on('remove', function() { delete window.links[this.options.guid]; });
-  poly.on('add',    function() { window.links[this.options.guid] = this; });
-  poly.addTo(linksLayer).bringToBack();
+  poly.on('add',    function() {
+    window.links[this.options.guid] = this;
+    this.bringToBack();
+  });
+  poly.addTo(linksLayer);
 }
 
 // renders a field on the map from a given entity
@@ -387,6 +394,9 @@ window.renderField = function(ent) {
   if(!getPaddedBounds().intersects(poly.getBounds())) return;
 
   poly.on('remove', function() { delete window.fields[this.options.guid]; });
-  poly.on('add',    function() { window.fields[this.options.guid] = this; });
-  poly.addTo(fieldsLayer).bringToBack();
+  poly.on('add',    function() {
+    window.fields[this.options.guid] = this;
+    this.bringToBack();
+  });
+  poly.addTo(fieldsLayer);
 }
