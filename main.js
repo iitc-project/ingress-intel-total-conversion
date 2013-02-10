@@ -145,7 +145,7 @@ var PLAYER = window.PLAYER;
 var CHAT_SHRINKED = 60;
 
 // Minimum zoom level resonator will display
-var RESONATOR_DISPLAY_ZOOM_LEVEL = 16;
+var RESONATOR_DISPLAY_ZOOM_LEVEL = 17;
 
 // Constants for resonator positioning
 var SLOT_TO_LAT = [0, Math.sqrt(2)/2, 1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2];

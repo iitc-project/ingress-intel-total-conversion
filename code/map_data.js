@@ -146,11 +146,11 @@ window.cleanUp = function() {
     portalsLayers[i].eachLayer(function(item) {
       var itemGuid = item.options.guid;
       // check if 'item' is a portal
-      if(!window.portals[itemGuid]) return;
+      if(getTypeByGuid(itemGuid) != TYPE_PORTAL) return true;
       // portal must be in bounds and have a high enough level. Also don’t
       // remove if it is selected.
       if(itemGuid == window.selectedPortal ||
-        (b.contains(item.getLatLng()) && i >= minlvl)) return;
+        (b.contains(item.getLatLng()) && i >= minlvl)) return true;
       cnt[0]++;
       portalsLayers[i].removeLayer(item);
     });
@@ -188,7 +188,7 @@ window.removeByGuid = function(guid) {
       break;
     case TYPE_RESONATOR:
       if(!window.resonators[guid]) return;
-      var r = window.resonators[guid]
+      var r = window.resonators[guid];
       for(var i = 1; i < portalsLayers.length; i++)
         portalsLayers[i].removeLayer(r);
       break;
@@ -297,7 +297,7 @@ window.renderResonators = function(ent) {
     var lon0 = ent[2].locationE6.lngE6/1E6 + dLon * 180/Math.PI;
     var Rlatlng = [lat0, lon0];
     var r =  L.circleMarker(Rlatlng, {
-        radius: 4,
+        radius: 3,
         // #AAAAAA outline seems easier to see the fill opacity
         color: '#AAAAAA',
         opacity: 1,
@@ -318,11 +318,11 @@ window.renderResonators = function(ent) {
 }
 
 // append portal guid with -resonator-[slot] to get guid for resonators
-window.portalResonatorGuid = function(portalGuid, slot){
+window.portalResonatorGuid = function(portalGuid, slot) {
   return portalGuid + '-resonator-' + slot;
 }
 
-window.isResonatorsShow = function(){
+window.isResonatorsShow = function() {
   return map.getZoom() >= RESONATOR_DISPLAY_ZOOM_LEVEL;
 }
 

@@ -102,7 +102,7 @@ window.setupMap = function() {
       portalsLayers[i].eachLayer(function(item) {
         var itemGuid = item.options.guid;
         // check if 'item' is a resonator
-        if(!window.resonators[itemGuid]) return;
+        if(getTypeByGuid(itemGuid) != TYPE_RESONATOR) return true;
         portalsLayers[i].removeLayer(item);
       });
     }
