@@ -230,7 +230,7 @@ window.renderPortal = function(ent) {
 
 
   var lvWeight = Math.max(2, portalLevel / 1.5);
-  var lvRadius = portalLevel + 3;
+  var lvRadius = Math.max(portalLevel + 3, 5);
 
   var p = L.circleMarker(latlng, {
     radius: lvRadius,
