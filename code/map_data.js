@@ -144,27 +144,15 @@ window.cleanUp = function() {
   for(var i = 0; i < portalsLayers.length; i++) {
     // i is also the portal level
     portalsLayers[i].eachLayer(function(item) {
+      var itemGuid = item.options.guid;
+      // check if 'item' is a portal
+      if(!window.portals[itemGuid]) return;
       // portal must be in bounds and have a high enough level. Also don’t
       // remove if it is selected.
-      var itemGuid = item.options.guid;
-      switch(getTypeByGuid(itemGuid)) {
-
-        case TYPE_PORTAL:
-          if(itemGuid == window.selectedPortal ||
-            (b.contains(item.getLatLng()) && i >= minlvl)) return;
-          
-          cnt[0]++;
-
-          portalsLayers[i].removeLayer(item);
-          break;
-
-        case TYPE_RESONATOR:
-          // remove all resonators if zoom level become 
-          // lower than RESONATOR_DISPLAY_ZOOM_LEVEL
-          if (map.getZoom() < RESONATOR_DISPLAY_ZOOM_LEVEL) 
-            for(var j = 0; j <= 7; j++) portalsLayers[j].removeLayer(item);
-          break;
-      }
+      if(itemGuid == window.selectedPortal ||
+        (b.contains(item.getLatLng()) && i >= minlvl)) return;
+      cnt[0]++;
+      portalsLayers[i].removeLayer(item);
     });
   }
   linksLayer.eachLayer(function(link) {
@@ -253,10 +241,14 @@ window.renderPortal = function(ent) {
     guid: ent[0]});
 
   p.on('remove',   function() {
-    // remove attached resonators
     var portalGuid = this.options.guid
-    for(var i = 0; i <= 7; i++)
-      removeByGuid(portalResonatorGuid(portalGuid,i));
+
+    // remove attached resonators, skip if 
+    // all resonators have already removed by zooming
+    if (isResonatorsShow()) {
+      for(var i = 0; i <= 7; i++)
+        removeByGuid(portalResonatorGuid(portalGuid,i));
+    }
     delete window.portals[portalGuid]; 
   });
   p.on('add',      function() {
@@ -283,7 +275,7 @@ window.renderResonators = function(ent) {
   var portalLevel = getPortalLevel(ent[2]);
   if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal) return;
 
-  if(map.getZoom() < RESONATOR_DISPLAY_ZOOM_LEVEL) return;
+  if(!isResonatorsShow()) return;
 
   for(var i=0; i < ent[2].resonatorArray.resonators.length; i++) {
     var rdata = ent[2].resonatorArray.resonators[i];
@@ -329,6 +321,10 @@ window.renderResonators = function(ent) {
 // get guid for resonators
 window.portalResonatorGuid = function(portalGuid, slot){
   return portalGuid.slice(0,32) + '.r' + slot;
+}
+
+window.isResonatorsShow = function(){
+  return map.getZoom() >= RESONATOR_DISPLAY_ZOOM_LEVEL;
 }
 
 window.portalResetColor = function(portal) {
