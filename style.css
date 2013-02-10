@@ -448,6 +448,7 @@ aside:nth-child(odd) span {
 
 /* resonators */
 #resodetails {
+  white-space: nowrap;
   margin: 16px 0;
   -moz-column-gap: 10px;
   -moz-column-width: 141px;
