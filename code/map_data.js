@@ -317,8 +317,7 @@ window.renderResonators = function(ent) {
   }
 }
 
-// replace .11 or .12 in portal guid with .r[slot] to
-// get guid for resonators
+// append portal guid with -resonator-[slot] to get guid for resonators
 window.portalResonatorGuid = function(portalGuid, slot){
   return portalGuid + '-resonator-' + slot;
 }
