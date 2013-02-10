@@ -81,15 +81,6 @@ window.setupMap = function() {
   map.addLayer(linksLayer, true);
   addLayers['Links'] = linksLayer;
 
-  resonatorsLayers = [];
-  for(var i = 1; i <= 8; i++) {
-    resonatorsLayers[i] = L.layerGroup([]);
-    map.addLayer(resonatorsLayers[i]);
-    var t = 'Level ' + i + ' Portal resonators';
-    addLayers[t] = resonatorsLayers[i];
-  }
-  
-
   map.addControl(new L.Control.Layers({
     'OSM Cloudmade Midnight': views[0],
     'OSM Cloudmade Minimal': views[1],

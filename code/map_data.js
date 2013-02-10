@@ -143,19 +143,31 @@ window.cleanUp = function() {
   var minlvl = getMinPortalLevel();
   for(var i = 0; i < portalsLayers.length; i++) {
     // i is also the portal level
-    portalsLayers[i].eachLayer(function(portal) {
+    portalsLayers[i].eachLayer(function(item) {
       // portal must be in bounds and have a high enough level. Also don’t
       // remove if it is selected.
-      var portalGuid = portal.options.guid;
-      if(portalGuid == window.selectedPortal ||
-        (b.contains(portal.getLatLng()) && i >= minlvl)) return;
+      var itemGuid = item.options.guid;
+      switch(getTypeByGuid(itemGuid)){
 
-      cnt[0]++;
+        case TYPE_PORTAL:
+          if(itemGuid == window.selectedPortal ||
+          (b.contains(item.getLatLng()) && i >= minlvl)) return;
+          
+          cnt[0]++;
 
-      //remove attached resonators
-      for(var j = 0; j <= 7; j++) removeByGuid( portalResonatorGuid(portalGuid,j) );
+          //remove attached resonators
+          for(var j = 0; j <= 7; j++) removeByGuid( portalResonatorGuid(itemGuid,j) );
 
-      portalsLayers[i].removeLayer(portal);
+          portalsLayers[i].removeLayer(item);
+          break;
+
+        case TYPE_RESONATOR:
+          // remove all resonator if zoom level become 
+          // lower than RESONATOR_DISPLAY_ZOOM_LEVEL
+          if (map.getZoom() < RESONATOR_DISPLAY_ZOOM_LEVEL) 
+            portalsLayers[i].removeLayer(item);
+          break;
+      }
     });
   }
   linksLayer.eachLayer(function(link) {
@@ -168,14 +180,6 @@ window.cleanUp = function() {
     cnt[2]++;
     fieldsLayer.removeLayer(field);
   });
-  // remove all resonator if zoom level become 
-  // lower than RESONATOR_DISPLAY_ZOOM_LEVEL
-  if (map.getZoom() < RESONATOR_DISPLAY_ZOOM_LEVEL){
-    for(var i = 1; i < resonatorsLayers.length; i++){
-      resonatorsLayers[i].clearLayers();
-    }
-    console.log('removed all resonators');
-  }
   console.log('removed out-of-bounds: '+cnt[0]+' portals, '+cnt[1]+' links, '+cnt[2]+' fields');
 }
 
@@ -199,7 +203,7 @@ window.removeByGuid = function(guid) {
       break;
     case TYPE_RESONATOR:
       if(!window.resonators[guid]) return;
-      resonatorsLayers[window.resonators[guid].options.pLevel].removeLayer(window.resonators[guid]);
+      portalsLayers[window.resonators[guid].options.pLevel].removeLayer(window.resonators[guid]);
       break;
     default:
       console.warn('unknown GUID type: ' + guid);
@@ -319,7 +323,7 @@ window.renderResonator = function(ent) {
     r.on('remove',   function() { delete window.resonators[this.options.guid]; });
     r.on('add',      function() { window.resonators[this.options.guid] = this; });
 
-    r.addTo(resonatorsLayers[parseInt(portalLevel)]);
+    r.addTo(portalsLayers[parseInt(portalLevel)]);
   }
 }
 
