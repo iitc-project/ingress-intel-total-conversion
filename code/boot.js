@@ -154,6 +154,27 @@ window.setupPlayerStat = function() {
   );
 }
 
+window.setupSidebarToggle = function() {
+  var toggle = $('#sidebartoggle');
+  var sidebar = $('#sidebar');
+  toggle.text('▶');
+  toggle.css('right', SIDEBAR_WIDTH+2+'px');
+  toggle.on('click', function() {
+    if(sidebar.is(':visible')) {
+      sidebar.hide();
+      $('#map').css('margin-right','0');
+      toggle.text('◀');
+      toggle.css('right', '0');
+    } else {
+      sidebar.show();
+      $('#map').css('margin-right', SIDEBAR_WIDTH+2+'px');
+      toggle.text('▶');
+      toggle.css('right', SIDEBAR_WIDTH+2+'px');
+    }
+    window.map.invalidateSize(false);
+  });
+}
+
 
 // BOOTING ///////////////////////////////////////////////////////////
 
@@ -164,6 +185,7 @@ function boot() {
   window.setupGeosearch();
   window.setupRedeem();
   window.setupLargeImagePreview();
+  window.setupSidebarToggle();
   window.updateGameScore();
   window.setupPlayerStat();
   window.chat.setup();
