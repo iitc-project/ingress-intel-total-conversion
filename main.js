@@ -28,6 +28,19 @@ for(var x in scr) {
   break;
 }
 
+
+if(!d) {
+  // page doesn’t have a script tag with player information.
+  if(document.getElementById('header_email')) {
+    // however, we are logged in.
+    setTimeout('location.reload();', 10*1000);
+    throw('Page doesn’t have player data, but you are logged in. Reloading in 10s.');
+  }
+  // FIXME: handle nia takedown in progress
+  throw('Couldn’t retrieve player data. Are you logged in?');
+}
+
+
 for(var i = 0; i < d.length; i++) {
   if(!d[i].match('var PLAYER = ')) continue;
   eval(d[i].match(/^var /, 'window.'));
