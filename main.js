@@ -139,10 +139,18 @@ var NOMINATIM = 'http://nominatim.openstreetmap.org/search?format=json&limit=1&q
 var DEG2RAD = Math.PI / 180;
 var TEAM_NONE = 0, TEAM_RES = 1, TEAM_ENL = 2;
 var TEAM_TO_CSS = ['none', 'res', 'enl'];
-var TYPE_UNKNOWN = 0, TYPE_PORTAL = 1, TYPE_LINK = 2, TYPE_FIELD = 3, TYPE_PLAYER = 4, TYPE_CHAT = 5;
+var TYPE_UNKNOWN = 0, TYPE_PORTAL = 1, TYPE_LINK = 2, TYPE_FIELD = 3, TYPE_PLAYER = 4, TYPE_CHAT = 5, TYPE_RESONATOR = 6;
 // make PLAYER variable available in site context
 var PLAYER = window.PLAYER;
 var CHAT_SHRINKED = 60;
+
+// Minimum zoom level resonator will display
+var RESONATOR_DISPLAY_ZOOM_LEVEL = 17;
+
+// Constants for resonator positioning
+var SLOT_TO_LAT = [0, Math.sqrt(2)/2, 1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2];
+var SLOT_TO_LNG = [1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2, 0, Math.sqrt(2)/2];
+var EARTH_RADIUS=6378137;
 
 // STORAGE ///////////////////////////////////////////////////////////
 // global variables used for storage. Most likely READ ONLY. Proper
@@ -164,6 +172,7 @@ var portalsLayers, linksLayer, fieldsLayer;
 window.portals = {};
 window.links = {};
 window.fields = {};
+window.resonators = {};
 
 // plugin framework. Plugins may load earlier than iitc, so don’t
 // overwrite data

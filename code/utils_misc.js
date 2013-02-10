@@ -154,6 +154,8 @@ window.getTypeByGuid = function(guid) {
   // .b  == fields
   // .c  == player/creator
   // .d  == chat messages
+  // 
+  // resonator guid is [portal guid]-resonator-[slot]
   switch(guid.slice(33)) {
     case '11':
     case '12':
@@ -172,6 +174,7 @@ window.getTypeByGuid = function(guid) {
       return TYPE_CHAT;
 
     default:
+      if(guid.slice(-11,-2) == 'resonator') return TYPE_RESONATOR;
       return TYPE_UNKNOWN;
   }
 }
