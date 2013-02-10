@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.4-@@BUILDDATE@@
+// @version        0.3-@@BUILDDATE@@
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
@@ -58,6 +58,7 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '  <div id="chatautomated"></div>'
   + '</div>'
   + '<form id="chatinput" style="display:none"><time></time><span>tell faction:</span><input type="text"/></form>'
+  + '<a id="sidebartoggle"></a>'
   + '<div id="scrollwrapper">' // enable scrolling for small screens
   + '  <div id="sidebar" style="display: none">'
   + '    <div id="playerstat">t</div>'
@@ -65,8 +66,6 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '    <input id="geosearch" placeholder="Search location…" type="text"/>'
   + '    <div id="portaldetails"></div>'
   + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
-  + '    <div id="toolbox"></div>'
-  + '    <div id="spacer"></div>'
   + '    <div id="updatestatus"></div>'
   + '  </div>';
   + '</div>';
@@ -116,9 +115,6 @@ var MAX_DRAWN_FIELDS = 200;
 var COLOR_SELECTED_PORTAL = '#f00';
 var COLORS = ['#FFCE00', '#0088FF', '#03FE03']; // none, res, enl
 var COLORS_LVL = ['#000', '#FECE5A', '#FFA630', '#FF7315', '#E40000', '#FD2992', '#EB26CD', '#C124E0', '#9627F4'];
-var COLORS_MOD = {VERY_RARE: '#F78AF6', RARE: '#AD8AFF', COMMON: '#84FBBD'};
-
-
 // circles around a selected portal that show from where you can hack
 // it and how far the portal reaches (i.e. how far links may be made
 // from this portal)
@@ -139,7 +135,6 @@ var NOMINATIM = 'http://nominatim.openstreetmap.org/search?format=json&limit=1&q
 var DEG2RAD = Math.PI / 180;
 var TEAM_NONE = 0, TEAM_RES = 1, TEAM_ENL = 2;
 var TEAM_TO_CSS = ['none', 'res', 'enl'];
-var TYPE_UNKNOWN = 0, TYPE_PORTAL = 1, TYPE_LINK = 2, TYPE_FIELD = 3, TYPE_PLAYER = 4, TYPE_CHAT = 5;
 // make PLAYER variable available in site context
 var PLAYER = window.PLAYER;
 var CHAT_SHRINKED = 60;
@@ -165,9 +160,6 @@ window.portals = {};
 window.links = {};
 window.fields = {};
 
-// plugin framework. Plugins may load earlier than iitc, so don’t
-// overwrite data
-if(typeof window.plugin !== 'function') window.plugin = function() {};
 
 
 @@INJECTHERE@@
