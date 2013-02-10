@@ -72,8 +72,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   var p2f = {};
   $.each(m, function(qk, val) {
     $.each(val.deletedGameEntityGuids, function(ind, guid) {
-      if(getTypeByGuid(guid) === TYPE_FIELD) {
-        if(window.fields[guid] === undefined) return true;
+      if(getTypeByGuid(guid) === TYPE_FIELD && window.fields[guid] !== undefined) {
         $.each(window.fields[guid].options.vertices, function(ind, vertex) {
           if(window.portals[vertex.guid] === undefined) return true;
           fieldArray = window.portals[vertex.guid].options.portalV2.linkedFields;
