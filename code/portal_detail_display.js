@@ -70,7 +70,7 @@ window.renderPortalDetails = function(guid) {
         + '<div id="resodetails">'+getResonatorDetails(d)+'</div>'
         + '<div class="linkdetails">'
         + '<aside><a href="'+perma+'">portal link</a></aside>'
-        + '<aside><a onclick="window.reportPortalIssue(\''+getReportIssueInfoText(d)+'\')">report issue</a></aside>'
+        + '<aside><a onclick="window.reportPortalIssue()">report issue</a></aside>'
         + '</div>'
       );
   }
