@@ -226,12 +226,14 @@ window.renderPortal = function(ent) {
   }
 
   var team = getTeam(ent[2]);
+  var lvWeight = Math.max(2, portalLevel / 1.5);
+  var lvRadius = portalLevel + 3;
 
   var p = L.circleMarker(latlng, {
-    radius: 7,
+    radius: lvRadius,
     color: ent[0] == selectedPortal ? COLOR_SELECTED_PORTAL : COLORS[team],
     opacity: 1,
-    weight: 3,
+    weight: lvWeight,
     fillColor: COLORS[team],
     fillOpacity: 0.5,
     clickable: true,
@@ -242,13 +244,13 @@ window.renderPortal = function(ent) {
   p.on('remove',   function() {
     var portalGuid = this.options.guid
 
-    // remove attached resonators, skip if 
+    // remove attached resonators, skip if
     // all resonators have already removed by zooming
     if(isResonatorsShow()) {
       for(var i = 0; i <= 7; i++)
         removeByGuid(portalResonatorGuid(portalGuid,i));
     }
-    delete window.portals[portalGuid]; 
+    delete window.portals[portalGuid];
   });
   p.on('add',      function() {
     window.portals[this.options.guid] = this;
@@ -278,19 +280,19 @@ window.renderResonators = function(ent) {
 
   for(var i=0; i < ent[2].resonatorArray.resonators.length; i++) {
     var rdata = ent[2].resonatorArray.resonators[i];
-    
+
     if(rdata == null) continue;
-    
+
     if(window.resonators[portalResonatorGuid(ent[0],i)]) continue;
 
     // offset in meters
     var dn = rdata.distanceToPortal*SLOT_TO_LAT[rdata.slot];
     var de = rdata.distanceToPortal*SLOT_TO_LNG[rdata.slot];
- 	 
+
     // Coordinate offset in radians
     var dLat = dn/EARTH_RADIUS;
     var dLon = de/(EARTH_RADIUS*Math.cos(Math.PI/180*(ent[2].locationE6.latE6/1E6)));
- 	
+
     // OffsetPosition, decimal degrees
     var lat0 = ent[2].locationE6.latE6/1E6 + dLat * 180/Math.PI;
     var lon0 = ent[2].locationE6.lngE6/1E6 + dLon * 180/Math.PI;
