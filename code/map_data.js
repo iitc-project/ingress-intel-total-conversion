@@ -147,25 +147,25 @@ window.cleanUp = function() {
       // portal must be in bounds and have a high enough level. Also don’t
       // remove if it is selected.
       var itemGuid = item.options.guid;
-      switch(getTypeByGuid(itemGuid)){
+      switch(getTypeByGuid(itemGuid)) {
 
         case TYPE_PORTAL:
           if(itemGuid == window.selectedPortal ||
-          (b.contains(item.getLatLng()) && i >= minlvl)) return;
+            (b.contains(item.getLatLng()) && i >= minlvl)) return;
           
           cnt[0]++;
 
           //remove attached resonators
-          for(var j = 0; j <= 7; j++) removeByGuid( portalResonatorGuid(itemGuid,j) );
+          for(var j = 0; j <= 7; j++) removeByGuid(portalResonatorGuid(itemGuid,j));
 
           portalsLayers[i].removeLayer(item);
           break;
 
         case TYPE_RESONATOR:
-          // remove all resonator if zoom level become 
+          // remove all resonators if zoom level become 
           // lower than RESONATOR_DISPLAY_ZOOM_LEVEL
           if (map.getZoom() < RESONATOR_DISPLAY_ZOOM_LEVEL) 
-            portalsLayers[i].removeLayer(item);
+            for(var j = 0; j <= 7; j++) portalsLayers[j].removeLayer(item);
           break;
       }
     });
@@ -203,7 +203,9 @@ window.removeByGuid = function(guid) {
       break;
     case TYPE_RESONATOR:
       if(!window.resonators[guid]) return;
-      portalsLayers[window.resonators[guid].options.pLevel].removeLayer(window.resonators[guid]);
+      var r = window.resonators[guid]
+      for(var i = 1; i < portalsLayers.length; i++)
+        portalsLayers[i].removeLayer(r);
       break;
     default:
       console.warn('unknown GUID type: ' + guid);
@@ -267,41 +269,35 @@ window.renderPortal = function(ent) {
     window.map.setView(latlng, 17);
   });
 
-  window.renderResonator(ent);
+  window.renderResonators(ent);
 
   // portalLevel contains a float, need to round down
   p.addTo(portalsLayers[parseInt(portalLevel)]);
 }
 
-window.renderResonator = function(ent) {
+window.renderResonators = function(ent) {
 
   var portalLevel = getPortalLevel(ent[2]);
   if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal) return;
 
   if(map.getZoom() < RESONATOR_DISPLAY_ZOOM_LEVEL) return;
 
-  for(var i=0; i<ent[2].resonatorArray.resonators.length; i++) {
+  for(var i=0; i < ent[2].resonatorArray.resonators.length; i++) {
     var rdata = ent[2].resonatorArray.resonators[i];
     
-    if (rdata==null) continue;
+    if (rdata == null) continue;
     
     if (window.resonators[portalResonatorGuid(ent[0],i)]) continue;
 
-    var SLOT_TO_LAT = [0, Math.sqrt(2)/2, 1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2];
-    var SLOT_TO_LNG = [1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2, 0, Math.sqrt(2)/2];
- 	
-    //Earths radius, sphere
-    var Radius=6378137;
-	
-    //offsets in meters
+    // offsets in meters
     var dn = rdata.distanceToPortal*SLOT_TO_LAT[rdata.slot];
     var de = rdata.distanceToPortal*SLOT_TO_LNG[rdata.slot];
  	 
-    //Coordinate offsets in radians
-    var dLat = dn/Radius;
-    var dLon = de/(Radius*Math.cos(Math.PI/180*(ent[2].locationE6.latE6/1E6)));
+    // Coordinate offsets in radians
+    var dLat = dn/EARTH_RADIUS;
+    var dLon = de/(EARTH_RADIUS*Math.cos(Math.PI/180*(ent[2].locationE6.latE6/1E6)));
  	
-    //OffsetPosition, decimal degrees
+    // OffsetPosition, decimal degrees
     var lat0 = ent[2].locationE6.latE6/1E6 + dLat * 180/Math.PI;
     var lon0 = ent[2].locationE6.lngE6/1E6 + dLon * 180/Math.PI;
     var Rlatlng = [lat0, lon0];
@@ -315,7 +311,6 @@ window.renderResonator = function(ent) {
         fillOpacity: rdata.energyTotal/RESO_NRG[rdata.level],
         clickable: false,
         level: rdata.level,
-        pLevel: parseInt(portalLevel),
         details: rdata,
         pDetails: ent[2],
         guid: portalResonatorGuid(ent[0],i) });

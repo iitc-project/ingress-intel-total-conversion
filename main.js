@@ -147,6 +147,11 @@ var CHAT_SHRINKED = 60;
 // Minimum zoom level resonator will display
 var RESONATOR_DISPLAY_ZOOM_LEVEL = 16;
 
+// Constants for resonator positioning
+var SLOT_TO_LAT = [0, Math.sqrt(2)/2, 1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2];
+var SLOT_TO_LNG = [1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2, 0, Math.sqrt(2)/2];
+var EARTH_RADIUS=6378137;
+
 // STORAGE ///////////////////////////////////////////////////////////
 // global variables used for storage. Most likely READ ONLY. Proper
 // way would be to encapsulate them in an anonymous function and write
