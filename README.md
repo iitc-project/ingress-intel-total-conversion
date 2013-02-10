@@ -75,6 +75,7 @@ Contributors
 ------------
 
 [Bananeweizen](https://github.com/Bananeweizen),
+[cmrn](https://github.com/cmrn),
 [epf](https://github.com/epf),
 [integ3r](https://github.com/integ3r),
 [JasonMillward](https://github.com/JasonMillward),

@@ -35,6 +35,7 @@ window.setupStyles = function() {
       '#chat { height: '+CHAT_SHRINKED+'px; } ',
       '#updatestatus { width:'+(SIDEBAR_WIDTH-2*4)+'px;  } ',
       '#sidebar { width:'+(SIDEBAR_WIDTH + HIDDEN_SCROLLBAR_ASSUMED_WIDTH + 2 /*border*/)+'px;  } ',
+      '#sidebartoggle { right:'+SIDEBAR_WIDTH+'px;  } ',
       '#scrollwrapper  { width:'+(SIDEBAR_WIDTH + 2*HIDDEN_SCROLLBAR_ASSUMED_WIDTH)+'px; right:-'+(2*HIDDEN_SCROLLBAR_ASSUMED_WIDTH-2)+'px } ',
       '#sidebar input, h2, #updatestatus  { width:'+(SIDEBAR_WIDTH - 2*4)+'px !important } ',
       '#sidebar > *, #gamestat span, .imgpreview img { width:'+SIDEBAR_WIDTH+'px;  }'].join("\n")
@@ -169,6 +170,25 @@ window.setupPlayerStat = function() {
   );
 }
 
+window.setupSidebarToggle = function() {
+  $('#sidebartoggle').on('click', function() {
+    var toggle = $('#sidebartoggle');
+    var sidebar = $('#sidebar');
+    if(sidebar.is(':visible')) {
+      sidebar.hide();
+      $('#map').css('margin-right','0');
+      toggle.html('◢<br>◥');
+      toggle.css('right', '0');
+    } else {
+      sidebar.show();
+      $('#map').css('margin-right', SIDEBAR_WIDTH+2+'px');
+      toggle.html('◣<br>◤');
+      toggle.css('right', SIDEBAR_WIDTH+'px');
+    }
+    window.map.invalidateSize(false);
+  });
+}
+
 
 // BOOTING ///////////////////////////////////////////////////////////
 
@@ -179,6 +199,7 @@ function boot() {
   window.setupGeosearch();
   window.setupRedeem();
   window.setupLargeImagePreview();
+  window.setupSidebarToggle();
   window.updateGameScore();
   window.setupPlayerStat();
   window.chat.setup();
