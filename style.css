@@ -195,7 +195,7 @@ summary {
   width: 683px;
 }
 
-#chat span {
+#chat .blockquote {
   display: inline-block;
   width: 540px;
 }
@@ -212,6 +212,11 @@ summary {
   z-index: 3001;
 }
 
+#chat .invisibleseparator {
+    color: rgba(8, 48, 78, 0.0);
+    display: inline-block;
+    width: 0px;
+}
 
 
 #chatinput span {

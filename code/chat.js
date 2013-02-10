@@ -456,7 +456,7 @@ window.chat.renderMsg = function(msg, nick, time, team) {
   var t = '<time title="'+tb+'" data-timestamp="'+time+'">'+ta+'</time>';
   var s = 'style="color:'+COLORS[team]+'"';
   var title = nick.length >= 8 ? 'title="'+nick+'" class="help"' : '';
-  return '<p>'+t+'<mark '+s+'>'+nick+'</mark><span>'+msg+'</span></p>';
+  return '<p>'+t+'<span class="invisibleseparator"> &lt;</span><mark '+s+'>'+nick+'</mark><span class="invisibleseparator">&gt; </span><span class="blockquote">'+msg+'</span></p>';
 }
 
 
