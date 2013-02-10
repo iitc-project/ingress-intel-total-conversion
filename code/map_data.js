@@ -155,9 +155,6 @@ window.cleanUp = function() {
           
           cnt[0]++;
 
-          //remove attached resonators
-          for(var j = 0; j <= 7; j++) removeByGuid(portalResonatorGuid(itemGuid,j));
-
           portalsLayers[i].removeLayer(item);
           break;
 
@@ -255,7 +252,13 @@ window.renderPortal = function(ent) {
     details: ent[2],
     guid: ent[0]});
 
-  p.on('remove',   function() { delete window.portals[this.options.guid]; });
+  p.on('remove',   function() {
+    // remove attached resonators
+    var portalGuid = this.options.guid
+    for(var i = 0; i <= 7; i++)
+      removeByGuid(portalResonatorGuid(portalGuid,i));
+    delete window.portals[portalGuid]; 
+  });
   p.on('add',      function() {
     window.portals[this.options.guid] = this;
     // handles the case where a selected portal gets removed from the
@@ -289,11 +292,11 @@ window.renderResonators = function(ent) {
     
     if (window.resonators[portalResonatorGuid(ent[0],i)]) continue;
 
-    // offsets in meters
+    // offset in meters
     var dn = rdata.distanceToPortal*SLOT_TO_LAT[rdata.slot];
     var de = rdata.distanceToPortal*SLOT_TO_LNG[rdata.slot];
  	 
-    // Coordinate offsets in radians
+    // Coordinate offset in radians
     var dLat = dn/EARTH_RADIUS;
     var dLon = de/(EARTH_RADIUS*Math.cos(Math.PI/180*(ent[2].locationE6.latE6/1E6)));
  	
