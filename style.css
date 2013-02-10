@@ -500,6 +500,7 @@ aside:nth-child(odd) span {
 
 .linkdetails {
   text-align: center;
+  margin-bottom: 10px;
 }
 .linkdetails aside {
   margin: 0 4px;
