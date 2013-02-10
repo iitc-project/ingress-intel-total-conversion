@@ -469,14 +469,16 @@ window.chat.getActive = function() {
 window.chat.toggle = function() {
   var c = $('#chat, #chatcontrols');
   if(c.hasClass('expand')) {
-    $('#chatcontrols a:first').text('expand');
+    $('#chatcontrols a:first').text('◢◣');
     c.removeClass('expand');
     var div = $('#chat > div:visible');
     div.data('ignoreNextScroll', true);
     div.scrollTop(99999999); // scroll to bottom
+    $('.leaflet-control').css('margin-left', '0');
   } else {
-    $('#chatcontrols a:first').text('shrink');
+    $('#chatcontrols a:first').text('◥◤');
     c.addClass('expand');
+    $('.leaflet-control').css('margin-left', '720px');
     chat.needMoreMessages();
   }
 }

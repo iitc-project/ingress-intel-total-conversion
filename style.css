@@ -100,6 +100,11 @@ a:hover {
   border: 1px solid #20A8B1;
 }
 
+#chatcontrols a:first-child {
+  letter-spacing:-1px;
+  text-decoration: none !important;
+}
+
 #chatcontrols a.active {
   border-color: #FFCE00;
   border-bottom-width:0px;
