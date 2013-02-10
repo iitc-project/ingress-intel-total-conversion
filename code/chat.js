@@ -474,7 +474,7 @@ window.chat.toggle = function() {
     var div = $('#chat > div:visible');
     div.data('ignoreNextScroll', true);
     div.scrollTop(99999999); // scroll to bottom
-    $('.leaflet-control').css('margin-left', '0');
+    $('.leaflet-control').css('margin-left', '13px');
   } else {
     $('#chatcontrols a:first').text('◥◤');
     c.addClass('expand');
