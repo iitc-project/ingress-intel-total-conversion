@@ -201,31 +201,30 @@ window.removeByGuid = function(guid) {
 
 // renders a portal on the map from the given entity
 window.renderPortal = function(ent) {
-  removeByGuid(ent[0]);
-
   if(Object.keys(portals).length >= MAX_DRAWN_PORTALS && ent[0] != selectedPortal)
-    return;
-
-  var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
-  // needs to be checked before, so the portal isn’t added to the
-  // details list and other places
-  //if(!getPaddedBounds().contains(latlng)) return;
+    return removeByGuid(ent[0]);
 
   // hide low level portals on low zooms
   var portalLevel = getPortalLevel(ent[2]);
-  if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal) return;
-
-  // pre-load player names for high zoom levels
-  if(map.getZoom() >= PRECACHE_PLAYER_NAMES_ZOOM) {
-    if(ent[2].captured && ent[2].captured.capturingPlayerId)
-      getPlayerName(ent[2].captured.capturingPlayerId);
-    if(ent[2].resonatorArray && ent[2].resonatorArray.resonators)
-      $.each(ent[2].resonatorArray.resonators, function(ind, reso) {
-        if(reso) getPlayerName(reso.ownerGuid);
-      });
-  }
+  if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal)
+    return removeByGuid(ent[0]);
 
   var team = getTeam(ent[2]);
+
+  // do nothing if portal did not change
+  var old = window.portals[ent[0]];
+  if(old && old.options.level === portalLevel && old.options.team === team)
+    return;
+
+  // there were changes, remove old portal
+  removeByGuid(ent[0]);
+
+  var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
+
+  // pre-loads player names for high zoom levels
+  loadPlayerNamesForPortal(ent[2]);
+
+
   var lvWeight = Math.max(2, portalLevel / 1.5);
   var lvRadius = portalLevel + 3;
 
@@ -238,6 +237,7 @@ window.renderPortal = function(ent) {
     fillOpacity: 0.5,
     clickable: true,
     level: portalLevel,
+    team: team,
     details: ent[2],
     guid: ent[0]});
 
