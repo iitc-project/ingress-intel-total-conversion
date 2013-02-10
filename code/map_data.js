@@ -251,6 +251,11 @@ window.renderPortal = function(ent) {
         removeByGuid(portalResonatorGuid(portalGuid,i));
     }
     delete window.portals[portalGuid];
+    if(window.selectedPortal === portalGuid) {
+      window.unselectOldPortal();
+      window.map.removeLayer(window.portalAccessIndicator);
+      window.portalAccessIndicator = null;
+    }
   });
   p.on('add',      function() {
     window.portals[this.options.guid] = this;
