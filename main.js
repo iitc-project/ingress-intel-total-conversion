@@ -130,7 +130,7 @@ var RANGE_INDICATOR_COLOR = 'red';
 var RESO_NRG = [0, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 6000];
 var MAX_XM_PER_LEVEL = [0, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000];
 var MIN_AP_FOR_LEVEL = [0, 10000, 30000, 70000, 150000, 300000, 600000, 1200000];
-var HACK_RANGE = 35; // in meters, max. distance from portal to be able to access it
+var HACK_RANGE = 40; // in meters, max. distance from portal to be able to access it
 var OCTANTS = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
 var DEFAULT_PORTAL_IMG = 'http://commondatastorage.googleapis.com/ingress/img/default-portal-image.png';
 
