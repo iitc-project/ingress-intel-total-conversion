@@ -146,9 +146,15 @@ window.cleanUp = function() {
     portalsLayers[i].eachLayer(function(portal) {
       // portal must be in bounds and have a high enough level. Also don’t
       // remove if it is selected.
-      if(portal.options.guid == window.selectedPortal ||
+      var portalGuid = portal.options.guid;
+      if(portalGuid == window.selectedPortal ||
         (b.contains(portal.getLatLng()) && i >= minlvl)) return;
+
       cnt[0]++;
+
+      //remove attached resonators
+      for(var j = 0; j <= 7; j++) removeByGuid( portalResonatorGuid(portalGuid,j) );
+
       portalsLayers[i].removeLayer(portal);
     });
   }
@@ -162,6 +168,14 @@ window.cleanUp = function() {
     cnt[2]++;
     fieldsLayer.removeLayer(field);
   });
+  // remove all resonator if zoom level become 
+  // lower than RESONATOR_DISPLAY_ZOOM_LEVEL
+  if (map.getZoom() < RESONATOR_DISPLAY_ZOOM_LEVEL){
+    for(var i = 1; i < resonatorsLayers.length; i++){
+      resonatorsLayers[i].clearLayers();
+    }
+    console.log('removed all resonators');
+  }
   console.log('removed out-of-bounds: '+cnt[0]+' portals, '+cnt[1]+' links, '+cnt[2]+' fields');
 }
 
@@ -182,6 +196,10 @@ window.removeByGuid = function(guid) {
     case TYPE_FIELD:
       if(!window.fields[guid]) return;
       fieldsLayer.removeLayer(window.fields[guid]);
+      break;
+    case TYPE_RESONATOR:
+      if(!window.resonators[guid]) return;
+      resonatorsLayers[window.resonators[guid].options.pLevel].removeLayer(window.resonators[guid]);
       break;
     default:
       console.warn('unknown GUID type: ' + guid);
@@ -244,8 +262,71 @@ window.renderPortal = function(ent) {
     window.renderPortalDetails(ent[0]);
     window.map.setView(latlng, 17);
   });
+
+  window.renderResonator(ent);
+
   // portalLevel contains a float, need to round down
   p.addTo(portalsLayers[parseInt(portalLevel)]);
+}
+
+window.renderResonator = function(ent) {
+
+  var portalLevel = getPortalLevel(ent[2]);
+  if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal) return;
+
+  if(map.getZoom() < RESONATOR_DISPLAY_ZOOM_LEVEL) return;
+
+  for(var i=0; i<ent[2].resonatorArray.resonators.length; i++) {
+    var rdata = ent[2].resonatorArray.resonators[i];
+    
+    if (rdata==null) continue;
+    
+    if (window.resonators[portalResonatorGuid(ent[0],i)]) continue;
+
+    var SLOT_TO_LAT = [0, Math.sqrt(2)/2, 1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2];
+    var SLOT_TO_LNG = [1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2, 0, Math.sqrt(2)/2];
+ 	
+    //Earths radius, sphere
+    var Radius=6378137;
+	
+    //offsets in meters
+    var dn = rdata.distanceToPortal*SLOT_TO_LAT[rdata.slot];
+    var de = rdata.distanceToPortal*SLOT_TO_LNG[rdata.slot];
+ 	 
+    //Coordinate offsets in radians
+    var dLat = dn/Radius;
+    var dLon = de/(Radius*Math.cos(Math.PI/180*(ent[2].locationE6.latE6/1E6)));
+ 	
+    //OffsetPosition, decimal degrees
+    var lat0 = ent[2].locationE6.latE6/1E6 + dLat * 180/Math.PI;
+    var lon0 = ent[2].locationE6.lngE6/1E6 + dLon * 180/Math.PI;
+    var Rlatlng = [lat0, lon0];
+    var r =  L.circleMarker(Rlatlng, {
+        radius: 4,
+        // #AAAAAA outline seems easier to see the fill opacity
+        color: '#AAAAAA',
+        opacity: 1,
+        weight: 1,
+        fillColor: COLORS_LVL[rdata.level],
+        fillOpacity: rdata.energyTotal/RESO_NRG[rdata.level],
+        clickable: false,
+        level: rdata.level,
+        pLevel: parseInt(portalLevel),
+        details: rdata,
+        pDetails: ent[2],
+        guid: portalResonatorGuid(ent[0],i) });
+
+    r.on('remove',   function() { delete window.resonators[this.options.guid]; });
+    r.on('add',      function() { window.resonators[this.options.guid] = this; });
+
+    r.addTo(resonatorsLayers[parseInt(portalLevel)]);
+  }
+}
+
+// replace .11 or .12 in portal guid with .r[slot] to
+// get guid for resonators
+window.portalResonatorGuid = function(portalGuid, slot){
+  return portalGuid.slice(0,32) + '.r' + slot;
 }
 
 window.portalResetColor = function(portal) {

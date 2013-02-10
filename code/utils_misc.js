@@ -147,6 +147,8 @@ window.getTypeByGuid = function(guid) {
   // .b  == fields
   // .c  == player/creator
   // .d  == chat messages
+  // 
+  // .r0~.r7 == resonators
   switch(guid.slice(33)) {
     case '11':
     case '12':
@@ -163,6 +165,16 @@ window.getTypeByGuid = function(guid) {
 
     case 'd':
       return TYPE_CHAT;
+
+    case 'r0':
+    case 'r1':
+    case 'r2':
+    case 'r3':
+    case 'r4':
+    case 'r5':
+    case 'r6':
+    case 'r7':
+      return TYPE_RESONATOR;
 
     default:
       return TYPE_UNKNOWN;
