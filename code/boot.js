@@ -154,27 +154,6 @@ window.setupPlayerStat = function() {
   );
 }
 
-window.setupSidebarToggle = function() {
-  var toggle = $('#sidebartoggle');
-  var sidebar = $('#sidebar');
-  toggle.text('▶');
-  toggle.css('right', SIDEBAR_WIDTH+2+'px');
-  toggle.on('click', function() {
-    if(sidebar.is(':visible')) {
-      sidebar.hide();
-      $('#map').css('margin-right','0');
-      toggle.text('◀');
-      toggle.css('right', '0');
-    } else {
-      sidebar.show();
-      $('#map').css('margin-right', SIDEBAR_WIDTH+2+'px');
-      toggle.text('▶');
-      toggle.css('right', SIDEBAR_WIDTH+2+'px');
-    }
-    window.map.invalidateSize(false);
-  });
-}
-
 
 // BOOTING ///////////////////////////////////////////////////////////
 
@@ -185,7 +164,6 @@ function boot() {
   window.setupGeosearch();
   window.setupRedeem();
   window.setupLargeImagePreview();
-  window.setupSidebarToggle();
   window.updateGameScore();
   window.setupPlayerStat();
   window.chat.setup();
@@ -196,7 +174,13 @@ function boot() {
   // load only once
   var n = window.PLAYER['nickname'];
   window.PLAYER['nickMatcher'] = new RegExp('\\b('+n+')\\b', 'ig');
+
   $('#sidebar').show();
+
+  if(window.bootPlugins)
+    $.each(window.bootPlugins, function(ind, ref) { ref(); });
+
+  window.iitcLoaded = true;
 }
 
 // this is the minified load.js script that allows us to easily load
@@ -208,10 +192,12 @@ function asyncLoadScript(a){return function(b,c){var d=document.createElement("s
 
 // modified version of https://github.com/shramov/leaflet-plugins. Also
 // contains the default Ingress map style.
-var LLGMAPS = 'http://breunigs.github.com/ingress-intel-total-conversion/leaflet_google.js';
+var LLGMAPS = 'http://breunigs.github.com/ingress-intel-total-conversion/external/leaflet_google.js';
 var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js';
 var LEAFLET = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.js';
-var AUTOLINK = 'http://raw.github.com/bryanwoods/autolink-js/master/autolink.js';
+var AUTOLINK = 'http://breunigs.github.com/ingress-intel-total-conversion/external/autolink.js';
 
 // after all scripts have loaded, boot the actual app
-load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS).thenRun(boot);
+load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS).onError(function (err) {
+  alert('Could not all resources, the script likely won’t work.\n\nIf this happend the first time for you, it’s probably a temporary issue. Just wait a bit and try again.\n\nIf you installed the script for the first time and this happens:\n– try disabling NoScript if you have it installed\n– press CTRL+SHIFT+K in Firefox or CTRL+SHIFT+I in Chrome/Opera and reload the page. Additional info may be available in the console.\n– Open an issue at https://github.com/breunigs/ingress-intel-total-conversion/issues');
+}).thenRun(boot);

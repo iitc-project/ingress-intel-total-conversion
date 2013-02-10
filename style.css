@@ -35,26 +35,6 @@ body {
   overflow-x:hidden;
 }
 
-#sidebartoggle {
-  display: block;
-  padding: 5px;
-  position: absolute;
-  top: 50%;
-  z-index: 3000;
-  background-color: rgba(8, 48, 78, 0.9);
-  color: #FFCE00;
-  border: 1px solid #20A8B1;
-  border-right: none;
-  border-radius: 5px 0 0 5px;
-  text-decoration: none;
-}
-
-#redeem {
-  /* cheap hack to prevent sidebar content being overlayed by the map
-   * status box */
-  margin-bottom: 55px;
-}
-
 
 .enl {
   color: #03fe03 !important;
@@ -118,6 +98,11 @@ a:hover {
   height: 24px;
   line-height: 24px;
   border: 1px solid #20A8B1;
+}
+
+#chatcontrols a:first-child {
+  letter-spacing:-1px;
+  text-decoration: none !important;
 }
 
 #chatcontrols a.active {
@@ -197,7 +182,6 @@ mark {
   overflow:hidden;
   vertical-align: top;
   background: transparent;
-  text-align: right;
 }
 
 summary {
@@ -245,7 +229,7 @@ summary {
   font-size: 12.6px;
   font-family: Verdana,sans-serif;
   color: #EEEEEE;
-  width: 558px !important;
+  width: 558px
 }
 
 
@@ -502,6 +486,17 @@ aside:nth-child(odd) span {
 .linkdetails aside {
   margin: 0 4px;
   width: 140px;
+}
+
+#toolbox {
+  padding: 4px;
+  font-size:90%;
+}
+
+#spacer {
+  /* cheap hack to prevent sidebar content being overlayed by the map
+   * status box */
+  height: 55px;
 }
 
 /* a common portal display takes this much space (prevents moving
