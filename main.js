@@ -78,7 +78,7 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '    <input id="geosearch" placeholder="Search location…" type="text"/>'
   + '    <div id="portaldetails"></div>'
   + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
-  + '    <div id="toolbox"></div>'
+  + '    <div id="toolbox"><a onmouseover="setPermaLink(this)">permalink</a></div>'
   + '    <div id="spacer"></div>'
   + '    <div id="updatestatus"></div>'
   + '  </div>';

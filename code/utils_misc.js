@@ -198,3 +198,11 @@ if (typeof String.prototype.startsWith !== 'function') {
 window.prettyEnergy = function(nrg) {
   return nrg> 1000 ? Math.round(nrg/1000) + ' k': nrg;
 }
+
+window.setPermaLink = function(elm) {
+  var c = map.getCenter();
+  var lat = Math.round(c.lat*1E6);
+  var lng = Math.round(c.lng*1E6);
+  var qry = 'latE6='+lat+'&lngE6='+lng+'&z=' + map.getZoom();
+  $(elm).attr('href',  'http://www.ingress.com/intel?' + qry);
+}

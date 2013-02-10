@@ -519,6 +519,10 @@ aside:nth-child(odd) span {
   font-size:90%;
 }
 
+#toolbox > a {
+  padding: 5px;
+}
+
 #spacer {
   /* cheap hack to prevent sidebar content being overlayed by the map
    * status box */
