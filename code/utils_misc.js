@@ -141,8 +141,13 @@ window.scrollBottom = function(elm) {
 }
 
 window.zoomToAndShowPortal = function(guid, latlng) {
-  renderPortalDetails(guid);
   map.setView(latlng, 17);
+  // if the data is available, render it immediately. Otherwise defer
+  // until it becomes available.
+  if(window.portals[guid])
+    renderPortalDetails(guid);
+  else
+    urlPortal = guid;
 }
 
 // translates guids to entity types
@@ -154,7 +159,7 @@ window.getTypeByGuid = function(guid) {
   // .b  == fields
   // .c  == player/creator
   // .d  == chat messages
-  // 
+  //
   // resonator guid is [portal guid]-resonator-[slot]
   switch(guid.slice(33)) {
     case '11':
