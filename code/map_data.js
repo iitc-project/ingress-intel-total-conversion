@@ -276,6 +276,8 @@ window.renderPortal = function(ent) {
 
   window.renderResonators(ent);
 
+  window.runHooks('portalAdded', {portal: p});
+
   // portalLevel contains a float, need to round down
   p.addTo(portalsLayers[parseInt(portalLevel)]);
 }
