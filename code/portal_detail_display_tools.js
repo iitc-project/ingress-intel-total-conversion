@@ -79,7 +79,6 @@ window.getAvgResoDistText = function(d) {
 }
 
 window.getResonatorDetails = function(d) {
-  console.log('rendering reso details');
   var resoDetails = '';
   // octant=slot: 0=E, 1=NE, 2=N, 3=NW, 4=W, 5=SW, 6=S, SE=7
   // resos in the display should be ordered like this:
