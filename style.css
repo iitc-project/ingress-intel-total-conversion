@@ -10,10 +10,6 @@ body {
   margin: 0;
 }
 
-#map {
-  margin-right:302px;
-}
-
 #scrollwrapper {
   height: 100%;
   overflow: hidden;
@@ -24,8 +20,8 @@ body {
 }
 
 #sidebar {
-  background: #000;
-  border-left: 2px solid #c3c3c3;
+  background-color: rgba(8, 48, 78, 0.9);
+  border-left: 1px solid #20A8B1;
   color: #888;
   height: 100%;
   position: relative;
@@ -33,16 +29,17 @@ body {
   top: 0;
   overflow-y:scroll;
   overflow-x:hidden;
+  z-index: 3000;
 }
 
 #sidebartoggle {
   display: block;
-  padding: 10px 5px;
+  padding: 20px 5px;
   margin-top: -31px;
   line-height: 10px;
   position: absolute;
   top: 50%;
-  z-index: 3000;
+  z-index: 3001;
   background-color: rgba(8, 48, 78, 0.9);
   color: #FFCE00;
   border: 1px solid #20A8B1;
@@ -257,7 +254,7 @@ summary {
 /* sidebar ************************************************************/
 
 #sidebar > * {
-  border-bottom: 1px solid #c3c3c3;
+  border-bottom: 1px solid #20A8B1;
 }
 
 
@@ -321,7 +318,7 @@ h2 sup, h2 sub {
 
 /* geosearch input, and others */
 input {
-  background: #313131;
+  background-color: rgba(0, 0, 0, 0.3);
   color: #ffce00;
   height: 22px;
   line-height: 22px;
@@ -381,7 +378,7 @@ h3 {
 }
 
 .mods span {
-  background: #313131;
+  background-color: rgba(0, 0, 0, 0.3);
   /* can’t use inline-block because Webkit’s implementation is buggy and
    * introduces additional margins in random cases. No clear necessary,
    * as that’s solved by setting height on .mods. */
@@ -541,9 +538,9 @@ aside:nth-child(odd) span {
 
 /* update status */
 #updatestatus {
-  background: #000;
+  background-color: rgba(8, 48, 78, 1);
   border-bottom: 0;
-  border-top: 1px solid #c3c3c3;
+  border-top: 1px solid #20A8B1;
   bottom: 0;
   color: #ffce00;
   font-size:13px;
