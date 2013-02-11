@@ -174,14 +174,14 @@ window.setupPlayerStat = function() {
 window.setupSidebarToggle = function() {
   $('#sidebartoggle').on('click', function() {
     var toggle = $('#sidebartoggle');
-    var sidebar = $('#sidebar');
+    var sidebar = $('#scrollwrapper');
     if(sidebar.is(':visible')) {
-      sidebar.hide();
+      sidebar.hide().css('z-index', 1);
       $('.leaflet-right').css('margin-right','0');
       toggle.html('<span class="toggle open"></span>');
       toggle.css('right', '0');
     } else {
-      sidebar.show();
+      sidebar.css('z-index', 1001).show();
       $('.leaflet-right').css('margin-right', SIDEBAR_WIDTH+1+'px');
       toggle.html('<span class="toggle close"></span>');
       toggle.css('right', SIDEBAR_WIDTH+1+'px');
