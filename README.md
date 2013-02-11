@@ -81,6 +81,7 @@ Contributors
 [JasonMillward](https://github.com/JasonMillward),
 [mledoze](https://github.com/mledoze),
 [OshiHidra](https://github.com/OshiHidra),
+[Pirozek](https://github.com/Pirozek),
 [Scrool](https://github.com/Scrool),
 [sorgo](https://github.com/sorgo),
 [Xelio](https://github.com/Xelio),
