@@ -1065,7 +1065,8 @@ window.setupLargeImagePreview = function() {
 
 window.setupStyles = function() {
   $('head').append('<style>' +
-    [ '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
+    [ 'body:after { display: none }',
+      '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
       '#largepreview.res img { border:2px solid '+COLORS[TEAM_RES]+'; } ',
       '#largepreview.none img { border:2px solid '+COLORS[TEAM_NONE]+'; } ',
       '#chatcontrols { bottom: '+(CHAT_SHRINKED+24)+'px; }',
