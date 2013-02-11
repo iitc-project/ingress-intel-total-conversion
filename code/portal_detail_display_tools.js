@@ -137,19 +137,24 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
 window.getDestroyAP = function(d) {
   console.log('rendering destroy AP');
   var res_count = 0;
-  var links = 0;
+  var links_count = 0;
+  var fields_count
 
-  $.each(d.resonatorArray.resonators, function(ind, reso) 
-  {
+  $.each(d.resonatorArray.resonators, function(ind, reso) {
     res_count += 1;
   });
 
-  if(d.portalV2.linkedEdges) $.each(d.portalV2.linkedEdges, function(ind, link) 
-  {
-    links++;
-  });
+  if(d.portalV2.linkedEdges) {
+    $.each(d.portalV2.linkedEdges, function(ind, link) {
+      links_count++;
+    });
+  }
 
-  var ap_count = (res_count * DESTROY_RESONATOR) + (links * DESTROY_LINK);
+  if(d.portalV2.linkedFields) {
+    fields_count = d.portalV2.linkedFields.length;
+  }
+
+  var ap_count = (res_count * DESTROY_RESONATOR) + (links_count * DESTROY_LINK) + (fields_count * DESTROY_FIELD);
   
-  return 'Destroy ' + res_count + 'x res + ' + links + 'x link -> <strong style="color: #FFCE00">' + ap_count + '</strong>AP';
+  return 'Destroy ' + res_count + 'x res + ' + links_count + 'x link → <span style="color: #FFCE00">' + ap_count + '</span>AP';
 }

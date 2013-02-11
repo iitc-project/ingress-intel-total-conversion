@@ -129,7 +129,8 @@ var HACK_RANGE = 35; // in meters, max. distance from portal to be able to acces
 var OCTANTS = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
 var DEFAULT_PORTAL_IMG = 'http://commondatastorage.googleapis.com/ingress/img/default-portal-image.png';
 var DESTROY_RESONATOR = 75; //AP for destroying portal
-var DESTROY_LINK = 187; //AP fro destroying link
+var DESTROY_LINK = 187; //AP for destroying link
+var DESTROY_FIELD = 750; //AP for destroying field
 
 // OTHER MORE-OR-LESS CONSTANTS //////////////////////////////////////
 var NOMINATIM = 'http://nominatim.openstreetmap.org/search?format=json&limit=1&q=';
