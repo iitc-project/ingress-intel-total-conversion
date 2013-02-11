@@ -17,13 +17,6 @@ body {
   top: 0;
   width: 340px;
   bottom: 45px;
-  z-index: 1001;
-
-  /* 
-   * NOTE: following 2 items are needed for back compatability 
-   * between new css and old plugin versions (0.4) as of 2013-02-11 UTC.
-   */
-  background-color: rgba(8, 48, 78, 1);
 }
 
 #sidebar {
