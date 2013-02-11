@@ -14,7 +14,7 @@ m = m.split('@@INJECTHERE@@')
 m.insert(1, c)
 t = '\n\n'.join(m)
 
-with open('total-conversion-build.user.js', 'w', encoding='utf8') as f:
+with open('iitc-debug.user.js', 'w', encoding='utf8') as f:
     f.write(t)
 
 # vim: ai si ts=4 sw=4 sts=4 et

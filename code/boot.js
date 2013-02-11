@@ -27,7 +27,8 @@ window.setupLargeImagePreview = function() {
 
 window.setupStyles = function() {
   $('head').append('<style>' +
-    [ '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
+    [ 'body:after { display: none } ',
+      '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
       '#largepreview.res img { border:2px solid '+COLORS[TEAM_RES]+'; } ',
       '#largepreview.none img { border:2px solid '+COLORS[TEAM_NONE]+'; } ',
       '#chatcontrols { bottom: '+(CHAT_SHRINKED+24)+'px; }',
@@ -173,16 +174,16 @@ window.setupPlayerStat = function() {
 window.setupSidebarToggle = function() {
   $('#sidebartoggle').on('click', function() {
     var toggle = $('#sidebartoggle');
-    var sidebar = $('#sidebar');
+    var sidebar = $('#scrollwrapper');
     if(sidebar.is(':visible')) {
-      sidebar.hide();
+      sidebar.hide().css('z-index', 1);
       $('.leaflet-right').css('margin-right','0');
-      toggle.html('◢<br>◥');
+      toggle.html('<span class="toggle open"></span>');
       toggle.css('right', '0');
     } else {
-      sidebar.show();
+      sidebar.css('z-index', 1001).show();
       $('.leaflet-right').css('margin-right', SIDEBAR_WIDTH+1+'px');
-      toggle.html('◣<br>◤');
+      toggle.html('<span class="toggle close"></span>');
       toggle.css('right', SIDEBAR_WIDTH+1+'px');
     }
   });
@@ -227,10 +228,10 @@ function asyncLoadScript(a){return function(b,c){var d=document.createElement("s
 
 // modified version of https://github.com/shramov/leaflet-plugins. Also
 // contains the default Ingress map style.
-var LLGMAPS = 'http://breunigs.github.com/ingress-intel-total-conversion/external/leaflet_google.js';
+var LLGMAPS = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/leaflet_google.js';
 var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js';
 var LEAFLET = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.js';
-var AUTOLINK = 'http://breunigs.github.com/ingress-intel-total-conversion/external/autolink.js';
+var AUTOLINK = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/autolink.js';
 
 // after all scripts have loaded, boot the actual app
 load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS).onError(function (err) {

@@ -1,10 +1,10 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.4-@@BUILDDATE@@
+// @version        0.51-@@BUILDDATE@@
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
-// @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
-// @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
+// @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js
+// @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js
 // @description    total conversion for the ingress intel map.
 // @include        http://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
@@ -62,7 +62,7 @@ document.getElementsByTagName('head')[0].innerHTML = ''
 document.getElementsByTagName('body')[0].innerHTML = ''
   + '<div id="map">Loading, please wait</div>'
   + '<div id="chatcontrols" style="display:none">'
-  + '  <a>◢◣</a><a>automated</a><a>public</a><a class="active">faction</a>'
+  + '  <a><span class="toggle expand"></span></a><a>automated</a><a>public</a><a class="active">faction</a>'
   + '</div>'
   + '<div id="chat" style="display:none">'
   + '  <div id="chatfaction"></div>'
@@ -70,7 +70,7 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '  <div id="chatautomated"></div>'
   + '</div>'
   + '<form id="chatinput" style="display:none"><time></time><span>tell faction:</span><input type="text"/></form>'
-  + '<a id="sidebartoggle">◣<br>◤</a>'
+  + '<a id="sidebartoggle"><span class="toggle close"></span></a>'
   + '<div id="scrollwrapper">' // enable scrolling for small screens
   + '  <div id="sidebar" style="display: none">'
   + '    <div id="playerstat">t</div>'

@@ -210,3 +210,9 @@ window.setPermaLink = function(elm) {
   var qry = 'latE6='+lat+'&lngE6='+lng+'&z=' + map.getZoom();
   $(elm).attr('href',  'http://www.ingress.com/intel?' + qry);
 }
+
+window.uniqueArray = function(arr) {
+  return $.grep(arr, function(v, i) {
+    return $.inArray(v, arr) === i;
+  });
+}

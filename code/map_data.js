@@ -116,10 +116,13 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   });
 
   $.each(ppp, function(ind, portal) {
-    if(p2f[portal[0]] === undefined)
+    if(portal[2].portalV2['linkedFields'] === undefined) {
       portal[2].portalV2['linkedFields'] = [];
-    else
-      portal[2].portalV2['linkedFields'] = $.unique(p2f[portal[0]]);
+    }
+    if(p2f[portal[0]] !== undefined) {
+      $.merge(p2f[portal[0]], portal[2].portalV2['linkedFields']);
+      portal[2].portalV2['linkedFields'] = uniqueArray(p2f[portal[0]]);
+    }
   });
 
   $.each(ppp, function(ind, portal) { renderPortal(portal); });
@@ -225,11 +228,9 @@ window.renderPortal = function(ent) {
     // nothing for the portal changed, so don’t update. Let resonators
     // manage themselves if they want to be updated.
     if(!u) return renderResonators(ent);
+    // there were changes, remove old portal
     removeByGuid(ent[0]);
   }
-
-  // there were changes, remove old portal
-  removeByGuid(ent[0]);
 
   var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
 
