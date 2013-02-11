@@ -87,8 +87,8 @@ Please do!
 [sorgo](https://github.com/sorgo),
 [vita10gy](https://github.com/vita10gy),
 [Xelio](https://github.com/Xelio),
-[ZauberNerd](https://github.com/ZauberNerd)
-
+[ZauberNerd](https://github.com/ZauberNerd),
+[jonatkins](https://github.com/jonatkins)
 
 Hacking
 -------
