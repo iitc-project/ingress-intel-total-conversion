@@ -369,7 +369,8 @@ h3 {
   font-size: 40px;
   position: absolute;
   right: 10px;
-  text-shadow: 0 0 2px #000000, 0 0 5px #ffffff;
+  /* simulate an outline with multiple shadows */
+  text-shadow: -2px -2px #000000, 2px -2px #000000, -2px 2px #000000, 2px 2px #000000;
   top: 100px;
 }
 
