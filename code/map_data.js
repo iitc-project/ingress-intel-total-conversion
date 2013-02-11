@@ -116,10 +116,15 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   });
 
   $.each(ppp, function(ind, portal) {
-    if(p2f[portal[0]] === undefined)
+    if(portal[2].portalV2['linkedFields'] === undefined) {
       portal[2].portalV2['linkedFields'] = [];
-    else
-      portal[2].portalV2['linkedFields'] = $.unique(p2f[portal[0]]);
+    }
+    if(p2f[portal[0]] !== undefined) {
+      $.merge(p2f[portal[0]], portal[2].portalV2['linkedFields']);
+      portal[2].portalV2['linkedFields'] = $.grep(p2f[portal[0]], function(v, i) {
+        return $.inArray(v, p2f[portal[0]]) === i;
+      });
+    }
   });
 
   $.each(ppp, function(ind, portal) { renderPortal(portal); });
