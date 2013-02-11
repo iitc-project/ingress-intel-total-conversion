@@ -92,11 +92,13 @@ Contributors
 Hacking
 -------
 
-Execute `./build.py` to effectively concatenate `main.js` with all the files in `code/`. It generates the user script which may be installed into your browser. Do not modify `total-conversion-build.user.js` manually, because it is automatically generated. Please don’t include it in patches either, because it makes merging harder. Instead, modify the files in `code/` and have that file built for you.
+Execute `./build.py` to effectively concatenate `main.js` with all the files in `code/`. It generates the user script which may be installed into your browser. Do not modify `ttic-debug.user.js` manually, because it is automatically generated. Instead, modify the files in `code/` and have that file built for you. The files in `dist/` are for release only and should not be touched by you.
 
 `style.css` contains most styles required for the user-script. The extra ones can be found in `code/boot.js#window.setupStyles`. Only CSS rules that depend on config variables should be defined there.
 
-`leaflet_google.js` contains some code to display Google Maps imagery with Leaflet, which is a slightly modified version [of this gist](https://gist.github.com/4504864). The code likely was originally written by Pavel Shramov.
+`external/leaflet_google.js` contains some code to display Google Maps imagery with Leaflet, which is a slightly modified version [of this gist](https://gist.github.com/4504864). The code likely was originally written by Pavel Shramov.
+
+`external/autolink.js` is the same file as distributed by Bryan Woods.
 
 
 My dev setup is like this:
