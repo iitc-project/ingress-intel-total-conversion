@@ -85,6 +85,13 @@ a:hover {
   cursor: help;
 }
 
+.toggle {
+  display: block;
+  height: 0;
+  width: 0;
+}
+
+
 /* chat ***************************************************************/
 
 #chatcontrols {
@@ -110,6 +117,7 @@ a:hover {
   height: 24px;
   line-height: 24px;
   border: 1px solid #20A8B1;
+  vertical-align: top;
 }
 
 #chatcontrols a:first-child {
@@ -126,6 +134,22 @@ a:hover {
 #chatcontrols a.active + a {
   border-left-color: #FFCE00
 }
+
+
+#chatcontrols .toggle {
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  margin: 6px auto auto;
+}
+
+#chatcontrols .expand {
+  border-bottom: 10px solid #FFCE00;
+}
+
+#chatcontrols .shrink {
+  border-top: 10px solid #FFCE00;
+}
+
 
 #chat {
   position: absolute;
@@ -257,6 +281,20 @@ summary {
   border-bottom: 1px solid #20A8B1;
 }
 
+
+
+#sidebartoggle .toggle {
+  border-bottom: 10px solid transparent;
+  border-top: 10px solid transparent;
+}
+
+#sidebartoggle .open {
+  border-right: 10px solid #FFCE00;
+}
+
+#sidebartoggle .close {
+  border-left: 10px solid #FFCE00;
+}
 
 /* player stats */
 #playerstat {

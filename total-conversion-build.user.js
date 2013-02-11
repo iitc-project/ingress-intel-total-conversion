@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.4-2013-02-09-151927
+// @version        0.4-2013-02-11-172624
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/total-conversion-build.user.js
@@ -28,6 +28,19 @@ for(var x in scr) {
   break;
 }
 
+
+if(!d) {
+  // page doesn’t have a script tag with player information.
+  if(document.getElementById('header_email')) {
+    // however, we are logged in.
+    setTimeout('location.reload();', 10*1000);
+    throw('Page doesn’t have player data, but you are logged in. Reloading in 10s.');
+  }
+  // FIXME: handle nia takedown in progress
+  throw('Couldn’t retrieve player data. Are you logged in?');
+}
+
+
 for(var i = 0; i < d.length; i++) {
   if(!d[i].match('var PLAYER = ')) continue;
   eval(d[i].match(/^var /, 'window.'));
@@ -36,21 +49,20 @@ for(var i = 0; i < d.length; i++) {
 // player information is now available in a hash like this:
 // window.PLAYER = {"ap": "123", "energy": 123, "available_invites": 123, "nickname": "somenick", "team": "ALIENS||RESISTANCE"};
 
-
 // remove complete page. We only wanted the user-data and the page’s
 // security context so we can access the API easily. Setup as much as
 // possible without requiring scripts.
 document.getElementsByTagName('head')[0].innerHTML = ''
-  //~ + '<link rel="stylesheet" type="text/css" href="http://0.0.0.0:8000/style.css"/>'
+  + '<link rel="stylesheet" type="text/css" href="http://0.0.0.0:8000/style.css"/>'
   + '<title>Ingress Intel Map</title>'
-  + '<link rel="stylesheet" type="text/css" href="http://breunigs.github.com/ingress-intel-total-conversion/style.css?2013-02-09-151927"/>'
+  //~ + '<link rel="stylesheet" type="text/css" href="http://breunigs.github.com/ingress-intel-total-conversion/style.css?2013-02-11-172624"/>'
   + '<link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.css"/>'
   + '<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Coda"/>';
 
 document.getElementsByTagName('body')[0].innerHTML = ''
   + '<div id="map">Loading, please wait</div>'
   + '<div id="chatcontrols" style="display:none">'
-  + '  <a>expand</a><a>automated</a><a>public</a><a class="active">faction</a>'
+  + '  <a><span class="toggle expand"></span></a><a>automated</a><a>public</a><a class="active">faction</a>'
   + '</div>'
   + '<div id="chat" style="display:none">'
   + '  <div id="chatfaction"></div>'
@@ -58,6 +70,7 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '  <div id="chatautomated"></div>'
   + '</div>'
   + '<form id="chatinput" style="display:none"><time></time><span>tell faction:</span><input type="text"/></form>'
+  + '<a id="sidebartoggle"><span class="toggle close"></span></a>'
   + '<div id="scrollwrapper">' // enable scrolling for small screens
   + '  <div id="sidebar" style="display: none">'
   + '    <div id="playerstat">t</div>'
@@ -65,11 +78,11 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '    <input id="geosearch" placeholder="Search location…" type="text"/>'
   + '    <div id="portaldetails"></div>'
   + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
-  + '    <div id="toolbox"></div>'
+  + '    <div id="toolbox"><a onmouseover="setPermaLink(this)">permalink</a></div>'
   + '    <div id="spacer"></div>'
-  + '    <div id="updatestatus"></div>'
-  + '  </div>';
-  + '</div>';
+  + '  </div>'
+  + '</div>'
+  + '<div id="updatestatus"></div>';
 
 // putting everything in a wrapper function that in turn is placed in a
 // script tag on the website allows us to execute in the site’s context
@@ -130,18 +143,30 @@ var RANGE_INDICATOR_COLOR = 'red';
 var RESO_NRG = [0, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 6000];
 var MAX_XM_PER_LEVEL = [0, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000];
 var MIN_AP_FOR_LEVEL = [0, 10000, 30000, 70000, 150000, 300000, 600000, 1200000];
-var HACK_RANGE = 35; // in meters, max. distance from portal to be able to access it
+var HACK_RANGE = 40; // in meters, max. distance from portal to be able to access it
 var OCTANTS = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
 var DEFAULT_PORTAL_IMG = 'http://commondatastorage.googleapis.com/ingress/img/default-portal-image.png';
+var DESTROY_RESONATOR = 75; //AP for destroying portal
+var DESTROY_LINK = 187; //AP for destroying link
+var DESTROY_FIELD = 750; //AP for destroying field
 
 // OTHER MORE-OR-LESS CONSTANTS //////////////////////////////////////
 var NOMINATIM = 'http://nominatim.openstreetmap.org/search?format=json&limit=1&q=';
 var DEG2RAD = Math.PI / 180;
 var TEAM_NONE = 0, TEAM_RES = 1, TEAM_ENL = 2;
 var TEAM_TO_CSS = ['none', 'res', 'enl'];
+var TYPE_UNKNOWN = 0, TYPE_PORTAL = 1, TYPE_LINK = 2, TYPE_FIELD = 3, TYPE_PLAYER = 4, TYPE_CHAT = 5, TYPE_RESONATOR = 6;
 // make PLAYER variable available in site context
 var PLAYER = window.PLAYER;
 var CHAT_SHRINKED = 60;
+
+// Minimum zoom level resonator will display
+var RESONATOR_DISPLAY_ZOOM_LEVEL = 17;
+
+// Constants for resonator positioning
+var SLOT_TO_LAT = [0, Math.sqrt(2)/2, 1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2];
+var SLOT_TO_LNG = [1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2, 0, Math.sqrt(2)/2];
+var EARTH_RADIUS=6378137;
 
 // STORAGE ///////////////////////////////////////////////////////////
 // global variables used for storage. Most likely READ ONLY. Proper
@@ -163,12 +188,62 @@ var portalsLayers, linksLayer, fieldsLayer;
 window.portals = {};
 window.links = {};
 window.fields = {};
+window.resonators = {};
 
 // plugin framework. Plugins may load earlier than iitc, so don’t
 // overwrite data
 if(typeof window.plugin !== 'function') window.plugin = function() {};
 
 
+
+
+// PLUGIN HOOKS ////////////////////////////////////////////////////////
+// Plugins may listen to any number of events by specifying the name of
+// the event to listen to and handing a function that should be exe-
+// cuted when an event occurs. Callbacks will receive additional data
+// the event created as their first parameter. The value is always a
+// hash that contains more details.
+//
+// For example, this line will listen for portals to be added and print
+// the data generated by the event to the console:
+// window.addHook('portalAdded', function(data) { console.log(data) });
+//
+// Boot hook: booting is handled differently because IITC may not yet
+//            be available. Have a look at the plugins in plugins/. All
+//            code before “// PLUGIN START” and after “// PLUGIN END” os
+//            required to successfully boot the plugin.
+//
+// Here’s more specific information about each event:
+// portalAdded: called when a portal has been received and is about to
+//              be added to its layer group. Note that this does NOT
+//              mean it is already visible or will be, shortly after.
+//              If a portal is added to a hidden layer it may never be
+//              shown at all. Injection point is in
+//              code/map_data.js#renderPortal near the end. Will hand
+//              the Leaflet CircleMarker for the portal in "portal" var.
+
+window._hooks = {}
+window.VALID_HOOKS = ['portalAdded'];
+
+window.runHooks = function(event, data) {
+  if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);
+
+  if(!_hooks[event]) return;
+  $.each(_hooks[event], function(ind, callback) {
+    callback(data);
+  });
+}
+
+
+window.addHook = function(event, callback) {
+  if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);
+  if(typeof callback !== 'function') throw('Callback must be a function.');
+
+  if(!_hooks[event])
+    _hooks[event] = [callback];
+  else
+    _hooks[event].push(callback);
+}
 
 
 
@@ -242,8 +317,16 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   // to be in the foreground, or they cannot be clicked. See
   // https://github.com/Leaflet/Leaflet/issues/185
   var ppp = [];
+  var p2f = {};
   $.each(m, function(qk, val) {
     $.each(val.deletedGameEntityGuids, function(ind, guid) {
+      if(getTypeByGuid(guid) === TYPE_FIELD && window.fields[guid] !== undefined) {
+        $.each(window.fields[guid].options.vertices, function(ind, vertex) {
+          if(window.portals[vertex.guid] === undefined) return true;
+          fieldArray = window.portals[vertex.guid].options.portalV2.linkedFields;
+          fieldArray.splice($.inArray(guid, fieldArray), 1);
+        });
+      }
       window.removeByGuid(guid);
     });
 
@@ -265,17 +348,37 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
 
 
         ppp.push(ent); // delay portal render
-      } else if(ent[2].edge !== undefined)
+      } else if(ent[2].edge !== undefined) {
         renderLink(ent);
-      else if(ent[2].capturedRegion !== undefined)
+      } else if(ent[2].capturedRegion !== undefined) {
+        $.each(ent[2].capturedRegion, function(ind, vertex) {
+          if(p2f[vertex.guid] === undefined)
+            p2f[vertex.guid] = new Array();
+          p2f[vertex.guid].push(ent[0]);
+        });
         renderField(ent);
-      else
+      } else {
         throw('Unknown entity: ' + JSON.stringify(ent));
+      }
     });
   });
 
+  $.each(ppp, function(ind, portal) {
+    if(portal[2].portalV2['linkedFields'] === undefined) {
+      portal[2].portalV2['linkedFields'] = [];
+    }
+    if(p2f[portal[0]] !== undefined) {
+      $.merge(p2f[portal[0]], portal[2].portalV2['linkedFields']);
+      portal[2].portalV2['linkedFields'] = uniqueArray(p2f[portal[0]]);
+    }
+  });
+
   $.each(ppp, function(ind, portal) { renderPortal(portal); });
-  if(portals[selectedPortal]) portals[selectedPortal].bringToFront();
+  if(portals[selectedPortal]) {
+    try {
+      portals[selectedPortal].bringToFront();
+    } catch(e) { /* portal is now visible, catch Leaflet error */ }
+  }
 
   if(portalInUrlAvailable) {
     renderPortalDetails(urlPortal);
@@ -294,13 +397,16 @@ window.cleanUp = function() {
   var minlvl = getMinPortalLevel();
   for(var i = 0; i < portalsLayers.length; i++) {
     // i is also the portal level
-    portalsLayers[i].eachLayer(function(portal) {
+    portalsLayers[i].eachLayer(function(item) {
+      var itemGuid = item.options.guid;
+      // check if 'item' is a portal
+      if(getTypeByGuid(itemGuid) != TYPE_PORTAL) return true;
       // portal must be in bounds and have a high enough level. Also don’t
       // remove if it is selected.
-      if(portal.options.guid == window.selectedPortal ||
-        (b.contains(portal.getLatLng()) && i >= minlvl)) return;
+      if(itemGuid == window.selectedPortal ||
+        (b.contains(item.getLatLng()) && i >= minlvl)) return true;
       cnt[0]++;
-      portalsLayers[i].removeLayer(portal);
+      portalsLayers[i].removeLayer(item);
     });
   }
   linksLayer.eachLayer(function(link) {
@@ -316,30 +422,29 @@ window.cleanUp = function() {
   console.log('removed out-of-bounds: '+cnt[0]+' portals, '+cnt[1]+' links, '+cnt[2]+' fields');
 }
 
+
 // removes given entity from map
 window.removeByGuid = function(guid) {
-  // portals end in “.11” or “.12“, links in “.9", fields in “.b”
-  // .11 == portals
-  // .12 == portals
-  // .9  == links
-  // .b  == fields
-  // .c  == player/creator
-  // .d  == chat messages
-  switch(guid.slice(33)) {
-    case '11':
-    case '12':
+  switch(getTypeByGuid(guid)) {
+    case TYPE_PORTAL:
       if(!window.portals[guid]) return;
       var p = window.portals[guid];
       for(var i = 0; i < portalsLayers.length; i++)
         portalsLayers[i].removeLayer(p);
       break;
-    case '9':
+    case TYPE_LINK:
       if(!window.links[guid]) return;
       linksLayer.removeLayer(window.links[guid]);
       break;
-    case 'b':
+    case TYPE_FIELD:
       if(!window.fields[guid]) return;
       fieldsLayer.removeLayer(window.fields[guid]);
+      break;
+    case TYPE_RESONATOR:
+      if(!window.resonators[guid]) return;
+      var r = window.resonators[guid];
+      for(var i = 1; i < portalsLayers.length; i++)
+        portalsLayers[i].removeLayer(r);
       break;
     default:
       console.warn('unknown GUID type: ' + guid);
@@ -351,59 +456,148 @@ window.removeByGuid = function(guid) {
 
 // renders a portal on the map from the given entity
 window.renderPortal = function(ent) {
-  removeByGuid(ent[0]);
-
   if(Object.keys(portals).length >= MAX_DRAWN_PORTALS && ent[0] != selectedPortal)
-    return;
-
-  var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
-  // needs to be checked before, so the portal isn’t added to the
-  // details list and other places
-  //if(!getPaddedBounds().contains(latlng)) return;
+    return removeByGuid(ent[0]);
 
   // hide low level portals on low zooms
   var portalLevel = getPortalLevel(ent[2]);
-  if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal) return;
-
-  // pre-load player names for high zoom levels
-  if(map.getZoom() >= PRECACHE_PLAYER_NAMES_ZOOM) {
-    if(ent[2].captured && ent[2].captured.capturingPlayerId)
-      getPlayerName(ent[2].captured.capturingPlayerId);
-    if(ent[2].resonatorArray && ent[2].resonatorArray.resonators)
-      $.each(ent[2].resonatorArray.resonators, function(ind, reso) {
-        if(reso) getPlayerName(reso.ownerGuid);
-      });
-  }
+  if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal)
+    return removeByGuid(ent[0]);
 
   var team = getTeam(ent[2]);
 
+  // do nothing if portal did not change
+  var layerGroup = portalsLayers[parseInt(portalLevel)];
+  var old = findEntityInLeaflet(layerGroup, window.portals, ent[0]);
+  if(old) {
+    var oo = old.options;
+    var u = oo.team !== team;
+    u = u || oo.level !== portalLevel;
+    // nothing for the portal changed, so don’t update. Let resonators
+    // manage themselves if they want to be updated.
+    if(!u) return renderResonators(ent);
+    removeByGuid(ent[0]);
+  }
+
+  // there were changes, remove old portal
+  removeByGuid(ent[0]);
+
+  var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
+
+  // pre-loads player names for high zoom levels
+  loadPlayerNamesForPortal(ent[2]);
+
+
+  var lvWeight = Math.max(2, portalLevel / 1.5);
+  var lvRadius = Math.max(portalLevel + 3, 5);
+
   var p = L.circleMarker(latlng, {
-    radius: 7,
+    radius: lvRadius,
     color: ent[0] == selectedPortal ? COLOR_SELECTED_PORTAL : COLORS[team],
     opacity: 1,
-    weight: 3,
+    weight: lvWeight,
     fillColor: COLORS[team],
     fillOpacity: 0.5,
     clickable: true,
     level: portalLevel,
+    team: team,
     details: ent[2],
     guid: ent[0]});
 
-  p.on('remove',   function() { delete window.portals[this.options.guid]; });
-  p.on('add',      function() {
+  p.on('remove', function() {
+    var portalGuid = this.options.guid
+
+    // remove attached resonators, skip if
+    // all resonators have already removed by zooming
+    if(isResonatorsShow()) {
+      for(var i = 0; i <= 7; i++)
+        removeByGuid(portalResonatorGuid(portalGuid,i));
+    }
+    delete window.portals[portalGuid];
+    if(window.selectedPortal === portalGuid) {
+      window.unselectOldPortal();
+      window.map.removeLayer(window.portalAccessIndicator);
+      window.portalAccessIndicator = null;
+    }
+  });
+
+  p.on('add', function() {
+    // enable for debugging
+    if(window.portals[this.options.guid]) throw('duplicate portal detected');
     window.portals[this.options.guid] = this;
     // handles the case where a selected portal gets removed from the
     // map by hiding all portals with said level
     if(window.selectedPortal != this.options.guid)
       window.portalResetColor(this);
   });
+
   p.on('click',    function() { window.renderPortalDetails(ent[0]); });
   p.on('dblclick', function() {
     window.renderPortalDetails(ent[0]);
     window.map.setView(latlng, 17);
   });
+
+  window.renderResonators(ent);
+
+  window.runHooks('portalAdded', {portal: p});
+
   // portalLevel contains a float, need to round down
-  p.addTo(portalsLayers[parseInt(portalLevel)]);
+  p.addTo(layerGroup);
+}
+
+window.renderResonators = function(ent) {
+  var portalLevel = getPortalLevel(ent[2]);
+  if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal) return;
+
+  if(!isResonatorsShow()) return;
+
+  for(var i=0; i < ent[2].resonatorArray.resonators.length; i++) {
+    var rdata = ent[2].resonatorArray.resonators[i];
+
+    if(rdata == null) continue;
+
+    if(window.resonators[portalResonatorGuid(ent[0],i)]) continue;
+
+    // offset in meters
+    var dn = rdata.distanceToPortal*SLOT_TO_LAT[rdata.slot];
+    var de = rdata.distanceToPortal*SLOT_TO_LNG[rdata.slot];
+
+    // Coordinate offset in radians
+    var dLat = dn/EARTH_RADIUS;
+    var dLon = de/(EARTH_RADIUS*Math.cos(Math.PI/180*(ent[2].locationE6.latE6/1E6)));
+
+    // OffsetPosition, decimal degrees
+    var lat0 = ent[2].locationE6.latE6/1E6 + dLat * 180/Math.PI;
+    var lon0 = ent[2].locationE6.lngE6/1E6 + dLon * 180/Math.PI;
+    var Rlatlng = [lat0, lon0];
+    var r =  L.circleMarker(Rlatlng, {
+        radius: 3,
+        // #AAAAAA outline seems easier to see the fill opacity
+        color: '#AAAAAA',
+        opacity: 1,
+        weight: 1,
+        fillColor: COLORS_LVL[rdata.level],
+        fillOpacity: rdata.energyTotal/RESO_NRG[rdata.level],
+        clickable: false,
+        level: rdata.level,
+        details: rdata,
+        pDetails: ent[2],
+        guid: portalResonatorGuid(ent[0],i) });
+
+    r.on('remove',   function() { delete window.resonators[this.options.guid]; });
+    r.on('add',      function() { window.resonators[this.options.guid] = this; });
+
+    r.addTo(portalsLayers[parseInt(portalLevel)]);
+  }
+}
+
+// append portal guid with -resonator-[slot] to get guid for resonators
+window.portalResonatorGuid = function(portalGuid, slot) {
+  return portalGuid + '-resonator-' + slot;
+}
+
+window.isResonatorsShow = function() {
+  return map.getZoom() >= RESONATOR_DISPLAY_ZOOM_LEVEL;
 }
 
 window.portalResetColor = function(portal) {
@@ -412,8 +606,12 @@ window.portalResetColor = function(portal) {
 
 // renders a link on the map from the given entity
 window.renderLink = function(ent) {
-  removeByGuid(ent[0]);
-  if(Object.keys(links).length >= MAX_DRAWN_LINKS) return;
+  if(Object.keys(links).length >= MAX_DRAWN_LINKS)
+    return removeByGuid(ent[0]);
+
+  // assume that links never change. If they do, they will have a
+  // different ID.
+  if(findEntityInLeaflet(linksLayer, links, ent[0])) return;
 
   var team = getTeam(ent[2]);
   var edge = ent[2].edge;
@@ -433,14 +631,23 @@ window.renderLink = function(ent) {
   if(!getPaddedBounds().intersects(poly.getBounds())) return;
 
   poly.on('remove', function() { delete window.links[this.options.guid]; });
-  poly.on('add',    function() { window.links[this.options.guid] = this; });
-  poly.addTo(linksLayer).bringToBack();
+  poly.on('add',    function() {
+    // enable for debugging
+    if(window.links[this.options.guid]) throw('duplicate link detected');
+    window.links[this.options.guid] = this;
+    this.bringToBack();
+  });
+  poly.addTo(linksLayer);
 }
 
 // renders a field on the map from a given entity
 window.renderField = function(ent) {
-  window.removeByGuid(ent[0]);
-  if(Object.keys(fields).length >= MAX_DRAWN_FIELDS) return;
+  if(Object.keys(fields).length >= MAX_DRAWN_FIELDS)
+    return window.removeByGuid(ent[0]);
+
+  // assume that fields never change. If they do, they will have a
+  // different ID.
+  if(findEntityInLeaflet(fieldsLayer, fields, ent[0])) return;
 
   var team = getTeam(ent[2]);
   var reg = ent[2].capturedRegion;
@@ -455,13 +662,40 @@ window.renderField = function(ent) {
     stroke: false,
     clickable: false,
     smoothFactor: 10,
+    vertices: ent[2].capturedRegion,
+    lastUpdate: ent[1],
     guid: ent[0]});
 
   if(!getPaddedBounds().intersects(poly.getBounds())) return;
 
   poly.on('remove', function() { delete window.fields[this.options.guid]; });
-  poly.on('add',    function() { window.fields[this.options.guid] = this; });
-  poly.addTo(fieldsLayer).bringToBack();
+  poly.on('add',    function() {
+    // enable for debugging
+    if(window.fields[this.options.guid]) console.warn('duplicate field detected');
+    window.fields[this.options.guid] = this;
+    this.bringToBack();
+  });
+  poly.addTo(fieldsLayer);
+}
+
+
+// looks for the GUID in either the layerGroup or entityHash, depending
+// on which is faster. Will either return the Leaflet entity or null, if
+// it does not exist.
+// For example, to find a field use the function like this:
+// field = findEntityInLeaflet(fieldsLayer, fields, 'asdasdasd');
+window.findEntityInLeaflet = function(layerGroup, entityHash, guid) {
+  // fast way
+  if(map.hasLayer(layerGroup)) return entityHash[guid] || null;
+
+  // slow way in case the layer is currently hidden
+  var ent = null;
+  layerGroup.eachLayer(function(entity) {
+    if(entity.options.guid !== guid) return true;
+    ent = entity;
+    return false;
+  });
+  return ent;
 }
 
 
@@ -517,7 +751,7 @@ window.renderUpdateStatus = function() {
     t += ' <span style="color:red" class="help" title="Can only render so much before it gets unbearably slow. Not all entities are shown. Zoom in or increase the limit (search for MAX_DRAWN_*).">RENDER LIMIT</span> '
 
   if(window.failedRequestCount > 0)
-    t += ' <span style="color:red">' + window.failedRequestCount + ' requests failed</span>.'
+    t += ' <span style="color:red">' + window.failedRequestCount + ' failed</span>.'
 
   t += '<br/>(';
   var minlvl = getMinPortalLevel();
@@ -677,6 +911,13 @@ window.rangeLinkClick = function() {
 
 window.reportPortalIssue = function(info) {
   var t = 'Redirecting you to a Google Help Page. Once there, click on “Contact Us” in the upper right corner.\n\nThe text box contains all necessary information. Press CTRL+C to copy it.';
+  var d = window.portals[window.selectedPortal].options.details;
+
+  var info = 'Your Nick: ' + PLAYER.nickname + '        '
+    + 'Portal: ' + d.portalV2.descriptiveText.TITLE + '        '
+    + 'Location: ' + d.portalV2.descriptiveText.ADDRESS
+    +' (lat ' + (d.locationE6.latE6/1E6) + '; lng ' + (d.locationE6.lngE6/1E6) + ')';
+
   //codename, approx addr, portalname
   if(prompt(t, info) !== null)
     location.href = 'https://support.google.com/ingress?hl=en';
@@ -718,8 +959,51 @@ window.scrollBottom = function(elm) {
 }
 
 window.zoomToAndShowPortal = function(guid, latlng) {
-  renderPortalDetails(guid);
   map.setView(latlng, 17);
+  // if the data is available, render it immediately. Otherwise defer
+  // until it becomes available.
+  if(window.portals[guid])
+    renderPortalDetails(guid);
+  else
+    urlPortal = guid;
+}
+
+// translates guids to entity types
+window.getTypeByGuid = function(guid) {
+  // portals end in “.11” or “.12“, links in “.9", fields in “.b”
+  // .11 == portals
+  // .12 == portals
+  // .9  == links
+  // .b  == fields
+  // .c  == player/creator
+  // .d  == chat messages
+  //
+  // others, not used in web:
+  // .5  == resources (burster/resonator)
+  // .6  == XM
+  // .4  == media items, maybe all droppped resources (?)
+  // resonator guid is [portal guid]-resonator-[slot]
+  switch(guid.slice(33)) {
+    case '11':
+    case '12':
+      return TYPE_PORTAL;
+
+    case '9':
+      return TYPE_LINK;
+
+    case 'b':
+      return TYPE_FIELD;
+
+    case 'c':
+      return TYPE_PLAYER;
+
+    case 'd':
+      return TYPE_CHAT;
+
+    default:
+      if(guid.slice(-11,-2) == 'resonator') return TYPE_RESONATOR;
+      return TYPE_UNKNOWN;
+  }
 }
 
 String.prototype.capitalize = function() {
@@ -731,6 +1015,24 @@ if (typeof String.prototype.startsWith !== 'function') {
   String.prototype.startsWith = function (str){
     return this.slice(0, str.length) === str;
   };
+}
+
+window.prettyEnergy = function(nrg) {
+  return nrg> 1000 ? Math.round(nrg/1000) + ' k': nrg;
+}
+
+window.setPermaLink = function(elm) {
+  var c = map.getCenter();
+  var lat = Math.round(c.lat*1E6);
+  var lng = Math.round(c.lng*1E6);
+  var qry = 'latE6='+lat+'&lngE6='+lng+'&z=' + map.getZoom();
+  $(elm).attr('href',  'http://www.ingress.com/intel?' + qry);
+}
+
+window.uniqueArray = function(arr) {
+  return $.grep(arr, function(v, i) {
+    return $.inArray(v, arr) === i;
+  });
 }
 
 
@@ -763,16 +1065,17 @@ window.setupLargeImagePreview = function() {
 
 window.setupStyles = function() {
   $('head').append('<style>' +
-    [ '#map { margin-right: '+(SIDEBAR_WIDTH+2)+'px } ',
-      '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
+    [ '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
       '#largepreview.res img { border:2px solid '+COLORS[TEAM_RES]+'; } ',
       '#largepreview.none img { border:2px solid '+COLORS[TEAM_NONE]+'; } ',
       '#chatcontrols { bottom: '+(CHAT_SHRINKED+24)+'px; }',
       '#chat { height: '+CHAT_SHRINKED+'px; } ',
-      '#updatestatus { width:'+(SIDEBAR_WIDTH-2*4)+'px;  } ',
-      '#sidebar { width:'+(SIDEBAR_WIDTH + HIDDEN_SCROLLBAR_ASSUMED_WIDTH + 2 /*border*/)+'px;  } ',
+      '.leaflet-right { margin-right: '+(SIDEBAR_WIDTH+1)+'px } ',
+      '#updatestatus { width:'+(SIDEBAR_WIDTH-2*4+1)+'px;  } ',
+      '#sidebar { width:'+(SIDEBAR_WIDTH + HIDDEN_SCROLLBAR_ASSUMED_WIDTH + 1 /*border*/)+'px;  } ',
+      '#sidebartoggle { right:'+SIDEBAR_WIDTH+'px;  } ',
       '#scrollwrapper  { width:'+(SIDEBAR_WIDTH + 2*HIDDEN_SCROLLBAR_ASSUMED_WIDTH)+'px; right:-'+(2*HIDDEN_SCROLLBAR_ASSUMED_WIDTH-2)+'px } ',
-      '#sidebar input, h2, #updatestatus  { width:'+(SIDEBAR_WIDTH - 2*4)+'px !important } ',
+      '#sidebar input, h2  { width:'+(SIDEBAR_WIDTH - 2*4)+'px !important } ',
       '#sidebar > *, #gamestat span, .imgpreview img { width:'+SIDEBAR_WIDTH+'px;  }'].join("\n")
     + '</style>');
 }
@@ -829,7 +1132,22 @@ window.setupMap = function() {
   map.attributionControl.setPrefix('');
   // listen for changes and store them in cookies
   map.on('moveend', window.storeMapPosition);
-  map.on('zoomend', window.storeMapPosition);
+  map.on('zoomend', function() {
+    window.storeMapPosition;
+
+    // remove all resonators if zoom out to < RESONATOR_DISPLAY_ZOOM_LEVEL
+    if(isResonatorsShow()) return;
+    for(var i = 1; i < portalsLayers.length; i++) {
+      portalsLayers[i].eachLayer(function(item) {
+        var itemGuid = item.options.guid;
+        // check if 'item' is a resonator
+        if(getTypeByGuid(itemGuid) != TYPE_RESONATOR) return true;
+        portalsLayers[i].removeLayer(item);
+      });
+    }
+
+    console.log('Remove all resonators');
+  });
   $("[name='leaflet-base-layers']").change(function () {
     writeCookie('ingress.intelmap.type', $(this).parent().index());
   });
@@ -890,6 +1208,24 @@ window.setupPlayerStat = function() {
   );
 }
 
+window.setupSidebarToggle = function() {
+  $('#sidebartoggle').on('click', function() {
+    var toggle = $('#sidebartoggle');
+    var sidebar = $('#sidebar');
+    if(sidebar.is(':visible')) {
+      sidebar.hide();
+      $('.leaflet-right').css('margin-right','0');
+      toggle.html('<span class="toggle open"></span>');
+      toggle.css('right', '0');
+    } else {
+      sidebar.show();
+      $('.leaflet-right').css('margin-right', SIDEBAR_WIDTH+1+'px');
+      toggle.html('<span class="toggle close"></span>');
+      toggle.css('right', SIDEBAR_WIDTH+1+'px');
+    }
+  });
+}
+
 
 // BOOTING ///////////////////////////////////////////////////////////
 
@@ -900,6 +1236,7 @@ function boot() {
   window.setupGeosearch();
   window.setupRedeem();
   window.setupLargeImagePreview();
+  window.setupSidebarToggle();
   window.updateGameScore();
   window.setupPlayerStat();
   window.chat.setup();
@@ -1397,7 +1734,7 @@ window.chat.renderMsg = function(msg, nick, time, team) {
   var t = '<time title="'+tb+'" data-timestamp="'+time+'">'+ta+'</time>';
   var s = 'style="color:'+COLORS[team]+'"';
   var title = nick.length >= 8 ? 'title="'+nick+'" class="help"' : '';
-  return '<p>'+t+'<mark '+s+'>'+nick+'</mark><span>'+msg+'</span></p>';
+  return '<p>'+t+'<span class="invisibleseparator"> &lt;</span><mark '+s+'>'+nick+'</mark><span class="invisibleseparator">&gt; </span><span>'+msg+'</span></p>';
 }
 
 
@@ -1410,14 +1747,16 @@ window.chat.getActive = function() {
 window.chat.toggle = function() {
   var c = $('#chat, #chatcontrols');
   if(c.hasClass('expand')) {
-    $('#chatcontrols a:first').text('expand');
+    $('#chatcontrols a:first').html('<span class="toggle expand"></span>');
     c.removeClass('expand');
     var div = $('#chat > div:visible');
     div.data('ignoreNextScroll', true);
     div.scrollTop(99999999); // scroll to bottom
+    $('.leaflet-control').css('margin-left', '13px');
   } else {
-    $('#chatcontrols a:first').text('shrink');
+    $('#chatcontrols a:first').html('<span class="toggle shrink"></span>');
     c.addClass('expand');
+    $('.leaflet-control').css('margin-left', '720px');
     chat.needMoreMessages();
   }
 }
@@ -1635,12 +1974,12 @@ window.chat.postMsg = function() {
 // returns displayable text+link about portal range
 window.getRangeText = function(d) {
   var range = getPortalRange(d);
-  return 'range: '
+  return ['range',
     + '<a onclick="window.rangeLinkClick()">'
     + (range > 1000
       ? Math.round(range/1000) + ' km'
       : Math.round(range)      + ' m')
-    + '</a>';
+    + '</a>'];
 }
 
 // generates description text from details for portal
@@ -1694,30 +2033,31 @@ window.getModDetails = function(d) {
 }
 
 window.getEnergyText = function(d) {
-  var nrg = getPortalEnergy(d);
-  return 'energy: ' + (nrg > 1000 ? Math.round(nrg/1000) +' k': nrg);
+  var currentNrg = getCurrentPortalEnergy(d);
+  var totalNrg = getTotalPortalEnergy(d);
+  var inf = currentNrg + ' / ' + totalNrg;
+  var fill = prettyEnergy(currentNrg) + ' / ' + prettyEnergy(totalNrg)
+  return ['energy', '<tt title="'+inf+'">' + fill + '</tt>'];
 }
 
 window.getAvgResoDistText = function(d) {
   var avgDist = Math.round(10*getAvgResoDist(d))/10;
-  return '⌀ res dist: ' + avgDist + ' m';
-}
-
-window.getReportIssueInfoText = function(d) {
-  return ('Your Nick: '+PLAYER.nickname+'        '
-    + 'Portal: '+d.portalV2.descriptiveText.TITLE+'        '
-    + 'Location: '+d.portalV2.descriptiveText.ADDRESS
-    +' (lat '+(d.locationE6.latE6/1E6)+'; lng '+(d.locationE6.lngE6/1E6)+')'
-  ).replace(/['"]/, '');
+  return ['⌀ res dist', avgDist + ' m'];
 }
 
 window.getResonatorDetails = function(d) {
-  console.log('rendering reso details');
   var resoDetails = '';
-  var slotsFilled = 0;
-  $.each(d.resonatorArray.resonators, function(ind, reso) {
+  // octant=slot: 0=E, 1=NE, 2=N, 3=NW, 4=W, 5=SW, 6=S, SE=7
+  // resos in the display should be ordered like this:
+  //   N    NE         Since the view is displayed in columns, they
+  //  NW    E          need to be ordered like this: N, NW, W, SW, NE,
+  //   W    SE         E, SE, S, i.e. 2 3 4 5 1 0 7 6
+  //  SW    S
+  $.each([2, 3, 4, 5, 1, 0, 7, 6], function(ind, slot) {
+    var isLeft = slot >= 2 && slot <= 5;
+    var reso = d.resonatorArray.resonators[slot];
     if(!reso) {
-      resoDetails += renderResonatorDetails(slotsFilled++, 0);
+      resoDetails += renderResonatorDetails(slot, 0, 0, null, null, isLeft);
       return true;
     }
 
@@ -1725,9 +2065,11 @@ window.getResonatorDetails = function(d) {
     var v = parseInt(reso.energyTotal);
     var nick = window.getPlayerName(reso.ownerGuid);
     var dist = reso.distanceToPortal;
+    // if array order and slot order drift apart, at least the octant
+    // naming will still be correct.
+    slot = parseInt(reso.slot);
 
-    slotsFilled++;
-    resoDetails += renderResonatorDetails(parseInt(reso.slot), l, v, dist, nick);
+    resoDetails += renderResonatorDetails(slot, l, v, dist, nick, isLeft);
   });
   return resoDetails;
 }
@@ -1736,15 +2078,15 @@ window.getResonatorDetails = function(d) {
 // not work with raw details-hash. Needs digested infos instead:
 // slot: which slot this resonator occupies. Starts with 0 (east) and
 // rotates clockwise. So, last one is 7 (southeast).
-window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
-  if(level == 0) {
-    var meter = '<span class="meter" style="cursor:auto"></span>';
+window.renderResonatorDetails = function(slot, level, nrg, dist, nick, isLeft) {
+  if(level === 0) {
+    var meter = '<span class="meter" title="octant:\t' + OCTANTS[slot] + '"></span>';
   } else {
     var max = RESO_NRG[level];
     var fillGrade = nrg/max*100;
 
-    var inf = 'energy:\t\t' + nrg   + ' / ' + max + ' (' + Math.round(fillGrade) + '%)' + '\n'
-            + 'level:\t\t'  + level +'\n'
+    var inf = 'energy:\t\t' + nrg   + ' / ' + max + ' (' + Math.round(fillGrade) + '%)\n'
+            + 'level:\t\t'  + level + '\n'
             + 'distance:\t' + dist  + 'm\n'
             + 'owner:\t\t'  + nick  + '\n'
             + 'octant:\t' + OCTANTS[slot];
@@ -1757,12 +2099,41 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
 
     var fill  = '<span style="'+style+'"></span>';
 
-    var meter = '<span class="meter meter-rel" title="'+inf+'">'
-                   + fill + lbar + '</span>';
+    var meter = '<span class="meter meter-rel" title="'+inf+'">' + fill + lbar + '</span>';
   }
-  var cls = slot <= 3 ? 'left' : 'right';
+  var cls = isLeft ? 'left' : 'right';
   var text = '<span class="meter-text '+cls+'">'+(nick||'')+'</span>';
-  return (slot <= 3 ? text+meter : meter+text) + '<br/>';
+  return (isLeft ? text+meter : meter+text) + '<br/>';
+}
+
+// calculate AP gain from destroying portal
+// so far it counts only resonators + links
+window.getDestroyAP = function(d) {
+  var resoCount = 0;
+
+  $.each(d.resonatorArray.resonators, function(ind, reso) {
+    if(!reso) return true;
+    resoCount += 1;
+  });
+
+  var linkCount = d.portalV2.linkedEdges ? d.portalV2.linkedEdges.length : 0;
+  var fieldCount = d.portalV2.linkedFields ? d.portalV2.linkedFields.length : 0;
+
+  var resoAp = resoCount * DESTROY_RESONATOR;
+  var linkAp = linkCount * DESTROY_LINK;
+  var fieldAp = fieldCount * DESTROY_FIELD;
+  var sum = resoAp + linkAp + fieldAp;
+
+  function tt(text) {
+    var t = 'Destroy:\n';
+    t += resoCount  + '×\tResonators\t= ' + digits(resoAp) + '\n';
+    t += linkCount  + '×\tLinks\t\t= ' + digits(linkAp) + '\n';
+    t += fieldCount + '×\tFields\t\t= ' + digits(fieldAp) + '\n';
+    t += 'Sum: ' + digits(sum) + ' AP';
+    return '<tt title="'+t+'">' + digits(text) + '</tt>';
+  }
+
+  return [tt('AP Gain'), tt(sum)];
 }
 
 
@@ -1977,22 +2348,23 @@ window.renderPortalDetails = function(guid) {
     links[link.isOrigin ? 'outgoing' : 'incoming']++;
   });
   function linkExpl(t) { return '<tt title="↳ incoming links\n↴ outgoing links\n• is meant to be the portal.">'+t+'</tt>'; }
-  var linksText = linkExpl('links')+':'+linkExpl(' ↳ ' + links.incoming+'&nbsp;&nbsp;•&nbsp;&nbsp;'+links.outgoing+' ↴');
+  var linksText = [linkExpl('links'), linkExpl(' ↳ ' + links.incoming+'&nbsp;&nbsp;•&nbsp;&nbsp;'+links.outgoing+' ↴')];
 
   var player = d.captured && d.captured.capturingPlayerId
     ? getPlayerName(d.captured.capturingPlayerId)
     : null;
-  var playerText = player ? 'owner: ' + player : null;
+  var playerText = player ? ['owner', player] : null;
 
   var time = d.captured ? unixTimeToString(d.captured.capturedTime) : null;
-  var sinceText  = time ? 'since: ' + time : null;
+  var sinceText  = time ? ['since', time] : null;
+
+  var linkedFields = ['fields', d.portalV2.linkedFields.length];
 
   // collect and html-ify random data
-  var randDetails = [playerText, sinceText, getRangeText(d), getEnergyText(d), linksText, getAvgResoDistText(d)];
+  var randDetails = [playerText, sinceText, getRangeText(d), getEnergyText(d), linksText, getAvgResoDistText(d), linkedFields, getDestroyAP(d)];
   randDetails = randDetails.map(function(detail) {
     if(!detail) return '';
-    detail = detail.split(':');
-    detail = '<aside>'+detail.shift()+'<span>'+detail.join(':')+'</span></aside>';
+    detail = '<aside>'+detail[0]+'<span>'+detail[1]+'</span></aside>';
     return detail;
   }).join('\n');
 
@@ -2026,7 +2398,7 @@ window.renderPortalDetails = function(guid) {
         + '<div id="resodetails">'+getResonatorDetails(d)+'</div>'
         + '<div class="linkdetails">'
         + '<aside><a href="'+perma+'">portal link</a></aside>'
-        + '<aside><a onclick="window.reportPortalIssue(\''+getReportIssueInfoText(d)+'\')">report issue</a></aside>'
+        + '<aside><a onclick="window.reportPortalIssue()">report issue</a></aside>'
         + '</div>'
       );
   }
@@ -2188,6 +2560,21 @@ window.setPlayerName = function(guid, nick) {
 }
 
 
+window.loadPlayerNamesForPortal = function(portal_details) {
+  if(map.getZoom() < PRECACHE_PLAYER_NAMES_ZOOM) return;
+  var e = portal_details;
+
+  if(e.captured && e.captured.capturingPlayerId)
+    getPlayerName(e.captured.capturingPlayerId);
+
+  if(!e.resonatorArray || !e.resonatorArray.resonators) return;
+
+  $.each(e.resonatorArray.resonators, function(ind, reso) {
+    if(reso) getPlayerName(reso.ownerGuid);
+  });
+}
+
+
 
 // DEBUGGING TOOLS ///////////////////////////////////////////////////
 // meant to be used from browser debugger tools and the like.
@@ -2273,7 +2660,21 @@ window.getPortalLevel = function(d) {
   return hasReso ? Math.max(1, lvl/8) : 0;
 }
 
-window.getPortalEnergy = function(d) {
+window.getTotalPortalEnergy = function(d) {
+  var nrg = 0;
+  $.each(d.resonatorArray.resonators, function(ind, reso) {
+    if(!reso) return true;
+    var level = parseInt(reso.level);
+    var max = RESO_NRG[level];
+    nrg += max;
+  });
+  return nrg;
+}
+
+// For backwards compatibility
+window.getPortalEnergy = window.getTotalPortalEnergy;
+
+window.getCurrentPortalEnergy = function(d) {
   var nrg = 0;
   $.each(d.resonatorArray.resonators, function(ind, reso) {
     if(!reso) return true;

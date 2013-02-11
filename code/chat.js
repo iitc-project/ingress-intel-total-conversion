@@ -469,14 +469,14 @@ window.chat.getActive = function() {
 window.chat.toggle = function() {
   var c = $('#chat, #chatcontrols');
   if(c.hasClass('expand')) {
-    $('#chatcontrols a:first').text('◢◣');
+    $('#chatcontrols a:first').html('<span class="toggle expand"></span>');
     c.removeClass('expand');
     var div = $('#chat > div:visible');
     div.data('ignoreNextScroll', true);
     div.scrollTop(99999999); // scroll to bottom
     $('.leaflet-control').css('margin-left', '13px');
   } else {
-    $('#chatcontrols a:first').text('◥◤');
+    $('#chatcontrols a:first').html('<span class="toggle shrink"></span>');
     c.addClass('expand');
     $('.leaflet-control').css('margin-left', '720px');
     chat.needMoreMessages();

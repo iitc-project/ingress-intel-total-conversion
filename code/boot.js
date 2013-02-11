@@ -177,12 +177,12 @@ window.setupSidebarToggle = function() {
     if(sidebar.is(':visible')) {
       sidebar.hide();
       $('.leaflet-right').css('margin-right','0');
-      toggle.html('◢<br>◥');
+      toggle.html('<span class="toggle open"></span>');
       toggle.css('right', '0');
     } else {
       sidebar.show();
       $('.leaflet-right').css('margin-right', SIDEBAR_WIDTH+1+'px');
-      toggle.html('◣<br>◤');
+      toggle.html('<span class="toggle close"></span>');
       toggle.css('right', SIDEBAR_WIDTH+1+'px');
     }
   });
