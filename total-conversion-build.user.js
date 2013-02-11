@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
-// @name           intel map total conversion
-// @version        0.5-2013-02-11-174634
+// @name           intel map total conversion v0.51
+// @version        0.51-2013-02-11-193316
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js
@@ -55,7 +55,7 @@ for(var i = 0; i < d.length; i++) {
 document.getElementsByTagName('head')[0].innerHTML = ''
   //~ + '<link rel="stylesheet" type="text/css" href="http://0.0.0.0:8000/style.css"/>'
   + '<title>Ingress Intel Map</title>'
-  + '<link rel="stylesheet" type="text/css" href="http://breunigs.github.com/ingress-intel-total-conversion/dist/style.css?2013-02-11-174634"/>'
+  + '<link rel="stylesheet" type="text/css" href="http://breunigs.github.com/ingress-intel-total-conversion/dist/style.css?2013-02-11-193316"/>'
   + '<link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.css"/>'
   + '<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Coda"/>';
 
@@ -1065,7 +1065,7 @@ window.setupLargeImagePreview = function() {
 
 window.setupStyles = function() {
   $('head').append('<style>' +
-    [ 'body:after { display: none }',
+    [ 'body:after { display: none } ',
       '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
       '#largepreview.res img { border:2px solid '+COLORS[TEAM_RES]+'; } ',
       '#largepreview.none img { border:2px solid '+COLORS[TEAM_NONE]+'; } ',
@@ -1212,14 +1212,14 @@ window.setupPlayerStat = function() {
 window.setupSidebarToggle = function() {
   $('#sidebartoggle').on('click', function() {
     var toggle = $('#sidebartoggle');
-    var sidebar = $('#sidebar');
+    var sidebar = $('#scrollwrapper');
     if(sidebar.is(':visible')) {
-      sidebar.hide();
+      sidebar.hide().css('z-index', 1);
       $('.leaflet-right').css('margin-right','0');
       toggle.html('<span class="toggle open"></span>');
       toggle.css('right', '0');
     } else {
-      sidebar.show();
+      sidebar.css('z-index', 1001).show();
       $('.leaflet-right').css('margin-right', SIDEBAR_WIDTH+1+'px');
       toggle.html('<span class="toggle close"></span>');
       toggle.css('right', SIDEBAR_WIDTH+1+'px');
@@ -1976,7 +1976,7 @@ window.chat.postMsg = function() {
 window.getRangeText = function(d) {
   var range = getPortalRange(d);
   return ['range',
-    + '<a onclick="window.rangeLinkClick()">'
+      '<a onclick="window.rangeLinkClick()">'
     + (range > 1000
       ? Math.round(range/1000) + ' km'
       : Math.round(range)      + ' m')

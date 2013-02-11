@@ -1,5 +1,5 @@
-CHANGES IN 0.5
-==============
+CHANGES IN 0.5 / 0.51
+=====================
 
 - Feature: draw resonators on map on high zoom levels (by Xelio)
 - Feature: show AP if portal is taken down (by Pirozek)
@@ -30,6 +30,12 @@ CHANGES IN 0.5
 - Bugfix: resonators + nicks were sometimes misaligned
 - Bugfix: portal mod boxes sometimes misaligned
 - Plugin: guess-player-levels now also shows guessed level in tooltip
+
+
+Additional fixes in 0.51:
+- Bugfix: sidebar not visible in Chrome
+- Bugfix: layer chooser not usable if sidebar collapsed
+- Bugfix: range link not working
 
 
 
