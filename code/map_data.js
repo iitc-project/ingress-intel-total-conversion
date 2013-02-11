@@ -216,9 +216,17 @@ window.renderPortal = function(ent) {
   var team = getTeam(ent[2]);
 
   // do nothing if portal did not change
-  var old = window.portals[ent[0]];
-  if(old && old.options.level === portalLevel && old.options.team === team)
-    return;
+  var layerGroup = portalsLayers[parseInt(portalLevel)];
+  var old = findEntityInLeaflet(layerGroup, window.portals, ent[0]);
+  if(old) {
+    var oo = old.options;
+    var u = oo.team !== team;
+    u = u || oo.level !== portalLevel;
+    // nothing for the portal changed, so don’t update. Let resonators
+    // manage themselves if they want to be updated.
+    if(!u) return renderResonators(ent);
+    removeByGuid(ent[0]);
+  }
 
   // there were changes, remove old portal
   removeByGuid(ent[0]);
@@ -245,7 +253,7 @@ window.renderPortal = function(ent) {
     details: ent[2],
     guid: ent[0]});
 
-  p.on('remove',   function() {
+  p.on('remove', function() {
     var portalGuid = this.options.guid
 
     // remove attached resonators, skip if
@@ -261,13 +269,17 @@ window.renderPortal = function(ent) {
       window.portalAccessIndicator = null;
     }
   });
-  p.on('add',      function() {
+
+  p.on('add', function() {
+    // enable for debugging
+    if(window.portals[this.options.guid]) throw('duplicate portal detected');
     window.portals[this.options.guid] = this;
     // handles the case where a selected portal gets removed from the
     // map by hiding all portals with said level
     if(window.selectedPortal != this.options.guid)
       window.portalResetColor(this);
   });
+
   p.on('click',    function() { window.renderPortalDetails(ent[0]); });
   p.on('dblclick', function() {
     window.renderPortalDetails(ent[0]);
@@ -279,11 +291,10 @@ window.renderPortal = function(ent) {
   window.runHooks('portalAdded', {portal: p});
 
   // portalLevel contains a float, need to round down
-  p.addTo(portalsLayers[parseInt(portalLevel)]);
+  p.addTo(layerGroup);
 }
 
 window.renderResonators = function(ent) {
-
   var portalLevel = getPortalLevel(ent[2]);
   if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal) return;
 
@@ -344,8 +355,12 @@ window.portalResetColor = function(portal) {
 
 // renders a link on the map from the given entity
 window.renderLink = function(ent) {
-  removeByGuid(ent[0]);
-  if(Object.keys(links).length >= MAX_DRAWN_LINKS) return;
+  if(Object.keys(links).length >= MAX_DRAWN_LINKS)
+    return removeByGuid(ent[0]);
+
+  // assume that links never change. If they do, they will have a
+  // different ID.
+  if(findEntityInLeaflet(linksLayer, links, ent[0])) return;
 
   var team = getTeam(ent[2]);
   var edge = ent[2].edge;
@@ -366,6 +381,8 @@ window.renderLink = function(ent) {
 
   poly.on('remove', function() { delete window.links[this.options.guid]; });
   poly.on('add',    function() {
+    // enable for debugging
+    if(window.links[this.options.guid]) throw('duplicate link detected');
     window.links[this.options.guid] = this;
     this.bringToBack();
   });
@@ -374,8 +391,12 @@ window.renderLink = function(ent) {
 
 // renders a field on the map from a given entity
 window.renderField = function(ent) {
-  window.removeByGuid(ent[0]);
-  if(Object.keys(fields).length >= MAX_DRAWN_FIELDS) return;
+  if(Object.keys(fields).length >= MAX_DRAWN_FIELDS)
+    return window.removeByGuid(ent[0]);
+
+  // assume that fields never change. If they do, they will have a
+  // different ID.
+  if(findEntityInLeaflet(fieldsLayer, fields, ent[0])) return;
 
   var team = getTeam(ent[2]);
   var reg = ent[2].capturedRegion;
@@ -391,14 +412,37 @@ window.renderField = function(ent) {
     clickable: false,
     smoothFactor: 10,
     vertices: ent[2].capturedRegion,
+    lastUpdate: ent[1],
     guid: ent[0]});
 
   if(!getPaddedBounds().intersects(poly.getBounds())) return;
 
   poly.on('remove', function() { delete window.fields[this.options.guid]; });
   poly.on('add',    function() {
+    // enable for debugging
+    if(window.fields[this.options.guid]) console.warn('duplicate field detected');
     window.fields[this.options.guid] = this;
     this.bringToBack();
   });
   poly.addTo(fieldsLayer);
+}
+
+
+// looks for the GUID in either the layerGroup or entityHash, depending
+// on which is faster. Will either return the Leaflet entity or null, if
+// it does not exist.
+// For example, to find a field use the function like this:
+// field = findEntityInLeaflet(fieldsLayer, fields, 'asdasdasd');
+window.findEntityInLeaflet = function(layerGroup, entityHash, guid) {
+  // fast way
+  if(map.hasLayer(layerGroup)) return entityHash[guid] || null;
+
+  // slow way in case the layer is currently hidden
+  var ent = null;
+  layerGroup.eachLayer(function(entity) {
+    if(entity.options.guid !== guid) return true;
+    ent = entity;
+    return false;
+  });
+  return ent;
 }
