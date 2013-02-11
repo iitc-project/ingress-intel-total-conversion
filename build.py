@@ -4,7 +4,7 @@ import glob
 import time
 
 def readfile(fn):
-    with open(fn, 'Ur') as f:
+    with open(fn, 'Ur', encoding='utf8') as f:
         return f.read()
 
 c = '\n\n'.join(map(readfile, glob.glob('code/*')))
@@ -14,7 +14,7 @@ m = m.split('@@INJECTHERE@@')
 m.insert(1, c)
 t = '\n\n'.join(m)
 
-with open('total-conversion-build.user.js', 'w') as f:
+with open('total-conversion-build.user.js', 'w', encoding='utf8') as f:
     f.write(t)
 
 # vim: ai si ts=4 sw=4 sts=4 et
