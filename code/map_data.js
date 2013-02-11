@@ -228,11 +228,9 @@ window.renderPortal = function(ent) {
     // nothing for the portal changed, so don’t update. Let resonators
     // manage themselves if they want to be updated.
     if(!u) return renderResonators(ent);
+    // there were changes, remove old portal
     removeByGuid(ent[0]);
   }
-
-  // there were changes, remove old portal
-  removeByGuid(ent[0]);
 
   var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
 
