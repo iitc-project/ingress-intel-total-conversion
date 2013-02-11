@@ -31,6 +31,7 @@ body {
   top: 0;
   width: 340px;
   bottom: 45px;
+  z-index: 1001;
 }
 
 #sidebar {
