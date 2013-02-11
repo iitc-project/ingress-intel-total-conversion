@@ -27,16 +27,17 @@ window.setupLargeImagePreview = function() {
 
 window.setupStyles = function() {
   $('head').append('<style>' +
-    [ '#map { margin-right: '+(SIDEBAR_WIDTH+2)+'px } ',
-      '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
+    [ '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
       '#largepreview.res img { border:2px solid '+COLORS[TEAM_RES]+'; } ',
       '#largepreview.none img { border:2px solid '+COLORS[TEAM_NONE]+'; } ',
       '#chatcontrols { bottom: '+(CHAT_SHRINKED+24)+'px; }',
       '#chat { height: '+CHAT_SHRINKED+'px; } ',
-      '#updatestatus { width:'+(SIDEBAR_WIDTH-2*4)+'px;  } ',
-      '#sidebar { width:'+(SIDEBAR_WIDTH + HIDDEN_SCROLLBAR_ASSUMED_WIDTH + 2 /*border*/)+'px;  } ',
+      '.leaflet-right { margin-right: '+(SIDEBAR_WIDTH+1)+'px } ',
+      '#updatestatus { width:'+(SIDEBAR_WIDTH-2*4+1)+'px;  } ',
+      '#sidebar { width:'+(SIDEBAR_WIDTH + HIDDEN_SCROLLBAR_ASSUMED_WIDTH + 1 /*border*/)+'px;  } ',
+      '#sidebartoggle { right:'+SIDEBAR_WIDTH+'px;  } ',
       '#scrollwrapper  { width:'+(SIDEBAR_WIDTH + 2*HIDDEN_SCROLLBAR_ASSUMED_WIDTH)+'px; right:-'+(2*HIDDEN_SCROLLBAR_ASSUMED_WIDTH-2)+'px } ',
-      '#sidebar input, h2, #updatestatus  { width:'+(SIDEBAR_WIDTH - 2*4)+'px !important } ',
+      '#sidebar input, h2  { width:'+(SIDEBAR_WIDTH - 2*4)+'px !important } ',
       '#sidebar > *, #gamestat span, .imgpreview img { width:'+SIDEBAR_WIDTH+'px;  }'].join("\n")
     + '</style>');
 }
@@ -93,7 +94,22 @@ window.setupMap = function() {
   map.attributionControl.setPrefix('');
   // listen for changes and store them in cookies
   map.on('moveend', window.storeMapPosition);
-  map.on('zoomend', window.storeMapPosition);
+  map.on('zoomend', function() {
+    window.storeMapPosition;
+
+    // remove all resonators if zoom out to < RESONATOR_DISPLAY_ZOOM_LEVEL
+    if(isResonatorsShow()) return;
+    for(var i = 1; i < portalsLayers.length; i++) {
+      portalsLayers[i].eachLayer(function(item) {
+        var itemGuid = item.options.guid;
+        // check if 'item' is a resonator
+        if(getTypeByGuid(itemGuid) != TYPE_RESONATOR) return true;
+        portalsLayers[i].removeLayer(item);
+      });
+    }
+
+    console.log('Remove all resonators');
+  });
   $("[name='leaflet-base-layers']").change(function () {
     writeCookie('ingress.intelmap.type', $(this).parent().index());
   });
@@ -154,6 +170,24 @@ window.setupPlayerStat = function() {
   );
 }
 
+window.setupSidebarToggle = function() {
+  $('#sidebartoggle').on('click', function() {
+    var toggle = $('#sidebartoggle');
+    var sidebar = $('#sidebar');
+    if(sidebar.is(':visible')) {
+      sidebar.hide();
+      $('.leaflet-right').css('margin-right','0');
+      toggle.html('◢<br>◥');
+      toggle.css('right', '0');
+    } else {
+      sidebar.show();
+      $('.leaflet-right').css('margin-right', SIDEBAR_WIDTH+1+'px');
+      toggle.html('◣<br>◤');
+      toggle.css('right', SIDEBAR_WIDTH+1+'px');
+    }
+  });
+}
+
 
 // BOOTING ///////////////////////////////////////////////////////////
 
@@ -164,6 +198,7 @@ function boot() {
   window.setupGeosearch();
   window.setupRedeem();
   window.setupLargeImagePreview();
+  window.setupSidebarToggle();
   window.updateGameScore();
   window.setupPlayerStat();
   window.chat.setup();
@@ -176,6 +211,11 @@ function boot() {
   window.PLAYER['nickMatcher'] = new RegExp('\\b('+n+')\\b', 'ig');
 
   $('#sidebar').show();
+
+  if(window.bootPlugins)
+    $.each(window.bootPlugins, function(ind, ref) { ref(); });
+
+  window.iitcLoaded = true;
 }
 
 // this is the minified load.js script that allows us to easily load
@@ -187,10 +227,12 @@ function asyncLoadScript(a){return function(b,c){var d=document.createElement("s
 
 // modified version of https://github.com/shramov/leaflet-plugins. Also
 // contains the default Ingress map style.
-var LLGMAPS = 'http://breunigs.github.com/ingress-intel-total-conversion/leaflet_google.js';
+var LLGMAPS = 'http://breunigs.github.com/ingress-intel-total-conversion/external/leaflet_google.js';
 var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js';
 var LEAFLET = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.js';
-var AUTOLINK = 'http://raw.github.com/bryanwoods/autolink-js/master/autolink.js';
+var AUTOLINK = 'http://breunigs.github.com/ingress-intel-total-conversion/external/autolink.js';
 
 // after all scripts have loaded, boot the actual app
-load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS).thenRun(boot);
+load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS).onError(function (err) {
+  alert('Could not all resources, the script likely won’t work.\n\nIf this happend the first time for you, it’s probably a temporary issue. Just wait a bit and try again.\n\nIf you installed the script for the first time and this happens:\n– try disabling NoScript if you have it installed\n– press CTRL+SHIFT+K in Firefox or CTRL+SHIFT+I in Chrome/Opera and reload the page. Additional info may be available in the console.\n– Open an issue at https://github.com/breunigs/ingress-intel-total-conversion/issues');
+}).thenRun(boot);

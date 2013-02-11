@@ -29,8 +29,10 @@ window.renderPortalDetails = function(guid) {
   var time = d.captured ? unixTimeToString(d.captured.capturedTime) : null;
   var sinceText  = time ? 'since: ' + time : null;
 
+  var linkedFields = 'fields: ' + d.portalV2.linkedFields.length;
+
   // collect and html-ify random data
-  var randDetails = [playerText, sinceText, getRangeText(d), getEnergyText(d), linksText, getAvgResoDistText(d)];
+  var randDetails = [playerText, sinceText, getRangeText(d), getEnergyText(d), linksText, getAvgResoDistText(d), linkedFields];
   randDetails = randDetails.map(function(detail) {
     if(!detail) return '';
     detail = detail.split(':');
@@ -69,7 +71,7 @@ window.renderPortalDetails = function(guid) {
         + '<div id="destroydetails">'+getDestroyAP(d)+'</div>'
         + '<div class="linkdetails">'
         + '<aside><a href="'+perma+'">portal link</a></aside>'
-        + '<aside><a onclick="window.reportPortalIssue(\''+getReportIssueInfoText(d)+'\')">report issue</a></aside>'
+        + '<aside><a onclick="window.reportPortalIssue()">report issue</a></aside>'
         + '</div>'
       );
   }

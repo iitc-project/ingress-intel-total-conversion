@@ -93,6 +93,13 @@ window.rangeLinkClick = function() {
 
 window.reportPortalIssue = function(info) {
   var t = 'Redirecting you to a Google Help Page. Once there, click on “Contact Us” in the upper right corner.\n\nThe text box contains all necessary information. Press CTRL+C to copy it.';
+  var d = window.portals[window.selectedPortal].options.details;
+
+  var info = 'Your Nick: ' + PLAYER.nickname + '        '
+    + 'Portal: ' + d.portalV2.descriptiveText.TITLE + '        '
+    + 'Location: ' + d.portalV2.descriptiveText.ADDRESS
+    +' (lat ' + (d.locationE6.latE6/1E6) + '; lng ' + (d.locationE6.lngE6/1E6) + ')';
+
   //codename, approx addr, portalname
   if(prompt(t, info) !== null)
     location.href = 'https://support.google.com/ingress?hl=en';
@@ -134,8 +141,51 @@ window.scrollBottom = function(elm) {
 }
 
 window.zoomToAndShowPortal = function(guid, latlng) {
-  renderPortalDetails(guid);
   map.setView(latlng, 17);
+  // if the data is available, render it immediately. Otherwise defer
+  // until it becomes available.
+  if(window.portals[guid])
+    renderPortalDetails(guid);
+  else
+    urlPortal = guid;
+}
+
+// translates guids to entity types
+window.getTypeByGuid = function(guid) {
+  // portals end in “.11” or “.12“, links in “.9", fields in “.b”
+  // .11 == portals
+  // .12 == portals
+  // .9  == links
+  // .b  == fields
+  // .c  == player/creator
+  // .d  == chat messages
+  //
+  // others, not used in web:
+  // .5  == resources (burster/resonator)
+  // .6  == XM
+  // .4  == media items, maybe all droppped resources (?)
+  // resonator guid is [portal guid]-resonator-[slot]
+  switch(guid.slice(33)) {
+    case '11':
+    case '12':
+      return TYPE_PORTAL;
+
+    case '9':
+      return TYPE_LINK;
+
+    case 'b':
+      return TYPE_FIELD;
+
+    case 'c':
+      return TYPE_PLAYER;
+
+    case 'd':
+      return TYPE_CHAT;
+
+    default:
+      if(guid.slice(-11,-2) == 'resonator') return TYPE_RESONATOR;
+      return TYPE_UNKNOWN;
+  }
 }
 
 String.prototype.capitalize = function() {
@@ -147,4 +197,16 @@ if (typeof String.prototype.startsWith !== 'function') {
   String.prototype.startsWith = function (str){
     return this.slice(0, str.length) === str;
   };
+}
+
+window.prettyEnergy = function(nrg) {
+  return nrg> 1000 ? Math.round(nrg/1000) + ' k': nrg;
+}
+
+window.setPermaLink = function(elm) {
+  var c = map.getCenter();
+  var lat = Math.round(c.lat*1E6);
+  var lng = Math.round(c.lng*1E6);
+  var qry = 'latE6='+lat+'&lngE6='+lng+'&z=' + map.getZoom();
+  $(elm).attr('href',  'http://www.ingress.com/intel?' + qry);
 }

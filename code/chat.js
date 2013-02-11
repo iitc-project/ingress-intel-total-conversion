@@ -456,7 +456,7 @@ window.chat.renderMsg = function(msg, nick, time, team) {
   var t = '<time title="'+tb+'" data-timestamp="'+time+'">'+ta+'</time>';
   var s = 'style="color:'+COLORS[team]+'"';
   var title = nick.length >= 8 ? 'title="'+nick+'" class="help"' : '';
-  return '<p>'+t+'<mark '+s+'>'+nick+'</mark><span>'+msg+'</span></p>';
+  return '<p>'+t+'<span class="invisibleseparator"> &lt;</span><mark '+s+'>'+nick+'</mark><span class="invisibleseparator">&gt; </span><span>'+msg+'</span></p>';
 }
 
 
@@ -469,14 +469,16 @@ window.chat.getActive = function() {
 window.chat.toggle = function() {
   var c = $('#chat, #chatcontrols');
   if(c.hasClass('expand')) {
-    $('#chatcontrols a:first').text('expand');
+    $('#chatcontrols a:first').text('◢◣');
     c.removeClass('expand');
     var div = $('#chat > div:visible');
     div.data('ignoreNextScroll', true);
     div.scrollTop(99999999); // scroll to bottom
+    $('.leaflet-control').css('margin-left', '13px');
   } else {
-    $('#chatcontrols a:first').text('shrink');
+    $('#chatcontrols a:first').text('◥◤');
     c.addClass('expand');
+    $('.leaflet-control').css('margin-left', '720px');
     chat.needMoreMessages();
   }
 }

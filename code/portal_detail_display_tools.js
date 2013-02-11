@@ -29,10 +29,12 @@ window.getPortalDescriptionFromDetails = function(details) {
 window.getModDetails = function(d) {
   var mods = [];
   var modsTitle = [];
+  var modsColor = [];
   $.each(d.portalV2.linkedModArray, function(ind, mod) {
     if(!mod) {
       mods.push('');
       modsTitle.push('');
+      modsColor.push('#000');
     } else if(mod.type === 'RES_SHIELD') {
 
       var title = mod.rarity.capitalize() + ' ' + mod.displayName + '\n';
@@ -46,23 +48,29 @@ window.getModDetails = function(d) {
 
       mods.push(mod.rarity.capitalize().replace('_', ' ') + ' ' + mod.displayName);
       modsTitle.push(title);
+      modsColor.push(COLORS_MOD[mod.rarity]);
     } else {
       mods.push(mod.type);
       modsTitle.push('Unknown mod. No further details available.');
+      modsColor.push('#FFF');
     }
   });
 
-  var t = '<span title="'+modsTitle[0]+'">'+mods[0]+'</span>'
-        + '<span title="'+modsTitle[1]+'">'+mods[1]+'</span>'
-        + '<span title="'+modsTitle[2]+'">'+mods[2]+'</span>'
-        + '<span title="'+modsTitle[3]+'">'+mods[3]+'</span>'
+  var t = '<span title="'+modsTitle[0]+'" style="color:'+modsColor[0]+'">'+mods[0]+'</span>'
+        + '<span title="'+modsTitle[1]+'" style="color:'+modsColor[1]+'">'+mods[1]+'</span>'
+        + '<span title="'+modsTitle[2]+'" style="color:'+modsColor[2]+'">'+mods[2]+'</span>'
+        + '<span title="'+modsTitle[3]+'" style="color:'+modsColor[3]+'">'+mods[3]+'</span>'
 
   return t;
 }
 
 window.getEnergyText = function(d) {
-  var nrg = getPortalEnergy(d);
-  return 'energy: ' + (nrg > 1000 ? Math.round(nrg/1000) +' k': nrg);
+  var currentNrg = getCurrentPortalEnergy(d);
+  var totalNrg = getTotalPortalEnergy(d);
+  var inf = currentNrg + ' / ' + totalNrg;
+  var fill = prettyEnergy(currentNrg) + ' / ' + prettyEnergy(totalNrg)
+  var meter = 'energy: <tt title="'+inf+'">' + fill + '</tt>';
+  return meter;
 }
 
 window.getAvgResoDistText = function(d) {
@@ -70,21 +78,19 @@ window.getAvgResoDistText = function(d) {
   return '⌀ res dist: ' + avgDist + ' m';
 }
 
-window.getReportIssueInfoText = function(d) {
-  return ('Your Nick: '+PLAYER.nickname+'        '
-    + 'Portal: '+d.portalV2.descriptiveText.TITLE+'        '
-    + 'Location: '+d.portalV2.descriptiveText.ADDRESS
-    +' (lat '+(d.locationE6.latE6/1E6)+'; lng '+(d.locationE6.lngE6/1E6)+')'
-  ).replace(/['"]/, '');
-}
-
 window.getResonatorDetails = function(d) {
-  console.log('rendering reso details');
   var resoDetails = '';
-  var slotsFilled = 0;
-  $.each(d.resonatorArray.resonators, function(ind, reso) {
+  // octant=slot: 0=E, 1=NE, 2=N, 3=NW, 4=W, 5=SW, 6=S, SE=7
+  // resos in the display should be ordered like this:
+  //   N    NE         Since the view is displayed in columns, they
+  //  NW    E          need to be ordered like this: N, NW, W, SW, NE,
+  //   W    SE         E, SE, S, i.e. 2 3 4 5 1 0 7 6
+  //  SW    S
+  $.each([2, 3, 4, 5, 1, 0, 7, 6], function(ind, slot) {
+    var isLeft = slot >= 2 && slot <= 5;
+    var reso = d.resonatorArray.resonators[slot];
     if(!reso) {
-      resoDetails += renderResonatorDetails(slotsFilled++, 0);
+      resoDetails += renderResonatorDetails(slot, 0, 0, null, null, isLeft);
       return true;
     }
 
@@ -92,9 +98,11 @@ window.getResonatorDetails = function(d) {
     var v = parseInt(reso.energyTotal);
     var nick = window.getPlayerName(reso.ownerGuid);
     var dist = reso.distanceToPortal;
+    // if array order and slot order drift apart, at least the octant
+    // naming will still be correct.
+    slot = parseInt(reso.slot);
 
-    slotsFilled++;
-    resoDetails += renderResonatorDetails(parseInt(reso.slot), l, v, dist, nick);
+    resoDetails += renderResonatorDetails(slot, l, v, dist, nick, isLeft);
   });
   return resoDetails;
 }
@@ -103,15 +111,15 @@ window.getResonatorDetails = function(d) {
 // not work with raw details-hash. Needs digested infos instead:
 // slot: which slot this resonator occupies. Starts with 0 (east) and
 // rotates clockwise. So, last one is 7 (southeast).
-window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
-  if(level == 0) {
-    var meter = '<span class="meter" style="cursor:auto"></span>';
+window.renderResonatorDetails = function(slot, level, nrg, dist, nick, isLeft) {
+  if(level === 0) {
+    var meter = '<span class="meter" title="octant:\t' + OCTANTS[slot] + '"></span>';
   } else {
     var max = RESO_NRG[level];
     var fillGrade = nrg/max*100;
 
-    var inf = 'energy:\t\t' + nrg   + ' / ' + max + ' (' + Math.round(fillGrade) + '%)' + '\n'
-            + 'level:\t\t'  + level +'\n'
+    var inf = 'energy:\t\t' + nrg   + ' / ' + max + ' (' + Math.round(fillGrade) + '%)\n'
+            + 'level:\t\t'  + level + '\n'
             + 'distance:\t' + dist  + 'm\n'
             + 'owner:\t\t'  + nick  + '\n'
             + 'octant:\t' + OCTANTS[slot];
@@ -124,12 +132,11 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
 
     var fill  = '<span style="'+style+'"></span>';
 
-    var meter = '<span class="meter meter-rel" title="'+inf+'">'
-                   + fill + lbar + '</span>';
+    var meter = '<span class="meter meter-rel" title="'+inf+'">' + fill + lbar + '</span>';
   }
-  var cls = slot <= 3 ? 'left' : 'right';
+  var cls = isLeft ? 'left' : 'right';
   var text = '<span class="meter-text '+cls+'">'+(nick||'')+'</span>';
-  return (slot <= 3 ? text+meter : meter+text) + '<br/>';
+  return (isLeft ? text+meter : meter+text) + '<br/>';
 }
 
 // calculate AP gain from destroying portal

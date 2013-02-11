@@ -10,37 +10,44 @@ body {
   margin: 0;
 }
 
-#map {
-  margin-right:302px;
-}
-
 #scrollwrapper {
-  height: 100%;
   overflow: hidden;
   position: fixed;
   right: -38px;
   top: 0;
   width: 340px;
+  bottom: 45px;
+  z-index: 1001;
 }
 
 #sidebar {
-  background: #000;
-  border-left: 2px solid #c3c3c3;
+  background-color: rgba(8, 48, 78, 0.9);
+  border-left: 1px solid #20A8B1;
   color: #888;
-  height: 100%;
   position: relative;
   left: 0;
   top: 0;
+  max-height: 100%;
   overflow-y:scroll;
   overflow-x:hidden;
+  z-index: 3000;
 }
 
-#redeem {
-  /* cheap hack to prevent sidebar content being overlayed by the map
-   * status box */
-  margin-bottom: 55px;
+#sidebartoggle {
+  display: block;
+  padding: 20px 5px;
+  margin-top: -31px;
+  line-height: 10px;
+  position: absolute;
+  top: 50%;
+  z-index: 3001;
+  background-color: rgba(8, 48, 78, 0.9);
+  color: #FFCE00;
+  border: 1px solid #20A8B1;
+  border-right: none;
+  border-radius: 5px 0 0 5px;
+  text-decoration: none;
 }
-
 
 .enl {
   color: #03fe03 !important;
@@ -104,6 +111,11 @@ a:hover {
   height: 24px;
   line-height: 24px;
   border: 1px solid #20A8B1;
+}
+
+#chatcontrols a:first-child {
+  letter-spacing:-1px;
+  text-decoration: none !important;
 }
 
 #chatcontrols a.active {
@@ -213,6 +225,11 @@ summary {
   z-index: 3001;
 }
 
+#chat .invisibleseparator {
+    color: rgba(8, 48, 78, 0.0);
+    overflow: hidden;
+    width: 0px;
+}
 
 
 #chatinput span {
@@ -238,7 +255,7 @@ summary {
 /* sidebar ************************************************************/
 
 #sidebar > * {
-  border-bottom: 1px solid #c3c3c3;
+  border-bottom: 1px solid #20A8B1;
 }
 
 
@@ -302,7 +319,7 @@ h2 sup, h2 sub {
 
 /* geosearch input, and others */
 input {
-  background: #313131;
+  background-color: rgba(0, 0, 0, 0.3);
   color: #ffce00;
   height: 22px;
   line-height: 22px;
@@ -350,7 +367,7 @@ h3 {
   font-size: 40px;
   position: absolute;
   right: 10px;
-  text-shadow: 0 0 2px #000000, 0 0 5px #ffffff;
+  text-shadow: -1px -1px #000, 1px -1px #000, -1px 1px #000, 1px 1px #000, 0 0 5px #fff;
   top: 100px;
 }
 
@@ -358,11 +375,16 @@ h3 {
 .mods {
   margin-bottom: 1px;
   margin-top: 5px;
+  height: 75px;
 }
 
 .mods span {
-  background: #313131;
-  display: inline-block;
+  background-color: rgba(0, 0, 0, 0.3);
+  /* can’t use inline-block because Webkit’s implementation is buggy and
+   * introduces additional margins in random cases. No clear necessary,
+   * as that’s solved by setting height on .mods. */
+  display: block;
+  float:left;
   height: 63.7px;
   margin-left: 4px;
   overflow: hidden;
@@ -370,6 +392,7 @@ h3 {
   text-align: center;
   width: 63.7px;
   cursor:help;
+  border: 1px solid #666;
 }
 
 .mods span[title=""] {
@@ -431,6 +454,7 @@ aside:nth-child(odd) span {
 
 /* resonators */
 #resodetails {
+  white-space: nowrap;
   margin: 16px 0;
   -moz-column-gap: 10px;
   -moz-column-width: 141px;
@@ -483,31 +507,47 @@ aside:nth-child(odd) span {
 
 .linkdetails {
   text-align: center;
+  margin-bottom: 10px;
 }
 .linkdetails aside {
   margin: 0 4px;
   width: 140px;
 }
 
+#toolbox {
+  padding: 4px;
+  font-size:90%;
+}
+
+#toolbox > a {
+  padding: 5px;
+}
+
+#spacer {
+  height: 10px;
+}
+
 /* a common portal display takes this much space (prevents moving
  * content when first selecting a portal) */
 
 #portaldetails {
-  min-height: 532px;
+  min-height: 553px;
 }
 
 
 /* update status */
 #updatestatus {
-  background: #000;
+  background-color: rgba(8, 48, 78, 1);
   border-bottom: 0;
-  border-top: 1px solid #c3c3c3;
+  border-top: 1px solid #20A8B1;
+  border-left: 1px solid #20A8B1;
   bottom: 0;
   color: #ffce00;
   font-size:13px;
   padding: 4px;
   position: fixed;
   right: 0;
+  z-index:3002;
 }
 
 
