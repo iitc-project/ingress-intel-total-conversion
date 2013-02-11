@@ -11,22 +11,22 @@ body {
 }
 
 #scrollwrapper {
-  height: 100%;
   overflow: hidden;
   position: fixed;
   right: -38px;
   top: 0;
   width: 340px;
+  bottom: 45px;
 }
 
 #sidebar {
   background-color: rgba(8, 48, 78, 0.9);
   border-left: 1px solid #20A8B1;
   color: #888;
-  height: 100%;
   position: relative;
   left: 0;
   top: 0;
+  max-height: 100%;
   overflow-y:scroll;
   overflow-x:hidden;
   z-index: 3000;
@@ -523,16 +523,14 @@ aside:nth-child(odd) span {
 }
 
 #spacer {
-  /* cheap hack to prevent sidebar content being overlayed by the map
-   * status box */
-  height: 55px;
+  height: 10px;
 }
 
 /* a common portal display takes this much space (prevents moving
  * content when first selecting a portal) */
 
 #portaldetails {
-  min-height: 532px;
+  min-height: 553px;
 }
 
 
@@ -541,12 +539,14 @@ aside:nth-child(odd) span {
   background-color: rgba(8, 48, 78, 1);
   border-bottom: 0;
   border-top: 1px solid #20A8B1;
+  border-left: 1px solid #20A8B1;
   bottom: 0;
   color: #ffce00;
   font-size:13px;
   padding: 4px;
   position: fixed;
   right: 0;
+  z-index:3002;
 }
 
 
