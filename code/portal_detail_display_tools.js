@@ -6,12 +6,12 @@
 // returns displayable text+link about portal range
 window.getRangeText = function(d) {
   var range = getPortalRange(d);
-  return 'range: '
+  return ['range',
     + '<a onclick="window.rangeLinkClick()">'
     + (range > 1000
       ? Math.round(range/1000) + ' km'
       : Math.round(range)      + ' m')
-    + '</a>';
+    + '</a>'];
 }
 
 // generates description text from details for portal
@@ -69,17 +69,15 @@ window.getEnergyText = function(d) {
   var totalNrg = getTotalPortalEnergy(d);
   var inf = currentNrg + ' / ' + totalNrg;
   var fill = prettyEnergy(currentNrg) + ' / ' + prettyEnergy(totalNrg)
-  var meter = 'energy: <tt title="'+inf+'">' + fill + '</tt>';
-  return meter;
+  return ['energy', '<tt title="'+inf+'">' + fill + '</tt>'];
 }
 
 window.getAvgResoDistText = function(d) {
   var avgDist = Math.round(10*getAvgResoDist(d))/10;
-  return '⌀ res dist: ' + avgDist + ' m';
+  return ['⌀ res dist', avgDist + ' m'];
 }
 
 window.getResonatorDetails = function(d) {
-  console.log('rendering reso details');
   var resoDetails = '';
   // octant=slot: 0=E, 1=NE, 2=N, 3=NW, 4=W, 5=SW, 6=S, SE=7
   // resos in the display should be ordered like this:
@@ -138,4 +136,34 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick, isLeft) {
   var cls = isLeft ? 'left' : 'right';
   var text = '<span class="meter-text '+cls+'">'+(nick||'')+'</span>';
   return (isLeft ? text+meter : meter+text) + '<br/>';
+}
+
+// calculate AP gain from destroying portal
+// so far it counts only resonators + links
+window.getDestroyAP = function(d) {
+  var resoCount = 0;
+
+  $.each(d.resonatorArray.resonators, function(ind, reso) {
+    if(!reso) return true;
+    resoCount += 1;
+  });
+
+  var linkCount = d.portalV2.linkedEdges ? d.portalV2.linkedEdges.length : 0;
+  var fieldCount = d.portalV2.linkedFields ? d.portalV2.linkedFields.length : 0;
+
+  var resoAp = resoCount * DESTROY_RESONATOR;
+  var linkAp = linkCount * DESTROY_LINK;
+  var fieldAp = fieldCount * DESTROY_FIELD;
+  var sum = resoAp + linkAp + fieldAp;
+
+  function tt(text) {
+    var t = 'Destroy:\n';
+    t += resoCount  + '×\tResonators\t= ' + digits(resoAp) + '\n';
+    t += linkCount  + '×\tLinks\t\t= ' + digits(linkAp) + '\n';
+    t += fieldCount + '×\tFields\t\t= ' + digits(fieldAp) + '\n';
+    t += 'Sum: ' + digits(sum) + ' AP';
+    return '<tt title="'+t+'">' + digits(text) + '</tt>';
+  }
+
+  return [tt('AP Gain'), tt(sum)];
 }

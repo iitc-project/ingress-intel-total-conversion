@@ -160,6 +160,10 @@ window.getTypeByGuid = function(guid) {
   // .c  == player/creator
   // .d  == chat messages
   //
+  // others, not used in web:
+  // .5  == resources (burster/resonator)
+  // .6  == XM
+  // .4  == media items, maybe all droppped resources (?)
   // resonator guid is [portal guid]-resonator-[slot]
   switch(guid.slice(33)) {
     case '11':

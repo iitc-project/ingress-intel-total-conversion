@@ -49,7 +49,6 @@ for(var i = 0; i < d.length; i++) {
 // player information is now available in a hash like this:
 // window.PLAYER = {"ap": "123", "energy": 123, "available_invites": 123, "nickname": "somenick", "team": "ALIENS||RESISTANCE"};
 
-
 // remove complete page. We only wanted the user-data and the page’s
 // security context so we can access the API easily. Setup as much as
 // possible without requiring scripts.
@@ -81,9 +80,9 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
   + '    <div id="toolbox"><a onmouseover="setPermaLink(this)">permalink</a></div>'
   + '    <div id="spacer"></div>'
-  + '    <div id="updatestatus"></div>'
-  + '  </div>';
-  + '</div>';
+  + '  </div>'
+  + '</div>'
+  + '<div id="updatestatus"></div>';
 
 // putting everything in a wrapper function that in turn is placed in a
 // script tag on the website allows us to execute in the site’s context
@@ -147,6 +146,9 @@ var MIN_AP_FOR_LEVEL = [0, 10000, 30000, 70000, 150000, 300000, 600000, 1200000]
 var HACK_RANGE = 40; // in meters, max. distance from portal to be able to access it
 var OCTANTS = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
 var DEFAULT_PORTAL_IMG = 'http://commondatastorage.googleapis.com/ingress/img/default-portal-image.png';
+var DESTROY_RESONATOR = 75; //AP for destroying portal
+var DESTROY_LINK = 187; //AP for destroying link
+var DESTROY_FIELD = 750; //AP for destroying field
 
 // OTHER MORE-OR-LESS CONSTANTS //////////////////////////////////////
 var NOMINATIM = 'http://nominatim.openstreetmap.org/search?format=json&limit=1&q=';

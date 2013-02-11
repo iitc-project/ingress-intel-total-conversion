@@ -50,7 +50,7 @@ window.renderUpdateStatus = function() {
     t += ' <span style="color:red" class="help" title="Can only render so much before it gets unbearably slow. Not all entities are shown. Zoom in or increase the limit (search for MAX_DRAWN_*).">RENDER LIMIT</span> '
 
   if(window.failedRequestCount > 0)
-    t += ' <span style="color:red">' + window.failedRequestCount + ' requests failed</span>.'
+    t += ' <span style="color:red">' + window.failedRequestCount + ' failed</span>.'
 
   t += '<br/>(';
   var minlvl = getMinPortalLevel();
