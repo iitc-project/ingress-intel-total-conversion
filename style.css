@@ -50,10 +50,10 @@ body {
 #sidebartoggle {
   display: block;
   padding: 20px 5px;
-  margin-top: -31px;
+  margin-top: -31px; /* -(toggle height / 2) */
   line-height: 10px;
   position: absolute;
-  top: 50%;
+  top: 340px; /* (sidebar height / 2) */
   z-index: 3001;
   background-color: rgba(8, 48, 78, 0.9);
   color: #FFCE00;
@@ -575,10 +575,6 @@ aside:nth-child(odd) span {
   padding: 5px;
 }
 
-#spacer {
-  height: 10px;
-}
-
 /* a common portal display takes this much space (prevents moving
  * content when first selecting a portal) */
 
@@ -589,7 +585,7 @@ aside:nth-child(odd) span {
 
 /* update status */
 #updatestatus {
-  background-color: rgba(8, 48, 78, 1);
+  background-color: rgba(8, 48, 78, 0.9);
   border-bottom: 0;
   border-top: 1px solid #20A8B1;
   border-left: 1px solid #20A8B1;
