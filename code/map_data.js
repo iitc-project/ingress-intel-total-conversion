@@ -121,9 +121,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
     }
     if(p2f[portal[0]] !== undefined) {
       $.merge(p2f[portal[0]], portal[2].portalV2['linkedFields']);
-      portal[2].portalV2['linkedFields'] = $.grep(p2f[portal[0]], function(v, i) {
-        return $.inArray(v, p2f[portal[0]]) === i;
-      });
+      portal[2].portalV2['linkedFields'] = uniqueArray(p2f[portal[0]]);
     }
   });
 
