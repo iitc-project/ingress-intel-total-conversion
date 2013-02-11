@@ -84,8 +84,8 @@ Contributors
 [Scrool](https://github.com/Scrool),
 [sorgo](https://github.com/sorgo),
 [Xelio](https://github.com/Xelio),
-[ZauberNerd](https://github.com/ZauberNerd)
-
+[ZauberNerd](https://github.com/ZauberNerd),
+[jonatkins](https://github.com/jonatkins)
 
 Hacking
 -------
