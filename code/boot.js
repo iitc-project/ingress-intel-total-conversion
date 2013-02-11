@@ -227,10 +227,10 @@ function asyncLoadScript(a){return function(b,c){var d=document.createElement("s
 
 // modified version of https://github.com/shramov/leaflet-plugins. Also
 // contains the default Ingress map style.
-var LLGMAPS = 'http://breunigs.github.com/ingress-intel-total-conversion/external/leaflet_google.js';
+var LLGMAPS = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/leaflet_google.js';
 var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js';
 var LEAFLET = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.js';
-var AUTOLINK = 'http://breunigs.github.com/ingress-intel-total-conversion/external/autolink.js';
+var AUTOLINK = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/autolink.js';
 
 // after all scripts have loaded, boot the actual app
 load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS).onError(function (err) {
