@@ -27,14 +27,14 @@ window.setupLargeImagePreview = function() {
 
 window.setupStyles = function() {
   $('head').append('<style>' +
-    [ '#map { margin-right: '+(SIDEBAR_WIDTH+2)+'px } ',
-      '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
+    [ '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
       '#largepreview.res img { border:2px solid '+COLORS[TEAM_RES]+'; } ',
       '#largepreview.none img { border:2px solid '+COLORS[TEAM_NONE]+'; } ',
       '#chatcontrols { bottom: '+(CHAT_SHRINKED+24)+'px; }',
       '#chat { height: '+CHAT_SHRINKED+'px; } ',
+      '.leaflet-right { margin-right: '+(SIDEBAR_WIDTH+1)+'px } ',
       '#updatestatus { width:'+(SIDEBAR_WIDTH-2*4)+'px;  } ',
-      '#sidebar { width:'+(SIDEBAR_WIDTH + HIDDEN_SCROLLBAR_ASSUMED_WIDTH + 2 /*border*/)+'px;  } ',
+      '#sidebar { width:'+(SIDEBAR_WIDTH + HIDDEN_SCROLLBAR_ASSUMED_WIDTH + 1 /*border*/)+'px;  } ',
       '#sidebartoggle { right:'+SIDEBAR_WIDTH+'px;  } ',
       '#scrollwrapper  { width:'+(SIDEBAR_WIDTH + 2*HIDDEN_SCROLLBAR_ASSUMED_WIDTH)+'px; right:-'+(2*HIDDEN_SCROLLBAR_ASSUMED_WIDTH-2)+'px } ',
       '#sidebar input, h2, #updatestatus  { width:'+(SIDEBAR_WIDTH - 2*4)+'px !important } ',
@@ -176,16 +176,15 @@ window.setupSidebarToggle = function() {
     var sidebar = $('#sidebar');
     if(sidebar.is(':visible')) {
       sidebar.hide();
-      $('#map').css('margin-right','0');
+      $('.leaflet-right').css('margin-right','0');
       toggle.html('◢<br>◥');
       toggle.css('right', '0');
     } else {
       sidebar.show();
-      $('#map').css('margin-right', SIDEBAR_WIDTH+2+'px');
+      $('.leaflet-right').css('margin-right', SIDEBAR_WIDTH+1+'px');
       toggle.html('◣<br>◤');
-      toggle.css('right', SIDEBAR_WIDTH+'px');
+      toggle.css('right', SIDEBAR_WIDTH+1+'px');
     }
-    window.map.invalidateSize(false);
   });
 }
 
