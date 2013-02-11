@@ -7,7 +7,7 @@
 window.getRangeText = function(d) {
   var range = getPortalRange(d);
   return ['range',
-    + '<a onclick="window.rangeLinkClick()">'
+      '<a onclick="window.rangeLinkClick()">'
     + (range > 1000
       ? Math.round(range/1000) + ' km'
       : Math.round(range)      + ' m')
