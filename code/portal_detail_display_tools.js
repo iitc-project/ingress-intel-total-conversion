@@ -6,12 +6,12 @@
 // returns displayable text+link about portal range
 window.getRangeText = function(d) {
   var range = getPortalRange(d);
-  return 'range: '
+  return ['range',
     + '<a onclick="window.rangeLinkClick()">'
     + (range > 1000
       ? Math.round(range/1000) + ' km'
       : Math.round(range)      + ' m')
-    + '</a>';
+    + '</a>'];
 }
 
 // generates description text from details for portal
@@ -69,13 +69,12 @@ window.getEnergyText = function(d) {
   var totalNrg = getTotalPortalEnergy(d);
   var inf = currentNrg + ' / ' + totalNrg;
   var fill = prettyEnergy(currentNrg) + ' / ' + prettyEnergy(totalNrg)
-  var meter = 'energy: <tt title="'+inf+'">' + fill + '</tt>';
-  return meter;
+  return ['energy', '<tt title="'+inf+'">' + fill + '</tt>'];
 }
 
 window.getAvgResoDistText = function(d) {
   var avgDist = Math.round(10*getAvgResoDist(d))/10;
-  return '⌀ res dist: ' + avgDist + ' m';
+  return ['⌀ res dist', avgDist + ' m'];
 }
 
 window.getResonatorDetails = function(d) {
@@ -142,26 +141,29 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick, isLeft) {
 // calculate AP gain from destroying portal
 // so far it counts only resonators + links
 window.getDestroyAP = function(d) {
-  console.log('rendering destroy AP');
-  var res_count = 0;
-  var links_count = 0;
-  var fields_count
+  var resoCount = 0;
 
   $.each(d.resonatorArray.resonators, function(ind, reso) {
-    res_count += 1;
+    if(!reso) return true;
+    resoCount += 1;
   });
 
-  if(d.portalV2.linkedEdges) {
-    $.each(d.portalV2.linkedEdges, function(ind, link) {
-      links_count++;
-    });
+  var linkCount = d.portalV2.linkedEdges ? d.portalV2.linkedEdges.length : 0;
+  var fieldCount = d.portalV2.linkedFields ? d.portalV2.linkedFields.length : 0;
+
+  var resoAp = resoCount * DESTROY_RESONATOR;
+  var linkAp = linkCount * DESTROY_LINK;
+  var fieldAp = fieldCount * DESTROY_FIELD;
+  var sum = resoAp + linkAp + fieldAp;
+
+  function tt(text) {
+    var t = 'Destroy:\n';
+    t += resoCount  + '×\tResonators\t= ' + digits(resoAp) + '\n';
+    t += linkCount  + '×\tLinks\t\t= ' + digits(linkAp) + '\n';
+    t += fieldCount + '×\tFields\t\t= ' + digits(fieldAp) + '\n';
+    t += 'Sum: ' + digits(sum) + ' AP';
+    return '<tt title="'+t+'">' + digits(text) + '</tt>';
   }
 
-  if(d.portalV2.linkedFields) {
-    fields_count = d.portalV2.linkedFields.length;
-  }
-
-  var ap_count = (res_count * DESTROY_RESONATOR) + (links_count * DESTROY_LINK) + (fields_count * DESTROY_FIELD);
-  
-  return 'Destroy ' + res_count + 'x res + ' + links_count + 'x link → <span style="color: #FFCE00">' + ap_count + '</span>AP';
+  return [tt('AP Gain'), tt(sum)];
 }
