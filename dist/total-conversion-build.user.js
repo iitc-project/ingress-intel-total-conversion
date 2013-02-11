@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.5-2013-02-11-173638
+// @version        0.5-2013-02-11-174634
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js
@@ -55,7 +55,7 @@ for(var i = 0; i < d.length; i++) {
 document.getElementsByTagName('head')[0].innerHTML = ''
   //~ + '<link rel="stylesheet" type="text/css" href="http://0.0.0.0:8000/style.css"/>'
   + '<title>Ingress Intel Map</title>'
-  + '<link rel="stylesheet" type="text/css" href="http://breunigs.github.com/ingress-intel-total-conversion/dist/style.css?2013-02-11-173638"/>'
+  + '<link rel="stylesheet" type="text/css" href="http://breunigs.github.com/ingress-intel-total-conversion/dist/style.css?2013-02-11-174634"/>'
   + '<link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.css"/>'
   + '<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Coda"/>';
 
@@ -1265,10 +1265,10 @@ function asyncLoadScript(a){return function(b,c){var d=document.createElement("s
 
 // modified version of https://github.com/shramov/leaflet-plugins. Also
 // contains the default Ingress map style.
-var LLGMAPS = 'http://breunigs.github.com/ingress-intel-total-conversion/external/leaflet_google.js';
+var LLGMAPS = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/leaflet_google.js';
 var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js';
 var LEAFLET = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.js';
-var AUTOLINK = 'http://breunigs.github.com/ingress-intel-total-conversion/external/autolink.js';
+var AUTOLINK = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/autolink.js';
 
 // after all scripts have loaded, boot the actual app
 load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS).onError(function (err) {
