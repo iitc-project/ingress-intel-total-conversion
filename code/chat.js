@@ -636,27 +636,24 @@ window.chat.setupTime = function() {
 
 window.chat.setupPosting = function() {
   $('#chatinput input').keydown(function(event) {
-try{
-
-    var kc = (event.keyCode ? event.keyCode : event.which);
-    if(kc === 13) { // enter
-      chat.postMsg();
-      event.preventDefault();
-    } else if (kc === 9) { // tab
-      event.preventDefault();
-      window.chat.handleTabCompletion();
+    try {
+      var kc = (event.keyCode ? event.keyCode : event.which);
+      if(kc === 13) { // enter
+        chat.postMsg();
+        event.preventDefault();
+      } else if (kc === 9) { // tab
+        event.preventDefault();
+        window.chat.handleTabCompletion();
+      }
+    } catch(error) {
+      console.log(error);
+      debug.printStackTrace();
     }
-
-
-} catch(error) {
-  console.log(error);
-  debug.printStackTrace();
-}
   });
 
   $('#chatinput').submit(function(event) {
-    chat.postMsg();
     event.preventDefault();
+    chat.postMsg();
   });
 }
 
