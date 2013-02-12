@@ -304,7 +304,7 @@ window.chat.handlePublic = function(data, textStatus, jqXHR, isOldMsgs) {
 
 
 window.chat.handlePublicAutomated = function(data) {
- $.each(data.result, function(ind, json) { // newest first!
+  $.each(data.result, function(ind, json) { // newest first!
     var time = json[1];
 
     // ignore player messages
@@ -347,7 +347,7 @@ window.chat.handlePublicAutomated = function(data) {
       tmpmsg = chat.renderMsg(tmpmsg, nick, time, team);
       window.chat._displayedPlayerActionTime[pguid] = [time, tmpmsg];
     };
- });
+  });
 
   if(chat.getActive() === 'automated')
     window.chat.renderAutomatedMsgsTo();
