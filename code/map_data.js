@@ -75,7 +75,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
       if(getTypeByGuid(guid) === TYPE_FIELD && window.fields[guid] !== undefined) {
         $.each(window.fields[guid].options.vertices, function(ind, vertex) {
           if(window.portals[vertex.guid] === undefined) return true;
-          fieldArray = window.portals[vertex.guid].options.portalV2.linkedFields;
+          fieldArray = window.portals[vertex.guid].options.details.portalV2.linkedFields;
           fieldArray.splice($.inArray(guid, fieldArray), 1);
         });
       }
