@@ -496,8 +496,12 @@ window.chat.request = function() {
 window.chat.needMoreMessages = function() {
   var activeChat = $('#chat > :visible');
   if(scrollBottom(activeChat) !== 0 || activeChat.scrollTop() !== 0) return;
+  var activeTab = $('#chatcontrols .active').text();
+  if(activeTab === 'debug') return;
+
   console.log('no scrollbar in active chat, requesting more msgs');
-  if($('#chatcontrols a:last.active').length)
+
+  if(activeTab === 'faction')
     chat.requestOldFaction();
   else
     chat.requestOldPublic();
@@ -507,6 +511,7 @@ window.chat.needMoreMessages = function() {
 window.chat.chooser = function(event) {
   var t = $(event.target);
   var tt = t.text();
+
   var span = $('#chatinput span');
 
   $('#chatcontrols .active').removeClass('active');
@@ -536,6 +541,8 @@ window.chat.chooser = function(event) {
       elm = $('#chatautomated');
       break;
   }
+
+  if(!elm) throw('chat button handled by chat.chooser, yet it is null');
 
   elm.show();
   if(elm.data('needsScrollTop')) {
@@ -580,7 +587,10 @@ window.chat.setup = function() {
   $('#chatcontrols, #chat, #chatinput').show();
 
   $('#chatcontrols a:first').click(window.chat.toggle);
-  $('#chatcontrols a:not(:first)').click(window.chat.chooser);
+  $('#chatcontrols a').each(function(ind, elm) {
+    if($.inArray($(elm).text(), ['automated', 'public', 'faction']) !== -1)
+      $(elm).click(window.chat.chooser);
+  });
 
 
   $('#chatinput').click(function() {
@@ -664,6 +674,8 @@ window.chat.postMsg = function() {
 
   var msg = $.trim($('#chatinput input').val());
   if(!msg || msg === '') return;
+
+  if(c === 'debug') return new Function (msg)();
 
   var public = c === 'public';
   var latlng = map.getCenter();

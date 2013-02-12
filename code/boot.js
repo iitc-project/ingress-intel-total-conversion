@@ -193,6 +193,8 @@ window.setupSidebarToggle = function() {
 // BOOTING ///////////////////////////////////////////////////////////
 
 function boot() {
+  window.debug.console.overwriteNativeIfRequired();
+
   console.log('loading done, booting');
   window.setupStyles();
   window.setupMap();

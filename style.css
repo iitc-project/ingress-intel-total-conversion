@@ -224,6 +224,7 @@ time {
   display: inline-block;
   width: 44px;
   color: #bbb;
+  overflow: hidden;
 }
 
 mark {

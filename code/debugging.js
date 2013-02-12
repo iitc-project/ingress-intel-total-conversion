@@ -42,3 +42,68 @@ window.debug.forceSync = function() {
   updateGameScore();
   requestData();
 }
+
+window.debug.console = function() {
+  $('#debugconsole').text();
+}
+
+window.debug.console.create = function() {
+  if($('#debugconsole').length) return;
+  $('#chatcontrols').append('<a>debug</a>');
+  $('#chatcontrols a:last').click(function() {
+    $('#chatinput span').css('cssText', 'color: #bbb !important').text('debug:');
+    $('#chat > div').hide();
+    $('#debugconsole').show();
+    $('#chatcontrols .active').removeClass('active');
+    $(this).addClass('active');
+  });
+  $('#chat').append('<div id="debugconsole" style="display: none"></div>');
+}
+
+window.debug.console.renderLine = function(text, errorType) {
+  debug.console.create();
+  switch(errorType) {
+    case 'error':   var color = '#FF424D'; break;
+    case 'warning': var color = '#FFDE42'; break;
+    case 'alert':   var color = '#42FF90'; break;
+    default:        var color = '#eee';
+  }
+  if(typeof text !== 'string' && typeof text !== 'number') text = JSON.stringify(text);
+  var d = new Date();
+  var ta = d.toLocaleTimeString(); // print line instead maybe?
+  var tb = d.toLocaleString();
+  var t = '<time title="'+tb+'" data-timestamp="'+d.getTime()+'">'+ta+'</time>';
+  var s = 'style="color:'+color+'"';
+  var l = '<p>'+t+'<mark '+s+'>'+errorType+'</mark><span>'+text+'</span></p>';
+  $('#debugconsole').prepend(l);
+}
+
+window.debug.console.log = function(text) {
+  debug.console.renderLine(text, 'notice');
+}
+
+window.debug.console.warn = function(text) {
+  debug.console.renderLine(text, 'warning');
+}
+
+window.debug.console.error = function(text) {
+  debug.console.renderLine(text, 'error');
+}
+
+window.debug.console.alert = function(text) {
+  debug.console.renderLine(text, 'alert');
+}
+
+window.debug.console.overwriteNative = function() {
+  window.debug.console.create();
+  window.console = function() {}
+  window.console.log = window.debug.console.log;
+  window.console.warn = window.debug.console.warn;
+  window.console.error = window.debug.console.error;
+  window.alert = window.debug.console.alert;
+}
+
+window.debug.console.overwriteNativeIfRequired = function() {
+  if(!window.console || L.Browser.mobile)
+    window.debug.console.overwriteNative();
+}
