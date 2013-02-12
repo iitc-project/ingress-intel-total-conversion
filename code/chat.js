@@ -336,7 +336,7 @@ window.chat.handlePublicAutomated = function(data) {
         case 'PORTAL':
           var latlng = [part[1].latE6/1E6, part[1].lngE6/1E6];
           var js = 'window.zoomToAndShowPortal(\''+part[1].guid+'\', ['+latlng[0]+', '+latlng[1]+'])';
-          tmpmsg += '<a onclick="'+js+'" title="'+part[1].address+'" class="help">'+part[1].name+'</a>';
+          tmpmsg += '<a onclick="'+js+'" title="'+part[1].address+'" class="help" data-tooltip="title">'+part[1].name+'</a>';
           break;
       }
     });
@@ -453,9 +453,9 @@ window.chat.renderMsg = function(msg, nick, time, team) {
   var ta = unixTimeToHHmm(time);
   var tb = unixTimeToString(time, true);
   // help cursor via “#chat time”
-  var t = '<time title="'+tb+'" data-timestamp="'+time+'">'+ta+'</time>';
+  var t = '<time title="'+tb+'" data-timestamp="'+time+'" data-tooltip="title">'+ta+'</time>';
   var s = 'style="color:'+COLORS[team]+'"';
-  var title = nick.length >= 8 ? 'title="'+nick+'" class="help"' : '';
+  var title = nick.length >= 8 ? 'title="'+nick+'" class="help" data-tooltip="title"' : '';
   return '<p>'+t+'<span class="invisibleseparator"> &lt;</span><mark '+s+'>'+nick+'</mark><span class="invisibleseparator">&gt; </span><span>'+msg+'</span></p>';
 }
 

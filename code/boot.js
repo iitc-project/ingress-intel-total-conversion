@@ -161,7 +161,7 @@ window.setupPlayerStat = function() {
         + '\n\nNote: your player stats can only be updated by a full reload (F5)';
 
   $('#playerstat').html(''
-    + '<h2 title="'+t+'">'+level+'&nbsp;'
+    + '<h2 title="'+t+'" data-tooltip="title_render">'+level+'&nbsp;'
     + '<span class="'+cls+'">'+PLAYER.nickname+'</span>'
     + '<div>'
     + '<sup>XM: '+xmRatio+'%</sup>'
@@ -189,6 +189,56 @@ window.setupSidebarToggle = function() {
   });
 }
 
+window.setupTooltips = function() {
+  $(document).tooltip({
+    // enable mouse tracking
+    track: true,
+    // disable show/hide animation
+    show: false,
+    hide: false,
+    items: "[data-tooltip]",
+    content: function(){
+      var type = $(this).attr('data-tooltip');
+      if(type == 'title'){
+        return $(this).attr('title');
+      }
+      else if(type == 'title_render'){
+        var title = $(this).attr('title');
+        var data = [];
+        var max_columns = 0;
+
+        // parse data
+        var rows = title.split('\n');
+        $.each(rows, function(i, row){
+          data[i] = row.replace(/\t+/g, '\t').split('\t');
+          if(data[i].length > max_columns) max_columns = data[i].length;
+        });
+
+        // build table
+        if(max_columns > 1) {
+          var tooltip = '<table>';
+          $.each(data, function(i, row){
+            tooltip += '<tr>';
+            $.each(data[i], function(k, cell){
+              var attributes = '';
+              if(k == 0 && data[i].length < max_columns){
+                attributes = ' colspan="'+(max_columns - data[i].length + 1)+'"';
+              }
+              tooltip += '<td'+attributes+'>'+cell+'</td>';
+            });
+            tooltip += '</tr>';
+          });
+          tooltip += '</table>';
+          return tooltip;
+        }
+        else {
+          return title.replace(/\n/g, '<br />');
+        }
+      }
+    }
+  });
+}
+
 
 // BOOTING ///////////////////////////////////////////////////////////
 
@@ -204,6 +254,7 @@ function boot() {
   window.setupSidebarToggle();
   window.updateGameScore();
   window.setupPlayerStat();
+  window.setupTooltips();
   window.chat.setup();
   // read here ONCE, so the URL is only evaluated one time after the
   // necessary data has been loaded.
@@ -232,10 +283,11 @@ function asyncLoadScript(a){return function(b,c){var d=document.createElement("s
 // contains the default Ingress map style.
 var LLGMAPS = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/leaflet_google.js';
 var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js';
+var JQUERYUI = 'http://code.jquery.com/ui/1.10.0/jquery-ui.js';
 var LEAFLET = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.js';
 var AUTOLINK = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/autolink.js';
 
 // after all scripts have loaded, boot the actual app
-load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS).onError(function (err) {
+load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS, JQUERYUI).onError(function (err) {
   alert('Could not all resources, the script likely won’t work.\n\nIf this happend the first time for you, it’s probably a temporary issue. Just wait a bit and try again.\n\nIf you installed the script for the first time and this happens:\n– try disabling NoScript if you have it installed\n– press CTRL+SHIFT+K in Firefox or CTRL+SHIFT+I in Chrome/Opera and reload the page. Additional info may be available in the console.\n– Open an issue at https://github.com/breunigs/ingress-intel-total-conversion/issues');
 }).thenRun(boot);
