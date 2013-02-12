@@ -56,10 +56,10 @@ window.getModDetails = function(d) {
     }
   });
 
-  var t = '<span'+(modsTitle[0].length ? ' title="'+modsTitle[0]+'" data-tooltip="title_render"' : '')+' style="color:'+modsColor[0]+'">'+mods[0]+'</span>'
-        + '<span'+(modsTitle[1].length ? ' title="'+modsTitle[1]+'" data-tooltip="title_render"' : '')+' style="color:'+modsColor[1]+'">'+mods[1]+'</span>'
-        + '<span'+(modsTitle[2].length ? ' title="'+modsTitle[2]+'" data-tooltip="title_render"' : '')+' style="color:'+modsColor[2]+'">'+mods[2]+'</span>'
-        + '<span'+(modsTitle[3].length ? ' title="'+modsTitle[3]+'" data-tooltip="title_render"' : '')+' style="color:'+modsColor[3]+'">'+mods[3]+'</span>'
+  var t = '<span'+(modsTitle[0].length ? ' title="'+modsTitle[0]+'"' : '')+' style="color:'+modsColor[0]+'">'+mods[0]+'</span>'
+        + '<span'+(modsTitle[1].length ? ' title="'+modsTitle[1]+'"' : '')+' style="color:'+modsColor[1]+'">'+mods[1]+'</span>'
+        + '<span'+(modsTitle[2].length ? ' title="'+modsTitle[2]+'"' : '')+' style="color:'+modsColor[2]+'">'+mods[2]+'</span>'
+        + '<span'+(modsTitle[3].length ? ' title="'+modsTitle[3]+'"' : '')+' style="color:'+modsColor[3]+'">'+mods[3]+'</span>'
 
   return t;
 }
@@ -69,7 +69,7 @@ window.getEnergyText = function(d) {
   var totalNrg = getTotalPortalEnergy(d);
   var inf = currentNrg + ' / ' + totalNrg;
   var fill = prettyEnergy(currentNrg) + ' / ' + prettyEnergy(totalNrg)
-  return ['energy', '<tt title="'+inf+'" data-tooltip="title_render">' + fill + '</tt>'];
+  return ['energy', '<tt title="'+inf+'">' + fill + '</tt>'];
 }
 
 window.getAvgResoDistText = function(d) {
@@ -112,15 +112,15 @@ window.getResonatorDetails = function(d) {
 // rotates clockwise. So, last one is 7 (southeast).
 window.renderResonatorDetails = function(slot, level, nrg, dist, nick, isLeft) {
   if(level === 0) {
-    var meter = '<span class="meter" title="octant:\t' + OCTANTS[slot] + '" data-tooltip="title_render"></span>';
+    var meter = '<span class="meter" title="octant:\t' + OCTANTS[slot] + '"></span>';
   } else {
     var max = RESO_NRG[level];
     var fillGrade = nrg/max*100;
 
-    var inf = 'energy:\t\t' + nrg   + ' / ' + max + ' (' + Math.round(fillGrade) + '%)\n'
-            + 'level:\t\t'  + level + '\n'
+    var inf = 'energy:\t' + nrg   + ' / ' + max + ' (' + Math.round(fillGrade) + '%)\n'
+            + 'level:\t'  + level + '\n'
             + 'distance:\t' + dist  + 'm\n'
-            + 'owner:\t\t'  + nick  + '\n'
+            + 'owner:\t'  + nick  + '\n'
             + 'octant:\t' + OCTANTS[slot];
 
     var style = 'width:'+fillGrade+'%; background:'+COLORS_LVL[level]+';';
@@ -131,7 +131,7 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick, isLeft) {
 
     var fill  = '<span style="'+style+'"></span>';
 
-    var meter = '<span class="meter meter-rel" title="'+inf+'" data-tooltip="title_render">' + fill + lbar + '</span>';
+    var meter = '<span class="meter meter-rel" title="'+inf+'">' + fill + lbar + '</span>';
   }
   var cls = isLeft ? 'left' : 'right';
   var text = '<span class="meter-text '+cls+'">'+(nick||'')+'</span>';
@@ -159,10 +159,10 @@ window.getDestroyAP = function(d) {
   function tt(text) {
     var t = 'Destroy:\n';
     t += resoCount  + '×\tResonators\t= ' + digits(resoAp) + '\n';
-    t += linkCount  + '×\tLinks\t\t= ' + digits(linkAp) + '\n';
-    t += fieldCount + '×\tFields\t\t= ' + digits(fieldAp) + '\n';
+    t += linkCount  + '×\tLinks\t= ' + digits(linkAp) + '\n';
+    t += fieldCount + '×\tFields\t= ' + digits(fieldAp) + '\n';
     t += 'Sum: ' + digits(sum) + ' AP';
-    return '<tt title="'+t+'" data-tooltip="title_render">' + digits(text) + '</tt>';
+    return '<tt title="'+t+'">' + digits(text) + '</tt>';
   }
 
   return [tt('AP Gain'), tt(sum)];

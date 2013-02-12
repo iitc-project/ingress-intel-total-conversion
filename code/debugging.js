@@ -72,7 +72,7 @@ window.debug.console.renderLine = function(text, errorType) {
   var d = new Date();
   var ta = d.toLocaleTimeString(); // print line instead maybe?
   var tb = d.toLocaleString();
-  var t = '<time title="'+tb+'" data-timestamp="'+d.getTime()+'" data-tooltip="title">'+ta+'</time>';
+  var t = '<time title="'+tb+'" data-timestamp="'+d.getTime()+'">'+ta+'</time>';
   var s = 'style="color:'+color+'"';
   var l = '<p>'+t+'<mark '+s+'>'+errorType+'</mark><span>'+text+'</span></p>';
   $('#debugconsole').prepend(l);

@@ -153,15 +153,15 @@ window.setupPlayerStat = function() {
   var cls = PLAYER.team === 'ALIENS' ? 'enl' : 'res';
 
 
-  var t = 'Level:\t\t' + level + '\n'
-        + 'XM:\t\t\t' + PLAYER.energy + ' / ' + xmMax + '\n'
-        + 'AP:\t\t\t' + digits(ap) + '\n'
+  var t = 'Level:\t' + level + '\n'
+        + 'XM:\t' + PLAYER.energy + ' / ' + xmMax + '\n'
+        + 'AP:\t' + digits(ap) + '\n'
         + (level < 8 ? 'level up in:\t' + lvlUpAp + ' AP' : 'Congrats! (neeeeerd)')
-        + '\n\Invites:\t\t'+PLAYER.available_invites;
+        + '\n\Invites:\t'+PLAYER.available_invites;
         + '\n\nNote: your player stats can only be updated by a full reload (F5)';
 
   $('#playerstat').html(''
-    + '<h2 title="'+t+'" data-tooltip="title_render">'+level+'&nbsp;'
+    + '<h2 title="'+t+'">'+level+'&nbsp;'
     + '<span class="'+cls+'">'+PLAYER.nickname+'</span>'
     + '<div>'
     + '<sup>XM: '+xmRatio+'%</sup>'
@@ -196,45 +196,39 @@ window.setupTooltips = function() {
     // disable show/hide animation
     show: false,
     hide: false,
-    items: "[data-tooltip]",
-    content: function(){
-      var type = $(this).attr('data-tooltip');
-      if(type == 'title'){
-        return $(this).attr('title');
-      }
-      else if(type == 'title_render'){
-        var title = $(this).attr('title');
-        var data = [];
-        var max_columns = 0;
+    content: function() {
+      var title = $(this).attr('title');
 
-        // parse data
-        var rows = title.split('\n');
-        $.each(rows, function(i, row){
-          data[i] = row.replace(/\t+/g, '\t').split('\t');
-          if(data[i].length > max_columns) max_columns = data[i].length;
+      // check if it should be converted to a table
+      if(!title.match(/\t/)) {
+        return title.replace(/\n/g, '<br />');
+      }
+
+      var data = [];
+      var columnCount = 0;
+
+      // parse data
+      var rows = title.split('\n');
+      $.each(rows, function(i, row) {
+        data[i] = row.split('\t');
+        if(data[i].length > columnCount) columnCount = data[i].length;
+      });
+
+      // build the table
+      var tooltip = '<table>';
+      $.each(data, function(i, row) {
+        tooltip += '<tr>';
+        $.each(data[i], function(k, cell) {
+          var attributes = '';
+          if(k === 0 && data[i].length < columnCount) {
+            attributes = ' colspan="'+(columnCount - data[i].length + 1)+'"';
+          }
+          tooltip += '<td'+attributes+'>'+cell+'</td>';
         });
-
-        // build table
-        if(max_columns > 1) {
-          var tooltip = '<table>';
-          $.each(data, function(i, row){
-            tooltip += '<tr>';
-            $.each(data[i], function(k, cell){
-              var attributes = '';
-              if(k == 0 && data[i].length < max_columns){
-                attributes = ' colspan="'+(max_columns - data[i].length + 1)+'"';
-              }
-              tooltip += '<td'+attributes+'>'+cell+'</td>';
-            });
-            tooltip += '</tr>';
-          });
-          tooltip += '</table>';
-          return tooltip;
-        }
-        else {
-          return title.replace(/\n/g, '<br />');
-        }
-      }
+        tooltip += '</tr>';
+      });
+      tooltip += '</table>';
+      return tooltip;
     }
   });
 }
@@ -283,7 +277,7 @@ function asyncLoadScript(a){return function(b,c){var d=document.createElement("s
 // contains the default Ingress map style.
 var LLGMAPS = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/leaflet_google.js';
 var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js';
-var JQUERYUI = 'http://code.jquery.com/ui/1.10.0/jquery-ui.js';
+var JQUERYUI = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js';
 var LEAFLET = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.js';
 var AUTOLINK = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/autolink.js';
 

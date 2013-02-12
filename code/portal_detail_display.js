@@ -18,7 +18,7 @@ window.renderPortalDetails = function(guid) {
   if(d.portalV2.linkedEdges) $.each(d.portalV2.linkedEdges, function(ind, link) {
     links[link.isOrigin ? 'outgoing' : 'incoming']++;
   });
-  function linkExpl(t) { return '<tt title="↳ incoming links\n↴ outgoing links\n• is meant to be the portal." data-tooltip="title_render">'+t+'</tt>'; }
+  function linkExpl(t) { return '<tt title="↳ incoming links\n↴ outgoing links\n• is meant to be the portal.">'+t+'</tt>'; }
   var linksText = [linkExpl('links'), linkExpl(' ↳ ' + links.incoming+'&nbsp;&nbsp;•&nbsp;&nbsp;'+links.outgoing+' ↴')];
 
   var player = d.captured && d.captured.capturingPlayerId
@@ -62,7 +62,7 @@ window.renderPortalDetails = function(guid) {
       .html(''
         + '<h3>'+d.portalV2.descriptiveText.TITLE+'</h3>'
         // help cursor via “.imgpreview img”
-        + '<div class="imgpreview"><img src="'+img+'" title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image." data-tooltip="title_render"/></div>'
+        + '<div class="imgpreview"><img src="'+img+'" title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."/></div>'
         + '<span id="level">'+Math.floor(getPortalLevel(d))+'</span>'
         + '<div class="mods">'+getModDetails(d)+'</div>'
         + '<div id="randdetails">'+randDetails+'</div>'
