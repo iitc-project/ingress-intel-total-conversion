@@ -351,7 +351,7 @@ window.isResonatorsShow = function() {
 }
 
 window.portalResetColor = function(portal) {
-  portal.setStyle({color: portal.options.fillColor});
+  portal.setStyle({color:  COLORS[getTeam(portal.options.details)]});
 }
 
 // renders a link on the map from the given entity
