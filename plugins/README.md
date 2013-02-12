@@ -10,6 +10,7 @@ Available Plugins
 -----------------
 
 - [**Guess Player Level**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/guess-player-levels.user.js) looks for the highest placed resonator per player in the current view to guess the player level.
+- [**Highlight Weakened Portals**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/show-portal-weakness.user.js) fill portals with red or orange to indicate portal's state of disrepair. The brighter the color the more attention needed (recharge, shields, resonators). Red means general attention needed. Orange means at least one resonator is gone.
 
 
 Hacking
