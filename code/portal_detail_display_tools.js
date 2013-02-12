@@ -56,10 +56,10 @@ window.getModDetails = function(d) {
     }
   });
 
-  var t = '<span'+(modsTitle[0].length ? 'title="'+modsTitle[0]+'" data-tooltip="title_render"' : '')+' style="color:'+modsColor[0]+'">'+mods[0]+'</span>'
-        + '<span'+(modsTitle[1].length ? 'title="'+modsTitle[1]+'" data-tooltip="title_render"' : '')+' style="color:'+modsColor[1]+'">'+mods[1]+'</span>'
-        + '<span'+(modsTitle[2].length ? 'title="'+modsTitle[2]+'" data-tooltip="title_render"' : '')+' style="color:'+modsColor[2]+'">'+mods[2]+'</span>'
-        + '<span'+(modsTitle[3].length ? 'title="'+modsTitle[3]+'" data-tooltip="title_render"' : '')+' style="color:'+modsColor[3]+'">'+mods[3]+'</span>'
+  var t = '<span'+(modsTitle[0].length ? ' title="'+modsTitle[0]+'" data-tooltip="title_render"' : '')+' style="color:'+modsColor[0]+'">'+mods[0]+'</span>'
+        + '<span'+(modsTitle[1].length ? ' title="'+modsTitle[1]+'" data-tooltip="title_render"' : '')+' style="color:'+modsColor[1]+'">'+mods[1]+'</span>'
+        + '<span'+(modsTitle[2].length ? ' title="'+modsTitle[2]+'" data-tooltip="title_render"' : '')+' style="color:'+modsColor[2]+'">'+mods[2]+'</span>'
+        + '<span'+(modsTitle[3].length ? ' title="'+modsTitle[3]+'" data-tooltip="title_render"' : '')+' style="color:'+modsColor[3]+'">'+mods[3]+'</span>'
 
   return t;
 }
