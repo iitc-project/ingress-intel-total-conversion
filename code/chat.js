@@ -685,11 +685,15 @@ window.chat.postMsg = function() {
               lngE6: Math.round(latlng.lng*1E6),
               factionOnly: !public};
 
+  var errMsg = 'Your message could not be delivered. You can copy&' +
+               'paste it here and try again if you want:\n\n' + msg;
+
   window.postAjax('sendPlext', data,
-    function() { if(public) chat.requestNewPublic(); else chat.requestNewFaction(); },
+    function(response) {
+      if(response.error) alert(errMsg);
+      if(public) chat.requestNewPublic(); else chat.requestNewFaction(); },
     function() {
-      alert('Your message could not be delivered. You can copy&' +
-            'paste it here and try again if you want:\n\n'+msg);
+      alert(errMsg);
     }
   );
 
