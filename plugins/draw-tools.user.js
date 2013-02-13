@@ -184,7 +184,7 @@ window.plugin.drawTools.boot = function() {
 
   map.on('draw:marker-created', function (e) {
     drawnItems.addLayer(e.marker);
-    //e.marker.dragging.enable();
+    e.marker.dragging.enable();
   });
 
   window.layerChooser.addOverlay(drawnItems, 'Drawn Items');
