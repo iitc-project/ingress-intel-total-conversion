@@ -136,11 +136,13 @@ window.plugin.drawTools.enhancePolyLine = function() {
 
   // remove polyline markers because they get in the way
   L.Polyline.Draw.prototype._updateMarkerHandler = function() {
+    if(!this._markers) return;
+
     if(this._markers.length >= 2)
       this._markerGroup.removeLayer(this._markers.shift());
 
     if(this._markers.length >= 1)
-      this._markers[this._markers.length - 1].on('click', this._finishShape(), this);
+      this._markers[this._markers.length - 1].on('click', this._finishShape, this);
   }
 }
 
