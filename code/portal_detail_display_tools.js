@@ -162,7 +162,7 @@ window.getDestroyAP = function(d) {
     t += fieldCount + '×\tFields\t= ' + digits(fieldAp) + '\n';
     t += '1×\tCapture\t= ' + CAPTURE_PORTAL + '\n';
     t += '8×\tDeploy\t= ' + DEPLOY_RESONATOR + '\n';
-    t += '1×\tBonus\t= ' + COMPLETITION_BONUS + '\n';
+    t += '1×\tBonus\t= ' + COMPLETION_BONUS + '\n';
     t += 'Sum: ' + digits(sum) + ' AP';
     return '<tt title="'+t+'">' + digits(text) + '</tt>';
   }
