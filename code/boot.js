@@ -83,7 +83,7 @@ window.setupMap = function() {
   map.addLayer(linksLayer, true);
   addLayers['Links'] = linksLayer;
 
-  map.addControl(new L.Control.Layers({
+  window.layerChooser = new L.Control.Layers({
     'OSM Cloudmade Midnight': views[0],
     'OSM Cloudmade Minimal': views[1],
     'OSM Mapnik': views[2],
@@ -91,7 +91,9 @@ window.setupMap = function() {
     'Google Roads':  views[4],
     'Google Satellite':  views[5],
     'Google Hybrid':  views[6]
-    }, addLayers));
+    }, addLayers);
+
+  map.addControl(window.layerChooser);
   map.attributionControl.setPrefix('');
   // listen for changes and store them in cookies
   map.on('moveend', window.storeMapPosition);
