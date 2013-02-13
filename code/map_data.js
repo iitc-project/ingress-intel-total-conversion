@@ -299,6 +299,7 @@ window.renderResonators = function(ent, portalLayer) {
 
   var portalLevel = getPortalLevel(ent[2]);
   if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal) return;
+  var portalLatLng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
 
   var layerGroup = portalsLayers[parseInt(portalLevel)];
   var reRendered = false;
@@ -329,7 +330,11 @@ window.renderResonators = function(ent, portalLayer) {
     var lat0 = ent[2].locationE6.latE6/1E6 + dLat * 180/Math.PI;
     var lon0 = ent[2].locationE6.lngE6/1E6 + dLon * 180/Math.PI;
     var Rlatlng = [lat0, lon0];
-    var r =  L.circleMarker(Rlatlng, {
+
+    var resoGuid = portalResonatorGuid(ent[0], i);
+
+    // the resonator
+    var reso =  L.circleMarker(Rlatlng, {
         radius: 3,
         // #AAAAAA outline seems easier to see the fill opacity
         color: '#AAAAAA',
@@ -337,14 +342,34 @@ window.renderResonators = function(ent, portalLayer) {
         weight: 1,
         fillColor: COLORS_LVL[rdata.level],
         fillOpacity: rdata.energyTotal/RESO_NRG[rdata.level],
-        clickable: false,
-        level: rdata.level,
-        details: rdata,
-        pDetails: ent[2],
-        guid: portalResonatorGuid(ent[0], i) });
+        guid: resoGuid // need this here as well for add/remove events
+    });
 
-    r.on('remove',   function() { delete window.resonators[this.options.guid]; });
-    r.on('add',      function() { window.resonators[this.options.guid] = this; });
+    // line connecting reso to portal
+    var conn = L.polyline([Rlatlng, portalLatLng], {
+        weight: 2,
+        color: '#FFFFFF',
+        opacity: 0.2,
+        dashArray: '10,4',
+        fill: false,
+        clickable: false});
+
+
+    // put both in one group, so they can be handled by the same logic.
+    var r = L.layerGroup([reso, conn]);
+    r.options = {
+      level: rdata.level,
+      details: rdata,
+      pDetails: ent[2],
+      guid: resoGuid
+    };
+
+    // However, LayerGroups (and FeatureGroups) don’t fire add/remove
+    // events, thus this listener will be attached to the resonator. It
+    // doesn’t matter to which element these are bound since Leaflet
+    // will add/remove all elements of the LayerGroup at once.
+    reso.on('remove', function() { delete window.resonators[this.options.guid]; });
+    reso.on('add',    function() { window.resonators[this.options.guid] = r; });
 
     r.addTo(portalsLayers[parseInt(portalLevel)]);
     reRendered = true;
