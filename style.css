@@ -191,7 +191,7 @@ em {
   top: 25px;
 }
 
-#chatpublic, #chatautomated {
+#chatpublic, #chatfull, #chatcompact,  /* FIXME DEPRECATED: */#chatautomated {
   display: none;
 }
 

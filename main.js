@@ -62,12 +62,14 @@ document.getElementsByTagName('head')[0].innerHTML = ''
 document.getElementsByTagName('body')[0].innerHTML = ''
   + '<div id="map">Loading, please wait</div>'
   + '<div id="chatcontrols" style="display:none">'
-  + '  <a><span class="toggle expand"></span></a><a>automated</a><a>public</a><a class="active">faction</a>'
+  + '  <a><span class="toggle expand"></span></a>'
+  +   '<a>full</a><a>compact</a><a>public</a><a class="active">faction</a>'
   + '</div>'
   + '<div id="chat" style="display:none">'
   + '  <div id="chatfaction"></div>'
   + '  <div id="chatpublic"></div>'
-  + '  <div id="chatautomated"></div>'
+  + '  <div id="chatcompact"></div>'
+  + '  <div id="chatfull"></div>'
   + '</div>'
   + '<form id="chatinput" style="display:none"><time></time><span>tell faction:</span><input type="text"/></form>'
   + '<a id="sidebartoggle"><span class="toggle close"></span></a>'
@@ -115,8 +117,10 @@ var CHAT_MIN_RANGE = 6;
 var VIEWPORT_PAD_RATIO = 0.3;
 
 // how many items to request each query
-var CHAT_PUBLIC_ITEMS = 200
-var CHAT_FACTION_ITEMS = 50
+var CHAT_PUBLIC_ITEMS = 200;
+var CHAT_FACTION_ITEMS = 50;
+// how many pixels to the top before requesting new data
+var CHAT_REQUEST_SCROLL_TOP = 200;
 
 // Leaflet will get very slow for MANY items. It’s better to display
 // only some instead of crashing the browser.
