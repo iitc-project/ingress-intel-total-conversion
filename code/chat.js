@@ -324,7 +324,7 @@ window.chat.renderData = function(data, element, likelyWereOldMsgs) {
 
 
 window.chat.renderDivider = function(text) {
-  return '<summary>─ '+text+' ───────────────────────────────────────────────────────────</summary>';
+  return '<summary>─ '+text+' ──────────────────────────────────────────────────────────────────────────</summary>';
 }
 
 
