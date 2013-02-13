@@ -113,8 +113,10 @@ window.setupMap = function() {
 
     console.log('Remove all resonators');
   });
-  $("[name='leaflet-base-layers']").change(function () {
-    writeCookie('ingress.intelmap.type', $(this).parent().index());
+
+  map.on('baselayerchange', function () {
+    var selInd = $('[name=leaflet-base-layers]:checked').parent().index();
+    writeCookie('ingress.intelmap.type', selInd);
   });
 
   // map update status handling
