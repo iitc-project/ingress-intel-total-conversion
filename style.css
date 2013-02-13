@@ -191,7 +191,7 @@ em {
   top: 25px;
 }
 
-#chatpublic, #chatautomated {
+#chatpublic, #chatfull, #chatcompact,  /* FIXME DEPRECATED: */#chatautomated {
   display: none;
 }
 
@@ -226,6 +226,7 @@ time {
   display: inline-block;
   width: 44px;
   color: #bbb;
+  overflow: hidden;
 }
 
 mark {
@@ -449,10 +450,6 @@ h3 {
   border: 1px solid #666;
 }
 
-.mods span[title=""] {
-  cursor: auto;
-}
-
 .res .mods span, .res .meter {
   border: 1px solid #0076b6;
 }
@@ -614,4 +611,18 @@ aside:nth-child(odd) span {
 }
 #largepreview img {
   border: 2px solid #f8ff5e;
+}
+
+/* tooltips */
+.ui-tooltip {
+  background: #1E425D;
+  border: 1px solid #20A8B1;
+  box-shadow:0 0 7px #000;
+  color: #EEEEEE;
+  font-family: Verdana, sans-serif;
+  font-size:13px;
+  max-width: 300px;
+  padding: 8px;
+  position: absolute;
+  z-index: 9999;
 }

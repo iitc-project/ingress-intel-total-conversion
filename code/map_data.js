@@ -75,7 +75,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
       if(getTypeByGuid(guid) === TYPE_FIELD && window.fields[guid] !== undefined) {
         $.each(window.fields[guid].options.vertices, function(ind, vertex) {
           if(window.portals[vertex.guid] === undefined) return true;
-          fieldArray = window.portals[vertex.guid].options.portalV2.linkedFields;
+          fieldArray = window.portals[vertex.guid].options.details.portalV2.linkedFields;
           fieldArray.splice($.inArray(guid, fieldArray), 1);
         });
       }
@@ -227,7 +227,7 @@ window.renderPortal = function(ent) {
     u = u || oo.level !== portalLevel;
     // nothing for the portal changed, so don’t update. Let resonators
     // manage themselves if they want to be updated.
-    if(!u) return renderResonators(ent);
+    if(!u) return renderResonators(ent, old);
     // there were changes, remove old portal
     removeByGuid(ent[0]);
   }
@@ -236,7 +236,6 @@ window.renderPortal = function(ent) {
 
   // pre-loads player names for high zoom levels
   loadPlayerNamesForPortal(ent[2]);
-
 
   var lvWeight = Math.max(2, portalLevel / 1.5);
   var lvRadius = Math.max(portalLevel + 3, 5);
@@ -261,7 +260,7 @@ window.renderPortal = function(ent) {
     // all resonators have already removed by zooming
     if(isResonatorsShow()) {
       for(var i = 0; i <= 7; i++)
-        removeByGuid(portalResonatorGuid(portalGuid,i));
+        removeByGuid(portalResonatorGuid(portalGuid, i));
     }
     delete window.portals[portalGuid];
     if(window.selectedPortal === portalGuid) {
@@ -287,7 +286,7 @@ window.renderPortal = function(ent) {
     window.map.setView(latlng, 17);
   });
 
-  window.renderResonators(ent);
+  window.renderResonators(ent, null);
 
   window.runHooks('portalAdded', {portal: p});
 
@@ -295,18 +294,28 @@ window.renderPortal = function(ent) {
   p.addTo(layerGroup);
 }
 
-window.renderResonators = function(ent) {
+window.renderResonators = function(ent, portalLayer) {
+  if(!isResonatorsShow()) return;
+
   var portalLevel = getPortalLevel(ent[2]);
   if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal) return;
 
-  if(!isResonatorsShow()) return;
-
-  for(var i=0; i < ent[2].resonatorArray.resonators.length; i++) {
+  var layerGroup = portalsLayers[parseInt(portalLevel)];
+  var reRendered = false;
+  for(var i = 0; i < ent[2].resonatorArray.resonators.length; i++) {
     var rdata = ent[2].resonatorArray.resonators[i];
 
-    if(rdata == null) continue;
+    // skip if resonator didn't change
+    if(portalLayer) {
+      var oldRes = findEntityInLeaflet(layerGroup, window.resonators, portalResonatorGuid(ent[0], i));
+      if(oldRes && isSameResonator(oldRes.options.details, rdata)) continue;
+    }
 
-    if(window.resonators[portalResonatorGuid(ent[0],i)]) continue;
+    // skip and remove old resonator if no new resonator
+    if(rdata === null) {
+      if(oldRes) removeByGuid(oldRes.options.guid);
+      continue;
+    }
 
     // offset in meters
     var dn = rdata.distanceToPortal*SLOT_TO_LAT[rdata.slot];
@@ -332,13 +341,16 @@ window.renderResonators = function(ent) {
         level: rdata.level,
         details: rdata,
         pDetails: ent[2],
-        guid: portalResonatorGuid(ent[0],i) });
+        guid: portalResonatorGuid(ent[0], i) });
 
     r.on('remove',   function() { delete window.resonators[this.options.guid]; });
     r.on('add',      function() { window.resonators[this.options.guid] = this; });
 
     r.addTo(portalsLayers[parseInt(portalLevel)]);
+    reRendered = true;
   }
+  // if there is any resonator re-rendered, bring portal to front
+  if(reRendered && portalLayer) portalLayer.bringToFront();
 }
 
 // append portal guid with -resonator-[slot] to get guid for resonators
@@ -348,6 +360,15 @@ window.portalResonatorGuid = function(portalGuid, slot) {
 
 window.isResonatorsShow = function() {
   return map.getZoom() >= RESONATOR_DISPLAY_ZOOM_LEVEL;
+}
+
+window.isSameResonator = function(oldRes, newRes) {
+  if(!oldRes && !newRes) return true;
+  if(typeof oldRes !== typeof newRes) return false;
+  if(oldRes.level !== newRes.level) return false;
+  if(oldRes.energyTotal !== newRes.energyTotal) return false;
+  if(oldRes.distanceToPortal !== newRes.distanceToPortal) return false;
+  return true;
 }
 
 window.portalResetColor = function(portal) {
