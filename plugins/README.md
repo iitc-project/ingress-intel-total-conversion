@@ -23,6 +23,11 @@ You can use the guess player level script as an example to get you started. Just
 
 If you happen the write general purpose functions for your plugin, consider adding them to the main script instead. For example, if you write a `getResoCountFromPortal(details)` function it may be very well added to `code/portal_info.js`.
 
+External Dependencies
+---------------------
+
+If you have external dependencies put them into `external/` and add a version number to their filename. I will put them in `dist/` once required. Don’t forget to add a note about author and license in main `README.md`.
+
 
 Available Hooks
 ---------------
