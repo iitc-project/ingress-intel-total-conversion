@@ -1,4 +1,3 @@
-
 // PORTAL DETAILS DISPLAY ////////////////////////////////////////////
 // hand any of these functions the details-hash of a portal, and they
 // will return pretty, displayable HTML or parts thereof.
@@ -154,13 +153,16 @@ window.getDestroyAP = function(d) {
   var resoAp = resoCount * DESTROY_RESONATOR;
   var linkAp = linkCount * DESTROY_LINK;
   var fieldAp = fieldCount * DESTROY_FIELD;
-  var sum = resoAp + linkAp + fieldAp;
+  var sum = resoAp + linkAp + fieldAp + 1750;
 
   function tt(text) {
-    var t = 'Destroy:\n';
+    var t = 'Destroy &amp; Capture:\n';
     t += resoCount  + '×\tResonators\t= ' + digits(resoAp) + '\n';
     t += linkCount  + '×\tLinks\t= ' + digits(linkAp) + '\n';
     t += fieldCount + '×\tFields\t= ' + digits(fieldAp) + '\n';
+    t += '1×\tCapture\t= 500\n';
+    t += '8×\tDeploy\t= 1000\n';
+    t += '1×\tBonus\t= 250\n';
     t += 'Sum: ' + digits(sum) + ' AP';
     return '<tt title="'+t+'">' + digits(text) + '</tt>';
   }
