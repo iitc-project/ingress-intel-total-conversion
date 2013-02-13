@@ -153,7 +153,7 @@ window.getDestroyAP = function(d) {
   var resoAp = resoCount * DESTROY_RESONATOR;
   var linkAp = linkCount * DESTROY_LINK;
   var fieldAp = fieldCount * DESTROY_FIELD;
-  var sum = resoAp + linkAp + fieldAp + CAPTURE_PORTAL + 8*DEPLOY_RESONATOR + COMPLETITION_BONUS;
+  var sum = resoAp + linkAp + fieldAp + CAPTURE_PORTAL + 8*DEPLOY_RESONATOR + COMPLETION_BONUS;
 
   function tt(text) {
     var t = 'Destroy &amp; Capture:\n';
