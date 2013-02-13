@@ -225,9 +225,14 @@ window.renderPortal = function(ent) {
     var oo = old.options;
     var u = oo.team !== team;
     u = u || oo.level !== portalLevel;
-    // nothing for the portal changed, so don’t update. Let resonators
-    // manage themselves if they want to be updated.
-    if(!u) return renderResonators(ent, old);
+    // nothing changed that requires re-rendering the portal.
+    if(!u) {
+      // let resos handle themselves if they need to be redrawn
+      renderResonators(ent, old);
+      // update stored details for portal details in sidebar.
+      old.options.details = ent[2];
+      return;
+    }
     // there were changes, remove old portal
     removeByGuid(ent[0]);
   }
