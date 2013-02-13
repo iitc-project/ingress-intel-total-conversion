@@ -32,6 +32,7 @@ Features
 - hack range (yellow circle) and link range (large red circle) for portals. Click on the range link in the sidebar to zoom to link range.
 - double clicking a portal zooms in and focuses it
 - display of XM and AP rewards for redeemed passcodes
+- [extend it even more with the use of plugins](https://github.com/breunigs/ingress-intel-total-conversion/plugins)
 
 
 Install
@@ -70,9 +71,7 @@ Please do!
 
 (Obviously, Resistance folks must send in complete patches while Enlightenment gals and guys may just open feature request ☺)
 
-
-Contributors
-------------
+**So far, these people have contributed:**
 
 [Bananeweizen](https://github.com/Bananeweizen),
 [cmrn](https://github.com/cmrn),
@@ -85,9 +84,9 @@ Contributors
 [Pirozek](https://github.com/Pirozek),
 [Scrool](https://github.com/Scrool),
 [sorgo](https://github.com/sorgo),
+[vita10gy](https://github.com/vita10gy),
 [Xelio](https://github.com/Xelio),
 [ZauberNerd](https://github.com/ZauberNerd)
-[vita10gy](https://github.com/vita10gy)
 
 
 Hacking
@@ -116,9 +115,10 @@ Attribution & License
 
 This project is licensed under the permissive ISC license. Parts imported from other projects remain under their respective licenses:
 
-- [load.js by Chris O'Hara; MIT](https://github.com/chriso/load.js)
 - [autolink-js by Bryan Woods; MIT](https://github.com/bryanwoods/autolink-js)
+- [load.js by Chris O'Hara; MIT](https://github.com/chriso/load.js)
 - [leaflet.js; custom license (but appears free)](http://leafletjs.com/)
+- [leaflet.draw.js; by jacobtoye; MIT](https://github.com/Leaflet/Leaflet.draw)
 - [`leaflet_google.js` by Pavel Shramov; same as Leaftlet](https://github.com/shramov/leaflet-plugins) (modified, though)
 - StackOverflow-CopyPasta is attributed in the source; [CC-Wiki](https://creativecommons.org/licenses/by-sa/3.0/)
 - all Ingress/Niantic related stuff obviously remains non-free and is still copyrighted by Niantic/Google
