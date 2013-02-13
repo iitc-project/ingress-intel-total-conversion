@@ -97,49 +97,55 @@ function wrapper() {
 L_PREFER_CANVAS = false;
 
 // CONFIG OPTIONS ////////////////////////////////////////////////////
-var REFRESH = 30; // refresh view every 30s (base time)
-var ZOOM_LEVEL_ADJ = 5; // add 5 seconds per zoom level
-var REFRESH_GAME_SCORE = 5*60; // refresh game score every 5 minutes
-var MAX_IDLE_TIME = 4; // stop updating map after 4min idling
-var PRECACHE_PLAYER_NAMES_ZOOM = 17; // zoom level to start pre-resolving player names
-var HIDDEN_SCROLLBAR_ASSUMED_WIDTH = 20;
-var SIDEBAR_WIDTH = 300;
+window.REFRESH = 30; // refresh view every 30s (base time)
+window.ZOOM_LEVEL_ADJ = 5; // add 5 seconds per zoom level
+window.REFRESH_GAME_SCORE = 5*60; // refresh game score every 5 minutes
+window.MAX_IDLE_TIME = 4; // stop updating map after 4min idling
+window.PRECACHE_PLAYER_NAMES_ZOOM = 17; // zoom level to start pre-resolving player names
+window.HIDDEN_SCROLLBAR_ASSUMED_WIDTH = 20;
+window.SIDEBAR_WIDTH = 300;
 // chat messages are requested for the visible viewport. On high zoom
 // levels this gets pretty pointless, so request messages in at least a
 // X km radius.
-var CHAT_MIN_RANGE = 6;
+window.CHAT_MIN_RANGE = 6;
 // this controls how far data is being drawn outside the viewport. Set
 // it 0 to only draw entities that intersect the current view. A value
 // of one will render an area twice the size of the viewport (or some-
 // thing like that, Leaflet doc isn’t too specific). Setting it too low
 // makes the missing data on move/zoom out more obvious. Setting it too
 // high causes too many items to be drawn, making drag&drop sluggish.
-var VIEWPORT_PAD_RATIO = 0.3;
+window.VIEWPORT_PAD_RATIO = 0.3;
 
 // how many items to request each query
-var CHAT_PUBLIC_ITEMS = 200;
-var CHAT_FACTION_ITEMS = 50;
+window.CHAT_PUBLIC_ITEMS = 200;
+window.CHAT_FACTION_ITEMS = 50;
 // how many pixels to the top before requesting new data
-var CHAT_REQUEST_SCROLL_TOP = 200;
+window.CHAT_REQUEST_SCROLL_TOP = 200;
+window.CHAT_SHRINKED = 60;
 
 // Leaflet will get very slow for MANY items. It’s better to display
 // only some instead of crashing the browser.
-var MAX_DRAWN_PORTALS = 1000;
-var MAX_DRAWN_LINKS = 400;
-var MAX_DRAWN_FIELDS = 200;
+window.MAX_DRAWN_PORTALS = 1000;
+window.MAX_DRAWN_LINKS = 400;
+window.MAX_DRAWN_FIELDS = 200;
+// Minimum zoom level resonator will display
+window.RESONATOR_DISPLAY_ZOOM_LEVEL = 17;
 
-
-var COLOR_SELECTED_PORTAL = '#f00';
-var COLORS = ['#FFCE00', '#0088FF', '#03FE03']; // none, res, enl
-var COLORS_LVL = ['#000', '#FECE5A', '#FFA630', '#FF7315', '#E40000', '#FD2992', '#EB26CD', '#C124E0', '#9627F4'];
-var COLORS_MOD = {VERY_RARE: '#F78AF6', RARE: '#AD8AFF', COMMON: '#84FBBD'};
+window.COLOR_SELECTED_PORTAL = '#f00';
+window.COLORS = ['#FFCE00', '#0088FF', '#03FE03']; // none, res, enl
+window.COLORS_LVL = ['#000', '#FECE5A', '#FFA630', '#FF7315', '#E40000', '#FD2992', '#EB26CD', '#C124E0', '#9627F4'];
+window.COLORS_MOD = {VERY_RARE: '#F78AF6', RARE: '#AD8AFF', COMMON: '#84FBBD'};
 
 
 // circles around a selected portal that show from where you can hack
 // it and how far the portal reaches (i.e. how far links may be made
 // from this portal)
-var ACCESS_INDICATOR_COLOR = 'orange';
-var RANGE_INDICATOR_COLOR = 'red';
+window.ACCESS_INDICATOR_COLOR = 'orange';
+window.RANGE_INDICATOR_COLOR = 'red';
+
+
+window.DEFAULT_PORTAL_IMG = 'http://commondatastorage.googleapis.com/ingress/img/default-portal-image.png';
+window.NOMINATIM = 'http://nominatim.openstreetmap.org/search?format=json&limit=1&q=';
 
 // INGRESS CONSTANTS /////////////////////////////////////////////////
 // http://decodeingress.me/2012/11/18/ingress-portal-levels-and-link-range/
@@ -148,28 +154,19 @@ var MAX_XM_PER_LEVEL = [0, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000];
 var MIN_AP_FOR_LEVEL = [0, 10000, 30000, 70000, 150000, 300000, 600000, 1200000];
 var HACK_RANGE = 40; // in meters, max. distance from portal to be able to access it
 var OCTANTS = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
-var DEFAULT_PORTAL_IMG = 'http://commondatastorage.googleapis.com/ingress/img/default-portal-image.png';
 var DESTROY_RESONATOR = 75; //AP for destroying portal
 var DESTROY_LINK = 187; //AP for destroying link
 var DESTROY_FIELD = 750; //AP for destroying field
 
 // OTHER MORE-OR-LESS CONSTANTS //////////////////////////////////////
-var NOMINATIM = 'http://nominatim.openstreetmap.org/search?format=json&limit=1&q=';
-var DEG2RAD = Math.PI / 180;
 var TEAM_NONE = 0, TEAM_RES = 1, TEAM_ENL = 2;
 var TEAM_TO_CSS = ['none', 'res', 'enl'];
 var TYPE_UNKNOWN = 0, TYPE_PORTAL = 1, TYPE_LINK = 2, TYPE_FIELD = 3, TYPE_PLAYER = 4, TYPE_CHAT = 5, TYPE_RESONATOR = 6;
-// make PLAYER variable available in site context
-var PLAYER = window.PLAYER;
-var CHAT_SHRINKED = 60;
 
-// Minimum zoom level resonator will display
-var RESONATOR_DISPLAY_ZOOM_LEVEL = 17;
-
-// Constants for resonator positioning
 var SLOT_TO_LAT = [0, Math.sqrt(2)/2, 1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2];
 var SLOT_TO_LNG = [1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2, 0, Math.sqrt(2)/2];
 var EARTH_RADIUS=6378137;
+var DEG2RAD = Math.PI / 180;
 
 // STORAGE ///////////////////////////////////////////////////////////
 // global variables used for storage. Most likely READ ONLY. Proper
