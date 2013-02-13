@@ -196,9 +196,9 @@ window.chat.handlePublic = function(data, textStatus, jqXHR) {
 
   if(data.result.length === 0) return;
 
-  var old = chat.getOldestTimestamp(true);
+  var old = chat.getOldestTimestamp(false);
   chat.writeDataToHash(data, chat._publicData, true);
-  var oldMsgsWereAdded = old !== chat.getOldestTimestamp(true);
+  var oldMsgsWereAdded = old !== chat.getOldestTimestamp(false);
 
   switch(chat.getActive()) {
     case 'public': window.chat.renderPublic(oldMsgsWereAdded); break;
