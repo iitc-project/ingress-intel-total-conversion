@@ -5,10 +5,16 @@
 // retrieves current position from map and stores it cookies
 window.storeMapPosition = function() {
   var m = window.map.getCenter();
-  writeCookie('ingress.intelmap.lat', m['lat']);
-  writeCookie('ingress.intelmap.lng', m['lng']);
+
+  if(m['lat'] >= -90  && m['lat'] <= 90)
+    writeCookie('ingress.intelmap.lat', m['lat']);
+
+  if(m['lng'] >= -180 && m['lng'] <= 180)
+    writeCookie('ingress.intelmap.lng', m['lng']);
+
   writeCookie('ingress.intelmap.zoom', window.map.getZoom());
 }
+
 
 // either retrieves the last shown position from a cookie, from the
 // URL or if neither is present, via Geolocation. If that fails, it
@@ -28,6 +34,10 @@ window.getPosition = function() {
     var lat = parseFloat(readCookie('ingress.intelmap.lat')) || 0.0;
     var lng = parseFloat(readCookie('ingress.intelmap.lng')) || 0.0;
     var z = parseInt(readCookie('ingress.intelmap.zoom')) || 17;
+
+    if(lat < -90  || lat > 90) lat = 0.0;
+    if(lng < -180 || lng > 180) lng = 0.0;
+
     return {center: new L.LatLng(lat, lng), zoom: z > 18 ? 18 : z};
   }
 
