@@ -191,11 +191,12 @@ window.setupSidebarToggle = function() {
 
 window.setupTooltips = function() {
   $(document).tooltip({
-    // enable mouse tracking
-    track: true,
     // disable show/hide animation
-    show: false,
+    show: { effect: "hide", duration: 0 } ,
     hide: false,
+    open: function(event, ui) {
+      ui.tooltip.delay(300).fadeIn(0);
+    },
     content: function() {
       var title = $(this).attr('title');
 
