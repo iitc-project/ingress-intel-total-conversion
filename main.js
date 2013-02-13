@@ -157,6 +157,9 @@ var OCTANTS = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
 var DESTROY_RESONATOR = 75; //AP for destroying portal
 var DESTROY_LINK = 187; //AP for destroying link
 var DESTROY_FIELD = 750; //AP for destroying field
+var CAPTURE_PORTAL = 500; //AP for capturing a portal
+var DEPLOY_RESONATOR = 125; //AP for deploying a resonator
+var COMPLETION_BONUS = 250; //AP for deploying all resonators on portal
 
 // OTHER MORE-OR-LESS CONSTANTS //////////////////////////////////////
 var TEAM_NONE = 0, TEAM_RES = 1, TEAM_ENL = 2;
