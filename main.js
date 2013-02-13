@@ -159,7 +159,7 @@ var DESTROY_LINK = 187; //AP for destroying link
 var DESTROY_FIELD = 750; //AP for destroying field
 var CAPTURE_PORTAL = 500; //AP for capturing a portal
 var DEPLOY_RESONATOR = 125; //AP for deploying a resonator
-var COMPLETITION_BONUS = 250; //AP for deploying all resonators on portal
+var COMPLETION_BONUS = 250; //AP for deploying all resonators on portal
 
 // OTHER MORE-OR-LESS CONSTANTS //////////////////////////////////////
 var TEAM_NONE = 0, TEAM_RES = 1, TEAM_ENL = 2;
