@@ -30,8 +30,11 @@ window.plugin.drawTools = function() {};
 
 window.plugin.drawTools.loadExternals = function() {
   var base = 'http://breunigs.github.com/ingress-intel-total-conversion/dist';
+  //~ var base = 'http://0.0.0.0:8000/dist';
   $('head').append('<link rel="stylesheet" href="'+base+'/leaflet.draw.0.1.6.css" />');
   load(base+'/leaflet.draw.0.1.6.js').thenRun(window.plugin.drawTools.boot);
+  // overwrite default Leaflet Marker icon.
+  L.Icon.Default.imagePath = base + '/images';
 }
 
 
