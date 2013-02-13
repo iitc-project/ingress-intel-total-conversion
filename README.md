@@ -83,6 +83,7 @@ Contributors
 [OshiHidra](https://github.com/OshiHidra),
 [phoenixsong6](https://github.com/phoenixsong6),
 [Pirozek](https://github.com/Pirozek),
+[saithis](https://github.com/saithis),
 [Scrool](https://github.com/Scrool),
 [sorgo](https://github.com/sorgo),
 [Xelio](https://github.com/Xelio),
