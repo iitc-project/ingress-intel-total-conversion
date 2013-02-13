@@ -271,7 +271,7 @@ window.chat.writeDataToHash = function(newData, storageHash, skipSecureMsgs) {
         break;
 
       case 'TEXT':
-        var tmp = markup[1].plain.autoLink();
+        var tmp = $('<div/>').text(markup[1].plain).html().autoLink();
         msg += tmp.replace(window.PLAYER['nickMatcher'], '<em>$1</em>');
         break;
 
