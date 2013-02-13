@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-show-portal-weakness@vita10gy
 // @name           iitc: show portal weakness
-// @version        0.1
+// @version        0.2
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/show-portal-weekness.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/show-portal-weekness.user.js
@@ -74,7 +74,7 @@ window.plugin.portalWeakness.portalAdded = function(data) {
     {
       if(mod == null)
       {
-        portal_weakness += .05;
+        portal_weakness += .03;
       }
     });
     //Ding the portal for every missing resonator.
@@ -99,20 +99,20 @@ window.plugin.portalWeakness.portalAdded = function(data) {
     if(portal_weakness>0)
     {
       var color = 'red';
+      var fill_opacity = Math.round((portal_weakness*.8 + .2)*100)/100;
+      var params = {fillColor: color, fillOpacity: fill_opacity, radius: data.portal.options.radius+1};
       if(resCount<8)
       {
-        color = 'orange';
+        params["dashArray"] = "4,6";
       }
-      var fill_opacity = Math.round((portal_weakness*.7 + .3)*100)/100;
-      data.portal.setStyle({fillColor: color, fillOpacity: fill_opacity});
+      data.portal.setStyle(params);
     }
   }
-  
-  
 }
 
 var setup =  function() {
   window.addHook('portalAdded', window.plugin.portalWeakness.portalAdded);
+  window.COLOR_SELECTED_PORTAL = '#f0f';
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

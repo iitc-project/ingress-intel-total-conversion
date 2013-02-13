@@ -87,6 +87,7 @@ Contributors
 [sorgo](https://github.com/sorgo),
 [Xelio](https://github.com/Xelio),
 [ZauberNerd](https://github.com/ZauberNerd)
+[vita10gy](https://github.com/vita10gy)
 
 
 Hacking
