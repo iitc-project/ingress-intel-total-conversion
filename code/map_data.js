@@ -346,7 +346,7 @@ window.renderResonators = function(ent, portalLayer) {
     });
 
     // line connecting reso to portal
-    var conn = L.polyline([Rlatlng, portalLatLng], {
+    var conn = L.polyline([portalLatLng, Rlatlng], {
         weight: 2,
         color: '#FF7700',
         opacity: 0.35,
