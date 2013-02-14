@@ -1,5 +1,7 @@
-CHANGES IN 0.6
-==============
+CHANGES IN 0.6 / 0.61
+=====================
+
+0.6 had a broken link to style sheets. Fixed in 0.61.
 
 - **SECURITY**: Chat was vulnerable to XSS attacks. Update as soon as
                 possible.
