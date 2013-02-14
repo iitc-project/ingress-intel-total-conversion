@@ -207,7 +207,7 @@ window.setPermaLink = function(elm) {
   var c = map.getCenter();
   var lat = Math.round(c.lat*1E6);
   var lng = Math.round(c.lng*1E6);
-  var qry = 'latE6='+lat+'&lngE6='+lng+'&z=' + (map.getZoom()+1);
+  var qry = 'latE6='+lat+'&lngE6='+lng+'&z=' + (map.getZoom()-1);
   $(elm).attr('href',  'http://www.ingress.com/intel?' + qry);
 }
 
