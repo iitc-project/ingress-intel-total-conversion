@@ -57,13 +57,16 @@ window.renderPortalDetails = function(guid) {
     var lat = d.locationE6.latE6;
     var lng = d.locationE6.lngE6;
     var perma = 'http://ingress.com/intel?latE6='+lat+'&lngE6='+lng+'&z=17&pguid='+guid;
+    var imgTitle = 'title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."';
 
     $('#portaldetails')
       .attr('class', TEAM_TO_CSS[getTeam(d)])
       .html(''
         + '<h3>'+d.portalV2.descriptiveText.TITLE+'</h3>'
         // help cursor via “.imgpreview img”
-        + '<div class="imgpreview"><img src="'+img+'" title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."/></div>'
+        + '<div class="imgpreview" '+imgTitle+' style="background-image: url('+img+')">'
+        + '<img class="hide" src="'+img+'"/>'
+        + '</div>'
         + '<span id="level">'+Math.floor(getPortalLevel(d))+'</span>'
         + '<div class="mods">'+getModDetails(d)+'</div>'
         + '<div id="randdetails">'+randDetails+'</div>'

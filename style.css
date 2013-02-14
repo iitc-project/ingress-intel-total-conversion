@@ -18,6 +18,7 @@ body:after {
 
 html, body, #map {
   height: 100%;
+  width: 100%;
 }
 
 body {
@@ -411,11 +412,13 @@ h3 {
 
 .imgpreview {
   height: 200px;
-  overflow: hidden;
+  background: no-repeat center center;
+  background-size: contain;
+  cursor: help;
 }
 
-.imgpreview img {
-  cursor: help;
+.imgpreview img.hide {
+  display: none;
 }
 
 #level {
