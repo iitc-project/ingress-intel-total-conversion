@@ -2,7 +2,7 @@
 body:after {
   background: none repeat scroll 0 0 #FFFFFF;
   color: red;
-  content: "Please update your total conversion script or it will not work properly anymore.";
+  content: "Please update your total conversion script or it will not work properly anymore. \a Google \"ingress total conversion\".";
   display: block;
   font-weight: bold;
   left: 381px;
@@ -10,6 +10,8 @@ body:after {
   position: absolute;
   top: 0;
   z-index: 9001;
+  white-space: pre;
+  text-align: center;
 }
 
 /* general rules ******************************************************/
@@ -50,10 +52,10 @@ body {
 #sidebartoggle {
   display: block;
   padding: 20px 5px;
-  margin-top: -31px;
+  margin-top: -31px; /* -(toggle height / 2) */
   line-height: 10px;
   position: absolute;
-  top: 50%;
+  top: 340px; /* (sidebar height / 2) */
   z-index: 3001;
   background-color: rgba(8, 48, 78, 0.9);
   color: #FFCE00;
@@ -189,7 +191,7 @@ em {
   top: 25px;
 }
 
-#chatpublic, #chatautomated {
+#chatpublic, #chatfull, #chatcompact,  /* FIXME DEPRECATED: */#chatautomated {
   display: none;
 }
 
@@ -224,6 +226,7 @@ time {
   display: inline-block;
   width: 44px;
   color: #bbb;
+  overflow: hidden;
 }
 
 mark {
@@ -447,7 +450,7 @@ h3 {
   border: 1px solid #666;
 }
 
-.mods span[title=""] {
+.mods span:not([title]) {
   cursor: auto;
 }
 
@@ -575,10 +578,6 @@ aside:nth-child(odd) span {
   padding: 5px;
 }
 
-#spacer {
-  height: 10px;
-}
-
 /* a common portal display takes this much space (prevents moving
  * content when first selecting a portal) */
 
@@ -589,7 +588,7 @@ aside:nth-child(odd) span {
 
 /* update status */
 #updatestatus {
-  background-color: rgba(8, 48, 78, 1);
+  background-color: rgba(8, 48, 78, 0.9);
   border-bottom: 0;
   border-top: 1px solid #20A8B1;
   border-left: 1px solid #20A8B1;
@@ -616,4 +615,24 @@ aside:nth-child(odd) span {
 }
 #largepreview img {
   border: 2px solid #f8ff5e;
+}
+
+/* tooltips */
+.ui-tooltip {
+  max-width: 300px;
+  position: absolute;
+  z-index: 9999;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  color: #222;
+  font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+  padding: 2px 4px;
+}
+
+td {
+  padding: 0;
+}
+
+td + td {
+  padding-left: 4px;
 }

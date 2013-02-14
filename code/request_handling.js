@@ -25,10 +25,8 @@ window.requests.abort = function() {
 
   window.activeRequests = [];
   window.failedRequestCount = 0;
-  window.chat._requestOldPublicRunning  = false;
-  window.chat._requestNewPublicRunning  = false;
-  window.chat._requestOldFactionRunning  = false;
-  window.chat._requestNewFactionRunning  = false;
+  window.chat._requestPublicRunning  = false;
+  window.chat._requestFactionRunning  = false;
 
   renderUpdateStatus();
 }

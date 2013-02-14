@@ -75,7 +75,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
       if(getTypeByGuid(guid) === TYPE_FIELD && window.fields[guid] !== undefined) {
         $.each(window.fields[guid].options.vertices, function(ind, vertex) {
           if(window.portals[vertex.guid] === undefined) return true;
-          fieldArray = window.portals[vertex.guid].options.portalV2.linkedFields;
+          fieldArray = window.portals[vertex.guid].options.details.portalV2.linkedFields;
           fieldArray.splice($.inArray(guid, fieldArray), 1);
         });
       }
@@ -225,9 +225,14 @@ window.renderPortal = function(ent) {
     var oo = old.options;
     var u = oo.team !== team;
     u = u || oo.level !== portalLevel;
-    // nothing for the portal changed, so don’t update. Let resonators
-    // manage themselves if they want to be updated.
-    if(!u) return renderResonators(ent);
+    // nothing changed that requires re-rendering the portal.
+    if(!u) {
+      // let resos handle themselves if they need to be redrawn
+      renderResonators(ent, old);
+      // update stored details for portal details in sidebar.
+      old.options.details = ent[2];
+      return;
+    }
     // there were changes, remove old portal
     removeByGuid(ent[0]);
   }
@@ -236,7 +241,6 @@ window.renderPortal = function(ent) {
 
   // pre-loads player names for high zoom levels
   loadPlayerNamesForPortal(ent[2]);
-
 
   var lvWeight = Math.max(2, portalLevel / 1.5);
   var lvRadius = Math.max(portalLevel + 3, 5);
@@ -261,7 +265,7 @@ window.renderPortal = function(ent) {
     // all resonators have already removed by zooming
     if(isResonatorsShow()) {
       for(var i = 0; i <= 7; i++)
-        removeByGuid(portalResonatorGuid(portalGuid,i));
+        removeByGuid(portalResonatorGuid(portalGuid, i));
     }
     delete window.portals[portalGuid];
     if(window.selectedPortal === portalGuid) {
@@ -287,7 +291,7 @@ window.renderPortal = function(ent) {
     window.map.setView(latlng, 17);
   });
 
-  window.renderResonators(ent);
+  window.renderResonators(ent, null);
 
   window.runHooks('portalAdded', {portal: p});
 
@@ -295,18 +299,29 @@ window.renderPortal = function(ent) {
   p.addTo(layerGroup);
 }
 
-window.renderResonators = function(ent) {
-  var portalLevel = getPortalLevel(ent[2]);
-  if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal) return;
-
+window.renderResonators = function(ent, portalLayer) {
   if(!isResonatorsShow()) return;
 
-  for(var i=0; i < ent[2].resonatorArray.resonators.length; i++) {
+  var portalLevel = getPortalLevel(ent[2]);
+  if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal) return;
+  var portalLatLng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
+
+  var layerGroup = portalsLayers[parseInt(portalLevel)];
+  var reRendered = false;
+  for(var i = 0; i < ent[2].resonatorArray.resonators.length; i++) {
     var rdata = ent[2].resonatorArray.resonators[i];
 
-    if(rdata == null) continue;
+    // skip if resonator didn't change
+    if(portalLayer) {
+      var oldRes = findEntityInLeaflet(layerGroup, window.resonators, portalResonatorGuid(ent[0], i));
+      if(oldRes && isSameResonator(oldRes.options.details, rdata)) continue;
+    }
 
-    if(window.resonators[portalResonatorGuid(ent[0],i)]) continue;
+    // skip and remove old resonator if no new resonator
+    if(rdata === null) {
+      if(oldRes) removeByGuid(oldRes.options.guid);
+      continue;
+    }
 
     // offset in meters
     var dn = rdata.distanceToPortal*SLOT_TO_LAT[rdata.slot];
@@ -320,7 +335,11 @@ window.renderResonators = function(ent) {
     var lat0 = ent[2].locationE6.latE6/1E6 + dLat * 180/Math.PI;
     var lon0 = ent[2].locationE6.lngE6/1E6 + dLon * 180/Math.PI;
     var Rlatlng = [lat0, lon0];
-    var r =  L.circleMarker(Rlatlng, {
+
+    var resoGuid = portalResonatorGuid(ent[0], i);
+
+    // the resonator
+    var reso =  L.circleMarker(Rlatlng, {
         radius: 3,
         // #AAAAAA outline seems easier to see the fill opacity
         color: '#AAAAAA',
@@ -328,17 +347,40 @@ window.renderResonators = function(ent) {
         weight: 1,
         fillColor: COLORS_LVL[rdata.level],
         fillOpacity: rdata.energyTotal/RESO_NRG[rdata.level],
-        clickable: false,
-        level: rdata.level,
-        details: rdata,
-        pDetails: ent[2],
-        guid: portalResonatorGuid(ent[0],i) });
+        guid: resoGuid // need this here as well for add/remove events
+    });
 
-    r.on('remove',   function() { delete window.resonators[this.options.guid]; });
-    r.on('add',      function() { window.resonators[this.options.guid] = this; });
+    // line connecting reso to portal
+    var conn = L.polyline([Rlatlng, portalLatLng], {
+        weight: 2,
+        color: '#FFFFFF',
+        opacity: 0.2,
+        dashArray: '10,4',
+        fill: false,
+        clickable: false});
+
+
+    // put both in one group, so they can be handled by the same logic.
+    var r = L.layerGroup([reso, conn]);
+    r.options = {
+      level: rdata.level,
+      details: rdata,
+      pDetails: ent[2],
+      guid: resoGuid
+    };
+
+    // However, LayerGroups (and FeatureGroups) don’t fire add/remove
+    // events, thus this listener will be attached to the resonator. It
+    // doesn’t matter to which element these are bound since Leaflet
+    // will add/remove all elements of the LayerGroup at once.
+    reso.on('remove', function() { delete window.resonators[this.options.guid]; });
+    reso.on('add',    function() { window.resonators[this.options.guid] = r; });
 
     r.addTo(portalsLayers[parseInt(portalLevel)]);
+    reRendered = true;
   }
+  // if there is any resonator re-rendered, bring portal to front
+  if(reRendered && portalLayer) portalLayer.bringToFront();
 }
 
 // append portal guid with -resonator-[slot] to get guid for resonators
@@ -350,8 +392,17 @@ window.isResonatorsShow = function() {
   return map.getZoom() >= RESONATOR_DISPLAY_ZOOM_LEVEL;
 }
 
+window.isSameResonator = function(oldRes, newRes) {
+  if(!oldRes && !newRes) return true;
+  if(typeof oldRes !== typeof newRes) return false;
+  if(oldRes.level !== newRes.level) return false;
+  if(oldRes.energyTotal !== newRes.energyTotal) return false;
+  if(oldRes.distanceToPortal !== newRes.distanceToPortal) return false;
+  return true;
+}
+
 window.portalResetColor = function(portal) {
-  portal.setStyle({color: portal.options.fillColor});
+  portal.setStyle({color:  COLORS[getTeam(portal.options.details)]});
 }
 
 // renders a link on the map from the given entity

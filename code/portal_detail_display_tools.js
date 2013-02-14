@@ -1,4 +1,3 @@
-
 // PORTAL DETAILS DISPLAY ////////////////////////////////////////////
 // hand any of these functions the details-hash of a portal, and they
 // will return pretty, displayable HTML or parts thereof.
@@ -56,10 +55,10 @@ window.getModDetails = function(d) {
     }
   });
 
-  var t = '<span title="'+modsTitle[0]+'" style="color:'+modsColor[0]+'">'+mods[0]+'</span>'
-        + '<span title="'+modsTitle[1]+'" style="color:'+modsColor[1]+'">'+mods[1]+'</span>'
-        + '<span title="'+modsTitle[2]+'" style="color:'+modsColor[2]+'">'+mods[2]+'</span>'
-        + '<span title="'+modsTitle[3]+'" style="color:'+modsColor[3]+'">'+mods[3]+'</span>'
+  var t = '<span'+(modsTitle[0].length ? ' title="'+modsTitle[0]+'"' : '')+' style="color:'+modsColor[0]+'">'+mods[0]+'</span>'
+        + '<span'+(modsTitle[1].length ? ' title="'+modsTitle[1]+'"' : '')+' style="color:'+modsColor[1]+'">'+mods[1]+'</span>'
+        + '<span'+(modsTitle[2].length ? ' title="'+modsTitle[2]+'"' : '')+' style="color:'+modsColor[2]+'">'+mods[2]+'</span>'
+        + '<span'+(modsTitle[3].length ? ' title="'+modsTitle[3]+'"' : '')+' style="color:'+modsColor[3]+'">'+mods[3]+'</span>'
 
   return t;
 }
@@ -117,10 +116,10 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick, isLeft) {
     var max = RESO_NRG[level];
     var fillGrade = nrg/max*100;
 
-    var inf = 'energy:\t\t' + nrg   + ' / ' + max + ' (' + Math.round(fillGrade) + '%)\n'
-            + 'level:\t\t'  + level + '\n'
+    var inf = 'energy:\t' + nrg   + ' / ' + max + ' (' + Math.round(fillGrade) + '%)\n'
+            + 'level:\t'  + level + '\n'
             + 'distance:\t' + dist  + 'm\n'
-            + 'owner:\t\t'  + nick  + '\n'
+            + 'owner:\t'  + nick  + '\n'
             + 'octant:\t' + OCTANTS[slot];
 
     var style = 'width:'+fillGrade+'%; background:'+COLORS_LVL[level]+';';
@@ -154,13 +153,16 @@ window.getDestroyAP = function(d) {
   var resoAp = resoCount * DESTROY_RESONATOR;
   var linkAp = linkCount * DESTROY_LINK;
   var fieldAp = fieldCount * DESTROY_FIELD;
-  var sum = resoAp + linkAp + fieldAp;
+  var sum = resoAp + linkAp + fieldAp + CAPTURE_PORTAL + 8*DEPLOY_RESONATOR + COMPLETION_BONUS;
 
   function tt(text) {
-    var t = 'Destroy:\n';
+    var t = 'Destroy &amp; Capture:\n';
     t += resoCount  + '×\tResonators\t= ' + digits(resoAp) + '\n';
-    t += linkCount  + '×\tLinks\t\t= ' + digits(linkAp) + '\n';
-    t += fieldCount + '×\tFields\t\t= ' + digits(fieldAp) + '\n';
+    t += linkCount  + '×\tLinks\t= ' + digits(linkAp) + '\n';
+    t += fieldCount + '×\tFields\t= ' + digits(fieldAp) + '\n';
+    t += '1×\tCapture\t= ' + CAPTURE_PORTAL + '\n';
+    t += '8×\tDeploy\t= ' + DEPLOY_RESONATOR + '\n';
+    t += '1×\tBonus\t= ' + COMPLETION_BONUS + '\n';
     t += 'Sum: ' + digits(sum) + ' AP';
     return '<tt title="'+t+'">' + digits(text) + '</tt>';
   }
