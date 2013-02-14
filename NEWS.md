@@ -1,5 +1,33 @@
+CHANGES IN 0.6
+==============
+
+- **SECURITY**: Chat was vulnerable to XSS attacks. Update as soon as
+                possible.
+
+- Feature: [**more plugins**](https://github.com/breunigs/ingress-intel-total-conversion/tree/gh-pages/plugins#readme)
+    - weakened portals: highlights portals with few resonators or ones
+                        that are decayed, making it easier to see where
+                        to attack or defend
+    - draw tools: allow you to draw things on the map, making it easier
+                  to plan your next big field
+- Feature: chat now has a tab that shows all automated messages, not
+           only the last one per user
+- Feature: render lines between portals and their resonators
+- Change: resonators are only re-rendered on demand, could improve per-
+          formance
+- Change: AP Gain now also includes gains by deploying resonators
+- Change: portal images are not shrinked instead of cut in preview
+- Bugfix: styling issues in sidebar (by cmrn)
+- Bugfix: “field decayed” and similar messages were not shown
+- Bugfix: tooltips have broken alignment sometimes (by saithis)
+- Bugfix: chat sometimes didn’t warn if message didn’t went through
+- Bugfix: base layer was not saved properly
+- Bugfix: avoid zooming to invalid lat/lng, crashing the browser
+
+
+
 CHANGES IN 0.5 / 0.51
-=====================
+---------------------
 
 - Feature: draw resonators on map on high zoom levels (by Xelio)
 - Feature: show AP if portal is taken down (by Pirozek)
