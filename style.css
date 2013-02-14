@@ -415,6 +415,7 @@ h3 {
   background: no-repeat center center;
   background-size: contain;
   cursor: help;
+  overflow: hidden;
 }
 
 .imgpreview img.hide {
