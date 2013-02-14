@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-draw-tools@breunigs
 // @name           iitc: draw tools
-// @version        0.1
+// @version        0.2
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/draw-tools.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/draw-tools.user.js
@@ -47,7 +47,7 @@ window.plugin.drawTools.addStyles = function() {
 window.plugin.drawTools.addCustomButtons = function() {
   $('.leaflet-control-draw .leaflet-bar-part-bottom').removeClass('leaflet-bar-part-bottom');
 
-  var undo = $('<a class="leaflet-bar-part" title="undo last" href="#">⎌</a>')
+  var undo = $('<a class="leaflet-bar-part" title="remove last drawn line/circle/marker" href="#">⎌</a>')
     .click(function() {
       var last = null;
       window.plugin.drawTools.drawnItems.eachLayer(function(l) {
@@ -57,7 +57,7 @@ window.plugin.drawTools.addCustomButtons = function() {
     }
   );
 
-  var clear = $('<a class="leaflet-bar-part leaflet-bar-part-bottom" title="clear drawings" href="#">✗</a>')
+  var clear = $('<a class="leaflet-bar-part leaflet-bar-part-bottom" title="clear ALL drawings" href="#">✗</a>')
     .click(function() {
       window.plugin.drawTools.drawnItems.clearLayers();
     }
@@ -73,11 +73,29 @@ window.plugin.drawTools.addDrawControl = function() {
     polygon: false,
 
     polyline: {
-      shapeOptions: DRAW_TOOLS_SHAPE_OPTIONS
+      shapeOptions: DRAW_TOOLS_SHAPE_OPTIONS,
+      title: 'Add a (poly) line.\n\n'
+        + 'Click on the button, then click on the map to\n'
+        + 'define the start of the line. Continue click-\n'
+        + 'ing to draw the line you want. Click the last\n'
+        + 'point of the line (a small white rectangle) to\n'
+        + 'finish. Double clicking also works.'
     },
 
     circle: {
-      shapeOptions: DRAW_TOOLS_SHAPE_OPTIONS
+      shapeOptions: DRAW_TOOLS_SHAPE_OPTIONS,
+      title: 'Add a circle.\n\n'
+        + 'Click on the button, then click-AND-HOLD on the\n'
+        + 'map where the circle’s center should be. Move\n'
+        + 'the mouse to control the radius. Release the mouse\n'
+        + 'to finish.'
+    },
+
+    marker: {
+      title: 'Add a marker.\n\n'
+        + 'Click on the button, then click on the map where\n'
+        + 'you want the marker to appear. You can drag the\n'
+        + 'marker around after it has been placed.'
     }
   });
   map.addControl(drawControl);
@@ -135,14 +153,11 @@ window.plugin.drawTools.enhancePolyLine = function() {
   }
 
   // remove polyline markers because they get in the way
+  L.Polyline.Draw.prototype._updateMarkerHandlerOld = L.Polyline.Draw.prototype._updateMarkerHandler;
   L.Polyline.Draw.prototype._updateMarkerHandler = function() {
-    if(!this._markers) return;
-
-    if(this._markers.length >= 2)
-      this._markerGroup.removeLayer(this._markers.shift());
-
-    if(this._markers.length >= 1)
-      this._markers[this._markers.length - 1].on('click', this._finishShape, this);
+    this._updateMarkerHandlerOld();
+    if (this._markers.length > 1)
+      this._markerGroup.removeLayer(this._markers[this._markers.length - 2]);
   }
 }
 

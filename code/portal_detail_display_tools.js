@@ -73,7 +73,7 @@ window.getEnergyText = function(d) {
 
 window.getAvgResoDistText = function(d) {
   var avgDist = Math.round(10*getAvgResoDist(d))/10;
-  return ['⌀ res dist', avgDist + ' m'];
+  return ['reso dist', avgDist + ' m'];
 }
 
 window.getResonatorDetails = function(d) {

@@ -347,15 +347,16 @@ window.renderResonators = function(ent, portalLayer) {
         weight: 1,
         fillColor: COLORS_LVL[rdata.level],
         fillOpacity: rdata.energyTotal/RESO_NRG[rdata.level],
+        clickable: false,
         guid: resoGuid // need this here as well for add/remove events
     });
 
     // line connecting reso to portal
-    var conn = L.polyline([Rlatlng, portalLatLng], {
+    var conn = L.polyline([portalLatLng, Rlatlng], {
         weight: 2,
-        color: '#FFFFFF',
-        opacity: 0.2,
-        dashArray: '10,4',
+        color: '#FFA000',
+        opacity: 0.25,
+        dashArray: '0,10,8,4,8,4,8,4,8,4,8,4,8,4,8,4,8,4,8,4',
         fill: false,
         clickable: false});
 

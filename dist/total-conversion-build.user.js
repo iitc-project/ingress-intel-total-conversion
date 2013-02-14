@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.51-2013-02-11-193316
+// @version        0.61-2013-02-14-1313127
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js
@@ -55,19 +55,21 @@ for(var i = 0; i < d.length; i++) {
 document.getElementsByTagName('head')[0].innerHTML = ''
   //~ + '<link rel="stylesheet" type="text/css" href="http://0.0.0.0:8000/style.css"/>'
   + '<title>Ingress Intel Map</title>'
-  + '<link rel="stylesheet" type="text/css" href="http://breunigs.github.com/ingress-intel-total-conversion/dist/style.css?2013-02-11-193316"/>'
+  + '<link rel="stylesheet" type="text/css" href="http://breunigs.github.com/ingress-intel-total-conversion/dist/style.0.6.css?2013-02-14-104420"/>'
   + '<link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.css"/>'
   + '<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Coda"/>';
 
 document.getElementsByTagName('body')[0].innerHTML = ''
   + '<div id="map">Loading, please wait</div>'
   + '<div id="chatcontrols" style="display:none">'
-  + '  <a><span class="toggle expand"></span></a><a>automated</a><a>public</a><a class="active">faction</a>'
+  + '  <a><span class="toggle expand"></span></a>'
+  +   '<a>full</a><a>compact</a><a>public</a><a class="active">faction</a>'
   + '</div>'
   + '<div id="chat" style="display:none">'
   + '  <div id="chatfaction"></div>'
   + '  <div id="chatpublic"></div>'
-  + '  <div id="chatautomated"></div>'
+  + '  <div id="chatcompact"></div>'
+  + '  <div id="chatfull"></div>'
   + '</div>'
   + '<form id="chatinput" style="display:none"><time></time><span>tell faction:</span><input type="text"/></form>'
   + '<a id="sidebartoggle"><span class="toggle close"></span></a>'
@@ -78,8 +80,9 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '    <input id="geosearch" placeholder="Search location…" type="text"/>'
   + '    <div id="portaldetails"></div>'
   + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
-  + '    <div id="toolbox"><a onmouseover="setPermaLink(this)">permalink</a></div>'
-  + '    <div id="spacer"></div>'
+  + '    <div id="toolbox">'
+  + '      <a onmouseover="setPermaLink(this)">permalink</a>'
+  + '      <a href="https://github.com/breunigs/ingress-intel-total-conversion#readme" title="IITC = Ingress Intel Total Conversion.\n\nOn the script’s homepage you can:\n– find updates\n– get plugins\n– report bugs\n– and contribute." style="cursor: help">IITC’s page</a></div>'
   + '  </div>'
   + '</div>'
   + '<div id="updatestatus"></div>';
@@ -96,47 +99,55 @@ function wrapper() {
 L_PREFER_CANVAS = false;
 
 // CONFIG OPTIONS ////////////////////////////////////////////////////
-var REFRESH = 30; // refresh view every 30s (base time)
-var ZOOM_LEVEL_ADJ = 5; // add 5 seconds per zoom level
-var REFRESH_GAME_SCORE = 5*60; // refresh game score every 5 minutes
-var MAX_IDLE_TIME = 4; // stop updating map after 4min idling
-var PRECACHE_PLAYER_NAMES_ZOOM = 17; // zoom level to start pre-resolving player names
-var HIDDEN_SCROLLBAR_ASSUMED_WIDTH = 20;
-var SIDEBAR_WIDTH = 300;
+window.REFRESH = 30; // refresh view every 30s (base time)
+window.ZOOM_LEVEL_ADJ = 5; // add 5 seconds per zoom level
+window.REFRESH_GAME_SCORE = 5*60; // refresh game score every 5 minutes
+window.MAX_IDLE_TIME = 4; // stop updating map after 4min idling
+window.PRECACHE_PLAYER_NAMES_ZOOM = 17; // zoom level to start pre-resolving player names
+window.HIDDEN_SCROLLBAR_ASSUMED_WIDTH = 20;
+window.SIDEBAR_WIDTH = 300;
 // chat messages are requested for the visible viewport. On high zoom
 // levels this gets pretty pointless, so request messages in at least a
 // X km radius.
-var CHAT_MIN_RANGE = 6;
+window.CHAT_MIN_RANGE = 6;
 // this controls how far data is being drawn outside the viewport. Set
 // it 0 to only draw entities that intersect the current view. A value
 // of one will render an area twice the size of the viewport (or some-
 // thing like that, Leaflet doc isn’t too specific). Setting it too low
 // makes the missing data on move/zoom out more obvious. Setting it too
 // high causes too many items to be drawn, making drag&drop sluggish.
-var VIEWPORT_PAD_RATIO = 0.3;
+window.VIEWPORT_PAD_RATIO = 0.3;
 
 // how many items to request each query
-var CHAT_PUBLIC_ITEMS = 200
-var CHAT_FACTION_ITEMS = 50
+window.CHAT_PUBLIC_ITEMS = 200;
+window.CHAT_FACTION_ITEMS = 50;
+// how many pixels to the top before requesting new data
+window.CHAT_REQUEST_SCROLL_TOP = 200;
+window.CHAT_SHRINKED = 60;
 
 // Leaflet will get very slow for MANY items. It’s better to display
 // only some instead of crashing the browser.
-var MAX_DRAWN_PORTALS = 1000;
-var MAX_DRAWN_LINKS = 400;
-var MAX_DRAWN_FIELDS = 200;
+window.MAX_DRAWN_PORTALS = 1000;
+window.MAX_DRAWN_LINKS = 400;
+window.MAX_DRAWN_FIELDS = 200;
+// Minimum zoom level resonator will display
+window.RESONATOR_DISPLAY_ZOOM_LEVEL = 17;
 
-
-var COLOR_SELECTED_PORTAL = '#f00';
-var COLORS = ['#FFCE00', '#0088FF', '#03FE03']; // none, res, enl
-var COLORS_LVL = ['#000', '#FECE5A', '#FFA630', '#FF7315', '#E40000', '#FD2992', '#EB26CD', '#C124E0', '#9627F4'];
-var COLORS_MOD = {VERY_RARE: '#F78AF6', RARE: '#AD8AFF', COMMON: '#84FBBD'};
+window.COLOR_SELECTED_PORTAL = '#f00';
+window.COLORS = ['#FFCE00', '#0088FF', '#03FE03']; // none, res, enl
+window.COLORS_LVL = ['#000', '#FECE5A', '#FFA630', '#FF7315', '#E40000', '#FD2992', '#EB26CD', '#C124E0', '#9627F4'];
+window.COLORS_MOD = {VERY_RARE: '#F78AF6', RARE: '#AD8AFF', COMMON: '#84FBBD'};
 
 
 // circles around a selected portal that show from where you can hack
 // it and how far the portal reaches (i.e. how far links may be made
 // from this portal)
-var ACCESS_INDICATOR_COLOR = 'orange';
-var RANGE_INDICATOR_COLOR = 'red';
+window.ACCESS_INDICATOR_COLOR = 'orange';
+window.RANGE_INDICATOR_COLOR = 'red';
+
+
+window.DEFAULT_PORTAL_IMG = 'http://commondatastorage.googleapis.com/ingress/img/default-portal-image.png';
+window.NOMINATIM = 'http://nominatim.openstreetmap.org/search?format=json&limit=1&q=';
 
 // INGRESS CONSTANTS /////////////////////////////////////////////////
 // http://decodeingress.me/2012/11/18/ingress-portal-levels-and-link-range/
@@ -145,28 +156,22 @@ var MAX_XM_PER_LEVEL = [0, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000];
 var MIN_AP_FOR_LEVEL = [0, 10000, 30000, 70000, 150000, 300000, 600000, 1200000];
 var HACK_RANGE = 40; // in meters, max. distance from portal to be able to access it
 var OCTANTS = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
-var DEFAULT_PORTAL_IMG = 'http://commondatastorage.googleapis.com/ingress/img/default-portal-image.png';
 var DESTROY_RESONATOR = 75; //AP for destroying portal
 var DESTROY_LINK = 187; //AP for destroying link
 var DESTROY_FIELD = 750; //AP for destroying field
+var CAPTURE_PORTAL = 500; //AP for capturing a portal
+var DEPLOY_RESONATOR = 125; //AP for deploying a resonator
+var COMPLETION_BONUS = 250; //AP for deploying all resonators on portal
 
 // OTHER MORE-OR-LESS CONSTANTS //////////////////////////////////////
-var NOMINATIM = 'http://nominatim.openstreetmap.org/search?format=json&limit=1&q=';
-var DEG2RAD = Math.PI / 180;
 var TEAM_NONE = 0, TEAM_RES = 1, TEAM_ENL = 2;
 var TEAM_TO_CSS = ['none', 'res', 'enl'];
 var TYPE_UNKNOWN = 0, TYPE_PORTAL = 1, TYPE_LINK = 2, TYPE_FIELD = 3, TYPE_PLAYER = 4, TYPE_CHAT = 5, TYPE_RESONATOR = 6;
-// make PLAYER variable available in site context
-var PLAYER = window.PLAYER;
-var CHAT_SHRINKED = 60;
 
-// Minimum zoom level resonator will display
-var RESONATOR_DISPLAY_ZOOM_LEVEL = 17;
-
-// Constants for resonator positioning
 var SLOT_TO_LAT = [0, Math.sqrt(2)/2, 1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2];
 var SLOT_TO_LNG = [1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2, 0, Math.sqrt(2)/2];
 var EARTH_RADIUS=6378137;
+var DEG2RAD = Math.PI / 180;
 
 // STORAGE ///////////////////////////////////////////////////////////
 // global variables used for storage. Most likely READ ONLY. Proper
@@ -323,7 +328,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
       if(getTypeByGuid(guid) === TYPE_FIELD && window.fields[guid] !== undefined) {
         $.each(window.fields[guid].options.vertices, function(ind, vertex) {
           if(window.portals[vertex.guid] === undefined) return true;
-          fieldArray = window.portals[vertex.guid].options.portalV2.linkedFields;
+          fieldArray = window.portals[vertex.guid].options.details.portalV2.linkedFields;
           fieldArray.splice($.inArray(guid, fieldArray), 1);
         });
       }
@@ -473,20 +478,22 @@ window.renderPortal = function(ent) {
     var oo = old.options;
     var u = oo.team !== team;
     u = u || oo.level !== portalLevel;
-    // nothing for the portal changed, so don’t update. Let resonators
-    // manage themselves if they want to be updated.
-    if(!u) return renderResonators(ent);
+    // nothing changed that requires re-rendering the portal.
+    if(!u) {
+      // let resos handle themselves if they need to be redrawn
+      renderResonators(ent, old);
+      // update stored details for portal details in sidebar.
+      old.options.details = ent[2];
+      return;
+    }
+    // there were changes, remove old portal
     removeByGuid(ent[0]);
   }
-
-  // there were changes, remove old portal
-  removeByGuid(ent[0]);
 
   var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
 
   // pre-loads player names for high zoom levels
   loadPlayerNamesForPortal(ent[2]);
-
 
   var lvWeight = Math.max(2, portalLevel / 1.5);
   var lvRadius = Math.max(portalLevel + 3, 5);
@@ -511,7 +518,7 @@ window.renderPortal = function(ent) {
     // all resonators have already removed by zooming
     if(isResonatorsShow()) {
       for(var i = 0; i <= 7; i++)
-        removeByGuid(portalResonatorGuid(portalGuid,i));
+        removeByGuid(portalResonatorGuid(portalGuid, i));
     }
     delete window.portals[portalGuid];
     if(window.selectedPortal === portalGuid) {
@@ -537,7 +544,7 @@ window.renderPortal = function(ent) {
     window.map.setView(latlng, 17);
   });
 
-  window.renderResonators(ent);
+  window.renderResonators(ent, null);
 
   window.runHooks('portalAdded', {portal: p});
 
@@ -545,18 +552,29 @@ window.renderPortal = function(ent) {
   p.addTo(layerGroup);
 }
 
-window.renderResonators = function(ent) {
-  var portalLevel = getPortalLevel(ent[2]);
-  if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal) return;
-
+window.renderResonators = function(ent, portalLayer) {
   if(!isResonatorsShow()) return;
 
-  for(var i=0; i < ent[2].resonatorArray.resonators.length; i++) {
+  var portalLevel = getPortalLevel(ent[2]);
+  if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal) return;
+  var portalLatLng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
+
+  var layerGroup = portalsLayers[parseInt(portalLevel)];
+  var reRendered = false;
+  for(var i = 0; i < ent[2].resonatorArray.resonators.length; i++) {
     var rdata = ent[2].resonatorArray.resonators[i];
 
-    if(rdata == null) continue;
+    // skip if resonator didn't change
+    if(portalLayer) {
+      var oldRes = findEntityInLeaflet(layerGroup, window.resonators, portalResonatorGuid(ent[0], i));
+      if(oldRes && isSameResonator(oldRes.options.details, rdata)) continue;
+    }
 
-    if(window.resonators[portalResonatorGuid(ent[0],i)]) continue;
+    // skip and remove old resonator if no new resonator
+    if(rdata === null) {
+      if(oldRes) removeByGuid(oldRes.options.guid);
+      continue;
+    }
 
     // offset in meters
     var dn = rdata.distanceToPortal*SLOT_TO_LAT[rdata.slot];
@@ -570,7 +588,11 @@ window.renderResonators = function(ent) {
     var lat0 = ent[2].locationE6.latE6/1E6 + dLat * 180/Math.PI;
     var lon0 = ent[2].locationE6.lngE6/1E6 + dLon * 180/Math.PI;
     var Rlatlng = [lat0, lon0];
-    var r =  L.circleMarker(Rlatlng, {
+
+    var resoGuid = portalResonatorGuid(ent[0], i);
+
+    // the resonator
+    var reso =  L.circleMarker(Rlatlng, {
         radius: 3,
         // #AAAAAA outline seems easier to see the fill opacity
         color: '#AAAAAA',
@@ -579,16 +601,40 @@ window.renderResonators = function(ent) {
         fillColor: COLORS_LVL[rdata.level],
         fillOpacity: rdata.energyTotal/RESO_NRG[rdata.level],
         clickable: false,
-        level: rdata.level,
-        details: rdata,
-        pDetails: ent[2],
-        guid: portalResonatorGuid(ent[0],i) });
+        guid: resoGuid // need this here as well for add/remove events
+    });
 
-    r.on('remove',   function() { delete window.resonators[this.options.guid]; });
-    r.on('add',      function() { window.resonators[this.options.guid] = this; });
+    // line connecting reso to portal
+    var conn = L.polyline([portalLatLng, Rlatlng], {
+        weight: 2,
+        color: '#FFA000',
+        opacity: 0.25,
+        dashArray: '0,10,8,4,8,4,8,4,8,4,8,4,8,4,8,4,8,4,8,4',
+        fill: false,
+        clickable: false});
+
+
+    // put both in one group, so they can be handled by the same logic.
+    var r = L.layerGroup([reso, conn]);
+    r.options = {
+      level: rdata.level,
+      details: rdata,
+      pDetails: ent[2],
+      guid: resoGuid
+    };
+
+    // However, LayerGroups (and FeatureGroups) don’t fire add/remove
+    // events, thus this listener will be attached to the resonator. It
+    // doesn’t matter to which element these are bound since Leaflet
+    // will add/remove all elements of the LayerGroup at once.
+    reso.on('remove', function() { delete window.resonators[this.options.guid]; });
+    reso.on('add',    function() { window.resonators[this.options.guid] = r; });
 
     r.addTo(portalsLayers[parseInt(portalLevel)]);
+    reRendered = true;
   }
+  // if there is any resonator re-rendered, bring portal to front
+  if(reRendered && portalLayer) portalLayer.bringToFront();
 }
 
 // append portal guid with -resonator-[slot] to get guid for resonators
@@ -600,8 +646,17 @@ window.isResonatorsShow = function() {
   return map.getZoom() >= RESONATOR_DISPLAY_ZOOM_LEVEL;
 }
 
+window.isSameResonator = function(oldRes, newRes) {
+  if(!oldRes && !newRes) return true;
+  if(typeof oldRes !== typeof newRes) return false;
+  if(oldRes.level !== newRes.level) return false;
+  if(oldRes.energyTotal !== newRes.energyTotal) return false;
+  if(oldRes.distanceToPortal !== newRes.distanceToPortal) return false;
+  return true;
+}
+
 window.portalResetColor = function(portal) {
-  portal.setStyle({color: portal.options.fillColor});
+  portal.setStyle({color:  COLORS[getTeam(portal.options.details)]});
 }
 
 // renders a link on the map from the given entity
@@ -726,10 +781,8 @@ window.requests.abort = function() {
 
   window.activeRequests = [];
   window.failedRequestCount = 0;
-  window.chat._requestOldPublicRunning  = false;
-  window.chat._requestNewPublicRunning  = false;
-  window.chat._requestOldFactionRunning  = false;
-  window.chat._requestNewFactionRunning  = false;
+  window.chat._requestPublicRunning  = false;
+  window.chat._requestFactionRunning  = false;
 
   renderUpdateStatus();
 }
@@ -1044,21 +1097,20 @@ window.uniqueArray = function(arr) {
 // be run once.
 
 window.setupLargeImagePreview = function() {
-  $('#portaldetails').on('click', '.imgpreview img', function() {
+  $('#portaldetails').on('click', '.imgpreview', function() {
     var ex = $('#largepreview');
     if(ex.length > 0) {
       ex.remove();
       return;
     }
-    var img = $(this).parent().html();
-    var w = $(this)[0].naturalWidth/2;
-    var h = $(this)[0].naturalHeight/2;
+    var img = $(this).html();
+    var w = $(this).find('img')[0].naturalWidth/2;
+    var h = $(this).find('img')[0].naturalHeight/2;
     var c = $('#portaldetails').attr('class');
     $('body').append(
       '<div id="largepreview" class="'+c+'" style="margin-left: '+(-SIDEBAR_WIDTH/2-w-2)+'px; margin-top: '+(-h-2)+'px">' + img + '</div>'
     );
     $('#largepreview').click(function() { $(this).remove() });
-    $('#largepreview img').attr('title', '');
   });
 }
 
@@ -1074,7 +1126,7 @@ window.setupStyles = function() {
       '.leaflet-right { margin-right: '+(SIDEBAR_WIDTH+1)+'px } ',
       '#updatestatus { width:'+(SIDEBAR_WIDTH-2*4+1)+'px;  } ',
       '#sidebar { width:'+(SIDEBAR_WIDTH + HIDDEN_SCROLLBAR_ASSUMED_WIDTH + 1 /*border*/)+'px;  } ',
-      '#sidebartoggle { right:'+SIDEBAR_WIDTH+'px;  } ',
+      '#sidebartoggle { right:'+(SIDEBAR_WIDTH+1)+'px;  } ',
       '#scrollwrapper  { width:'+(SIDEBAR_WIDTH + 2*HIDDEN_SCROLLBAR_ASSUMED_WIDTH)+'px; right:-'+(2*HIDDEN_SCROLLBAR_ASSUMED_WIDTH-2)+'px } ',
       '#sidebar input, h2  { width:'+(SIDEBAR_WIDTH - 2*4)+'px !important } ',
       '#sidebar > *, #gamestat span, .imgpreview img { width:'+SIDEBAR_WIDTH+'px;  }'].join("\n")
@@ -1121,7 +1173,7 @@ window.setupMap = function() {
   map.addLayer(linksLayer, true);
   addLayers['Links'] = linksLayer;
 
-  map.addControl(new L.Control.Layers({
+  window.layerChooser = new L.Control.Layers({
     'OSM Cloudmade Midnight': views[0],
     'OSM Cloudmade Minimal': views[1],
     'OSM Mapnik': views[2],
@@ -1129,7 +1181,9 @@ window.setupMap = function() {
     'Google Roads':  views[4],
     'Google Satellite':  views[5],
     'Google Hybrid':  views[6]
-    }, addLayers));
+    }, addLayers);
+
+  map.addControl(window.layerChooser);
   map.attributionControl.setPrefix('');
   // listen for changes and store them in cookies
   map.on('moveend', window.storeMapPosition);
@@ -1149,8 +1203,10 @@ window.setupMap = function() {
 
     console.log('Remove all resonators');
   });
-  $("[name='leaflet-base-layers']").change(function () {
-    writeCookie('ingress.intelmap.type', $(this).parent().index());
+
+  map.on('baselayerchange', function () {
+    var selInd = $('[name=leaflet-base-layers]:checked').parent().index();
+    writeCookie('ingress.intelmap.type', selInd);
   });
 
   // map update status handling
@@ -1191,11 +1247,11 @@ window.setupPlayerStat = function() {
   var cls = PLAYER.team === 'ALIENS' ? 'enl' : 'res';
 
 
-  var t = 'Level:\t\t' + level + '\n'
-        + 'XM:\t\t\t' + PLAYER.energy + ' / ' + xmMax + '\n'
-        + 'AP:\t\t\t' + digits(ap) + '\n'
+  var t = 'Level:\t' + level + '\n'
+        + 'XM:\t' + PLAYER.energy + ' / ' + xmMax + '\n'
+        + 'AP:\t' + digits(ap) + '\n'
         + (level < 8 ? 'level up in:\t' + lvlUpAp + ' AP' : 'Congrats! (neeeeerd)')
-        + '\n\Invites:\t\t'+PLAYER.available_invites;
+        + '\n\Invites:\t'+PLAYER.available_invites;
         + '\n\nNote: your player stats can only be updated by a full reload (F5)';
 
   $('#playerstat').html(''
@@ -1227,10 +1283,57 @@ window.setupSidebarToggle = function() {
   });
 }
 
+window.setupTooltips = function() {
+  $(document).tooltip({
+    // disable show/hide animation
+    show: { effect: "hide", duration: 0 } ,
+    hide: false,
+    open: function(event, ui) {
+      ui.tooltip.delay(300).fadeIn(0);
+    },
+    content: function() {
+      var title = $(this).attr('title');
+
+      // check if it should be converted to a table
+      if(!title.match(/\t/)) {
+        return title.replace(/\n/g, '<br />');
+      }
+
+      var data = [];
+      var columnCount = 0;
+
+      // parse data
+      var rows = title.split('\n');
+      $.each(rows, function(i, row) {
+        data[i] = row.split('\t');
+        if(data[i].length > columnCount) columnCount = data[i].length;
+      });
+
+      // build the table
+      var tooltip = '<table>';
+      $.each(data, function(i, row) {
+        tooltip += '<tr>';
+        $.each(data[i], function(k, cell) {
+          var attributes = '';
+          if(k === 0 && data[i].length < columnCount) {
+            attributes = ' colspan="'+(columnCount - data[i].length + 1)+'"';
+          }
+          tooltip += '<td'+attributes+'>'+cell+'</td>';
+        });
+        tooltip += '</tr>';
+      });
+      tooltip += '</table>';
+      return tooltip;
+    }
+  });
+}
+
 
 // BOOTING ///////////////////////////////////////////////////////////
 
 function boot() {
+  window.debug.console.overwriteNativeIfRequired();
+
   console.log('loading done, booting');
   window.setupStyles();
   window.setupMap();
@@ -1240,6 +1343,7 @@ function boot() {
   window.setupSidebarToggle();
   window.updateGameScore();
   window.setupPlayerStat();
+  window.setupTooltips();
   window.chat.setup();
   // read here ONCE, so the URL is only evaluated one time after the
   // necessary data has been loaded.
@@ -1268,25 +1372,17 @@ function asyncLoadScript(a){return function(b,c){var d=document.createElement("s
 // contains the default Ingress map style.
 var LLGMAPS = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/leaflet_google.js';
 var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js';
+var JQUERYUI = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js';
 var LEAFLET = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.js';
 var AUTOLINK = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/autolink.js';
 
 // after all scripts have loaded, boot the actual app
-load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS).onError(function (err) {
+load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS, JQUERYUI).onError(function (err) {
   alert('Could not all resources, the script likely won’t work.\n\nIf this happend the first time for you, it’s probably a temporary issue. Just wait a bit and try again.\n\nIf you installed the script for the first time and this happens:\n– try disabling NoScript if you have it installed\n– press CTRL+SHIFT+K in Firefox or CTRL+SHIFT+I in Chrome/Opera and reload the page. Additional info may be available in the console.\n– Open an issue at https://github.com/breunigs/ingress-intel-total-conversion/issues');
 }).thenRun(boot);
 
 
 window.chat = function() {};
-
-window.chat._lastNicksForAutocomplete = [[], []];
-window.chat.addNickForAutocomplete = function(nick, isFaction) {
-  var r = chat._lastNicksForAutocomplete[isFaction ? 0 : 1];
-  if(r.indexOf(nick) !== -1) return;
-  r.push(nick);
-  if(r.length >= 15)
-    r.shift();
-}
 
 window.chat.handleTabCompletion = function() {
   var el = $('#chatinput input');
@@ -1294,8 +1390,9 @@ window.chat.handleTabCompletion = function() {
   var text = el.val();
   var word = text.slice(0, curPos).replace(/.*\b([a-z0-9-_])/, '$1').toLowerCase();
 
-  var list = window.chat._lastNicksForAutocomplete;
-  list = list[1].concat(list[0]);
+  var list = $('#chat > div:visible mark');
+  list = list.map(function(ind, mark) { return $(mark).text(); } );
+  list = uniqueArray(list);
 
   var nick = null;
   for(var i = 0; i < list.length; i++) {
@@ -1322,27 +1419,24 @@ window.chat.handleTabCompletion = function() {
 // timestamp and clear management
 //
 
-window.chat._oldFactionTimestamp = -1;
-window.chat._newFactionTimestamp = -1;
-window.chat._oldPublicTimestamp = -1;
-window.chat._newPublicTimestamp = -1;
-
-window.chat.getOldestTimestamp = function(public) {
-  return chat['_old'+(public ? 'Public' : 'Faction')+'Timestamp'];
+window.chat.getTimestamps = function(isFaction) {
+  var storage = isFaction ? chat._factionData : chat._publicData;
+  return $.map(storage, function(v, k) { return [v[0]]; });
 }
 
-window.chat.getNewestTimestamp = function(public) {
-  return chat['_new'+(public ? 'Public' : 'Faction')+'Timestamp'];
+window.chat.getOldestTimestamp = function(isFaction) {
+  var t = Math.min.apply(null, chat.getTimestamps(isFaction));
+  return t === Infinity ? -1 : t;
 }
 
-window.chat.clearIfRequired = function(elm) {
-  if(!elm.data('needsClearing')) return;
-  elm.data('ignoreNextScroll', true).data('needsClearing', false).html('');
+window.chat.getNewestTimestamp = function(isFaction) {
+  var t = Math.max.apply(null, chat.getTimestamps(isFaction));
+  return t === -1*Infinity ? -1 : t;
 }
 
 window.chat._oldBBox = null;
-window.chat.genPostData = function(public, getOlderMsgs) {
-  if(typeof public !== 'boolean') throw('Need to know if public or faction chat.');
+window.chat.genPostData = function(isFaction, getOlderMsgs) {
+  if(typeof isFaction !== 'boolean') throw('Need to know if public or faction chat.');
 
   chat._localRangeCircle.setLatLng(map.getCenter());
   var b = map.getBounds().extend(chat._localRangeCircle.getBounds());
@@ -1357,35 +1451,30 @@ window.chat.genPostData = function(public, getOlderMsgs) {
     // need to reset these flags now because clearing will only occur
     // after the request is finished – i.e. there would be one almost
     // useless request.
-    chat._displayedFactionGuids = [];
-    chat._displayedPublicGuids = [];
-    chat._displayedPlayerActionTime = {};
-    chat._oldFactionTimestamp = -1;
-    chat._newFactionTimestamp = -1;
-    chat._oldPublicTimestamp = -1;
-    chat._newPublicTimestamp = -1;
+    chat._factionData = {};
+    chat._publicData = {};
   }
   chat._oldBBox = bbs;
 
   var ne = b.getNorthEast();
   var sw = b.getSouthWest();
   var data = {
-    desiredNumItems: public ? CHAT_PUBLIC_ITEMS : CHAT_FACTION_ITEMS,
+    desiredNumItems: isFaction ? CHAT_FACTION_ITEMS : CHAT_PUBLIC_ITEMS ,
     minLatE6: Math.round(sw.lat*1E6),
     minLngE6: Math.round(sw.lng*1E6),
     maxLatE6: Math.round(ne.lat*1E6),
     maxLngE6: Math.round(ne.lng*1E6),
     minTimestampMs: -1,
     maxTimestampMs: -1,
-    factionOnly: !public
+    factionOnly: isFaction
   }
 
   if(getOlderMsgs) {
     // ask for older chat when scrolling up
-    data = $.extend(data, {maxTimestampMs: chat.getOldestTimestamp(public)});
+    data = $.extend(data, {maxTimestampMs: chat.getOldestTimestamp(isFaction)});
   } else {
     // ask for newer chat
-    var min = chat.getNewestTimestamp(public);
+    var min = chat.getNewestTimestamp(isFaction);
     // the inital request will have both timestamp values set to -1,
     // thus we receive the newest desiredNumItems. After that, we will
     // only receive messages with a timestamp greater or equal to min
@@ -1409,322 +1498,219 @@ window.chat.genPostData = function(public, getOlderMsgs) {
 
 
 //
-// requesting faction
+// faction
 //
 
-window.chat._requestOldFactionRunning = false;
-window.chat.requestOldFaction = function(isRetry) {
-  if(chat._requestOldFactionRunning) return;
+window.chat._requestFactionRunning = false;
+window.chat.requestFaction = function(getOlderMsgs, isRetry) {
+  if(chat._requestFactionRunning && !isRetry) return;
   if(isIdle()) return renderUpdateStatus();
-  chat._requestOldFactionRunning = true;
+  chat._requestFactionRunning = true;
 
-  var d = chat.genPostData(false, true);
+  var d = chat.genPostData(true, getOlderMsgs);
   var r = window.postAjax(
     'getPaginatedPlextsV2',
     d,
-    chat.handleOldFaction,
+    chat.handleFaction,
     isRetry
-      ? function() { window.chat._requestOldFactionRunning = false; }
-      : function() { window.chat.requestOldFaction(true) }
-  );
-
-  requests.add(r);
-}
-
-window.chat._requestNewFactionRunning = false;
-window.chat.requestNewFaction = function(isRetry) {
-  if(chat._requestNewFactionRunning) return;
-  if(window.isIdle()) return renderUpdateStatus();
-  chat._requestNewFactionRunning = true;
-
-  var d = chat.genPostData(false, false);
-  var r = window.postAjax(
-    'getPaginatedPlextsV2',
-    d,
-    chat.handleNewFaction,
-    isRetry
-      ? function() { window.chat._requestNewFactionRunning = false; }
-      : function() { window.chat.requestNewFaction(true) }
+      ? function() { window.chat._requestFactionRunning = false; }
+      : function() { window.chat.requestFaction(getOlderMsgs, true) }
   );
 
   requests.add(r);
 }
 
 
-//
-// handle faction
-//
+window.chat._factionData = {};
+window.chat.handleFaction = function(data, textStatus, jqXHR) {
+  chat._requestFactionRunning = false;
 
-window.chat.handleOldFaction = function(data, textStatus, jqXHR) {
-  chat._requestOldFactionRunning = false;
-  chat.handleFaction(data, textStatus, jqXHR, true);
-}
-
-window.chat.handleNewFaction = function(data, textStatus, jqXHR) {
-  chat._requestNewFactionRunning = false;
-  chat.handleFaction(data, textStatus, jqXHR, false);
-}
-
-
-
-window.chat._displayedFactionGuids = [];
-window.chat.handleFaction = function(data, textStatus, jqXHR, isOldMsgs) {
   if(!data || !data.result) {
     window.failedRequestCount++;
     return console.warn('faction chat error. Waiting for next auto-refresh.');
   }
 
-  var c = $('#chatfaction');
-  chat.clearIfRequired(c);
-
   if(data.result.length === 0) return;
 
-  chat._newFactionTimestamp = data.result[0][1];
-  chat._oldFactionTimestamp = data.result[data.result.length-1][1];
+  var old = chat.getOldestTimestamp(true);
+  chat.writeDataToHash(data, chat._factionData, false);
+  var oldMsgsWereAdded = old !== chat.getOldestTimestamp(true);
 
-  var scrollBefore = scrollBottom(c);
-  chat.renderPlayerMsgsTo(true, data, isOldMsgs, chat._displayedFactionGuids);
-  chat.keepScrollPosition(c, scrollBefore, isOldMsgs);
+  window.chat.renderFaction(oldMsgsWereAdded);
 
   if(data.result.length >= CHAT_FACTION_ITEMS) chat.needMoreMessages();
 }
 
-
+window.chat.renderFaction = function(oldMsgsWereAdded) {
+  chat.renderData(chat._factionData, 'chatfaction', oldMsgsWereAdded);
+}
 
 
 //
-// requesting public
+// public
 //
 
-window.chat._requestOldPublicRunning = false;
-window.chat.requestOldPublic = function(isRetry) {
-  if(chat._requestOldPublicRunning) return;
+window.chat._requestPublicRunning = false;
+window.chat.requestPublic = function(getOlderMsgs, isRetry) {
+  if(chat._requestPublicRunning && !isRetry) return;
   if(isIdle()) return renderUpdateStatus();
-  chat._requestOldPublicRunning = true;
+  chat._requestPublicRunning = true;
 
-  var d = chat.genPostData(true, true);
+  var d = chat.genPostData(false, getOlderMsgs);
   var r = window.postAjax(
     'getPaginatedPlextsV2',
     d,
-    chat.handleOldPublic,
+    chat.handlePublic,
     isRetry
-      ? function() { window.chat._requestOldPublicRunning = false; }
-      : function() { window.chat.requestOldPublic(true) }
+      ? function() { window.chat._requestPublicRunning = false; }
+      : function() { window.chat.requestPublic(getOlderMsgs, true) }
   );
 
   requests.add(r);
 }
 
-window.chat._requestNewPublicRunning = false;
-window.chat.requestNewPublic = function(isRetry) {
-  if(chat._requestNewPublicRunning) return;
-  if(window.isIdle()) return renderUpdateStatus();
-  chat._requestNewPublicRunning = true;
+window.chat._publicData = {};
+window.chat.handlePublic = function(data, textStatus, jqXHR) {
+  chat._requestPublicRunning = false;
 
-  var d = chat.genPostData(true, false);
-  var r = window.postAjax(
-    'getPaginatedPlextsV2',
-    d,
-    chat.handleNewPublic,
-    isRetry
-      ? function() { window.chat._requestNewPublicRunning = false; }
-      : function() { window.chat.requestNewPublic(true) }
-  );
-
-  requests.add(r);
-}
-
-
-//
-// handle public
-//
-
-
-window.chat.handleOldPublic = function(data, textStatus, jqXHR) {
-  chat._requestOldPublicRunning = false;
-  chat.handlePublic(data, textStatus, jqXHR, true);
-}
-
-window.chat.handleNewPublic = function(data, textStatus, jqXHR) {
-  chat._requestNewPublicRunning = false;
-  chat.handlePublic(data, textStatus, jqXHR, false);
-}
-
-window.chat._displayedPublicGuids = [];
-window.chat._displayedPlayerActionTime = {};
-window.chat.handlePublic = function(data, textStatus, jqXHR, isOldMsgs) {
   if(!data || !data.result) {
     window.failedRequestCount++;
     return console.warn('public chat error. Waiting for next auto-refresh.');
   }
 
-  var ca = $('#chatautomated');
-  var cp = $('#chatpublic');
-  chat.clearIfRequired(ca);
-  chat.clearIfRequired(cp);
-
   if(data.result.length === 0) return;
 
-  chat._newPublicTimestamp = data.result[0][1];
-  chat._oldPublicTimestamp = data.result[data.result.length-1][1];
+  var old = chat.getOldestTimestamp(false);
+  chat.writeDataToHash(data, chat._publicData, true);
+  var oldMsgsWereAdded = old !== chat.getOldestTimestamp(false);
 
-
-  var scrollBefore = scrollBottom(ca);
-  chat.handlePublicAutomated(data);
-  chat.keepScrollPosition(ca, scrollBefore, isOldMsgs);
-
-
-  var scrollBefore = scrollBottom(cp);
-  chat.renderPlayerMsgsTo(false, data, isOldMsgs, chat._displayedPublicGuids);
-  chat.keepScrollPosition(cp, scrollBefore, isOldMsgs);
+  switch(chat.getActive()) {
+    case 'public': window.chat.renderPublic(oldMsgsWereAdded); break;
+    case 'compact': window.chat.renderCompact(oldMsgsWereAdded); break;
+    case 'full': window.chat.renderFull(oldMsgsWereAdded); break;
+  }
 
   if(data.result.length >= CHAT_PUBLIC_ITEMS) chat.needMoreMessages();
 }
 
-
-window.chat.handlePublicAutomated = function(data) {
- $.each(data.result, function(ind, json) { // newest first!
-    var time = json[1];
-
-    // ignore player messages
-    var t = json[2].plext.plextType;
-    if(t !== 'SYSTEM_BROADCAST' && t !== 'SYSTEM_NARROWCAST') return true;
-
-    var tmpmsg = '', nick = null, pguid, team;
-
-    // each automated message is composed of many text chunks. loop
-    // over them to gather all necessary data.
-    $.each(json[2].plext.markup, function(ind, part) {
-      switch(part[0]) {
-        case 'PLAYER':
-          pguid = part[1].guid;
-          var lastAction = window.chat._displayedPlayerActionTime[pguid];
-          // ignore older messages about player
-          if(lastAction && lastAction[0] > time) return false;
-
-          nick = part[1].plain;
-          team = part[1].team === 'ALIENS' ? TEAM_ENL : TEAM_RES;
-          window.setPlayerName(pguid, nick); // free nick name resolves
-          if(ind > 0) tmpmsg += nick; // don’t repeat nick directly
-          break;
-
-        case 'TEXT':
-          tmpmsg += part[1].plain;
-          break;
-
-        case 'PORTAL':
-          var latlng = [part[1].latE6/1E6, part[1].lngE6/1E6];
-          var js = 'window.zoomToAndShowPortal(\''+part[1].guid+'\', ['+latlng[0]+', '+latlng[1]+'])';
-          tmpmsg += '<a onclick="'+js+'" title="'+part[1].address+'" class="help">'+part[1].name+'</a>';
-          break;
-      }
-    });
-
-    // nick will only be set if we don’t have any info about that
-    // player yet.
-    if(nick) {
-      tmpmsg = chat.renderMsg(tmpmsg, nick, time, team);
-      window.chat._displayedPlayerActionTime[pguid] = [time, tmpmsg];
-    };
- });
-
-  if(chat.getActive() === 'automated')
-    window.chat.renderAutomatedMsgsTo();
+window.chat.renderPublic = function(oldMsgsWereAdded) {
+  // only keep player data
+  var data = $.map(chat._publicData, function(entry) {
+    if(!entry[1]) return [entry];
+  });
+  chat.renderData(data, 'chatpublic', oldMsgsWereAdded);
 }
 
-window.chat.renderAutomatedMsgsTo = function() {
-  var x = window.chat._displayedPlayerActionTime;
-  // we don’t care about the GUIDs anymore
-  var vals = $.map(x, function(v, k) { return [v]; });
-  // sort them old to new
-  vals = vals.sort(function(a, b) { return a[0]-b[0]; });
-
-  var prevTime = null;
-  var msgs = $.map(vals, function(v) {
-    var nowTime = new Date(v[0]).toLocaleDateString();
-    if(prevTime && prevTime !== nowTime)
-      var val = chat.renderDivider(nowTime) + v[1];
-    else
-      var val = v[1];
-
-    prevTime = nowTime;
-    return val;
-  }).join('\n');
-
-  $('#chatautomated').html(msgs);
+window.chat.renderCompact = function(oldMsgsWereAdded) {
+  var data = {};
+  $.each(chat._publicData, function(guid, entry) {
+    // skip player msgs
+    if(!entry[1]) return true;
+    var pguid = entry[3];
+    // ignore if player has newer data
+    if(data[pguid] && data[pguid][0] > entry[0]) return true;
+    data[pguid] = entry;
+  });
+  // data keys are now player guids instead of message guids. However,
+  // it is all the same to renderData.
+  chat.renderData(data, 'chatcompact', oldMsgsWereAdded);
 }
 
-
+window.chat.renderFull = function(oldMsgsWereAdded) {
+  // only keep automatically generated data
+  var data = $.map(chat._publicData, function(entry) {
+    if(entry[1]) return [entry];
+  });
+  chat.renderData(data, 'chatfull', oldMsgsWereAdded);
+}
 
 
 //
 // common
 //
 
-
-window.chat.renderPlayerMsgsTo = function(isFaction, data, isOldMsgs, dupCheckArr) {
-  var msgs = '';
-  var prevTime = null;
-
-  $.each(data.result.reverse(), function(ind, json) { // oldest first!
-    if(json[2].plext.plextType !== 'PLAYER_GENERATED') return true;
-
+window.chat.writeDataToHash = function(newData, storageHash, skipSecureMsgs) {
+  $.each(newData.result, function(ind, json) {
     // avoid duplicates
-    if(dupCheckArr.indexOf(json[0]) !== -1) return true;
-    dupCheckArr.push(json[0]);
+    if(json[0] in storageHash) return true;
+
+    var skipThisEntry = false;
 
     var time = json[1];
     var team = json[2].plext.team === 'ALIENS' ? TEAM_ENL : TEAM_RES;
-    var msg, nick, pguid;
+    var auto = json[2].plext.plextType !== 'PLAYER_GENERATED';
+    var msg = '', nick = '', pguid;
     $.each(json[2].plext.markup, function(ind, markup) {
-      if(markup[0] === 'SENDER') {
+      switch(markup[0]) {
+      case 'SENDER': // user generated messages
         nick = markup[1].plain.slice(0, -2); // cut “: ” at end
         pguid = markup[1].guid;
-        window.setPlayerName(pguid, nick); // free nick name resolves
-        if(!isOldMsgs) window.chat.addNickForAutocomplete(nick, isFaction);
-      }
+        break;
 
-      if(markup[0] === 'TEXT') {
-        msg = markup[1].plain.autoLink();
-        msg = msg.replace(window.PLAYER['nickMatcher'], '<em>$1</em>');
-      }
+      case 'PLAYER': // automatically generated messages
+        pguid = markup[1].guid;
+        nick = markup[1].plain;
+        team = markup[1].team === 'ALIENS' ? TEAM_ENL : TEAM_RES;
+        if(ind > 0) msg += nick; // don’t repeat nick directly
+        break;
 
-      if(!isFaction && markup[0] === 'SECURE') {
-        nick = null;
-        return false; // aka break
+      case 'TEXT':
+        var tmp = $('<div/>').text(markup[1].plain).html().autoLink();
+        msg += tmp.replace(window.PLAYER['nickMatcher'], '<em>$1</em>');
+        break;
+
+      case 'PORTAL':
+        var latlng = [markup[1].latE6/1E6, markup[1].lngE6/1E6];
+        var js = 'window.zoomToAndShowPortal(\''+markup[1].guid+'\', ['+latlng[0]+', '+latlng[1]+'])';
+        msg += '<a onclick="'+js+'" title="'+markup[1].address+'" class="help">'+markup[1].name+'</a>';
+        break;
+
+      case 'SECURE':
+        if(skipSecureMsgs) {
+          skipThisEntry = true;
+          return false; // breaks $.each
+        }
       }
     });
+    if(skipThisEntry) return true;
 
-    if(!nick) return true; // aka next
+    // format: timestamp, autogenerated, HTML message, player guid
+    storageHash[json[0]] = [json[1], auto, chat.renderMsg(msg, nick, time, team), pguid];
 
-    var nowTime = new Date(time).toLocaleDateString();
-    if(prevTime && prevTime !== nowTime)
-      msgs += chat.renderDivider(nowTime);
+    window.setPlayerName(pguid, nick); // free nick name resolves
+  });
+}
 
-    msgs += chat.renderMsg(msg, nick, time, team);
-    prevTime = nowTime;
+// renders data from the data-hash to the element defined by the given
+// ID. Set 3rd argument to true if it is likely that old data has been
+// added. Latter is only required for scrolling.
+window.chat.renderData = function(data, element, likelyWereOldMsgs) {
+  var elm = $('#'+element);
+  if(elm.is(':hidden')) return;
+
+  // discard guids and sort old to new
+  var vals = $.map(data, function(v, k) { return [v]; });
+  vals = vals.sort(function(a, b) { return a[0]-b[0]; });
+
+  // render to string with date separators inserted
+  var msgs = '';
+  var prevTime = null;
+  $.each(vals, function(ind, msg) {
+    var nextTime = new Date(msg[0]).toLocaleDateString();
+    if(prevTime && prevTime !== nextTime)
+      msgs += chat.renderDivider(nextTime);
+    msgs += msg[2];
+    prevTime = nextTime;
   });
 
-  var addTo = isFaction ? $('#chatfaction') : $('#chatpublic');
-
-  // if there is a change of day between two requests, handle the
-  // divider insertion here.
-  if(isOldMsgs) {
-    var ts = addTo.find('time:first').data('timestamp');
-    var nextTime = new Date(ts).toLocaleDateString();
-    if(prevTime && prevTime !== nextTime && ts)
-      msgs += chat.renderDivider(nextTime);
-  }
-
-  if(isOldMsgs)
-    addTo.prepend(msgs);
-  else
-    addTo.append(msgs);
+  var scrollBefore = scrollBottom(elm);
+  elm.html(msgs);
+  chat.keepScrollPosition(elm, scrollBefore, likelyWereOldMsgs);
 }
 
 
 window.chat.renderDivider = function(text) {
-  return '<summary>─ '+text+' ────────────────────────────────────────────────────────────────────────────</summary>';
+  return '<summary>─ '+text+' ──────────────────────────────────────────────────────────────────────────</summary>';
 }
 
 
@@ -1765,27 +1751,36 @@ window.chat.toggle = function() {
 
 window.chat.request = function() {
   console.log('refreshing chat');
-  chat.requestNewFaction();
-  chat.requestNewPublic();
+  chat.requestFaction(false);
+  chat.requestPublic(false);
 }
 
 
 // checks if there are enough messages in the selected chat tab and
 // loads more if not.
 window.chat.needMoreMessages = function() {
+  var activeTab = chat.getActive();
+  if(activeTab === 'debug') return;
+
   var activeChat = $('#chat > :visible');
-  if(scrollBottom(activeChat) !== 0 || activeChat.scrollTop() !== 0) return;
-  console.log('no scrollbar in active chat, requesting more msgs');
-  if($('#chatcontrols a:last.active').length)
-    chat.requestOldFaction();
+
+  var hasScrollbar = scrollBottom(activeChat) !== 0 || activeChat.scrollTop() !== 0;
+  var nearTop = activeChat.scrollTop() <= CHAT_REQUEST_SCROLL_TOP;
+  if(hasScrollbar && !nearTop) return;
+
+  console.log('No scrollbar or near top in active chat. Requesting more data.');
+
+  if(activeTab === 'faction')
+    chat.requestFaction(true);
   else
-    chat.requestOldPublic();
+    chat.requestPublic(true);
 }
 
 
 window.chat.chooser = function(event) {
   var t = $(event.target);
   var tt = t.text();
+
   var span = $('#chatinput span');
 
   $('#chatcontrols .active').removeClass('active');
@@ -1799,24 +1794,26 @@ window.chat.chooser = function(event) {
     case 'faction':
       span.css('color', '');
       span.text('tell faction:');
-      elm = $('#chatfaction');
       break;
 
     case 'public':
       span.css('cssText', 'color: red !important');
       span.text('broadcast:');
-      elm = $('#chatpublic');
       break;
 
-    case 'automated':
+    case 'compact':
+    case 'full':
       span.css('cssText', 'color: #bbb !important');
       span.text('tell Jarvis:');
-      chat.renderAutomatedMsgsTo();
-      elm = $('#chatautomated');
       break;
+
+    default:
+      throw('chat.chooser was asked to handle unknown button: ' + tt);
   }
 
+  var elm = $('#chat' + tt);
   elm.show();
+  eval('chat.render' + tt.capitalize() + '(false);');
   if(elm.data('needsScrollTop')) {
     elm.data('ignoreNextScroll', true);
     elm.scrollTop(elm.data('needsScrollTop'));
@@ -1859,7 +1856,10 @@ window.chat.setup = function() {
   $('#chatcontrols, #chat, #chatinput').show();
 
   $('#chatcontrols a:first').click(window.chat.toggle);
-  $('#chatcontrols a:not(:first)').click(window.chat.chooser);
+  $('#chatcontrols a').each(function(ind, elm) {
+    if($.inArray($(elm).text(), ['full', 'compact', 'public', 'faction']) !== -1)
+      $(elm).click(window.chat.chooser);
+  });
 
 
   $('#chatinput').click(function() {
@@ -1872,15 +1872,15 @@ window.chat.setup = function() {
   $('#chatfaction').scroll(function() {
     var t = $(this);
     if(t.data('ignoreNextScroll')) return t.data('ignoreNextScroll', false);
-    if(t.scrollTop() < 200) chat.requestOldFaction();
-    if(scrollBottom(t) === 0) chat.requestNewFaction();
+    if(t.scrollTop() < CHAT_REQUEST_SCROLL_TOP) chat.requestFaction(true);
+    if(scrollBottom(t) === 0) chat.requestFaction(false);
   });
 
-  $('#chatpublic, #chatautomated').scroll(function() {
+  $('#chatpublic, #chatfull, #chatcompact').scroll(function() {
     var t = $(this);
     if(t.data('ignoreNextScroll')) return t.data('ignoreNextScroll', false);
-    if(t.scrollTop() < 200) chat.requestOldPublic();
-    if(scrollBottom(t) === 0) chat.requestNewPublic();
+    if(t.scrollTop() < CHAT_REQUEST_SCROLL_TOP) chat.requestPublic(true);
+    if(scrollBottom(t) === 0) chat.requestPublic(false);
   });
 
   chat.request();
@@ -1915,37 +1915,37 @@ window.chat.setupTime = function() {
 
 window.chat.setupPosting = function() {
   $('#chatinput input').keydown(function(event) {
-try{
-
-    var kc = (event.keyCode ? event.keyCode : event.which);
-    if(kc === 13) { // enter
-      chat.postMsg();
-      event.preventDefault();
-    } else if (kc === 9) { // tab
-      event.preventDefault();
-      window.chat.handleTabCompletion();
+    try {
+      var kc = (event.keyCode ? event.keyCode : event.which);
+      if(kc === 13) { // enter
+        chat.postMsg();
+        event.preventDefault();
+      } else if (kc === 9) { // tab
+        event.preventDefault();
+        window.chat.handleTabCompletion();
+      }
+    } catch(error) {
+      console.log(error);
+      debug.printStackTrace();
     }
-
-
-} catch(error) {
-  console.log(error);
-  debug.printStackTrace();
-}
   });
 
   $('#chatinput').submit(function(event) {
-    chat.postMsg();
     event.preventDefault();
+    chat.postMsg();
   });
 }
 
 
 window.chat.postMsg = function() {
   var c = chat.getActive();
-  if(c === 'automated') return alert('Jarvis: A strange game. The only winning move is not to play. How about a nice game of chess?');
+  if(c === 'full' || c === 'compact')
+    return alert('Jarvis: A strange game. The only winning move is not to play. How about a nice game of chess?');
 
   var msg = $.trim($('#chatinput input').val());
   if(!msg || msg === '') return;
+
+  if(c === 'debug') return new Function (msg)();
 
   var public = c === 'public';
   var latlng = map.getCenter();
@@ -1955,17 +1955,20 @@ window.chat.postMsg = function() {
               lngE6: Math.round(latlng.lng*1E6),
               factionOnly: !public};
 
+  var errMsg = 'Your message could not be delivered. You can copy&' +
+               'paste it here and try again if you want:\n\n' + msg;
+
   window.postAjax('sendPlext', data,
-    function() { if(public) chat.requestNewPublic(); else chat.requestNewFaction(); },
+    function(response) {
+      if(response.error) alert(errMsg);
+      if(public) chat.requestPublic(false); else chat.requestFaction(false); },
     function() {
-      alert('Your message could not be delivered. You can copy&' +
-            'paste it here and try again if you want:\n\n'+msg);
+      alert(errMsg);
     }
   );
 
   $('#chatinput input').val('');
 }
-
 
 
 // PORTAL DETAILS DISPLAY ////////////////////////////////////////////
@@ -2025,10 +2028,10 @@ window.getModDetails = function(d) {
     }
   });
 
-  var t = '<span title="'+modsTitle[0]+'" style="color:'+modsColor[0]+'">'+mods[0]+'</span>'
-        + '<span title="'+modsTitle[1]+'" style="color:'+modsColor[1]+'">'+mods[1]+'</span>'
-        + '<span title="'+modsTitle[2]+'" style="color:'+modsColor[2]+'">'+mods[2]+'</span>'
-        + '<span title="'+modsTitle[3]+'" style="color:'+modsColor[3]+'">'+mods[3]+'</span>'
+  var t = '<span'+(modsTitle[0].length ? ' title="'+modsTitle[0]+'"' : '')+' style="color:'+modsColor[0]+'">'+mods[0]+'</span>'
+        + '<span'+(modsTitle[1].length ? ' title="'+modsTitle[1]+'"' : '')+' style="color:'+modsColor[1]+'">'+mods[1]+'</span>'
+        + '<span'+(modsTitle[2].length ? ' title="'+modsTitle[2]+'"' : '')+' style="color:'+modsColor[2]+'">'+mods[2]+'</span>'
+        + '<span'+(modsTitle[3].length ? ' title="'+modsTitle[3]+'"' : '')+' style="color:'+modsColor[3]+'">'+mods[3]+'</span>'
 
   return t;
 }
@@ -2043,7 +2046,7 @@ window.getEnergyText = function(d) {
 
 window.getAvgResoDistText = function(d) {
   var avgDist = Math.round(10*getAvgResoDist(d))/10;
-  return ['⌀ res dist', avgDist + ' m'];
+  return ['reso dist', avgDist + ' m'];
 }
 
 window.getResonatorDetails = function(d) {
@@ -2086,10 +2089,10 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick, isLeft) {
     var max = RESO_NRG[level];
     var fillGrade = nrg/max*100;
 
-    var inf = 'energy:\t\t' + nrg   + ' / ' + max + ' (' + Math.round(fillGrade) + '%)\n'
-            + 'level:\t\t'  + level + '\n'
+    var inf = 'energy:\t' + nrg   + ' / ' + max + ' (' + Math.round(fillGrade) + '%)\n'
+            + 'level:\t'  + level + '\n'
             + 'distance:\t' + dist  + 'm\n'
-            + 'owner:\t\t'  + nick  + '\n'
+            + 'owner:\t'  + nick  + '\n'
             + 'octant:\t' + OCTANTS[slot];
 
     var style = 'width:'+fillGrade+'%; background:'+COLORS_LVL[level]+';';
@@ -2123,13 +2126,16 @@ window.getDestroyAP = function(d) {
   var resoAp = resoCount * DESTROY_RESONATOR;
   var linkAp = linkCount * DESTROY_LINK;
   var fieldAp = fieldCount * DESTROY_FIELD;
-  var sum = resoAp + linkAp + fieldAp;
+  var sum = resoAp + linkAp + fieldAp + CAPTURE_PORTAL + 8*DEPLOY_RESONATOR + COMPLETION_BONUS;
 
   function tt(text) {
-    var t = 'Destroy:\n';
+    var t = 'Destroy &amp; Capture:\n';
     t += resoCount  + '×\tResonators\t= ' + digits(resoAp) + '\n';
-    t += linkCount  + '×\tLinks\t\t= ' + digits(linkAp) + '\n';
-    t += fieldCount + '×\tFields\t\t= ' + digits(fieldAp) + '\n';
+    t += linkCount  + '×\tLinks\t= ' + digits(linkAp) + '\n';
+    t += fieldCount + '×\tFields\t= ' + digits(fieldAp) + '\n';
+    t += '1×\tCapture\t= ' + CAPTURE_PORTAL + '\n';
+    t += '8×\tDeploy\t= ' + DEPLOY_RESONATOR + '\n';
+    t += '1×\tBonus\t= ' + COMPLETION_BONUS + '\n';
     t += 'Sum: ' + digits(sum) + ' AP';
     return '<tt title="'+t+'">' + digits(text) + '</tt>';
   }
@@ -2155,7 +2161,7 @@ window.updateGameScore = function(data) {
   var es = '<span class="enl" style="width:'+ep+'%;">&nbsp;'+Math.round(ep)+'%</span>';
   $('#gamestat').html(rs+es).one('click', function() { window.updateGameScore() });
   // help cursor via “#gamestat span”
-  $('#gamestat').attr('title', 'Resistance:\t\t'+r+' MindUnits\nEnlightenment:\t'+e+' MindUnits');
+  $('#gamestat').attr('title', 'Resistance:\t'+r+' MindUnits\nEnlightenment:\t'+e+' MindUnits');
 
   window.setTimeout('window.updateGameScore', REFRESH_GAME_SCORE*1000);
 }
@@ -2296,10 +2302,16 @@ window.addResumeFunction = function(f) {
 // retrieves current position from map and stores it cookies
 window.storeMapPosition = function() {
   var m = window.map.getCenter();
-  writeCookie('ingress.intelmap.lat', m['lat']);
-  writeCookie('ingress.intelmap.lng', m['lng']);
+
+  if(m['lat'] >= -90  && m['lat'] <= 90)
+    writeCookie('ingress.intelmap.lat', m['lat']);
+
+  if(m['lng'] >= -180 && m['lng'] <= 180)
+    writeCookie('ingress.intelmap.lng', m['lng']);
+
   writeCookie('ingress.intelmap.zoom', window.map.getZoom());
 }
+
 
 // either retrieves the last shown position from a cookie, from the
 // URL or if neither is present, via Geolocation. If that fails, it
@@ -2319,6 +2331,10 @@ window.getPosition = function() {
     var lat = parseFloat(readCookie('ingress.intelmap.lat')) || 0.0;
     var lng = parseFloat(readCookie('ingress.intelmap.lng')) || 0.0;
     var z = parseInt(readCookie('ingress.intelmap.zoom')) || 17;
+
+    if(lat < -90  || lat > 90) lat = 0.0;
+    if(lng < -180 || lng > 180) lng = 0.0;
+
     return {center: new L.LatLng(lat, lng), zoom: z > 18 ? 18 : z};
   }
 
@@ -2334,12 +2350,13 @@ window.getPosition = function() {
 // methods that highlight the portal in the map view.
 
 window.renderPortalDetails = function(guid) {
-  var d = window.portals[guid].options.details;
-  if(!d) {
+  if(!window.portals[guid]) {
     unselectOldPortal();
     urlPortal = guid;
     return;
   }
+
+  var d = window.portals[guid].options.details;
 
   var update = selectPortal(guid);
 
@@ -2386,13 +2403,16 @@ window.renderPortalDetails = function(guid) {
     var lat = d.locationE6.latE6;
     var lng = d.locationE6.lngE6;
     var perma = 'http://ingress.com/intel?latE6='+lat+'&lngE6='+lng+'&z=17&pguid='+guid;
+    var imgTitle = 'title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."';
 
     $('#portaldetails')
       .attr('class', TEAM_TO_CSS[getTeam(d)])
       .html(''
         + '<h3>'+d.portalV2.descriptiveText.TITLE+'</h3>'
         // help cursor via “.imgpreview img”
-        + '<div class="imgpreview"><img src="'+img+'" title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."/></div>'
+        + '<div class="imgpreview" '+imgTitle+' style="background-image: url('+img+')">'
+        + '<img class="hide" src="'+img+'"/>'
+        + '</div>'
         + '<span id="level">'+Math.floor(getPortalLevel(d))+'</span>'
         + '<div class="mods">'+getModDetails(d)+'</div>'
         + '<div id="randdetails">'+randDetails+'</div>'
@@ -2619,6 +2639,71 @@ window.debug.forceSync = function() {
   debug.clearPortals();
   updateGameScore();
   requestData();
+}
+
+window.debug.console = function() {
+  $('#debugconsole').text();
+}
+
+window.debug.console.create = function() {
+  if($('#debugconsole').length) return;
+  $('#chatcontrols').append('<a>debug</a>');
+  $('#chatcontrols a:last').click(function() {
+    $('#chatinput span').css('cssText', 'color: #bbb !important').text('debug:');
+    $('#chat > div').hide();
+    $('#debugconsole').show();
+    $('#chatcontrols .active').removeClass('active');
+    $(this).addClass('active');
+  });
+  $('#chat').append('<div id="debugconsole" style="display: none"></div>');
+}
+
+window.debug.console.renderLine = function(text, errorType) {
+  debug.console.create();
+  switch(errorType) {
+    case 'error':   var color = '#FF424D'; break;
+    case 'warning': var color = '#FFDE42'; break;
+    case 'alert':   var color = '#42FF90'; break;
+    default:        var color = '#eee';
+  }
+  if(typeof text !== 'string' && typeof text !== 'number') text = JSON.stringify(text);
+  var d = new Date();
+  var ta = d.toLocaleTimeString(); // print line instead maybe?
+  var tb = d.toLocaleString();
+  var t = '<time title="'+tb+'" data-timestamp="'+d.getTime()+'">'+ta+'</time>';
+  var s = 'style="color:'+color+'"';
+  var l = '<p>'+t+'<mark '+s+'>'+errorType+'</mark><span>'+text+'</span></p>';
+  $('#debugconsole').prepend(l);
+}
+
+window.debug.console.log = function(text) {
+  debug.console.renderLine(text, 'notice');
+}
+
+window.debug.console.warn = function(text) {
+  debug.console.renderLine(text, 'warning');
+}
+
+window.debug.console.error = function(text) {
+  debug.console.renderLine(text, 'error');
+}
+
+window.debug.console.alert = function(text) {
+  debug.console.renderLine(text, 'alert');
+}
+
+window.debug.console.overwriteNative = function() {
+  window.debug.console.create();
+  window.console = function() {}
+  window.console.log = window.debug.console.log;
+  window.console.warn = window.debug.console.warn;
+  window.console.error = window.debug.console.error;
+  window.alert = window.debug.console.alert;
+}
+
+window.debug.console.overwriteNativeIfRequired = function() {
+  if(!window.console || L.Browser.mobile)
+    window.debug.console.overwriteNative();
 }
 
 
