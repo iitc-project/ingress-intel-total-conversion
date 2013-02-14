@@ -600,6 +600,7 @@ window.renderResonators = function(ent, portalLayer) {
         weight: 1,
         fillColor: COLORS_LVL[rdata.level],
         fillOpacity: rdata.energyTotal/RESO_NRG[rdata.level],
+        clickable: false,
         guid: resoGuid // need this here as well for add/remove events
     });
 
