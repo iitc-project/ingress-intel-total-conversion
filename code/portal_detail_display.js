@@ -66,8 +66,8 @@ window.renderPortalDetails = function(guid) {
         // help cursor via “.imgpreview img”
         + '<div class="imgpreview" '+imgTitle+' style="background-image: url('+img+')">'
         + '<img class="hide" src="'+img+'"/>'
-        + '</div>'
         + '<span id="level">'+Math.floor(getPortalLevel(d))+'</span>'
+        + '</div>'
         + '<div class="mods">'+getModDetails(d)+'</div>'
         + '<div id="randdetails">'+randDetails+'</div>'
         + '<div id="resodetails">'+getResonatorDetails(d)+'</div>'
