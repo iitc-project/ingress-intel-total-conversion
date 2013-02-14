@@ -103,7 +103,9 @@ window.plugin.portalWeakness.portalAdded = function(data) {
       var params = {fillColor: color, fillOpacity: fill_opacity, radius: data.portal.options.radius+1};
       if(resCount<8)
       {
-        params["dashArray"] = "4,6";
+        // Hole per missing resonator
+        var dash = new Array(8-resCount + 1).join("1,4,") + "100,0"
+        params["dashArray"] = dash;
       }
       data.portal.setStyle(params);
     }
