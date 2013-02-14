@@ -40,6 +40,12 @@ window.setupStyles = function() {
       '#sidebar input, h2  { width:'+(SIDEBAR_WIDTH - 2*4)+'px !important } ',
       '#sidebar > *, #gamestat span, .imgpreview img { width:'+SIDEBAR_WIDTH+'px;  }'].join("\n")
     + '</style>');
+
+  if(L.Browser.mobile) {
+    $('head').append('<style>' +
+      + '#sidebar, #updatestatus, #chatcontrols, #chat, #chatinput { background: #0B3351 }'
+      + '</style>');
+  }
 }
 
 window.setupMap = function() {
