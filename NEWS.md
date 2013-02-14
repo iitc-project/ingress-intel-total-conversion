@@ -43,7 +43,7 @@ CHANGES IN 0.5 / 0.51
           backgrouds (by jonatkins)
 - Change: increased hack range from 35m to 40m
 - Change: Sidebar now semi-transparent, just like chat (by cmrn)
-- Change: portals are now sizes according to their level (by OshiHidra)
+- Change: portals are now sized according to their level (by OshiHidra)
 - Change: resonators are now more aligned to their octant (thanks
           Worros for helping confirming the slot-to-octant matching)
 - Change: release versions are now put in `dist/`. This should avoid
