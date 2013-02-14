@@ -424,10 +424,10 @@ h3 {
 
 #level {
   font-size: 40px;
-  position: absolute;
-  right: 10px;
   text-shadow: -1px -1px #000, 1px -1px #000, -1px 1px #000, 1px 1px #000, 0 0 5px #fff;
-  top: 100px;
+  display: block;
+  margin-right: 15px;
+  text-align:right;
 }
 
 /* portal mods */
