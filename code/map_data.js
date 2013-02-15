@@ -308,19 +308,17 @@ window.renderResonators = function(ent, portalLayer) {
 
   var layerGroup = portalsLayers[parseInt(portalLevel)];
   var reRendered = false;
-  for(var i = 0; i < ent[2].resonatorArray.resonators.length; i++) {
-    var rdata = ent[2].resonatorArray.resonators[i];
-
+  $.each(ent[2].resonatorArray.resonators, function(i, rdata) {
     // skip if resonator didn't change
     if(portalLayer) {
       var oldRes = findEntityInLeaflet(layerGroup, window.resonators, portalResonatorGuid(ent[0], i));
-      if(oldRes && isSameResonator(oldRes.options.details, rdata)) continue;
+      if(oldRes && isSameResonator(oldRes.options.details, rdata)) return true;
     }
 
     // skip and remove old resonator if no new resonator
     if(rdata === null) {
       if(oldRes) removeByGuid(oldRes.options.guid);
-      continue;
+      return true;
     }
 
     // offset in meters
@@ -379,7 +377,7 @@ window.renderResonators = function(ent, portalLayer) {
 
     r.addTo(portalsLayers[parseInt(portalLevel)]);
     reRendered = true;
-  }
+  });
   // if there is any resonator re-rendered, bring portal to front
   if(reRendered && portalLayer) portalLayer.bringToFront();
 }
