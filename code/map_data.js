@@ -281,8 +281,10 @@ window.renderPortal = function(ent) {
     window.portals[this.options.guid] = this;
     // handles the case where a selected portal gets removed from the
     // map by hiding all portals with said level
-    if(window.selectedPortal != this.options.guid)
+    if(window.selectedPortal != this.options.guid) {
+      window.resonatorsResetStyle(this.options.guid);
       window.portalResetColor(this);
+    }
   });
 
   p.on('click',    function() { window.renderPortalDetails(ent[0]); });
@@ -338,11 +340,11 @@ window.renderResonators = function(ent, portalLayer) {
 
     // the resonator
     var reso =  L.circleMarker(Rlatlng, {
-        radius: 3,
+        radius: ent[0] == selectedPortal ? RADIUS_SELECTED_PORTAL_RESONATOR: RADIUS_NON_SELECTED_PORTAL_RESONATOR,
         // #AAAAAA outline seems easier to see the fill opacity
-        color: '#AAAAAA',
+        color: ent[0] == selectedPortal ? COLOR_SELECTED_PORTAL_RESONATOR : COLOR_NON_SELECTED_PORTAL_RESONATOR,
         opacity: 1,
-        weight: 1,
+        weight: ent[0] == selectedPortal ? WEIGHT_SELECTED_PORTAL_RESONATOR : WEIGHT_NON_SELECTED_PORTAL_RESONATOR,
         fillColor: COLORS_LVL[rdata.level],
         fillOpacity: rdata.energyTotal/RESO_NRG[rdata.level],
         clickable: false,
@@ -351,9 +353,9 @@ window.renderResonators = function(ent, portalLayer) {
 
     // line connecting reso to portal
     var conn = L.polyline([portalLatLng, Rlatlng], {
-        weight: 2,
+        weight: ent[0] == selectedPortal ? WEIGHT_SELECTED_PORTAL_RESONATOR_LINE : WEIGHT_NON_SELECTED_PORTAL_RESONATOR_LINE,
         color: '#FFA000',
-        opacity: 0.25,
+        opacity: ent[0] == selectedPortal ? OPACITY_SELECTED_PORTAL_RESONATOR_LINE : OPACITY_NON_SELECTED_PORTAL_RESONATOR_LINE,
         dashArray: '0,10,8,4,8,4,8,4,8,4,8,4,8,4,8,4,8,4,8,4',
         fill: false,
         clickable: false});
@@ -373,7 +375,10 @@ window.renderResonators = function(ent, portalLayer) {
     // doesn’t matter to which element these are bound since Leaflet
     // will add/remove all elements of the LayerGroup at once.
     reso.on('remove', function() { delete window.resonators[this.options.guid]; });
-    reso.on('add',    function() { window.resonators[this.options.guid] = r; });
+    reso.on('add',    function() { 
+      if(window.resonators[this.options.guid]) throw('duplicate resonator detected');
+      window.resonators[this.options.guid] = r; 
+    });
 
     r.addTo(portalsLayers[parseInt(portalLevel)]);
     reRendered = true;
@@ -402,6 +407,42 @@ window.isSameResonator = function(oldRes, newRes) {
 
 window.portalResetColor = function(portal) {
   portal.setStyle({color:  COLORS[getTeam(portal.options.details)]});
+  resonatorsResetStyle(portal.options.guid);
+}
+
+window.resonatorsResetStyle = function(portalGuid) {
+  for(var i = 0; i < 8; i++) {
+    resonatorLayerGroup = resonators[portalResonatorGuid(portalGuid, i)];
+    //console.log('reset:'+i+','+resonatorLayerGroup);
+    if(!resonatorLayerGroup) continue;
+    resonatorLayerGroup.eachLayer(function(layer) {
+      if (layer.options.guid) {
+        layer.setStyle({color: COLOR_NON_SELECTED_PORTAL_RESONATOR});
+        layer.setStyle({radius: RADIUS_NON_SELECTED_PORTAL_RESONATOR});
+        layer.setStyle({weight: WEIGHT_NON_SELECTED_PORTAL_RESONATOR});
+      } else {
+        layer.setStyle({opacity: OPACITY_NON_SELECTED_PORTAL_RESONATOR_LINE});
+        layer.setStyle({weight: WEIGHT_NON_SELECTED_PORTAL_RESONATOR_LINE});
+      }
+    });
+  }
+}
+
+window.resonatorsSetSelectStyle = function(portalGuid) {
+  for(var i = 0; i < 8; i++) {
+    resonatorLayerGroup = resonators[portalResonatorGuid(portalGuid, i)];
+    if(!resonatorLayerGroup) continue;
+    resonatorLayerGroup.eachLayer(function(layer) {
+      if (layer.options.guid) {
+        layer.bringToFront().setStyle({color: COLOR_SELECTED_PORTAL_RESONATOR});
+        layer.setStyle({radius: RADIUS_SELECTED_PORTAL_RESONATOR});
+        layer.setStyle({weight: WEIGHT_SELECTED_PORTAL_RESONATOR});
+      } else {
+        layer.bringToFront().setStyle({opacity: OPACITY_SELECTED_PORTAL_RESONATOR_LINE});
+        layer.setStyle({weight: WEIGHT_SELECTED_PORTAL_RESONATOR_LINE});
+      }
+    });
+  }
 }
 
 // renders a link on the map from the given entity

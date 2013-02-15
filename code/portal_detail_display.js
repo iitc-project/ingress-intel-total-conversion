@@ -109,12 +109,17 @@ window.setPortalIndicators = function(d) {
 window.selectPortal = function(guid) {
   var update = selectedPortal === guid;
   var oldPortal = portals[selectedPortal];
-  if(!update && oldPortal) portalResetColor(oldPortal);
+  if(!update && oldPortal) {
+    resonatorsResetStyle(oldPortal.options.guid);
+    portalResetColor(oldPortal);
+  }
 
   selectedPortal = guid;
 
-  if(portals[guid])
+  if(portals[guid]) {
+    resonatorsSetSelectStyle(guid);
     portals[guid].bringToFront().setStyle({color: COLOR_SELECTED_PORTAL});
+  }
 
   return update;
 }
@@ -122,8 +127,10 @@ window.selectPortal = function(guid) {
 
 window.unselectOldPortal = function() {
   var oldPortal = portals[selectedPortal];
-  if(oldPortal)
+  if(oldPortal) {
+    resonatorsResetStyle(oldPortal.options.guid);
     oldPortal.setStyle({color: oldPortal.options.fillColor});
+  }
   selectedPortal = null;
   $('#portaldetails').html('');
 }
