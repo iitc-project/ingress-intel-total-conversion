@@ -294,8 +294,6 @@ window.renderPortal = function(ent) {
   window.renderResonators(ent, null);
 
   window.runHooks('portalAdded', {portal: p});
-
-  // portalLevel contains a float, need to round down
   p.addTo(layerGroup);
 }
 
@@ -434,6 +432,7 @@ window.resonatorsSetStyle = function(portalGuid, resoStyle, lineStyle) {
         layer.bringToFront().setStyle(resoStyle);
     });
   }
+  portals[portalGuid].bringToFront();
 }
 
 // renders a link on the map from the given entity
