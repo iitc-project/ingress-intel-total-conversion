@@ -146,6 +146,11 @@ window.COLORS = ['#FFCE00', '#0088FF', '#03FE03']; // none, res, enl
 window.COLORS_LVL = ['#000', '#FECE5A', '#FFA630', '#FF7315', '#E40000', '#FD2992', '#EB26CD', '#C124E0', '#9627F4'];
 window.COLORS_MOD = {VERY_RARE: '#F78AF6', RARE: '#AD8AFF', COMMON: '#84FBBD'};
 
+window.OPTIONS_RESONATOR_SELECTED = { color: '#fff', weight: 2, radius: 4};
+window.OPTIONS_RESONATOR_NON_SELECTED = { color: '#aaa', weight: 1, radius: 3};
+
+window.OPTIONS_RESONATOR_LINE_SELECTED = {opacity: 0.7, weight: 3};
+window.OPTIONS_RESONATOR_LINE_NON_SELECTED = {opacity: 0.25, weight: 2};
 
 // circles around a selected portal that show from where you can hack
 // it and how far the portal reaches (i.e. how far links may be made

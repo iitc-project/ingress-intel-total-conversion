@@ -337,26 +337,29 @@ window.renderResonators = function(ent, portalLayer) {
     var resoGuid = portalResonatorGuid(ent[0], i);
 
     // the resonator
-    var reso =  L.circleMarker(Rlatlng, {
-        radius: 3,
-        // #AAAAAA outline seems easier to see the fill opacity
-        color: '#AAAAAA',
+    var resoStyle = 
+      ent[0] === selectedPortal ? OPTIONS_RESONATOR_SELECTED : OPTIONS_RESONATOR_NON_SELECTED;
+    var resoProperty = $.extend({
         opacity: 1,
-        weight: 1,
         fillColor: COLORS_LVL[rdata.level],
         fillOpacity: rdata.energyTotal/RESO_NRG[rdata.level],
         clickable: false,
-        guid: resoGuid // need this here as well for add/remove events
-    });
+        guid: resoGuid
+      }, resoStyle);
+
+    var reso =  L.circleMarker(Rlatlng, resoProperty);
 
     // line connecting reso to portal
-    var conn = L.polyline([portalLatLng, Rlatlng], {
-        weight: 2,
+    var connStyle = 
+      ent[0] === selectedPortal ? OPTIONS_RESONATOR_LINE_SELECTED : OPTIONS_RESONATOR_LINE_NON_SELECTED;
+    var connProperty =  $.extend({
         color: '#FFA000',
-        opacity: 0.25,
         dashArray: '0,10,8,4,8,4,8,4,8,4,8,4,8,4,8,4,8,4,8,4',
         fill: false,
-        clickable: false});
+        clickable: false
+      }, connStyle);
+
+    var conn = L.polyline([portalLatLng, Rlatlng], connProperty);
 
 
     // put both in one group, so they can be handled by the same logic.
@@ -373,7 +376,10 @@ window.renderResonators = function(ent, portalLayer) {
     // doesn’t matter to which element these are bound since Leaflet
     // will add/remove all elements of the LayerGroup at once.
     reso.on('remove', function() { delete window.resonators[this.options.guid]; });
-    reso.on('add',    function() { window.resonators[this.options.guid] = r; });
+    reso.on('add',    function() { 
+      if(window.resonators[this.options.guid]) throw('duplicate resonator detected');
+      window.resonators[this.options.guid] = r; 
+    });
 
     r.addTo(portalsLayers[parseInt(portalLevel)]);
     reRendered = true;
@@ -402,6 +408,39 @@ window.isSameResonator = function(oldRes, newRes) {
 
 window.portalResetColor = function(portal) {
   portal.setStyle({color:  COLORS[getTeam(portal.options.details)]});
+  resonatorsResetStyle(portal.options.guid);
+}
+
+window.resonatorsResetStyle = function(portalGuid) {
+  for(var i = 0; i < 8; i++) {
+    resonatorLayerGroup = resonators[portalResonatorGuid(portalGuid, i)];
+    if(!resonatorLayerGroup) continue;
+    resonatorLayerGroup.eachLayer(function(layer) {
+      if (layer.options.guid) {
+        // Resonator
+        layer.setStyle(OPTIONS_RESONATOR_NON_SELECTED);
+      } else {
+        // Resonator line
+        layer.setStyle(OPTIONS_RESONATOR_LINE_NON_SELECTED);
+      }
+    });
+  }
+}
+
+window.resonatorsSetSelectStyle = function(portalGuid) {
+  for(var i = 0; i < 8; i++) {
+    resonatorLayerGroup = resonators[portalResonatorGuid(portalGuid, i)];
+    if(!resonatorLayerGroup) continue;
+    resonatorLayerGroup.eachLayer(function(layer) {
+      if (layer.options.guid) {
+        // Resonator
+        layer.bringToFront().setStyle(OPTIONS_RESONATOR_SELECTED);
+      } else {
+        // Resonator line
+        layer.bringToFront().setStyle(OPTIONS_RESONATOR_LINE_SELECTED);
+      }
+    });
+  }
 }
 
 // renders a link on the map from the given entity
