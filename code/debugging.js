@@ -13,6 +13,7 @@ window.debug.renderDetails = function() {
 window.debug.printStackTrace = function() {
   var e = new Error('dummy');
   console.log(e.stack);
+  return e.stack;
 }
 
 window.debug.clearPortals = function() {
