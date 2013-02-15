@@ -1,19 +1,3 @@
-/* update notice */
-body:after {
-  background: none repeat scroll 0 0 #FFFFFF;
-  color: red;
-  content: "Please update your total conversion script or it will not work properly anymore. \a Google \"ingress total conversion\".";
-  display: block;
-  font-weight: bold;
-  left: 381px;
-  padding: 2px;
-  position: absolute;
-  top: 0;
-  z-index: 9001;
-  white-space: pre;
-  text-align: center;
-}
-
 /* general rules ******************************************************/
 
 html, body, #map {
