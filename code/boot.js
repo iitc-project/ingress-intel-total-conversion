@@ -272,6 +272,9 @@ function boot() {
   if(window.bootPlugins)
     $.each(window.bootPlugins, function(ind, ref) { ref(); });
 
+  // workaround for #129. Not sure why this is required.
+  setTimeout('window.map.invalidateSize(false);', 500);
+
   window.iitcLoaded = true;
 }
 
