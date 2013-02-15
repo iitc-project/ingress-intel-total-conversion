@@ -282,7 +282,6 @@ window.renderPortal = function(ent) {
     // handles the case where a selected portal gets removed from the
     // map by hiding all portals with said level
     if(window.selectedPortal != this.options.guid) {
-      window.resonatorsResetStyle(this.options.guid);
       window.portalResetColor(this);
     }
   });
