@@ -337,23 +337,27 @@ window.renderResonators = function(ent, portalLayer) {
     var resoGuid = portalResonatorGuid(ent[0], i);
 
     // the resonator
+    var resoStyle = 
+      ent[0] === selectedPortal ? OPTIONS_RESONATOR_SELECTED : OPTIONS_RESONATOR_NON_SELECTED;
     var resoProperty = $.extend({
         opacity: 1,
         fillColor: COLORS_LVL[rdata.level],
         fillOpacity: rdata.energyTotal/RESO_NRG[rdata.level],
         clickable: false,
         guid: resoGuid
-      }, ent[0] == selectedPortal ? OPTIONS_RESONATOR_SELECTED : OPTIONS_RESONATOR_NON_SELECTED);
+      }, resoStyle);
 
     var reso =  L.circleMarker(Rlatlng, resoProperty);
 
     // line connecting reso to portal
+    var connStyle = 
+      ent[0] === selectedPortal ? OPTIONS_RESONATOR_LINE_SELECTED : OPTIONS_RESONATOR_LINE_NON_SELECTED;
     var connProperty =  $.extend({
         color: '#FFA000',
         dashArray: '0,10,8,4,8,4,8,4,8,4,8,4,8,4,8,4,8,4,8,4',
         fill: false,
         clickable: false
-      }, ent[0] == selectedPortal ? OPTIONS_RESONATOR_LINE_SELECTED : OPTIONS_RESONATOR_LINE_NON_SELECTED);
+      }, connStyle);
 
     var conn = L.polyline([portalLatLng, Rlatlng], connProperty);
 
