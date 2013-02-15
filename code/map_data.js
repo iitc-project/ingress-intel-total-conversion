@@ -417,12 +417,12 @@ window.resonatorsResetStyle = function(portalGuid) {
     if(!resonatorLayerGroup) continue;
     resonatorLayerGroup.eachLayer(function(layer) {
       if (layer.options.guid) {
-        layer.setStyle({color: COLOR_NON_SELECTED_PORTAL_RESONATOR});
-        layer.setStyle({radius: RADIUS_NON_SELECTED_PORTAL_RESONATOR});
-        layer.setStyle({weight: WEIGHT_NON_SELECTED_PORTAL_RESONATOR});
+        layer.setStyle({color: COLOR_NON_SELECTED_PORTAL_RESONATOR, 
+                        radius: RADIUS_NON_SELECTED_PORTAL_RESONATOR, 
+                        weight: WEIGHT_NON_SELECTED_PORTAL_RESONATOR});
       } else {
-        layer.setStyle({opacity: OPACITY_NON_SELECTED_PORTAL_RESONATOR_LINE});
-        layer.setStyle({weight: WEIGHT_NON_SELECTED_PORTAL_RESONATOR_LINE});
+        layer.setStyle({opacity: OPACITY_NON_SELECTED_PORTAL_RESONATOR_LINE, 
+                        weight: WEIGHT_NON_SELECTED_PORTAL_RESONATOR_LINE});
       }
     });
   }
@@ -434,12 +434,12 @@ window.resonatorsSetSelectStyle = function(portalGuid) {
     if(!resonatorLayerGroup) continue;
     resonatorLayerGroup.eachLayer(function(layer) {
       if (layer.options.guid) {
-        layer.bringToFront().setStyle({color: COLOR_SELECTED_PORTAL_RESONATOR});
-        layer.setStyle({radius: RADIUS_SELECTED_PORTAL_RESONATOR});
-        layer.setStyle({weight: WEIGHT_SELECTED_PORTAL_RESONATOR});
+        layer.bringToFront().setStyle({color: COLOR_SELECTED_PORTAL_RESONATOR, 
+                                       radius: RADIUS_SELECTED_PORTAL_RESONATOR, 
+                                       weight: WEIGHT_SELECTED_PORTAL_RESONATOR});
       } else {
-        layer.bringToFront().setStyle({opacity: OPACITY_SELECTED_PORTAL_RESONATOR_LINE});
-        layer.setStyle({weight: WEIGHT_SELECTED_PORTAL_RESONATOR_LINE});
+        layer.bringToFront().setStyle({opacity: OPACITY_SELECTED_PORTAL_RESONATOR_LINE, 
+                                       weight: WEIGHT_SELECTED_PORTAL_RESONATOR_LINE});
       }
     });
   }
