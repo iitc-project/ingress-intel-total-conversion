@@ -42,8 +42,8 @@ window.setupStyles = function() {
     + '</style>');
 
   if(L.Browser.mobile) {
-    $('head').append('<style>' +
-      + '#sidebar, #updatestatus, #chatcontrols, #chat, #chatinput { background: #0B3351 }'
+    $('head').append('<style>'
+      + '#sidebar, #updatestatus, #chatcontrols, #chat, #chatinput { background: #0B3351 !important }'
       + '</style>');
   }
 }
