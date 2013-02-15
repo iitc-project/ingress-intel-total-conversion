@@ -78,6 +78,7 @@ Please do!
 [epf](https://github.com/epf),
 [integ3r](https://github.com/integ3r),
 [JasonMillward](https://github.com/JasonMillward),
+[jonatkins](https://github.com/jonatkins),
 [mledoze](https://github.com/mledoze),
 [OshiHidra](https://github.com/OshiHidra),
 [phoenixsong6](https://github.com/phoenixsong6),
@@ -88,7 +89,6 @@ Please do!
 [vita10gy](https://github.com/vita10gy),
 [Xelio](https://github.com/Xelio),
 [ZauberNerd](https://github.com/ZauberNerd)
-
 
 Hacking
 -------
