@@ -281,9 +281,8 @@ window.renderPortal = function(ent) {
     window.portals[this.options.guid] = this;
     // handles the case where a selected portal gets removed from the
     // map by hiding all portals with said level
-    if(window.selectedPortal != this.options.guid) {
+    if(window.selectedPortal != this.options.guid)
       window.portalResetColor(this);
-    }
   });
 
   p.on('click',    function() { window.renderPortalDetails(ent[0]); });
