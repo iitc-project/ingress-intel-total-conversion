@@ -32,7 +32,7 @@ Features
 - hack range (yellow circle) and link range (large red circle) for portals. Click on the range link in the sidebar to zoom to link range.
 - double clicking a portal zooms in and focuses it
 - display of XM and AP rewards for redeemed passcodes
-- [extend it even more with the use of plugins](https://github.com/breunigs/ingress-intel-total-conversion/plugins)
+- [extend it even more with the use of plugins](https://github.com/breunigs/ingress-intel-total-conversion/tree/gh-pages/plugins)
 
 
 Install
@@ -78,6 +78,7 @@ Please do!
 [epf](https://github.com/epf),
 [integ3r](https://github.com/integ3r),
 [JasonMillward](https://github.com/JasonMillward),
+[jonatkins](https://github.com/jonatkins),
 [mledoze](https://github.com/mledoze),
 [OshiHidra](https://github.com/OshiHidra),
 [phoenixsong6](https://github.com/phoenixsong6),
@@ -88,7 +89,6 @@ Please do!
 [vita10gy](https://github.com/vita10gy),
 [Xelio](https://github.com/Xelio),
 [ZauberNerd](https://github.com/ZauberNerd)
-
 
 Hacking
 -------
