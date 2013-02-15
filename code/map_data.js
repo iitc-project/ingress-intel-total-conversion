@@ -339,26 +339,25 @@ window.renderResonators = function(ent, portalLayer) {
     var resoGuid = portalResonatorGuid(ent[0], i);
 
     // the resonator
-    var reso =  L.circleMarker(Rlatlng, {
-        radius: ent[0] == selectedPortal ? RADIUS_SELECTED_PORTAL_RESONATOR: RADIUS_NON_SELECTED_PORTAL_RESONATOR,
-        // #AAAAAA outline seems easier to see the fill opacity
-        color: ent[0] == selectedPortal ? COLOR_SELECTED_PORTAL_RESONATOR : COLOR_NON_SELECTED_PORTAL_RESONATOR,
+    var resoProperty = $.extend({
         opacity: 1,
-        weight: ent[0] == selectedPortal ? WEIGHT_SELECTED_PORTAL_RESONATOR : WEIGHT_NON_SELECTED_PORTAL_RESONATOR,
         fillColor: COLORS_LVL[rdata.level],
         fillOpacity: rdata.energyTotal/RESO_NRG[rdata.level],
         clickable: false,
-        guid: resoGuid // need this here as well for add/remove events
-    });
+        guid: resoGuid
+      }, ent[0] == selectedPortal ? OPTIONS_RESONATOR_SELECTED : OPTIONS_RESONATOR_NON_SELECTED);
+
+    var reso =  L.circleMarker(Rlatlng, resoProperty);
 
     // line connecting reso to portal
-    var conn = L.polyline([portalLatLng, Rlatlng], {
-        weight: ent[0] == selectedPortal ? WEIGHT_SELECTED_PORTAL_RESONATOR_LINE : WEIGHT_NON_SELECTED_PORTAL_RESONATOR_LINE,
+    var connProperty =  $.extend({
         color: '#FFA000',
-        opacity: ent[0] == selectedPortal ? OPACITY_SELECTED_PORTAL_RESONATOR_LINE : OPACITY_NON_SELECTED_PORTAL_RESONATOR_LINE,
         dashArray: '0,10,8,4,8,4,8,4,8,4,8,4,8,4,8,4,8,4,8,4',
         fill: false,
-        clickable: false});
+        clickable: false
+      }, ent[0] == selectedPortal ? OPTIONS_RESONATOR_LINE_SELECTED : OPTIONS_RESONATOR_LINE_NON_SELECTED);
+
+    var conn = L.polyline([portalLatLng, Rlatlng], connProperty);
 
 
     // put both in one group, so they can be handled by the same logic.
@@ -413,16 +412,14 @@ window.portalResetColor = function(portal) {
 window.resonatorsResetStyle = function(portalGuid) {
   for(var i = 0; i < 8; i++) {
     resonatorLayerGroup = resonators[portalResonatorGuid(portalGuid, i)];
-    //console.log('reset:'+i+','+resonatorLayerGroup);
     if(!resonatorLayerGroup) continue;
     resonatorLayerGroup.eachLayer(function(layer) {
       if (layer.options.guid) {
-        layer.setStyle({color: COLOR_NON_SELECTED_PORTAL_RESONATOR, 
-                        radius: RADIUS_NON_SELECTED_PORTAL_RESONATOR, 
-                        weight: WEIGHT_NON_SELECTED_PORTAL_RESONATOR});
+        // Resonator
+        layer.setStyle(OPTIONS_RESONATOR_NON_SELECTED);
       } else {
-        layer.setStyle({opacity: OPACITY_NON_SELECTED_PORTAL_RESONATOR_LINE, 
-                        weight: WEIGHT_NON_SELECTED_PORTAL_RESONATOR_LINE});
+        // Resonator line
+        layer.setStyle(OPTIONS_RESONATOR_LINE_NON_SELECTED);
       }
     });
   }
@@ -434,12 +431,11 @@ window.resonatorsSetSelectStyle = function(portalGuid) {
     if(!resonatorLayerGroup) continue;
     resonatorLayerGroup.eachLayer(function(layer) {
       if (layer.options.guid) {
-        layer.bringToFront().setStyle({color: COLOR_SELECTED_PORTAL_RESONATOR, 
-                                       radius: RADIUS_SELECTED_PORTAL_RESONATOR, 
-                                       weight: WEIGHT_SELECTED_PORTAL_RESONATOR});
+        // Resonator
+        layer.bringToFront().setStyle(OPTIONS_RESONATOR_SELECTED);
       } else {
-        layer.bringToFront().setStyle({opacity: OPACITY_SELECTED_PORTAL_RESONATOR_LINE, 
-                                       weight: WEIGHT_SELECTED_PORTAL_RESONATOR_LINE});
+        // Resonator line
+        layer.bringToFront().setStyle(OPTIONS_RESONATOR_LINE_SELECTED);
       }
     });
   }
