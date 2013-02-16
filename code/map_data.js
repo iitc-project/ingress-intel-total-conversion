@@ -233,9 +233,12 @@ window.renderPortal = function(ent) {
       old.options.details = ent[2];
       return;
     }
-    // there were changes, remove old portal
-    removeByGuid(ent[0]);
   }
+
+  // there were changes, remove old portal. Don’t put this in old, in
+  // case the portal changed level and findEntityInLeaflet doesn’t find
+  // it.
+  removeByGuid(ent[0]);
 
   var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
 
