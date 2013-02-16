@@ -58,7 +58,7 @@ window.debug.console.create = function() {
     $('#chatcontrols .active').removeClass('active');
     $(this).addClass('active');
   });
-  $('#chat').append('<div id="debugconsole" style="display: none"></div>');
+  $('#chat').append('<div style="display: none" id="debugconsole"><table></table></div>');
 }
 
 window.debug.console.renderLine = function(text, errorType) {
@@ -76,7 +76,7 @@ window.debug.console.renderLine = function(text, errorType) {
   var t = '<time title="'+tb+'" data-timestamp="'+d.getTime()+'">'+ta+'</time>';
   var s = 'style="color:'+color+'"';
   var l = '<tr><td>'+t+'</td><td><mark '+s+'>'+errorType+'</mark></td><td>'+text+'</td></tr>';
-  $('#debugconsole').prepend(l);
+  $('#debugconsole table').prepend(l);
 }
 
 window.debug.console.log = function(text) {
