@@ -2,7 +2,6 @@ window.isSmartphone = function() {
   // this check is also used in main.js. Note it should not detect
   // tablets because their display is large enough to use the desktop
   // version.
-  return true;
   return navigator.userAgent.match(/Android.*Mobile/);
 }
 
