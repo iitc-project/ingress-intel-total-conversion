@@ -33,50 +33,39 @@ window.renderPortalDetails = function(guid) {
   var linkedFields = ['fields', d.portalV2.linkedFields.length];
 
   // collect and html-ify random data
-  var randDetails = [playerText, sinceText, getRangeText(d), getEnergyText(d), linksText, getAvgResoDistText(d), linkedFields, getDestroyAP(d)];
-  randDetails = randDetails.map(function(detail) {
-    if(!detail) return '';
-    detail = '<aside>'+detail[0]+'<span>'+detail[1]+'</span></aside>';
-    return detail;
-  }).join('\n');
+  var randDetails = [
+    playerText, sinceText, getRangeText(d), getEnergyText(d),
+    linksText, getAvgResoDistText(d), linkedFields, getDestroyAP(d)
+  ];
+  randDetails = '<table id="randdetails">' + genFourColumnTable(randDetails) + '</table>';
 
-  // replacing causes flicker, so if the selected portal does not
-  // change, only update the data points that are likely to change.
-  if(update) {
-    console.log('Updating portal details');
-    $('#level').text(Math.floor(getPortalLevel(d)));
-    $('.mods').html(getModDetails(d));
-    $('#randdetails').html(randDetails);
-    $('#resodetails').html(getResonatorDetails(d));
-    $('#portaldetails').attr('class', TEAM_TO_CSS[getTeam(d)]);
-  } else {
-    console.log('exchanging portal details');
-    setPortalIndicators(d);
-    var img = d.imageByUrl && d.imageByUrl.imageUrl ? d.imageByUrl.imageUrl : DEFAULT_PORTAL_IMG;
+  var resoDetails = '<table id="resodetails">' + getResonatorDetails(d) + '</table>';
 
-    var lat = d.locationE6.latE6;
-    var lng = d.locationE6.lngE6;
-    var perma = 'http://ingress.com/intel?latE6='+lat+'&lngE6='+lng+'&z=17&pguid='+guid;
-    var imgTitle = 'title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."';
+  setPortalIndicators(d);
+  var img = d.imageByUrl && d.imageByUrl.imageUrl ? d.imageByUrl.imageUrl : DEFAULT_PORTAL_IMG;
 
-    $('#portaldetails')
-      .attr('class', TEAM_TO_CSS[getTeam(d)])
-      .html(''
-        + '<h3>'+d.portalV2.descriptiveText.TITLE+'</h3>'
-        // help cursor via “.imgpreview img”
-        + '<div class="imgpreview" '+imgTitle+' style="background-image: url('+img+')">'
-        + '<img class="hide" src="'+img+'"/>'
-        + '<span id="level">'+Math.floor(getPortalLevel(d))+'</span>'
-        + '</div>'
-        + '<div class="mods">'+getModDetails(d)+'</div>'
-        + '<div id="randdetails">'+randDetails+'</div>'
-        + '<div id="resodetails">'+getResonatorDetails(d)+'</div>'
-        + '<div class="linkdetails">'
-        + '<aside><a href="'+perma+'">portal link</a></aside>'
-        + '<aside><a onclick="window.reportPortalIssue()">report issue</a></aside>'
-        + '</div>'
-      );
-  }
+  var lat = d.locationE6.latE6;
+  var lng = d.locationE6.lngE6;
+  var perma = 'http://ingress.com/intel?latE6='+lat+'&lngE6='+lng+'&z=17&pguid='+guid;
+  var imgTitle = 'title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."';
+
+  $('#portaldetails')
+    .attr('class', TEAM_TO_CSS[getTeam(d)])
+    .html(''
+      + '<h3>'+d.portalV2.descriptiveText.TITLE+'</h3>'
+      // help cursor via “.imgpreview img”
+      + '<div class="imgpreview" '+imgTitle+' style="background-image: url('+img+')">'
+      + '<img class="hide" src="'+img+'"/>'
+      + '<span id="level">'+Math.floor(getPortalLevel(d))+'</span>'
+      + '</div>'
+      + '<div class="mods">'+getModDetails(d)+'</div>'
+      + randDetails
+      + resoDetails
+      + '<div class="linkdetails">'
+      + '<aside><a href="'+perma+'">portal link</a></aside>'
+      + '<aside><a onclick="window.reportPortalIssue()">report issue</a></aside>'
+      + '</div>'
+    );
 
   // try to resolve names that were required for above functions, but
   // weren’t available yet.

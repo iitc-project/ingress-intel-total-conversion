@@ -369,12 +369,13 @@ h2 sup, h2 sub {
 input {
   background-color: rgba(0, 0, 0, 0.3);
   color: #ffce00;
-  height: 21px;
-  line-height: 22px;
-  padding: 0 4px;
+  height: 24px;
+  padding:3px 4px 1px 4px;
   font-size: 14px;
   border:0;
   font-family:inherit;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
 
@@ -428,9 +429,11 @@ h3 {
 
 /* portal mods */
 .mods {
-  margin-bottom: 1px;
-  margin-top: 5px;
+  margin: 5px auto 1px auto;
+  padding: 0 2px;
+  width: 296px;
   height: 75px;
+  text-align: center;
 }
 
 .mods span {
@@ -440,12 +443,12 @@ h3 {
    * as that’s solved by setting height on .mods. */
   display: block;
   float:left;
-  height: 63.7px;
-  margin-left: 4px;
+  height: 64px;
+  margin: 0 2px;
   overflow: hidden;
   padding: 2px;
   text-align: center;
-  width: 63.7px;
+  width: 64px;
   cursor:help;
   border: 1px solid #666;
 }
@@ -461,84 +464,75 @@ h3 {
   border: 1px solid #017f01;
 }
 
-/* random details list */
-#randdetails {
-  margin: 0 4px;
-  margin-top: 11px;
+/* random details, resonator details */
+#randdetails, #resodetails {
+  width: 100%;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0 4px;
+  table-layout: fixed;
+  border-spacing: 0m;
+  border-collapse: collapse;
 }
 
-aside {
-  display: inline-block;
-  width: 140px;
-}
-
-aside span {
+#randdetails td, #resodetails td {
   overflow: hidden;
   text-overflow: "~";
+  vertical-align: top;
   white-space: nowrap;
-  width: 74px;
+  width: 50%;
+  width: calc(50% - 62px);
 }
 
-aside:nth-child(odd) {
-  margin-right: 4px;
+#randdetails th, #resodetails th {
+  font-weight: normal;
   text-align: right;
+  width: 62px;
+  padding-right:4px;
+  padding-left:4px;
 }
 
-aside:nth-child(even) {
-  margin-left: 4px;
+#randdetails th + th, #resodetails th + th {
   text-align: left;
-}
-
-aside:nth-child(even) span {
-  float: right;
-  padding-left: 4px;
-  text-align: left;
-}
-
-aside:nth-child(odd) span {
-  float: left;
   padding-right: 4px;
+  padding-left: 4px;
+}
+
+#randdetails td:first-child, #resodetails td:first-child {
   text-align: right;
 }
+
+
+#randdetails {
+  margin-top: 9px;
+  margin-bottom: 9px;
+}
+
 
 #randdetails tt {
   font-family: inherit;
   cursor: help;
 }
 
-
 /* resonators */
 #resodetails {
-  white-space: nowrap;
-  margin: 16px 0;
-  -moz-column-gap: 10px;
-  -moz-column-width: 141px;
-  -webkit-column-gap: 10px;
-  -webkit-column-width: 141px;
+  margin-bottom: 9px;
 }
 
 .meter {
   background: #000;
   cursor: help;
   display: inline-block;
-  height: 14px;
-  padding: 1px;
-  width: 58px;
-}
-
-.meter-text {
-  display: inline-block;
   height: 18px;
-  margin: 0 4px;
-  overflow: hidden;
-  text-overflow: "~";
-  vertical-align: top;
-  white-space: nowrap;
-  width: 75px;
-}
-
-.meter-text.left {
-  text-align: right;
+  padding: 1px;
+  width: 100%;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  position: relative;
+  left: 0;
+  top: 0;
 }
 
 .meter span {
@@ -546,36 +540,39 @@ aside:nth-child(odd) span {
   height: 14px;
 }
 
-.meter-rel {
-  position: relative;
-  left: 0;
-  top: 0;
-}
-
 .meter-level {
   position: absolute;
   top: -2px;
-  left: 25px;
+  left: 50%;
+  margin-left: -6px;
   text-shadow: 0.0em 0.0em 0.3em #808080;
 }
 /* links below resos */
 
 .linkdetails {
-  text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
-.linkdetails aside {
-  margin: 0 4px;
-  width: 140px;
+
+aside {
+  display: inline-block;
+  padding: 0 5px;
+  width: 50%;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  text-align: right;
+}
+aside + aside {
+  text-align: left;
 }
 
 #toolbox {
-  padding: 4px;
+  padding: 4px 2px;
   font-size:90%;
 }
 
 #toolbox > a {
-  padding: 5px;
+  padding: 4px;
 }
 
 /* a common portal display takes this much space (prevents moving
