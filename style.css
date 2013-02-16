@@ -196,10 +196,13 @@ em {
 
 #chat table, #chatinput table {
   width: 100%;
-  height: 100%;
   table-layout: fixed;
   border-spacing: 0m;
   border-collapse: collapse;
+}
+
+#chatinput table {
+  height: 100%;
 }
 
 #chat td, #chatinput td {

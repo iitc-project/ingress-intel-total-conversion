@@ -52,7 +52,7 @@ window.debug.console.create = function() {
   if($('#debugconsole').length) return;
   $('#chatcontrols').append('<a>debug</a>');
   $('#chatcontrols a:last').click(function() {
-    $('#chatinput span').css('cssText', 'color: #bbb !important').text('debug:');
+    $('#chatinput mark').css('cssText', 'color: #bbb !important').text('debug:');
     $('#chat > div').hide();
     $('#debugconsole').show();
     $('#chatcontrols .active').removeClass('active');
@@ -75,7 +75,7 @@ window.debug.console.renderLine = function(text, errorType) {
   var tb = d.toLocaleString();
   var t = '<time title="'+tb+'" data-timestamp="'+d.getTime()+'">'+ta+'</time>';
   var s = 'style="color:'+color+'"';
-  var l = '<p>'+t+'<mark '+s+'>'+errorType+'</mark><span>'+text+'</span></p>';
+  var l = '<tr><td>'+t+'</td><td><mark '+s+'>'+errorType+'</mark></td><td>'+text+'</td></tr>';
   $('#debugconsole').prepend(l);
 }
 
