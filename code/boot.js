@@ -275,7 +275,7 @@ function boot() {
   // sidebar is now at final height. Adjust scrollwrapper so scrolling
   // is possible for small screens and it doesn’t block the area below
   // it.
-  $('#scrollwrapper').css('max-height', $('#sidebar').height() + 'px');
+  $('#scrollwrapper').css('max-height', $('#sidebar').get(0).scrollHeight + 'px');
 
   // workaround for #129. Not sure why this is required.
   setTimeout('window.map.invalidateSize(false);', 500);
