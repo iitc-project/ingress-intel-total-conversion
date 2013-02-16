@@ -88,13 +88,13 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
       // format for portals: { controllingTeam, turret }
 
       if(ent[2].turret !== undefined) {
-        if(selectedPortal == ent[0]) portalUpdateAvailable = true;
+        if(selectedPortal === ent[0]) portalUpdateAvailable = true;
         if(urlPortal && ent[0] == urlPortal) portalInUrlAvailable = true;
 
         var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
         if(!window.getPaddedBounds().contains(latlng)
-              && selectedPortal != ent[0]
-              && urlPortal != ent[0]
+              && selectedPortal !== ent[0]
+              && urlPortal !== ent[0]
           ) return;
 
 
@@ -208,12 +208,12 @@ window.removeByGuid = function(guid) {
 
 // renders a portal on the map from the given entity
 window.renderPortal = function(ent) {
-  if(Object.keys(portals).length >= MAX_DRAWN_PORTALS && ent[0] != selectedPortal)
+  if(Object.keys(portals).length >= MAX_DRAWN_PORTALS && ent[0] !== selectedPortal)
     return removeByGuid(ent[0]);
 
   // hide low level portals on low zooms
   var portalLevel = getPortalLevel(ent[2]);
-  if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal)
+  if(portalLevel < getMinPortalLevel()  && ent[0] !== selectedPortal)
     return removeByGuid(ent[0]);
 
   var team = getTeam(ent[2]);
@@ -250,7 +250,7 @@ window.renderPortal = function(ent) {
 
   var p = L.circleMarker(latlng, {
     radius: lvRadius + (L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE : 0),
-    color: ent[0] == selectedPortal ? COLOR_SELECTED_PORTAL : COLORS[team],
+    color: ent[0] === selectedPortal ? COLOR_SELECTED_PORTAL : COLORS[team],
     opacity: 1,
     weight: lvWeight,
     fillColor: COLORS[team],
@@ -284,7 +284,7 @@ window.renderPortal = function(ent) {
     window.portals[this.options.guid] = this;
     // handles the case where a selected portal gets removed from the
     // map by hiding all portals with said level
-    if(window.selectedPortal != this.options.guid)
+    if(window.selectedPortal !== this.options.guid)
       window.portalResetColor(this);
   });
 
@@ -304,7 +304,7 @@ window.renderResonators = function(ent, portalLayer) {
   if(!isResonatorsShow()) return;
 
   var portalLevel = getPortalLevel(ent[2]);
-  if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal) return;
+  if(portalLevel < getMinPortalLevel()  && ent[0] !== selectedPortal) return;
   var portalLatLng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
 
   var layerGroup = portalsLayers[parseInt(portalLevel)];
