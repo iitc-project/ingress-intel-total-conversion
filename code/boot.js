@@ -36,7 +36,7 @@ window.setupStyles = function() {
       '#sidebar { width:'+(SIDEBAR_WIDTH + HIDDEN_SCROLLBAR_ASSUMED_WIDTH + 1 /*border*/)+'px;  } ',
       '#sidebartoggle { right:'+(SIDEBAR_WIDTH+1)+'px;  } ',
       '#scrollwrapper  { width:'+(SIDEBAR_WIDTH + 2*HIDDEN_SCROLLBAR_ASSUMED_WIDTH)+'px; right:-'+(2*HIDDEN_SCROLLBAR_ASSUMED_WIDTH-2)+'px } ',
-      '#sidebar > *, #gamestat span, .imgpreview img { width:'+(SIDEBAR_WIDTH+1)+'px;  }'].join("\n")
+      '#sidebar > * { width:'+(SIDEBAR_WIDTH+1)+'px;  }'].join("\n")
     + '</style>');
 
   if(L.Browser.mobile) {
