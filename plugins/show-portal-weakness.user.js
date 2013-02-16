@@ -20,45 +20,6 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 // use own namespace for plugin
 window.plugin.portalWeakness = function() {};
 
-window.plugin.portalWeakness.getPortalWeaknessFactor = function(d)
-{
-  var portal_weakness = 0;
-  if(getTeam(d) != 0)
-  {
-    if(window.getTotalPortalEnergy(d)> 0 && window.getCurrentPortalEnergy(d) < window.getTotalPortalEnergy(d))
-    {
-      portal_weakness = 1 - (window.getPortalEnergy(d)/window.getTotalPortalEnergy(d));
-    }
-    //Ding the portal for every missing sheild. 
-    $.each(d.portalV2.linkedModArray, function(ind, mod)
-    {
-      if(mod == null)
-      {
-        portal_weakness += .05;
-      }
-    });
-    //Ding the portal for every missing resonator.
-    var resCount = 0;
-    $.each(d.resonatorArray.resonators, function(ind, reso)
-    {
-      if(reso == null) {
-        portal_weakness += .125;
-      }
-      else {
-        resCount++;
-      }
-    });
-    if(portal_weakness<0) {
-      portal_weakness = 0;
-    }
-    if(portal_weakness>1)
-    {
-      portal_weakness = 1;
-    }
-  }
-  return(Math.round(portal_weakness*100)/100);
-}
-
 window.plugin.portalWeakness.portalAdded = function(data) {
   
   var d = data.portal.options.details;
