@@ -378,7 +378,10 @@ window.renderResonators = function(ent, portalLayer) {
     // will add/remove all elements of the LayerGroup at once.
     reso.on('remove', function() { delete window.resonators[this.options.guid]; });
     reso.on('add',    function() {
-      if(window.resonators[this.options.guid]) throw('duplicate resonator detected');
+      if(window.resonators[this.options.guid]) {
+        console.error('dup reso: ' + this.options.guid);
+        window.debug.printStackTrace();
+      }
       window.resonators[this.options.guid] = r;
     });
 
