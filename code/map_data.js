@@ -314,11 +314,14 @@ window.renderResonators = function(ent, portalLayer) {
     if(portalLayer) {
       var oldRes = findEntityInLeaflet(layerGroup, window.resonators, portalResonatorGuid(ent[0], i));
       if(oldRes && isSameResonator(oldRes.options.details, rdata)) return true;
+      if(oldRes) {
+        if(isSameResonator(oldRes.options.details, rdata)) return true;
+        removeByGuid(oldRes.options.guid);
+      }
     }
 
     // skip and remove old resonator if no new resonator
     if(rdata === null) {
-      if(oldRes) removeByGuid(oldRes.options.guid);
       return true;
     }
 
