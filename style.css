@@ -282,6 +282,9 @@ summary {
 
 #sidebar > * {
   border-bottom: 1px solid #20A8B1;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 
@@ -310,6 +313,10 @@ h2 {
   padding: 0 4px;
   margin: 0;
   cursor:help;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 h2 span {
@@ -335,9 +342,8 @@ h2 sup, h2 sub {
 
 
 /* gamestats */
-#gamestat, #gamestat span {
+#gamestat {
   height: 22px;
-  line-height: 22px;
 }
 
 #gamestat span {
@@ -345,6 +351,8 @@ h2 sup, h2 sub {
   float: left;
   font-weight: bold;
   cursor:help;
+  height: 21px;
+  line-height: 22px;
 }
 
 #gamestat .res {
@@ -361,12 +369,13 @@ h2 sup, h2 sub {
 input {
   background-color: rgba(0, 0, 0, 0.3);
   color: #ffce00;
-  height: 22px;
+  height: 21px;
   line-height: 22px;
   padding: 0 4px;
   font-size: 14px;
   border:0;
   font-family:inherit;
+  box-sizing: border-box;
 }
 
 ::-webkit-input-placeholder {
@@ -392,6 +401,9 @@ h3 {
   overflow:hidden;
   text-overflow: "~";
   white-space: nowrap;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .imgpreview {
@@ -587,6 +599,9 @@ aside:nth-child(odd) span {
   position: fixed;
   right: 0;
   z-index:3002;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 
