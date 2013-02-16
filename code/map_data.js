@@ -125,7 +125,11 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
     }
   });
 
+  // Preserve and restore "selectedPortal" between portal re-render
+  if(portalUpdateAvailable) var oldSelectedPortal = selectedPortal;
   $.each(ppp, function(ind, portal) { renderPortal(portal); });
+  if(portalUpdateAvailable) selectedPortal = oldSelectedPortal;
+
   if(portals[selectedPortal]) {
     try {
       portals[selectedPortal].bringToFront();
