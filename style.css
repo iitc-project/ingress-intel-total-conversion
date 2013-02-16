@@ -218,6 +218,7 @@ em {
   overflow: hidden;
   padding-left: 2px;
   color: #bbb;
+  white-space: nowrap;
 }
 
 #chat time {
