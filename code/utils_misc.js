@@ -34,7 +34,7 @@ window.writeCookie = function(name, val) {
 // add thousand separators to given number.
 // http://stackoverflow.com/a/1990590/1684530 by Doug Neiner.
 window.digits = function(d) {
-  return (d+"").replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1 ");
+  return (d+"").replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1 ");
 }
 
 // posts AJAX request to Ingress API.
@@ -200,7 +200,7 @@ if (typeof String.prototype.startsWith !== 'function') {
 }
 
 window.prettyEnergy = function(nrg) {
-  return nrg> 1000 ? Math.round(nrg/1000) + ' k': nrg;
+  return nrg> 1000 ? Math.round(nrg/1000) + ' k': nrg;
 }
 
 window.setPermaLink = function(elm) {

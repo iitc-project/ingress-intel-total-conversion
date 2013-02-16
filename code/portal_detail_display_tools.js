@@ -8,8 +8,8 @@ window.getRangeText = function(d) {
   return ['range',
       '<a onclick="window.rangeLinkClick()">'
     + (range > 1000
-      ? Math.round(range/1000) + ' km'
-      : Math.round(range)      + ' m')
+      ? Math.round(range/1000) + ' km'
+      : Math.round(range)      + ' m')
     + '</a>'];
 }
 
@@ -73,7 +73,7 @@ window.getEnergyText = function(d) {
 
 window.getAvgResoDistText = function(d) {
   var avgDist = Math.round(10*getAvgResoDist(d))/10;
-  return ['reso dist', avgDist + ' m'];
+  return ['reso dist', avgDist + ' m'];
 }
 
 window.getResonatorDetails = function(d) {
