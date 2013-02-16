@@ -51,7 +51,10 @@ window.postAjax = function(action, data, success, error) {
   var remove = function(data, textStatus, jqXHR) { window.requests.remove(jqXHR); };
   var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
   return $.ajax({
-    url: 'rpc/dashboard.'+action,
+    // use full URL to avoid issues depending on how people set their
+    // slash. See:
+    // https://github.com/breunigs/ingress-intel-total-conversion/issues/56
+    url: 'http://www.ingress.com/rpc/dashboard.'+action,
     type: 'POST',
     data: data,
     dataType: 'json',
