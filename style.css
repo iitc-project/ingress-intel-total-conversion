@@ -451,12 +451,12 @@ h3 {
    * as that’s solved by setting height on .mods. */
   display: block;
   float:left;
-  height: 64px;
+  height: 63px;
   margin: 0 2px;
   overflow: hidden;
   padding: 2px;
   text-align: center;
-  width: 64px;
+  width: 63px;
   cursor:help;
   border: 1px solid #666;
 }
