@@ -230,6 +230,7 @@ em {
   width: 91px;
   overflow: hidden;
   padding-left: 2px;
+  white-space: nowrap;
 }
 
 mark {
@@ -238,9 +239,10 @@ mark {
 
 .invisep {
   display: inline-block;
-  width:0;
-  height:0;
+  width: 1px;
+  height: 1px;
   overflow:hidden;
+  color: transparent;
 }
 
 /* divider */
