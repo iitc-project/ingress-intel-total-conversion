@@ -38,12 +38,6 @@ window.setupStyles = function() {
       '#scrollwrapper  { width:'+(SIDEBAR_WIDTH + 2*HIDDEN_SCROLLBAR_ASSUMED_WIDTH)+'px; right:-'+(2*HIDDEN_SCROLLBAR_ASSUMED_WIDTH-2)+'px } ',
       '#sidebar > * { width:'+(SIDEBAR_WIDTH+1)+'px;  }'].join("\n")
     + '</style>');
-
-  if(L.Browser.mobile) {
-    $('head').append('<style>'
-      + '#sidebar, #updatestatus, #chatcontrols, #chat, #chatinput { background: #0B3351 !important }'
-      + '</style>');
-  }
 }
 
 window.setupMap = function() {
@@ -248,6 +242,7 @@ function boot() {
   window.debug.console.overwriteNativeIfRequired();
 
   console.log('loading done, booting');
+  window.runOnSmartphonesBeforeBoot();
   window.setupStyles();
   window.setupMap();
   window.setupGeosearch();
@@ -275,6 +270,8 @@ function boot() {
   // is possible for small screens and it doesn’t block the area below
   // it.
   $('#scrollwrapper').css('max-height', ($('#sidebar').get(0).scrollHeight+3) + 'px');
+
+  window.runOnSmartphonesAfterBoot();
 
   // workaround for #129. Not sure why this is required.
   setTimeout('window.map.invalidateSize(false);', 500);

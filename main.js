@@ -51,6 +51,11 @@ for(var i = 0; i < d.length; i++) {
 
 var ir = window.internalResources || [];
 
+var mainstyle = 'http://breunigs.github.com/ingress-intel-total-conversion/style.css?@@BUILDDATE@@';
+var smartphone = 'http://breunigs.github.com/ingress-intel-total-conversion/smartphone.css?@@BUILDDATE@@';
+var leaflet = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.css';
+var coda = 'http://fonts.googleapis.com/css?family=Coda';
+
 // remove complete page. We only wanted the user-data and the page’s
 // security context so we can access the API easily. Setup as much as
 // possible without requiring scripts.
@@ -58,13 +63,17 @@ document.getElementsByTagName('head')[0].innerHTML = ''
   //~ + '<link rel="stylesheet" type="text/css" href="http://0.0.0.0:8000/style.css"/>'
   + '<title>Ingress Intel Map</title>'
   + (ir.indexOf('mainstyle') === -1
-      ? '<link rel="stylesheet" type="text/css" href="http://breunigs.github.com/ingress-intel-total-conversion/style.css?@@BUILDDATE@@"/>'
+      ? '<link rel="stylesheet" type="text/css" href="'+mainstyle+'"/>'
       : '')
   + (ir.indexOf('leafletcss') === -1
-      ? '<link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.css"/>'
+      ? '<link rel="stylesheet" type="text/css" href="'+leaflet+'"/>'
+      : '')
+  // this navigator check is also used in code/smartphone.js
+  + (ir.indexOf('smartphonecss') === -1 && navigator.userAgent.match(/Android.*Mobile/)
+      ? '<link rel="stylesheet" type="text/css" href="'+smartphone+'"/>'
       : '')
   + (ir.indexOf('codafont') === -1
-      ? '<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Coda"/>'
+      ? '<link rel="stylesheet" type="text/css" href="'+coda+'"/>'
       : '');
 
 document.getElementsByTagName('body')[0].innerHTML = ''
@@ -160,7 +169,11 @@ window.OPTIONS_RESONATOR_LINE_NON_SELECTED = {opacity: 0.25, weight: 2};
 // it and how far the portal reaches (i.e. how far links may be made
 // from this portal)
 window.ACCESS_INDICATOR_COLOR = 'orange';
-window.RANGE_INDICATOR_COLOR = 'red';
+window.RANGE_INDICATOR_COLOR = 'red'
+
+// by how much pixels should the portal range be expanded on mobile
+// devices. This should make clicking them easier.
+window.PORTAL_RADIUS_ENLARGE_MOBILE = 5;
 
 
 window.DEFAULT_PORTAL_IMG = 'http://commondatastorage.googleapis.com/ingress/img/default-portal-image.png';

@@ -249,7 +249,7 @@ window.renderPortal = function(ent) {
   var lvRadius = Math.max(portalLevel + 3, 5);
 
   var p = L.circleMarker(latlng, {
-    radius: lvRadius,
+    radius: lvRadius + (L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE : 0),
     color: ent[0] == selectedPortal ? COLOR_SELECTED_PORTAL : COLORS[team],
     opacity: 1,
     weight: lvWeight,
