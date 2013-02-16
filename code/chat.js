@@ -338,7 +338,8 @@ window.chat.renderMsg = function(msg, nick, time, team) {
   var t = '<time title="'+tb+'" data-timestamp="'+time+'">'+ta+'</time>';
   var s = 'style="color:'+COLORS[team]+'"';
   var title = nick.length >= 8 ? 'title="'+nick+'" class="help"' : '';
-  return '<tr><td>'+t+'</td><td><mark '+s+'>'+nick+'</mark></td><td>'+msg+'</td></tr>';
+  var i = ['<span class="invisep">&lt;</span>', '<span class="invisep">&gt;</span>'];
+  return '<tr><td>'+t+'</td><td>'+i[0]+'<mark '+s+'>'+nick+'</mark>'+i[1]+'</td><td>'+msg+'</td></tr>';
 }
 
 
