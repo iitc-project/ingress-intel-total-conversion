@@ -509,6 +509,12 @@ h3 {
 
 #randdetails td:first-child, #resodetails td:first-child {
   text-align: right;
+  padding-left: 2px;
+}
+
+#randdetails td:last-child, #resodetails td:last-child {
+  text-align: right;
+  padding-right: 2px;
 }
 
 
