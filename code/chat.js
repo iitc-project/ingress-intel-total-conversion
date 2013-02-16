@@ -320,13 +320,14 @@ window.chat.renderData = function(data, element, likelyWereOldMsgs) {
   });
 
   var scrollBefore = scrollBottom(elm);
-  elm.html(msgs);
+  elm.html('<table>' + msgs + '</table>');
   chat.keepScrollPosition(elm, scrollBefore, likelyWereOldMsgs);
 }
 
 
 window.chat.renderDivider = function(text) {
-  return '<summary>─ '+text+' ──────────────────────────────────────────────────────────────────────────</summary>';
+  var d = '──────────────────────────────────────────────────────────────────────────';
+  return '<tr><td colspan="3" style="padding-top:3px"><summary>─ ' + text + d + '</summary></td></tr>';
 }
 
 
@@ -337,7 +338,7 @@ window.chat.renderMsg = function(msg, nick, time, team) {
   var t = '<time title="'+tb+'" data-timestamp="'+time+'">'+ta+'</time>';
   var s = 'style="color:'+COLORS[team]+'"';
   var title = nick.length >= 8 ? 'title="'+nick+'" class="help"' : '';
-  return '<p>'+t+'<span class="invisibleseparator"> &lt;</span><mark '+s+'>'+nick+'</mark><span class="invisibleseparator">&gt; </span><span>'+msg+'</span></p>';
+  return '<tr><td>'+t+'</td><td><mark '+s+'>'+nick+'</mark></td><td>'+msg+'</td></tr>';
 }
 
 
@@ -397,7 +398,7 @@ window.chat.chooser = function(event) {
   var t = $(event.target);
   var tt = t.text();
 
-  var span = $('#chatinput span');
+  var mark = $('#chatinput mark');
 
   $('#chatcontrols .active').removeClass('active');
   t.addClass('active');
@@ -408,19 +409,19 @@ window.chat.chooser = function(event) {
 
   switch(tt) {
     case 'faction':
-      span.css('color', '');
-      span.text('tell faction:');
+      mark.css('color', '');
+      mark.text('tell faction:');
       break;
 
     case 'public':
-      span.css('cssText', 'color: red !important');
-      span.text('broadcast:');
+      mark.css('cssText', 'color: red !important');
+      mark.text('broadcast:');
       break;
 
     case 'compact':
     case 'full':
-      span.css('cssText', 'color: #bbb !important');
-      span.text('tell Jarvis:');
+      mark.css('cssText', 'color: #bbb !important');
+      mark.text('tell Jarvis:');
       break;
 
     default:
@@ -504,7 +505,7 @@ window.chat.setup = function() {
   window.requests.addRefreshFunction(chat.request);
 
   var cls = PLAYER.team === 'ALIENS' ? 'enl' : 'res';
-  $('#chatinput span').addClass(cls)
+  $('#chatinput mark').addClass(cls)
 }
 
 

@@ -29,7 +29,7 @@ window.setupStyles = function() {
     [ '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
       '#largepreview.res img { border:2px solid '+COLORS[TEAM_RES]+'; } ',
       '#largepreview.none img { border:2px solid '+COLORS[TEAM_NONE]+'; } ',
-      '#chatcontrols { bottom: '+(CHAT_SHRINKED+24)+'px; }',
+      '#chatcontrols { bottom: '+(CHAT_SHRINKED+22)+'px; }',
       '#chat { height: '+CHAT_SHRINKED+'px; } ',
       '.leaflet-right { margin-right: '+(SIDEBAR_WIDTH+1)+'px } ',
       '#updatestatus { width:'+(SIDEBAR_WIDTH+2)+'px;  } ',

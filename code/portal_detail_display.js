@@ -12,7 +12,7 @@ window.renderPortalDetails = function(guid) {
 
   var d = window.portals[guid].options.details;
 
-  var update = selectPortal(guid);
+  selectPortal(guid);
 
   // collect some random data that’s not worth to put in an own method
   var links = {incoming: 0, outgoing: 0};
