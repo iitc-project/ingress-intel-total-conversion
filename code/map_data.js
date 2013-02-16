@@ -128,11 +128,13 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   // Preserve and restore "selectedPortal" between portal re-render
   if(portalUpdateAvailable) var oldSelectedPortal = selectedPortal;
   $.each(ppp, function(ind, portal) { renderPortal(portal); });
-  if(portalUpdateAvailable) selectedPortal = oldSelectedPortal;
 
-  if(portals[selectedPortal]) {
+  var selectedPortalLayer = portals[oldSelectedPortal];
+  if(portalUpdateAvailable && selectedPortalLayer) selectedPortal = oldSelectedPortal;
+
+  if(selectedPortalLayer) {
     try {
-      portals[selectedPortal].bringToFront();
+      selectedPortalLayer.bringToFront();
     } catch(e) { /* portal is now visible, catch Leaflet error */ }
   }
 
