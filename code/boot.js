@@ -12,12 +12,12 @@ window.setupLargeImagePreview = function() {
       ex.remove();
       return;
     }
-    var img = $(this).html();
-    var w = $(this).find('img')[0].naturalWidth/2;
-    var h = $(this).find('img')[0].naturalHeight/2;
+    var img = $(this).find('img')[0];
+    var w = img.naturalWidth/2;
+    var h = img.naturalHeight/2;
     var c = $('#portaldetails').attr('class');
     $('body').append(
-      '<div id="largepreview" class="'+c+'" style="margin-left: '+(-SIDEBAR_WIDTH/2-w-2)+'px; margin-top: '+(-h-2)+'px">' + img + '</div>'
+      '<div id="largepreview" class="'+c+'" style="margin-left: '+(-SIDEBAR_WIDTH/2-w-2)+'px; margin-top: '+(-h-2)+'px">' + img.outerHTML + '</div>'
     );
     $('#largepreview').click(function() { $(this).remove() });
   });
