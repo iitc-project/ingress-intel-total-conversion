@@ -1,4 +1,3 @@
-
 // PORTAL DETAILS MAIN ///////////////////////////////////////////////
 // main code block that renders the portal details in the sidebar and
 // methods that highlight the portal in the map view.
@@ -71,7 +70,7 @@ window.renderPortalDetails = function(guid) {
   // weren’t available yet.
   resolvePlayerNames();
 
-  runHooks('portalDetailsUpdated', {});
+  runHooks('portalDetailsUpdated', {portal: d});
 }
 
 // draws link-range and hack-range circles around the portal with the
