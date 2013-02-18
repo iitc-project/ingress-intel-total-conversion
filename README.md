@@ -10,7 +10,7 @@ It’s annoying to extend the intel page with new features because the minified 
 So instead, here’s a userscript that starts from scratch:
 
 
-[![Screenshot of the total conversion in Johannesburg](http://breunigs.github.com/ingress-intel-total-conversion/screen_small.png)](http://breunigs.github.com/ingress-intel-total-conversion/screen.png)
+[![Screenshot of the total conversion in Johannesburg](http://breunigs.github.com/ingress-intel-total-conversion/screenshots/screen_small.png)](http://breunigs.github.com/ingress-intel-total-conversion/screenshots/screen.png)
 
 (click to zoom)
 
