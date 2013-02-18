@@ -251,11 +251,11 @@ function boot() {
   window.runOnSmartphonesBeforeBoot();
 
   // overwrite default Leaflet Marker icon to be a neutral color
-  var base = 'http://breunigs.github.com/ingress-intel-total-conversion/dist';
-  L.Icon.Default.imagePath = base + '/images';
+  var base = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/';
+  L.Icon.Default.imagePath = base + 'images';
 
-  window.iconEnl = L.Icon.extend({options: { iconUrl: 'marker-green.png' } });
-  window.iconRes = L.Icon.extend({options: { iconUrl: 'marker-blue.png' } });
+  window.iconEnl = L.Icon.extend({options: { iconUrl: base + 'marker-green.png' } });
+  window.iconRes = L.Icon.extend({options: { iconUrl: base + 'marker-blue.png' } });
 
   window.setupStyles();
   window.setupMap();
