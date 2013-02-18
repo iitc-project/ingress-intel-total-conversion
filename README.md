@@ -66,7 +66,7 @@ Current version is 0.61. See [NEWS.md](https://github.com/breunigs/ingress-intel
 Reporting Issues
 ----------------
 
-[tutorial / guide / please read / **free candy**](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/HACKING.md#how-do-i-report-bugs-)
+[tutorial / guide / please read / **free candy**](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/HACKING.md#how-do-i-report-bugs)
 
 
 Contributing
