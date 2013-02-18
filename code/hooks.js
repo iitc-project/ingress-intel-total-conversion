@@ -23,7 +23,8 @@
 //              code/map_data.js#renderPortal near the end. Will hand
 //              the Leaflet CircleMarker for the portal in "portal" var.
 // portalDetailsUpdated: fired after the details in the sidebar have
-//              been (re-)rendered
+//              been (re-)rendered. Provides data about the portal that
+//              has been selected.
 
 window._hooks = {}
 window.VALID_HOOKS = ['portalAdded', 'portalDetailsUpdated'];
