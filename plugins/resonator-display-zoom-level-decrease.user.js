@@ -5,7 +5,7 @@
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/resonator-display-zoom-level-decrease.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/resonator-display-zoom-level-decrease.user.js
-// @description    Let resonator display in lower zoom level
+// @description    Resonator start display earlier
 // @include        http://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
 // ==/UserScript==
