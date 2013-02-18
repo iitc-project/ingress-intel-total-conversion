@@ -190,8 +190,9 @@ window.setupSidebarToggle = function() {
   });
 }
 
-window.setupTooltips = function() {
-  $(document).tooltip({
+window.setupTooltips = function(element) {
+  element = element || $(document);
+  element.tooltip({
     // disable show/hide animation
     show: { effect: "hide", duration: 0 } ,
     hide: false,
@@ -233,6 +234,11 @@ window.setupTooltips = function() {
       return tooltip;
     }
   });
+
+  if(!window.tooltipClearerHasBeenSetup) {
+    window.tooltipClearerHasBeenSetup = true;
+    $(document).on('click', '.ui-tooltip', function() { $(this).remove(); });
+  }
 }
 
 
