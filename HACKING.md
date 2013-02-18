@@ -30,7 +30,10 @@ Please follow the these guidelines. Some are just preference, others are good pr
 - opening brace on the same line with a space after the if/for/etc: `if(blub) {`
 - there is no length limit on lines, but try to keep them short where suitable
 
-Sending patches:
+
+Sending patches
+---------------
+
 - use GitHub and git to fork the repository
 - use [GitHub’s pull request feature](https://help.github.com/articles/using-pull-requests) to submit patches easily
 - use one pull request for one feature – don’t put many things into one request. This makes reviewing harder for me.
