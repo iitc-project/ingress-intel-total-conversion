@@ -69,7 +69,7 @@ If your issue persists, continue. Provide **all** of the information below, even
 - a descriptive title
 - your browser and its version
 - IITC’s version
-- all installed plugins and their version
+- all installed IITC-plugins and their version
 - a portal link
 - either of these:
     - outline the steps that lead to the bug, so I can reproduce the problem
