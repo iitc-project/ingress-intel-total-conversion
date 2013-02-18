@@ -95,7 +95,7 @@ window.setupMap = function() {
   // listen for changes and store them in cookies
   map.on('moveend', window.storeMapPosition);
   map.on('zoomend', function() {
-    window.storeMapPosition;
+    window.storeMapPosition();
 
     // remove all resonators if zoom out to < RESONATOR_DISPLAY_ZOOM_LEVEL
     if(isResonatorsShow()) return;
