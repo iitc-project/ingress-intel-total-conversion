@@ -57,7 +57,7 @@ Current version is 0.61. See [NEWS.md](https://github.com/breunigs/ingress-intel
 
 **Opera:** Download the script and put it into your user_js folder (that’s `~/.opera/user_js` on Unix). If you can’t find it [see Opera’s docs](http://www.opera.com/docs/userjs/using/#writingscripts). After placing it there, reload the page.
 
-**NoScript:** It doesn’t work with NoScript, unless you uncheck `NoScript` → `Embeddings` → `Block every object coming from a site makred as untrusted`. This is required, even if NoScript is set to allow scripts globally. No embedded objects are being loaded. I tried reporting the bug, but only a forum that wouldn’t let me register was available. There’s a stripped down example in `noscript-sucks.html`. If you can manage to report the bug, be my guest.
+**NoScript:** The newest, not yet released version appears to work with NoScript. Until it is released disable NoScript if you have problems. To make the script work whitelist at least these domains: `ingress.com` `github.com` `leafletjs.com` `googleapis.com`. If you want to see the cool font also whitelist `googleusercontent.com`.
 
 
 
