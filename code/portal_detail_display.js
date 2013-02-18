@@ -70,7 +70,7 @@ window.renderPortalDetails = function(guid) {
   // weren’t available yet.
   resolvePlayerNames();
 
-  runHooks('portalDetailsUpdated', {portal: d});
+  runHooks('portalDetailsUpdated', {portalDetails: d});
 }
 
 // draws link-range and hack-range circles around the portal with the
