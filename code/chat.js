@@ -200,6 +200,8 @@ window.chat.handlePublic = function(data, textStatus, jqXHR) {
   chat.writeDataToHash(data, chat._publicData, true);
   var oldMsgsWereAdded = old !== chat.getOldestTimestamp(false);
 
+  runHooks('publicChatDataAvailable', {raw: data, processed: chat._publicData});
+
   switch(chat.getActive()) {
     case 'public': window.chat.renderPublic(oldMsgsWereAdded); break;
     case 'compact': window.chat.renderCompact(oldMsgsWereAdded); break;
