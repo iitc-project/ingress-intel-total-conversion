@@ -23,12 +23,14 @@
 //              code/map_data.js#renderPortal near the end. Will hand
 //              the Leaflet CircleMarker for the portal in "portal" var.
 // portalDetailsUpdated: fired after the details in the sidebar have
-//              been (re-)rendered
+//              been (re-)rendered Provides data about the portal that
+//              has been selected.
 // publicChatDataAvailable: this hook runs after data for any of the
 //              public chats has been received and processed, but not
 //              yet been displayed. The data hash contains both the un-
 //              processed raw ajax response as well as the processed
 //              chat data that is going to be used for display.
+
 
 window._hooks = {}
 window.VALID_HOOKS = ['portalAdded', 'portalDetailsUpdated',
