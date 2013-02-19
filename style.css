@@ -647,6 +647,7 @@ aside + aside {
 
 td {
   padding: 0;
+  vertical-align: top;
 }
 
 td + td {
