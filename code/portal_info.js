@@ -87,14 +87,14 @@ window.getAttackApGain = function(d) {
   var totalAp = destroyAp + captureAp;
 
   return {
-    totalAp : totalAp,
-    destroyAp : destroyAp,
-    captureAp : captureAp,
-    resoCount : resoCount,
-    resoAp : resoAp,
-    linkCount : linkCount,
-    linkAp : linkAp,
-    fieldCount : fieldCount,
-    fieldAp : fieldAp
+    totalAp: totalAp,
+    destroyAp: destroyAp,
+    captureAp: captureAp,
+    resoCount: resoCount,
+    resoAp: resoAp,
+    linkCount: linkCount,
+    linkAp: linkAp,
+    fieldCount: fieldCount,
+    fieldAp: fieldAp
   };
 }
