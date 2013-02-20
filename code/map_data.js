@@ -127,6 +127,8 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
 
   // Preserve and restore "selectedPortal" between portal re-render
   if(portalUpdateAvailable) var oldSelectedPortal = selectedPortal;
+  
+  runHooks('portalDataLoaded', {portals : ppp});
   $.each(ppp, function(ind, portal) { renderPortal(portal); });
 
   var selectedPortalLayer = portals[oldSelectedPortal];

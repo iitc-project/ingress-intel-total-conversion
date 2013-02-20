@@ -1,10 +1,10 @@
 // ==UserScript==
-// @id             iitc-plugin-compute-ap-stats@breunigs
+// @id             iitc-plugin-compute-ap-stats@Hollow011
 // @name           iitc: Compute AP statistics
 // @version        0.1
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
-// @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/compute_AP_stats.user.js
-// @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/compute_AP_stats.user.js
+// @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/compute-AP-stats.user.js
+// @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/compute-AP-stats.user.js
 // @description    Tries to determine overal AP stats for the current zoom
 // @include        http://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
@@ -29,15 +29,15 @@ window.plugin.compAPStats.compAPStats = function() {
   var totalAP_RES = 0;
   var totalAP_ENL = 0;
   
-  var allResEdges = new Array();
-  var allResFields = new Array();
-  var allEnlEdges = new Array();
-  var allEnlFields = new Array();
+  var allResEdges = [];
+  var allResFields = [];
+  var allEnlEdges = [];
+  var allEnlFields = [];
   
   
   // Grab every portal in the viewable area and compute individual AP stats  (ignoring links and fields for now)
   $.each(window.portals, function(ind, portal) {
-    var d = portal.options.details
+    var d = portal.options.details;
     var resoCount = 0;
 
     // see how many resonators the portal has
@@ -50,34 +50,32 @@ window.plugin.compAPStats.compAPStats = function() {
     var resoAp = resoCount * DESTROY_RESONATOR;
     var portalSum = resoAp + CAPTURE_PORTAL + 8*DEPLOY_RESONATOR + COMPLETION_BONUS;
     
-    // Team1 is a Res portal, Team2 is a Enl portal
-    if ( getTeam(d) === TEAM_ENL ) {
+    if (getTeam(d) === TEAM_ENL) {
       totalAP_RES += portalSum;
       
-      $.each(d.portalV2.linkedEdges, function(ind,edge) {
+      $.each(d.portalV2.linkedEdges, function(ind, edge) {
       	if(!edge) return true;
       	allEnlEdges.push(edge.edgeGuid);
       });
       
-      $.each(d.portalV2.linkedFields, function(ind,field) {
+      $.each(d.portalV2.linkedFields, function(ind, field) {
         if(!field) return true;
         allEnlFields.push(field);
       });
     }
-    else if ( getTeam(d) === TEAM_RES ) {
+    else if (getTeam(d) === TEAM_RES) {
       totalAP_ENL += portalSum;
       
-      $.each(d.portalV2.linkedEdges, function(ind,edge) {
+      $.each(d.portalV2.linkedEdges, function(ind, edge) {
         if(!edge) return true;
         allResEdges.push(edge.edgeGuid);
       });
         
-      $.each(d.portalV2.linkedFields, function(ind,field) {
+      $.each(d.portalV2.linkedFields, function(ind, field) {
         if(!field) return true;
         allResFields.push(field);
       });
-    }
-    else { 
+    } else { 
       // it's a neutral portal, potential for both teams.  by definition no fields or edges
       totalAP_ENL += portalSum;
       totalAP_RES += portalSum;
