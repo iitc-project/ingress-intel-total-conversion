@@ -135,35 +135,21 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
   return [meter, nick || ''];
 }
 
-// calculate AP gain from destroying portal
-// so far it counts only resonators + links
-window.getDestroyAP = function(d) {
-  var resoCount = 0;
-
-  $.each(d.resonatorArray.resonators, function(ind, reso) {
-    if(!reso) return true;
-    resoCount += 1;
-  });
-
-  var linkCount = d.portalV2.linkedEdges ? d.portalV2.linkedEdges.length : 0;
-  var fieldCount = d.portalV2.linkedFields ? d.portalV2.linkedFields.length : 0;
-
-  var resoAp = resoCount * DESTROY_RESONATOR;
-  var linkAp = linkCount * DESTROY_LINK;
-  var fieldAp = fieldCount * DESTROY_FIELD;
-  var sum = resoAp + linkAp + fieldAp + CAPTURE_PORTAL + 8*DEPLOY_RESONATOR + COMPLETION_BONUS;
+// calculate AP gain from destroying portal and then capturing it by deploying resonators
+window.getAttackApGainText = function(d) {
+  var breakdown = getAttackApGain(d);
 
   function tt(text) {
     var t = 'Destroy &amp; Capture:\n';
-    t += resoCount  + '×\tResonators\t= ' + digits(resoAp) + '\n';
-    t += linkCount  + '×\tLinks\t= ' + digits(linkAp) + '\n';
-    t += fieldCount + '×\tFields\t= ' + digits(fieldAp) + '\n';
+    t += breakdown.resoCount + '×\tResonators\t= ' + digits(breakdown.resoAp) + '\n';
+    t += breakdown.linkCount + '×\tLinks\t= ' + digits(breakdown.linkAp) + '\n';
+    t += breakdown.fieldCount + '×\tFields\t= ' + digits(breakdown.fieldAp) + '\n';
     t += '1×\tCapture\t= ' + CAPTURE_PORTAL + '\n';
-    t += '8×\tDeploy\t= ' + (8*DEPLOY_RESONATOR) + '\n';
+    t += '8×\tDeploy\t= ' + (8 * DEPLOY_RESONATOR) + '\n';
     t += '1×\tBonus\t= ' + COMPLETION_BONUS + '\n';
-    t += 'Sum: ' + digits(sum) + ' AP';
-    return '<tt title="'+t+'">' + digits(text) + '</tt>';
+    t += 'Sum: ' + digits(breakdown.totalAp) + ' AP';
+    return '<tt title="' + t + '">' + digits(text) + '</tt>';
   }
 
-  return [tt('AP Gain'), tt(sum)];
+  return [tt('AP Gain'), tt(breakdown.totalAp)];
 }
