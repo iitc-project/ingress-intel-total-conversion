@@ -30,11 +30,16 @@
 //              yet been displayed. The data hash contains both the un-
 //              processed raw ajax response as well as the processed
 //              chat data that is going to be used for display.
-
+// portalDataLoaded: callback is passed the argument of
+//              {portals : [portal, portal, ...]} where "portal" is the
+//              data element and not the leaflet object. "portal" is an
+//              array [GUID, time, details]. Plugin can manipulate the
+//              array to change order or add additional values to the
+//              details of a portal.
 
 window._hooks = {}
 window.VALID_HOOKS = ['portalAdded', 'portalDetailsUpdated',
-  'publicChatDataAvailable'];
+  'publicChatDataAvailable', 'portalDataLoaded'];
 
 window.runHooks = function(event, data) {
   if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);
