@@ -97,4 +97,4 @@ window.getAttackApGain = function(d) {
     fieldCount : fieldCount,
     fieldAp : fieldAp
   };
-};
+}

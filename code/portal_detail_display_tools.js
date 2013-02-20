@@ -151,5 +151,5 @@ window.getAttackApGainText = function(d) {
     return '<tt title="' + t + '">' + digits(text) + '</tt>';
   }
 
-  return [ tt('AP Gain'), tt(breakdown.totalAp) ];
-};
+  return [tt('AP Gain'), tt(breakdown.totalAp)];
+}
