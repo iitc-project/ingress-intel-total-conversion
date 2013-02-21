@@ -567,19 +567,33 @@ h3 {
 
 .linkdetails {
   margin-bottom: 8px;
-}
+} 
 
 aside {
   display: inline-block;
-  padding: 0 5px;
-  width: 50%;
+  padding-right: 9px;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
-  text-align: right;
+  text-align: center;
 }
-aside + aside {
-  text-align: left;
+
+.linkdetails aside:last-child {
+  padding-right: 0;
+}
+
+.linkdetails aside:nth-child(1) {
+  text-align: right;
+  width:88px;
+}
+
+.linkdetails aside:nth-child(2) {
+  text-align: right;
+  width:67px;
+}
+
+.linkdetails aside:nth-child(4) {
+  margin-left:13px;
 }
 
 #toolbox {
@@ -647,7 +661,6 @@ aside + aside {
 
 td {
   padding: 0;
-  vertical-align: top;
 }
 
 td + td {
