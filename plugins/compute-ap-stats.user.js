@@ -38,17 +38,9 @@ window.plugin.compAPStats.compAPStats = function() {
   // Grab every portal in the viewable area and compute individual AP stats
   $.each(window.portals, function(ind, portal) {
     var d = portal.options.details;
-    var resoCount = 0;
-
-    // see how many resonators the portal has
-    $.each(d.resonatorArray.resonators, function(ind, reso) {
-      if(!reso) return true;
-      resoCount += 1;
-    });
     
-    // sum up the AP for the resonators, and any bonus 
-    var resoAp = resoCount * DESTROY_RESONATOR;
-    var portalSum = resoAp + CAPTURE_PORTAL + 8*DEPLOY_RESONATOR + COMPLETION_BONUS;
+    var portalStats = getAttackApGain(d);
+    var portalSum = portalStats.resoAp + portalStats.captureAp;
     
     if (getTeam(d) === TEAM_ENL) {
       totalAP_RES += portalSum;
@@ -83,15 +75,15 @@ window.plugin.compAPStats.compAPStats = function() {
   });
   
   // Compute team field AP
-  allResFields = $.unique(allResFields);
+  allResFields = uniqueArray(allResFields);
   totalAP_ENL += (allResFields.length * DESTROY_FIELD);
-  allEnlFields = $.unique(allEnlFields);
+  allEnlFields = uniqueArray(allEnlFields);
   totalAP_RES += (allEnlFields.length * DESTROY_FIELD);
   
   // Compute team Link AP
-  allResEdges = $.unique(allResEdges);
+  allResEdges = uniqueArray(allResEdges);
   totalAP_ENL += (allResEdges.length * DESTROY_LINK);
-  allEnlEdges = $.unique(allEnlEdges);
+  allEnlEdges = uniqueArray(allEnlEdges);
   totalAP_RES += (allEnlEdges.length * DESTROY_LINK);
  
   return [totalAP_RES, totalAP_ENL];
