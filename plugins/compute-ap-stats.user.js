@@ -3,8 +3,8 @@
 // @name           iitc: Compute AP statistics
 // @version        0.1
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
-// @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/compute-AP-stats.user.js
-// @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/compute-AP-stats.user.js
+// @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/compute-ap-stats.user.js
+// @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/compute-ap-stats.user.js
 // @description    Tries to determine overal AP stats for the current zoom
 // @include        http://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
@@ -35,20 +35,12 @@ window.plugin.compAPStats.compAPStats = function() {
   var allEnlFields = [];
   
   
-  // Grab every portal in the viewable area and compute individual AP stats  (ignoring links and fields for now)
+  // Grab every portal in the viewable area and compute individual AP stats
   $.each(window.portals, function(ind, portal) {
     var d = portal.options.details;
-    var resoCount = 0;
-
-    // see how many resonators the portal has
-    $.each(d.resonatorArray.resonators, function(ind, reso) {
-      if(!reso) return true;
-      resoCount += 1;
-    });
     
-    // sum up the AP for the resonators, and any bonus 
-    var resoAp = resoCount * DESTROY_RESONATOR;
-    var portalSum = resoAp + CAPTURE_PORTAL + 8*DEPLOY_RESONATOR + COMPLETION_BONUS;
+    var portalStats = getAttackApGain(d);
+    var portalSum = portalStats.resoAp + portalStats.captureAp;
     
     if (getTeam(d) === TEAM_ENL) {
       totalAP_RES += portalSum;
@@ -83,15 +75,15 @@ window.plugin.compAPStats.compAPStats = function() {
   });
   
   // Compute team field AP
-  allResFields = $.unique(allResFields);
+  allResFields = uniqueArray(allResFields);
   totalAP_ENL += (allResFields.length * DESTROY_FIELD);
-  allEnlFields = $.unique(allEnlFields);
+  allEnlFields = uniqueArray(allEnlFields);
   totalAP_RES += (allEnlFields.length * DESTROY_FIELD);
   
   // Compute team Link AP
-  allResEdges = $.unique(allResEdges);
+  allResEdges = uniqueArray(allResEdges);
   totalAP_ENL += (allResEdges.length * DESTROY_LINK);
-  allEnlEdges = $.unique(allEnlEdges);
+  allEnlEdges = uniqueArray(allEnlEdges);
   totalAP_RES += (allEnlEdges.length * DESTROY_LINK);
  
   return [totalAP_RES, totalAP_ENL];
@@ -103,8 +95,8 @@ window.plugin.compAPStats.guess = function() {
   var totalAP_ENL = res[1];
 
   var s = 'Calculated AP gain potential:\n\n';
-  s += 'Available Resistance AP: \t' + digits(totalAP_RES) + '\n';
-  s += 'Available Enlightened AP: \t' + digits(totalAP_ENL) + '\n';
+  s += 'Available Resistance AP:\t' + digits(totalAP_RES) + '\n';
+  s += 'Available Enlightened AP:\t' + digits(totalAP_ENL) + '\n';
 
   alert(s);
 }

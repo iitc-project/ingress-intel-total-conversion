@@ -34,7 +34,7 @@ window.renderPortalDetails = function(guid) {
   // collect and html-ify random data
   var randDetails = [
     playerText, sinceText, getRangeText(d), getEnergyText(d),
-    linksText, getAvgResoDistText(d), linkedFields, getDestroyAP(d)
+    linksText, getAvgResoDistText(d), linkedFields, getAttackApGainText(d)
   ];
   randDetails = '<table id="randdetails">' + genFourColumnTable(randDetails) + '</table>';
 
