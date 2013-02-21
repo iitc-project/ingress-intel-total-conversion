@@ -3,8 +3,8 @@
 // @name           iitc: Compute AP statistics
 // @version        0.1
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
-// @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/compute-AP-stats.user.js
-// @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/compute-AP-stats.user.js
+// @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/compute-ap-stats.user.js
+// @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/compute-ap-stats.user.js
 // @description    Tries to determine overal AP stats for the current zoom
 // @include        http://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
@@ -35,7 +35,7 @@ window.plugin.compAPStats.compAPStats = function() {
   var allEnlFields = [];
   
   
-  // Grab every portal in the viewable area and compute individual AP stats  (ignoring links and fields for now)
+  // Grab every portal in the viewable area and compute individual AP stats
   $.each(window.portals, function(ind, portal) {
     var d = portal.options.details;
     var resoCount = 0;
@@ -103,8 +103,8 @@ window.plugin.compAPStats.guess = function() {
   var totalAP_ENL = res[1];
 
   var s = 'Calculated AP gain potential:\n\n';
-  s += 'Available Resistance AP: \t' + digits(totalAP_RES) + '\n';
-  s += 'Available Enlightened AP: \t' + digits(totalAP_ENL) + '\n';
+  s += 'Available Resistance AP:\t' + digits(totalAP_RES) + '\n';
+  s += 'Available Enlightened AP:\t' + digits(totalAP_ENL) + '\n';
 
   alert(s);
 }
