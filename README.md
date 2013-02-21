@@ -45,15 +45,16 @@ Current version is 0.61. See [NEWS.md](https://github.com/breunigs/ingress-intel
 
 **Firefox:** Install [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) or [Scriptish](https://addons.mozilla.org/en-US/firefox/addon/scriptish/). Click install link. Install. Reload page.
 
-**Chrome:** The user script works in vanilla Chrome.
 
-1. Click install link and ignore the warning.
-2. The file should be downloaded and appear in your download bar.
-3. Goto `Menu Button` → `Tools` → `Extensions`.
-4. Drag and drop the download over the window and Chrome will offer you to install the script.
-5. Reload page.
+**Chrome:**
+- Install [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo/details).
+- Click install link.
+- **Now beware:** a OK/cancel dialog pops up. It **does not** allow you to cancel the installation. Choose **OK** to install the script with Tampermonkey.
+- Confirm once again and you’re done.
 
-*Note:* if Chrome only shows you the text, but does not offer an install dialog, make sure the file ends in `.user.js`. If it’s something like `.user(2).js` it won’t work.
+**Note:** Tampermonkey is optional. However, it offers auto-update, shows correct version numbers and installing user scripts is much easier. If you have installed the scripts directly into Chrome before, I recommend you switch to Tampermonkey. Uninstall the old scripts and reinstall them.
+
+
 
 **Opera:** Download the script and put it into your user_js folder (that’s `~/.opera/user_js` on Unix). If you can’t find it [see Opera’s docs](http://www.opera.com/docs/userjs/using/#writingscripts). After placing it there, reload the page.
 
