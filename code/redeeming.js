@@ -49,6 +49,6 @@ window.setupRedeem = function() {
     if((e.keyCode ? e.keyCode : e.which) != 13) return;
     var data = {passcode: $(this).val()};
     window.postAjax('redeemReward', data, window.handleRedeemResponse,
-      function() { alert('HTTP request failed. Try again?'); });
+      function() { alert('The HTTP request failed. Either your code is invalid or their servers are down. No way to tell.'); });
   });
 }
