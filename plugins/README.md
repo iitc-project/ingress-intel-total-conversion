@@ -15,7 +15,7 @@ Available Plugins
 - [**Render Limit Increase**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/render-limit-increase.user.js) increases render limits. Good for high density areas (e.g. London, UK) and faster PCs.
 - [**Resonator Display Zoom Level Decrease**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/resonator-display-zoom-level-decrease.user.js) Resonator start displaying earlier.
 - [**Player Tracker**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/player-tracker.user.js) Draws trails for user actions in the last hour. At the last known location there’s a tooltip that shows the data in a table. [View screenshot](http://breunigs.github.com/ingress-intel-total-conversion/screenshots/plugin_player_tracker.png). **REQUIRES IITC v0.7+**. 0.7 is not yet available. You need to build it yourself.
-- [**Compute AP Stats**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/compute-ap-stats.user.js) Shows the potential AP an agent could obtain by destroying and rebuilding all the portals in the current zoom area.
+- [**Compute AP Stats**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/compute-ap-stats.user.js) Shows the potential AP an agent could obtain by destroying and rebuilding all the portals in the current zoom area. **REQUIRES IITC v0.7+**. 0.7 is not yet available. You need to build it yourself.
 
 Hacking
 -------
