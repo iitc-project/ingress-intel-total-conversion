@@ -181,27 +181,35 @@ window.NOMINATIM = 'http://nominatim.openstreetmap.org/search?format=json&limit=
 
 // INGRESS CONSTANTS /////////////////////////////////////////////////
 // http://decodeingress.me/2012/11/18/ingress-portal-levels-and-link-range/
-var RESO_NRG = [0, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 6000];
-var MAX_XM_PER_LEVEL = [0, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000];
-var MIN_AP_FOR_LEVEL = [0, 10000, 30000, 70000, 150000, 300000, 600000, 1200000];
-var HACK_RANGE = 40; // in meters, max. distance from portal to be able to access it
-var OCTANTS = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
-var DESTROY_RESONATOR = 75; //AP for destroying portal
-var DESTROY_LINK = 187; //AP for destroying link
-var DESTROY_FIELD = 750; //AP for destroying field
-var CAPTURE_PORTAL = 500; //AP for capturing a portal
-var DEPLOY_RESONATOR = 125; //AP for deploying a resonator
-var COMPLETION_BONUS = 250; //AP for deploying all resonators on portal
+window.RESO_NRG = [0, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 6000];
+window.MAX_XM_PER_LEVEL = [0, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000];
+window.MIN_AP_FOR_LEVEL = [0, 10000, 30000, 70000, 150000, 300000, 600000, 1200000];
+window.HACK_RANGE = 40; // in meters, max. distance from portal to be able to access it
+window.OCTANTS = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
+window.DESTROY_RESONATOR = 75; //AP for destroying portal
+window.DESTROY_LINK = 187; //AP for destroying link
+window.DESTROY_FIELD = 750; //AP for destroying field
+window.CAPTURE_PORTAL = 500; //AP for capturing a portal
+window.DEPLOY_RESONATOR = 125; //AP for deploying a resonator
+window.COMPLETION_BONUS = 250; //AP for deploying all resonators on portal
 
 // OTHER MORE-OR-LESS CONSTANTS //////////////////////////////////////
-var TEAM_NONE = 0, TEAM_RES = 1, TEAM_ENL = 2;
-var TEAM_TO_CSS = ['none', 'res', 'enl'];
-var TYPE_UNKNOWN = 0, TYPE_PORTAL = 1, TYPE_LINK = 2, TYPE_FIELD = 3, TYPE_PLAYER = 4, TYPE_CHAT = 5, TYPE_RESONATOR = 6;
+window.TEAM_NONE = 0;
+window.TEAM_RES = 1;
+window.TEAM_ENL = 2;
+window.TEAM_TO_CSS = ['none', 'res', 'enl'];
+window.TYPE_UNKNOWN = 0;
+window.TYPE_PORTAL = 1;
+window.TYPE_LINK = 2;
+window.TYPE_FIELD = 3;
+window.TYPE_PLAYER = 4;
+window.TYPE_CHAT = 5;
+window.TYPE_RESONATOR = 6;
 
-var SLOT_TO_LAT = [0, Math.sqrt(2)/2, 1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2];
-var SLOT_TO_LNG = [1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2, 0, Math.sqrt(2)/2];
-var EARTH_RADIUS=6378137;
-var DEG2RAD = Math.PI / 180;
+window.SLOT_TO_LAT = [0, Math.sqrt(2)/2, 1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2];
+window.SLOT_TO_LNG = [1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2, 0, Math.sqrt(2)/2];
+window.EARTH_RADIUS=6378137;
+window.DEG2RAD = Math.PI / 180;
 
 // STORAGE ///////////////////////////////////////////////////////////
 // global variables used for storage. Most likely READ ONLY. Proper
