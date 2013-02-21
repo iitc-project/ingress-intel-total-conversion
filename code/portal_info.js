@@ -66,3 +66,35 @@ window.getAvgResoDist = function(d) {
   });
   return sum/resos;
 }
+
+window.getAttackApGain = function(d) {
+  var resoCount = 0;
+
+  $.each(d.resonatorArray.resonators, function(ind, reso) {
+    if (!reso)
+      return true;
+    resoCount += 1;
+  });
+
+  var linkCount = d.portalV2.linkedEdges ? d.portalV2.linkedEdges.length : 0;
+  var fieldCount = d.portalV2.linkedFields ? d.portalV2.linkedFields.length : 0;
+
+  var resoAp = resoCount * DESTROY_RESONATOR;
+  var linkAp = linkCount * DESTROY_LINK;
+  var fieldAp = fieldCount * DESTROY_FIELD;
+  var destroyAp = resoAp + linkAp + fieldAp;
+  var captureAp = CAPTURE_PORTAL + 8 * DEPLOY_RESONATOR + COMPLETION_BONUS;
+  var totalAp = destroyAp + captureAp;
+
+  return {
+    totalAp: totalAp,
+    destroyAp: destroyAp,
+    captureAp: captureAp,
+    resoCount: resoCount,
+    resoAp: resoAp,
+    linkCount: linkCount,
+    linkAp: linkAp,
+    fieldCount: fieldCount,
+    fieldAp: fieldAp
+  };
+}
