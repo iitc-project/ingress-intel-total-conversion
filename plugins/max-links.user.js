@@ -57,9 +57,10 @@ function wrapper() {
         }
       }
       
-    Triangle.prototype.draw = function(layer) {
+    Triangle.prototype.draw = function(layer, divX, divY) {
         var drawLine = function(src, dest) {
-            var poly = L.polyline([[src.y, src.x], [dest.y, dest.x]], {
+            var poly = L.polyline([[(src.y + divY)/1E6, (src.x + divX)/1E6],
+                                   [(dest.y + divY)/1E6, (dest.x + divX)/1E6]], {
                 color: MAX_LINK_COLOR,
                 opacity: 1,
                 weight:2,
@@ -212,19 +213,31 @@ function wrapper() {
         }
         
         var locations = [];
+        var minX = 0;
+        var minY = 0;
+        
         for (var key in window.portals) {
             var loc = window.portals[key].options.details.locationE6;
-            var nloc = { x: loc.lngE6/1E6, y: loc.latE6/1E6 };
+            var nloc = { x: loc.lngE6, y: loc.latE6 };
+            if (nloc.x < minX) minX = nloc.x;
+            if (nloc.y < minX) minX = nloc.y;
             locations.push(nloc);
         }
-
-       layer = L.layerGroup([])
         
+        var i = locations.length;
+        while(i) {
+            var nloc = locations[--i];
+            nloc.x += Math.abs(minX);
+            nloc.y += Math.abs(minY);
+        }
+
+        layer = L.layerGroup([])
         
         var triangles = triangulate(locations);
-        var i = triangles.length
+        i = triangles.length;
         while(i) {
-            triangles[--i].draw(layer)
+            var triangle = triangles[--i];
+            triangle.draw(layer, minX, minY)
         }
         
         window.map.addLayer(layer);
