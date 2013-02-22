@@ -234,7 +234,8 @@ window.plugin.playerTracker.drawData = function() {
       weight: 2-0.25*i,
       color: '#FF00FD',
       clickable: false,
-      opacity: 1-0.2*i
+      opacity: 1-0.2*i,
+      dashArray: "5,8"
     };
 
     L.multiPolyline(polyLine, opts).addTo(layer);
