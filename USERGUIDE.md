@@ -31,7 +31,7 @@ Chat
 The chat is split up into several categories. It usually only shows messages for the current map view. It may lag behind if Niantic’s servers are slow. It also has a minimum radius of six km. This means that even if you zoom in very much, it will still show messages from a larger area around you.
 
 **The chat categories are:**
-- full: shows all automated messages *(23:57	<apj>	destroyed an L3 Resonator on Two Spikes)*
+- full: shows all automated messages *(23:57	\<apj\>	destroyed an L3 Resonator on Two Spikes)*
 - compact: shows exactly one automated message per user
 - public: shows user generated public messages (both Enlightenment and Resistance can read it)
 - faction: shows messages for own faction (e.g. only Resistance can read Resistance messages)
