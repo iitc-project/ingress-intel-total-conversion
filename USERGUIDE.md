@@ -59,6 +59,18 @@ If you are zoomed out quite a bit, there’s a larger red circle. This is the li
 **Note** that plugins may also add themselves to the layer chooser.
 
 
+Map Status / Updates
+--------------------
+
+It shows if there are currently operations pending. This includes chat updates as well as map data requests. Updates happen every 45s to 90s, depending on how far zoomed in you are. The more you zoom in, the faster the updates are.
+
+It also shows which portals are being loaded/shown. Zoom in to see lower level portals. This is a limit of the server and not IITC. Portals levels that cannot be shown are also striked through in the layer chooser.
+
+**Failures:** If a data request failed, it is retried once. Only if the retry fails as well, a “failure” message is shown in the map status. You can either wait for the next automatic update or move the map a little. Also try to zoom in to request less data, which makes it less likely that the servers fail. The failure counter is reset on the next auto update or if you move the map.
+
+**Render Limit:** The script tries to stay responsive. If too much data needs to be rendered, this cannot be guaranteed. Instead it will simply stop drawing portals/links/fields and show “render limit” in the map status. Zoom in to solve this.
+
+
 
 Sidebar
 -------
@@ -100,23 +112,10 @@ Starting from the top, the sidebar shows this information:
     - Portal link: use it show others a portal. IITC users will automatically zoomed to the location and shown portal details as soon as they’re available. Vanilla map users will only be zoomed to location.
     - Report issue: redirects you to Niantic report issue page. Allows you to copy all required information before going there.
     - GMaps: shows you the portal’s location in Google Maps for routing and similar purposes.
-  - Redeem code: allows you to redeem codes to receive goodies. If you copied them from the Internet, they are probably invalid already.
-  - Toolbox: plugins may add links here. The default ones are:
-    - permalink. use it to show your current map view to others. Does not select a portal. Works with the normal intel map, too.
-    - IITC’s page. Visit our homepage. Be in awe. Drool.
-
-
-Map Status / Updates
---------------------
-
-It shows if there are currently operations pending. This includes chat updates as well as map data requests. Updates happen every 45s to 90s, depending on how far zoomed in you are. The more you zoom in, the faster the updates are.
-
-It also shows which portals are being loaded/shown. Zoom in to see lower level portals. This is a limit of the server and not IITC. Portals levels that cannot be shown are also striked through in the layer chooser.
-
-**Failures:** If a data request failed, it is retried once. Only if the retry fails as well, a “failure” message is shown in the map status. You can either wait for the next automatic update or move the map a little. Also try to zoom in to request less data, which makes it less likely that the servers fail. The failure counter is reset on the next auto update or if you move the map.
-
-**Render Limit:** The script tries to stay responsive. If too much data needs to be rendered, this cannot be guaranteed. Instead it will simply stop drawing portals/links/fields and show “render limit” in the map status. Zoom in to solve this.
-
+- Redeem code: allows you to redeem codes to receive goodies. If you copied them from the Internet, they are probably invalid already.
+- Toolbox: plugins may add links here. The default ones are:
+  - permalink. use it to show your current map view to others. Does not select a portal. Works with the normal intel map, too.
+  - IITC’s page. Visit our homepage. Be in awe. Drool.
 
 
 Reporting Bugs / I need more help
