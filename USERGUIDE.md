@@ -1,6 +1,16 @@
 Userguide
 =========
 
+table of contents:
+- [Installation](#installation)
+- [General Usage](#general-usage)
+- [Chat](#chat)
+- [Map Display](#map-display)
+- [Map Status / Updates](#map-status--updates)
+- [Sidebar](#sidebar)
+- [Bugs and help requests](#reporting-bugs--i-need-more-help)
+
+
 Installation
 ------------
 
@@ -121,4 +131,4 @@ Starting from the top, the sidebar shows this information:
 Reporting Bugs / I need more help
 ---------------------------------
 
-[Please read the “how do I report bugs” here](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/HACKING.md#how-do-i-report-bugs)].
+[Please read the “how do I report bugs” here](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/HACKING.md#how-do-i-report-bugs).
