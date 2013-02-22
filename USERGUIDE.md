@@ -50,13 +50,13 @@ You can customize many aspects of how the map is rendered in the layer chooser. 
 **Background / Street Map / Base Layer:**
 All these refer to the same thing. The base layer is stored across sessions. The default one uses OpenStreetMap data with a style that resembles the default Ingress one. There are other styles available.
 
-The layers from Google Maps are available as well. Google requires that their maps are only displayed with their tools. Therefore they cannot be as tightly integrated as the OpenStreetMap ones. That’s the reason why they lag behind.
+The layers from Google Maps are available as well. Google requires that their maps are only displayed with their tools. Therefore they cannot be as tightly integrated as the OpenStreetMap ones. That’s the reason why they lag behind when zooming or dragging the map.
 
 **Portals:**
 You can filter portals by level. Select the ones you want to see in the layer chooser. If lower level portals are striked-through, this means you need to zoom in further to see them. This is a server limitation, not one in IITC. Your settings are discarded after a reload.
 
 **Resonators:**
-Resonators are shown at their actual positions if you zoom in close enough.
+Resonators are shown at their actual positions if you zoom in close enough. They become lighter the less energy they have left. They are color coded to show their level.
 
 **Fields / Links:**
 They are handled the same way portals are, see above.
@@ -64,7 +64,7 @@ They are handled the same way portals are, see above.
 **Other:**
 When you select a portal its outer ring becomes red. There’s also a small yellow circle around it which depicts the hack range. You need to be in hack range to hack the portal or update its resonators or mods.
 
-If you are zoomed out quite a bit, there’s a larger red circle. This is the link range. Only portals within this link range can be linked while standing at the selected portal.
+If you are zoomed out quite a bit, there’s a larger red circle. This is the link range. Only portals within this link range can be linked while standing at the selected portal. [Click the range in the sidebar to zoom to link range for the selected portal](#random-details).
 
 **Note** that plugins may also add themselves to the layer chooser.
 
@@ -72,7 +72,7 @@ If you are zoomed out quite a bit, there’s a larger red circle. This is the li
 Map Status / Updates
 --------------------
 
-It shows if there are currently operations pending. This includes chat updates as well as map data requests. Updates happen every 45s to 90s, depending on how far zoomed in you are. The more you zoom in, the faster the updates are.
+It shows if there are currently operations pending. This includes chat updates as well as map data requests. Updates happen every 45s to 90s, depending on how far zoomed in you are. Zoom in closer for faster updates.
 
 It also shows which portals are being loaded/shown. Zoom in to see lower level portals. This is a limit of the server and not IITC. Portals levels that cannot be shown are also striked through in the layer chooser.
 
