@@ -21,8 +21,28 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 window.plugin.compAPStats = function() {};
 
 window.plugin.compAPStats.setupCallback = function() {
-  $('#toolbox').append('<a onclick="window.plugin.compAPStats.guess()">Compute AP Stats</a> ');
+  // add a new div to the bottom of the sidebar and style it
+  $('#sidebar').append("<div id='available_ap_display'></div>");
+  $('#available_ap_display').css({'color':'yellow', 'font-size':'90%', 'padding':'4px 2px'});
+
+  // do an initial calc for sizing purposes
+  window.plugin.compAPStats.onPositionMove();
+  
+  //redefine the max size of the sidebar so its actually visible
+  $('#scrollwrapper').css('max-height', ($('#sidebar').get(0).scrollHeight+3) + 'px');
+  
+  //make the value update on map position changes
+  map.on('moveend zoomend', window.plugin.compAPStats.onPositionMove);
 }
+
+window.plugin.compAPStats.onPositionMove = function() {
+  $('#available_ap_display').empty();
+  $('#available_ap_display').append('Available AP in this area:<br/>');
+  var result = window.plugin.compAPStats.compAPStats();  
+  $('#available_ap_display').append('&nbsp;Enlightened:\t' + digits(result[1]) + '<br/>');
+  $('#available_ap_display').append('&nbsp;Resistance:\t' + digits(result[0]));
+}
+
 
 window.plugin.compAPStats.compAPStats = function() {
   
@@ -33,7 +53,6 @@ window.plugin.compAPStats.compAPStats = function() {
   var allResFields = [];
   var allEnlEdges = [];
   var allEnlFields = [];
-  
   
   // Grab every portal in the viewable area and compute individual AP stats
   $.each(window.portals, function(ind, portal) {
@@ -87,18 +106,6 @@ window.plugin.compAPStats.compAPStats = function() {
   totalAP_RES += (allEnlEdges.length * DESTROY_LINK);
  
   return [totalAP_RES, totalAP_ENL];
-}
-
-window.plugin.compAPStats.guess = function() {
-  var res = window.plugin.compAPStats.compAPStats();
-  var totalAP_RES = res[0];
-  var totalAP_ENL = res[1];
-
-  var s = 'Calculated AP gain potential:\n\n';
-  s += 'Available Resistance AP:\t' + digits(totalAP_RES) + '\n';
-  s += 'Available Enlightened AP:\t' + digits(totalAP_ENL) + '\n';
-
-  alert(s);
 }
 
 var setup =  function() {
