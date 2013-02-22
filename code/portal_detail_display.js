@@ -47,7 +47,8 @@ window.renderPortalDetails = function(guid) {
   var lng = d.locationE6.lngE6;
   var perma = 'http://ingress.com/intel?latE6='+lat+'&lngE6='+lng+'&z=17&pguid='+guid;
   var imgTitle = 'title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."';
-
+	var gmaps = 'https://maps.google.com/?q='+lat/1E6+','+lng/1E6;
+ 
   $('#portaldetails')
     .attr('class', TEAM_TO_CSS[getTeam(d)])
     .html(''
@@ -60,8 +61,9 @@ window.renderPortalDetails = function(guid) {
       + '<div class="mods">'+getModDetails(d)+'</div>'
       + randDetails
       + resoDetails
-      + '<div class="linkdetails">'
-      + '<aside><a href="'+perma+'">portal link</a></aside>'
+      + '<div class="linkdetails">'+ '<aside><a href="'+perma+'">portal link</a></aside>'
+      + '<aside><a href="'+gmaps+'" target="_blank">gmaps</a></aside>'
+      + '<aside><a onclick="alert(\'Send in a postcard.\');">donate</a></aside>'
       + '<aside><a onclick="window.reportPortalIssue()">report issue</a></aside>'
       + '</div>'
     );
