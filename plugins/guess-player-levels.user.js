@@ -32,7 +32,8 @@ window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
   var nick = el.text();
   var text;
   if (nick in playersNamed) {
-    text = 'Min player level: ' + playersNamed[nick] + ' (guessed)';
+    text = 'Min player level: ' + playersNamed[nick];
+    if(playersNamed[nick] === window.MAX_XM_PER_LEVEL - 1) text += ' (guessed)';
   } else {
     text = 'Min player level unknown';
   }
