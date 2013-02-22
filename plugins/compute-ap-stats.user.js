@@ -28,8 +28,12 @@ window.plugin.compAPStats.setupCallback = function() {
   // do an initial calc for sidebar sizing purposes
   window.plugin.compAPStats.onPositionMove();
   
-  // make the value update on map position changes
-  map.on('moveend zoomend', window.plugin.compAPStats.onPositionMove);
+  // make the value update when the map data updates
+  var handleDataResponseOrig = window.handleDataResponse;
+  window.handleDataResponse = function(data, textStatus, jqXHR) {
+	  handleDataResponseOrig(data, textStatus, jqXHR);
+	  window.plugin.compAPStats.onPositionMove();
+  }
 }
 
 window.plugin.compAPStats.onPositionMove = function() {
@@ -48,9 +52,14 @@ window.plugin.compAPStats.compAPStats = function() {
   var allEnlEdges = [];
   var allEnlFields = [];
   
+  var displayBounds = map.getBounds();
+  
   // Grab every portal in the viewable area and compute individual AP stats
   $.each(window.portals, function(ind, portal) {
     var d = portal.options.details;
+    
+    // eliminate offscreen portals (selected, and in padding)
+    if(!displayBounds.contains(portal.getLatLng())) return true;
     
     var portalStats = getAttackApGain(d);
     var portalSum = portalStats.resoAp + portalStats.captureAp;
