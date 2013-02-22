@@ -106,7 +106,8 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '      <a href="https://github.com/breunigs/ingress-intel-total-conversion#readme" title="IITC = Ingress Intel Total Conversion.\n\nOn the script’s homepage you can:\n– find updates\n– get plugins\n– report bugs\n– and contribute." style="cursor: help">IITC’s page</a></div>'
   + '  </div>'
   + '</div>'
-  + '<div id="updatestatus"></div>';
+  + '<div id="updatestatus"></div>'
+  + '<div id="dialog"></div>';
 
 // putting everything in a wrapper function that in turn is placed in a
 // script tag on the website allows us to execute in the site’s context

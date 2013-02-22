@@ -201,37 +201,7 @@ window.setupTooltips = function(element) {
     },
     content: function() {
       var title = $(this).attr('title');
-
-      // check if it should be converted to a table
-      if(!title.match(/\t/)) {
-        return title.replace(/\n/g, '<br />');
-      }
-
-      var data = [];
-      var columnCount = 0;
-
-      // parse data
-      var rows = title.split('\n');
-      $.each(rows, function(i, row) {
-        data[i] = row.split('\t');
-        if(data[i].length > columnCount) columnCount = data[i].length;
-      });
-
-      // build the table
-      var tooltip = '<table>';
-      $.each(data, function(i, row) {
-        tooltip += '<tr>';
-        $.each(data[i], function(k, cell) {
-          var attributes = '';
-          if(k === 0 && data[i].length < columnCount) {
-            attributes = ' colspan="'+(columnCount - data[i].length + 1)+'"';
-          }
-          tooltip += '<td'+attributes+'>'+cell+'</td>';
-        });
-        tooltip += '</tr>';
-      });
-      tooltip += '</table>';
-      return tooltip;
+      return window.convertTextToTableMagic(title);
     }
   });
 
@@ -240,6 +210,22 @@ window.setupTooltips = function(element) {
     $(document).on('click', '.ui-tooltip', function() { $(this).remove(); });
   }
 }
+
+window.setupDialogs = function() {
+  $('#dialog').dialog({
+    autoOpen: false,
+    modal: true,
+    buttons: [
+      { text: 'OK', click: function() { $(this).dialog('close'); } }
+    ]
+  });
+
+  window.alert = function(text, isHTML) {
+    var h = isHTML ? text : window.convertTextToTableMagic(text);
+    $('#dialog').html(h).dialog('open');
+  }
+}
+
 
 
 // BOOTING ///////////////////////////////////////////////////////////
@@ -258,6 +244,7 @@ function boot() {
   window.iconRes = L.Icon.Default.extend({options: { iconUrl: base + 'marker-blue.png' } });
 
   window.setupStyles();
+  window.setupDialogs();
   window.setupMap();
   window.setupGeosearch();
   window.setupRedeem();

@@ -233,3 +233,37 @@ window.genFourColumnTable = function(blocks) {
   if(t.length % 2 === 1) t + '<td></td><td></td></tr>';
   return t;
 }
+
+
+// converts given text with newlines (\n) and tabs (\t) to a HTML
+// table automatically.
+window.convertTextToTableMagic = function(text) {
+  // check if it should be converted to a table
+  if(!text.match(/\t/)) return text.replace(/\n/g, '<br>');
+
+  var data = [];
+  var columnCount = 0;
+
+  // parse data
+  var rows = text.split('\n');
+  $.each(rows, function(i, row) {
+    data[i] = row.split('\t');
+    if(data[i].length > columnCount) columnCount = data[i].length;
+  });
+
+  // build the table
+  var table = '<table>';
+  $.each(data, function(i, row) {
+    table += '<tr>';
+    $.each(data[i], function(k, cell) {
+      var attributes = '';
+      if(k === 0 && data[i].length < columnCount) {
+        attributes = ' colspan="'+(columnCount - data[i].length + 1)+'"';
+      }
+      table += '<td'+attributes+'>'+cell+'</td>';
+    });
+    table += '</tr>';
+  });
+  table += '</table>';
+  return table;
+}
