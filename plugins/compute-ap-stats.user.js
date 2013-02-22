@@ -22,27 +22,21 @@ window.plugin.compAPStats = function() {};
 
 window.plugin.compAPStats.setupCallback = function() {
   // add a new div to the bottom of the sidebar and style it
-  $('#sidebar').append("<div id='available_ap_display'></div>");
-  $('#available_ap_display').css({'color':'yellow', 'font-size':'90%', 'padding':'4px 2px'});
+  $('#sidebar').append('<div id="available_ap_display"></div>');
+  $('#available_ap_display').css({'color':'#ffce00', 'font-size':'90%', 'padding':'4px 2px'});
 
-  // do an initial calc for sizing purposes
+  // do an initial calc for sidebar sizing purposes
   window.plugin.compAPStats.onPositionMove();
   
-  //redefine the max size of the sidebar so its actually visible
-  $('#scrollwrapper').css('max-height', ($('#sidebar').get(0).scrollHeight+3) + 'px');
-  
-  //make the value update on map position changes
+  // make the value update on map position changes
   map.on('moveend zoomend', window.plugin.compAPStats.onPositionMove);
 }
 
 window.plugin.compAPStats.onPositionMove = function() {
-  $('#available_ap_display').empty();
-  $('#available_ap_display').append('Available AP in this area:<br/>');
   var result = window.plugin.compAPStats.compAPStats();  
-  $('#available_ap_display').append('&nbsp;Enlightened:\t' + digits(result[1]) + '<br/>');
-  $('#available_ap_display').append('&nbsp;Resistance:\t' + digits(result[0]));
+  $('#available_ap_display').html("Available AP in this area:<br/>&nbsp;Enlightened:\t" + 
+		  digits(result[1]) + "<br/>&nbsp;Resistance:\t" + digits(result[0]));
 }
-
 
 window.plugin.compAPStats.compAPStats = function() {
   
