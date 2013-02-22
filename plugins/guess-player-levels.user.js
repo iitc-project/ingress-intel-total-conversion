@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           iitc: guess player level
-// @version        0.1
+// @version        0.2
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/guess-player-levels.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/guess-player-levels.user.js
@@ -22,12 +22,22 @@ window.plugin.guessPlayerLevels = function() {};
 
 window.plugin.guessPlayerLevels.setupCallback = function() {
   $('#toolbox').append('<a onclick="window.plugin.guessPlayerLevels.guess()">guess player levels</a> ');
+  addHook('portalAdded', window.plugin.guessPlayerLevels.extractPortalData);
 }
 
 
 window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
-  //expects dom node with nick in its child text node
-  var playersNamed = window.plugin.guessPlayerLevels.prepareGuess();
+  // expects dom node with nick in its child text node
+
+  var playersNamed = {};
+  for (var i = 0; i < localStorage.length; i++) {
+    var ident = localStorage.key(i);
+    if(!ident.startsWith('level-')) continue;
+    var guid = ident.slice(6);
+    var level = localStorage[ident];
+    playersNamed[getPlayerName(guid)] = level;
+  }
+
   var el = $(dom);
   var nick = el.text();
   var text;
@@ -37,8 +47,7 @@ window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
   } else {
     text = 'Min player level unknown';
   }
-  el.attr('title', text);
-  el.addClass('help');
+  el.attr('title', text).addClass('help');
 }
 
 window.plugin.guessPlayerLevels.setupChatNickHelper = function() {
@@ -51,39 +60,67 @@ window.plugin.guessPlayerLevels.setupChatNickHelper = function() {
   });
 }
 
-window.plugin.guessPlayerLevels.prepareGuess = function() {
-  var players = {};
+window.plugin.guessPlayerLevels.extractPortalData = function(data) {
+  var r = data.portal.options.details.resonatorArray.resonators;
+  $.each(r, function(ind, reso) {
+    if(!reso) return true;
+    var p = 'level-'+reso.ownerGuid;
+    var l = reso.level;
+    if(!window.localStorage[p] || window.localStorage[p] < l)
+      window.localStorage[p] = l;
+  });
+}
+
+window.plugin.guessPlayerLevels.guess = function() {
+  var playersRes = {};
+  var playersEnl = {};
   $.each(window.portals, function(ind, portal) {
     var r = portal.options.details.resonatorArray.resonators;
     $.each(r, function(ind, reso) {
       if(!reso) return true;
-      var p = reso.ownerGuid;
-      var l = reso.level;
-      if(!players[p] || players[p] < l) players[p] = l;
+      var lvl = localStorage['level-' + reso.ownerGuid];
+      var nick = getPlayerName(reso.ownerGuid);
+      if(portal.options.team === TEAM_ENL)
+        playersEnl[nick] = lvl;
+      else
+        playersRes[nick] = lvl;
     });
   });
 
-  var playersNamed = {};
-  $.each(players, function(guid, level) {
-    playersNamed[getPlayerName(guid)] = level;
-  });
-  return playersNamed;
-}
-
-window.plugin.guessPlayerLevels.guess = function() {
-  var playersNamed = window.plugin.guessPlayerLevels.prepareGuess();
-
   var s = 'the players have at least the following level:\n\n';
-  $.each(Object.keys(playersNamed).sort(), function(ind, playerName) {
-    var level = playersNamed[playerName];
-    var nick = (playerName + ':                              ').slice(0, 20);
-    s += nick + '\t' + level + '\n';
-  });
+  s += 'Resistance:\t&nbsp;&nbsp;&nbsp;\tEnlightenment:\t\n';
+
+  var namesR = plugin.guessPlayerLevels.sort(playersRes);
+  var namesE = plugin.guessPlayerLevels.sort(playersEnl);
+  var max = Math.max(namesR.length, namesE.length);
+  for(var i = 0; i < max; i++) {
+    var nickR = namesR[i];
+    var lvlR = playersRes[nickR];
+    var lineR = nickR ? nickR + ':\t' + lvlR : '\t';
+
+    var nickE = namesE[i];
+    var lvlE = playersEnl[nickE];
+    var lineE = nickE ? nickE + ':\t' + lvlE : '\t';
+
+    s += lineR + '\t\t' + lineE + '\n';
+  }
 
   s += '\n\nIf there are some unresolved names, simply try again.'
-
+  console.log(s);
   alert(s);
 }
+
+window.plugin.guessPlayerLevels.sort = function(playerHash) {
+  return Object.keys(playerHash).sort(function(a, b) {
+    if(playerHash[a] < playerHash[b]) return 1;
+    if(playerHash[a] > playerHash[b]) return -1;
+
+    if (a.toLowerCase() < b.toLowerCase()) return -1;
+    if (a.toLowerCase() > b.toLowerCase()) return 1;
+    return 0;
+  });
+}
+
 
 var setup =  function() {
   window.plugin.guessPlayerLevels.setupCallback();
