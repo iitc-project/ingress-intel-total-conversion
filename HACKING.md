@@ -30,6 +30,7 @@ Please follow the these guidelines. Some are just preference, others are good pr
 - opening brace on the same line with a space after the if/for/etc: `if(blub) {`
 - else clauses: `} else if(blub) {` or `} else {`
 - comments: `// this is a comment`
+- quotes: Use single-quotes for JavaScript and double-quotes for HTML content. Example: `$('body').append('<div id="soup">Soup!</div>');`.
 - there is no length limit on lines, but try to keep them short where suitable
 
 
