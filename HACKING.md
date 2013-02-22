@@ -38,11 +38,12 @@ Sending patches
 ---------------
 
 - use GitHub and git to fork the repository
+- match the code style as shown above
 - use [GitHub’s pull request feature](https://help.github.com/articles/using-pull-requests) to submit patches easily
 - use one pull request for one feature – don’t put many things into one request. This makes reviewing harder for me.
 - you can use `git add -p` to selectively add parts to a commit. This allows for clear commit messages instead of “implement everything” ones.
 
-For plugins this is less strict, but I still review those.
+~~For plugins this is less strict, but I still review those.~~ It applies to plugins as well.
 
 
 Debugging
