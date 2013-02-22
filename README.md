@@ -3,19 +3,17 @@ ingress intel total conversion (IITC)
 
 It’s annoying to extend the intel page with new features because the minified code makes it hard to grasp what’s going on. Also, one has to play catch up each time Niantic put up a new version because all the variables might get new names.
 
-So instead, here’s a userscript that starts from scratch:
-
+So instead, here’s a userscript that starts from scratch (click to zoom):
 
 [![Screenshot of the total conversion in Johannesburg](http://breunigs.github.com/ingress-intel-total-conversion/screenshots/screen_small.png)](http://breunigs.github.com/ingress-intel-total-conversion/screenshots/screen.png)
 
-(click to zoom)
 
-Features
---------
+Features / User Guide
+---------------------
 
-You already know you want it, why add a feature list here? Instead, [**read theuser guide** for tricks and less obvious features](https://github.com/breunigs/ingress-intel-total-conversion/tree/gh-pages/USERGUIDE.md).
+You already know you want it, why add a feature list here? Instead, [**read the user guide** for tricks and less obvious features](https://github.com/breunigs/ingress-intel-total-conversion/tree/gh-pages/USERGUIDE.md). If you have questions, the user guide will also likely answer them.
 
-It can be [extended with the use of plugins](https://github.com/breunigs/ingress-intel-total-conversion/tree/gh-pages/plugins), so have a look at those if you want (or need) more.
+IITC can be [extended with the use of plugins](https://github.com/breunigs/ingress-intel-total-conversion/tree/gh-pages/plugins), so have a look at those if you want (or need) more.
 
 
 Install
