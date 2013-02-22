@@ -1,9 +1,5 @@
-**WEBSITE LOOKS BROKEN?** Update the script. On the upside you may scroll the portal details if there’s not enough screen space.
-
-
-
-ingress.com/intel total conversion
-==================================
+ingress intel total conversion (IITC)
+=====================================
 
 It’s annoying to extend the intel page with new features because the minified code makes it hard to grasp what’s going on. Also, one has to play catch up each time Niantic put up a new version because all the variables might get new names.
 
@@ -17,36 +13,43 @@ So instead, here’s a userscript that starts from scratch:
 Features
 --------
 
-You already know you want it, why add a feature list here? Instead, read the [user guide for tricks and less obvious features](https://github.com/breunigs/ingress-intel-total-conversion/tree/gh-pages/USERGUIDE.md).
+You already know you want it, why add a feature list here? Instead, [**read theuser guide** for tricks and less obvious features](https://github.com/breunigs/ingress-intel-total-conversion/tree/gh-pages/USERGUIDE.md).
 
-You can [extend it even more with the use of plugins](https://github.com/breunigs/ingress-intel-total-conversion/tree/gh-pages/plugins), so have a look at those if you want (or need) more.
+It can be [extended with the use of plugins](https://github.com/breunigs/ingress-intel-total-conversion/tree/gh-pages/plugins), so have a look at those if you want (or need) more.
 
 
 Install
 -------
 
-Current version is 0.61. See [NEWS.md](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/NEWS.md) for details. **THIS VERSION CONTAINS A SECURITY UPDATE.** Please update as soon as possible and also alert friends about it.
+Current version is 0.61. [See NEWS.md for details](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/NEWS.md) . **THIS VERSION CONTAINS A SECURITY UPDATE.** Please update as soon as possible and also alert friends about it.
 
 [**INSTALL**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js)
 
+### Firefox
 
-**Firefox:** Install [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) or [Scriptish](https://addons.mozilla.org/en-US/firefox/addon/scriptish/). Click install link. Install. Reload page.
+- Install [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) or [Scriptish](https://addons.mozilla.org/en-US/firefox/addon/scriptish/).
+- Click install link: [install](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js)
+- Confirm security question.
+- Reload page.
 
+*NoScript:* The newest, not yet released version appears to work with NoScript. Until it is released disable NoScript if you have problems. To make the script work whitelist at least these domains: `ingress.com github.com leafletjs.com googleapis.com`. If you want to see the cool font also whitelist `googleusercontent.com`.
 
-**Chrome:**
+### Chrome
+
 - Install [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo/details).
-- Click install link.
+- Click install link: [install](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js)
 - **Now beware:** a OK/cancel dialog pops up. It **does not** allow you to cancel the installation. Choose **OK** to install the script with Tampermonkey.
-- Confirm once again and you’re done.
+- Confirm once again.
+- Reload page.
 
-**Note:** Tampermonkey is optional. However, it offers auto-update, shows correct version numbers and installing user scripts is much easier. If you have installed the scripts directly into Chrome before, I recommend you switch to Tampermonkey. Uninstall the old scripts and reinstall them.
+*Note:* Tampermonkey is optional. However, it offers auto-update, shows correct version numbers and installing user scripts is much easier. If you have installed the scripts directly into Chrome before, I recommend you switch to Tampermonkey. To do so, uninstall the IITC scripts and click each install link again. Follow the procedure explained above.
 
+### Opera
+- Download the script: [download](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js)
+- put it into your user_js folder (that’s `~/.opera/user_js` on Unix). If you can’t find it [see Opera’s docs](http://www.opera.com/docs/userjs/using/#writingscripts).
+- reload the page
 
-
-**Opera:** Download the script and put it into your user_js folder (that’s `~/.opera/user_js` on Unix). If you can’t find it [see Opera’s docs](http://www.opera.com/docs/userjs/using/#writingscripts). After placing it there, reload the page.
-
-**NoScript:** The newest, not yet released version appears to work with NoScript. Until it is released disable NoScript if you have problems. To make the script work whitelist at least these domains: `ingress.com` `github.com` `leafletjs.com` `googleapis.com`. If you want to see the cool font also whitelist `googleusercontent.com`.
-
+*Note*: You need to update the scripts manually.
 
 
 [**INSTALL**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js)
