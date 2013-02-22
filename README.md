@@ -17,22 +17,9 @@ So instead, here’s a userscript that starts from scratch:
 Features
 --------
 
-- feels faster. (Likely because [leaflet](http://leafletjs.com/) is faster, although there are some other tricks.)
-- full view of portal images
-- better chat
-  - separated full/compact/public/faction
-  - compact only shows the last automated message for each user. Makes a great “where are they now” guide.
-  - nick tab completion
-  - clickable links
-- automatic idle resume
-- portal details get updated while portal is visible on map
-- links to portals made easy (partly works with the vanilla map, too)
-- info porn. Everything with the help cursor has more info hidden in a tooltip.
-- may toggle portals/links/fields
-- hack range (yellow circle) and link range (large red circle) for portals. Click on the range link in the sidebar to zoom to link range.
-- double clicking a portal zooms in and focuses it
-- display of XM and AP rewards for redeemed passcodes
-- [extend it even more with the use of plugins](https://github.com/breunigs/ingress-intel-total-conversion/tree/gh-pages/plugins)
+You already know you want it, why add a feature list here? Instead, read the [user guide for tricks and less obvious features](https://github.com/breunigs/ingress-intel-total-conversion/tree/gh-pages/USERGUIDE.md).
+
+You can [extend it even more with the use of plugins](https://github.com/breunigs/ingress-intel-total-conversion/tree/gh-pages/plugins), so have a look at those if you want (or need) more.
 
 
 Install
