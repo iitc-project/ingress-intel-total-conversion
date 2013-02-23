@@ -24,7 +24,7 @@ window.plugin.portalWeakness.portalAdded = function(data) {
   
   var d = data.portal.options.details;
   var portal_weakness = 0;
-  if(getTeam(d) != 0) {
+  if(getTeam(d) !== 0) {
     var only_shields = true;
  	  var missing_shields = 0;
     if(window.getTotalPortalEnergy(d)> 0 && window.getCurrentPortalEnergy(d) < window.getTotalPortalEnergy(d)) {
@@ -33,7 +33,7 @@ window.plugin.portalWeakness.portalAdded = function(data) {
     }
     //Ding the portal for every missing sheild. 
     $.each(d.portalV2.linkedModArray, function(ind, mod) {
-      if(mod == null) {
+      if(mod === null) {
         missing_shields++;
         portal_weakness += .08;
       }
@@ -41,36 +41,34 @@ window.plugin.portalWeakness.portalAdded = function(data) {
     //Ding the portal for every missing resonator.
     var resCount = 0;
     $.each(d.resonatorArray.resonators, function(ind, reso) {
-      if(reso == null) {
+      if(reso === null) {
         portal_weakness += .125;
         only_shields = false;
-      }
-      else {
+      } else {
         resCount++;
       }
     });
-    if(portal_weakness<0) {
+    if(portal_weakness < 0) {
       portal_weakness = 0;
     }
-    if(portal_weakness>1)
+    if(portal_weakness > 1)
     {
       portal_weakness = 1;
     } 
     
-    if(portal_weakness>0) {
+    if(portal_weakness > 0) {
       var fill_opacity = portal_weakness*.7 + .3;
       var color = 'orange';
       if(only_shields) {
         color = 'yellow';
         //If only shields are missing, make portal yellow, but fill more than usual since pale yellow is basically invisible
         fill_opacity = missing_shields*.15 + .1;
-      }
-      else if(missing_shields>0) {
+      } else if(missing_shields > 0) {
         color = 'red';
       }
       fill_opacity = Math.round(fill_opacity*100)/100;
       var params = {fillColor: color, fillOpacity: fill_opacity};
-      if(resCount<8)
+      if(resCount < 8)
       {
         // Hole per missing resonator
         var dash = new Array(8-resCount + 1).join("1,4,") + "100,0"
