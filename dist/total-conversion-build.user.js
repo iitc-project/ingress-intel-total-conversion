@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.61-2013-02-14-1313127
+// @version        0.7-2013-02-23-141531
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js
@@ -14,6 +14,8 @@
 // REPLACE ORIG SITE ///////////////////////////////////////////////////
 if(document.getElementsByTagName('html')[0].getAttribute('itemscope') != null)
   throw('Ingress Intel Website is down, not a userscript issue.');
+
+window.iitcBuildDate = '2013-02-23-141531';
 
 // disable vanilla JS
 window.onload = function() {};
@@ -49,15 +51,32 @@ for(var i = 0; i < d.length; i++) {
 // player information is now available in a hash like this:
 // window.PLAYER = {"ap": "123", "energy": 123, "available_invites": 123, "nickname": "somenick", "team": "ALIENS||RESISTANCE"};
 
+var ir = window.internalResources || [];
+
+var mainstyle = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/style.0.7.css';
+var smartphone = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/smartphone.0.7.css';
+var leaflet = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.css';
+var coda = 'http://fonts.googleapis.com/css?family=Coda';
+
 // remove complete page. We only wanted the user-data and the page’s
 // security context so we can access the API easily. Setup as much as
 // possible without requiring scripts.
 document.getElementsByTagName('head')[0].innerHTML = ''
-  //~ + '<link rel="stylesheet" type="text/css" href="http://0.0.0.0:8000/style.css"/>'
+  //+ '<link rel="stylesheet" type="text/css" href="http://0.0.0.0:8000/style.css"/>'
   + '<title>Ingress Intel Map</title>'
-  + '<link rel="stylesheet" type="text/css" href="http://breunigs.github.com/ingress-intel-total-conversion/dist/style.0.6.css?2013-02-14-104420"/>'
-  + '<link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.css"/>'
-  + '<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Coda"/>';
+  + (ir.indexOf('mainstyle') === -1
+      ? '<link rel="stylesheet" type="text/css" href="'+mainstyle+'"/>'
+      : '')
+  + (ir.indexOf('leafletcss') === -1
+      ? '<link rel="stylesheet" type="text/css" href="'+leaflet+'"/>'
+      : '')
+  // this navigator check is also used in code/smartphone.js
+  + (ir.indexOf('smartphonecss') === -1 && navigator.userAgent.match(/Android.*Mobile/)
+      ? '<link rel="stylesheet" type="text/css" href="'+smartphone+'"/>'
+      : '')
+  + (ir.indexOf('codafont') === -1
+      ? '<link rel="stylesheet" type="text/css" href="'+coda+'"/>'
+      : '');
 
 document.getElementsByTagName('body')[0].innerHTML = ''
   + '<div id="map">Loading, please wait</div>'
@@ -71,7 +90,11 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '  <div id="chatcompact"></div>'
   + '  <div id="chatfull"></div>'
   + '</div>'
-  + '<form id="chatinput" style="display:none"><time></time><span>tell faction:</span><input type="text"/></form>'
+  + '<form id="chatinput" style="display:none"><table><tr>'
+  + '  <td><time></time></td>'
+  + '  <td><mark>tell faction:</mark></td>'
+  + '  <td><input type="text"/></td>'
+  + '</tr></table></form>'
   + '<a id="sidebartoggle"><span class="toggle close"></span></a>'
   + '<div id="scrollwrapper">' // enable scrolling for small screens
   + '  <div id="sidebar" style="display: none">'
@@ -85,7 +108,8 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '      <a href="https://github.com/breunigs/ingress-intel-total-conversion#readme" title="IITC = Ingress Intel Total Conversion.\n\nOn the script’s homepage you can:\n– find updates\n– get plugins\n– report bugs\n– and contribute." style="cursor: help">IITC’s page</a></div>'
   + '  </div>'
   + '</div>'
-  + '<div id="updatestatus"></div>';
+  + '<div id="updatestatus"></div>'
+  + '<div id="dialog"></div>';
 
 // putting everything in a wrapper function that in turn is placed in a
 // script tag on the website allows us to execute in the site’s context
@@ -138,12 +162,21 @@ window.COLORS = ['#FFCE00', '#0088FF', '#03FE03']; // none, res, enl
 window.COLORS_LVL = ['#000', '#FECE5A', '#FFA630', '#FF7315', '#E40000', '#FD2992', '#EB26CD', '#C124E0', '#9627F4'];
 window.COLORS_MOD = {VERY_RARE: '#F78AF6', RARE: '#AD8AFF', COMMON: '#84FBBD'};
 
+window.OPTIONS_RESONATOR_SELECTED = { color: '#fff', weight: 2, radius: 4};
+window.OPTIONS_RESONATOR_NON_SELECTED = { color: '#aaa', weight: 1, radius: 3};
+
+window.OPTIONS_RESONATOR_LINE_SELECTED = {opacity: 0.7, weight: 3};
+window.OPTIONS_RESONATOR_LINE_NON_SELECTED = {opacity: 0.25, weight: 2};
 
 // circles around a selected portal that show from where you can hack
 // it and how far the portal reaches (i.e. how far links may be made
 // from this portal)
 window.ACCESS_INDICATOR_COLOR = 'orange';
-window.RANGE_INDICATOR_COLOR = 'red';
+window.RANGE_INDICATOR_COLOR = 'red'
+
+// by how much pixels should the portal range be expanded on mobile
+// devices. This should make clicking them easier.
+window.PORTAL_RADIUS_ENLARGE_MOBILE = 5;
 
 
 window.DEFAULT_PORTAL_IMG = 'http://commondatastorage.googleapis.com/ingress/img/default-portal-image.png';
@@ -151,27 +184,35 @@ window.NOMINATIM = 'http://nominatim.openstreetmap.org/search?format=json&limit=
 
 // INGRESS CONSTANTS /////////////////////////////////////////////////
 // http://decodeingress.me/2012/11/18/ingress-portal-levels-and-link-range/
-var RESO_NRG = [0, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 6000];
-var MAX_XM_PER_LEVEL = [0, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000];
-var MIN_AP_FOR_LEVEL = [0, 10000, 30000, 70000, 150000, 300000, 600000, 1200000];
-var HACK_RANGE = 40; // in meters, max. distance from portal to be able to access it
-var OCTANTS = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
-var DESTROY_RESONATOR = 75; //AP for destroying portal
-var DESTROY_LINK = 187; //AP for destroying link
-var DESTROY_FIELD = 750; //AP for destroying field
-var CAPTURE_PORTAL = 500; //AP for capturing a portal
-var DEPLOY_RESONATOR = 125; //AP for deploying a resonator
-var COMPLETION_BONUS = 250; //AP for deploying all resonators on portal
+window.RESO_NRG = [0, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 6000];
+window.MAX_XM_PER_LEVEL = [0, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000];
+window.MIN_AP_FOR_LEVEL = [0, 10000, 30000, 70000, 150000, 300000, 600000, 1200000];
+window.HACK_RANGE = 40; // in meters, max. distance from portal to be able to access it
+window.OCTANTS = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
+window.DESTROY_RESONATOR = 75; //AP for destroying portal
+window.DESTROY_LINK = 187; //AP for destroying link
+window.DESTROY_FIELD = 750; //AP for destroying field
+window.CAPTURE_PORTAL = 500; //AP for capturing a portal
+window.DEPLOY_RESONATOR = 125; //AP for deploying a resonator
+window.COMPLETION_BONUS = 250; //AP for deploying all resonators on portal
 
 // OTHER MORE-OR-LESS CONSTANTS //////////////////////////////////////
-var TEAM_NONE = 0, TEAM_RES = 1, TEAM_ENL = 2;
-var TEAM_TO_CSS = ['none', 'res', 'enl'];
-var TYPE_UNKNOWN = 0, TYPE_PORTAL = 1, TYPE_LINK = 2, TYPE_FIELD = 3, TYPE_PLAYER = 4, TYPE_CHAT = 5, TYPE_RESONATOR = 6;
+window.TEAM_NONE = 0;
+window.TEAM_RES = 1;
+window.TEAM_ENL = 2;
+window.TEAM_TO_CSS = ['none', 'res', 'enl'];
+window.TYPE_UNKNOWN = 0;
+window.TYPE_PORTAL = 1;
+window.TYPE_LINK = 2;
+window.TYPE_FIELD = 3;
+window.TYPE_PLAYER = 4;
+window.TYPE_CHAT = 5;
+window.TYPE_RESONATOR = 6;
 
-var SLOT_TO_LAT = [0, Math.sqrt(2)/2, 1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2];
-var SLOT_TO_LNG = [1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2, 0, Math.sqrt(2)/2];
-var EARTH_RADIUS=6378137;
-var DEG2RAD = Math.PI / 180;
+window.SLOT_TO_LAT = [0, Math.sqrt(2)/2, 1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2];
+window.SLOT_TO_LNG = [1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2, 0, Math.sqrt(2)/2];
+window.EARTH_RADIUS=6378137;
+window.DEG2RAD = Math.PI / 180;
 
 // STORAGE ///////////////////////////////////////////////////////////
 // global variables used for storage. Most likely READ ONLY. Proper
@@ -215,7 +256,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //
 // Boot hook: booting is handled differently because IITC may not yet
 //            be available. Have a look at the plugins in plugins/. All
-//            code before “// PLUGIN START” and after “// PLUGIN END” os
+//            code before “// PLUGIN START” and after “// PLUGIN END” is
 //            required to successfully boot the plugin.
 //
 // Here’s more specific information about each event:
@@ -226,9 +267,34 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //              shown at all. Injection point is in
 //              code/map_data.js#renderPortal near the end. Will hand
 //              the Leaflet CircleMarker for the portal in "portal" var.
+// portalDetailsUpdated: fired after the details in the sidebar have
+//              been (re-)rendered Provides data about the portal that
+//              has been selected.
+// publicChatDataAvailable: this hook runs after data for any of the
+//              public chats has been received and processed, but not
+//              yet been displayed. The data hash contains both the un-
+//              processed raw ajax response as well as the processed
+//              chat data that is going to be used for display.
+// portalDataLoaded: callback is passed the argument of
+//              {portals : [portal, portal, ...]} where "portal" is the
+//              data element and not the leaflet object. "portal" is an
+//              array [GUID, time, details]. Plugin can manipulate the
+//              array to change order or add additional values to the
+//              details of a portal.
+// beforePortalReRender: the callback argument is
+//              {portal: ent[2], oldPortal : d, reRender : false}.
+//              The callback needs to update the value of reRender to
+//              true if the plugin has a reason to have the portal
+//              redrawn. It is called early on in the
+//              code/map_data.js#renderPortal as long as there was an
+//              old portal for the guid.
+
+
+
 
 window._hooks = {}
-window.VALID_HOOKS = ['portalAdded'];
+window.VALID_HOOKS = ['portalAdded', 'portalDetailsUpdated',
+  'publicChatDataAvailable', 'portalDataLoaded'];
 
 window.runHooks = function(event, data) {
   if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);
@@ -341,13 +407,13 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
       // format for portals: { controllingTeam, turret }
 
       if(ent[2].turret !== undefined) {
-        if(selectedPortal == ent[0]) portalUpdateAvailable = true;
+        if(selectedPortal === ent[0]) portalUpdateAvailable = true;
         if(urlPortal && ent[0] == urlPortal) portalInUrlAvailable = true;
 
         var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
         if(!window.getPaddedBounds().contains(latlng)
-              && selectedPortal != ent[0]
-              && urlPortal != ent[0]
+              && selectedPortal !== ent[0]
+              && urlPortal !== ent[0]
           ) return;
 
 
@@ -378,10 +444,18 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
     }
   });
 
+  // Preserve and restore "selectedPortal" between portal re-render
+  if(portalUpdateAvailable) var oldSelectedPortal = selectedPortal;
+
+  runHooks('portalDataLoaded', {portals : ppp});
   $.each(ppp, function(ind, portal) { renderPortal(portal); });
-  if(portals[selectedPortal]) {
+
+  var selectedPortalLayer = portals[oldSelectedPortal];
+  if(portalUpdateAvailable && selectedPortalLayer) selectedPortal = oldSelectedPortal;
+
+  if(selectedPortalLayer) {
     try {
-      portals[selectedPortal].bringToFront();
+      selectedPortalLayer.bringToFront();
     } catch(e) { /* portal is now visible, catch Leaflet error */ }
   }
 
@@ -461,12 +535,12 @@ window.removeByGuid = function(guid) {
 
 // renders a portal on the map from the given entity
 window.renderPortal = function(ent) {
-  if(Object.keys(portals).length >= MAX_DRAWN_PORTALS && ent[0] != selectedPortal)
+  if(Object.keys(portals).length >= MAX_DRAWN_PORTALS && ent[0] !== selectedPortal)
     return removeByGuid(ent[0]);
 
   // hide low level portals on low zooms
   var portalLevel = getPortalLevel(ent[2]);
-  if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal)
+  if(portalLevel < getMinPortalLevel()  && ent[0] !== selectedPortal)
     return removeByGuid(ent[0]);
 
   var team = getTeam(ent[2]);
@@ -476,8 +550,16 @@ window.renderPortal = function(ent) {
   var old = findEntityInLeaflet(layerGroup, window.portals, ent[0]);
   if(old) {
     var oo = old.options;
+
+    // Default checks to see if a portal needs to be re-rendered
     var u = oo.team !== team;
     u = u || oo.level !== portalLevel;
+
+    // Allow plugins to add additional conditions as to when a portal gets re-rendered
+    var hookData = {portal: ent[2], oldPortal: oo.details, reRender: false};
+    runHooks('beforePortalReRender', hookData);
+    u = u || hookData.reRender;
+
     // nothing changed that requires re-rendering the portal.
     if(!u) {
       // let resos handle themselves if they need to be redrawn
@@ -486,9 +568,12 @@ window.renderPortal = function(ent) {
       old.options.details = ent[2];
       return;
     }
-    // there were changes, remove old portal
-    removeByGuid(ent[0]);
   }
+
+  // there were changes, remove old portal. Don’t put this in old, in
+  // case the portal changed level and findEntityInLeaflet doesn’t find
+  // it.
+  removeByGuid(ent[0]);
 
   var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
 
@@ -499,8 +584,8 @@ window.renderPortal = function(ent) {
   var lvRadius = Math.max(portalLevel + 3, 5);
 
   var p = L.circleMarker(latlng, {
-    radius: lvRadius,
-    color: ent[0] == selectedPortal ? COLOR_SELECTED_PORTAL : COLORS[team],
+    radius: lvRadius + (L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE : 0),
+    color: ent[0] === selectedPortal ? COLOR_SELECTED_PORTAL : COLORS[team],
     opacity: 1,
     weight: lvWeight,
     fillColor: COLORS[team],
@@ -534,7 +619,7 @@ window.renderPortal = function(ent) {
     window.portals[this.options.guid] = this;
     // handles the case where a selected portal gets removed from the
     // map by hiding all portals with said level
-    if(window.selectedPortal != this.options.guid)
+    if(window.selectedPortal !== this.options.guid)
       window.portalResetColor(this);
   });
 
@@ -547,8 +632,6 @@ window.renderPortal = function(ent) {
   window.renderResonators(ent, null);
 
   window.runHooks('portalAdded', {portal: p});
-
-  // portalLevel contains a float, need to round down
   p.addTo(layerGroup);
 }
 
@@ -556,24 +639,25 @@ window.renderResonators = function(ent, portalLayer) {
   if(!isResonatorsShow()) return;
 
   var portalLevel = getPortalLevel(ent[2]);
-  if(portalLevel < getMinPortalLevel()  && ent[0] != selectedPortal) return;
+  if(portalLevel < getMinPortalLevel()  && ent[0] !== selectedPortal) return;
   var portalLatLng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
 
   var layerGroup = portalsLayers[parseInt(portalLevel)];
   var reRendered = false;
-  for(var i = 0; i < ent[2].resonatorArray.resonators.length; i++) {
-    var rdata = ent[2].resonatorArray.resonators[i];
-
+  $.each(ent[2].resonatorArray.resonators, function(i, rdata) {
     // skip if resonator didn't change
     if(portalLayer) {
       var oldRes = findEntityInLeaflet(layerGroup, window.resonators, portalResonatorGuid(ent[0], i));
-      if(oldRes && isSameResonator(oldRes.options.details, rdata)) continue;
+      if(oldRes && isSameResonator(oldRes.options.details, rdata)) return true;
+      if(oldRes) {
+        if(isSameResonator(oldRes.options.details, rdata)) return true;
+        removeByGuid(oldRes.options.guid);
+      }
     }
 
     // skip and remove old resonator if no new resonator
     if(rdata === null) {
-      if(oldRes) removeByGuid(oldRes.options.guid);
-      continue;
+      return true;
     }
 
     // offset in meters
@@ -592,26 +676,29 @@ window.renderResonators = function(ent, portalLayer) {
     var resoGuid = portalResonatorGuid(ent[0], i);
 
     // the resonator
-    var reso =  L.circleMarker(Rlatlng, {
-        radius: 3,
-        // #AAAAAA outline seems easier to see the fill opacity
-        color: '#AAAAAA',
+    var resoStyle =
+      ent[0] === selectedPortal ? OPTIONS_RESONATOR_SELECTED : OPTIONS_RESONATOR_NON_SELECTED;
+    var resoProperty = $.extend({
         opacity: 1,
-        weight: 1,
         fillColor: COLORS_LVL[rdata.level],
         fillOpacity: rdata.energyTotal/RESO_NRG[rdata.level],
         clickable: false,
-        guid: resoGuid // need this here as well for add/remove events
-    });
+        guid: resoGuid
+      }, resoStyle);
+
+    var reso =  L.circleMarker(Rlatlng, resoProperty);
 
     // line connecting reso to portal
-    var conn = L.polyline([portalLatLng, Rlatlng], {
-        weight: 2,
+    var connStyle =
+      ent[0] === selectedPortal ? OPTIONS_RESONATOR_LINE_SELECTED : OPTIONS_RESONATOR_LINE_NON_SELECTED;
+    var connProperty =  $.extend({
         color: '#FFA000',
-        opacity: 0.25,
         dashArray: '0,10,8,4,8,4,8,4,8,4,8,4,8,4,8,4,8,4,8,4',
         fill: false,
-        clickable: false});
+        clickable: false
+      }, connStyle);
+
+    var conn = L.polyline([portalLatLng, Rlatlng], connProperty);
 
 
     // put both in one group, so they can be handled by the same logic.
@@ -628,11 +715,17 @@ window.renderResonators = function(ent, portalLayer) {
     // doesn’t matter to which element these are bound since Leaflet
     // will add/remove all elements of the LayerGroup at once.
     reso.on('remove', function() { delete window.resonators[this.options.guid]; });
-    reso.on('add',    function() { window.resonators[this.options.guid] = r; });
+    reso.on('add',    function() {
+      if(window.resonators[this.options.guid]) {
+        console.error('dup reso: ' + this.options.guid);
+        window.debug.printStackTrace();
+      }
+      window.resonators[this.options.guid] = r;
+    });
 
     r.addTo(portalsLayers[parseInt(portalLevel)]);
     reRendered = true;
-  }
+  });
   // if there is any resonator re-rendered, bring portal to front
   if(reRendered && portalLayer) portalLayer.bringToFront();
 }
@@ -657,6 +750,33 @@ window.isSameResonator = function(oldRes, newRes) {
 
 window.portalResetColor = function(portal) {
   portal.setStyle({color:  COLORS[getTeam(portal.options.details)]});
+  resonatorsResetStyle(portal.options.guid);
+}
+
+window.resonatorsResetStyle = function(portalGuid) {
+  window.resonatorsSetStyle(portalGuid, OPTIONS_RESONATOR_NON_SELECTED, OPTIONS_RESONATOR_LINE_NON_SELECTED);
+}
+
+window.resonatorsSetSelectStyle = function(portalGuid) {
+  window.resonatorsSetStyle(portalGuid, OPTIONS_RESONATOR_SELECTED, OPTIONS_RESONATOR_LINE_SELECTED);
+}
+
+window.resonatorsSetStyle = function(portalGuid, resoStyle, lineStyle) {
+  for(var i = 0; i < 8; i++) {
+    resonatorLayerGroup = resonators[portalResonatorGuid(portalGuid, i)];
+    if(!resonatorLayerGroup) continue;
+    // bring resonators and their connection lines to front separately.
+    // this way the resonators are drawn on top of the lines.
+    resonatorLayerGroup.eachLayer(function(layer) {
+      if (!layer.options.guid)  // Resonator line
+        layer.bringToFront().setStyle(lineStyle);
+    });
+    resonatorLayerGroup.eachLayer(function(layer) {
+      if (layer.options.guid) // Resonator
+        layer.bringToFront().setStyle(resoStyle);
+    });
+  }
+  portals[portalGuid].bringToFront();
 }
 
 // renders a link on the map from the given entity
@@ -751,6 +871,108 @@ window.findEntityInLeaflet = function(layerGroup, entityHash, guid) {
     return false;
   });
   return ent;
+}
+
+
+
+window.extendLeafletWithText = function() {
+
+
+  L.CircleMarkerWithText = L.CircleMarker.extend({
+    options: {
+      fontFamily: 'Coda',
+      fontStroke: '#fff',
+      fontWeight: 'bold',
+      fontStrokeWidth: 2.5,
+      fontStrokeOpacity: 0.6,
+      fontFill: '#000',
+      fontSize: 14
+    },
+
+    initialize: function (latlng, options) {
+      L.CircleMarker.prototype.initialize.call(this, latlng, options);
+    },
+
+    setText: function(text) {
+      this.options.text = text;
+      this._updateText();
+    },
+
+    _updateStyle: function() {
+      L.CircleMarker.prototype._updateStyle.call(this);
+      this._updateText();
+    },
+
+    _updatePath: function() {
+      if(this._oldPoint == this._point) return;
+      this._oldPoint = this._point;
+
+      L.CircleMarker.prototype._updatePath.call(this);
+      this._updateTextPosition();
+    },
+
+    _updateTextPosition: function() {
+      if(!this._textOuter) return;
+      this._textOuter.setAttribute('x', this._point.x);
+      this._textOuter.setAttribute('y', this._point.y);
+      this._textInner.setAttribute('x', this._point.x);
+      this._textInner.setAttribute('y', this._point.y);
+    },
+
+    _updateText: function() {
+      if(!L.Browser.svg) return;
+
+      if(this._text && !this.options.text) {
+        this._container.removeChild(this._text);
+      }
+
+      if(!this.options.text) return;
+
+      if(!this._text) {
+        this._textOuter = this._createElement('text');
+        this._textInner = this._createElement('text');
+        this._text = this._createElement('g');
+        this._text.setAttribute('text-anchor', 'middle');
+
+        if(this.options.clickable) {
+          this._text.setAttribute('class', 'leaflet-clickable');
+        }
+
+        this._text.appendChild(this._textOuter);
+        this._text.appendChild(this._textInner);
+        this._container.appendChild(this._text);
+      }
+
+      // _textOuter contains the stroke information so the stroke is
+      // below the text and does not bleed into it.
+      this._textOuter.setAttribute('stroke', this.options.fontStroke);
+      this._textOuter.setAttribute('stroke-width', this.options.fontStrokeWidth);
+      this._textOuter.setAttribute('stroke-opacity', this.options.fontStrokeOpacity);
+      this._textOuter.setAttribute('dy', this.options.fontSize/2 - 1);
+      this._textInner.setAttribute('dy', this.options.fontSize/2 - 1);
+
+      // _text contains properties that apply to both stroke and text.
+      this._text.setAttribute('fill', this.options.fontFill);
+      this._text.setAttribute('font-size', this.options.fontSize);
+      this._text.setAttribute('font-family', this.options.fontFamily);
+      this._text.setAttribute('font-weight', this.options.fontWeight);
+
+      // group elements can’t have positions
+      this._updateTextPosition();
+
+      if(this._textOuter.firstChild) {
+        this._textOuter.firstChild.nodeValue = this.options.text;
+        this._textInner.firstChild.nodeValue = this.options.text;
+      } else {
+        this._textOuter.appendChild(document.createTextNode(this.options.text));
+        this._textInner.appendChild(document.createTextNode(this.options.text));
+      }
+    }
+  });
+
+  L.circleMarkerWithText = function (latlng, options) {
+    return new L.CircleMarkerWithText(latlng, options);
+  };
 }
 
 
@@ -905,7 +1127,7 @@ window.writeCookie = function(name, val) {
 // add thousand separators to given number.
 // http://stackoverflow.com/a/1990590/1684530 by Doug Neiner.
 window.digits = function(d) {
-  return (d+"").replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1 ");
+  return (d+"").replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1 ");
 }
 
 // posts AJAX request to Ingress API.
@@ -922,7 +1144,10 @@ window.postAjax = function(action, data, success, error) {
   var remove = function(data, textStatus, jqXHR) { window.requests.remove(jqXHR); };
   var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
   return $.ajax({
-    url: 'rpc/dashboard.'+action,
+    // use full URL to avoid issues depending on how people set their
+    // slash. See:
+    // https://github.com/breunigs/ingress-intel-total-conversion/issues/56
+    url: 'http://www.ingress.com/rpc/dashboard.'+action,
     type: 'POST',
     data: data,
     dataType: 'json',
@@ -960,6 +1185,8 @@ window.unixTimeToHHmm = function(time) {
 window.rangeLinkClick = function() {
   if(window.portalRangeIndicator)
     window.map.fitBounds(window.portalRangeIndicator.getBounds());
+  if(window.isSmartphone)
+    window.smartphone.mapButton.click();
 }
 
 window.reportPortalIssue = function(info) {
@@ -1071,14 +1298,14 @@ if (typeof String.prototype.startsWith !== 'function') {
 }
 
 window.prettyEnergy = function(nrg) {
-  return nrg> 1000 ? Math.round(nrg/1000) + ' k': nrg;
+  return nrg> 1000 ? Math.round(nrg/1000) + ' k': nrg;
 }
 
 window.setPermaLink = function(elm) {
   var c = map.getCenter();
   var lat = Math.round(c.lat*1E6);
   var lng = Math.round(c.lng*1E6);
-  var qry = 'latE6='+lat+'&lngE6='+lng+'&z=' + map.getZoom();
+  var qry = 'latE6='+lat+'&lngE6='+lng+'&z=' + (map.getZoom()-1);
   $(elm).attr('href',  'http://www.ingress.com/intel?' + qry);
 }
 
@@ -1086,6 +1313,52 @@ window.uniqueArray = function(arr) {
   return $.grep(arr, function(v, i) {
     return $.inArray(v, arr) === i;
   });
+}
+
+window.genFourColumnTable = function(blocks) {
+  var t = $.map(blocks, function(detail, index) {
+    if(!detail) return '';
+    if(index % 2 === 0)
+      return '<tr><td>'+detail[1]+'</td><th>'+detail[0]+'</th>';
+    else
+      return '    <th>'+detail[0]+'</th><td>'+detail[1]+'</td></tr>';
+  }).join('');
+  if(t.length % 2 === 1) t + '<td></td><td></td></tr>';
+  return t;
+}
+
+
+// converts given text with newlines (\n) and tabs (\t) to a HTML
+// table automatically.
+window.convertTextToTableMagic = function(text) {
+  // check if it should be converted to a table
+  if(!text.match(/\t/)) return text.replace(/\n/g, '<br>');
+
+  var data = [];
+  var columnCount = 0;
+
+  // parse data
+  var rows = text.split('\n');
+  $.each(rows, function(i, row) {
+    data[i] = row.split('\t');
+    if(data[i].length > columnCount) columnCount = data[i].length;
+  });
+
+  // build the table
+  var table = '<table>';
+  $.each(data, function(i, row) {
+    table += '<tr>';
+    $.each(data[i], function(k, cell) {
+      var attributes = '';
+      if(k === 0 && data[i].length < columnCount) {
+        attributes = ' colspan="'+(columnCount - data[i].length + 1)+'"';
+      }
+      table += '<td'+attributes+'>'+cell+'</td>';
+    });
+    table += '</tr>';
+  });
+  table += '</table>';
+  return table;
 }
 
 
@@ -1103,12 +1376,12 @@ window.setupLargeImagePreview = function() {
       ex.remove();
       return;
     }
-    var img = $(this).html();
-    var w = $(this).find('img')[0].naturalWidth/2;
-    var h = $(this).find('img')[0].naturalHeight/2;
+    var img = $(this).find('img')[0];
+    var w = img.naturalWidth/2;
+    var h = img.naturalHeight/2;
     var c = $('#portaldetails').attr('class');
     $('body').append(
-      '<div id="largepreview" class="'+c+'" style="margin-left: '+(-SIDEBAR_WIDTH/2-w-2)+'px; margin-top: '+(-h-2)+'px">' + img + '</div>'
+      '<div id="largepreview" class="'+c+'" style="margin-left: '+(-SIDEBAR_WIDTH/2-w-2)+'px; margin-top: '+(-h-2)+'px">' + img.outerHTML + '</div>'
     );
     $('#largepreview').click(function() { $(this).remove() });
   });
@@ -1117,19 +1390,17 @@ window.setupLargeImagePreview = function() {
 
 window.setupStyles = function() {
   $('head').append('<style>' +
-    [ 'body:after { display: none } ',
-      '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
+    [ '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
       '#largepreview.res img { border:2px solid '+COLORS[TEAM_RES]+'; } ',
       '#largepreview.none img { border:2px solid '+COLORS[TEAM_NONE]+'; } ',
-      '#chatcontrols { bottom: '+(CHAT_SHRINKED+24)+'px; }',
+      '#chatcontrols { bottom: '+(CHAT_SHRINKED+22)+'px; }',
       '#chat { height: '+CHAT_SHRINKED+'px; } ',
       '.leaflet-right { margin-right: '+(SIDEBAR_WIDTH+1)+'px } ',
-      '#updatestatus { width:'+(SIDEBAR_WIDTH-2*4+1)+'px;  } ',
+      '#updatestatus { width:'+(SIDEBAR_WIDTH+2)+'px;  } ',
       '#sidebar { width:'+(SIDEBAR_WIDTH + HIDDEN_SCROLLBAR_ASSUMED_WIDTH + 1 /*border*/)+'px;  } ',
       '#sidebartoggle { right:'+(SIDEBAR_WIDTH+1)+'px;  } ',
       '#scrollwrapper  { width:'+(SIDEBAR_WIDTH + 2*HIDDEN_SCROLLBAR_ASSUMED_WIDTH)+'px; right:-'+(2*HIDDEN_SCROLLBAR_ASSUMED_WIDTH-2)+'px } ',
-      '#sidebar input, h2  { width:'+(SIDEBAR_WIDTH - 2*4)+'px !important } ',
-      '#sidebar > *, #gamestat span, .imgpreview img { width:'+SIDEBAR_WIDTH+'px;  }'].join("\n")
+      '#sidebar > * { width:'+(SIDEBAR_WIDTH+1)+'px;  }'].join("\n")
     + '</style>');
 }
 
@@ -1188,7 +1459,7 @@ window.setupMap = function() {
   // listen for changes and store them in cookies
   map.on('moveend', window.storeMapPosition);
   map.on('zoomend', function() {
-    window.storeMapPosition;
+    window.storeMapPosition();
 
     // remove all resonators if zoom out to < RESONATOR_DISPLAY_ZOOM_LEVEL
     if(isResonatorsShow()) return;
@@ -1283,8 +1554,9 @@ window.setupSidebarToggle = function() {
   });
 }
 
-window.setupTooltips = function() {
-  $(document).tooltip({
+window.setupTooltips = function(element) {
+  element = element || $(document);
+  element.tooltip({
     // disable show/hide animation
     show: { effect: "hide", duration: 0 } ,
     hide: false,
@@ -1293,40 +1565,31 @@ window.setupTooltips = function() {
     },
     content: function() {
       var title = $(this).attr('title');
-
-      // check if it should be converted to a table
-      if(!title.match(/\t/)) {
-        return title.replace(/\n/g, '<br />');
-      }
-
-      var data = [];
-      var columnCount = 0;
-
-      // parse data
-      var rows = title.split('\n');
-      $.each(rows, function(i, row) {
-        data[i] = row.split('\t');
-        if(data[i].length > columnCount) columnCount = data[i].length;
-      });
-
-      // build the table
-      var tooltip = '<table>';
-      $.each(data, function(i, row) {
-        tooltip += '<tr>';
-        $.each(data[i], function(k, cell) {
-          var attributes = '';
-          if(k === 0 && data[i].length < columnCount) {
-            attributes = ' colspan="'+(columnCount - data[i].length + 1)+'"';
-          }
-          tooltip += '<td'+attributes+'>'+cell+'</td>';
-        });
-        tooltip += '</tr>';
-      });
-      tooltip += '</table>';
-      return tooltip;
+      return window.convertTextToTableMagic(title);
     }
   });
+
+  if(!window.tooltipClearerHasBeenSetup) {
+    window.tooltipClearerHasBeenSetup = true;
+    $(document).on('click', '.ui-tooltip', function() { $(this).remove(); });
+  }
 }
+
+window.setupDialogs = function() {
+  $('#dialog').dialog({
+    autoOpen: false,
+    modal: true,
+    buttons: [
+      { text: 'OK', click: function() { $(this).dialog('close'); } }
+    ]
+  });
+
+  window.alert = function(text, isHTML) {
+    var h = isHTML ? text : window.convertTextToTableMagic(text);
+    $('#dialog').html(h).dialog('open');
+  }
+}
+
 
 
 // BOOTING ///////////////////////////////////////////////////////////
@@ -1334,8 +1597,19 @@ window.setupTooltips = function() {
 function boot() {
   window.debug.console.overwriteNativeIfRequired();
 
-  console.log('loading done, booting');
+  console.log('loading done, booting. Built: ' + window.iitcBuildDate);
+  if(window.deviceID) console.log('Your device ID: ' + window.deviceID);
+  window.runOnSmartphonesBeforeBoot();
+
+  // overwrite default Leaflet Marker icon to be a neutral color
+  var base = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/images/';
+  L.Icon.Default.imagePath = base;
+
+  window.iconEnl = L.Icon.Default.extend({options: { iconUrl: base + 'marker-green.png' } });
+  window.iconRes = L.Icon.Default.extend({options: { iconUrl: base + 'marker-blue.png' } });
+
   window.setupStyles();
+  window.setupDialogs();
   window.setupMap();
   window.setupGeosearch();
   window.setupRedeem();
@@ -1358,6 +1632,16 @@ function boot() {
   if(window.bootPlugins)
     $.each(window.bootPlugins, function(ind, ref) { ref(); });
 
+  // sidebar is now at final height. Adjust scrollwrapper so scrolling
+  // is possible for small screens and it doesn’t block the area below
+  // it.
+  $('#scrollwrapper').css('max-height', ($('#sidebar').get(0).scrollHeight+3) + 'px');
+
+  window.runOnSmartphonesAfterBoot();
+
+  // workaround for #129. Not sure why this is required.
+  setTimeout('window.map.invalidateSize(false);', 500);
+
   window.iitcLoaded = true;
 }
 
@@ -1370,14 +1654,24 @@ function asyncLoadScript(a){return function(b,c){var d=document.createElement("s
 
 // modified version of https://github.com/shramov/leaflet-plugins. Also
 // contains the default Ingress map style.
-var LLGMAPS = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/leaflet_google.js';
-var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js';
+var LEAFLETGOOGLE = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/leaflet_google.js';
+var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js';
 var JQUERYUI = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js';
 var LEAFLET = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.js';
 var AUTOLINK = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/autolink.js';
+var EMPTY = 'data:text/javascript;base64,';
+
+// don’t download resources which have been injected already
+var ir = window && window.internalResources ? window.internalResources : [];
+if(ir.indexOf('jquery')        !== -1) JQUERY   = EMPTY;
+if(ir.indexOf('jqueryui')      !== -1) JQUERYUI = EMPTY;
+if(ir.indexOf('leaflet')       !== -1) LEAFLET  = EMPTY;
+if(ir.indexOf('autolink')      !== -1) AUTOLINK = EMPTY;
+if(ir.indexOf('leafletgoogle') !== -1) LEAFLETGOOGLE = EMPTY;
+
 
 // after all scripts have loaded, boot the actual app
-load(JQUERY, LEAFLET, AUTOLINK).then(LLGMAPS, JQUERYUI).onError(function (err) {
+load(JQUERY, LEAFLET, AUTOLINK).then(LEAFLETGOOGLE, JQUERYUI).onError(function (err) {
   alert('Could not all resources, the script likely won’t work.\n\nIf this happend the first time for you, it’s probably a temporary issue. Just wait a bit and try again.\n\nIf you installed the script for the first time and this happens:\n– try disabling NoScript if you have it installed\n– press CTRL+SHIFT+K in Firefox or CTRL+SHIFT+I in Chrome/Opera and reload the page. Additional info may be available in the console.\n– Open an issue at https://github.com/breunigs/ingress-intel-total-conversion/issues');
 }).thenRun(boot);
 
@@ -1584,6 +1878,8 @@ window.chat.handlePublic = function(data, textStatus, jqXHR) {
   chat.writeDataToHash(data, chat._publicData, true);
   var oldMsgsWereAdded = old !== chat.getOldestTimestamp(false);
 
+  runHooks('publicChatDataAvailable', {raw: data, processed: chat._publicData});
+
   switch(chat.getActive()) {
     case 'public': window.chat.renderPublic(oldMsgsWereAdded); break;
     case 'compact': window.chat.renderCompact(oldMsgsWereAdded); break;
@@ -1704,13 +2000,14 @@ window.chat.renderData = function(data, element, likelyWereOldMsgs) {
   });
 
   var scrollBefore = scrollBottom(elm);
-  elm.html(msgs);
+  elm.html('<table>' + msgs + '</table>');
   chat.keepScrollPosition(elm, scrollBefore, likelyWereOldMsgs);
 }
 
 
 window.chat.renderDivider = function(text) {
-  return '<summary>─ '+text+' ──────────────────────────────────────────────────────────────────────────</summary>';
+  var d = ' ──────────────────────────────────────────────────────────────────────────';
+  return '<tr><td colspan="3" style="padding-top:3px"><summary>─ ' + text + d + '</summary></td></tr>';
 }
 
 
@@ -1721,7 +2018,8 @@ window.chat.renderMsg = function(msg, nick, time, team) {
   var t = '<time title="'+tb+'" data-timestamp="'+time+'">'+ta+'</time>';
   var s = 'style="color:'+COLORS[team]+'"';
   var title = nick.length >= 8 ? 'title="'+nick+'" class="help"' : '';
-  return '<p>'+t+'<span class="invisibleseparator"> &lt;</span><mark '+s+'>'+nick+'</mark><span class="invisibleseparator">&gt; </span><span>'+msg+'</span></p>';
+  var i = ['<span class="invisep">&lt;</span>', '<span class="invisep">&gt;</span>'];
+  return '<tr><td>'+t+'</td><td>'+i[0]+'<mark '+s+'>'+nick+'</mark>'+i[1]+'</td><td>'+msg+'</td></tr>';
 }
 
 
@@ -1781,7 +2079,7 @@ window.chat.chooser = function(event) {
   var t = $(event.target);
   var tt = t.text();
 
-  var span = $('#chatinput span');
+  var mark = $('#chatinput mark');
 
   $('#chatcontrols .active').removeClass('active');
   t.addClass('active');
@@ -1792,19 +2090,19 @@ window.chat.chooser = function(event) {
 
   switch(tt) {
     case 'faction':
-      span.css('color', '');
-      span.text('tell faction:');
+      mark.css('color', '');
+      mark.text('tell faction:');
       break;
 
     case 'public':
-      span.css('cssText', 'color: red !important');
-      span.text('broadcast:');
+      mark.css('cssText', 'color: red !important');
+      mark.text('broadcast:');
       break;
 
     case 'compact':
     case 'full':
-      span.css('cssText', 'color: #bbb !important');
-      span.text('tell Jarvis:');
+      mark.css('cssText', 'color: #bbb !important');
+      mark.text('tell Jarvis:');
       break;
 
     default:
@@ -1888,7 +2186,7 @@ window.chat.setup = function() {
   window.requests.addRefreshFunction(chat.request);
 
   var cls = PLAYER.team === 'ALIENS' ? 'enl' : 'res';
-  $('#chatinput span').addClass(cls)
+  $('#chatinput mark').addClass(cls)
 }
 
 
@@ -1981,8 +2279,8 @@ window.getRangeText = function(d) {
   return ['range',
       '<a onclick="window.rangeLinkClick()">'
     + (range > 1000
-      ? Math.round(range/1000) + ' km'
-      : Math.round(range)      + ' m')
+      ? Math.round(range/1000) + ' km'
+      : Math.round(range)      + ' m')
     + '</a>'];
 }
 
@@ -2046,22 +2344,22 @@ window.getEnergyText = function(d) {
 
 window.getAvgResoDistText = function(d) {
   var avgDist = Math.round(10*getAvgResoDist(d))/10;
-  return ['reso dist', avgDist + ' m'];
+  return ['reso dist', avgDist + ' m'];
 }
 
 window.getResonatorDetails = function(d) {
-  var resoDetails = '';
+  var resoDetails = [];
   // octant=slot: 0=E, 1=NE, 2=N, 3=NW, 4=W, 5=SW, 6=S, SE=7
   // resos in the display should be ordered like this:
   //   N    NE         Since the view is displayed in columns, they
   //  NW    E          need to be ordered like this: N, NW, W, SW, NE,
   //   W    SE         E, SE, S, i.e. 2 3 4 5 1 0 7 6
   //  SW    S
-  $.each([2, 3, 4, 5, 1, 0, 7, 6], function(ind, slot) {
-    var isLeft = slot >= 2 && slot <= 5;
+
+  $.each([2, 1, 3, 0, 4, 7, 5, 6], function(ind, slot) {
     var reso = d.resonatorArray.resonators[slot];
     if(!reso) {
-      resoDetails += renderResonatorDetails(slot, 0, 0, null, null, isLeft);
+      resoDetails.push(renderResonatorDetails(slot, 0, 0, null, null));
       return true;
     }
 
@@ -2073,16 +2371,16 @@ window.getResonatorDetails = function(d) {
     // naming will still be correct.
     slot = parseInt(reso.slot);
 
-    resoDetails += renderResonatorDetails(slot, l, v, dist, nick, isLeft);
+    resoDetails.push(renderResonatorDetails(slot, l, v, dist, nick));
   });
-  return resoDetails;
+  return genFourColumnTable(resoDetails);
 }
 
 // helper function that renders the HTML for a given resonator. Does
 // not work with raw details-hash. Needs digested infos instead:
 // slot: which slot this resonator occupies. Starts with 0 (east) and
 // rotates clockwise. So, last one is 7 (southeast).
-window.renderResonatorDetails = function(slot, level, nrg, dist, nick, isLeft) {
+window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
   if(level === 0) {
     var meter = '<span class="meter" title="octant:\t' + OCTANTS[slot] + '"></span>';
   } else {
@@ -2103,44 +2401,28 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick, isLeft) {
 
     var fill  = '<span style="'+style+'"></span>';
 
-    var meter = '<span class="meter meter-rel" title="'+inf+'">' + fill + lbar + '</span>';
+    var meter = '<span class="meter" title="'+inf+'">' + fill + lbar + '</span>';
   }
-  var cls = isLeft ? 'left' : 'right';
-  var text = '<span class="meter-text '+cls+'">'+(nick||'')+'</span>';
-  return (isLeft ? text+meter : meter+text) + '<br/>';
+  return [meter, nick || ''];
 }
 
-// calculate AP gain from destroying portal
-// so far it counts only resonators + links
-window.getDestroyAP = function(d) {
-  var resoCount = 0;
-
-  $.each(d.resonatorArray.resonators, function(ind, reso) {
-    if(!reso) return true;
-    resoCount += 1;
-  });
-
-  var linkCount = d.portalV2.linkedEdges ? d.portalV2.linkedEdges.length : 0;
-  var fieldCount = d.portalV2.linkedFields ? d.portalV2.linkedFields.length : 0;
-
-  var resoAp = resoCount * DESTROY_RESONATOR;
-  var linkAp = linkCount * DESTROY_LINK;
-  var fieldAp = fieldCount * DESTROY_FIELD;
-  var sum = resoAp + linkAp + fieldAp + CAPTURE_PORTAL + 8*DEPLOY_RESONATOR + COMPLETION_BONUS;
+// calculate AP gain from destroying portal and then capturing it by deploying resonators
+window.getAttackApGainText = function(d) {
+  var breakdown = getAttackApGain(d);
 
   function tt(text) {
     var t = 'Destroy &amp; Capture:\n';
-    t += resoCount  + '×\tResonators\t= ' + digits(resoAp) + '\n';
-    t += linkCount  + '×\tLinks\t= ' + digits(linkAp) + '\n';
-    t += fieldCount + '×\tFields\t= ' + digits(fieldAp) + '\n';
+    t += breakdown.resoCount + '×\tResonators\t= ' + digits(breakdown.resoAp) + '\n';
+    t += breakdown.linkCount + '×\tLinks\t= ' + digits(breakdown.linkAp) + '\n';
+    t += breakdown.fieldCount + '×\tFields\t= ' + digits(breakdown.fieldAp) + '\n';
     t += '1×\tCapture\t= ' + CAPTURE_PORTAL + '\n';
-    t += '8×\tDeploy\t= ' + DEPLOY_RESONATOR + '\n';
+    t += '8×\tDeploy\t= ' + (8 * DEPLOY_RESONATOR) + '\n';
     t += '1×\tBonus\t= ' + COMPLETION_BONUS + '\n';
-    t += 'Sum: ' + digits(sum) + ' AP';
-    return '<tt title="'+t+'">' + digits(text) + '</tt>';
+    t += 'Sum: ' + digits(breakdown.totalAp) + ' AP';
+    return '<tt title="' + t + '">' + digits(text) + '</tt>';
   }
 
-  return [tt('AP Gain'), tt(sum)];
+  return [tt('AP Gain'), tt(breakdown.totalAp)];
 }
 
 
@@ -2344,7 +2626,6 @@ window.getPosition = function() {
 }
 
 
-
 // PORTAL DETAILS MAIN ///////////////////////////////////////////////
 // main code block that renders the portal details in the sidebar and
 // methods that highlight the portal in the map view.
@@ -2358,7 +2639,7 @@ window.renderPortalDetails = function(guid) {
 
   var d = window.portals[guid].options.details;
 
-  var update = selectPortal(guid);
+  selectPortal(guid);
 
   // collect some random data that’s not worth to put in an own method
   var links = {incoming: 0, outgoing: 0};
@@ -2379,54 +2660,48 @@ window.renderPortalDetails = function(guid) {
   var linkedFields = ['fields', d.portalV2.linkedFields.length];
 
   // collect and html-ify random data
-  var randDetails = [playerText, sinceText, getRangeText(d), getEnergyText(d), linksText, getAvgResoDistText(d), linkedFields, getDestroyAP(d)];
-  randDetails = randDetails.map(function(detail) {
-    if(!detail) return '';
-    detail = '<aside>'+detail[0]+'<span>'+detail[1]+'</span></aside>';
-    return detail;
-  }).join('\n');
+  var randDetails = [
+    playerText, sinceText, getRangeText(d), getEnergyText(d),
+    linksText, getAvgResoDistText(d), linkedFields, getAttackApGainText(d)
+  ];
+  randDetails = '<table id="randdetails">' + genFourColumnTable(randDetails) + '</table>';
 
-  // replacing causes flicker, so if the selected portal does not
-  // change, only update the data points that are likely to change.
-  if(update) {
-    console.log('Updating portal details');
-    $('#level').text(Math.floor(getPortalLevel(d)));
-    $('.mods').html(getModDetails(d));
-    $('#randdetails').html(randDetails);
-    $('#resodetails').html(getResonatorDetails(d));
-    $('#portaldetails').attr('class', TEAM_TO_CSS[getTeam(d)]);
-  } else {
-    console.log('exchanging portal details');
-    setPortalIndicators(d);
-    var img = d.imageByUrl && d.imageByUrl.imageUrl ? d.imageByUrl.imageUrl : DEFAULT_PORTAL_IMG;
+  var resoDetails = '<table id="resodetails">' + getResonatorDetails(d) + '</table>';
 
-    var lat = d.locationE6.latE6;
-    var lng = d.locationE6.lngE6;
-    var perma = 'http://ingress.com/intel?latE6='+lat+'&lngE6='+lng+'&z=17&pguid='+guid;
-    var imgTitle = 'title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."';
+  setPortalIndicators(d);
+  var img = d.imageByUrl && d.imageByUrl.imageUrl ? d.imageByUrl.imageUrl : DEFAULT_PORTAL_IMG;
 
-    $('#portaldetails')
-      .attr('class', TEAM_TO_CSS[getTeam(d)])
-      .html(''
-        + '<h3>'+d.portalV2.descriptiveText.TITLE+'</h3>'
-        // help cursor via “.imgpreview img”
-        + '<div class="imgpreview" '+imgTitle+' style="background-image: url('+img+')">'
-        + '<img class="hide" src="'+img+'"/>'
-        + '</div>'
-        + '<span id="level">'+Math.floor(getPortalLevel(d))+'</span>'
-        + '<div class="mods">'+getModDetails(d)+'</div>'
-        + '<div id="randdetails">'+randDetails+'</div>'
-        + '<div id="resodetails">'+getResonatorDetails(d)+'</div>'
-        + '<div class="linkdetails">'
-        + '<aside><a href="'+perma+'">portal link</a></aside>'
-        + '<aside><a onclick="window.reportPortalIssue()">report issue</a></aside>'
-        + '</div>'
-      );
-  }
+  var lat = d.locationE6.latE6;
+  var lng = d.locationE6.lngE6;
+  var perma = 'http://ingress.com/intel?latE6='+lat+'&lngE6='+lng+'&z=17&pguid='+guid;
+  var imgTitle = 'title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."';
+	var gmaps = 'https://maps.google.com/?q='+lat/1E6+','+lng/1E6;
+  var postcard = 'Send in a postcard. Will put it online after receiving. Address:\\n\\nStefan Breunig\\nINF 305 – R045\\n69120 Heidelberg\\nGermany';
+
+  $('#portaldetails')
+    .attr('class', TEAM_TO_CSS[getTeam(d)])
+    .html(''
+      + '<h3>'+d.portalV2.descriptiveText.TITLE+'</h3>'
+      // help cursor via “.imgpreview img”
+      + '<div class="imgpreview" '+imgTitle+' style="background-image: url('+img+')">'
+      + '<img class="hide" src="'+img+'"/>'
+      + '<span id="level">'+Math.floor(getPortalLevel(d))+'</span>'
+      + '</div>'
+      + '<div class="mods">'+getModDetails(d)+'</div>'
+      + randDetails
+      + resoDetails
+      + '<div class="linkdetails">'+ '<aside><a href="'+perma+'">portal link</a></aside>'
+      + '<aside><a href="'+gmaps+'" target="_blank">gmaps</a></aside>'
+      + '<aside><a onclick="alert(\''+postcard+'\');">donate</a></aside>'
+      + '<aside><a onclick="window.reportPortalIssue()">report issue</a></aside>'
+      + '</div>'
+    );
 
   // try to resolve names that were required for above functions, but
   // weren’t available yet.
   resolvePlayerNames();
+
+  runHooks('portalDetailsUpdated', {portalDetails: d});
 }
 
 // draws link-range and hack-range circles around the portal with the
@@ -2459,8 +2734,10 @@ window.selectPortal = function(guid) {
 
   selectedPortal = guid;
 
-  if(portals[guid])
+  if(portals[guid]) {
+    resonatorsSetSelectStyle(guid);
     portals[guid].bringToFront().setStyle({color: COLOR_SELECTED_PORTAL});
+  }
 
   return update;
 }
@@ -2468,8 +2745,7 @@ window.selectPortal = function(guid) {
 
 window.unselectOldPortal = function() {
   var oldPortal = portals[selectedPortal];
-  if(oldPortal)
-    oldPortal.setStyle({color: oldPortal.options.fillColor});
+  if(oldPortal) portalResetColor(oldPortal);
   selectedPortal = null;
   $('#portaldetails').html('');
 }
@@ -2526,7 +2802,7 @@ window.setupRedeem = function() {
     if((e.keyCode ? e.keyCode : e.which) != 13) return;
     var data = {passcode: $(this).val()};
     window.postAjax('redeemReward', data, window.handleRedeemResponse,
-      function() { alert('HTTP request failed. Try again?'); });
+      function() { alert('The HTTP request failed. Either your code is invalid or their servers are down. No way to tell.'); });
   });
 }
 
@@ -2577,6 +2853,10 @@ window.resolvePlayerNames = function() {
 
 
 window.setPlayerName = function(guid, nick) {
+  if($.trim(('' + nick)).slice(0, 5) === '{"L":' && !window.alertFor37WasShown) {
+    window.alertFor37WasShown = true;
+    alert('You have run into bug #37. Please help me solve it!\nCopy and paste this text and post it here:\nhttps://github.com/breunigs/ingress-intel-total-conversion/issues/37\nIf copy & pasting doesn’t work, make a screenshot instead.\n\n\n' + window.debug.printStackTrace() + '\n\n\n' + JSON.stringify(nick));
+  }
   localStorage[guid] = nick;
 }
 
@@ -2596,6 +2876,94 @@ window.loadPlayerNamesForPortal = function(portal_details) {
 }
 
 
+window.isSmartphone = function() {
+  // this check is also used in main.js. Note it should not detect
+  // tablets because their display is large enough to use the desktop
+  // version.
+  return navigator.userAgent.match(/Android.*Mobile/);
+}
+
+window.smartphone = function() {};
+
+window.runOnSmartphonesBeforeBoot = function() {
+  if(!isSmartphone()) return;
+  console.warn('running smartphone pre boot stuff');
+
+  // disable zoom buttons to see if they are really needed
+  window.localStorage['iitc.zoom.buttons'] = 'false';
+
+  // don’t need many of those
+  window.setupStyles = function() {
+    $('head').append('<style>' +
+      [ '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
+        '#largepreview.res img { border:2px solid '+COLORS[TEAM_RES]+'; } ',
+        '#largepreview.none img { border:2px solid '+COLORS[TEAM_NONE]+'; } '].join("\n")
+      + '</style>');
+  }
+
+  // this also matches the expand button, but it is hidden via CSS
+  $('#chatcontrols a').click(function() {
+    $('#scrollwrapper, #updatestatus').hide();
+    // not displaying the map causes bugs in Leaflet
+    $('#map').css('visibility', 'hidden');
+    $('#chat, #chatinput').show();
+  });
+
+  window.smartphone.mapButton = $('<a>map</a>').click(function() {
+    $('#chat, #chatinput, #scrollwrapper').hide();
+    $('#map').css('visibility', 'visible');
+    $('#updatestatus').show();
+    $('.active').removeClass('active');
+    $(this).addClass('active');
+  });
+
+  window.smartphone.sideButton = $('<a>info</a>').click(function() {
+    $('#chat, #chatinput, #updatestatus').hide();
+    $('#map').css('visibility', 'hidden');
+    $('#scrollwrapper').show();
+    $('.active').removeClass('active');
+    $(this).addClass('active');
+  });
+
+  $('#chatcontrols').append(smartphone.mapButton).append(smartphone.sideButton);
+
+  // add event to portals that allows long press to switch to sidebar
+  window.addHook('portalAdded', function(data) {
+    data.portal.on('dblclick', function() {
+      window.lastClickedPortal = this.options.guid;
+    });
+  });
+
+  window.addHook('portalDetailsUpdated', function(data) {
+    var x = $('.imgpreview img').removeClass('hide');
+
+    if(!x.length) {
+      $('.fullimg').remove();
+      return;
+    }
+
+    if($('.fullimg').length) {
+      $('.fullimg').replaceWith(x.addClass('fullimg'));
+    } else {
+      x.addClass('fullimg').appendTo('#sidebar');
+    }
+  });
+}
+
+window.runOnSmartphonesAfterBoot = function() {
+  if(!isSmartphone()) return;
+  console.warn('running smartphone post boot stuff');
+
+  chat.toggle();
+  smartphone.mapButton.click();
+
+  // disable img full view
+  $('#portaldetails').off('click', '**');
+
+  $('.leaflet-right').addClass('leaflet-left').removeClass('leaflet-right');
+}
+
+
 
 // DEBUGGING TOOLS ///////////////////////////////////////////////////
 // meant to be used from browser debugger tools and the like.
@@ -2611,6 +2979,7 @@ window.debug.renderDetails = function() {
 window.debug.printStackTrace = function() {
   var e = new Error('dummy');
   console.log(e.stack);
+  return e.stack;
 }
 
 window.debug.clearPortals = function() {
@@ -2649,13 +3018,13 @@ window.debug.console.create = function() {
   if($('#debugconsole').length) return;
   $('#chatcontrols').append('<a>debug</a>');
   $('#chatcontrols a:last').click(function() {
-    $('#chatinput span').css('cssText', 'color: #bbb !important').text('debug:');
+    $('#chatinput mark').css('cssText', 'color: #bbb !important').text('debug:');
     $('#chat > div').hide();
     $('#debugconsole').show();
     $('#chatcontrols .active').removeClass('active');
     $(this).addClass('active');
   });
-  $('#chat').append('<div id="debugconsole" style="display: none"></div>');
+  $('#chat').append('<div style="display: none" id="debugconsole"><table></table></div>');
 }
 
 window.debug.console.renderLine = function(text, errorType) {
@@ -2672,8 +3041,8 @@ window.debug.console.renderLine = function(text, errorType) {
   var tb = d.toLocaleString();
   var t = '<time title="'+tb+'" data-timestamp="'+d.getTime()+'">'+ta+'</time>';
   var s = 'style="color:'+color+'"';
-  var l = '<p>'+t+'<mark '+s+'>'+errorType+'</mark><span>'+text+'</span></p>';
-  $('#debugconsole').prepend(l);
+  var l = '<tr><td>'+t+'</td><td><mark '+s+'>'+errorType+'</mark></td><td>'+text+'</td></tr>';
+  $('#debugconsole table').prepend(l);
 }
 
 window.debug.console.log = function(text) {
@@ -2794,6 +3163,38 @@ window.getAvgResoDist = function(d) {
     resos++;
   });
   return sum/resos;
+}
+
+window.getAttackApGain = function(d) {
+  var resoCount = 0;
+
+  $.each(d.resonatorArray.resonators, function(ind, reso) {
+    if (!reso)
+      return true;
+    resoCount += 1;
+  });
+
+  var linkCount = d.portalV2.linkedEdges ? d.portalV2.linkedEdges.length : 0;
+  var fieldCount = d.portalV2.linkedFields ? d.portalV2.linkedFields.length : 0;
+
+  var resoAp = resoCount * DESTROY_RESONATOR;
+  var linkAp = linkCount * DESTROY_LINK;
+  var fieldAp = fieldCount * DESTROY_FIELD;
+  var destroyAp = resoAp + linkAp + fieldAp;
+  var captureAp = CAPTURE_PORTAL + 8 * DEPLOY_RESONATOR + COMPLETION_BONUS;
+  var totalAp = destroyAp + captureAp;
+
+  return {
+    totalAp: totalAp,
+    destroyAp: destroyAp,
+    captureAp: captureAp,
+    resoCount: resoCount,
+    resoAp: resoAp,
+    linkCount: linkCount,
+    linkAp: linkAp,
+    fieldCount: fieldCount,
+    fieldAp: fieldAp
+  };
 }
 
 
