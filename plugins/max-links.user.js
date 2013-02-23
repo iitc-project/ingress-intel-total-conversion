@@ -192,71 +192,68 @@ function wrapper() {
     Array.prototype.push.apply(closed, open);
 
     i = closed.length;
-    while(i--)
+    while(i--) {
       if(closed[i].a.__sentinel || closed[i].b.__sentinel || closed[i].c.__sentinel)
         closed.splice(i, 1);
-
-      /* Yay, we're done! */
-      return closed;
     }
+
+     /* Yay, we're done! */
+    return closed;
+  }
     
-    var layer = null;
+  window.plugin.portalfolding.layer = null;
 
-    window.plugin.portalfolding.toggle = function() {
-      if (layer) {
-        // toggle off
-        window.map.removeLayer(layer);
-        layer = null;
-        return;
-      }
-        
-      var locations = [];
-      var minX = 0;
-      var minY = 0;
-        
-      for (var key in window.portals) {
-        var loc = window.portals[key].options.details.locationE6;
-        var nloc = { x: loc.lngE6, y: loc.latE6 };
-        if (nloc.x < minX) 
-          minX = nloc.x;
-        if (nloc.y < minX) 
-          minX = nloc.y;
-        locations.push(nloc);
-      }
-        
-      var i = locations.length;
-      while(i) {
-        var nloc = locations[--i];
-        nloc.x += Math.abs(minX);
-        nloc.y += Math.abs(minY);
-      }
-
-      layer = L.layerGroup([])
-        
-      var triangles = triangulate(locations);
-      i = triangles.length;
-      while(i) {
-        var triangle = triangles[--i];
-        triangle.draw(layer, minX, minY)
-      }
-        
-      window.map.addLayer(layer);
-      return layer;
-    }
+  var updating = false;
+  var fillLayer = function() {
+    if (updating)
+      return;
+    updating = true;
+    window.plugin.portalfolding.layer.clearLayers();
     
-    var setup =  function() {
-      $('#toolbox').append('<a onclick="window.plugin.portalfolding.toggle()">toggle MaxLinks</a> ');
-    }
+    var locations = [];
+    var minX = 0;
+    var minY = 0;
+       
+    $.each(window.portals, function(guid, portal) {
+      var loc = portal.options.details.locationE6;
+      var nloc = { x: loc.lngE6, y: loc.latE6 };
+      if (nloc.x < minX) 
+        minX = nloc.x;
+      if (nloc.y < minX) 
+        minX = nloc.y;
+      locations.push(nloc);
+    });
+        
+    $.each(locations, function(idx, nloc) {
+      nloc.x += Math.abs(minX);
+      nloc.y += Math.abs(minY);
+    });
 
-    // PLUGIN END //////////////////////////////////////////////////////////
-    if(window.iitcLoaded && typeof setup === 'function') {
-      setup();
-    } else {
-      if(window.bootPlugins)
-        window.bootPlugins.push(setup);
-      else
-        window.bootPlugins = [setup];
-    }
+    var triangles = triangulate(locations);
+    $.each(triangles, function(idx, triangle) {
+      triangle.draw(window.plugin.portalfolding.layer, minX, minY)
+    });
+    updating = false;
+  }
+  
+  var setup =  function() {
+    window.plugin.portalfolding.layer = L.layerGroup([]);
+    window.map.on('layeradd', function(e) {
+      if (e.layer === window.plugin.portalfolding.layer)
+        fillLayer();
+    });     
+    window.layerChooser.addOverlay(window.plugin.portalfolding.layer, 'Maximum Links');
+  }
+
+  // PLUGIN END //////////////////////////////////////////////////////////
+  if(window.iitcLoaded && typeof setup === 'function') {
+    setup();
+  } else {
+    if(window.bootPlugins)
+      window.bootPlugins.push(setup);
+    else
+      window.bootPlugins = [setup];
+  }
 } // wrapper end
 
 // inject code into site context
