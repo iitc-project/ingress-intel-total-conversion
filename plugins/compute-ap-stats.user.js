@@ -27,51 +27,51 @@ window.plugin.compAPStats.setupCallback = function() {
 
   // do an initial calc for sidebar sizing purposes
   window.plugin.compAPStats.onPositionMove();
-  
+
   // make the value update when the map data updates
   var handleDataResponseOrig = window.handleDataResponse;
   window.handleDataResponse = function(data, textStatus, jqXHR) {
-	  handleDataResponseOrig(data, textStatus, jqXHR);
-	  window.plugin.compAPStats.onPositionMove();
+    handleDataResponseOrig(data, textStatus, jqXHR);
+    window.plugin.compAPStats.onPositionMove();
   }
 }
 
 window.plugin.compAPStats.onPositionMove = function() {
-  var result = window.plugin.compAPStats.compAPStats();  
-  $('#available_ap_display').html("Available AP in this area:<br/>&nbsp;Enlightened:\t" + 
-		  digits(result[1]) + "<br/>&nbsp;Resistance:\t" + digits(result[0]));
+  var result = window.plugin.compAPStats.compAPStats();
+  $('#available_ap_display').html("Available AP in this area:<br/>&nbsp;Enlightened:\t" +
+    digits(result[1]) + "<br/>&nbsp;Resistance:\t" + digits(result[0]));
 }
 
 window.plugin.compAPStats.compAPStats = function() {
-  
+
   var totalAP_RES = 0;
   var totalAP_ENL = 0;
-  
+
   var allResEdges = [];
   var allResFields = [];
   var allEnlEdges = [];
   var allEnlFields = [];
-  
+
   var displayBounds = map.getBounds();
-  
+
   // Grab every portal in the viewable area and compute individual AP stats
   $.each(window.portals, function(ind, portal) {
     var d = portal.options.details;
-    
+
     // eliminate offscreen portals (selected, and in padding)
     if(!displayBounds.contains(portal.getLatLng())) return true;
-    
+
     var portalStats = getAttackApGain(d);
     var portalSum = portalStats.resoAp + portalStats.captureAp;
-    
+
     if (getTeam(d) === TEAM_ENL) {
       totalAP_RES += portalSum;
-      
+
       $.each(d.portalV2.linkedEdges, function(ind, edge) {
-      	if(!edge) return true;
-      	allEnlEdges.push(edge.edgeGuid);
+        if(!edge) return true;
+        allEnlEdges.push(edge.edgeGuid);
       });
-      
+
       $.each(d.portalV2.linkedFields, function(ind, field) {
         if(!field) return true;
         allEnlFields.push(field);
@@ -79,35 +79,35 @@ window.plugin.compAPStats.compAPStats = function() {
     }
     else if (getTeam(d) === TEAM_RES) {
       totalAP_ENL += portalSum;
-      
+
       $.each(d.portalV2.linkedEdges, function(ind, edge) {
         if(!edge) return true;
         allResEdges.push(edge.edgeGuid);
       });
-        
+
       $.each(d.portalV2.linkedFields, function(ind, field) {
         if(!field) return true;
         allResFields.push(field);
       });
-    } else { 
+    } else {
       // it's a neutral portal, potential for both teams.  by definition no fields or edges
       totalAP_ENL += portalSum;
       totalAP_RES += portalSum;
     }
   });
-  
+
   // Compute team field AP
   allResFields = uniqueArray(allResFields);
   totalAP_ENL += (allResFields.length * DESTROY_FIELD);
   allEnlFields = uniqueArray(allEnlFields);
   totalAP_RES += (allEnlFields.length * DESTROY_FIELD);
-  
+
   // Compute team Link AP
   allResEdges = uniqueArray(allResEdges);
   totalAP_ENL += (allResEdges.length * DESTROY_LINK);
   allEnlEdges = uniqueArray(allEnlEdges);
   totalAP_RES += (allEnlEdges.length * DESTROY_LINK);
- 
+
   return [totalAP_RES, totalAP_ENL];
 }
 
