@@ -1,11 +1,11 @@
 // ==UserScript==
 // @id             iitc-plugin-show-portal-weakness@vita10gy
 // @name           iitc: show portal weakness
-// @version        0.2
+// @version        0.3
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/show-portal-weakness.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/show-portal-weakness.user.js
-// @description    Uses the fill color of the portals to denote if the portal is weak (Needs recharging, missing a resonator, needs shields)
+// @description    Uses the fill color of the portals to denote if the portal is weak (Needs recharging, missing a resonator, needs shields)  Red, needs energy and shields. Orange, only needs energy (either recharge or resonators). Yellow, only needs shields.
 // @include        http://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
 // ==/UserScript==
@@ -24,26 +24,26 @@ window.plugin.portalWeakness.portalAdded = function(data) {
   
   var d = data.portal.options.details;
   var portal_weakness = 0;
-  if(getTeam(d) != 0)
-  {
-    if(window.getTotalPortalEnergy(d)> 0 && window.getCurrentPortalEnergy(d) < window.getTotalPortalEnergy(d))
-    {
+  if(getTeam(d) != 0) {
+    var only_shields = true;
+ 	  var missing_shields = 0;
+    if(window.getTotalPortalEnergy(d)> 0 && window.getCurrentPortalEnergy(d) < window.getTotalPortalEnergy(d)) {
       portal_weakness = 1 - (window.getCurrentPortalEnergy(d)/window.getTotalPortalEnergy(d));
+      only_shields = false;
     }
     //Ding the portal for every missing sheild. 
-    $.each(d.portalV2.linkedModArray, function(ind, mod)
-    {
-      if(mod == null)
-      {
-        portal_weakness += .03;
+    $.each(d.portalV2.linkedModArray, function(ind, mod) {
+      if(mod == null) {
+        missing_shields++;
+        portal_weakness += .08;
       }
     });
     //Ding the portal for every missing resonator.
     var resCount = 0;
-    $.each(d.resonatorArray.resonators, function(ind, reso)
-    {
+    $.each(d.resonatorArray.resonators, function(ind, reso) {
       if(reso == null) {
         portal_weakness += .125;
+        only_shields = false;
       }
       else {
         resCount++;
@@ -57,11 +57,19 @@ window.plugin.portalWeakness.portalAdded = function(data) {
       portal_weakness = 1;
     } 
     
-    if(portal_weakness>0)
-    {
-      var color = 'red';
-      var fill_opacity = Math.round((portal_weakness*.8 + .2)*100)/100;
-      var params = {fillColor: color, fillOpacity: fill_opacity, radius: data.portal.options.radius+1};
+    if(portal_weakness>0) {
+      var fill_opacity = portal_weakness*.7 + .3;
+      var color = 'orange';
+      if(only_shields) {
+        color = 'yellow';
+        //If only shields are missing, make portal yellow, but fill more than usual since pale yellow is basically invisible
+        fill_opacity = missing_shields*.15 + .1;
+      }
+      else if(missing_shields>0) {
+        color = 'red';
+      }
+      fill_opacity = Math.round(fill_opacity*100)/100;
+      var params = {fillColor: color, fillOpacity: fill_opacity};
       if(resCount<8)
       {
         // Hole per missing resonator
