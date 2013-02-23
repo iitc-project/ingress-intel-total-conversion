@@ -81,6 +81,7 @@ Please do!
 [saithis](https://github.com/saithis),
 [Scrool](https://github.com/Scrool),
 [sorgo](https://github.com/sorgo),
+[tpenner](https://github.com/tpenner),
 [vita10gy](https://github.com/vita10gy),
 [Xelio](https://github.com/Xelio),
 [ZauberNerd](https://github.com/ZauberNerd)
