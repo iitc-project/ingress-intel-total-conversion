@@ -33,7 +33,7 @@ CHANGES IN 0.7
 - show portal address in sidebar (by vita10gy)
 
 **Updated:**
-- the guess players plugin now groups and sorts by level. It also remembers the players now, so zooming in won’t make a player “lower level”.
+- the guess player level plugin now groups and sorts by level. It also remembers the players now, so zooming in won’t make a player “lower level”.
 
 [You can obtain them in the plugins directory](https://github.com/breunigs/ingress-intel-total-conversion/tree/gh-pages/plugins#readme).
 
