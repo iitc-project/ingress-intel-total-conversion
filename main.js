@@ -15,6 +15,8 @@
 if(document.getElementsByTagName('html')[0].getAttribute('itemscope') != null)
   throw('Ingress Intel Website is down, not a userscript issue.');
 
+window.iitcBuildDate = '@@BUILDDATE@@';
+
 // disable vanilla JS
 window.onload = function() {};
 
