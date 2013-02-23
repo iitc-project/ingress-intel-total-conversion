@@ -38,8 +38,10 @@ window.plugin.compAPStats.setupCallback = function() {
 
 window.plugin.compAPStats.onPositionMove = function() {
   var result = window.plugin.compAPStats.compAPStats();
-  $('#available_ap_display').html("Available AP in this area:<br/>&nbsp;Enlightened:\t" +
-    digits(result[1]) + "<br/>&nbsp;Resistance:\t" + digits(result[0]));
+  $('#available_ap_display').html('Available AP in this area:<table>'
+    + '<tr><td>Enlightened:</td><td style="text-align:right">' + digits(result[1]) + '</td></tr>'
+    + '<tr><td>Resistance:</td><td style="text-align:right">' + digits(result[0]) + '</td></tr>'
+    + '</table>');
 }
 
 window.plugin.compAPStats.compAPStats = function() {
