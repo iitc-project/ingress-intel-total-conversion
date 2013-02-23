@@ -27,7 +27,7 @@ window.plugin.portalWeakness.portalAdded = function(data) {
   if(getTeam(d) !== 0) {
     var only_shields = true;
  	  var missing_shields = 0;
-    if(window.getTotalPortalEnergy(d)> 0 && window.getCurrentPortalEnergy(d) < window.getTotalPortalEnergy(d)) {
+    if(window.getTotalPortalEnergy(d) > 0 && window.getCurrentPortalEnergy(d) < window.getTotalPortalEnergy(d)) {
       portal_weakness = 1 - (window.getCurrentPortalEnergy(d)/window.getTotalPortalEnergy(d));
       only_shields = false;
     }
