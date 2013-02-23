@@ -20,18 +20,24 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 // use own namespace for plugin
 window.plugin.scoreboard = function() {};
 
+
 window.plugin.scoreboard.compileStats = function(){
+   window.plugin.scoreboard.scores = {};
    $.each(window.fields, function(qk, val) {
     console.log(val);
     var team = val.options.data.controllingTeam.team;
-    if(window.plugin.muTotal.localScore[team]==undefined)
+    if(window.plugin.scoreboard.scores[team]==undefined)
     {
-      window.plugin.muTotal.localScore[team] = 0;
+      window.plugin.scoreboard.scores[team] = {};
+    }
+    if(window.plugin.scoreboard.scores[team]['mu']==undefined)
+    {
+      window.plugin.scoreboard.scores[team]['mu'] = 0;
     }
     if(window.portals[val.options.vertices.vertexA.guid]!==undefined ||
        window.portals[val.options.vertices.vertexB.guid]!==undefined ||
        window.portals[val.options.vertices.vertexC.guid]!==undefined ) {
-      window.plugin.muTotal.localScore[team]+=parseInt(val.options.data.entityScore.entityScore);
+      window.plugin.scoreboard.scores[team]['mu']+=parseInt(val.options.data.entityScore.entityScore);
       
       //console.log(val.options.data.controllingTeam.team);
       //console.log(val.options.data.entityScore.entityScore);
@@ -46,10 +52,12 @@ window.plugin.scoreboard.display = function() {
   window.plugin.scoreboard.compileStats();
   $('body').append('<div id="scoreboard">' +
                    '<p>This is the default dialog which is useful for displaying information. The dialog window can be moved,</p>' +
+                   window.plugin.scoreboard.scores +
                    '</div>');
-
+  console.log(window.plugin.scoreboard.scores);
   $( "#scoreboard" ).dialog({ autoOpen: true,
-                               buttons: [ { text: "Close", click: function() { $( this ).dialog( "close" ); } } ]});
+                              modal: true,
+                              buttons: [ { text: "Close", click: function() { $( this ).dialog( "close" ); } } ]});
 }
 
 var setup =  function() {

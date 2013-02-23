@@ -520,7 +520,8 @@ window.renderField = function(ent) {
     smoothFactor: 10,
     vertices: ent[2].capturedRegion,
     lastUpdate: ent[1],
-    guid: ent[0]});
+    guid: ent[0],
+    data: ent[2]});
 
   if(!getPaddedBounds().intersects(poly.getBounds())) return;
 
