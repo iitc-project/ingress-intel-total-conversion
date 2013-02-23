@@ -32,7 +32,7 @@ The chat is split up into several categories. It usually only shows messages for
 
 **The chat categories are:**
 - full: shows all automated messages *(23:57	\<apj\>	destroyed an L3 Resonator on Two Spikes)*
-- compact: shows exactly one automated message per user
+- compact: shows only the latest automated message per user
 - public: shows user generated public messages (both Enlightenment and Resistance can read it)
 - faction: shows messages for own faction (e.g. only Resistance can read Resistance messages)
 
@@ -101,7 +101,7 @@ Starting from the top, the sidebar shows this information:
 - Details about you, the logged in user. This is only updated if you reload the page. This is a limitation of Ingress, not IITC.
   - it shows your current level followed by your nick
   - to the right, it shows to percentages. The upper one, e.g. “XM: 37%” tells you how much your XM bar is filled. The lower one, e.g. “level: 37%“ tells you that you have gathered 37% of the AP required for the next level. It shows “max level” if you have reached max level.
-  - the tooltip mainly shows you absolute numbers instead of percentages. It also shows how much invites you have.
+  - the tooltip mainly shows you absolute numbers instead of percentages. It also shows how many invites you have.
 - The next bar is a visual representation of global MindUnits (MU) per faction. It is updated every now and then. The tooltip shows the absolute MU count per faction.
 - Search Location: You can search for continents, countries, cities or street addresses. If there is at least one result your are taken to the most likely immediately. There is no feedback if the entered location was not found. Rule of thumb: if it takes longer than three seconds, try again.  [Read about supported formats in the user guide for this service](https://wiki.openstreetmap.org/wiki/Nominatim).
 
@@ -123,7 +123,7 @@ Starting from the top, the sidebar shows this information:
 - links: shows incoming and outgoing links. The tooltip explains the icons.
 - reso dist: shows the average distance the resonators have to the portal.
 - fields: how many fields are connected to this portal
-- AP Gain: estimate of how much AP you gain if you take down this portal and deploy resonators of your own faction. Tooltip breaks this number down into parts.
+- AP Gain: estimate of how many AP you gain if you take down this portal and deploy resonators of your own faction. Tooltip breaks this number down into parts.
     
 ##### Resonators
 

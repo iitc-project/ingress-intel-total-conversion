@@ -19,7 +19,7 @@ IITC can be [extended with the use of plugins](https://github.com/breunigs/ingre
 Install
 -------
 
-Current version is 0.61. [See NEWS.md for details](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/NEWS.md) . **THIS VERSION CONTAINS A SECURITY UPDATE.** Please update as soon as possible and also alert friends about it.
+Current version is 0.7. [See NEWS.md for details](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/NEWS.md).
 
 [**INSTALL**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js)
 
@@ -30,7 +30,7 @@ Current version is 0.61. [See NEWS.md for details](https://github.com/breunigs/i
 - Confirm security question.
 - Reload page.
 
-*NoScript:* The newest, not yet released version appears to work with NoScript. Until it is released disable NoScript if you have problems. To make the script work whitelist at least these domains: `ingress.com github.com leafletjs.com googleapis.com`. If you want to see the cool font also whitelist `googleusercontent.com`.
+*NoScript:* To make the script work whitelist at least these domains: `ingress.com github.com leafletjs.com googleapis.com`. If you want to see the cool font also whitelist `googleusercontent.com`.
 
 ### Chrome
 
@@ -68,6 +68,7 @@ Please do!
 **So far, these people have contributed:**
 
 [Bananeweizen](https://github.com/Bananeweizen),
+[blakjakau](https://github.com/blakjakau),
 [cmrn](https://github.com/cmrn),
 [epf](https://github.com/epf),
 [integ3r](https://github.com/integ3r),
@@ -80,6 +81,7 @@ Please do!
 [saithis](https://github.com/saithis),
 [Scrool](https://github.com/Scrool),
 [sorgo](https://github.com/sorgo),
+[tpenner](https://github.com/tpenner),
 [vita10gy](https://github.com/vita10gy),
 [Xelio](https://github.com/Xelio),
 [ZauberNerd](https://github.com/ZauberNerd)

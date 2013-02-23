@@ -127,7 +127,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
 
   // Preserve and restore "selectedPortal" between portal re-render
   if(portalUpdateAvailable) var oldSelectedPortal = selectedPortal;
-  
+
   runHooks('portalDataLoaded', {portals : ppp});
   $.each(ppp, function(ind, portal) { renderPortal(portal); });
 
@@ -231,8 +231,16 @@ window.renderPortal = function(ent) {
   var old = findEntityInLeaflet(layerGroup, window.portals, ent[0]);
   if(old) {
     var oo = old.options;
+
+    // Default checks to see if a portal needs to be re-rendered
     var u = oo.team !== team;
     u = u || oo.level !== portalLevel;
+
+    // Allow plugins to add additional conditions as to when a portal gets re-rendered
+    var hookData = {portal: ent[2], oldPortal: oo.details, reRender: false};
+    runHooks('beforePortalReRender', hookData);
+    u = u || hookData.reRender;
+
     // nothing changed that requires re-rendering the portal.
     if(!u) {
       // let resos handle themselves if they need to be redrawn

@@ -15,6 +15,8 @@
 if(document.getElementsByTagName('html')[0].getAttribute('itemscope') != null)
   throw('Ingress Intel Website is down, not a userscript issue.');
 
+window.iitcBuildDate = '@@BUILDDATE@@';
+
 // disable vanilla JS
 window.onload = function() {};
 
@@ -52,7 +54,7 @@ for(var i = 0; i < d.length; i++) {
 var ir = window.internalResources || [];
 
 var mainstyle = 'http://breunigs.github.com/ingress-intel-total-conversion/style.css?@@BUILDDATE@@';
-var smartphone = 'http://breunigs.github.com/ingress-intel-total-conversion/smartphone.css?@@BUILDDATE@@';
+var smartphone = 'http://breunigs.github.com/ingress-intel-total-conversion/mobile/smartphone.css?@@BUILDDATE@@';
 var leaflet = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.css';
 var coda = 'http://fonts.googleapis.com/css?family=Coda';
 
