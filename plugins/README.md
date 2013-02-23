@@ -9,7 +9,7 @@ Plugins are installed the same way the total conversion script is. Please see th
 Available Plugins
 -----------------
 
-- [**Draw Tools**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/draw-tools.user.js) allows to draw circles and lines on the map to aid you with planning your next big field.
+- [**Draw Tools**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/draw-tools.user.js) allows to draw circles and lines on the map to aid you with planning your next big field. [View screenshot](http://breunigs.github.com/ingress-intel-total-conversion/screenshots/plugin_draw_tools.png)
 - [**Guess Player Level**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/guess-player-levels.user.js) looks for the highest placed resonator per player in the current view to guess the player level.
 - [**Highlight Weakened Portals**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/show-portal-weakness.user.js) fill portals with red to indicate portal's state of disrepair. The brighter the color the more attention needed (recharge, shields, resonators). A dashed portal means a resonator is missing.
 - [**Render Limit Increase**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/render-limit-increase.user.js) increases render limits. Good for high density areas (e.g. London, UK) and faster PCs.
