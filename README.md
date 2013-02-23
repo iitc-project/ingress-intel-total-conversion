@@ -69,6 +69,7 @@ Please do!
 
 [Bananeweizen](https://github.com/Bananeweizen),
 [blakjakau](https://github.com/blakjakau),
+[boombuler](https://github.com/boombuler),
 [cmrn](https://github.com/cmrn),
 [epf](https://github.com/epf),
 [integ3r](https://github.com/integ3r),
@@ -85,7 +86,6 @@ Please do!
 [vita10gy](https://github.com/vita10gy),
 [Xelio](https://github.com/Xelio),
 [ZauberNerd](https://github.com/ZauberNerd)
-[Boombuler](https://github.com/Boombuler)
 
 
 Attribution & License

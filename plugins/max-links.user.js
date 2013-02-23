@@ -2,6 +2,8 @@
 // @id             max-links@boombuler
 // @name           iitc: Max-Links-Plugin
 // @version        0.1
+// @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/max-links.user.js
+// @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/max-links.user.js
 // @description    Calculates how to link the portals to create the maximum number of fields.
 // @include        http://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
