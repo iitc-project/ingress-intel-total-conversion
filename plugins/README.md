@@ -18,7 +18,8 @@ Available Plugins
 
 ### available only with the development version
 
-The development version is not available publicly, you need to build it yourself. See [HACKING.md](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/HACKING.md#hacking) for guides.
+[Read HACKING.md file](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/HACKING.md#hacking) to learn how to build the development version yourself. If **and only if** [you have read how to report bugs](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/HACKING.md#how-do-i-report-bugs), you may beta test the [nightly](https://www.dropbox.com/sh/lt9p0s40kt3cs6m/3xzpyiVBnF) version.
+
 
 - [**Compute AP Stats**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/compute-ap-stats.user.js) Shows the potential AP an agent could obtain by destroying and rebuilding all the portals in the current zoom area.  **REQUIRES 2013-02-22+**
 - [**Player Tracker**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/player-tracker.user.js) Draws trails for user actions in the last hour. At the last known location there’s a tooltip that shows the data in a table. [View screenshot](http://breunigs.github.com/ingress-intel-total-conversion/screenshots/plugin_player_tracker.png). **REQUIRES 2013-02-19+**
