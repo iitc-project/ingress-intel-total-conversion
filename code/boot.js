@@ -234,6 +234,7 @@ function boot() {
   window.debug.console.overwriteNativeIfRequired();
 
   console.log('loading done, booting. Built: ' + window.iitcBuildDate);
+  if(window.deviceID) console.log('Your device ID: ' + window.deviceID);
   window.runOnSmartphonesBeforeBoot();
 
   // overwrite default Leaflet Marker icon to be a neutral color
