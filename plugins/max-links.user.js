@@ -203,10 +203,9 @@ function wrapper() {
     
   window.plugin.maxLinks.layer = null;
 
-  var updating = false;
-  
+  var updating = false;  
   window.plugin.maxLinks.updateLayer = function() {
-    if (updating)
+    if (updating || window.plugin.maxLinks.layer === null || !window.map.hasLayer(window.plugin.maxLinks.layer))
       return;
     updating = true;
     window.plugin.maxLinks.layer.clearLayers();
@@ -243,7 +242,7 @@ function wrapper() {
       if (e.layer === window.plugin.maxLinks.layer)
         window.plugin.maxLinks.updateLayer();
     });
-    window.map.on('zoomend moveend', fwindow.plugin.maxLinks.updateLayer);     
+    window.map.on('zoomend moveend', window.plugin.maxLinks.updateLayer);     
     window.layerChooser.addOverlay(window.plugin.maxLinks.layer, 'Maximum Links');
   }
 
