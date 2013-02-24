@@ -43,13 +43,16 @@
 //              redrawn. It is called early on in the
 //              code/map_data.js#renderPortal as long as there was an
 //              old portal for the guid.
-
+// checkRenderLimit: callback is passed the argument of
+//              {reached : false} to indicate that the renderlimit is reached
+//              set reached to true.
 
 
 
 window._hooks = {}
 window.VALID_HOOKS = ['portalAdded', 'portalDetailsUpdated',
-  'publicChatDataAvailable', 'portalDataLoaded', 'beforePortalReRender'];
+  'publicChatDataAvailable', 'portalDataLoaded', 'beforePortalReRender',
+  'checkRenderLimit'];
 
 window.runHooks = function(event, data) {
   if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);
