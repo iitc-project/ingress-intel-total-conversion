@@ -95,7 +95,7 @@ function wrapper() {
     }
   }
     
-  var triangulate = function (vertices) {
+  window.plugin.maxLinks.triangulate = function (vertices) {
     /* Bail if there aren't enough vertices to form any triangles. */
     if(vertices.length < 3)
       return []
@@ -204,7 +204,8 @@ function wrapper() {
   window.plugin.maxLinks.layer = null;
 
   var updating = false;
-  var fillLayer = function() {
+  
+  window.plugin.maxLinks.updateLayer = function() {
     if (updating)
       return;
     updating = true;
@@ -229,7 +230,7 @@ function wrapper() {
       nloc.y += Math.abs(minY);
     });
 
-    var triangles = triangulate(locations);
+    var triangles = window.plugin.maxLinks.triangulate(locations);
     $.each(triangles, function(idx, triangle) {
       triangle.draw(window.plugin.maxLinks.layer, minX, minY)
     });
@@ -240,8 +241,9 @@ function wrapper() {
     window.plugin.maxLinks.layer = L.layerGroup([]);
     window.map.on('layeradd', function(e) {
       if (e.layer === window.plugin.maxLinks.layer)
-        fillLayer();
-    });     
+        window.plugin.maxLinks.updateLayer();
+    });
+    window.map.on('zoomend moveend', fwindow.plugin.maxLinks.updateLayer);     
     window.layerChooser.addOverlay(window.plugin.maxLinks.layer, 'Maximum Links');
   }
 
