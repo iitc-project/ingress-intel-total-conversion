@@ -261,8 +261,11 @@ window.renderPortal = function(ent) {
   // pre-loads player names for high zoom levels
   loadPlayerNamesForPortal(ent[2]);
 
-  var lvWeight = Math.max(2, portalLevel / 1.5);
-  var lvRadius = Math.max(portalLevel + 3, 5);
+  var lvWeight = Math.max(2, Math.floor(portalLevel) / 1.5);
+  var lvRadius = Math.floor(portalLevel) + 4;
+  if(team === window.TEAM_NONE) {
+    lvRadius = 7;
+  }
 
   var p = L.circleMarker(latlng, {
     radius: lvRadius + (L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE : 0),
