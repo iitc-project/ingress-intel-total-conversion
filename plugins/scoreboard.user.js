@@ -20,28 +20,24 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 // use own namespace for plugin
 window.plugin.scoreboard = function() {};
 
+window.plugin.scoreboard.resetTeam = function(team) {
+   window.plugin.scoreboard.scores['team'][team] = {};
+   window.plugin.scoreboard.scores['team'][team]['mu'] = 0;
+   window.plugin.scoreboard.scores['team'][team]['count'] = {};
+   window.plugin.scoreboard.scores['team'][team]['count']['fields'] = 0;
+   window.plugin.scoreboard.scores['team'][team]['largest'] = {};   
+};
 
 window.plugin.scoreboard.compileStats = function(){
    window.plugin.scoreboard.scores = {"team": {}, "player": {}};
+   window.plugin.scoreboard.resetTeam(TEAM_RES);
+   window.plugin.scoreboard.resetTeam(TEAM_ENL);
+   
    $.each(window.fields, function(qk, val) {
-      var team = val.options.data.controllingTeam.team;
+      var team = getTeam(val.options.data);
       var player = val.options.data.creator.creatorGuid;
       //Init Team info
-      if(window.plugin.scoreboard.scores['team'][team] === undefined) {
-        window.plugin.scoreboard.scores['team'][team] = {};
-      }
-      if(window.plugin.scoreboard.scores['team'][team]['mu'] === undefined) {
-        window.plugin.scoreboard.scores['team'][team]['mu'] = 0;
-      }
-      if(window.plugin.scoreboard.scores['team'][team]['count'] === undefined) {
-        window.plugin.scoreboard.scores['team'][team]['count'] = {};
-      }
-      if(window.plugin.scoreboard.scores['team'][team]['count']['fields'] === undefined) {
-        window.plugin.scoreboard.scores['team'][team]['count']['fields'] = 0;
-      }
-      if(window.plugin.scoreboard.scores['team'][team]['largest'] === undefined) {
-        window.plugin.scoreboard.scores['team'][team]['largest'] = {};
-      }   
+       
       //Init Player info
       if(window.plugin.scoreboard.scores['player'][player] === undefined) {
         window.plugin.scoreboard.scores['player'][player] = {};
@@ -74,8 +70,7 @@ window.plugin.scoreboard.compileStats = function(){
          }
          else if(window.plugin.scoreboard.scores['team'][team]['largest']['mu'].options.data.entityScore.entityScore < val.options.data.entityScore.entityScore) {
             window.plugin.scoreboard.scores['team'][team]['largest']['mu'] = val;
-         }
-         
+         }         
          if(window.plugin.scoreboard.scores['player'][player]['largest']['mu'] === undefined) {
             window.plugin.scoreboard.scores['player'][player]['largest']['mu'] = val;
          }
@@ -92,12 +87,28 @@ window.plugin.scoreboard.compileStats = function(){
 };
 
 window.plugin.scoreboard.display = function() {
-  window.plugin.scoreboard.compileStats();
-  console.log(window.plugin.scoreboard.scores);
-  $('#scoreboard').html(JSON.stringify(window.plugin.scoreboard.scores));
-  $( "#scoreboard" ).dialog({ autoOpen: true,
-                              modal: true,
-                              buttons: [ { text: "Close", click: function() { $( this ).dialog( "close" ); } } ]});
+   window.plugin.scoreboard.compileStats();
+   console.log(window.plugin.scoreboard.scores);
+   var res_mu = window.plugin.scoreboard.scores['team'][TEAM_RES]['mu'];
+   var enl_mu = window.plugin.scoreboard.scores['team'][TEAM_ENL]['mu'];
+
+   var score_html = '';
+   if(res_mu + enl_mu > 0) {
+      var res_mu_percent = Math.round((res_mu / (res_mu + enl_mu)) * 100);
+      score_html += '<div id="gamestat" title="Resistance:	' + res_mu + ' MU Enlightenment:	' + enl_mu + ' MU">';
+      if(res_mu_percent > 0) {
+         score_html += '<span class="res" style="width:' + res_mu_percent +'%;">' + res_mu_percent +'%</span>';   
+      }
+      if(res_mu_percent < 100) {
+         score_html += '<span class="enl" style="width:' + (100 - res_mu_percent) +'%;">&nbsp;' + (100 - res_mu_percent) +'%</span>';
+      }
+      score_html += '</div>'
+   }
+  
+   $('#scoreboard').html(score_html);
+   $( "#scoreboard" ).dialog({ autoOpen: true,
+                               modal: true,
+                               buttons: [ { text: "Close", click: function() { $( this ).dialog( "close" ); } } ]});
 }
 
 var setup =  function() {
