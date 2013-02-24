@@ -19,7 +19,7 @@ function wrapper() {
   // PLUGIN START ////////////////////////////////////////////////////////
 
   // use own namespace for plugin
-  window.plugin.portalfolding = function() {};
+  window.plugin.maxLinks = function() {};
     
   var MAX_LINK_COLOR = '#FF0000';
     
@@ -201,14 +201,14 @@ function wrapper() {
     return closed;
   }
     
-  window.plugin.portalfolding.layer = null;
+  window.plugin.maxLinks.layer = null;
 
   var updating = false;
   var fillLayer = function() {
     if (updating)
       return;
     updating = true;
-    window.plugin.portalfolding.layer.clearLayers();
+    window.plugin.maxLinks.layer.clearLayers();
     
     var locations = [];
     var minX = 0;
@@ -231,18 +231,18 @@ function wrapper() {
 
     var triangles = triangulate(locations);
     $.each(triangles, function(idx, triangle) {
-      triangle.draw(window.plugin.portalfolding.layer, minX, minY)
+      triangle.draw(window.plugin.maxLinks.layer, minX, minY)
     });
     updating = false;
   }
   
   var setup =  function() {
-    window.plugin.portalfolding.layer = L.layerGroup([]);
+    window.plugin.maxLinks.layer = L.layerGroup([]);
     window.map.on('layeradd', function(e) {
-      if (e.layer === window.plugin.portalfolding.layer)
+      if (e.layer === window.plugin.maxLinks.layer)
         fillLayer();
     });     
-    window.layerChooser.addOverlay(window.plugin.portalfolding.layer, 'Maximum Links');
+    window.layerChooser.addOverlay(window.plugin.maxLinks.layer, 'Maximum Links');
   }
 
   // PLUGIN END //////////////////////////////////////////////////////////
