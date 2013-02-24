@@ -158,7 +158,7 @@ window.MAX_DRAWN_FIELDS = 200;
 window.RESONATOR_DISPLAY_ZOOM_LEVEL = 17;
 
 window.COLOR_SELECTED_PORTAL = '#f00';
-window.COLORS = ['#FFCE00', '#0088FF', '#03FE03']; // none, res, enl
+window.COLORS = ['#FFCE00', '#0088FF', '#03DC03']; // none, res, enl
 window.COLORS_LVL = ['#000', '#FECE5A', '#FFA630', '#FF7315', '#E40000', '#FD2992', '#EB26CD', '#C124E0', '#9627F4'];
 window.COLORS_MOD = {VERY_RARE: '#F78AF6', RARE: '#AD8AFF', COMMON: '#84FBBD'};
 
