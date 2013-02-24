@@ -51,8 +51,7 @@ window.plugin.portalWeakness.portalAdded = function(data) {
     if(portal_weakness < 0) {
       portal_weakness = 0;
     }
-    if(portal_weakness > 1)
-    {
+    if(portal_weakness > 1) {
       portal_weakness = 1;
     } 
     
@@ -62,15 +61,14 @@ window.plugin.portalWeakness.portalAdded = function(data) {
       if(only_shields) {
         color = 'yellow';
         //If only shields are missing, make portal yellow
-        //but fill more than usual since pale yellow is basically invisible
+        // but fill more than usual since pale yellow is basically invisible
         fill_opacity = missing_shields*.15 + .1;
       } else if(missing_shields > 0) {
         color = 'red';
       }
       fill_opacity = Math.round(fill_opacity*100)/100;
       var params = {fillColor: color, fillOpacity: fill_opacity};
-      if(resCount < 8)
-      {
+      if(resCount < 8) {
         // Hole per missing resonator
         var dash = new Array(8-resCount + 1).join("1,4,") + "100,0"
         params["dashArray"] = dash;
