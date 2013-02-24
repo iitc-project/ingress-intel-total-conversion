@@ -26,7 +26,7 @@ window.plugin.portalWeakness.portalAdded = function(data) {
   var portal_weakness = 0;
   if(getTeam(d) !== 0) {
     var only_shields = true;
- 	  var missing_shields = 0;
+    var missing_shields = 0;
     if(window.getTotalPortalEnergy(d) > 0 && window.getCurrentPortalEnergy(d) < window.getTotalPortalEnergy(d)) {
       portal_weakness = 1 - (window.getCurrentPortalEnergy(d)/window.getTotalPortalEnergy(d));
       only_shields = false;
@@ -61,7 +61,8 @@ window.plugin.portalWeakness.portalAdded = function(data) {
       var color = 'orange';
       if(only_shields) {
         color = 'yellow';
-        //If only shields are missing, make portal yellow, but fill more than usual since pale yellow is basically invisible
+        //If only shields are missing, make portal yellow
+        //but fill more than usual since pale yellow is basically invisible
         fill_opacity = missing_shields*.15 + .1;
       } else if(missing_shields > 0) {
         color = 'red';
