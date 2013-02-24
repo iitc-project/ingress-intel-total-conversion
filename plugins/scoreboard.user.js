@@ -26,18 +26,23 @@ window.plugin.scoreboard.compileStats = function(){
    $.each(window.fields, function(qk, val) {
     console.log(val);
     var team = val.options.data.controllingTeam.team;
-    if(window.plugin.scoreboard.scores[team]==undefined)
-    {
+    if(window.plugin.scoreboard.scores[team]==undefined) {
       window.plugin.scoreboard.scores[team] = {};
     }
-    if(window.plugin.scoreboard.scores[team]['mu']==undefined)
-    {
+    if(window.plugin.scoreboard.scores[team]['mu']==undefined) {
       window.plugin.scoreboard.scores[team]['mu'] = 0;
+    }
+    if(window.plugin.scoreboard.scores[team]['count']==undefined) {
+      window.plugin.scoreboard.scores[team]['count']  = {};
+    }
+    if(window.plugin.scoreboard.scores[team]['count']['fields']==undefined) {
+      window.plugin.scoreboard.scores[team]['count']['fields'] = 0;
     }
     if(window.portals[val.options.vertices.vertexA.guid]!==undefined ||
        window.portals[val.options.vertices.vertexB.guid]!==undefined ||
        window.portals[val.options.vertices.vertexC.guid]!==undefined ) {
       window.plugin.scoreboard.scores[team]['mu']+=parseInt(val.options.data.entityScore.entityScore);
+      window.plugin.scoreboard.scores[team]['count']['fields']++;
       
       //console.log(val.options.data.controllingTeam.team);
       //console.log(val.options.data.entityScore.entityScore);
@@ -52,9 +57,9 @@ window.plugin.scoreboard.display = function() {
   window.plugin.scoreboard.compileStats();
   $('body').append('<div id="scoreboard">' +
                    '<p>This is the default dialog which is useful for displaying information. The dialog window can be moved,</p>' +
-                   window.plugin.scoreboard.scores +
+                   JSON.stringify(window.plugin.scoreboard.scores) +
                    '</div>');
-  console.log(window.plugin.scoreboard.scores);
+  console.log(window.plugin.scoreboard.scores));
   $( "#scoreboard" ).dialog({ autoOpen: true,
                               modal: true,
                               buttons: [ { text: "Close", click: function() { $( this ).dialog( "close" ); } } ]});
