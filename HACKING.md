@@ -68,7 +68,7 @@ How do I report bugs?
 - press `SHIFT+F5` (or shift-click the reload button). Wait for the page to load.
 - press `CTRL+F5`, same as above.
 
-If your issue persists, continue. Provide **all** of the information below, even if you don’t think this is necessary.
+If your issue persists, continue. The next step is to look for existing issues, maybe someone else has a similar problem. You can look [through the existing issues](https://github.com/breunigs/ingress-intel-total-conversion/issues?sort=updated&state=open) or use the search function on the top right. If your issue persists, open a new issue and provide **all** of the information below, even if you don’t think this is necessary.
 
 - a descriptive title
 - your browser and its version

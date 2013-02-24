@@ -49,7 +49,7 @@
 
 window._hooks = {}
 window.VALID_HOOKS = ['portalAdded', 'portalDetailsUpdated',
-  'publicChatDataAvailable', 'portalDataLoaded'];
+  'publicChatDataAvailable', 'portalDataLoaded', 'beforePortalReRender'];
 
 window.runHooks = function(event, data) {
   if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);

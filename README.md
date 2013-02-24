@@ -19,7 +19,7 @@ IITC can be [extended with the use of plugins](https://github.com/breunigs/ingre
 Install
 -------
 
-Current version is 0.7. [See NEWS.md for details](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/NEWS.md).
+Current version is 0.7.1. [See NEWS.md for details](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/NEWS.md).
 
 [**INSTALL**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js)
 

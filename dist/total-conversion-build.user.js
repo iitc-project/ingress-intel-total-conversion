@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.7-2013-02-23-141531
+// @version        0.7.1-2013-02-23-235612
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js
@@ -15,7 +15,7 @@
 if(document.getElementsByTagName('html')[0].getAttribute('itemscope') != null)
   throw('Ingress Intel Website is down, not a userscript issue.');
 
-window.iitcBuildDate = '2013-02-23-141531';
+window.iitcBuildDate = '2013-02-23-235612';
 
 // disable vanilla JS
 window.onload = function() {};
@@ -294,7 +294,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 
 window._hooks = {}
 window.VALID_HOOKS = ['portalAdded', 'portalDetailsUpdated',
-  'publicChatDataAvailable', 'portalDataLoaded'];
+  'publicChatDataAvailable', 'portalDataLoaded', 'beforePortalReRender'];
 
 window.runHooks = function(event, data) {
   if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);
