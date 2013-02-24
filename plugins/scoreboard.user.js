@@ -22,44 +22,79 @@ window.plugin.scoreboard = function() {};
 
 
 window.plugin.scoreboard.compileStats = function(){
-   window.plugin.scoreboard.scores = {};
+   window.plugin.scoreboard.scores = {"team": {}, "player": {}};
    $.each(window.fields, function(qk, val) {
-    console.log(val);
-    var team = val.options.data.controllingTeam.team;
-    if(window.plugin.scoreboard.scores[team]==undefined) {
-      window.plugin.scoreboard.scores[team] = {};
-    }
-    if(window.plugin.scoreboard.scores[team]['mu']==undefined) {
-      window.plugin.scoreboard.scores[team]['mu'] = 0;
-    }
-    if(window.plugin.scoreboard.scores[team]['count']==undefined) {
-      window.plugin.scoreboard.scores[team]['count']  = {};
-    }
-    if(window.plugin.scoreboard.scores[team]['count']['fields']==undefined) {
-      window.plugin.scoreboard.scores[team]['count']['fields'] = 0;
-    }
-    if(window.portals[val.options.vertices.vertexA.guid]!==undefined ||
-       window.portals[val.options.vertices.vertexB.guid]!==undefined ||
-       window.portals[val.options.vertices.vertexC.guid]!==undefined ) {
-      window.plugin.scoreboard.scores[team]['mu']+=parseInt(val.options.data.entityScore.entityScore);
-      window.plugin.scoreboard.scores[team]['count']['fields']++;
+      var team = val.options.data.controllingTeam.team;
+      var player = val.options.data.creator.creatorGuid;
+      //Init Team info
+      if(window.plugin.scoreboard.scores['team'][team] === undefined) {
+        window.plugin.scoreboard.scores['team'][team] = {};
+      }
+      if(window.plugin.scoreboard.scores['team'][team]['mu'] === undefined) {
+        window.plugin.scoreboard.scores['team'][team]['mu'] = 0;
+      }
+      if(window.plugin.scoreboard.scores['team'][team]['count'] === undefined) {
+        window.plugin.scoreboard.scores['team'][team]['count'] = {};
+      }
+      if(window.plugin.scoreboard.scores['team'][team]['count']['fields'] === undefined) {
+        window.plugin.scoreboard.scores['team'][team]['count']['fields'] = 0;
+      }
+      if(window.plugin.scoreboard.scores['team'][team]['largest'] === undefined) {
+        window.plugin.scoreboard.scores['team'][team]['largest'] = {};
+      }   
+      //Init Player info
+      if(window.plugin.scoreboard.scores['player'][player] === undefined) {
+        window.plugin.scoreboard.scores['player'][player] = {};
+      }
+      if(window.plugin.scoreboard.scores['player'][player]['mu'] === undefined) {
+        window.plugin.scoreboard.scores['player'][player]['mu'] = 0;
+      }
+      if(window.plugin.scoreboard.scores['player'][player]['count'] === undefined) {
+        window.plugin.scoreboard.scores['player'][player]['count'] = {};
+      }
+      if(window.plugin.scoreboard.scores['player'][player]['count']['fields'] === undefined) {
+        window.plugin.scoreboard.scores['player'][player]['count']['fields'] = 0;
+      }
+      if(window.plugin.scoreboard.scores['player'][player]['largest'] === undefined) {
+        window.plugin.scoreboard.scores['player'][player]['largest'] = {};
+      }
+   
+
+      if(window.portals[val.options.vertices.vertexA.guid] !== undefined ||
+         window.portals[val.options.vertices.vertexB.guid] !== undefined ||
+         window.portals[val.options.vertices.vertexC.guid] !== undefined ) {
       
-      //console.log(val.options.data.controllingTeam.team);
-      //console.log(val.options.data.entityScore.entityScore);
-      //console.log(window.plugin.muTotal.portalAddress(window.portals[val.options.vertices.vertexA.guid]));
-      //console.log(window.plugin.muTotal.portalAddress(window.portals[val.options.vertices.vertexB.guid]));
-      //console.log(window.plugin.muTotal.portalAddress(window.portals[val.options.vertices.vertexC.guid]));
-    }
+         window.plugin.scoreboard.scores['team'][team]['mu'] += parseInt(val.options.data.entityScore.entityScore);
+         window.plugin.scoreboard.scores['player'][player]['mu'] += parseInt(val.options.data.entityScore.entityScore);
+         window.plugin.scoreboard.scores['team'][team]['count']['fields']++;
+         window.plugin.scoreboard.scores['player'][player]['count']['fields']++;
+         
+         if(window.plugin.scoreboard.scores['team'][team]['largest']['mu'] === undefined) {
+            window.plugin.scoreboard.scores['team'][team]['largest']['mu'] = val;
+         }
+         else if(window.plugin.scoreboard.scores['team'][team]['largest']['mu'].options.data.entityScore.entityScore < val.options.data.entityScore.entityScore) {
+            window.plugin.scoreboard.scores['team'][team]['largest']['mu'] = val;
+         }
+         
+         if(window.plugin.scoreboard.scores['player'][player]['largest']['mu'] === undefined) {
+            window.plugin.scoreboard.scores['player'][player]['largest']['mu'] = val;
+         }
+         else if(window.plugin.scoreboard.scores['player'][player]['largest']['mu'].options.data.entityScore.entityScore < val.options.data.entityScore.entityScore) {
+            window.plugin.scoreboard.scores['player'][player]['largest']['mu'] = val;
+         }
+         //console.log(val.options.data.controllingTeam.team);
+         //console.log(val.options.data.entityScore.entityScore);
+         //console.log(window.plugin.muTotal.portalAddress(window.portals[val.options.vertices.vertexA.guid]));
+         //console.log(window.plugin.muTotal.portalAddress(window.portals[val.options.vertices.vertexB.guid]));
+         //console.log(window.plugin.muTotal.portalAddress(window.portals[val.options.vertices.vertexC.guid]));
+      }
   });
 };
 
 window.plugin.scoreboard.display = function() {
   window.plugin.scoreboard.compileStats();
-  $('body').append('<div id="scoreboard">' +
-                   '<p>This is the default dialog which is useful for displaying information. The dialog window can be moved,</p>' +
-                   JSON.stringify(window.plugin.scoreboard.scores) +
-                   '</div>');
-  console.log(window.plugin.scoreboard.scores));
+  console.log(window.plugin.scoreboard.scores);
+  $('#scoreboard').html(JSON.stringify(window.plugin.scoreboard.scores));
   $( "#scoreboard" ).dialog({ autoOpen: true,
                               modal: true,
                               buttons: [ { text: "Close", click: function() { $( this ).dialog( "close" ); } } ]});
@@ -67,10 +102,9 @@ window.plugin.scoreboard.display = function() {
 
 var setup =  function() {
   //window.addHook('portalDetailsUpdated', window.plugin.portalAddress.portalDetail);
-  $('head').append('<style>' +
-    '</style>');
   
-  $('#toolbox').append('<a onclick="window.plugin.scoreboard.display()">scoreboard</a> ');
+  $('body').append('<div id="scoreboard" style="display:none;"></div>');
+  $('#toolbox').append('<a onclick="window.plugin.scoreboard.display()">scoreboard</a>');
   
 }
 
