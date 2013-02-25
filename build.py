@@ -1,11 +1,12 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import glob
 import time
 import re
+import io
 
 def readfile(fn):
-    with open(fn, 'Ur', encoding='utf8') as f:
+    with io.open(fn, 'Ur', encoding='utf8') as f:
         return f.read()
 
 def loaderString(var):
@@ -29,7 +30,7 @@ m = m.replace('@@BUILDDATE@@', n)
 m = re.sub('@@INCLUDERAW:([0-9a-zA-Z_./-]+)@@', loaderRaw, m)
 m = re.sub('@@INCLUDESTRING:([0-9a-zA-Z_./-]+)@@', loaderString, m)
 
-with open('iitc-debug.user.js', 'w', encoding='utf8') as f:
+with io.open('iitc-debug.user.js', 'w', encoding='utf8') as f:
     f.write(m)
 
 # vim: ai si ts=4 sw=4 sts=4 et
