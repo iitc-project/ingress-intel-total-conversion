@@ -10,115 +10,117 @@
 // ==/UserScript==
 
 function wrapper() {
-  // ensure plugin framework is there, even if iitc is not yet loaded
-  if(typeof window.plugin !== 'function') 
-    window.plugin = function() {};
 
-  // PLUGIN START ////////////////////////////////////////////////////////
+// ensure plugin framework is there, even if iitc is not yet loaded
+if(typeof window.plugin !== 'function') 
+  window.plugin = function() {};
 
-  // use own namespace for plugin
-  window.plugin.maxLinks = function() {};
+// PLUGIN START ////////////////////////////////////////////////////////
+
+// use own namespace for plugin
+window.plugin.maxLinks = function() {};
   
-  // const values
-  window.plugin.maxLinks.MAX_DRAWN_LINKS = 400;
-  window.plugin.maxLinks.MAX_DRAWN_LINKS_INCREASED_LIMIT = 1000;
-  window.plugin.maxLinks.STROKE_STYLE = {
-    color: '#FF0000',
-    opacity: 1,
-    weight:2,
-    clickable: false,
-    smoothFactor: 10
-  };
-  var delaunayScriptLocation = 'https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/delaunay.js';
+// const values
+window.plugin.maxLinks.MAX_DRAWN_LINKS = 400;
+window.plugin.maxLinks.MAX_DRAWN_LINKS_INCREASED_LIMIT = 1000;
+window.plugin.maxLinks.STROKE_STYLE = {
+  color: '#FF0000',
+  opacity: 1,
+  weight:2,
+  clickable: false,
+  smoothFactor: 10
+};
+var delaunayScriptLocation = 'https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/delaunay.js';
 
-  window.plugin.maxLinks.layer = null;
+window.plugin.maxLinks.layer = null;
 
-  var updating = false;
-  var renderLimitReached = false;
+var updating = false;
+var renderLimitReached = false;
 
-  window.plugin.maxLinks.updateLayer = function() {
-    if (updating || window.plugin.maxLinks.layer === null || 
-        !window.map.hasLayer(window.plugin.maxLinks.layer))
-      return;
-    updating = true;
-    window.plugin.maxLinks.layer.clearLayers();
+window.plugin.maxLinks.updateLayer = function() {
+  if (updating || window.plugin.maxLinks.layer === null || 
+      !window.map.hasLayer(window.plugin.maxLinks.layer))
+    return;
+  updating = true;
+  window.plugin.maxLinks.layer.clearLayers();
     
-    var locations = [];
-    var minX = 0;
-    var minY = 0;
+  var locations = [];
+  var minX = 0;
+  var minY = 0;
        
-    $.each(window.portals, function(guid, portal) {
-      var loc = portal.options.details.locationE6;
-      var nloc = { x: loc.lngE6, y: loc.latE6 };
-      if (nloc.x < minX) 
-        minX = nloc.x;
-      if (nloc.y < minX) 
-        minY = nloc.y;
-      locations.push(nloc);
-    });
+  $.each(window.portals, function(guid, portal) {
+    var loc = portal.options.details.locationE6;
+    var nloc = { x: loc.lngE6, y: loc.latE6 };
+    if (nloc.x < minX) 
+      minX = nloc.x;
+    if (nloc.y < minX) 
+      minY = nloc.y;
+    locations.push(nloc);
+  });
         
-    $.each(locations, function(idx, nloc) {
-      nloc.x += Math.abs(minX);
-      nloc.y += Math.abs(minY);
-    });
+  $.each(locations, function(idx, nloc) {
+    nloc.x += Math.abs(minX);
+    nloc.y += Math.abs(minY);
+  });
 
-    var triangles = window.delaunay.triangulate(locations);
-    var drawnLinks = 0;
-    renderLimitReached = false;
-    var renderlimit = window.USE_INCREASED_RENDER_LIMIT ? 
-      window.plugin.maxLinks.MAX_DRAWN_LINKS_INCREASED_LIMIT : 
-      window.plugin.maxLinks.MAX_DRAWN_LINKS;
-    $.each(triangles, function(idx, triangle) {
-      if (drawnLinks <= renderlimit) {
-        triangle.draw(window.plugin.maxLinks.layer, minX, minY)
-        drawnLinks += 3;
-      } else {
-        renderLimitReached = true;
-      }
-    });
-    updating = false;
-    window.renderUpdateStatus();
-  }
+  var triangles = window.delaunay.triangulate(locations);
+  var drawnLinks = 0;
+  renderLimitReached = false;
+  var renderlimit = window.USE_INCREASED_RENDER_LIMIT ? 
+    window.plugin.maxLinks.MAX_DRAWN_LINKS_INCREASED_LIMIT : 
+    window.plugin.maxLinks.MAX_DRAWN_LINKS;
+  $.each(triangles, function(idx, triangle) {
+    if (drawnLinks <= renderlimit) {
+      triangle.draw(window.plugin.maxLinks.layer, minX, minY)
+      drawnLinks += 3;
+    } else {
+      renderLimitReached = true;
+    }
+  });
+  updating = false;
+  window.renderUpdateStatus();
+}
   
-  var setup =  function() {
-    load(delaunayScriptLocation).thenRun(function() {
+var setup =  function() {
+  load(delaunayScriptLocation).thenRun(function() {
 
-      window.delaunay.Triangle.prototype.draw = function(layer, divX, divY) {
-        var drawLine = function(src, dest) {
-          var poly = L.polyline([[(src.y + divY)/1E6, (src.x + divX)/1E6], [(dest.y + divY)/1E6, (dest.x + divX)/1E6]], window.plugin.maxLinks.STROKE_STYLE); 
-          poly.addTo(layer);
-        };
+    window.delaunay.Triangle.prototype.draw = function(layer, divX, divY) {
+      var drawLine = function(src, dest) {
+        var poly = L.polyline([[(src.y + divY)/1E6, (src.x + divX)/1E6], [(dest.y + divY)/1E6, (dest.x + divX)/1E6]], window.plugin.maxLinks.STROKE_STYLE); 
+        poly.addTo(layer);
+      };
         
-        drawLine(this.a, this.b);
-        drawLine(this.b, this.c);
-        drawLine(this.c, this.a);
-      }
+      drawLine(this.a, this.b);
+      drawLine(this.b, this.c);
+      drawLine(this.c, this.a);
+    }
         
-      window.plugin.maxLinks.layer = L.layerGroup([]);
+    window.plugin.maxLinks.layer = L.layerGroup([]);
     
-      window.addHook('checkRenderLimit', function(e) {
-         if (window.map.hasLayer(window.plugin.maxLinks.layer) && renderLimitReached)
-           e.reached = true; 
-      });
-    
-      window.map.on('layeradd', function(e) {
-        if (e.layer === window.plugin.maxLinks.layer)
-          window.plugin.maxLinks.updateLayer();
-      });
-      window.map.on('zoomend moveend', window.plugin.maxLinks.updateLayer);     
-      window.layerChooser.addOverlay(window.plugin.maxLinks.layer, 'Maximum Links');
+    window.addHook('checkRenderLimit', function(e) {
+       if (window.map.hasLayer(window.plugin.maxLinks.layer) && renderLimitReached)
+         e.reached = true; 
     });
-  }
 
-  // PLUGIN END //////////////////////////////////////////////////////////
-  if(window.iitcLoaded && typeof setup === 'function') {
-    setup();
-  } else {
-    if(window.bootPlugins)
-      window.bootPlugins.push(setup);
-    else
-      window.bootPlugins = [setup];
-  }
+    window.map.on('layeradd', function(e) {
+      if (e.layer === window.plugin.maxLinks.layer)
+        window.plugin.maxLinks.updateLayer();
+    });
+    window.map.on('zoomend moveend', window.plugin.maxLinks.updateLayer);     
+    window.layerChooser.addOverlay(window.plugin.maxLinks.layer, 'Maximum Links');
+  });
+}
+
+// PLUGIN END //////////////////////////////////////////////////////////
+if(window.iitcLoaded && typeof setup === 'function') {
+  setup();
+} else {
+  if(window.bootPlugins)
+    window.bootPlugins.push(setup);
+  else
+    window.bootPlugins = [setup];
+}
+
 } // wrapper end
 
 // inject code into site context
