@@ -88,7 +88,7 @@ window.plugin.guessPlayerLevels.guess = function() {
   });
 
   var s = 'the players have at least the following level:\n\n';
-  s += 'Resistance:\t&nbsp;&nbsp;&nbsp;\tEnlightenment:\t\n';
+  s += 'Resistance:\t&nbsp;&nbsp;&nbsp;\tEnlightened:\t\n';
 
   var namesR = plugin.guessPlayerLevels.sort(playersRes);
   var namesE = plugin.guessPlayerLevels.sort(playersEnl);

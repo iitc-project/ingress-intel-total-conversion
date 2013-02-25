@@ -33,7 +33,7 @@ The chat is split up into several categories. It usually only shows messages for
 **The chat categories are:**
 - full: shows all automated messages *(23:57	\<apj\>	destroyed an L3 Resonator on Two Spikes)*
 - compact: shows only the latest automated message per user
-- public: shows user generated public messages (both Enlightenment and Resistance can read it)
+- public: shows user generated public messages (both Enlightened and Resistance can read it)
 - faction: shows messages for own faction (e.g. only Resistance can read Resistance messages)
 
 **Posting messages:**
