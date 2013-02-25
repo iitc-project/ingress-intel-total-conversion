@@ -237,12 +237,12 @@ window.setupDialogs = function() {
 function boot() {
   window.debug.console.overwriteNativeIfRequired();
 
-  console.log('loading done, booting. Built: ' + window.iitcBuildDate);
+  console.log('loading done, booting. Built: @@BUILDDATE@@');
   if(window.deviceID) console.log('Your device ID: ' + window.deviceID);
   window.runOnSmartphonesBeforeBoot();
 
   // overwrite default Leaflet Marker icon to be a neutral color
-  var base = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/images/';
+  var base = 'https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/images/';
   L.Icon.Default.imagePath = base;
 
   window.iconEnl = L.Icon.Default.extend({options: { iconUrl: base + 'marker-green.png' } });
