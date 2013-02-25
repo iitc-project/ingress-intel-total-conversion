@@ -53,7 +53,7 @@ window.plugin.maxLinks.updateLayer = function() {
     var nloc = { x: loc.lngE6, y: loc.latE6 };
     if (nloc.x < minX) 
       minX = nloc.x;
-    if (nloc.y < minX) 
+    if (nloc.y < minY) 
       minY = nloc.y;
     locations.push(nloc);
   });
@@ -81,7 +81,7 @@ window.plugin.maxLinks.updateLayer = function() {
   window.renderUpdateStatus();
 }
   
-var setup =  function() {
+var setup = function() {
   load(delaunayScriptLocation).thenRun(function() {
 
     window.delaunay.Triangle.prototype.draw = function(layer, divX, divY) {
