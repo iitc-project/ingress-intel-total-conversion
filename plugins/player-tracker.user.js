@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-player-tracker@breunigs
 // @name           iitc: player tracker
-// @version        0.5
+// @version        0.6
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/player-tracker.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/player-tracker.user.js
@@ -163,13 +163,14 @@ window.plugin.playerTracker.processNewData = function(data) {
 }
 
 window.plugin.playerTracker.getLatLngFromEvent = function(ev) {
-  var lats = $.map(ev.latlngs, function(ll) { return [ll[0]] });
-  var lngs = $.map(ev.latlngs, function(ll) { return [ll[1]] });
-  var latmax = Math.max.apply(null, lats);
-  var latmin = Math.min.apply(null, lats);
-  var lngmax = Math.max.apply(null, lngs);
-  var lngmin = Math.min.apply(null, lngs);
-  return L.latLng((latmax + latmin) / 2, (lngmax + lngmin) / 2);
+  var lats = 0;
+  var lngs = 0;
+  $.each(ev.latlngs, function() {
+    lats += this[0];
+    lngs += this[1];
+  });
+
+  return L.latLng(lats / ev.latlngs.length, lngs / ev.latlngs.length);
 }
 
 window.plugin.playerTracker.ago = function(time, now) {
