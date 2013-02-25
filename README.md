@@ -72,6 +72,7 @@ Please do!
 [cmrn](https://github.com/cmrn),
 [epf](https://github.com/epf),
 [integ3r](https://github.com/integ3r),
+[j16sdiz](https://github.com/j16sdiz),
 [JasonMillward](https://github.com/JasonMillward),
 [jonatkins](https://github.com/jonatkins),
 [mledoze](https://github.com/mledoze),
