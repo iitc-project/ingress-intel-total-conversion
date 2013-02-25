@@ -58,10 +58,6 @@ window.setupMap = function() {
     {zoomControl: !(localStorage['iitc.zoom.buttons'] === 'false')}
   ));
 
-  try {
-    map.addLayer(views[readCookie('ingress.intelmap.type')]);
-  } catch(e) { map.addLayer(views[0]); }
-
   var addLayers = {};
 
   portalsLayers = [];
@@ -91,6 +87,14 @@ window.setupMap = function() {
     }, addLayers);
 
   map.addControl(window.layerChooser);
+
+  // set the map AFTER adding the layer chooser, or Chrome reorders the
+  // layers. This likely leads to broken layer selection because the
+  // views/cookie order does not match the layer chooser order.
+  try {
+    map.addLayer(views[readCookie('ingress.intelmap.type')]);
+  } catch(e) { map.addLayer(views[0]); }
+
   map.attributionControl.setPrefix('');
   // listen for changes and store them in cookies
   map.on('moveend', window.storeMapPosition);

@@ -33,7 +33,7 @@ The chat is split up into several categories. It usually only shows messages for
 **The chat categories are:**
 - full: shows all automated messages *(23:57	\<apj\>	destroyed an L3 Resonator on Two Spikes)*
 - compact: shows only the latest automated message per user
-- public: shows user generated public messages (both Enlightenment and Resistance can read it)
+- public: shows user generated public messages (both Enlightened and Resistance can read it)
 - faction: shows messages for own faction (e.g. only Resistance can read Resistance messages)
 
 **Posting messages:**
@@ -117,7 +117,7 @@ Starting from the top, the sidebar shows this information:
 “Random Details” are displayed in four columns. The outer ones show the data while the inner ones are the titles.
 
 - owner: who deployed the first resonator after it has been neutral/unclaimed.
-- since: when was the first resonator deployed after it has been neutral/unclaimed.
+- since: when was the first resonator deployed after it has been neutral/unclaimed. The reasonators decay every 24hrs from capture. Move the cursor over it to show the full date time.
 - range: shows how far links made from this portal can be. Click on the value to zoom out to link range. The red circle shows how far links may reach.
 - energy: shows current and maximum energy if fully charged. The tooltip contains the exact numbers.
 - links: shows incoming and outgoing links. The tooltip explains the icons.

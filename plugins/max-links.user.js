@@ -29,14 +29,12 @@ function wrapper() {
                        smoothFactor: 10
                      };
   var delaunayScriptLocation = "https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/delaunay.js";
-    
-    
 
   window.plugin.maxLinks.layer = null;
 
   var updating = false;
   var renderLimitReached = false;
-    
+
   window.plugin.maxLinks.updateLayer = function() {
     if (updating || window.plugin.maxLinks.layer === null || !window.map.hasLayer(window.plugin.maxLinks.layer))
       return;
@@ -67,7 +65,7 @@ function wrapper() {
     renderLimitReached = false;
     $.each(triangles, function(idx, triangle) {
       if (drawnLinks <= window.plugin.maxLinks.MAX_DRAWN_LINKS) {
-        triangle.draw(window.plugin.maxLinks.layer, minX, minY);
+        triangle.draw(window.plugin.maxLinks.layer, minX, minY)
         drawnLinks += 3;
       } else {
         renderLimitReached = true;
