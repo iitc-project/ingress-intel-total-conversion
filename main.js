@@ -56,7 +56,7 @@ var ir = window.internalResources || [];
 var mainstyle = 'http://breunigs.github.com/ingress-intel-total-conversion/style.css?@@BUILDDATE@@';
 var smartphone = 'http://breunigs.github.com/ingress-intel-total-conversion/mobile/smartphone.css?@@BUILDDATE@@';
 var leaflet = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.css';
-var coda = 'http://fonts.googleapis.com/css?family=Coda';
+var coda = 'https://fonts.googleapis.com/css?family=Coda';
 
 // remove complete page. We only wanted the user-data and the page’s
 // security context so we can access the API easily. Setup as much as
