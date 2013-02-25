@@ -74,6 +74,7 @@ Please do!
 [integ3r](https://github.com/integ3r),
 [JasonMillward](https://github.com/JasonMillward),
 [jonatkins](https://github.com/jonatkins),
+[Merovius](https://github.com/Merovius),
 [mledoze](https://github.com/mledoze),
 [OshiHidra](https://github.com/OshiHidra),
 [phoenixsong6](https://github.com/phoenixsong6),
