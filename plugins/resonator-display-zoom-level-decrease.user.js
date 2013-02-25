@@ -6,8 +6,8 @@
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/resonator-display-zoom-level-decrease.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/resonator-display-zoom-level-decrease.user.js
 // @description    Resonator start display earlier
-// @include        http://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/intel*
+// @match          https://www.ingress.com/intel*
 // ==/UserScript==
 
 function wrapper() {

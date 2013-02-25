@@ -20,6 +20,11 @@ window.iitcBuildDate = '@@BUILDDATE@@';
 // disable vanilla JS
 window.onload = function() {};
 
+if(window.location.protocol !== 'https:') {
+  window.location.protocol = 'https:';
+  throw('Need to load HTTPS version.');
+}
+
 // rescue user data from original page
 var scr = document.getElementsByTagName('script');
 for(var x in scr) {
@@ -51,32 +56,18 @@ for(var i = 0; i < d.length; i++) {
 // player information is now available in a hash like this:
 // window.PLAYER = {"ap": "123", "energy": 123, "available_invites": 123, "nickname": "somenick", "team": "ALIENS||RESISTANCE"};
 
-var ir = window.internalResources || [];
-
-var mainstyle = 'http://breunigs.github.com/ingress-intel-total-conversion/style.css?@@BUILDDATE@@';
-var smartphone = 'http://breunigs.github.com/ingress-intel-total-conversion/mobile/smartphone.css?@@BUILDDATE@@';
-var leaflet = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.css';
-var coda = 'https://fonts.googleapis.com/css?family=Coda';
-
 // remove complete page. We only wanted the user-data and the page’s
 // security context so we can access the API easily. Setup as much as
 // possible without requiring scripts.
 document.getElementsByTagName('head')[0].innerHTML = ''
-  //~ + '<link rel="stylesheet" type="text/css" href="http://0.0.0.0:8000/style.css"/>'
   + '<title>Ingress Intel Map</title>'
-  + (ir.indexOf('mainstyle') === -1
-      ? '<link rel="stylesheet" type="text/css" href="'+mainstyle+'"/>'
-      : '')
-  + (ir.indexOf('leafletcss') === -1
-      ? '<link rel="stylesheet" type="text/css" href="'+leaflet+'"/>'
-      : '')
+  + '<style>@@INCLUDESTRING:style.css@@</style>'
+  + '<style>@@INCLUDESTRING:external/leaflet.css@@</style>'
   // this navigator check is also used in code/smartphone.js
-  + (ir.indexOf('smartphonecss') === -1 && navigator.userAgent.match(/Android.*Mobile/)
-      ? '<link rel="stylesheet" type="text/css" href="'+smartphone+'"/>'
+  + (navigator.userAgent.match(/Android.*Mobile/)
+      ? + '<style>@@INCLUDESTRING:mobile/smartphone.css@@</style>'
       : '')
-  + (ir.indexOf('codafont') === -1
-      ? '<link rel="stylesheet" type="text/css" href="'+coda+'"/>'
-      : '');
+  + '<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Coda"/>';
 
 document.getElementsByTagName('body')[0].innerHTML = ''
   + '<div id="map">Loading, please wait</div>'
@@ -179,7 +170,7 @@ window.RANGE_INDICATOR_COLOR = 'red'
 window.PORTAL_RADIUS_ENLARGE_MOBILE = 5;
 
 
-window.DEFAULT_PORTAL_IMG = 'http://commondatastorage.googleapis.com/ingress/img/default-portal-image.png';
+window.DEFAULT_PORTAL_IMG = 'https://commondatastorage.googleapis.com/ingress/img/default-portal-image.png';
 window.NOMINATIM = 'http://nominatim.openstreetmap.org/search?format=json&limit=1&q=';
 
 // INGRESS CONSTANTS /////////////////////////////////////////////////

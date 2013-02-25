@@ -6,8 +6,8 @@
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/guess-player-levels.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/guess-player-levels.user.js
 // @description    Tries to determine player levels from the data available in the current view
-// @include        http://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/intel*
+// @match          https://www.ingress.com/intel*
 // ==/UserScript==
 
 function wrapper() {

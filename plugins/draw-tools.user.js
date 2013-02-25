@@ -6,8 +6,8 @@
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/draw-tools.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/draw-tools.user.js
 // @description    Allows you to draw things into the current map so you may plan your next move
-// @include        http://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/intel*
+// @match          https://www.ingress.com/intel*
 // ==/UserScript==
 
 function wrapper() {
@@ -29,7 +29,7 @@ var DRAW_TOOLS_SHAPE_OPTIONS = {
 window.plugin.drawTools = function() {};
 
 window.plugin.drawTools.loadExternals = function() {
-  var base = 'http://breunigs.github.com/ingress-intel-total-conversion/dist';
+  var base = 'https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/external';
   //~ var base = 'http://0.0.0.0:8000/dist';
   $('head').append('<link rel="stylesheet" href="'+base+'/leaflet.draw.0.1.6.css" />');
   load(base+'/leaflet.draw.0.1.6.js').thenRun(window.plugin.drawTools.boot);
