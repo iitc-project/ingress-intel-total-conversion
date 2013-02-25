@@ -54,7 +54,7 @@ window.postAjax = function(action, data, success, error) {
     // use full URL to avoid issues depending on how people set their
     // slash. See:
     // https://github.com/breunigs/ingress-intel-total-conversion/issues/56
-    url: 'http://www.ingress.com/rpc/dashboard.'+action,
+    url: window.location.protocol + '//www.ingress.com/rpc/dashboard.'+action,
     type: 'POST',
     data: data,
     dataType: 'json',
