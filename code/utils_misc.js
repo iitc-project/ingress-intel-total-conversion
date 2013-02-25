@@ -98,10 +98,10 @@ window.rangeLinkClick = function() {
 
 window.showPortalPosLinks = function(lat, lng) {
   var qrcode = '<div id="qrcode"></div>';
-  var script = '<script>$("#qrcode").qrcode({text:"GEO:'+lat+','+lng+'"});</script>';
+  var script = '<script>$(\'#qrcode\').qrcode({text:\'GEO:'+lat+','+lng+'\'});</script>';
   var gmaps = '<a href="https://maps.google.com/?q='+lat+','+lng+'">gmaps</a>';
   var osm = '<a href="http://www.openstreetmap.org/?mlat='+lat+'&mlon='+lng+'&zoom=16">OSM</a>';
-  alert(qrcode + script + gmaps + " " + osm);
+  alert('<div style="text-align: center;">' + qrcode + script + gmaps + ' ' + osm + '</div>');
 }
 
 window.reportPortalIssue = function(info) {
