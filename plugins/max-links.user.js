@@ -20,7 +20,8 @@ function wrapper() {
   window.plugin.maxLinks = function() {};
   
   // const values
-  window.plugin.maxLinks.MAX_DRAWN_LINKS = 400;
+  var MAX_DRAWN_LINKS = 400;
+  var MAX_DRAWN_LINKS_INCREASED_LIMIT = 1000;
   var STROKE_STYLE = {
                        color: '#FF0000',
                        opacity: 1,
@@ -63,8 +64,9 @@ function wrapper() {
     var triangles = window.delaunay.triangulate(locations);
     var drawnLinks = 0;
     renderLimitReached = false;
+    var renderlimit = window.USE_INCREASED_RENDER_LIMIT ? MAX_DRAWN_LINKS_INCREASED_LIMIT : MAX_DRAWN_LINKS;
     $.each(triangles, function(idx, triangle) {
-      if (drawnLinks <= window.plugin.maxLinks.MAX_DRAWN_LINKS) {
+      if (drawnLinks <= renderlimit) {
         triangle.draw(window.plugin.maxLinks.layer, minX, minY)
         drawnLinks += 3;
       } else {
