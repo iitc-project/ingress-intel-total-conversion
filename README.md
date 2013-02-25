@@ -63,7 +63,7 @@ Contributing
 
 Please do!
 
-(Obviously, Resistance folks must send in complete patches while Enlightenment gals and guys may just open feature request ☺). If you want to hack the source, please [read HACKING.md for details](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/HACKING.md) .
+(Obviously, Resistance folks must send in complete patches while Enlightened gals and guys may just open feature request ☺). If you want to hack the source, please [read HACKING.md for details](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/HACKING.md) .
 
 **So far, these people have contributed:**
 
