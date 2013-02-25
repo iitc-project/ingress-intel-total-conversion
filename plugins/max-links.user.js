@@ -30,18 +30,19 @@ window.plugin.maxLinks.STROKE_STYLE = {
   clickable: false,
   smoothFactor: 10
 };
-var delaunayScriptLocation = 'https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/delaunay.js';
+window.plugin.maxLinks._delaunayScriptLocation = 'https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/delaunay.js';
 
 window.plugin.maxLinks.layer = null;
 
-var updating = false;
-var renderLimitReached = false;
+window.plugin.maxLinks._updating = false;
+window.plugin.maxLinks._renderLimitReached = false;
 
 window.plugin.maxLinks.updateLayer = function() {
-  if (updating || window.plugin.maxLinks.layer === null || 
+  if (window.plugin.maxLinks._updating || 
+      window.plugin.maxLinks.layer === null || 
       !window.map.hasLayer(window.plugin.maxLinks.layer))
     return;
-  updating = true;
+  window.plugin.maxLinks._updating = true;
   window.plugin.maxLinks.layer.clearLayers();
     
   var locations = [];
@@ -65,7 +66,7 @@ window.plugin.maxLinks.updateLayer = function() {
 
   var triangles = window.delaunay.triangulate(locations);
   var drawnLinks = 0;
-  renderLimitReached = false;
+  window.plugin.maxLinks._renderLimitReached = false;
   var renderlimit = window.USE_INCREASED_RENDER_LIMIT ? 
     window.plugin.maxLinks.MAX_DRAWN_LINKS_INCREASED_LIMIT : 
     window.plugin.maxLinks.MAX_DRAWN_LINKS;
@@ -74,15 +75,15 @@ window.plugin.maxLinks.updateLayer = function() {
       triangle.draw(window.plugin.maxLinks.layer, minX, minY)
       drawnLinks += 3;
     } else {
-      renderLimitReached = true;
+      window.plugin.maxLinks._renderLimitReached = true;
     }
   });
-  updating = false;
+  window.plugin.maxLinks._updating = false;
   window.renderUpdateStatus();
 }
   
-var setup = function() {
-  load(delaunayScriptLocation).thenRun(function() {
+window.plugin.maxLinks.setup = function() {
+  load(window.plugin.maxLinks._delaunayScriptLocation).thenRun(function() {
 
     window.delaunay.Triangle.prototype.draw = function(layer, divX, divY) {
       var drawLine = function(src, dest) {
@@ -98,7 +99,8 @@ var setup = function() {
     window.plugin.maxLinks.layer = L.layerGroup([]);
     
     window.addHook('checkRenderLimit', function(e) {
-       if (window.map.hasLayer(window.plugin.maxLinks.layer) && renderLimitReached)
+       if (window.map.hasLayer(window.plugin.maxLinks.layer) && 
+           window.plugin.maxLinks._renderLimitReached)
          e.reached = true; 
     });
 
@@ -110,6 +112,7 @@ var setup = function() {
     window.layerChooser.addOverlay(window.plugin.maxLinks.layer, 'Maximum Links');
   });
 }
+var setup = window.plugin.maxLinks.setup;
 
 // PLUGIN END //////////////////////////////////////////////////////////
 if(window.iitcLoaded && typeof setup === 'function') {
