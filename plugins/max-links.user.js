@@ -37,7 +37,8 @@ function wrapper() {
   var renderLimitReached = false;
 
   window.plugin.maxLinks.updateLayer = function() {
-    if (updating || window.plugin.maxLinks.layer === null || !window.map.hasLayer(window.plugin.maxLinks.layer))
+    if (updating || window.plugin.maxLinks.layer === null || 
+        !window.map.hasLayer(window.plugin.maxLinks.layer))
       return;
     updating = true;
     window.plugin.maxLinks.layer.clearLayers();
@@ -64,7 +65,9 @@ function wrapper() {
     var triangles = window.delaunay.triangulate(locations);
     var drawnLinks = 0;
     renderLimitReached = false;
-    var renderlimit = window.USE_INCREASED_RENDER_LIMIT ? window.plugin.maxLinks.MAX_DRAWN_LINKS_INCREASED_LIMIT : window.plugin.maxLinks.MAX_DRAWN_LINKS;
+    var renderlimit = window.USE_INCREASED_RENDER_LIMIT ? 
+      window.plugin.maxLinks.MAX_DRAWN_LINKS_INCREASED_LIMIT : 
+      window.plugin.maxLinks.MAX_DRAWN_LINKS;
     $.each(triangles, function(idx, triangle) {
       if (drawnLinks <= renderlimit) {
         triangle.draw(window.plugin.maxLinks.layer, minX, minY)
