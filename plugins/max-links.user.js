@@ -53,7 +53,7 @@ function wrapper() {
       if (nloc.x < minX) 
         minX = nloc.x;
       if (nloc.y < minX) 
-        minX = nloc.y;
+        minY = nloc.y;
       locations.push(nloc);
     });
         
