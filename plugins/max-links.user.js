@@ -99,9 +99,14 @@ window.plugin.maxLinks.setup = function() {
     window.plugin.maxLinks.layer = L.layerGroup([]);
     
     window.addHook('checkRenderLimit', function(e) {
-       if (window.map.hasLayer(window.plugin.maxLinks.layer) && 
-           window.plugin.maxLinks._renderLimitReached)
-         e.reached = true; 
+      if (window.map.hasLayer(window.plugin.maxLinks.layer) && 
+          window.plugin.maxLinks._renderLimitReached)
+        e.reached = true; 
+    });
+    
+    window.addHook('portalDataLoaded', function(e) {
+      if (window.map.hasLayer(window.plugin.maxLinks.layer))
+        window.plugin.maxLinks.updateLayer();
     });
 
     window.map.on('layeradd', function(e) {
