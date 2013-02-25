@@ -20,10 +20,9 @@ function wrapper() {
 
   // use own namespace for plugin
   window.plugin.maxLinks = function() {};
-  
-  window.plugin.maxLinks.MAX_DRAWN_LINKS = 400;
+    
   var MAX_LINK_COLOR = '#FF0000';
-  
+    
   var Triangle = function (a, b, c) {
     this.a = a;
     this.b = b;
@@ -204,8 +203,7 @@ function wrapper() {
     
   window.plugin.maxLinks.layer = null;
 
-  var updating = false;
-  var renderLimitReached = false;  
+  var updating = false;  
   window.plugin.maxLinks.updateLayer = function() {
     if (updating || window.plugin.maxLinks.layer === null || !window.map.hasLayer(window.plugin.maxLinks.layer))
       return;
@@ -232,28 +230,14 @@ function wrapper() {
     });
 
     var triangles = window.plugin.maxLinks.triangulate(locations);
-    var drawnLinks = 0;
-    renderLimitReached = false;
     $.each(triangles, function(idx, triangle) {
-      if (drawnLinks <= window.plugin.maxLinks.MAX_DRAWN_LINKS) {
-        triangle.draw(window.plugin.maxLinks.layer, minX, minY);
-        drawnLinks += 3;
-      } else {
-        renderLimitReached = true;
-      }
+      triangle.draw(window.plugin.maxLinks.layer, minX, minY)
     });
     updating = false;
-    window.renderUpdateStatus();
   }
   
   var setup =  function() {
     window.plugin.maxLinks.layer = L.layerGroup([]);
-    
-    window.addHook('checkRenderLimit', function(e) {
-       if (window.map.hasLayer(window.plugin.maxLinks.layer) && renderLimitReached)
-         e.reached = true; 
-    });
-    
     window.map.on('layeradd', function(e) {
       if (e.layer === window.plugin.maxLinks.layer)
         window.plugin.maxLinks.updateLayer();

@@ -128,9 +128,7 @@ window.renderLimitReached = function() {
   if(Object.keys(portals).length >= MAX_DRAWN_PORTALS) return true;
   if(Object.keys(links).length >= MAX_DRAWN_LINKS) return true;
   if(Object.keys(fields).length >= MAX_DRAWN_FIELDS) return true;
-  var param = { 'reached': false };
-  window.runHooks('checkRenderLimit', param);
-  return param.reached;
+  return false;
 }
 
 window.getMinPortalLevel = function() {
