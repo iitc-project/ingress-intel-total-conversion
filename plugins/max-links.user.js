@@ -23,13 +23,13 @@ function wrapper() {
   var MAX_DRAWN_LINKS = 400;
   var MAX_DRAWN_LINKS_INCREASED_LIMIT = 1000;
   var STROKE_STYLE = {
-                       color: '#FF0000',
-                       opacity: 1,
-                       weight:2,
-                       clickable: false,
-                       smoothFactor: 10
-                     };
-  var delaunayScriptLocation = "https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/delaunay.js";
+    color: '#FF0000',
+    opacity: 1,
+    weight:2,
+    clickable: false,
+    smoothFactor: 10
+  };
+  var delaunayScriptLocation = 'https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/delaunay.js';
 
   window.plugin.maxLinks.layer = null;
 
