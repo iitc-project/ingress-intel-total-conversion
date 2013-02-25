@@ -96,6 +96,14 @@ window.rangeLinkClick = function() {
     window.smartphone.mapButton.click();
 }
 
+window.showPortalPosLinks = function(lat, lng) {
+  var qrcode = '<div id="qrcode"></div>';
+  var script = '<script>$("#qrcode").qrcode({text:"GEO:'+lat+','+lng+'"});</script>';
+  var gmaps = '<a href="https://maps.google.com/?q='+lat+','+lng+'">gmaps</a>';
+  var osm = '<a href="http://www.openstreetmap.org/?mlat='+lat+'&mlon='+lng+'&zoom=16">OSM</a>';
+  alert(qrcode + script + gmaps + " " + osm);
+}
+
 window.reportPortalIssue = function(info) {
   var t = 'Redirecting you to a Google Help Page. Once there, click on “Contact Us” in the upper right corner.\n\nThe text box contains all necessary information. Press CTRL+C to copy it.';
   var d = window.portals[window.selectedPortal].options.details;
