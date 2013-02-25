@@ -75,6 +75,7 @@ Please do!
 [j16sdiz](https://github.com/j16sdiz),
 [JasonMillward](https://github.com/JasonMillward),
 [jonatkins](https://github.com/jonatkins),
+[Merovius](https://github.com/Merovius),
 [mledoze](https://github.com/mledoze),
 [OshiHidra](https://github.com/OshiHidra),
 [phoenixsong6](https://github.com/phoenixsong6),

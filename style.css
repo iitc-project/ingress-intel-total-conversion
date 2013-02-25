@@ -688,6 +688,10 @@ aside {
   max-width: 700px !important;
 }
 
+.ui-dialog a {
+  color: #0000ca;
+}
+
 .ui-dialog-buttonpane {
   background: #F2F2F2;
   padding: 12px;
