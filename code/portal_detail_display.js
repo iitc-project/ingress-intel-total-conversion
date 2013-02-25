@@ -26,7 +26,10 @@ window.renderPortalDetails = function(guid) {
     : null;
   var playerText = player ? ['owner', player] : null;
 
-  var time = d.captured ? unixTimeToString(d.captured.capturedTime) : null;
+  var time = d.captured
+    ? '<span title="' + unixTimeToString(d.captured.capturedTime, true) + '">'
+      +  unixTimeToString(d.captured.capturedTime) + '</span>'
+    : null;
   var sinceText  = time ? ['since', time] : null;
 
   var linkedFields = ['fields', d.portalV2.linkedFields.length];
