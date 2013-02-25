@@ -117,6 +117,7 @@ window.getPaddedBounds = function() {
       window._storedPaddedBounds = null;
     });
   }
+  if(renderLimitReached(0.7)) return window.map.getBounds();
   if(window._storedPaddedBounds) return window._storedPaddedBounds;
 
   var p = window.map.getBounds().pad(VIEWPORT_PAD_RATIO);
@@ -124,10 +125,16 @@ window.getPaddedBounds = function() {
   return p;
 }
 
-window.renderLimitReached = function() {
-  if(Object.keys(portals).length >= MAX_DRAWN_PORTALS) return true;
-  if(Object.keys(links).length >= MAX_DRAWN_LINKS) return true;
-  if(Object.keys(fields).length >= MAX_DRAWN_FIELDS) return true;
+// returns true if the render limit has been reached. The default ratio
+// is 1, which means it will tell you if there are more items drawn than
+// acceptable. A value of 0.9 will tell you if 90% of the amount of
+// acceptable entities have been drawn. You can use this to heuristi-
+// cally detect if the render limit will be hit.
+window.renderLimitReached = function(ratio) {
+  ratio = ratio || 1;
+  if(Object.keys(portals).length*ratio >= MAX_DRAWN_PORTALS) return true;
+  if(Object.keys(links).length*ratio >= MAX_DRAWN_LINKS) return true;
+  if(Object.keys(fields).length*ratio >= MAX_DRAWN_FIELDS) return true;
   return false;
 }
 
