@@ -20,9 +20,9 @@ function wrapper() {
   window.plugin.maxLinks = function() {};
   
   // const values
-  var MAX_DRAWN_LINKS = 400;
-  var MAX_DRAWN_LINKS_INCREASED_LIMIT = 1000;
-  var STROKE_STYLE = {
+  window.plugin.maxLinks.MAX_DRAWN_LINKS = 400;
+  window.plugin.maxLinks.MAX_DRAWN_LINKS_INCREASED_LIMIT = 1000;
+  window.plugin.maxLinks.STROKE_STYLE = {
     color: '#FF0000',
     opacity: 1,
     weight:2,
@@ -64,7 +64,7 @@ function wrapper() {
     var triangles = window.delaunay.triangulate(locations);
     var drawnLinks = 0;
     renderLimitReached = false;
-    var renderlimit = window.USE_INCREASED_RENDER_LIMIT ? MAX_DRAWN_LINKS_INCREASED_LIMIT : MAX_DRAWN_LINKS;
+    var renderlimit = window.USE_INCREASED_RENDER_LIMIT ? window.plugin.maxLinks.MAX_DRAWN_LINKS_INCREASED_LIMIT : window.plugin.maxLinks.MAX_DRAWN_LINKS;
     $.each(triangles, function(idx, triangle) {
       if (drawnLinks <= renderlimit) {
         triangle.draw(window.plugin.maxLinks.layer, minX, minY)
@@ -82,7 +82,7 @@ function wrapper() {
 
       window.delaunay.Triangle.prototype.draw = function(layer, divX, divY) {
         var drawLine = function(src, dest) {
-          var poly = L.polyline([[(src.y + divY)/1E6, (src.x + divX)/1E6], [(dest.y + divY)/1E6, (dest.x + divX)/1E6]], STROKE_STYLE); 
+          var poly = L.polyline([[(src.y + divY)/1E6, (src.x + divX)/1E6], [(dest.y + divY)/1E6, (dest.x + divX)/1E6]], window.plugin.maxLinks.STROKE_STYLE); 
           poly.addTo(layer);
         };
         
