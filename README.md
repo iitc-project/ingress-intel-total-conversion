@@ -47,7 +47,9 @@ Current version is 0.7.7. [See NEWS.md for details](https://github.com/breunigs/
 ### Opera
 - Download the script: [download](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js)
 - put it into your user_js folder (that’s `~/.opera/user_js` on Unix). If you can’t find it [see Opera’s docs](http://www.opera.com/docs/userjs/using/#writingscripts).
-- reload the page
+- [visit `opera:config` and check `UserJavaScriptonHTTPS` or click here to take you there](opera:config#UserPrefs|UserJavaScriptonHTTPS).
+- click save on the bottom of the settings page
+- reload the Intel Map, no need to restart Opera
 
 *Note*: You need to update the scripts manually.
 
