@@ -12,14 +12,14 @@
 function wrapper() {
 
 // ensure plugin framework is there, even if iitc is not yet loaded
-if(typeof window.plugin !== 'function') 
+if(typeof window.plugin !== 'function')
   window.plugin = function() {};
 
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
 window.plugin.maxLinks = function() {};
-  
+
 // const values
 window.plugin.maxLinks.MAX_DRAWN_LINKS = 400;
 window.plugin.maxLinks.MAX_DRAWN_LINKS_INCREASED_LIMIT = 1000;
@@ -38,27 +38,27 @@ window.plugin.maxLinks._updating = false;
 window.plugin.maxLinks._renderLimitReached = false;
 
 window.plugin.maxLinks.updateLayer = function() {
-  if (window.plugin.maxLinks._updating || 
-      window.plugin.maxLinks.layer === null || 
+  if (window.plugin.maxLinks._updating ||
+      window.plugin.maxLinks.layer === null ||
       !window.map.hasLayer(window.plugin.maxLinks.layer))
     return;
   window.plugin.maxLinks._updating = true;
   window.plugin.maxLinks.layer.clearLayers();
-    
+
   var locations = [];
   var minX = 0;
   var minY = 0;
-       
+
   $.each(window.portals, function(guid, portal) {
     var loc = portal.options.details.locationE6;
     var nloc = { x: loc.lngE6, y: loc.latE6 };
-    if (nloc.x < minX) 
+    if (nloc.x < minX)
       minX = nloc.x;
-    if (nloc.y < minY) 
+    if (nloc.y < minY)
       minY = nloc.y;
     locations.push(nloc);
   });
-        
+
   $.each(locations, function(idx, nloc) {
     nloc.x += Math.abs(minX);
     nloc.y += Math.abs(minY);
@@ -67,8 +67,8 @@ window.plugin.maxLinks.updateLayer = function() {
   var triangles = window.delaunay.triangulate(locations);
   var drawnLinks = 0;
   window.plugin.maxLinks._renderLimitReached = false;
-  var renderlimit = window.USE_INCREASED_RENDER_LIMIT ? 
-    window.plugin.maxLinks.MAX_DRAWN_LINKS_INCREASED_LIMIT : 
+  var renderlimit = window.USE_INCREASED_RENDER_LIMIT ?
+    window.plugin.maxLinks.MAX_DRAWN_LINKS_INCREASED_LIMIT :
     window.plugin.maxLinks.MAX_DRAWN_LINKS;
   $.each(triangles, function(idx, triangle) {
     if (drawnLinks <= renderlimit) {
@@ -81,29 +81,29 @@ window.plugin.maxLinks.updateLayer = function() {
   window.plugin.maxLinks._updating = false;
   window.renderUpdateStatus();
 }
-  
+
 window.plugin.maxLinks.setup = function() {
   load(window.plugin.maxLinks._delaunayScriptLocation).thenRun(function() {
 
     window.delaunay.Triangle.prototype.draw = function(layer, divX, divY) {
       var drawLine = function(src, dest) {
-        var poly = L.polyline([[(src.y + divY)/1E6, (src.x + divX)/1E6], [(dest.y + divY)/1E6, (dest.x + divX)/1E6]], window.plugin.maxLinks.STROKE_STYLE); 
+        var poly = L.polyline([[(src.y + divY)/1E6, (src.x + divX)/1E6], [(dest.y + divY)/1E6, (dest.x + divX)/1E6]], window.plugin.maxLinks.STROKE_STYLE);
         poly.addTo(layer);
       };
-        
+
       drawLine(this.a, this.b);
       drawLine(this.b, this.c);
       drawLine(this.c, this.a);
     }
-        
+
     window.plugin.maxLinks.layer = L.layerGroup([]);
-    
+
     window.addHook('checkRenderLimit', function(e) {
-      if (window.map.hasLayer(window.plugin.maxLinks.layer) && 
+      if (window.map.hasLayer(window.plugin.maxLinks.layer) &&
           window.plugin.maxLinks._renderLimitReached)
-        e.reached = true; 
+        e.reached = true;
     });
-    
+
     window.addHook('portalDataLoaded', function(e) {
       if (window.map.hasLayer(window.plugin.maxLinks.layer))
         window.plugin.maxLinks.updateLayer();
@@ -113,7 +113,7 @@ window.plugin.maxLinks.setup = function() {
       if (e.layer === window.plugin.maxLinks.layer)
         window.plugin.maxLinks.updateLayer();
     });
-    window.map.on('zoomend moveend', window.plugin.maxLinks.updateLayer);     
+    window.map.on('zoomend moveend', window.plugin.maxLinks.updateLayer);
     window.layerChooser.addOverlay(window.plugin.maxLinks.layer, 'Maximum Links');
   });
 }

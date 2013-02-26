@@ -124,7 +124,7 @@ Starting from the top, the sidebar shows this information:
 - reso dist: shows the average distance the resonators have to the portal.
 - fields: how many fields are connected to this portal
 - AP Gain: estimate of how many AP you gain if you take down this portal and deploy resonators of your own faction. Tooltip breaks this number down into parts.
-    
+
 ##### Resonators
 
 The nickname to the left and right show who deployed this resonator. The bars in the middle indicate the charge of each resonator. The color depends on the level, which is also shown in the bar. The tooltip repeats some of that data along with other details. The top left resonator is the north one, top right is north east and so on. They are roughly ordered like they appear on a normal map:
