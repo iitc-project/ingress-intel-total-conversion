@@ -1,13 +1,15 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.7.6-2013-02-26-013736
+// @version        0.7.7-2013-02-26-164913
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js
 // @description    total conversion for the ingress intel map.
-// @include        *://www.ingress.com/intel*
-// @match          *://www.ingress.com/intel*
+// @include        http://www.ingress.com/intel*
+// @include        https://www.ingress.com/intel*
+// @match          http://www.ingress.com/intel*
+// @match          https://www.ingress.com/intel*
 // ==/UserScript==
 
 
@@ -15,13 +17,14 @@
 if(document.getElementsByTagName('html')[0].getAttribute('itemscope') != null)
   throw('Ingress Intel Website is down, not a userscript issue.');
 
-window.iitcBuildDate = '2013-02-26-013736';
+window.iitcBuildDate = '2013-02-26-164913';
 
 // disable vanilla JS
 window.onload = function() {};
 
 if(window.location.protocol !== 'https:') {
-  window.location.protocol = 'https:';
+  var redir = window.location.href.replace(/^http:/, 'https:');
+  window.location = redir;
   throw('Need to load HTTPS version.');
 }
 
@@ -1567,7 +1570,7 @@ d+"px").css("background-color",a.isDark(e,i)?h.foreground:h.background).appendTo
 function boot() {
   window.debug.console.overwriteNativeIfRequired();
 
-  console.log('loading done, booting. Built: 2013-02-26-013736');
+  console.log('loading done, booting. Built: 2013-02-26-164913');
   if(window.deviceID) console.log('Your device ID: ' + window.deviceID);
   window.runOnSmartphonesBeforeBoot();
 
