@@ -186,6 +186,7 @@ window.DESTROY_FIELD = 750; //AP for destroying field
 window.CAPTURE_PORTAL = 500; //AP for capturing a portal
 window.DEPLOY_RESONATOR = 125; //AP for deploying a resonator
 window.COMPLETION_BONUS = 250; //AP for deploying all resonators on portal
+window.MAX_PORTAL_LEVEL = 8;
 
 // OTHER MORE-OR-LESS CONSTANTS //////////////////////////////////////
 window.TEAM_NONE = 0;

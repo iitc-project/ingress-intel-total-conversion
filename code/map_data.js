@@ -70,6 +70,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   // https://github.com/Leaflet/Leaflet/issues/185
   var ppp = [];
   var p2f = {};
+  PRL.resetOrInit();
   $.each(m, function(qk, val) {
     $.each(val.deletedGameEntityGuids, function(ind, guid) {
       if(getTypeByGuid(guid) === TYPE_FIELD && window.fields[guid] !== undefined) {
@@ -98,7 +99,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
           ) return;
 
 
-
+        PRL.pushPortal(ent);
         ppp.push(ent); // delay portal render
       } else if(ent[2].edge !== undefined) {
         renderLink(ent);
@@ -147,6 +148,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
 
   if(portalUpdateAvailable) renderPortalDetails(selectedPortal);
   resolvePlayerNames();
+  renderUpdateStatus();
 }
 
 // removes entities that are still handled by Leaflet, although they

@@ -2,6 +2,60 @@
 
 // UTILS + MISC  ///////////////////////////////////////////////////////
 
+// PRL - Portal Render Limit
+window.PRL = function() {}
+
+window.PRL.resetOrInit = function () {
+  PRL.initialized = true;
+  PRL.minLevel = -1;
+  PRL.minLevelSet = false;
+  PRL.newPortalsPerLevel = new Array(MAX_PORTAL_LEVEL+1);
+  for(var i = 0; i <= MAX_PORTAL_LEVEL; i++) {
+    PRL.newPortalsPerLevel[i] = 0;
+  }
+}
+
+window.PRL.pushPortal = function(ent) {
+  var portalGuid = ent[0];
+  var portalLevel = parseInt(getPortalLevel(ent[2]));
+  var layerGroup = portalsLayers[portalLevel];
+  
+  if(findEntityInLeaflet(layerGroup, window.portals, ent[0])) return;
+  PRL.newPortalsPerLevel[portalLevel]++;
+}
+
+window.PRL.getMinLevel = function() {
+  if(!PRL.initialized) return -1;
+  if(!PRL.minLevelSet) PRL.setMinLevel();
+  return PRL.minLevel;
+}
+
+window.PRL.setMinLevel = function() {
+  var totalPortalsCount = 0;
+  PRL.minLevel = MAX_PORTAL_LEVEL + 1;
+  
+  // Find the min portal level under render limit
+  while(PRL.minLevel > 0) {
+    var oldPortalCount = layerGroupLength(portalsLayers[PRL.minLevel - 1]);
+    totalPortalsCount += oldPortalCount + PRL.newPortalsPerLevel[PRL.minLevel - 1];
+    if(totalPortalsCount >= MAX_DRAWN_PORTALS)
+      break;
+    PRL.minLevel--;
+  }
+  
+  // If render limit reached at max portal level, still let portal at max level render
+  if(PRL.minLevel === MAX_PORTAL_LEVEL + 1) PRL.minLevel = MAX_PORTAL_LEVEL;
+  PRL.minLevelSet = true;
+}
+
+window.layerGroupLength = function(layerGroup) {
+  var layersCount = 0;
+  var layers = layerGroup._layers;
+  if (layers)
+    layersCount = Object.keys(layers).length;
+  return layersCount;
+}
+
 // retrieves parameter from the URL?query=string.
 window.getURLParam = function(param) {
   var v = document.URL;
@@ -152,7 +206,11 @@ window.getMinPortalLevel = function() {
   var z = map.getZoom();
   if(z >= 16) return 0;
   var conv = ['impossible', 8,7,7,6,6,5,5,4,4,3,3,2,2,1,1];
-  return conv[z];
+  var minLevelByRenderLimit = PRL.getMinLevel();
+  var result = minLevelByRenderLimit > conv[z]
+    ? minLevelByRenderLimit
+    : conv[z];
+  return result;
 }
 
 // returns number of pixels left to scroll down before reaching the
