@@ -43,6 +43,8 @@ window.requestData = function() {
     }
   }
 
+  // Reset previous result of Portal Render Limit handler
+  PRL.init();
   // finally send ajax requests
   $.each(tiles, function(ind, tls) {
     data = { minLevelOfDetail: -1 };
@@ -70,7 +72,8 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   // https://github.com/Leaflet/Leaflet/issues/185
   var ppp = [];
   var p2f = {};
-  PRL.resetOrInit();
+  // Reset new portals count of Portal Render Limit handler
+  PRL.resetCounting();
   $.each(m, function(qk, val) {
     $.each(val.deletedGameEntityGuids, function(ind, guid) {
       if(getTypeByGuid(guid) === TYPE_FIELD && window.fields[guid] !== undefined) {

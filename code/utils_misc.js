@@ -2,14 +2,19 @@
 
 // UTILS + MISC  ///////////////////////////////////////////////////////
 
-// PRL - Portal Render Limit
+// PRL - Portal Render Limit handler
 window.PRL = function() {}
 
-window.PRL.resetOrInit = function () {
+window.PRL.init = function () {
   PRL.initialized = true;
   PRL.minLevel = -1;
+  PRL.resetCounting();
+}
+
+window.PRL.resetCounting = function() {
   PRL.minLevelSet = false;
-  PRL.newPortalsPerLevel = new Array(MAX_PORTAL_LEVEL+1);
+  if(!PRL.newPortalsPerLevel)
+    PRL.newPortalsPerLevel = new Array(MAX_PORTAL_LEVEL+1);
   for(var i = 0; i <= MAX_PORTAL_LEVEL; i++) {
     PRL.newPortalsPerLevel[i] = 0;
   }
@@ -32,19 +37,21 @@ window.PRL.getMinLevel = function() {
 
 window.PRL.setMinLevel = function() {
   var totalPortalsCount = 0;
-  PRL.minLevel = MAX_PORTAL_LEVEL + 1;
+  var newMinLevel = MAX_PORTAL_LEVEL + 1;
   
   // Find the min portal level under render limit
-  while(PRL.minLevel > 0) {
-    var oldPortalCount = layerGroupLength(portalsLayers[PRL.minLevel - 1]);
-    totalPortalsCount += oldPortalCount + PRL.newPortalsPerLevel[PRL.minLevel - 1];
+  while(newMinLevel > 0) {
+    var oldPortalCount = layerGroupLength(portalsLayers[newMinLevel - 1]);
+    totalPortalsCount += oldPortalCount + PRL.newPortalsPerLevel[newMinLevel - 1];
     if(totalPortalsCount >= MAX_DRAWN_PORTALS)
       break;
-    PRL.minLevel--;
+    newMinLevel--;
   }
   
   // If render limit reached at max portal level, still let portal at max level render
-  if(PRL.minLevel === MAX_PORTAL_LEVEL + 1) PRL.minLevel = MAX_PORTAL_LEVEL;
+  if(newMinLevel === MAX_PORTAL_LEVEL + 1) newMinLevel = MAX_PORTAL_LEVEL;
+  
+  if(newMinLevel > PRL.minLevel) PRL.minLevel = newMinLevel;
   PRL.minLevelSet = true;
 }
 
