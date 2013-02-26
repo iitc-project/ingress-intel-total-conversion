@@ -571,15 +571,29 @@ h3 {
 
 aside {
   display: inline-block;
-  padding: 0 5px;
-  width: 50%;
+  padding-right: 9px;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
-  text-align: right;
+  text-align: center;
 }
-aside + aside {
-  text-align: left;
+
+.linkdetails aside:last-child {
+  padding-right: 0;
+}
+
+.linkdetails aside:nth-child(1) {
+  text-align: right;
+  width:88px;
+}
+
+.linkdetails aside:nth-child(2) {
+  text-align: right;
+  width:67px;
+}
+
+.linkdetails aside:nth-child(4) {
+  margin-left:13px;
 }
 
 #toolbox {
@@ -633,8 +647,8 @@ aside + aside {
   border: 2px solid #f8ff5e;
 }
 
-/* tooltips */
-.ui-tooltip {
+/* tooltips, dialogs */
+.ui-tooltip, .ui-dialog {
   max-width: 300px;
   position: absolute;
   z-index: 9999;
@@ -643,6 +657,54 @@ aside + aside {
   color: #222;
   font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
   padding: 2px 4px;
+}
+
+.ui-dialog {
+  border: 1px solid #0F0F0F;
+  padding: 0;
+  border-radius: 2px;
+}
+
+.ui-widget-overlay {
+  height: 100%;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index:9998;
+  background:  #444;
+  opacity: 0.6;
+}
+
+.ui-dialog-titlebar {
+  display: none;
+}
+
+.ui-dialog-content {
+  padding: 12px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 600px !important;
+  max-width: 700px !important;
+}
+
+.ui-dialog a {
+  color: #0000ca;
+}
+
+.ui-dialog-buttonpane {
+  background: #F2F2F2;
+  padding: 12px;
+  border-top: 1px solid #E6E6E6;
+}
+
+.ui-dialog-buttonset {
+  text-align: right;
+}
+
+.ui-dialog-buttonset button {
+  padding: 2px;
+  min-width: 80px;
 }
 
 td {

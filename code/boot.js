@@ -58,10 +58,6 @@ window.setupMap = function() {
     {zoomControl: !(localStorage['iitc.zoom.buttons'] === 'false')}
   ));
 
-  try {
-    map.addLayer(views[readCookie('ingress.intelmap.type')]);
-  } catch(e) { map.addLayer(views[0]); }
-
   var addLayers = {};
 
   portalsLayers = [];
@@ -91,6 +87,14 @@ window.setupMap = function() {
     }, addLayers);
 
   map.addControl(window.layerChooser);
+
+  // set the map AFTER adding the layer chooser, or Chrome reorders the
+  // layers. This likely leads to broken layer selection because the
+  // views/cookie order does not match the layer chooser order.
+  try {
+    map.addLayer(views[readCookie('ingress.intelmap.type')]);
+  } catch(e) { map.addLayer(views[0]); }
+
   map.attributionControl.setPrefix('');
   // listen for changes and store them in cookies
   map.on('moveend', window.storeMapPosition);
@@ -201,37 +205,7 @@ window.setupTooltips = function(element) {
     },
     content: function() {
       var title = $(this).attr('title');
-
-      // check if it should be converted to a table
-      if(!title.match(/\t/)) {
-        return title.replace(/\n/g, '<br />');
-      }
-
-      var data = [];
-      var columnCount = 0;
-
-      // parse data
-      var rows = title.split('\n');
-      $.each(rows, function(i, row) {
-        data[i] = row.split('\t');
-        if(data[i].length > columnCount) columnCount = data[i].length;
-      });
-
-      // build the table
-      var tooltip = '<table>';
-      $.each(data, function(i, row) {
-        tooltip += '<tr>';
-        $.each(data[i], function(k, cell) {
-          var attributes = '';
-          if(k === 0 && data[i].length < columnCount) {
-            attributes = ' colspan="'+(columnCount - data[i].length + 1)+'"';
-          }
-          tooltip += '<td'+attributes+'>'+cell+'</td>';
-        });
-        tooltip += '</tr>';
-      });
-      tooltip += '</table>';
-      return tooltip;
+      return window.convertTextToTableMagic(title);
     }
   });
 
@@ -241,23 +215,45 @@ window.setupTooltips = function(element) {
   }
 }
 
+window.setupDialogs = function() {
+  $('#dialog').dialog({
+    autoOpen: false,
+    modal: true,
+    buttons: [
+      { text: 'OK', click: function() { $(this).dialog('close'); } }
+    ]
+  });
+
+  window.alert = function(text, isHTML) {
+    var h = isHTML ? text : window.convertTextToTableMagic(text);
+    $('#dialog').html(h).dialog('open');
+  }
+}
+
+
+window.setupQRLoadLib = function() {
+  @@INCLUDERAW:external/jquery.qrcode.min.js@@
+}
+
 
 // BOOTING ///////////////////////////////////////////////////////////
 
 function boot() {
   window.debug.console.overwriteNativeIfRequired();
 
-  console.log('loading done, booting');
+  console.log('loading done, booting. Built: @@BUILDDATE@@');
+  if(window.deviceID) console.log('Your device ID: ' + window.deviceID);
   window.runOnSmartphonesBeforeBoot();
 
   // overwrite default Leaflet Marker icon to be a neutral color
-  var base = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/images/';
+  var base = 'https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/images/';
   L.Icon.Default.imagePath = base;
 
   window.iconEnl = L.Icon.Default.extend({options: { iconUrl: base + 'marker-green.png' } });
   window.iconRes = L.Icon.Default.extend({options: { iconUrl: base + 'marker-blue.png' } });
 
   window.setupStyles();
+  window.setupDialogs();
   window.setupMap();
   window.setupGeosearch();
   window.setupRedeem();
@@ -267,6 +263,7 @@ function boot() {
   window.setupPlayerStat();
   window.setupTooltips();
   window.chat.setup();
+  window.setupQRLoadLib();
   // read here ONCE, so the URL is only evaluated one time after the
   // necessary data has been loaded.
   urlPortal = getURLParam('pguid');
@@ -299,26 +296,17 @@ function boot() {
 // Copyright (c) 2010 Chris O'Hara <cohara87@gmail.com>. MIT Licensed
 function asyncLoadScript(a){return function(b,c){var d=document.createElement("script");d.type="text/javascript",d.src=a,d.onload=b,d.onerror=c,d.onreadystatechange=function(){var a=this.readyState;if(a==="loaded"||a==="complete")d.onreadystatechange=null,b()},head.insertBefore(d,head.firstChild)}}(function(a){a=a||{};var b={},c,d;c=function(a,d,e){var f=a.halt=!1;a.error=function(a){throw a},a.next=function(c){c&&(f=!1);if(!a.halt&&d&&d.length){var e=d.shift(),g=e.shift();f=!0;try{b[g].apply(a,[e,e.length,g])}catch(h){a.error(h)}}return a};for(var g in b){if(typeof a[g]=="function")continue;(function(e){a[e]=function(){var g=Array.prototype.slice.call(arguments);if(e==="onError"){if(d)return b.onError.apply(a,[g,g.length]),a;var h={};return b.onError.apply(h,[g,g.length]),c(h,null,"onError")}return g.unshift(e),d?(a.then=a[e],d.push(g),f?a:a.next()):c({},[g],e)}})(g)}return e&&(a.then=a[e]),a.call=function(b,c){c.unshift(b),d.unshift(c),a.next(!0)},a.next()},d=a.addMethod=function(d){var e=Array.prototype.slice.call(arguments),f=e.pop();for(var g=0,h=e.length;g<h;g++)typeof e[g]=="string"&&(b[e[g]]=f);--h||(b["then"+d.substr(0,1).toUpperCase()+d.substr(1)]=f),c(a)},d("chain",function(a){var b=this,c=function(){if(!b.halt){if(!a.length)return b.next(!0);try{null!=a.shift().call(b,c,b.error)&&c()}catch(d){b.error(d)}}};c()}),d("run",function(a,b){var c=this,d=function(){c.halt||--b||c.next(!0)},e=function(a){c.error(a)};for(var f=0,g=b;!c.halt&&f<g;f++)null!=a[f].call(c,d,e)&&d()}),d("defer",function(a){var b=this;setTimeout(function(){b.next(!0)},a.shift())}),d("onError",function(a,b){var c=this;this.error=function(d){c.halt=!0;for(var e=0;e<b;e++)a[e].call(c,d)}})})(this);var head=document.getElementsByTagName("head")[0]||document.documentElement;addMethod("load",function(a,b){for(var c=[],d=0;d<b;d++)(function(b){c.push(asyncLoadScript(a[b]))})(d);this.call("run",c)})
 
-
+try { console.log('Loading included JS now'); } catch(e) {}
+@@INCLUDERAW:external/leaflet.js@@
 // modified version of https://github.com/shramov/leaflet-plugins. Also
 // contains the default Ingress map style.
-var LEAFLETGOOGLE = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/leaflet_google.js';
+@@INCLUDERAW:external/leaflet_google.js@@
+@@INCLUDERAW:external/autolink.js@@
+
+try { console.log('done loading included JS'); } catch(e) {}
+
 var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js';
-var JQUERYUI = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js';
-var LEAFLET = 'http://cdn.leafletjs.com/leaflet-0.5/leaflet.js';
-var AUTOLINK = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/autolink.js';
-var EMPTY = 'data:text/javascript;base64,';
-
-// don’t download resources which have been injected already
-var ir = window && window.internalResources ? window.internalResources : [];
-if(ir.indexOf('jquery')        !== -1) JQUERY   = EMPTY;
-if(ir.indexOf('jqueryui')      !== -1) JQUERYUI = EMPTY;
-if(ir.indexOf('leaflet')       !== -1) LEAFLET  = EMPTY;
-if(ir.indexOf('autolink')      !== -1) AUTOLINK = EMPTY;
-if(ir.indexOf('leafletgoogle') !== -1) LEAFLETGOOGLE = EMPTY;
-
+var JQUERYUI = 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js';
 
 // after all scripts have loaded, boot the actual app
-load(JQUERY, LEAFLET, AUTOLINK).then(LEAFLETGOOGLE, JQUERYUI).onError(function (err) {
-  alert('Could not all resources, the script likely won’t work.\n\nIf this happend the first time for you, it’s probably a temporary issue. Just wait a bit and try again.\n\nIf you installed the script for the first time and this happens:\n– try disabling NoScript if you have it installed\n– press CTRL+SHIFT+K in Firefox or CTRL+SHIFT+I in Chrome/Opera and reload the page. Additional info may be available in the console.\n– Open an issue at https://github.com/breunigs/ingress-intel-total-conversion/issues');
-}).thenRun(boot);
+load(JQUERY).then(JQUERYUI).thenRun(boot);

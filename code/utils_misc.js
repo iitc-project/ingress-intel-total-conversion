@@ -54,7 +54,7 @@ window.postAjax = function(action, data, success, error) {
     // use full URL to avoid issues depending on how people set their
     // slash. See:
     // https://github.com/breunigs/ingress-intel-total-conversion/issues/56
-    url: 'http://www.ingress.com/rpc/dashboard.'+action,
+    url: 'https://www.ingress.com/rpc/dashboard.'+action,
     type: 'POST',
     data: data,
     dataType: 'json',
@@ -96,8 +96,16 @@ window.rangeLinkClick = function() {
     window.smartphone.mapButton.click();
 }
 
+window.showPortalPosLinks = function(lat, lng) {
+  var qrcode = '<div id="qrcode"></div>';
+  var script = '<script>$(\'#qrcode\').qrcode({text:\'GEO:'+lat+','+lng+'\'});</script>';
+  var gmaps = '<a href="https://maps.google.com/?q='+lat+','+lng+'">gmaps</a>';
+  var osm = '<a href="http://www.openstreetmap.org/?mlat='+lat+'&mlon='+lng+'&zoom=16">OSM</a>';
+  alert('<div style="text-align: center;">' + qrcode + script + gmaps + ' ' + osm + '</div>');
+}
+
 window.reportPortalIssue = function(info) {
-  var t = 'Redirecting you to a Google Help Page. Once there, click on “Contact Us” in the upper right corner.\n\nThe text box contains all necessary information. Press CTRL+C to copy it.';
+  var t = 'Redirecting you to a Google Help Page.\n\nThe text box contains all necessary information. Press CTRL+C to copy it.';
   var d = window.portals[window.selectedPortal].options.details;
 
   var info = 'Your Nick: ' + PLAYER.nickname + '        '
@@ -107,7 +115,7 @@ window.reportPortalIssue = function(info) {
 
   //codename, approx addr, portalname
   if(prompt(t, info) !== null)
-    location.href = 'https://support.google.com/ingress?hl=en';
+    location.href = 'https://support.google.com/ingress?hl=en&contact=1';
 }
 
 window._storedPaddedBounds = undefined;
@@ -117,6 +125,7 @@ window.getPaddedBounds = function() {
       window._storedPaddedBounds = null;
     });
   }
+  if(renderLimitReached(0.7)) return window.map.getBounds();
   if(window._storedPaddedBounds) return window._storedPaddedBounds;
 
   var p = window.map.getBounds().pad(VIEWPORT_PAD_RATIO);
@@ -124,11 +133,19 @@ window.getPaddedBounds = function() {
   return p;
 }
 
-window.renderLimitReached = function() {
-  if(Object.keys(portals).length >= MAX_DRAWN_PORTALS) return true;
-  if(Object.keys(links).length >= MAX_DRAWN_LINKS) return true;
-  if(Object.keys(fields).length >= MAX_DRAWN_FIELDS) return true;
-  return false;
+// returns true if the render limit has been reached. The default ratio
+// is 1, which means it will tell you if there are more items drawn than
+// acceptable. A value of 0.9 will tell you if 90% of the amount of
+// acceptable entities have been drawn. You can use this to heuristi-
+// cally detect if the render limit will be hit.
+window.renderLimitReached = function(ratio) {
+  ratio = ratio || 1;
+  if(Object.keys(portals).length*ratio >= MAX_DRAWN_PORTALS) return true;
+  if(Object.keys(links).length*ratio >= MAX_DRAWN_LINKS) return true;
+  if(Object.keys(fields).length*ratio >= MAX_DRAWN_FIELDS) return true;
+  var param = { 'reached': false };
+  window.runHooks('checkRenderLimit', param);
+  return param.reached;
 }
 
 window.getMinPortalLevel = function() {
@@ -232,4 +249,38 @@ window.genFourColumnTable = function(blocks) {
   }).join('');
   if(t.length % 2 === 1) t + '<td></td><td></td></tr>';
   return t;
+}
+
+
+// converts given text with newlines (\n) and tabs (\t) to a HTML
+// table automatically.
+window.convertTextToTableMagic = function(text) {
+  // check if it should be converted to a table
+  if(!text.match(/\t/)) return text.replace(/\n/g, '<br>');
+
+  var data = [];
+  var columnCount = 0;
+
+  // parse data
+  var rows = text.split('\n');
+  $.each(rows, function(i, row) {
+    data[i] = row.split('\t');
+    if(data[i].length > columnCount) columnCount = data[i].length;
+  });
+
+  // build the table
+  var table = '<table>';
+  $.each(data, function(i, row) {
+    table += '<tr>';
+    $.each(data[i], function(k, cell) {
+      var attributes = '';
+      if(k === 0 && data[i].length < columnCount) {
+        attributes = ' colspan="'+(columnCount - data[i].length + 1)+'"';
+      }
+      table += '<td'+attributes+'>'+cell+'</td>';
+    });
+    table += '</tr>';
+  });
+  table += '</table>';
+  return table;
 }

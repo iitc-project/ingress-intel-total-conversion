@@ -11,7 +11,7 @@
 //
 // Boot hook: booting is handled differently because IITC may not yet
 //            be available. Have a look at the plugins in plugins/. All
-//            code before “// PLUGIN START” and after “// PLUGIN END” os
+//            code before “// PLUGIN START” and after “// PLUGIN END” is
 //            required to successfully boot the plugin.
 //
 // Here’s more specific information about each event:
@@ -36,10 +36,24 @@
 //              array [GUID, time, details]. Plugin can manipulate the
 //              array to change order or add additional values to the
 //              details of a portal.
+// beforePortalReRender: the callback argument is
+//              {portal: ent[2], oldPortal : d, reRender : false}.
+//              The callback needs to update the value of reRender to
+//              true if the plugin has a reason to have the portal
+//              redrawn. It is called early on in the
+//              code/map_data.js#renderPortal as long as there was an
+//              old portal for the guid.
+// checkRenderLimit: callback is passed the argument of
+//              {reached : false} to indicate that the renderlimit is reached
+//              set reached to true.
+
+
+
 
 window._hooks = {}
 window.VALID_HOOKS = ['portalAdded', 'portalDetailsUpdated',
-  'publicChatDataAvailable', 'portalDataLoaded'];
+  'publicChatDataAvailable', 'portalDataLoaded', 'beforePortalReRender',
+  'checkRenderLimit'];
 
 window.runHooks = function(event, data) {
   if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);

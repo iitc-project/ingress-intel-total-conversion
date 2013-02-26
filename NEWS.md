@@ -1,11 +1,70 @@
+CHANGES IN 0.7.5 / 0.7.6 / 0.7.7
+================================
+
+This is an emergency release to keep IITC working with Niantic’s switch to HTTPS. It appears they will roll it out for everyone soon, so IITC now requires HTTPS for everyone; support for HTTP was dropped to keep things sane. Additionally, the following things were changed from 0.7.1:
+
+- Feature: the “gmaps” link for each portal has been replaced with a “poslinks” one. It offers Google Maps, OpenStreetMap and QR-Codes for easy transfer to your mobile phone (by Merovius).
+- Feature: the exact capture time is now shown in a tooltip in the portal details (by j16sdiz)
+- Change: most scripts are now included in the UserScript directly. Was the easiest solution to the HTTPS issue.
+- Change: minor improvements when render limit is about to be hit.
+- Bugfix: map base layer wasn’t always remembered in Chrome
+- Bugfix: QR Code rendering broken (in 0.7.5, fixed in 0.7.6)
+- Bugfix: Script broken in Firefox sometimes (fixed in 0.7.7)
+
+
+CHANGES IN 0.7 / 0.7.1
+----------------------
+
+- 0.7.1 fixes an oversight that prevented some portals from showing (by saithis)
+
+### General
+- from now on there will be [nightly builds](https://www.dropbox.com/sh/lt9p0s40kt3cs6m/3xzpyiVBnF) available. You need to manually update them if you want to stay on nightly. You should be offered to update to the next release version, though. Be sure to [have read the guide on how to report bugs](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/HACKING.md#how-do-i-report-bugs) before using a nightly version.
+- IITC has [a shiny new user guide now](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/USERGUIDE.md). Please point new users to it, it should answer most of their questions and also teach them how to make good bug reports.
+
+### Main Script
+- Feature: resonators for the selected portal are now highlighted (by Xelio)
+- Feature: resonator charge percentage shown in tooltip (by Xelio)
+- Feature: link to Google Maps for each portal (by vita10gy)
+- Change: Update wording for redeeming to match vanilla Ingress Intel.
+- Change: recommend Tampermonkey for Chrome users. It makes everything easier.
+- Change: portal image is now shrinked to fit in, instead of cut off
+- Change: use the same jQuery version as the vanilla Intel map.
+- Change: replaced native `alert` dialogs with own implementation. Should avoid overflowing or unaligned texts.
+- Bugfix: IITC would not display any portals/data for some people. **If you were affected by the “empty map” problem try the new version.**
+- Bugfix: selected portal would be unselected on certain conditions
+- Bugfix: portals were not clickable below the sidebar
+- Bugfix: map wasn’t rendered properly sometimes (only a gray area was shown)
+- Bugfix: resonators were duplicated sometimes
+- Bugfix: AP calulation was wrong
+- Bugfix: Permalink gave the wrong zoom level
+- Bugfix: zoom position not saved sometimes
+
+### IITC Plugins
+
+**New Plugins:**
+- Render limit increase for people with beefy hardware (by Jon Atkins)
+- Render resonators earlier (by Xelio)
+- Player tracker
+- compute AP stats for current view (by Hollow011)
+- show portal address in sidebar (by vita10gy)
+
+**Updated:**
+- the guess player level plugin now groups and sorts by level. It also remembers the players now, so zooming in won’t make a player “lower level”.
+
+[You can obtain them in the plugins directory](https://github.com/breunigs/ingress-intel-total-conversion/tree/gh-pages/plugins#readme).
+
+### IITC Mobile
+
+An alpha quality **developer only** preview of IITC for mobile devices is available. [For more information see the guide in the mobile section](https://github.com/breunigs/ingress-intel-total-conversion/tree/gh-pages/mobile#readme).
+
+
 CHANGES IN 0.6 / 0.61
-=====================
+---------------------
 
 0.6 had a broken link to style sheets. Fixed in 0.61.
 
 - **SECURITY**: Chat was vulnerable to XSS attacks. Update as soon as
                 possible.
-
 - Feature: [**more plugins**](https://github.com/breunigs/ingress-intel-total-conversion/tree/gh-pages/plugins#readme)
     - weakened portals: highlights portals with few resonators or ones
                         that are decayed, making it easier to see where

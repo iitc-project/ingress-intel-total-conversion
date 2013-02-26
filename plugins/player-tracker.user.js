@@ -1,13 +1,13 @@
 // ==UserScript==
 // @id             iitc-plugin-player-tracker@breunigs
 // @name           iitc: player tracker
-// @version        0.3
+// @version        0.6.1
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/player-tracker.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/player-tracker.user.js
 // @description    draws trails for the path a user went onto the map. Only draws the last hour. Does not request chat data on its own, even if that would be useful.
-// @include        http://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/intel*
+// @match          https://www.ingress.com/intel*
 // ==/UserScript==
 
 function wrapper() {
@@ -76,10 +76,11 @@ window.plugin.playerTracker.processNewData = function(data) {
     $.each(json[2].plext.markup, function(ind, markup) {
       switch(markup[0]) {
       case 'TEXT':
-        // Destroy link messages depend on how the link was originally
-        // created. Therefore it’s not clear which portal the player is
-        // at, so ignore it.
-        if(markup[1].plain.indexOf('destroyed the Link') !== -1) {
+        // Destroy link and field messages depend on where the link or
+        // field was originally created. Therefore it’s not clear which
+        // portal the player is at, so ignore it.
+        if(markup[1].plain.indexOf('destroyed the Link') !== -1
+          || markup[1].plain.indexOf('destroyed a Control Field') !== -1) {
           skipThisMessage = true;
           return false;
         }
@@ -162,13 +163,14 @@ window.plugin.playerTracker.processNewData = function(data) {
 }
 
 window.plugin.playerTracker.getLatLngFromEvent = function(ev) {
-  var lats = $.map(ev.latlngs, function(ll) { return [ll[0]] });
-  var lngs = $.map(ev.latlngs, function(ll) { return [ll[1]] });
-  var latmax = Math.max.apply(null, lats);
-  var latmin = Math.min.apply(null, lats);
-  var lngmax = Math.max.apply(null, lngs);
-  var lngmin = Math.min.apply(null, lngs);
-  return L.latLng((latmax + latmin) / 2, (lngmax + lngmin) / 2);
+  var lats = 0;
+  var lngs = 0;
+  $.each(ev.latlngs, function() {
+    lats += this[0];
+    lngs += this[1];
+  });
+
+  return L.latLng(lats / ev.latlngs.length, lngs / ev.latlngs.length);
 }
 
 window.plugin.playerTracker.ago = function(time, now) {
@@ -234,7 +236,8 @@ window.plugin.playerTracker.drawData = function() {
       weight: 2-0.25*i,
       color: '#FF00FD',
       clickable: false,
-      opacity: 1-0.2*i
+      opacity: 1-0.2*i,
+      dashArray: "5,8"
     };
 
     L.multiPolyline(polyLine, opts).addTo(layer);

@@ -127,7 +127,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
 
   // Preserve and restore "selectedPortal" between portal re-render
   if(portalUpdateAvailable) var oldSelectedPortal = selectedPortal;
-  
+
   runHooks('portalDataLoaded', {portals : ppp});
   $.each(ppp, function(ind, portal) { renderPortal(portal); });
 
@@ -231,8 +231,16 @@ window.renderPortal = function(ent) {
   var old = findEntityInLeaflet(layerGroup, window.portals, ent[0]);
   if(old) {
     var oo = old.options;
+
+    // Default checks to see if a portal needs to be re-rendered
     var u = oo.team !== team;
     u = u || oo.level !== portalLevel;
+
+    // Allow plugins to add additional conditions as to when a portal gets re-rendered
+    var hookData = {portal: ent[2], oldPortal: oo.details, reRender: false};
+    runHooks('beforePortalReRender', hookData);
+    u = u || hookData.reRender;
+
     // nothing changed that requires re-rendering the portal.
     if(!u) {
       // let resos handle themselves if they need to be redrawn
@@ -253,8 +261,11 @@ window.renderPortal = function(ent) {
   // pre-loads player names for high zoom levels
   loadPlayerNamesForPortal(ent[2]);
 
-  var lvWeight = Math.max(2, portalLevel / 1.5);
-  var lvRadius = Math.max(portalLevel + 3, 5);
+  var lvWeight = Math.max(2, Math.floor(portalLevel) / 1.5);
+  var lvRadius = Math.floor(portalLevel) + 4;
+  if(team === window.TEAM_NONE) {
+    lvRadius = 7;
+  }
 
   var p = L.circleMarker(latlng, {
     radius: lvRadius + (L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE : 0),
@@ -473,8 +484,18 @@ window.renderLink = function(ent) {
     weight:2,
     clickable: false,
     guid: ent[0],
-    smoothFactor: 10
+    smoothFactor: 0 // doesn’t work for two points anyway, so disable
   });
+
+  // determine which links are very short and don’t render them at all.
+  // in most cases this will go unnoticed, but improve rendering speed.
+  poly._map = window.map;
+  poly.projectLatlngs();
+  var op = poly._originalPoints;
+  var dist = Math.abs(op[0].x - op[1].x) + Math.abs(op[0].y - op[1].y);
+  if(dist <= 10) {
+    return;
+  }
 
   if(!getPaddedBounds().intersects(poly.getBounds())) return;
 
@@ -504,15 +525,26 @@ window.renderField = function(ent) {
     [reg.vertexB.location.latE6/1E6, reg.vertexB.location.lngE6/1E6],
     [reg.vertexC.location.latE6/1E6, reg.vertexC.location.lngE6/1E6]
   ];
+
   var poly = L.polygon(latlngs, {
     fillColor: COLORS[team],
     fillOpacity: 0.25,
     stroke: false,
     clickable: false,
-    smoothFactor: 10,
-    vertices: ent[2].capturedRegion,
+    smoothFactor: 0, // hiding small fields will be handled below
+    vertices: reg,
     lastUpdate: ent[1],
     guid: ent[0]});
+
+  // determine which fields are too small to be rendered and don’t
+  // render them, so they don’t count towards the maximum fields limit.
+  // This saves some DOM operations as well, but given the relatively
+  // low amount of fields there isn’t much to gain.
+  // The algorithm is the same as used by Leaflet.
+  poly._map = window.map;
+  poly.projectLatlngs();
+  var count = L.LineUtil.simplify(poly._originalPoints, 6).length;
+  if(count <= 2) return;
 
   if(!getPaddedBounds().intersects(poly.getBounds())) return;
 
