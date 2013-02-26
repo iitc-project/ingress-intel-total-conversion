@@ -246,7 +246,7 @@ function boot() {
   window.runOnSmartphonesBeforeBoot();
 
   // overwrite default Leaflet Marker icon to be a neutral color
-  var base = 'https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/images/';
+  var base = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/images/';
   L.Icon.Default.imagePath = base;
 
   window.iconEnl = L.Icon.Default.extend({options: { iconUrl: base + 'marker-green.png' } });
