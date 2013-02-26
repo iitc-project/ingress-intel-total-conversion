@@ -71,6 +71,7 @@ Please do!
 
 [Bananeweizen](https://github.com/Bananeweizen),
 [blakjakau](https://github.com/blakjakau),
+[boombuler](https://github.com/boombuler),
 [cmrn](https://github.com/cmrn),
 [epf](https://github.com/epf),
 [integ3r](https://github.com/integ3r),

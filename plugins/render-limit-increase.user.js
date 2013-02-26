@@ -39,7 +39,7 @@ window.plugin.renderLimitIncrease.setHigherLimits = function() {
   window.MAX_DRAWN_PORTALS = 3000;
   window.MAX_DRAWN_LINKS = 1000;
   window.MAX_DRAWN_FIELDS = 500;
-
+  window.USE_INCREASED_RENDER_LIMIT = true; // Used for other plugins
 };
 
 var setup =  window.plugin.renderLimitIncrease.setHigherLimits;
