@@ -139,7 +139,7 @@ The nickname to the left and right show who deployed this resonator. The bars in
 
 - Portal link: use it show others a portal. IITC users will automatically zoomed to the location and shown portal details as soon as they’re available. Vanilla map users will only be zoomed to location.
 - Report issue: redirects you to Niantic report issue page. Allows you to copy all required information before going there.
-- GMaps: shows you the portal’s location in Google Maps for routing and similar purposes.
+- poslinks: Shows you a QR-Code containing the geolocation of the portal as well as a link for Google Maps and Openstreetmap. If your QR-Code App supports GEO-codes (most do) you can scan it and pass the portal location directly to a routing-app.
 
 #### Redeeming, General Links and functions
 - Redeem code: allows you to redeem codes to receive goodies. If you copied them from the Internet, they are probably invalid already.
