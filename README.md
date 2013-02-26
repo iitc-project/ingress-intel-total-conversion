@@ -60,12 +60,14 @@ Reporting Issues
 [tutorial / guide / please read / **free candy**](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/HACKING.md#how-do-i-report-bugs)
 
 
-Contributing
-------------
+How can I help? // Contribution
+-------------------------------
 
-Please do!
-
-(Obviously, Resistance folks must send in complete patches while Enlightened gals and guys may just open feature request ☺). If you want to hack the source, please [read HACKING.md for details](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/HACKING.md) .
+First of all, it’s very nice you want to help. There are several equally important ways you can. Some require a technical background and some don’t:
+- **answering help requests:** often people are asking how to do specific things in bug reports or are asking for things that already exist. Kindly point them to what they’re looking for and maybe consider updating the user guide, if it lacks on that topic.
+- **asking for more information:** Sometimes a bug report contains barely enough information to grasp what’s going on. Ask the reporter for the parts that you believe might be helpful, like the browser used. Similarily, if someone requests a feature make sure the description is accurate. Depending on the request, a concrete proposal on how to display this to the user might be helpful.
+- **finding bugs / regressions:** If you are closer to the development of IITC, it’s usually easier for you to spot misbehaviours or bugs that have been recently introduces. Opening tickets for those, ideally with a step by step guide to reproduce the issue is very helpful.
+- **hacking / sending patches:** Of course, if you want to contribute source code to the project that’s fine as well. Please [read HACKING.md for details](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/HACKING.md).
 
 **So far, these people have contributed:**
 
