@@ -1,5 +1,17 @@
+CHANGES IN 0.7.5
+================
+
+This is an emergency release to keep IITC working with Niantic’s switch to HTTPS. It appears they will roll it out for everyone soon, so IITC now requires HTTPS for everyone; support for HTTP was dropped to keep things sane. Additionally, the following things were changed from 0.7.1:
+
+- Feature: the “gmaps” link for each portal has been replaced with a “poslinks” one. It offers Google Maps, OpenStreetMap and QR-Codes for easy transfer to your mobile phone (by Merovius).
+- Feature: the exact capture time is now shown in a tooltip in the portal details (by j16sdiz)
+- Change: most scripts are now included in the UserScript directly. Was the easiest solution to the HTTPS issue.
+- Change: minor improvements when render limit is about to be hit.
+- Bugfix: map base layer wasn’t always remembered in Chrome
+
+
 CHANGES IN 0.7 / 0.7.1
-======================
+----------------------
 
 - 0.7.1 fixes an oversight that prevented some portals from showing (by saithis)
 
@@ -51,7 +63,6 @@ CHANGES IN 0.6 / 0.61
 
 - **SECURITY**: Chat was vulnerable to XSS attacks. Update as soon as
                 possible.
-
 - Feature: [**more plugins**](https://github.com/breunigs/ingress-intel-total-conversion/tree/gh-pages/plugins#readme)
     - weakened portals: highlights portals with few resonators or ones
                         that are decayed, making it easier to see where

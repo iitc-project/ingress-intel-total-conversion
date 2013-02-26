@@ -19,7 +19,7 @@ IITC can be [extended with the use of plugins](https://github.com/breunigs/ingre
 Install
 -------
 
-Current version is 0.7.1. [See NEWS.md for details](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/NEWS.md).
+Current version is 0.7.5. [See NEWS.md for details](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/NEWS.md).
 
 [**INSTALL**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js)
 
@@ -40,7 +40,9 @@ Current version is 0.7.1. [See NEWS.md for details](https://github.com/breunigs/
 - Confirm once again.
 - Reload page.
 
-*Note:* Tampermonkey is optional. However, it offers auto-update, shows correct version numbers and installing user scripts is much easier. If you have installed the scripts directly into Chrome before, I recommend you switch to Tampermonkey. To do so, uninstall the IITC scripts and click each install link again. Follow the procedure explained above.
+**NOTE: You still need to manually update IITC with Tampermonkey.** There is a bug in the current stable release. It has been fixed in Tampermonkey’s development version. Until it is released, you need to manually update IITC.
+
+*Note:* Tampermonkey is optional. However, it ~~offers auto-update~~, shows correct version numbers and installing user scripts is much easier. If you have installed the scripts directly into Chrome before, I recommend you switch to Tampermonkey. To do so, uninstall the IITC scripts and click each install link again. Follow the procedure explained above.
 
 ### Opera
 - Download the script: [download](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js)
