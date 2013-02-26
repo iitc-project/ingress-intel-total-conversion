@@ -231,6 +231,10 @@ window.setupDialogs = function() {
 }
 
 
+window.setupQRLoadLib = function() {
+  @@INCLUDERAW:external/jquery.qrcode.min.js@@
+}
+
 
 // BOOTING ///////////////////////////////////////////////////////////
 
@@ -259,6 +263,7 @@ function boot() {
   window.setupPlayerStat();
   window.setupTooltips();
   window.chat.setup();
+  window.setupQRLoadLib();
   // read here ONCE, so the URL is only evaluated one time after the
   // necessary data has been loaded.
   urlPortal = getURLParam('pguid');
@@ -297,7 +302,7 @@ try { console.log('Loading included JS now'); } catch(e) {}
 // contains the default Ingress map style.
 @@INCLUDERAW:external/leaflet_google.js@@
 @@INCLUDERAW:external/autolink.js@@
-@@INCLUDERAW:external/jquery.qrcode.min.js@@
+
 try { console.log('done loading included JS'); } catch(e) {}
 
 var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js';
