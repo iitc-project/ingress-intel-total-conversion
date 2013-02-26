@@ -6,22 +6,24 @@
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js
 // @description    total conversion for the ingress intel map.
-// @include        *://www.ingress.com/intel*
-// @match          *://www.ingress.com/intel*
+// @include        http://www.ingress.com/intel*
+// @include        https://www.ingress.com/intel*
+// @match          http://www.ingress.com/intel*
+// @match          https://www.ingress.com/intel*
 // ==/UserScript==
 
 
 // REPLACE ORIG SITE ///////////////////////////////////////////////////
 if(document.getElementsByTagName('html')[0].getAttribute('itemscope') != null)
   throw('Ingress Intel Website is down, not a userscript issue.');
-
 window.iitcBuildDate = '@@BUILDDATE@@';
 
 // disable vanilla JS
 window.onload = function() {};
 
 if(window.location.protocol !== 'https:') {
-  window.location.protocol = 'https:';
+  var redir = window.location.href.replace(/^http:/, 'https:');
+  window.location = redir;
   throw('Need to load HTTPS version.');
 }
 
