@@ -44,7 +44,7 @@ window.requestData = function() {
   }
 
   // Reset previous result of Portal Render Limit handler
-  PRL.init();
+  portalRenderLimit.init();
   // finally send ajax requests
   $.each(tiles, function(ind, tls) {
     data = { minLevelOfDetail: -1 };
@@ -73,7 +73,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   var ppp = [];
   var p2f = {};
   // Reset new portals count of Portal Render Limit handler
-  PRL.resetCounting();
+  portalRenderLimit.resetCounting();
   $.each(m, function(qk, val) {
     $.each(val.deletedGameEntityGuids, function(ind, guid) {
       if(getTypeByGuid(guid) === TYPE_FIELD && window.fields[guid] !== undefined) {
@@ -102,7 +102,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
           ) return;
 
 
-        PRL.pushPortal(ent);
+        portalRenderLimit.pushPortal(ent);
         ppp.push(ent); // delay portal render
       } else if(ent[2].edge !== undefined) {
         renderLink(ent);

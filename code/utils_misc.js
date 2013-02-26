@@ -2,59 +2,6 @@
 
 // UTILS + MISC  ///////////////////////////////////////////////////////
 
-// PRL - Portal Render Limit handler
-window.PRL = function() {}
-
-window.PRL.init = function () {
-  PRL.initialized = true;
-  PRL.minLevel = -1;
-  PRL.resetCounting();
-}
-
-window.PRL.resetCounting = function() {
-  PRL.minLevelSet = false;
-  if(!PRL.newPortalsPerLevel)
-    PRL.newPortalsPerLevel = new Array(MAX_PORTAL_LEVEL+1);
-  for(var i = 0; i <= MAX_PORTAL_LEVEL; i++) {
-    PRL.newPortalsPerLevel[i] = 0;
-  }
-}
-
-window.PRL.pushPortal = function(ent) {
-  var portalGuid = ent[0];
-  var portalLevel = parseInt(getPortalLevel(ent[2]));
-  var layerGroup = portalsLayers[portalLevel];
-  
-  if(findEntityInLeaflet(layerGroup, window.portals, ent[0])) return;
-  PRL.newPortalsPerLevel[portalLevel]++;
-}
-
-window.PRL.getMinLevel = function() {
-  if(!PRL.initialized) return -1;
-  if(!PRL.minLevelSet) PRL.setMinLevel();
-  return PRL.minLevel;
-}
-
-window.PRL.setMinLevel = function() {
-  var totalPortalsCount = 0;
-  var newMinLevel = MAX_PORTAL_LEVEL + 1;
-  
-  // Find the min portal level under render limit
-  while(newMinLevel > 0) {
-    var oldPortalCount = layerGroupLength(portalsLayers[newMinLevel - 1]);
-    totalPortalsCount += oldPortalCount + PRL.newPortalsPerLevel[newMinLevel - 1];
-    if(totalPortalsCount >= MAX_DRAWN_PORTALS)
-      break;
-    newMinLevel--;
-  }
-  
-  // If render limit reached at max portal level, still let portal at max level render
-  if(newMinLevel === MAX_PORTAL_LEVEL + 1) newMinLevel = MAX_PORTAL_LEVEL;
-  
-  if(newMinLevel > PRL.minLevel) PRL.minLevel = newMinLevel;
-  PRL.minLevelSet = true;
-}
-
 window.layerGroupLength = function(layerGroup) {
   var layersCount = 0;
   var layers = layerGroup._layers;
@@ -213,7 +160,7 @@ window.getMinPortalLevel = function() {
   var z = map.getZoom();
   if(z >= 16) return 0;
   var conv = ['impossible', 8,7,7,6,6,5,5,4,4,3,3,2,2,1,1];
-  var minLevelByRenderLimit = PRL.getMinLevel();
+  var minLevelByRenderLimit = portalRenderLimit.getMinLevel();
   var result = minLevelByRenderLimit > conv[z]
     ? minLevelByRenderLimit
     : conv[z];
