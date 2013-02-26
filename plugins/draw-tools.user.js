@@ -29,7 +29,7 @@ var DRAW_TOOLS_SHAPE_OPTIONS = {
 window.plugin.drawTools = function() {};
 
 window.plugin.drawTools.loadExternals = function() {
-  var base = 'https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/external';
+  var base = 'https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist';
   //~ var base = 'http://0.0.0.0:8000/dist';
   load(base+'/leaflet.draw.0.1.6.js').thenRun(window.plugin.drawTools.boot);
   // overwrite default Leaflet Marker icon.
