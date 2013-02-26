@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-draw-tools@breunigs
 // @name           iitc: draw tools
-// @version        0.2.1
+// @version        0.2.2
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/draw-tools.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/draw-tools.user.js
@@ -29,11 +29,9 @@ var DRAW_TOOLS_SHAPE_OPTIONS = {
 window.plugin.drawTools = function() {};
 
 window.plugin.drawTools.loadExternals = function() {
-  var base = 'https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/external';
+  var base = 'https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist';
   //~ var base = 'http://0.0.0.0:8000/dist';
   load(base+'/leaflet.draw.0.1.6.js').thenRun(window.plugin.drawTools.boot);
-  // overwrite default Leaflet Marker icon.
-  L.Icon.Default.imagePath = base + '/images';
 
   // FIXME: this is currently manually included from
   // external/leaflet.draw.0.1.6.css. It should either be loaded remotely

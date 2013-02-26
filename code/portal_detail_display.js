@@ -44,7 +44,9 @@ window.renderPortalDetails = function(guid) {
   var resoDetails = '<table id="resodetails">' + getResonatorDetails(d) + '</table>';
 
   setPortalIndicators(d);
-  var img = d.imageByUrl && d.imageByUrl.imageUrl ? d.imageByUrl.imageUrl : DEFAULT_PORTAL_IMG;
+  var img = d.imageByUrl && d.imageByUrl.imageUrl
+    ? d.imageByUrl.imageUrl.replace(/^http:/, 'https:')
+    : DEFAULT_PORTAL_IMG;
 
   var lat = d.locationE6.latE6;
   var lng = d.locationE6.lngE6;
