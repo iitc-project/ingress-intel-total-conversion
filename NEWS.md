@@ -1,5 +1,5 @@
-CHANGES IN 0.7.5 / 0.7.6 / 0.7.7
-================================
+CHANGES IN 0.7.5 – 0.7.8
+========================
 
 This is an emergency release to keep IITC working with Niantic’s switch to HTTPS. It appears they will roll it out for everyone soon, so IITC now requires HTTPS for everyone; support for HTTP was dropped to keep things sane. Additionally, the following things were changed from 0.7.1:
 
@@ -10,6 +10,7 @@ This is an emergency release to keep IITC working with Niantic’s switch to HTT
 - Bugfix: map base layer wasn’t always remembered in Chrome
 - Bugfix: QR Code rendering broken (in 0.7.5, fixed in 0.7.6)
 - Bugfix: Script broken in Firefox sometimes (fixed in 0.7.7)
+- Bugfix: some graphics were not available due to GitHub’s limits. Affected plugins: draw tools and player tracker. Need to update IITC and both plugins for the fix to come into effect. (fixed in 0.7.8)
 
 
 CHANGES IN 0.7 / 0.7.1
