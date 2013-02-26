@@ -105,7 +105,7 @@ window.showPortalPosLinks = function(lat, lng) {
 }
 
 window.reportPortalIssue = function(info) {
-  var t = 'Redirecting you to a Google Help Page. Once there, click on “Contact Us” in the upper right corner.\n\nThe text box contains all necessary information. Press CTRL+C to copy it.';
+  var t = 'Redirecting you to a Google Help Page.\n\nThe text box contains all necessary information. Press CTRL+C to copy it.';
   var d = window.portals[window.selectedPortal].options.details;
 
   var info = 'Your Nick: ' + PLAYER.nickname + '        '
@@ -115,7 +115,7 @@ window.reportPortalIssue = function(info) {
 
   //codename, approx addr, portalname
   if(prompt(t, info) !== null)
-    location.href = 'https://support.google.com/ingress?hl=en';
+    location.href = 'https://support.google.com/ingress?hl=en&contact=1';
 }
 
 window._storedPaddedBounds = undefined;
