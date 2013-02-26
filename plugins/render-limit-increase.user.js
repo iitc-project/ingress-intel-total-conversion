@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-render-limit-increase@jonatkins
 // @name           iitc: render limit increase
-// @version        0.1
+// @version        0.1.1
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/render-limit-increase.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/render-limit-increase.user.js

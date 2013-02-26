@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-show-portal-weakness@vita10gy
 // @name           iitc: show portal weakness
-// @version        0.3
+// @version        0.3.1
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/show-portal-weakness.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/show-portal-weakness.user.js
@@ -21,7 +21,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 window.plugin.portalWeakness = function() {};
 
 window.plugin.portalWeakness.portalAdded = function(data) {
-  
+
   var d = data.portal.options.details;
   var portal_weakness = 0;
   if(getTeam(d) !== 0) {
@@ -31,7 +31,7 @@ window.plugin.portalWeakness.portalAdded = function(data) {
       portal_weakness = 1 - (window.getCurrentPortalEnergy(d)/window.getTotalPortalEnergy(d));
       only_shields = false;
     }
-    //Ding the portal for every missing sheild. 
+    //Ding the portal for every missing sheild.
     $.each(d.portalV2.linkedModArray, function(ind, mod) {
       if(mod === null) {
         missing_shields++;
@@ -53,8 +53,8 @@ window.plugin.portalWeakness.portalAdded = function(data) {
     }
     if(portal_weakness > 1) {
       portal_weakness = 1;
-    } 
-    
+    }
+
     if(portal_weakness > 0) {
       var fill_opacity = portal_weakness*.7 + .3;
       var color = 'orange';

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-show-address@vita10gy
 // @name           iitc: show portal address in sidebar
-// @version        0.2
+// @version        0.2.1
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/show-address.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/show-address.user.js
