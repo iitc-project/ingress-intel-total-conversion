@@ -16,6 +16,7 @@ Available Plugins
 - [**Player Tracker**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/player-tracker.user.js) Draws trails for user actions in the last hour. At the last known location there’s a tooltip that shows the data in a table. [View screenshot](http://breunigs.github.com/ingress-intel-total-conversion/screenshots/plugin_player_tracker.png).
 - [**Render Limit Increase**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/render-limit-increase.user.js) increases render limits. Good for high density areas (e.g. London, UK) and faster PCs.
 - [**Resonator Display Zoom Level Decrease**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/resonator-display-zoom-level-decrease.user.js) Resonator start displaying earlier.
+- [**Resonator Energy in Portal Detail**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/reso-energy-pct-in-portal-detail.user.js) Resonator energy in percent is displayed in the portal detals.
 - [**Show Portal Address**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/show-address.user.js) Shows portal address in the side panel.
 
 ### available only with the development version
