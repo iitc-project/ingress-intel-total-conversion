@@ -279,8 +279,14 @@ window.chat.writeDataToHash = function(newData, storageHash, skipSecureMsgs) {
 
       case 'PORTAL':
         var latlng = [markup[1].latE6/1E6, markup[1].lngE6/1E6];
-        var js = 'window.zoomToAndShowPortal(\''+markup[1].guid+'\', ['+latlng[0]+', '+latlng[1]+'])';
-        msg += '<a onclick="'+js+'" title="'+markup[1].address+'" class="help">'+markup[1].name+'</a>';
+        var perma = 'https://ingress.com/intel?latE6='+markup[1].latE6+'&lngE6='+markup[1].lngE6+'&z=17&pguid='+markup[1].guid;
+        var js = 'window.zoomToAndShowPortal(\''+markup[1].guid+'\', ['+latlng[0]+', '+latlng[1]+']);return false';
+
+        msg += '<a onclick="'+js+'"'
+          + ' title="'+markup[1].address+'"'
+          + ' href="'+perma+'" class="help">'
+          + markup[1].name
+          + '</a>';
         break;
 
       case 'SECURE':
