@@ -51,11 +51,7 @@ window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
 }
 
 window.plugin.guessPlayerLevels.setupChatNickHelper = function() {
-  $('#portaldetails').delegate('#resodetails .meter-text', 'mouseenter', function() {
-    window.plugin.guessPlayerLevels.setLevelTitle(this);
-  });
-
-  $('#chat').delegate('mark', 'mouseenter', function() {
+  $(window).delegate('.nickname', 'mouseenter', function() {
     window.plugin.guessPlayerLevels.setLevelTitle(this);
   });
 }
