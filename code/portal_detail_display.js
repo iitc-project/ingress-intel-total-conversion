@@ -24,6 +24,7 @@ window.renderPortalDetails = function(guid) {
   var player = d.captured && d.captured.capturingPlayerId
     ? getPlayerName(d.captured.capturingPlayerId)
     : null;
+  player = '<span class="nickname">'+player+'</span>';
   var playerText = player ? ['owner', player] : null;
 
   var time = d.captured
