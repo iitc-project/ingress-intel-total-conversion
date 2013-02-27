@@ -2,6 +2,14 @@
 
 // UTILS + MISC  ///////////////////////////////////////////////////////
 
+window.layerGroupLength = function(layerGroup) {
+  var layersCount = 0;
+  var layers = layerGroup._layers;
+  if (layers)
+    layersCount = Object.keys(layers).length;
+  return layersCount;
+}
+
 // retrieves parameter from the URL?query=string.
 window.getURLParam = function(param) {
   var v = document.URL;
@@ -152,7 +160,11 @@ window.getMinPortalLevel = function() {
   var z = map.getZoom();
   if(z >= 16) return 0;
   var conv = ['impossible', 8,7,7,6,6,5,5,4,4,3,3,2,2,1,1];
-  return conv[z];
+  var minLevelByRenderLimit = portalRenderLimit.getMinLevel();
+  var result = minLevelByRenderLimit > conv[z]
+    ? minLevelByRenderLimit
+    : conv[z];
+  return result;
 }
 
 // returns number of pixels left to scroll down before reaching the
