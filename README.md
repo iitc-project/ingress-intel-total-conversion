@@ -93,7 +93,8 @@ First of all, it’s very nice you want to help. There are several equally impor
 [tpenner](https://github.com/tpenner),
 [vita10gy](https://github.com/vita10gy),
 [Xelio](https://github.com/Xelio),
-[ZauberNerd](https://github.com/ZauberNerd)
+[ZauberNerd](https://github.com/ZauberNerd),
+[waynn](https://github.com/waynn)
 
 
 Attribution & License
