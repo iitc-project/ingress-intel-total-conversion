@@ -26,7 +26,10 @@ window.renderPortalDetails = function(guid) {
     : null;
   var playerText = player ? ['owner', player] : null;
 
-  var time = d.captured ? unixTimeToString(d.captured.capturedTime) : null;
+  var time = d.captured
+    ? '<span title="' + unixTimeToString(d.captured.capturedTime, true) + '">'
+      +  unixTimeToString(d.captured.capturedTime) + '</span>'
+    : null;
   var sinceText  = time ? ['since', time] : null;
 
   var linkedFields = ['fields', d.portalV2.linkedFields.length];
@@ -41,13 +44,15 @@ window.renderPortalDetails = function(guid) {
   var resoDetails = '<table id="resodetails">' + getResonatorDetails(d) + '</table>';
 
   setPortalIndicators(d);
-  var img = d.imageByUrl && d.imageByUrl.imageUrl ? d.imageByUrl.imageUrl : DEFAULT_PORTAL_IMG;
+  var img = d.imageByUrl && d.imageByUrl.imageUrl
+    ? d.imageByUrl.imageUrl.replace(/^http:/, 'https:')
+    : DEFAULT_PORTAL_IMG;
 
   var lat = d.locationE6.latE6;
   var lng = d.locationE6.lngE6;
   var perma = 'http://ingress.com/intel?latE6='+lat+'&lngE6='+lng+'&z=17&pguid='+guid;
   var imgTitle = 'title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."';
-	var gmaps = 'https://maps.google.com/?q='+lat/1E6+','+lng/1E6;
+  var poslinks = 'window.showPortalPosLinks('+lat/1E6+','+lng/1E6+')';
   var postcard = 'Send in a postcard. Will put it online after receiving. Address:\\n\\nStefan Breunig\\nINF 305 – R045\\n69120 Heidelberg\\nGermany';
 
   $('#portaldetails')
@@ -63,7 +68,7 @@ window.renderPortalDetails = function(guid) {
       + randDetails
       + resoDetails
       + '<div class="linkdetails">'+ '<aside><a href="'+perma+'">portal link</a></aside>'
-      + '<aside><a href="'+gmaps+'" target="_blank">gmaps</a></aside>'
+      + '<aside><a onclick="'+poslinks+'">poslinks</a></aside>'
       + '<aside><a onclick="alert(\''+postcard+'\');">donate</a></aside>'
       + '<aside><a onclick="window.reportPortalIssue()">report issue</a></aside>'
       + '</div>'

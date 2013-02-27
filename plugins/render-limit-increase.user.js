@@ -1,13 +1,13 @@
 // ==UserScript==
 // @id             iitc-plugin-render-limit-increase@jonatkins
 // @name           iitc: render limit increase
-// @version        0.1
+// @version        0.1.1
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/render-limit-increase.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/render-limit-increase.user.js
 // @description    Increase the render limits, so less likely to be hit in higher density areas
-// @include        http://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/intel*
+// @match          https://www.ingress.com/intel*
 // ==/UserScript==
 
 function wrapper() {
@@ -29,7 +29,7 @@ window.plugin.renderLimitIncrease.setHigherLimits = function() {
   // thing like that, Leaflet doc isn’t too specific). Setting it too low
   // makes the missing data on move/zoom out more obvious. Setting it too
   // high causes too many items to be drawn, making drag&drop sluggish.
-  // default for iitc is 0.3. a lower value reduces overdraw 
+  // default for iitc is 0.3. a lower value reduces overdraw
   window.VIEWPORT_PAD_RATIO = 0.1;
 
 
@@ -39,7 +39,7 @@ window.plugin.renderLimitIncrease.setHigherLimits = function() {
   window.MAX_DRAWN_PORTALS = 3000;
   window.MAX_DRAWN_LINKS = 1000;
   window.MAX_DRAWN_FIELDS = 500;
-
+  window.USE_INCREASED_RENDER_LIMIT = true; // Used for other plugins
 };
 
 var setup =  window.plugin.renderLimitIncrease.setHigherLimits;

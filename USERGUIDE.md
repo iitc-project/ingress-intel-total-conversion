@@ -33,7 +33,7 @@ The chat is split up into several categories. It usually only shows messages for
 **The chat categories are:**
 - full: shows all automated messages *(23:57	\<apj\>	destroyed an L3 Resonator on Two Spikes)*
 - compact: shows only the latest automated message per user
-- public: shows user generated public messages (both Enlightenment and Resistance can read it)
+- public: shows user generated public messages (both Enlightened and Resistance can read it)
 - faction: shows messages for own faction (e.g. only Resistance can read Resistance messages)
 
 **Posting messages:**
@@ -117,14 +117,14 @@ Starting from the top, the sidebar shows this information:
 “Random Details” are displayed in four columns. The outer ones show the data while the inner ones are the titles.
 
 - owner: who deployed the first resonator after it has been neutral/unclaimed.
-- since: when was the first resonator deployed after it has been neutral/unclaimed.
+- since: when was the first resonator deployed after it has been neutral/unclaimed. The reasonators decay every 24hrs from capture. Move the cursor over it to show the full date time.
 - range: shows how far links made from this portal can be. Click on the value to zoom out to link range. The red circle shows how far links may reach.
 - energy: shows current and maximum energy if fully charged. The tooltip contains the exact numbers.
 - links: shows incoming and outgoing links. The tooltip explains the icons.
 - reso dist: shows the average distance the resonators have to the portal.
 - fields: how many fields are connected to this portal
 - AP Gain: estimate of how many AP you gain if you take down this portal and deploy resonators of your own faction. Tooltip breaks this number down into parts.
-    
+
 ##### Resonators
 
 The nickname to the left and right show who deployed this resonator. The bars in the middle indicate the charge of each resonator. The color depends on the level, which is also shown in the bar. The tooltip repeats some of that data along with other details. The top left resonator is the north one, top right is north east and so on. They are roughly ordered like they appear on a normal map:
@@ -139,7 +139,7 @@ The nickname to the left and right show who deployed this resonator. The bars in
 
 - Portal link: use it show others a portal. IITC users will automatically zoomed to the location and shown portal details as soon as they’re available. Vanilla map users will only be zoomed to location.
 - Report issue: redirects you to Niantic report issue page. Allows you to copy all required information before going there.
-- GMaps: shows you the portal’s location in Google Maps for routing and similar purposes.
+- poslinks: Shows you a QR-Code containing the geolocation of the portal as well as a link for Google Maps and Openstreetmap. If your QR-Code App supports GEO-codes (most do) you can scan it and pass the portal location directly to a routing-app.
 
 #### Redeeming, General Links and functions
 - Redeem code: allows you to redeem codes to receive goodies. If you copied them from the Internet, they are probably invalid already.

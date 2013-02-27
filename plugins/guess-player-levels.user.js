@@ -1,13 +1,13 @@
 // ==UserScript==
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           iitc: guess player level
-// @version        0.2
+// @version        0.2.1
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/guess-player-levels.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/guess-player-levels.user.js
 // @description    Tries to determine player levels from the data available in the current view
-// @include        http://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/intel*
+// @match          https://www.ingress.com/intel*
 // ==/UserScript==
 
 function wrapper() {
@@ -88,7 +88,7 @@ window.plugin.guessPlayerLevels.guess = function() {
   });
 
   var s = 'the players have at least the following level:\n\n';
-  s += 'Resistance:\t&nbsp;&nbsp;&nbsp;\tEnlightenment:\t\n';
+  s += 'Resistance:\t&nbsp;&nbsp;&nbsp;\tEnlightened:\t\n';
 
   var namesR = plugin.guessPlayerLevels.sort(playersRes);
   var namesE = plugin.guessPlayerLevels.sort(playersEnl);
