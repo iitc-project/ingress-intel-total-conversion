@@ -47,7 +47,8 @@ window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
   } else {
     text = 'Min player level unknown';
   }
-  el.attr('title', text).addClass('help');
+  window.setupTooltips(el);
+  el.addClass('help').attr('title', text).tooltip('open').attr('title', null); 
 }
 
 window.plugin.guessPlayerLevels.setupChatNickHelper = function() {
