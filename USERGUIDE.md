@@ -76,7 +76,7 @@ It shows if there are operations currently pending. This includes chat updates a
 
 It also shows which portals are being loaded/shown. Zoom in to see lower level portals. This is a limit of the server and not IITC. Portals levels that cannot be shown are also striked through in the layer chooser.
 
-**Failures:** If a data request failed, it is retried once. If the retry fails as well, a “failure” message is shown in the map status. You can either wait for the next automatic update or move the map a little. Also try to zoom in to request less data, which makes it less likely that the servers fail. The failure counter is reset on the next auto update or if you move the map.
+**Failures:** If a data request failed, it is retried once. Only if the retry fails as well, a “failure” message is shown in the map status. You can either wait for the next automatic update or move the map a little. Also try to zoom in to request less data, which makes it less likely that the servers fail. The failure counter is reset on the next auto update or if you move the map.
 
 **Render Limit:** The script tries to stay responsive. If too much data needs to be rendered, this cannot be guaranteed. Instead it will simply stop drawing portals/links/fields and show “render limit” in the map status. Zoom in to solve this.
 
