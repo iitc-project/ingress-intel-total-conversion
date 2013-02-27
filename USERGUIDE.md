@@ -21,8 +21,8 @@ General Usage
 -------------
 
 - many things have more information in tooltips. Let your cursor rest over stuff to show the tooltip. *Hint:* your cursor changes into a question mark / help cursor if there’s a tooltip available.
-- single left click on portals to show details
-- double left click on portals to zoom in to them
+- single left click on portals to show details.
+- double left click on portals to zoom in to them.
 
 
 Chat
@@ -37,7 +37,7 @@ The chat is split up into several categories. It usually only shows messages for
 - faction: shows messages for own faction (e.g. only Resistance can read Resistance messages)
 
 **Posting messages:**
-- You can post in the faction and public categories only
+- You can post in the faction and public categories only.
 - Your message will be tagged with the coordinates in the center of the map.
 - Your zoom level does not matter. Zooming out will not show your messages to more users.
 
@@ -62,7 +62,7 @@ Resonators are shown at their actual positions if you zoom in close enough. They
 They are handled the same way portals are, see above.
 
 **Other:**
-When you select a portal its outer ring becomes red. There’s also a small yellow circle around it which depicts the hack range. You need to be in hack range to hack the portal or update its resonators or mods.
+When you select a portal its outer ring becomes red. There’s also a small yellow circle around it which depicts the hack range. You need to be in hack range to hack the portal or upgrade its resonators or mods.
 
 If you are zoomed out quite a bit, there’s a larger red circle. This is the link range. Only portals within this link range can be linked while standing at the selected portal. [Click the range in the sidebar to zoom to link range for the selected portal](#random-details).
 
@@ -72,7 +72,7 @@ If you are zoomed out quite a bit, there’s a larger red circle. This is the li
 Map Status / Updates
 --------------------
 
-It shows if there are currently operations pending. This includes chat updates as well as map data requests. Updates happen every 45s to 90s, depending on how far zoomed in you are. Zoom in closer for faster updates.
+It shows if there are operations currently pending. This includes chat updates as well as map data requests. Updates happen every 45s to 90s, depending on how far zoomed in you are. Zoom in closer for faster updates.
 
 It also shows which portals are being loaded/shown. Zoom in to see lower level portals. This is a limit of the server and not IITC. Portals levels that cannot be shown are also striked through in the layer chooser.
 
@@ -88,11 +88,11 @@ Sidebar
 The sidebar is mainly used to show game stats and portal details. However, it also allows you to perform certain actions.
 
 ### General usage:
-- single click a portal to show details about it in the sidebar
+- single click a portal to show details about it in the sidebar.
 - the portal information is updated automatically, as long as the selected portal is kept in view and you do not zoom out too much.
 - the sidebar may be collapsed. Click the triangle button that stands out at the left hand side.
 - the sidebar **can be scrolled** if your screen is too small. Use your scroll wheel.
-- almost anything has tooltips. See [General usage](#general-usage) above.
+- almost everything has tooltips. See [General usage](#general-usage) above.
 
 ### Details:
 Starting from the top, the sidebar shows this information:
