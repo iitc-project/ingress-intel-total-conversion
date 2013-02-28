@@ -23,6 +23,25 @@ window.setupLargeImagePreview = function() {
   });
 }
 
+// adds listeners to the layer chooser such that a long press hides
+// all custom layers except the long pressed one.
+window.setupLayerChooserSelectOne = function() {
+  $('.leaflet-control-layers-overlays').on('click', 'label', function(e) {
+    if(!e || !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)) return;
+
+    var isChecked = $(this).find('input').is(':checked');
+    var checkSize = $('.leaflet-control-layers-overlays input:checked').length;
+    if((isChecked && checkSize === 1) || checkSize === 0) {
+      // if nothing is selected or the users long-clicks the only
+      // selected element, assume all boxes should be checked again
+      $('.leaflet-control-layers-overlays input:not(:checked)').click();
+    } else {
+      // uncheck all
+      $('.leaflet-control-layers-overlays input:checked').click();
+      $(this).find('input').click();
+    }
+  });
+}
 
 window.setupStyles = function() {
   $('head').append('<style>' +
@@ -264,6 +283,7 @@ function boot() {
   window.setupTooltips();
   window.chat.setup();
   window.setupQRLoadLib();
+  window.setupLayerChooserSelectOne();
   // read here ONCE, so the URL is only evaluated one time after the
   // necessary data has been loaded.
   urlPortal = getURLParam('pguid');
