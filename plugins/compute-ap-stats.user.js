@@ -7,7 +7,9 @@
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/compute-ap-stats.user.js
 // @description    Tries to determine overal AP stats for the current zoom
 // @include        https://www.ingress.com/intel*
+// @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
+// @match          http://www.ingress.com/intel*
 // ==/UserScript==
 
 function wrapper() {
