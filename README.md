@@ -40,9 +40,7 @@ Current version is 0.7.8. [See NEWS.md for details](https://github.com/breunigs/
 - Confirm once again.
 - Reload page.
 
-**NOTE: You still need to manually update IITC with Tampermonkey.** There is a bug in the current stable release. It has been fixed in Tampermonkey’s development version. Until it is released, you need to manually update IITC.
-
-*Note:* Tampermonkey is optional. However, it ~~offers auto-update~~, shows correct version numbers and installing user scripts is much easier. If you have installed the scripts directly into Chrome before, I recommend you switch to Tampermonkey. To do so, uninstall the IITC scripts and click each install link again. Follow the procedure explained above.
+*Note:* Tampermonkey is optional. However, it offers auto-update, shows correct version numbers and installing user scripts is much easier. If you have installed the scripts directly into Chrome before, I recommend you switch to Tampermonkey. To do so, uninstall the IITC scripts and click each install link again. Follow the procedure explained above.
 
 ### Opera
 - Download the script: [download](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js)
@@ -93,7 +91,8 @@ First of all, it’s very nice you want to help. There are several equally impor
 [tpenner](https://github.com/tpenner),
 [vita10gy](https://github.com/vita10gy),
 [Xelio](https://github.com/Xelio),
-[ZauberNerd](https://github.com/ZauberNerd)
+[ZauberNerd](https://github.com/ZauberNerd),
+[waynn](https://github.com/waynn)
 
 
 Attribution & License
