@@ -21,12 +21,6 @@ window.iitcBuildDate = '@@BUILDDATE@@';
 // disable vanilla JS
 window.onload = function() {};
 
-if(window.location.protocol !== 'https:') {
-  var redir = window.location.href.replace(/^http:/, 'https:');
-  window.location = redir;
-  throw('Need to load HTTPS version.');
-}
-
 // rescue user data from original page
 var scr = document.getElementsByTagName('script');
 for(var x in scr) {
@@ -172,7 +166,7 @@ window.RANGE_INDICATOR_COLOR = 'red'
 window.PORTAL_RADIUS_ENLARGE_MOBILE = 5;
 
 
-window.DEFAULT_PORTAL_IMG = 'https://commondatastorage.googleapis.com/ingress/img/default-portal-image.png';
+window.DEFAULT_PORTAL_IMG = window.location.protocol + '//commondatastorage.googleapis.com/ingress/img/default-portal-image.png';
 window.NOMINATIM = 'http://nominatim.openstreetmap.org/search?format=json&limit=1&q=';
 
 // INGRESS CONSTANTS /////////////////////////////////////////////////

@@ -305,8 +305,8 @@ try { console.log('Loading included JS now'); } catch(e) {}
 
 try { console.log('done loading included JS'); } catch(e) {}
 
-var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js';
-var JQUERYUI = 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js';
+var JQUERY = window.location.protocol + '//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js';
+var JQUERYUI = window.location.protocol + '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js';
 
 // after all scripts have loaded, boot the actual app
 load(JQUERY).then(JQUERYUI).thenRun(boot);

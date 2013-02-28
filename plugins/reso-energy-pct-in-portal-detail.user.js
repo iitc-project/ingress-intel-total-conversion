@@ -7,7 +7,9 @@
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/reso-energy-pct-in-portal-detail.user.js
 // @description    Show resonator energy percentage on resonator energy bar in portal detail panel.
 // @include        https://www.ingress.com/intel*
+// @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
+// @match          http://www.ingress.com/intel*
 // ==/UserScript==
 
 function wrapper() {
