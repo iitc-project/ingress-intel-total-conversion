@@ -125,22 +125,23 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   });
   
   // Process the portals with portal render limit handler first
-  ppp = portalRenderLimit.processPortals(ppp);
-  handlePortalData(ppp);
+  // Low level portal will hold until last request
+  var newPpp = portalRenderLimit.splitOrMergeLowLevelPortals(ppp);
+  handlePortalData(newPpp);
 
   resolvePlayerNames();
   renderUpdateStatus();
 }
 
-window.handlePortalData = function(ppp) {
+window.handlePortalData = function(portals) {
   var portalUpdateAvailable = false;
   var portalInUrlAvailable = false;
 
   // Preserve and restore "selectedPortal" between portal re-render
   if(portalUpdateAvailable) var oldSelectedPortal = selectedPortal;
 
-  runHooks('portalDataLoaded', {portals : ppp});
-  $.each(ppp, function(ind, portal) {
+  runHooks('portalDataLoaded', {portals : portals});
+  $.each(portals, function(ind, portal) {
     if(selectedPortal === portal[0]) portalUpdateAvailable = true;
     if(urlPortal && portal[0] == urlPortal) portalInUrlAvailable = true;
     renderPortal(portal);

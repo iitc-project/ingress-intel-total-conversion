@@ -48,14 +48,17 @@ window.portalRenderLimit.portalsPreviousMinLevel = new Array(MAX_PORTAL_LEVEL + 
 
 window.portalRenderLimit.init = function () {
   var currentZoomLevel = map.getZoom();
-  if(!portalRenderLimit.previousZoomLevel) portalRenderLimit.previousZoomLevel = currentZoomLevel;
+  portalRenderLimit.previousZoomLevel = portalRenderLimit.previousZoomLevel || currentZoomLevel;
+
+  // If there is a minLevel set in previous run, calculate previousMinLevel with it.
   if(portalRenderLimit.minLevelSet) {
     var zoomDiff = currentZoomLevel - portalRenderLimit.previousZoomLevel;
     portalRenderLimit.previousMinLevel = Math.max(portalRenderLimit.minLevel - zoomDiff, -1);
     portalRenderLimit.previousMinLevel = Math.min(portalRenderLimit.previousMinLevel, MAX_PORTAL_LEVEL);
   }
+
   portalRenderLimit.previousZoomLevel = currentZoomLevel;
-  
+
   portalRenderLimit.initialized = true;
   portalRenderLimit.minLevel = -1;
   portalRenderLimit.resetCounting();
@@ -75,54 +78,59 @@ window.portalRenderLimit.resetPortalsPreviousMinLevel = function() {
   }
 }
 
-window.portalRenderLimit.processPortals = function(ppp) {
+window.portalRenderLimit.splitOrMergeLowLevelPortals = function(originPortals) {
   portalRenderLimit.resetCounting();
-  var resultPortals = new Array();
+  portalRenderLimit.countingPortals(originPortals);
 
-  $.each(ppp, function(ind, portal) {
-    portalRenderLimit.countPortal(portal);
+  var resultPortals = portalRenderLimit.isLastRequest()
+    ? portalRenderLimit.mergeLowLevelPortals(originPortals)
+    : portalRenderLimit.splitLowLevelPortals(originPortals);
 
-    if(!portalRenderLimit.isLastRequest()) {
-      var portalLevel = parseInt(getPortalLevel(portal[2]));
-      if(portalLevel < portalRenderLimit.previousMinLevel) {
-        portalRenderLimit.portalsPreviousMinLevel[portalLevel].push(portal);
-      }else{
-        resultPortals.push(portal);
-      }
-    }
-  });
-
-  if(portalRenderLimit.isLastRequest()) {
-    resultPortals = portalRenderLimit.getLowLevelPortals(ppp);
-    portalRenderLimit.resetPortalsPreviousMinLevel();
-  }
   return resultPortals;
 }
 
 window.portalRenderLimit.handleFailRequest = function() {
   if(portalRenderLimit.isLastRequest()) {
-    var ppp = portalRenderLimit.getLowLevelPortals(null);
-    portalRenderLimit.resetPortalsPreviousMinLevel();
-    handlePortalData(ppp);
+    var resultPortals = portalRenderLimit.mergeLowLevelPortals(null);
+    handlePortalData(resultPortals);
   }
 }
 
-window.portalRenderLimit.countPortal = function(ent) {
-  var portalGuid = ent[0];
-  var portalLevel = parseInt(getPortalLevel(ent[2]));
-  var layerGroup = portalsLayers[portalLevel];
-  
-  if(findEntityInLeaflet(layerGroup, window.portals, ent[0])) return;
-  portalRenderLimit.newPortalsPerLevel[portalLevel]++;
+window.portalRenderLimit.countingPortals = function(portals) {
+  $.each(portals, function(ind, portal) {
+    var portalGuid = portal[0];
+    var portalLevel = parseInt(getPortalLevel(portal[2]));
+    var layerGroup = portalsLayers[portalLevel];
+
+    if(findEntityInLeaflet(layerGroup, window.portals, portalGuid)) return true;
+
+    portalRenderLimit.newPortalsPerLevel[portalLevel]++;
+  });
 }
 
-window.portalRenderLimit.getLowLevelPortals = function(appendTo) {
+window.portalRenderLimit.splitLowLevelPortals = function(portals) {
+  var resultPortals = new Array();
+  $.each(portals, function(ind, portal) {
+    var portalLevel = parseInt(getPortalLevel(portal[2]));
+    if(portalLevel < portalRenderLimit.previousMinLevel) {
+      portalRenderLimit.portalsPreviousMinLevel[portalLevel].push(portal);
+    }else{
+      resultPortals.push(portal);
+    }
+  });
+  return resultPortals;
+}
+
+window.portalRenderLimit.mergeLowLevelPortals = function(appendTo) {
   var resultPortals = appendTo ? appendTo : new Array();
   for(var i = portalRenderLimit.getMinLevel(); 
       i < portalRenderLimit.previousMinLevel; 
      i++) {
     $.merge(resultPortals, portalRenderLimit.portalsPreviousMinLevel[i]);
   }
+
+  // Reset portalsPreviousMinLevel, ensure they return only once
+  portalRenderLimit.resetPortalsPreviousMinLevel();
   return resultPortals;
 }
 
