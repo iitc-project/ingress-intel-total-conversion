@@ -45,7 +45,10 @@ The chat is split up into several categories. It usually only shows messages for
 Map Display
 -----------
 
-You can customize many aspects of how the map is rendered in the layer chooser. The layer chooser is available from the icon in the top right corner, left of the sidebar.
+You can customize many aspects of how the map is rendered in the layer chooser.
+
+**Layer Chooser:**
+The layer chooser is available from the icon in the top right corner, left of the sidebar. The top entries are background maps and you can only have one of them active at a time. The entries on the bottom can be displayed in any combination you like. *Hint:* (NIGHLTY ONLY) Modifier-click an entry to quickly hide all other layers. The modifier may be either of these: shift, ctrl, alt, meta. Modifier-click the entry again to select all layers.
 
 **Background / Street Map / Base Layer:**
 All these refer to the same thing. The base layer is stored across sessions. The default one uses OpenStreetMap data with a style that resembles the default Ingress one. There are other styles available.

@@ -45,7 +45,7 @@ window.renderPortalDetails = function(guid) {
 
   setPortalIndicators(d);
   var img = d.imageByUrl && d.imageByUrl.imageUrl
-    ? d.imageByUrl.imageUrl.replace(/^http:/, 'https:')
+    ? d.imageByUrl.imageUrl
     : DEFAULT_PORTAL_IMG;
 
   var lat = d.locationE6.latE6;
