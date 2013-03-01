@@ -92,7 +92,7 @@ window.portalRenderLimit.splitOrMergeLowLevelPortals = function(originPortals) {
 window.portalRenderLimit.handleFailRequest = function() {
   if(portalRenderLimit.isLastRequest()) {
     var resultPortals = portalRenderLimit.mergeLowLevelPortals(null);
-    handlePortalData(resultPortals);
+    handlePortalsRender(resultPortals);
   }
 }
 

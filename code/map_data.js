@@ -127,13 +127,13 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   // Process the portals with portal render limit handler first
   // Low level portal will hold until last request
   var newPpp = portalRenderLimit.splitOrMergeLowLevelPortals(ppp);
-  handlePortalData(newPpp);
+  handlePortalsRender(newPpp);
 
   resolvePlayerNames();
   renderUpdateStatus();
 }
 
-window.handlePortalData = function(portals) {
+window.handlePortalsRender = function(portals) {
   var portalUpdateAvailable = false;
   var portalInUrlAvailable = false;
 
