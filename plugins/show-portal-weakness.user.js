@@ -78,8 +78,17 @@ window.plugin.portalWeakness.portalAdded = function(data) {
   }
 }
 
+window.plugin.portalWeakness.portalDataLoaded = function(data) {
+  $.each(data.portals, function(ind, portal) {
+    if(window.portals[portal[0]]) {
+      window.plugin.portalWeakness.portalAdded({portal: window.portals[portal[0]]});
+    }
+  });
+}
+
 var setup =  function() {
   window.addHook('portalAdded', window.plugin.portalWeakness.portalAdded);
+  window.addHook('portalDataLoaded', window.plugin.portalWeakness.portalDataLoaded);
   window.COLOR_SELECTED_PORTAL = '#f0f';
 }
 
