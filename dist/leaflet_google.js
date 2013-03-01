@@ -12,7 +12,6 @@ L.Google = L.Class.extend({
     errorTileUrl: '',
     attribution: '',
     opacity: 1,
-    tilt: 0,
     continuousWorld: false,
     noWrap: false,
   },
@@ -93,6 +92,7 @@ L.Google = L.Class.extend({
     var map = new google.maps.Map(this._container, {
         center: this._google_center,
         zoom: 0,
+        tilt: 0,
         styles: this._styles,
         mapTypeId: this._type,
         disableDefaultUI: true,
