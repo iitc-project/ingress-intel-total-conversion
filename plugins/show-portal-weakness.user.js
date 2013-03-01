@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-show-portal-weakness@vita10gy
 // @name           iitc: show portal weakness
-// @version        0.3.1
+// @version        0.4
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/show-portal-weakness.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/show-portal-weakness.user.js
@@ -78,8 +78,17 @@ window.plugin.portalWeakness.portalAdded = function(data) {
   }
 }
 
+window.plugin.portalWeakness.portalDataLoaded = function(data) {
+  $.each(data.portals, function(ind, portal) {
+    if(window.portals[portal[0]]) {
+      window.plugin.portalWeakness.portalAdded({portal: window.portals[portal[0]]});
+    }
+  });
+}
+
 var setup =  function() {
   window.addHook('portalAdded', window.plugin.portalWeakness.portalAdded);
+  window.addHook('portalDataLoaded', window.plugin.portalWeakness.portalDataLoaded);
   window.COLOR_SELECTED_PORTAL = '#f0f';
 }
 
