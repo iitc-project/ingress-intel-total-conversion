@@ -12,6 +12,7 @@ L.Google = L.Class.extend({
     errorTileUrl: '',
     attribution: '',
     opacity: 1,
+    tilt: 0,
     continuousWorld: false,
     noWrap: false,
   },

@@ -11,6 +11,7 @@ L.Google = L.Class.extend({
     subdomains: 'abc',
     errorTileUrl: '',
     attribution: '',
+    tilt: 0,
     opacity: 1,
     continuousWorld: false,
     noWrap: false,
