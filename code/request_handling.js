@@ -111,3 +111,14 @@ window.requests._callOnRefreshFunctions = function() {
 window.requests.addRefreshFunction = function(f) {
   window.requests._onRefreshFunctions.push(f);
 }
+
+window.requests.isLastRequest = function(action) {
+  var result = true;
+  $.each(window.activeRequests, function(ind, req) {
+    if(req.action === action) {
+      result = false;
+      return false;
+    }
+  });
+  return result;
+}

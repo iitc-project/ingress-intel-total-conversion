@@ -82,18 +82,11 @@ window.portalRenderLimit.splitOrMergeLowLevelPortals = function(originPortals) {
   portalRenderLimit.resetCounting();
   portalRenderLimit.countingPortals(originPortals);
 
-  var resultPortals = portalRenderLimit.isLastRequest()
+  var resultPortals = requests.isLastRequest('getThinnedEntitiesV2')
     ? portalRenderLimit.mergeLowLevelPortals(originPortals)
     : portalRenderLimit.splitLowLevelPortals(originPortals);
 
   return resultPortals;
-}
-
-window.portalRenderLimit.handleFailRequest = function() {
-  if(portalRenderLimit.isLastRequest()) {
-    var resultPortals = portalRenderLimit.mergeLowLevelPortals(null);
-    handlePortalsRender(resultPortals);
-  }
 }
 
 window.portalRenderLimit.countingPortals = function(portals) {
@@ -132,17 +125,6 @@ window.portalRenderLimit.mergeLowLevelPortals = function(appendTo) {
   // Reset portalsPreviousMinLevel, ensure they return only once
   portalRenderLimit.resetPortalsPreviousMinLevel();
   return resultPortals;
-}
-
-window.portalRenderLimit.isLastRequest = function() {
-  var result = true;
-  $.each(window.activeRequests, function(ind, req) {
-    if(req.action === 'getThinnedEntitiesV2') {
-      result = false;
-      return false;
-    }
-  });
-  return result;
 }
 
 window.portalRenderLimit.getMinLevel = function() {

@@ -49,8 +49,16 @@ window.requestData = function() {
   $.each(tiles, function(ind, tls) {
     data = { minLevelOfDetail: -1 };
     data.boundsParamsList = tls;
-    window.requests.add(window.postAjax('getThinnedEntitiesV2', data, window.handleDataResponse, portalRenderLimit.handleFailRequest));
+    window.requests.add(window.postAjax('getThinnedEntitiesV2', data, window.handleDataResponse, window.handleFailedRequest));
   });
+}
+
+// Handle failed map data request
+window.handleFailedRequest = function() {
+  if(requests.isLastRequest('getThinnedEntitiesV2')) {
+    var leftOverPortals = portalRenderLimit.mergeLowLevelPortals(null);
+    handlePortalsRender(leftOverPortals);
+  }
 }
 
 // works on map data response and ensures entities are drawn/updated.
@@ -59,7 +67,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   if(!data || !data.result) {
     window.failedRequestCount++;
     console.warn(data);
-    portalRenderLimit.handleFailRequest();
+    handleFailedRequest();
     return;
   }
 
