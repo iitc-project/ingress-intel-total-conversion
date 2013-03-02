@@ -102,7 +102,8 @@ Starting from the top, the sidebar shows this information:
 
 #### logged in user, global MU, search
 - Details about you, the logged in user. This is only updated if you reload the page. This is a limitation of Ingress, not IITC.
-  - it shows your current level followed by your nick
+  - it shows your current level followed by your nickname
+  - hovering over your nickname allows you to sign out (NIGHTLY ONLY)
   - to the right, it shows to percentages. The upper one, e.g. “XM: 37%” tells you how much your XM bar is filled. The lower one, e.g. “level: 37%“ tells you that you have gathered 37% of the AP required for the next level. It shows “max level” if you have reached max level.
   - the tooltip mainly shows you absolute numbers instead of percentages. It also shows how many invites you have.
 - The next bar is a visual representation of global MindUnits (MU) per faction. It is updated every now and then. The tooltip shows the absolute MU count per faction.
