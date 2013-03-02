@@ -21,8 +21,8 @@ General Usage
 -------------
 
 - many things have more information in tooltips. Let your cursor rest over stuff to show the tooltip. *Hint:* your cursor changes into a question mark / help cursor if there’s a tooltip available.
-- single left click on portals to show details
-- double left click on portals to zoom in to them
+- single left click on portals to show details.
+- double left click on portals to zoom in to them.
 
 
 Chat
@@ -37,7 +37,7 @@ The chat is split up into several categories. It usually only shows messages for
 - faction: shows messages for own faction (e.g. only Resistance can read Resistance messages)
 
 **Posting messages:**
-- You can post in the faction and public categories only
+- You can post in the faction and public categories only.
 - Your message will be tagged with the coordinates in the center of the map.
 - Your zoom level does not matter. Zooming out will not show your messages to more users.
 
@@ -45,7 +45,10 @@ The chat is split up into several categories. It usually only shows messages for
 Map Display
 -----------
 
-You can customize many aspects of how the map is rendered in the layer chooser. The layer chooser is available from the icon in the top right corner, left of the sidebar.
+You can customize many aspects of how the map is rendered in the layer chooser.
+
+**Layer Chooser:**
+The layer chooser is available from the icon in the top right corner, left of the sidebar. The top entries are background maps and you can only have one of them active at a time. The entries on the bottom can be displayed in any combination you like. *Hint:* (NIGHLTY ONLY) Modifier-click an entry to quickly hide all other layers. The modifier may be either of these: shift, ctrl, alt, meta. Modifier-click the entry again to select all layers.
 
 **Background / Street Map / Base Layer:**
 All these refer to the same thing. The base layer is stored across sessions. The default one uses OpenStreetMap data with a style that resembles the default Ingress one. There are other styles available.
@@ -62,7 +65,7 @@ Resonators are shown at their actual positions if you zoom in close enough. They
 They are handled the same way portals are, see above.
 
 **Other:**
-When you select a portal its outer ring becomes red. There’s also a small yellow circle around it which depicts the hack range. You need to be in hack range to hack the portal or update its resonators or mods.
+When you select a portal its outer ring becomes red. There’s also a small yellow circle around it which depicts the hack range. You need to be in hack range to hack the portal or upgrade its resonators or mods.
 
 If you are zoomed out quite a bit, there’s a larger red circle. This is the link range. Only portals within this link range can be linked while standing at the selected portal. [Click the range in the sidebar to zoom to link range for the selected portal](#random-details).
 
@@ -72,7 +75,7 @@ If you are zoomed out quite a bit, there’s a larger red circle. This is the li
 Map Status / Updates
 --------------------
 
-It shows if there are currently operations pending. This includes chat updates as well as map data requests. Updates happen every 45s to 90s, depending on how far zoomed in you are. Zoom in closer for faster updates.
+It shows if there are operations currently pending. This includes chat updates as well as map data requests. Updates happen every 45s to 90s, depending on how far zoomed in you are. Zoom in closer for faster updates.
 
 It also shows which portals are being loaded/shown. Zoom in to see lower level portals. This is a limit of the server and not IITC. Portals levels that cannot be shown are also striked through in the layer chooser.
 
@@ -88,18 +91,19 @@ Sidebar
 The sidebar is mainly used to show game stats and portal details. However, it also allows you to perform certain actions.
 
 ### General usage:
-- single click a portal to show details about it in the sidebar
+- single click a portal to show details about it in the sidebar.
 - the portal information is updated automatically, as long as the selected portal is kept in view and you do not zoom out too much.
 - the sidebar may be collapsed. Click the triangle button that stands out at the left hand side.
 - the sidebar **can be scrolled** if your screen is too small. Use your scroll wheel.
-- almost anything has tooltips. See [General usage](#general-usage) above.
+- almost everything has tooltips. See [General usage](#general-usage) above.
 
 ### Details:
 Starting from the top, the sidebar shows this information:
 
 #### logged in user, global MU, search
 - Details about you, the logged in user. This is only updated if you reload the page. This is a limitation of Ingress, not IITC.
-  - it shows your current level followed by your nick
+  - it shows your current level followed by your nickname
+  - hovering over your nickname allows you to sign out (NIGHTLY ONLY)
   - to the right, it shows to percentages. The upper one, e.g. “XM: 37%” tells you how much your XM bar is filled. The lower one, e.g. “level: 37%“ tells you that you have gathered 37% of the AP required for the next level. It shows “max level” if you have reached max level.
   - the tooltip mainly shows you absolute numbers instead of percentages. It also shows how many invites you have.
 - The next bar is a visual representation of global MindUnits (MU) per faction. It is updated every now and then. The tooltip shows the absolute MU count per faction.

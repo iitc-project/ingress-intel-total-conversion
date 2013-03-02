@@ -329,19 +329,32 @@ h2 {
   width: 100%;
 }
 
-h2 span {
+h2 #name {
   display: inline-block;
   overflow: hidden;
   text-overflow: "~";
   vertical-align: top;
   white-space: nowrap;
   width: 205px;
+  position: relative;
 }
 
-h2 div {
+h2 #stats {
   float: right;
   height: 100%;
   overflow: hidden;
+}
+
+h2 #signout {
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 29px;
+  padding: 0 4px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: rgba(8, 48, 78, 0.5);
+  display: none; /* starts hidden */
 }
 
 h2 sup, h2 sub {
@@ -399,6 +412,11 @@ input {
 
 ::-moz-placeholder {
   font-style: italic;
+}
+
+.leaflet-control-layers input {
+  height: auto;
+  padding: 0;
 }
 
 

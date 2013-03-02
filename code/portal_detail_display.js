@@ -24,6 +24,7 @@ window.renderPortalDetails = function(guid) {
   var player = d.captured && d.captured.capturingPlayerId
     ? getPlayerName(d.captured.capturingPlayerId)
     : null;
+  player = '<span class="nickname">'+player+'</span>';
   var playerText = player ? ['owner', player] : null;
 
   var time = d.captured
@@ -45,12 +46,12 @@ window.renderPortalDetails = function(guid) {
 
   setPortalIndicators(d);
   var img = d.imageByUrl && d.imageByUrl.imageUrl
-    ? d.imageByUrl.imageUrl.replace(/^http:/, 'https:')
+    ? d.imageByUrl.imageUrl
     : DEFAULT_PORTAL_IMG;
 
   var lat = d.locationE6.latE6;
   var lng = d.locationE6.lngE6;
-  var perma = 'http://ingress.com/intel?latE6='+lat+'&lngE6='+lng+'&z=17&pguid='+guid;
+  var perma = 'https://ingress.com/intel?latE6='+lat+'&lngE6='+lng+'&z=17&pguid='+guid;
   var imgTitle = 'title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."';
   var poslinks = 'window.showPortalPosLinks('+lat/1E6+','+lng/1E6+')';
   var postcard = 'Send in a postcard. Will put it online after receiving. Address:\\n\\nStefan Breunig\\nINF 305 – R045\\n69120 Heidelberg\\nGermany';
