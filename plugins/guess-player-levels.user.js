@@ -115,7 +115,7 @@ window.plugin.guessPlayerLevels.guess = function() {
   var averageR = 0, averageE = 0;
   if (namesR.length > 0)  averageR = (totallvlR/namesR.length);
   if (namesE.length > 0)  averageE = (totallvlE/namesE.length);
-  s += '\nAverage :\t'+averageR.toFixed(2)+'\tAverage :\t'+averageE.toFixed(2);
+  s += '\nAverage level:\t'+averageR.toFixed(2)+'\tAverage level:\t'+averageE.toFixed(2);
   s += '\n\nIf there are some unresolved names, simply try again.'
   console.log(s);
   alert(s);
