@@ -401,6 +401,11 @@ input {
   font-style: italic;
 }
 
+.leaflet-control-layers input {
+  height: auto;
+  padding: 0;
+}
+
 
 /* portal title and image */
 h3 {
