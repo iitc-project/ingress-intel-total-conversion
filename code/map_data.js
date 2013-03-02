@@ -563,15 +563,17 @@ window.renderField = function(ent) {
     icon: L.divIcon({
       className: 'fieldmu',
       iconSize: [100,12],
-      html: 'MU: ' + ent[2].entityScore.entityScore}),
+      html: 'MU: ' + digits(ent[2].entityScore.entityScore)}),
     clickable: false
     });
 
   // put both in one group, so they can be handled by the same logic.
-  var f = L.layerGroup([poly, fieldMu], {
+  var f = L.layerGroup([poly, fieldMu]);
+  f.options = {
     vertices: reg,
     lastUpdate: ent[1],
-    guid: ent[0]});
+    guid: ent[0]
+  };
 
   // However, LayerGroups (and FeatureGroups) don’t fire add/remove
   // events, thus this listener will be attached to the field. It
