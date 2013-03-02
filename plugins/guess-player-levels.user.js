@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           iitc: guess player level
-// @version        0.2.1.1
+// @version        0.3
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/guess-player-levels.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/guess-player-levels.user.js
@@ -99,21 +99,22 @@ window.plugin.guessPlayerLevels.guess = function() {
     var nickR = namesR[i];
     var lvlR = playersRes[nickR];
     var lineR = nickR ? nickR + ':\t' + lvlR : '\t';
-  if(!isNaN(parseInt(lvlR))) 
-		totallvlR += parseInt(lvlR);
-	
+    if(!isNaN(parseInt(lvlR))) 
+        totallvlR += parseInt(lvlR);
+    
     var nickE = namesE[i];
     var lvlE = playersEnl[nickE];
     var lineE = nickE ? nickE + ':\t' + lvlE : '\t';
-	if(!isNaN(parseInt(lvlE)))
-		totallvlE += parseInt(lvlE);
-	
+    if(!isNaN(parseInt(lvlE)))
+        totallvlE += parseInt(lvlE);
+    
     s += '\n'+lineR + '\t' + lineE + '\n';
   }
   s += '\nTotal level :\t'+totallvlR+'\tTotal level :\t'+totallvlE;
   s += '\nTotal player:\t'+namesR.length+'\tTotal player:\t'+namesE.length;
-  var averageR = (totallvlR/namesR.length);
-  var averageE = (totallvlE/namesE.length);
+  var averageR = 0, averageE = 0;
+  if (namesR.length > 0)  averageR = (totallvlR/namesR.length);
+  if (namesE.length > 0)  averageE = (totallvlE/namesE.length);
   s += '\nAverage :\t'+averageR.toFixed(2)+'\tAverage :\t'+averageE.toFixed(2);
   s += '\n\nIf there are some unresolved names, simply try again.'
   console.log(s);
