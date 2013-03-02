@@ -507,6 +507,7 @@ window.renderLink = function(ent) {
     weight:2,
     clickable: false,
     guid: ent[0],
+    data: ent[2],
     smoothFactor: 0 // doesn’t work for two points anyway, so disable
   });
 
