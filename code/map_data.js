@@ -179,10 +179,13 @@ window.cleanUp = function() {
     cnt[1]++;
     linksLayer.removeLayer(link);
   });
-  fieldsLayer.eachLayer(function(field) {
-    if(b.intersects(field.getBounds())) return;
-    cnt[2]++;
-    fieldsLayer.removeLayer(field);
+  fieldsLayer.eachLayer(function(fieldgroup) {
+    fieldgroup.eachLayer(function(item) {
+      if(!item.options.guid) return true;
+      if(b.intersects(item.getBounds())) return;
+      cnt[2]++;
+      fieldsLayer.removeLayer(fieldgroup);
+    });
   });
   console.log('removed out-of-bounds: '+cnt[0]+' portals, '+cnt[1]+' links, '+cnt[2]+' fields');
 }
@@ -537,8 +540,6 @@ window.renderField = function(ent) {
     stroke: false,
     clickable: false,
     smoothFactor: 0, // hiding small fields will be handled below
-    vertices: reg,
-    lastUpdate: ent[1],
     guid: ent[0]});
 
   // determine which fields are too small to be rendered and don’t
@@ -553,14 +554,37 @@ window.renderField = function(ent) {
 
   if(!getPaddedBounds().intersects(poly.getBounds())) return;
 
+  var centroid = [
+    (latlngs[0].lat + latlngs[1].lat + latlngs[2].lat)/3,
+    (latlngs[0].lng + latlngs[1].lng + latlngs[2].lng)/3
+  ];
+
+  var fieldMu = L.marker(centroid, {
+    icon: L.divIcon({
+      className: 'fieldmu',
+      iconSize: [100,12],
+      html: 'MU: ' + ent[2].entityScore.entityScore}),
+    clickable: false
+    });
+
+  // put both in one group, so they can be handled by the same logic.
+  var f = L.layerGroup([poly, fieldMu], {
+    vertices: reg,
+    lastUpdate: ent[1],
+    guid: ent[0]});
+
+  // However, LayerGroups (and FeatureGroups) don’t fire add/remove
+  // events, thus this listener will be attached to the field. It
+  // doesn’t matter to which element these are bound since Leaflet
+  // will add/remove all elements of the LayerGroup at once.
   poly.on('remove', function() { delete window.fields[this.options.guid]; });
   poly.on('add',    function() {
     // enable for debugging
     if(window.fields[this.options.guid]) console.warn('duplicate field detected');
-    window.fields[this.options.guid] = this;
+    window.fields[this.options.guid] = f;
     this.bringToBack();
   });
-  poly.addTo(fieldsLayer);
+  f.addTo(fieldsLayer);
 }
 
 
