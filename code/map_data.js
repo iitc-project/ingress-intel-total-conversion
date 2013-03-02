@@ -507,9 +507,9 @@ window.renderLink = function(ent) {
     weight:2,
     clickable: false,
     guid: ent[0],
+    data: ent[2],
     smoothFactor: 0 // doesn’t work for two points anyway, so disable
   });
-
   // determine which links are very short and don’t render them at all.
   // in most cases this will go unnoticed, but improve rendering speed.
   poly._map = window.map;
@@ -557,8 +557,9 @@ window.renderField = function(ent) {
     smoothFactor: 0, // hiding small fields will be handled below
     vertices: reg,
     lastUpdate: ent[1],
-    guid: ent[0]});
-
+    guid: ent[0],
+    data: ent[2]});
+    
   // determine which fields are too small to be rendered and don’t
   // render them, so they don’t count towards the maximum fields limit.
   // This saves some DOM operations as well, but given the relatively
