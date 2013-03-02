@@ -49,8 +49,16 @@ window.requestData = function() {
   $.each(tiles, function(ind, tls) {
     data = { minLevelOfDetail: -1 };
     data.boundsParamsList = tls;
-    window.requests.add(window.postAjax('getThinnedEntitiesV2', data, window.handleDataResponse));
+    window.requests.add(window.postAjax('getThinnedEntitiesV2', data, window.handleDataResponse, window.handleFailedRequest));
   });
+}
+
+// Handle failed map data request
+window.handleFailedRequest = function() {
+  if(requests.isLastRequest('getThinnedEntitiesV2')) {
+    var leftOverPortals = portalRenderLimit.mergeLowLevelPortals(null);
+    handlePortalsRender(leftOverPortals);
+  }
 }
 
 // works on map data response and ensures entities are drawn/updated.
@@ -59,11 +67,10 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   if(!data || !data.result) {
     window.failedRequestCount++;
     console.warn(data);
+    handleFailedRequest();
     return;
   }
 
-  var portalUpdateAvailable = false;
-  var portalInUrlAvailable = false;
   var m = data.result.map;
   // defer rendering of portals because there is no z-index in SVG.
   // this means that what’s rendered last ends up on top. While the
@@ -72,8 +79,6 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   // https://github.com/Leaflet/Leaflet/issues/185
   var ppp = [];
   var p2f = {};
-  // Reset new portals count of Portal Render Limit handler
-  portalRenderLimit.resetCounting();
   $.each(m, function(qk, val) {
     $.each(val.deletedGameEntityGuids, function(ind, guid) {
       if(getTypeByGuid(guid) === TYPE_FIELD && window.fields[guid] !== undefined) {
@@ -92,8 +97,6 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
       // format for portals: { controllingTeam, turret }
 
       if(ent[2].turret !== undefined) {
-        if(selectedPortal === ent[0]) portalUpdateAvailable = true;
-        if(urlPortal && ent[0] == urlPortal) portalInUrlAvailable = true;
 
         var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
         if(!window.getPaddedBounds().contains(latlng)
@@ -102,7 +105,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
           ) return;
 
 
-        portalRenderLimit.pushPortal(ent);
+
         ppp.push(ent); // delay portal render
       } else if(ent[2].edge !== undefined) {
         renderLink(ent);
@@ -118,7 +121,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
       }
     });
   });
-
+  
   $.each(ppp, function(ind, portal) {
     if(portal[2].portalV2['linkedFields'] === undefined) {
       portal[2].portalV2['linkedFields'] = [];
@@ -128,12 +131,29 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
       portal[2].portalV2['linkedFields'] = uniqueArray(p2f[portal[0]]);
     }
   });
+  
+  // Process the portals with portal render limit handler first
+  // Low level portal will hold until last request
+  var newPpp = portalRenderLimit.splitOrMergeLowLevelPortals(ppp);
+  handlePortalsRender(newPpp);
+
+  resolvePlayerNames();
+  renderUpdateStatus();
+}
+
+window.handlePortalsRender = function(portals) {
+  var portalUpdateAvailable = false;
+  var portalInUrlAvailable = false;
 
   // Preserve and restore "selectedPortal" between portal re-render
   if(portalUpdateAvailable) var oldSelectedPortal = selectedPortal;
 
-  runHooks('portalDataLoaded', {portals : ppp});
-  $.each(ppp, function(ind, portal) { renderPortal(portal); });
+  runHooks('portalDataLoaded', {portals : portals});
+  $.each(portals, function(ind, portal) {
+    if(selectedPortal === portal[0]) portalUpdateAvailable = true;
+    if(urlPortal && portal[0] == urlPortal) portalInUrlAvailable = true;
+    renderPortal(portal);
+  });
 
   var selectedPortalLayer = portals[oldSelectedPortal];
   if(portalUpdateAvailable && selectedPortalLayer) selectedPortal = oldSelectedPortal;
@@ -150,8 +170,6 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   }
 
   if(portalUpdateAvailable) renderPortalDetails(selectedPortal);
-  resolvePlayerNames();
-  renderUpdateStatus();
 }
 
 // removes entities that are still handled by Leaflet, although they
