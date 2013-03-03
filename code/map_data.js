@@ -596,7 +596,8 @@ window.renderField = function(ent) {
     icon: L.divIcon({
       className: 'fieldmu',
       iconSize: [70,12],
-      html: digits(ent[2].entityScore.entityScore)}),
+      html: digits(ent[2].entityScore.entityScore)
+      }),
     clickable: false
     });
 
