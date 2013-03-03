@@ -609,7 +609,7 @@ window.renderField = function(ent) {
     lastUpdate: ent[1],
     creationZoom: map.getZoom(),
     guid: ent[0],
-    data: ent[2]});
+    data: ent[2]
   };
 
   // However, LayerGroups (and FeatureGroups) don’t fire add/remove
