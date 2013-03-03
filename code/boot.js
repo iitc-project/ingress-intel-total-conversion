@@ -165,6 +165,7 @@ window.setupPlayerStat = function() {
   for(level = 0; level < MIN_AP_FOR_LEVEL.length; level++) {
     if(ap < MIN_AP_FOR_LEVEL[level]) break;
   }
+  PLAYER.level = level;
 
   var thisLvlAp = MIN_AP_FOR_LEVEL[level-1];
   var nextLvlAp = MIN_AP_FOR_LEVEL[level] || ap;
