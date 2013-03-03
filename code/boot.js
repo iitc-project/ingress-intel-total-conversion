@@ -186,13 +186,22 @@ window.setupPlayerStat = function() {
 
   $('#playerstat').html(''
     + '<h2 title="'+t+'">'+level+'&nbsp;'
+    + '<div id="name">'
     + '<span class="'+cls+'">'+PLAYER.nickname+'</span>'
-    + '<div>'
+    + '<a href="https://www.ingress.com/_ah/logout?continue=https://www.google.com/accounts/Logout%3Fcontinue%3Dhttps://appengine.google.com/_ah/logout%253Fcontinue%253Dhttps://www.ingress.com/intel%26service%3Dah" id="signout">sign out</a>'
+    + '</div>'
+    + '<div id="stats">'
     + '<sup>XM: '+xmRatio+'%</sup>'
     + '<sub>' + (level < 8 ? 'level: '+lvlApProg+'%' : 'max level') + '</sub>'
     + '</div>'
     + '</h2>'
   );
+
+  $('#name').mouseenter(function() {
+    $('#signout').show();
+  }).mouseleave(function() {
+    $('#signout').hide();
+  });
 }
 
 window.setupSidebarToggle = function() {

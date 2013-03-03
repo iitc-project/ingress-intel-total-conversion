@@ -58,7 +58,7 @@ window.postAjax = function(action, data, success, error) {
   data = JSON.stringify($.extend({method: 'dashboard.'+action}, data));
   var remove = function(data, textStatus, jqXHR) { window.requests.remove(jqXHR); };
   var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
-  return $.ajax({
+  var result = $.ajax({
     // use full URL to avoid issues depending on how people set their
     // slash. See:
     // https://github.com/breunigs/ingress-intel-total-conversion/issues/56
@@ -73,6 +73,8 @@ window.postAjax = function(action, data, success, error) {
       req.setRequestHeader('X-CSRFToken', readCookie('csrftoken'));
     }
   });
+  result.action = action;
+  return result;
 }
 
 // converts unix timestamps to HH:mm:ss format if it was today;
