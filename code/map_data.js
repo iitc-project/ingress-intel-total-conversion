@@ -555,13 +555,13 @@ window.renderField = function(ent) {
   // now be appropriate or not to show an MU count
   var old = findEntityInLeaflet(fieldsLayer, window.fields, ent[0]);
   if(old) {
-    if(map.getZoom() == old.options.creationZoom) return;
+    if(map.getZoom() === old.options.creationZoom) return;
     var layerCount = 0;
     old.eachLayer(function(item) {
         layerCount++;
     });
-    if(areaZoomRatio > FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && layerCount == 2) return;
-    if(areaZoomRatio <= FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && layerCount == 1) return;
+    if(areaZoomRatio > FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && layerCount === 2) return;
+    if(areaZoomRatio <= FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && layerCount === 1) return;
     removeByGuid(ent[0]);
   }
 
