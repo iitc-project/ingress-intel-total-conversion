@@ -189,6 +189,7 @@ window.CAPTURE_PORTAL = 500; //AP for capturing a portal
 window.DEPLOY_RESONATOR = 125; //AP for deploying a resonator
 window.COMPLETION_BONUS = 250; //AP for deploying all resonators on portal
 window.MAX_PORTAL_LEVEL = 8;
+window.MAX_RESO_PER_PLAYER = [0, 8, 4, 4, 4, 2, 2, 1, 1];
 
 // OTHER MORE-OR-LESS CONSTANTS //////////////////////////////////////
 window.TEAM_NONE = 0;
