@@ -546,6 +546,8 @@ window.renderField = function(ent) {
     new L.LatLng(reg.vertexB.location.latE6/1E6, reg.vertexB.location.lngE6/1E6),
     new L.LatLng(reg.vertexC.location.latE6/1E6, reg.vertexC.location.lngE6/1E6)
   ];
+  
+  // Curve fit equation to normalize zoom window area
   var areaZoomRatio = calcTriArea(latlngs)/Math.exp(14.2714860198866-1.384987247*map.getZoom())
 
   // Do nothing if zoom did not change. We need to recheck the field if the
@@ -554,12 +556,12 @@ window.renderField = function(ent) {
   var old = findEntityInLeaflet(fieldsLayer, window.fields, ent[0]);
   if(old) {
     if(map.getZoom() == old.options.creationZoom) return;
-	var layerCount = 0;
-	old.eachLayer(function(item) {
-		layerCount++;
-	});
-	if(areaZoomRatio > FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && layerCount == 2) return;
-	if(areaZoomRatio <= FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && layerCount == 1) return;
+    var layerCount = 0;
+    old.eachLayer(function(item) {
+        layerCount++;
+    });
+    if(areaZoomRatio > FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && layerCount == 2) return;
+    if(areaZoomRatio <= FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && layerCount == 1) return;
     removeByGuid(ent[0]);
   }
 
