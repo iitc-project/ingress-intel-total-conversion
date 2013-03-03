@@ -199,7 +199,7 @@ window.cleanUp = function() {
   });
   fieldsLayer.eachLayer(function(fieldgroup) {
     fieldgroup.eachLayer(function(item) {
-      if(!item.options.guid) return true;
+      if(!item.options.guid) return true; // Skip MU div container as this doesn't have the bounds we need
       if(b.intersects(item.getBounds())) return;
       cnt[2]++;
       fieldsLayer.removeLayer(fieldgroup);
@@ -542,13 +542,13 @@ window.renderField = function(ent) {
 
   var reg = ent[2].capturedRegion;
   var latlngs = [
-    new L.LatLng(reg.vertexA.location.latE6/1E6, reg.vertexA.location.lngE6/1E6),
-    new L.LatLng(reg.vertexB.location.latE6/1E6, reg.vertexB.location.lngE6/1E6),
-    new L.LatLng(reg.vertexC.location.latE6/1E6, reg.vertexC.location.lngE6/1E6)
+    L.latLng(reg.vertexA.location.latE6/1E6, reg.vertexA.location.lngE6/1E6),
+    L.latLng(reg.vertexB.location.latE6/1E6, reg.vertexB.location.lngE6/1E6),
+    L.latLng(reg.vertexC.location.latE6/1E6, reg.vertexC.location.lngE6/1E6)
   ];
   
   // Curve fit equation to normalize zoom window area
-  var areaZoomRatio = calcTriArea(latlngs)/Math.exp(14.2714860198866-1.384987247*map.getZoom())
+  var areaZoomRatio = calcTriArea(latlngs)/Math.exp(14.2714860198866-1.384987247*map.getZoom());
 
   // Do nothing if zoom did not change. We need to recheck the field if the
   // zoom level is different then when the field was rendered as it could
