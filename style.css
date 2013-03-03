@@ -94,12 +94,12 @@ a:hover {
 }
 
 /* field mu count */
-
 .fieldmu {
   color: #FFCE00;
   font-size:13px;
   font-family: "coda",arial,helvetica,sans-serif; /*override leaflet-container */
   text-align: center;
+  text-shadow: 0 0 0.2em black, 0 0 0.2em black, 0 0 0.2em black;
 }
 
 

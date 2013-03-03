@@ -149,6 +149,8 @@ window.MAX_DRAWN_LINKS = 400;
 window.MAX_DRAWN_FIELDS = 200;
 // Minimum zoom level resonator will display
 window.RESONATOR_DISPLAY_ZOOM_LEVEL = 17;
+// Minimum area to zoom ratio that field MU's will display
+window.FIELD_MU_DISPLAY_AREA_ZOOM_RATIO = 0.001;
 
 window.COLOR_SELECTED_PORTAL = '#f00';
 window.COLORS = ['#FFCE00', '#0088FF', '#03DC03']; // none, res, enl

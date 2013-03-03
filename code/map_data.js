@@ -522,17 +522,30 @@ window.renderField = function(ent) {
   if(Object.keys(fields).length >= MAX_DRAWN_FIELDS)
     return window.removeByGuid(ent[0]);
 
-  // assume that fields never change. If they do, they will have a
-  // different ID.
-  if(findEntityInLeaflet(fieldsLayer, fields, ent[0])) return;
-
-  var team = getTeam(ent[2]);
   var reg = ent[2].capturedRegion;
   var latlngs = [
-    [reg.vertexA.location.latE6/1E6, reg.vertexA.location.lngE6/1E6],
-    [reg.vertexB.location.latE6/1E6, reg.vertexB.location.lngE6/1E6],
-    [reg.vertexC.location.latE6/1E6, reg.vertexC.location.lngE6/1E6]
+    new L.LatLng(reg.vertexA.location.latE6/1E6, reg.vertexA.location.lngE6/1E6),
+    new L.LatLng(reg.vertexB.location.latE6/1E6, reg.vertexB.location.lngE6/1E6),
+    new L.LatLng(reg.vertexC.location.latE6/1E6, reg.vertexC.location.lngE6/1E6)
   ];
+  var areaZoomRatio = calcTriArea(latlngs)/Math.exp(14.2714860198866-1.384987247*map.getZoom())
+
+  // Do nothing if zoom did not change. We need to recheck the field if the
+  // zoom level is different then when the field was rendered as it could
+  // now be appropriate or not to show an MU count
+  var old = findEntityInLeaflet(fieldsLayer, window.fields, ent[0]);
+  if(old) {
+    if(map.getZoom() == old.options.creationZoom) return;
+	var layerCount = 0;
+	old.eachLayer(function(item) {
+		layerCount++;
+	});
+	if(areaZoomRatio > FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && layerCount == 2) return;
+	if(areaZoomRatio <= FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && layerCount == 1) return;
+    removeByGuid(ent[0]);
+  }
+
+  var team = getTeam(ent[2]);
 
   var poly = L.polygon(latlngs, {
     fillColor: COLORS[team],
@@ -562,16 +575,21 @@ window.renderField = function(ent) {
   var fieldMu = L.marker(centroid, {
     icon: L.divIcon({
       className: 'fieldmu',
-      iconSize: [100,12],
-      html: 'MU: ' + digits(ent[2].entityScore.entityScore)}),
+      iconSize: [70,12],
+      html: digits(ent[2].entityScore.entityScore)}),
     clickable: false
     });
 
   // put both in one group, so they can be handled by the same logic.
-  var f = L.layerGroup([poly, fieldMu]);
+  if (areaZoomRatio > FIELD_MU_DISPLAY_AREA_ZOOM_RATIO) {
+    var f = L.layerGroup([poly, fieldMu]);
+  } else {
+    var f = L.layerGroup([poly]);
+  }
   f.options = {
     vertices: reg,
     lastUpdate: ent[1],
+    creationZoom: map.getZoom(),
     guid: ent[0]
   };
 

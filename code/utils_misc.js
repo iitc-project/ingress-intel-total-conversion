@@ -296,3 +296,8 @@ window.convertTextToTableMagic = function(text) {
   table += '</table>';
   return table;
 }
+
+// Given 3 sets of points in an array[3]{lat, lng} returns the area of the triangle
+window.calcTriArea = function(p) {
+  return Math.abs((p[0].lat*(p[1].lng-p[2].lng)+p[1].lat*(p[2].lng-p[0].lng)+p[2].lat*(p[0].lng-p[1].lng))/2);
+}
