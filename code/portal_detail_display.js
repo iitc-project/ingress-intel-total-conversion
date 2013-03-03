@@ -22,9 +22,8 @@ window.renderPortalDetails = function(guid) {
   var linksText = [linkExpl('links'), linkExpl(' ↳ ' + links.incoming+'&nbsp;&nbsp;•&nbsp;&nbsp;'+links.outgoing+' ↴')];
 
   var player = d.captured && d.captured.capturingPlayerId
-    ? getPlayerName(d.captured.capturingPlayerId)
+    ? '<span class="nickname">' + getPlayerName(d.captured.capturingPlayerId) + '</span>'
     : null;
-  player = '<span class="nickname">'+player+'</span>';
   var playerText = player ? ['owner', player] : null;
 
   var time = d.captured
