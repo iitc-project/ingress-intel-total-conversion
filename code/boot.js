@@ -159,6 +159,7 @@ window.setupMap = function() {
 // included as inline script in the original site, the data is static
 // and cannot be updated.
 window.setupPlayerStat = function() {
+  PLAYER.guid = playerNameToGuid(PLAYER.nickname);
   var level;
   var ap = parseInt(PLAYER.ap);
   for(level = 0; level < MIN_AP_FOR_LEVEL.length; level++) {

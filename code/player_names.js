@@ -17,6 +17,17 @@ window.getPlayerName = function(guid) {
   return '{'+guid.slice(0, 12)+'}';
 }
 
+window.playerNameToGuid = function(playerName){
+  var guid = null;
+  $.each(Object.keys(localStorage), function(ind,key) {
+    if(playerName === localStorage[key]) {
+      guid = key;
+      return false;
+    }
+  });
+  return guid;
+}
+
 // resolves all player GUIDs that have been added to the list. Reruns
 // renderPortalDetails when finished, so that then-unresolved names
 // get replaced by their correct versions.
