@@ -64,7 +64,7 @@ window.getAvgResoDist = function(d) {
     sum += parseInt(reso.distanceToPortal);
     resos++;
   });
-  return sum/resos;
+  return resos ? sum/resos : 0;
 }
 
 window.getAttackApGain = function(d) {
