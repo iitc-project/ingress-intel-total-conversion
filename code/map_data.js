@@ -197,10 +197,13 @@ window.cleanUp = function() {
     cnt[1]++;
     linksLayer.removeLayer(link);
   });
-  fieldsLayer.eachLayer(function(field) {
-    if(b.intersects(field.getBounds())) return;
-    cnt[2]++;
-    fieldsLayer.removeLayer(field);
+  fieldsLayer.eachLayer(function(fieldgroup) {
+    fieldgroup.eachLayer(function(item) {
+      if(!item.options.guid) return true; // Skip MU div container as this doesn't have the bounds we need
+      if(b.intersects(item.getBounds())) return;
+      cnt[2]++;
+      fieldsLayer.removeLayer(fieldgroup);
+    });
   });
   console.log('removed out-of-bounds: '+cnt[0]+' portals, '+cnt[1]+' links, '+cnt[2]+' fields');
 }
@@ -536,17 +539,17 @@ window.renderLink = function(ent) {
 window.renderField = function(ent) {
   if(Object.keys(fields).length >= MAX_DRAWN_FIELDS)
     return window.removeByGuid(ent[0]);
-
-  // assume that fields never change. If they do, they will have a
-  // different ID.
-  if(findEntityInLeaflet(fieldsLayer, fields, ent[0])) return;
+  
+  var old = findEntityInLeaflet(fieldsLayer, window.fields, ent[0]);
+  // If this already exists and the zoom level has not changed, we don't need to do anything
+  if(old && map.getZoom() === old.options.creationZoom) return;
 
   var team = getTeam(ent[2]);
   var reg = ent[2].capturedRegion;
   var latlngs = [
-    [reg.vertexA.location.latE6/1E6, reg.vertexA.location.lngE6/1E6],
-    [reg.vertexB.location.latE6/1E6, reg.vertexB.location.lngE6/1E6],
-    [reg.vertexC.location.latE6/1E6, reg.vertexC.location.lngE6/1E6]
+    L.latLng(reg.vertexA.location.latE6/1E6, reg.vertexA.location.lngE6/1E6),
+    L.latLng(reg.vertexB.location.latE6/1E6, reg.vertexB.location.lngE6/1E6),
+    L.latLng(reg.vertexC.location.latE6/1E6, reg.vertexC.location.lngE6/1E6)
   ];
 
   var poly = L.polygon(latlngs, {
@@ -555,11 +558,8 @@ window.renderField = function(ent) {
     stroke: false,
     clickable: false,
     smoothFactor: 0, // hiding small fields will be handled below
-    vertices: reg,
-    lastUpdate: ent[1],
-    guid: ent[0],
-    data: ent[2]});
-    
+    guid: ent[0]});
+
   // determine which fields are too small to be rendered and don’t
   // render them, so they don’t count towards the maximum fields limit.
   // This saves some DOM operations as well, but given the relatively
@@ -572,14 +572,65 @@ window.renderField = function(ent) {
 
   if(!getPaddedBounds().intersects(poly.getBounds())) return;
 
+  // Curve fit equation to normalize zoom window area
+  var areaZoomRatio = calcTriArea(latlngs)/Math.exp(14.2714860198866-1.384987247*map.getZoom());
+  var countForMUDisplay = L.LineUtil.simplify(poly._originalPoints, FIELD_MU_DISPLAY_POINT_TOLERANCE).length
+  
+  // Do nothing if zoom did not change. We need to recheck the field if the
+  // zoom level is different then when the field was rendered as it could
+  // now be appropriate or not to show an MU count
+  if(old) {
+    var layerCount = 0;
+    old.eachLayer(function(item) {
+        layerCount++;
+    });
+    // Don't do anything since we already have an MU display and we still want to
+    if(areaZoomRatio > FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && countForMUDisplay > 2 && layerCount === 2) return;
+    // Don't do anything since we don't have an MU display and don't want to
+    if(areaZoomRatio <= FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && countForMUDisplay <= 2 && layerCount === 1) return;
+    removeByGuid(ent[0]);
+  }
+
+  // put both in one group, so they can be handled by the same logic.
+  if (areaZoomRatio > FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && countForMUDisplay > 2) {
+    // centroid of field for placing MU count at
+    var centroid = [
+      (latlngs[0].lat + latlngs[1].lat + latlngs[2].lat)/3,
+      (latlngs[0].lng + latlngs[1].lng + latlngs[2].lng)/3
+    ];
+
+    var fieldMu = L.marker(centroid, {
+      icon: L.divIcon({
+        className: 'fieldmu',
+        iconSize: [70,12],
+        html: digits(ent[2].entityScore.entityScore)
+        }),
+      clickable: false
+      });
+    var f = L.layerGroup([poly, fieldMu]);
+  } else {
+    var f = L.layerGroup([poly]);
+  }
+  f.options = {
+    vertices: reg,
+    lastUpdate: ent[1],
+    creationZoom: map.getZoom(),
+    guid: ent[0],
+    data: ent[2]
+  };
+
+  // However, LayerGroups (and FeatureGroups) don’t fire add/remove
+  // events, thus this listener will be attached to the field. It
+  // doesn’t matter to which element these are bound since Leaflet
+  // will add/remove all elements of the LayerGroup at once.
   poly.on('remove', function() { delete window.fields[this.options.guid]; });
   poly.on('add',    function() {
     // enable for debugging
     if(window.fields[this.options.guid]) console.warn('duplicate field detected');
-    window.fields[this.options.guid] = this;
+    window.fields[this.options.guid] = f;
     this.bringToBack();
   });
-  poly.addTo(fieldsLayer);
+  f.addTo(fieldsLayer);
 }
 
 
