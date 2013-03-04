@@ -46,14 +46,15 @@
 // checkRenderLimit: callback is passed the argument of
 //              {reached : false} to indicate that the renderlimit is reached
 //              set reached to true.
-
+// requestFinished: called after each request finished. Argument is 
+//              {success: boolean} indicated the request success or fail.
 
 
 
 window._hooks = {}
 window.VALID_HOOKS = ['portalAdded', 'portalDetailsUpdated',
   'publicChatDataAvailable', 'portalDataLoaded', 'beforePortalReRender',
-  'checkRenderLimit'];
+  'checkRenderLimit', 'requestFinished'];
 
 window.runHooks = function(event, data) {
   if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);

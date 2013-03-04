@@ -59,6 +59,7 @@ window.handleFailedRequest = function() {
     var leftOverPortals = portalRenderLimit.mergeLowLevelPortals(null);
     handlePortalsRender(leftOverPortals);
   }
+  runHooks('requestFinished', {success: false});
 }
 
 // works on map data response and ensures entities are drawn/updated.
@@ -139,6 +140,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
 
   resolvePlayerNames();
   renderUpdateStatus();
+  runHooks('requestFinished', {success: true});
 }
 
 window.handlePortalsRender = function(portals) {
