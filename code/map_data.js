@@ -539,33 +539,18 @@ window.renderLink = function(ent) {
 window.renderField = function(ent) {
   if(Object.keys(fields).length >= MAX_DRAWN_FIELDS)
     return window.removeByGuid(ent[0]);
+  
+  var old = findEntityInLeaflet(fieldsLayer, window.fields, ent[0]);
+  // If this already exists and the zoom level has not changed, we don't need to do anything
+  if(old && map.getZoom() === old.options.creationZoom) return;
 
+  var team = getTeam(ent[2]);
   var reg = ent[2].capturedRegion;
   var latlngs = [
     L.latLng(reg.vertexA.location.latE6/1E6, reg.vertexA.location.lngE6/1E6),
     L.latLng(reg.vertexB.location.latE6/1E6, reg.vertexB.location.lngE6/1E6),
     L.latLng(reg.vertexC.location.latE6/1E6, reg.vertexC.location.lngE6/1E6)
   ];
-  
-  // Curve fit equation to normalize zoom window area
-  var areaZoomRatio = calcTriArea(latlngs)/Math.exp(14.2714860198866-1.384987247*map.getZoom());
-
-  // Do nothing if zoom did not change. We need to recheck the field if the
-  // zoom level is different then when the field was rendered as it could
-  // now be appropriate or not to show an MU count
-  var old = findEntityInLeaflet(fieldsLayer, window.fields, ent[0]);
-  if(old) {
-    if(map.getZoom() === old.options.creationZoom) return;
-    var layerCount = 0;
-    old.eachLayer(function(item) {
-        layerCount++;
-    });
-    if(areaZoomRatio > FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && layerCount === 2) return;
-    if(areaZoomRatio <= FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && layerCount === 1) return;
-    removeByGuid(ent[0]);
-  }
-
-  var team = getTeam(ent[2]);
 
   var poly = L.polygon(latlngs, {
     fillColor: COLORS[team],
@@ -587,22 +572,41 @@ window.renderField = function(ent) {
 
   if(!getPaddedBounds().intersects(poly.getBounds())) return;
 
-  var centroid = [
-    (latlngs[0].lat + latlngs[1].lat + latlngs[2].lat)/3,
-    (latlngs[0].lng + latlngs[1].lng + latlngs[2].lng)/3
-  ];
-
-  var fieldMu = L.marker(centroid, {
-    icon: L.divIcon({
-      className: 'fieldmu',
-      iconSize: [70,12],
-      html: digits(ent[2].entityScore.entityScore)
-      }),
-    clickable: false
+  // Curve fit equation to normalize zoom window area
+  var areaZoomRatio = calcTriArea(latlngs)/Math.exp(14.2714860198866-1.384987247*map.getZoom());
+  var countForMUDisplay = L.LineUtil.simplify(poly._originalPoints, FIELD_MU_DISPLAY_POINT_TOLERANCE).length
+  
+  // Do nothing if zoom did not change. We need to recheck the field if the
+  // zoom level is different then when the field was rendered as it could
+  // now be appropriate or not to show an MU count
+  if(old) {
+    var layerCount = 0;
+    old.eachLayer(function(item) {
+        layerCount++;
     });
+    // Don't do anything since we already have an MU display and we still want to
+    if(areaZoomRatio > FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && countForMUDisplay > 2 && layerCount === 2) return;
+    // Don't do anything since we don't have an MU display and don't want to
+    if(areaZoomRatio <= FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && countForMUDisplay <= 2 && layerCount === 1) return;
+    removeByGuid(ent[0]);
+  }
 
   // put both in one group, so they can be handled by the same logic.
-  if (areaZoomRatio > FIELD_MU_DISPLAY_AREA_ZOOM_RATIO) {
+  if (areaZoomRatio > FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && countForMUDisplay > 2) {
+    // centroid of field for placing MU count at
+    var centroid = [
+      (latlngs[0].lat + latlngs[1].lat + latlngs[2].lat)/3,
+      (latlngs[0].lng + latlngs[1].lng + latlngs[2].lng)/3
+    ];
+
+    var fieldMu = L.marker(centroid, {
+      icon: L.divIcon({
+        className: 'fieldmu',
+        iconSize: [70,12],
+        html: digits(ent[2].entityScore.entityScore)
+        }),
+      clickable: false
+      });
     var f = L.layerGroup([poly, fieldMu]);
   } else {
     var f = L.layerGroup([poly]);
