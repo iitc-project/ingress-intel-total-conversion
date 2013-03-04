@@ -16,31 +16,61 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
     }
     alert('<strong>' + data.error + "</strong>\n" + error);
   } else if (data.result) {
-    var xmp_level = 0, xmp_count = 0;
-    var res_level = 0, res_count = 0;
-    var shield_rarity = '', shield_count = 0;
-
-    // This assumes that each passcode gives only one type of resonator/XMP/shield.
-    // This may break at some point, depending on changes to passcode functionality.
+	var tblResult = $('<table />', {'class': 'redeem-result' }).append($('<tr />').append($('<th />', {colspan: 2}).append("Passcode redeemed!")));
+  
+	if (data.result.apAward)
+	  tblResult.append($('<tr />').append($('<td />')).append($('<td />').append('AP (' + data.result.apAward + ')')));
+	if (data.result.xmAward)
+	  tblResult.append($('<tr />').append($('<td />')).append($('<td />').append('XM (' + data.result.xmAward + ')')));
+  
+	var resonators = {};
+	var bursts = {};
+	var shields = {};
+	 
     for (var i in data.result.inventoryAward) {
       var acquired = data.result.inventoryAward[i][2];
       if (acquired.modResource) {
         if (acquired.modResource.resourceType === 'RES_SHIELD') {
-          shield_rarity = acquired.modResource.rarity.split('_').map(function (i) {return i[0]}).join('');
-          shield_count++;
+		  var rarity = acquired.modResource.rarity.split('_').map(function (i) {return i[0]}).join('');
+		  if (!shields[rarity])
+			shields[rarity] = 0;
+		  shields[rarity] += 1;
         }
       } else if (acquired.resourceWithLevels) {
-        if (acquired.resourceWithLevels.resourceType === 'EMP_BURSTER') {
-          xmp_level = acquired.resourceWithLevels.level;
-          xmp_count++;
-        } else if (acquired.resourceWithLevels.resourceType === 'EMITTER_A') {
-          res_level = acquired.resourceWithLevels.level;
-          res_count++;
+        if (acquired.resourceWithLevels.resourceType === 'EMITTER_A') {
+		  var level = acquired.resourceWithLevels.level
+		  if (!resonators[level])
+			resonators[level] = 0;
+		  resonators[level] += 1;
+        } else if (acquired.resourceWithLevels.resourceType === 'EMP_BURSTER') {
+		  var level = acquired.resourceWithLevels.level
+		  if (!bursts[level])
+			bursts[level] = 0;
+		  bursts[level] += 1;
         }
       }
     }
+	
+	for (var lvl in resonators) {
+	  var text = 'Resonator';
+	  if (resonators[lvl] > 1)
+		text += ' ('+resonators[lvl]+')';
+	  tblResult.append($('<tr />').append($('<td />', { 'class' : ('level-'+lvl)}).append('L' + lvl)).append($('<td />').append(text)));
+	}
+	for (var lvl in bursts) {
+	  var text = 'Xmp Burster';
+	  if (bursts[lvl] > 1)
+		text += ' ('+bursts[lvl]+')';
+	  tblResult.append($('<tr />').append($('<td />', { 'class' : ('level-'+lvl)}).append('L' + lvl)).append($('<td />').append(text)));
+	}
+	for (var lvl in shields) {
+	  var text = 'Portal Shield';
+	  if (shields[lvl] > 1)
+		text += ' ('+shields[lvl]+')';
+	  tblResult.append($('<tr />').append($('<td />').append(lvl)).append($('<td />').append(text)));
+	}
 
-    alert("<strong>Passcode accepted!</strong>\n" + [data.result.apAward + 'AP', data.result.xmAward + 'XM', xmp_count + 'xL' + xmp_level + ' XMP', res_count + 'xL' + res_level + ' RES', shield_count + 'x' + shield_rarity + ' SH'].join('/'));
+	alert(tblResult, true);
   }
 }
 
