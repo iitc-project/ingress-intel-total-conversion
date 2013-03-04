@@ -204,9 +204,9 @@ window.plugin.playerTracker.drawData = function() {
     var evtsLength = playerData.events.length;
     var last = playerData.events[evtsLength-1];
     var ago = plugin.playerTracker.ago;
-    var color = playerData.team === 'ALIENS' ? '#029C02' : '#00789C';
+    var cssClass = playerData.team === 'ALIENS' ? 'enl' : 'res';
     var title =
-        '<span style="font-weight:bold; color:'+color+'">' + playerData.nick + '</span>\n'
+        '<span class="nickname '+ cssClass+'" style="font-weight:bold;">' + playerData.nick + '</span>\n'
         + ago(last.time, now) + ' minutes ago\n'
         + last.name;
     // show previous data in tooltip

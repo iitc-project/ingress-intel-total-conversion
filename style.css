@@ -682,8 +682,12 @@ aside {
   background-color: rgba(8, 48, 78, 0.9);
   border: 1px solid #20A8B1;
   color: #eee;
-  font: 13px/15px "coda","Helvetica Neue", Arial, Helvetica, sans-serif;
+  font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
   padding: 2px 4px;
+}
+
+.ui-tooltip, .ui-dialog a {
+  color: #FFCE00;
 }
 
 .ui-dialog {
@@ -712,10 +716,6 @@ aside {
   overflow-x: hidden;
   max-height: 600px !important;
   max-width: 700px !important;
-}
-
-.ui-dialog a {
-  color: #0000ca;
 }
 
 .ui-dialog-buttonpane {
