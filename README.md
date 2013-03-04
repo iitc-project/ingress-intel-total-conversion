@@ -76,6 +76,7 @@ First of all, it’s very nice you want to help. There are several equally impor
 [boombuler](https://github.com/boombuler),
 [cmrn](https://github.com/cmrn),
 [epf](https://github.com/epf),
+[Fragger](https://github.com/Fragger),
 [integ3r](https://github.com/integ3r),
 [j16sdiz](https://github.com/j16sdiz),
 [JasonMillward](https://github.com/JasonMillward),
