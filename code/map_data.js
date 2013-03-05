@@ -453,6 +453,7 @@ window.isResonatorsShow = function() {
 
 window.isSameResonator = function(oldRes, newRes) {
   if(!oldRes && !newRes) return true;
+  if(!oldRes || !newRes) return false;
   if(typeof oldRes !== typeof newRes) return false;
   if(oldRes.level !== newRes.level) return false;
   if(oldRes.energyTotal !== newRes.energyTotal) return false;
