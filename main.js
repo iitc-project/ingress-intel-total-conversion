@@ -67,7 +67,7 @@ document.getElementsByTagName('head')[0].innerHTML = ''
   + '<style>@@INCLUDESTRING:external/leaflet.css@@</style>'
   // this navigator check is also used in code/smartphone.js
   + (navigator.userAgent.match(/Android.*Mobile/)
-      ? + '<style>@@INCLUDESTRING:mobile/smartphone.css@@</style>'
+      ? '<style>@@INCLUDESTRING:mobile/smartphone.css@@</style>'
       : '')
   + '<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Coda"/>';
 
