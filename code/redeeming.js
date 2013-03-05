@@ -16,61 +16,61 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
     }
     alert('<strong>' + data.error + "</strong>\n" + error);
   } else if (data.result) {
-	var tblResult = $('<table />', {'class': 'redeem-result' }).append($('<tr />').append($('<th />', {colspan: 2}).append("Passcode accepted!")));
+    var tblResult = $('<table />', {'class': 'redeem-result' }).append($('<tr />').append($('<th />', {colspan: 2}).append("Passcode accepted!")));
   
-	if (data.result.apAward)
-	  tblResult.append($('<tr />').append($('<td />').append('+')).append($('<td />').append(data.result.apAward + ' AP')));
-	if (data.result.xmAward)
-	  tblResult.append($('<tr />').append($('<td />').append('+')).append($('<td />').append(data.result.xmAward + ' XM')));
+    if (data.result.apAward)
+      tblResult.append($('<tr />').append($('<td />').append('+')).append($('<td />').append(data.result.apAward + ' AP')));
+    if (data.result.xmAward)
+      tblResult.append($('<tr />').append($('<td />').append('+')).append($('<td />').append(data.result.xmAward + ' XM')));
   
-	var resonators = {};
-	var bursts = {};
-	var shields = {};
-	 
+    var resonators = {};
+    var bursts = {};
+    var shields = {};
+     
     for (var i in data.result.inventoryAward) {
       var acquired = data.result.inventoryAward[i][2];
       if (acquired.modResource) {
         if (acquired.modResource.resourceType === 'RES_SHIELD') {
-		  var rarity = acquired.modResource.rarity.split('_').map(function (i) {return i[0]}).join('');
-		  if (!shields[rarity])
-			shields[rarity] = 0;
-		  shields[rarity] += 1;
+          var rarity = acquired.modResource.rarity.split('_').map(function (i) {return i[0]}).join('');
+          if (!shields[rarity])
+            shields[rarity] = 0;
+          shields[rarity] += 1;
         }
       } else if (acquired.resourceWithLevels) {
         if (acquired.resourceWithLevels.resourceType === 'EMITTER_A') {
-		  var level = acquired.resourceWithLevels.level
-		  if (!resonators[level])
-			resonators[level] = 0;
-		  resonators[level] += 1;
+          var level = acquired.resourceWithLevels.level
+          if (!resonators[level])
+            resonators[level] = 0;
+          resonators[level] += 1;
         } else if (acquired.resourceWithLevels.resourceType === 'EMP_BURSTER') {
-		  var level = acquired.resourceWithLevels.level
-		  if (!bursts[level])
-			bursts[level] = 0;
-		  bursts[level] += 1;
+          var level = acquired.resourceWithLevels.level
+          if (!bursts[level])
+            bursts[level] = 0;
+          bursts[level] += 1;
         }
       }
     }
-	
-	for (var lvl in resonators) {
-	  var text = 'Resonator';
-	  if (resonators[lvl] > 1)
-		text += ' ('+resonators[lvl]+')';
-	  tblResult.append($('<tr />').append($('<td />', { 'class' : ('level-'+lvl)}).append('L' + lvl)).append($('<td />').append(text)));
-	}
-	for (var lvl in bursts) {
-	  var text = 'Xmp Burster';
-	  if (bursts[lvl] > 1)
-		text += ' ('+bursts[lvl]+')';
-	  tblResult.append($('<tr />').append($('<td />', { 'class' : ('level-'+lvl)}).append('L' + lvl)).append($('<td />').append(text)));
-	}
-	for (var lvl in shields) {
-	  var text = 'Portal Shield';
-	  if (shields[lvl] > 1)
-		text += ' ('+shields[lvl]+')';
-	  tblResult.append($('<tr />').append($('<td />').append(lvl)).append($('<td />').append(text)));
-	}
+    
+    for (var lvl in resonators) {
+      var text = 'Resonator';
+      if (resonators[lvl] > 1)
+        text += ' ('+resonators[lvl]+')';
+      tblResult.append($('<tr />').append($('<td />', { 'class' : ('level-'+lvl)}).append('L' + lvl)).append($('<td />').append(text)));
+    }
+    for (var lvl in bursts) {
+      var text = 'Xmp Burster';
+      if (bursts[lvl] > 1)
+        text += ' ('+bursts[lvl]+')';
+      tblResult.append($('<tr />').append($('<td />', { 'class' : ('level-'+lvl)}).append('L' + lvl)).append($('<td />').append(text)));
+    }
+    for (var lvl in shields) {
+      var text = 'Portal Shield';
+      if (shields[lvl] > 1)
+        text += ' ('+shields[lvl]+')';
+      tblResult.append($('<tr />').append($('<td />').append(lvl)).append($('<td />').append(text)));
+    }
 
-	alert(tblResult, true);
+    alert(tblResult, true);
   }
 }
 
