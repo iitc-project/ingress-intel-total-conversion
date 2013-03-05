@@ -19,9 +19,9 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
 	var tblResult = $('<table />', {'class': 'redeem-result' }).append($('<tr />').append($('<th />', {colspan: 2}).append("Passcode redeemed!")));
   
 	if (data.result.apAward)
-	  tblResult.append($('<tr />').append($('<td />')).append($('<td />').append('AP (' + data.result.apAward + ')')));
+	  tblResult.append($('<tr />').append($('<td />').append('+')).append($('<td />').append(data.result.apAward + ' AP')));
 	if (data.result.xmAward)
-	  tblResult.append($('<tr />').append($('<td />')).append($('<td />').append('XM (' + data.result.xmAward + ')')));
+	  tblResult.append($('<tr />').append($('<td />').append('+')).append($('<td />').append(data.result.xmAward + ' XM')));
   
 	var resonators = {};
 	var bursts = {};
