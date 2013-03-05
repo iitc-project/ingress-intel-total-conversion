@@ -94,7 +94,7 @@ window.plugin.apList.getPortalApTitle = function(portal) {
 
 // portal link - single click: select portal
 //               double click: zoom to and select portal
-//               hove: show address
+//               hover: show address
 window.plugin.apList.getPortalLink = function(portal) {
   var latlng = [portal.locationE6.latE6/1E6, portal.locationE6.lngE6/1E6];
   var jsSingleClick = 'window.renderPortalDetails(\''+portal.guid+'\');return false';
