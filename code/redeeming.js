@@ -16,7 +16,7 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
     }
     alert('<strong>' + data.error + "</strong>\n" + error);
   } else if (data.result) {
-	var tblResult = $('<table />', {'class': 'redeem-result' }).append($('<tr />').append($('<th />', {colspan: 2}).append("Passcode redeemed!")));
+	var tblResult = $('<table />', {'class': 'redeem-result' }).append($('<tr />').append($('<th />', {colspan: 2}).append("Passcode accepted!")));
   
 	if (data.result.apAward)
 	  tblResult.append($('<tr />').append($('<td />').append('+')).append($('<td />').append(data.result.apAward + ' AP')));
