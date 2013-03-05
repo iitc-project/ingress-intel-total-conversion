@@ -748,44 +748,10 @@ td + td {
   padding-left: 4px;
 }
 
-/* level colors *******************************************************/
-
-.level-1 {
-  color: #FECE5A;
-}
-
-.level-2 {
-  color: #FFA630;
-}
-
-.level-3 {
-  color: #FF7315;
-} 
-
-.level-4 {
-  color: #E40000;
-}
-
-.level-5 {
-  color: #FD2992;
-}
-
-.level-6 {
-  color: #EB26CD;
-}
-
-.level-7 {
-  color: #C124E0;
-}
-
-.level-8  {
-  color: #9627F4;
-}
-
 /* redeem results *****************************************************/
 .redeem-result {
   font-size: 14px;
-  font-family: "coda",arial,helvetica,sans-serif;
+  font-family: arial,helvetica,sans-serif;
   table-layout: fixed;
 }
 

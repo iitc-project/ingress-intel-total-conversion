@@ -16,12 +16,13 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
     }
     alert('<strong>' + data.error + "</strong>\n" + error);
   } else if (data.result) {
-    var tblResult = $('<table />', {'class': 'redeem-result' }).append($('<tr />').append($('<th />', {colspan: 2}).append("Passcode accepted!")));
+	var tblResult = $('<table class="redeem-result" />');
+	tblResult.append($('<tr><th colspan="2">Passcode accepted!</th></tr>'));
   
     if (data.result.apAward)
-      tblResult.append($('<tr />').append($('<td />').append('+')).append($('<td />').append(data.result.apAward + ' AP')));
+      tblResult.append($('<tr><td>+</td><td>' + data.result.apAward + 'AP</td></tr>'));
     if (data.result.xmAward)
-      tblResult.append($('<tr />').append($('<td />').append('+')).append($('<td />').append(data.result.xmAward + ' XM')));
+	  tblResult.append($('<tr><td>+</td><td>' + data.result.xmAward + 'XM</td></tr>'));
   
     var resonators = {};
     var bursts = {};
@@ -55,19 +56,19 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
       var text = 'Resonator';
       if (resonators[lvl] > 1)
         text += ' ('+resonators[lvl]+')';
-      tblResult.append($('<tr />').append($('<td />', { 'class' : ('level-'+lvl)}).append('L' + lvl)).append($('<td />').append(text)));
+      tblResult.append($('<tr ><td style="color: ' +window.COLORS_LVL[lvl]+ ';">L' +lvl+ '</td><td>' + text + '</td></tr>'));
     }
     for (var lvl in bursts) {
       var text = 'Xmp Burster';
       if (bursts[lvl] > 1)
         text += ' ('+bursts[lvl]+')';
-      tblResult.append($('<tr />').append($('<td />', { 'class' : ('level-'+lvl)}).append('L' + lvl)).append($('<td />').append(text)));
+      tblResult.append($('<tr ><td style="color: ' +window.COLORS_LVL[lvl]+ ';">L' +lvl+ '</td><td>' + text + '</td></tr>'));
     }
     for (var lvl in shields) {
       var text = 'Portal Shield';
       if (shields[lvl] > 1)
         text += ' ('+shields[lvl]+')';
-      tblResult.append($('<tr />').append($('<td />').append(lvl)).append($('<td />').append(text)));
+	  tblResult.append($('<tr><td>'+lvl+'</td><td>'+text+'</td></tr>'));
     }
 
     alert(tblResult, true);
