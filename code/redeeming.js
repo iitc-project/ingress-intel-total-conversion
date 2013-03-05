@@ -57,7 +57,7 @@ window.setupRedeem = function() {
           } else {
             extra = "The server indicated an error.";
           }
-          extra += "\n" + 'Response: HTTP <a href="http://httpstatus.es/' + jq.status + '" alt="HTTP ' + jq.status + '"target="_blank">' + jq.status + "</a>.";
+          extra += "\n" + 'Response: HTTP <a href="http://httpstatus.es/' + response.status + '" alt="HTTP ' + response.status + '"target="_blank">' + response.status + "</a>.";
         } else {
           extra = "No status code was returned.";
         }
