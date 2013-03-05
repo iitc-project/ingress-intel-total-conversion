@@ -25,8 +25,9 @@ window.plugin.apList.cachedPortals = {};
 window.plugin.apList.useCachedPortals = true;
 window.plugin.apList.SIDE_FRIENDLY = 0;
 window.plugin.apList.SIDE_ENEMY = 1;
-window.plugin.apList.topPortals = {};
-window.plugin.apList.minPortalAp = {};
+window.plugin.apList.sides = new Array(2);
+window.plugin.apList.topPortals = new Array(2);
+window.plugin.apList.minPortalAp = new Array(2);
 window.plugin.apList.topMaxCount = 10;
 window.plugin.apList.playerApGainFunc = new Array(2);
 window.plugin.apList.displaySide = window.plugin.apList.SIDE_ENEMY;
@@ -318,15 +319,16 @@ window.plugin.apList.changeSide = function(side) {
 }
 
 window.plugin.apList.toggleSideLabel = function(side) {
-  $.each(Object.keys(plugin.apList.sideLabelClass), function(ind,key) {
+  $.each(plugin.apList.sides, function(ind,key) {
     var labelClass = plugin.apList.sideLabelClass[key];
-    //typeof key is string, typeof side is number, use ==
-    var opacity = (key == side) ? 1.0 : 0.5;
+    var opacity = (key === side) ? 1.0 : 0.5;
     $(labelClass).css("opacity", opacity);
   });
 }
 
 window.plugin.apList.setupVar = function() {
+  window.plugin.apList.sides[plugin.apList.SIDE_FRIENDLY] = plugin.apList.SIDE_FRIENDLY;
+  window.plugin.apList.sides[plugin.apList.SIDE_ENEMY] = plugin.apList.SIDE_ENEMY;
   plugin.apList.playerApGainFunc[plugin.apList.SIDE_FRIENDLY] 
     = plugin.apList.getDeployOrUpgradeApGain;
   plugin.apList.playerApGainFunc[plugin.apList.SIDE_ENEMY] 
