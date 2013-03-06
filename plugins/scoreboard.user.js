@@ -156,7 +156,7 @@ window.plugin.scoreboard.playerTableRow = function(player_guid) {
 
 window.plugin.scoreboard.display = function() {
    window.plugin.scoreboard.compileStats();
-   console.log(window.plugin.scoreboard.scores);
+   
    var res_mu = window.plugin.scoreboard.scores['team'][TEAM_RES]['mu'];
    var enl_mu = window.plugin.scoreboard.scores['team'][TEAM_ENL]['mu'];
 
