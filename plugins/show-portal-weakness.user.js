@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-show-portal-weakness@vita10gy
 // @name           iitc: show portal weakness
-// @version        0.5
+// @version        0.6
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/show-portal-weakness.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/show-portal-weakness.user.js
@@ -35,7 +35,7 @@ window.plugin.portalWeakness.portalAdded = function(data) {
     $.each(d.portalV2.linkedModArray, function(ind, mod) {
       if(mod === null) {
         missing_shields++;
-        portal_weakness += .08;
+        portal_weakness += .03;
       }
     });
     //Ding the portal for every missing resonator.
