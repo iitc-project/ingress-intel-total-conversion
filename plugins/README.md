@@ -23,6 +23,7 @@ enshots/plugin_scale_bar.png)
 - [**Show Portal Address**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/show-address.user.js) Shows portal address in the side panel.
 
 ### available only with the development version
+- [**Scoreboard**](https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/scoreboard.user.js) Adds a scoreboard popup (link near bottom of the side panel) so you better see your local impact on the game. 
 
 [Read HACKING.md file](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/HACKING.md#hacking) to learn how to build the development version yourself. If **and only if** [you have read how to report bugs](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/HACKING.md#how-do-i-report-bugs), you may beta test the [nightly](https://www.dropbox.com/sh/lt9p0s40kt3cs6m/3xzpyiVBnF) version.
 
