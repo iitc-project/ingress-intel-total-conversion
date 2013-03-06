@@ -42,7 +42,7 @@ if(!d) {
   // page doesn’t have a script tag with player information.
   if(document.getElementById('header_email')) {
     // however, we are logged in.
-    setTimeout('location.reload();', 10*1000);
+    setTimeout('location.reload();', 3*1000);
     throw('Page doesn’t have player data, but you are logged in. Reloading in 10s.');
   }
   // FIXME: handle nia takedown in progress
