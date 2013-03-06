@@ -81,7 +81,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   var ppp = [];
   var p2f = {};
   $.each(m, function(qk, val) {
-    $.each(val.deletedGameEntityGuids, function(ind, guid) {
+    $.each(val.deletedGameEntityGuids || [], function(ind, guid) {
       if(getTypeByGuid(guid) === TYPE_FIELD && window.fields[guid] !== undefined) {
         $.each(window.fields[guid].options.vertices, function(ind, vertex) {
           if(window.portals[vertex.guid] === undefined) return true;
@@ -92,7 +92,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
       window.removeByGuid(guid);
     });
 
-    $.each(val.gameEntities, function(ind, ent) {
+    $.each(val.gameEntities || [], function(ind, ent) {
       // ent = [GUID, id(?), details]
       // format for links: { controllingTeam, creator, edge }
       // format for portals: { controllingTeam, turret }
