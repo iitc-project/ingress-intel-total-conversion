@@ -2,6 +2,14 @@
 
 // UTILS + MISC  ///////////////////////////////////////////////////////
 
+window.layerGroupLength = function(layerGroup) {
+  var layersCount = 0;
+  var layers = layerGroup._layers;
+  if (layers)
+    layersCount = Object.keys(layers).length;
+  return layersCount;
+}
+
 // retrieves parameter from the URL?query=string.
 window.getURLParam = function(param) {
   var v = document.URL;
@@ -50,7 +58,7 @@ window.postAjax = function(action, data, success, error) {
   data = JSON.stringify($.extend({method: 'dashboard.'+action}, data));
   var remove = function(data, textStatus, jqXHR) { window.requests.remove(jqXHR); };
   var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
-  return $.ajax({
+  var result = $.ajax({
     // use full URL to avoid issues depending on how people set their
     // slash. See:
     // https://github.com/breunigs/ingress-intel-total-conversion/issues/56
@@ -65,6 +73,8 @@ window.postAjax = function(action, data, success, error) {
       req.setRequestHeader('X-CSRFToken', readCookie('csrftoken'));
     }
   });
+  result.action = action;
+  return result;
 }
 
 // converts unix timestamps to HH:mm:ss format if it was today;
@@ -152,7 +162,11 @@ window.getMinPortalLevel = function() {
   var z = map.getZoom();
   if(z >= 16) return 0;
   var conv = ['impossible', 8,7,7,6,6,5,5,4,4,3,3,2,2,1,1];
-  return conv[z];
+  var minLevelByRenderLimit = portalRenderLimit.getMinLevel();
+  var result = minLevelByRenderLimit > conv[z]
+    ? minLevelByRenderLimit
+    : conv[z];
+  return result;
 }
 
 // returns number of pixels left to scroll down before reaching the
@@ -283,4 +297,9 @@ window.convertTextToTableMagic = function(text) {
   });
   table += '</table>';
   return table;
+}
+
+// Given 3 sets of points in an array[3]{lat, lng} returns the area of the triangle
+window.calcTriArea = function(p) {
+  return Math.abs((p[0].lat*(p[1].lng-p[2].lng)+p[1].lat*(p[2].lng-p[0].lng)+p[2].lat*(p[0].lng-p[1].lng))/2);
 }

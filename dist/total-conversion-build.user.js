@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.7.7-2013-02-26-164913
+// @version        0.7.8-2013-02-26-223742
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js
@@ -17,7 +17,7 @@
 if(document.getElementsByTagName('html')[0].getAttribute('itemscope') != null)
   throw('Ingress Intel Website is down, not a userscript issue.');
 
-window.iitcBuildDate = '2013-02-26-164913';
+window.iitcBuildDate = '2013-02-26-223742';
 
 // disable vanilla JS
 window.onload = function() {};
@@ -1570,12 +1570,12 @@ d+"px").css("background-color",a.isDark(e,i)?h.foreground:h.background).appendTo
 function boot() {
   window.debug.console.overwriteNativeIfRequired();
 
-  console.log('loading done, booting. Built: 2013-02-26-164913');
+  console.log('loading done, booting. Built: 2013-02-26-223742');
   if(window.deviceID) console.log('Your device ID: ' + window.deviceID);
   window.runOnSmartphonesBeforeBoot();
 
   // overwrite default Leaflet Marker icon to be a neutral color
-  var base = 'https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/images/';
+  var base = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/images/';
   L.Icon.Default.imagePath = base;
 
   window.iconEnl = L.Icon.Default.extend({options: { iconUrl: base + 'marker-green.png' } });

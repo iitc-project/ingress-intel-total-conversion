@@ -92,6 +92,7 @@ L.Google = L.Class.extend({
     var map = new google.maps.Map(this._container, {
         center: this._google_center,
         zoom: 0,
+        tilt: 0,
         styles: this._styles,
         mapTypeId: this._type,
         disableDefaultUI: true,
@@ -138,8 +139,8 @@ L.Google = L.Class.extend({
 
   _resize: function() {
     var size = this._map.getSize();
-    if (this._container.style.width == size.x &&
-        this._container.style.height == size.y)
+    if (parseInt(this._container.style.width) == size.x &&
+        parseInt(this._container.style.height) == size.y)
       return;
     this._container.style.width = size.x + 'px';
     this._container.style.height = size.y + 'px';
