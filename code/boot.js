@@ -333,6 +333,7 @@ try { console.log('Loading included JS now'); } catch(e) {}
 // contains the default Ingress map style.
 @@INCLUDERAW:external/leaflet_google.js@@
 @@INCLUDERAW:external/autolink.js@@
+@@INCLUDERAW:external/oms.min.js@@
 
 try { console.log('done loading included JS'); } catch(e) {}
 
