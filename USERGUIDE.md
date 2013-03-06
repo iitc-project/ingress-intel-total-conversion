@@ -77,7 +77,7 @@ Map Status / Updates
 
 It shows if there are operations currently pending. This includes chat updates as well as map data requests. Updates happen every 45s to 90s, depending on how far zoomed in you are. Zoom in closer for faster updates.
 
-It also shows which portals are being loaded/shown. Zoom in to see lower level portals. This is a limit of the server and not IITC. Portals levels that cannot be shown are also striked through in the layer chooser.
+It also shows which portals are being loaded/shown. Zoom in to see lower level portals. This is a limit of both the server and IITC. The server will only send low level portals if zoomed in enough. IITC will only show low level portals if there are few enough to not hit the render limit. The render limit is required, otherwise the map would be veryslow. Portals levels that cannot be shown are also striked through in the layer chooser.
 
 **Failures:** If a data request failed, it is retried once. Only if the retry fails as well, a “failure” message is shown in the map status. You can either wait for the next automatic update or move the map a little. Also try to zoom in to request less data, which makes it less likely that the servers fail. The failure counter is reset on the next auto update or if you move the map.
 
