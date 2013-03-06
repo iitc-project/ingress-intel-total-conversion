@@ -67,7 +67,7 @@ document.getElementsByTagName('head')[0].innerHTML = ''
   + '<style>@@INCLUDESTRING:external/leaflet.css@@</style>'
   // this navigator check is also used in code/smartphone.js
   + (navigator.userAgent.match(/Android.*Mobile/)
-      ? + '<style>@@INCLUDESTRING:mobile/smartphone.css@@</style>'
+      ? '<style>@@INCLUDESTRING:mobile/smartphone.css@@</style>'
       : '')
   + '<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Coda"/>';
 
@@ -149,6 +149,10 @@ window.MAX_DRAWN_LINKS = 400;
 window.MAX_DRAWN_FIELDS = 200;
 // Minimum zoom level resonator will display
 window.RESONATOR_DISPLAY_ZOOM_LEVEL = 17;
+// Minimum area to zoom ratio that field MU's will display
+window.FIELD_MU_DISPLAY_AREA_ZOOM_RATIO = 0.001;
+// Point tolerance for displaying MU's
+window.FIELD_MU_DISPLAY_POINT_TOLERANCE = 60
 
 window.COLOR_SELECTED_PORTAL = '#f00';
 window.COLORS = ['#FFCE00', '#0088FF', '#03DC03']; // none, res, enl
@@ -188,7 +192,9 @@ window.DESTROY_FIELD = 750; //AP for destroying field
 window.CAPTURE_PORTAL = 500; //AP for capturing a portal
 window.DEPLOY_RESONATOR = 125; //AP for deploying a resonator
 window.COMPLETION_BONUS = 250; //AP for deploying all resonators on portal
+window.UPGRADE_ANOTHERS_RESONATOR = 65; //AP for upgrading another's resonator
 window.MAX_PORTAL_LEVEL = 8;
+window.MAX_RESO_PER_PLAYER = [0, 8, 4, 4, 4, 2, 2, 1, 1];
 
 // OTHER MORE-OR-LESS CONSTANTS //////////////////////////////////////
 window.TEAM_NONE = 0;

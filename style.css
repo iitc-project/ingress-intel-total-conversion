@@ -93,6 +93,15 @@ a:hover {
   width: 0;
 }
 
+/* field mu count */
+.fieldmu {
+  color: #FFCE00;
+  font-size:13px;
+  font-family: "coda",arial,helvetica,sans-serif; /*override leaflet-container */
+  text-align: center;
+  text-shadow: 0 0 0.2em black, 0 0 0.2em black, 0 0 0.2em black;
+}
+
 
 /* chat ***************************************************************/
 
@@ -670,15 +679,18 @@ aside {
   max-width: 300px;
   position: absolute;
   z-index: 9999;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  color: #222;
+  background-color: rgba(8, 48, 78, 0.9);
+  border: 1px solid #20A8B1;
+  color: #eee;
   font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
   padding: 2px 4px;
 }
 
+.ui-tooltip, .ui-dialog a {
+  color: #FFCE00;
+}
+
 .ui-dialog {
-  border: 1px solid #0F0F0F;
   padding: 0;
   border-radius: 2px;
 }
@@ -706,23 +718,26 @@ aside {
   max-width: 700px !important;
 }
 
-.ui-dialog a {
-  color: #0000ca;
-}
-
 .ui-dialog-buttonpane {
-  background: #F2F2F2;
   padding: 12px;
-  border-top: 1px solid #E6E6E6;
+  border-top: 1px solid #20A8B1;
 }
 
 .ui-dialog-buttonset {
   text-align: right;
 }
 
-.ui-dialog-buttonset button {
+.ui-dialog-buttonset button,
+.ui-dialog-content button {
   padding: 2px;
   min-width: 80px;
+  color: #FFCE00;
+  border: 1px solid #FFCE00;
+  background-color: rgba(8, 48, 78, 0.9);
+}
+
+.ui-dialog-buttonset button:hover {
+  text-decoration: underline;
 }
 
 td {

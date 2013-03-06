@@ -12,12 +12,12 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
     } else if (data.error === 'INVALID_PASSCODE') {
       error = 'This passcode is invalid.';
     } else {
-      error = 'The passcode cannot be redeemed.';
+      error = 'There was a problem redeeming the passcode. Try again?';
     }
-    alert("Error: " + data.error + "\n" + error);
+    alert('<strong>' + data.error + '</strong>\n' + error);
   } else if (data.result) {
-    var res_level = 0, res_count = 0;
     var xmp_level = 0, xmp_count = 0;
+    var res_level = 0, res_count = 0;
     var shield_rarity = '', shield_count = 0;
 
     // This assumes that each passcode gives only one type of resonator/XMP/shield.
@@ -30,17 +30,17 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
           shield_count++;
         }
       } else if (acquired.resourceWithLevels) {
-        if (acquired.resourceWithLevels.resourceType === 'EMITTER_A') {
-          res_level = acquired.resourceWithLevels.level;
-          res_count++;
-        } else if (acquired.resourceWithLevels.resourceType === 'EMP_BURSTER') {
+        if (acquired.resourceWithLevels.resourceType === 'EMP_BURSTER') {
           xmp_level = acquired.resourceWithLevels.level;
           xmp_count++;
+        } else if (acquired.resourceWithLevels.resourceType === 'EMITTER_A') {
+          res_level = acquired.resourceWithLevels.level;
+          res_count++;
         }
       }
     }
 
-    alert("Passcode redeemed!\n" + [data.result.apAward + 'AP', data.result.xmAward + 'XM', res_count + 'xL' + res_level + ' RES', xmp_count + 'xL' + xmp_level + ' XMP', shield_count + 'x' + shield_rarity + ' SHIELD'].join('/'));
+    alert('<strong>Passcode accepted!</strong>\n' + [data.result.apAward + 'AP', data.result.xmAward + 'XM', xmp_count + 'xL' + xmp_level + ' XMP', res_count + 'xL' + res_level + ' RES', shield_count + 'x' + shield_rarity + ' SH'].join('/'));
   }
 }
 
@@ -49,6 +49,19 @@ window.setupRedeem = function() {
     if((e.keyCode ? e.keyCode : e.which) != 13) return;
     var data = {passcode: $(this).val()};
     window.postAjax('redeemReward', data, window.handleRedeemResponse,
-      function() { alert('The HTTP request failed. Either your code is invalid or their servers are down. No way to tell.'); });
+      function(response) {
+        var extra = '';
+        if (response && response.status) {
+          if (response.status === 429) {
+            extra = 'You have been rate-limited by the server. Wait a bit and try again.';
+          } else {
+            extra = 'The server indicated an error.';
+          }
+          extra += '\nResponse: HTTP <a href="http://httpstatus.es/' + response.status + '" alt="HTTP ' + response.status + '">' + response.status + '</a>.';
+        } else {
+          extra = 'No status code was returned.';
+        }
+        alert('<strong>The HTTP request failed.</strong> ' + extra);
+      });
   });
 }
