@@ -60,6 +60,7 @@ window.plugin.scoreboard.initPlayer = function(player,team) {
 }
 
 window.plugin.scoreboard.compileStats = function() {
+  var something_in_view = false;
   window.plugin.scoreboard.scores = {"team": {}, "player": {}};
   window.plugin.scoreboard.resetTeam(TEAM_RES);
   window.plugin.scoreboard.resetTeam(TEAM_ENL);
@@ -73,7 +74,8 @@ window.plugin.scoreboard.compileStats = function() {
     if(window.portals[val.options.vertices.vertexA.guid] !== undefined ||
        window.portals[val.options.vertices.vertexB.guid] !== undefined ||
        window.portals[val.options.vertices.vertexC.guid] !== undefined ) {
-    
+      
+      something_in_view = true;
       window.plugin.scoreboard.scores['team'][team]['mu'] += parseInt(val.options.data.entityScore.entityScore);
       window.plugin.scoreboard.scores['player'][player]['mu'] += parseInt(val.options.data.entityScore.entityScore);
       window.plugin.scoreboard.scores['team'][team]['count_fields']++;
@@ -94,6 +96,7 @@ window.plugin.scoreboard.compileStats = function() {
     }
   });
   $.each(window.links, function(qk, link) {
+    something_in_view = true;
     var team = getTeam(link.options.data);
     var player = link.options.data.creator.creatorGuid;
     window.plugin.scoreboard.initPlayer(player,team);
@@ -101,6 +104,7 @@ window.plugin.scoreboard.compileStats = function() {
     window.plugin.scoreboard.scores['player'][player]['count_links']++;
   });
   $.each(window.portals, function(qk, portal) {
+    something_in_view = true;
     var team = getTeam(portal.options.details);
     var player = portal.options.details.captured.capturingPlayerId;
     window.plugin.scoreboard.initPlayer(player,team);
@@ -109,20 +113,23 @@ window.plugin.scoreboard.compileStats = function() {
     
     //$.each(portal.options.details.portalV2.linkedModArray, function(ind, mod) {
     //  if(mod !== null) {
+    //    something_in_view = true;
     //    window.plugin.scoreboard.scores['team'][team]['count_shields']++;
     //    window.plugin.scoreboard.scores['player'][mod.installingUser]['count_shields']++;
     //  }
     //});
     
     $.each(portal.options.details.resonatorArray.resonators, function(ind, reso) {
-      if(reso !== null) {
+      if(reso !== null) {  
+        something_in_view = true;
         window.plugin.scoreboard.initPlayer(reso.ownerGuid,team);
         window.plugin.scoreboard.scores['team'][team]['count_resonators']++;
         window.plugin.scoreboard.scores['player'][reso.ownerGuid]['count_resonators']++;
       }
     });
   });
- 
+  
+  return(something_in_view)
 };
 
 window.plugin.scoreboard.percentSpan = function(percent,css_class) {
@@ -168,43 +175,49 @@ window.plugin.scoreboard.playerTableRow = function(player_guid) {
 };
 
 window.plugin.scoreboard.display = function() {
-   window.plugin.scoreboard.compileStats();
+  
+  var something_in_view = window.plugin.scoreboard.compileStats();
    
-   var res_mu = window.plugin.scoreboard.scores['team'][TEAM_RES]['mu'];
-   var enl_mu = window.plugin.scoreboard.scores['team'][TEAM_ENL]['mu'];
+  var res_mu = window.plugin.scoreboard.scores['team'][TEAM_RES]['mu'];
+  var enl_mu = window.plugin.scoreboard.scores['team'][TEAM_ENL]['mu'];
 
-   var score_html = '';
-   if(res_mu + enl_mu > 0) {
+  var score_html = '';
+  if(something_in_view) {
+  
+    if(res_mu + enl_mu > 0) {
       var res_mu_percent = Math.round((res_mu / (res_mu + enl_mu)) * 100);
       score_html += '<div id="gamestat" title="Resistance:	' + res_mu + ' MU Enlightenment:	' + enl_mu + ' MU">'
         + window.plugin.scoreboard.percentSpan(res_mu_percent,'res')
         + window.plugin.scoreboard.percentSpan(100-res_mu_percent,'enl')
         + '</div>';
-
-      score_html += '<table width="100%">'
-                 + '<tr><th></th><th>Resistance</th><th>Enlightened</th><th>Total</th></tr>';
-      score_html += window.plugin.scoreboard.teamTableRow('mu','Mu');
-      score_html += window.plugin.scoreboard.teamTableRow('count_fields','Fields');
-      score_html += window.plugin.scoreboard.teamTableRow('count_links','Links');
-      score_html += window.plugin.scoreboard.teamTableRow('count_portals','Portals');
-      score_html += window.plugin.scoreboard.teamTableRow('count_resonators','Resonators');
-      score_html += '</table>';
-      
-      score_html += '<table width="100%">'
-                 + '<tr><th>Player</th><th>Mu</th><th>Fields</th><th>Links</th><th>Portals</th><th>Resonators</th></tr>';
-      $.each(window.plugin.scoreboard.scores['player'], function(guid, player_data) {
-        score_html += window.plugin.scoreboard.playerTableRow(guid);
-      });
-      score_html += '</table>';
-      
-   }
+    }
+    
+    score_html += '<table width="100%">'
+               + '<tr><th></th><th>Resistance</th><th>Enlightened</th><th>Total</th></tr>';
+    score_html += window.plugin.scoreboard.teamTableRow('mu','Mu');
+    score_html += window.plugin.scoreboard.teamTableRow('count_fields','Fields');
+    score_html += window.plugin.scoreboard.teamTableRow('count_links','Links');
+    score_html += window.plugin.scoreboard.teamTableRow('count_portals','Portals');
+    score_html += window.plugin.scoreboard.teamTableRow('count_resonators','Resonators');
+    score_html += '</table>';
+    
+    score_html += '<table width="100%">'
+               + '<tr><th>Player</th><th>Mu</th><th>Fields</th><th>Links</th><th>Portals</th><th>Resonators</th></tr>';
+    $.each(window.plugin.scoreboard.scores['player'], function(guid, player_data) {
+      score_html += window.plugin.scoreboard.playerTableRow(guid);
+    });
+    score_html += '</table>';
+    
+    score_html += '<div class="disclaimer">Score is subject to portals available based on zoom level. If names are unresolved try again. For best results wait until updates are fully loaded.</div>';
+  } else {
+    score_html += 'You need something in view.';  
+  }
   
-   score_html += '<div class="disclaimer">Score is subject to portals available based on zoom level. If names are unresolved try again. For best results wait until updates are fully loaded.</div>';
-   $('#scoreboard').html(score_html);
-   $( "#scoreboard" ).dialog({autoOpen: true,
-      modal: true,
-      width: 500,
-      buttons: [ { text: "Close", click: function() { $( this ).dialog( "close" ); } } ]});
+  $('#scoreboard').html(score_html);
+  $( "#scoreboard" ).dialog({autoOpen: true,
+    modal: true,
+    width: 500,
+    buttons: [ { text: "Close", click: function() { $( this ).dialog( "close" ); } } ]});
 }
 
 var setup =  function() {
