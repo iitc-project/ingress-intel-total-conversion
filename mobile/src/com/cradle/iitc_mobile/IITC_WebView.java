@@ -11,7 +11,7 @@ public class IITC_WebView extends WebView {
 
 	private WebSettings settings;
 	private IITC_WebViewClient webclient;
-	
+
 	// init web view
 	private void iitc_init() {
 		settings = this.getSettings();
@@ -22,7 +22,7 @@ public class IITC_WebView extends WebView {
 		webclient = new IITC_WebViewClient();
 		this.setWebViewClient(webclient);
 	}
-	
+
 	// constructors -------------------------------------------------
 	public IITC_WebView(Context context) {
 		super(context);
@@ -35,7 +35,7 @@ public class IITC_WebView extends WebView {
 
 		iitc_init();
 	}
-	
+
 	public IITC_WebView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 
