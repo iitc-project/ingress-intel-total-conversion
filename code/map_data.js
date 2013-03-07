@@ -122,7 +122,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
       }
     });
   });
-  
+
   $.each(ppp, function(ind, portal) {
     if(portal[2].portalV2['linkedFields'] === undefined) {
       portal[2].portalV2['linkedFields'] = [];
@@ -132,7 +132,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
       portal[2].portalV2['linkedFields'] = uniqueArray(p2f[portal[0]]);
     }
   });
-  
+
   // Process the portals with portal render limit handler first
   // Low level portal will hold until last request
   var newPpp = portalRenderLimit.splitOrMergeLowLevelPortals(ppp);
@@ -144,25 +144,26 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
 }
 
 window.handlePortalsRender = function(portals) {
-  var portalUpdateAvailable = false;
   var portalInUrlAvailable = false;
 
-  // Preserve and restore "selectedPortal" between portal re-render
-  if(portalUpdateAvailable) var oldSelectedPortal = selectedPortal;
+  // Preserve selectedPortal because it will get lost on re-rendering
+  // the portal
+  var oldSelectedPortal = selectedPortal;
 
   runHooks('portalDataLoaded', {portals : portals});
   $.each(portals, function(ind, portal) {
-    if(selectedPortal === portal[0]) portalUpdateAvailable = true;
-    if(urlPortal && portal[0] == urlPortal) portalInUrlAvailable = true;
+    //~ if(selectedPortal === portal[0]) portalUpdateAvailable = true;
+    if(urlPortal && portal[0] === urlPortal) portalInUrlAvailable = true;
     renderPortal(portal);
   });
 
-  var selectedPortalLayer = portals[oldSelectedPortal];
-  if(portalUpdateAvailable && selectedPortalLayer) selectedPortal = oldSelectedPortal;
-
-  if(selectedPortalLayer) {
+  // restore selected portal if still available
+  var selectedPortalGroup = portals[oldSelectedPortal];
+  if(selectedPortalGroup) {
+    selectedPortal = oldSelectedPortal;
+    renderPortalDetails(selectedPortal);
     try {
-      selectedPortalLayer.bringToFront();
+      selectedPortalGroup.bringToFront();
     } catch(e) { /* portal is now visible, catch Leaflet error */ }
   }
 
@@ -170,8 +171,6 @@ window.handlePortalsRender = function(portals) {
     renderPortalDetails(urlPortal);
     urlPortal = null; // select it only once
   }
-
-  if(portalUpdateAvailable) renderPortalDetails(selectedPortal);
 }
 
 // removes entities that are still handled by Leaflet, although they
@@ -542,7 +541,7 @@ window.renderLink = function(ent) {
 window.renderField = function(ent) {
   if(Object.keys(fields).length >= MAX_DRAWN_FIELDS)
     return window.removeByGuid(ent[0]);
-  
+
   var old = findEntityInLeaflet(fieldsLayer, window.fields, ent[0]);
   // If this already exists and the zoom level has not changed, we don't need to do anything
   if(old && map.getZoom() === old.options.creationZoom) return;
@@ -578,7 +577,7 @@ window.renderField = function(ent) {
   // Curve fit equation to normalize zoom window area
   var areaZoomRatio = calcTriArea(latlngs)/Math.exp(14.2714860198866-1.384987247*map.getZoom());
   var countForMUDisplay = L.LineUtil.simplify(poly._originalPoints, FIELD_MU_DISPLAY_POINT_TOLERANCE).length
-  
+
   // Do nothing if zoom did not change. We need to recheck the field if the
   // zoom level is different then when the field was rendered as it could
   // now be appropriate or not to show an MU count
