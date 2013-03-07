@@ -43,10 +43,10 @@ How do I…?
 - **Login:** on tablets, this should just work. On smartphones you’ll see a black screen with some blue lines. This is the normal Ingress login page and you need to scroll to see the login button.
 - **Clear Data/Cache:** Open app launcher and find the IITCM icon. Press-and-hold and then drag it to “App Info” on the top right of the screen. There’s a “clear data” and “clear cache” button.
 - **Logout:** Not possible from within the app. See *Clear Data/Cache* and use “clear data”.
-- **Reload:** Not possible from within the app. Instead, open your recent applications and force close IITCM. It should reload after restarting.
+- **Reload:** Settings -> Reload IITC.
 - **“Your account has not been enabled to play Ingress“**: See *Reload*.
 - **Install:** You can find this out yourself. If you don’t know how, then please wait for a more polished version of IITCM.
-- **Update:** You can check if there’s a new APK build by looking at the [apk_version](https://github.com/breunigs/ingress-intel-total-conversion/raw/gh-pages/mobile/apk_version file)[.](https://mathphys.fsk.uni-heidelberg.de/~stefan/test/IngressIntelTC.apk) It contains the date of the last update. The app uses the latest IITC hourly build automatically. You may need to clear your cache to force a reload, see *Clear Data/Cache*. Also note that the dot after “apk_version” is the download link to the APK.
+- **Update:** You can check if there’s a new APK build by looking at [our appspot](https://iitcserv.appspot.com/mobile/). It contains the date of the last update. The app uses the latest IITC hourly build automatically. You may need to clear your cache to force a reload, see *Clear Data/Cache*.
 
 How does this basically work?
 -----------------------------
@@ -66,10 +66,17 @@ Debugging IITC(M) **before** it has booted requires the Android Developer Tools.
 Building the APK
 ----------------
 
-No idea. Please write docs and send patches.
+- **Eclipse:** Just import this project and klick the build button.
+- **ant:**
+Set the ANDROID_HOME environment variable
+    `export ANDROID_HOME=/path/to/android_sdk`
+Build the project with ant
+    `ant debug`
 
 
 Download APK
 ------------
+
+https://iitcserv.appspot.com/mobile/IITC-Mobile-latest.apk
 
 Well, glad you read to the end. Enjoy and send patches, bug reports, postcards and love. (If you are wondering where the download link is, I’m wondering if you have actually read the page.)
