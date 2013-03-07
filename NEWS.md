@@ -19,7 +19,7 @@ CHANGES IN 0.7 / 0.7.1
 - 0.7.1 fixes an oversight that prevented some portals from showing (by saithis)
 
 ### General
-- from now on there will be [nightly builds](https://www.dropbox.com/sh/lt9p0s40kt3cs6m/3xzpyiVBnF) available. You need to manually update them if you want to stay on nightly. You should be offered to update to the next release version, though. Be sure to [have read the guide on how to report bugs](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/HACKING.md#how-do-i-report-bugs) before using a nightly version.
+- from now on there will be [nightly builds](https://iitcserv.appspot.com/iitc-nightly/) available. You need to manually update them if you want to stay on nightly. You should be offered to update to the next release version, though. Be sure to [have read the guide on how to report bugs](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/HACKING.md#how-do-i-report-bugs) before using a nightly version.
 - IITC has [a shiny new user guide now](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/USERGUIDE.md). Please point new users to it, it should answer most of their questions and also teach them how to make good bug reports.
 
 ### Main Script
