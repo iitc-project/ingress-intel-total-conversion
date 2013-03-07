@@ -276,11 +276,11 @@ function boot() {
   window.runOnSmartphonesBeforeBoot();
 
   // overwrite default Leaflet Marker icon to be a neutral color
-  var base = 'https://iitcserv.appspot.com/dist/images/';
+  var base = 'https://iitcserv.appspot.com/dist/images';
   L.Icon.Default.imagePath = base;
 
-  window.iconEnl = L.Icon.Default.extend({options: { iconUrl: base + 'marker-green.png' } });
-  window.iconRes = L.Icon.Default.extend({options: { iconUrl: base + 'marker-blue.png' } });
+  window.iconEnl = L.Icon.Default.extend({options: { iconUrl: base + '/marker-green.png' } });
+  window.iconRes = L.Icon.Default.extend({options: { iconUrl: base + '/marker-blue.png' } });
 
   window.setupStyles();
   window.setupDialogs();
