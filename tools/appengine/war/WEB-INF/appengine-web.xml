@@ -3,10 +3,11 @@
   <version>1</version>
 
   <static-files>
-    <include path="/**.png" expiration="7d" />
+    <include path="/**.png" expiration="7d"/>
     <include path="/**.css" expiration="2d"/>
     <include path="/**.js" expiration="7d"/>
     <include path="/iitc-nightly/iitc-nightly-latest.user.js.js" expiration="12h"/>
+    <include path="/iitc-nightly/**"/>
   </static-files>
   <threadsafe>true</threadsafe>
 </appengine-web-app>

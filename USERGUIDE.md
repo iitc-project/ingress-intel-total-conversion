@@ -9,6 +9,7 @@ table of contents:
 - [Map Status / Updates](#map-status--updates)
 - [Sidebar](#sidebar)
 - [Bugs and help requests](#reporting-bugs--i-need-more-help)
+- [Nightly Builds](#nightly-builds)
 
 
 Installation
@@ -156,3 +157,9 @@ Reporting Bugs / I need more help
 ---------------------------------
 
 [Please read the “how do I report bugs” here](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/HACKING.md#how-do-i-report-bugs).
+
+
+Nightly Builds
+--------------
+
+You can always find the latest nightly build under this URL: [https://iitcserv.appspot.com/iitc-nightly/iitc-nightly-latest.user.js](https://iitcserv.appspot.com/iitc-nightly/iitc-nightly-latest.user.js). Note that it does *not* update to nightly, but to the next release version instead. In other words, you are always lead back to main unless you manually install the nightly version each time. [You can find older nightly builds in the same folder](https://iitcserv.appspot.com/iitc-nightly/), which may be useful if you want to track down when something broke for you (called “bisecting”).
