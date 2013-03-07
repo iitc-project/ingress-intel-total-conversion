@@ -20,5 +20,5 @@ Building the APK
 - **ant:**
   Set the ANDROID_HOME environment variable:
   ```export ANDROID_HOME=/path/to/android_sdk```
-  and build the project with ant:  
+  and build the project with ant:
   `ant debug`
