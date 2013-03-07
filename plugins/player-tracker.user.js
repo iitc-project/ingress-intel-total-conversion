@@ -31,6 +31,10 @@ window.plugin.playerTracker.setup = function() {
   plugin.playerTracker.drawnTraces = new L.LayerGroup();
   window.layerChooser.addOverlay(plugin.playerTracker.drawnTraces, 'Player Tracker');
   map.addLayer(plugin.playerTracker.drawnTraces);
+  window.plugin.playerTracker.oms = new OverlappingMarkerSpiderfier(map);
+  window.plugin.playerTracker.oms.legColors = {'usual': '#FFFF00', 'highlighted': '#FF0000'};
+  window.plugin.playerTracker.oms.legWeight = 3.5;
+
   addHook('publicChatDataAvailable', window.plugin.playerTracker.handleData);
 
   window.map.on('zoomend', function() {
@@ -237,10 +241,11 @@ window.plugin.playerTracker.drawData = function() {
 
     // marker itself
     var icon = playerData.team === 'ALIENS' ?  new window.iconEnl() :  new window.iconRes();
-    var m = L.marker(gllfe(last), {title: title, clickable: false, icon: icon});
+    var m = L.marker(gllfe(last), {title: title, icon: icon});
     // ensure tooltips are closed, sometimes they linger
     m.on('mouseout', function() { $(this._icon).tooltip('close'); });
     m.addTo(layer);
+    window.plugin.playerTracker.oms.addMarker(m);
     // jQueryUI doesn’t automatically notice the new markers
     window.setupTooltips($(m._icon));
   });
@@ -270,6 +275,7 @@ window.plugin.playerTracker.handleData = function(data) {
   plugin.playerTracker.drawnTraces.eachLayer(function(layer) {
     if(layer._icon) $(layer._icon).tooltip('destroy');
   });
+  window.plugin.playerTracker.oms.clearMarkers();
   plugin.playerTracker.drawnTraces.clearLayers();
   plugin.playerTracker.drawData();
 }
