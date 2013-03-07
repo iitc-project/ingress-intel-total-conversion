@@ -51,6 +51,9 @@ window.plugin.scoreboard.initPlayer = function(player,team) {
    if(window.plugin.scoreboard.scores['player'][player]['count_resonators'] === undefined) {
      window.plugin.scoreboard.scores['player'][player]['count_resonators'] = 0;
    }
+   //if(window.plugin.scoreboard.scores['player'][player]['count_shields'] === undefined) {
+   //  window.plugin.scoreboard.scores['player'][player]['count_shields'] = 0;
+   //}
    if(window.plugin.scoreboard.scores['player'][player]['largest'] === undefined) {
      window.plugin.scoreboard.scores['player'][player]['largest'] = {};
    }
@@ -104,10 +107,18 @@ window.plugin.scoreboard.compileStats = function() {
     window.plugin.scoreboard.scores['team'][team]['count_portals']++;
     window.plugin.scoreboard.scores['player'][player]['count_portals']++;
     
-    $.each(portal.options.details.portalV2.linkedModArray, function(ind, mod) {
-      if(mod !== null) {
+    //$.each(portal.options.details.portalV2.linkedModArray, function(ind, mod) {
+    //  if(mod !== null) {
+    //    window.plugin.scoreboard.scores['team'][team]['count_shields']++;
+    //    window.plugin.scoreboard.scores['player'][mod.installingUser]['count_shields']++;
+    //  }
+    //});
+    
+    $.each(portal.options.details.resonatorArray.resonators, function(ind, reso) {
+      if(reso !== null) {
+        window.plugin.scoreboard.initPlayer(reso.ownerGuid,team);
         window.plugin.scoreboard.scores['team'][team]['count_resonators']++;
-        window.plugin.scoreboard.scores['player'][player]['count_resonators']++;
+        window.plugin.scoreboard.scores['player'][reso.ownerGuid]['count_resonators']++;
       }
     });
   });
@@ -133,6 +144,8 @@ window.plugin.scoreboard.teamTableRow = function(field,title) {
     + window.plugin.scoreboard.scores['team'][TEAM_RES][field]
     + '</td><td>'
     + window.plugin.scoreboard.scores['team'][TEAM_ENL][field]
+    + '</td><td>'
+    + (window.plugin.scoreboard.scores['team'][TEAM_RES][field] + window.plugin.scoreboard.scores['team'][TEAM_ENL][field])
     + '</td></tr>';
    return(retVal);
 };
@@ -169,7 +182,7 @@ window.plugin.scoreboard.display = function() {
         + '</div>';
 
       score_html += '<table width="100%">'
-                 + '<tr><th></th><th>Resistance</th><th>Enlightened</th></tr>';
+                 + '<tr><th></th><th>Resistance</th><th>Enlightened</th><th>Total</th></tr>';
       score_html += window.plugin.scoreboard.teamTableRow('mu','Mu');
       score_html += window.plugin.scoreboard.teamTableRow('count_fields','Fields');
       score_html += window.plugin.scoreboard.teamTableRow('count_links','Links');
