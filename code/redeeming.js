@@ -16,13 +16,13 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
     }
     alert('<strong>' + data.error + "</strong>\n" + error);
   } else if (data.result) {
-	var tblResult = $('<table class="redeem-result" />');
-	tblResult.append($('<tr><th colspan="2">Passcode accepted!</th></tr>'));
+    var tblResult = $('<table class="redeem-result" />');
+    tblResult.append($('<tr><th colspan="2">Passcode accepted!</th></tr>'));
   
     if (data.result.apAward)
       tblResult.append($('<tr><td>+</td><td>' + data.result.apAward + 'AP</td></tr>'));
     if (data.result.xmAward)
-	  tblResult.append($('<tr><td>+</td><td>' + data.result.xmAward + 'XM</td></tr>'));
+      tblResult.append($('<tr><td>+</td><td>' + data.result.xmAward + 'XM</td></tr>'));
   
     var resonators = {};
     var bursts = {};
@@ -68,7 +68,7 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
       var text = 'Portal Shield';
       if (shields[lvl] > 1)
         text += ' ('+shields[lvl]+')';
-	  tblResult.append($('<tr><td>'+lvl+'</td><td>'+text+'</td></tr>'));
+      tblResult.append($('<tr><td>'+lvl+'</td><td>'+text+'</td></tr>'));
     }
 
     alert(tblResult, true);
