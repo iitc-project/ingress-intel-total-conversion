@@ -27,8 +27,9 @@ Please follow the these guidelines. Some are just preference, others are good pr
 - use identity operators: `===` and `!==`. [Why do I want this?](http://stackoverflow.com/a/359509/1684530)
 - jQuery is your friend
 - indent using two spaces
-- opening brace on the same line with a space after the if/for/etc: `if(blub) {`
+- opening brace on the same line: `if(blub) {`
 - else clauses: `} else if(blub) {` or `} else {`
+- there should be no space after `if`, `for`, etc. E.g. `if(true) { doStuff(); } else { dontDoStuff(); }`
 - comments: `// this is a comment`
 - quotes: Use single-quotes for JavaScript and double-quotes for HTML content. Example: `$('body').append('<div id="soup">Soup!</div>');`.
 - there is no length limit on lines, but try to keep them short where suitable
