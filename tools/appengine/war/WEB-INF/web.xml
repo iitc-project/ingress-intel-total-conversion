@@ -20,4 +20,8 @@
     <servlet-name>default</servlet-name>
     <url-pattern>/iitc-nightly/*</url-pattern>
  </servlet-mapping>
+ <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/mobile/*</url-pattern>
+ </servlet-mapping>
 </web-app>
