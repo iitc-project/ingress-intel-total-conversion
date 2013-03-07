@@ -42,7 +42,7 @@ if(!d) {
   // page doesn’t have a script tag with player information.
   if(document.getElementById('header_email')) {
     // however, we are logged in.
-    setTimeout('location.reload();', 10*1000);
+    setTimeout('location.reload();', 3*1000);
     throw('Page doesn’t have player data, but you are logged in. Reloading in 10s.');
   }
   // FIXME: handle nia takedown in progress
@@ -67,7 +67,7 @@ document.getElementsByTagName('head')[0].innerHTML = ''
   + '<style>@@INCLUDESTRING:external/leaflet.css@@</style>'
   // this navigator check is also used in code/smartphone.js
   + (navigator.userAgent.match(/Android.*Mobile/)
-      ? + '<style>@@INCLUDESTRING:mobile/smartphone.css@@</style>'
+      ? '<style>@@INCLUDESTRING:mobile/smartphone.css@@</style>'
       : '')
   + '<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Coda"/>';
 

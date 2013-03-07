@@ -727,7 +727,8 @@ aside {
   text-align: right;
 }
 
-.ui-dialog-buttonset button {
+.ui-dialog-buttonset button,
+.ui-dialog-content button {
   padding: 2px;
   min-width: 80px;
   color: #FFCE00;

@@ -14,7 +14,7 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
     } else {
       error = 'There was a problem redeeming the passcode. Try again?';
     }
-    alert('<strong>' + data.error + "</strong>\n" + error);
+    alert('<strong>' + data.error + '</strong>\n' + error);
   } else if (data.result) {
     var tblResult = $('<table class="redeem-result" />');
     tblResult.append($('<tr><th colspan="2">Passcode accepted!</th></tr>'));
@@ -84,13 +84,13 @@ window.setupRedeem = function() {
         var extra = '';
         if (response && response.status) {
           if (response.status === 429) {
-            extra = "You have been rate-limited by the server. Wait a bit and try again.";
+            extra = 'You have been rate-limited by the server. Wait a bit and try again.';
           } else {
-            extra = "The server indicated an error.";
+            extra = 'The server indicated an error.';
           }
-          extra += "\n" + 'Response: HTTP <a href="http://httpstatus.es/' + jq.status + '" alt="HTTP ' + jq.status + '"target="_blank">' + jq.status + "</a>.";
+          extra += '\nResponse: HTTP <a href="http://httpstatus.es/' + response.status + '" alt="HTTP ' + response.status + '">' + response.status + '</a>.';
         } else {
-          extra = "No status code was returned.";
+          extra = 'No status code was returned.';
         }
         alert('<strong>The HTTP request failed.</strong> ' + extra);
       });
