@@ -33,43 +33,37 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
       if (acquired.modResource) {
         if (acquired.modResource.resourceType === 'RES_SHIELD') {
           var rarity = acquired.modResource.rarity.split('_').map(function (i) {return i[0]}).join('');
-          if (!shields[rarity])
-            shields[rarity] = 0;
+          if (!shields[rarity]) shields[rarity] = 0;
           shields[rarity] += 1;
         }
       } else if (acquired.resourceWithLevels) {
         if (acquired.resourceWithLevels.resourceType === 'EMITTER_A') {
           var level = acquired.resourceWithLevels.level
-          if (!resonators[level])
-            resonators[level] = 0;
+          if (!resonators[level]) resonators[level] = 0;
           resonators[level] += 1;
         } else if (acquired.resourceWithLevels.resourceType === 'EMP_BURSTER') {
           var level = acquired.resourceWithLevels.level
-          if (!bursts[level])
-            bursts[level] = 0;
+          if (!bursts[level]) bursts[level] = 0;
           bursts[level] += 1;
         }
       }
     }
     
-    for (var lvl in resonators) {
+    $.each(resonators, function(lvl, count) {
       var text = 'Resonator';
-      if (resonators[lvl] > 1)
-        text += ' ('+resonators[lvl]+')';
+      if (count >= 2) text += ' ('+count+')';
       tblResult.append($('<tr ><td style="color: ' +window.COLORS_LVL[lvl]+ ';">L' +lvl+ '</td><td>' + text + '</td></tr>'));
-    }
-    for (var lvl in bursts) {
+    });
+    $.each(bursts, function(lvl, count) {
       var text = 'Xmp Burster';
-      if (bursts[lvl] > 1)
-        text += ' ('+bursts[lvl]+')';
+      if (count >= 2) text += ' ('+count+')';
       tblResult.append($('<tr ><td style="color: ' +window.COLORS_LVL[lvl]+ ';">L' +lvl+ '</td><td>' + text + '</td></tr>'));
-    }
-    for (var lvl in shields) {
+    });
+    $.each(shields, function(lvl, count) {
       var text = 'Portal Shield';
-      if (shields[lvl] > 1)
-        text += ' ('+shields[lvl]+')';
+      if (count >= 2) text += ' ('+count+')';
       tblResult.append($('<tr><td>'+lvl+'</td><td>'+text+'</td></tr>'));
-    }
+    });
 
     alert(tblResult, true);
   }
