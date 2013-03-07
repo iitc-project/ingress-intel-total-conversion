@@ -18,7 +18,7 @@ Building the APK
 
 - **Eclipse:** Just import this project and klick the build button.
 - **ant:**
-Set the ANDROID_HOME environment variable
-`export ANDROID_HOME=/path/to/android_sdk`
-Build the project with ant
-`ant debug`
+  Set the ANDROID_HOME environment variable:
+  ```export ANDROID_HOME=/path/to/android_sdk```
+  and build the project with ant:  
+  `ant debug`
