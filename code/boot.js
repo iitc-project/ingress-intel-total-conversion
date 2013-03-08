@@ -55,8 +55,9 @@ window.setupLargeImagePreview = function() {
 // adds listeners to the layer chooser such that a long press hides
 // all custom layers except the long pressed one.
 window.setupLayerChooserSelectOne = function() {
-  $('.leaflet-control-layers-overlays').on('click', 'label', function(e) {
-    if(!e || !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)) return;
+  $('.leaflet-control-layers-overlays').on('click taphold', 'label', function(e) {
+    if(!e) return;
+    if(!(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.type === 'taphold')) return;
 
     var isChecked = $(this).find('input').is(':checked');
     var checkSize = $('.leaflet-control-layers-overlays input:checked').length;
@@ -289,6 +290,10 @@ window.setupDialogs = function() {
   }
 }
 
+window.setupTaphold = function() {
+  @@INCLUDERAW:external/taphold.js@@
+}
+
 
 window.setupQRLoadLib = function() {
   @@INCLUDERAW:external/jquery.qrcode.min.js@@
@@ -311,6 +316,7 @@ function boot() {
   window.iconEnl = L.Icon.Default.extend({options: { iconUrl: base + '/marker-green.png' } });
   window.iconRes = L.Icon.Default.extend({options: { iconUrl: base + '/marker-blue.png' } });
 
+  window.setupTaphold();
   window.setupStyles();
   window.setupDialogs();
   window.setupMap();
