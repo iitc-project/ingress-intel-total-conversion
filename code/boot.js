@@ -7,27 +7,23 @@
 
 
 window.setupBackButton = function() {
-  window.setupBackButton._actions =[$('#chatcontrols a.active')];
+  var c = window.isSmartphone()
+    ? window.smartphone.mapButton
+    : $('#chatcontrols a.active');
+
+  window.setupBackButton._actions = [c.get(0)];
   $('#chatcontrols a').click(function() {
-    if(window.setupBackButton._ignoreNextClick) {
-      window.setupBackButton._ignoreNextClick = false;
-      return;
-    }
+    // ignore shrink button
+    if(a.hasClass('toggle')) return;
     window.setupBackButton._actions.push(this);
-    window.setupBackButton._actions = window.setupBackButton._actions.slice(-3);
+    window.setupBackButton._actions = window.setupBackButton._actions.slice(-2);
   });
 
   window.goBack = function() {
-    while(window.setupBackButton._actions.length > 0) {
-      var a = $(window.setupBackButton._actions.pop());
-      // skip no-op back actions. This may occur then the expand/shrink
-      // button is used.
-      if(a.hasClass('active')) continue;
-      window.setupBackButton._ignoreNextClick = true;
-      a.click();
-      console.log('Going back to ' + a.text());
-      break;
-    }
+    var a = window.setupBackButton._actions[0];
+    if(!a) return;
+    $(a).click();
+    window.setupBackButton._actions = [a];
   }
 }
 
