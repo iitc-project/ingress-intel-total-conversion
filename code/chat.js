@@ -578,13 +578,13 @@ window.chat.postMsg = function() {
 
   if(c === 'debug') return new Function (msg)();
 
-  var public = c === 'public';
+  var publik = c === 'public';
   var latlng = map.getCenter();
 
   var data = {message: msg,
               latE6: Math.round(latlng.lat*1E6),
               lngE6: Math.round(latlng.lng*1E6),
-              factionOnly: !public};
+              factionOnly: !publik};
 
   var errMsg = 'Your message could not be delivered. You can copy&' +
                'paste it here and try again if you want:\n\n' + msg;
@@ -592,7 +592,7 @@ window.chat.postMsg = function() {
   window.postAjax('sendPlext', data,
     function(response) {
       if(response.error) alert(errMsg);
-      if(public) chat.requestPublic(false); else chat.requestFaction(false); },
+      if(publik) chat.requestPublic(false); else chat.requestFaction(false); },
     function() {
       alert(errMsg);
     }
