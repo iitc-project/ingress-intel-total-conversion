@@ -25,12 +25,12 @@ public class IITC_WebViewClient extends WebViewClient {
 			CookieManager cm = CookieManager.getInstance();
 			final String cookie = cm.getCookie("https://www.ingress.com/intel");
 			if(cookie != null) {
-		        web.loadUrl("javascript: (function() { "
-		                + "var script=document.createElement('script');"
-		                + "script.type='text/javascript';"
-		                + "script.src='https://iitcserv.appspot.com/iitc-nightly/iitc-nightly-latest.user.js';"
-		                + "document.getElementsByTagName('head').item(0).appendChild(script);"
-		                + "})()");
+				web.loadUrl("javascript: (function() { "
+						+ "var script=document.createElement('script');"
+						+ "script.type='text/javascript';"
+						+ "script.src='https://iitcserv.appspot.com/iitc-nightly/iitc-nightly-latest.user.js';"
+						+ "document.getElementsByTagName('head').item(0).appendChild(script);"
+						+ "})()");
 			}
 		}
 	}

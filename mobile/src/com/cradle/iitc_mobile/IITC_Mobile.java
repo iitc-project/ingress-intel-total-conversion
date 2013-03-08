@@ -15,26 +15,26 @@ import android.widget.Toast;
 public class IITC_Mobile extends Activity {
 
 	private IITC_WebView iitc_view;
-    private boolean back_button_pressed = false;
+	private boolean back_button_pressed = false;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
 
-        // we do not want to reload our page every time we switch orientations...
-        // so restore state if activity was already created
-        if(savedInstanceState != null) {
-        	((IITC_WebView)findViewById(R.id.webview)).restoreState(savedInstanceState);
-        }
-        else {
-	        // load new iitc web view with ingress intel page
-	        iitc_view= (IITC_WebView) findViewById(R.id.webview);
-	        iitc_view.setWebChromeClient(new WebChromeClient());
-	        iitc_view.loadUrl("https://www.ingress.com/intel");
+		// we do not want to reload our page every time we switch orientations...
+		// so restore state if activity was already created
+		if(savedInstanceState != null) {
+			((IITC_WebView)findViewById(R.id.webview)).restoreState(savedInstanceState);
+		}
+		else {
+			// load new iitc web view with ingress intel page
+			iitc_view= (IITC_WebView) findViewById(R.id.webview);
+			iitc_view.setWebChromeClient(new WebChromeClient());
+			iitc_view.loadUrl("https://www.ingress.com/intel");
 
-	        // listen to touches (think we need this)
-	        iitc_view.setOnTouchListener(new OnTouchListener() {
+			// listen to touches (think we need this)
+			iitc_view.setOnTouchListener(new OnTouchListener() {
 				@Override
 				public boolean onTouch(View v, MotionEvent event) {
 					back_button_pressed = false;
@@ -43,50 +43,49 @@ public class IITC_Mobile extends Activity {
 					return false;
 				}
 			});
-        }
+		}
+	}
 
-    }
+	// save instance state to avoid reloading on orientation change
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		iitc_view.saveState(outState);
+	}
 
-    // save instance state to avoid reloading on orientation change
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-    	iitc_view.saveState(outState);
-    }
+	// we want a self defined behavior on resume
+	@Override
+	protected void onResume() {
+		super.onResume();
+		this.back_button_pressed = false;
+	}
 
-    // we want a self defined behavior on resume
-    @Override
-    protected void onResume() {
-        super.onResume();
-        this.back_button_pressed = false;
-    }
+	// we want a self defined behavior for the back button
+	@Override
+	public void onBackPressed() {
+		if (this.back_button_pressed) {
+			super.onBackPressed();
+			return;
+		}
+		this.back_button_pressed = true;
+		Toast.makeText(this, "Press twice to exit", Toast.LENGTH_SHORT).show();
+	}
 
-    // we want a self defined behavior for the back button
-    @Override
-    public void onBackPressed() {
-        if (this.back_button_pressed) {
-            super.onBackPressed();
-            return;
-        }
-        this.back_button_pressed = true;
-        Toast.makeText(this, "Press twice to exit", Toast.LENGTH_SHORT).show();
-    }
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-        case R.id.reload_button:
-            iitc_view.reload();
-            return true;
-        default:
-            return super.onOptionsItemSelected(item);
-        }
-    }
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle item selection
+		switch (item.getItemId()) {
+		case R.id.reload_button:
+			iitc_view.reload();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
 }
