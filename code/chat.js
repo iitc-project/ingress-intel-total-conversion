@@ -408,6 +408,7 @@ window.chat.chooser = function(event) {
   var tt = t.text();
 
   var mark = $('#chatinput mark');
+  var input = $('#chatinput input');
 
   $('#chatcontrols .active').removeClass('active');
   t.addClass('active');
@@ -418,11 +419,13 @@ window.chat.chooser = function(event) {
 
   switch(tt) {
     case 'faction':
+      input.css('color', '');
       mark.css('color', '');
       mark.text('tell faction:');
       break;
 
     case 'public':
+      input.css('cssText', 'color: red !important');
       mark.css('cssText', 'color: red !important');
       mark.text('broadcast:');
       break;
@@ -430,6 +433,7 @@ window.chat.chooser = function(event) {
     case 'compact':
     case 'full':
       mark.css('cssText', 'color: #bbb !important');
+      input.css('cssText', 'color: #bbb !important');
       mark.text('tell Jarvis:');
       break;
 
