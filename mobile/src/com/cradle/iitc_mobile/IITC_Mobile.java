@@ -5,12 +5,13 @@ import com.cradle.iitc_mobile.R;
 import android.os.Bundle;
 import android.os.Handler;
 import android.app.Activity;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.webkit.WebChromeClient;
 import android.widget.Toast;
 
 public class IITC_Mobile extends Activity {
@@ -31,7 +32,6 @@ public class IITC_Mobile extends Activity {
 		else {
 			// load new iitc web view with ingress intel page
 			iitc_view= (IITC_WebView) findViewById(R.id.webview);
-			iitc_view.setWebChromeClient(new WebChromeClient());
 			iitc_view.loadUrl("https://www.ingress.com/intel");
 
 			// listen to touches (think we need this)
@@ -94,6 +94,27 @@ public class IITC_Mobile extends Activity {
 		switch (item.getItemId()) {
 		case R.id.reload_button:
 			iitc_view.reload();
+			return true;
+		// print version number
+		case R.id.version_num:
+			PackageInfo pinfo;
+			try {
+				pinfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+				Toast.makeText(this, "Build version: " + pinfo.versionName, Toast.LENGTH_SHORT).show();
+			} catch (NameNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return true;
+		// clear cache
+		case R.id.cache_clear:
+			iitc_view.clearHistory();
+			iitc_view.clearFormData();
+			iitc_view.clearCache(true);
+			return true;
+		// clear cache
+		case R.id.locate:
+			iitc_view.loadUrl("javascript: window.map.locate({setView : true, maxZoom: 13});");
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
