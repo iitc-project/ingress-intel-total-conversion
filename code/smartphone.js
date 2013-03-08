@@ -83,4 +83,8 @@ window.runOnSmartphonesAfterBoot = function() {
   $('#portaldetails').off('click', '**');
 
   $('.leaflet-right').addClass('leaflet-left').removeClass('leaflet-right');
+
+  // make buttons in action bar flexible
+  var l = $('#chatcontrols a:visible');
+  l.css('width', 100/l.length + '%');
 }
