@@ -3,6 +3,7 @@ package com.cradle.iitc_mobile;
 import com.cradle.iitc_mobile.R;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.app.Activity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -66,8 +67,18 @@ public class IITC_Mobile extends Activity {
 			super.onBackPressed();
 			return;
 		}
+
+		iitc_view.loadUrl("javascript: window.goBack();");
 		this.back_button_pressed = true;
 		Toast.makeText(this, "Press twice to exit", Toast.LENGTH_SHORT).show();
+
+		// reset back button after 0.5 seconds
+		new Handler().postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				back_button_pressed=false;
+			}
+		}, 500);
 	}
 
 	@Override
