@@ -14,7 +14,7 @@ window.setupBackButton = function() {
   window.setupBackButton._actions = [c.get(0)];
   $('#chatcontrols a').click(function() {
     // ignore shrink button
-    if(a.hasClass('toggle')) return;
+    if($(this).hasClass('toggle')) return;
     window.setupBackButton._actions.push(this);
     window.setupBackButton._actions = window.setupBackButton._actions.slice(-2);
   });
