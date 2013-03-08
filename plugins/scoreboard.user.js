@@ -180,7 +180,7 @@ window.plugin.scoreboard.display = function() {
         + '</div>';
     }
     
-    scoreHtml += '<table style="width:100%">'
+    scoreHtml += '<table>'
                + '<tr><th></th><th>Resistance</th><th>Enlightened</th><th>Total</th></tr>';
     scoreHtml += window.plugin.scoreboard.teamTableRow('mu','Mu');
     scoreHtml += window.plugin.scoreboard.teamTableRow('count_fields','Fields');
@@ -189,7 +189,7 @@ window.plugin.scoreboard.display = function() {
     scoreHtml += window.plugin.scoreboard.teamTableRow('count_resonators','Resonators');
     scoreHtml += '</table>';
     
-    scoreHtml += '<table style="width:100%">'
+    scoreHtml += '<table>'
                + '<tr><th>Player</th><th>Mu</th><th>Fields</th><th>Links</th><th>Portals</th><th>Resonators</th></tr>';
     $.each(window.plugin.scoreboard.scores['player'], function(guid, playerData) {
       scoreHtml += window.plugin.scoreboard.playerTableRow(guid);
@@ -212,7 +212,7 @@ var setup =  function() {
   $('#toolbox').append('<a onclick="window.plugin.scoreboard.display()">scoreboard</a>');
   $('head').append('<style>' +
     '.ui-dialog-scoreboard {max-width:500px !important; width:500px !important;}' +
-    '#scoreboard table {margin-top:10px;	border-collapse: collapse; empty-cells: show;}' +
+    '#scoreboard table {margin-top:10px;	border-collapse: collapse; empty-cells: show; width:100%;}' +
     '#scoreboard table td, #scoreboard table th {border-bottom: 1px solid #0b314e; padding:3px; color:white; background-color:#1b415e}' +
     '#scoreboard table tr.res td { background-color: #005684; }' +
     '#scoreboard table tr.enl td { background-color: #017f01; }' +
