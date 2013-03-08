@@ -2,11 +2,14 @@ package com.cradle.iitc_mobile;
 
 import com.cradle.iitc_mobile.R;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -32,7 +35,21 @@ public class IITC_Mobile extends Activity {
 		else {
 			// load new iitc web view with ingress intel page
 			iitc_view= (IITC_WebView) findViewById(R.id.webview);
-			iitc_view.loadUrl("https://www.ingress.com/intel");
+			Intent intent = getIntent();
+			String action = intent.getAction();
+			if (Intent.ACTION_VIEW.equals(action)) {
+				Uri uri = intent.getData();
+				String url = uri.toString();
+				Log.d("Intent received", "url: " + url);
+				if (url.contains("ingress.com")) {
+					Log.d("Intent received", "loading url...");
+					iitc_view.loadUrl(url);
+				}
+			}
+			else {
+				Log.d("No Intent call", "loading https://www.ingress.com/intel");
+				iitc_view.loadUrl("https://www.ingress.com/intel");
+			}
 
 			// listen to touches (think we need this)
 			iitc_view.setOnTouchListener(new OnTouchListener() {
@@ -102,7 +119,6 @@ public class IITC_Mobile extends Activity {
 				pinfo = getPackageManager().getPackageInfo(getPackageName(), 0);
 				Toast.makeText(this, "Build version: " + pinfo.versionName, Toast.LENGTH_SHORT).show();
 			} catch (NameNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			return true;
@@ -112,7 +128,7 @@ public class IITC_Mobile extends Activity {
 			iitc_view.clearFormData();
 			iitc_view.clearCache(true);
 			return true;
-		// clear cache
+		// get the users current location and focus it on map
 		case R.id.locate:
 			iitc_view.loadUrl("javascript: window.map.locate({setView : true, maxZoom: 13});");
 			return true;
