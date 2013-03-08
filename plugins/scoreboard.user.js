@@ -21,47 +21,35 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 window.plugin.scoreboard = function() {};
 
 window.plugin.scoreboard.resetTeam = function(team) {
-   window.plugin.scoreboard.scores['team'][team] = {};
-   window.plugin.scoreboard.scores['team'][team]['mu'] = 0;
-   window.plugin.scoreboard.scores['team'][team]['count_fields'] = 0;
-   window.plugin.scoreboard.scores['team'][team]['count_links'] = 0;
-   window.plugin.scoreboard.scores['team'][team]['count_portals'] = 0;
-   window.plugin.scoreboard.scores['team'][team]['count_resonators'] = 0;
-   window.plugin.scoreboard.scores['team'][team]['largest'] = {};   
+  var scores = window.plugin.scoreboard.scores['team'];
+  scores[team] = {};
+  scores[team]['mu'] = 0;
+  scores[team]['count_fields'] = 0;
+  scores[team]['count_links'] = 0;
+  scores[team]['count_portals'] = 0;
+  scores[team]['count_resonators'] = 0;
+  scores[team]['largest'] = {};   
 };
 
-window.plugin.scoreboard.initPlayer = function(player,team) {
-   //Init Player info
-   if(window.plugin.scoreboard.scores['player'][player] === undefined) {
-     window.plugin.scoreboard.scores['player'][player] = {};
-     window.plugin.scoreboard.scores['player'][player]['team'] = team;
-   }
-   if(window.plugin.scoreboard.scores['player'][player]['mu'] === undefined) {
-     window.plugin.scoreboard.scores['player'][player]['mu'] = 0;
-   }
-   if(window.plugin.scoreboard.scores['player'][player]['count_fields'] === undefined) {
-     window.plugin.scoreboard.scores['player'][player]['count_fields'] = 0;
-   }
-   if(window.plugin.scoreboard.scores['player'][player]['count_links'] === undefined) {
-     window.plugin.scoreboard.scores['player'][player]['count_links'] = 0;
-   }
-   if(window.plugin.scoreboard.scores['player'][player]['count_portals'] === undefined) {
-     window.plugin.scoreboard.scores['player'][player]['count_portals'] = 0;
-   }
-   if(window.plugin.scoreboard.scores['player'][player]['count_resonators'] === undefined) {
-     window.plugin.scoreboard.scores['player'][player]['count_resonators'] = 0;
-   }
-   //if(window.plugin.scoreboard.scores['player'][player]['count_shields'] === undefined) {
-   //  window.plugin.scoreboard.scores['player'][player]['count_shields'] = 0;
-   //}
-   if(window.plugin.scoreboard.scores['player'][player]['largest'] === undefined) {
-     window.plugin.scoreboard.scores['player'][player]['largest'] = {};
-   }
+window.plugin.scoreboard.initPlayer = function(player, team) {
+  var scores = window.plugin.scoreboard.scores['player'];
+  if(scores[player] === undefined) {
+    scores[player] = {};
+    scores[player]['team'] = team;
+    scores[player]['mu'] = 0;
+    scores[player]['count_fields'] = 0;
+    scores[player]['count_links'] = 0;
+    scores[player]['count_portals'] = 0;
+    scores[player]['count_resonators'] = 0;
+    //  scores[player]['count_shields'] = 0;
+    scores[player]['largest'] = {};
+  }
 }
 
 window.plugin.scoreboard.compileStats = function() {
-  var something_in_view = false;
-  window.plugin.scoreboard.scores = {"team": {}, "player": {}};
+  var somethingInView = false;
+  window.plugin.scoreboard.scores = {'team': {}, 'player': {}};
+  var scores = window.plugin.scoreboard.scores;
   window.plugin.scoreboard.resetTeam(TEAM_RES);
   window.plugin.scoreboard.resetTeam(TEAM_ENL);
    
@@ -75,149 +63,146 @@ window.plugin.scoreboard.compileStats = function() {
        window.portals[val.options.vertices.vertexB.guid] !== undefined ||
        window.portals[val.options.vertices.vertexC.guid] !== undefined ) {
       
-      something_in_view = true;
-      window.plugin.scoreboard.scores['team'][team]['mu'] += parseInt(val.options.data.entityScore.entityScore);
-      window.plugin.scoreboard.scores['player'][player]['mu'] += parseInt(val.options.data.entityScore.entityScore);
-      window.plugin.scoreboard.scores['team'][team]['count_fields']++;
-      window.plugin.scoreboard.scores['player'][player]['count_fields']++;
+      somethingInView = true;
+      scores['team'][team]['mu'] += parseInt(val.options.data.entityScore.entityScore);
+      scores['player'][player]['mu'] += parseInt(val.options.data.entityScore.entityScore);
+      scores['team'][team]['count_fields']++;
+      scores['player'][player]['count_fields']++;
       
-      if(window.plugin.scoreboard.scores['team'][team]['largest']['mu'] === undefined) {
-        window.plugin.scoreboard.scores['team'][team]['largest']['mu'] = val;
+      if(scores['team'][team]['largest']['mu'] === undefined) {
+        scores['team'][team]['largest']['mu'] = val;
       }
-      else if(window.plugin.scoreboard.scores['team'][team]['largest']['mu'].options.data.entityScore.entityScore < val.options.data.entityScore.entityScore) {
-        window.plugin.scoreboard.scores['team'][team]['largest']['mu'] = val;
+      else if(scores['team'][team]['largest']['mu'].options.data.entityScore.entityScore < val.options.data.entityScore.entityScore) {
+        scores['team'][team]['largest']['mu'] = val;
       }         
-      if(window.plugin.scoreboard.scores['player'][player]['largest']['mu'] === undefined) {
-        window.plugin.scoreboard.scores['player'][player]['largest']['mu'] = val;
+      if(scores['player'][player]['largest']['mu'] === undefined) {
+        scores['player'][player]['largest']['mu'] = val;
       }
-      else if(window.plugin.scoreboard.scores['player'][player]['largest']['mu'].options.data.entityScore.entityScore < val.options.data.entityScore.entityScore) {
-        window.plugin.scoreboard.scores['player'][player]['largest']['mu'] = val;
+      else if(scores['player'][player]['largest']['mu'].options.data.entityScore.entityScore < val.options.data.entityScore.entityScore) {
+        scores['player'][player]['largest']['mu'] = val;
       }
     }
   });
   $.each(window.links, function(qk, link) {
-    something_in_view = true;
+    somethingInView = true;
     var team = getTeam(link.options.data);
     var player = link.options.data.creator.creatorGuid;
     window.plugin.scoreboard.initPlayer(player,team);
-    window.plugin.scoreboard.scores['team'][team]['count_links']++;
-    window.plugin.scoreboard.scores['player'][player]['count_links']++;
+    scores['team'][team]['count_links']++;
+    scores['player'][player]['count_links']++;
   });
   $.each(window.portals, function(qk, portal) {
-    something_in_view = true;
+    somethingInView = true;
     var team = getTeam(portal.options.details);
     var player = portal.options.details.captured.capturingPlayerId;
     window.plugin.scoreboard.initPlayer(player,team);
-    window.plugin.scoreboard.scores['team'][team]['count_portals']++;
-    window.plugin.scoreboard.scores['player'][player]['count_portals']++;
+    scores['team'][team]['count_portals']++;
+    scores['player'][player]['count_portals']++;
     
     //$.each(portal.options.details.portalV2.linkedModArray, function(ind, mod) {
     //  if(mod !== null) {
-    //    something_in_view = true;
-    //    window.plugin.scoreboard.scores['team'][team]['count_shields']++;
-    //    window.plugin.scoreboard.scores['player'][mod.installingUser]['count_shields']++;
+    //    somethingInView = true;
+    //    scores['team'][team]['count_shields']++;
+    //    scores['player'][mod.installingUser]['count_shields']++;
     //  }
     //});
     
     $.each(portal.options.details.resonatorArray.resonators, function(ind, reso) {
       if(reso !== null) {  
-        something_in_view = true;
+        somethingInView = true;
         window.plugin.scoreboard.initPlayer(reso.ownerGuid,team);
-        window.plugin.scoreboard.scores['team'][team]['count_resonators']++;
-        window.plugin.scoreboard.scores['player'][reso.ownerGuid]['count_resonators']++;
+        scores['team'][team]['count_resonators']++;
+        scores['player'][reso.ownerGuid]['count_resonators']++;
       }
     });
   });
-  
-  return(something_in_view)
+  return somethingInView;
 };
 
-window.plugin.scoreboard.percentSpan = function(percent,css_class) {
+window.plugin.scoreboard.percentSpan = function(percent, cssClass) {
    var retVal = '';
    if(percent > 0) {
-      retVal += '<span class="' + css_class + '" style="width:' + percent +'%;">';
+      retVal += '<span class="' + cssClass + '" style="width:' + percent +'%;">';
       if(percent >= 7) { //anything less than this and the text doesnt fit in the span.
         retVal += percent;
       }
       retVal += '%</span>';   
    }
-   return(retVal);
+   return retVal;
 };
 
 window.plugin.scoreboard.teamTableRow = function(field,title) {
-   var retVal = '<tr><td>'
-    + title
-    + '</td><td>'
-    + window.plugin.scoreboard.scores['team'][TEAM_RES][field]
-    + '</td><td>'
-    + window.plugin.scoreboard.scores['team'][TEAM_ENL][field]
-    + '</td><td>'
-    + (window.plugin.scoreboard.scores['team'][TEAM_RES][field] + window.plugin.scoreboard.scores['team'][TEAM_ENL][field])
-    + '</td></tr>';
-   return(retVal);
+  var scores = window.plugin.scoreboard.scores['team'];
+  var retVal = '<tr><td>'
+   + title
+   + '</td><td class="number">'
+   + scores[TEAM_RES][field]
+   + '</td><td class="number">'
+   + scores[TEAM_ENL][field]
+   + '</td><td class="number">'
+   + (scores[TEAM_RES][field] + scores[TEAM_ENL][field])
+   + '</td></tr>';
+  return retVal;
 };
 
-window.plugin.scoreboard.playerTableRow = function(player_guid) {
-   
+window.plugin.scoreboard.playerTableRow = function(playerGuid) {
+  var scores = window.plugin.scoreboard.scores['player'];
   var retVal = '<tr class="'
-    + (window.plugin.scoreboard.scores['player'][player_guid]['team'] === TEAM_RES?"res":"enl")
+    + (scores[playerGuid]['team'] === TEAM_RES ? 'res' : 'enl')
     +'"><td>'
-    + window.getPlayerName(player_guid);
+    + window.getPlayerName(playerGuid);
     + '</td>';
               
-  $.each(['mu','count_fields','count_links','count_portals','count_resonators'], function(i,field) {
-    retVal += '<td>'
-      + window.plugin.scoreboard.scores['player'][player_guid][field]
+  $.each(['mu','count_fields','count_links','count_portals','count_resonators'], function(i, field) {
+    retVal += '<td class="number">'
+      + scores[playerGuid][field]
       + '</td>';
   });
   retVal += '</tr>';
-  return(retVal);
+  return retVal;
 };
 
 window.plugin.scoreboard.display = function() {
   
-  var something_in_view = window.plugin.scoreboard.compileStats();
+  var somethingInView = window.plugin.scoreboard.compileStats();
    
-  var res_mu = window.plugin.scoreboard.scores['team'][TEAM_RES]['mu'];
-  var enl_mu = window.plugin.scoreboard.scores['team'][TEAM_ENL]['mu'];
+  var resMu = window.plugin.scoreboard.scores['team'][TEAM_RES]['mu'];
+  var enlMu = window.plugin.scoreboard.scores['team'][TEAM_ENL]['mu'];
 
-  var score_html = '';
-  if(something_in_view) {
+  var scoreHtml = '';
+  if(somethingInView) {
   
-    if(res_mu + enl_mu > 0) {
-      var res_mu_percent = Math.round((res_mu / (res_mu + enl_mu)) * 100);
-      score_html += '<div id="gamestat" title="Resistance:	' + res_mu + ' MU Enlightenment:	' + enl_mu + ' MU">'
-        + window.plugin.scoreboard.percentSpan(res_mu_percent,'res')
-        + window.plugin.scoreboard.percentSpan(100-res_mu_percent,'enl')
+    if(resMu + enlMu > 0) {
+      var resMuPercent = Math.round((resMu / (resMu + enlMu)) * 100);
+      scoreHtml += '<div id="gamestat" title="Resistance:	' + resMu + ' MU Enlightenment:	' + enlMu + ' MU">'
+        + window.plugin.scoreboard.percentSpan(resMuPercent, 'res')
+        + window.plugin.scoreboard.percentSpan(100-resMuPercent, 'enl')
         + '</div>';
     }
     
-    score_html += '<table width="100%">'
+    scoreHtml += '<table style="width:100%">'
                + '<tr><th></th><th>Resistance</th><th>Enlightened</th><th>Total</th></tr>';
-    score_html += window.plugin.scoreboard.teamTableRow('mu','Mu');
-    score_html += window.plugin.scoreboard.teamTableRow('count_fields','Fields');
-    score_html += window.plugin.scoreboard.teamTableRow('count_links','Links');
-    score_html += window.plugin.scoreboard.teamTableRow('count_portals','Portals');
-    score_html += window.plugin.scoreboard.teamTableRow('count_resonators','Resonators');
-    score_html += '</table>';
+    scoreHtml += window.plugin.scoreboard.teamTableRow('mu','Mu');
+    scoreHtml += window.plugin.scoreboard.teamTableRow('count_fields','Fields');
+    scoreHtml += window.plugin.scoreboard.teamTableRow('count_links','Links');
+    scoreHtml += window.plugin.scoreboard.teamTableRow('count_portals','Portals');
+    scoreHtml += window.plugin.scoreboard.teamTableRow('count_resonators','Resonators');
+    scoreHtml += '</table>';
     
-    score_html += '<table width="100%">'
+    scoreHtml += '<table style="width:100%">'
                + '<tr><th>Player</th><th>Mu</th><th>Fields</th><th>Links</th><th>Portals</th><th>Resonators</th></tr>';
-    $.each(window.plugin.scoreboard.scores['player'], function(guid, player_data) {
-      score_html += window.plugin.scoreboard.playerTableRow(guid);
+    $.each(window.plugin.scoreboard.scores['player'], function(guid, playerData) {
+      scoreHtml += window.plugin.scoreboard.playerTableRow(guid);
     });
-    score_html += '</table>';
+    scoreHtml += '</table>';
     
-    score_html += '<div class="disclaimer">Score is subject to portals available based on zoom level. If names are unresolved try again. For best results wait until updates are fully loaded.</div>';
+    scoreHtml += '<div class="disclaimer">Score is subject to portals available based on zoom level. If names are unresolved try again. For best results wait until updates are fully loaded.</div>';
   } else {
-    score_html += 'You need something in view.';  
+    scoreHtml += 'You need something in view.';  
   }
   
-  $('#scoreboard').html(score_html);
-  $( "#scoreboard" ).dialog({autoOpen: true,
-    modal: true,
-    width: 500,
-    buttons: [ { text: "Close", click: function() { $( this ).dialog( "close" ); } } ]});
+  alert('<div id="scoreboard">' + scoreHtml + '</div>');
+  $(".ui-dialog").addClass('ui-dialog-scoreboard');
 }
 
 var setup =  function() {
@@ -226,11 +211,13 @@ var setup =  function() {
   $('body').append('<div id="scoreboard" style="display:none;"></div>');
   $('#toolbox').append('<a onclick="window.plugin.scoreboard.display()">scoreboard</a>');
   $('head').append('<style>' +
-    '.ui-tooltip, .ui-dialog {max-width:500px !important;}' +
-    '#scoreboard table {margin-top:10px; border: 1px solid #cccccc;	border-collapse: collapse; empty-cells: show;}' +
-    '#scoreboard table td, #scoreboard table th {border: 1px solid #cccccc; padding:3px; color:white; background-color:#1b415e}' +
+    '.ui-dialog-scoreboard {max-width:500px !important; width:500px !important;}' +
+    '#scoreboard table {margin-top:10px;	border-collapse: collapse; empty-cells: show;}' +
+    '#scoreboard table td, #scoreboard table th {border-bottom: 1px solid #0b314e; padding:3px; color:white; background-color:#1b415e}' +
     '#scoreboard table tr.res td { background-color: #005684; }' +
     '#scoreboard table tr.enl td { background-color: #017f01; }' +
+    '#scoreboard table tr:nth-child(even) td { opacity: .8 }' +
+    '#scoreboard table td.number { text-align:right }' +
     '#scoreboard .disclaimer { margin-top:10px; font-size:10px; }' +
     '</style>');
   
