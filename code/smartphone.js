@@ -49,13 +49,6 @@ window.runOnSmartphonesBeforeBoot = function() {
 
   $('#chatcontrols').append(smartphone.mapButton).append(smartphone.sideButton);
 
-  // add event to portals that allows long press to switch to sidebar
-  window.addHook('portalAdded', function(data) {
-    data.portal.on('dblclick', function() {
-      window.lastClickedPortal = this.options.guid;
-    });
-  });
-
   window.addHook('portalDetailsUpdated', function(data) {
     var x = $('.imgpreview img').removeClass('hide');
 
@@ -83,4 +76,23 @@ window.runOnSmartphonesAfterBoot = function() {
   $('#portaldetails').off('click', '**');
 
   $('.leaflet-right').addClass('leaflet-left').removeClass('leaflet-right');
+
+  // make buttons in action bar flexible
+  var l = $('#chatcontrols a:visible');
+  l.css('width', 100/l.length + '%');
+
+  // add event to portals that allows long press to switch to sidebar
+  window.addHook('portalAdded', function(data) {
+    data.portal.on('add', function() {
+      if(!this._container || this.options.addedTapHoldHandler) return;
+      this.options.addedTapHoldHandler = true;
+      var guid = this.options.guid;
+
+      // this is a hack, accessing Leaflet’s private _container is evil
+      $(this._container).on('taphold', function() {
+        window.renderPortalDetails(guid);
+        window.smartphone.sideButton.click();
+      });
+    });
+  });
 }

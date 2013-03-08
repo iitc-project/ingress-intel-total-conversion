@@ -1243,7 +1243,7 @@ window.setPermaLink = function(elm) {
   var lat = Math.round(c.lat*1E6);
   var lng = Math.round(c.lng*1E6);
   var qry = 'latE6='+lat+'&lngE6='+lng+'&z=' + (map.getZoom()-1);
-  $(elm).attr('href',  'http://www.ingress.com/intel?' + qry);
+  $(elm).attr('href',  'https://www.ingress.com/intel?' + qry);
 }
 
 window.uniqueArray = function(arr) {
@@ -2833,7 +2833,7 @@ window.renderPortalDetails = function(guid) {
 
   var lat = d.locationE6.latE6;
   var lng = d.locationE6.lngE6;
-  var perma = 'http://ingress.com/intel?latE6='+lat+'&lngE6='+lng+'&z=17&pguid='+guid;
+  var perma = 'https://ingress.com/intel?latE6='+lat+'&lngE6='+lng+'&z=17&pguid='+guid;
   var imgTitle = 'title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."';
   var poslinks = 'window.showPortalPosLinks('+lat/1E6+','+lng/1E6+')';
   var postcard = 'Send in a postcard. Will put it online after receiving. Address:\\n\\nStefan Breunig\\nINF 305 – R045\\n69120 Heidelberg\\nGermany';

@@ -389,6 +389,7 @@ window.chat.needMoreMessages = function() {
   if(activeTab === 'debug') return;
 
   var activeChat = $('#chat > :visible');
+  if(activeChat.length === 0) return;
 
   var hasScrollbar = scrollBottom(activeChat) !== 0 || activeChat.scrollTop() !== 0;
   var nearTop = activeChat.scrollTop() <= CHAT_REQUEST_SCROLL_TOP;
@@ -408,6 +409,7 @@ window.chat.chooser = function(event) {
   var tt = t.text();
 
   var mark = $('#chatinput mark');
+  var input = $('#chatinput input');
 
   $('#chatcontrols .active').removeClass('active');
   t.addClass('active');
@@ -418,11 +420,13 @@ window.chat.chooser = function(event) {
 
   switch(tt) {
     case 'faction':
+      input.css('color', '');
       mark.css('color', '');
       mark.text('tell faction:');
       break;
 
     case 'public':
+      input.css('cssText', 'color: red !important');
       mark.css('cssText', 'color: red !important');
       mark.text('broadcast:');
       break;
@@ -430,6 +434,7 @@ window.chat.chooser = function(event) {
     case 'compact':
     case 'full':
       mark.css('cssText', 'color: #bbb !important');
+      input.css('cssText', 'color: #bbb !important');
       mark.text('tell Jarvis:');
       break;
 
@@ -573,13 +578,13 @@ window.chat.postMsg = function() {
 
   if(c === 'debug') return new Function (msg)();
 
-  var public = c === 'public';
+  var publik = c === 'public';
   var latlng = map.getCenter();
 
   var data = {message: msg,
               latE6: Math.round(latlng.lat*1E6),
               lngE6: Math.round(latlng.lng*1E6),
-              factionOnly: !public};
+              factionOnly: !publik};
 
   var errMsg = 'Your message could not be delivered. You can copy&' +
                'paste it here and try again if you want:\n\n' + msg;
@@ -587,7 +592,7 @@ window.chat.postMsg = function() {
   window.postAjax('sendPlext', data,
     function(response) {
       if(response.error) alert(errMsg);
-      if(public) chat.requestPublic(false); else chat.requestFaction(false); },
+      if(publik) chat.requestPublic(false); else chat.requestFaction(false); },
     function() {
       alert(errMsg);
     }

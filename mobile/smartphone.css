@@ -15,11 +15,12 @@ body {
 
 #chatcontrols {
   height: 38px;
+  width: 100%;
 }
 
 /* hide shrink button */
 #chatcontrols a:first-child {
-    display: none;
+  display: none;
 }
 
 #chatcontrols a {
@@ -29,6 +30,9 @@ body {
   vertical-align: middle;
   line-height: 36px;
   text-decoration: none;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 #chat {

@@ -3,6 +3,7 @@
 html, body, #map {
   height: 100%;
   width: 100%;
+  overflow: hidden; /* workaround for #373 */
 }
 
 body {
@@ -747,4 +748,16 @@ td {
 
 td + td {
   padding-left: 4px;
+}
+
+/* redeem results *****************************************************/
+.redeem-result {
+  font-size: 14px;
+  font-family: arial,helvetica,sans-serif;
+  table-layout: fixed;
+}
+
+.redeem-result tr > td:first-child {
+  width: 50px;
+  text-align: right;
 }

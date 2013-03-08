@@ -5,6 +5,31 @@
 // created a basic framework. All of these functions should only ever
 // be run once.
 
+
+window.setupBackButton = function() {
+  var c = window.isSmartphone()
+    ? window.smartphone.mapButton
+    : $('#chatcontrols a.active');
+
+  window.setupBackButton._actions = [c.get(0)];
+  $('#chatcontrols a').click(function() {
+    // ignore shrink button
+    if($(this).hasClass('toggle')) return;
+    window.setupBackButton._actions.push(this);
+    window.setupBackButton._actions = window.setupBackButton._actions.slice(-2);
+  });
+
+  window.goBack = function() {
+    var a = window.setupBackButton._actions[0];
+    if(!a) return;
+    $(a).click();
+    window.setupBackButton._actions = [a];
+  }
+}
+
+
+
+
 window.setupLargeImagePreview = function() {
   $('#portaldetails').on('click', '.imgpreview', function() {
     var ex = $('#largepreview');
@@ -26,8 +51,9 @@ window.setupLargeImagePreview = function() {
 // adds listeners to the layer chooser such that a long press hides
 // all custom layers except the long pressed one.
 window.setupLayerChooserSelectOne = function() {
-  $('.leaflet-control-layers-overlays').on('click', 'label', function(e) {
-    if(!e || !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)) return;
+  $('.leaflet-control-layers-overlays').on('click taphold', 'label', function(e) {
+    if(!e) return;
+    if(!(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.type === 'taphold')) return;
 
     var isChecked = $(this).find('input').is(':checked');
     var checkSize = $('.leaflet-control-layers-overlays input:checked').length;
@@ -96,10 +122,10 @@ window.setupMap = function() {
   addLayers['Links'] = linksLayer;
 
   window.layerChooser = new L.Control.Layers({
-    'OSM Cloudmade Midnight': views[0],
-    'OSM Cloudmade Minimal': views[1],
+    'OSM Midnight': views[0],
+    'OSM Minimal': views[1],
     'OSM Mapnik': views[2],
-    'Google Roads Ingress Style': views[3],
+    'Default Ingress Map': views[3],
     'Google Roads':  views[4],
     'Google Satellite':  views[5],
     'Google Hybrid':  views[6]
@@ -260,6 +286,10 @@ window.setupDialogs = function() {
   }
 }
 
+window.setupTaphold = function() {
+  @@INCLUDERAW:external/taphold.js@@
+}
+
 
 window.setupQRLoadLib = function() {
   @@INCLUDERAW:external/jquery.qrcode.min.js@@
@@ -276,12 +306,13 @@ function boot() {
   window.runOnSmartphonesBeforeBoot();
 
   // overwrite default Leaflet Marker icon to be a neutral color
-  var base = 'http://breunigs.github.com/ingress-intel-total-conversion/dist/images/';
+  var base = 'https://iitcserv.appspot.com/dist/images';
   L.Icon.Default.imagePath = base;
 
-  window.iconEnl = L.Icon.Default.extend({options: { iconUrl: base + 'marker-green.png' } });
-  window.iconRes = L.Icon.Default.extend({options: { iconUrl: base + 'marker-blue.png' } });
+  window.iconEnl = L.Icon.Default.extend({options: { iconUrl: base + '/marker-green.png' } });
+  window.iconRes = L.Icon.Default.extend({options: { iconUrl: base + '/marker-blue.png' } });
 
+  window.setupTaphold();
   window.setupStyles();
   window.setupDialogs();
   window.setupMap();
@@ -295,6 +326,7 @@ function boot() {
   window.chat.setup();
   window.setupQRLoadLib();
   window.setupLayerChooserSelectOne();
+  window.setupBackButton();
   // read here ONCE, so the URL is only evaluated one time after the
   // necessary data has been loaded.
   urlPortal = getURLParam('pguid');
@@ -333,6 +365,7 @@ try { console.log('Loading included JS now'); } catch(e) {}
 // contains the default Ingress map style.
 @@INCLUDERAW:external/leaflet_google.js@@
 @@INCLUDERAW:external/autolink.js@@
+@@INCLUDERAW:external/oms.min.js@@
 
 try { console.log('done loading included JS'); } catch(e) {}
 
