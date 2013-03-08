@@ -125,10 +125,10 @@ window.setupMap = function() {
   addLayers['Links'] = linksLayer;
 
   window.layerChooser = new L.Control.Layers({
-    'OSM Cloudmade Midnight': views[0],
-    'OSM Cloudmade Minimal': views[1],
+    'OSM Midnight': views[0],
+    'OSM Minimal': views[1],
     'OSM Mapnik': views[2],
-    'Google Roads Ingress Style': views[3],
+    'Default Ingress Map': views[3],
     'Google Roads':  views[4],
     'Google Satellite':  views[5],
     'Google Hybrid':  views[6]
