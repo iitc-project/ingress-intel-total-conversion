@@ -5,6 +5,35 @@
 // created a basic framework. All of these functions should only ever
 // be run once.
 
+
+window.setupBackButton = function() {
+  window.setupBackButton._actions =[$('#chatcontrols a.active')];
+  $('#chatcontrols a').click(function() {
+    if(window.setupBackButton._ignoreNextClick) {
+      window.setupBackButton._ignoreNextClick = false;
+      return;
+    }
+    window.setupBackButton._actions.push(this);
+    window.setupBackButton._actions = window.setupBackButton._actions.slice(-3);
+  });
+
+  window.goBack = function() {
+    while(window.setupBackButton._actions.length > 0) {
+      var a = window.setupBackButton._actions.pop();
+      // skip no-op back actions. This may occur then the expand/shrink
+      // button is used.
+      if($(a).hasClass('active')) continue;
+      window.setupBackButton._ignoreNextClick = true;
+      a.click();
+      console.log('Going back to ' + $(a).text());
+      break;
+    }
+  }
+}
+
+
+
+
 window.setupLargeImagePreview = function() {
   $('#portaldetails').on('click', '.imgpreview', function() {
     var ex = $('#largepreview');
@@ -295,6 +324,7 @@ function boot() {
   window.chat.setup();
   window.setupQRLoadLib();
   window.setupLayerChooserSelectOne();
+  window.setupBackButton();
   // read here ONCE, so the URL is only evaluated one time after the
   // necessary data has been loaded.
   urlPortal = getURLParam('pguid');
