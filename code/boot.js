@@ -19,13 +19,13 @@ window.setupBackButton = function() {
 
   window.goBack = function() {
     while(window.setupBackButton._actions.length > 0) {
-      var a = window.setupBackButton._actions.pop();
+      var a = $(window.setupBackButton._actions.pop());
       // skip no-op back actions. This may occur then the expand/shrink
       // button is used.
-      if($(a).hasClass('active')) continue;
+      if(a.hasClass('active')) continue;
       window.setupBackButton._ignoreNextClick = true;
       a.click();
-      console.log('Going back to ' + $(a).text());
+      console.log('Going back to ' + a.text());
       break;
     }
   }
