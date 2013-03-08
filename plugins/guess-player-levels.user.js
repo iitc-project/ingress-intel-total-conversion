@@ -43,7 +43,7 @@ window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
   var text;
   if (nick in playersNamed) {
     text = 'Min player level: ' + playersNamed[nick];
-    if(playersNamed[nick] === window.MAX_XM_PER_LEVEL - 1) text += ' (guessed)';
+    if(playersNamed[nick] < window.MAX_XM_PER_LEVEL.length - 1) text += ' (guessed)';
   } else {
     text = 'Min player level unknown';
   }
@@ -99,15 +99,15 @@ window.plugin.guessPlayerLevels.guess = function() {
     var nickR = namesR[i];
     var lvlR = playersRes[nickR];
     var lineR = nickR ? nickR + ':\t' + lvlR : '\t';
-    if(!isNaN(parseInt(lvlR))) 
+    if(!isNaN(parseInt(lvlR)))
         totallvlR += parseInt(lvlR);
-    
+
     var nickE = namesE[i];
     var lvlE = playersEnl[nickE];
     var lineE = nickE ? nickE + ':\t' + lvlE : '\t';
     if(!isNaN(parseInt(lvlE)))
         totallvlE += parseInt(lvlE);
-    
+
     s += '\n'+lineR + '\t' + lineE + '\n';
   }
   s += '\nTotal level :\t'+totallvlR+'\tTotal level :\t'+totallvlE;
