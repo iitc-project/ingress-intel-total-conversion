@@ -389,6 +389,7 @@ window.chat.needMoreMessages = function() {
   if(activeTab === 'debug') return;
 
   var activeChat = $('#chat > :visible');
+  if(activeChat.length === 0) return;
 
   var hasScrollbar = scrollBottom(activeChat) !== 0 || activeChat.scrollTop() !== 0;
   var nearTop = activeChat.scrollTop() <= CHAT_REQUEST_SCROLL_TOP;
