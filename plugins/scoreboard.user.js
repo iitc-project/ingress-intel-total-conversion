@@ -62,8 +62,9 @@ window.plugin.scoreboard.compileStats = function() {
     var team = getTeam(val.options.data);
     var player = val.options.data.creator.creatorGuid;
      
-    window.plugin.scoreboard.initPlayer(player,team);
- 
+    window.plugin.scoreboard.initPlayer(player,team);    
+    
+    // Google sends fields long since dead in the data. This makes sure it's still actually up.
     if(window.portals[val.options.vertices.vertexA.guid] !== undefined ||
        window.portals[val.options.vertices.vertexB.guid] !== undefined ||
        window.portals[val.options.vertices.vertexC.guid] !== undefined ) {
@@ -74,18 +75,18 @@ window.plugin.scoreboard.compileStats = function() {
       scores['team'][team]['count_fields']++;
       scores['player'][player]['count_fields']++;
       
-      if(scores['team'][team]['largest']['mu'] === undefined) {
-        scores['team'][team]['largest']['mu'] = val;
+      var largestMu = scores['team'][team]['largest']['mu'];
+      if(largestMu === undefined || parseInt(largestMu.options.data.entityScore.entityScore) < parseInt(val.options.data.entityScore.entityScore)) {
+        console.log((largestMu === undefined?'und':largestMu.options.data.entityScore.entityScore) + ' < ' + val.options.data.entityScore.entityScore);
+        largestMu = val;
       }
-      else if(scores['team'][team]['largest']['mu'].options.data.entityScore.entityScore < val.options.data.entityScore.entityScore) {
-        scores['team'][team]['largest']['mu'] = val;
-      }         
-      if(scores['player'][player]['largest']['mu'] === undefined) {
-        scores['player'][player]['largest']['mu'] = val;
+      scores['team'][team]['largest']['mu'] = largestMu;
+      
+      var largestMu = scores['player'][player]['largest']['mu'];
+      if(largestMu === undefined || parseInt(largestMu.options.data.entityScore.entityScore) < parseInt(val.options.data.entityScore.entityScore)) {
+        largestMu = val;
       }
-      else if(scores['player'][player]['largest']['mu'].options.data.entityScore.entityScore < val.options.data.entityScore.entityScore) {
-        scores['player'][player]['largest']['mu'] = val;
-      }
+      scores['player'][player]['largest']['mu'] = largestMu;
     }
   });
   $.each(window.links, function(qk, link) {
@@ -121,28 +122,42 @@ window.plugin.scoreboard.compileStats = function() {
       }
     });
   });
-  window.plugin.scoreboard.playerGuids.sort(window.plugin.scoreboard.sortPlayerList);
   return somethingInView;
 };
 
-window.plugin.scoreboard.sortPlayerList = function(a, b) {
-  var retVal = 0;
-  if(window.getPlayerName(a).toLowerCase() < window.getPlayerName(b).toLowerCase()) {
-    retVal = -1;
-  } else {
-    retVal = 1;
-  }
-  return retVal;
-};
+//window.plugin.scoreboard.sortPlayerList = function(a, b) {
+//  var playerA = window.plugin.scoreboard.scores['player'][a];
+//  var playerB = window.plugin.scoreboard.scores['player'][b];
+//  
+//  var sortBy = ['mu', 'count_fields', 'count_links', 'count_portals', 'count_resonators'];
+//  var retVal = 0;
+//  var i = 0;
+//  
+//  while(retVal === 0 && i < sortBy.length)
+//  {
+//    retVal = playerB[sortBy[i]] - playerA[sortBy[i]];
+//    i++;
+//  }
+//  
+//  // If they're still equal after all that, sort alpha
+//  if(retVal === 0) {
+//    if(window.getPlayerName(a).toLowerCase() < window.getPlayerName(b).toLowerCase()) {
+//      retVal = -1;
+//    } else {
+//      retVal = 1;
+//    }
+//  }
+//  return retVal;
+//};
 
 window.plugin.scoreboard.percentSpan = function(percent, cssClass) {
    var retVal = '';
    if(percent > 0) {
-      retVal += '<span class="' + cssClass + '" style="width:' + percent +'%;">';
+      retVal += '<span class="' + cssClass + ' mu_score" style="width:' + percent +'%;">' + percent;
       if(percent >= 7) { //anything less than this and the text doesnt fit in the span.
-        retVal += percent;
+        retVal += '%';
       }
-      retVal += '%</span>';   
+      retVal += '</span>';   
    }
    return retVal;
 };
@@ -197,7 +212,7 @@ window.plugin.scoreboard.display = function() {
     }
     
     scoreHtml += '<table>'
-               + '<tr><th></th><th>Resistance</th><th>Enlightened</th><th>Total</th></tr>';
+              + '<tr><th></th><th>Resistance</th><th>Enlightened</th><th>Total</th></tr>';
     scoreHtml += window.plugin.scoreboard.teamTableRow('mu','Mu');
     scoreHtml += window.plugin.scoreboard.teamTableRow('count_fields','Fields');
     scoreHtml += window.plugin.scoreboard.teamTableRow('count_links','Links');
@@ -205,12 +220,9 @@ window.plugin.scoreboard.display = function() {
     scoreHtml += window.plugin.scoreboard.teamTableRow('count_resonators','Resonators');
     scoreHtml += '</table>';
     
-    scoreHtml += '<table>'
-               + '<tr><th>Player</th><th>Mu</th><th>Fields</th><th>Links</th><th>Portals</th><th>Resonators</th></tr>';
-    $.each(window.plugin.scoreboard.playerGuids, function(index, guid) {
-      scoreHtml += window.plugin.scoreboard.playerTableRow(guid);
-    });
-    scoreHtml += '</table>';
+    scoreHtml += '<div id="players">';
+    scoreHtml += window.plugin.scoreboard.playerTable('mu');
+    scoreHtml += '</div>';
     
     scoreHtml += '<div class="disclaimer">Score is subject to portals available based on zoom level. If names are unresolved try again. For best results wait until updates are fully loaded.</div>';
   } else {
@@ -219,7 +231,33 @@ window.plugin.scoreboard.display = function() {
   
   alert('<div id="scoreboard">' + scoreHtml + '</div>');
   $(".ui-dialog").addClass('ui-dialog-scoreboard');
+  console.log(window.plugin.scoreboard.scores);
 }
+
+window.plugin.scoreboard.playerTable = function(sortBy) {
+  
+  window.plugin.scoreboard.playerGuids.sort(function(a, b) {
+    var playerA = window.plugin.scoreboard.scores['player'][a];
+    var playerB = window.plugin.scoreboard.scores['player'][b];
+    var retVal = 0;
+    if(sortBy === 'names') {
+      retVal = window.getPlayerName(a).toLowerCase() < window.getPlayerName(b).toLowerCase() ? -1 : 1;
+    } else {
+      retVal = playerB[sortBy] - playerA[sortBy];
+    }
+    return retVal;
+  });
+  
+  var scoreHtml = '<table>'
+                + '<tr><th class="names">Player</th><th>Mu</th><th>Fields</th><th>Links</th><th>Portals</th><th>Resonators</th></tr>';
+  $.each(window.plugin.scoreboard.playerGuids, function(index, guid) {
+    scoreHtml += window.plugin.scoreboard.playerTableRow(guid);
+  });
+  scoreHtml += '</table>';
+  
+  return scoreHtml;
+}
+
 
 var setup =  function() {
   //window.addHook('portalDetailsUpdated', window.plugin.portalAddress.portalDetail);
@@ -233,8 +271,11 @@ var setup =  function() {
     '#scoreboard table tr.res td { background-color: #005684; }' +
     '#scoreboard table tr.enl td { background-color: #017f01; }' +
     '#scoreboard table tr:nth-child(even) td { opacity: .8 }' +
-    '#scoreboard table td.number { text-align:right }' +
+    '#scoreboard table tr:nth-child(odd) td { color: #ddd !important; }' +
+    '#scoreboard table td.number, #scoreboard table th { text-align:right }' +
+    '#scoreboard table th.names { text-align:left }' +
     '#scoreboard .disclaimer { margin-top:10px; font-size:10px; }' +
+    '.mu_score { overflow:hidden;}' +
     '</style>');
   
 }
