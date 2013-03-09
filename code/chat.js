@@ -305,7 +305,7 @@ window.chat.writeDataToHash = function(newData, storageHash, skipSecureMsgs) {
   });
 }
 
-//Override portal names that are used over and over, such as 'US Post Office'
+// Override portal names that are used over and over, such as 'US Post Office'
 window.chat.getChatPortalName = function(markup) {
   var name = markup.name;
   if(name === 'US Post Office') {
