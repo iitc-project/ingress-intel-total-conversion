@@ -5,7 +5,7 @@
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/ap-list.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/ap-list.user.js
-// @description    List top 10 portals by AP of either faction. Hover over AP will show breakdown of AP. Click on portal name will select the portal. Double click on portal name will zoom to and select portal.
+// @description    List top 10 portals by AP of either faction. Hover over AP will show breakdown of AP. Click on portal name will select the portal. Double click on portal name will zoom to and select portal. Portals before zooming in will be cached and count in top portal. They will be cleared if you click the "↻ R" or move out of the area. 
 // @include        https://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // ==/UserScript==
@@ -22,7 +22,9 @@ window.plugin.apList = function() {
 };
 
 window.plugin.apList.cachedPortals = {};
-window.plugin.apList.useCachedPortals = true;
+window.plugin.apList.useCachedPortals = false;
+window.plugin.apList.cacheBounds;
+window.plugin.apList.cacheActiveZoomLevel;
 window.plugin.apList.SIDE_FRIENDLY = 0;
 window.plugin.apList.SIDE_ENEMY = 1;
 window.plugin.apList.sides = new Array(2);
@@ -119,51 +121,47 @@ window.plugin.apList.updateTopPortals = function() {
   plugin.apList.minPortalAp[plugin.apList.SIDE_FRIENDLY] = 0;
   plugin.apList.minPortalAp[plugin.apList.SIDE_ENEMY] = 0;
 
+  // Make a backup of cachedPortals
+  // If cache is not enabled, empty cachedPortals. In following
+  // "$.each" loop, the backup portal will copy back into 
+  // cachedPortals if it exist in "window.portals"" and didn't change.'
+  var oldcachedPortal = $.extend({},plugin.apList.cachedPortals);
+  if(!plugin.apList.useCachedPortals)
+    plugin.apList.cachedPortals = {};
+
   $.each(Object.keys(window.portals), function(ind, key) {
     if(getTypeByGuid(key) !== TYPE_PORTAL)
       return true;
 
-    var guid = window.portals[key].options.guid;
     var portal = window.portals[key].options.details;
-    var cachedPortal = plugin.apList.cachedPortals[key];
-    var side = plugin.apList.portalSide(portal);
+    var cachedPortal = oldcachedPortal[key];
+    // If portal is changed, update playerApGain with latest
+    // information
     if(!plugin.apList.isSamePortal(portal,cachedPortal)) {
       // Copy portal detail to cachedPortal
       cachedPortal = $.extend({},portal);
+      var side = plugin.apList.portalSide(portal);
       var getApGainFunc = plugin.apList.playerApGainFunc[side];
+      // Assign playerApGain and guid to cachedPortal
       cachedPortal.playerApGain = getApGainFunc(portal);
-      cachedPortal.guid = guid;
-      plugin.apList.cachedPortals[key] = cachedPortal;
+      cachedPortal.guid = window.portals[key].options.guid;
     }
+    plugin.apList.cachedPortals[key] = cachedPortal;
 
-    // store guid first
+    // If caching function not enabled, only use portal exist in
+    // window.portals to count top portal
     if(!plugin.apList.useCachedPortals)
       plugin.apList.addToTopPortals(cachedPortal);
   });
-  
+
+  // If caching function enabled, use all cached portal to count 
+  // top portals
   if(plugin.apList.useCachedPortals) {
     $.each(Object.keys(plugin.apList.cachedPortals), function(ind, key) {
       var cachedPortal = plugin.apList.cachedPortals[key];
       plugin.apList.addToTopPortals(cachedPortal);
     });
   }
-}
-
-window.plugin.apList.isSamePortal = function(a,b) {
-  if(!a || !b) return false;
-  if(a.team !== b.team) return false;
-  if(a.level !== b.level) return false;
-  for(var i = 0; i < 8; i++) {
-    if(!isSameResonator(a.resonatorArray.resonators[i],b.resonatorArray.resonators[i]))
-      return false;
-  }
-  return true;
-}
-
-window.plugin.apList.portalSide = function(portal) {
-  return (portal.controllingTeam.team === PLAYER.team)
-    ? plugin.apList.SIDE_FRIENDLY
-    : plugin.apList.SIDE_ENEMY;
 }
 
 window.plugin.apList.addToTopPortals = function(portal) {
@@ -188,7 +186,38 @@ window.plugin.apList.addToTopPortals = function(portal) {
   plugin.apList.minPortalAp[side] = plugin.apList.topPortals[side][last];
 }
 
-window.plugin.apList.getDeployOrUpgradeApGain = function(d, maximizingPortalLevel) {
+window.plugin.apList.enableCache = function() {
+  plugin.apList.useCachedPortals = true;
+  plugin.apList.updateTopPortals();
+  plugin.apList.updatePortalTable(plugin.apList.displaySide);
+}
+
+window.plugin.apList.disableCache = function() {
+  plugin.apList.useCachedPortals = false;
+  plugin.apList.cachedPortals = {};
+  plugin.apList.updateTopPortals();
+  plugin.apList.updatePortalTable(plugin.apList.displaySide);
+}
+
+window.plugin.apList.isSamePortal = function(a,b) {
+  if(!a || !b) return false;
+  if(a.team !== b.team) return false;
+  if(a.level !== b.level) return false;
+  for(var i = 0; i < 8; i++) {
+    if(!isSameResonator(a.resonatorArray.resonators[i],b.resonatorArray.resonators[i]))
+      return false;
+  }
+  return true;
+}
+
+window.plugin.apList.portalSide = function(portal) {
+  return (portal.controllingTeam.team === PLAYER.team)
+    ? plugin.apList.SIDE_FRIENDLY
+    : plugin.apList.SIDE_ENEMY;
+}
+
+// Get AP of friendly portal 
+window.plugin.apList.getDeployOrUpgradeApGain = function(d) {
   var playerResoCount = new Array(MAX_PORTAL_LEVEL + 1);
   var otherReso = new Array();
   var totalAp = 0;
@@ -222,13 +251,8 @@ window.plugin.apList.getDeployOrUpgradeApGain = function(d, maximizingPortalLeve
     }
   }
 
-  // Sort others reso low to high, or high to low if want to maximizing portal level.
-  // Last reso in otherReso get upgrade first.
-  otherReso.sort(function(a, b) {
-    return maximizingPortalLevel
-      ? b.level - a.level
-      : a.level - b.level;
-  });
+  // Sort others reso low to high, last reso in otherReso get upgrade first.
+  otherReso.sort(function(a, b) {a.level - b.level;});
 
   // Find out available count of reso for each level
   for(var i = window.PLAYER.level; i > 0 && otherReso.length > 0; i--) {
@@ -257,59 +281,19 @@ window.plugin.apList.getDeployOrUpgradeApGain = function(d, maximizingPortalLeve
   };
 }
 
-window.plugin.apList.clearCache = function() {
-  plugin.apList.cachedPortals = {};
-  plugin.apList.updateTopPortals();
-  plugin.apList.updatePortalTable(plugin.apList.displaySide);
-  console.log('Plugin ap list: cached portals cleared');
-}
-
-window.plugin.apList.toggleUseCache = function() {
-  plugin.apList.useCachedPortals = !plugin.apList.useCachedPortals;
-  plugin.apList.clearCache();
-}
-
-window.plugin.apList.toggleUseCacheLabel = function() {
-  $('#ap-panel-usecache-tick').html(window.plugin.apList.useCachedPortals ? '☑' : '☐');
-}
-
-window.plugin.apList.showSetting = function() {
-  var useCacheLabel = 'Use cache ' + (plugin.apList.useCachedPortals ? '☑' : '☐');
-  var content = '<div>'
-              + '<div>'
-              + '<button id="ap-panel-clearcache" type="button" style="width: 100%"' 
-              + 'onclick="window.plugin.apList.clearCache()">'
-              + 'Clear cache'
-              + '</button>'
-              + '</div>'
-              + '<div>'
-              + '<button id="ap-panel-usecache" type="button" style="width: 100%"' 
-              + 'onclick="window.plugin.apList.toggleUseCache();'
-              + 'window.plugin.apList.toggleUseCacheLabel();'
-              + '">'
-              + 'Use cache '
-              + '<span id="ap-panel-usecache-tick">'
-              + (plugin.apList.useCachedPortals ? '☑' : '☐')
-              + '</span>'
-              + '</button>'
-              + '</div>'
-              + '</div>';
-  alert(content);
-}
-
 // Change display table to friendly portals
 window.plugin.apList.displayFriendly = function() {
   plugin.apList.displaySide = plugin.apList.SIDE_FRIENDLY;
-  plugin.apList.changeSide(plugin.apList.displaySide);
+  plugin.apList.changeDisplaySide(plugin.apList.displaySide);
 }
 
 // Change display table to enemy portals
 window.plugin.apList.displayEnemy = function() {
   plugin.apList.displaySide = plugin.apList.SIDE_ENEMY;
-  plugin.apList.changeSide(plugin.apList.displaySide);
+  plugin.apList.changeDisplaySide(plugin.apList.displaySide);
 }
 
-window.plugin.apList.changeSide = function(side) {
+window.plugin.apList.changeDisplaySide = function(side) {
   plugin.apList.updatePortalTable(side);
   plugin.apList.toggleSideLabel(side);
 
@@ -326,9 +310,17 @@ window.plugin.apList.toggleSideLabel = function(side) {
   });
 }
 
+window.plugin.apList.hideReloadLabel = function() {
+  $('#ap-list-reload').hide();
+}
+
+window.plugin.apList.showReloadLabel = function() {
+  $('#ap-list-reload').show();
+}
+
 window.plugin.apList.setupVar = function() {
-  window.plugin.apList.sides[plugin.apList.SIDE_FRIENDLY] = plugin.apList.SIDE_FRIENDLY;
-  window.plugin.apList.sides[plugin.apList.SIDE_ENEMY] = plugin.apList.SIDE_ENEMY;
+  plugin.apList.sides[plugin.apList.SIDE_FRIENDLY] = plugin.apList.SIDE_FRIENDLY;
+  plugin.apList.sides[plugin.apList.SIDE_ENEMY] = plugin.apList.SIDE_ENEMY;
   plugin.apList.playerApGainFunc[plugin.apList.SIDE_FRIENDLY] 
     = plugin.apList.getDeployOrUpgradeApGain;
   plugin.apList.playerApGainFunc[plugin.apList.SIDE_ENEMY] 
@@ -338,6 +330,7 @@ window.plugin.apList.setupVar = function() {
   plugin.apList.sideLabelClass[plugin.apList.SIDE_ENEMY]
     = "#ap-list-eny";
 }
+
 window.plugin.apList.setupList = function() {
   var content = '<div id="ap-list">'
           + '<span style="display: inline-block; width: 90%">'
@@ -348,21 +341,52 @@ window.plugin.apList.setupList = function() {
           + '<a href="#" onclick="window.plugin.apList.displayFriendly();return false;">Friendly</a>'
           + '</span>'
           + '</span>'
-          + '<span id="ap-list-setting" style="display: inline-block; text-align: right; width: 10%">'
-          + '<a hred="#" onclick="window.plugin.apList.showSetting()">…</a>'
+          + '<span id="ap-list-reload" style="display: inline-block; text-align: right; width: 10%">'
+          + '<a href="#" title="Clear list and reload" onclick="window.plugin.apList.disableCache();'
+          + 'plugin.apList.hideReloadLabel();return false;">↻ R</a>'
           + '</span>'
           + '<div id="ap-list-table"></div>'
           + '</div>';
 
   $('#sidebar').append(content);
-  $('div#ap-list').css({'color':'#ffce00', 'font-size':'90%', 'padding':'4px 2px'});
+  $('#ap-list-reload').hide();
+  $('#ap-list').css({'color':'#ffce00', 'font-size':'90%', 'padding':'4px 2px'});
+}
+
+window.plugin.apList.setupMapEvent = function() {
+  map.on('zoomstart', function() {
+    plugin.apList.setupMapEvent.zoomLevelBefore = map.getZoom();
+    // Stop changing cacheBounds if cache enabled
+    if(!plugin.apList.useCachedPortals)
+      plugin.apList.cacheBounds = map.getBounds();
+  });
+
+  map.on('zoomend', function() {
+    // if zooming in and cache not yet enable, enable it
+    if(!plugin.apList.useCachedPortals
+        && map.getZoom() > plugin.apList.setupMapEvent.zoomLevelBefore) {
+      plugin.apList.enableCache();
+      plugin.apList.showReloadLabel();
+    }
+  });
+
+  map.on('moveend zoomend', function() {
+    // disable cache after out of cache bounds
+    if(plugin.apList.useCachedPortals) {
+      var currentBounds = map.getBounds();
+      if(!plugin.apList.cacheBounds.contains(currentBounds)) {
+        plugin.apList.disableCache();
+        plugin.apList.hideReloadLabel();
+      }
+    }
+  });
 }
 
 var setup = function() {
   window.plugin.apList.setupVar();
   window.plugin.apList.setupList();
+  window.plugin.apList.setupMapEvent();
   window.addHook('requestFinished', window.plugin.apList.handleUpdate);
-  
 }
 // PLUGIN END //////////////////////////////////////////////////////////
 
