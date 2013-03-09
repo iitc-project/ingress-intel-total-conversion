@@ -1,13 +1,13 @@
 // ==UserScript==
 // @id             iitc-plugin-compute-ap-stats@Hollow011
 // @name           iitc: Compute AP statistics
-// @version        0.2
+// @version        0.3
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/compute-ap-stats.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/compute-ap-stats.user.js
 // @description    Tries to determine overal AP stats for the current zoom
-// @include        http://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/intel*
+// @match          https://www.ingress.com/intel*
 // ==/UserScript==
 
 function wrapper() {
@@ -44,6 +44,21 @@ window.plugin.compAPStats.onPositionMove = function() {
     + '</table>');
 }
 
+window.plugin.compAPStats.missingResonatorAP = function(portal) {
+  var resAP = 0;
+  var missing_resonators = 0;
+  $.each(portal.resonatorArray.resonators, function(ind, reso) {
+    if(reso === null) {
+      missing_resonators++;
+    }
+  });
+  if(missing_resonators > 0) {
+    resAP = window.DEPLOY_RESONATOR * missing_resonators;
+    resAP += window.COMPLETION_BONUS;
+  }
+  return(resAP);
+};
+
 window.plugin.compAPStats.compAPStats = function() {
 
   var totalAP_RES = 0;
@@ -78,6 +93,9 @@ window.plugin.compAPStats.compAPStats = function() {
         if(!field) return true;
         allEnlFields.push(field);
       });
+      
+      totalAP_ENL += window.plugin.compAPStats.missingResonatorAP(d);
+      
     }
     else if (getTeam(d) === TEAM_RES) {
       totalAP_ENL += portalSum;
@@ -91,6 +109,9 @@ window.plugin.compAPStats.compAPStats = function() {
         if(!field) return true;
         allResFields.push(field);
       });
+      
+      totalAP_RES += window.plugin.compAPStats.missingResonatorAP(d);
+      
     } else {
       // it's a neutral portal, potential for both teams.  by definition no fields or edges
       totalAP_ENL += portalSum;

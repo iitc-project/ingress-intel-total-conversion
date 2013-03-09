@@ -2,6 +2,14 @@
 
 // UTILS + MISC  ///////////////////////////////////////////////////////
 
+window.layerGroupLength = function(layerGroup) {
+  var layersCount = 0;
+  var layers = layerGroup._layers;
+  if (layers)
+    layersCount = Object.keys(layers).length;
+  return layersCount;
+}
+
 // retrieves parameter from the URL?query=string.
 window.getURLParam = function(param) {
   var v = document.URL;
@@ -50,11 +58,11 @@ window.postAjax = function(action, data, success, error) {
   data = JSON.stringify($.extend({method: 'dashboard.'+action}, data));
   var remove = function(data, textStatus, jqXHR) { window.requests.remove(jqXHR); };
   var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
-  return $.ajax({
+  var result = $.ajax({
     // use full URL to avoid issues depending on how people set their
     // slash. See:
     // https://github.com/breunigs/ingress-intel-total-conversion/issues/56
-    url: 'http://www.ingress.com/rpc/dashboard.'+action,
+    url: 'https://www.ingress.com/rpc/dashboard.'+action,
     type: 'POST',
     data: data,
     dataType: 'json',
@@ -65,6 +73,8 @@ window.postAjax = function(action, data, success, error) {
       req.setRequestHeader('X-CSRFToken', readCookie('csrftoken'));
     }
   });
+  result.action = action;
+  return result;
 }
 
 // converts unix timestamps to HH:mm:ss format if it was today;
@@ -96,8 +106,16 @@ window.rangeLinkClick = function() {
     window.smartphone.mapButton.click();
 }
 
+window.showPortalPosLinks = function(lat, lng) {
+  var qrcode = '<div id="qrcode"></div>';
+  var script = '<script>$(\'#qrcode\').qrcode({text:\'GEO:'+lat+','+lng+'\'});</script>';
+  var gmaps = '<a href="https://maps.google.com/?q='+lat+','+lng+'">gmaps</a>';
+  var osm = '<a href="http://www.openstreetmap.org/?mlat='+lat+'&mlon='+lng+'&zoom=16">OSM</a>';
+  alert('<div style="text-align: center;">' + qrcode + script + gmaps + ' ' + osm + '</div>');
+}
+
 window.reportPortalIssue = function(info) {
-  var t = 'Redirecting you to a Google Help Page. Once there, click on “Contact Us” in the upper right corner.\n\nThe text box contains all necessary information. Press CTRL+C to copy it.';
+  var t = 'Redirecting you to a Google Help Page.\n\nThe text box contains all necessary information. Press CTRL+C to copy it.';
   var d = window.portals[window.selectedPortal].options.details;
 
   var info = 'Your Nick: ' + PLAYER.nickname + '        '
@@ -107,7 +125,7 @@ window.reportPortalIssue = function(info) {
 
   //codename, approx addr, portalname
   if(prompt(t, info) !== null)
-    location.href = 'https://support.google.com/ingress?hl=en';
+    location.href = 'https://support.google.com/ingress?hl=en&contact=1';
 }
 
 window._storedPaddedBounds = undefined;
@@ -117,6 +135,7 @@ window.getPaddedBounds = function() {
       window._storedPaddedBounds = null;
     });
   }
+  if(renderLimitReached(0.7)) return window.map.getBounds();
   if(window._storedPaddedBounds) return window._storedPaddedBounds;
 
   var p = window.map.getBounds().pad(VIEWPORT_PAD_RATIO);
@@ -124,18 +143,30 @@ window.getPaddedBounds = function() {
   return p;
 }
 
-window.renderLimitReached = function() {
-  if(Object.keys(portals).length >= MAX_DRAWN_PORTALS) return true;
-  if(Object.keys(links).length >= MAX_DRAWN_LINKS) return true;
-  if(Object.keys(fields).length >= MAX_DRAWN_FIELDS) return true;
-  return false;
+// returns true if the render limit has been reached. The default ratio
+// is 1, which means it will tell you if there are more items drawn than
+// acceptable. A value of 0.9 will tell you if 90% of the amount of
+// acceptable entities have been drawn. You can use this to heuristi-
+// cally detect if the render limit will be hit.
+window.renderLimitReached = function(ratio) {
+  ratio = ratio || 1;
+  if(Object.keys(portals).length*ratio >= MAX_DRAWN_PORTALS) return true;
+  if(Object.keys(links).length*ratio >= MAX_DRAWN_LINKS) return true;
+  if(Object.keys(fields).length*ratio >= MAX_DRAWN_FIELDS) return true;
+  var param = { 'reached': false };
+  window.runHooks('checkRenderLimit', param);
+  return param.reached;
 }
 
 window.getMinPortalLevel = function() {
   var z = map.getZoom();
   if(z >= 16) return 0;
   var conv = ['impossible', 8,7,7,6,6,5,5,4,4,3,3,2,2,1,1];
-  return conv[z];
+  var minLevelByRenderLimit = portalRenderLimit.getMinLevel();
+  var result = minLevelByRenderLimit > conv[z]
+    ? minLevelByRenderLimit
+    : conv[z];
+  return result;
 }
 
 // returns number of pixels left to scroll down before reaching the
@@ -213,7 +244,7 @@ window.setPermaLink = function(elm) {
   var lat = Math.round(c.lat*1E6);
   var lng = Math.round(c.lng*1E6);
   var qry = 'latE6='+lat+'&lngE6='+lng+'&z=' + (map.getZoom()-1);
-  $(elm).attr('href',  'http://www.ingress.com/intel?' + qry);
+  $(elm).attr('href',  'https://www.ingress.com/intel?' + qry);
 }
 
 window.uniqueArray = function(arr) {
@@ -266,4 +297,9 @@ window.convertTextToTableMagic = function(text) {
   });
   table += '</table>';
   return table;
+}
+
+// Given 3 sets of points in an array[3]{lat, lng} returns the area of the triangle
+window.calcTriArea = function(p) {
+  return Math.abs((p[0].lat*(p[1].lng-p[2].lng)+p[1].lat*(p[2].lng-p[0].lng)+p[2].lat*(p[0].lng-p[1].lng))/2);
 }

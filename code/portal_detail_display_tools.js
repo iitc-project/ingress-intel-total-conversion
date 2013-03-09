@@ -132,6 +132,7 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
 
     var meter = '<span class="meter" title="'+inf+'">' + fill + lbar + '</span>';
   }
+  nick = nick ? '<span class="nickname">'+nick+'</span>' : null;
   return [meter, nick || ''];
 }
 

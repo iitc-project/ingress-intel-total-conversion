@@ -1,8 +1,25 @@
-CHANGES IN 0.7
-==============
+CHANGES IN 0.7.5 – 0.7.8
+========================
+
+This is an emergency release to keep IITC working with Niantic’s switch to HTTPS. It appears they will roll it out for everyone soon, so IITC now requires HTTPS for everyone; support for HTTP was dropped to keep things sane. Additionally, the following things were changed from 0.7.1:
+
+- Feature: the “gmaps” link for each portal has been replaced with a “poslinks” one. It offers Google Maps, OpenStreetMap and QR-Codes for easy transfer to your mobile phone (by Merovius).
+- Feature: the exact capture time is now shown in a tooltip in the portal details (by j16sdiz)
+- Change: most scripts are now included in the UserScript directly. Was the easiest solution to the HTTPS issue.
+- Change: minor improvements when render limit is about to be hit.
+- Bugfix: map base layer wasn’t always remembered in Chrome
+- Bugfix: QR Code rendering broken (in 0.7.5, fixed in 0.7.6)
+- Bugfix: Script broken in Firefox sometimes (fixed in 0.7.7)
+- Bugfix: some graphics were not available due to GitHub’s limits. Affected plugins: draw tools and player tracker. Need to update IITC and both plugins for the fix to come into effect. (fixed in 0.7.8)
+
+
+CHANGES IN 0.7 / 0.7.1
+----------------------
+
+- 0.7.1 fixes an oversight that prevented some portals from showing (by saithis)
 
 ### General
-- from now on there will be [nightly builds](https://www.dropbox.com/sh/lt9p0s40kt3cs6m/3xzpyiVBnF) available. You need to manually update them if you want to stay on nightly. You should be offered to update to the next release version, though. Be sure to [have read the guide on how to report bugs](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/HACKING.md#how-do-i-report-bugs) before using a nightly version.
+- from now on there will be [nightly builds](https://iitcserv.appspot.com/iitc-nightly/) available. You need to manually update them if you want to stay on nightly. You should be offered to update to the next release version, though. Be sure to [have read the guide on how to report bugs](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/HACKING.md#how-do-i-report-bugs) before using a nightly version.
 - IITC has [a shiny new user guide now](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/USERGUIDE.md). Please point new users to it, it should answer most of their questions and also teach them how to make good bug reports.
 
 ### Main Script
@@ -49,7 +66,6 @@ CHANGES IN 0.6 / 0.61
 
 - **SECURITY**: Chat was vulnerable to XSS attacks. Update as soon as
                 possible.
-
 - Feature: [**more plugins**](https://github.com/breunigs/ingress-intel-total-conversion/tree/gh-pages/plugins#readme)
     - weakened portals: highlights portals with few resonators or ones
                         that are decayed, making it easier to see where

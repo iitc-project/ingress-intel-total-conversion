@@ -27,11 +27,13 @@ Please follow the these guidelines. Some are just preference, others are good pr
 - use identity operators: `===` and `!==`. [Why do I want this?](http://stackoverflow.com/a/359509/1684530)
 - jQuery is your friend
 - indent using two spaces
-- opening brace on the same line with a space after the if/for/etc: `if(blub) {`
+- opening brace on the same line: `if(blub) {`
 - else clauses: `} else if(blub) {` or `} else {`
+- there should be no space after `if`, `for`, etc. E.g. `if(true) { doStuff(); } else { dontDoStuff(); }`
 - comments: `// this is a comment`
 - quotes: Use single-quotes for JavaScript and double-quotes for HTML content. Example: `$('body').append('<div id="soup">Soup!</div>');`.
 - there is no length limit on lines, but try to keep them short where suitable
+- ensure you remove *all* trailing whitespace before submitting your patch. If you editor doesn’t detect those for you, try `grep -nE "[[:space:]]+$" «filename»`
 
 
 Sending patches
@@ -63,12 +65,15 @@ How do I report bugs?
 ---------------------
 
 **Try this first**:
-- update the user script and all its plugins. Even if you think there is no update.
+- update the user script and all its plugins.
 - after updating, go to the intel page.
 - press `SHIFT+F5` (or shift-click the reload button). Wait for the page to load.
 - press `CTRL+F5`, same as above.
 
-If your issue persists, continue. Provide **all** of the information below, even if you don’t think this is necessary.
+You can also try to [install the most recent developer version (“nightly”)]
+(https://www.dropbox.com/sh/lt9p0s40kt3cs6m/3xzpyiVBnF) and repeat the steps above. Maybe your issue has already been fixed? The nightly versions will update to the next stable release, so you don’t need to worry about that.
+
+If your issue persists, continue. The next step is to look for existing issues, maybe someone else has a similar problem. You can look [through the existing issues](https://github.com/breunigs/ingress-intel-total-conversion/issues?sort=updated&state=open) or use the search function on the top right. If your issue persists, open a new issue and provide **all** of the information below, even if you don’t think this is necessary.
 
 - a descriptive title
 - your browser and its version

@@ -1,13 +1,13 @@
 // ==UserScript==
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           iitc: guess player level
-// @version        0.2
+// @version        0.3
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/guess-player-levels.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/guess-player-levels.user.js
 // @description    Tries to determine player levels from the data available in the current view
-// @include        http://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/intel*
+// @match          https://www.ingress.com/intel*
 // ==/UserScript==
 
 function wrapper() {
@@ -43,7 +43,7 @@ window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
   var text;
   if (nick in playersNamed) {
     text = 'Min player level: ' + playersNamed[nick];
-    if(playersNamed[nick] === window.MAX_XM_PER_LEVEL - 1) text += ' (guessed)';
+    if(playersNamed[nick] < window.MAX_XM_PER_LEVEL.length - 1) text += ' (guessed)';
   } else {
     text = 'Min player level unknown';
   }
@@ -88,23 +88,34 @@ window.plugin.guessPlayerLevels.guess = function() {
   });
 
   var s = 'the players have at least the following level:\n\n';
-  s += 'Resistance:\t&nbsp;&nbsp;&nbsp;\tEnlightenment:\t\n';
+  s += 'Resistance:\t&nbsp;&nbsp;&nbsp;\tEnlightened:\t\n';
 
   var namesR = plugin.guessPlayerLevels.sort(playersRes);
   var namesE = plugin.guessPlayerLevels.sort(playersEnl);
+  var totallvlR = 0;
+  var totallvlE = 0;
   var max = Math.max(namesR.length, namesE.length);
   for(var i = 0; i < max; i++) {
     var nickR = namesR[i];
     var lvlR = playersRes[nickR];
     var lineR = nickR ? nickR + ':\t' + lvlR : '\t';
+    if(!isNaN(parseInt(lvlR)))
+        totallvlR += parseInt(lvlR);
 
     var nickE = namesE[i];
     var lvlE = playersEnl[nickE];
     var lineE = nickE ? nickE + ':\t' + lvlE : '\t';
+    if(!isNaN(parseInt(lvlE)))
+        totallvlE += parseInt(lvlE);
 
-    s += lineR + '\t\t' + lineE + '\n';
+    s += '\n'+lineR + '\t' + lineE + '\n';
   }
-
+  s += '\nTotal level :\t'+totallvlR+'\tTotal level :\t'+totallvlE;
+  s += '\nTotal player:\t'+namesR.length+'\tTotal player:\t'+namesE.length;
+  var averageR = 0, averageE = 0;
+  if (namesR.length > 0)  averageR = (totallvlR/namesR.length);
+  if (namesE.length > 0)  averageE = (totallvlE/namesE.length);
+  s += '\nAverage level:\t'+averageR.toFixed(2)+'\tAverage level:\t'+averageE.toFixed(2);
   s += '\n\nIf there are some unresolved names, simply try again.'
   console.log(s);
   alert(s);

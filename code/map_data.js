@@ -43,12 +43,23 @@ window.requestData = function() {
     }
   }
 
+  // Reset previous result of Portal Render Limit handler
+  portalRenderLimit.init();
   // finally send ajax requests
   $.each(tiles, function(ind, tls) {
     data = { minLevelOfDetail: -1 };
     data.boundsParamsList = tls;
-    window.requests.add(window.postAjax('getThinnedEntitiesV2', data, window.handleDataResponse));
+    window.requests.add(window.postAjax('getThinnedEntitiesV2', data, window.handleDataResponse, window.handleFailedRequest));
   });
+}
+
+// Handle failed map data request
+window.handleFailedRequest = function() {
+  if(requests.isLastRequest('getThinnedEntitiesV2')) {
+    var leftOverPortals = portalRenderLimit.mergeLowLevelPortals(null);
+    handlePortalsRender(leftOverPortals);
+  }
+  runHooks('requestFinished', {success: false});
 }
 
 // works on map data response and ensures entities are drawn/updated.
@@ -57,11 +68,10 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   if(!data || !data.result) {
     window.failedRequestCount++;
     console.warn(data);
+    handleFailedRequest();
     return;
   }
 
-  var portalUpdateAvailable = false;
-  var portalInUrlAvailable = false;
   var m = data.result.map;
   // defer rendering of portals because there is no z-index in SVG.
   // this means that what’s rendered last ends up on top. While the
@@ -71,7 +81,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   var ppp = [];
   var p2f = {};
   $.each(m, function(qk, val) {
-    $.each(val.deletedGameEntityGuids, function(ind, guid) {
+    $.each(val.deletedGameEntityGuids || [], function(ind, guid) {
       if(getTypeByGuid(guid) === TYPE_FIELD && window.fields[guid] !== undefined) {
         $.each(window.fields[guid].options.vertices, function(ind, vertex) {
           if(window.portals[vertex.guid] === undefined) return true;
@@ -82,14 +92,12 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
       window.removeByGuid(guid);
     });
 
-    $.each(val.gameEntities, function(ind, ent) {
+    $.each(val.gameEntities || [], function(ind, ent) {
       // ent = [GUID, id(?), details]
       // format for links: { controllingTeam, creator, edge }
       // format for portals: { controllingTeam, turret }
 
       if(ent[2].turret !== undefined) {
-        if(selectedPortal === ent[0]) portalUpdateAvailable = true;
-        if(urlPortal && ent[0] == urlPortal) portalInUrlAvailable = true;
 
         var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
         if(!window.getPaddedBounds().contains(latlng)
@@ -125,18 +133,37 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
     }
   });
 
-  // Preserve and restore "selectedPortal" between portal re-render
-  if(portalUpdateAvailable) var oldSelectedPortal = selectedPortal;
+  // Process the portals with portal render limit handler first
+  // Low level portal will hold until last request
+  var newPpp = portalRenderLimit.splitOrMergeLowLevelPortals(ppp);
+  handlePortalsRender(newPpp);
 
-  runHooks('portalDataLoaded', {portals : ppp});
-  $.each(ppp, function(ind, portal) { renderPortal(portal); });
+  resolvePlayerNames();
+  renderUpdateStatus();
+  runHooks('requestFinished', {success: true});
+}
 
-  var selectedPortalLayer = portals[oldSelectedPortal];
-  if(portalUpdateAvailable && selectedPortalLayer) selectedPortal = oldSelectedPortal;
+window.handlePortalsRender = function(portals) {
+  var portalInUrlAvailable = false;
 
-  if(selectedPortalLayer) {
+  // Preserve selectedPortal because it will get lost on re-rendering
+  // the portal
+  var oldSelectedPortal = selectedPortal;
+
+  runHooks('portalDataLoaded', {portals : portals});
+  $.each(portals, function(ind, portal) {
+    //~ if(selectedPortal === portal[0]) portalUpdateAvailable = true;
+    if(urlPortal && portal[0] === urlPortal) portalInUrlAvailable = true;
+    renderPortal(portal);
+  });
+
+  // restore selected portal if still available
+  var selectedPortalGroup = portals[oldSelectedPortal];
+  if(selectedPortalGroup) {
+    selectedPortal = oldSelectedPortal;
+    renderPortalDetails(selectedPortal);
     try {
-      selectedPortalLayer.bringToFront();
+      selectedPortalGroup.bringToFront();
     } catch(e) { /* portal is now visible, catch Leaflet error */ }
   }
 
@@ -144,9 +171,6 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
     renderPortalDetails(urlPortal);
     urlPortal = null; // select it only once
   }
-
-  if(portalUpdateAvailable) renderPortalDetails(selectedPortal);
-  resolvePlayerNames();
 }
 
 // removes entities that are still handled by Leaflet, although they
@@ -174,10 +198,13 @@ window.cleanUp = function() {
     cnt[1]++;
     linksLayer.removeLayer(link);
   });
-  fieldsLayer.eachLayer(function(field) {
-    if(b.intersects(field.getBounds())) return;
-    cnt[2]++;
-    fieldsLayer.removeLayer(field);
+  fieldsLayer.eachLayer(function(fieldgroup) {
+    fieldgroup.eachLayer(function(item) {
+      if(!item.options.guid) return true; // Skip MU div container as this doesn't have the bounds we need
+      if(b.intersects(item.getBounds())) return;
+      cnt[2]++;
+      fieldsLayer.removeLayer(fieldgroup);
+    });
   });
   console.log('removed out-of-bounds: '+cnt[0]+' portals, '+cnt[1]+' links, '+cnt[2]+' fields');
 }
@@ -261,8 +288,11 @@ window.renderPortal = function(ent) {
   // pre-loads player names for high zoom levels
   loadPlayerNamesForPortal(ent[2]);
 
-  var lvWeight = Math.max(2, portalLevel / 1.5);
-  var lvRadius = Math.max(portalLevel + 3, 5);
+  var lvWeight = Math.max(2, Math.floor(portalLevel) / 1.5);
+  var lvRadius = Math.floor(portalLevel) + 4;
+  if(team === window.TEAM_NONE) {
+    lvRadius = 7;
+  }
 
   var p = L.circleMarker(latlng, {
     radius: lvRadius + (L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE : 0),
@@ -422,6 +452,7 @@ window.isResonatorsShow = function() {
 
 window.isSameResonator = function(oldRes, newRes) {
   if(!oldRes && !newRes) return true;
+  if(!oldRes || !newRes) return false;
   if(typeof oldRes !== typeof newRes) return false;
   if(oldRes.level !== newRes.level) return false;
   if(oldRes.energyTotal !== newRes.energyTotal) return false;
@@ -481,8 +512,18 @@ window.renderLink = function(ent) {
     weight:2,
     clickable: false,
     guid: ent[0],
-    smoothFactor: 10
+    data: ent[2],
+    smoothFactor: 0 // doesn’t work for two points anyway, so disable
   });
+  // determine which links are very short and don’t render them at all.
+  // in most cases this will go unnoticed, but improve rendering speed.
+  poly._map = window.map;
+  poly.projectLatlngs();
+  var op = poly._originalPoints;
+  var dist = Math.abs(op[0].x - op[1].x) + Math.abs(op[0].y - op[1].y);
+  if(dist <= 10) {
+    return;
+  }
 
   if(!getPaddedBounds().intersects(poly.getBounds())) return;
 
@@ -501,17 +542,18 @@ window.renderField = function(ent) {
   if(Object.keys(fields).length >= MAX_DRAWN_FIELDS)
     return window.removeByGuid(ent[0]);
 
-  // assume that fields never change. If they do, they will have a
-  // different ID.
-  if(findEntityInLeaflet(fieldsLayer, fields, ent[0])) return;
+  var old = findEntityInLeaflet(fieldsLayer, window.fields, ent[0]);
+  // If this already exists and the zoom level has not changed, we don't need to do anything
+  if(old && map.getZoom() === old.options.creationZoom) return;
 
   var team = getTeam(ent[2]);
   var reg = ent[2].capturedRegion;
   var latlngs = [
-    [reg.vertexA.location.latE6/1E6, reg.vertexA.location.lngE6/1E6],
-    [reg.vertexB.location.latE6/1E6, reg.vertexB.location.lngE6/1E6],
-    [reg.vertexC.location.latE6/1E6, reg.vertexC.location.lngE6/1E6]
+    L.latLng(reg.vertexA.location.latE6/1E6, reg.vertexA.location.lngE6/1E6),
+    L.latLng(reg.vertexB.location.latE6/1E6, reg.vertexB.location.lngE6/1E6),
+    L.latLng(reg.vertexC.location.latE6/1E6, reg.vertexC.location.lngE6/1E6)
   ];
+
   var poly = L.polygon(latlngs, {
     fillColor: COLORS[team],
     fillOpacity: 0.25,
@@ -523,16 +565,77 @@ window.renderField = function(ent) {
     guid: ent[0],
     data: ent[2]});
 
+  // determine which fields are too small to be rendered and don’t
+  // render them, so they don’t count towards the maximum fields limit.
+  // This saves some DOM operations as well, but given the relatively
+  // low amount of fields there isn’t much to gain.
+  // The algorithm is the same as used by Leaflet.
+  poly._map = window.map;
+  poly.projectLatlngs();
+  var count = L.LineUtil.simplify(poly._originalPoints, 6).length;
+  if(count <= 2) return;
+
   if(!getPaddedBounds().intersects(poly.getBounds())) return;
 
+  // Curve fit equation to normalize zoom window area
+  var areaZoomRatio = calcTriArea(latlngs)/Math.exp(14.2714860198866-1.384987247*map.getZoom());
+  var countForMUDisplay = L.LineUtil.simplify(poly._originalPoints, FIELD_MU_DISPLAY_POINT_TOLERANCE).length
+
+  // Do nothing if zoom did not change. We need to recheck the field if the
+  // zoom level is different then when the field was rendered as it could
+  // now be appropriate or not to show an MU count
+  if(old) {
+    var layerCount = 0;
+    old.eachLayer(function(item) {
+        layerCount++;
+    });
+    // Don't do anything since we already have an MU display and we still want to
+    if(areaZoomRatio > FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && countForMUDisplay > 2 && layerCount === 2) return;
+    // Don't do anything since we don't have an MU display and don't want to
+    if(areaZoomRatio <= FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && countForMUDisplay <= 2 && layerCount === 1) return;
+    removeByGuid(ent[0]);
+  }
+
+  // put both in one group, so they can be handled by the same logic.
+  if (areaZoomRatio > FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && countForMUDisplay > 2) {
+    // centroid of field for placing MU count at
+    var centroid = [
+      (latlngs[0].lat + latlngs[1].lat + latlngs[2].lat)/3,
+      (latlngs[0].lng + latlngs[1].lng + latlngs[2].lng)/3
+    ];
+
+    var fieldMu = L.marker(centroid, {
+      icon: L.divIcon({
+        className: 'fieldmu',
+        iconSize: [70,12],
+        html: digits(ent[2].entityScore.entityScore)
+        }),
+      clickable: false
+      });
+    var f = L.layerGroup([poly, fieldMu]);
+  } else {
+    var f = L.layerGroup([poly]);
+  }
+  f.options = {
+    vertices: reg,
+    lastUpdate: ent[1],
+    creationZoom: map.getZoom(),
+    guid: ent[0],
+    data: ent[2]
+  };
+
+  // However, LayerGroups (and FeatureGroups) don’t fire add/remove
+  // events, thus this listener will be attached to the field. It
+  // doesn’t matter to which element these are bound since Leaflet
+  // will add/remove all elements of the LayerGroup at once.
   poly.on('remove', function() { delete window.fields[this.options.guid]; });
   poly.on('add',    function() {
     // enable for debugging
     if(window.fields[this.options.guid]) console.warn('duplicate field detected');
-    window.fields[this.options.guid] = this;
+    window.fields[this.options.guid] = f;
     this.bringToBack();
   });
-  poly.addTo(fieldsLayer);
+  f.addTo(fieldsLayer);
 }
 
 

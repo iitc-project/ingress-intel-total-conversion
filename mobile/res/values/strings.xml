@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">IITC mobile</string>
+    <string name="action_settings">Settings</string>
+    <string name="reload">Reload IITC</string>
+    <string name="version">Print Version</string>
+    <string name="cache_clear">Clear Cache</string>
+    <string name="locate">Get Location</string>
+
+</resources>
