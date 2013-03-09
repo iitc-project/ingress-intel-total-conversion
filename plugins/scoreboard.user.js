@@ -20,6 +20,9 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 // use own namespace for plugin
 window.plugin.scoreboard = function() {};
 
+window.plugin.scoreboard.scores = {};
+window.plugin.scoreboard.playerGuids = new Array();
+
 window.plugin.scoreboard.resetTeam = function(team) {
   var scores = window.plugin.scoreboard.scores['team'];
   scores[team] = {};
@@ -43,11 +46,13 @@ window.plugin.scoreboard.initPlayer = function(player, team) {
     scores[player]['count_resonators'] = 0;
     //  scores[player]['count_shields'] = 0;
     scores[player]['largest'] = {};
+    window.plugin.scoreboard.playerGuids.push(player);
   }
 }
 
 window.plugin.scoreboard.compileStats = function() {
-  var somethingInView = false;
+  var somethingInView = false;  
+  window.plugin.scoreboard.playerGuids = new Array();
   window.plugin.scoreboard.scores = {'team': {}, 'player': {}};
   var scores = window.plugin.scoreboard.scores;
   window.plugin.scoreboard.resetTeam(TEAM_RES);
@@ -87,7 +92,7 @@ window.plugin.scoreboard.compileStats = function() {
     somethingInView = true;
     var team = getTeam(link.options.data);
     var player = link.options.data.creator.creatorGuid;
-    window.plugin.scoreboard.initPlayer(player,team);
+    window.plugin.scoreboard.initPlayer(player, team);
     scores['team'][team]['count_links']++;
     scores['player'][player]['count_links']++;
   });
@@ -95,7 +100,7 @@ window.plugin.scoreboard.compileStats = function() {
     somethingInView = true;
     var team = getTeam(portal.options.details);
     var player = portal.options.details.captured.capturingPlayerId;
-    window.plugin.scoreboard.initPlayer(player,team);
+    window.plugin.scoreboard.initPlayer(player, team);
     scores['team'][team]['count_portals']++;
     scores['player'][player]['count_portals']++;
     
@@ -110,13 +115,24 @@ window.plugin.scoreboard.compileStats = function() {
     $.each(portal.options.details.resonatorArray.resonators, function(ind, reso) {
       if(reso !== null) {  
         somethingInView = true;
-        window.plugin.scoreboard.initPlayer(reso.ownerGuid,team);
+        window.plugin.scoreboard.initPlayer(reso.ownerGuid, team);
         scores['team'][team]['count_resonators']++;
         scores['player'][reso.ownerGuid]['count_resonators']++;
       }
     });
   });
+  window.plugin.scoreboard.playerGuids.sort(window.plugin.scoreboard.sortPlayerList);
   return somethingInView;
+};
+
+window.plugin.scoreboard.sortPlayerList = function(a, b) {
+  var retVal = 0;
+  if(window.getPlayerName(a).toLowerCase() < window.getPlayerName(b).toLowerCase()) {
+    retVal = -1;
+  } else {
+    retVal = 1;
+  }
+  return retVal;
 };
 
 window.plugin.scoreboard.percentSpan = function(percent, cssClass) {
@@ -191,7 +207,7 @@ window.plugin.scoreboard.display = function() {
     
     scoreHtml += '<table>'
                + '<tr><th>Player</th><th>Mu</th><th>Fields</th><th>Links</th><th>Portals</th><th>Resonators</th></tr>';
-    $.each(window.plugin.scoreboard.scores['player'], function(guid, playerData) {
+    $.each(window.plugin.scoreboard.playerGuids, function(index, guid) {
       scoreHtml += window.plugin.scoreboard.playerTableRow(guid);
     });
     scoreHtml += '</table>';
