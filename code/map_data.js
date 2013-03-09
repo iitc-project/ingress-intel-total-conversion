@@ -559,11 +559,8 @@ window.renderField = function(ent) {
     fillOpacity: 0.25,
     stroke: false,
     clickable: false,
-    smoothFactor: 10,
-    vertices: ent[2].capturedRegion,
-    lastUpdate: ent[1],
-    guid: ent[0],
-    data: ent[2]});
+    smoothFactor: 0, // hiding small fields will be handled below
+    guid: ent[0]});
 
   // determine which fields are too small to be rendered and don’t
   // render them, so they don’t count towards the maximum fields limit.
