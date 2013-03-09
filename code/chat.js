@@ -285,7 +285,7 @@ window.chat.writeDataToHash = function(newData, storageHash, skipSecureMsgs) {
         msg += '<a onclick="'+js+'"'
           + ' title="'+markup[1].address+'"'
           + ' href="'+perma+'" class="help">'
-          + markup[1].name
+          + window.chat.getChatPortalName(markup[1])
           + '</a>';
         break;
 
@@ -303,6 +303,16 @@ window.chat.writeDataToHash = function(newData, storageHash, skipSecureMsgs) {
 
     window.setPlayerName(pguid, nick); // free nick name resolves
   });
+}
+
+//Override portal names that are used over and over, such as 'US Post Office'
+window.chat.getChatPortalName = function(markup) {
+  var name = markup.name;
+  if(name === 'US Post Office') {
+    var address = markup.address.split(',');
+    name = 'USPS: ' + address[0];
+  }
+  return name;
 }
 
 // renders data from the data-hash to the element defined by the given
