@@ -75,17 +75,17 @@ window.plugin.scoreboard.compileStats = function() {
       scores['team'][team]['count_fields']++;
       scores['player'][player]['count_fields']++;
       
-      //var largestMu = scores['team'][team]['largest']['mu'];
-      //if(largestMu === undefined || parseInt(largestMu.options.data.entityScore.entityScore) < parseInt(val.options.data.entityScore.entityScore)) {
-      //  largestMu = val;
-      //}
-      //scores['team'][team]['largest']['mu'] = largestMu;
-      //
-      //var largestMu = scores['player'][player]['largest']['mu'];
-      //if(largestMu === undefined || parseInt(largestMu.options.data.entityScore.entityScore) < parseInt(val.options.data.entityScore.entityScore)) {
-      //  largestMu = val;
-      //}
-      //scores['player'][player]['largest']['mu'] = largestMu;
+      var largestMu = scores['team'][team]['largest']['mu'];
+      if(largestMu === undefined || parseInt(largestMu.options.data.entityScore.entityScore) < parseInt(val.options.data.entityScore.entityScore)) {
+        largestMu = val;
+      }
+      scores['team'][team]['largest']['mu'] = largestMu;
+      
+      var largestMu = scores['player'][player]['largest']['mu'];
+      if(largestMu === undefined || parseInt(largestMu.options.data.entityScore.entityScore) < parseInt(val.options.data.entityScore.entityScore)) {
+        largestMu = val;
+      }
+      scores['player'][player]['largest']['mu'] = largestMu;
     }
   });
   $.each(window.links, function(qk, link) {
@@ -141,12 +141,32 @@ window.plugin.scoreboard.teamTableRow = function(field,title) {
   var retVal = '<tr><td>'
    + title
    + '</td><td class="number">'
-   + scores[TEAM_RES][field]
+   + window.digits(scores[TEAM_RES][field])
    + '</td><td class="number">'
-   + scores[TEAM_ENL][field]
+   + window.digits(scores[TEAM_ENL][field])
    + '</td><td class="number">'
-   + (scores[TEAM_RES][field] + scores[TEAM_ENL][field])
+   + window.digits(scores[TEAM_RES][field] + scores[TEAM_ENL][field])
    + '</td></tr>';
+  return retVal;
+};
+
+window.plugin.scoreboard.fieldInfo = function(field) {
+  var title = '';
+  var retVal = '';
+  
+  if(field !== undefined) {
+    var portal = window.portals[field.options.vertices.vertexA.guid];
+    if(portal !== undefined) {
+      title = ' @' + portal.options.details.portalV2.descriptiveText.TITLE;
+    }
+    
+    retVal = '<div title="' + title + '">'
+      + field.options.data.entityScore.entityScore
+      + ' - ' + window.getPlayerName(field.options.data.creator.creatorGuid)
+      + '</div>';
+  }  else {
+    retVal = 'N/A';
+  }
   return retVal;
 };
 
@@ -160,7 +180,7 @@ window.plugin.scoreboard.playerTableRow = function(playerGuid) {
               
   $.each(['mu','count_fields','count_links','count_portals','count_resonators'], function(i, field) {
     retVal += '<td class="number">'
-      + scores[playerGuid][field]
+      + window.digits(scores[playerGuid][field])
       + '</td>';
   });
   retVal += '</tr>';
@@ -184,12 +204,12 @@ window.plugin.scoreboard.playerTable = function(sortBy) {
   
   var sort = window.plugin.scoreboard.playerTableSort;
   var scoreHtml = '<table>'
-                + '<tr><th ' + sort('names', sortBy) + '>Player</th>' 
-                + '<th ' + sort('mu', sortBy) + '>Mu</th>'
-                + '<th ' + sort('count_fields', sortBy) + '>Fields</th>'
-                + '<th ' + sort('count_links', sortBy) + '>Links</th>'
-                + '<th ' + sort('count_portals', sortBy) + '>Portals</th>'
-                + '<th ' + sort('count_resonators', sortBy) + '>Resonators</th></tr>';
+    + '<tr><th ' + sort('names', sortBy) + '>Player</th>' 
+    + '<th ' + sort('mu', sortBy) + '>Mu</th>'
+    + '<th ' + sort('count_fields', sortBy) + '>Fields</th>'
+    + '<th ' + sort('count_links', sortBy) + '>Links</th>'
+    + '<th ' + sort('count_portals', sortBy) + '>Portals</th>'
+    + '<th ' + sort('count_resonators', sortBy) + '>Resonators</th></tr>';
   $.each(window.plugin.scoreboard.playerGuids, function(index, guid) {
     scoreHtml += window.plugin.scoreboard.playerTableRow(guid);
   });
@@ -210,35 +230,46 @@ window.plugin.scoreboard.playerTableSort = function(name, by) {
 window.plugin.scoreboard.display = function() {
   
   var somethingInView = window.plugin.scoreboard.compileStats();
-   
-  var resMu = window.plugin.scoreboard.scores['team'][TEAM_RES]['mu'];
-  var enlMu = window.plugin.scoreboard.scores['team'][TEAM_ENL]['mu'];
-
+  var scores = window.plugin.scoreboard.scores;
+  var resMu = scores['team'][TEAM_RES]['mu'];
+  var enlMu = scores['team'][TEAM_ENL]['mu'];
   var scoreHtml = '';
+  
   if(somethingInView) {
   
     if(resMu + enlMu > 0) {
       var resMuPercent = Math.round((resMu / (resMu + enlMu)) * 100);
-      scoreHtml += '<div id="gamestat" title="Resistance:	' + resMu + ' MU Enlightenment:	' + enlMu + ' MU">'
+      scoreHtml += '<div class="mu_score" title="Resistance:	' + resMu + ' MU Enlightenment:	' + enlMu + ' MU">'
         + window.plugin.scoreboard.percentSpan(resMuPercent, 'res')
         + window.plugin.scoreboard.percentSpan(100-resMuPercent, 'enl')
         + '</div>';
     }
     
     scoreHtml += '<table>'
-              + '<tr><th></th><th>Resistance</th><th>Enlightened</th><th>Total</th></tr>';
-    scoreHtml += window.plugin.scoreboard.teamTableRow('mu','Mu');
-    scoreHtml += window.plugin.scoreboard.teamTableRow('count_fields','Fields');
-    scoreHtml += window.plugin.scoreboard.teamTableRow('count_links','Links');
-    scoreHtml += window.plugin.scoreboard.teamTableRow('count_portals','Portals');
-    scoreHtml += window.plugin.scoreboard.teamTableRow('count_resonators','Resonators');
-    scoreHtml += '</table>';
+      + '<tr><th></th><th class="number">Resistance</th><th class="number">Enlightened</th><th class="number">Total</th></tr>'
+      + window.plugin.scoreboard.teamTableRow('mu','Mu')
+      + window.plugin.scoreboard.teamTableRow('count_fields','Fields')
+      + window.plugin.scoreboard.teamTableRow('count_links','Links')
+      + window.plugin.scoreboard.teamTableRow('count_portals','Portals')
+      + window.plugin.scoreboard.teamTableRow('count_resonators','Resonators')
+      + '</table>';
+      
+    scoreHtml += '<table>'
+      + '<tr><th></th><th>Resistance</th><th>Enlightened</th></tr>'
+      + '<tr><td>Largest Field</td><td>'
+      + window.plugin.scoreboard.fieldInfo(scores['team'][TEAM_RES]['largest']['mu'])
+      + '</td><td>'
+      + window.plugin.scoreboard.fieldInfo(scores['team'][TEAM_ENL]['largest']['mu'])
+      + '</td></tr>'
+      + '</table>';
     
-    scoreHtml += '<div id="players">';
-    scoreHtml += window.plugin.scoreboard.playerTable('mu');
-    scoreHtml += '</div>';
+    scoreHtml += '<div id="players">'
+      + window.plugin.scoreboard.playerTable('mu')
+      + '</div>';
     
-    scoreHtml += '<div class="disclaimer">Score is subject to portals available based on zoom level. If names are unresolved try again. For best results wait until updates are fully loaded.</div>';
+    scoreHtml += '<div class="disclaimer">Click on player table headers to sort by that column. '
+      + 'Score is subject to portals available based on zoom level. '
+      + 'If names are unresolved try again. For best results wait until updates are fully loaded.</div>';
   } else {
     scoreHtml += 'You need something in view.';  
   }
@@ -263,12 +294,16 @@ var setup =  function() {
     '#scoreboard table tr.enl td { background-color: #017f01; }' +
     '#scoreboard table tr:nth-child(even) td { opacity: .8 }' +
     '#scoreboard table tr:nth-child(odd) td { color: #ddd !important; }' +
-    '#scoreboard table td.number, #scoreboard table th { text-align:right }' +
+    '#scoreboard table th { text-align:left }' +
+    '#scoreboard table td.number, #scoreboard table th.number { text-align:right }' +
     '#players table th { cursor:pointer; }' +
-    '#scoreboard table th:nth-child(1) { text-align:left }' +
     '#scoreboard table th.sorted { color:#FFCE00; }' +
     '#scoreboard .disclaimer { margin-top:10px; font-size:10px; }' +
-    '.mu_score { overflow:hidden;}' +
+    '.mu_score { margin-bottom: 10px; }' +
+    '.mu_score span { overflow: hidden; padding-top:2px; padding-bottom: 2px; display: block; font-weight: bold; float: left; box-sizing: border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; }' +
+    '.mu_score span.res { background-color: #005684; text-align: right; padding-right:5px; }' +
+    '.mu_score span.enl { background-color: #017f01; padding-left: 5px; }' +
+    
     '</style>');
 }
 
