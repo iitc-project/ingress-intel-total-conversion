@@ -2,8 +2,6 @@ package com.cradle.iitc_mobile;
 
 import android.content.Context;
 import android.net.http.SslError;
-import android.util.Log;
-import android.webkit.CookieManager;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -13,6 +11,7 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.StringBufferInputStream;
 
+@SuppressWarnings("deprecation")
 public class IITC_WebViewClient extends WebViewClient {
 	private static final StringBufferInputStream style = new StringBufferInputStream(
 		"body, #dashboard_container, #map_canvas { background: #000 !important; }");
@@ -61,6 +60,7 @@ public class IITC_WebViewClient extends WebViewClient {
 	// with our own content. This is used to block loading Niantic resources
 	// which aren’t required and to inject IITC early into the site.
 	// via http://stackoverflow.com/a/8274881/1684530
+	@SuppressWarnings("static-access")
 	@Override
 	public WebResourceResponse shouldInterceptRequest (final WebView view, String url) {
 		if(url.contains("/css/common.css")) {
