@@ -10,6 +10,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import java.io.InputStream;
+import java.io.IOException;
 import java.io.StringBufferInputStream;
 
 public class IITC_WebViewClient extends WebViewClient {
@@ -19,8 +20,12 @@ public class IITC_WebViewClient extends WebViewClient {
 
 	private static WebResourceResponse iitcjs;
 
-	public IITC_WebViewClient(Context c) throws java.io.IOException {
-		loadIITC_JS(c);
+	public IITC_WebViewClient(Context c) {
+		try {
+			loadIITC_JS(c);
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private static void loadIITC_JS(Context c) throws java.io.IOException {
