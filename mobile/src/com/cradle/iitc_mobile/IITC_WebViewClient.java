@@ -7,15 +7,14 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.IOException;
-import java.io.StringBufferInputStream;
 
-@SuppressWarnings("deprecation")
 public class IITC_WebViewClient extends WebViewClient {
-	private static final StringBufferInputStream style = new StringBufferInputStream(
-		"body, #dashboard_container, #map_canvas { background: #000 !important; }");
-	private static final StringBufferInputStream empty = new StringBufferInputStream("");
+	private static final ByteArrayInputStream style = new ByteArrayInputStream(
+		"body, #dashboard_container, #map_canvas { background: #000 !important; }".getBytes());
+	private static final ByteArrayInputStream empty = new ByteArrayInputStream("".getBytes());
 
 	private static WebResourceResponse iitcjs;
 
@@ -46,7 +45,7 @@ public class IITC_WebViewClient extends WebViewClient {
 			iitcjs = new WebResourceResponse(
 				"text/javascript",
 				"UTF-8",
-				new StringBufferInputStream(js)
+				new ByteArrayInputStream(js.getBytes())
 			);
 	};
 
