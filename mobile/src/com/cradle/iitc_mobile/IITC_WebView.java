@@ -15,7 +15,7 @@ public class IITC_WebView extends WebView {
 	private IITC_WebViewClient webclient;
 
 	// init web view
-	private void iitc_init() {
+	private void iitc_init(Context c) {
 		settings = this.getSettings();
 		settings.setJavaScriptEnabled(true);
 		settings.setDomStorageEnabled(true);
@@ -31,7 +31,7 @@ public class IITC_WebView extends WebView {
 			}
 		});
 
-		webclient = new IITC_WebViewClient();
+		webclient = new IITC_WebViewClient(c);
 		this.setWebViewClient(webclient);
 	}
 
@@ -39,19 +39,19 @@ public class IITC_WebView extends WebView {
 	public IITC_WebView(Context context) {
 		super(context);
 
-		iitc_init();
+		iitc_init(context);
 	}
 
 	public IITC_WebView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 
-		iitc_init();
+		iitc_init(context);
 	}
 
 	public IITC_WebView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 
-		iitc_init();
+		iitc_init(context);
 	}
 	//----------------------------------------------------------------
 

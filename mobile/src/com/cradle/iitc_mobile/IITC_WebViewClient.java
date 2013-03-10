@@ -1,13 +1,50 @@
 package com.cradle.iitc_mobile;
 
+import android.content.Context;
 import android.net.http.SslError;
 import android.util.Log;
 import android.webkit.CookieManager;
 import android.webkit.SslErrorHandler;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import java.io.InputStream;
+import java.io.StringBufferInputStream;
+
 public class IITC_WebViewClient extends WebViewClient {
+	private static final StringBufferInputStream style = new StringBufferInputStream(
+		"body, #dashboard_container, #map_canvas { background: #000 !important; }");
+	private static final StringBufferInputStream empty = new StringBufferInputStream("");
+
+	private static WebResourceResponse iitcjs;
+
+	public IITC_WebViewClient(Context c) throws java.io.IOException {
+		loadIITC_JS(c);
+	}
+
+	private static void loadIITC_JS(Context c) throws java.io.IOException {
+			InputStream input;
+			input = c.getAssets().open("iitc.js");
+
+			int size = input.available();
+			byte[] buffer = new byte[size];
+			input.read(buffer);
+			input.close();
+			String js = new String(buffer);
+			// need to wrap the mobile iitc.js version in a document ready. IITC
+			// expects to be injected after the DOM has been loaded completely.
+			// Since the mobile client injects IITC by replacing the gen_dashboard
+			// file, IITC runs to early. The document.ready delays IITC long enough
+			// so it boots correctly.
+			js = "$(document).ready(function(){" + js + "});";
+
+			iitcjs = new WebResourceResponse(
+				"text/javascript",
+				"UTF-8",
+				new StringBufferInputStream(js)
+			);
+	};
 
 	// enable https
 	@Override
@@ -15,23 +52,27 @@ public class IITC_WebViewClient extends WebViewClient {
 		handler.proceed() ;
 	};
 
-	// injecting IITC when page is loaded
+	// Check every external resource if it’s okay to load it and maybe replace it
+	// with our own content. This is used to block loading Niantic resources
+	// which aren’t required and to inject IITC early into the site.
+	// via http://stackoverflow.com/a/8274881/1684530
 	@Override
-	public void onPageFinished(WebView web, String Url) {
-		Log.d("loading finish", web.getUrl());
-		if (web.getUrl().contains("ingress.com/intel") && !web.getUrl().contains("accounts")) {
-			// first check for cookies, than inject javascript
-			// this enables the user to login if necessary
-			CookieManager cm = CookieManager.getInstance();
-			final String cookie = cm.getCookie("https://www.ingress.com/intel");
-			if(cookie != null) {
-				web.loadUrl("javascript: (function() { "
-						+ "var script=document.createElement('script');"
-						+ "script.type='text/javascript';"
-						+ "script.src='https://iitcserv.appspot.com/iitc-nightly/iitc-nightly-latest.user.js';"
-						+ "document.getElementsByTagName('head').item(0).appendChild(script);"
-						+ "})()");
-			}
+	public WebResourceResponse shouldInterceptRequest (final WebView view, String url) {
+		if(url.contains("/css/common.css")) {
+			return new WebResourceResponse("text/css", "UTF-8", style);
+		} else if(url.contains("gen_dashboard.js")) {
+			return this.iitcjs;
+		} else if(url.contains("/css/ap_icons.css")
+				|| url.contains("/css/map_icons.css")
+				|| url.contains("/css/misc_icons.css")
+				|| url.contains("/css/style_full.css")
+				|| url.contains("/css/style_mobile.css")
+				|| url.contains("/css/portalrender.css")
+				|| url.contains("js/analytics.js")
+				|| url.contains("google-analytics.com/ga.js")) {
+			return new WebResourceResponse("text/plain", "UTF-8", empty);
+		} else {
+			return super.shouldInterceptRequest(view, url);
 		}
 	}
 }
