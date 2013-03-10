@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-ap-list@xelio
 // @name           iitc: AP List
-// @version        0.2
+// @version        0.3
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/ap-list.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/ap-list.user.js
@@ -22,38 +22,38 @@ window.plugin.apList = function() {
 };
 
 window.plugin.apList.cachedPortals = {};
+window.plugin.apList.SIDE_FRIENDLY = 0;
+window.plugin.apList.SIDE_ENEMY = 1;
+window.plugin.apList.displaySide = window.plugin.apList.SIDE_ENEMY;
+window.plugin.apList.sides = new Array(2);
+window.plugin.apList.sortedPortals = new Array(2);
+window.plugin.apList.playerApGainFunc = new Array(2);
+
+window.plugin.apList.topMaxCount = 10;
+window.plugin.apList.sideLabelClass = {};
+
 window.plugin.apList.useCachedPortals = false;
 window.plugin.apList.cacheBounds;
 window.plugin.apList.cacheActiveZoomLevel;
-window.plugin.apList.SIDE_FRIENDLY = 0;
-window.plugin.apList.SIDE_ENEMY = 1;
-window.plugin.apList.sides = new Array(2);
-window.plugin.apList.topPortals = new Array(2);
-window.plugin.apList.minPortalAp = new Array(2);
-window.plugin.apList.topMaxCount = 10;
-window.plugin.apList.playerApGainFunc = new Array(2);
-window.plugin.apList.displaySide = window.plugin.apList.SIDE_ENEMY;
-
-window.plugin.apList.sideLabelClass = {};
 
 
 window.plugin.apList.handleUpdate = function() {
   if(!requests.isLastRequest('getThinnedEntitiesV2')) return;
-  plugin.apList.updateTopPortals();
+  plugin.apList.updateSortedPortals();
   plugin.apList.updatePortalTable(plugin.apList.displaySide);
 }
 
 // Generate html table from top portals
 window.plugin.apList.updatePortalTable = function(side) {
-  var content = '<table style="width: ' + $('#sidebar').width() + 'px; table-layout:fixed">';
-  for(var i = 0; i < plugin.apList.topPortals[side].length; i++) {
-    var portal = plugin.apList.topPortals[side][i];
+  var content = '<table style="width: 100%; table-layout:fixed">';
+  for(var i = 0; i < plugin.apList.topMaxCount; i++) {
+    var portal = plugin.apList.sortedPortals[side][i];
     content += '<tr>'
-            + '<td style="width: 78%; overflow:hidden; white-space:nowrap">'
-            + plugin.apList.getPortalLink(portal)
+            + '<td style="width: 85%; overflow:hidden; white-space:nowrap">'
+            + (portal ? plugin.apList.getPortalLink(portal) : '&nbsp;')
             + '</td>'
-            + '<td style="padding-left: 10px">'
-            + plugin.apList.getPortalApText(portal)
+            + '<td>'
+            + (portal ? plugin.apList.getPortalApText(portal) : '&nbsp;')
             + '</td>'
             + '</tr>';
   }
@@ -64,7 +64,7 @@ window.plugin.apList.updatePortalTable = function(side) {
 // Combine title and test
 window.plugin.apList.getPortalApText = function(portal) {
   var title = plugin.apList.getPortalApTitle(portal);
-  return '<div class="help" title="' + title + '">' + portal.playerApGain.totalAp + '</div>';
+  return '<div class="help" title="' + title + '">' + digits(portal.playerApGain.totalAp) + '</div>';
 }
 
 // Friendly portal will get resonator upgrade list, enemy
@@ -81,7 +81,7 @@ window.plugin.apList.getPortalApTitle = function(portal) {
         + reso.newLevel + '\t= ' + apGain + '\n';
     }
     t += 'Sum: ' + digits(playerApGain.totalAp) + ' AP';
-  }else{
+  } else {
     t = 'Destroy &amp; Capture:\n'
       + playerApGain.resoCount + '×\tResonators\t= ' + digits(playerApGain.resoAp) + '\n'
       + playerApGain.linkCount + '×\tLinks\t= ' + digits(playerApGain.linkAp) + '\n'
@@ -98,28 +98,28 @@ window.plugin.apList.getPortalApTitle = function(portal) {
 //               double click: zoom to and select portal
 //               hover: show address
 window.plugin.apList.getPortalLink = function(portal) {
-  var latlng = [portal.locationE6.latE6/1E6, portal.locationE6.lngE6/1E6];
+  var latlng = [portal.locationE6.latE6/1E6, portal.locationE6.lngE6/1E6].join();
   var jsSingleClick = 'window.renderPortalDetails(\''+portal.guid+'\');return false';
-  var jsDoubleClick = 'window.zoomToAndShowPortal(\''+portal.guid+'\', ['+latlng[0]
-         +', '+latlng[1]+']);return false';
+  var jsDoubleClick = 'window.zoomToAndShowPortal(\''+portal.guid+'\', ['+latlng+']);return false';
   var perma = 'https://ingress.com/intel?latE6='+portal.locationE6.latE6
             +'&lngE6='+portal.locationE6.lngE6+'&z=17&pguid='+portal.guid;
-  var a = '<a class="help" onclick="'+jsSingleClick+'"'
-        + 'ondblclick="'+jsDoubleClick+'"'
-        + ' title="'+ portal.portalV2.descriptiveText.ADDRESS +'"'
-        + ' href="'+perma+'">'
-        + portal.portalV2.descriptiveText.TITLE
-        + '</a>';
-  var div = '<div style="white-space: nowrap; overflow: hidden; text-overflow:ellipsis;"'+a+'</div>';
+  //Use Jquery to create the link, which escape characters in TITLE and ADDRESS of portal
+  var a = $('<a>',{
+    "class": 'help',
+    text: portal.portalV2.descriptiveText.TITLE,
+    title: portal.portalV2.descriptiveText.ADDRESS,
+    href: perma,
+    onClick: jsSingleClick,
+    onDblClick: jsDoubleClick
+  })[0].outerHTML;
+  var div = '<div style="white-space: nowrap; overflow: hidden; text-overflow:ellipsis;">'+a+'</div>';
   return div;
 }
 
-// Loop through portals and get playerApGain, then find top portals
-window.plugin.apList.updateTopPortals = function() {
-  plugin.apList.topPortals[plugin.apList.SIDE_FRIENDLY] = new Array();
-  plugin.apList.topPortals[plugin.apList.SIDE_ENEMY] = new Array();
-  plugin.apList.minPortalAp[plugin.apList.SIDE_FRIENDLY] = 0;
-  plugin.apList.minPortalAp[plugin.apList.SIDE_ENEMY] = 0;
+// Loop through portals and get playerApGain, then put in sortedPortals by side and sort them by AP.
+window.plugin.apList.updateSortedPortals = function() {
+  plugin.apList.sortedPortals[plugin.apList.SIDE_FRIENDLY] = new Array();
+  plugin.apList.sortedPortals[plugin.apList.SIDE_ENEMY] = new Array();
 
   // Make a backup of cachedPortals
   // If cache is not enabled, empty cachedPortals. In following
@@ -129,73 +129,48 @@ window.plugin.apList.updateTopPortals = function() {
   if(!plugin.apList.useCachedPortals)
     plugin.apList.cachedPortals = {};
 
-  $.each(Object.keys(window.portals), function(ind, key) {
+  $.each(window.portals, function(key, value) {
     if(getTypeByGuid(key) !== TYPE_PORTAL)
       return true;
 
-    var portal = window.portals[key].options.details;
+    var portal = value.options.details;
     var cachedPortal = oldcachedPortal[key];
     // If portal is changed, update playerApGain with latest
     // information
     if(!plugin.apList.isSamePortal(portal,cachedPortal)) {
       // Copy portal detail to cachedPortal
-      cachedPortal = $.extend({},portal);
+      cachedPortal = $.extend({}, portal);
       var side = plugin.apList.portalSide(portal);
       var getApGainFunc = plugin.apList.playerApGainFunc[side];
       // Assign playerApGain and guid to cachedPortal
       cachedPortal.playerApGain = getApGainFunc(portal);
-      cachedPortal.guid = window.portals[key].options.guid;
+      cachedPortal.guid = value.options.guid;
     }
     plugin.apList.cachedPortals[key] = cachedPortal;
-
-    // If caching function not enabled, only use portal exist in
-    // window.portals to count top portal
-    if(!plugin.apList.useCachedPortals)
-      plugin.apList.addToTopPortals(cachedPortal);
   });
 
-  // If caching function enabled, use all cached portal to count 
-  // top portals
-  if(plugin.apList.useCachedPortals) {
-    $.each(Object.keys(plugin.apList.cachedPortals), function(ind, key) {
-      var cachedPortal = plugin.apList.cachedPortals[key];
-      plugin.apList.addToTopPortals(cachedPortal);
+  // Add all portals to sortedPortals by side and sort sortedPortals by AP
+  $.each(plugin.apList.cachedPortals, function(key, portal) {
+    var side = plugin.apList.portalSide(portal);
+    plugin.apList.sortedPortals[side].push(portal);
+  });
+  $.each(plugin.apList.sides, function(ind, side) {
+    plugin.apList.sortedPortals[side].sort(function(a, b) {
+     return b.playerApGain.totalAp - a.playerApGain.totalAp;
     });
-  }
-}
-
-window.plugin.apList.addToTopPortals = function(portal) {
-  var side = plugin.apList.portalSide(portal);
-  // Skip if playerApGain is less than minPortalAp and topPortals is full
-  if(portal.playerApGain <= plugin.apList.minPortalAp[side]
-      && plugin.apList.topPortals[side].length > plugin.apList.topMaxCount)
-    return;
-
-  // Add portal and sort by totalAp
-  plugin.apList.topPortals[side].push(portal);
-  plugin.apList.topPortals[side].sort(function(a, b) {
-    return b.playerApGain.totalAp - a.playerApGain.totalAp;
   });
-
-  // Remove portal with lowest playerApGain
-  if(plugin.apList.topPortals[side].length > plugin.apList.topMaxCount)
-    plugin.apList.topPortals[side].pop();
-
-  // Update minPortalAp
-  var last = plugin.apList.topPortals[side].length - 1;
-  plugin.apList.minPortalAp[side] = plugin.apList.topPortals[side][last];
 }
 
 window.plugin.apList.enableCache = function() {
   plugin.apList.useCachedPortals = true;
-  plugin.apList.updateTopPortals();
+  plugin.apList.updateSortedPortals();
   plugin.apList.updatePortalTable(plugin.apList.displaySide);
 }
 
 window.plugin.apList.disableCache = function() {
   plugin.apList.useCachedPortals = false;
   plugin.apList.cachedPortals = {};
-  plugin.apList.updateTopPortals();
+  plugin.apList.updateSortedPortals();
   plugin.apList.updatePortalTable(plugin.apList.displaySide);
 }
 
@@ -230,9 +205,7 @@ window.plugin.apList.getDeployOrUpgradeApGain = function(d) {
 
     if(!reso) {
       // Empty reso
-      reso = new Object();
-      reso.slot = i;
-      reso.level = 0;
+      reso = {slot: i, level: 0};
       otherReso.push(reso);
       continue;
     }
@@ -252,7 +225,7 @@ window.plugin.apList.getDeployOrUpgradeApGain = function(d) {
   }
 
   // Sort others reso low to high, last reso in otherReso get upgrade first.
-  otherReso.sort(function(a, b) {a.level - b.level;});
+  otherReso.sort(function(a, b) {return a.level - b.level;});
 
   // Find out available count of reso for each level
   for(var i = window.PLAYER.level; i > 0 && otherReso.length > 0; i--) {
