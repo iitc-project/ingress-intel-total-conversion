@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-player-tracker@breunigs
 // @name           iitc: player tracker
-// @version        0.7
+// @version        0.7.1
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/player-tracker.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/player-tracker.user.js
@@ -17,23 +17,35 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 
 // PLUGIN START ////////////////////////////////////////////////////////
 window.PLAYER_TRACKER_MAX_TIME = 60*60*1000; // in milliseconds
+window.PLAYER_TRACKER_MIN_ZOOM = 9;
 
 
 // use own namespace for plugin
 window.plugin.playerTracker = function() {};
 
 window.plugin.playerTracker.setup = function() {
-  if(!window.iconRes) {
-    alert('Player Tracker requires at least IITC v0.7+. Please update your script or build the latest version yourself.');
-    return;
-  }
   plugin.playerTracker.drawnTraces = new L.LayerGroup();
   window.layerChooser.addOverlay(plugin.playerTracker.drawnTraces, 'Player Tracker');
   map.addLayer(plugin.playerTracker.drawnTraces);
   addHook('publicChatDataAvailable', window.plugin.playerTracker.handleData);
+
+  window.map.on('zoomend', function() {
+    window.plugin.playerTracker.zoomListener();
+  });
+  window.plugin.playerTracker.zoomListener();
 }
 
 window.plugin.playerTracker.stored = {};
+
+window.plugin.playerTracker.zoomListener = function() {
+  var ctrl = $('.leaflet-control-layers-selector + span:contains("Player Tracker")').parent();
+  if(window.map.getZoom() < window.PLAYER_TRACKER_MIN_ZOOM) {
+    window.plugin.playerTracker.drawnTraces.clearLayers();
+    ctrl.addClass('disabled').attr('title', 'Zoom in to show those.');
+  } else {
+    ctrl.removeClass('disabled').attr('title', '');
+  }
+}
 
 window.plugin.playerTracker.getLimit = function() {
  return new Date().getTime() - window.PLAYER_TRACKER_MAX_TIME;
@@ -246,6 +258,8 @@ window.plugin.playerTracker.drawData = function() {
 }
 
 window.plugin.playerTracker.handleData = function(data) {
+  if(window.map.getZoom() < window.PLAYER_TRACKER_MIN_ZOOM) return;
+
   plugin.playerTracker.discardOldData();
   plugin.playerTracker.processNewData(data);
   // remove old popups
