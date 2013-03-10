@@ -1,5 +1,7 @@
 package com.cradle.iitc_mobile;
 
+import java.io.IOException;
+
 import com.cradle.iitc_mobile.R;
 
 import android.net.Uri;
@@ -105,12 +107,18 @@ public class IITC_Mobile extends Activity {
 		return true;
 	}
 
+	@SuppressWarnings("static-access")
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle item selection
 		switch (item.getItemId()) {
 		case R.id.reload_button:
 			iitc_view.reload();
+			try {
+				iitc_view.getWebViewClient().loadIITC_JS(this);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 			return true;
 		// print version number
 		case R.id.version_num:

@@ -26,7 +26,7 @@ public class IITC_WebViewClient extends WebViewClient {
 		}
 	}
 
-	private static void loadIITC_JS(Context c) throws java.io.IOException {
+	public static void loadIITC_JS(Context c) throws java.io.IOException {
 			InputStream input;
 			input = c.getAssets().open("iitc.js");
 
