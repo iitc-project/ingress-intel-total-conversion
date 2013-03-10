@@ -22,3 +22,7 @@ Building the APK
   ```export ANDROID_HOME=/path/to/android_sdk```
   and build the project with ant:
   `ant debug`
+- You can use `build_mobile.js`, too, which builds IITC, compresses
+  it and uses ant to build a release APK of IITCM. It requires that
+  you have Python and uglifyjs installed. You need to set the
+  `ANDROID_HOME`, like explained above.
