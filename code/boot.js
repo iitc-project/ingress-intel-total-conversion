@@ -1,5 +1,4 @@
 
-
 // SETUP /////////////////////////////////////////////////////////////
 // these functions set up specific areas after the boot function
 // created a basic framework. All of these functions should only ever
@@ -104,10 +103,10 @@ window.setupStyles = function() {
 window.setupMap = function() {
   $('#map').text('');
 
-  var osmOpt = {attribution: 'Map data © OpenStreetMap contributors', maxZoom: 18};
+  var osmOpt = {attribution: 'Map data © OpenStreetMap contributors', maxZoom: 18, detectRetina: true};
   var osm = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', osmOpt);
 
-  var cmOpt = {attribution: 'Map data © OpenStreetMap contributors, Imagery © CloudMade', maxZoom: 18};
+  var cmOpt = {attribution: 'Map data © OpenStreetMap contributors, Imagery © CloudMade', maxZoom: 18, detectRetina: true};
   var cmMin = new L.TileLayer('http://{s}.tile.cloudmade.com/654cef5fd49a432ab81267e200ecc502/22677/256/{z}/{x}/{y}.png', cmOpt);
   var cmMid = new L.TileLayer('http://{s}.tile.cloudmade.com/654cef5fd49a432ab81267e200ecc502/999/256/{z}/{x}/{y}.png', cmOpt);
 
