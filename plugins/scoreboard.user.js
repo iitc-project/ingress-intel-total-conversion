@@ -75,18 +75,17 @@ window.plugin.scoreboard.compileStats = function() {
       scores['team'][team]['count_fields']++;
       scores['player'][player]['count_fields']++;
       
-      var largestMu = scores['team'][team]['largest']['mu'];
-      if(largestMu === undefined || parseInt(largestMu.options.data.entityScore.entityScore) < parseInt(val.options.data.entityScore.entityScore)) {
-        console.log((largestMu === undefined?'und':largestMu.options.data.entityScore.entityScore) + ' < ' + val.options.data.entityScore.entityScore);
-        largestMu = val;
-      }
-      scores['team'][team]['largest']['mu'] = largestMu;
-      
-      var largestMu = scores['player'][player]['largest']['mu'];
-      if(largestMu === undefined || parseInt(largestMu.options.data.entityScore.entityScore) < parseInt(val.options.data.entityScore.entityScore)) {
-        largestMu = val;
-      }
-      scores['player'][player]['largest']['mu'] = largestMu;
+      //var largestMu = scores['team'][team]['largest']['mu'];
+      //if(largestMu === undefined || parseInt(largestMu.options.data.entityScore.entityScore) < parseInt(val.options.data.entityScore.entityScore)) {
+      //  largestMu = val;
+      //}
+      //scores['team'][team]['largest']['mu'] = largestMu;
+      //
+      //var largestMu = scores['player'][player]['largest']['mu'];
+      //if(largestMu === undefined || parseInt(largestMu.options.data.entityScore.entityScore) < parseInt(val.options.data.entityScore.entityScore)) {
+      //  largestMu = val;
+      //}
+      //scores['player'][player]['largest']['mu'] = largestMu;
     }
   });
   $.each(window.links, function(qk, link) {
@@ -125,36 +124,11 @@ window.plugin.scoreboard.compileStats = function() {
   return somethingInView;
 };
 
-//window.plugin.scoreboard.sortPlayerList = function(a, b) {
-//  var playerA = window.plugin.scoreboard.scores['player'][a];
-//  var playerB = window.plugin.scoreboard.scores['player'][b];
-//  
-//  var sortBy = ['mu', 'count_fields', 'count_links', 'count_portals', 'count_resonators'];
-//  var retVal = 0;
-//  var i = 0;
-//  
-//  while(retVal === 0 && i < sortBy.length)
-//  {
-//    retVal = playerB[sortBy[i]] - playerA[sortBy[i]];
-//    i++;
-//  }
-//  
-//  // If they're still equal after all that, sort alpha
-//  if(retVal === 0) {
-//    if(window.getPlayerName(a).toLowerCase() < window.getPlayerName(b).toLowerCase()) {
-//      retVal = -1;
-//    } else {
-//      retVal = 1;
-//    }
-//  }
-//  return retVal;
-//};
-
 window.plugin.scoreboard.percentSpan = function(percent, cssClass) {
    var retVal = '';
    if(percent > 0) {
       retVal += '<span class="' + cssClass + ' mu_score" style="width:' + percent +'%;">' + percent;
-      if(percent >= 7) { //anything less than this and the text doesnt fit in the span.
+      if(percent >= 7) { // anything less than this and the text doesnt fit in the span.
         retVal += '%';
       }
       retVal += '</span>';   
@@ -190,6 +164,46 @@ window.plugin.scoreboard.playerTableRow = function(playerGuid) {
       + '</td>';
   });
   retVal += '</tr>';
+  return retVal;
+};
+
+window.plugin.scoreboard.playerTable = function(sortBy) {
+  
+  // Sort the playerGuid array by sortBy
+  window.plugin.scoreboard.playerGuids.sort(function(a, b) {
+    var playerA = window.plugin.scoreboard.scores['player'][a];
+    var playerB = window.plugin.scoreboard.scores['player'][b];
+    var retVal = 0;
+    if(sortBy === 'names') {
+      retVal = window.getPlayerName(a).toLowerCase() < window.getPlayerName(b).toLowerCase() ? -1 : 1;
+    } else {
+      retVal = playerB[sortBy] - playerA[sortBy];
+    }
+    return retVal;
+  });
+  
+  var sort = window.plugin.scoreboard.playerTableSort;
+  var scoreHtml = '<table>'
+                + '<tr><th ' + sort('names', sortBy) + '>Player</th>' 
+                + '<th ' + sort('mu', sortBy) + '>Mu</th>'
+                + '<th ' + sort('count_fields', sortBy) + '>Fields</th>'
+                + '<th ' + sort('count_links', sortBy) + '>Links</th>'
+                + '<th ' + sort('count_portals', sortBy) + '>Portals</th>'
+                + '<th ' + sort('count_resonators', sortBy) + '>Resonators</th></tr>';
+  $.each(window.plugin.scoreboard.playerGuids, function(index, guid) {
+    scoreHtml += window.plugin.scoreboard.playerTableRow(guid);
+  });
+  scoreHtml += '</table>';
+  
+  return scoreHtml;
+}
+
+// A little helper functon so the above isn't so messy
+window.plugin.scoreboard.playerTableSort = function(name, by) {
+  var retVal = 'sort="' + name + '"';
+  if(name === by) {
+    retVal += ' class="sorted"';
+  }
   return retVal;
 };
 
@@ -231,37 +245,14 @@ window.plugin.scoreboard.display = function() {
   
   alert('<div id="scoreboard">' + scoreHtml + '</div>');
   $(".ui-dialog").addClass('ui-dialog-scoreboard');
-  console.log(window.plugin.scoreboard.scores);
-}
-
-window.plugin.scoreboard.playerTable = function(sortBy) {
   
-  window.plugin.scoreboard.playerGuids.sort(function(a, b) {
-    var playerA = window.plugin.scoreboard.scores['player'][a];
-    var playerB = window.plugin.scoreboard.scores['player'][b];
-    var retVal = 0;
-    if(sortBy === 'names') {
-      retVal = window.getPlayerName(a).toLowerCase() < window.getPlayerName(b).toLowerCase() ? -1 : 1;
-    } else {
-      retVal = playerB[sortBy] - playerA[sortBy];
-    }
-    return retVal;
+  // Setup sorting
+  $(document).on('click', '#players table th', function() {
+    $('#players').html(window.plugin.scoreboard.playerTable($(this).attr('sort')));
   });
-  
-  var scoreHtml = '<table>'
-                + '<tr><th class="names">Player</th><th>Mu</th><th>Fields</th><th>Links</th><th>Portals</th><th>Resonators</th></tr>';
-  $.each(window.plugin.scoreboard.playerGuids, function(index, guid) {
-    scoreHtml += window.plugin.scoreboard.playerTableRow(guid);
-  });
-  scoreHtml += '</table>';
-  
-  return scoreHtml;
 }
-
 
 var setup =  function() {
-  //window.addHook('portalDetailsUpdated', window.plugin.portalAddress.portalDetail);
-  
   $('body').append('<div id="scoreboard" style="display:none;"></div>');
   $('#toolbox').append('<a onclick="window.plugin.scoreboard.display()">scoreboard</a>');
   $('head').append('<style>' +
@@ -273,11 +264,12 @@ var setup =  function() {
     '#scoreboard table tr:nth-child(even) td { opacity: .8 }' +
     '#scoreboard table tr:nth-child(odd) td { color: #ddd !important; }' +
     '#scoreboard table td.number, #scoreboard table th { text-align:right }' +
-    '#scoreboard table th.names { text-align:left }' +
+    '#players table th { cursor:pointer; }' +
+    '#scoreboard table th:nth-child(1) { text-align:left }' +
+    '#scoreboard table th.sorted { color:#FFCE00; }' +
     '#scoreboard .disclaimer { margin-top:10px; font-size:10px; }' +
     '.mu_score { overflow:hidden;}' +
     '</style>');
-  
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////
