@@ -16,7 +16,7 @@ public class IITC_WebViewClient extends WebViewClient {
 		"body, #dashboard_container, #map_canvas { background: #000 !important; }".getBytes());
 	private static final ByteArrayInputStream empty = new ByteArrayInputStream("".getBytes());
 
-	private static WebResourceResponse iitcjs;
+	private WebResourceResponse iitcjs;
 
 	public IITC_WebViewClient(Context c) {
 		try {
@@ -26,7 +26,7 @@ public class IITC_WebViewClient extends WebViewClient {
 		}
 	}
 
-	public static void loadIITC_JS(Context c) throws java.io.IOException {
+	public void loadIITC_JS(Context c) throws java.io.IOException {
 			InputStream input;
 			input = c.getAssets().open("iitc.js");
 
@@ -59,7 +59,6 @@ public class IITC_WebViewClient extends WebViewClient {
 	// with our own content. This is used to block loading Niantic resources
 	// which aren’t required and to inject IITC early into the site.
 	// via http://stackoverflow.com/a/8274881/1684530
-	@SuppressWarnings("static-access")
 	@Override
 	public WebResourceResponse shouldInterceptRequest (final WebView view, String url) {
 		if(url.contains("/css/common.css")) {

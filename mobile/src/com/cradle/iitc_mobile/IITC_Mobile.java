@@ -107,7 +107,6 @@ public class IITC_Mobile extends Activity {
 		return true;
 	}
 
-	@SuppressWarnings("static-access")
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle item selection
