@@ -220,7 +220,7 @@ window.plugin.scoreboard.playerTable = function(sortBy) {
 
 // A little helper functon so the above isn't so messy
 window.plugin.scoreboard.playerTableSort = function(name, by) {
-  var retVal = 'sort="' + name + '"';
+  var retVal = 'data-sort="' + name + '"';
   if(name === by) {
     retVal += ' class="sorted"';
   }
@@ -279,7 +279,7 @@ window.plugin.scoreboard.display = function() {
   
   // Setup sorting
   $(document).on('click', '#players table th', function() {
-    $('#players').html(window.plugin.scoreboard.playerTable($(this).attr('sort')));
+    $('#players').html(window.plugin.scoreboard.playerTable($(this).data('sort')));
   });
 }
 
@@ -288,7 +288,7 @@ var setup =  function() {
   $('#toolbox').append('<a onclick="window.plugin.scoreboard.display()">scoreboard</a>');
   $('head').append('<style>' +
     '.ui-dialog-scoreboard {max-width:500px !important; width:500px !important;}' +
-    '#scoreboard table {margin-top:10px;	border-collapse: collapse; empty-cells: show; width:100%;}' +
+    '#scoreboard table {margin-top:10px;	border-collapse: collapse; empty-cells: show; width:100%; clear: both;}' +
     '#scoreboard table td, #scoreboard table th {border-bottom: 1px solid #0b314e; padding:3px; color:white; background-color:#1b415e}' +
     '#scoreboard table tr.res td { background-color: #005684; }' +
     '#scoreboard table tr.enl td { background-color: #017f01; }' +
@@ -296,14 +296,14 @@ var setup =  function() {
     '#scoreboard table tr:nth-child(odd) td { color: #ddd !important; }' +
     '#scoreboard table th { text-align:left }' +
     '#scoreboard table td.number, #scoreboard table th.number { text-align:right }' +
-    '#players table th { cursor:pointer; }' +
+    '#players table th { cursor:pointer; text-align: right;}' +
+    '#players table th:nth-child(1) { text-align: left;}' +
     '#scoreboard table th.sorted { color:#FFCE00; }' +
     '#scoreboard .disclaimer { margin-top:10px; font-size:10px; }' +
     '.mu_score { margin-bottom: 10px; }' +
     '.mu_score span { overflow: hidden; padding-top:2px; padding-bottom: 2px; display: block; font-weight: bold; float: left; box-sizing: border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; }' +
     '.mu_score span.res { background-color: #005684; text-align: right; padding-right:5px; }' +
     '.mu_score span.enl { background-color: #017f01; padding-left: 5px; }' +
-    
     '</style>');
 }
 
