@@ -69,11 +69,21 @@ window.getAvgResoDist = function(d) {
 
 window.getAttackApGain = function(d) {
   var resoCount = 0;
-
+  var maxResonators = MAX_RESO_PER_PLAYER.slice(0);
+  var curResonators = [ 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  
+  for(var n = PLAYER.level + 1; n < 9; n++) {
+    maxResonators[n] = 0;
+  }
   $.each(d.resonatorArray.resonators, function(ind, reso) {
-    if (!reso)
+    if(!reso)
       return true;
     resoCount += 1;
+    if(reso.ownerGuid === PLAYER.guid) {
+      maxResonators[parseInt(reso.level)] -= 1;
+    } else {
+      curResonators[parseInt(reso.level)] += 1;
+    }
   });
 
   var linkCount = d.portalV2.linkedEdges ? d.portalV2.linkedEdges.length : 0;
@@ -84,17 +94,25 @@ window.getAttackApGain = function(d) {
   var fieldAp = fieldCount * DESTROY_FIELD;
   var destroyAp = resoAp + linkAp + fieldAp;
   var captureAp = CAPTURE_PORTAL + 8 * DEPLOY_RESONATOR + COMPLETION_BONUS;
-  var totalAp = destroyAp + captureAp;
-
+  var enemyAp = destroyAp + captureAp;
+  var deployCount = 8 - resoCount;
+  var completionAp = (deployCount > 0) ? COMPLETION_BONUS : 0;
+  var upgradeCount = 0;
+  var upgradeAvailable = maxResonators[8];
+  for(var n = 7; n >= 0; n--) {
+    upgradeCount += curResonators[n];
+    if(upgradeAvailable < upgradeCount) {
+        upgradeCount -= (upgradeCount - upgradeAvailable);
+    }
+    upgradeAvailable += maxResonators[n];
+  }
+  var friendlyAp = deployCount * DEPLOY_RESONATOR + upgradeCount * UPGRADE_ANOTHERS_RESONATOR + completionAp;
   return {
-    totalAp: totalAp,
+    friendlyAp: friendlyAp,
+    deployCount: deployCount,
+    upgradeCount: upgradeCount,
+    enemyAp: enemyAp,
     destroyAp: destroyAp,
-    captureAp: captureAp,
-    resoCount: resoCount,
-    resoAp: resoAp,
-    linkCount: linkCount,
-    linkAp: linkAp,
-    fieldCount: fieldCount,
-    fieldAp: fieldAp
+    captureAp: captureAp
   };
 }
