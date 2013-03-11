@@ -67,7 +67,7 @@ window.renderPortalDetails = function(guid) {
       + '<div class="mods">'+getModDetails(d)+'</div>'
       + randDetails
       + resoDetails
-      + '<div class="linkdetails">'+ '<aside><a href="'+perma+'">portal link</a></aside>'
+      + '<div class="linkdetails"><aside><a href="'+perma+'" onclick="return androidCopy(this.href)" >portal link</a></aside>'
       + '<aside><a onclick="'+poslinks+'">poslinks</a></aside>'
       + '<aside><a onclick="alert(\''+postcard+'\');">donate</a></aside>'
       + '<aside><a onclick="window.reportPortalIssue()">report issue</a></aside>'

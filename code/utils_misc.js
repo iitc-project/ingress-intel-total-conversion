@@ -118,6 +118,14 @@ window.showPortalPosLinks = function(lat, lng) {
   }
 }
 
+window.androidCopy = function(text) {
+  if(typeof android === 'undefined' || !android || !android.copy)
+    return true; // i.e. execute other actions
+  else
+    android.copy(text);
+  return false;
+}
+
 window.reportPortalIssue = function(info) {
   var t = 'Redirecting you to a Google Help Page.\n\nThe text box contains all necessary information. Press CTRL+C to copy it.';
   var d = window.portals[window.selectedPortal].options.details;
