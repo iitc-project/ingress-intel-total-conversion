@@ -47,15 +47,22 @@ window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
   } else {
     text = 'Min player level unknown';
   }
-  el.attr('title', text).addClass('help');
+  window.setupTooltips(el);
+  
+  /*
+  This code looks hacky but since we are a little late within the mouseenter so
+  we need to improvise a little. The open method doesn't open the tooltip directly.
+  It starts the whole opening procedure (including the timeout etc) and is normally
+  started by the mousemove event of the enhanced element.
+  */
+  el.addClass('help') // Add the "Help Mouse Cursor"
+    .attr('title', text) // Set the title for the jquery tooltip
+    .tooltip('open') // Start the "open" method
+    .attr('title', null);  // And remove the title to prevent the browsers tooltip
 }
 
 window.plugin.guessPlayerLevels.setupChatNickHelper = function() {
-  $('#portaldetails').delegate('#resodetails .meter-text', 'mouseenter', function() {
-    window.plugin.guessPlayerLevels.setLevelTitle(this);
-  });
-
-  $('#chat').delegate('mark', 'mouseenter', function() {
+  $(window).delegate('.nickname', 'mouseenter', function() {
     window.plugin.guessPlayerLevels.setLevelTitle(this);
   });
 }
