@@ -55,4 +55,8 @@ public class IITC_WebView extends WebView {
 	}
 	//----------------------------------------------------------------
 
+	public IITC_WebViewClient getWebViewClient() {
+		return this.webclient;
+	}
+
 }
