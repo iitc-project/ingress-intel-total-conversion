@@ -139,18 +139,22 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
 // calculate AP gain from destroying portal and then capturing it by deploying resonators
 window.getAttackApGainText = function(d) {
   var breakdown = getAttackApGain(d);
+  var totalGain = breakdown.enemyAp;
 
   function tt(text) {
-    var t = 'Destroy &amp; Capture:\n';
-    t += breakdown.resoCount + '×\tResonators\t= ' + digits(breakdown.resoAp) + '\n';
-    t += breakdown.linkCount + '×\tLinks\t= ' + digits(breakdown.linkAp) + '\n';
-    t += breakdown.fieldCount + '×\tFields\t= ' + digits(breakdown.fieldAp) + '\n';
-    t += '1×\tCapture\t= ' + CAPTURE_PORTAL + '\n';
-    t += '8×\tDeploy\t= ' + (8 * DEPLOY_RESONATOR) + '\n';
-    t += '1×\tBonus\t= ' + COMPLETION_BONUS + '\n';
-    t += 'Sum: ' + digits(breakdown.totalAp) + ' AP';
+    var t = '';
+    if (PLAYER.team == d.controllingTeam.team) {
+      totalGain = breakdown.friendlyAp;
+      t += 'Friendly AP:\t' + breakdown.friendlyAp + '\n';
+      t += '  Deploy ' + breakdown.deployCount + ', ';
+      t += 'Upgrade ' + breakdown.upgradeCount + '\n';
+      t += '\n';
+    }
+    t += 'Enemy AP:\t' + breakdown.enemyAp + '\n';
+    t += '  Destroy AP:\t' + breakdown.destroyAp + '\n';
+    t += '  Capture AP:\t' + breakdown.captureAp + '\n';
     return '<tt title="' + t + '">' + digits(text) + '</tt>';
   }
 
-  return [tt('AP Gain'), tt(breakdown.totalAp)];
+  return [tt('AP Gain'), tt(totalGain)];
 }

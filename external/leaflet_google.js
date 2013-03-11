@@ -21,7 +21,7 @@ L.Google = L.Class.extend({
     L.Util.setOptions(this, options);
     if(type === 'INGRESS') {
       type = 'ROADMAP';
-      this._styles = [{featureType:"all", elementType:"all", stylers:[{visibility:"on"}, {hue:"#0091ff"}, {invert_lightness:true}]}, {featureType:"water", elementType:"all", stylers:[{visibility:"on"}, {hue:"#005eff"}, {invert_lightness:true}]}, {featureType:"poi", stylers:[{visibility:"off"}]}, {featureType:"transit", elementType:"all", stylers:[{visibility:"off"}]}];
+      this._styles = [{featureType:"all", elementType:"all", stylers:[{visibility:"on"}, {hue:"#131c1c"}, {saturation:"-50"}, {invert_lightness:true}]}, {featureType:"water", elementType:"all", stylers:[{visibility:"on"}, {hue:"#005eff"}, {invert_lightness:true}]}, {featureType:"poi", stylers:[{visibility:"off"}]}, {featureType:"transit", elementType:"all", stylers:[{visibility:"off"}]}];
     } else {
       this._styles = null;
     }

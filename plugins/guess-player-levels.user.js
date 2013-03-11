@@ -43,19 +43,26 @@ window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
   var text;
   if (nick in playersNamed) {
     text = 'Min player level: ' + playersNamed[nick];
-    if(playersNamed[nick] === window.MAX_XM_PER_LEVEL - 1) text += ' (guessed)';
+    if(playersNamed[nick] < window.MAX_XM_PER_LEVEL.length - 1) text += ' (guessed)';
   } else {
     text = 'Min player level unknown';
   }
-  el.attr('title', text).addClass('help');
+  window.setupTooltips(el);
+  
+  /*
+  This code looks hacky but since we are a little late within the mouseenter so
+  we need to improvise a little. The open method doesn't open the tooltip directly.
+  It starts the whole opening procedure (including the timeout etc) and is normally
+  started by the mousemove event of the enhanced element.
+  */
+  el.addClass('help') // Add the "Help Mouse Cursor"
+    .attr('title', text) // Set the title for the jquery tooltip
+    .tooltip('open') // Start the "open" method
+    .attr('title', null);  // And remove the title to prevent the browsers tooltip
 }
 
 window.plugin.guessPlayerLevels.setupChatNickHelper = function() {
-  $('#portaldetails').delegate('#resodetails .meter-text', 'mouseenter', function() {
-    window.plugin.guessPlayerLevels.setLevelTitle(this);
-  });
-
-  $('#chat').delegate('mark', 'mouseenter', function() {
+  $(window).delegate('.nickname', 'mouseenter', function() {
     window.plugin.guessPlayerLevels.setLevelTitle(this);
   });
 }
@@ -99,15 +106,15 @@ window.plugin.guessPlayerLevels.guess = function() {
     var nickR = namesR[i];
     var lvlR = playersRes[nickR];
     var lineR = nickR ? nickR + ':\t' + lvlR : '\t';
-    if(!isNaN(parseInt(lvlR))) 
+    if(!isNaN(parseInt(lvlR)))
         totallvlR += parseInt(lvlR);
-    
+
     var nickE = namesE[i];
     var lvlE = playersEnl[nickE];
     var lineE = nickE ? nickE + ':\t' + lvlE : '\t';
     if(!isNaN(parseInt(lvlE)))
         totallvlE += parseInt(lvlE);
-    
+
     s += '\n'+lineR + '\t' + lineE + '\n';
   }
   s += '\nTotal level :\t'+totallvlR+'\tTotal level :\t'+totallvlE;

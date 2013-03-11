@@ -1,10 +1,10 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@breunigs
 // @name           intel map total conversion
-// @version        0.7.7-@@BUILDDATE@@
+// @version        0.8.1-@@BUILDDATE@@
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
-// @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js
-// @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js
+// @updateURL      https://iitcserv.appspot.com/dist/total-conversion-build.user.js
+// @downloadURL    https://iitcserv.appspot.com/dist/total-conversion-build.user.js
 // @description    total conversion for the ingress intel map.
 // @include        http://www.ingress.com/intel*
 // @include        https://www.ingress.com/intel*
@@ -43,7 +43,7 @@ if(!d) {
   if(document.getElementById('header_email')) {
     // however, we are logged in.
     setTimeout('location.reload();', 3*1000);
-    throw('Page doesn’t have player data, but you are logged in. Reloading in 10s.');
+    throw('Page doesn’t have player data, but you are logged in. Reloading in 3s.');
   }
   // FIXME: handle nia takedown in progress
   throw('Couldn’t retrieve player data. Are you logged in?');

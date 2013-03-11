@@ -66,10 +66,23 @@ window.debug.console.renderLine = function(text, errorType) {
   switch(errorType) {
     case 'error':   var color = '#FF424D'; break;
     case 'warning': var color = '#FFDE42'; break;
-    case 'alert':   var color = '#42FF90'; break;
     default:        var color = '#eee';
   }
-  if(typeof text !== 'string' && typeof text !== 'number') text = JSON.stringify(text);
+  if(typeof text !== 'string' && typeof text !== 'number') {
+    var cache = [];
+    text = JSON.stringify(text, function(key, value) {
+      if(typeof value === 'object' && value !== null) {
+        if(cache.indexOf(value) !== -1) {
+          // Circular reference found, discard key
+          return;
+        }
+        // Store value in our collection
+        cache.push(value);
+      }
+      return value;
+    });
+    cache = null;
+  }
   var d = new Date();
   var ta = d.toLocaleTimeString(); // print line instead maybe?
   var tb = d.toLocaleString();
@@ -91,17 +104,12 @@ window.debug.console.error = function(text) {
   debug.console.renderLine(text, 'error');
 }
 
-window.debug.console.alert = function(text) {
-  debug.console.renderLine(text, 'alert');
-}
-
 window.debug.console.overwriteNative = function() {
   window.debug.console.create();
   window.console = function() {}
   window.console.log = window.debug.console.log;
   window.console.warn = window.debug.console.warn;
   window.console.error = window.debug.console.error;
-  window.alert = window.debug.console.alert;
 }
 
 window.debug.console.overwriteNativeIfRequired = function() {

@@ -1,0 +1,27 @@
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
+  <context-param>
+    <param-name>org.mortbay.jetty.servlet.Default.dirAllowed</param-name>
+    <param-value>true</param-value>
+  </context-param>
+
+  <servlet>
+    <servlet-name>default</servlet-name>
+    <servlet-class>org.mortbay.jetty.servlet.DefaultServlet</servlet-class>
+    <init-param>
+      <param-name>acceptRanges</param-name><param-value>true</param-value>
+    </init-param>
+    <init-param>
+      <param-name>dirAllowed</param-name><param-value>true</param-value>
+    </init-param>
+    <load-on-startup>0</load-on-startup>
+ </servlet>
+
+ <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/iitc-nightly/*</url-pattern>
+ </servlet-mapping>
+ <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/mobile/*</url-pattern>
+ </servlet-mapping>
+</web-app>
