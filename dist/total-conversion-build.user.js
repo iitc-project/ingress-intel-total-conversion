@@ -3,8 +3,8 @@
 // @name           intel map total conversion
 // @version        0.8.1-2013-03-11-111823
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
-// @updateURL      https://iitcserv.appspot.com/dist/total-conversion-build.user.js
-// @downloadURL    https://iitcserv.appspot.com/dist/total-conversion-build.user.js
+// @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js
+// @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/total-conversion-build.user.js
 // @description    total conversion for the ingress intel map.
 // @include        http://www.ingress.com/intel*
 // @include        https://www.ingress.com/intel*
