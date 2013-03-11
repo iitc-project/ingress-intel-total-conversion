@@ -13,6 +13,7 @@ public class IITC_WebView extends WebView {
 
 	private WebSettings settings;
 	private IITC_WebViewClient webclient;
+	private IITC_JSInterface js_interface;
 
 	// init web view
 	private void iitc_init(Context c) {
@@ -21,6 +22,8 @@ public class IITC_WebView extends WebView {
 		settings.setDomStorageEnabled(true);
 		settings.setAllowFileAccess(true);
 		settings.setGeolocationEnabled(true);
+		this.js_interface = new IITC_JSInterface(c);
+		this.addJavascriptInterface(js_interface, "android");
 
 		// our webchromeclient should share geolocation with the iitc script
 		// allow access by default
@@ -57,6 +60,10 @@ public class IITC_WebView extends WebView {
 
 	public IITC_WebViewClient getWebViewClient() {
 		return this.webclient;
+	}
+
+	public IITC_JSInterface getJSInterface() {
+		return this.js_interface;
 	}
 
 }
