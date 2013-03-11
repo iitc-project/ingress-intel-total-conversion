@@ -1,6 +1,8 @@
 CHANGES IN 0.8
 ==============
 
+This release contains many small fixes and enhancements. Highlights include the new scoreboard plugin and the MU count display for desktop IITC. There’s also an alpha release of IITC Mobile, for which we need help. Please see below for details.
+
 - Feature: MU count is now displayed in the center of a field in the map (by Fragger).
 - Feature: hover over your username in the sidebar. A sign out link should appear (by cmrn).
 - Feature: you can quickly select one layer only by long-clicking or ctrl/alt/meta-clicking an entry in the layer chooser. [See Userguide for details](https://github.com/breunigs/ingress-intel-total-conversion/wiki/Userguide-%28Main-Vanilla-IITC%29#wiki-map).
