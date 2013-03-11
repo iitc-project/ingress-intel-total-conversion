@@ -3,10 +3,12 @@ CHANGES IN 0.8
 
 This release contains many small fixes and enhancements. Highlights include the new scoreboard plugin and the MU count display for desktop IITC. There’s also an alpha release of IITC Mobile, for which we need help. Please see below for details.
 
+** **
 - Feature: MU count is now displayed in the center of a field in the map (by Fragger).
 - Feature: hover over your username in the sidebar. A sign out link should appear (by cmrn).
 - Feature: you can quickly select one layer only by long-clicking or ctrl/alt/meta-clicking an entry in the layer chooser. [See Userguide for details](https://github.com/breunigs/ingress-intel-total-conversion/wiki/Userguide-%28Main-Vanilla-IITC%29#wiki-map).
 
+** **
 - Enhancement: hitting the render limit is now much less worse. Before, IITC would simply stop drawing, leaving you with many blank areas. The new method **hides low level portals instead when the render limit is hit**. This way you can view New York or London zoomed out and still be able to use the map properly. Zooming in will show more detail, just like before. Look in the map status at the bottom right to see which portals are currently shown (by Xelio).
 - Enhancement: Links in chat now can be copied using the context menu or middle clicked to open in a new tab (by Daniel Cheng).
 - Enhancement: more detailed error messages why redeeming failed (by integ3r).
@@ -15,6 +17,7 @@ This release contains many small fixes and enhancements. Highlights include the 
 - Enhancement: your not-yet-sent-message will appear red when writing to the public chat. Hopefully this reduces “posting to the wrong channel” mistakes some people have run into.
 - Enhancement: US Post Offices are now shown with their address instead in full and compact tabs.
 
+** **
 - Change: Ingress Map style has been updated to reflect Niantic changes.
 - Change: files will now be served by Google App Engine instead of GitHub. It’s the same service that Ingress runs on.
 - Change: the documentation is now in our wiki: https://github.com/breunigs/ingress-intel-total-conversion/wiki
@@ -25,9 +28,11 @@ This release contains many small fixes and enhancements. Highlights include the 
 - Change: zooming on Google Layers should be a tad faster now. It animated portal zoom first and then background zoom. It now only animates the background, so it finishes earlier. There doesn’t seem to be a nice way to make both zoom animations line up, though.
 - Change: dialogs and tooltips have been redesigned to match the ingress style more closely (by boombuler)
 
+** **
 - Bugfix: some portal images were not working properly after the HTTPS switch.
 - Bugfix: layer chooser items were too large in Chrome
 
+** **
 - Plugin: Highlight Weakened Portals colors have been generally improved. They should now reflect the changes in portal shield handling much better.
 - Plugin: Calulate AP Stats now considers missing resonators when calculating the possible AP gain for either team.
 - Plugin: Guess Player Level has gained some statistics like average level per faction (by sutepasu).
@@ -37,7 +42,7 @@ This release contains many small fixes and enhancements. Highlights include the 
 - Plugin: (new) Scoreboard: shows details and statistics about the currently visible data (by vita10gy). *(I personally recommend this plugin. It makes taunting the other faction much more fun).*
 - [the plugins page has been moved to the wiki](https://github.com/breunigs/ingress-intel-total-conversion/wiki/Plugins)
 
-
+** **
 **Mobile:** a new Android app has been written that brings IITC to your smartphone. It’s not quite there yet – the layer chooser doesn’t work properly, for example. However, we believe it’s okay enough for general use. Note that:
 - you need to manually update it
 - the layer chooser is broken
