@@ -107,7 +107,7 @@ window.rangeLinkClick = function() {
 }
 
 window.showPortalPosLinks = function(lat, lng) {
-  if (android && android.intentPosLink) {
+  if (typeof android !== 'undefined' && android && android.intentPosLink) {
     android.intentPosLink('https://maps.google.com/?q='+lat+','+lng);
   } else {
     var qrcode = '<div id="qrcode"></div>';
