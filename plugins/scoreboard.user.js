@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-scoreboard@vita10gy
 // @name           iitc: show a localized scoreboard.
-// @version        0.1.1
+// @version        0.1.2
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/scoreboard.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/scoreboard.user.js
@@ -99,27 +99,29 @@ window.plugin.scoreboard.compileStats = function() {
   $.each(window.portals, function(qk, portal) {
     somethingInView = true;
     var team = getTeam(portal.options.details);
-    var player = portal.options.details.captured.capturingPlayerId;
-    window.plugin.scoreboard.initPlayer(player, team);
-    scores['team'][team]['count_portals']++;
-    scores['player'][player]['count_portals']++;
-    
-    //$.each(portal.options.details.portalV2.linkedModArray, function(ind, mod) {
-    //  if(mod !== null) {
-    //    somethingInView = true;
-    //    scores['team'][team]['count_shields']++;
-    //    scores['player'][mod.installingUser]['count_shields']++;
-    //  }
-    //});
-    
-    $.each(portal.options.details.resonatorArray.resonators, function(ind, reso) {
-      if(reso !== null) {  
-        somethingInView = true;
-        window.plugin.scoreboard.initPlayer(reso.ownerGuid, team);
-        scores['team'][team]['count_resonators']++;
-        scores['player'][reso.ownerGuid]['count_resonators']++;
-      }
-    });
+    if(team !== TEAM_NONE) {
+      var player = portal.options.details.captured.capturingPlayerId;
+      window.plugin.scoreboard.initPlayer(player, team);
+      scores['team'][team]['count_portals']++;
+      scores['player'][player]['count_portals']++;
+      
+      //$.each(portal.options.details.portalV2.linkedModArray, function(ind, mod) {
+      //  if(mod !== null) {
+      //    somethingInView = true;
+      //    scores['team'][team]['count_shields']++;
+      //    scores['player'][mod.installingUser]['count_shields']++;
+      //  }
+      //});
+      
+      $.each(portal.options.details.resonatorArray.resonators, function(ind, reso) {
+        if(reso !== null) {  
+          somethingInView = true;
+          window.plugin.scoreboard.initPlayer(reso.ownerGuid, team);
+          scores['team'][team]['count_resonators']++;
+          scores['player'][reso.ownerGuid]['count_resonators']++;
+        }
+      });
+    }
   });
   return somethingInView;
 };
