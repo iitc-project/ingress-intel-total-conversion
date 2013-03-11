@@ -83,12 +83,8 @@ window.plugin.apList.getPortalApTitle = function(portal) {
     t += 'Sum: ' + digits(playerApGain.totalAp) + ' AP';
   } else {
     t = 'Destroy &amp; Capture:\n'
-      + playerApGain.resoCount + '×\tResonators\t= ' + digits(playerApGain.resoAp) + '\n'
-      + playerApGain.linkCount + '×\tLinks\t= ' + digits(playerApGain.linkAp) + '\n'
-      + playerApGain.fieldCount + '×\tFields\t= ' + digits(playerApGain.fieldAp) + '\n'
-      + '1×\tCapture\t= ' + CAPTURE_PORTAL + '\n'
-      + '8×\tDeploy\t= ' + (8 * DEPLOY_RESONATOR) + '\n'
-      + '1×\tBonus\t= ' + COMPLETION_BONUS + '\n'
+      + 'Destroy AP\t=\t' + digits(playerApGain.destroyAp) + '\n'
+      + 'Capture AP\t=\t' + digits(playerApGain.captureAp) + '\n'
       + 'Sum: ' + digits(playerApGain.totalAp) + ' AP';
   }
   return t;
@@ -254,6 +250,31 @@ window.plugin.apList.getDeployOrUpgradeApGain = function(d) {
   };
 }
 
+window.plugin.apList.getAttackApGain = function(d) {
+  var resoCount = 0;
+  $.each(d.resonatorArray.resonators, function(ind, reso) {
+    if (!reso)
+      return true;
+    resoCount += 1;
+  });
+
+  var linkCount = d.portalV2.linkedEdges ? d.portalV2.linkedEdges.length : 0;
+  var fieldCount = d.portalV2.linkedFields ? d.portalV2.linkedFields.length : 0;
+
+  var resoAp = resoCount * DESTROY_RESONATOR;
+  var linkAp = linkCount * DESTROY_LINK;
+  var fieldAp = fieldCount * DESTROY_FIELD;
+  var destroyAp = resoAp + linkAp + fieldAp;
+  var captureAp = CAPTURE_PORTAL + 8 * DEPLOY_RESONATOR + COMPLETION_BONUS;
+  var totalAp = destroyAp + captureAp;
+
+  return {
+    totalAp: totalAp,
+    destroyAp: destroyAp,
+    captureAp: captureAp
+  }
+}
+
 // Change display table to friendly portals
 window.plugin.apList.displayFriendly = function() {
   plugin.apList.displaySide = plugin.apList.SIDE_FRIENDLY;
@@ -297,7 +318,7 @@ window.plugin.apList.setupVar = function() {
   plugin.apList.playerApGainFunc[plugin.apList.SIDE_FRIENDLY] 
     = plugin.apList.getDeployOrUpgradeApGain;
   plugin.apList.playerApGainFunc[plugin.apList.SIDE_ENEMY] 
-    = getAttackApGain;
+    = plugin.apList.getAttackApGain;
   plugin.apList.sideLabelClass[plugin.apList.SIDE_FRIENDLY]
     = "#ap-list-frd";
   plugin.apList.sideLabelClass[plugin.apList.SIDE_ENEMY]
