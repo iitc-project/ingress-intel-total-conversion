@@ -1,6 +1,8 @@
 CHANGES IN 0.8
 ==============
 
+0.8.1: somehow the build I uploaded was broken. This is a rebuild that should work.
+
 This release contains many small fixes and enhancements. Highlights include the new scoreboard plugin and the MU count display for desktop IITC. There’s also an alpha release of IITC Mobile, for which we need help. Please see below for details.
 
 ** **
