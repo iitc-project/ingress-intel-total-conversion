@@ -35,6 +35,8 @@ This release contains many small fixes and enhancements. Highlights include the 
 - Plugin: Player Tracker now stops after zooming out too far. It was eating CPU while not being helpful.
 - Plugin: (new) Show Scale Bar: adds a scale bar to your upper left corner
 - Plugin: (new) Scoreboard: shows details and statistics about the currently visible data (by vita10gy). *(I personally recommend this plugin. It makes taunting the other faction much more fun).*
+- [the plugins page has been moved to the wiki](https://github.com/breunigs/ingress-intel-total-conversion/wiki/Plugins)
+
 
 **Mobile:** a new Android app has been written that brings IITC to your smartphone. It’s not quite there yet – the layer chooser doesn’t work properly, for example. However, we believe it’s okay enough for general use. Note that:
 - you need to manually update it
