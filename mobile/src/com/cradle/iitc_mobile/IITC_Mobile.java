@@ -14,9 +14,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnTouchListener;
 import android.widget.Toast;
 
 public class IITC_Mobile extends Activity {
@@ -52,17 +49,6 @@ public class IITC_Mobile extends Activity {
 				Log.d("No Intent call", "loading https://www.ingress.com/intel");
 				iitc_view.loadUrl("https://www.ingress.com/intel");
 			}
-
-			// listen to touches (think we need this)
-			iitc_view.setOnTouchListener(new OnTouchListener() {
-				@Override
-				public boolean onTouch(View v, MotionEvent event) {
-					back_button_pressed = false;
-					// return false to indicate, that we don't consumed this event. this leads
-					// to the execution of our touch event
-					return false;
-				}
-			});
 		}
 	}
 
@@ -70,13 +56,6 @@ public class IITC_Mobile extends Activity {
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		iitc_view.saveState(outState);
-	}
-
-	// we want a self defined behavior on resume
-	@Override
-	protected void onResume() {
-		super.onResume();
-		this.back_button_pressed = false;
 	}
 
 	// we want a self defined behavior for the back button
