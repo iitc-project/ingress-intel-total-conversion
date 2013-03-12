@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-scoreboard@vita10gy
 // @name           iitc: show a localized scoreboard.
-// @version        0.1.2
+// @version        0.1.3
 // @namespace      https://github.com/breunigs/ingress-intel-total-conversion
 // @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/scoreboard.user.js
 // @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/scoreboard.user.js
@@ -304,8 +304,8 @@ var setup =  function() {
     '#scoreboard .disclaimer { margin-top:10px; font-size:10px; }' +
     '.mu_score { margin-bottom: 10px; }' +
     '.mu_score span { overflow: hidden; padding-top:2px; padding-bottom: 2px; display: block; font-weight: bold; float: left; box-sizing: border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; }' +
-    '.mu_score span.res { background-color: #005684; text-align: right; padding-right:5px; }' +
-    '.mu_score span.enl { background-color: #017f01; padding-left: 5px; }' +
+    '.mu_score span.res { background-color: #005684; text-align: right; padding-right:4px; }' +
+    '.mu_score span.enl { background-color: #017f01; padding-left: 4px; }' +
     '</style>');
 }
 
