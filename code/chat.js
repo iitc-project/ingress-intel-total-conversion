@@ -152,6 +152,8 @@ window.chat.handleFaction = function(data, textStatus, jqXHR) {
   chat.writeDataToHash(data, chat._factionData, false);
   var oldMsgsWereAdded = old !== chat.getOldestTimestamp(true);
 
+  runHooks('factionChatDataAvailable', {raw: data, processed: chat._factionData});
+
   window.chat.renderFaction(oldMsgsWereAdded);
 
   if(data.result.length >= CHAT_FACTION_ITEMS) chat.needMoreMessages();
