@@ -21,6 +21,7 @@ body {
   width: 340px;
   bottom: 45px;
   z-index: 1001;
+  pointer-events: none;
 }
 
 #sidebar {
@@ -34,6 +35,7 @@ body {
   overflow-y:scroll;
   overflow-x:hidden;
   z-index: 3000;
+  pointer-events: auto;
 }
 
 #sidebartoggle {

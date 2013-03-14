@@ -355,11 +355,6 @@ function boot() {
   if(window.bootPlugins)
     $.each(window.bootPlugins, function(ind, ref) { ref(); });
 
-  // sidebar is now at final height. Adjust scrollwrapper so scrolling
-  // is possible for small screens and it doesn’t block the area below
-  // it.
-  $('#scrollwrapper').css('max-height', ($('#sidebar').get(0).scrollHeight+3) + 'px');
-
   window.runOnSmartphonesAfterBoot();
 
   // workaround for #129. Not sure why this is required.
