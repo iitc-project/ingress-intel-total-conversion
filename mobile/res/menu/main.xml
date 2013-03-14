@@ -1,6 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 	<item android:id="@+id/reload_button"
-		android:orderInCategory="100"
+	    android:icon="@drawable/ic_menu_refresh"
+		android:orderInCategory="90"
 		android:showAsAction="ifRoom"
 		android:title="@string/reload"></item>
 
@@ -10,11 +11,12 @@
 		android:title="@string/version"></item>
 
 	<item android:id="@+id/cache_clear"
-		android:orderInCategory="90"
+		android:orderInCategory="100"
 		android:showAsAction="never"
 		android:title="@string/cache_clear"></item>
 
 	<item android:id="@+id/locate"
+	    android:icon="@android:drawable/ic_menu_mylocation"
 		android:orderInCategory="80"
 		android:showAsAction="ifRoom"
 		android:title="@string/locate"></item>

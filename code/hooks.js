@@ -30,6 +30,11 @@
 //              yet been displayed. The data hash contains both the un-
 //              processed raw ajax response as well as the processed
 //              chat data that is going to be used for display.
+// factionChatDataAvailable: this hook runs after data for the faction
+//              chat has been received and processed, but not yet been
+//              displayed. The data hash contains both the unprocessed
+//              raw ajax response as well as the processed chat data
+//              that is going to be used for display.
 // portalDataLoaded: callback is passed the argument of
 //              {portals : [portal, portal, ...]} where "portal" is the
 //              data element and not the leaflet object. "portal" is an
@@ -46,15 +51,15 @@
 // checkRenderLimit: callback is passed the argument of
 //              {reached : false} to indicate that the renderlimit is reached
 //              set reached to true.
-// requestFinished: called after each request finished. Argument is 
+// requestFinished: called after each request finished. Argument is
 //              {success: boolean} indicated the request success or fail.
 
 
 
 window._hooks = {}
 window.VALID_HOOKS = ['portalAdded', 'portalDetailsUpdated',
-  'publicChatDataAvailable', 'portalDataLoaded', 'beforePortalReRender',
-  'checkRenderLimit', 'requestFinished'];
+  'publicChatDataAvailable', 'factionChatDataAvailable', 'portalDataLoaded',
+  'beforePortalReRender', 'checkRenderLimit', 'requestFinished'];
 
 window.runHooks = function(event, data) {
   if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);
