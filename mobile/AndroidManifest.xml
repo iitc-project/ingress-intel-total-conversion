@@ -30,6 +30,7 @@
 				<category android:name="android.intent.category.DEFAULT"/>
 				<category android:name="android.intent.category.BROWSABLE"/>
 				<data android:host="www.ingress.com" android:scheme="https" android:pathPrefix="/intel"></data>
+				<data android:host="www.ingress.com" android:scheme="http" android:pathPrefix="/intel"></data>
 			</intent-filter>
 		</activity>
 	</application>

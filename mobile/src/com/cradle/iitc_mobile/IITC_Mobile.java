@@ -39,6 +39,9 @@ public class IITC_Mobile extends Activity {
 			if (Intent.ACTION_VIEW.equals(action)) {
 				Uri uri = intent.getData();
 				String url = uri.toString();
+				// TODO Why does "if(intent.getScheme() == "http")" not work?
+				if (url.contains("http://"))
+					url = url.replace("http://", "https://");
 				Log.d("Intent received", "url: " + url);
 				if (url.contains("ingress.com")) {
 					Log.d("Intent received", "loading url...");
