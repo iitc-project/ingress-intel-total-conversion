@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="com.cradle.iitc_mobile"
 	android:versionCode="1"
-	android:versionName="0.2.1" >
+	android:versionName="0.2.2" >
 
 	<uses-sdk
 		android:minSdkVersion="14"
