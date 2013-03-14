@@ -13,7 +13,7 @@
 
 	<application
 		android:allowBackup="true"
-		android:icon="@drawable/ingress_iitc"
+		android:icon="@drawable/iitc_icon"
 		android:label="@string/app_name"
 		android:theme="@style/AppTheme" >
 		<activity
