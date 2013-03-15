@@ -267,7 +267,7 @@ window.plugin.playerTracker.drawData = function() {
     // ensure tooltips are closed, sometimes they linger
     m.on('mouseout', function() { $(this._icon).tooltip('close'); });
     m.addTo(layer);
-    window.plugin.playerTracker.oms.addMarker(m);
+    plugin.playerTracker.oms.addMarker(m);
     // jQueryUI doesn’t automatically notice the new markers
     window.setupTooltips($(m._icon));
   });
@@ -297,7 +297,7 @@ window.plugin.playerTracker.handleData = function(data) {
   plugin.playerTracker.drawnTraces.eachLayer(function(layer) {
     if(layer._icon) $(layer._icon).tooltip('destroy');
   });
-  window.plugin.playerTracker.oms.clearMarkers();
+  plugin.playerTracker.oms.clearMarkers();
   plugin.playerTracker.drawnTraces.clearLayers();
   plugin.playerTracker.drawData();
 }
