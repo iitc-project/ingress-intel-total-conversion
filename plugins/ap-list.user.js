@@ -51,18 +51,18 @@ window.plugin.apList.handleUpdate = function() {
 window.plugin.apList.updatePortalTable = function(side) {
   var displayEnemy = (plugin.apList.displaySide === window.plugin.apList.SIDE_ENEMY);
   
-  var content = '<table style="width: 100%; table-layout:fixed">';
+  var content = '<table id="ap-list-table">';
   for(var i = 0; i < plugin.apList.topMaxCount; i++) {
     var portal = plugin.apList.sortedPortals[side][i];
     content += '<tr>';
     // Only enemy portal list will display destroy checkbox
     if(displayEnemy) {
-      content += '<td style="width: 5%; height: 1px">'
+      content += '<td class="ap-list-td-checkbox">'
                + (portal ? plugin.apList.getPortalDestroyCheckbox(portal) : '&nbsp;')
                + '</td>';
     }
-    content += '<td style="width: ' + (displayEnemy ? '80%' : '85%')
-             + '; overflow:hidden; white-space:nowrap">'
+    content += '<td class="ap-list-td-link ' + (displayEnemy ? 'ap-list-td-link-eny' : 'ap-list-td-link-frd')
+             + '">'
              + (portal ? plugin.apList.getPortalLink(portal) : '&nbsp;')
              + '</td>'
              + '<td>'
@@ -76,16 +76,15 @@ window.plugin.apList.updatePortalTable = function(side) {
 
 window.plugin.apList.getPortalDestroyCheckbox = function(portal) {
   // Change background color to border color if portal selected for destroy 
-  var style = 'width: 10px; height: 10px; border: 1px solid rgb(32, 168, 177); margin: 0 auto; '
-            + (plugin.apList.destroyPortalIndex(portal.guid) >= 0 
-                ? 'background-color: rgb(32, 168, 177);' 
-                : '');
+  var checkboxClass = plugin.apList.destroyPortalIndex(portal.guid) >= 0 
+                    ? 'ap-list-checkbox-inner ap-list-checkbox-selected'
+                    : 'ap-list-checkbox-inner';
   var onClick = 'window.plugin.apList.destroyPortal(\'' + portal.guid + '\');';
   // 3 div for centering checkbox horizontally and vertically, 
   // click event on outest div for people with not so good aiming
-  var div = '<div style="display: table; height: 100%; width: 100%;" onclick="' + onClick + '">'
-          + '<div style="display: table-cell; vertical-align: middle;">'
-          + '<div style="' + style + '"/>'
+  var div = '<div class="ap-list-checkbox-outer" onclick="' + onClick + '">'
+          + '<div class="ap-list-checkbox-mid">'
+          + '<div class="' + checkboxClass + '"/>'
           + '</div>'
           + '</div>';
   return div;
@@ -148,20 +147,20 @@ window.plugin.apList.getPortalLink = function(portal) {
   var jsDoubleClick = 'window.zoomToAndShowPortal(\''+portal.guid+'\', ['+latlng+']);return false';
   var perma = 'https://ingress.com/intel?latE6='+portal.locationE6.latE6
             +'&lngE6='+portal.locationE6.lngE6+'&z=17&pguid='+portal.guid;
-  var style = plugin.apList.destroyPortalIndex(portal.guid) >= 0 
-              ? 'font-style:italic'
-              : '';
   //Use Jquery to create the link, which escape characters in TITLE and ADDRESS of portal
   var a = $('<a>',{
     "class": 'help',
-    style: style,
     text: portal.portalV2.descriptiveText.TITLE,
     title: portal.portalV2.descriptiveText.ADDRESS,
     href: perma,
     onClick: jsSingleClick,
     onDblClick: jsDoubleClick
   })[0].outerHTML;
-  var div = '<div style="white-space: nowrap; overflow: hidden; text-overflow:ellipsis;">'+a+'</div>';
+  
+  var divClass = plugin.apList.destroyPortalIndex(portal.guid) >= 0 
+              ? 'ap-list-link ap-list-link-selected'
+              : 'ap-list-link';
+  var div = '<div class="' + divClass + '">'+a+'</div>';
   return div;
 }
 
@@ -458,17 +457,95 @@ window.plugin.apList.setupVar = function() {
     = "#ap-list-eny";
 }
 
+window.plugin.apList.setupCSS = function() {
+  $("<style>")
+    .prop("type", "text/css")
+    .html("\
+    #ap-list {\
+      color: #ffce00;\
+      font-size: 90%;\
+      padding: 4px 2px;\
+    }\
+    #ap-list-side-labels {\
+      display: inline-block;\
+      width: 90%;\
+    }\
+    #ap-list-eny {\
+      display: inline-block;\
+      text-align: center;\
+      width: 50%;\
+      opacity: 1.0;\
+    }\
+    #ap-list-frd {\
+      display: inline-block;\
+      text-align: center;\
+      width: 50%;\
+      opacity: 0.5;\
+    }\
+    #ap-list-reload {\
+      display: inline-block;\
+      text-align: right;\
+      width: 10%;\
+    }\
+    #ap-list-table {\
+      width: 100%;\
+      table-layout:fixed;\
+    }\
+    .ap-list-td-checkbox {\
+      width: 5%;\
+      height: 1px;\
+    }\
+    .ap-list-td-link {\
+      overflow:hidden;\
+      white-space:nowrap;\
+    }\
+    .ap-list-td-link-eny {\
+      width: 80%;\
+    }\
+    .ap-list-td-link-frd {\
+      width: 85%;\
+    }\
+    .ap-list-checkbox-outer {\
+      display: table;\
+      height: 100%;\
+      width: 100%;\
+    }\
+    .ap-list-checkbox-mid {\
+      display: table-cell;\
+      vertical-align: middle;\
+    }\
+    .ap-list-checkbox-inner {\
+      width: 10px;\
+      height: 10px;\
+      border: 1px solid rgb(32, 168, 177);\
+      margin: 0 auto;\
+    }\
+    .ap-list-checkbox-selected {\
+      background-color: rgb(32, 168, 177);\
+    }\
+    .ap-list-link {\
+      white-space: nowrap;\
+      overflow: hidden;\
+      text-overflow: ellipsis;\
+    }\
+    .ap-list-link-selected {\
+      font-style:italic;\
+    }\
+    ")
+  .appendTo("head");
+}
+
 window.plugin.apList.setupList = function() {
   var content = '<div id="ap-list">'
-          + '<span style="display: inline-block; width: 90%">'
-          + '<span id="ap-list-eny" style="display: inline-block; text-align: center; width: 50%; opacity:1.0;">'
+          + '<span id="ap-list-side-labels">'
+          + '<span id="ap-list-eny">'
           + '<a href="#" onclick="window.plugin.apList.displayEnemy();return false;">Enemy</a>'
           + '</span>'
-          + '<span id="ap-list-frd" style="display: inline-block; text-align: center; width: 50%; opacity:0.5;">'
+          + '<span id="ap-list-frd">'
           + '<a href="#" onclick="window.plugin.apList.displayFriendly();return false;">Friendly</a>'
           + '</span>'
           + '</span>'
-          + '<span id="ap-list-reload" style="display: inline-block; text-align: right; width: 10%">'
+          + '<span id="ap-list-reload">'
           + '<a href="#" title="Clear list and reload" onclick="window.plugin.apList.disableCache();'
           + 'plugin.apList.hideReloadLabel();return false;">↻ R</a>'
           + '</span>'
@@ -477,7 +554,6 @@ window.plugin.apList.setupList = function() {
 
   $('#sidebar').append(content);
   $('#ap-list-reload').hide();
-  $('#ap-list').css({'color':'#ffce00', 'font-size':'90%', 'padding':'4px 2px'});
 }
 
 window.plugin.apList.setupMapEvent = function() {
@@ -511,6 +587,7 @@ window.plugin.apList.setupMapEvent = function() {
 
 var setup = function() {
   window.plugin.apList.setupVar();
+  window.plugin.apList.setupCSS();
   window.plugin.apList.setupList();
   window.plugin.apList.setupMapEvent();
   window.addHook('requestFinished', window.plugin.apList.handleUpdate);
