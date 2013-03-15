@@ -113,6 +113,7 @@ window.getAttackApGain = function(d) {
     upgradeCount: upgradeCount,
     enemyAp: enemyAp,
     destroyAp: destroyAp,
+    resoAp: resoAp,
     captureAp: captureAp
   };
 }
