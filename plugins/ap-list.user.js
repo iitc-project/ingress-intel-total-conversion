@@ -40,6 +40,9 @@ window.plugin.apList.cacheActiveZoomLevel;
 
 window.plugin.apList.destroyPortalsGuid = new Array();
 
+window.plugin.apList.portalLocationIndicator;
+window.plugin.apList.animTimeout;
+
 
 window.plugin.apList.handleUpdate = function() {
   if(!requests.isLastRequest('getThinnedEntitiesV2')) return;
@@ -143,7 +146,7 @@ window.plugin.apList.getPortalApTitle = function(portal) {
 //               hover: show address
 window.plugin.apList.getPortalLink = function(portal) {
   var latlng = [portal.locationE6.latE6/1E6, portal.locationE6.lngE6/1E6].join();
-  var jsSingleClick = 'window.renderPortalDetails(\''+portal.guid+'\');return false';
+  var jsSingleClick = 'window.plugin.apList.selectPortal(\''+portal.guid+'\');return false';
   var jsDoubleClick = 'window.zoomToAndShowPortal(\''+portal.guid+'\', ['+latlng+']);return false';
   var perma = 'https://ingress.com/intel?latE6='+portal.locationE6.latE6
             +'&lngE6='+portal.locationE6.lngE6+'&z=17&pguid='+portal.guid;
@@ -402,6 +405,50 @@ window.plugin.apList.getAttackApGain = function(d) {
     resoCount: resoCount,
     linkCount: linkCount,
     fieldCount: fieldCount
+  }
+}
+
+window.plugin.apList.selectPortal = function(guid) {
+  renderPortalDetails(guid);
+  plugin.apList.setPortalLocationIndicator(guid);
+}
+
+window.plugin.apList.setPortalLocationIndicator = function(guid) {
+  var portal = window.portals[guid];
+  if(!portal) return;
+  var startRadius = screen.availWidth / 2;
+  var portalRadius = portal.options.radius;
+  var latlng = portal.getLatLng();
+  var property = {
+    radius: startRadius,
+    fill: false,
+    color: COLOR_SELECTED_PORTAL,
+    weight: 2,
+    opacity: 1,
+    portalRadius: portalRadius,
+    clickable: false };
+
+  if(plugin.apList.portalLocationIndicator)
+    map.removeLayer(plugin.apList.portalLocationIndicator);
+  if(plugin.apList.animTimeout)
+    clearTimeout(plugin.apList.animTimeout);
+  plugin.apList.portalLocationIndicator = L.circleMarker(latlng, property).addTo(map);
+  plugin.apList.animTimeout = setTimeout(plugin.apList.animPortalLocationIndicator,100);
+}
+
+window.plugin.apList.animPortalLocationIndicator = function() {
+  var radius = plugin.apList.portalLocationIndicator.options.radius;
+  var portalRadius = plugin.apList.portalLocationIndicator.options.portalRadius
+  if(radius > portalRadius) {
+    var step = radius / 3;
+    if(radius < 80) step = step / 3;
+    var newRadius = plugin.apList.portalLocationIndicator.options.radius -= step;
+    plugin.apList.portalLocationIndicator.setRadius(newRadius);
+    if(plugin.apList.animTimeout)
+      clearTimeout(plugin.apList.animTimeout);
+    plugin.apList.animTimeout = setTimeout(plugin.apList.animPortalLocationIndicator,100);
+  } else {
+    map.removeLayer(plugin.apList.portalLocationIndicator);
   }
 }
 
