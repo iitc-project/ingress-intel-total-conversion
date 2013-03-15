@@ -324,8 +324,32 @@ function boot() {
   var base = '@@RESOURCEURLBASE@@/images';
   L.Icon.Default.imagePath = base;
 
-  window.iconEnl = L.Icon.Default.extend({options: { iconUrl: base + '/marker-green.png' } });
-  window.iconRes = L.Icon.Default.extend({options: { iconUrl: base + '/marker-blue.png' } });
+  var iconEnlImage = '@@INCLUDEIMAGE:images/marker-green.png@@';
+  var iconEnlRetImage = '@@INCLUDEIMAGE:images/marker-green_2x.png@@';
+  var iconResImage = '@@INCLUDEIMAGE:images/marker-blue.png@@';
+  var iconResRetImage = '@@INCLUDEIMAGE:images/marker-blue_2x.png@@';
+  var iconShadowImage = '@@INCLUDEIMAGE:images/marker-shadow.png@@';
+
+  window.iconEnl = L.Icon.extend({options: {
+    iconUrl: iconEnlImage,
+    iconRetinaUrl: iconEnlRetImage,
+    shadowUrl: iconShadowImage,
+    shadowRetinaUrl: iconShadowImage,
+    iconSize: new L.Point(25, 41),
+    iconAnchor: new L.Point(12, 41),
+    popupAnchor: new L.Point(1, -34),
+    shadowSize: new L.Point(41, 41)
+  }});
+  window.iconRes = L.Icon.extend({options: {
+    iconUrl: iconResImage,
+    iconRetinaUrl: iconResRetImage,
+    shadowUrl: iconShadowImage,
+    shadowRetinaUrl: iconShadowImage,
+    iconSize: new L.Point(25, 41),
+    iconAnchor: new L.Point(12, 41),
+    popupAnchor: new L.Point(1, -34),
+    shadowSize: new L.Point(41, 41)
+  }});
 
   window.setupTaphold();
   window.setupStyles();

@@ -4,6 +4,7 @@ import glob
 import time
 import re
 import io
+import base64
 import sys
 import os
 import shutil
@@ -65,6 +66,10 @@ def loaderRaw(var):
     fn = var.group(1)
     return readfile(fn)
 
+def loaderImage(var):
+    fn = var.group(1)
+    return 'data:image/png;base64,{0}'.format(str(base64.encodestring(open(fn, 'rb').read())).replace('\n', ''))
+
 def loadCode(ignore):
     return '\n\n'.join(map(readfile, glob.glob('code/*')))
 
@@ -81,6 +86,7 @@ def doReplacements(script,updateUrl,downloadUrl):
 
     script = re.sub('@@INCLUDERAW:([0-9a-zA-Z_./-]+)@@', loaderRaw, script)
     script = re.sub('@@INCLUDESTRING:([0-9a-zA-Z_./-]+)@@', loaderString, script)
+    script = re.sub('@@INCLUDEIMAGE:([0-9a-zA-Z_./-]+)@@', loaderImage, script)
 
     script = script.replace('@@BUILDDATE@@', buildDate)
     script = script.replace('@@DATETIMEVERSION@@', dateTimeVersion)
