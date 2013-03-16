@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           intel map total conversion
-// @version        0.8.2-2013-03-16-194450-jonatkins
+// @version        0.9.0-2013-03-16-200744-jonatkins
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      http://iitc.jonatkins.com/dist/total-conversion-build.user.js
 // @downloadURL    http://iitc.jonatkins.com/dist/total-conversion-build.user.js
@@ -16,16 +16,11 @@
 // REPLACE ORIG SITE ///////////////////////////////////////////////////
 if(document.getElementsByTagName('html')[0].getAttribute('itemscope') != null)
   throw('Ingress Intel Website is down, not a userscript issue.');
-window.iitcBuildDate = '2013-03-16-194450';
+window.iitcBuildDate = '2013-03-16-200744';
 
 // disable vanilla JS
 window.onload = function() {};
 
-if(window.location.protocol !== 'https:') {
-  var redir = window.location.href.replace(/^http:/, 'https:');
-  window.location = redir;
-  throw('Need to load HTTPS version.');
-}
 
 // rescue user data from original page
 var scr = document.getElementsByTagName('script');
@@ -1658,12 +1653,12 @@ d+"px").css("background-color",a.isDark(e,i)?h.foreground:h.background).appendTo
 function boot() {
   window.debug.console.overwriteNativeIfRequired();
 
-  console.log('loading done, booting. Built: 2013-03-16-194450');
+  console.log('loading done, booting. Built: 2013-03-16-200744');
   if(window.deviceID) console.log('Your device ID: ' + window.deviceID);
   window.runOnSmartphonesBeforeBoot();
 
   // overwrite default Leaflet Marker icon to be a neutral color
-  var base = 'https://iitc.jonatkins.com/dist/images';
+  var base = 'http://iitc.jonatkins.com/dist/images';
   L.Icon.Default.imagePath = base;
 
   window.iconEnl = L.Icon.Default.extend({options: { iconUrl: base + '/marker-green.png' } });
