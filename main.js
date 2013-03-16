@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           intel map total conversion
-// @version        0.8.1-@@BUILDDATE@@-jonatkins
+// @version        0.9.0-@@BUILDDATE@@-jonatkins
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      http://iitc.jonatkins.com/dist/total-conversion-build.user.js
 // @downloadURL    http://iitc.jonatkins.com/dist/total-conversion-build.user.js
