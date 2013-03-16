@@ -21,11 +21,6 @@ window.iitcBuildDate = '@@BUILDDATE@@';
 // disable vanilla JS
 window.onload = function() {};
 
-if(window.location.protocol !== 'https:') {
-  var redir = window.location.href.replace(/^http:/, 'https:');
-  window.location = redir;
-  throw('Need to load HTTPS version.');
-}
 
 // rescue user data from original page
 var scr = document.getElementsByTagName('script');
