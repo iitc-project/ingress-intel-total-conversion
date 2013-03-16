@@ -17,3 +17,15 @@ Downloads
 * [IITC](http://iitc.jonatkins.com/dist/total-conversion-build.user.js)
 * [Plugins](http://iitc.jonatkins.com/dist/plugins/)
 
+**Mobile**
+
+I had saved the last .apk released. 
+
+* [IITC Mobile](http://iitc.jonatkins.com/mobile/IITC-Mobile-latest.apk)
+
+
+Plans
+-----
+
+* Configure both a 'stable' and 'latest' build for IITC user script
+* Create an Android build, with both 'stable' and 'latest'
