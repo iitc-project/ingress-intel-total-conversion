@@ -1,13 +1,15 @@
 // ==UserScript==
 // @id             iitc-plugin-scoreboard@vita10gy
 // @name           iitc: show a localized scoreboard.
-// @version        0.1.3
-// @namespace      https://github.com/breunigs/ingress-intel-total-conversion
-// @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/scoreboard.user.js
-// @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/scoreboard.user.js
+// @version        0.1.4
+// @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
+// @updateURL      http://iitc.jonatkins.com/dist/plugins/scoreboard.user.js
+// @downloadURL    http://iitc.jonatkins.com/dist/plugins/scoreboard.user.js
 // @description    A localized scoreboard.
 // @include        https://www.ingress.com/intel*
+// @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
+// @match          http://www.ingress.com/intel*
 // ==/UserScript==
 
 function wrapper() {

@@ -1,13 +1,15 @@
 // ==UserScript==
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           iitc: guess player level
-// @version        0.3
-// @namespace      https://github.com/breunigs/ingress-intel-total-conversion
-// @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/guess-player-levels.user.js
-// @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/guess-player-levels.user.js
+// @version        0.3.1
+// @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
+// @updateURL      http://iitc.jonatkins.com/dist/plugins/guess-player-levels.user.js
+// @downloadURL    http://iitc.jonatkins.com/dist/plugins/guess-player-levels.user.js
 // @description    Tries to determine player levels from the data available in the current view
 // @include        https://www.ingress.com/intel*
+// @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
+// @match          http://www.ingress.com/intel*
 // ==/UserScript==
 
 function wrapper() {

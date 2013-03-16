@@ -1,13 +1,15 @@
 // ==UserScript==
 // @id             iitc-plugin-ap-list@xelio
 // @name           iitc: AP List
-// @version        0.4
-// @namespace      https://github.com/breunigs/ingress-intel-total-conversion
-// @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/ap-list.user.js
-// @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/ap-list.user.js
+// @version        0.4.1
+// @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
+// @updateURL      http://iitc.jonatkins.com/dist/plugins/ap-list.user.js
+// @downloadURL    http://iitc.jonatkins.com/plugins/ap-list.user.js
 // @description    List top 10 portals by AP of either faction. Other functions and controls please refer to the Userguide. (https://github.com/breunigs/ingress-intel-total-conversion/wiki/Userguide-%28Main-Vanilla-IITC%29#wiki-pluginsAPListUserGuide)
 // @include        https://www.ingress.com/intel*
+// @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
+// @match          http://www.ingress.com/intel*
 // ==/UserScript==
 
 function wrapper() {

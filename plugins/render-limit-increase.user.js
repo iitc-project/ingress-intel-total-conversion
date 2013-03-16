@@ -1,13 +1,15 @@
 // ==UserScript==
 // @id             iitc-plugin-render-limit-increase@jonatkins
 // @name           iitc: render limit increase
-// @version        0.1.1
-// @namespace      https://github.com/breunigs/ingress-intel-total-conversion
-// @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/render-limit-increase.user.js
-// @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/render-limit-increase.user.js
+// @version        0.1.2
+// @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
+// @updateURL      http://iitc.jonatkins.com/dist/plugins/render-limit-increase.user.js
+// @downloadURL    http://iitc.jonatkins.com/dist/plugins/render-limit-increase.user.js
 // @description    Increase the render limits, so less likely to be hit in higher density areas
 // @include        https://www.ingress.com/intel*
+// @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
+// @match          http://www.ingress.com/intel*
 // ==/UserScript==
 
 function wrapper() {
