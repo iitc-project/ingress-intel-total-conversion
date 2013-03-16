@@ -1,11 +1,11 @@
 // ==UserScript==
-// @id             ingress-intel-total-conversion@breunigs
+// @id             ingress-intel-total-conversion@jonatkins
 // @name           intel map total conversion
-// @version        0.8.1-@@BUILDDATE@@
-// @namespace      https://github.com/breunigs/ingress-intel-total-conversion
-// @updateURL      https://iitcserv.appspot.com/dist/total-conversion-build.user.js
-// @downloadURL    https://iitcserv.appspot.com/dist/total-conversion-build.user.js
-// @description    total conversion for the ingress intel map.
+// @version        0.8.1-@@BUILDDATE@@-jonatkins
+// @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
+// @updateURL      http://iitc.jonatkins.com/dist/total-conversion-build.user.js
+// @downloadURL    http://iitc.jonatkins.com/dist/total-conversion-build.user.js
+// @description    total conversion for the ingress intel map. (jonatkins branch)
 // @include        http://www.ingress.com/intel*
 // @include        https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
@@ -98,7 +98,7 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
   + '    <div id="toolbox">'
   + '      <a onmouseover="setPermaLink(this)" onclick="setPermaLink(this);return androidCopy(this.href)" >permalink</a>'
-  + '      <a href="https://github.com/breunigs/ingress-intel-total-conversion#readme" title="IITC = Ingress Intel Total Conversion.\n\nOn the script’s homepage you can:\n– find updates\n– get plugins\n– report bugs\n– and contribute." style="cursor: help">IITC’s page</a></div>'
+  + '      <a href="https://github.com/jonatkins/ingress-intel-total-conversion#readme" title="IITC = Ingress Intel Total Conversion.\n\nOn the script’s homepage you can:\n– find updates\n– get plugins\n– report bugs\n– and contribute." style="cursor: help">IITC’s page</a></div>'
   + '  </div>'
   + '</div>'
   + '<div id="updatestatus"></div>'
