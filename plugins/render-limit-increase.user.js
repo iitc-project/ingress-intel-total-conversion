@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-render-limit-increase@jonatkins
 // @name           iitc: render limit increase
-// @version        0.1.2
+// @version        0.2
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      http://iitc.jonatkins.com/dist/plugins/render-limit-increase.user.js
 // @downloadURL    http://iitc.jonatkins.com/dist/plugins/render-limit-increase.user.js
@@ -38,9 +38,9 @@ window.plugin.renderLimitIncrease.setHigherLimits = function() {
   // Leaflet will get very slow for MANY items. It’s better to display
   // only some instead of crashing the browser.
   // defaults are 1000 portals, 400 links and 200 fields
-  window.MAX_DRAWN_PORTALS = 3000;
-  window.MAX_DRAWN_LINKS = 1000;
-  window.MAX_DRAWN_FIELDS = 500;
+  window.MAX_DRAWN_PORTALS = 5000;
+  window.MAX_DRAWN_LINKS = 2000;
+  window.MAX_DRAWN_FIELDS = 1000;
   window.USE_INCREASED_RENDER_LIMIT = true; // Used for other plugins
 };
 
