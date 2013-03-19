@@ -9,6 +9,33 @@ import os
 import shutil
 
 
+# load settings file
+from buildsettings import buildSettings
+
+
+# build name from command line
+if len(sys.argv) != 2:	# argv[0] = program, argv[1] = buildname, len=2
+    print "Usage: build.py buildname"
+    print " available build names:", ','.join(buildSettings.keys())
+    sys.exit(1)
+
+buildName = sys.argv[1]
+
+settings = buildSettings[buildName]
+
+# set up vars used for replacements
+
+utcTime = time.gmtime()
+buildDate = time.strftime('%Y-%m-%d-%H%M%S',utcTime)
+# userscripts have specific specifications for version numbers - the above date format doesn't match
+dateTimeVersion = time.strftime('%Y%m%d.%H%M%S',utcTime)
+
+# extract required values from the settings entry
+resourceUrlBase = settings['resourceUrlBase']
+distUrlBase = settings['distUrlBase']
+
+
+
 def readfile(fn):
     with io.open(fn, 'Ur', encoding='utf8') as f:
         return f.read()
@@ -28,26 +55,6 @@ def loadCode(ignore):
 def extractUserScriptMeta(var):
     m = re.search ( r"//[ \t]*==UserScript==\n.*?//[ \t]*==/UserScript==\n", var, re.MULTILINE|re.DOTALL )
     return m.group(0)
-
-
-# set up vars used for replacements
-
-
-utcTime = time.gmtime()
-buildDate = time.strftime('%Y-%m-%d-%H%M%S',utcTime)
-# userscripts have specific specifications for version numbers - the above date format doesn't match
-dateTimeVersion = time.strftime('%Y%m%d.%H%M%S',utcTime)
-
-# build name from command line
-buildName = sys.argv[1]
-
-# load settings file
-from buildsettings import buildSettings
-settings = buildSettings[buildName]
-
-# extract required values from the named settings entry
-resourceUrlBase = settings['resourceUrlBase']
-distUrlBase = settings['distUrlBase']
 
 
 
