@@ -1,10 +1,10 @@
 // ==UserScript==
 // @id             iitc-plugin-resonator-display-zoom-level-decrease@xelio
-// @name           iitc: resonator display zoom level decrease
-// @version        1.0.2
+// @name           IITC plugin: resonator display zoom level decrease
+// @version        1.0.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
-// @updateURL      http://iitc.jonatkins.com/dist/plugins/resonator-display-zoom-level-decrease.user.js
-// @downloadURL    http://iitc.jonatkins.com/dist/plugins/resonator-display-zoom-level-decrease.user.js
+// @updateURL      @@UPDATEURL@@
+// @downloadURL    @@DOWNLOADURL@@
 // @description    Resonator start display earlier
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*

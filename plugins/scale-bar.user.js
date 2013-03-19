@@ -1,10 +1,10 @@
 // ==UserScript==
 // @id             iitc-plugin-scale-bar@breunigs
-// @name           iitc: scale bar
-// @version        0.1.1
+// @name           IITC plugin: scale bar
+// @version        0.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
-// @updateURL      http://iitc.jonatkins.com/dist/plugins/scale-bar.user.js
-// @downloadURL    http://iitc.jonatkins.com/dist/plugins/scale-bar.user.js
+// @updateURL      @@UPDATEURL@@
+// @downloadURL    @@DOWNLOADURL@@
 // @description    shows scale bar on the map
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*

@@ -1,9 +1,9 @@
 // ==UserScript==
 // @id             max-links@boombuler
-// @name           iitc: Max-Links-Plugin
-// @version        0.2.1
-// @updateURL      http://iitc.jonatkins.com/dist/plugins/max-links.user.js
-// @downloadURL    http://iitc.jonatkins.com/dist/plugins/max-links.user.js
+// @name           IITC plugin: Max Links
+// @version        0.2.1.@@DATETIMEVERSION@@
+// @updateURL      @@UPDATEURL@@
+// @downloadURL    @@DOWNLOADURL@@
 // @description    Calculates how to link the portals to create the maximum number of fields.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*

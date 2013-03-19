@@ -1,10 +1,10 @@
 // ==UserScript==
 // @id             iitc-plugin-draw-tools@breunigs
-// @name           iitc: draw tools
-// @version        0.2.3
+// @name           IITC plugin: draw tools
+// @version        0.2.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
-// @updateURL      http://iitc.jonatkins.com/dist/plugins/draw-tools.user.js
-// @downloadURL    http://iitc.jonatkins.com/dist/plugins/draw-tools.user.js
+// @updateURL      @@UPDATEURL@@
+// @downloadURL    @@DOWNLOADURL@@
 // @description    Allows you to draw things into the current map so you may plan your next move
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*

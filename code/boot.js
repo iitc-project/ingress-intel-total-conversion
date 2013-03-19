@@ -321,7 +321,7 @@ function boot() {
   window.runOnSmartphonesBeforeBoot();
 
   // overwrite default Leaflet Marker icon to be a neutral color
-  var base = 'http://iitc.jonatkins.com/dist/images';
+  var base = '@@RESOURCEURLBASE@@/images';
   L.Icon.Default.imagePath = base;
 
   window.iconEnl = L.Icon.Default.extend({options: { iconUrl: base + '/marker-green.png' } });

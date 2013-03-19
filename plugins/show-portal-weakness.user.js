@@ -1,10 +1,10 @@
 // ==UserScript==
 // @id             iitc-plugin-show-portal-weakness@vita10gy
-// @name           iitc: show portal weakness
-// @version        0.6.1
+// @name           IITC plugin: show portal weakness
+// @version        0.6.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
-// @updateURL      http://iitc.jonatkins.com/dist/plugins/show-portal-weakness.user.js
-// @downloadURL    http://iitc.jonatkins.com/dist/plugins/show-portal-weakness.user.js
+// @updateURL      @@UPDATEURL@@
+// @downloadURL    @@DOWNLOADURL@@
 // @description    Uses the fill color of the portals to denote if the portal is weak (Needs recharging, missing a resonator, needs shields)  Red, needs energy and shields. Orange, only needs energy (either recharge or resonators). Yellow, only needs shields.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*

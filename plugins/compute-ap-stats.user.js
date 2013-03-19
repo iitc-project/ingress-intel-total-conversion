@@ -1,10 +1,10 @@
 // ==UserScript==
 // @id             iitc-plugin-compute-ap-stats@Hollow011
-// @name           iitc: Compute AP statistics
-// @version        0.3.1
+// @name           IITC plugin: Compute AP statistics
+// @version        0.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
-// @updateURL      http://iitc.jonatkins.com/dist/plugins/compute-ap-stats.user.js
-// @downloadURL    http://iitc.jonatkins.com/plugins/compute-ap-stats.user.js
+// @updateURL      @@UPDATEURL@@
+// @downloadURL    @@DOWNLOADURL@@
 // @description    Tries to determine overal AP stats for the current zoom
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*

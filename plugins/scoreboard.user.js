@@ -1,10 +1,10 @@
 // ==UserScript==
 // @id             iitc-plugin-scoreboard@vita10gy
-// @name           iitc: show a localized scoreboard.
-// @version        0.1.4
+// @name           IITC plugin: show a localized scoreboard.
+// @version        0.1.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
-// @updateURL      http://iitc.jonatkins.com/dist/plugins/scoreboard.user.js
-// @downloadURL    http://iitc.jonatkins.com/dist/plugins/scoreboard.user.js
+// @updateURL      @@UPDATEURL@@
+// @downloadURL    @@DOWNLOADURL@@
 // @description    A localized scoreboard.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
