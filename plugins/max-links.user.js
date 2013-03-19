@@ -32,7 +32,7 @@ window.plugin.maxLinks.STROKE_STYLE = {
   clickable: false,
   smoothFactor: 10
 };
-window.plugin.maxLinks._delaunayScriptLocation = 'http://iitc.jonatkins.com/dist/delaunay.js';
+window.plugin.maxLinks._delaunayScriptLocation = '@@RESOURCEURLBASE@@/delaunay.js';
 
 window.plugin.maxLinks.layer = null;
 
