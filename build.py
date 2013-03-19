@@ -4,6 +4,7 @@ import glob
 import time
 import re
 import io
+import sys
 import os
 import shutil
 
@@ -34,12 +35,19 @@ def extractUserScriptMeta(var):
 
 utcTime = time.gmtime()
 buildDate = time.strftime('%Y-%m-%d-%H%M%S',utcTime)
+# userscripts have specific specifications for version numbers - the above date format doesn't match
 dateTimeVersion = time.strftime('%Y%m%d.%H%M%S',utcTime)
 
-# TODO: some kind of settings files for these
-resourceUrlBase = 'http://iitc.jonatkins.com/dist'
-distUrlBase = 'http://iitc.jonatkins.com/dist'
-buildName = 'jonatkins'
+# build name from command line
+buildName = sys.argv[1]
+
+# load settings file
+from buildsettings import buildSettings
+settings = buildSettings[buildName]
+
+# extract required values from the named settings entry
+resourceUrlBase = settings['resourceUrlBase']
+distUrlBase = settings['distUrlBase']
 
 
 
@@ -70,7 +78,7 @@ def saveScriptAndMeta(script,fn,metafn):
         f.write(meta)
 
 
-outDir = 'build/jonatkins-dist'
+outDir = os.path.join('build', buildName)
 
 
 # create the build output
@@ -85,14 +93,14 @@ shutil.copytree('dist', outDir)
 
 
 
-# load main.js, parse, and create main total-conversion.user.js
+# load main.js, parse, and create main total-conversion-build.user.js
 main = readfile('main.js')
 
-downloadUrl = distUrlBase + '/total-conversion.user.js'
-updateUrl = distUrlBase + '/total-conversion.meta.js'
+downloadUrl = distUrlBase + '/total-conversion-build.user.js'
+updateUrl = distUrlBase + '/total-conversion-build.meta.js'
 main = doReplacements(main,downloadUrl=downloadUrl,updateUrl=updateUrl)
 
-saveScriptAndMeta(main, os.path.join(outDir,'total-conversion.user.js'), os.path.join(outDir,'total-conversion.meta.js'))
+saveScriptAndMeta(main, os.path.join(outDir,'total-conversion-build.user.js'), os.path.join(outDir,'total-conversion-build.meta.js'))
 
 
 # for each plugin, load, parse, and save output
