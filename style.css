@@ -755,6 +755,10 @@ td + td {
   padding-left: 4px;
 }
 
+#qrcode > canvas {
+  border: 8px solid white;
+} 
+
 /* redeem results *****************************************************/
 .redeem-result {
   font-size: 14px;
