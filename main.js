@@ -5,7 +5,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    Total conversion for the ingress intel map. [@@BUILDNAME@@-@@BUILDDATE@@]
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Total conversion for the ingress intel map.
 // @include        http://www.ingress.com/intel*
 // @include        https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*

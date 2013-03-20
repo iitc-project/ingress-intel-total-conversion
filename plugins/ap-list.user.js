@@ -5,7 +5,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    List top 10 portals by AP of either faction. Other functions and controls please refer to the Userguide.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] List top 10 portals by AP of either faction. Other functions and controls please refer to the Userguide.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*

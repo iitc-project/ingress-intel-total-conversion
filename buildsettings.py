@@ -2,13 +2,13 @@
 
 buildSettings = {
     'jonatkins': {
-        'resourceUrlBase': 'http://iitc.jonatkins.com/dist',
-        'distUrlBase': 'http://iitc.jonatkins.com/dist',
+        'resourceUrlBase': 'http://iitc.jonatkins.com/release',
+        'distUrlBase': 'https://secure.jonatkins.com/iitc/release',
     },
 
     'jonatkins-dev': {
         'resourceUrlBase': 'http://iitc.jonatkins.com/dev',
-        'distUrlBase': 'http://iitc.jonatkins.com/dev',
+        'distUrlBase': 'https://secure.jonatkins.com/iitc/dev',
     },
 
 

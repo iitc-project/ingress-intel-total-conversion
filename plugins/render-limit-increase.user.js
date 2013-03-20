@@ -1,11 +1,11 @@
 // ==UserScript==
 // @id             iitc-plugin-render-limit-increase@jonatkins
 // @name           IITC plugin: render limit increase
-// @version        0.2.@@DATETIMEVERSION@@
+// @version        0.3.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    Increase the render limits, so less likely to be hit in higher density areas
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Increase the render limits, so less likely to be hit in higher density areas
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
