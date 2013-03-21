@@ -507,78 +507,7 @@ window.plugin.apList.setupVar = function() {
 window.plugin.apList.setupCSS = function() {
   $("<style>")
     .prop("type", "text/css")
-    .html("\
-    #ap-list {\
-      color: #ffce00;\
-      font-size: 90%;\
-      padding: 4px 2px;\
-    }\
-    #ap-list-side-labels {\
-      display: inline-block;\
-      width: 90%;\
-    }\
-    #ap-list-eny {\
-      display: inline-block;\
-      text-align: center;\
-      width: 50%;\
-      opacity: 1.0;\
-    }\
-    #ap-list-frd {\
-      display: inline-block;\
-      text-align: center;\
-      width: 50%;\
-      opacity: 0.5;\
-    }\
-    #ap-list-reload {\
-      display: inline-block;\
-      text-align: right;\
-      width: 10%;\
-    }\
-    #ap-list-table {\
-      width: 100%;\
-      table-layout:fixed;\
-    }\
-    .ap-list-td-checkbox {\
-      width: 5%;\
-      height: 1px;\
-    }\
-    .ap-list-td-link {\
-      overflow:hidden;\
-      white-space:nowrap;\
-    }\
-    .ap-list-td-link-eny {\
-      width: 80%;\
-    }\
-    .ap-list-td-link-frd {\
-      width: 85%;\
-    }\
-    .ap-list-checkbox-outer {\
-      display: table;\
-      height: 100%;\
-      width: 100%;\
-    }\
-    .ap-list-checkbox-mid {\
-      display: table-cell;\
-      vertical-align: middle;\
-    }\
-    .ap-list-checkbox-inner {\
-      width: 10px;\
-      height: 10px;\
-      border: 1px solid rgb(32, 168, 177);\
-      margin: 0 auto;\
-    }\
-    .ap-list-checkbox-selected {\
-      background-color: rgb(32, 168, 177);\
-    }\
-    .ap-list-link {\
-      white-space: nowrap;\
-      overflow: hidden;\
-      text-overflow: ellipsis;\
-    }\
-    .ap-list-link-selected {\
-      font-style:italic;\
-    }\
-    ")
+    .html("@@INCLUDESTRING:plugins/ap-list.css@@")
   .appendTo("head");
 }
 
