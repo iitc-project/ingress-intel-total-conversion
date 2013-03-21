@@ -22,8 +22,8 @@ except ImportError:
 
 # build name from command line
 if len(sys.argv) != 2:	# argv[0] = program, argv[1] = buildname, len=2
-    print "Usage: build.py buildname"
-    print " available build names:", ','.join(buildSettings.keys())
+    print ("Usage: build.py buildname")
+    print (" available build names:", ','.join(buildSettings.keys()))
     sys.exit(1)
 
 buildName = sys.argv[1]
