@@ -68,8 +68,11 @@ window.plugin.apList.updatePortalTable = function(side) {
              + '">'
              + (portal ? plugin.apList.getPortalLink(portal) : '&nbsp;')
              + '</td>'
-             + '<td>'
+             + '<td class="ap-list-td-ap">'
              + (portal ? plugin.apList.getPortalApText(portal) : '&nbsp;')
+             + '</td>'
+             + '<td class="ap-list-td-eff-lv">'
+             + (portal ? plugin.apList.getPortalEffectiveLvText(portal) : '&nbsp;')
              + '</td>'
              + '</tr>';
   }
@@ -141,6 +144,18 @@ window.plugin.apList.getPortalApTitle = function(portal) {
   return t;
 }
 
+window.plugin.apList.getPortalEffectiveLvText = function(portal) {
+  var title = plugin.apList.getPortalEffectiveLvTitle(portal);
+  return '<div class="help" title="' + title + '">' + portal.effectiveLevel.effectiveLevel + '</div>';
+}
+
+window.plugin.apList.getPortalEffectiveLvTitle = function(portal) {
+  var t = 'Effective energy:\t' + portal.effectiveLevel.effectiveEnergy + '\n'
+        + 'Effect of Shields:\t' + portal.effectiveLevel.effectOfShields + '\n'
+        + 'Effect of resos dist:\t' + portal.effectiveLevel.effectOfResoDistance + '\n';
+  return t;
+}
+
 // portal link - single click: select portal
 //               double click: zoom to and select portal
 //               hover: show address
@@ -195,6 +210,7 @@ window.plugin.apList.updateSortedPortals = function() {
       var getApGainFunc = plugin.apList.playerApGainFunc[side];
       // Assign playerApGain and guid to cachedPortal
       cachedPortal.playerApGain = getApGainFunc(portal);
+      cachedPortal.effectiveLevel = plugin.apList.getEffectiveLevel(portal);
       cachedPortal.guid = value.options.guid;
     }
     plugin.apList.cachedPortals[key] = cachedPortal;
@@ -406,6 +422,83 @@ window.plugin.apList.getAttackApGain = function(d) {
     linkCount: linkCount,
     fieldCount: fieldCount
   }
+}
+
+window.plugin.apList.getEffectiveLevel = function(portal) {
+  var effectiveEnergy = 0;
+  var effectiveLevel = 0;
+
+  var resosStats = plugin.apList.getResonatorsStats(portal);
+  var shieldsMitigation = plugin.apList.getShieldsMitigation(portal);
+
+  // Calculate effective energy
+
+  // Portal damage = Damage output * (1 - shieldsMitigation / 100)
+  // Reverse it and we get 
+  // Damage output = Portal damage * (100 / (100 - shieldsMitigation))
+  var effectOfShields = 100 / (100 - shieldsMitigation);
+  // If avgResoDistance is 0, 8 resonators in the same place and can be treated as 1 resonator.
+  // So the minimum effect of resonator distance is 1/8 
+  var effectOfResoDistance = (1 + (resosStats.avgResoDistance / HACK_RANGE) * 7 ) / 8;
+
+  effectiveEnergy = resosStats.currentEnergy * effectOfShields * effectOfResoDistance;
+
+  // Calculate effective level
+  for(var i = MAX_PORTAL_LEVEL; i >= 0; i--) {
+    var baseLevel = i;
+    var baseLevelEnergy = RESO_NRG[baseLevel] * 8;
+    if(effectiveEnergy >= baseLevelEnergy) {
+      var energyToNextLevel = baseLevel === MAX_PORTAL_LEVEL
+                            ? baseLevelEnergy - RESO_NRG[MAX_PORTAL_LEVEL - 1] * 8 // Extrapolate
+                            : RESO_NRG[baseLevel + 1] * 8 - baseLevelEnergy; // Interpolate
+
+      var additionalLevel = (effectiveEnergy - baseLevelEnergy) / energyToNextLevel;
+      effectiveLevel = baseLevel + additionalLevel;
+      break;
+    }
+  }
+
+  // Account for damage do to player by portal
+  var portalLevel = parseInt(getPortalLevel(portal));
+  if(effectiveLevel < portalLevel) {
+    var energyPect = resosStats.currentEnergy / resosStats.totalEnergy;
+    effectiveLevel = effectiveLevel * (1-energyPect) + portalLevel * energyPect;
+  }
+
+  return {
+    effectiveLevel: effectiveLevel.toFixed(1),
+    effectiveEnergy: parseInt(effectiveEnergy),
+    effectOfShields: effectOfShields.toFixed(2),
+    effectOfResoDistance: effectOfResoDistance.toFixed(2)
+  };
+}
+
+window.plugin.apList.getResonatorsStats = function(portal) {
+  var totalEnergy = 0;
+  var currentEnergy = 0;
+  var avgResoDistance = 0;
+
+  $.each(portal.resonatorArray.resonators, function(ind, reso) {
+    if (!reso)
+      return true;
+    totalEnergy += RESO_NRG[reso.level];
+    currentEnergy += reso.energyTotal;
+    avgResoDistance += (reso.distanceToPortal / 8);
+  });
+  return {
+    totalEnergy: totalEnergy,
+    currentEnergy: currentEnergy,
+    avgResoDistance: avgResoDistance};
+}
+
+window.plugin.apList.getShieldsMitigation = function(portal) {
+  var shieldsMitigation = 0;
+  $.each(portal.portalV2.linkedModArray, function(ind, mod) {
+    if(!mod)
+      return true;
+    shieldsMitigation += parseInt(mod.stats.MITIGATION);
+  });
+  return shieldsMitigation;
 }
 
 window.plugin.apList.selectPortal = function(guid) {
