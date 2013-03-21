@@ -1,10 +1,10 @@
 // ==UserScript==
 // @id             iitc-plugin-portals-list@teo96
 // @name           teo96: show list of portals
-// @version        0.0.6
-// @namespace      https://github.com/teo96/iitc-plugins/
-// @updateURL      https://raw.github.com/teo96/iitc-plugins/master/portals-list.user.js
-// @downloadURL    https://raw.github.com/teo96/iitc-plugins/master/portals-list.user.js
+// @version        0.0.6.@@DATETIMEVERSION@@
+// @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
+// @updateURL      @@UPDATEURL@@
+// @downloadURL    @@DOWNLOADURL@@
 // @description    Display a sortable list of all localized portails with team, level, resonators informations
 // @include        https://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
