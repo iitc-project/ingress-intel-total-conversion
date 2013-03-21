@@ -155,7 +155,7 @@ window.plugin.apList.getPortalLink = function(portal) {
   var a = $('<a>',{
     "class": 'help',
     style: style,
-    text: portal.portalV2.descriptiveText.TITLE + ' (' + Math.round(window.getPortalLevel(portal)*10)/10 + ')',
+    text: portal.portalV2.descriptiveText.TITLE + ' (L' + Math.floor(window.getPortalLevel(portal)) + ')',
     title: portal.portalV2.descriptiveText.ADDRESS,
     href: perma,
     onClick: jsSingleClick,
