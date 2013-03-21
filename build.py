@@ -12,6 +12,13 @@ import shutil
 # load settings file
 from buildsettings import buildSettings
 
+# load option local settings file
+try:
+    from localbuildsettings import buildSettings as localBuildSettings
+    buildSettings.update(localBuildSettings)
+except ImportError:
+    pass
+
 
 # build name from command line
 if len(sys.argv) != 2:	# argv[0] = program, argv[1] = buildname, len=2
@@ -103,8 +110,8 @@ shutil.copytree('dist', outDir)
 # load main.js, parse, and create main total-conversion-build.user.js
 main = readfile('main.js')
 
-downloadUrl = distUrlBase + '/total-conversion-build.user.js'
-updateUrl = distUrlBase + '/total-conversion-build.meta.js'
+downloadUrl = distUrlBase and distUrlBase + '/total-conversion-build.user.js' or 'none'
+updateUrl = distUrlBase and distUrlBase + '/total-conversion-build.meta.js' or 'none'
 main = doReplacements(main,downloadUrl=downloadUrl,updateUrl=updateUrl)
 
 saveScriptAndMeta(main, os.path.join(outDir,'total-conversion-build.user.js'), os.path.join(outDir,'total-conversion-build.meta.js'))
@@ -116,8 +123,8 @@ os.mkdir(os.path.join(outDir,'plugins'))
 for fn in glob.glob("plugins/*.user.js"):
     script = readfile(fn)
 
-    downloadUrl = distUrlBase + '/' + fn.replace("\\","/")
-    updateUrl = downloadUrl.replace('.user.js', '.meta.js')
+    downloadUrl = distUrlBase and distUrlBase + '/' + fn.replace("\\","/") or 'none'
+    updateUrl = distUrlBase and downloadUrl.replace('.user.js', '.meta.js') or 'none'
     script = doReplacements(script, downloadUrl=downloadUrl, updateUrl=updateUrl)
 
     metafn = fn.replace('.user.js', '.meta.js')
