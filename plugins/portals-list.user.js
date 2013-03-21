@@ -40,10 +40,10 @@ window.plugin.portalslist.enlP = 0;
 window.plugin.portalslist.resP = 0;
 window.plugin.portalslist.filter=0;
 
-//fill the listPortals array with portals avalaible on the map (by level filtered portals will not appear in the table)
+//fill the listPortals array with portals avalaible on the map (level filtered portals will not appear in the table)
 window.plugin.portalslist.getPortals = function(){
     //filter : 0 = All, 1 = Res, 2 = Enl
-    console.log('** getPortals');
+    //console.log('** getPortals');
     var retval=false;
     
     window.plugin.portalslist.listPortals = [];
@@ -66,7 +66,7 @@ window.plugin.portalslist.getPortals = function(){
         var level = getPortalLevel(d).toFixed(2);
         var guid = portal.options.guid;
         
-        //var player = portal.options.details.captured.capturingPlayerId;
+        
         //get resonators informations
         var resonators = []; // my local resonator array : reso level, reso deployed by, distance to portal, energy total, max 
         var energy = 0;
@@ -100,7 +100,7 @@ window.plugin.portalslist.getPortals = function(){
 }
 
 window.plugin.portalslist.displayPL = function() {   
-    console.log('** displayPL');
+    //console.log('** displayPL');
     var html = '';
     window.plugin.portalslist.sortOrder=-1;
     window.plugin.portalslist.enlP = 0;
@@ -133,104 +133,56 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
     // sortOrder <0 ==> desc, >0 ==> asc, i use sortOrder * -1 to change the state
     window.plugin.portalslist.filter=filter;
     var portals=window.plugin.portalslist.listPortals;
-    console.log('********************* Sort by ' + sortBy + ' order : ' + sortOrder + ' filter : ' + filter);
-    //tri du tableau window.plugin.portalslist.listPortals
+    // console.log('********************* Sort by ' + sortBy + ' order : ' + sortOrder + ' filter : ' + filter);
+    
+    //Array sort
     window.plugin.portalslist.listPortals.sort(function(a, b) {
         var retVal = 0;
-        
-        if (sortOrder < 0) {
-            switch (sortBy) {
-                case 'names':
-                    retVal = a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1;
-                    break;
-                case 'r1':
-                    retVal = b.resonators[0][0] - a.resonators[0][0];
-                    break;
-                case 'r2':
-                    retVal = b.resonators[1][0] - a.resonators[1][0];
-                    break;
-                case 'r3':
-                    retVal = b.resonators[2][0] - a.resonators[2][0];
-                    break;
-                case 'r4':
-                    retVal = b.resonators[3][0] - a.resonators[3][0];
-                    break;
-                case 'r5':
-                    retVal = b.resonators[4][0] - a.resonators[4][0];
-                    break;
-                case 'r6':
-                    retVal = b.resonators[5][0] - a.resonators[5][0];
-                    break;
-                case 'r7':
-                    retVal = b.resonators[6][0] - a.resonators[6][0];
-                    break;
-                case 'r8':
-                    retVal = b.resonators[7][0] - a.resonators[7][0];
-                    break;
-                case 's1':
-                    retVal = a.shields[0].toLowerCase() > b.shields[0].toLowerCase() ? -1 : 1;
-                    break;
-                case 's2':
-                    retVal = a.shields[1].toLowerCase() > b.shields[1].toLowerCase() ? -1 : 1;
-                    break;
-                case 's3':
-                    retVal = a.shields[2].toLowerCase() > b.shields[2].toLowerCase() ? -1 : 1;
-                    break;
-                case 's4':
-                    retVal = a.shields[3].toLowerCase() > b.shields[3].toLowerCase() ? -1 : 1;
-                    break;
-                default:
-                    retVal = b[sortBy] - a[sortBy];    
-                    break;
-            } 
-        }
-        else
-        {
-            switch (sortBy) {
-                case 'names':
-                    retVal = a.name.toLowerCase() > b.name.toLowerCase() ? -1 : 1;
-                    break;
-                case 'r1':
-                    retVal = a.resonators[0][0] - b.resonators[0][0];
-                    break;
-                case 'r2':
-                    retVal = a.resonators[1][0] - b.resonators[1][0];
-                    break;
-                case 'r3':
-                    retVal = a.resonators[2][0] - b.resonators[2][0];
-                    break;
-                case 'r4':
-                    retVal = a.resonators[3][0] - b.resonators[3][0];
-                    break;
-                case 'r5':
-                    retVal = a.resonators[4][0] - b.resonators[4][0];
-                    break;
-                case 'r6':
-                    retVal = a.resonators[5][0] - b.resonators[5][0];
-                    break;
-                case 'r7':
-                    retVal = a.resonators[6][0] - b.resonators[6][0];
-                    break;
-                case 'r8':
-                    retVal = a.resonators[7][0] - b.resonators[7][0];
-                    break;
-                case 's1':
-                    retVal = a.shields[0].toLowerCase() < b.shields[0].toLowerCase() ? -1 : 1;
-                    break;
-                case 's2':
-                    retVal = a.shields[1].toLowerCase() < b.shields[1].toLowerCase() ? -1 : 1;
-                    break;
-                case 's3':
-                    retVal = a.shields[2].toLowerCase() < b.shields[2].toLowerCase() ? -1 : 1;
-                    break;
-                case 's4':
-                    retVal = a.shields[3].toLowerCase() < b.shields[3].toLowerCase() ? -1 : 1;
-                    break;
-                default:
-                    retVal = a[sortBy] - b[sortBy];    
-                    break;
-            }
-        }
+        switch (sortBy) {
+            case 'names':
+                retVal = a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1;
+                break;
+            case 'r1':
+                retVal = b.resonators[0][0] - a.resonators[0][0];
+                break;
+            case 'r2':
+                retVal = b.resonators[1][0] - a.resonators[1][0];
+                break;
+            case 'r3':
+                retVal = b.resonators[2][0] - a.resonators[2][0];
+                break;
+            case 'r4':
+                retVal = b.resonators[3][0] - a.resonators[3][0];
+                break;
+            case 'r5':
+                retVal = b.resonators[4][0] - a.resonators[4][0];
+                break;
+            case 'r6':
+                retVal = b.resonators[5][0] - a.resonators[5][0];
+                break;
+            case 'r7':
+                retVal = b.resonators[6][0] - a.resonators[6][0];
+                break;
+            case 'r8':
+                retVal = b.resonators[7][0] - a.resonators[7][0];
+                break;
+            case 's1':
+                retVal = a.shields[0].toLowerCase() > b.shields[0].toLowerCase() ? -1 : 1;
+                break;
+            case 's2':
+                retVal = a.shields[1].toLowerCase() > b.shields[1].toLowerCase() ? -1 : 1;
+                break;
+            case 's3':
+                retVal = a.shields[2].toLowerCase() > b.shields[2].toLowerCase() ? -1 : 1;
+                break;
+            case 's4':
+                retVal = a.shields[3].toLowerCase() > b.shields[3].toLowerCase() ? -1 : 1;
+                break;
+            default:
+                retVal = b[sortBy] - a[sortBy];    
+                break;
+        } 
+        if (sortOrder > 0) { retVal = -retVal} //thx @jonatkins
         return retVal;
     });  
     
@@ -279,7 +231,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
             + '<td style="font-size:10px">' + portal.shields[2] + '</td>'
             + '<td style="font-size:10px">' + portal.shields[3] + '</td>'
             + '<td>' + portal.APgain + '</td>';
-            
+ 
             html+= '</tr>';
         }
   
@@ -295,7 +247,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
 
 
 window.plugin.portalslist.stats = function(sortBy) {
-    console.log('** stats');
+    //console.log('** stats');
     var html = '<table><tr>'
     + '<td class="filterAll" style="cursor:pointer"  onclick="window.plugin.portalslist.portalTable(\'level\',-1,0)"><a href=""></a>All Portals : (click to filter)</td><td class="filterAll">' + window.plugin.portalslist.listPortals.length +'</td>'
     + '<td class="filterRes" style="cursor:pointer" class="sorted" onclick="window.plugin.portalslist.portalTable(\'level\',-1,1)">Resistant Portals : </td><td class="filterRes">' + window.plugin.portalslist.resP + '</td>' 
