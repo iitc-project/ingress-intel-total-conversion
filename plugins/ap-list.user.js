@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-ap-list@xelio
 // @name           IITC plugin: AP List
-// @version        0.4.2.@@DATETIMEVERSION@@
+// @version        0.4.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -33,6 +33,7 @@ window.plugin.apList.playerApGainFunc = new Array(2);
 
 window.plugin.apList.topMaxCount = 10;
 window.plugin.apList.sideLabelClass = {};
+window.plugin.apList.tableColumns = new Array(2);
 
 window.plugin.apList.useCachedPortals = false;
 window.plugin.apList.cacheBounds;
@@ -52,32 +53,51 @@ window.plugin.apList.handleUpdate = function() {
 
 // Generate html table from top portals
 window.plugin.apList.updatePortalTable = function(side) {
-  var displayEnemy = (plugin.apList.displaySide === window.plugin.apList.SIDE_ENEMY);
-  
-  var content = '<table id="ap-list-table">';
+  var table = '<table id="ap-list-table">'
+              + '<thead>'
+              + plugin.apList.tableHeaderBuilder(side)
+              + '</thead>';
+
   for(var i = 0; i < plugin.apList.topMaxCount; i++) {
     var portal = plugin.apList.sortedPortals[side][i];
-    content += '<tr>';
-    // Only enemy portal list will display destroy checkbox
-    if(displayEnemy) {
-      content += '<td class="ap-list-td-checkbox">'
-               + (portal ? plugin.apList.getPortalDestroyCheckbox(portal) : '&nbsp;')
-               + '</td>';
-    }
-    content += '<td class="ap-list-td-link ' + (displayEnemy ? 'ap-list-td-link-eny' : 'ap-list-td-link-frd')
-             + '">'
-             + (portal ? plugin.apList.getPortalLink(portal) : '&nbsp;')
-             + '</td>'
-             + '<td class="ap-list-td-ap">'
-             + (portal ? plugin.apList.getPortalApText(portal) : '&nbsp;')
-             + '</td>'
-             + '<td class="ap-list-td-eff-lv">'
-             + (portal ? plugin.apList.getPortalEffectiveLvText(portal) : '&nbsp;')
-             + '</td>'
-             + '</tr>';
+    table += '<tbody>'
+             + plugin.apList.tableRowBuilder(side, portal)
+             + '</tbody>';
   }
-  content += "</table>";
-  $('div#ap-list-table').html(content);
+
+  table += "</table>";
+  $('div#ap-list-table').html(table);
+}
+
+window.plugin.apList.tableHeaderBuilder = function(side) {
+  var headerRow = '<tr>';
+
+  $.each(plugin.apList.tableColumns[side], function(ind, column){
+    var cssClass = column.headerTooltip ? (column.cssClass + ' help') : column.cssClass;
+    var title = column.headerTooltip ? column.headerTooltip : '';
+    headerRow += '<td class="' + cssClass + '" '
+               + 'title="' + title + '" '
+               + '>'
+               + column.header
+               + '</td>';
+  });
+
+  headerRow += '</tr>';
+  return headerRow;
+}
+
+window.plugin.apList.tableRowBuilder = function(side,portal) {
+  var row = "<tr>";
+
+  $.each(plugin.apList.tableColumns[side], function(ind, column){
+    var content = portal ? column.contentFunction(portal) : '&nbsp;';
+    row += '<td class="' + column.cssClass + '">'
+         + content
+         + '</td>';
+  });
+
+  row += '</tr>';
+  return row;
 }
 
 window.plugin.apList.getPortalDestroyCheckbox = function(portal) {
@@ -152,7 +172,8 @@ window.plugin.apList.getPortalEffectiveLvText = function(portal) {
 window.plugin.apList.getPortalEffectiveLvTitle = function(portal) {
   var t = 'Effective energy:\t' + portal.effectiveLevel.effectiveEnergy + '\n'
         + 'Effect of Shields:\t' + portal.effectiveLevel.effectOfShields + '\n'
-        + 'Effect of resos dist:\t' + portal.effectiveLevel.effectOfResoDistance + '\n';
+        + 'Effect of resos dist:\t' + portal.effectiveLevel.effectOfResoDistance + '\n'
+        + 'Origin Level:\t' + portal.effectiveLevel.originLevel;
   return t;
 }
 
@@ -469,7 +490,8 @@ window.plugin.apList.getEffectiveLevel = function(portal) {
     effectiveLevel: effectiveLevel.toFixed(1),
     effectiveEnergy: parseInt(effectiveEnergy),
     effectOfShields: effectOfShields.toFixed(2),
-    effectOfResoDistance: effectOfResoDistance.toFixed(2)
+    effectOfResoDistance: effectOfResoDistance.toFixed(2),
+    originLevel: portalLevel
   };
 }
 
@@ -597,6 +619,52 @@ window.plugin.apList.setupVar = function() {
     = "#ap-list-eny";
 }
 
+// Setup table columns for header builder and row builder
+window.plugin.apList.setupTableColumns = function() {
+  var enemyColumns = new Array();
+  var friendlyColumns = new Array();
+
+  // AP and Eff. LV columns are same in enemy and friendly table
+  var apColumn = {
+    header: 'AP',
+    cssClass: 'ap-list-td-ap',
+    contentFunction: plugin.apList.getPortalApText
+  };
+  var effectiveLevelColumn = {
+    header: 'EL',
+    headerTooltip: 'Effective Level',
+    cssClass: 'ap-list-td-eff-lv',
+    contentFunction: plugin.apList.getPortalEffectiveLvText
+  };
+
+  // Columns: Checkbox | Portal | AP | Eff. LV
+  enemyColumns.push({
+    header: '',
+    headerTooltip: 'Select checkbox to \nsimulating destruction',
+    cssClass: 'ap-list-td-checkbox',
+    contentFunction: plugin.apList.getPortalDestroyCheckbox
+  });
+  enemyColumns.push({
+    header: 'Portal',
+    cssClass: 'ap-list-td-link ap-list-td-link-eny',
+    contentFunction: plugin.apList.getPortalLink
+  });
+  enemyColumns.push(apColumn);
+  enemyColumns.push(effectiveLevelColumn);
+
+  // Columns: Portal | AP | Eff. LV
+  friendlyColumns.push({
+    header: 'Portal',
+    cssClass: 'ap-list-td-link ap-list-td-link-frd',
+    contentFunction: plugin.apList.getPortalLink
+  });
+  friendlyColumns.push(apColumn);
+  friendlyColumns.push(effectiveLevelColumn);
+
+  plugin.apList.tableColumns[plugin.apList.SIDE_ENEMY] = enemyColumns;
+  plugin.apList.tableColumns[plugin.apList.SIDE_FRIENDLY] = friendlyColumns;
+}
+
 window.plugin.apList.setupCSS = function() {
   $("<style>")
     .prop("type", "text/css")
@@ -656,6 +724,7 @@ window.plugin.apList.setupMapEvent = function() {
 
 var setup = function() {
   window.plugin.apList.setupVar();
+  window.plugin.apList.setupTableColumns();
   window.plugin.apList.setupCSS();
   window.plugin.apList.setupList();
   window.plugin.apList.setupMapEvent();
