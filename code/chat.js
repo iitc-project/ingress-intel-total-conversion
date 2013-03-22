@@ -26,7 +26,7 @@ window.chat.handleTabCompletion = function() {
 
   var posStart = curPos - word.length;
   var newText = text.substring(0, posStart);
-  newText += nick + (posStart === 0 ? ': ' : ' ');
+  newText += '@' + nick + ' ';
   newText += text.substring(curPos);
   el.val(newText);
 }
