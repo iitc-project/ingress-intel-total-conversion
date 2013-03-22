@@ -279,6 +279,11 @@ window.chat.writeDataToHash = function(newData, storageHash, skipSecureMsgs) {
         msg += tmp.replace(window.PLAYER['nickMatcher'], '<em>$1</em>');
         break;
 
+      case 'AT_PLAYER':
+        var tmp = $('<div/>').text(markup[1].plain).html().autoLink();
+        msg += tmp.replace(window.PLAYER['nickMatcher'], '<em>$1</em>');
+        break;
+
       case 'PORTAL':
         var latlng = [markup[1].latE6/1E6, markup[1].lngE6/1E6];
         var perma = 'https://ingress.com/intel?latE6='+markup[1].latE6+'&lngE6='+markup[1].lngE6+'&z=17&pguid='+markup[1].guid;
