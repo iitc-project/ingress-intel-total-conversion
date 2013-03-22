@@ -28,3 +28,8 @@ buildSettings = {
 
 
 }
+
+
+# defaultBuild - the name of the default build to use if none is specified on the build.py command line
+# (in here as an example - it only works in localbuildsettings.py)
+#defaultBuild = 'local'

@@ -19,14 +19,24 @@ try:
 except ImportError:
     pass
 
+# load default build
+try:
+    from localbuildsettings import defaultBuild
+except ImportError:
+    defaultBuild = None
+
+
+buildName = defaultBuild
 
 # build name from command line
-if len(sys.argv) != 2:	# argv[0] = program, argv[1] = buildname, len=2
-    print ("Usage: build.py buildname")
-    print (" available build names:", ','.join(buildSettings.keys()))
-    sys.exit(1)
+if len(sys.argv) == 2:	# argv[0] = program, argv[1] = buildname, len=2
+    buildName = sys.argv[1]
 
-buildName = sys.argv[1]
+
+if buildName is None or not buildName in buildSettings:
+    print ("Usage: build.py buildname")
+    print (" available build names: %s" % ', '.join(buildSettings.keys()))
+    sys.exit(1)
 
 settings = buildSettings[buildName]
 
