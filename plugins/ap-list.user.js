@@ -72,7 +72,7 @@ window.plugin.apList.updatePortalTable = function(side) {
 window.plugin.apList.tableHeaderBuilder = function(side) {
   var headerRow = '<tr>';
 
-  $.each(plugin.apList.tableColumns[side], function(ind, column){
+  $.each(plugin.apList.tableColumns[side], function(ind, column) {
     var cssClass = column.headerTooltip ? (column.cssClass + ' help') : column.cssClass;
     var title = column.headerTooltip ? column.headerTooltip : '';
     headerRow += '<td class="' + cssClass + '" '
@@ -89,7 +89,7 @@ window.plugin.apList.tableHeaderBuilder = function(side) {
 window.plugin.apList.tableRowBuilder = function(side,portal) {
   var row = "<tr>";
 
-  $.each(plugin.apList.tableColumns[side], function(ind, column){
+  $.each(plugin.apList.tableColumns[side], function(ind, column) {
     var content = portal ? column.contentFunction(portal) : '&nbsp;';
     row += '<td class="' + column.cssClass + '">'
          + content
