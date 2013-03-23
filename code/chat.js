@@ -362,11 +362,18 @@ window.chat.renderMsg = function(msg, nick, time, team) {
   var tb = unixTimeToString(time, true);
   // help cursor via “#chat time”
   var t = '<time title="'+tb+'" data-timestamp="'+time+'">'+ta+'</time>';
-  var s = 'style="color:'+COLORS[team]+'"';
+  var s = 'style="cursor:pointer; color:'+COLORS[team]+'"';
   var title = nick.length >= 8 ? 'title="'+nick+'" class="help"' : '';
   var i = ['<span class="invisep">&lt;</span>', '<span class="invisep">&gt;</span>'];
-  return '<tr><td>'+t+'</td><td>'+i[0]+'<mark class="nickname" '+s+'>'+nick+'</mark>'+i[1]+'</td><td>'+msg+'</td></tr>';
+  return '<tr><td>'+t+'</td><td>'+i[0]+'<mark class="nickname" onclick="window.chat.addNickname(\'@' + nick + '\')" ' + s + '>'+ nick+'</mark>'+i[1]+'</td><td>'+msg+'</td></tr>';
 }
+
+window.chat.addNickname= function(nick){
+    var c = document.getElementById("chattext");
+    c.value = [c.value, nick, " "].join(" ").trim() + " ";
+    c.focus()
+}
+
 
 
 
