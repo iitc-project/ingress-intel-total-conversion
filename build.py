@@ -51,6 +51,8 @@ dateTimeVersion = time.strftime('%Y%m%d.%H%M%S',utcTime)
 resourceUrlBase = settings['resourceUrlBase']
 distUrlBase = settings['distUrlBase']
 
+# new setting, so add a default
+includePage = settings.get('includePage', False)
 
 
 def readfile(fn):
@@ -140,5 +142,11 @@ for fn in glob.glob("plugins/*.user.js"):
     metafn = fn.replace('.user.js', '.meta.js')
     saveScriptAndMeta(script, os.path.join(outDir,fn), os.path.join(outDir,metafn))
 
+if includePage:
+    page = 'index.php'
+    page_content = readfile(os.path.join('website', page))
+    page_content = page_content.replace('$path = "release";', '$path = ".";')
+    with io.open(os.path.join(outDir, page), 'w', encoding='utf8') as f:
+        f.write(page_content)
 
 # vim: ai si ts=4 sw=4 sts=4 et
