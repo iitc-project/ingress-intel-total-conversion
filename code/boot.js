@@ -1,4 +1,3 @@
-
 // SETUP /////////////////////////////////////////////////////////////
 // these functions set up specific areas after the boot function
 // created a basic framework. All of these functions should only ever
@@ -379,8 +378,8 @@ try { console.log('Loading included JS now'); } catch(e) {}
 
 try { console.log('done loading included JS'); } catch(e) {}
 
-var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js';
-var JQUERYUI = 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js';
+var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js';
+var JQUERYUI = 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js';
 
 // after all scripts have loaded, boot the actual app
 load(JQUERY).then(JQUERYUI).thenRun(boot);
