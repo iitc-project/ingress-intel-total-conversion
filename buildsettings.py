@@ -8,6 +8,7 @@ buildSettings = {
     'local': {
         'resourceUrlBase': 'http://iitc.jonatkins.com/release',
         'distUrlBase': None,
+        'includePage': False,
     },
 
     # local8000: if you need to modify external resources, this build will load them from
@@ -15,6 +16,7 @@ buildSettings = {
     'local8000': {
         'resourceUrlBase': 'http://0.0.0.0:8000/dist',
         'distUrlBase': None,
+        'includePage': False,
     },
 
 
@@ -24,6 +26,7 @@ buildSettings = {
     #'example': {
     #    'resourceBaseUrl': 'http://www.example.com/iitc/dist',
     #    'distUrlBase': 'https://secure.example.com/iitc/dist',
+    #    'includePage': True,
     #},
 
 
