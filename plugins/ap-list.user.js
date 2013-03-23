@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-ap-list@xelio
 // @name           IITC plugin: AP List
-// @version        0.4.2.@@DATETIMEVERSION@@
+// @version        0.4.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -33,6 +33,7 @@ window.plugin.apList.playerApGainFunc = new Array(2);
 
 window.plugin.apList.topMaxCount = 10;
 window.plugin.apList.sideLabelClass = {};
+window.plugin.apList.tableColumns = new Array(2);
 
 window.plugin.apList.useCachedPortals = false;
 window.plugin.apList.cacheBounds;
@@ -52,29 +53,51 @@ window.plugin.apList.handleUpdate = function() {
 
 // Generate html table from top portals
 window.plugin.apList.updatePortalTable = function(side) {
-  var displayEnemy = (plugin.apList.displaySide === window.plugin.apList.SIDE_ENEMY);
-  
-  var content = '<table id="ap-list-table">';
+  var table = '<table id="ap-list-table">'
+              + '<thead>'
+              + plugin.apList.tableHeaderBuilder(side)
+              + '</thead>';
+
   for(var i = 0; i < plugin.apList.topMaxCount; i++) {
     var portal = plugin.apList.sortedPortals[side][i];
-    content += '<tr>';
-    // Only enemy portal list will display destroy checkbox
-    if(displayEnemy) {
-      content += '<td class="ap-list-td-checkbox">'
-               + (portal ? plugin.apList.getPortalDestroyCheckbox(portal) : '&nbsp;')
-               + '</td>';
-    }
-    content += '<td class="ap-list-td-link ' + (displayEnemy ? 'ap-list-td-link-eny' : 'ap-list-td-link-frd')
-             + '">'
-             + (portal ? plugin.apList.getPortalLink(portal) : '&nbsp;')
-             + '</td>'
-             + '<td>'
-             + (portal ? plugin.apList.getPortalApText(portal) : '&nbsp;')
-             + '</td>'
-             + '</tr>';
+    table += '<tbody>'
+             + plugin.apList.tableRowBuilder(side, portal)
+             + '</tbody>';
   }
-  content += "</table>";
-  $('div#ap-list-table').html(content);
+
+  table += "</table>";
+  $('div#ap-list-table').html(table);
+}
+
+window.plugin.apList.tableHeaderBuilder = function(side) {
+  var headerRow = '<tr>';
+
+  $.each(plugin.apList.tableColumns[side], function(ind, column) {
+    var cssClass = column.headerTooltip ? (column.cssClass + ' help') : column.cssClass;
+    var title = column.headerTooltip ? column.headerTooltip : '';
+    headerRow += '<td class="' + cssClass + '" '
+               + 'title="' + title + '" '
+               + '>'
+               + column.header
+               + '</td>';
+  });
+
+  headerRow += '</tr>';
+  return headerRow;
+}
+
+window.plugin.apList.tableRowBuilder = function(side,portal) {
+  var row = "<tr>";
+
+  $.each(plugin.apList.tableColumns[side], function(ind, column) {
+    var content = portal ? column.contentFunction(portal) : '&nbsp;';
+    row += '<td class="' + column.cssClass + '">'
+         + content
+         + '</td>';
+  });
+
+  row += '</tr>';
+  return row;
 }
 
 window.plugin.apList.getPortalDestroyCheckbox = function(portal) {
@@ -141,6 +164,19 @@ window.plugin.apList.getPortalApTitle = function(portal) {
   return t;
 }
 
+window.plugin.apList.getPortalEffectiveLvText = function(portal) {
+  var title = plugin.apList.getPortalEffectiveLvTitle(portal);
+  return '<div class="help" title="' + title + '">' + portal.effectiveLevel.effectiveLevel + '</div>';
+}
+
+window.plugin.apList.getPortalEffectiveLvTitle = function(portal) {
+  var t = 'Effective energy:\t' + portal.effectiveLevel.effectiveEnergy + '\n'
+        + 'Effect of Shields:\t' + portal.effectiveLevel.effectOfShields + '\n'
+        + 'Effect of resos dist:\t' + portal.effectiveLevel.effectOfResoDistance + '\n'
+        + 'Origin Level:\t' + portal.effectiveLevel.originLevel;
+  return t;
+}
+
 // portal link - single click: select portal
 //               double click: zoom to and select portal
 //               hover: show address
@@ -195,6 +231,7 @@ window.plugin.apList.updateSortedPortals = function() {
       var getApGainFunc = plugin.apList.playerApGainFunc[side];
       // Assign playerApGain and guid to cachedPortal
       cachedPortal.playerApGain = getApGainFunc(portal);
+      cachedPortal.effectiveLevel = plugin.apList.getEffectiveLevel(portal);
       cachedPortal.guid = value.options.guid;
     }
     plugin.apList.cachedPortals[key] = cachedPortal;
@@ -408,6 +445,84 @@ window.plugin.apList.getAttackApGain = function(d) {
   }
 }
 
+window.plugin.apList.getEffectiveLevel = function(portal) {
+  var effectiveEnergy = 0;
+  var effectiveLevel = 0;
+
+  var resosStats = plugin.apList.getResonatorsStats(portal);
+  var shieldsMitigation = plugin.apList.getShieldsMitigation(portal);
+
+  // Calculate effective energy
+
+  // Portal damage = Damage output * (1 - shieldsMitigation / 100)
+  // Reverse it and we get 
+  // Damage output = Portal damage * (100 / (100 - shieldsMitigation))
+  var effectOfShields = 100 / (100 - shieldsMitigation);
+  // If avgResoDistance is 0, 8 resonators in the same place and can be treated as 1 resonator.
+  // So the minimum effect of resonator distance is 1/8 
+  var effectOfResoDistance = (1 + (resosStats.avgResoDistance / HACK_RANGE) * 7 ) / 8;
+
+  effectiveEnergy = resosStats.currentEnergy * effectOfShields * effectOfResoDistance;
+
+  // Calculate effective level
+  for(var i = MAX_PORTAL_LEVEL; i >= 0; i--) {
+    var baseLevel = i;
+    var baseLevelEnergy = RESO_NRG[baseLevel] * 8;
+    if(effectiveEnergy >= baseLevelEnergy) {
+      var energyToNextLevel = baseLevel === MAX_PORTAL_LEVEL
+                            ? baseLevelEnergy - RESO_NRG[MAX_PORTAL_LEVEL - 1] * 8 // Extrapolate
+                            : RESO_NRG[baseLevel + 1] * 8 - baseLevelEnergy; // Interpolate
+
+      var additionalLevel = (effectiveEnergy - baseLevelEnergy) / energyToNextLevel;
+      effectiveLevel = baseLevel + additionalLevel;
+      break;
+    }
+  }
+
+  // Account for damage do to player by portal
+  var portalLevel = parseInt(getPortalLevel(portal));
+  if(effectiveLevel < portalLevel) {
+    var energyPect = resosStats.currentEnergy / resosStats.totalEnergy;
+    effectiveLevel = effectiveLevel * (1-energyPect) + portalLevel * energyPect;
+  }
+
+  return {
+    effectiveLevel: effectiveLevel.toFixed(1),
+    effectiveEnergy: parseInt(effectiveEnergy),
+    effectOfShields: effectOfShields.toFixed(2),
+    effectOfResoDistance: effectOfResoDistance.toFixed(2),
+    originLevel: portalLevel
+  };
+}
+
+window.plugin.apList.getResonatorsStats = function(portal) {
+  var totalEnergy = 0;
+  var currentEnergy = 0;
+  var avgResoDistance = 0;
+
+  $.each(portal.resonatorArray.resonators, function(ind, reso) {
+    if (!reso)
+      return true;
+    totalEnergy += RESO_NRG[reso.level];
+    currentEnergy += reso.energyTotal;
+    avgResoDistance += (reso.distanceToPortal / 8);
+  });
+  return {
+    totalEnergy: totalEnergy,
+    currentEnergy: currentEnergy,
+    avgResoDistance: avgResoDistance};
+}
+
+window.plugin.apList.getShieldsMitigation = function(portal) {
+  var shieldsMitigation = 0;
+  $.each(portal.portalV2.linkedModArray, function(ind, mod) {
+    if(!mod)
+      return true;
+    shieldsMitigation += parseInt(mod.stats.MITIGATION);
+  });
+  return shieldsMitigation;
+}
+
 window.plugin.apList.selectPortal = function(guid) {
   renderPortalDetails(guid);
   plugin.apList.setPortalLocationIndicator(guid);
@@ -504,6 +619,52 @@ window.plugin.apList.setupVar = function() {
     = "#ap-list-eny";
 }
 
+// Setup table columns for header builder and row builder
+window.plugin.apList.setupTableColumns = function() {
+  var enemyColumns = new Array();
+  var friendlyColumns = new Array();
+
+  // AP and Eff. LV columns are same in enemy and friendly table
+  var apColumn = {
+    header: 'AP',
+    cssClass: 'ap-list-td-ap',
+    contentFunction: plugin.apList.getPortalApText
+  };
+  var effectiveLevelColumn = {
+    header: 'EL',
+    headerTooltip: 'Effective Level',
+    cssClass: 'ap-list-td-eff-lv',
+    contentFunction: plugin.apList.getPortalEffectiveLvText
+  };
+
+  // Columns: Checkbox | Portal | AP | Eff. LV
+  enemyColumns.push({
+    header: '',
+    headerTooltip: 'Select checkbox to \nsimulating destruction',
+    cssClass: 'ap-list-td-checkbox',
+    contentFunction: plugin.apList.getPortalDestroyCheckbox
+  });
+  enemyColumns.push({
+    header: 'Portal',
+    cssClass: 'ap-list-td-link ap-list-td-link-eny',
+    contentFunction: plugin.apList.getPortalLink
+  });
+  enemyColumns.push(apColumn);
+  enemyColumns.push(effectiveLevelColumn);
+
+  // Columns: Portal | AP | Eff. LV
+  friendlyColumns.push({
+    header: 'Portal',
+    cssClass: 'ap-list-td-link ap-list-td-link-frd',
+    contentFunction: plugin.apList.getPortalLink
+  });
+  friendlyColumns.push(apColumn);
+  friendlyColumns.push(effectiveLevelColumn);
+
+  plugin.apList.tableColumns[plugin.apList.SIDE_ENEMY] = enemyColumns;
+  plugin.apList.tableColumns[plugin.apList.SIDE_FRIENDLY] = friendlyColumns;
+}
+
 window.plugin.apList.setupCSS = function() {
   $("<style>")
     .prop("type", "text/css")
@@ -563,6 +724,7 @@ window.plugin.apList.setupMapEvent = function() {
 
 var setup = function() {
   window.plugin.apList.setupVar();
+  window.plugin.apList.setupTableColumns();
   window.plugin.apList.setupCSS();
   window.plugin.apList.setupList();
   window.plugin.apList.setupMapEvent();
