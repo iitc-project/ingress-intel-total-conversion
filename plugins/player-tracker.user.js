@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-player-tracker@breunigs
 // @name           IITC Plugin: Player tracker
-// @version        0.7.2.@@DATETIMEVERSION@@
+// @version        0.8.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -31,6 +31,13 @@ window.plugin.playerTracker.setup = function() {
   plugin.playerTracker.drawnTraces = new L.LayerGroup();
   window.layerChooser.addOverlay(plugin.playerTracker.drawnTraces, 'Player Tracker');
   map.addLayer(plugin.playerTracker.drawnTraces);
+  plugin.playerTracker.oms = new OverlappingMarkerSpiderfier(map);
+  plugin.playerTracker.oms.legColors = {'usual': '#FFFF00', 'highlighted': '#FF0000'};
+  plugin.playerTracker.oms.legWeight = 3.5;
+  plugin.playerTracker.oms.addListener('click', function(player) {
+    window.renderPortalDetails(player.options.referenceToPortal);
+  });
+
   addHook('publicChatDataAvailable', window.plugin.playerTracker.handleData);
 
   window.map.on('zoomend', function() {
@@ -87,7 +94,7 @@ window.plugin.playerTracker.processNewData = function(data) {
     if(json[1] < limit) return true;
 
     // find player and portal information
-    var pguid, lat, lng, name;
+    var pguid, lat, lng, guid, name;
     var skipThisMessage = false;
     $.each(json[2].plext.markup, function(ind, markup) {
       switch(markup[0]) {
@@ -110,16 +117,18 @@ window.plugin.playerTracker.processNewData = function(data) {
         // X.
         lat = lat ? lat : markup[1].latE6/1E6;
         lng = lng ? lng : markup[1].lngE6/1E6;
+        guid = guid ? guid : markup[1].guid;
         name = name ? name : markup[1].name;
         break;
       }
     });
 
     // skip unusable events
-    if(!pguid || !lat || !lng || skipThisMessage) return true;
+    if(!pguid || !lat || !lng || !guid || skipThisMessage) return true;
 
     var newEvent = {
       latlngs: [[lat, lng]],
+      guids: [guid],
       time: json[1],
       name: name
     };
@@ -150,6 +159,7 @@ window.plugin.playerTracker.processNewData = function(data) {
     // this is multiple resos destroyed at the same time.
     if(evts[cmp].time === json[1]) {
       evts[cmp].latlngs.push([lat, lng]);
+      evts[cmp].guids.push(guid);
       plugin.playerTracker.stored[pguid].events = evts;
       return true;
     }
@@ -235,12 +245,29 @@ window.plugin.playerTracker.drawData = function() {
       title += ago(ev.time, now) + minsAgo + ev.name + '\n';
     }
 
+    // calculate the closest portal to the player
+    var eventPortal = []
+    var closestPortal;
+    var mostPortals = 0;
+    $.each(last.guids, function() {
+      if(eventPortal[this]) {
+        eventPortal[this]++;
+      } else {
+        eventPortal[this] = 1;
+      }
+      if(eventPortal[this] > mostPortals) {
+        mostPortals = eventPortal[this];
+        closestPortal = this;
+      }
+    });
+
     // marker itself
     var icon = playerData.team === 'ALIENS' ?  new window.iconEnl() :  new window.iconRes();
-    var m = L.marker(gllfe(last), {title: title, clickable: false, icon: icon});
+    var m = L.marker(gllfe(last), {title: title, icon: icon, referenceToPortal: closestPortal});
     // ensure tooltips are closed, sometimes they linger
     m.on('mouseout', function() { $(this._icon).tooltip('close'); });
     m.addTo(layer);
+    plugin.playerTracker.oms.addMarker(m);
     // jQueryUI doesn’t automatically notice the new markers
     window.setupTooltips($(m._icon));
   });
@@ -270,6 +297,7 @@ window.plugin.playerTracker.handleData = function(data) {
   plugin.playerTracker.drawnTraces.eachLayer(function(layer) {
     if(layer._icon) $(layer._icon).tooltip('destroy');
   });
+  plugin.playerTracker.oms.clearMarkers();
   plugin.playerTracker.drawnTraces.clearLayers();
   plugin.playerTracker.drawData();
 }
