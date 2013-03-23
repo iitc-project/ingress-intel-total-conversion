@@ -11,11 +11,7 @@
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
 // ==/UserScript==
-(function(wrapper) {
-  var script = document.createElement('script');
-	script.appendChild(document.createTextNode('('+ wrapper +')();'));
-	(document.body || document.head || document.documentElement).appendChild(script);
-}(function() {
+function wrapper() {
     // ensure plugin framework is there, even if iitc is not yet loaded
     if(typeof window.plugin !== 'function') {
         window.plugin = function() {};
@@ -62,4 +58,8 @@
         window.bootPlugins = [setup];
       }
     }
-}));
+};
+
+var script = document.createElement('script');
+script.appendChild(document.createTextNode('('+ wrapper +')();'));
+(document.body || document.head || document.documentElement).appendChild(script);
