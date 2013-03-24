@@ -91,3 +91,58 @@
 .ap-list-link-selected {
   font-style:italic;
 }
+
+.ap-list-center-div {
+  width: 50%;
+  margin: 0px auto;
+
+}
+
+.ap-list-page-control {
+  float:left;
+  padding: 0 5px;
+}
+
+.ap-list-page-text {
+  float:left;
+  text-align: center;
+  color: rgb(32, 168, 177);
+}
+
+#ap-list-current-p {
+  width: 20px;
+}
+
+#ap-list-total-p {
+  width: 20px;
+}
+
+.ap-list-triangle {
+  float:left;
+  clear:none;
+  border-style:solid;
+}
+
+.ap-list-triangle-left {
+  border-color: transparent rgb(32, 168, 177) transparent transparent;
+}
+
+.ap-list-triangle-left-half {
+  border-width: 7.5px 7.5px 7.5px 0px;
+}
+
+.ap-list-triangle-left-full {
+  border-width: 7.5px 13px 7.5px 0px;
+}
+
+.ap-list-triangle-right {
+  border-color: transparent transparent transparent rgb(32, 168, 177);
+}
+
+.ap-list-triangle-right-half {
+  border-width: 7.5px 0px 7.5px 7.5px;
+}
+
+.ap-list-triangle-right-full {
+  border-width: 7.5px 0px 7.5px 13px;
+}

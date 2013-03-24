@@ -718,10 +718,35 @@ window.plugin.apList.setupList = function() {
           + 'plugin.apList.hideReloadLabel();return false;">↻ R</a>'
           + '</span>'
           + '<div id="ap-list-table"></div>'
+          + '<div id="ap-list-pagination"></div>'
           + '</div>';
 
   $('#sidebar').append(content);
   $('#ap-list-reload').hide();
+}
+
+window.plugin.apList.setupPagination = function() {
+  var content = '<div class="ap-list-center-div">'
+                + '<div id="ap-list-first-p" class="ap-list-page-control">'
+                  + '<div class="ap-list-triangle ap-list-triangle-left ap-list-triangle-left-half"/>'
+                  + '<div class="ap-list-triangle ap-list-triangle-left ap-list-triangle-left-half"/>'
+                + '</div>'
+                + '<div id="ap-list-next-p" class="ap-list-page-control">'
+                  + '<div class="ap-list-triangle ap-list-triangle-left ap-list-triangle-left-full"/>'
+                + '</div>'
+                + '<div id="ap-list-current-p" class="ap-list-page-text">1</div>'
+                + '<div id="ap-list-page-slash" class="ap-list-page-text">/</div>'
+                + '<div id="ap-list-total-p" class="ap-list-page-text">1</div>'
+                + '<div id="ap-list-prev-p" class="ap-list-page-control">'
+                  + '<div class="ap-list-triangle ap-list-triangle-right ap-list-triangle-right-full"/>'
+                + '</div>'
+                + '<div id="ap-list-last-p" class="ap-list-page-control">'
+                  + '<div class="ap-list-triangle ap-list-triangle-right ap-list-triangle-right-half"/>'
+                  + '<div class="ap-list-triangle ap-list-triangle-right ap-list-triangle-right-half"/>'
+                + '</div>'
+                + '<div class="spacer" style="clear: both;"></div>'// fix collapsion of parent caused by inner div's float:left
+              + '</div>';
+  $('#ap-list-pagination').html(content);
 }
 
 window.plugin.apList.setupMapEvent = function() {
@@ -758,6 +783,7 @@ var setup = function() {
   window.plugin.apList.setupTableColumns();
   window.plugin.apList.setupCSS();
   window.plugin.apList.setupList();
+  window.plugin.apList.setupPagination();
   window.plugin.apList.setupMapEvent();
   window.addHook('requestFinished', window.plugin.apList.handleUpdate);
 }
