@@ -147,12 +147,19 @@ window.plugin.apList.getPortalApTitle = function(portal) {
   var playerApGain = portal.playerApGain;
   if(plugin.apList.portalSide(portal) === plugin.apList.SIDE_FRIENDLY) {
     t = 'Deploy &amp; Upgrade\n';
+
     for(var i = 0; i < playerApGain.upgradedReso.length; i++) {
       var reso = playerApGain.upgradedReso[i];
       var apGain = (reso.level === 0) ? DEPLOY_RESONATOR : UPGRADE_ANOTHERS_RESONATOR;
       t += 'Resonator on ' + OCTANTS[reso.slot] + '\t' + reso.level + '-&gt;'
         + reso.newLevel + '\t= ' + apGain + '\n';
     }
+
+    if(playerApGain.captureBonus > 0)
+      t += 'Capture\t\t= ' + playerApGain.captureBonus + '\n';
+    if(playerApGain.completionBonus > 0)
+      t += 'Bonus\t\t= ' + playerApGain.completionBonus + '\n';
+
     t += 'Sum: ' + digits(playerApGain.totalAp) + ' AP';
   } else {
     t = 'Destroy &amp; Capture:\n'
@@ -362,6 +369,12 @@ window.plugin.apList.getDeployOrUpgradeApGain = function(d) {
   var totalAp = 0;
   var upgradedReso = new Array();
 
+  var deployCount = 0;
+  var upgradedCount = 0;
+
+  var captureBonus = 0;
+  var completionBonus = 0;
+
   // loop through reso slot and find empty reso, deployed
   // by others(only level lower than player level) or by player.
   for(var i = 0; i < 8; i++) {
@@ -403,7 +416,8 @@ window.plugin.apList.getDeployOrUpgradeApGain = function(d) {
       // Add upgraded reso to result
       targetReso.newLevel = i;
       upgradedReso.push(targetReso);
-      // Add ap
+      // Counting upgrade or deploy
+      (targetReso.level === 0) ? deployCount++ : upgradedCount++;
       totalAp += (targetReso.level === 0)
         ? DEPLOY_RESONATOR
         : UPGRADE_ANOTHERS_RESONATOR;
@@ -412,7 +426,17 @@ window.plugin.apList.getDeployOrUpgradeApGain = function(d) {
     }
   }
 
+  if(deployCount > 0) completionBonus = COMPLETION_BONUS;
+  if(deployCount === 8) captureBonus = CAPTURE_PORTAL;
+
+  totalAp = deployCount * DEPLOY_RESONATOR 
+          + upgradedCount * UPGRADE_ANOTHERS_RESONATOR
+          + captureBonus
+          + completionBonus;
+
   return {
+    captureBonus: captureBonus,
+    completionBonus: completionBonus,
     totalAp: totalAp,
     upgradedReso: upgradedReso
   };
