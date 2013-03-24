@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-ap-list@xelio
 // @name           IITC plugin: AP List
-// @version        0.4.3.@@DATETIMEVERSION@@
+// @version        0.4.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -349,7 +349,8 @@ window.plugin.apList.isSamePortal = function(a,b) {
 }
 
 window.plugin.apList.portalSide = function(portal) {
-  return (portal.controllingTeam.team === PLAYER.team)
+  return (portal.controllingTeam.team === PLAYER.team
+          || portal.controllingTeam.team === 'NEUTRAL')
     ? plugin.apList.SIDE_FRIENDLY
     : plugin.apList.SIDE_ENEMY;
 }
