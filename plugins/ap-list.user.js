@@ -44,12 +44,14 @@ window.plugin.apList.destroyPortalsGuid = new Array();
 window.plugin.apList.portalLocationIndicator;
 window.plugin.apList.animTimeout;
 
-
+// ENTRY POINT ///////////////////////////////////////////////////////////////////
 window.plugin.apList.handleUpdate = function() {
   if(!requests.isLastRequest('getThinnedEntitiesV2')) return;
   plugin.apList.updateSortedPortals();
   plugin.apList.updatePortalTable(plugin.apList.displaySide);
 }
+
+// CONTENT GENERATION ////////////////////////////////////////////////////////////
 
 // Generate html table from top portals
 window.plugin.apList.updatePortalTable = function(side) {
@@ -116,25 +118,7 @@ window.plugin.apList.getPortalDestroyCheckbox = function(portal) {
   return div;
 }
 
-window.plugin.apList.destroyPortal = function(guid) {
-  // Add to destroyPortalsGuid if not yet added, remove if already added
-  var portalIndex = plugin.apList.destroyPortalIndex(guid);
-  if(portalIndex >= 0) {
-    plugin.apList.destroyPortalsGuid.splice(portalIndex, 1);
-  } else {
-    plugin.apList.destroyPortalsGuid.push(guid);
-  }
-
-  plugin.apList.updateSortedPortals();
-  plugin.apList.updatePortalTable(plugin.apList.displaySide);
-}
-
-// Return the index of portal in destroyPortalsGuid
-window.plugin.apList.destroyPortalIndex = function(guid) {
-  return $.inArray(guid, plugin.apList.destroyPortalsGuid);
-}
-
-// Combine title and test
+// Combine ap title and test
 window.plugin.apList.getPortalApText = function(portal) {
   var title = plugin.apList.getPortalApTitle(portal);
   return '<div class="help" title="' + title + '">' + digits(portal.playerApGain.totalAp) + '</div>';
@@ -209,6 +193,8 @@ window.plugin.apList.getPortalLink = function(portal) {
   var div = '<div class="' + divClass + '">'+a+'</div>';
   return div;
 }
+
+// MAIN LOGIC FUNCTIONS //////////////////////////////////////////////////////////
 
 // Loop through portals and get playerApGain, then put in sortedPortals by side and sort them by AP.
 window.plugin.apList.updateSortedPortals = function() {
@@ -329,19 +315,6 @@ window.plugin.apList.handleDestroyPortal = function() {
   plugin.apList.sortedPortals[enemy].sort(function(a, b) {
     return b.playerApGain.totalAp - a.playerApGain.totalAp;
   });
-}
-
-window.plugin.apList.enableCache = function() {
-  plugin.apList.useCachedPortals = true;
-  plugin.apList.updateSortedPortals();
-  plugin.apList.updatePortalTable(plugin.apList.displaySide);
-}
-
-window.plugin.apList.disableCache = function() {
-  plugin.apList.useCachedPortals = false;
-  plugin.apList.cachedPortals = {};
-  plugin.apList.updateSortedPortals();
-  plugin.apList.updatePortalTable(plugin.apList.displaySide);
 }
 
 window.plugin.apList.isSamePortal = function(a,b) {
@@ -548,6 +521,21 @@ window.plugin.apList.getShieldsMitigation = function(portal) {
   return shieldsMitigation;
 }
 
+// FEATURE TOGGLES AND INTERACTION HANDLER ///////////////////////////////////////
+
+window.plugin.apList.enableCache = function() {
+  plugin.apList.useCachedPortals = true;
+  plugin.apList.updateSortedPortals();
+  plugin.apList.updatePortalTable(plugin.apList.displaySide);
+}
+
+window.plugin.apList.disableCache = function() {
+  plugin.apList.useCachedPortals = false;
+  plugin.apList.cachedPortals = {};
+  plugin.apList.updateSortedPortals();
+  plugin.apList.updatePortalTable(plugin.apList.displaySide);
+}
+
 window.plugin.apList.selectPortal = function(guid) {
   renderPortalDetails(guid);
   plugin.apList.setPortalLocationIndicator(guid);
@@ -592,6 +580,24 @@ window.plugin.apList.animPortalLocationIndicator = function() {
   }
 }
 
+window.plugin.apList.destroyPortal = function(guid) {
+  // Add to destroyPortalsGuid if not yet added, remove if already added
+  var portalIndex = plugin.apList.destroyPortalIndex(guid);
+  if(portalIndex >= 0) {
+    plugin.apList.destroyPortalsGuid.splice(portalIndex, 1);
+  } else {
+    plugin.apList.destroyPortalsGuid.push(guid);
+  }
+
+  plugin.apList.updateSortedPortals();
+  plugin.apList.updatePortalTable(plugin.apList.displaySide);
+}
+
+// Return the index of portal in destroyPortalsGuid
+window.plugin.apList.destroyPortalIndex = function(guid) {
+  return $.inArray(guid, plugin.apList.destroyPortalsGuid);
+}
+
 // Change display table to friendly portals
 window.plugin.apList.displayFriendly = function() {
   plugin.apList.changeDisplaySide(plugin.apList.SIDE_FRIENDLY);
@@ -630,6 +636,8 @@ window.plugin.apList.hideReloadLabel = function() {
 window.plugin.apList.showReloadLabel = function() {
   $('#ap-list-reload').show();
 }
+
+// SETUP /////////////////////////////////////////////////////////////////////////
 
 window.plugin.apList.setupVar = function() {
   plugin.apList.sides[plugin.apList.SIDE_FRIENDLY] = plugin.apList.SIDE_FRIENDLY;
