@@ -374,22 +374,16 @@ window.plugin.apList.getDeployOrUpgradeApGain = function(d) {
   // by others(only level lower than player level) or by player.
   for(var i = 0; i < 8; i++) {
     var reso = d.resonatorArray.resonators[i];
-
+    // Empty reso
     if(!reso) {
-      // Empty reso
-      reso = {slot: i, level: 0};
-      otherReso.push(reso);
+      otherReso.push({slot: i, level: 0});
       continue;
     }
-
     // By player
     if(reso.ownerGuid === window.PLAYER.guid) {
-      if(!playerResoCount[reso.level])
-        playerResoCount[reso.level] = 0;
-      playerResoCount[reso.level]++;
+      playerResoCount[reso.level] = (playerResoCount[reso.level] || 0) + 1;
       continue;
     }
-
     // By others and level lower than player
     if(reso.level < window.PLAYER.level) {
       otherReso.push(reso);
@@ -541,6 +535,13 @@ window.plugin.apList.getShieldsMitigation = function(portal) {
 }
 
 // For using in .sort(func) of sortedPortals
+// Use options in plugin.apList.sortOptions. Each type of sortBy has 
+// array of options. Option consist of an ordering and a property chain. 
+//
+// Sorting done by loop through the options, get the property by 
+// property chain of each option, compare the property of two object 
+// with the ordering of option and return the result when the first 
+// differece is found.
 window.plugin.apList.comparePortal = function(a,b) {
   var result = 0;
   var options = plugin.apList.sortOptions[plugin.apList.sortBy];
@@ -579,7 +580,15 @@ window.plugin.apList.disableCache = function() {
 }
 
 window.plugin.apList.selectPortal = function(guid) {
-  renderPortalDetails(guid);
+  // Add error catching to avoid following link of portal if error 
+  // occured in renderPortalDetails or hooked plugin
+  try {
+    renderPortalDetails(guid);
+  } catch(e) {
+    console.error(e.message);
+    console.log(e.stack);
+    console.log('Skipping error in renderPortalDetails or hooked plugin')
+  }
   plugin.apList.setPortalLocationIndicator(guid);
 }
 
@@ -720,6 +729,8 @@ window.plugin.apList.setupVar = function() {
     = "#ap-list-frd";
   plugin.apList.sideLabelClass[plugin.apList.SIDE_ENEMY]
     = "#ap-list-eny";
+  plugin.apList.sortedPortals[plugin.apList.SIDE_FRIENDLY] = new Array();
+  plugin.apList.sortedPortals[plugin.apList.SIDE_ENEMY] = new Array();
 }
 
 window.plugin.apList.setupSorting = function() {
