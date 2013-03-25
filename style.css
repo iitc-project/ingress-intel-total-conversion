@@ -14,7 +14,8 @@ body {
 }
 
 #scrollwrapper {
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   position: fixed;
   right: -38px;
   top: 0;
