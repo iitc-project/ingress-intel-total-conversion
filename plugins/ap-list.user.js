@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-ap-list@xelio
 // @name           IITC plugin: AP List
-// @version        0.4.4.@@DATETIMEVERSION@@
+// @version        0.4.5.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -60,14 +60,12 @@ window.plugin.apList.updatePortalTable = function(side) {
               + plugin.apList.tableHeaderBuilder(side)
               + '</thead>';
 
+  table += '<tbody>'
   for(var i = 0; i < plugin.apList.topMaxCount; i++) {
     var portal = plugin.apList.sortedPortals[side][i];
-    table += '<tbody>'
-             + plugin.apList.tableRowBuilder(side, portal)
-             + '</tbody>';
+    table += plugin.apList.tableRowBuilder(side, portal);
   }
-
-  table += "</table>";
+  table += '</tbody></table>';
   $('div#ap-list-table').html(table);
 }
 
