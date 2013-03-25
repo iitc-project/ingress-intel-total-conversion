@@ -335,6 +335,7 @@ window.plugin.apList.handleDestroyPortal = function() {
 window.plugin.apList.updateTotalPages = function() {
   $.each(plugin.apList.sortedPortals, function(side, portals) {
     plugin.apList.totalPage[side] = Math.max(Math.ceil(portals.length / plugin.apList.portalPerPage), 1);
+    plugin.apList.currentPage[side] = Math.min(plugin.apList.totalPage[side], plugin.apList.currentPage[side]);
   });
 }
 
