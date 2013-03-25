@@ -36,7 +36,7 @@
 }
 
 .ap-list-td-checkbox {
-  width: 5%;
+  width: 18px;
   height: 1px;
 }
 
@@ -46,16 +46,18 @@
 }
 
 .ap-list-td-link-eny {
-  width: 70%;
 }
 
 .ap-list-td-link-frd {
-  width: 75%;
 }
 
 .ap-list-td-ap {
-  width: 18%;
+  width: 44px;
   white-space:nowrap;
+}
+
+.ap-list-td-eff-lv {
+  width: 20px;
 }
 
 .ap-list-checkbox-outer {
