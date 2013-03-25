@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-portals-count@yenky
 // @name           IITC plugin: Show total counts of portals
-// @version        0.0.1.20130325.130149
+// @version        0.0.2.20130325.135610
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -26,14 +26,14 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 // use own namespace for plugin
 window.plugin.portalcounts = function() {};
     
-window.plugin.portalcounts.enlP = 0;
-window.plugin.portalcounts.resP = 0;
-window.plugin.portalcounts.neuP = 0;
 
 //count portals for each level avalaible on the map
 window.plugin.portalcounts.getPortals = function(){
     //console.log('** getPortals');
     var retval=false;
+    window.plugin.portalcounts.enlP = 0;
+    window.plugin.portalcounts.resP = 0;
+    window.plugin.portalcounts.neuP = 0;
     
     window.plugin.portalcounts.PortalsEnl = new Array();
     window.plugin.portalcounts.PortalsEnl[1] = 0;
