@@ -320,34 +320,10 @@ function boot() {
   if(window.deviceID) console.log('Your device ID: ' + window.deviceID);
   window.runOnSmartphonesBeforeBoot();
 
-  var iconEnlImage = '@@INCLUDEIMAGE:images/marker-green.png@@';
-  var iconEnlRetImage = '@@INCLUDEIMAGE:images/marker-green_2x.png@@';
-  var iconResImage = '@@INCLUDEIMAGE:images/marker-blue.png@@';
-  var iconResRetImage = '@@INCLUDEIMAGE:images/marker-blue_2x.png@@';
   var iconDefImage = '@@INCLUDEIMAGE:images/marker-icon.png@@';
   var iconDefRetImage = '@@INCLUDEIMAGE:images/marker-icon_2x.png@@';
   var iconShadowImage = '@@INCLUDEIMAGE:images/marker-shadow.png@@';
 
-  window.iconEnl = L.Icon.extend({options: {
-    iconUrl: iconEnlImage,
-    iconRetinaUrl: iconEnlRetImage,
-    shadowUrl: iconShadowImage,
-    shadowRetinaUrl: iconShadowImage,
-    iconSize: new L.Point(25, 41),
-    iconAnchor: new L.Point(12, 41),
-    popupAnchor: new L.Point(1, -34),
-    shadowSize: new L.Point(41, 41)
-  }});
-  window.iconRes = L.Icon.extend({options: {
-    iconUrl: iconResImage,
-    iconRetinaUrl: iconResRetImage,
-    shadowUrl: iconShadowImage,
-    shadowRetinaUrl: iconShadowImage,
-    iconSize: new L.Point(25, 41),
-    iconAnchor: new L.Point(12, 41),
-    popupAnchor: new L.Point(1, -34),
-    shadowSize: new L.Point(41, 41)
-  }});
   L.Icon.Default = L.Icon.extend({options: {
     iconUrl: iconDefImage,
     iconRetinaUrl: iconDefRetImage,
@@ -407,7 +383,6 @@ try { console.log('Loading included JS now'); } catch(e) {}
 // contains the default Ingress map style.
 @@INCLUDERAW:external/leaflet_google.js@@
 @@INCLUDERAW:external/autolink.js@@
-@@INCLUDERAW:external/oms.min.js@@
 
 try { console.log('done loading included JS'); } catch(e) {}
 
