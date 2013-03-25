@@ -79,7 +79,7 @@ window.plugin.showLinkedPortal.getPortalByGuid = function (guid) {
         portalInfoString = '';
         var portalNameAdressAlt = "'" + portalDetails.portalV2.descriptiveText.TITLE + "' (" + portalDetails.portalV2.descriptiveText.ADDRESS + ")";
         var portalNameAdressTitle = "'<strong>" + portalDetails.portalV2.descriptiveText.TITLE + "</strong>'<br/> <em>(" + portalDetails.portalV2.descriptiveText.ADDRESS + ")</em>";
-        var imageUrl = (portalDetails.imageByUrl ? portalDetails.imageByUrl.imageUrl : '');
+        var imageUrl = (portalDetails.imageByUrl ? portalDetails.imageByUrl.imageUrl : window.DEFAULT_PORTAL_IMG);
         portalInfoString = '<img src="' + imageUrl + '" class="minImg" alt="' + portalNameAdressAlt + '" title="' + portalNameAdressTitle + '"/>';
     }
     return portalInfoString;
