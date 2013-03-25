@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-draw-tools@breunigs
 // @name           IITC plugin: draw tools
-// @version        0.2.3.@@DATETIMEVERSION@@
+// @version        0.3@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -31,14 +31,13 @@ var DRAW_TOOLS_SHAPE_OPTIONS = {
 window.plugin.drawTools = function() {};
 
 window.plugin.drawTools.loadExternals = function() {
-  var base = '@@RESOURCEURLBASE@@';
-  load(base+'/leaflet.draw.0.1.6.js').thenRun(window.plugin.drawTools.boot);
+  try { console.log('Loading leaflet.draw JS now'); } catch(e) {}
+  @@INCLUDERAW:external/leaflet.draw.0.1.6.js@@
+  try { console.log('done loading leaflet.draw JS'); } catch(e) {}
 
-  // FIXME: this is currently manually included from
-  // external/leaflet.draw.0.1.6.css. It should either be loaded remotely
-  // automatically or the buildscript should include it here, similar to
-  // how it works for the main script.
-  $('head').append('<style>.leaflet-container .leaflet-control-draw {margin-left: 13px;margin-top: 12px;}.leaflet-control-draw a {background-position: 50% 50%;background-repeat: no-repeat;display: block;width: 22px;height: 22px;}.leaflet-control-draw a:hover {background-color: #fff;}.leaflet-touch .leaflet-control-draw a {width: 27px;height: 27px;}.leaflet-control-draw-polyline {background-image: url(@@RESOURCEURLBASE@@/images/draw-polyline.png);}.leaflet-control-draw-polygon {background-image: url(@@RESOURCEURLBASE@@/images/draw-polygon.png);}.leaflet-control-draw-rectangle {background-image: url(@@RESOURCEURLBASE@@/images/draw-rectangle.png);}.leaflet-control-draw-circle {background-image: url(@@RESOURCEURLBASE@@/images/draw-circle.png);}.leaflet-control-draw-marker {background-image: url(@@RESOURCEURLBASE@@/images/draw-marker-icon.png);}.leaflet-mouse-marker {background-color: #fff;cursor: crosshair;}.leaflet-draw-label {background-color: #fff;border: 1px solid #ccc;color: #222;font: 12px/18px "Helvetica Neue", Arial, Helvetica, sans-serif;margin-left: 20px;margin-top: -21px;padding: 2px 4px;position: absolute;white-space: nowrap;z-index: 6;}.leaflet-error-draw-label {background-color: #F2DEDE;border-color: #E6B6BD;color: #B94A48;}.leaflet-draw-label-single {margin-top: -12px}.leaflet-draw-label-subtext {color: #999;}.leaflet-draw-guide-dash {font-size: 1%;opacity: 0.6;position: absolute;width: 5px;height: 5px;}.leaflet-flash-anim {-webkit-animation-duration: 0.66s; -moz-animation-duration: 0.66s; -o-animation-duration: 0.66s; animation-duration: 0.66s;-webkit-animation-fill-mode: both; -moz-animation-fill-mode: both; -o-animation-fill-mode: both; animation-fill-mode: both;-webkit-animation-name: leaflet-flash; -moz-animation-name: leaflet-flash; -o-animation-name: leaflet-flash; animation-name: leaflet-flash;}@-webkit-keyframes leaflet-flash {0%, 50%, 100% { opacity: 1; }25%, 75% { opacity: 0.3; }}@-moz-keyframes leaflet-flash {0%, 50%, 100% { opacity: 1; }25%, 75% { opacity: 0.3; }}@-o-keyframes leaflet-flash {0%, 50%, 100% { opacity: 1; }25%, 75% { opacity: 0.3; }}@keyframes leaflet-flash {0%, 50%, 100% { opacity: 1; }25%, 75% { opacity: 0; }}</style>');
+  window.plugin.drawTools.boot();
+
+  $('head').append('<style>@@INCLUDESTRING:external/leaflet.draw.0.1.6.css@@</style>');
 }
 
 

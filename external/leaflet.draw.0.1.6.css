@@ -23,23 +23,23 @@
 }	
 
 .leaflet-control-draw-polyline {
-	background-image: url(images/draw-polyline.png);
+	background-image: url(@@INCLUDEIMAGE:images/draw-polyline.png@@);
 }
 
 .leaflet-control-draw-polygon {
-	background-image: url(images/draw-polygon.png);
+	background-image: url(@@INCLUDEIMAGE:images/draw-polygon.png@@);
 }
 
 .leaflet-control-draw-rectangle {
-	background-image: url(images/draw-rectangle.png);
+	background-image: url(@@INCLUDEIMAGE:images/draw-rectangle.png@@);
 }
 
 .leaflet-control-draw-circle {
-	background-image: url(images/draw-circle.png);
+	background-image: url(@@INCLUDEIMAGE:images/draw-circle.png@@);
 }
 
 .leaflet-control-draw-marker {
-	background-image: url(images/draw-marker-icon.png);
+	background-image: url(@@INCLUDEIMAGE:images/draw-marker-icon.png@@);
 }
 
 .leaflet-mouse-marker {
