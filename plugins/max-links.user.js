@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             max-links@boombuler
 // @name           IITC plugin: Max Links
-// @version        0.3@@DATETIMEVERSION@@
+// @version        0.3.@@DATETIMEVERSION@@
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Calculates how to link the portals to create the maximum number of fields.
