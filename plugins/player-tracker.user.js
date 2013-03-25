@@ -216,7 +216,18 @@ window.plugin.playerTracker.drawData = function() {
       console.warn('broken player data for pguid=' + pguid);
       return true;
     }
-
+  // guess player level plugin    
+  var players = {};
+      
+  $.each(window.portals, function(ind, portal) {
+    var r = portal.options.details.resonatorArray.resonators;
+    $.each(r, function(ind, reso) {
+      if(!reso) return true;
+      var lvl = localStorage['level-' + reso.ownerGuid];
+      var nick = getPlayerName(reso.ownerGuid);
+      players[nick] = lvl;
+    });
+  });
     // gather line data and put them in buckets so we can color them by
     // their age
     var playerLine = [];
@@ -233,7 +244,7 @@ window.plugin.playerTracker.drawData = function() {
     var ago = plugin.playerTracker.ago;
     var cssClass = playerData.team === 'ALIENS' ? 'enl' : 'res';
     var title =
-        '<span class="nickname '+ cssClass+'" style="font-weight:bold;">' + playerData.nick + '</span>\n'
+        '<span style="font-weight:bold;">[ ' + (typeof players[playerData.nick] == 'undefined' ? '-' : players[playerData.nick] + ' ') + ' ] <span class="nickname '+ cssClass+'">' + playerData.nick + '</span>\n'
         + ago(last.time, now) + ' minutes ago\n'
         + last.name;
     // show previous data in tooltip
