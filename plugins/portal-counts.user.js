@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-portals-count@yenky
 // @name           IITC plugin: Show total counts of portals
-// @version        0.0.3.20130325.155511
+// @version        0.0.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -57,6 +57,8 @@ window.plugin.portalcounts.getPortals = function(){
     window.plugin.portalcounts.PortalsRes[7] = 0;
     window.plugin.portalcounts.PortalsRes[8] = 0;
     //get portals informations from IITC
+    var minlvl = getMinPortalLevel();
+    
     $.each(window.portals, function(i, portal) {
         
         retval=true;
@@ -82,15 +84,30 @@ window.plugin.portalcounts.getPortals = function(){
     if(retval) {
 	    counts += '<tr class="enl"><th colspan="2">Enlightment: '+window.plugin.portalcounts.enlP+' Portal(s)</th></tr>';
 	    for (level in window.plugin.portalcounts.PortalsEnl) {
-		counts += '<tr><td class="L'+level+'">Level '+level+'</td><td>'+window.plugin.portalcounts.PortalsEnl[level]+'</td></tr>';
+		counts += '<tr><td class="L'+level+'">Level '+level+'</td><td>';
+		if(minlvl > level)
+			counts += 'zoom in';
+		else
+			counts += window.plugin.portalcounts.PortalsEnl[level];
+		counts += '</td></tr>';
 	    }
 	    counts += '<tr><td colspan="2">&nbsp</td></tr>';
 	    counts += '<tr class="res"><th colspan="2">Resistance: '+window.plugin.portalcounts.resP+' Portal(s)</th></tr>';
 	    for (level in window.plugin.portalcounts.PortalsRes) {
-	        counts += '<tr><td class="L'+level+'">Level '+level+'</td><td>'+window.plugin.portalcounts.PortalsRes[level]+'</td></tr>';
+	        counts += '<tr><td class="L'+level+'">Level '+level+'</td><td>'
+		if(minlvl > level)
+                        counts += 'zoom in';
+                else
+                        counts += window.plugin.portalcounts.PortalsRes[level];
+		counts += '</td></tr>';
 	    }
 	    counts += '<tr><td colspan="2">&nbsp</td></tr>';
-	    counts += '<tr class="neutral"><th colspan="2">Neutral: '+window.plugin.portalcounts.neuP+' Portal(s)</th></tr>';
+	    counts += '<tr class="neutral"><th colspan="2">Neutral: ';
+	    if(minlvl > 0)
+                counts += 'zoom in to see unclaimed';
+	    else
+		counts += window.plugin.portalcounts.neuP;
+	    counts += ' Portal(s)</th></tr>';
     } else
 	counts += '<tr><td>No Portals in range !</td></tr>';
     counts += '</table>';
