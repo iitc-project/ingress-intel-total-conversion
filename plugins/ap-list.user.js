@@ -31,7 +31,9 @@ window.plugin.apList.sides = new Array(2);
 window.plugin.apList.sortedPortals = new Array(2);
 window.plugin.apList.playerApGainFunc = new Array(2);
 
-window.plugin.apList.topMaxCount = 10;
+window.plugin.apList.currentPage = [1,1];
+window.plugin.apList.totalPage = [1,1];
+window.plugin.apList.portalPerPage = 10;
 window.plugin.apList.sideLabelClass = {};
 window.plugin.apList.tableColumns = new Array(2);
 
@@ -60,13 +62,16 @@ window.plugin.apList.updatePortalTable = function(side) {
               + plugin.apList.tableHeaderBuilder(side)
               + '</thead>';
 
-  table += '<tbody>'
-  for(var i = 0; i < plugin.apList.topMaxCount; i++) {
+  table += '<tbody>';
+  var startingPortal = (plugin.apList.currentPage[side] - 1) * plugin.apList.portalPerPage;
+  for(var i = startingPortal; i < startingPortal + plugin.apList.portalPerPage; i++) {
     var portal = plugin.apList.sortedPortals[side][i];
     table += plugin.apList.tableRowBuilder(side, portal);
   }
   table += '</tbody></table>';
   $('div#ap-list-table').html(table);
+
+  plugin.apList.updatePaginationControl();
 }
 
 window.plugin.apList.tableHeaderBuilder = function(side) {
@@ -192,6 +197,11 @@ window.plugin.apList.getPortalLink = function(portal) {
   return div;
 }
 
+window.plugin.apList.updatePaginationControl = function() {
+  $('#ap-list-current-p').html(plugin.apList.currentPage[plugin.apList.displaySide]);
+  $('#ap-list-total-p').html(plugin.apList.totalPage[plugin.apList.displaySide]);
+}
+
 // MAIN LOGIC FUNCTIONS //////////////////////////////////////////////////////////
 
 // Loop through portals and get playerApGain, then put in sortedPortals by side and sort them by AP.
@@ -240,14 +250,16 @@ window.plugin.apList.updateSortedPortals = function() {
   });
 
   // Modify sortedPortals if any portal selected for destroy
-  if(plugin.apList.destroyPortalsGuid.length > 0) {
-    plugin.apList.handleDestroyPortal()
-  }
+  plugin.apList.handleDestroyPortal();
+  // Update pagination control data
+  plugin.apList.updateTotalPages();
 }
 
 // This function will make AP gain of field and link only count once if 
 // one of the connected portal is selected for destroy
 window.plugin.apList.handleDestroyPortal = function() {
+  if(plugin.apList.destroyPortalsGuid.length === 0) return;
+
   var enemy = window.plugin.apList.SIDE_ENEMY;
   var destroyedLinks = {};
   var destroyedFields = {};
@@ -312,6 +324,12 @@ window.plugin.apList.handleDestroyPortal = function() {
   // Sorting portals with updated AP
   plugin.apList.sortedPortals[enemy].sort(function(a, b) {
     return b.playerApGain.totalAp - a.playerApGain.totalAp;
+  });
+}
+
+window.plugin.apList.updateTotalPages = function() {
+  $.each(plugin.apList.sortedPortals, function(side, portals) {
+    plugin.apList.totalPage[side] = Math.max(Math.ceil(portals.length / plugin.apList.portalPerPage), 1);
   });
 }
 
@@ -578,6 +596,25 @@ window.plugin.apList.animPortalLocationIndicator = function() {
   }
 }
 
+window.plugin.apList.changePage = function(step, toEnd) {
+  var side = plugin.apList.displaySide;
+  var originPage = plugin.apList.currentPage[side];
+
+  if(toEnd) {
+    if(step < 0) plugin.apList.currentPage[side] = 1;
+    if(step > 0) plugin.apList.currentPage[side] = plugin.apList.totalPage[side]
+  } else {
+    plugin.apList.currentPage[side] += step;
+    if(plugin.apList.currentPage[side] < 1)
+      plugin.apList.currentPage[side] = 1;
+    if(plugin.apList.currentPage[side] > plugin.apList.totalPage[side])
+      plugin.apList.currentPage[side] = plugin.apList.totalPage[side];
+  }
+
+  if(plugin.apList.currentPage[side] !== originPage)
+    plugin.apList.updatePortalTable(side);
+}
+
 window.plugin.apList.destroyPortal = function(guid) {
   // Add to destroyPortalsGuid if not yet added, remove if already added
   var portalIndex = plugin.apList.destroyPortalIndex(guid);
@@ -727,20 +764,20 @@ window.plugin.apList.setupList = function() {
 
 window.plugin.apList.setupPagination = function() {
   var content = '<div class="ap-list-center-div">'
-                + '<div id="ap-list-first-p" class="ap-list-page-control">'
+                + '<div id="ap-list-first-p" class="ap-list-page-control" onclick="plugin.apList.changePage(-1, true);">'
                   + '<div class="ap-list-triangle ap-list-triangle-left ap-list-triangle-left-half"/>'
                   + '<div class="ap-list-triangle ap-list-triangle-left ap-list-triangle-left-half"/>'
                 + '</div>'
-                + '<div id="ap-list-next-p" class="ap-list-page-control">'
+                + '<div id="ap-list-next-p" class="ap-list-page-control" onclick="plugin.apList.changePage(-1);">'
                   + '<div class="ap-list-triangle ap-list-triangle-left ap-list-triangle-left-full"/>'
                 + '</div>'
                 + '<div id="ap-list-current-p" class="ap-list-page-text">1</div>'
                 + '<div id="ap-list-page-slash" class="ap-list-page-text">/</div>'
                 + '<div id="ap-list-total-p" class="ap-list-page-text">1</div>'
-                + '<div id="ap-list-prev-p" class="ap-list-page-control">'
+                + '<div id="ap-list-prev-p" class="ap-list-page-control" onclick="plugin.apList.changePage(1);">'
                   + '<div class="ap-list-triangle ap-list-triangle-right ap-list-triangle-right-full"/>'
                 + '</div>'
-                + '<div id="ap-list-last-p" class="ap-list-page-control">'
+                + '<div id="ap-list-last-p" class="ap-list-page-control" onclick="plugin.apList.changePage(1, true);">'
                   + '<div class="ap-list-triangle ap-list-triangle-right ap-list-triangle-right-half"/>'
                   + '<div class="ap-list-triangle ap-list-triangle-right ap-list-triangle-right-half"/>'
                 + '</div>'
