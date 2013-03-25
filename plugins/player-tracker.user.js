@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-player-tracker@breunigs
 // @name           IITC Plugin: Player tracker
-// @version        0.8.0.@@DATETIMEVERSION@@
+// @version        0.9.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -28,6 +28,24 @@ window.PLAYER_TRACKER_LINE_COLOUR = '#FF00FD';
 window.plugin.playerTracker = function() {};
 
 window.plugin.playerTracker.setup = function() {
+  try { console.log('Loading OverlappingMarkerSpiderfier JS now'); } catch(e) {}
+  @@INCLUDERAW:external/oms.min.js@@
+  try { console.log('done loading OverlappingMarkerSpiderfier JS'); } catch(e) {}
+
+  var iconEnlImage = '@@INCLUDEIMAGE:images/marker-green.png@@';
+  var iconEnlRetImage = '@@INCLUDEIMAGE:images/marker-green_2x.png@@';
+  var iconResImage = '@@INCLUDEIMAGE:images/marker-blue.png@@';
+  var iconResRetImage = '@@INCLUDEIMAGE:images/marker-blue_2x.png@@';
+
+  plugin.playerTracker.iconEnl = L.Icon.Default.extend({options: {
+    iconUrl: iconEnlImage,
+    iconRetinaUrl: iconEnlRetImage
+  }});
+  plugin.playerTracker.iconRes = L.Icon.Default.extend({options: {
+    iconUrl: iconResImage,
+    iconRetinaUrl: iconResRetImage
+  }});
+
   plugin.playerTracker.drawnTraces = new L.LayerGroup();
   window.layerChooser.addOverlay(plugin.playerTracker.drawnTraces, 'Player Tracker');
   map.addLayer(plugin.playerTracker.drawnTraces);
@@ -262,7 +280,7 @@ window.plugin.playerTracker.drawData = function() {
     });
 
     // marker itself
-    var icon = playerData.team === 'ALIENS' ?  new window.iconEnl() :  new window.iconRes();
+    var icon = playerData.team === 'ALIENS' ?  new plugin.playerTracker.iconEnl() :  new plugin.playerTracker.iconRes();
     var m = L.marker(gllfe(last), {title: title, icon: icon, referenceToPortal: closestPortal});
     // ensure tooltips are closed, sometimes they linger
     m.on('mouseout', function() { $(this._icon).tooltip('close'); });
