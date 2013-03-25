@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-show-linked-portals@fstopienski
 // @name           IITC plugin: Show linked portals
-// @version        0.0.1.@@DATETIMEVERSION@@
+// @version        0.0.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -79,7 +79,8 @@ window.plugin.showLinkedPortal.getPortalByGuid = function (guid) {
         portalInfoString = '';
         var portalNameAdressAlt = "'" + portalDetails.portalV2.descriptiveText.TITLE + "' (" + portalDetails.portalV2.descriptiveText.ADDRESS + ")";
         var portalNameAdressTitle = "'<strong>" + portalDetails.portalV2.descriptiveText.TITLE + "</strong>'<br/> <em>(" + portalDetails.portalV2.descriptiveText.ADDRESS + ")</em>";
-        portalInfoString = '<img src="' + portalDetails.imageByUrl.imageUrl + '" class="minImg" alt="' + portalNameAdressAlt + '" title="' + portalNameAdressTitle + '"/>';
+        var imageUrl = (portalDetails.imageByUrl ? portalDetails.imageByUrl.imageUrl : '');
+        portalInfoString = '<img src="' + imageUrl + '" class="minImg" alt="' + portalNameAdressAlt + '" title="' + portalNameAdressTitle + '"/>';
     }
     return portalInfoString;
 };
