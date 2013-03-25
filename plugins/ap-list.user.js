@@ -31,6 +31,13 @@ window.plugin.apList.sides = new Array(2);
 window.plugin.apList.sortedPortals = new Array(2);
 window.plugin.apList.playerApGainFunc = new Array(2);
 
+window.plugin.apList.SORT_BY_AP = 'AP';
+window.plugin.apList.SORT_BY_EL = 'EL';
+window.plugin.apList.sortBy = window.plugin.apList.SORT_BY_AP;
+window.plugin.apList.SORT_ASC = 1;
+window.plugin.apList.SORT_DESC = -1;
+window.plugin.apList.sortOptions = {};
+
 window.plugin.apList.currentPage = [1,1];
 window.plugin.apList.totalPage = [1,1];
 window.plugin.apList.portalPerPage = 10;
@@ -80,8 +87,10 @@ window.plugin.apList.tableHeaderBuilder = function(side) {
   $.each(plugin.apList.tableColumns[side], function(ind, column) {
     var cssClass = column.headerTooltip ? (column.cssClass + ' help') : column.cssClass;
     var title = column.headerTooltip ? column.headerTooltip : '';
+    var onclick = column.headerOnClick ? column.headerOnClick: '';
     headerRow += '<td class="' + cssClass + '" '
                + 'title="' + title + '" '
+               + 'onclick="' + onclick + '" '
                + '>'
                + column.header
                + '</td>';
@@ -244,9 +253,7 @@ window.plugin.apList.updateSortedPortals = function() {
     plugin.apList.sortedPortals[side].push(portal);
   });
   $.each(plugin.apList.sides, function(ind, side) {
-    plugin.apList.sortedPortals[side].sort(function(a, b) {
-     return b.playerApGain.totalAp - a.playerApGain.totalAp;
-    });
+    plugin.apList.sortedPortals[side].sort(plugin.apList.comparePortal);
   });
 
   // Modify sortedPortals if any portal selected for destroy
@@ -322,9 +329,7 @@ window.plugin.apList.handleDestroyPortal = function() {
   });
 
   // Sorting portals with updated AP
-  plugin.apList.sortedPortals[enemy].sort(function(a, b) {
-    return b.playerApGain.totalAp - a.playerApGain.totalAp;
-  });
+  plugin.apList.sortedPortals[enemy].sort(plugin.apList.comparePortal);
 }
 
 window.plugin.apList.updateTotalPages = function() {
@@ -407,9 +412,6 @@ window.plugin.apList.getDeployOrUpgradeApGain = function(d) {
       upgradedReso.push(targetReso);
       // Counting upgrade or deploy
       (targetReso.level === 0) ? deployCount++ : upgradedCount++;
-      totalAp += (targetReso.level === 0)
-        ? DEPLOY_RESONATOR
-        : UPGRADE_ANOTHERS_RESONATOR;
 
       availableCount--;
     }
@@ -537,6 +539,29 @@ window.plugin.apList.getShieldsMitigation = function(portal) {
   return shieldsMitigation;
 }
 
+// For using in .sort(func) of sortedPortals
+window.plugin.apList.comparePortal = function(a,b) {
+  var result = 0;
+  var options = plugin.apList.sortOptions[plugin.apList.sortBy];
+
+  $.each(options, function(indO, option) {
+    var aProperty = a;
+    var bProperty = b;
+    // Walking down the chain
+    $.each(option.chain, function(indPN, propertyName) {
+      aProperty = aProperty[propertyName];
+      bProperty = bProperty[propertyName];
+    });
+    // compare next porperty if equal
+    if(aProperty === bProperty) return true;
+
+    result = (aProperty > bProperty ? 1 : -1) * option.order;
+    return false;
+  });
+
+  return result;
+}
+
 // FEATURE TOGGLES AND INTERACTION HANDLER ///////////////////////////////////////
 
 window.plugin.apList.enableCache = function() {
@@ -598,7 +623,7 @@ window.plugin.apList.animPortalLocationIndicator = function() {
 
 window.plugin.apList.changePage = function(step, toEnd) {
   var side = plugin.apList.displaySide;
-  var originPage = plugin.apList.currentPage[side];
+  var oldPage = plugin.apList.currentPage[side];
 
   if(toEnd) {
     if(step < 0) plugin.apList.currentPage[side] = 1;
@@ -611,8 +636,17 @@ window.plugin.apList.changePage = function(step, toEnd) {
       plugin.apList.currentPage[side] = plugin.apList.totalPage[side];
   }
 
-  if(plugin.apList.currentPage[side] !== originPage)
+  if(plugin.apList.currentPage[side] !== oldPage)
     plugin.apList.updatePortalTable(side);
+}
+
+window.plugin.apList.changeSorting = function(sortBy) {
+  var oldSortBy = plugin.apList.sortBy;
+  plugin.apList.sortBy = sortBy;
+  if(plugin.apList.sortBy !== oldSortBy) {
+    plugin.apList.updateSortedPortals();
+    plugin.apList.updatePortalTable(plugin.apList.displaySide);
+  }
 }
 
 window.plugin.apList.destroyPortal = function(guid) {
@@ -687,6 +721,23 @@ window.plugin.apList.setupVar = function() {
     = "#ap-list-eny";
 }
 
+window.plugin.apList.setupSorting = function() {
+  var optionELAsc = {
+    order: plugin.apList.SORT_ASC,
+    chain: ['effectiveLevel','effectiveLevel']};
+  var optionAPDesc = {
+    order: plugin.apList.SORT_DESC,
+    chain: ['playerApGain','totalAp']};
+  var optionGuidDesc = {
+    order: plugin.apList.SORT_DESC,
+    chain: ['guid']};
+
+  // order by EL -> AP -> guid
+  plugin.apList.sortOptions[plugin.apList.SORT_BY_EL] = [optionELAsc, optionAPDesc, optionGuidDesc];
+  // order by AP -> EL -> guid
+  plugin.apList.sortOptions[plugin.apList.SORT_BY_AP] = [optionAPDesc, optionELAsc, optionGuidDesc];
+}
+
 // Setup table columns for header builder and row builder
 window.plugin.apList.setupTableColumns = function() {
   var enemyColumns = new Array();
@@ -695,12 +746,15 @@ window.plugin.apList.setupTableColumns = function() {
   // AP and Eff. LV columns are same in enemy and friendly table
   var apColumn = {
     header: 'AP',
+    headerOnClick: 'plugin.apList.changeSorting(plugin.apList.SORT_BY_AP);',
+    headerTooltip: 'Click to sort by AP',
     cssClass: 'ap-list-td-ap',
     contentFunction: plugin.apList.getPortalApText
   };
   var effectiveLevelColumn = {
     header: 'EL',
-    headerTooltip: 'Effective Level',
+    headerOnClick: 'plugin.apList.changeSorting(plugin.apList.SORT_BY_EL);',
+    headerTooltip: 'Effective Level\nClick to sort by EL',
     cssClass: 'ap-list-td-eff-lv',
     contentFunction: plugin.apList.getPortalEffectiveLvText
   };
@@ -817,6 +871,7 @@ window.plugin.apList.setupMapEvent = function() {
 
 var setup = function() {
   window.plugin.apList.setupVar();
+  window.plugin.apList.setupSorting();
   window.plugin.apList.setupTableColumns();
   window.plugin.apList.setupCSS();
   window.plugin.apList.setupList();
