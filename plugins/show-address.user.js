@@ -36,7 +36,7 @@ var setup =  function() {
   $('head').append('<style>' +
     '.res #address { border: 1px solid #0076b6; }' +
     '.enl #address { border: 1px solid #017f01; }' +
-    '#address { margin:5px; padding:3px; margin-top:120px; margin-right:8px; font-size:11px; background-color:rgba(0, 0, 0, 0.7); text-align:center; white-space:nowrap; overflow:hidden; }' +
+    '#address { margin:5px; padding:3px; margin-top:110px; margin-right:8px; font-size:11px; background-color:rgba(0, 0, 0, 0.7); text-align:center; white-space:nowrap; overflow:hidden; }' +
     '</style>');
 }
 
