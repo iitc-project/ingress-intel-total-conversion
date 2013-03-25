@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-player-tracker@breunigs
 // @name           IITC Plugin: Player tracker
-// @version        0.9.@@DATETIMEVERSION@@
+// @version        0.9.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
