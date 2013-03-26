@@ -28,17 +28,17 @@ window.plugin.keys.keys = {};
 window.plugin.keys.disabledMessage;
 window.plugin.keys.contentHTML;
 
-window.plugin.keys.displayKeys = function() {
+window.plugin.keys.addToSidebar = function() {
   if(typeof(Storage) === "undefined") {
     $('#portaldetails > .imgpreview').after(plugin.keys.disabledMessage);
     return;
   }
 
   $('#portaldetails > .imgpreview').after(plugin.keys.contentHTML);
-  plugin.keys.updateDisplay();
+  plugin.keys.updateDisplayCount();
 }
 
-window.plugin.keys.updateDisplay = function() {
+window.plugin.keys.updateDisplayCount = function() {
   var guid = window.selectedPortal;
   var count = plugin.keys.keys[guid] || 0;
   $('#keys-count').html(count);
@@ -55,7 +55,7 @@ window.plugin.keys.addKey = function(addCount) {
       plugin.keys.keys[guid] = newCount;
     }
     plugin.keys.storeKeys();
-    plugin.keys.updateDisplay();
+    plugin.keys.updateDisplayCount();
     window.runHooks('pluginKeysUpdateKey', {guid: guid, count: newCount});
   }
 }
@@ -63,7 +63,6 @@ window.plugin.keys.addKey = function(addCount) {
 window.plugin.keys.storeKeys = function() {
   var keysObject = {keys: plugin.keys.keys};
   var keysObjectJSON = JSON.stringify(keysObject);
-  console.log(keysObjectJSON);
   localStorage[plugin.keys.LOCAL_STORAGE_KEY] = keysObjectJSON;
 }
 
@@ -80,7 +79,7 @@ window.plugin.keys.setupCSS = function() {
   .appendTo("head");
 }
 
-window.plugin.keys.setupDisplay = function() {
+window.plugin.keys.setupContent = function() {
   plugin.keys.contentHTML = '<div id="keys-content-outer">'
                               + '<div id="keys-label">Key(s):</div>'
                               + '<div id="keys-add" class="keys-button" '
@@ -100,10 +99,11 @@ window.plugin.keys.setupDisplay = function() {
 var setup =  function() {
   if($.inArray('pluginKeysUpdateKey', window.VALID_HOOKS) < 0)
     window.VALID_HOOKS.push('pluginKeysUpdateKey');
+
   window.plugin.keys.setupCSS();
-  window.plugin.keys.setupDisplay();
+  window.plugin.keys.setupContent();
   window.plugin.keys.loadKeys();
-  window.addHook('portalDetailsUpdated', window.plugin.keys.displayKeys);
+  window.addHook('portalDetailsUpdated', window.plugin.keys.addToSidebar);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////
