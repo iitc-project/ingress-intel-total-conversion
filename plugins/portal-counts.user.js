@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-portals-count@yenky
 // @name           IITC plugin: Show total counts of portals
-// @version        0.0.5.@@DATETIMEVERSION@@
+// @version        0.0.6.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -13,6 +13,7 @@
 // ==/UserScript==
 
 /* whatsnew
+* 0.0.6 : ignoring outside bounds portals (even if close to)
 * 0.0.5 : changed table layout, added some colors
 * 0.0.4 : reverse show order of portals, using MAX_PORTAL_LEVEL now for array, changed table layout to be more compact, cleaned up code
 * 0.0.3 : fixed incorrect rounded portal levels, adjusted viewport
@@ -29,13 +30,12 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 
 // use own namespace for plugin
 window.plugin.portalcounts = function() {};
-window.VIEWPORT_PAD_RATIO = 0.1;
 
 //count portals for each level avalaible on the map
 window.plugin.portalcounts.getPortals = function(){
   //console.log('** getPortals');
-  // just count portals in viewport, default: 0.3
   var retval=false;
+  var displayBounds = map.getBounds();
   window.plugin.portalcounts.enlP = 0;
   window.plugin.portalcounts.resP = 0;
   window.plugin.portalcounts.neuP = 0;
@@ -52,6 +52,8 @@ window.plugin.portalcounts.getPortals = function(){
     var d = portal.options.details;
     var team = portal.options.team;
     var level = Math.floor(getPortalLevel(d));
+    // just count portals in viewport
+    if(!displayBounds.contains(portal.getLatLng())) return true;
     switch (team){
       case 1 :
         window.plugin.portalcounts.resP++;
