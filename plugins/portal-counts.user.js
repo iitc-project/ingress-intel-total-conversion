@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-portals-count@yenky
 // @name           IITC plugin: Show total counts of portals
-// @version        0.0.4.@@DATETIMEVERSION@@
+// @version        0.0.5.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -13,6 +13,8 @@
 // ==/UserScript==
 
 /* whatsnew
+* 0.0.5 : changed table layout, added some colors
+* 0.0.4 : reverse show order of portals, using MAX_PORTAL_LEVEL now for array, changed table layout to be more compact, cleaned up code
 * 0.0.3 : fixed incorrect rounded portal levels, adjusted viewport
 * 0.0.2 : fixed counts to be reset after scrolling
 * 0.0.1 : initial release, show count of portals
@@ -80,14 +82,14 @@ window.plugin.portalcounts.getPortals = function(){
       counts += '</tr>';
     }
     counts += '<tr><td colspan="3">&nbsp</td></tr>';
-    counts += '<tr class="neutral"><td>Neutral:</td><td colspan="2">';
+    counts += '<tr><td>Neutral:</td><td colspan="2">';
     if(minlvl > 0)
       counts += 'zoom in to see unclaimed';
     else
       counts += window.plugin.portalcounts.neuP;
     counts += ' Portal(s)</td></tr>';
-    counts += '<tr class="enl"><td colspan="2">Enlightment:</td><td>'+window.plugin.portalcounts.enlP+' Portal(s)</td></tr>';
-    counts += '<tr class="res"><td colspan="2">Resistance:</td><td>'+window.plugin.portalcounts.resP+' Portal(s)</td></tr>';
+    counts += '<tr class="enl"><th colspan="2">Enlightment:</th><td>'+window.plugin.portalcounts.enlP+' Portal(s)</td></tr>';
+    counts += '<tr class="res"><th colspan="2">Resistance:</th><td>'+window.plugin.portalcounts.resP+' Portal(s)</td></tr>';
   } else
     counts += '<tr><td>No Portals in range !</td></tr>';
   counts += '</table>';
@@ -102,8 +104,7 @@ var setup =  function() {
     '#portalcounts table td, #portalcounts table th {border-bottom: 1px solid #0b314e; padding:3px; color:white; background-color:#1b415e}' +
     '#portalcounts table tr.res th {  background-color: #005684; }' +
     '#portalcounts table tr.enl th {  background-color: #017f01; }' +
-    '#portalcounts table tr.neutral th {  background-color: #000000; }' +
-    '#portalcounts table th { text-align:center;}' +
+    '#portalcounts table th { text-align: center;}' +
     '#portalcounts table td { text-align: center;}' +
     '#portalcounts table td.L0 { background-color: #000000 !important;}' +
     '#portalcounts table td.L1 { background-color: #FECE5A !important;}' +
