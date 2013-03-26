@@ -106,13 +106,17 @@ window.rangeLinkClick = function() {
     window.smartphone.mapButton.click();
 }
 
-window.showPortalPosLinks = function(lat, lng) {
+window.showPortalPosLinks = function(lat, lng, name) {
+  var portal_name = '';
+  if(name !== undefined) {
+    portal_name = encodeURIComponent(' (' + name + ')');
+  }
   if (typeof android !== 'undefined' && android && android.intentPosLink) {
     android.intentPosLink(window.location.protocol + '//maps.google.com/?q='+lat+','+lng);
   } else {
     var qrcode = '<div id="qrcode"></div>';
     var script = '<script>$(\'#qrcode\').qrcode({text:\'GEO:'+lat+','+lng+'\'});</script>';
-    var gmaps = '<a href="https://maps.google.com/?q='+lat+','+lng+'">gmaps</a>';
+    var gmaps = '<a href="https://maps.google.com/?q='+lat+','+lng+portal_name+'">gmaps</a>';
     var osm = '<a href="http://www.openstreetmap.org/?mlat='+lat+'&mlon='+lng+'&zoom=16">OSM</a>';
     alert('<div style="text-align: center;">' + qrcode + script + gmaps + ' ' + osm + '</div>');
   }
