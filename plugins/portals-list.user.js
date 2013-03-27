@@ -13,7 +13,7 @@
 // ==/UserScript==
 
 /* whatsnew
-* 0.0.9 : bug hunt
+* 0.0.9 : bugs hunt
 * 0.0.8 : Aborted to avoid problems with Niantic (export portals informations as csv or kml file)
 * 0.0.7 : more informations avalaible via tooltips (who deployed, energy, ...), new E/AP column 
 * 0.0.6 : Add power charge information into a new column + bugfix
