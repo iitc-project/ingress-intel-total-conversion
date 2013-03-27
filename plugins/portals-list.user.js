@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-portals-list@teo96
 // @name           IITC plugin: show list of portals
-// @version        0.0.9@@DATETIMEVERSION@@
+// @version        0.0.9.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
