@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-portals-list@teo96
 // @name           IITC plugin: show list of portals
-// @version        0.0.6.@@DATETIMEVERSION@@
+// @version        0.0.9@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -13,16 +13,20 @@
 // ==/UserScript==
 
 /* whatsnew
+* 0.0.9 : bug hunt
+* 0.0.8 : export portals informations as csv or kml file
+* 0.0.7 : more informations avalaible via tooltips (who deployed, energy, ...), new E/AP column 
 * 0.0.6 : Add power charge information into a new column + bugfix
 * 0.0.5 : Filter portals by clicking on 'All portals', 'Res Portals' or 'Enl Portals'
 * 0.0.4 : Add link to portals name, one click to display full information in portal panel, double click to zoom on portal, hover to show address
 * 0.0.3 : sorting ascending/descending and add numbers of portals by faction on top on table
 * 0.0.2 : add sorting feature when click on header column
 * 0.0.1 : initial release, show list of portals with level, team, resonators and shield information
+*
 * Display code inspired from @vita10gy's scoreboard plugin : iitc-plugin-scoreboard@vita10gy - https://github.com/breunigs/ingress-intel-total-conversion
 * Portal link code from xelio - iitc: AP List - https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/ap-list.user.js
 *
-* todo : 
+* todo : export as GPX, Open in Google Maps, more statistics in the header, what else ?
 */ 
 
 function wrapper() {
@@ -53,7 +57,8 @@ window.plugin.portalslist.getPortals = function(){
         retval=true;
         var d = portal.options.details;   
         var name =  d.portalV2.descriptiveText.TITLE;
-        
+        var address = d.portalV2.descriptiveText.ADDRESS;
+        var img = d.imageByUrl && d.imageByUrl.imageUrl ? d.imageByUrl.imageUrl : DEFAULT_PORTAL_IMG;
         var team = portal.options.team;
         switch (team){
             case 1 :
@@ -85,22 +90,25 @@ window.plugin.portalslist.getPortals = function(){
         var shields = [];
         $.each(d.portalV2.linkedModArray, function(ind, mod) {
             if (mod) 
-                shields[ind] = mod.rarity.capitalize().replace('_', ' ');
+                //shields[ind] = mod.rarity.capitalize().replace('_', ' ');
+                shields[ind] = [mod.rarity.substr(0,1).capitalize(), getPlayerName(mod.installingUser)] ;
             else
-                shields[ind] = ''; 
+                shields[ind] = ['', '']; 
         });
         
         var APgain= getAttackApGain(d).enemyAp;
-        var thisPortal = {'portal':d,'name':name,'team':team,'level':level,'guid':guid, 'resonators':resonators,'energy' : Math.floor(energy/maxenergy*100), 'shields':shields,'APgain':APgain};
+        var thisPortal = {'portal':d,'name':name,'team':team,'level':level,'guid':guid, 'resonators':resonators,'energyratio' : Math.floor(energy/maxenergy*100), 'shields':shields, 'APgain':APgain, 'EAP' : (energy/APgain).toFixed(2), 'energy': energy, 'maxenergy':maxenergy, 'lat':portal._latlng.lat, 'lng':portal._latlng.lng, 'address': address, 'img' : img};
         window.plugin.portalslist.listPortals.push(thisPortal);
     });
     
     return retval;
-    
 }
 
 window.plugin.portalslist.displayPL = function() {   
-    //console.log('** displayPL');
+    // debug tools
+    //var start = new Date().getTime();
+    //console.log('***** Start ' + start);
+    
     var html = '';
     window.plugin.portalslist.sortOrder=-1;
     window.plugin.portalslist.enlP = 0;
@@ -127,14 +135,17 @@ window.plugin.portalslist.displayPL = function() {
     $(document).on('click', '#portalslist .filterEnl', function() {    	
         $('#portalslist').html(window.plugin.portalslist.portalTable($(this).data('sort'),window.plugin.portalslist.sortOrder,2));
     });
+    
+    //debug tools
+    //end = new Date().getTime();
+    //console.log('***** end : ' + end + ' and Elapse : ' + (end - start));
  }
     
 window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
     // sortOrder <0 ==> desc, >0 ==> asc, i use sortOrder * -1 to change the state
     window.plugin.portalslist.filter=filter;
     var portals=window.plugin.portalslist.listPortals;
-    // console.log('********************* Sort by ' + sortBy + ' order : ' + sortOrder + ' filter : ' + filter);
-    
+        
     //Array sort
     window.plugin.portalslist.listPortals.sort(function(a, b) {
         var retVal = 0;
@@ -191,7 +202,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
     html += '<table>'
     + '<tr><th ' + sort('names', sortBy, -1) + '>Portal</th>' 
     + '<th ' + sort('level', sortBy, -1) + '>Level</th>'
-    + '<th ' + sort('team', sortBy, -1) + '>Team</th>'
+    + '<th title="Team" ' + sort('team', sortBy, -1) + '>T</th>'
     + '<th ' + sort('r1', sortBy, -1) + '>R1</th>'
     + '<th ' + sort('r2', sortBy, -1) + '>R2</th>'
     + '<th ' + sort('r3', sortBy, -1) + '>R3</th>'
@@ -200,61 +211,162 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
     + '<th ' + sort('r6', sortBy, -1) + '>R6</th>'
     + '<th ' + sort('r7', sortBy, -1) + '>R7</th>'
     + '<th ' + sort('r8', sortBy, -1) + '>R8</th>'
-    + '<th ' + sort('energy', sortBy, -1) + '>Energy</th>'
-    + '<th ' + sort('s1', sortBy, -1) + '>Shield 1</th>'
-    + '<th ' + sort('s2', sortBy, -1) + '>Shield 2</th>'
-    + '<th ' + sort('s3', sortBy, -1) + '>Shield 3</th>'
-    + '<th ' + sort('s4', sortBy, -1) + '>Shield 4</th>'
-    + '<th ' + sort('APgain', sortBy, -1) + '>AP Gain</th></tr>';
+    + '<th ' + sort('energyratio', sortBy, -1) + '>Energy</th>'
+    + '<th ' + sort('s1', sortBy, -1) + '>S1</th>'
+    + '<th ' + sort('s2', sortBy, -1) + '>S2</th>'
+    + '<th ' + sort('s3', sortBy, -1) + '>S3</th>'
+    + '<th ' + sort('s4', sortBy, -1) + '>S4</th>'
+    + '<th ' + sort('APgain', sortBy, -1) + '>AP Gain</th>'
+    + '<th title="Energy / AP Gain ratio" ' + sort('EAP', sortBy, -1) + '>E/AP</th></tr>';
     
     
     $.each(portals, function(ind, portal) {
         
         if (filter === 0 || filter === portal.team){
             html += '<tr class="' + (portal.team === 1 ? 'res' : (portal.team === 2 ? 'enl' : 'neutral')) + '">'
-            + '<td style="min-width:145px !important">' + window.plugin.portalslist.getPortalLink(portal.portal, portal.guid) + '</td>'
-            //+ '<td>' + portal.name + '</td>'
+            + '<td style="">' + window.plugin.portalslist.getPortalLink(portal.portal, portal.guid) + '</td>'
             + '<td class="L' + Math.floor(portal.level) +'">' + portal.level + '</td>'
-            + '<td style="text-align:center;">' + portal.team + '</td>'
-            + '<td class="L' + portal.resonators[0][0] +'">' + portal.resonators[0][0] + '</td>'
-            //+ '<td><span class="meter"><span style="width:72.35%; background:#EB26CD;"></span><span class="meter-level" style="color: #FFFFFF;">6</span></span>'
-            + '<td class="L' + portal.resonators[1][0] +'">' + portal.resonators[1][0] + '</td>'
-            + '<td class="L' + portal.resonators[2][0] +'">' + portal.resonators[2][0] + '</td>'
-            + '<td class="L' + portal.resonators[3][0] +'">' + portal.resonators[3][0] + '</td>'
-            + '<td class="L' + portal.resonators[4][0] +'">' + portal.resonators[4][0] + '</td>'
-            + '<td class="L' + portal.resonators[5][0] +'">' + portal.resonators[5][0] + '</td>'
-            + '<td class="L' + portal.resonators[6][0] +'">' + portal.resonators[6][0] + '</td>'
-            + '<td class="L' + portal.resonators[7][0] +'">' + portal.resonators[7][0] + '</td>'
-            + '<td style="text-align:center;">' + portal.energy + '%</td>'
-            + '<td style="font-size:10px">' + portal.shields[0] + '</td>'
-            + '<td style="font-size:10px">' + portal.shields[1] + '</td>'
-            + '<td style="font-size:10px">' + portal.shields[2] + '</td>'
-            + '<td style="font-size:10px">' + portal.shields[3] + '</td>'
-            + '<td>' + portal.APgain + '</td>';
+            + '<td style="text-align:center;">' + portal.team + '</td>';
+            
+            $.each([0, 1, 2, 3 ,4 ,5 ,6 ,7], function(ind, slot) {
+                
+                var title = 'title="owner: <b>' + portal.resonators[slot][1] + '</b><br>'
+                + 'energy: ' + portal.resonators[slot][3] + ' / ' + portal.resonators[slot][4] + ' (' + Math.floor(portal.resonators[slot][3]/portal.resonators[slot][4]*100) + '%)<br>'
+                + 'distance: ' + portal.resonators[slot][2] + 'm';
+                
+                html += '<td class="L' + portal.resonators[slot][0] +'" ' + title + '">' + portal.resonators[slot][0] + '</td>';
+                
+            });
+            
+            html += '<td style="cursor:help" title="' + portal.energy + ' / ' + portal.maxenergy +'">' + portal.energyratio  + '%</td>'
+            + '<td style="cursor:help" title="'+ portal.shields[0][1] +'">' + portal.shields[0][0] + '</td>'
+            + '<td style="cursor:help" title="'+ portal.shields[1][1] +'">' + portal.shields[1][0] + '</td>'
+            + '<td style="cursor:help" title="'+ portal.shields[2][1] +'">' + portal.shields[2][0] + '</td>'
+            + '<td style="cursor:help" title="'+ portal.shields[3][1] +'">' + portal.shields[3][0] + '</td>'
+            + '<td>' + portal.APgain + '</td>'
+            + '<td>' + portal.EAP + '</td>';
  
             html+= '</tr>';
         }
-  
     });
-    html+='</table>';
-    html+= '<div class="disclaimer">Click on portals table headers to sort by that column.<br> '
-      + 'Click on All Portals, Resistant Portals, Enlightened Portals to filter<br>'
+    html += '</table>';
+    
+    html += window.plugin.portalslist.exportLinks();
+    
+    html += '<div class="disclaimer">Click on portals table headers to sort by that column. '
+      + 'Click on <b>All Portals, Resistant Portals, Enlightened Portals</b> to filter<br>'
       + 'Thanks to @vita10gy & @xelio for their IITC plugins who inspired me. A <a href="https://plus.google.com/113965246471577467739">@teo96</a> production. Vive la Résistance !</div>';
 
     window.plugin.portalslist.sortOrder = window.plugin.portalslist.sortOrder*-1;
     return html;
 }
 
-
 window.plugin.portalslist.stats = function(sortBy) {
     //console.log('** stats');
     var html = '<table><tr>'
-    + '<td class="filterAll" style="cursor:pointer"  onclick="window.plugin.portalslist.portalTable(\'level\',-1,0)"><a href=""></a>All Portals : (click to filter)</td><td class="filterAll">' + window.plugin.portalslist.listPortals.length +'</td>'
-    + '<td class="filterRes" style="cursor:pointer" class="sorted" onclick="window.plugin.portalslist.portalTable(\'level\',-1,1)">Resistant Portals : </td><td class="filterRes">' + window.plugin.portalslist.resP + '</td>' 
-    + '<td class="filterEnl" style="cursor:pointer" class="sorted" onclick="window.plugin.portalslist.portalTable(\'level\',-1,2)">Enlightened Portals : </td><td class="filterEnl">'+ window.plugin.portalslist.enlP + '</td>'  
+    + '<td class="filterAll" style="cursor:pointer"  onclick="window.plugin.portalslist.portalTable(\'level\',-1,0)"><a href=""></a>All Portals : (click to filter)</td><td class="filterAll">' + window.plugin.portalslist.listPortals.length + '</td>'
+    + '<td class="filterRes" style="cursor:pointer" class="sorted" onclick="window.plugin.portalslist.portalTable(\'level\',-1,1)">Resistant Portals : </td><td class="filterRes">' + window.plugin.portalslist.resP +' (' + Math.floor(window.plugin.portalslist.resP/window.plugin.portalslist.listPortals.length*100) + '%)</td>' 
+    + '<td class="filterEnl" style="cursor:pointer" class="sorted" onclick="window.plugin.portalslist.portalTable(\'level\',-1,2)">Enlightened Portals : </td><td class="filterEnl">'+ window.plugin.portalslist.enlP +' (' + Math.floor(window.plugin.portalslist.enlP/window.plugin.portalslist.listPortals.length*100) + '%)</td>'  
     + '</tr>'
     + '</table>';
     return html;
+}
+
+//return Html generated to export links
+window.plugin.portalslist.exportLinks = function(){
+    var html='';
+    var stamp = new Date().getTime();
+    
+    html+='<div><aside><a download="Ingress Export.csv" href="' + window.plugin.portalslist.export('csv') + '">Export as .csv</a></aside>' 
+    + '<aside><a download="Ingress Export.kml" href="' + window.plugin.portalslist.export('kml') + '">Export as .kml</a></aside>'
+    + '</div>';
+    return html;
+}
+
+window.plugin.portalslist.export = function(fileformat){
+    //alert('format :' + fileformat);
+    var file = '';
+    var uri = '';
+    
+    switch (fileformat) {
+      case 'csv':
+        file = window.plugin.portalslist.exportCSV();
+      	break;
+      case 'kml':
+        file = window.plugin.portalslist.exportKML();
+      	break;
+    }
+    
+    if (file !== '') {
+       //http://stackoverflow.com/questions/4639372/export-to-csv-in-jquery
+       var uri = 'data:application/' + fileformat + 'csv;charset=UTF-8,' + encodeURIComponent(file);
+       //window.open(uri);
+    }
+    return uri;
+}
+window.plugin.portalslist.exportCSV = function(){
+    var csv = '';
+    var filter = window.plugin.portalslist.filter;
+    var portals = window.plugin.portalslist.listPortals;
+   
+   //headers
+    csv += 'Portal\tLevel\tTeam\tR1\tR2\tR3\tR4\tR5\tR6\tR7\tR8\tEnergy\tS1\tS2\tS3\tS4\tAP Gain\tE/AP\tlat\tlong\n';
+    
+    $.each(portals, function(ind, portal) {
+        
+        if (filter === 0 || filter === portal.team){
+            csv += portal.name + '\t' 
+              + portal.level + '\t'
+              + portal.team + '\t';
+           
+            $.each([0, 1, 2, 3 ,4 ,5 ,6 ,7], function(ind, slot) {
+                csv += portal.resonators[slot][0] + '\t';
+            });
+            
+            csv += portal.energyratio + '\t' + portal.shields[0][0] + '\t' + portal.shields[1][0] + '\t' + portal.shields[2][0] + '\t' + portal.shields[3][0] + '\t' + portal.APgain + '\t' + portal.EAP + '\t';
+            csv += portal.lat + '\t' + portal.lng;
+            csv += '\n';
+        }  
+    });
+    
+    return csv;
+}
+
+window.plugin.portalslist.exportKML = function(){
+    var kml = '';
+    var filter = window.plugin.portalslist.filter;
+    // all portals informations are avalaible in the listPortals array
+    var portals = window.plugin.portalslist.listPortals;
+   
+   //headers
+    kml = '<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document>\n'
+    + '<name>Ingress Export</name><description><![CDATA[Ingress Portals\nExported from IITC using the Portals-list plugin\n' + new Date().toLocaleString() + ']]></description>';
+    
+    // define colored markers as style0 (neutral), style1 (Resistance), style2 (Enlight)
+    kml += '<Style id="style1"><IconStyle><Icon><href>http://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png</href></Icon></IconStyle></Style>'
+    + '<Style id="style2"><IconStyle><Icon><href>http://maps.gstatic.com/mapfiles/ms2/micons/green-dot.png</href></Icon></IconStyle></Style>'
+    + '<Style id="style0"><IconStyle><Icon><href>http://maps.gstatic.com/mapfiles/ms2/micons/pink-dot.png</href></Icon></IconStyle></Style>\n';
+    
+    $.each(portals, function(ind, portal) {
+        // add the portal in the kml file only if part of the filter choice
+        if (filter === 0 || filter === portal.team){
+            // description contain picture of the portal, address and link to the Intel map
+            var description = '<![CDATA['
+            + '<div><table><tr><td><img style="width:100px" src="' + portal.img + '"></td><td>' + portal.address 
+            + '<br><a href="https://ingress.com/intel?latE6=' + portal.lat*1E6 + '&lngE6=' + portal.lng*1E6 + '&z=17">Link to Intel Map</a></td></tr></table>'
+            + ']]>';
+            
+            kml += '<Placemark><name>L' + Math.floor(portal.level) + ' - ' + portal.name + '</name>'
+            + '<description>' +  description + '</description>'
+            + '<styleUrl>#style' + portal.team + '</styleUrl>';
+            
+            //coordinates
+            kml += '<Point><coordinates>' + portal.lng + ',' + portal.lat + ',0</coordinates></Point>';           
+            kml += '</Placemark>\n';
+        }  
+    });
+	kml += '</Document></kml>';
+    return kml;
 }
 
 // A little helper functon so the above isn't so messy
@@ -286,7 +398,7 @@ window.plugin.portalslist.getPortalLink = function(portal,guid) {
         onClick: jsSingleClick,
         onDblClick: jsDoubleClick
     })[0].outerHTML;
-    var div = '<div style="overflow: hidden; text-overflow:ellipsis;">'+a+'</div>';
+    var div = '<div style="max-height: 15px !important; min-width:140px !important;max-width:180px !important; overflow: hidden; text-overflow:ellipsis;">'+a+'</div>';
     return div;
 }
 
@@ -302,15 +414,15 @@ var setup =  function() {
     '#portalslist table tr.neutral td {  background-color: #000000; }' +
     '#portalslist table th { text-align:center;}' +
     '#portalslist table td { text-align: center;}' +
-    '#portalslist table td.L0 { background-color: #000000 !important;}' +
-    '#portalslist table td.L1 { background-color: #FECE5A !important;}' +
-	'#portalslist table td.L2 { background-color: #FFA630 !important;}' +
-	'#portalslist table td.L3 { background-color: #FF7315 !important;}' +
-	'#portalslist table td.L4 { background-color: #E40000 !important;}' +
-	'#portalslist table td.L5 { background-color: #FD2992 !important;}' +
-	'#portalslist table td.L6 { background-color: #EB26CD !important;}' +
-    '#portalslist table td.L7 { background-color: #C124E0 !important;}' +
-	'#portalslist table td.L8 { background-color: #9627F4 !important;}' + 
+    '#portalslist table td.L0 { cursor: help; background-color: #000000 !important;}' +
+    '#portalslist table td.L1 { cursor: help; background-color: #FECE5A !important;}' +
+	'#portalslist table td.L2 { cursor: help; background-color: #FFA630 !important;}' +
+	'#portalslist table td.L3 { cursor: help; background-color: #FF7315 !important;}' +
+	'#portalslist table td.L4 { cursor: help; background-color: #E40000 !important;}' +
+	'#portalslist table td.L5 { cursor: help; background-color: #FD2992 !important;}' +
+	'#portalslist table td.L6 { cursor: help; background-color: #EB26CD !important;}' +
+    '#portalslist table td.L7 { cursor: help; background-color: #C124E0 !important;}' +
+	'#portalslist table td.L8 { cursor: help; background-color: #9627F4 !important;}' + 
     '#portalslist table td:nth-child(1) { text-align: left;}' +
     '#portalslist table th { cursor:pointer; text-align: right;}' +
     '#portalslist table th:nth-child(1) { text-align: left;}' +
