@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             max-links@boombuler
 // @name           IITC plugin: Max Links
-// @version        0.2.1.@@DATETIMEVERSION@@
+// @version        0.3.0.@@DATETIMEVERSION@@
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Calculates how to link the portals to create the maximum number of fields.
@@ -32,8 +32,6 @@ window.plugin.maxLinks.STROKE_STYLE = {
   clickable: false,
   smoothFactor: 10
 };
-window.plugin.maxLinks._delaunayScriptLocation = '@@RESOURCEURLBASE@@/delaunay.js';
-
 window.plugin.maxLinks.layer = null;
 
 window.plugin.maxLinks._updating = false;
@@ -85,39 +83,40 @@ window.plugin.maxLinks.updateLayer = function() {
 }
 
 window.plugin.maxLinks.setup = function() {
-  load(window.plugin.maxLinks._delaunayScriptLocation).thenRun(function() {
+  try { console.log('Loading delaunay JS now'); } catch(e) {}
+  @@INCLUDERAW:dist/delaunay.js@@
+  try { console.log('done loading delaunay JS'); } catch(e) {}
 
-    window.delaunay.Triangle.prototype.draw = function(layer, divX, divY) {
-      var drawLine = function(src, dest) {
-        var poly = L.polyline([[(src.y + divY)/1E6, (src.x + divX)/1E6], [(dest.y + divY)/1E6, (dest.x + divX)/1E6]], window.plugin.maxLinks.STROKE_STYLE);
-        poly.addTo(layer);
-      };
+  window.delaunay.Triangle.prototype.draw = function(layer, divX, divY) {
+    var drawLine = function(src, dest) {
+      var poly = L.polyline([[(src.y + divY)/1E6, (src.x + divX)/1E6], [(dest.y + divY)/1E6, (dest.x + divX)/1E6]], window.plugin.maxLinks.STROKE_STYLE);
+      poly.addTo(layer);
+    };
 
-      drawLine(this.a, this.b);
-      drawLine(this.b, this.c);
-      drawLine(this.c, this.a);
-    }
+    drawLine(this.a, this.b);
+    drawLine(this.b, this.c);
+    drawLine(this.c, this.a);
+  }
 
-    window.plugin.maxLinks.layer = L.layerGroup([]);
+  window.plugin.maxLinks.layer = L.layerGroup([]);
 
-    window.addHook('checkRenderLimit', function(e) {
-      if (window.map.hasLayer(window.plugin.maxLinks.layer) &&
-          window.plugin.maxLinks._renderLimitReached)
-        e.reached = true;
-    });
-
-    window.addHook('portalDataLoaded', function(e) {
-      if (window.map.hasLayer(window.plugin.maxLinks.layer))
-        window.plugin.maxLinks.updateLayer();
-    });
-
-    window.map.on('layeradd', function(e) {
-      if (e.layer === window.plugin.maxLinks.layer)
-        window.plugin.maxLinks.updateLayer();
-    });
-    window.map.on('zoomend moveend', window.plugin.maxLinks.updateLayer);
-    window.layerChooser.addOverlay(window.plugin.maxLinks.layer, 'Maximum Links');
+  window.addHook('checkRenderLimit', function(e) {
+    if (window.map.hasLayer(window.plugin.maxLinks.layer) &&
+        window.plugin.maxLinks._renderLimitReached)
+      e.reached = true;
   });
+
+  window.addHook('portalDataLoaded', function(e) {
+    if (window.map.hasLayer(window.plugin.maxLinks.layer))
+      window.plugin.maxLinks.updateLayer();
+  });
+
+  window.map.on('layeradd', function(e) {
+    if (e.layer === window.plugin.maxLinks.layer)
+      window.plugin.maxLinks.updateLayer();
+  });
+  window.map.on('zoomend moveend', window.plugin.maxLinks.updateLayer);
+  window.layerChooser.addOverlay(window.plugin.maxLinks.layer, 'Maximum Links');
 }
 var setup = window.plugin.maxLinks.setup;
 

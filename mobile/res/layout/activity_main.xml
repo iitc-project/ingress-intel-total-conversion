@@ -1,6 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
-<com.cradle.iitc_mobile.IITC_WebView  xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/webview"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-/>
+    android:orientation="vertical" >
+
+    <com.cradle.iitc_mobile.IITC_WebView
+        android:id="@+id/iitc_webview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"/>
+
+</LinearLayout>

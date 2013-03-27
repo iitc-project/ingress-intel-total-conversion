@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-show-portal-weakness@vita10gy
 // @name           IITC plugin: show portal weakness
-// @version        0.6.1.@@DATETIMEVERSION@@
+// @version        0.6.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -58,7 +58,7 @@ window.plugin.portalWeakness.portalAdded = function(data) {
     }
 
     if(portal_weakness > 0) {
-      var fill_opacity = portal_weakness*.7 + .3;
+      var fill_opacity = portal_weakness*.85 + .15;
       var color = 'orange';
       if(only_shields) {
         color = 'yellow';

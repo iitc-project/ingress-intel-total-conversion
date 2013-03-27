@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-ap-list@xelio
 // @name           IITC plugin: AP List
-// @version        0.4.5.@@DATETIMEVERSION@@
+// @version        0.5.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -31,7 +31,16 @@ window.plugin.apList.sides = new Array(2);
 window.plugin.apList.sortedPortals = new Array(2);
 window.plugin.apList.playerApGainFunc = new Array(2);
 
-window.plugin.apList.topMaxCount = 10;
+window.plugin.apList.SORT_BY_AP = 'AP';
+window.plugin.apList.SORT_BY_EL = 'EL';
+window.plugin.apList.sortBy = window.plugin.apList.SORT_BY_AP;
+window.plugin.apList.SORT_ASC = 1;
+window.plugin.apList.SORT_DESC = -1;
+window.plugin.apList.sortOptions = {};
+
+window.plugin.apList.currentPage = [1,1];
+window.plugin.apList.totalPage = [1,1];
+window.plugin.apList.portalPerPage = 10;
 window.plugin.apList.sideLabelClass = {};
 window.plugin.apList.tableColumns = new Array(2);
 
@@ -60,13 +69,17 @@ window.plugin.apList.updatePortalTable = function(side) {
               + plugin.apList.tableHeaderBuilder(side)
               + '</thead>';
 
-  table += '<tbody>'
-  for(var i = 0; i < plugin.apList.topMaxCount; i++) {
+  table += '<tbody>';
+  var startingPortal = (plugin.apList.currentPage[side] - 1) * plugin.apList.portalPerPage;
+  for(var i = startingPortal; i < startingPortal + plugin.apList.portalPerPage; i++) {
     var portal = plugin.apList.sortedPortals[side][i];
     table += plugin.apList.tableRowBuilder(side, portal);
   }
   table += '</tbody></table>';
   $('div#ap-list-table').html(table);
+
+  plugin.apList.updatePaginationControl();
+  plugin.apList.updateStats();
 }
 
 window.plugin.apList.tableHeaderBuilder = function(side) {
@@ -75,8 +88,10 @@ window.plugin.apList.tableHeaderBuilder = function(side) {
   $.each(plugin.apList.tableColumns[side], function(ind, column) {
     var cssClass = column.headerTooltip ? (column.cssClass + ' help') : column.cssClass;
     var title = column.headerTooltip ? column.headerTooltip : '';
+    var onclick = column.headerOnClick ? column.headerOnClick: '';
     headerRow += '<td class="' + cssClass + '" '
                + 'title="' + title + '" '
+               + 'onclick="' + onclick + '" '
                + '>'
                + column.header
                + '</td>';
@@ -155,7 +170,7 @@ window.plugin.apList.getPortalApTitle = function(portal) {
 
 window.plugin.apList.getPortalEffectiveLvText = function(portal) {
   var title = plugin.apList.getPortalEffectiveLvTitle(portal);
-  return '<div class="help" title="' + title + '">' + portal.effectiveLevel.effectiveLevel + '</div>';
+  return '<div class="help" title="' + title + '">' + portal.effectiveLevel.effectiveLevel.toFixed(1) + '</div>';
 }
 
 window.plugin.apList.getPortalEffectiveLvTitle = function(portal) {
@@ -190,6 +205,33 @@ window.plugin.apList.getPortalLink = function(portal) {
               : 'ap-list-link';
   var div = '<div class="' + divClass + '">'+a+'</div>';
   return div;
+}
+
+window.plugin.apList.updatePaginationControl = function() {
+  $('#ap-list-current-p').html(plugin.apList.currentPage[plugin.apList.displaySide]);
+  $('#ap-list-total-p').html(plugin.apList.totalPage[plugin.apList.displaySide]);
+}
+
+window.plugin.apList.updateStats = function() {
+  var destroyPortals = plugin.apList.destroyPortalsGuid.length;
+  if(destroyPortals === 0) {
+    title = 'Stats';
+  } else {
+    var destroyAP = 0;
+    var averageEL = 0;
+    $.each(plugin.apList.destroyPortalsGuid, function(ind,guid) {
+      destroyAP += plugin.apList.cachedPortals[guid].playerApGain.totalAp;
+      averageEL += plugin.apList.cachedPortals[guid].effectiveLevel.effectiveLevel;
+    });
+    averageEL = Math.round(averageEL / destroyPortals * 10) / 10;
+
+    var title = 'Stats\n'
+              + 'Selected portal(s)\t=\t' + destroyPortals + '\n'
+              + 'Total AP\t=\t' + destroyAP + '\n'
+              + 'Average EL\t=\t' + averageEL;
+  }
+
+  $('#ap-list-misc-info').attr('title', title);
 }
 
 // MAIN LOGIC FUNCTIONS //////////////////////////////////////////////////////////
@@ -234,20 +276,20 @@ window.plugin.apList.updateSortedPortals = function() {
     plugin.apList.sortedPortals[side].push(portal);
   });
   $.each(plugin.apList.sides, function(ind, side) {
-    plugin.apList.sortedPortals[side].sort(function(a, b) {
-     return b.playerApGain.totalAp - a.playerApGain.totalAp;
-    });
+    plugin.apList.sortedPortals[side].sort(plugin.apList.comparePortal);
   });
 
   // Modify sortedPortals if any portal selected for destroy
-  if(plugin.apList.destroyPortalsGuid.length > 0) {
-    plugin.apList.handleDestroyPortal()
-  }
+  plugin.apList.handleDestroyPortal();
+  // Update pagination control data
+  plugin.apList.updateTotalPages();
 }
 
 // This function will make AP gain of field and link only count once if 
 // one of the connected portal is selected for destroy
 window.plugin.apList.handleDestroyPortal = function() {
+  if(plugin.apList.destroyPortalsGuid.length === 0) return;
+
   var enemy = window.plugin.apList.SIDE_ENEMY;
   var destroyedLinks = {};
   var destroyedFields = {};
@@ -310,8 +352,13 @@ window.plugin.apList.handleDestroyPortal = function() {
   });
 
   // Sorting portals with updated AP
-  plugin.apList.sortedPortals[enemy].sort(function(a, b) {
-    return b.playerApGain.totalAp - a.playerApGain.totalAp;
+  plugin.apList.sortedPortals[enemy].sort(plugin.apList.comparePortal);
+}
+
+window.plugin.apList.updateTotalPages = function() {
+  $.each(plugin.apList.sortedPortals, function(side, portals) {
+    plugin.apList.totalPage[side] = Math.max(Math.ceil(portals.length / plugin.apList.portalPerPage), 1);
+    plugin.apList.currentPage[side] = Math.min(plugin.apList.totalPage[side], plugin.apList.currentPage[side]);
   });
 }
 
@@ -350,22 +397,16 @@ window.plugin.apList.getDeployOrUpgradeApGain = function(d) {
   // by others(only level lower than player level) or by player.
   for(var i = 0; i < 8; i++) {
     var reso = d.resonatorArray.resonators[i];
-
+    // Empty reso
     if(!reso) {
-      // Empty reso
-      reso = {slot: i, level: 0};
-      otherReso.push(reso);
+      otherReso.push({slot: i, level: 0});
       continue;
     }
-
     // By player
     if(reso.ownerGuid === window.PLAYER.guid) {
-      if(!playerResoCount[reso.level])
-        playerResoCount[reso.level] = 0;
-      playerResoCount[reso.level]++;
+      playerResoCount[reso.level] = (playerResoCount[reso.level] || 0) + 1;
       continue;
     }
-
     // By others and level lower than player
     if(reso.level < window.PLAYER.level) {
       otherReso.push(reso);
@@ -389,9 +430,6 @@ window.plugin.apList.getDeployOrUpgradeApGain = function(d) {
       upgradedReso.push(targetReso);
       // Counting upgrade or deploy
       (targetReso.level === 0) ? deployCount++ : upgradedCount++;
-      totalAp += (targetReso.level === 0)
-        ? DEPLOY_RESONATOR
-        : UPGRADE_ANOTHERS_RESONATOR;
 
       availableCount--;
     }
@@ -483,10 +521,10 @@ window.plugin.apList.getEffectiveLevel = function(portal) {
   }
 
   return {
-    effectiveLevel: effectiveLevel.toFixed(1),
+    effectiveLevel: Math.round(effectiveLevel * 10) / 10,
     effectiveEnergy: parseInt(effectiveEnergy),
-    effectOfShields: effectOfShields.toFixed(2),
-    effectOfResoDistance: effectOfResoDistance.toFixed(2),
+    effectOfShields: Math.round(effectOfShields * 100) / 100,
+    effectOfResoDistance: Math.round(effectOfResoDistance * 100) / 100,
     originLevel: portalLevel
   };
 }
@@ -519,6 +557,36 @@ window.plugin.apList.getShieldsMitigation = function(portal) {
   return shieldsMitigation;
 }
 
+// For using in .sort(func) of sortedPortals
+// Use options in plugin.apList.sortOptions. Each type of sortBy has 
+// array of options. Option consist of an ordering and a property chain. 
+//
+// Sorting done by loop through the options, get the property by 
+// property chain of each option, compare the property of two object 
+// with the ordering of option and return the result when the first 
+// differece is found.
+window.plugin.apList.comparePortal = function(a,b) {
+  var result = 0;
+  var options = plugin.apList.sortOptions[plugin.apList.sortBy];
+
+  $.each(options, function(indO, option) {
+    var aProperty = a;
+    var bProperty = b;
+    // Walking down the chain
+    $.each(option.chain, function(indPN, propertyName) {
+      aProperty = aProperty[propertyName];
+      bProperty = bProperty[propertyName];
+    });
+    // compare next porperty if equal
+    if(aProperty === bProperty) return true;
+
+    result = (aProperty > bProperty ? 1 : -1) * option.order;
+    return false;
+  });
+
+  return result;
+}
+
 // FEATURE TOGGLES AND INTERACTION HANDLER ///////////////////////////////////////
 
 window.plugin.apList.enableCache = function() {
@@ -535,7 +603,15 @@ window.plugin.apList.disableCache = function() {
 }
 
 window.plugin.apList.selectPortal = function(guid) {
-  renderPortalDetails(guid);
+  // Add error catching to avoid following link of portal if error 
+  // occured in renderPortalDetails or hooked plugin
+  try {
+    renderPortalDetails(guid);
+  } catch(e) {
+    console.error(e.message);
+    console.log(e.stack);
+    console.log('Skipping error in renderPortalDetails or hooked plugin')
+  }
   plugin.apList.setPortalLocationIndicator(guid);
 }
 
@@ -575,6 +651,34 @@ window.plugin.apList.animPortalLocationIndicator = function() {
     plugin.apList.animTimeout = setTimeout(plugin.apList.animPortalLocationIndicator,100);
   } else {
     map.removeLayer(plugin.apList.portalLocationIndicator);
+  }
+}
+
+window.plugin.apList.changePage = function(step, toEnd) {
+  var side = plugin.apList.displaySide;
+  var oldPage = plugin.apList.currentPage[side];
+
+  if(toEnd) {
+    if(step < 0) plugin.apList.currentPage[side] = 1;
+    if(step > 0) plugin.apList.currentPage[side] = plugin.apList.totalPage[side]
+  } else {
+    plugin.apList.currentPage[side] += step;
+    if(plugin.apList.currentPage[side] < 1)
+      plugin.apList.currentPage[side] = 1;
+    if(plugin.apList.currentPage[side] > plugin.apList.totalPage[side])
+      plugin.apList.currentPage[side] = plugin.apList.totalPage[side];
+  }
+
+  if(plugin.apList.currentPage[side] !== oldPage)
+    plugin.apList.updatePortalTable(side);
+}
+
+window.plugin.apList.changeSorting = function(sortBy) {
+  var oldSortBy = plugin.apList.sortBy;
+  plugin.apList.sortBy = sortBy;
+  if(plugin.apList.sortBy !== oldSortBy) {
+    plugin.apList.updateSortedPortals();
+    plugin.apList.updatePortalTable(plugin.apList.displaySide);
   }
 }
 
@@ -648,6 +752,25 @@ window.plugin.apList.setupVar = function() {
     = "#ap-list-frd";
   plugin.apList.sideLabelClass[plugin.apList.SIDE_ENEMY]
     = "#ap-list-eny";
+  plugin.apList.sortedPortals[plugin.apList.SIDE_FRIENDLY] = new Array();
+  plugin.apList.sortedPortals[plugin.apList.SIDE_ENEMY] = new Array();
+}
+
+window.plugin.apList.setupSorting = function() {
+  var optionELAsc = {
+    order: plugin.apList.SORT_ASC,
+    chain: ['effectiveLevel','effectiveLevel']};
+  var optionAPDesc = {
+    order: plugin.apList.SORT_DESC,
+    chain: ['playerApGain','totalAp']};
+  var optionGuidDesc = {
+    order: plugin.apList.SORT_DESC,
+    chain: ['guid']};
+
+  // order by EL -> AP -> guid
+  plugin.apList.sortOptions[plugin.apList.SORT_BY_EL] = [optionELAsc, optionAPDesc, optionGuidDesc];
+  // order by AP -> EL -> guid
+  plugin.apList.sortOptions[plugin.apList.SORT_BY_AP] = [optionAPDesc, optionELAsc, optionGuidDesc];
 }
 
 // Setup table columns for header builder and row builder
@@ -658,12 +781,15 @@ window.plugin.apList.setupTableColumns = function() {
   // AP and Eff. LV columns are same in enemy and friendly table
   var apColumn = {
     header: 'AP',
+    headerOnClick: 'plugin.apList.changeSorting(plugin.apList.SORT_BY_AP);',
+    headerTooltip: 'Click to sort by AP',
     cssClass: 'ap-list-td-ap',
     contentFunction: plugin.apList.getPortalApText
   };
   var effectiveLevelColumn = {
     header: 'EL',
-    headerTooltip: 'Effective Level',
+    headerOnClick: 'plugin.apList.changeSorting(plugin.apList.SORT_BY_EL);',
+    headerTooltip: 'Effective Level\nClick to sort by EL',
     cssClass: 'ap-list-td-eff-lv',
     contentFunction: plugin.apList.getPortalEffectiveLvText
   };
@@ -718,10 +844,36 @@ window.plugin.apList.setupList = function() {
           + 'plugin.apList.hideReloadLabel();return false;">↻ R</a>'
           + '</span>'
           + '<div id="ap-list-table"></div>'
+          + '<span id="ap-list-misc-info" title="Stats">...</span>'
+          + '<span id="ap-list-pagination"></span>'
           + '</div>';
 
   $('#sidebar').append(content);
   $('#ap-list-reload').hide();
+}
+
+window.plugin.apList.setupPagination = function() {
+  var content = '<div class="ap-list-center-div">'
+                + '<div id="ap-list-first-p" class="ap-list-page-control" onclick="plugin.apList.changePage(-1, true);">'
+                  + '<div class="ap-list-triangle ap-list-triangle-left ap-list-triangle-left-half"/>'
+                  + '<div class="ap-list-triangle ap-list-triangle-left ap-list-triangle-left-half"/>'
+                + '</div>'
+                + '<div id="ap-list-next-p" class="ap-list-page-control" onclick="plugin.apList.changePage(-1);">'
+                  + '<div class="ap-list-triangle ap-list-triangle-left ap-list-triangle-left-full"/>'
+                + '</div>'
+                + '<div id="ap-list-current-p" class="ap-list-page-text">1</div>'
+                + '<div id="ap-list-page-slash" class="ap-list-page-text">/</div>'
+                + '<div id="ap-list-total-p" class="ap-list-page-text">1</div>'
+                + '<div id="ap-list-prev-p" class="ap-list-page-control" onclick="plugin.apList.changePage(1);">'
+                  + '<div class="ap-list-triangle ap-list-triangle-right ap-list-triangle-right-full"/>'
+                + '</div>'
+                + '<div id="ap-list-last-p" class="ap-list-page-control" onclick="plugin.apList.changePage(1, true);">'
+                  + '<div class="ap-list-triangle ap-list-triangle-right ap-list-triangle-right-half"/>'
+                  + '<div class="ap-list-triangle ap-list-triangle-right ap-list-triangle-right-half"/>'
+                + '</div>'
+                + '<div class="spacer" style="clear: both;"></div>'// fix collapsion of parent caused by inner div's float:left
+              + '</div>';
+  $('#ap-list-pagination').html(content);
 }
 
 window.plugin.apList.setupMapEvent = function() {
@@ -755,9 +907,11 @@ window.plugin.apList.setupMapEvent = function() {
 
 var setup = function() {
   window.plugin.apList.setupVar();
+  window.plugin.apList.setupSorting();
   window.plugin.apList.setupTableColumns();
   window.plugin.apList.setupCSS();
   window.plugin.apList.setupList();
+  window.plugin.apList.setupPagination();
   window.plugin.apList.setupMapEvent();
   window.addHook('requestFinished', window.plugin.apList.handleUpdate);
 }
