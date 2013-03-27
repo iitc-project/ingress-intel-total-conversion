@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-player-tracker@breunigs
 // @name           IITC Plugin: Player tracker
-// @version        0.8.0.@@DATETIMEVERSION@@
+// @version        0.8.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -201,7 +201,14 @@ window.plugin.playerTracker.getLatLngFromEvent = function(ev) {
 }
 
 window.plugin.playerTracker.ago = function(time, now) {
-  return parseInt((now-time)/(1000*60));
+  var s = (now-time) / 1000;
+  var h = Math.floor(s / 3600);
+  var m = Math.floor((s % 3600) / 60);
+  var returnVal = m + 'm';
+  if(h > 0) {
+    returnVal = h + 'h' + returnVal;
+  }
+  return returnVal;
 }
 
 window.plugin.playerTracker.drawData = function() {
@@ -234,10 +241,10 @@ window.plugin.playerTracker.drawData = function() {
     var cssClass = playerData.team === 'ALIENS' ? 'enl' : 'res';
     var title =
         '<span class="nickname '+ cssClass+'" style="font-weight:bold;">' + playerData.nick + '</span>\n'
-        + ago(last.time, now) + ' minutes ago\n'
+        + ago(last.time, now) + ' ago\n'
         + last.name;
     // show previous data in tooltip
-    var minsAgo = '\t<span style="white-space: nowrap;">mins ago</span>\t';
+    var minsAgo = '\t<span style="white-space: nowrap;"> ago</span>\t';
     if(evtsLength >= 2)
       title += '\n&nbsp;\nprevious locations:\n';
     for(var i = evtsLength - 2; i >= 0 && i >= evtsLength - 10; i--) {
