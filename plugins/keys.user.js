@@ -67,7 +67,8 @@ window.plugin.keys.storeKeys = function() {
 }
 
 window.plugin.keys.loadKeys = function() {
-  var keysObjectJSON = localStorage[plugin.keys.LOCAL_STORAGE_KEY]
+  var keysObjectJSON = localStorage[plugin.keys.LOCAL_STORAGE_KEY];
+  if(!keysObjectJSON) return;
   var keysObject = JSON.parse(keysObjectJSON);
   plugin.keys.keys = keysObject.keys;
 }
