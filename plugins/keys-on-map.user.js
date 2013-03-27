@@ -27,6 +27,10 @@ window.plugin.keysOnMap.keyLayerGroup = new L.LayerGroup();
 
 // Use portal add and remove event to control render of keys
 window.plugin.keysOnMap.portalAdded = function(data) {
+  // Disable if Plugin Keys is not there
+  if(!plugin.keys)
+    return;
+
   data.portal.on('add', function() {
     plugin.keysOnMap.renderKey(this.options.guid, this.getLatLng());
   });
@@ -37,6 +41,10 @@ window.plugin.keysOnMap.portalAdded = function(data) {
 }
 
 window.plugin.keysOnMap.keyUpdate = function(data) {
+  // Disable if Plugin Keys is not there
+  if(!plugin.keys)
+    return;
+
   var portal = window.portals[data.guid];
   if(!portal) return;
   var latLng = portal.getLatLng();
