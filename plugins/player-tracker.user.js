@@ -244,7 +244,7 @@ window.plugin.playerTracker.drawData = function() {
         + ago(last.time, now) + ' ago\n'
         + last.name;
     // show previous data in tooltip
-    var minsAgo = '\t<span style="white-space: nowrap;">mins ago</span>\t';
+    var minsAgo = '\t<span style="white-space: nowrap;"> ago</span>\t';
     if(evtsLength >= 2)
       title += '\n&nbsp;\nprevious locations:\n';
     for(var i = evtsLength - 2; i >= 0 && i >= evtsLength - 10; i--) {
