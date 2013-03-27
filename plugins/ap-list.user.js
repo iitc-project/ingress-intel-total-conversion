@@ -79,6 +79,7 @@ window.plugin.apList.updatePortalTable = function(side) {
   $('div#ap-list-table').html(table);
 
   plugin.apList.updatePaginationControl();
+  plugin.apList.updateStats();
 }
 
 window.plugin.apList.tableHeaderBuilder = function(side) {
@@ -169,7 +170,7 @@ window.plugin.apList.getPortalApTitle = function(portal) {
 
 window.plugin.apList.getPortalEffectiveLvText = function(portal) {
   var title = plugin.apList.getPortalEffectiveLvTitle(portal);
-  return '<div class="help" title="' + title + '">' + portal.effectiveLevel.effectiveLevel + '</div>';
+  return '<div class="help" title="' + title + '">' + portal.effectiveLevel.effectiveLevel.toFixed(1) + '</div>';
 }
 
 window.plugin.apList.getPortalEffectiveLvTitle = function(portal) {
@@ -209,6 +210,28 @@ window.plugin.apList.getPortalLink = function(portal) {
 window.plugin.apList.updatePaginationControl = function() {
   $('#ap-list-current-p').html(plugin.apList.currentPage[plugin.apList.displaySide]);
   $('#ap-list-total-p').html(plugin.apList.totalPage[plugin.apList.displaySide]);
+}
+
+window.plugin.apList.updateStats = function() {
+  var destroyPortals = plugin.apList.destroyPortalsGuid.length;
+  if(destroyPortals === 0) {
+    title = 'Stats';
+  } else {
+    var destroyAP = 0;
+    var averageEL = 0;
+    $.each(plugin.apList.destroyPortalsGuid, function(ind,guid) {
+      destroyAP += plugin.apList.cachedPortals[guid].playerApGain.totalAp;
+      averageEL += plugin.apList.cachedPortals[guid].effectiveLevel.effectiveLevel;
+    });
+    averageEL = Math.round(averageEL / destroyPortals * 10) / 10;
+
+    var title = 'Stats\n'
+              + 'Selected portal(s)\t=\t' + destroyPortals + '\n'
+              + 'Total AP\t=\t' + destroyAP + '\n'
+              + 'Average EL\t=\t' + averageEL;
+  }
+
+  $('#ap-list-misc-info').attr('title', title);
 }
 
 // MAIN LOGIC FUNCTIONS //////////////////////////////////////////////////////////
@@ -498,10 +521,10 @@ window.plugin.apList.getEffectiveLevel = function(portal) {
   }
 
   return {
-    effectiveLevel: effectiveLevel.toFixed(1),
+    effectiveLevel: Math.round(effectiveLevel * 10) / 10,
     effectiveEnergy: parseInt(effectiveEnergy),
-    effectOfShields: effectOfShields.toFixed(2),
-    effectOfResoDistance: effectOfResoDistance.toFixed(2),
+    effectOfShields: Math.round(effectOfShields * 100) / 100,
+    effectOfResoDistance: Math.round(effectOfResoDistance * 100) / 100,
     originLevel: portalLevel
   };
 }
@@ -821,7 +844,8 @@ window.plugin.apList.setupList = function() {
           + 'plugin.apList.hideReloadLabel();return false;">↻ R</a>'
           + '</span>'
           + '<div id="ap-list-table"></div>'
-          + '<div id="ap-list-pagination"></div>'
+          + '<span id="ap-list-misc-info" title="Stats">...</span>'
+          + '<span id="ap-list-pagination"></span>'
           + '</div>';
 
   $('#sidebar').append(content);
