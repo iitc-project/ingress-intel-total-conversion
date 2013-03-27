@@ -28,8 +28,10 @@ window.plugin.keysOnMap.keyLayerGroup = new L.LayerGroup();
 // Use portal add and remove event to control render of keys
 window.plugin.keysOnMap.portalAdded = function(data) {
   // Disable if Plugin Keys is not there
-  if(!plugin.keys)
+  if(!plugin.keys) {
+    plugin.keysOnMap.disableMessage();
     return;
+  }
 
   data.portal.on('add', function() {
     plugin.keysOnMap.renderKey(this.options.guid, this.getLatLng());
@@ -42,9 +44,10 @@ window.plugin.keysOnMap.portalAdded = function(data) {
 
 window.plugin.keysOnMap.keyUpdate = function(data) {
   // Disable if Plugin Keys is not there
-  if(!plugin.keys)
+  if(!plugin.keys) {
+    plugin.keysOnMap.disableMessage();
     return;
-
+  }
   var portal = window.portals[data.guid];
   if(!portal) return;
   var latLng = portal.getLatLng();
@@ -78,6 +81,13 @@ window.plugin.keysOnMap.removeKey = function(guid) {
       plugin.keysOnMap.keyLayerGroup.removeLayer(previousLayer);
       delete plugin.keysOnMap.keyLayers[guid];
     }
+}
+
+window.plugin.keysOnMap.disableMessage = function() {
+  if(!plugin.keysOnMap.messageShown) {
+    alert('Plugin "Keys On Map" need plugin "Keys" to run!');
+    plugin.keysOnMap.messageShown = true;
+  }
 }
 
 var setup =  function() {
