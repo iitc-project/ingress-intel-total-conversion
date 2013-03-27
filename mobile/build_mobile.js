@@ -4,9 +4,10 @@ set -e
 
 cd `dirname "$0"`
 cd ..
-./build.py
-compressed="$(uglifyjs iitc-debug.user.js)"
-echo "${compressed}" > "iitc-debug.user.js"
+./build.py local8000
+cd build/local8000
+compressed="$(uglifyjs total-conversion-build.user.js)"
+echo "${compressed}" > "total-conversion-build.user.js"
 
-cd mobile
+cd ../../mobile
 ant release

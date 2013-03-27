@@ -25,15 +25,15 @@ public class IITC_Mobile extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		iitc_view = (IITC_WebView) findViewById(R.id.iitc_webview);
 
 		// we do not want to reload our page every time we switch orientations...
 		// so restore state if activity was already created
 		if(savedInstanceState != null) {
-			((IITC_WebView)findViewById(R.id.webview)).restoreState(savedInstanceState);
+			iitc_view.restoreState(savedInstanceState);
 		}
 		else {
 			// load new iitc web view with ingress intel page
-			iitc_view= (IITC_WebView) findViewById(R.id.webview);
 			Intent intent = getIntent();
 			String action = intent.getAction();
 			if (Intent.ACTION_VIEW.equals(action)) {
@@ -99,6 +99,8 @@ public class IITC_Mobile extends Activity {
 				iitc_view.getWebViewClient().loadIITC_JS(this);
 			} catch (IOException e1) {
 				e1.printStackTrace();
+			} catch (NullPointerException e2) {
+				e2.printStackTrace();
 			}
 			return true;
 		// print version number

@@ -1,1 +1,1 @@
-../../iitc-debug.user.js
+../../build/local8000/total-conversion-build.user.js
