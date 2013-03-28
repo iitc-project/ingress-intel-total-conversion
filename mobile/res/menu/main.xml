@@ -16,7 +16,7 @@
 		android:title="@string/cache_clear"></item>
 
 	<item android:id="@+id/locate"
-	    android:icon="@android:drawable/ic_menu_mylocation"
+	    android:icon="@drawable/ic_menu_mylocation"
 		android:orderInCategory="80"
 		android:showAsAction="ifRoom"
 		android:title="@string/locate"></item>
