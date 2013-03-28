@@ -94,7 +94,7 @@ public class IITC_Mobile extends Activity {
 		// Handle item selection
 		switch (item.getItemId()) {
 		case R.id.reload_button:
-			iitc_view.reload();
+			iitc_view.loadUrl("https://www.ingress.com/intel");
 			try {
 				iitc_view.getWebViewClient().loadIITC_JS(this);
 			} catch (IOException e1) {
