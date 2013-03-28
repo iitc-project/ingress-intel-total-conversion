@@ -777,3 +777,41 @@ td + td {
   width: 50px;
   text-align: right;
 }
+
+.pl_nudge_date {
+  background-color: #724510;
+  border-left: 1px solid #ffd652;
+  border-bottom: 1px solid #ffd652;
+  border-top: 1px solid #ffd652;
+  color: #ffd652;
+  display: inline-block;
+  float: left;
+  font-size: 12px;
+  height: 18px;
+  text-align: center;
+}
+
+.pl_nudge_pointy_spacer {
+  background: no-repeat url(//commondatastorage.googleapis.com/ingress.com/img/nudge_pointy.png);
+  display: inline-block;
+  float: left;
+  height: 20px;
+  left: 47px;
+  width: 5px;
+}
+
+.pl_nudge_player {
+  cursor: pointer;
+}
+
+.pl_nudge_me {
+  color: #ffd652;
+}
+
+.RESISTANCE {
+  color: #00c2ff;
+}
+
+.ALIENS {
+  color: #28f428;
+}
