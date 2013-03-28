@@ -10,4 +10,4 @@ compressed="$(uglifyjs total-conversion-build.user.js)"
 echo "${compressed}" > "total-conversion-build.user.js"
 
 cd ../../mobile
-ant release
+ant debug
