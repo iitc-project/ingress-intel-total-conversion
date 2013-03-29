@@ -27,7 +27,7 @@ window.plugin.guessPlayerLevels.setupCallback = function() {
   addHook('portalAdded', window.plugin.guessPlayerLevels.extractPortalData);
 }
 
-
+// This function is intended to be called by other plugins
 window.plugin.guessPlayerLevels.fetchLevelByPlayer = function(guid) {
   return(window.localStorage['level-' + guid]);
 }
