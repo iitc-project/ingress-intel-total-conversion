@@ -60,10 +60,7 @@ document.getElementsByTagName('head')[0].innerHTML = ''
   + '<title>Ingress Intel Map</title>'
   + '<style>@@INCLUDESTRING:style.css@@</style>'
   + '<style>@@INCLUDESTRING:external/leaflet.css@@</style>'
-  // this navigator check is also used in code/smartphone.js
-  + (navigator.userAgent.match(/Android.*Mobile/)
-      ? '<style>@@INCLUDESTRING:mobile/smartphone.css@@</style>'
-      : '')
+//note: smartphone.css injection moved into code/smartphone.js
   + '<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Coda"/>';
 
 document.getElementsByTagName('body')[0].innerHTML = ''

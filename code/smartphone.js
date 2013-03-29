@@ -20,6 +20,11 @@ window.runOnSmartphonesBeforeBoot = function() {
   if(!isSmartphone()) return;
   console.warn('running smartphone pre boot stuff');
 
+  // add smartphone stylesheet
+  headHTML = document.getElementsByTagName('head')[0].innerHTML;
+  headHTML += '<style>@@INCLUDESTRING:mobile/smartphone.css@@</style>';
+  document.getElementsByTagName('head')[0].innerHTML = headHTML;
+
   // disable zoom buttons to see if they are really needed
   window.localStorage['iitc.zoom.buttons'] = 'false';
 
