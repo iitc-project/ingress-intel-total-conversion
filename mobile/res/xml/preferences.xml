@@ -4,7 +4,7 @@
         android:key="pref_force_desktop"
         android:title="@string/pref_force_desktop"
         android:summary="@string/pref_force_desktop_sum"
-        android:defaultValue="true" />
+        android:defaultValue="false" />
     <ListPreference
         android:key="pref_build_version"
         android:title="@string/build_version"
