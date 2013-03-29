@@ -84,7 +84,7 @@ window.plugin.maxLinks.updateLayer = function() {
 
 window.plugin.maxLinks.setup = function() {
   try { console.log('Loading delaunay JS now'); } catch(e) {}
-  @@INCLUDERAW:dist/delaunay.js@@
+  @@INCLUDERAW:external/delaunay.js@@
   try { console.log('done loading delaunay JS'); } catch(e) {}
 
   window.delaunay.Triangle.prototype.draw = function(layer, divX, divY) {

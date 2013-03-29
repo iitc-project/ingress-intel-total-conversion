@@ -117,10 +117,14 @@ outDir = os.path.join('build', buildName)
 if os.path.exists(outDir):
     shutil.rmtree(outDir)
 
-# copy the 'dist' folder - this creates the target directory (and any missing parent dirs)
-# FIXME? replace with manual copy, and any .css and .js files are parsed for replacement tokens?
-shutil.copytree('dist', outDir)
-
+# copy the 'dist' folder, if it exists
+if os.path.exists('dist'):
+    # this creates the target directory (and any missing parent dirs)
+    # FIXME? replace with manual copy, and any .css and .js files are parsed for replacement tokens?
+    shutil.copytree('dist', outDir)
+else:
+    # no 'dist' folder - so create an empty target folder
+    os.makedirs(outDir)
 
 
 # load main.js, parse, and create main total-conversion-build.user.js
