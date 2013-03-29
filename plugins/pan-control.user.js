@@ -28,8 +28,15 @@ window.plugin.panControl.setup  = function() {
   @@INCLUDERAW:external/L.Control.Pan.js@@
   try { console.log('done loading Leaflet.Pancontrol JS'); } catch(e) {}
   
-  window.map.addControl(L.control.pan({panOffset: 350}));
+  window.map.panControl = L.control.pan({panOffset: 350});
+  window.map.addControl(window.map.panControl);
   
+  if(map.zoomControl._map) {  // Move above the zoom control
+    window.map.removeControl(map.zoomControl);
+    window.map.zoomControl = L.control.zoom();
+    window.map.addControl(window.map.zoomControl);
+  }
+
   $('head').append('<style>@@INCLUDESTRING:external/L.Control.Pan.css@@</style>');
 };
 
