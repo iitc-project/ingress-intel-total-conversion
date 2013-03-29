@@ -257,8 +257,20 @@ window.plugin.playerTracker.drawData = function() {
     var last = playerData.events[evtsLength-1];
     var ago = plugin.playerTracker.ago;
     var cssClass = playerData.team === 'ALIENS' ? 'enl' : 'res';
-    var title =
-        '<span class="nickname '+ cssClass+'" style="font-weight:bold;">' + playerData.nick + '</span>\n'
+    var title = '<span class="nickname '+ cssClass+'" style="font-weight:bold;">' + playerData.nick + '</span>';
+    
+    if(window.plugin.guessPlayerLevels !== undefined &&
+       window.plugin.guessPlayerLevels.fetchLevelByPlayer !== undefined) {
+      var playerLevel = window.plugin.guessPlayerLevels.fetchLevelByPlayer(pguid);
+      if(playerLevel !== undefined) {
+        title += '<span style="font-weight:bold;margin-left:10px;">Level '
+          + playerLevel
+          + (playerLevel < (window.MAX_XM_PER_LEVEL.length - 1) ? ' (guessed)' : '')
+          + '</span>';
+      }
+    }
+    
+    title += '\n'
         + ago(last.time, now) + ' ago\n'
         + last.name;
     // show previous data in tooltip

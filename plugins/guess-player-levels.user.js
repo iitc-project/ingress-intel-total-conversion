@@ -28,16 +28,21 @@ window.plugin.guessPlayerLevels.setupCallback = function() {
 }
 
 
+window.plugin.guessPlayerLevels.fetchLevelByPlayer = function(guid) {
+  return(window.localStorage['level-' + guid]);
+}
+
 window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
   // expects dom node with nick in its child text node
 
   var playersNamed = {};
   for (var i = 0; i < localStorage.length; i++) {
     var ident = localStorage.key(i);
-    if(!ident.startsWith('level-')) continue;
-    var guid = ident.slice(6);
-    var level = localStorage[ident];
-    playersNamed[getPlayerName(guid)] = level;
+    if(ident.startsWith('level-')) {
+      var guid = ident.slice(6);
+      var level = localStorage[ident];
+      playersNamed[getPlayerName(guid)] = level;
+    }
   }
 
   var el = $(dom);
@@ -126,7 +131,7 @@ window.plugin.guessPlayerLevels.guess = function() {
   if (namesE.length > 0)  averageE = (totallvlE/namesE.length);
   s += '\nAverage level:\t'+averageR.toFixed(2)+'\tAverage level:\t'+averageE.toFixed(2);
   s += '\n\nIf there are some unresolved names, simply try again.'
-  console.log(s);
+  //console.log(s);
   alert(s);
 }
 
