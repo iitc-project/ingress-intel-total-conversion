@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <CheckBoxPreference
+        android:key="pref_force_desktop"
+        android:title="@string/pref_force_desktop"
+        android:defaultValue="true" />
+    <ListPreference
+        android:key="pref_build_version"
+        android:title="@string/build_version"
+        android:enabled="false"
+        android:selectable="false" />
+</PreferenceScreen>

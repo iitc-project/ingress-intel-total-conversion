@@ -5,10 +5,10 @@
 		android:showAsAction="ifRoom"
 		android:title="@string/reload"></item>
 
-	<item android:id="@+id/version_num"
-		android:orderInCategory="100"
+	<item android:id="@+id/settings"
+		android:orderInCategory="120"
 		android:showAsAction="never"
-		android:title="@string/version"></item>
+		android:title="@string/action_settings"></item>
 
 	<item android:id="@+id/cache_clear"
 		android:orderInCategory="100"

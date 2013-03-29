@@ -7,10 +7,10 @@ import com.cradle.iitc_mobile.R;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,7 +20,8 @@ public class IITC_Mobile extends Activity {
 
 	private IITC_WebView iitc_view;
 	private boolean back_button_pressed = false;
-
+	private boolean desktop = false;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -45,16 +46,30 @@ public class IITC_Mobile extends Activity {
 				Log.d("Intent received", "url: " + url);
 				if (url.contains("ingress.com")) {
 					Log.d("Intent received", "loading url...");
-					iitc_view.loadUrl(url);
+					iitc_view.loadUrl(addUrlParam(url));
 				}
 			}
 			else {
 				Log.d("No Intent call", "loading https://www.ingress.com/intel");
-				iitc_view.loadUrl("https://www.ingress.com/intel");
+				iitc_view.loadUrl(addUrlParam("https://www.ingress.com/intel"));
 			}
 		}
 	}
-
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		// reload page if, the desktop/mobile pref has changed
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+		if (desktop != sharedPref.getBoolean("pref_force_desktop", false)) {
+			Log.d("pref changed", "force Desktop/Mobile changed...reloading");
+			desktop = sharedPref.getBoolean("pref_force_desktop", false);
+			iitc_view.loadUrl(addUrlParam("https://www.ingress.com/intel"));
+			injectJS();
+		}
+	}
+	
 	// save instance state to avoid reloading on orientation change
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
@@ -94,24 +109,8 @@ public class IITC_Mobile extends Activity {
 		// Handle item selection
 		switch (item.getItemId()) {
 		case R.id.reload_button:
-			iitc_view.loadUrl("https://www.ingress.com/intel");
-			try {
-				iitc_view.getWebViewClient().loadIITC_JS(this);
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			} catch (NullPointerException e2) {
-				e2.printStackTrace();
-			}
-			return true;
-		// print version number
-		case R.id.version_num:
-			PackageInfo pinfo;
-			try {
-				pinfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-				Toast.makeText(this, "Build version: " + pinfo.versionName, Toast.LENGTH_SHORT).show();
-			} catch (NameNotFoundException e) {
-				e.printStackTrace();
-			}
+			iitc_view.loadUrl(addUrlParam("https://www.ingress.com/intel"));
+			injectJS();
 			return true;
 		// clear cache
 		case R.id.cache_clear:
@@ -123,8 +122,31 @@ public class IITC_Mobile extends Activity {
 		case R.id.locate:
 			iitc_view.loadUrl("javascript: window.map.locate({setView : true, maxZoom: 13});");
 			return true;
+		case R.id.settings:
+			startActivity(new Intent(this, IITC_Settings.class));
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
+	}
+
+	private void injectJS() {
+		try {
+			iitc_view.getWebViewClient().loadIITC_JS(this);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		} catch (NullPointerException e2) {
+			e2.printStackTrace();
+		}
+	}
+	
+	private String addUrlParam(String url) {
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+		this.desktop = sharedPref.getBoolean("pref_force_desktop", false);
+		
+		if (desktop)
+			return (url + "?vp=f");
+		else
+			return (url + "?vp=m");
 	}
 }
