@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-show-linked-portals@fstopienski
 // @name           IITC plugin: Show linked portals
-// @version        0.0.2.@@DATETIMEVERSION@@
+// @version        0.0.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -40,18 +40,11 @@ window.plugin.showLinkedPortal.handleUpdate = function () {
 window.plugin.showLinkedPortal.portalDetail = function (data) {
 
     var d = data.portalDetails.portalV2,
-        c = 1,
-        classAdd = '';
+        c = 1;
     //get linked portals
     $(d.linkedEdges).each(function () {
-        if (c < 5) {
-            classAdd = ' showLinkedPortalLinkLeft';
-        }
-        else {
-            classAdd = ' showLinkedPortalLinkRight';
-        }
         var portalInfo = window.plugin.showLinkedPortal.getPortalByGuid(this.otherPortalGuid);
-        $('#portaldetails').append('<div class="showLinkedPortalLink showLinkedPortalLink' + c + ' ' + classAdd + '" id="showLinkedPortalLink_' + c + '" data-guid="' + this.otherPortalGuid + '">' + portalInfo + '</div>');
+        $('#portaldetails').append('<div class="showLinkedPortalLink showLinkedPortalLink' + c + '" id="showLinkedPortalLink_' + c + '" data-guid="' + this.otherPortalGuid + '">' + portalInfo + '</div>');
         c = c + 1;
     });
 
@@ -101,12 +94,16 @@ var setup = function () {
         '.showLinkedPortalLink{cursor: pointer; position: absolute; height: 40px; width: 50px; border:solid 1px; overflow: hidden; text-align: center; background: #0e3d4e;}' +
         '.showLinkedPortalLink .minImg{height: 50px;}' +
         '.showLinkedPortalLink span.outOfRange{font-size: 8px;}' +
-        '.showLinkedPortalLinkLeft{left: 10px; }' +
-        '.showLinkedPortalLinkRight{right: 25px; }' +
-        '.showLinkedPortalLink1,.showLinkedPortalLink5{top: 100px; }' +
-        '.showLinkedPortalLink2,.showLinkedPortalLink6{top: 144px; }' +
-        '.showLinkedPortalLink3,.showLinkedPortalLink7{top: 188px; }' +
-        '.showLinkedPortalLink4,.showLinkedPortalLink8{top: 232px; }' +
+
+        '.showLinkedPortalLink1,.showLinkedPortalLink2,.showLinkedPortalLink3,.showLinkedPortalLink4 {left: 5px}' +
+        '.showLinkedPortalLink5,.showLinkedPortalLink6,.showLinkedPortalLink7,.showLinkedPortalLink8 {right: 11px}' +
+        '.showLinkedPortalLink9,.showLinkedPortalLink10,.showLinkedPortalLink11,.showLinkedPortalLink12 {left: 59px}' +
+        '.showLinkedPortalLink13,.showLinkedPortalLink14,.showLinkedPortalLink15,.showLinkedPortalLink16 {right: 65px}' +
+
+        '.showLinkedPortalLink1,.showLinkedPortalLink5,.showLinkedPortalLink9,.showLinkedPortalLink13 {top: 100px; }' +
+        '.showLinkedPortalLink2,.showLinkedPortalLink6,.showLinkedPortalLink10,.showLinkedPortalLink14 {top: 144px; }' +
+        '.showLinkedPortalLink3,.showLinkedPortalLink7,.showLinkedPortalLink11,.showLinkedPortalLink15 {top: 188px; }' +
+        '.showLinkedPortalLink4,.showLinkedPortalLink8,.showLinkedPortalLink12,.showLinkedPortalLink16 {top: 232px; }' +
         '#level{text-align:center; margin-right: 0px;}' +
         '</style>');
     window.plugin.showLinkedPortal.setupCallback();
