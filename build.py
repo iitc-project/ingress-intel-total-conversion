@@ -8,7 +8,6 @@ import base64
 import sys
 import os
 import shutil
-import subprocess
 
 
 # load settings file
@@ -174,7 +173,7 @@ if buildMobile:
 
 
     # now launch 'ant' to build the mobile project
-    retcode = subprocess.call(["ant", "-buildfile", "mobile/build.xml", buildMobile])
+    retcode = os.system("ant -buildfile mobile/build.xml %s" % buildMobile)
 
     if retcode != 0:
         print ("Error: mobile app failed to build. ant returned %d" % retcode)
