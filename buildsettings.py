@@ -4,17 +4,27 @@
 
 buildSettings = {
     # local: use this build if you're not modifying external resources
-    # external resources will be loaded from the public live release
+    # no external resources allowed - they're not needed any more
     'local': {
-        'resourceUrlBase': 'http://iitc.jonatkins.com/release',
+        'resourceUrlBase': None,
         'distUrlBase': None,
     },
 
     # local8000: if you need to modify external resources, this build will load them from
     # the web server at http://0.0.0.0:8000/dist
+    # (This shouldn't be required any more - all resources are embedded. but, it remains just in case some new feature
+    #  needs external resources)
     'local8000': {
         'resourceUrlBase': 'http://0.0.0.0:8000/dist',
         'distUrlBase': None,
+    },
+
+    # mobile: default entry that also builds the mobile .apk
+    # you will need to have the android-sdk installed, and the file mobile/local.properties created as required
+    'mobile': {
+        'resourceUrlBase': None,
+        'distUrlBase': None,
+        'buildMobile': 'debug',
     },
 
 

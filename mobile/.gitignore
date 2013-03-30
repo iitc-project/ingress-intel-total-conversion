@@ -6,3 +6,4 @@ gen/
 libs/
 proguard-project.txt
 local.properties
+assets/iitc.js

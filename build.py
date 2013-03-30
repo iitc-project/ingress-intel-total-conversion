@@ -8,6 +8,7 @@ import base64
 import sys
 import os
 import shutil
+import subprocess
 
 
 # load settings file
@@ -49,9 +50,9 @@ buildDate = time.strftime('%Y-%m-%d-%H%M%S',utcTime)
 dateTimeVersion = time.strftime('%Y%m%d.%H%M%S',utcTime)
 
 # extract required values from the settings entry
-resourceUrlBase = settings['resourceUrlBase']
-distUrlBase = settings['distUrlBase']
-
+resourceUrlBase = settings.get('resourceUrlBase')
+distUrlBase = settings.get('distUrlBase')
+buildMobile = settings.get('buildMobile')
 
 
 def readfile(fn):
@@ -90,7 +91,13 @@ def doReplacements(script,updateUrl,downloadUrl):
 
     script = script.replace('@@BUILDDATE@@', buildDate)
     script = script.replace('@@DATETIMEVERSION@@', dateTimeVersion)
-    script = script.replace('@@RESOURCEURLBASE@@', resourceUrlBase)
+
+    if resourceUrlBase:
+        script = script.replace('@@RESOURCEURLBASE@@', resourceUrlBase)
+    else:
+        if '@@RESOURCEURLBASE@@' in script:
+            raise Exception("Error: '@@RESOURCEURLBASE@@' found in script, but no replacement defined")
+
     script = script.replace('@@BUILDNAME@@', buildName)
 
     script = script.replace('@@UPDATEURL@@', updateUrl)
@@ -149,6 +156,30 @@ for fn in glob.glob("plugins/*.user.js"):
 
     metafn = fn.replace('.user.js', '.meta.js')
     saveScriptAndMeta(script, os.path.join(outDir,fn), os.path.join(outDir,metafn))
+
+
+# if we're building mobile too
+if buildMobile:
+    if buildMobile not in ['debug','release']:
+        raise Exception("Error: buildMobile must be 'debug' or 'release'")
+
+    # first, copy the IITC script into the mobile folder. create the folder if needed
+    try:
+        os.makedirs("mobile/assets")
+    except:
+        pass
+    shutil.copy(os.path.join(outDir,"total-conversion-build.user.js"), "mobile/assets/iitc.js")
+
+    # TODO? also copy plugins - once the mobile app supports plugins, that is
+
+
+    # now launch 'ant' to build the mobile project
+    retcode = subprocess.call(["ant", "-buildfile", "mobile/build.xml", buildMobile])
+
+    if retcode != 0:
+        print ("Error: mobile app failed to build. ant returned %d" % retcode)
+    else:
+        shutil.copy("mobile/bin/IITC_Mobile-%s.apk" % buildMobile, os.path.join(outDir,"IITC_Mobile-%s.apk" % buildMobile) )
 
 
 # vim: ai si ts=4 sw=4 sts=4 et
