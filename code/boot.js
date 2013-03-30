@@ -115,7 +115,7 @@ window.setupMap = function() {
 
 
   window.map = new L.Map('map', $.extend(getPosition(),
-    {zoomControl: !(localStorage['iitc.zoom.buttons'] === 'false')}
+    {zoomControl: true}
   ));
 
   var addLayers = {};

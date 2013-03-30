@@ -25,9 +25,6 @@ window.runOnSmartphonesBeforeBoot = function() {
   headHTML += '<style>@@INCLUDESTRING:mobile/smartphone.css@@</style>';
   document.getElementsByTagName('head')[0].innerHTML = headHTML;
 
-  // disable zoom buttons to see if they are really needed
-  window.localStorage['iitc.zoom.buttons'] = 'false';
-
   // don’t need many of those
   window.setupStyles = function() {
     $('head').append('<style>' +
