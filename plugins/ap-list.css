@@ -66,20 +66,25 @@
   width: 100%;
 }
 
-.ap-list-checkbox-mid {
+.ap-list-checkbox-inner {
   display: table-cell;
   vertical-align: middle;
-}
-
-.ap-list-checkbox-inner {
-  width: 10px;
-  height: 10px;
+  text-align: center;
+  width: 12px;
+  height: 12px;
   border: 1px solid rgb(32, 168, 177);
   margin: 0 auto;
 }
 
 .ap-list-checkbox-selected {
   background-color: rgb(32, 168, 177);
+}
+
+.ap-list-checkbox-header {
+  width: 8px;
+  height: 0px;
+  margin: auto;
+  border: 1px solid rgb(32, 168, 177);
 }
 
 .ap-list-link {
