@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-ap-list@xelio
 // @name           IITC plugin: AP List
-// @version        0.5.0.@@DATETIMEVERSION@@
+// @version        0.5.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -89,11 +89,12 @@ window.plugin.apList.tableHeaderBuilder = function(side) {
     var cssClass = column.headerTooltip ? (column.cssClass + ' help') : column.cssClass;
     var title = column.headerTooltip ? column.headerTooltip : '';
     var onclick = column.headerOnClick ? column.headerOnClick: '';
+    var content = column.headerFunction ? column.headerFunction() : column.header;
     headerRow += '<td class="' + cssClass + '" '
                + 'title="' + title + '" '
                + 'onclick="' + onclick + '" '
                + '>'
-               + column.header
+               + content
                + '</td>';
   });
 
@@ -115,17 +116,28 @@ window.plugin.apList.tableRowBuilder = function(side,portal) {
   return row;
 }
 
+window.plugin.apList.getHeaderCheckbox = function() {
+  var onClick = 'window.plugin.apList.clearDestroyPortals();';
+  var content = '<div class="ap-list-checkbox-header" />'
+  var div = plugin.apList.getCheckbox(onClick, null, content);
+  return div;
+}
+
 window.plugin.apList.getPortalDestroyCheckbox = function(portal) {
   // Change background color to border color if portal selected for destroy 
-  var checkboxClass = plugin.apList.destroyPortalIndex(portal.guid) >= 0 
-                    ? 'ap-list-checkbox-inner ap-list-checkbox-selected'
-                    : 'ap-list-checkbox-inner';
+  var addedClass = plugin.apList.destroyPortalIndex(portal.guid) >= 0 
+                    ? 'ap-list-checkbox-selected' : '';
   var onClick = 'window.plugin.apList.destroyPortal(\'' + portal.guid + '\');';
-  // 3 div for centering checkbox horizontally and vertically, 
+  var div = plugin.apList.getCheckbox(onClick, addedClass, null);
+  return div;
+}
+
+window.plugin.apList.getCheckbox = function(onClick, addedClass, content) {
+  // 2 div for centering checkbox horizontally and vertically, 
   // click event on outest div for people with not so good aiming
-  var div = '<div class="ap-list-checkbox-outer" onclick="' + onClick + '">'
-          + '<div class="ap-list-checkbox-mid">'
-          + '<div class="' + checkboxClass + '"/>'
+  var div = '<div class="ap-list-checkbox-outer" onclick="' + (onClick || '')+ '">'
+          + '<div class="ap-list-checkbox-inner ' + (addedClass || '') + '">'
+          + (content || '')
           + '</div>'
           + '</div>';
   return div;
@@ -682,6 +694,13 @@ window.plugin.apList.changeSorting = function(sortBy) {
   }
 }
 
+window.plugin.apList.clearDestroyPortals = function() {
+  plugin.apList.destroyPortalsGuid = new Array();
+
+  plugin.apList.updateSortedPortals();
+  plugin.apList.updatePortalTable(plugin.apList.displaySide);
+}
+
 window.plugin.apList.destroyPortal = function(guid) {
   // Add to destroyPortalsGuid if not yet added, remove if already added
   var portalIndex = plugin.apList.destroyPortalIndex(guid);
@@ -796,8 +815,8 @@ window.plugin.apList.setupTableColumns = function() {
 
   // Columns: Checkbox | Portal | AP | Eff. LV
   enemyColumns.push({
-    header: '',
-    headerTooltip: 'Select checkbox to \nsimulating destruction',
+    headerFunction: plugin.apList.getHeaderCheckbox,
+    headerTooltip: 'Unselect all',
     cssClass: 'ap-list-td-checkbox',
     contentFunction: plugin.apList.getPortalDestroyCheckbox
   });
