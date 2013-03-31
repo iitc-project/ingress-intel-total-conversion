@@ -17,7 +17,7 @@
 	height:5px;
 	background-color: black;
 	background-position: center;
- 	-webkit-border-radius: 15px;
+  -webkit-border-radius: 15px;
 	border-radius: 15px;
 	margin-left: 5px;
 	/*border: 5px; */
@@ -36,7 +36,7 @@
 
 .leaflet-dragging .leaflet-control-zoomslider,
 .leaflet-dragging .leaflet-control-zoomslider-slider,
-.leaflet-dragging .leaflet-control-zoomslider-slider-body, 
+.leaflet-dragging .leaflet-control-zoomslider-slider-body,
 .leaflet-dragging .leaflet-control-zoomslider a,
 .leaflet-dragging .leaflet-control-zoomslider a.leaflet-control-zoomslider-disabled,
 .leaflet-dragging .leaflet-control-zoomslider-slider-knob:hover  {

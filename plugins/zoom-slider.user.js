@@ -27,10 +27,12 @@ window.plugin.zoomSlider.setup  = function() {
   try { console.log('Loading Leaflet.zoomslider JS now'); } catch(e) {}
   @@INCLUDERAW:external/L.Control.Zoomslider.js@@
   try { console.log('done loading Leaflet.zoomslider JS'); } catch(e) {}
-  
-  window.map.removeControl(map.zoomControl);
+
+  if(map.zoomControl._map) {
+    window.map.removeControl(map.zoomControl);
+  }
   window.map.addControl(L.control.zoomslider());
-  
+
   $('head').append('<style>@@INCLUDESTRING:external/L.Control.Zoomslider.css@@</style>');
 };
 
