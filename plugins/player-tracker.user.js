@@ -112,7 +112,7 @@ window.plugin.playerTracker.processNewData = function(data) {
     if(json[1] < limit) return true;
 
     // find player and portal information
-    var pguid, lat, lng, guid, name;
+    var pguid, lat, lng, guid, name, address;
     var skipThisMessage = false;
     $.each(json[2].plext.markup, function(ind, markup) {
       switch(markup[0]) {
@@ -137,6 +137,7 @@ window.plugin.playerTracker.processNewData = function(data) {
         lng = lng ? lng : markup[1].lngE6/1E6;
         guid = guid ? guid : markup[1].guid;
         name = name ? name : markup[1].name;
+        address = address ? address : markup[1].address;
         break;
       }
     });
@@ -148,7 +149,8 @@ window.plugin.playerTracker.processNewData = function(data) {
       latlngs: [[lat, lng]],
       guids: [guid],
       time: json[1],
-      name: name
+      name: name,
+      address: address
     };
 
     var playerData = window.plugin.playerTracker.stored[pguid];
@@ -272,14 +274,14 @@ window.plugin.playerTracker.drawData = function() {
     
     title += '\n'
         + ago(last.time, now) + ' ago\n'
-        + last.name;
+        + window.chat.getChatPortalName(last);
     // show previous data in tooltip
     var minsAgo = '\t<span style="white-space: nowrap;"> ago</span>\t';
     if(evtsLength >= 2)
       title += '\n&nbsp;\nprevious locations:\n';
     for(var i = evtsLength - 2; i >= 0 && i >= evtsLength - 10; i--) {
       var ev = playerData.events[i];
-      title += ago(ev.time, now) + minsAgo + ev.name + '\n';
+      title += ago(ev.time, now) + minsAgo + window.chat.getChatPortalName(ev) + '\n';
     }
 
     // calculate the closest portal to the player
