@@ -7,10 +7,12 @@ import com.cradle.iitc_mobile.R;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,12 +23,29 @@ public class IITC_Mobile extends Activity {
 	private IITC_WebView iitc_view;
 	private boolean back_button_pressed = false;
 	private boolean desktop = false;
+	private OnSharedPreferenceChangeListener listener;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		// TODO build an async task for url.openStream() in IITC_WebViewClient
+		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+		StrictMode.setThreadPolicy(policy);
 		setContentView(R.layout.activity_main);
 		iitc_view = (IITC_WebView) findViewById(R.id.iitc_webview);
+
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+		listener = new OnSharedPreferenceChangeListener() {
+			@Override
+			public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+				if (key == "pref_force_desktop")
+					desktop = sharedPreferences.getBoolean("pref_force_desktop", false);
+				// reload intel map
+				iitc_view.loadUrl(addUrlParam("https://www.ingress.com/intel"));
+				injectJS();
+			}
+		};
+		sharedPref.registerOnSharedPreferenceChangeListener(listener);
 
 		// we do not want to reload our page every time we switch orientations...
 		// so restore state if activity was already created
@@ -53,20 +72,6 @@ public class IITC_Mobile extends Activity {
 				Log.d("No Intent call", "loading https://www.ingress.com/intel");
 				iitc_view.loadUrl(addUrlParam("https://www.ingress.com/intel"));
 			}
-		}
-	}
-	
-	@Override
-	protected void onResume() {
-		super.onResume();
-		
-		// reload page if, the desktop/mobile pref has changed
-		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-		if (desktop != sharedPref.getBoolean("pref_force_desktop", false)) {
-			Log.d("pref changed", "force Desktop/Mobile changed...reloading");
-			desktop = sharedPref.getBoolean("pref_force_desktop", false);
-			iitc_view.loadUrl(addUrlParam("https://www.ingress.com/intel"));
-			injectJS();
 		}
 	}
 	

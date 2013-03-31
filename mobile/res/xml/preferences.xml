@@ -5,9 +5,21 @@
         android:title="@string/pref_force_desktop"
         android:summary="@string/pref_force_desktop_sum"
         android:defaultValue="false" />
-    <ListPreference
-        android:key="pref_build_version"
-        android:title="@string/build_version"
-        android:enabled="false"
-        android:selectable="false" />
+
+    <PreferenceCategory
+        android:key="pref_developer_options"
+        android:title="@string/pref_developer_options">
+
+		<EditTextPreference
+			android:key="pref_iitc_source"
+			android:title="@string/pref_select_iitc"
+			android:summary=""
+			android:defaultValue="local"/>
+
+		<ListPreference
+	        android:key="pref_build_version"
+	        android:title="@string/build_version"
+	        android:enabled="false"
+	        android:selectable="false" />
+    </PreferenceCategory>
 </PreferenceScreen>

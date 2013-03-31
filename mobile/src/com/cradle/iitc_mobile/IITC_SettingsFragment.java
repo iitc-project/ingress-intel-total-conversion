@@ -4,7 +4,10 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
+import android.preference.Preference;
+import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
 
 public class IITC_SettingsFragment extends PreferenceFragment {
@@ -27,5 +30,18 @@ public class IITC_SettingsFragment extends PreferenceFragment {
         catch (NameNotFoundException e) {
         }
         pref_build_version.setSummary(version);
+
+        // set iitc source
+        EditTextPreference pref_iitc_source = (EditTextPreference) findPreference("pref_iitc_source");
+        pref_iitc_source.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                preference.setSummary((CharSequence) newValue);
+                return true;
+            }
+        });
+        // first init of summary
+        String pref_iitc_source_sum = (String) pref_iitc_source.getSummary() + pref_iitc_source.getText();
+        pref_iitc_source.setSummary(pref_iitc_source_sum);
     }
 }

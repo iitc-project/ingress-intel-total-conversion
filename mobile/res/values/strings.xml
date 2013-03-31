@@ -7,9 +7,12 @@
     <string name="version">Print Version</string>
     <string name="cache_clear">Clear Cache</string>
     <string name="locate">Get Location</string>
+    <string name="local">local</string>
     <string name="build_version">Build Version</string>
     
     <string name="pref_force_desktop">Force desktop mode</string>
     <string name="pref_force_desktop_sum">Nice for tablets, looks awful on smartphones</string>
+    <string name="pref_developer_options">Developer options</string>
+    <string name="pref_select_iitc">IITC source</string>
 
 </resources>

@@ -1,7 +1,9 @@
 package com.cradle.iitc_mobile;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.http.SslError;
+import android.preference.PreferenceManager;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -10,6 +12,8 @@ import android.webkit.WebViewClient;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.IOException;
+import java.net.URL;
+import java.util.Scanner;
 
 public class IITC_WebViewClient extends WebViewClient {
 	private static final ByteArrayInputStream style = new ByteArrayInputStream(
@@ -27,26 +31,36 @@ public class IITC_WebViewClient extends WebViewClient {
 	}
 
 	public void loadIITC_JS(Context c) throws java.io.IOException {
+		// in developer options, you are able to load the script from external source
+		// if a http address is given, use script from this address. else use the local script
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(c);
+		String iitc_source = sharedPref.getString("pref_iitc_source", "local");
+		String js = "";
+		if (iitc_source.contains("http")) {
+			URL url = new URL(iitc_source);
+			js = new Scanner(url.openStream(), "UTF-8").useDelimiter("\\A").next();
+		} else {
 			InputStream input;
 			input = c.getAssets().open("iitc.js");
-
 			int size = input.available();
 			byte[] buffer = new byte[size];
 			input.read(buffer);
 			input.close();
-			String js = new String(buffer);
-			// need to wrap the mobile iitc.js version in a document ready. IITC
-			// expects to be injected after the DOM has been loaded completely.
-			// Since the mobile client injects IITC by replacing the gen_dashboard
-			// file, IITC runs to early. The document.ready delays IITC long enough
-			// so it boots correctly.
-			js = "$(document).ready(function(){" + js + "});";
+			js = new String(buffer);
+		}
 
-			iitcjs = new WebResourceResponse(
-				"text/javascript",
-				"UTF-8",
-				new ByteArrayInputStream(js.getBytes())
-			);
+		// need to wrap the mobile iitc.js version in a document ready. IITC
+		// expects to be injected after the DOM has been loaded completely.
+		// Since the mobile client injects IITC by replacing the gen_dashboard
+		// file, IITC runs to early. The document.ready delays IITC long enough
+		// so it boots correctly.
+		js = "$(document).ready(function(){" + js + "});";
+
+		iitcjs = new WebResourceResponse(
+			"text/javascript",
+			"UTF-8",
+			new ByteArrayInputStream(js.getBytes())
+		);
 	};
 
 	// enable https
