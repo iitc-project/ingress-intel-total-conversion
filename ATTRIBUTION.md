@@ -9,5 +9,6 @@ This project is licensed under the permissive ISC license. Parts imported from o
 - [oms.min.js by George MacKerron; MIT](https://github.com/jawj/OverlappingMarkerSpiderfier-Leaflet)
 - [taphold.js by Rich Adams; unknown](https://github.com/richadams/jquery-taphold)
 - [L.Control.Pan.js by Kartena AB; same as Leaftlet](https://github.com/kartena/Leaflet.Pancontrol)
+- [L.Control.Zoomslider.js by Kartena AB; same as Leaftlet](https://github.com/kartena/Leaflet.zoomslider)
 - StackOverflow-CopyPasta is attributed in the source; [CC-Wiki](https://creativecommons.org/licenses/by-sa/3.0/)
 - all Ingress/Niantic related stuff obviously remains non-free and is still copyrighted by Niantic/Google
