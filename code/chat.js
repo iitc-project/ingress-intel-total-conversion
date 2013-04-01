@@ -281,9 +281,13 @@ window.chat.writeDataToHash = function(newData, storageHash, skipSecureMsgs) {
         break;
 
       case 'AT_PLAYER':
-        msgToPlayer = (markup[1].plain == ('@'+window.PLAYER.nickname));
-        var spanClass = msgToPlayer ? "pl_nudge_me" : (markup[1].team + " pl_nudge_player");
-        msg += $('<div/>').html($('<span/>').attr('class', spanClass).text(markup[1].plain)).html();
+        var thisToPlayer = (markup[1].plain == ('@'+window.PLAYER.nickname));
+        var spanClass = thisToPlayer ? "pl_nudge_me" : (markup[1].team + " pl_nudge_player");
+        msg += $('<div/>').html($('<span/>')
+                          .attr('class', spanClass)
+                          .attr('onclick',"window.chat.addNickname('"+markup[1].plain+"')")
+                          .text(markup[1].plain)).html();
+        msgToPlayer = msgToPlayer || thisToPlayer;
         break;
 
       case 'PORTAL':
