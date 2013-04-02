@@ -20,140 +20,140 @@ import android.widget.Toast;
 
 public class IITC_Mobile extends Activity {
 
-	private IITC_WebView iitc_view;
-	private boolean back_button_pressed = false;
-	private boolean desktop = false;
-	private OnSharedPreferenceChangeListener listener;
-	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		// TODO build an async task for url.openStream() in IITC_WebViewClient
-		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-		StrictMode.setThreadPolicy(policy);
-		setContentView(R.layout.activity_main);
-		iitc_view = (IITC_WebView) findViewById(R.id.iitc_webview);
+    private IITC_WebView iitc_view;
+    private boolean back_button_pressed = false;
+    private boolean desktop = false;
+    private OnSharedPreferenceChangeListener listener;
 
-		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-		listener = new OnSharedPreferenceChangeListener() {
-			@Override
-			public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-				if (key == "pref_force_desktop")
-					desktop = sharedPreferences.getBoolean("pref_force_desktop", false);
-				// reload intel map
-				iitc_view.loadUrl(addUrlParam("https://www.ingress.com/intel"));
-				injectJS();
-			}
-		};
-		sharedPref.registerOnSharedPreferenceChangeListener(listener);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // TODO build an async task for url.openStream() in IITC_WebViewClient
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        setContentView(R.layout.activity_main);
+        iitc_view = (IITC_WebView) findViewById(R.id.iitc_webview);
 
-		// we do not want to reload our page every time we switch orientations...
-		// so restore state if activity was already created
-		if(savedInstanceState != null) {
-			iitc_view.restoreState(savedInstanceState);
-		}
-		else {
-			// load new iitc web view with ingress intel page
-			Intent intent = getIntent();
-			String action = intent.getAction();
-			if (Intent.ACTION_VIEW.equals(action)) {
-				Uri uri = intent.getData();
-				String url = uri.toString();
-				// TODO Why does "if(intent.getScheme() == "http")" not work?
-				if (url.contains("http://"))
-					url = url.replace("http://", "https://");
-				Log.d("Intent received", "url: " + url);
-				if (url.contains("ingress.com")) {
-					Log.d("Intent received", "loading url...");
-					iitc_view.loadUrl(addUrlParam(url));
-				}
-			}
-			else {
-				Log.d("No Intent call", "loading https://www.ingress.com/intel");
-				iitc_view.loadUrl(addUrlParam("https://www.ingress.com/intel"));
-			}
-		}
-	}
-	
-	// save instance state to avoid reloading on orientation change
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		iitc_view.saveState(outState);
-	}
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        listener = new OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                if (key == "pref_force_desktop")
+                    desktop = sharedPreferences.getBoolean("pref_force_desktop", false);
+                // reload intel map
+                iitc_view.loadUrl(addUrlParam("https://www.ingress.com/intel"));
+                injectJS();
+            }
+        };
+        sharedPref.registerOnSharedPreferenceChangeListener(listener);
 
-	// we want a self defined behavior for the back button
-	@Override
-	public void onBackPressed() {
-		if (this.back_button_pressed) {
-			super.onBackPressed();
-			return;
-		}
+        // we do not want to reload our page every time we switch orientations...
+        // so restore state if activity was already created
+        if(savedInstanceState != null) {
+            iitc_view.restoreState(savedInstanceState);
+        }
+        else {
+            // load new iitc web view with ingress intel page
+            Intent intent = getIntent();
+            String action = intent.getAction();
+            if (Intent.ACTION_VIEW.equals(action)) {
+                Uri uri = intent.getData();
+                String url = uri.toString();
+                // TODO Why does "if(intent.getScheme() == "http")" not work?
+                if (url.contains("http://"))
+                    url = url.replace("http://", "https://");
+                Log.d("Intent received", "url: " + url);
+                if (url.contains("ingress.com")) {
+                    Log.d("Intent received", "loading url...");
+                    iitc_view.loadUrl(addUrlParam(url));
+                }
+            }
+            else {
+                Log.d("No Intent call", "loading https://www.ingress.com/intel");
+                iitc_view.loadUrl(addUrlParam("https://www.ingress.com/intel"));
+            }
+        }
+    }
 
-		iitc_view.loadUrl("javascript: window.goBack();");
-		this.back_button_pressed = true;
-		Toast.makeText(this, "Press twice to exit", Toast.LENGTH_SHORT).show();
+    // save instance state to avoid reloading on orientation change
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        iitc_view.saveState(outState);
+    }
 
-		// reset back button after 0.5 seconds
-		new Handler().postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				back_button_pressed=false;
-			}
-		}, 500);
-	}
+    // we want a self defined behavior for the back button
+    @Override
+    public void onBackPressed() {
+        if (this.back_button_pressed) {
+            super.onBackPressed();
+            return;
+        }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
+        iitc_view.loadUrl("javascript: window.goBack();");
+        this.back_button_pressed = true;
+        Toast.makeText(this, "Press twice to exit", Toast.LENGTH_SHORT).show();
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle item selection
-		switch (item.getItemId()) {
-		case R.id.reload_button:
-			iitc_view.loadUrl(addUrlParam("https://www.ingress.com/intel"));
-			injectJS();
-			return true;
-		// clear cache
-		case R.id.cache_clear:
-			iitc_view.clearHistory();
-			iitc_view.clearFormData();
-			iitc_view.clearCache(true);
-			return true;
-		// get the users current location and focus it on map
-		case R.id.locate:
-			iitc_view.loadUrl("javascript: window.map.locate({setView : true, maxZoom: 13});");
-			return true;
-		case R.id.settings:
-		    Intent intent = new Intent(this, IITC_Settings.class);
-		    intent.putExtra("iitc_version", iitc_view.getWebViewClient().getIITCVersion());
-		    startActivity(intent);
-			return true;
-		default:
-			return super.onOptionsItemSelected(item);
-		}
-	}
+        // reset back button after 0.5 seconds
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                back_button_pressed=false;
+            }
+        }, 500);
+    }
 
-	private void injectJS() {
-		try {
-			iitc_view.getWebViewClient().loadIITC_JS(this);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		} catch (NullPointerException e2) {
-			e2.printStackTrace();
-		}
-	}
-	
-	private String addUrlParam(String url) {
-		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-		this.desktop = sharedPref.getBoolean("pref_force_desktop", false);
-		
-		if (desktop)
-			return (url + "?vp=f");
-		else
-			return (url + "?vp=m");
-	}
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+        case R.id.reload_button:
+            iitc_view.loadUrl(addUrlParam("https://www.ingress.com/intel"));
+            injectJS();
+            return true;
+        // clear cache
+        case R.id.cache_clear:
+            iitc_view.clearHistory();
+            iitc_view.clearFormData();
+            iitc_view.clearCache(true);
+            return true;
+        // get the users current location and focus it on map
+        case R.id.locate:
+            iitc_view.loadUrl("javascript: window.map.locate({setView : true, maxZoom: 13});");
+            return true;
+        case R.id.settings:
+            Intent intent = new Intent(this, IITC_Settings.class);
+            intent.putExtra("iitc_version", iitc_view.getWebViewClient().getIITCVersion());
+            startActivity(intent);
+            return true;
+        default:
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void injectJS() {
+        try {
+            iitc_view.getWebViewClient().loadIITC_JS(this);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        } catch (NullPointerException e2) {
+            e2.printStackTrace();
+        }
+    }
+
+    private String addUrlParam(String url) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        this.desktop = sharedPref.getBoolean("pref_force_desktop", false);
+
+        if (desktop)
+            return (url + "?vp=f");
+        else
+            return (url + "?vp=m");
+    }
 }
