@@ -42,7 +42,7 @@ public class IITC_Mobile extends Activity {
         listener = new OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                if (key == "pref_force_desktop")
+                if (key.equals("pref_force_desktop"))
                     desktop = sharedPreferences.getBoolean("pref_force_desktop", false);
                 // reload intel map
                 iitc_view.loadUrl(addUrlParam("https://www.ingress.com/intel"));
@@ -63,8 +63,7 @@ public class IITC_Mobile extends Activity {
             if (Intent.ACTION_VIEW.equals(action)) {
                 Uri uri = intent.getData();
                 String url = uri.toString();
-                // TODO Why does "if(intent.getScheme() == "http")" not work?
-                if (url.contains("http://"))
+                if (intent.getScheme().equals("http://"))
                     url = url.replace("http://", "https://");
                 Log.d("Intent received", "url: " + url);
                 if (url.contains("ingress.com")) {
