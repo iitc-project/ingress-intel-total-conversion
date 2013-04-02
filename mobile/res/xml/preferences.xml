@@ -21,5 +21,11 @@
 	        android:title="@string/build_version"
 	        android:enabled="false"
 	        android:selectable="false" />
+
+		<ListPreference
+	        android:key="pref_iitc_version"
+	        android:title="@string/iitc_version"
+	        android:enabled="false"
+	        android:selectable="false" />
     </PreferenceCategory>
 </PreferenceScreen>

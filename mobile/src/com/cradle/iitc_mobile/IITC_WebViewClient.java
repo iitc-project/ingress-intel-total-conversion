@@ -21,6 +21,7 @@ public class IITC_WebViewClient extends WebViewClient {
 	private static final ByteArrayInputStream empty = new ByteArrayInputStream("".getBytes());
 
 	private WebResourceResponse iitcjs;
+	private String js = null;
 
 	public IITC_WebViewClient(Context c) {
 		try {
@@ -28,6 +29,20 @@ public class IITC_WebViewClient extends WebViewClient {
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public String getIITCVersion() {
+	    String header = js.substring(js.indexOf("==UserScript=="), js.indexOf("==/UserScript=="));
+	    // remove new line comments
+	    header = header.replace("\n//", "");
+	    // get a list of key-value
+	    String[] attributes = header.split(" +");
+	    String iitc_version = "not found";
+	    for (int i = 0; i < attributes.length; i++) {
+	        // search vor version and use the value
+	        if (attributes[i].contains("@version")) iitc_version = attributes[i+1];
+	    }
+	    return iitc_version;
 	}
 
 	public void loadIITC_JS(Context c) throws java.io.IOException {
@@ -48,6 +63,8 @@ public class IITC_WebViewClient extends WebViewClient {
 			input.close();
 			js = new String(buffer);
 		}
+
+		this.js = js;
 
 		// need to wrap the mobile iitc.js version in a document ready. IITC
 		// expects to be injected after the DOM has been loaded completely.

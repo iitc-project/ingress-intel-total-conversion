@@ -128,7 +128,9 @@ public class IITC_Mobile extends Activity {
 			iitc_view.loadUrl("javascript: window.map.locate({setView : true, maxZoom: 13});");
 			return true;
 		case R.id.settings:
-			startActivity(new Intent(this, IITC_Settings.class));
+		    Intent intent = new Intent(this, IITC_Settings.class);
+		    intent.putExtra("iitc_version", iitc_view.getWebViewClient().getIITCVersion());
+		    startActivity(intent);
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
