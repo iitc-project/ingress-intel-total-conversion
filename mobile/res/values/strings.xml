@@ -9,6 +9,7 @@
     <string name="locate">Get Location</string>
     <string name="local">local</string>
     <string name="build_version">Build Version</string>
+    <string name="iitc_version">IITC Version</string>
     
     <string name="pref_force_desktop">Force desktop mode</string>
     <string name="pref_force_desktop_sum">Nice for tablets, looks awful on smartphones</string>

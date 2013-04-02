@@ -11,11 +11,14 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
 
 public class IITC_SettingsFragment extends PreferenceFragment {
-	
-	
+
+    String iitc_version;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        iitc_version = getArguments().getString("iitc_version");
 
         addPreferencesFromResource(R.xml.preferences);
         
@@ -28,8 +31,13 @@ public class IITC_SettingsFragment extends PreferenceFragment {
             version = info.versionName;
         }
         catch (NameNotFoundException e) {
+            e.printStackTrace();
         }
         pref_build_version.setSummary(version);
+
+        // set iitc version
+        ListPreference pref_iitc_version = (ListPreference) findPreference("pref_iitc_version");
+        pref_iitc_version.setSummary(iitc_version);
 
         // set iitc source
         EditTextPreference pref_iitc_source = (EditTextPreference) findPreference("pref_iitc_source");
@@ -37,6 +45,7 @@ public class IITC_SettingsFragment extends PreferenceFragment {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 preference.setSummary((CharSequence) newValue);
+                // TODO: update iitc_version when iitc source has changed
                 return true;
             }
         });
