@@ -4,12 +4,16 @@ import java.io.IOException;
 
 import com.cradle.iitc_mobile.R;
 
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.NetworkInfo.State;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -73,6 +77,32 @@ public class IITC_Mobile extends Activity {
                 iitc_view.loadUrl(addUrlParam("https://www.ingress.com/intel"));
             }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        // enough idle...let's do some work
+        iitc_view.loadUrl("javascript: window.idleTime = 0");
+        iitc_view.loadUrl("javascript: window.renderUpdateStatus()");
+        super.onResume();
+    }
+
+    @Override
+    protected void onStop() {
+        ConnectivityManager conMan = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        State mobile = conMan.getNetworkInfo(0).getState();
+        State wifi = conMan.getNetworkInfo(1).getState();
+
+        if (mobile == NetworkInfo.State.CONNECTED || mobile == NetworkInfo.State.CONNECTING) {
+            // cancel all current requests
+            iitc_view.loadUrl("javascript: window.requests.abort()");
+            // set idletime to maximum...no need for more
+            iitc_view.loadUrl("javascript: window.idleTime = 999");
+        } else if (wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING) {
+            iitc_view.loadUrl("javascript: window.idleTime = 999");
+        }
+        super.onStop();
     }
 
     // save instance state to avoid reloading on orientation change
