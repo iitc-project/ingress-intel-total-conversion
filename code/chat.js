@@ -261,6 +261,14 @@ window.chat.writeDataToHash = function(newData, storageHash, skipSecureMsgs) {
     var time = json[1];
     var team = json[2].plext.team === 'ALIENS' ? TEAM_ENL : TEAM_RES;
     var auto = json[2].plext.plextType !== 'PLAYER_GENERATED';
+    var systemNarrowcast = json[2].plext.plextType === 'SYSTEM_NARROWCAST';
+
+    //remove "Your X on Y was destroyed by Z" from the faction channel
+    if (systemNarrowcast && !skipSecureMsgs) {
+      //NOTE: skipSecureMsgs is being used as a "is public channel" flag here
+      return true;
+    }
+
     var msg = '', nick = '', pguid;
     $.each(json[2].plext.markup, function(ind, markup) {
       switch(markup[0]) {
