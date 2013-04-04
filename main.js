@@ -129,7 +129,7 @@ window.VIEWPORT_PAD_RATIO = 0.3;
 
 // how many items to request each query
 window.CHAT_PUBLIC_ITEMS = 200;
-window.CHAT_FACTION_ITEMS = 200;
+window.CHAT_FACTION_ITEMS = 100;
 // how many pixels to the top before requesting new data
 window.CHAT_REQUEST_SCROLL_TOP = 200;
 window.CHAT_SHRINKED = 60;
