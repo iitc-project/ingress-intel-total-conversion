@@ -2,3 +2,4 @@ mobile/IngressIntelTC/bin
 build
 localbuildsettings.py
 *.pyc
+*.swp
