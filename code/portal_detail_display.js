@@ -58,7 +58,7 @@ window.renderPortalDetails = function(guid) {
   $('#portaldetails')
     .attr('class', TEAM_TO_CSS[getTeam(d)])
     .html(''
-      + '<h3>'+d.portalV2.descriptiveText.TITLE+'</h3>'
+      + '<h3 ondblclick="renderPortalDetails(null);">'+d.portalV2.descriptiveText.TITLE+'</h3>'
       // help cursor via “.imgpreview img”
       + '<div class="imgpreview" '+imgTitle+' style="background-image: url('+img+')">'
       + '<img class="hide" src="'+img+'"/>'
