@@ -33,26 +33,12 @@ window.chat.handleTabCompletion = function() {
 }
 
 //
-// timestamp and clear management
+// clear management
 //
 
-window.chat.getTimestamps = function(isFaction) {
-  var storage = isFaction ? chat._factionData : chat._publicData;
-  return $.map(storage, function(v, k) { return [v[0]]; });
-}
-
-window.chat.getOldestTimestamp = function(isFaction) {
-  var t = Math.min.apply(null, chat.getTimestamps(isFaction));
-  return t === Infinity ? -1 : t;
-}
-
-window.chat.getNewestTimestamp = function(isFaction) {
-  var t = Math.max.apply(null, chat.getTimestamps(isFaction));
-  return t === -1*Infinity ? -1 : t;
-}
 
 window.chat._oldBBox = null;
-window.chat.genPostData = function(isFaction, getOlderMsgs) {
+window.chat.genPostData = function(isFaction, storageHash, getOlderMsgs) {
   if(typeof isFaction !== 'boolean') throw('Need to know if public or faction chat.');
 
   chat._localRangeCircle.setLatLng(map.getCenter());
@@ -68,8 +54,13 @@ window.chat.genPostData = function(isFaction, getOlderMsgs) {
     // need to reset these flags now because clearing will only occur
     // after the request is finished – i.e. there would be one almost
     // useless request.
-    chat._factionData = {};
-    chat._publicData = {};
+    chat._faction.data = {};
+    chat._faction.oldestTimestamp = -1;
+    chat._faction.newestTimestamp = -1;
+
+    chat._public.data = {};
+    chat._public.oldestTimestamp = -1;
+    chat._public.newestTimestamp = -1;
   }
   chat._oldBBox = bbs;
 
@@ -88,10 +79,10 @@ window.chat.genPostData = function(isFaction, getOlderMsgs) {
 
   if(getOlderMsgs) {
     // ask for older chat when scrolling up
-    data = $.extend(data, {maxTimestampMs: chat.getOldestTimestamp(isFaction)});
+    data = $.extend(data, {maxTimestampMs: storageHash.oldestTimestamp});
   } else {
     // ask for newer chat
-    var min = chat.getNewestTimestamp(isFaction);
+    var min = storageHash.newestTimestamp;
     // the inital request will have both timestamp values set to -1,
     // thus we receive the newest desiredNumItems. After that, we will
     // only receive messages with a timestamp greater or equal to min
@@ -124,7 +115,7 @@ window.chat.requestFaction = function(getOlderMsgs, isRetry) {
   if(isIdle()) return renderUpdateStatus();
   chat._requestFactionRunning = true;
 
-  var d = chat.genPostData(true, getOlderMsgs);
+  var d = chat.genPostData(true, chat._faction, getOlderMsgs);
   var r = window.postAjax(
     'getPaginatedPlextsV2',
     d,
@@ -138,7 +129,7 @@ window.chat.requestFaction = function(getOlderMsgs, isRetry) {
 }
 
 
-window.chat._factionData = {};
+window.chat._faction = {data:{}, oldestTimestamp:-1, newestTimestamp:-1};
 window.chat.handleFaction = function(data, textStatus, jqXHR) {
   chat._requestFactionRunning = false;
 
@@ -149,11 +140,11 @@ window.chat.handleFaction = function(data, textStatus, jqXHR) {
 
   if(data.result.length === 0) return;
 
-  var old = chat.getOldestTimestamp(true);
-  chat.writeDataToHash(data, chat._factionData, false);
-  var oldMsgsWereAdded = old !== chat.getOldestTimestamp(true);
+  var old = chat._faction.oldestTimestamp;
+  chat.writeDataToHash(data, chat._faction, false);
+  var oldMsgsWereAdded = old !== chat._faction.oldestTimestamp;
 
-  runHooks('factionChatDataAvailable', {raw: data, processed: chat._factionData});
+  runHooks('factionChatDataAvailable', {raw: data, processed: chat._faction.data});
 
   window.chat.renderFaction(oldMsgsWereAdded);
 
@@ -161,7 +152,7 @@ window.chat.handleFaction = function(data, textStatus, jqXHR) {
 }
 
 window.chat.renderFaction = function(oldMsgsWereAdded) {
-  chat.renderData(chat._factionData, 'chatfaction', oldMsgsWereAdded);
+  chat.renderData(chat._faction.data, 'chatfaction', oldMsgsWereAdded);
 }
 
 
@@ -175,7 +166,7 @@ window.chat.requestPublic = function(getOlderMsgs, isRetry) {
   if(isIdle()) return renderUpdateStatus();
   chat._requestPublicRunning = true;
 
-  var d = chat.genPostData(false, getOlderMsgs);
+  var d = chat.genPostData(false, chat._public, getOlderMsgs);
   var r = window.postAjax(
     'getPaginatedPlextsV2',
     d,
@@ -188,7 +179,7 @@ window.chat.requestPublic = function(getOlderMsgs, isRetry) {
   requests.add(r);
 }
 
-window.chat._publicData = {};
+window.chat._public = {data:{}, oldestTimestamp:-1, newestTimestamp:-1};
 window.chat.handlePublic = function(data, textStatus, jqXHR) {
   chat._requestPublicRunning = false;
 
@@ -199,11 +190,11 @@ window.chat.handlePublic = function(data, textStatus, jqXHR) {
 
   if(data.result.length === 0) return;
 
-  var old = chat.getOldestTimestamp(false);
-  chat.writeDataToHash(data, chat._publicData, true);
-  var oldMsgsWereAdded = old !== chat.getOldestTimestamp(false);
+  var old = chat._public.oldestTimestamp;
+  chat.writeDataToHash(data, chat._public, true);
+  var oldMsgsWereAdded = old !== chat._public.oldestTimestamp;
 
-  runHooks('publicChatDataAvailable', {raw: data, processed: chat._publicData});
+  runHooks('publicChatDataAvailable', {raw: data, processed: chat._public.data});
 
   switch(chat.getActive()) {
     case 'public': window.chat.renderPublic(oldMsgsWereAdded); break;
@@ -216,7 +207,7 @@ window.chat.handlePublic = function(data, textStatus, jqXHR) {
 
 window.chat.renderPublic = function(oldMsgsWereAdded) {
   // only keep player data
-  var data = $.map(chat._publicData, function(entry) {
+  var data = $.map(chat._public.data, function(entry) {
     if(!entry[1]) return [entry];
   });
   chat.renderData(data, 'chatpublic', oldMsgsWereAdded);
@@ -224,7 +215,7 @@ window.chat.renderPublic = function(oldMsgsWereAdded) {
 
 window.chat.renderCompact = function(oldMsgsWereAdded) {
   var data = {};
-  $.each(chat._publicData, function(guid, entry) {
+  $.each(chat._public.data, function(guid, entry) {
     // skip player msgs
     if(!entry[1]) return true;
     var pguid = entry[3];
@@ -239,7 +230,7 @@ window.chat.renderCompact = function(oldMsgsWereAdded) {
 
 window.chat.renderFull = function(oldMsgsWereAdded) {
   // only keep automatically generated data
-  var data = $.map(chat._publicData, function(entry) {
+  var data = $.map(chat._public.data, function(entry) {
     if(entry[1]) return [entry];
   });
   chat.renderData(data, 'chatfull', oldMsgsWereAdded);
@@ -253,7 +244,7 @@ window.chat.renderFull = function(oldMsgsWereAdded) {
 window.chat.writeDataToHash = function(newData, storageHash, skipSecureMsgs) {
   $.each(newData.result, function(ind, json) {
     // avoid duplicates
-    if(json[0] in storageHash) return true;
+    if(json[0] in storageHash.data) return true;
 
     var skipThisEntry = false;
     var msgToPlayer = false;
@@ -261,6 +252,18 @@ window.chat.writeDataToHash = function(newData, storageHash, skipSecureMsgs) {
     var time = json[1];
     var team = json[2].plext.team === 'ALIENS' ? TEAM_ENL : TEAM_RES;
     var auto = json[2].plext.plextType !== 'PLAYER_GENERATED';
+    var systemNarrowcast = json[2].plext.plextType === 'SYSTEM_NARROWCAST';
+
+    //track oldest + newest timestamps
+    if (storageHash.oldestTimestamp === -1 || storageHash.oldestTimestamp > time) storageHash.oldestTimestamp = time;
+    if (storageHash.newestTimestamp === -1 || storageHash.newestTimestamp < time) storageHash.newestTimestamp = time;
+
+    //remove "Your X on Y was destroyed by Z" from the faction channel
+    if (systemNarrowcast && !skipSecureMsgs) {
+      //NOTE: skipSecureMsgs is being used as a "is public channel" flag here
+      return true;
+    }
+
     var msg = '', nick = '', pguid;
     $.each(json[2].plext.markup, function(ind, markup) {
       switch(markup[0]) {
@@ -312,7 +315,7 @@ window.chat.writeDataToHash = function(newData, storageHash, skipSecureMsgs) {
     if(skipThisEntry) return true;
 
     // format: timestamp, autogenerated, HTML message, player guid
-    storageHash[json[0]] = [json[1], auto, chat.renderMsg(msg, nick, time, team, msgToPlayer), pguid];
+    storageHash.data[json[0]] = [json[1], auto, chat.renderMsg(msg, nick, time, team, msgToPlayer, systemNarrowcast), pguid];
 
     window.setPlayerName(pguid, nick); // free nick name resolves
   });
@@ -362,14 +365,18 @@ window.chat.renderDivider = function(text) {
 }
 
 
-window.chat.renderMsg = function(msg, nick, time, team, msgToPlayer) {
+window.chat.renderMsg = function(msg, nick, time, team, msgToPlayer, systemNarrowcast) {
   var ta = unixTimeToHHmm(time);
   var tb = unixTimeToString(time, true);
   // help cursor via “#chat time”
   var t = '<time title="'+tb+'" data-timestamp="'+time+'">'+ta+'</time>';
   if ( msgToPlayer )
   {
-      t = '<div class="pl_nudge_date">' + t + '</div><div class="pl_nudge_pointy_spacer"></div>';
+    t = '<div class="pl_nudge_date">' + t + '</div><div class="pl_nudge_pointy_spacer"></div>';
+  }
+  if (systemNarrowcast)
+  {
+    msg = '<div class="system_narrowcast">' + msg + '</div>';
   }
   var s = 'style="cursor:pointer; color:'+COLORS[team]+'"';
   var title = nick.length >= 8 ? 'title="'+nick+'" class="help"' : '';
@@ -460,8 +467,8 @@ window.chat.chooser = function(event) {
       break;
 
     case 'public':
-      input.css('cssText', 'color: red !important');
-      mark.css('cssText', 'color: red !important');
+      input.css('cssText', 'color: #f66 !important');
+      mark.css('cssText', 'color: #f66 !important');
       mark.text('broadcast:');
       break;
 
