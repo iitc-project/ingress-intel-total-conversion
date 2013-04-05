@@ -7,7 +7,6 @@ window._current_highlighter = localStorage.portal_highlighter;
 window.changing_highlighters = false;
 
 window.addPortalHighlighter = function(name, callback) {
-  console.log("Regisering Portal Highlighter: " + name);
   if(_highlighters === null) {
     _highlighters = {};
   }
