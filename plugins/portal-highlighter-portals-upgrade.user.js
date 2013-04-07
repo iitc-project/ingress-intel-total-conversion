@@ -5,7 +5,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Uses the fill color of the portals to highlight portals you can upgrade. Yellow means you can upgrade it at all. Orange means you can change the level. Red means you can make it your level.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Uses the fill color of the portals to highlight portals you can upgrade. Yellow means you can upgrade it at all. Orange means you can change the level. Red means you can make it your level or higher.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -79,7 +79,7 @@ window.plugin.portalHighligherPortalsUpgrade.highlight = function(data) {
     var color = 'yellow';
     if(potential_level > current_level) {
       color = 'orange';
-      if(potential_level == player_level) {
+      if(potential_level >= player_level) {
         color = 'red';
       }
     }
