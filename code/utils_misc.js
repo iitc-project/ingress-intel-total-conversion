@@ -59,10 +59,7 @@ window.postAjax = function(action, data, success, error) {
   var remove = function(data, textStatus, jqXHR) { window.requests.remove(jqXHR); };
   var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
   var result = $.ajax({
-    // use full URL to avoid issues depending on how people set their
-    // slash. See:
-    // https://github.com/breunigs/ingress-intel-total-conversion/issues/56
-    url: window.location.protocol + '//www.ingress.com/rpc/dashboard.'+action,
+    url: '/rpc/dashboard.'+action,
     type: 'POST',
     data: data,
     dataType: 'json',
@@ -261,7 +258,7 @@ window.setPermaLink = function(elm) {
   var lat = Math.round(c.lat*1E6);
   var lng = Math.round(c.lng*1E6);
   var qry = 'latE6='+lat+'&lngE6='+lng+'&z=' + (map.getZoom()-1);
-  $(elm).attr('href',  'https://www.ingress.com/intel?' + qry);
+  $(elm).attr('href',  '/intel?' + qry);
 }
 
 window.uniqueArray = function(arr) {

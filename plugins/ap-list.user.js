@@ -200,7 +200,7 @@ window.plugin.apList.getPortalLink = function(portal) {
   var latlng = [portal.locationE6.latE6/1E6, portal.locationE6.lngE6/1E6].join();
   var jsSingleClick = 'window.plugin.apList.selectPortal(\''+portal.guid+'\');return false';
   var jsDoubleClick = 'window.zoomToAndShowPortal(\''+portal.guid+'\', ['+latlng+']);return false';
-  var perma = 'https://ingress.com/intel?latE6='+portal.locationE6.latE6
+  var perma = '/intel?latE6='+portal.locationE6.latE6
             +'&lngE6='+portal.locationE6.lngE6+'&z=17&pguid='+portal.guid;
   //Use Jquery to create the link, which escape characters in TITLE and ADDRESS of portal
   var a = $('<a>',{

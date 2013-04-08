@@ -50,7 +50,7 @@ window.renderPortalDetails = function(guid) {
 
   var lat = d.locationE6.latE6;
   var lng = d.locationE6.lngE6;
-  var perma = 'https://ingress.com/intel?latE6='+lat+'&lngE6='+lng+'&z=17&pguid='+guid;
+  var perma = '/intel?latE6='+lat+'&lngE6='+lng+'&z=17&pguid='+guid;
   var imgTitle = 'title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."';
   var poslinks = 'window.showPortalPosLinks('+lat/1E6+','+lng/1E6+',\'' + d.portalV2.descriptiveText.TITLE + '\')';
   var postcard = 'Send in a postcard. Will put it online after receiving. Address:\\n\\nStefan Breunig\\nINF 305 – R045\\n69120 Heidelberg\\nGermany';
