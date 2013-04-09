@@ -13,20 +13,14 @@ import android.os.Handler;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class IITC_Mobile extends Activity {
@@ -164,30 +158,6 @@ public class IITC_Mobile extends Activity {
             Intent intent = new Intent(this, IITC_Settings.class);
             intent.putExtra("iitc_version", iitc_view.getWebViewClient().getIITCVersion());
             startActivity(intent);
-            return true;
-        /*
-         * start a little about-dialog
-         * srsly...I found no better way for clickable links in a TextView then
-         * using Html.fromHtml...Linkify ist just broken and does not understand
-         * html href tags...so let's tag the @string/about_msg with CDATA and
-         * use Html.fromHtml(...) for clickable hrefs with tags.
-         */
-        case R.id.about:
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            final TextView message = new TextView(this);
-            String about_msg = this.getText(R.string.about_msg).toString();
-            message.setText(Html.fromHtml(about_msg));
-            message.setMovementMethod(LinkMovementMethod.getInstance());
-            builder.setView(message)
-                   .setTitle(R.string.about_title)
-                   .setIcon(R.drawable.ic_stat_about)
-                   .setNeutralButton(R.string.close, new OnClickListener() {
-                       public void onClick(DialogInterface dialog, int id) {
-                           dialog.cancel();
-                       }
-                   });
-            AlertDialog dialog = builder.create();
-            dialog.show();
             return true;
         default:
             return super.onOptionsItemSelected(item);

@@ -1,10 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <com.cradle.iitc_mobile.IITC_AboutDialogPreference
+        android:key="pref_about"
+        android:title="@string/pref_about_title"
+        android:dialogIcon="@android:drawable/ic_dialog_info"
+        android:negativeButtonText=""
+        android:positiveButtonText=""
+        android:dialogTitle="@string/pref_about_title"/>
+
+    <PreferenceCategory
+        android:key="pref_about_cat"
+        android:title="@string/pref_ui_cat">
     <CheckBoxPreference
         android:key="pref_force_desktop"
         android:title="@string/pref_force_desktop"
         android:summary="@string/pref_force_desktop_sum"
         android:defaultValue="false" />
+    </PreferenceCategory>
 
     <PreferenceCategory
         android:key="pref_developer_options"
@@ -28,4 +41,5 @@
             android:enabled="false"
             android:selectable="false" />
     </PreferenceCategory>
+
 </PreferenceScreen>

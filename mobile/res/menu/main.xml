@@ -10,11 +10,6 @@
         android:showAsAction="never"
         android:title="@string/action_settings"></item>
 
-    <item android:id="@+id/about"
-        android:orderInCategory="1200"
-        android:showAsAction="never"
-        android:title="@string/action_about"></item>
-
     <item android:id="@+id/cache_clear"
         android:orderInCategory="100"
         android:showAsAction="never"

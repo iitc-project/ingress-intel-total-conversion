@@ -11,11 +11,11 @@
     <string name="close">close</string>
     <string name="build_version">Build Version</string>
     <string name="iitc_version">IITC Version</string>
+    <string name="about">About</string>
     
-    <string name="action_about">About</string>
-    <string name="about_title">About</string>
+    <string name="pref_about_title">About IITC Mobile</string>
     <!-- Use CDATA to prevent android from parsin html tags....we are doing this with Html.fromHtml() -->
-    <string name="about_msg">
+    <string name="pref_about_msg">
         <![CDATA[<big><b>Ingress Intel Total Conversion Mobile</b></big><br><br>
         <b>by <a href="https://github.com/leCradle">cradle</a></b><br><br>
         <b>Icon by <a href="https://twitter.com/machtwerk">machtwerk</a></b><br><br>
@@ -31,6 +31,7 @@
         <a href="https://github.com/breunigs/ingress-intel-total-conversion">https://github.com/breunigs/ingress-intel-total-conversion</a>]]>
     </string>
 
+    <string name="pref_ui_cat">UI</string>
     <string name="pref_force_desktop">Force desktop mode</string>
     <string name="pref_force_desktop_sum">Nice for tablets, looks awful on smartphones</string>
     <string name="pref_developer_options">Developer options</string>
