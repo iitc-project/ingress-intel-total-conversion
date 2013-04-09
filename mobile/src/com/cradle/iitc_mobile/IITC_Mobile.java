@@ -17,6 +17,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Configuration;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -51,30 +52,23 @@ public class IITC_Mobile extends Activity {
         };
         sharedPref.registerOnSharedPreferenceChangeListener(listener);
 
-        // we do not want to reload our page every time we switch orientations...
-        // so restore state if activity was already created
-        if(savedInstanceState != null) {
-            iitc_view.restoreState(savedInstanceState);
+        // load new iitc web view with ingress intel page
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        if (Intent.ACTION_VIEW.equals(action)) {
+            Uri uri = intent.getData();
+            String url = uri.toString();
+            if (intent.getScheme().equals("http://"))
+                url = url.replace("http://", "https://");
+            Log.d("Intent received", "url: " + url);
+            if (url.contains("ingress.com")) {
+                Log.d("Intent received", "loading url...");
+                iitc_view.loadUrl(addUrlParam(url));
+            }
         }
         else {
-            // load new iitc web view with ingress intel page
-            Intent intent = getIntent();
-            String action = intent.getAction();
-            if (Intent.ACTION_VIEW.equals(action)) {
-                Uri uri = intent.getData();
-                String url = uri.toString();
-                if (intent.getScheme().equals("http://"))
-                    url = url.replace("http://", "https://");
-                Log.d("Intent received", "url: " + url);
-                if (url.contains("ingress.com")) {
-                    Log.d("Intent received", "loading url...");
-                    iitc_view.loadUrl(addUrlParam(url));
-                }
-            }
-            else {
-                Log.d("No Intent call", "loading https://www.ingress.com/intel");
-                iitc_view.loadUrl(addUrlParam("https://www.ingress.com/intel"));
-            }
+            Log.d("No Intent call", "loading https://www.ingress.com/intel");
+            iitc_view.loadUrl(addUrlParam("https://www.ingress.com/intel"));
         }
     }
 
@@ -104,10 +98,10 @@ public class IITC_Mobile extends Activity {
         super.onStop();
     }
 
-    // save instance state to avoid reloading on orientation change
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        iitc_view.saveState(outState);
+    public void onConfigurationChanged(Configuration newConfig) {
+        Log.d("iitcm", "configuration changed...restoring...");
+        super.onConfigurationChanged(newConfig);
     }
 
     // we want a self defined behavior for the back button
