@@ -22,7 +22,7 @@ public class IITC_AboutDialogPreference extends DialogPreference{
     /*
      * start a little about-dialog
      * srsly...I found no better way for clickable links in a TextView then
-     * using Html.fromHtml...Linkify ist just broken and does not understand
+     * using Html.fromHtml...Linkify is just broken and does not understand
      * html href tags...so let's tag the @string/about_msg with CDATA and
      * use Html.fromHtml(...) for clickable hrefs with tags.
      */
