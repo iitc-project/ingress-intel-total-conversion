@@ -6,7 +6,6 @@ import com.cradle.iitc_mobile.R;
 
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.NetworkInfo.State;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -85,17 +84,29 @@ public class IITC_Mobile extends Activity {
     protected void onStop() {
         ConnectivityManager conMan = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        State mobile = conMan.getNetworkInfo(0).getState();
-        State wifi = conMan.getNetworkInfo(1).getState();
+        NetworkInfo mobile = conMan.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        NetworkInfo wifi = conMan.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
-        if (mobile == NetworkInfo.State.CONNECTED || mobile == NetworkInfo.State.CONNECTING) {
-            // cancel all current requests
-            iitc_view.loadUrl("javascript: window.requests.abort()");
-            // set idletime to maximum...no need for more
-            iitc_view.loadUrl("javascript: window.idleTime = 999");
-        } else if (wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING) {
-            iitc_view.loadUrl("javascript: window.idleTime = 999");
+        // check if Mobile or Wifi module is available..then handle states
+        // TODO: theory...we do not have to check for a Wifi module...every android device should have one
+        if (mobile != null) {
+            Log.d("iitcm", "mobile internet module detected...check states");
+            if (mobile.getState() == NetworkInfo.State.CONNECTED || mobile.getState() == NetworkInfo.State.CONNECTING) {
+                Log.d("iitcm", "connected to mobile net...abort all running requests");
+                // cancel all current requests
+                iitc_view.loadUrl("javascript: window.requests.abort()");
+                // set idletime to maximum...no need for more
+                iitc_view.loadUrl("javascript: window.idleTime = 999");
+            } else if (wifi.getState() == NetworkInfo.State.CONNECTED || wifi.getState() == NetworkInfo.State.CONNECTING) {
+                    iitc_view.loadUrl("javascript: window.idleTime = 999");
+            }
+        } else {
+            Log.d("iitcm", "no mobile internet module detected...check wifi state");
+            if (wifi.getState() == NetworkInfo.State.CONNECTED || wifi.getState() == NetworkInfo.State.CONNECTING) {
+                iitc_view.loadUrl("javascript: window.idleTime = 999");
+            }
         }
+        Log.d("iitcm", "stopping iitcm");
         super.onStop();
     }
 
