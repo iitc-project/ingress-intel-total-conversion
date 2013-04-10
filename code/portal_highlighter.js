@@ -5,12 +5,17 @@
 window._highlighters = null;
 window._current_highlighter = localStorage.portal_highlighter;
 window.changing_highlighters = false;
+window._no_highlighter = 'No Highlights';
 
 window.addPortalHighlighter = function(name, callback) {
   if(_highlighters === null) {
     _highlighters = {};
   }
   _highlighters[name] = callback;
+  if(localStorage.portal_highlighter === undefined) {
+    _current_highlighter = name;
+    localStorage.portal_highlighter = name;
+  }
   portalHighlighterControl();
 }
 
@@ -20,12 +25,13 @@ window.portalHighlighterControl = function() {
       $("body").append("<select id='portal_highlight_select'></select>");
     }
     $("#portal_highlight_select").html('');
-    $("#portal_highlight_select").append($("<option>").attr('value','No Highlights').text('No Highlights'));
+    $("#portal_highlight_select").append($("<option>").attr('value',_no_highlighter).text(_no_highlighter));
     $.each(_highlighters, function(name, callback) {  
       $("#portal_highlight_select").append($("<option>").attr('value',name).text(name));
     });
-    $("#portal_highlight_select").val(localStorage.portal_highlighter);
+    $("#portal_highlight_select").val(_current_highlighter);
     $("#portal_highlight_select").change(function(){ changePortalHighlights($(this).val());});
+    $(".leaflet-top.leaflet-left").css('margin-top','25px');
   }
 }
 
@@ -38,6 +44,7 @@ window.changePortalHighlights = function(name) {
 }
 
 window.highlightPortal = function(p) {
+  
   if(_highlighters !== null && _highlighters[_current_highlighter] !== undefined) {
     p.options.highligher = _current_highlighter;
     _highlighters[_current_highlighter]({portal: p});

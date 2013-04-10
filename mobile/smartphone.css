@@ -118,3 +118,15 @@ body {
 .leaflet-control-attribution {
 
 }
+
+#portal_highlight_select{
+  position: absolute;
+  top:42px;
+  left:310px;
+  z-index: 9999;
+  font-size:11px;
+  font-family: "coda",arial,helvetica,sans-serif;
+  background-color:#0E3C46;
+  color:#ffce00;
+  
+}

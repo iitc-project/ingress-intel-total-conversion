@@ -822,8 +822,8 @@ td + td {
 
 #portal_highlight_select{
   position: absolute;
-  top:10px;
-  left:70px;
+  top:5px;
+  left:10px;
   z-index: 9999;
   font-size:11px;
   font-family: "coda",arial,helvetica,sans-serif;
@@ -831,3 +831,5 @@ td + td {
   color:#ffce00;
   
 }
+
+
