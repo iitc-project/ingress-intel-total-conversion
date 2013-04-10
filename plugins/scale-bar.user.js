@@ -1,13 +1,15 @@
 // ==UserScript==
 // @id             iitc-plugin-scale-bar@breunigs
-// @name           iitc: scale bar
-// @version        0.1
-// @namespace      https://github.com/breunigs/ingress-intel-total-conversion
-// @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/scale-bar.user.js
-// @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/scale-bar.user.js
-// @description    shows scale bar on the map
+// @name           IITC plugin: scale bar
+// @version        0.1.0.@@DATETIMEVERSION@@
+// @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
+// @updateURL      @@UPDATEURL@@
+// @downloadURL    @@DOWNLOADURL@@
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Shows scale bar on the map
 // @include        https://www.ingress.com/intel*
+// @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
+// @match          http://www.ingress.com/intel*
 // ==/UserScript==
 
 function wrapper() {

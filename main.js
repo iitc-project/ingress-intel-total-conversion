@@ -1,11 +1,11 @@
 // ==UserScript==
-// @id             ingress-intel-total-conversion@breunigs
-// @name           intel map total conversion
-// @version        0.8.1-@@BUILDDATE@@
-// @namespace      https://github.com/breunigs/ingress-intel-total-conversion
-// @updateURL      https://iitcserv.appspot.com/dist/total-conversion-build.user.js
-// @downloadURL    https://iitcserv.appspot.com/dist/total-conversion-build.user.js
-// @description    total conversion for the ingress intel map.
+// @id             ingress-intel-total-conversion@jonatkins
+// @name           IITC: Ingress intel map total conversion
+// @version        0.10.3.@@DATETIMEVERSION@@
+// @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
+// @updateURL      @@UPDATEURL@@
+// @downloadURL    @@DOWNLOADURL@@
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Total conversion for the ingress intel map.
 // @include        http://www.ingress.com/intel*
 // @include        https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
@@ -21,11 +21,6 @@ window.iitcBuildDate = '@@BUILDDATE@@';
 // disable vanilla JS
 window.onload = function() {};
 
-if(window.location.protocol !== 'https:') {
-  var redir = window.location.href.replace(/^http:/, 'https:');
-  window.location = redir;
-  throw('Need to load HTTPS version.');
-}
 
 // rescue user data from original page
 var scr = document.getElementsByTagName('script');
@@ -65,11 +60,8 @@ document.getElementsByTagName('head')[0].innerHTML = ''
   + '<title>Ingress Intel Map</title>'
   + '<style>@@INCLUDESTRING:style.css@@</style>'
   + '<style>@@INCLUDESTRING:external/leaflet.css@@</style>'
-  // this navigator check is also used in code/smartphone.js
-  + (navigator.userAgent.match(/Android.*Mobile/)
-      ? '<style>@@INCLUDESTRING:mobile/smartphone.css@@</style>'
-      : '')
-  + '<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Coda"/>';
+//note: smartphone.css injection moved into code/smartphone.js
+  + '<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Coda"/>';
 
 document.getElementsByTagName('body')[0].innerHTML = ''
   + '<div id="map">Loading, please wait</div>'
@@ -86,7 +78,7 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '<form id="chatinput" style="display:none"><table><tr>'
   + '  <td><time></time></td>'
   + '  <td><mark>tell faction:</mark></td>'
-  + '  <td><input type="text"/></td>'
+  + '  <td><input id="chattext" type="text"/></td>'
   + '</tr></table></form>'
   + '<a id="sidebartoggle"><span class="toggle close"></span></a>'
   + '<div id="scrollwrapper">' // enable scrolling for small screens
@@ -97,8 +89,8 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '    <div id="portaldetails"></div>'
   + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
   + '    <div id="toolbox">'
-  + '      <a onmouseover="setPermaLink(this)">permalink</a>'
-  + '      <a href="https://github.com/breunigs/ingress-intel-total-conversion#readme" title="IITC = Ingress Intel Total Conversion.\n\nOn the script’s homepage you can:\n– find updates\n– get plugins\n– report bugs\n– and contribute." style="cursor: help">IITC’s page</a></div>'
+  + '      <a onmouseover="setPermaLink(this)" onclick="setPermaLink(this);return androidCopy(this.href)" >permalink</a>'
+  + '      <a href="http://iitc.jonatkins.com/" title="IITC = Ingress Intel Total Conversion.\n\nOn the script’s homepage you can:\n– find updates\n– get plugins\n– report bugs\n– and contribute." style="cursor: help">IITC’s page</a></div>'
   + '  </div>'
   + '</div>'
   + '<div id="updatestatus"></div>'
@@ -137,7 +129,7 @@ window.VIEWPORT_PAD_RATIO = 0.3;
 
 // how many items to request each query
 window.CHAT_PUBLIC_ITEMS = 200;
-window.CHAT_FACTION_ITEMS = 50;
+window.CHAT_FACTION_ITEMS = 100;
 // how many pixels to the top before requesting new data
 window.CHAT_REQUEST_SCROLL_TOP = 200;
 window.CHAT_SHRINKED = 60;
@@ -176,7 +168,7 @@ window.RANGE_INDICATOR_COLOR = 'red'
 window.PORTAL_RADIUS_ENLARGE_MOBILE = 5;
 
 
-window.DEFAULT_PORTAL_IMG = 'https://commondatastorage.googleapis.com/ingress/img/default-portal-image.png';
+window.DEFAULT_PORTAL_IMG = '//commondatastorage.googleapis.com/ingress/img/default-portal-image.png';
 window.NOMINATIM = 'http://nominatim.openstreetmap.org/search?format=json&limit=1&q=';
 
 // INGRESS CONSTANTS /////////////////////////////////////////////////
@@ -241,7 +233,7 @@ window.resonators = {};
 if(typeof window.plugin !== 'function') window.plugin = function() {};
 
 
-@@INJECTHERE@@
+@@INJECTCODE@@
 
 
 } // end of wrapper

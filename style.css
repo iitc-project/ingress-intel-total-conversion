@@ -14,13 +14,15 @@ body {
 }
 
 #scrollwrapper {
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   position: fixed;
   right: -38px;
   top: 0;
   width: 340px;
   bottom: 45px;
   z-index: 1001;
+  pointer-events: none;
 }
 
 #sidebar {
@@ -34,6 +36,7 @@ body {
   overflow-y:scroll;
   overflow-x:hidden;
   z-index: 3000;
+  pointer-events: auto;
 }
 
 #sidebartoggle {
@@ -99,10 +102,11 @@ a:hover {
 /* field mu count */
 .fieldmu {
   color: #FFCE00;
-  font-size:13px;
+  font-size: 13px;
   font-family: "coda",arial,helvetica,sans-serif; /*override leaflet-container */
   text-align: center;
   text-shadow: 0 0 0.2em black, 0 0 0.2em black, 0 0 0.2em black;
+  pointer-events: none;
 }
 
 
@@ -245,6 +249,10 @@ em {
   white-space: nowrap;
 }
 
+#chat td .system_narrowcast {
+  color: #f66 !important;
+}
+
 mark {
   background: transparent;
 }
@@ -296,6 +304,7 @@ summary {
   color: #EEEEEE;
   width: 100%;
   height: 100%;
+  padding:3px 4px 1px 4px;
 }
 
 
@@ -372,7 +381,7 @@ h2 #signout {
 h2 sup, h2 sub {
   display: block;
   font-size: 11px;
-  margin-bottom: -1px;
+  margin-bottom: -2px;
 }
 
 
@@ -405,8 +414,8 @@ input {
   background-color: rgba(0, 0, 0, 0.3);
   color: #ffce00;
   height: 24px;
-  padding:3px 4px 1px 4px;
-  font-size: 14px;
+  padding:0px 4px 0px 4px;
+  font-size: 12px;
   border:0;
   font-family:inherit;
   -webkit-box-sizing: border-box;
@@ -434,10 +443,10 @@ input {
 
 /* portal title and image */
 h3 {
-  font-size: 17px;
+  font-size: 16px;
   padding: 0 4px;
   margin:0;
-  height: 25px;
+  height: 23px;
   width: 100%;
   overflow:hidden;
   text-overflow: "~";
@@ -448,7 +457,7 @@ h3 {
 }
 
 .imgpreview {
-  height: 200px;
+  height: 190px;
   background: no-repeat center center;
   background-size: contain;
   cursor: help;
@@ -469,10 +478,9 @@ h3 {
 
 /* portal mods */
 .mods {
-  margin: 5px auto 1px auto;
-  padding: 0 2px;
+  margin: 3px auto 1px auto;
   width: 296px;
-  height: 75px;
+  height: 67px;
   text-align: center;
 }
 
@@ -529,6 +537,7 @@ h3 {
   font-weight: normal;
   text-align: right;
   width: 62px;
+  padding:0px;
   padding-right:4px;
   padding-left:4px;
 }
@@ -551,8 +560,8 @@ h3 {
 
 
 #randdetails {
-  margin-top: 9px;
-  margin-bottom: 9px;
+  margin-top: 4px;
+  margin-bottom: 5px;
 }
 
 
@@ -563,7 +572,7 @@ h3 {
 
 /* resonators */
 #resodetails {
-  margin-bottom: 9px;
+  margin-bottom: 0px;
 }
 
 .meter {
@@ -596,7 +605,7 @@ h3 {
 /* links below resos */
 
 .linkdetails {
-  margin-bottom: 8px;
+  margin-bottom: 0px;
 }
 
 aside {
@@ -606,6 +615,10 @@ aside {
   -moz-box-sizing: border-box;
   box-sizing: border-box;
   text-align: center;
+}
+
+.linkdetails aside a{
+  font-size:12px;
 }
 
 .linkdetails aside:last-child {
@@ -627,19 +640,20 @@ aside {
 }
 
 #toolbox {
-  padding: 4px 2px;
+  padding: 2px;
   font-size:90%;
 }
 
 #toolbox > a {
-  padding: 4px;
+  padding: 2px;
+  padding-right:6px;
 }
 
 /* a common portal display takes this much space (prevents moving
  * content when first selecting a portal) */
 
 #portaldetails {
-  min-height: 553px;
+  min-height: 495px;
 }
 
 
@@ -752,6 +766,10 @@ td + td {
   padding-left: 4px;
 }
 
+#qrcode > canvas {
+  border: 8px solid white;
+} 
+
 /* redeem results *****************************************************/
 .redeem-result {
   font-size: 14px;
@@ -762,4 +780,42 @@ td + td {
 .redeem-result tr > td:first-child {
   width: 50px;
   text-align: right;
+}
+
+.pl_nudge_date {
+  background-color: #724510;
+  border-left: 1px solid #ffd652;
+  border-bottom: 1px solid #ffd652;
+  border-top: 1px solid #ffd652;
+  color: #ffd652;
+  display: inline-block;
+  float: left;
+  font-size: 12px;
+  height: 18px;
+  text-align: center;
+}
+
+.pl_nudge_pointy_spacer {
+  background: no-repeat url(//commondatastorage.googleapis.com/ingress.com/img/nudge_pointy.png);
+  display: inline-block;
+  float: left;
+  height: 20px;
+  left: 47px;
+  width: 5px;
+}
+
+.pl_nudge_player {
+  cursor: pointer;
+}
+
+.pl_nudge_me {
+  color: #ffd652;
+}
+
+.RESISTANCE {
+  color: #00c2ff;
+}
+
+.ALIENS {
+  color: #28f428;
 }

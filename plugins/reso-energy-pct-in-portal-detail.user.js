@@ -1,13 +1,15 @@
 // ==UserScript==
 // @id             iitc-plugin-reso-energy-pct-in-portal-detail@xelio
-// @name           iitc: reso energy pct in portal detail
-// @version        0.1.1
-// @namespace      https://github.com/breunigs/ingress-intel-total-conversion
-// @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/reso-energy-pct-in-portal-detail.user.js
-// @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/reso-energy-pct-in-portal-detail.user.js
-// @description    Show resonator energy percentage on resonator energy bar in portal detail panel.
+// @name           IITC plugin: reso energy pct in portal detail
+// @version        0.1.2.@@DATETIMEVERSION@@
+// @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
+// @updateURL      @@UPDATEURL@@
+// @downloadURL    @@DOWNLOADURL@@
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Show resonator energy percentage on resonator energy bar in portal detail panel.
 // @include        https://www.ingress.com/intel*
+// @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
+// @match          http://www.ingress.com/intel*
 // ==/UserScript==
 
 function wrapper() {

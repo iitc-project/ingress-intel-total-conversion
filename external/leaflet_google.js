@@ -109,6 +109,8 @@ L.Google = L.Class.extend({
 
     map.backgroundColor = '#ff0000';
     this._google = map;
+    this._lastZoomPosition = null;
+    this._lastMapPosition = null;
   },
 
   _resetCallback: function(e) {
@@ -122,11 +124,20 @@ L.Google = L.Class.extend({
   _update: function() {
     this._resize();
 
-    var center = this._map.getCenter();
-    var _center = new google.maps.LatLng(center.lat, center.lng);
+    // update map position if required
+    var newCenter = this._map.getCenter();
+    if(this._lastMapPosition !== newCenter) {
+      var _center = new google.maps.LatLng(newCenter.lat, newCenter.lng);
+      this._google.setCenter(_center);
+    }
+    this._lastMapPosition = newCenter;
 
-    this._google.setCenter(_center);
-    this._google.setZoom(this._map.getZoom());
+    // update zoom level if required
+    var newZoom = this._map.getZoom();
+    if(this._lastZoomPosition !== newZoom) {
+      this._google.setZoom(this._map.getZoom());
+    }
+    this._lastZoomPosition = newZoom;
   },
 
   _resize: function() {

@@ -115,7 +115,7 @@ window.setupMap = function() {
 
 
   window.map = new L.Map('map', $.extend(getPosition(),
-    {zoomControl: !(localStorage['iitc.zoom.buttons'] === 'false')}
+    {zoomControl: true}
   ));
 
   var addLayers = {};
@@ -231,7 +231,7 @@ window.setupPlayerStat = function() {
     + '<h2 title="'+t+'">'+level+'&nbsp;'
     + '<div id="name">'
     + '<span class="'+cls+'">'+PLAYER.nickname+'</span>'
-    + '<a href="https://www.ingress.com/_ah/logout?continue=https://www.google.com/accounts/Logout%3Fcontinue%3Dhttps://appengine.google.com/_ah/logout%253Fcontinue%253Dhttps://www.ingress.com/intel%26service%3Dah" id="signout">sign out</a>'
+    + '<a href="/_ah/logout?continue=https://www.google.com/accounts/Logout%3Fcontinue%3Dhttps://appengine.google.com/_ah/logout%253Fcontinue%253Dhttps://www.ingress.com/intel%26service%3Dah" id="signout">sign out</a>'
     + '</div>'
     + '<div id="stats">'
     + '<sup>XM: '+xmRatio+'%</sup>'
@@ -320,12 +320,20 @@ function boot() {
   if(window.deviceID) console.log('Your device ID: ' + window.deviceID);
   window.runOnSmartphonesBeforeBoot();
 
-  // overwrite default Leaflet Marker icon to be a neutral color
-  var base = 'https://dl.dropbox.com/u/142487/images';
-  L.Icon.Default.imagePath = base;
+  var iconDefImage = '@@INCLUDEIMAGE:images/marker-icon.png@@';
+  var iconDefRetImage = '@@INCLUDEIMAGE:images/marker-icon_2x.png@@';
+  var iconShadowImage = '@@INCLUDEIMAGE:images/marker-shadow.png@@';
 
-  window.iconEnl = L.Icon.Default.extend({options: { iconUrl: base + '/marker-green.png' } });
-  window.iconRes = L.Icon.Default.extend({options: { iconUrl: base + '/marker-blue.png' } });
+  L.Icon.Default = L.Icon.extend({options: {
+    iconUrl: iconDefImage,
+    iconRetinaUrl: iconDefRetImage,
+    shadowUrl: iconShadowImage,
+    shadowRetinaUrl: iconShadowImage,
+    iconSize: new L.Point(25, 41),
+    iconAnchor: new L.Point(12, 41),
+    popupAnchor: new L.Point(1, -34),
+    shadowSize: new L.Point(41, 41)
+  }});
 
   window.setupTaphold();
   window.setupStyles();
@@ -355,11 +363,6 @@ function boot() {
   if(window.bootPlugins)
     $.each(window.bootPlugins, function(ind, ref) { ref(); });
 
-  // sidebar is now at final height. Adjust scrollwrapper so scrolling
-  // is possible for small screens and it doesn’t block the area below
-  // it.
-  $('#scrollwrapper').css('max-height', ($('#sidebar').get(0).scrollHeight+3) + 'px');
-
   window.runOnSmartphonesAfterBoot();
 
   // workaround for #129. Not sure why this is required.
@@ -380,10 +383,10 @@ try { console.log('Loading included JS now'); } catch(e) {}
 // contains the default Ingress map style.
 @@INCLUDERAW:external/leaflet_google.js@@
 @@INCLUDERAW:external/autolink.js@@
-@@INCLUDERAW:external/oms.min.js@@
 
 try { console.log('done loading included JS'); } catch(e) {}
 
+//note: no protocol - so uses http or https as used on the current page
 var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js';
 var JQUERYUI = 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js';
 

@@ -59,10 +59,7 @@ window.postAjax = function(action, data, success, error) {
   var remove = function(data, textStatus, jqXHR) { window.requests.remove(jqXHR); };
   var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
   var result = $.ajax({
-    // use full URL to avoid issues depending on how people set their
-    // slash. See:
-    // https://github.com/breunigs/ingress-intel-total-conversion/issues/56
-    url: 'https://www.ingress.com/rpc/dashboard.'+action,
+    url: '/rpc/dashboard.'+action,
     type: 'POST',
     data: data,
     dataType: 'json',
@@ -106,12 +103,29 @@ window.rangeLinkClick = function() {
     window.smartphone.mapButton.click();
 }
 
-window.showPortalPosLinks = function(lat, lng) {
-  var qrcode = '<div id="qrcode"></div>';
-  var script = '<script>$(\'#qrcode\').qrcode({text:\'GEO:'+lat+','+lng+'\'});</script>';
-  var gmaps = '<a href="https://maps.google.com/?q='+lat+','+lng+'">gmaps</a>';
-  var osm = '<a href="http://www.openstreetmap.org/?mlat='+lat+'&mlon='+lng+'&zoom=16">OSM</a>';
-  alert('<div style="text-align: center;">' + qrcode + script + gmaps + ' ' + osm + '</div>');
+window.showPortalPosLinks = function(lat, lng, name) {
+  var portal_name = '';
+  if(name !== undefined) {
+    portal_name = encodeURIComponent(' (' + name + ')');
+  }
+  if (typeof android !== 'undefined' && android && android.intentPosLink) {
+    android.intentPosLink(window.location.protocol + '//maps.google.com/?q='+lat+','+lng);
+  } else {
+    var qrcode = '<div id="qrcode"></div>';
+    var script = '<script>$(\'#qrcode\').qrcode({text:\'GEO:'+lat+','+lng+'\'});</script>';
+    var gmaps = '<a href="https://maps.google.com/?q='+lat+','+lng+portal_name+'">gmaps</a>';
+    var osm = '<a href="http://www.openstreetmap.org/?mlat='+lat+'&mlon='+lng+'&zoom=16">OSM</a>';
+    var latLng = '<span>'+lat+','+lng +'</span>';
+    alert('<div style="text-align: center;">' + qrcode + script + gmaps + ' ' + osm + '<br />' + latLng + '</div>');
+  }
+}
+
+window.androidCopy = function(text) {
+  if(typeof android === 'undefined' || !android || !android.copy)
+    return true; // i.e. execute other actions
+  else
+    android.copy(text);
+  return false;
 }
 
 window.reportPortalIssue = function(info) {
@@ -244,7 +258,7 @@ window.setPermaLink = function(elm) {
   var lat = Math.round(c.lat*1E6);
   var lng = Math.round(c.lng*1E6);
   var qry = 'latE6='+lat+'&lngE6='+lng+'&z=' + (map.getZoom()-1);
-  $(elm).attr('href',  'https://www.ingress.com/intel?' + qry);
+  $(elm).attr('href',  '/intel?' + qry);
 }
 
 window.uniqueArray = function(arr) {

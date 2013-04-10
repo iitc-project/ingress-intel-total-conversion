@@ -1,13 +1,15 @@
 // ==UserScript==
 // @id             iitc-plugin-show-portal-weakness@vita10gy
-// @name           iitc: show portal weakness
-// @version        0.6
-// @namespace      https://github.com/breunigs/ingress-intel-total-conversion
-// @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/show-portal-weakness.user.js
-// @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/show-portal-weakness.user.js
-// @description    Uses the fill color of the portals to denote if the portal is weak (Needs recharging, missing a resonator, needs shields)  Red, needs energy and shields. Orange, only needs energy (either recharge or resonators). Yellow, only needs shields.
+// @name           IITC plugin: show portal weakness
+// @version        0.6.2.@@DATETIMEVERSION@@
+// @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
+// @updateURL      @@UPDATEURL@@
+// @downloadURL    @@DOWNLOADURL@@
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Uses the fill color of the portals to denote if the portal is weak (Needs recharging, missing a resonator, needs shields)  Red, needs energy and shields. Orange, only needs energy (either recharge or resonators). Yellow, only needs shields.
 // @include        https://www.ingress.com/intel*
+// @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
+// @match          http://www.ingress.com/intel*
 // ==/UserScript==
 
 function wrapper() {
@@ -56,7 +58,7 @@ window.plugin.portalWeakness.portalAdded = function(data) {
     }
 
     if(portal_weakness > 0) {
-      var fill_opacity = portal_weakness*.7 + .3;
+      var fill_opacity = portal_weakness*.85 + .15;
       var color = 'orange';
       if(only_shields) {
         color = 'yellow';

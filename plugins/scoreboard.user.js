@@ -1,13 +1,15 @@
 // ==UserScript==
 // @id             iitc-plugin-scoreboard@vita10gy
-// @name           iitc: show a localized scoreboard.
-// @version        0.1.1
-// @namespace      https://github.com/breunigs/ingress-intel-total-conversion
-// @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/scoreboard.user.js
-// @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/scoreboard.user.js
-// @description    A localized scoreboard.
+// @name           IITC plugin: show a localized scoreboard.
+// @version        0.1.5.@@DATETIMEVERSION@@
+// @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
+// @updateURL      @@UPDATEURL@@
+// @downloadURL    @@DOWNLOADURL@@
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] A localized scoreboard.
 // @include        https://www.ingress.com/intel*
+// @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
+// @match          http://www.ingress.com/intel*
 // ==/UserScript==
 
 function wrapper() {
@@ -31,6 +33,8 @@ window.plugin.scoreboard.resetTeam = function(team) {
   scores[team]['count_links'] = 0;
   scores[team]['count_portals'] = 0;
   scores[team]['count_resonators'] = 0;
+  scores[team]['link_length'] = 0;
+  scores[team]['field_area'] = 0;
   scores[team]['largest'] = {};   
 };
 
@@ -44,6 +48,9 @@ window.plugin.scoreboard.initPlayer = function(player, team) {
     scores[player]['count_links'] = 0;
     scores[player]['count_portals'] = 0;
     scores[player]['count_resonators'] = 0;
+    scores[player]['link_length'] = 0;
+    scores[player]['field_area'] = 0;
+    
     //  scores[player]['count_shields'] = 0;
     scores[player]['largest'] = {};
     window.plugin.scoreboard.playerGuids.push(player);
@@ -59,6 +66,7 @@ window.plugin.scoreboard.compileStats = function() {
   window.plugin.scoreboard.resetTeam(TEAM_ENL);
    
   $.each(window.fields, function(qk, val) {
+    
     var team = getTeam(val.options.data);
     var player = val.options.data.creator.creatorGuid;
      
@@ -69,23 +77,33 @@ window.plugin.scoreboard.compileStats = function() {
        window.portals[val.options.vertices.vertexB.guid] !== undefined ||
        window.portals[val.options.vertices.vertexC.guid] !== undefined ) {
       
+      var fieldArea = window.plugin.scoreboard.fieldArea(val);
       somethingInView = true;
       scores['team'][team]['mu'] += parseInt(val.options.data.entityScore.entityScore);
       scores['player'][player]['mu'] += parseInt(val.options.data.entityScore.entityScore);
       scores['team'][team]['count_fields']++;
       scores['player'][player]['count_fields']++;
-      
+      scores['team'][team]['field_area'] += fieldArea;
+      scores['player'][player]['field_area'] += fieldArea;
+      val.options.data.fieldArea = fieldArea;
       var largestMu = scores['team'][team]['largest']['mu'];
       if(largestMu === undefined || parseInt(largestMu.options.data.entityScore.entityScore) < parseInt(val.options.data.entityScore.entityScore)) {
         largestMu = val;
       }
       scores['team'][team]['largest']['mu'] = largestMu;
       
-      var largestMu = scores['player'][player]['largest']['mu'];
-      if(largestMu === undefined || parseInt(largestMu.options.data.entityScore.entityScore) < parseInt(val.options.data.entityScore.entityScore)) {
-        largestMu = val;
+      //var largestMu = scores['player'][player]['largest']['mu'];
+      //if(largestMu === undefined || parseInt(largestMu.options.data.entityScore.entityScore) < parseInt(val.options.data.entityScore.entityScore)) {
+      //  largestMu = val;
+      //}
+      //scores['player'][player]['largest']['mu'] = largestMu;
+      
+      var largestArea = scores['team'][team]['largest']['field_area'];
+      if(largestArea === undefined || largestArea.options.data.fieldArea < val.options.data.fieldArea) {
+        largestArea = val;
       }
-      scores['player'][player]['largest']['mu'] = largestMu;
+      scores['team'][team]['largest']['field_area'] = largestArea;
+      
     }
   });
   $.each(window.links, function(qk, link) {
@@ -95,31 +113,53 @@ window.plugin.scoreboard.compileStats = function() {
     window.plugin.scoreboard.initPlayer(player, team);
     scores['team'][team]['count_links']++;
     scores['player'][player]['count_links']++;
+    
+    var linkLength = window.plugin.scoreboard.portalDistance(link.options.data.edge.destinationPortalLocation,link.options.data.edge.originPortalLocation);
+    scores['team'][team]['link_length'] += linkLength;
+    scores['player'][player]['link_length'] += linkLength;
+    
+    var largestLink = scores['team'][team]['largest']['link'];
+    if(largestLink === undefined || largestLink.distance < linkLength) {
+      largestLink = {};
+      largestLink.distance = linkLength;
+      largestLink.player = player;
+    }
+    scores['team'][team]['largest']['link'] = largestLink;
+    
+    //var largestLink = scores['player'][player]['largest']['link'];
+    //if(largestLink === undefined || largestLink < linkLength) {
+    //  largestLink = linkLength;
+    //}
+    //scores['player'][player]['largest']['link'] = largestLink;
+    
   });
   $.each(window.portals, function(qk, portal) {
     somethingInView = true;
+    
     var team = getTeam(portal.options.details);
-    var player = portal.options.details.captured.capturingPlayerId;
-    window.plugin.scoreboard.initPlayer(player, team);
-    scores['team'][team]['count_portals']++;
-    scores['player'][player]['count_portals']++;
-    
-    //$.each(portal.options.details.portalV2.linkedModArray, function(ind, mod) {
-    //  if(mod !== null) {
-    //    somethingInView = true;
-    //    scores['team'][team]['count_shields']++;
-    //    scores['player'][mod.installingUser]['count_shields']++;
-    //  }
-    //});
-    
-    $.each(portal.options.details.resonatorArray.resonators, function(ind, reso) {
-      if(reso !== null) {  
-        somethingInView = true;
-        window.plugin.scoreboard.initPlayer(reso.ownerGuid, team);
-        scores['team'][team]['count_resonators']++;
-        scores['player'][reso.ownerGuid]['count_resonators']++;
-      }
-    });
+    if(team !== TEAM_NONE) {
+      var player = portal.options.details.captured.capturingPlayerId;
+      window.plugin.scoreboard.initPlayer(player, team);
+      scores['team'][team]['count_portals']++;
+      scores['player'][player]['count_portals']++;
+      
+      //$.each(portal.options.details.portalV2.linkedModArray, function(ind, mod) {
+      //  if(mod !== null) {
+      //    somethingInView = true;
+      //    scores['team'][team]['count_shields']++;
+      //    scores['player'][mod.installingUser]['count_shields']++;
+      //  }
+      //});
+      
+      $.each(portal.options.details.resonatorArray.resonators, function(ind, reso) {
+        if(reso !== null) {  
+          somethingInView = true;
+          window.plugin.scoreboard.initPlayer(reso.ownerGuid, team);
+          scores['team'][team]['count_resonators']++;
+          scores['player'][reso.ownerGuid]['count_resonators']++;
+        }
+      });
+    }
   });
   return somethingInView;
 };
@@ -141,11 +181,11 @@ window.plugin.scoreboard.teamTableRow = function(field,title) {
   var retVal = '<tr><td>'
    + title
    + '</td><td class="number">'
-   + window.digits(scores[TEAM_RES][field])
+   + window.digits(Math.round(scores[TEAM_RES][field]))
    + '</td><td class="number">'
-   + window.digits(scores[TEAM_ENL][field])
+   + window.digits(Math.round(scores[TEAM_ENL][field]))
    + '</td><td class="number">'
-   + window.digits(scores[TEAM_RES][field] + scores[TEAM_ENL][field])
+   + window.digits(Math.round(scores[TEAM_RES][field] + scores[TEAM_ENL][field]))
    + '</td></tr>';
   return retVal;
 };
@@ -161,7 +201,27 @@ window.plugin.scoreboard.fieldInfo = function(field) {
     }
     
     retVal = '<div title="' + title + '">'
-      + field.options.data.entityScore.entityScore
+      + window.digits(field.options.data.entityScore.entityScore)
+      + ' - ' + window.getPlayerName(field.options.data.creator.creatorGuid)
+      + '</div>';
+  }  else {
+    retVal = 'N/A';
+  }
+  return retVal;
+};
+
+window.plugin.scoreboard.fieldInfoArea = function(field) {
+  var title = '';
+  var retVal = '';
+  
+  if(field !== undefined) {
+    var portal = window.portals[field.options.vertices.vertexA.guid];
+    if(portal !== undefined) {
+      title = ' @' + portal.options.details.portalV2.descriptiveText.TITLE;
+    }
+    
+    retVal = '<div title="' + title + '">'
+      + window.digits(Math.round(field.options.data.fieldArea))
       + ' - ' + window.getPlayerName(field.options.data.creator.creatorGuid)
       + '</div>';
   }  else {
@@ -178,9 +238,9 @@ window.plugin.scoreboard.playerTableRow = function(playerGuid) {
     + window.getPlayerName(playerGuid);
     + '</td>';
               
-  $.each(['mu','count_fields','count_links','count_portals','count_resonators'], function(i, field) {
+  $.each(['mu','count_fields','field_area','count_links','link_length','count_portals','count_resonators'], function(i, field) {
     retVal += '<td class="number">'
-      + window.digits(scores[playerGuid][field])
+      + window.digits(Math.round(scores[playerGuid][field]))
       + '</td>';
   });
   retVal += '</tr>';
@@ -206,8 +266,10 @@ window.plugin.scoreboard.playerTable = function(sortBy) {
   var scoreHtml = '<table>'
     + '<tr><th ' + sort('names', sortBy) + '>Player</th>' 
     + '<th ' + sort('mu', sortBy) + '>Mu</th>'
-    + '<th ' + sort('count_fields', sortBy) + '>Fields</th>'
-    + '<th ' + sort('count_links', sortBy) + '>Links</th>'
+    + '<th ' + sort('count_fields', sortBy) + '>Field #</th>'
+    + '<th ' + sort('field_area', sortBy) + '>Field (km&sup2;)</th>'
+    + '<th ' + sort('count_links', sortBy) + '>Link #</th>'
+    + '<th ' + sort('link_length', sortBy) + '>Link (m)</th>'
     + '<th ' + sort('count_portals', sortBy) + '>Portals</th>'
     + '<th ' + sort('count_resonators', sortBy) + '>Resonators</th></tr>';
   $.each(window.plugin.scoreboard.playerGuids, function(index, guid) {
@@ -248,22 +310,48 @@ window.plugin.scoreboard.display = function() {
     scoreHtml += '<table>'
       + '<tr><th></th><th class="number">Resistance</th><th class="number">Enlightened</th><th class="number">Total</th></tr>'
       + window.plugin.scoreboard.teamTableRow('mu','Mu')
-      + window.plugin.scoreboard.teamTableRow('count_fields','Fields')
-      + window.plugin.scoreboard.teamTableRow('count_links','Links')
+      + window.plugin.scoreboard.teamTableRow('count_fields','Field #')
+      + window.plugin.scoreboard.teamTableRow('field_area','Field (km&sup2;)')
+      + window.plugin.scoreboard.teamTableRow('count_links','Link #')
+      + window.plugin.scoreboard.teamTableRow('link_length','Link (m)')
       + window.plugin.scoreboard.teamTableRow('count_portals','Portals')
       + window.plugin.scoreboard.teamTableRow('count_resonators','Resonators')
       + '</table>';
       
     scoreHtml += '<table>'
       + '<tr><th></th><th>Resistance</th><th>Enlightened</th></tr>'
-      + '<tr><td>Largest Field</td><td>'
+      + '<tr><td>Largest Field (Mu)</td><td>'
       + window.plugin.scoreboard.fieldInfo(scores['team'][TEAM_RES]['largest']['mu'])
       + '</td><td>'
       + window.plugin.scoreboard.fieldInfo(scores['team'][TEAM_ENL]['largest']['mu'])
       + '</td></tr>'
-      + '</table>';
+      + '<tr><td>Largest Field (km&sup2;)</td><td>'
+      + window.plugin.scoreboard.fieldInfoArea(scores['team'][TEAM_RES]['largest']['field_area'])
+      + '</td><td>'
+      + window.plugin.scoreboard.fieldInfoArea(scores['team'][TEAM_ENL]['largest']['field_area'])
+      + '</td></tr>'
+      + '<tr><td>Longest Link (m)</td><td>';
+    if(scores['team'][TEAM_RES]['largest']['link'] === undefined) {
+      scoreHtml += 'N/A';
+    }
+    else {
+      scoreHtml += window.digits(Math.round(scores['team'][TEAM_RES]['largest']['link']['distance']))
+      + ' - '
+      + window.getPlayerName(scores['team'][TEAM_RES]['largest']['link']['player']);
+    }
+    scoreHtml += '</td><td>';
     
-    scoreHtml += '<div id="players">'
+    if(scores['team'][TEAM_ENL]['largest']['link'] === undefined) {
+      scoreHtml += 'N/A';
+    }
+    else {
+      scoreHtml += window.digits(Math.round(scores['team'][TEAM_ENL]['largest']['link']['distance']))
+      + ' - '
+      + window.getPlayerName(scores['team'][TEAM_ENL]['largest']['link']['player']);
+    }
+    scoreHtml += '</td></tr>'
+      + '</table>'
+      + '<div id="players">'
       + window.plugin.scoreboard.playerTable('mu')
       + '</div>';
     
@@ -283,11 +371,28 @@ window.plugin.scoreboard.display = function() {
   });
 }
 
+window.plugin.scoreboard.portalDistance = function(portalAE6Location, portalBE6Location) {
+  portalA = new L.LatLng(portalAE6Location.latE6 / 1E6, portalAE6Location.lngE6 / 1E6);
+  portalB = new L.LatLng(portalBE6Location.latE6 / 1E6, portalBE6Location.lngE6 / 1E6);
+  return (portalA.distanceTo(portalB));
+}
+
+window.plugin.scoreboard.fieldArea = function(field) {
+  var verts = field.options.vertices;
+  var sideA = window.plugin.scoreboard.portalDistance(verts.vertexA.location,verts.vertexB.location) / 1000;
+  var sideB = window.plugin.scoreboard.portalDistance(verts.vertexB.location,verts.vertexC.location) / 1000;
+  var sideC = window.plugin.scoreboard.portalDistance(verts.vertexC.location,verts.vertexA.location) / 1000;
+  // Heron's Formula;
+  var perimeter = sideA + sideB + sideC;
+  var s = perimeter/2;
+  return Math.sqrt(s*(s-sideA)*(s-sideB)*(s-sideC));
+}
+
 var setup =  function() {
   $('body').append('<div id="scoreboard" style="display:none;"></div>');
   $('#toolbox').append('<a onclick="window.plugin.scoreboard.display()">scoreboard</a>');
   $('head').append('<style>' +
-    '.ui-dialog-scoreboard {max-width:500px !important; width:500px !important;}' +
+    '.ui-dialog-scoreboard {max-width:600px !important; width:600px !important;}' +
     '#scoreboard table {margin-top:10px;	border-collapse: collapse; empty-cells: show; width:100%; clear: both;}' +
     '#scoreboard table td, #scoreboard table th {border-bottom: 1px solid #0b314e; padding:3px; color:white; background-color:#1b415e}' +
     '#scoreboard table tr.res td { background-color: #005684; }' +
@@ -302,8 +407,8 @@ var setup =  function() {
     '#scoreboard .disclaimer { margin-top:10px; font-size:10px; }' +
     '.mu_score { margin-bottom: 10px; }' +
     '.mu_score span { overflow: hidden; padding-top:2px; padding-bottom: 2px; display: block; font-weight: bold; float: left; box-sizing: border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; }' +
-    '.mu_score span.res { background-color: #005684; text-align: right; padding-right:5px; }' +
-    '.mu_score span.enl { background-color: #017f01; padding-left: 5px; }' +
+    '.mu_score span.res { background-color: #005684; text-align: right; padding-right:4px; }' +
+    '.mu_score span.enl { background-color: #017f01; padding-left: 4px; }' +
     '</style>');
 }
 

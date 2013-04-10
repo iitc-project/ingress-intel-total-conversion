@@ -1,13 +1,15 @@
 // ==UserScript==
 // @id             iitc-plugin-render-limit-increase@jonatkins
-// @name           iitc: render limit increase
-// @version        0.1.1
-// @namespace      https://github.com/breunigs/ingress-intel-total-conversion
-// @updateURL      https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/render-limit-increase.user.js
-// @downloadURL    https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/render-limit-increase.user.js
-// @description    Increase the render limits, so less likely to be hit in higher density areas
+// @name           IITC plugin: render limit increase
+// @version        0.3.0.@@DATETIMEVERSION@@
+// @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
+// @updateURL      @@UPDATEURL@@
+// @downloadURL    @@DOWNLOADURL@@
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Increase the render limits, so less likely to be hit in higher density areas
 // @include        https://www.ingress.com/intel*
+// @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
+// @match          http://www.ingress.com/intel*
 // ==/UserScript==
 
 function wrapper() {
@@ -36,9 +38,9 @@ window.plugin.renderLimitIncrease.setHigherLimits = function() {
   // Leaflet will get very slow for MANY items. It’s better to display
   // only some instead of crashing the browser.
   // defaults are 1000 portals, 400 links and 200 fields
-  window.MAX_DRAWN_PORTALS = 3000;
-  window.MAX_DRAWN_LINKS = 1000;
-  window.MAX_DRAWN_FIELDS = 500;
+  window.MAX_DRAWN_PORTALS = 5000;
+  window.MAX_DRAWN_LINKS = 2000;
+  window.MAX_DRAWN_FIELDS = 1000;
   window.USE_INCREASED_RENDER_LIMIT = true; // Used for other plugins
 };
 

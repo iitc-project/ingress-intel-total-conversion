@@ -8,7 +8,7 @@ This release contains many small fixes and enhancements. Highlights include the 
 ** **
 - Feature: MU count is now displayed in the center of a field in the map (by Fragger).
 - Feature: hover over your username in the sidebar. A sign out link should appear (by cmrn).
-- Feature: you can quickly select one layer only by long-clicking or ctrl/alt/meta-clicking an entry in the layer chooser. [See Userguide for details](https://github.com/breunigs/ingress-intel-total-conversion/wiki/Userguide-%28Main-Vanilla-IITC%29#wiki-map).
+- Feature: you can quickly select one layer only by long-clicking or ctrl/alt/meta-clicking an entry in the layer chooser. [See Userguide for details](https://github.com/jonatkins/ingress-intel-total-conversion/wiki/Userguide-%28Main-Vanilla-IITC%29#wiki-map).
 
 ** **
 - Enhancement: hitting the render limit is now much less worse. Before, IITC would simply stop drawing, leaving you with many blank areas. The new method **hides low level portals instead when the render limit is hit**. This way you can view New York or London zoomed out and still be able to use the map properly. Zooming in will show more detail, just like before. Look in the map status at the bottom right to see which portals are currently shown (by Xelio).
@@ -22,8 +22,8 @@ This release contains many small fixes and enhancements. Highlights include the 
 ** **
 - Change: Ingress Map style has been updated to reflect Niantic changes.
 - Change: files will now be served by Google App Engine instead of GitHub. It’s the same service that Ingress runs on.
-- Change: the documentation is now in our wiki: https://github.com/breunigs/ingress-intel-total-conversion/wiki
-- Change: the nightly builds have moved: https://iitcserv.appspot.com/iitc-nightly/
+- Change: the documentation is now in our wiki: https://github.com/jonatkins/ingress-intel-total-conversion/wiki
+- Change: the nightly builds have moved: https://iitc.jonatkins.com/iitc-nightly/
 - Change: JavaScript files are now compressed to reduce bandwidth consumption. This makes them unreadable though.
 - Change: IITC now uses HTTPS where suitable. Map and portal images are not served via HTTPS, though.
 - Change: Google Sat Image layer doesn’t switch to 45° view anymore when zooming in (thanks @yoshimo)
@@ -42,7 +42,7 @@ This release contains many small fixes and enhancements. Highlights include the 
 - Plugin: Player Tracker now stops after zooming out too far. It was eating CPU while not being helpful.
 - Plugin: (new) Show Scale Bar: adds a scale bar to your upper left corner
 - Plugin: (new) Scoreboard: shows details and statistics about the currently visible data (by vita10gy). *(I personally recommend this plugin. It makes taunting the other faction much more fun).*
-- [the plugins page has been moved to the wiki](https://github.com/breunigs/ingress-intel-total-conversion/wiki/Plugins)
+- [the plugins page has been moved to the wiki](https://github.com/jonatkins/ingress-intel-total-conversion/wiki/Plugins)
 
 ** **
 **Mobile:** a new Android app has been written that brings IITC to your smartphone. It’s not quite there yet – the layer chooser doesn’t work properly, for example. However, we believe it’s okay enough for general use. Note that:
@@ -50,9 +50,9 @@ This release contains many small fixes and enhancements. Highlights include the 
 - the layer chooser is broken
 - the action bar on top is unfinished
 - the app id has changed, so you might end up with two IITC Mobile versions if you are upgrading.
-Compared to the old version it has a working back button, supports intents (i.e. detects when you visit the intel map in your browsers and offers to take over), a decent login screen and should boot up much much faster now. [See the IITCM wiki page](https://github.com/breunigs/ingress-intel-total-conversion/wiki/IITC-Mobile) on details how to install it. [See the roadmap](https://github.com/breunigs/ingress-intel-total-conversion/wiki/IITC-Mobile-Roadmap) to learn about outstanding issues. Please read on to learn how you can help.
+Compared to the old version it has a working back button, supports intents (i.e. detects when you visit the intel map in your browsers and offers to take over), a decent login screen and should boot up much much faster now. [See the IITCM wiki page](https://github.com/jonatkins/ingress-intel-total-conversion/wiki/IITC-Mobile) on details how to install it. [See the roadmap](https://github.com/jonatkins/ingress-intel-total-conversion/wiki/IITC-Mobile-Roadmap) to learn about outstanding issues. Please read on to learn how you can help.
 
-**How I can help:** We need nice icons for the mobile app. The idea is to move everything into the dark bar on the top, but text takes up too much space. The required icons are, in order of importance: Map → Sidebar (Info) → Faction Chat → Public Chat → Full → Compact → Locate → Reload → Print Version → Debug. If you are skilled in icon design or know a friend, maybe you can contribute? The license needs to be something open, like Creative Commons, Public Domain or similar. You can attach the icons to a GitHub ticket or mail them directly to me: breunig@uni-hd.de . If graphic design is not your thing, see [the “How can I help?“ wiki page](https://github.com/breunigs/ingress-intel-total-conversion/wiki/How-can-I-help%3F) for other useful things.
+**How I can help:** We need nice icons for the mobile app. The idea is to move everything into the dark bar on the top, but text takes up too much space. The required icons are, in order of importance: Map → Sidebar (Info) → Faction Chat → Public Chat → Full → Compact → Locate → Reload → Print Version → Debug. If you are skilled in icon design or know a friend, maybe you can contribute? The license needs to be something open, like Creative Commons, Public Domain or similar. You can attach the icons to a GitHub ticket or mail them directly to me: breunig@uni-hd.de . If graphic design is not your thing, see [the “How can I help?“ wiki page](https://github.com/jonatkins/ingress-intel-total-conversion/wiki/How-can-I-help%3F) for other useful things.
 
 
 
@@ -77,8 +77,8 @@ CHANGES IN 0.7 / 0.7.1
 - 0.7.1 fixes an oversight that prevented some portals from showing (by saithis)
 
 ### General
-- from now on there will be [nightly builds](https://iitcserv.appspot.com/iitc-nightly/) available. You need to manually update them if you want to stay on nightly. You should be offered to update to the next release version, though. Be sure to [have read the guide on how to report bugs](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/HACKING.md#how-do-i-report-bugs) before using a nightly version.
-- IITC has [a shiny new user guide now](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/USERGUIDE.md). Please point new users to it, it should answer most of their questions and also teach them how to make good bug reports.
+- from now on there will be [nightly builds](https://iitc.jonatkins.com/iitc-nightly/) available. You need to manually update them if you want to stay on nightly. You should be offered to update to the next release version, though. Be sure to [have read the guide on how to report bugs](https://github.com/jonatkins/ingress-intel-total-conversion/blob/gh-pages/HACKING.md#how-do-i-report-bugs) before using a nightly version.
+- IITC has [a shiny new user guide now](https://github.com/jonatkins/ingress-intel-total-conversion/blob/gh-pages/USERGUIDE.md). Please point new users to it, it should answer most of their questions and also teach them how to make good bug reports.
 
 ### Main Script
 - Feature: resonators for the selected portal are now highlighted (by Xelio)
@@ -110,11 +110,11 @@ CHANGES IN 0.7 / 0.7.1
 **Updated:**
 - the guess player level plugin now groups and sorts by level. It also remembers the players now, so zooming in won’t make a player “lower level”.
 
-[You can obtain them in the plugins directory](https://github.com/breunigs/ingress-intel-total-conversion/tree/gh-pages/plugins#readme).
+[You can obtain them in the plugins directory](https://github.com/jonatkins/ingress-intel-total-conversion/tree/gh-pages/plugins#readme).
 
 ### IITC Mobile
 
-An alpha quality **developer only** preview of IITC for mobile devices is available. [For more information see the guide in the mobile section](https://github.com/breunigs/ingress-intel-total-conversion/tree/gh-pages/mobile#readme).
+An alpha quality **developer only** preview of IITC for mobile devices is available. [For more information see the guide in the mobile section](https://github.com/jonatkins/ingress-intel-total-conversion/tree/gh-pages/mobile#readme).
 
 
 CHANGES IN 0.6 / 0.61
@@ -124,7 +124,7 @@ CHANGES IN 0.6 / 0.61
 
 - **SECURITY**: Chat was vulnerable to XSS attacks. Update as soon as
                 possible.
-- Feature: [**more plugins**](https://github.com/breunigs/ingress-intel-total-conversion/tree/gh-pages/plugins#readme)
+- Feature: [**more plugins**](https://github.com/jonatkins/ingress-intel-total-conversion/tree/gh-pages/plugins#readme)
     - weakened portals: highlights portals with few resonators or ones
                         that are decayed, making it easier to see where
                         to attack or defend

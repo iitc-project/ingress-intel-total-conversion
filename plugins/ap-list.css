@@ -1,0 +1,163 @@
+
+#ap-list {
+  color: #ffce00;
+  font-size: 90%;
+  padding: 4px 2px;
+}
+
+#ap-list-side-labels {
+  display: inline-block;
+  width: 90%;
+}
+
+#ap-list-eny {
+  display: inline-block;
+  text-align: center;
+  width: 50%;
+  opacity: 1.0;
+}
+
+#ap-list-frd {
+  display: inline-block;
+  text-align: center;
+  width: 50%;
+  opacity: 0.5;
+}
+
+#ap-list-reload {
+  display: inline-block;
+  text-align: right;
+  width: 10%;
+}
+
+#ap-list-table {
+  width: 100%;
+  table-layout:fixed;
+}
+
+.ap-list-td-checkbox {
+  width: 18px;
+  height: 1px;
+}
+
+.ap-list-td-link {
+  overflow:hidden;
+  white-space:nowrap;
+}
+
+.ap-list-td-link-eny {
+}
+
+.ap-list-td-link-frd {
+}
+
+.ap-list-td-ap {
+  width: 44px;
+  white-space:nowrap;
+}
+
+.ap-list-td-eff-lv {
+  width: 20px;
+}
+
+.ap-list-checkbox-outer {
+  display: table;
+  height: 100%;
+  width: 100%;
+}
+
+.ap-list-checkbox-inner {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+  width: 12px;
+  height: 12px;
+  border: 1px solid rgb(32, 168, 177);
+  margin: 0 auto;
+}
+
+.ap-list-checkbox-selected {
+  background-color: rgb(32, 168, 177);
+}
+
+.ap-list-checkbox-header {
+  width: 8px;
+  height: 0px;
+  margin: auto;
+  border: 1px solid rgb(32, 168, 177);
+}
+
+.ap-list-link {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ap-list-link-selected {
+  font-style:italic;
+}
+
+.ap-list-center-div {
+  width: 55%;
+  margin: 0px auto;
+}
+
+.ap-list-page-control {
+  float:left;
+  padding: 0 5px;
+}
+
+.ap-list-page-text {
+  float:left;
+  text-align: center;
+  color: rgb(32, 168, 177);
+}
+
+#ap-list-current-p {
+  width: 20px;
+}
+
+#ap-list-total-p {
+  width: 20px;
+}
+
+.ap-list-triangle {
+  float:left;
+  clear:none;
+  border-style:solid;
+}
+
+.ap-list-triangle-left {
+  border-color: transparent rgb(32, 168, 177) transparent transparent;
+}
+
+.ap-list-triangle-left-half {
+  border-width: 7.5px 7.5px 7.5px 0px;
+}
+
+.ap-list-triangle-left-full {
+  border-width: 7.5px 13px 7.5px 0px;
+}
+
+.ap-list-triangle-right {
+  border-color: transparent transparent transparent rgb(32, 168, 177);
+}
+
+.ap-list-triangle-right-half {
+  border-width: 7.5px 0px 7.5px 7.5px;
+}
+
+.ap-list-triangle-right-full {
+  border-width: 7.5px 0px 7.5px 13px;
+}
+#ap-list-pagination {
+  display: inline-block;
+  width: 90%;
+  vertical-align: bottom;
+}
+
+#ap-list-misc-info {
+  display: inline-block;
+  vertical-align: bottom;
+  padding: 0px 6px;
+}
