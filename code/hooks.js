@@ -65,7 +65,7 @@ window.VALID_HOOKS = ['portalAdded', 'portalDetailsUpdated',
 window.runHooks = function(event, data) {
   if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);
 
-  if(!_hooks[event]) return;
+  if(!_hooks[event]) return true;
   var interupted = false;
   $.each(_hooks[event], function(ind, callback) {
     if (callback(data) === false) {
