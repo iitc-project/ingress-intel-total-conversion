@@ -292,7 +292,7 @@ window.chat.writeDataToHash = function(newData, storageHash, isPublicChannel) {
 
       case 'PORTAL':
         var latlng = [markup[1].latE6/1E6, markup[1].lngE6/1E6];
-        var perma = 'https://ingress.com/intel?latE6='+markup[1].latE6+'&lngE6='+markup[1].lngE6+'&z=17&pguid='+markup[1].guid;
+        var perma = '/intel?latE6='+markup[1].latE6+'&lngE6='+markup[1].lngE6+'&z=17&pguid='+markup[1].guid;
         var js = 'window.zoomToAndShowPortal(\''+markup[1].guid+'\', ['+latlng[0]+', '+latlng[1]+']);return false';
 
         msg += '<a onclick="'+js+'"'
@@ -606,21 +606,23 @@ window.chat.setupTime = function() {
 
 
 window.chat.setupPosting = function() {
-  $('#chatinput input').keydown(function(event) {
-    try {
-      var kc = (event.keyCode ? event.keyCode : event.which);
-      if(kc === 13) { // enter
-        chat.postMsg();
-        event.preventDefault();
-      } else if (kc === 9) { // tab
-        event.preventDefault();
-        window.chat.handleTabCompletion();
+  if (!isSmartphone()) {
+    $('#chatinput input').keydown(function(event) {
+      try {
+        var kc = (event.keyCode ? event.keyCode : event.which);
+        if(kc === 13) { // enter
+          chat.postMsg();
+          event.preventDefault();
+        } else if (kc === 9) { // tab
+          event.preventDefault();
+          window.chat.handleTabCompletion();
+        }
+      } catch(error) {
+        console.log(error);
+        debug.printStackTrace();
       }
-    } catch(error) {
-      console.log(error);
-      debug.printStackTrace();
-    }
-  });
+    });
+  }
 
   $('#chatinput').submit(function(event) {
     event.preventDefault();

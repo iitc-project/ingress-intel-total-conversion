@@ -231,7 +231,7 @@ window.setupPlayerStat = function() {
     + '<h2 title="'+t+'">'+level+'&nbsp;'
     + '<div id="name">'
     + '<span class="'+cls+'">'+PLAYER.nickname+'</span>'
-    + '<a href="https://www.ingress.com/_ah/logout?continue=https://www.google.com/accounts/Logout%3Fcontinue%3Dhttps://appengine.google.com/_ah/logout%253Fcontinue%253Dhttps://www.ingress.com/intel%26service%3Dah" id="signout">sign out</a>'
+    + '<a href="/_ah/logout?continue=https://www.google.com/accounts/Logout%3Fcontinue%3Dhttps://appengine.google.com/_ah/logout%253Fcontinue%253Dhttps://www.ingress.com/intel%26service%3Dah" id="signout">sign out</a>'
     + '</div>'
     + '<div id="stats">'
     + '<sup>XM: '+xmRatio+'%</sup>'
@@ -386,6 +386,7 @@ try { console.log('Loading included JS now'); } catch(e) {}
 
 try { console.log('done loading included JS'); } catch(e) {}
 
+//note: no protocol - so uses http or https as used on the current page
 var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js';
 var JQUERYUI = 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js';
 
