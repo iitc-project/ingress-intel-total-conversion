@@ -30,7 +30,7 @@ window.plugin.maxLinks.STROKE_STYLE = {
   clickable: false,
   smoothFactor: 10
 };
-window.plugin.maxLinks._delaunayScriptLocation = 'https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/dist/delaunay.js';
+window.plugin.maxLinks._delaunayScriptLocation = 'https://dl.dropbox.com/u/142487/rsrc/delaunay.js';
 
 window.plugin.maxLinks.layer = null;
 
