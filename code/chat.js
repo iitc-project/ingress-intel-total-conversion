@@ -242,10 +242,10 @@ window.chat.renderFull = function(oldMsgsWereAdded) {
 //
 
 window.chat.nicknameClicked = function(event, nickname) {
-  var hookData = { event: event, nickname: nickname.replace(/^@/, '') };
+  var hookData = { event: event, nickname: nickname };
   
   if (window.runHooks('nicknameClicked', hookData)) {
-    window.chat.addNickname(nickname);
+    window.chat.addNickname('@' + nickname);
   }
 }
 
@@ -410,7 +410,7 @@ window.chat.renderMsg = function(msg, nick, time, team, msgToPlayer, systemNarro
   var s = 'style="cursor:pointer; color:'+color+'"';
   var title = nick.length >= 8 ? 'title="'+nick+'" class="help"' : '';
   var i = ['<span class="invisep">&lt;</span>', '<span class="invisep">&gt;</span>'];
-  return '<tr><td>'+t+'</td><td>'+i[0]+'<mark class="nickname" onclick="window.chat.nicknameClicked(event, \'@' + nick + '\')" ' + s + '>'+ nick+'</mark>'+i[1]+'</td><td>'+msg+'</td></tr>';
+  return '<tr><td>'+t+'</td><td>'+i[0]+'<mark class="nickname" onclick="window.chat.nicknameClicked(event, \'' + nick + '\')" ' + s + '>'+ nick+'</mark>'+i[1]+'</td><td>'+msg+'</td></tr>';
 }
 
 window.chat.addNickname= function(nick){
