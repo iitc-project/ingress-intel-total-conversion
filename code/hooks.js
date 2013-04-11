@@ -70,7 +70,7 @@ window.runHooks = function(event, data) {
   $.each(_hooks[event], function(ind, callback) {
     if (callback(data) === false) {
       interupted = true;
-      return false;
+      return false;  //break from $.each
     }
   });
   return !interupted;
