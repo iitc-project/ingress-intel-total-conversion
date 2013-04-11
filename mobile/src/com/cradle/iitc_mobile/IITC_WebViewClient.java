@@ -118,10 +118,10 @@ public class IITC_WebViewClient extends WebViewClient {
     // start non-ingress-intel-urls in another app...
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
-        if (url.contains("ingress.com/intel")) {
+        if (url.contains("ingress.com")) {
             return false;
         } else {
-            Log.d("iitcm", "no ingress intel link, start external app to load url");
+            Log.d("iitcm", "no ingress intel link, start external app to load url: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             context.startActivity(intent);
             return true;
