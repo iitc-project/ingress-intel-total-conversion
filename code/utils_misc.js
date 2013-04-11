@@ -1,6 +1,9 @@
 
-
 // UTILS + MISC  ///////////////////////////////////////////////////////
+
+window.aboutIITC = function(){
+  alert("About IITC");
+}
 
 window.layerGroupLength = function(layerGroup) {
   var layersCount = 0;
