@@ -4,7 +4,14 @@
 window.setupGeosearch = function() {
   $('#geosearch').keypress(function(e) {
     if((e.keyCode ? e.keyCode : e.which) != 13) return;
-    $.getJSON(NOMINATIM + encodeURIComponent($(this).val()), function(data) {
+    
+    var search = $(this).val();
+    
+    if (!runHooks('geoSearch', search)) {
+      return;
+    }
+    
+    $.getJSON(NOMINATIM + encodeURIComponent(search), function(data) {
       if(!data || !data[0]) return;
       var b = data[0].boundingbox;
       if(!b) return;
