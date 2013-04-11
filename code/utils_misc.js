@@ -1,8 +1,15 @@
-
 // UTILS + MISC  ///////////////////////////////////////////////////////
 
 window.aboutIITC = function(){
-  alert("About IITC");
+  alert("
+    About IITC
+    IITC = Ingress Intel Total Conversion.
+    On the script’s homepage you can:
+    – find updates
+    – get plugins
+    – report bugs
+    – and contribute.
+  ");
 }
 
 window.layerGroupLength = function(layerGroup) {
