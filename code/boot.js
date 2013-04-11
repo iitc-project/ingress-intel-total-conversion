@@ -291,12 +291,13 @@ window.setupDialogs = function() {
     autoOpen: false,
     modal: true,
     buttons: [
-      { text: 'OK', click: function() { $(this).dialog('close'); } }
+      { text: 'OK', click: function() { if($(this).data("closeCallback")) {$(this).data("closeCallback")();} $(this).dialog('close'); } }
     ]
   });
 
-  window.alert = function(text, isHTML) {
+  window.alert = function(text, isHTML, closeCallback) {
     var h = isHTML ? text : window.convertTextToTableMagic(text);
+    $('#dialog').data("closeCallback", closeCallback);
     $('#dialog').html(h).dialog('open');
   }
 }
