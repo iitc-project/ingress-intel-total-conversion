@@ -1,16 +1,20 @@
 // UTILS + MISC  ///////////////////////////////////////////////////////
 
 window.aboutIITC = function(){
-  alert("
-    About IITC
-    IITC = Ingress Intel Total Conversion.
-    On the script’s homepage you can:
-    – find updates
-    – get plugins
-    – report bugs
-    – and contribute.
-  ");
+  //var v = window.IITC_VERSION
+  var a = ''
+  + '  <div><b>About IITC</b></div> '
+  + '  <div>Ingress Intel Total Conversion</div> '
+  + '  <hr>'
+  + '  <div>'
+  + '    <a href="http://iitc.jonatkins.com/">IITC Homepage</a>'
+  + '  </div>'
+  + '  <hr>'
+  //+ '  <div>Version: ' + v + '</div>';
+  + '  <div>Version: </div>';
+  alert(a);
 }
+
 
 window.layerGroupLength = function(layerGroup) {
   var layersCount = 0;
