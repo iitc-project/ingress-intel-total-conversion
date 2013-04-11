@@ -49,6 +49,11 @@ window.plugin.playerTracker.setup = function() {
   plugin.playerTracker.drawnTraces = new L.LayerGroup();
   window.layerChooser.addOverlay(plugin.playerTracker.drawnTraces, 'Player Tracker');
   map.addLayer(plugin.playerTracker.drawnTraces);
+  map.on('overlayadd', function(obj) {
+    obj.layer.layer.eachLayer(function(marker) {
+      if(marker._icon) window.setupTooltips($(marker._icon));
+    });
+  });
   plugin.playerTracker.oms = new OverlappingMarkerSpiderfier(map);
   plugin.playerTracker.oms.legColors = {'usual': '#FFFF00', 'highlighted': '#FF0000'};
   plugin.playerTracker.oms.legWeight = 3.5;
