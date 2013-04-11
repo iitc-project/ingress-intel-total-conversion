@@ -1,7 +1,7 @@
 // UTILS + MISC  ///////////////////////////////////////////////////////
 
 window.aboutIITC = function(){
-  //var v = window.IITC_VERSION
+  var v = '@@DATETIMEVERSION@@'
   var a = ''
   + '  <div><b>About IITC</b></div> '
   + '  <div>Ingress Intel Total Conversion</div> '
@@ -10,8 +10,7 @@ window.aboutIITC = function(){
   + '    <a href="http://iitc.jonatkins.com/">IITC Homepage</a>'
   + '  </div>'
   + '  <hr>'
-  //+ '  <div>Version: ' + v + '</div>';
-  + '  <div>Version: </div>';
+  + '  <div>Version: ' + v + '</div>';
   alert(a);
 }
 
