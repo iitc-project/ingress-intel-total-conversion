@@ -103,6 +103,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
         if(!window.getPaddedBounds().contains(latlng)
               && selectedPortal !== ent[0]
               && urlPortal !== ent[0]
+              && !(urlPortalLL && urlPortalLL[0] === latlng[0] && urlPortalLL[1] === latlng[1])
           ) return;
 
 
@@ -154,6 +155,11 @@ window.handlePortalsRender = function(portals) {
   $.each(portals, function(ind, portal) {
     //~ if(selectedPortal === portal[0]) portalUpdateAvailable = true;
     if(urlPortal && portal[0] === urlPortal) portalInUrlAvailable = true;
+    if(urlPortalLL && urlPortalLL[0] === portal[2].locationE6.latE6/1E6 && urlPortalLL[1] === portal[2].locationE6.lngE6/1E6) {
+      urlPortal = portal[0];
+      portalInUrlAvailable = true;
+      urlPortalLL = null;
+    }
     renderPortal(portal);
   });
 

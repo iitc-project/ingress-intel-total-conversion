@@ -255,9 +255,9 @@ window.prettyEnergy = function(nrg) {
 
 window.setPermaLink = function(elm) {
   var c = map.getCenter();
-  var lat = Math.round(c.lat*1E6);
-  var lng = Math.round(c.lng*1E6);
-  var qry = 'latE6='+lat+'&lngE6='+lng+'&z=' + map.getZoom();
+  var lat = Math.round(c.lat*1E6)/1E6;
+  var lng = Math.round(c.lng*1E6)/1E6;
+  var qry = 'll='+lat+','+lng+'&z=' + map.getZoom();
   $(elm).attr('href',  '/intel?' + qry);
 }
 
