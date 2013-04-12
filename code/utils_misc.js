@@ -1,6 +1,26 @@
-
-
 // UTILS + MISC  ///////////////////////////////////////////////////////
+
+window.aboutIITC = function(){
+  var v = '@@DATETIMEVERSION@@'
+  var a = ''
+  + '  <div><b>About IITC</b></div> '
+  + '  <div>Ingress Intel Total Conversion</div> '
+  + '  <hr>'
+  + '  <div>'
+  + '    <a href="http://iitc.jonatkins.com/">IITC Homepage</a><br />'
+  + '     On the script’s homepage you can:'
+  + '     <ul>'
+  + '       <li>Find Updates</li>'
+  + '       <li>Get Plugins</li>'
+  + '       <li>Report Bugs</li>'
+  + '       <li>Contribute!</li>'
+  + '     </ul>'
+  + '  </div>'
+  + '  <hr>'
+  + '  <div>Version: ' + v + '</div>';
+  alert(a);
+}
+
 
 window.layerGroupLength = function(layerGroup) {
   var layersCount = 0;
