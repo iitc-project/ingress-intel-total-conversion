@@ -389,7 +389,7 @@ window.plugin.scoreboard.fieldArea = function(field) {
 }
 
 var setup =  function() {
-  $('#toolbox').append('<a onclick="window.plugin.scoreboard.display()">scoreboard</a>');
+  $('#toolbox').append(' <a onclick="window.plugin.scoreboard.display()">Scoreboard</a>');
   $('head').append('<style>' +
     '.ui-dialog-scoreboard {max-width:600px !important; width:600px !important;}' +
     '#scoreboard table {margin-top:10px;	border-collapse: collapse; empty-cells: show; width:100%; clear: both;}' +
