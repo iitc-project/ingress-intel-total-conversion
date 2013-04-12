@@ -33,12 +33,11 @@ window.plugin.ipasLink.addLink = function(d) {
 window.plugin.ipasLink.getHash = function(d) {
     var hashParts=[];
     $.each(d.resonatorArray.resonators, function(ind, reso) {
-        if ($reso) {
+        if (reso) {
             hashParts.push(reso.level + "," + reso.distanceToPortal + "," + reso.energyTotal);
         } else {
             hashParts.push(1 + "," + 35 + "," + 0); // Dummy values, the only important one is energy=0
         }
-    }
     });
     return hashParts.join(";")+"|" + "0,0,0,0"; //shields not implemented yet
 }
