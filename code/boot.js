@@ -110,7 +110,7 @@ window.setupMap = function() {
   //var cmMid = new L.TileLayer('http://{s}.tile.cloudmade.com/{your api key here}/999/256/{z}/{x}/{y}.png', cmOpt);
 
   // cant make osm default per their tile usage policy (would cause too much traffic)
-  var views = [/*cmMid, cmMin, osm,*/null, null, null, new L.Google('INGRESS'), new L.Google('ROADMAP'),
+  var views = [/*cmMid, cmMin, osm,*/new L.Google('INGRESS'), new L.Google('ROADMAP'),
                new L.Google('SATELLITE'), new L.Google('HYBRID')];
 
 
@@ -140,10 +140,10 @@ window.setupMap = function() {
     //'OSM Midnight': views[0],
     //'OSM Minimal': views[1],
     //'OSM Mapnik': views[2],
-    'Default Ingress Map': views[3],
-    'Google Roads':  views[4],
-    'Google Satellite':  views[5],
-    'Google Hybrid':  views[6]
+    'Default Ingress Map': views[0],
+    'Google Roads':  views[1],
+    'Google Satellite':  views[2],
+    'Google Hybrid':  views[3]
     }, addLayers);
 
   map.addControl(window.layerChooser);
