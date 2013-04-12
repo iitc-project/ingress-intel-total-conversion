@@ -1,4 +1,3 @@
-
 // SETUP /////////////////////////////////////////////////////////////
 // these functions set up specific areas after the boot function
 // created a basic framework. All of these functions should only ever
@@ -107,10 +106,11 @@ window.setupMap = function() {
   var osm = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', osmOpt);
 
   var cmOpt = {attribution: 'Map data © OpenStreetMap contributors, Imagery © CloudMade', maxZoom: 18, detectRetina: true};
-  var cmMin = new L.TileLayer('http://{s}.tile.cloudmade.com/654cef5fd49a432ab81267e200ecc502/22677/256/{z}/{x}/{y}.png', cmOpt);
-  var cmMid = new L.TileLayer('http://{s}.tile.cloudmade.com/654cef5fd49a432ab81267e200ecc502/999/256/{z}/{x}/{y}.png', cmOpt);
+  //var cmMin = new L.TileLayer('http://{s}.tile.cloudmade.com/{your api key here}/22677/256/{z}/{x}/{y}.png', cmOpt);
+  //var cmMid = new L.TileLayer('http://{s}.tile.cloudmade.com/{your api key here}/999/256/{z}/{x}/{y}.png', cmOpt);
 
-  var views = [cmMid, cmMin, osm, new L.Google('INGRESS'), new L.Google('ROADMAP'),
+  // cant make osm default per their tile usage policy (would cause too much traffic)
+  var views = [/*cmMid, cmMin, osm,*/null, null, null, new L.Google('INGRESS'), new L.Google('ROADMAP'),
                new L.Google('SATELLITE'), new L.Google('HYBRID')];
 
 
@@ -137,9 +137,9 @@ window.setupMap = function() {
   addLayers['Links'] = linksLayer;
 
   window.layerChooser = new L.Control.Layers({
-    'OSM Midnight': views[0],
-    'OSM Minimal': views[1],
-    'OSM Mapnik': views[2],
+    //'OSM Midnight': views[0],
+    //'OSM Minimal': views[1],
+    //'OSM Mapnik': views[2],
     'Default Ingress Map': views[3],
     'Google Roads':  views[4],
     'Google Satellite':  views[5],
