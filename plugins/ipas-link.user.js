@@ -23,19 +23,23 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 window.plugin.ipasLink = function() {};
 
 window.plugin.ipasLink.setupCallback = function() {
-      addHook('portalDetailsUpdated', window.plugin.ipasLink.addLink);
+  addHook('portalDetailsUpdated', window.plugin.ipasLink.addLink);
 }
 
 window.plugin.ipasLink.addLink = function(d) {
-    $('.linkdetails').append('<aside style="text-align: center; display: block"><a href="http://ipas.graphracer.com/index.html#' + window.plugin.ipasLink.getHash(d.portalDetails) + '" target="ipaswindow">simulate attack with IPAS</a></aside>');
+  $('.linkdetails').append('<aside style="text-align: center; display: block"><a href="http://ipas.graphracer.com/index.html#' + window.plugin.ipasLink.getHash(d.portalDetails) + '" target="ipaswindow">simulate attack with IPAS</a></aside>');
 }
 
 window.plugin.ipasLink.getHash = function(d) {
-    var hashParts=[];
-    $.each(d.resonatorArray.resonators, function(ind, reso) {
-        hashParts.push(reso.level + "," + reso.distanceToPortal + "," + reso.energyTotal);
-    });
-    return hashParts.join(";")+"|" + "0,0,0,0"; //shields not implemented yet
+  var hashParts=[];
+  $.each(d.resonatorArray.resonators, function(ind, reso) {
+    if (reso) {
+      hashParts.push(reso.level + "," + reso.distanceToPortal + "," + reso.energyTotal);
+    } else {
+      hashParts.push(1 + "," + 35 + "," + 0); // Dummy values, the only important one is energy=0
+    }
+  });
+  return hashParts.join(";")+"|" + "0,0,0,0"; //shields not implemented yet
 }
 
 var setup =  function() {
@@ -57,4 +61,3 @@ if(window.iitcLoaded && typeof setup === 'function') {
 var script = document.createElement('script');
 script.appendChild(document.createTextNode('('+ wrapper +')();'));
 (document.body || document.head || document.documentElement).appendChild(script);
-

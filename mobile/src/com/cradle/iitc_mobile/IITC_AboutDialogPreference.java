@@ -34,7 +34,7 @@ public class IITC_AboutDialogPreference extends DialogPreference{
         message.setMovementMethod(LinkMovementMethod.getInstance());
         builder.setView(message)
                .setTitle(R.string.about)
-               .setIcon(R.drawable.ic_stat_about)
+               .setIcon(android.R.drawable.ic_dialog_info)
                .setNeutralButton(R.string.close, new OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
                        dialog.cancel();

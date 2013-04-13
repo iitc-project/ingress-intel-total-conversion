@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-scoreboard@vita10gy
 // @name           IITC plugin: show a localized scoreboard.
-// @version        0.1.5.@@DATETIMEVERSION@@
+// @version        0.1.6.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -362,7 +362,7 @@ window.plugin.scoreboard.display = function() {
     scoreHtml += 'You need something in view.';  
   }
   
-  alert('<div id="scoreboard">' + scoreHtml + '</div>');
+  alert('<div id="scoreboard">' + scoreHtml + '</div>', true, function() {$(".ui-dialog").removeClass('ui-dialog-scoreboard');});
   $(".ui-dialog").addClass('ui-dialog-scoreboard');
   
   // Setup sorting
@@ -389,8 +389,7 @@ window.plugin.scoreboard.fieldArea = function(field) {
 }
 
 var setup =  function() {
-  $('body').append('<div id="scoreboard" style="display:none;"></div>');
-  $('#toolbox').append('<a onclick="window.plugin.scoreboard.display()">scoreboard</a>');
+  $('#toolbox').append(' <a onclick="window.plugin.scoreboard.display()">Scoreboard</a>');
   $('head').append('<style>' +
     '.ui-dialog-scoreboard {max-width:600px !important; width:600px !important;}' +
     '#scoreboard table {margin-top:10px;	border-collapse: collapse; empty-cells: show; width:100%; clear: both;}' +

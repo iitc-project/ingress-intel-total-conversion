@@ -21,11 +21,18 @@ window.storeMapPosition = function() {
 // returns a map that shows the whole world.
 window.getPosition = function() {
   if(getURLParam('latE6') && getURLParam('lngE6')) {
-    console.log("mappos: reading URL params");
+    console.log("mappos: reading email URL params");
     var lat = parseInt(getURLParam('latE6'))/1E6 || 0.0;
     var lng = parseInt(getURLParam('lngE6'))/1E6 || 0.0;
-    // google seems to zoom in far more than leaflet
-    var z = parseInt(getURLParam('z'))+1 || 17;
+    var z = parseInt(getURLParam('z')) || 17;
+    return {center: new L.LatLng(lat, lng), zoom: z > 18 ? 18 : z};
+  }
+
+  if(getURLParam('ll')) {
+    console.log("mappos: reading stock Intel URL params");
+    var lat = parseFloat(getURLParam('ll').split(",")[0]) || 0.0;
+    var lng = parseFloat(getURLParam('ll').split(",")[1]) || 0.0;
+    var z = parseInt(getURLParam('z')) || 17;
     return {center: new L.LatLng(lat, lng), zoom: z > 18 ? 18 : z};
   }
 

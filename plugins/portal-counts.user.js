@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-portals-count@yenky
 // @name           IITC plugin: Show total counts of portals
-// @version        0.0.6.@@DATETIMEVERSION@@
+// @version        0.0.7.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -99,8 +99,7 @@ window.plugin.portalcounts.getPortals = function(){
 }
 
 var setup =  function() {
-  $('body').append('<div id="portalcounts" style="display:none;"></div>');
-  $('#toolbox').append('<a onclick="window.plugin.portalcounts.getPortals()">Portalcounts</a>');
+  $('#toolbox').append(' <a onclick="window.plugin.portalcounts.getPortals()">Portal&sbsp;counts</a>');
   $('head').append('<style>' + 
     '#portalcounts table {margin-top:5px; border-collapse: collapse; empty-cells: show; width:100%; clear: both;}' +
     '#portalcounts table td, #portalcounts table th {border-bottom: 1px solid #0b314e; padding:3px; color:white; background-color:#1b415e}' +

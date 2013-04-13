@@ -1,9 +1,12 @@
 package com.cradle.iitc_mobile;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.net.http.SslError;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -22,8 +25,10 @@ public class IITC_WebViewClient extends WebViewClient {
 
     private WebResourceResponse iitcjs;
     private String js = null;
+    Context context;
 
     public IITC_WebViewClient(Context c) {
+        this.context = c;
         try {
             loadIITC_JS(c);
         } catch(IOException e) {
@@ -107,6 +112,19 @@ public class IITC_WebViewClient extends WebViewClient {
             return new WebResourceResponse("text/plain", "UTF-8", empty);
         } else {
             return super.shouldInterceptRequest(view, url);
+        }
+    }
+
+    // start non-ingress-intel-urls in another app...
+    @Override
+    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        if (url.contains("ingress.com")) {
+            return false;
+        } else {
+            Log.d("iitcm", "no ingress intel link, start external app to load url: " + url);
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            context.startActivity(intent);
+            return true;
         }
     }
 }

@@ -23,7 +23,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 window.plugin.guessPlayerLevels = function() {};
 
 window.plugin.guessPlayerLevels.setupCallback = function() {
-  $('#toolbox').append('<a onclick="window.plugin.guessPlayerLevels.guess()">guess player levels</a> ');
+  $('#toolbox').append(' <a onclick="window.plugin.guessPlayerLevels.guess()">Guess&nbsp;player&nbsp;levels</a>');
   addHook('portalAdded', window.plugin.guessPlayerLevels.extractPortalData);
 }
 

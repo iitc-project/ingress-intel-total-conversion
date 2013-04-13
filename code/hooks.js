@@ -59,15 +59,21 @@
 window._hooks = {}
 window.VALID_HOOKS = ['portalAdded', 'portalDetailsUpdated',
   'publicChatDataAvailable', 'factionChatDataAvailable', 'portalDataLoaded',
-  'beforePortalReRender', 'checkRenderLimit', 'requestFinished'];
+  'beforePortalReRender', 'checkRenderLimit', 'requestFinished', 'nicknameClicked',
+  'geoSearch'];
 
 window.runHooks = function(event, data) {
   if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);
 
-  if(!_hooks[event]) return;
+  if(!_hooks[event]) return true;
+  var interupted = false;
   $.each(_hooks[event], function(ind, callback) {
-    callback(data);
+    if (callback(data) === false) {
+      interupted = true;
+      return false;  //break from $.each
+    }
   });
+  return !interupted;
 }
 
 
