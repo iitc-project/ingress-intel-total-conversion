@@ -46,6 +46,7 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
           if(!bursts[level]) bursts[level] = 0;
           bursts[level] += 1;
         }
+        //TODO: add support for power cubes
       }
     }
     
