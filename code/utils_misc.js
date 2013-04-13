@@ -1,13 +1,13 @@
 // UTILS + MISC  ///////////////////////////////////////////////////////
 
 window.aboutIITC = function(){
-  var v = '@@DATETIMEVERSION@@'
+  var v = '@@BUILDNAME@@-@@BUILDDATE@@'
   var a = ''
   + '  <div><b>About IITC</b></div> '
   + '  <div>Ingress Intel Total Conversion</div> '
   + '  <hr>'
   + '  <div>'
-  + '    <a href="http://iitc.jonatkins.com/">IITC Homepage</a><br />'
+  + '    <a href="http://iitc.jonatkins.com/" target="_blank">IITC Homepage</a><br />'
   + '     On the script’s homepage you can:'
   + '     <ul>'
   + '       <li>Find Updates</li>'
@@ -15,6 +15,9 @@ window.aboutIITC = function(){
   + '       <li>Report Bugs</li>'
   + '       <li>Contribute!</li>'
   + '     </ul>'
+  + '  </div>'
+  + '  <div>'
+  + '    MapQuest OSM tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png">'
   + '  </div>'
   + '  <hr>'
   + '  <div>Version: ' + v + '</div>';
