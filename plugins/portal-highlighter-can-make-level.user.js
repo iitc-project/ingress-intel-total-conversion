@@ -27,7 +27,6 @@ window.plugin.portalHighligherPortalsCanMakeLevel.highlight = function(data,high
   var current_level = Math.floor(getPortalLevel(d));
   var potential_level = Math.floor(window.potentialPortalLevel(d));
   var opacity = .7;
-  console.log(current_level + ' ' + potential_level+ ' ' + highlight_level);
   if( potential_level > current_level && potential_level === highlight_level) {
     color = 'red';
     data.portal.setStyle({fillColor: color, fillOpacity: opacity});
@@ -57,7 +56,6 @@ window.plugin.portalHighligherPortalsCanMakeLevel.playerCanSoloLevel = function(
 }
 window.plugin.portalHighligherPortalsCanMakeLevel.getHighlighter = function(lvl) {
   return(function(data){ 
-    console.log(lvl);
     window.plugin.portalHighligherPortalsCanMakeLevel.highlight(data,lvl);
   });  
 }
