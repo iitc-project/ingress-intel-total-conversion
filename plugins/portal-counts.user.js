@@ -99,7 +99,7 @@ window.plugin.portalcounts.getPortals = function(){
 }
 
 var setup =  function() {
-  $('#toolbox').append(' <a onclick="window.plugin.portalcounts.getPortals()">Portal&sbsp;counts</a>');
+  $('#toolbox').append(' <a onclick="window.plugin.portalcounts.getPortals()" title="Display a summary of portals in the current view">Portal counts</a>');
   $('head').append('<style>' + 
     '#portalcounts table {margin-top:5px; border-collapse: collapse; empty-cells: show; width:100%; clear: both;}' +
     '#portalcounts table td, #portalcounts table th {border-bottom: 1px solid #0b314e; padding:3px; color:white; background-color:#1b415e}' +

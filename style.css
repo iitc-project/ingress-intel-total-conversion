@@ -621,13 +621,14 @@ h3 {
 
 
 #toolbox {
-  padding: 2px;
-  font-size:90%;
+  font-size: 12px;
+  text-align: left;    /* centre didn't look as nice here as it did above in .linkdetails */
 }
 
 #toolbox > a {
-  padding: 2px;
-  padding-right:6px;
+  margin-left: 5px;
+  margin-right: 5px;
+  white-space: nowrap;
 }
 
 /* a common portal display takes this much space (prevents moving

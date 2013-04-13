@@ -23,7 +23,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 window.plugin.guessPlayerLevels = function() {};
 
 window.plugin.guessPlayerLevels.setupCallback = function() {
-  $('#toolbox').append(' <a onclick="window.plugin.guessPlayerLevels.guess()">Guess&nbsp;player&nbsp;levels</a>');
+  $('#toolbox').append(' <a onclick="window.plugin.guessPlayerLevels.guess()" title="Show player level guesses based on resonator placement in displayed portals">Guess player levels</a>');
   addHook('portalAdded', window.plugin.guessPlayerLevels.extractPortalData);
 }
 
