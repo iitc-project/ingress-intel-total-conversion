@@ -26,7 +26,9 @@ window.portalHighlighterControl = function() {
     }
     $("#portal_highlight_select").html('');
     $("#portal_highlight_select").append($("<option>").attr('value',_no_highlighter).text(_no_highlighter));
-    $.each(_highlighters, function(name, callback) {  
+    var h_names = Object.keys(_highlighters).sort();
+    
+    $.each(h_names, function(i, name) {  
       $("#portal_highlight_select").append($("<option>").attr('value',name).text(name));
     });
     $("#portal_highlight_select").val(_current_highlighter);
