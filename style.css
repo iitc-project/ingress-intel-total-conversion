@@ -423,6 +423,18 @@ input {
   box-sizing: border-box;
 }
 
+#geosearch{
+  width:272px;
+  background-color: transparent;
+}
+#geosearchwrapper {
+  height:25px;  
+  background-color: rgba(0, 0, 0, 0.3);
+}
+#geosearchwrapper img{
+  vertical-align: bottom;
+  margin-bottom: 2px;
+}
 ::-webkit-input-placeholder {
   font-style: italic;
 }
