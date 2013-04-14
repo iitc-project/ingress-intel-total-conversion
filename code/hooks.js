@@ -42,7 +42,7 @@
 //              array to change order or add additional values to the
 //              details of a portal.
 // beforePortalReRender: the callback argument is
-//              {portal: ent[2], oldPortal : d, reRender : false}.
+//              {portal: ent[2], oldPortal : d, portalGuid: ent[0], reRender : false}.
 //              The callback needs to update the value of reRender to
 //              true if the plugin has a reason to have the portal
 //              redrawn. It is called early on in the
