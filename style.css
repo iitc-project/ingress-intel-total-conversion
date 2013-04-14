@@ -636,6 +636,17 @@ h3 {
 
 #portaldetails {
   min-height: 485px;
+  position: relative; /* so the below '#portaldetails .close' is relative to this */
+}
+
+#portaldetails .close {
+  position: absolute;
+  top: -2px;
+  right: 2px;
+  cursor: pointer;
+  color: #FFCE00;
+  font-family: "Arial", sans;
+  font-size: 16px;
 }
 
 
