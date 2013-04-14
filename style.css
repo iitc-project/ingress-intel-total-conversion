@@ -45,7 +45,7 @@ body {
   margin-top: -31px; /* -(toggle height / 2) */
   line-height: 10px;
   position: absolute;
-  top: 340px; /* (sidebar height / 2) */
+  top: 325px; /* (sidebar height / 2) */
   z-index: 3001;
   background-color: rgba(8, 48, 78, 0.9);
   color: #FFCE00;
