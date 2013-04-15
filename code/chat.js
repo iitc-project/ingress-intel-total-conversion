@@ -416,7 +416,7 @@ window.chat.renderMsg = function(msg, nick, time, team, msgToPlayer, systemNarro
 
 window.chat.addNickname= function(nick){
     var c = document.getElementById("chattext");
-    c.value = [c.value, nick, " "].join(" ").trim() + " ";
+    c.value = [c.value.trim(), nick].join(" ").trim() + " ";
     c.focus()
 }
 
