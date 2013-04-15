@@ -434,6 +434,7 @@ input {
 #geosearchwrapper img{
   vertical-align: bottom;
   margin-bottom: 2px;
+  cursor: pointer;
 }
 ::-webkit-input-placeholder {
   font-style: italic;
