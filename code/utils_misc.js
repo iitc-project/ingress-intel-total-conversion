@@ -136,8 +136,8 @@ window.showPortalPosLinks = function(lat, lng, name) {
   } else {
     var qrcode = '<div id="qrcode"></div>';
     var script = '<script>$(\'#qrcode\').qrcode({text:\'GEO:'+lat+','+lng+'\'});</script>';
-    var gmaps = '<a href="https://maps.google.com/?q='+lat+','+lng+portal_name+'">gmaps</a>';
-    var osm = '<a href="http://www.openstreetmap.org/?mlat='+lat+'&mlon='+lng+'&zoom=16">OSM</a>';
+    var gmaps = '<a href="https://maps.google.com/?q='+lat+','+lng+portal_name+'">Google maps</a>';
+    var osm = '<a href="http://www.openstreetmap.org/?mlat='+lat+'&mlon='+lng+'&zoom=16">OpenStreetMap</a>';
     var latLng = '<span>'+lat+','+lng +'</span>';
     alert('<div style="text-align: center;">' + qrcode + script + gmaps + ' ' + osm + '<br />' + latLng + '</div>');
   }
