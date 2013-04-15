@@ -22,59 +22,16 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 // use own namespace for plugin
 window.plugin.portalHighligherPortalsUpgrade = function() {};
 
-// Make this return 0 if portal can't be upgraded at all
-// mildly hacky, but then there need not be both "can upgrade period" AND a "ok, to what level?" checks 
-window.plugin.portalHighligherPortalsUpgrade.potentialPortalLevel = function(d) {
-  var potential_level = 0;
-  
-  if(PLAYER.team === d.controllingTeam.team) {
-    var current_level = getPortalLevel(d);
-    var resonators_on_portal = d.resonatorArray.resonators;
-    var resonator_levels = new Array();
-    // figure out how many of each of these resonators can be placed by the player
-    var player_resontators = new Array();
-    for(var i=1;i<=MAX_PORTAL_LEVEL; i++) {
-      player_resontators[i] = i > PLAYER.level ? 0 : MAX_RESO_PER_PLAYER[i];
-    }
-    $.each(resonators_on_portal, function(ind, reso) {
-      if(reso !== null && reso.ownerGuid === window.PLAYER.guid) {
-        player_resontators[reso.level]--;
-      }
-      resonator_levels.push(reso === null ? 0 : reso.level);  
-    });
-    
-    resonator_levels.sort(function(a, b) {
-      return(a - b);
-    });
-    
-    // Max out portal
-    var install_index = 0;
-    for(var i=MAX_PORTAL_LEVEL;i>=1; i--) {
-      for(var install = player_resontators[i]; install>0; install--) {
-        if(resonator_levels[install_index] < i) {
-          resonator_levels[install_index] = i;
-          install_index++;
-        }
-      }
-    }
-    //console.log(resonator_levels);
-    var new_level = resonator_levels.reduce(function(a, b) {return a + b;}) / 8;
-    if(new_level != current_level) {
-      potential_level = Math.floor(new_level);
-    }
-  }
-  return(potential_level);
-}
-
 window.plugin.portalHighligherPortalsUpgrade.highlight = function(data) {
   var d = data.portal.options.details;
-  var current_level = Math.floor(getPortalLevel(d));
-  var potential_level = window.plugin.portalHighligherPortalsUpgrade.potentialPortalLevel(d);
+  var current_level = getPortalLevel(d);
+  var potential_level = window.potentialPortalLevel(d);
   var player_level = PLAYER.level;
   var opacity = .7;
   
-  if( potential_level > 0) {
-    
+  if( potential_level > current_level) {
+    potential_level = Math.floor(potential_level);
+    current_level = Math.floor(current_level);
     //console.log(potential_level + '>' + current_level);
     var color = 'yellow';
     if(potential_level > current_level) {
