@@ -8,9 +8,30 @@
     <string name="cache_clear">Clear Cache</string>
     <string name="locate">Get Location</string>
     <string name="local">local</string>
+    <string name="close">close</string>
     <string name="build_version">Build Version</string>
     <string name="iitc_version">IITC Version</string>
+    <string name="about">About</string>
     
+    <string name="pref_about_title">About IITC Mobile</string>
+    <!-- Use CDATA to prevent android from parsing html tags....we are doing this with Html.fromHtml() -->
+    <string name="pref_about_msg">
+        <![CDATA[<big><b>Ingress Intel Total Conversion Mobile</b></big><br><br>
+        <b>by <a href="https://github.com/leCradle">cradle</a></b><br><br>
+        <b>Icon by <a href="https://twitter.com/machtwerk">machtwerk</a></b><br><br>
+        IITC Mobile is an optimized mobile browser for the
+        Ingress Intel Total Conversion (IITC) userscript by <a href="https://github.com/breunigs"><b>breunigs</b></a>.
+        After Niantic asked the main developer to shut down his github project, development
+        is continued on a fork of <a href="https://github.com/jonatkins"><b>jonatkins</b></a>.<br><br>
+        <b>Website:</b><br>
+        <a href="http://iitc.jonatkins.com/">http://iitc.jonatkins.com/</a><br><br>
+        <b>Fork github:</b><br>
+        <a href="https://github.com/jonatkins/ingress-intel-total-conversion">https://github.com/jonatkins/ingress-intel-total-conversion</a><br><br>
+        <b>Old github:</b><br>
+        <a href="https://github.com/breunigs/ingress-intel-total-conversion">https://github.com/breunigs/ingress-intel-total-conversion</a>]]>
+    </string>
+
+    <string name="pref_ui_cat">UI</string>
     <string name="pref_force_desktop">Force desktop mode</string>
     <string name="pref_force_desktop_sum">Nice for tablets, looks awful on smartphones</string>
     <string name="pref_developer_options">Developer options</string>

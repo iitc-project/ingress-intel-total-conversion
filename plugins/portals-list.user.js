@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-portals-list@teo96
 // @name           IITC plugin: show list of portals
-// @version        0.0.9.@@DATETIMEVERSION@@
+// @version        0.0.10.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -119,7 +119,7 @@ window.plugin.portalslist.displayPL = function() {
     } else {
     	html = '<table><tr><td>Nothing to Show !</td></tr></table>';
     };
-    alert('<div id="portalslist">' + html + '</div>');
+    alert('<div id="portalslist">' + html + '</div>', true, function() {$(".ui-dialog").removeClass('ui-dialog-portalslist');});
     $(".ui-dialog").addClass('ui-dialog-portalslist');
   
     // Setup sorting
@@ -353,7 +353,7 @@ window.plugin.portalslist.exportKML = function(){
             // description contain picture of the portal, address and link to the Intel map
             var description = '<![CDATA['
             + '<div><table><tr><td><img style="width:100px" src="' + portal.img + '"></td><td>' + portal.address 
-            + '<br><a href="https://ingress.com/intel?latE6=' + portal.lat*1E6 + '&lngE6=' + portal.lng*1E6 + '&z=17">Link to Intel Map</a></td></tr></table>'
+            + '<br><a href="https://www.ingress.com/intel?latE6=' + portal.lat*1E6 + '&lngE6=' + portal.lng*1E6 + '&z=17">Link to Intel Map</a></td></tr></table>'
             + ']]>';
             
             kml += '<Placemark><name>L' + Math.floor(portal.level) + ' - ' + portal.name + '</name>'
@@ -387,7 +387,7 @@ window.plugin.portalslist.getPortalLink = function(portal,guid) {
     var latlng = [portal.locationE6.latE6/1E6, portal.locationE6.lngE6/1E6].join();
     var jsSingleClick = 'window.renderPortalDetails(\''+guid+'\');return false';
     var jsDoubleClick = 'window.zoomToAndShowPortal(\''+guid+'\', ['+latlng+']);return false';
-    var perma = 'https://ingress.com/intel?latE6='+portal.locationE6.latE6+'&lngE6='+portal.locationE6.lngE6+'&z=17&pguid='+guid;
+    var perma = '/intel?latE6='+portal.locationE6.latE6+'&lngE6='+portal.locationE6.lngE6+'&z=17&pguid='+guid;
     
     //Use Jquery to create the link, which escape characters in TITLE and ADDRESS of portal
     var a = $('<a>',{
@@ -403,8 +403,7 @@ window.plugin.portalslist.getPortalLink = function(portal,guid) {
 }
 
 var setup =  function() {
-  $('body').append('<div id="portalslist" style="display:none;"></div>');
-  $('#toolbox').append('<a onclick="window.plugin.portalslist.displayPL(0)">Portals List</a>');
+  $('#toolbox').append(' <a onclick="window.plugin.portalslist.displayPL(0)" title="Display a list of portals in the current view">Portals list</a>');
   $('head').append('<style>' + 
     '.ui-dialog-portalslist {position: absolute !important; top: 10px !important; left: 30px !important;max-width:800px !important; width:733px !important;}' + 
     '#portalslist table {margin-top:5px;	border-collapse: collapse; empty-cells: show; width:100%; clear: both;}' +

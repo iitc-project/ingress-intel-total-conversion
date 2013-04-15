@@ -1,0 +1,2 @@
+default:
+	./build.py

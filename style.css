@@ -45,7 +45,7 @@ body {
   margin-top: -31px; /* -(toggle height / 2) */
   line-height: 10px;
   position: absolute;
-  top: 340px; /* (sidebar height / 2) */
+  top: 325px; /* (sidebar height / 2) */
   z-index: 3001;
   background-color: rgba(8, 48, 78, 0.9);
   color: #FFCE00;
@@ -423,6 +423,18 @@ input {
   box-sizing: border-box;
 }
 
+#geosearch{
+  width:272px;
+  background-color: transparent;
+}
+#geosearchwrapper {
+  height:25px;  
+  background-color: rgba(0, 0, 0, 0.3);
+}
+#geosearchwrapper img{
+  vertical-align: bottom;
+  margin-bottom: 2px;
+}
 ::-webkit-input-placeholder {
   font-style: italic;
 }
@@ -602,58 +614,51 @@ h3 {
   margin-left: -6px;
   text-shadow: 0.0em 0.0em 0.3em #808080;
 }
+
 /* links below resos */
 
 .linkdetails {
   margin-bottom: 0px;
-}
-
-aside {
-  display: inline-block;
-  padding-right: 9px;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
   text-align: center;
 }
 
-.linkdetails aside a{
-  font-size:12px;
+.linkdetails aside {
+  display: inline-block;
+  white-space: nowrap;
+  font-size: 12px;
+  margin-left: 5px;
+  margin-right: 5px;
 }
 
-.linkdetails aside:last-child {
-  padding-right: 0;
-}
 
-.linkdetails aside:nth-child(1) {
-  text-align: right;
-  width:88px;
-}
-
-.linkdetails aside:nth-child(2) {
-  text-align: right;
-  width:67px;
-}
-
-.linkdetails aside:nth-child(4) {
-  margin-left:13px;
-}
 
 #toolbox {
-  padding: 2px;
-  font-size:90%;
+  font-size: 12px;
+  text-align: left;    /* centre didn't look as nice here as it did above in .linkdetails */
 }
 
 #toolbox > a {
-  padding: 2px;
-  padding-right:6px;
+  margin-left: 5px;
+  margin-right: 5px;
+  white-space: nowrap;
 }
 
 /* a common portal display takes this much space (prevents moving
  * content when first selecting a portal) */
 
 #portaldetails {
-  min-height: 495px;
+  min-height: 485px;
+  position: relative; /* so the below '#portaldetails .close' is relative to this */
+}
+
+#portaldetails .close {
+  position: absolute;
+  top: -2px;
+  right: 2px;
+  cursor: pointer;
+  color: #FFCE00;
+  font-family: "Arial", sans;
+  font-size: 16px;
 }
 
 

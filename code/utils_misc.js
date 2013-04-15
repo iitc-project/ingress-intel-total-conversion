@@ -1,6 +1,29 @@
-
-
 // UTILS + MISC  ///////////////////////////////////////////////////////
+
+window.aboutIITC = function(){
+  var v = '@@BUILDNAME@@-@@BUILDDATE@@'
+  var a = ''
+  + '  <div><b>About IITC</b></div> '
+  + '  <div>Ingress Intel Total Conversion</div> '
+  + '  <hr>'
+  + '  <div>'
+  + '    <a href="http://iitc.jonatkins.com/" target="_blank">IITC Homepage</a><br />'
+  + '     On the script’s homepage you can:'
+  + '     <ul>'
+  + '       <li>Find Updates</li>'
+  + '       <li>Get Plugins</li>'
+  + '       <li>Report Bugs</li>'
+  + '       <li>Contribute!</li>'
+  + '     </ul>'
+  + '  </div>'
+  + '  <div>'
+  + '    MapQuest OSM tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png">'
+  + '  </div>'
+  + '  <hr>'
+  + '  <div>Version: ' + v + '</div>';
+  alert(a);
+}
+
 
 window.layerGroupLength = function(layerGroup) {
   var layersCount = 0;
@@ -59,10 +82,7 @@ window.postAjax = function(action, data, success, error) {
   var remove = function(data, textStatus, jqXHR) { window.requests.remove(jqXHR); };
   var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
   var result = $.ajax({
-    // use full URL to avoid issues depending on how people set their
-    // slash. See:
-    // https://github.com/breunigs/ingress-intel-total-conversion/issues/56
-    url: window.location.protocol + '//www.ingress.com/rpc/dashboard.'+action,
+    url: '/rpc/dashboard.'+action,
     type: 'POST',
     data: data,
     dataType: 'json',
@@ -116,8 +136,8 @@ window.showPortalPosLinks = function(lat, lng, name) {
   } else {
     var qrcode = '<div id="qrcode"></div>';
     var script = '<script>$(\'#qrcode\').qrcode({text:\'GEO:'+lat+','+lng+'\'});</script>';
-    var gmaps = '<a href="https://maps.google.com/?q='+lat+','+lng+portal_name+'">gmaps</a>';
-    var osm = '<a href="http://www.openstreetmap.org/?mlat='+lat+'&mlon='+lng+'&zoom=16">OSM</a>';
+    var gmaps = '<a href="https://maps.google.com/?q='+lat+','+lng+portal_name+'">Google maps</a>';
+    var osm = '<a href="http://www.openstreetmap.org/?mlat='+lat+'&mlon='+lng+'&zoom=16">OpenStreetMap</a>';
     var latLng = '<span>'+lat+','+lng +'</span>';
     alert('<div style="text-align: center;">' + qrcode + script + gmaps + ' ' + osm + '<br />' + latLng + '</div>');
   }
@@ -260,8 +280,8 @@ window.setPermaLink = function(elm) {
   var c = map.getCenter();
   var lat = Math.round(c.lat*1E6);
   var lng = Math.round(c.lng*1E6);
-  var qry = 'latE6='+lat+'&lngE6='+lng+'&z=' + (map.getZoom()-1);
-  $(elm).attr('href',  'https://www.ingress.com/intel?' + qry);
+  var qry = 'latE6='+lat+'&lngE6='+lng+'&z=' + map.getZoom();
+  $(elm).attr('href',  '/intel?' + qry);
 }
 
 window.uniqueArray = function(arr) {

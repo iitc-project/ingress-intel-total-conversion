@@ -50,7 +50,7 @@ window.renderPortalDetails = function(guid) {
 
   var lat = d.locationE6.latE6;
   var lng = d.locationE6.lngE6;
-  var perma = 'https://ingress.com/intel?latE6='+lat+'&lngE6='+lng+'&z=17&pguid='+guid;
+  var perma = '/intel?latE6='+lat+'&lngE6='+lng+'&z=17&pguid='+guid;
   var imgTitle = 'title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."';
   var poslinks = 'window.showPortalPosLinks('+lat/1E6+','+lng/1E6+',\'' + d.portalV2.descriptiveText.TITLE + '\')';
   var postcard = 'Send in a postcard. Will put it online after receiving. Address:\\n\\nStefan Breunig\\nINF 305 – R045\\n69120 Heidelberg\\nGermany';
@@ -58,7 +58,8 @@ window.renderPortalDetails = function(guid) {
   $('#portaldetails')
     .attr('class', TEAM_TO_CSS[getTeam(d)])
     .html(''
-      + '<h3 ondblclick="renderPortalDetails(null);">'+d.portalV2.descriptiveText.TITLE+'</h3>'
+      + '<h3 class="title">'+d.portalV2.descriptiveText.TITLE+'</h3>'
+      + '<span class="close" onclick="unselectOldPortal();" title="Close">X</span>'
       // help cursor via “.imgpreview img”
       + '<div class="imgpreview" '+imgTitle+' style="background-image: url('+img+')">'
       + '<img class="hide" src="'+img+'"/>'
@@ -67,10 +68,10 @@ window.renderPortalDetails = function(guid) {
       + '<div class="mods">'+getModDetails(d)+'</div>'
       + randDetails
       + resoDetails
-      + '<div class="linkdetails"><aside><a href="'+perma+'" onclick="return androidCopy(this.href)" >portal link</a></aside>'
-      + '<aside><a onclick="'+poslinks+'">poslinks</a></aside>'
-      + '<aside><a onclick="alert(\''+postcard+'\');">donate</a></aside>'
-      + '<aside><a onclick="window.reportPortalIssue()">report issue</a></aside>'
+      + '<div class="linkdetails">'
+      + '<aside><a href="'+perma+'" onclick="return androidCopy(this.href)" title="Create a URL link to this portal" >Portal link</a></aside>'
+      + '<aside><a onclick="'+poslinks+'" title="Link to alternative maps (Google, etc)">Map links</a></aside>'
+      + '<aside><a onclick="window.reportPortalIssue()" title="Report issues with this portal to Niantic/Google">Report issue</a></aside>'
       + '</div>'
     );
 

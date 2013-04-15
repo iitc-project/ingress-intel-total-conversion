@@ -138,6 +138,27 @@
           "level": 1,
           "resourceType": "EMITTER_A"
         }
+      }],
+      [ "00000000000000000000000000000000.5",
+      1365809491413, { 
+        "accessLevel" : { 
+          "failure" : { 
+            "isAllowed" : false,
+            "requiredLevel" : 4
+          },
+          "requiredLevel" : 4
+        },
+        "inInventory" : { 
+          "acquisitionTimestampMs" : "1365809491260",
+          "playerId" : "00000000000000000000000000000000.c"
+        },
+        "powerCube" : { 
+          "energy" : 4000 
+        },
+        "resourceWithLevels" : { 
+          "level" : 4,
+          "resourceType" : "POWER_CUBE"
+        }
       }]
     ],
     "playerEntity": ["00000000000000000000000000000000.c",
@@ -155,6 +176,10 @@
         "mediaHighWaterMarks": {
           "General": 8,
           "RESISTANCE": 9
+        },
+        "notificationSettings" : { 
+          "maySendPromoEmail" : false,
+          "shouldSendEmail" : true
         }
       }
     }]
@@ -284,6 +309,27 @@
         "resourceWithLevels": {
           "level": 1,
           "resourceType": "EMITTER_A"
+        }
+      }],
+      [ "00000000000000000000000000000000.5",
+      1365809491413, {
+        "accessLevel" : {
+          "failure" : {
+            "isAllowed" : false,
+            "requiredLevel" : 4
+          },
+          "requiredLevel" : 4
+        },
+        "inInventory" : { 
+          "acquisitionTimestampMs" : "1365809491260",
+          "playerId" : "00000000000000000000000000000000.c"
+        },
+        "powerCube" : { 
+          "energy" : 4000 
+        },
+        "resourceWithLevels" : { 
+          "level" : 4,
+          "resourceType" : "POWER_CUBE"
         }
       }]
     ],
