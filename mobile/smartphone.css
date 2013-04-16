@@ -18,6 +18,10 @@ body {
   margin-top: 80px !important;
 }
 
+/* Hide current location button */
+#geosearchwrapper img{
+  display: none;
+}
 
 #chatcontrols {
   height: 38px;
