@@ -692,9 +692,8 @@ h3 {
 }
 #largepreview img {
   box-shadow: 0 0 40px #000;
-}
-#largepreview img {
   border: 2px solid #f8ff5e;
+  background-color: rgba(8, 48, 78, 0.9);  /* as some images - eg ZipCar - have transparency */
 }
 
 /* tooltips, dialogs */
