@@ -5,7 +5,7 @@ At the moment, the Android App is a WebView which renders the normal web page. T
 
 Communication from app to script is handled by loading Javascript function calls. For example: ```iitc_view.loadUrl("javascript: window.goBack();");```
 
-Communication from script to app is handled by the JavascriptInterface (see /mobile/src/com/cradle/iitc\_mobile/IITC_JSInterface.java). If a method ```foo(String)``` is defined in JSInterface, it can be with by ```android.foo("Hello World")``` in the IITC script.
+Communication from script to app is handled by the JavascriptInterface (see /mobile/src/com/cradle/iitc\_mobile/IITC_JSInterface.java). If a method ```foo(String)``` is defined in JSInterface, it can be called by ```android.foo("Hello World")``` in the IITC script.
 
 Debugging
 ---------
