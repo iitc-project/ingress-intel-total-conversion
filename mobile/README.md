@@ -1,6 +1,4 @@
-ingress intel total conversion (IITC)
+ingress intel total conversion mobile (IITCM)
 =====================================
 
-# [User documentation moved to the wiki. Please see there!](https://github.com/breunigs/ingress-intel-total-conversion/wiki/IITC-Mobile)
-
-### [For developer docs, please see HACKING.md](https://github.com/breunigs/ingress-intel-total-conversion/blob/gh-pages/mobile/HACKING.md)
+### [For developer docs, please see HACKING.md](https://github.com/jonatkins/ingress-intel-total-conversion/blob/master/mobile/HACKING.md)
