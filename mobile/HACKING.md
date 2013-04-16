@@ -1,7 +1,11 @@
 How does this basically work?
 -----------------------------
 
-At the moment, the Android App is nothing more then a WebView which renders the normal web page. The IITC script is injected on page load and after this, it works the same way as on desktop browser. More functionality will be added soon...
+At the moment, the Android App is a WebView which renders the normal web page. The IITC script is injected before page load and after this, it works the same way as on desktop browser.
+
+Communication from app to script is handled by loading Javascript function calls. For example: ```iitc_view.loadUrl("javascript: window.goBack();");```
+
+Communication from script to app is handled by the JavascriptInterface (see /mobile/src/com/cradle/iitc\_mobile/IITC_JSInterface.java). If a method ```foo(String)``` is defined in JSInterface, it can be with by ```android.foo("Hello World")``` in the IITC script.
 
 Debugging
 ---------
@@ -16,13 +20,8 @@ Debugging IITC(M) **before** it has booted requires the Android Developer Tools.
 Building the APK
 ----------------
 
-- **Eclipse:** Just import this project and klick the build button.
 - **ant:**
   Set the ANDROID_HOME environment variable:
   ```export ANDROID_HOME=/path/to/android_sdk```
-  and build the project with ant:
-  `ant debug`
-- You can use `build_mobile.js`, too, which builds IITC, compresses
-  it and uses ant to build a release APK of IITCM. It requires that
-  you have Python and uglifyjs installed. You need to set the
-  `ANDROID_HOME`, like explained above.
+  Then build the app via the build.py script ```./build.py mobile```
+- **Eclipse:** Just import this project and klick the build button. Ensure that you have iitc.js in your assets folder. This is automatically created, when executing ```./build.py mobile```. Otherwise, just copy the IITC script to the assets folder and rename it to iitc.js
