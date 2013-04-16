@@ -241,8 +241,7 @@ window.chat.renderFull = function(oldMsgsWereAdded) {
 // common
 //
 
-window.chat.nicknameClicked = function(event, nickname, dom) {
-  nickname = nickname ? nickname : $(dom).text();
+window.chat.nicknameClicked = function(event, nickname) {
   var hookData = { event: event, nickname: nickname };
   
   if (window.runHooks('nicknameClicked', hookData)) {
@@ -593,7 +592,7 @@ window.chat.setup = function() {
   $('#chatinput mark').addClass(cls);
 
   $(window).on('click', '.nickname', function(event) {
-    window.chat.nicknameClicked(event, null, this);
+    window.chat.nicknameClicked(event, $(this).text());
   });
 }
 
