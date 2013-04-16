@@ -71,9 +71,18 @@ window.plugin.showLinkedPortal.getPortalByGuid = function (guid) {
         var portalDetails = window.portals[guid].options.details;
         portalInfoString = '';
         var portalNameAdressAlt = "'" + portalDetails.portalV2.descriptiveText.TITLE + "' (" + portalDetails.portalV2.descriptiveText.ADDRESS + ")";
-        var portalNameAdressTitle = "'<strong>" + portalDetails.portalV2.descriptiveText.TITLE + "</strong>'<br/> <em>(" + portalDetails.portalV2.descriptiveText.ADDRESS + ")</em>";
+        var portalNameAdressTitle = $('<div/>').append('\'')
+                                               .append($('<strong/>').text(portalDetails.portalV2.descriptiveText.TITLE))
+                                               .append('\'')
+                                               .append($('<br/>'))
+                                               .append($('<em/>').text('(' + portalDetails.portalV2.descriptiveText.ADDRESS + ')'))
+                                               .html();
         var imageUrl = (portalDetails.imageByUrl ? portalDetails.imageByUrl.imageUrl : window.DEFAULT_PORTAL_IMG);
-        portalInfoString = '<img src="' + imageUrl + '" class="minImg" alt="' + portalNameAdressAlt + '" title="' + portalNameAdressTitle + '"/>';
+        portalInfoString = $('<div/>').html($('<img/>').attr('src', imageUrl)
+                                                       .attr('class', 'minImg')
+                                                       .attr('alt', portalNameAdressAlt)
+                                                       .attr('title', portalNameAdressTitle))
+                                      .html();
     }
     return portalInfoString;
 };
