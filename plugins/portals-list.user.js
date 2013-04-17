@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-portals-list@teo96
 // @name           IITC plugin: show list of portals
-// @version        0.0.10.@@DATETIMEVERSION@@
+// @version        0.0.11.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -13,6 +13,7 @@
 // ==/UserScript==
 
 /* whatsnew
+* 0.0.11: Add nominal energy column, fix sort bug when opened even amounts of times, nits
 * 0.0.10: Fixed persistent css problem with alert
 * 0.0.9 : bugs hunt
 * 0.0.8 : Aborted to avoid problems with Niantic (export portals informations as csv or kml file)
@@ -159,28 +160,28 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
         retVal = a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1;
         break;
       case 'r1':
-        retVal = b.resonators[0][0] - a.resonators[0][0];
+        retVal = b.resonators[0][3] - a.resonators[0][3];
         break;
       case 'r2':
-        retVal = b.resonators[1][0] - a.resonators[1][0];
+        retVal = b.resonators[1][3] - a.resonators[1][3];
         break;
       case 'r3':
-        retVal = b.resonators[2][0] - a.resonators[2][0];
+        retVal = b.resonators[2][3] - a.resonators[2][3];
         break;
       case 'r4':
-        retVal = b.resonators[3][0] - a.resonators[3][0];
+        retVal = b.resonators[3][3] - a.resonators[3][3];
         break;
       case 'r5':
-        retVal = b.resonators[4][0] - a.resonators[4][0];
+        retVal = b.resonators[4][3] - a.resonators[4][3];
         break;
       case 'r6':
-        retVal = b.resonators[5][0] - a.resonators[5][0];
+        retVal = b.resonators[5][3] - a.resonators[5][3];
         break;
       case 'r7':
-        retVal = b.resonators[6][0] - a.resonators[6][0];
+        retVal = b.resonators[6][3] - a.resonators[6][3];
         break;
       case 'r8':
-        retVal = b.resonators[7][0] - a.resonators[7][0];
+        retVal = b.resonators[7][3] - a.resonators[7][3];
         break;
       case 's1':
         retVal = a.shields[0].toLowerCase() > b.shields[0].toLowerCase() ? -1 : 1;
@@ -216,7 +217,8 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   + '<th ' + sort('r6', sortBy, -1) + '>R6</th>'
   + '<th ' + sort('r7', sortBy, -1) + '>R7</th>'
   + '<th ' + sort('r8', sortBy, -1) + '>R8</th>'
-  + '<th ' + sort('energyratio', sortBy, -1) + '>Energy</th>'
+  + '<th ' + sort('energy', sortBy, -1) + '>Energy</th>'
+  + '<th ' + sort('energyratio', sortBy, -1) + '>%</th>'
   + '<th ' + sort('s1', sortBy, -1) + '>S1</th>'
   + '<th ' + sort('s2', sortBy, -1) + '>S2</th>'
   + '<th ' + sort('s3', sortBy, -1) + '>S3</th>'
@@ -227,7 +229,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
 
   $.each(portals, function(ind, portal) {
 
-    if (filter === 0 || filter === portal.team){
+    if (filter === 0 || filter === portal.team) {
       html += '<tr class="' + (portal.team === 1 ? 'res' : (portal.team === 2 ? 'enl' : 'neutral')) + '">'
       + '<td style="">' + window.plugin.portalslist.getPortalLink(portal.portal, portal.guid) + '</td>'
       + '<td class="L' + Math.floor(portal.level) +'">' + portal.level + '</td>'
@@ -245,7 +247,8 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
 
       });
 
-      html += '<td style="cursor:help" title="' + portal.energy + ' / ' + portal.maxenergy +'">' + portal.energyratio  + '%</td>'
+      html += '<td style="cursor:help" title="'+ portal.energy +'">' + prettyEnergy(portal.energy) + '</td>'
+      + '<td style="cursor:help" title="' + portal.energy + ' / ' + portal.maxenergy +'">' + portal.energyratio + '%</td>'
       + '<td style="cursor:help" title="'+ portal.shields[0][1] +'">' + portal.shields[0][0] + '</td>'
       + '<td style="cursor:help" title="'+ portal.shields[1][1] +'">' + portal.shields[1][0] + '</td>'
       + '<td style="cursor:help" title="'+ portal.shields[2][1] +'">' + portal.shields[2][0] + '</td>'
@@ -410,9 +413,9 @@ window.plugin.portalslist.getPortalLink = function(portal,guid) {
 }
 
 var setup =  function() {
-  $('#toolbox').append(' <a onclick="window.plugin.portalslist.displayPL(0)" title="Display a list of portals in the current view">Portals list</a>');
+  $('#toolbox').append(' <a onclick="window.plugin.portalslist.displayPL()" title="Display a list of portals in the current view">Portals list</a>');
   $('head').append('<style>' +
-    '.ui-dialog-portalslist {position: absolute !important; top: 10px !important; left: 30px !important;max-width:800px !important; width:733px !important;}' +
+    '.ui-dialog-portalslist {position: absolute !important; top: 10px !important; left: 30px !important;max-width:800px !important; width:auto !important;}' +
     '#portalslist table {margin-top:5px;	border-collapse: collapse; empty-cells: show; width:100%; clear: both;}' +
     '#portalslist table td, #portalslist table th {border-bottom: 1px solid #0b314e; padding:3px; color:white; background-color:#1b415e}' +
     '#portalslist table tr.res td {  background-color: #005684; }' +
@@ -422,13 +425,13 @@ var setup =  function() {
     '#portalslist table td { text-align: center;}' +
     '#portalslist table td.L0 { cursor: help; background-color: #000000 !important;}' +
     '#portalslist table td.L1 { cursor: help; background-color: #FECE5A !important;}' +
-	'#portalslist table td.L2 { cursor: help; background-color: #FFA630 !important;}' +
-	'#portalslist table td.L3 { cursor: help; background-color: #FF7315 !important;}' +
-	'#portalslist table td.L4 { cursor: help; background-color: #E40000 !important;}' +
-	'#portalslist table td.L5 { cursor: help; background-color: #FD2992 !important;}' +
-	'#portalslist table td.L6 { cursor: help; background-color: #EB26CD !important;}' +
+    '#portalslist table td.L2 { cursor: help; background-color: #FFA630 !important;}' +
+    '#portalslist table td.L3 { cursor: help; background-color: #FF7315 !important;}' +
+    '#portalslist table td.L4 { cursor: help; background-color: #E40000 !important;}' +
+    '#portalslist table td.L5 { cursor: help; background-color: #FD2992 !important;}' +
+    '#portalslist table td.L6 { cursor: help; background-color: #EB26CD !important;}' +
     '#portalslist table td.L7 { cursor: help; background-color: #C124E0 !important;}' +
-	'#portalslist table td.L8 { cursor: help; background-color: #9627F4 !important;}' +
+    '#portalslist table td.L8 { cursor: help; background-color: #9627F4 !important;}' +
     '#portalslist table td:nth-child(1) { text-align: left;}' +
     '#portalslist table th { cursor:pointer; text-align: right;}' +
     '#portalslist table th:nth-child(1) { text-align: left;}' +
