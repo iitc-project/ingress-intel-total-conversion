@@ -261,8 +261,6 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   });
   html += '</table>';
 
-  //html += window.plugin.portalslist.exportLinks();
-
   html += '<div class="disclaimer">Click on portals table headers to sort by that column. '
     + 'Click on <b>All Portals, Resistant Portals, Enlightened Portals</b> to filter<br>'
     + 'Thanks to @vita10gy & @xelio for their IITC plugins who inspired me. A <a href="https://plus.google.com/113965246471577467739">@teo96</a> production. Vive la Résistance !</div>';
@@ -280,103 +278,6 @@ window.plugin.portalslist.stats = function(sortBy) {
   + '</tr>'
   + '</table>';
   return html;
-}
-
-//return Html generated to export links
-window.plugin.portalslist.exportLinks = function() {
-  var html='';
-  var stamp = new Date().getTime();
-
-  html+='<div><aside><a download="Ingress Export.csv" href="' + window.plugin.portalslist.export('csv') + '">Export as .csv</a></aside>' 
-  + '<aside><a download="Ingress Export.kml" href="' + window.plugin.portalslist.export('kml') + '">Export as .kml</a></aside>'
-  + '</div>';
-  return html;
-}
-
-window.plugin.portalslist.export = function(fileformat) {
-  //alert('format :' + fileformat);
-  var file = '';
-  var uri = '';
-
-  switch (fileformat) {
-    case 'csv':
-      file = window.plugin.portalslist.exportCSV();
-      break;
-    case 'kml':
-      file = window.plugin.portalslist.exportKML();
-      break;
-  }
-
-  if (file !== '') {
-    //http://stackoverflow.com/questions/4639372/export-to-csv-in-jquery
-    var uri = 'data:application/' + fileformat + 'csv;charset=UTF-8,' + encodeURIComponent(file);
-    //window.open(uri);
-  }
-  return uri;
-}
-window.plugin.portalslist.exportCSV = function() {
-  var csv = '';
-  var filter = window.plugin.portalslist.filter;
-  var portals = window.plugin.portalslist.listPortals;
-
- //headers
-  csv += 'Portal\tLevel\tTeam\tR1\tR2\tR3\tR4\tR5\tR6\tR7\tR8\tEnergy\tS1\tS2\tS3\tS4\tAP Gain\tE/AP\tlat\tlong\n';
-
-  $.each(portals, function(ind, portal) {
-
-    if (filter === 0 || filter === portal.team) {
-      csv += portal.name + '\t'
-        + portal.level + '\t'
-        + portal.team + '\t';
-
-      $.each([0, 1, 2, 3 ,4 ,5 ,6 ,7], function(ind, slot) {
-          csv += portal.resonators[slot][0] + '\t';
-      });
-
-      csv += portal.energyratio + '\t' + portal.shields[0][0] + '\t' + portal.shields[1][0] + '\t' + portal.shields[2][0] + '\t' + portal.shields[3][0] + '\t' + portal.APgain + '\t' + portal.EAP + '\t';
-      csv += portal.lat + '\t' + portal.lng;
-      csv += '\n';
-    }
-  });
-
-  return csv;
-}
-
-window.plugin.portalslist.exportKML = function() {
-  var kml = '';
-  var filter = window.plugin.portalslist.filter;
-  // all portals informations are avalaible in the listPortals array
-  var portals = window.plugin.portalslist.listPortals;
-
- //headers
-  kml = '<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document>\n'
-  + '<name>Ingress Export</name><description><![CDATA[Ingress Portals\nExported from IITC using the Portals-list plugin\n' + new Date().toLocaleString() + ']]></description>';
-
-  // define colored markers as style0 (neutral), style1 (Resistance), style2 (Enlight)
-  kml += '<Style id="style1"><IconStyle><Icon><href>http://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png</href></Icon></IconStyle></Style>'
-  + '<Style id="style2"><IconStyle><Icon><href>http://maps.gstatic.com/mapfiles/ms2/micons/green-dot.png</href></Icon></IconStyle></Style>'
-  + '<Style id="style0"><IconStyle><Icon><href>http://maps.gstatic.com/mapfiles/ms2/micons/pink-dot.png</href></Icon></IconStyle></Style>\n';
-
-  $.each(portals, function(ind, portal) {
-    // add the portal in the kml file only if part of the filter choice
-    if (filter === 0 || filter === portal.team){
-      // description contain picture of the portal, address and link to the Intel map
-      var description = '<![CDATA['
-      + '<div><table><tr><td><img style="width:100px" src="' + portal.img + '"></td><td>' + portal.address 
-      + '<br><a href="https://www.ingress.com/intel?latE6=' + portal.lat*1E6 + '&lngE6=' + portal.lng*1E6 + '&z=17">Link to Intel Map</a></td></tr></table>'
-      + ']]>';
-
-      kml += '<Placemark><name>L' + Math.floor(portal.level) + ' - ' + portal.name + '</name>'
-      + '<description>' +  description + '</description>'
-      + '<styleUrl>#style' + portal.team + '</styleUrl>';
-
-      //coordinates
-      kml += '<Point><coordinates>' + portal.lng + ',' + portal.lat + ',0</coordinates></Point>';           
-      kml += '</Placemark>\n';
-    }
-  });
-  kml += '</Document></kml>';
-  return kml;
 }
 
 // A little helper functon so the above isn't so messy
