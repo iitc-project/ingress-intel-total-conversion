@@ -13,6 +13,7 @@
 // ==/UserScript==
 
 /* whatsnew
+* 0.0.10: Fixed persistent css problem with alert
 * 0.0.9 : bugs hunt
 * 0.0.8 : Aborted to avoid problems with Niantic (export portals informations as csv or kml file)
 * 0.0.7 : more informations avalaible via tooltips (who deployed, energy, ...), new E/AP column 
@@ -120,20 +121,23 @@ window.plugin.portalslist.displayPL = function() {
   } else {
     html = '<table><tr><td>Nothing to Show !</td></tr></table>';
   };
-  alert('<div id="portalslist">' + html + '</div>', true, function() {$(".ui-dialog").removeClass('ui-dialog-portalslist');});
+  alert('<div id="portalslist">' + html + '</div>', true, function() {
+      $(".ui-dialog").removeClass('ui-dialog-portalslist');
+      $(document).off('.portalslist');
+    });
   $(".ui-dialog").addClass('ui-dialog-portalslist');
 
   // Setup sorting
-  $(document).on('click', '#portalslist table th', function() {
+  $(document).on('click.portalslist', '#portalslist table th', function() {
     $('#portalslist').html(window.plugin.portalslist.portalTable($(this).data('sort'),window.plugin.portalslist.sortOrder,window.plugin.portalslist.filter));
   });
-  $(document).on('click', '#portalslist .filterAll', function() {
+  $(document).on('click.portalslist', '#portalslist .filterAll', function() {
     $('#portalslist').html(window.plugin.portalslist.portalTable($(this).data('sort'),window.plugin.portalslist.sortOrder,0));
   });
-  $(document).on('click', '#portalslist .filterRes', function() {
+  $(document).on('click.portalslist', '#portalslist .filterRes', function() {
     $('#portalslist').html(window.plugin.portalslist.portalTable($(this).data('sort'),window.plugin.portalslist.sortOrder,1));
   });
-  $(document).on('click', '#portalslist .filterEnl', function() {
+  $(document).on('click.portalslist', '#portalslist .filterEnl', function() {
     $('#portalslist').html(window.plugin.portalslist.portalTable($(this).data('sort'),window.plugin.portalslist.sortOrder,2));
   });
   
