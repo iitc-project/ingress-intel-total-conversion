@@ -8,6 +8,10 @@ import base64
 import sys
 import os
 import shutil
+import json
+import urllib2
+import shelve
+import hashlib
 
 
 # load settings file
@@ -66,6 +70,31 @@ def loaderRaw(var):
     fn = var.group(1)
     return readfile(fn)
 
+def loaderGFM(var):
+    fn = var.group(1)
+    db = shelve.open('build/GFM.dat')
+    if db.has_key('files'):
+      files = db['files']
+    else:
+      files = {}
+    file = readfile(fn)
+    filemd5 = hashlib.md5(file).hexdigest()
+    # check if file has already been parsed by the github api
+    if fn in files and filemd5 in files[fn]:
+      # use the stored copy if nothing has changed to avoid hiting the api more then the 60/hour when not signed in
+      return files[fn][filemd5]
+    else:
+      url = 'https://api.github.com/markdown'
+      payload = {'text': readfile(fn), 'mode': 'gfm', 'context': 'jonatkins/ingress-intel-total-conversion'}
+      req = urllib2.Request(url)
+      req.add_header('Content-Type', 'application/json')
+      gfm = urllib2.urlopen(req, json.dumps(payload)).read().replace('\n', '').replace('\'', '\\\'')
+      files[fn] = {}
+      files[fn][filemd5] = gfm
+      db['files'] = files
+      db.close()
+      return gfm
+
 def loaderImage(var):
     fn = var.group(1)
     return 'data:image/png;base64,{0}'.format(base64.encodestring(open(fn, 'rb').read()).decode('utf8').replace('\n', ''))
@@ -86,6 +115,7 @@ def doReplacements(script,updateUrl,downloadUrl):
 
     script = re.sub('@@INCLUDERAW:([0-9a-zA-Z_./-]+)@@', loaderRaw, script)
     script = re.sub('@@INCLUDESTRING:([0-9a-zA-Z_./-]+)@@', loaderString, script)
+    script = re.sub('@@INCLUDEGFM:([0-9a-zA-Z_./-]+)@@', loaderGFM, script)
     script = re.sub('@@INCLUDEIMAGE:([0-9a-zA-Z_./-]+)@@', loaderImage, script)
 
     script = script.replace('@@BUILDDATE@@', buildDate)
