@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-ipas-link@graphracer
 // @name           IITC Plugin: simulate an attack on portal
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/xosofox/IPAS
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -27,7 +27,7 @@ window.plugin.ipasLink.setupCallback = function() {
 }
 
 window.plugin.ipasLink.addLink = function(d) {
-  $('.linkdetails').append('<aside style="text-align: center; display: block"><a href="http://ipas.graphracer.com/index.html#' + window.plugin.ipasLink.getHash(d.portalDetails) + '" target="ipaswindow">simulate attack with IPAS</a></aside>');
+  $('.linkdetails').append('<aside><a href="http://ipas.graphracer.com/index.html#' + window.plugin.ipasLink.getHash(d.portalDetails) + '" target="ipaswindow" title="Use IAPS to simulate an attack on this portal">Simulate attack</a></aside>');
 }
 
 window.plugin.ipasLink.getHash = function(d) {

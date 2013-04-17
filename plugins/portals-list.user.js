@@ -403,7 +403,7 @@ window.plugin.portalslist.getPortalLink = function(portal,guid) {
 }
 
 var setup =  function() {
-  $('#toolbox').append(' <a onclick="window.plugin.portalslist.displayPL(0)">Portals&nbsp;list</a>');
+  $('#toolbox').append(' <a onclick="window.plugin.portalslist.displayPL(0)" title="Display a list of portals in the current view">Portals list</a>');
   $('head').append('<style>' + 
     '.ui-dialog-portalslist {position: absolute !important; top: 10px !important; left: 30px !important;max-width:800px !important; width:733px !important;}' + 
     '#portalslist table {margin-top:5px;	border-collapse: collapse; empty-cells: show; width:100%; clear: both;}' +
