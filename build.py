@@ -70,7 +70,7 @@ def loaderRaw(var):
     fn = var.group(1)
     return readfile(fn)
 
-def loaderGFM(var):
+def loaderMD(var):
     fn = var.group(1)
     db = shelve.open('build/GFM.dat')
     if db.has_key('files'):
@@ -85,7 +85,7 @@ def loaderGFM(var):
       return files[fn][filemd5]
     else:
       url = 'https://api.github.com/markdown'
-      payload = {'text': file, 'mode': 'gfm', 'context': 'jonatkins/ingress-intel-total-conversion'}
+      payload = {'text': file, 'mode': 'markdown'}
       req = urllib2.Request(url)
       req.add_header('Content-Type', 'application/json')
       gfm = urllib2.urlopen(req, json.dumps(payload)).read().replace('\n', '').replace('\'', '\\\'')
@@ -115,7 +115,7 @@ def doReplacements(script,updateUrl,downloadUrl):
 
     script = re.sub('@@INCLUDERAW:([0-9a-zA-Z_./-]+)@@', loaderRaw, script)
     script = re.sub('@@INCLUDESTRING:([0-9a-zA-Z_./-]+)@@', loaderString, script)
-    script = re.sub('@@INCLUDEGFM:([0-9a-zA-Z_./-]+)@@', loaderGFM, script)
+    script = re.sub('@@INCLUDEMD:([0-9a-zA-Z_./-]+)@@', loaderMD, script)
     script = re.sub('@@INCLUDEIMAGE:([0-9a-zA-Z_./-]+)@@', loaderImage, script)
 
     script = script.replace('@@BUILDDATE@@', buildDate)

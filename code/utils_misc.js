@@ -2,7 +2,7 @@
 
 window.aboutIITC = function(){
   var v = '@@BUILDNAME@@-@@BUILDDATE@@';
-  var attrib = '@@INCLUDEGFM:ATTRIBUTION.md@@';
+  var attrib = '@@INCLUDEMD:ATTRIBUTION.md@@';
   var a = ''
   + '  <div><b>About IITC</b></div> '
   + '  <div>Ingress Intel Total Conversion</div> '
