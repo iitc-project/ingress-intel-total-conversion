@@ -160,28 +160,28 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
         retVal = a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1;
         break;
       case 'r1':
-        retVal = b.resonators[0][3] - a.resonators[0][3];
+        retVal = b.resonators[0][0] - a.resonators[0][0];
         break;
       case 'r2':
-        retVal = b.resonators[1][3] - a.resonators[1][3];
+        retVal = b.resonators[1][0] - a.resonators[1][0];
         break;
       case 'r3':
-        retVal = b.resonators[2][3] - a.resonators[2][3];
+        retVal = b.resonators[2][0] - a.resonators[2][0];
         break;
       case 'r4':
-        retVal = b.resonators[3][3] - a.resonators[3][3];
+        retVal = b.resonators[3][0] - a.resonators[3][0];
         break;
       case 'r5':
-        retVal = b.resonators[4][3] - a.resonators[4][3];
+        retVal = b.resonators[4][0] - a.resonators[4][0];
         break;
       case 'r6':
-        retVal = b.resonators[5][3] - a.resonators[5][3];
+        retVal = b.resonators[5][0] - a.resonators[5][0];
         break;
       case 'r7':
-        retVal = b.resonators[6][3] - a.resonators[6][3];
+        retVal = b.resonators[6][0] - a.resonators[6][0];
         break;
       case 'r8':
-        retVal = b.resonators[7][3] - a.resonators[7][3];
+        retVal = b.resonators[7][0] - a.resonators[7][0];
         break;
       case 's1':
         retVal = a.shields[0].toLowerCase() > b.shields[0].toLowerCase() ? -1 : 1;
