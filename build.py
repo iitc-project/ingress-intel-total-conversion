@@ -72,7 +72,7 @@ def loaderRaw(var):
 
 def loaderMD(var):
     fn = var.group(1)
-    db = shelve.open('build/GFM.dat')
+    db = shelve.open('build/MD.dat')
     if db.has_key('files'):
       files = db['files']
     else:
@@ -88,12 +88,12 @@ def loaderMD(var):
       payload = {'text': file, 'mode': 'markdown'}
       req = urllib2.Request(url)
       req.add_header('Content-Type', 'application/json')
-      gfm = urllib2.urlopen(req, json.dumps(payload)).read().replace('\n', '').replace('\'', '\\\'')
+      md = urllib2.urlopen(req, json.dumps(payload)).read().replace('\n', '').replace('\'', '\\\'')
       files[fn] = {}
-      files[fn][filemd5] = gfm
+      files[fn][filemd5] = md
       db['files'] = files
       db.close()
-      return gfm
+      return md
 
 def loaderImage(var):
     fn = var.group(1)
