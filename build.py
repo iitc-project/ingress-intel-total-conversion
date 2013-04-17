@@ -85,7 +85,7 @@ def loaderGFM(var):
       return files[fn][filemd5]
     else:
       url = 'https://api.github.com/markdown'
-      payload = {'text': readfile(fn), 'mode': 'gfm', 'context': 'jonatkins/ingress-intel-total-conversion'}
+      payload = {'text': file, 'mode': 'gfm', 'context': 'jonatkins/ingress-intel-total-conversion'}
       req = urllib2.Request(url)
       req.add_header('Content-Type', 'application/json')
       gfm = urllib2.urlopen(req, json.dumps(payload)).read().replace('\n', '').replace('\'', '\\\'')
