@@ -233,10 +233,12 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
       + '<td class="L' + Math.floor(portal.level) +'">' + portal.level + '</td>'
       + '<td style="text-align:center;">' + portal.team + '</td>';
 
+      var title;
+      var percent;
       $.each([0, 1, 2, 3 ,4 ,5 ,6 ,7], function(ind, slot) {
-
-        var title = 'title="owner: <b>' + portal.resonators[slot][1] + '</b><br>'
-        + 'energy: ' + portal.resonators[slot][3] + ' / ' + portal.resonators[slot][4] + ' (' + Math.floor(portal.resonators[slot][3]/portal.resonators[slot][4]*100) + '%)<br>'
+        percent = portal.resonators[slot][4] ? Math.floor(portal.resonators[slot][3]/portal.resonators[slot][4]*100) : 0;
+        title = 'title="owner: <b>' + portal.resonators[slot][1] + '</b><br>'
+        + 'energy: ' + portal.resonators[slot][3] + ' / ' + portal.resonators[slot][4] + ' (' + percent + '%)<br>'
         + 'distance: ' + portal.resonators[slot][2] + 'm';
 
         html += '<td class="L' + portal.resonators[slot][0] +'" ' + title + '">' + portal.resonators[slot][0] + '</td>';
