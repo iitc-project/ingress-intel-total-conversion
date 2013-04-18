@@ -118,8 +118,9 @@ window.setupMap = function() {
   //MapQuest offer tiles - http://developer.mapquest.com/web/products/open/map
   //their usage policy has no limits (except required notification above 4000 tiles/sec - we're perhaps at 50 tiles/sec based on CloudMade stats)
   var mqSubdomains = [ 'otile1','otile2', 'otile3', 'otile4' ];
+  var mqTileUrlPrefix = window.location.protocol !== 'https:' ? 'http://{s}.mqcdn.com' : 'https://{s}-s.mqcdn.com';
   var mqMapOpt = {attribution: osmAttribution+', Tiles Courtesy of MapQuest', mazZoom: 18, detectRetena: true, subdomains: mqSubdomains};
-  var mqMap = new L.TileLayer('http://{s}.mqcdn.com/tiles/1.0.0/map/{z}/{x}/{y}.jpg',mqMapOpt);
+  var mqMap = new L.TileLayer(mqTileUrlPrefix+'/tiles/1.0.0/map/{z}/{x}/{y}.jpg',mqMapOpt);
   //MapQuest satellite coverage outside of the US is rather limited - so not really worth having as we have google as an option
   //var mqSatOpt = {attribution: 'Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency', mazZoom: 18, detectRetena: true, subdomains: mqSubdomains};
   //var mqSat = new L.TileLayer('http://{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg',mqSatOpt);
