@@ -19,12 +19,12 @@ body {
 }
 
 
-#geosearch{
-  width:301px;
+#geosearch {
+  width: 100%;
 }
 
-#geosearchwrapper img{
-  display:none;
+#geosearchwrapper img {
+  display: none;
 }
 
 #chatcontrols {
