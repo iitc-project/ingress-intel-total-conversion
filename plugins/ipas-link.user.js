@@ -30,16 +30,34 @@ window.plugin.ipasLink.addLink = function(d) {
   $('.linkdetails').append('<aside><a href="http://ipas.graphracer.com/index.html#' + window.plugin.ipasLink.getHash(d.portalDetails) + '" target="ipaswindow" title="Use IAPS to simulate an attack on this portal">Simulate attack</a></aside>');
 }
 
-window.plugin.ipasLink.getHash = function(d) {
-  var hashParts=[];
-  $.each(d.resonatorArray.resonators, function(ind, reso) {
-    if (reso) {
-      hashParts.push(reso.level + "," + reso.distanceToPortal + "," + reso.energyTotal);
-    } else {
-      hashParts.push(1 + "," + 35 + "," + 0); // Dummy values, the only important one is energy=0
-    }
-  });
-  return hashParts.join(";")+"|" + "0,0,0,0"; //shields not implemented yet
+window.plugin.ipasLink.getHash = function (d) {
+    var hashParts = [];
+    $.each(d.resonatorArray.resonators, function (ind, reso) {
+        if (reso) {
+            hashParts.push(reso.level + "," + reso.distanceToPortal + "," + reso.energyTotal);
+        } else {
+            hashParts.push("1,20,0");
+        }
+    });
+    var resos = hashParts.join(";");
+
+    hashParts = [];
+    $.each(d.portalV2.linkedModArray, function (ind, mod) {
+        //shields only, so far...
+        var s = "0";
+        if (mod) {
+            if (mod.type === "RES_SHIELD") {
+                s = mod.rarity.charAt(0).toLowerCase();
+            }
+        }
+        hashParts.push(s);
+    });
+    var shields = hashParts.join(",");
+    return resos + "|" + shields;
+}
+
+var setup = function () {
+    window.plugin.ipasLink.setupCallback();
 }
 
 var setup =  function() {
