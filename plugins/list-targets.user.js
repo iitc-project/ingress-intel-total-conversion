@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             list-targets@sbeitzel
-// @name           iitc: List-Targets-Plugin
-// @version        0.2
+// @name           IITC plugin: list targets
+// @version        0.2.10
 // @updateURL      https://raw.github.com/sbeitzel/ingress-intel-total-conversion/gh-pages/plugins/list-targets.user.js
 // @downloadURL    https://raw.github.com/sbeitzel/ingress-intel-total-conversion/gh-pages/plugins/list-targets.user.js
 // @description    Calls out links to portals which are good candidates for attack by the current user.
@@ -57,16 +57,11 @@ function wrapper() {
     // add the UI
     var portalDiv = document.createElement("div");
     portalDiv.id = "targetlist";
-    // the portal list should collapse up to the top of the window and float right to be flush against the sidebar
-    portalDiv.style.position = "fixed";
-    portalDiv.style.zIndex = 1001;
-    portalDiv.style.width = "440px";
-    portalDiv.style.maxHeight = "400px";
-    portalDiv.style.right = "355px";
-    portalDiv.style.top = "0px";
-    portalDiv.style.overflowY = "auto";
+    var emptyTable = document.createElement("table");
+    emptyTable.setAttribute('id', 'targetListTable');
+    portalDiv.appendChild(emptyTable);
     // place the div into the DOM
-    $("#updatestatus").after(portalDiv);
+    $("#portaldetails").after(portalDiv);
     // wire in the hook
     window.addHook('portalDataLoaded', window.plugin.listTargets.portalsLoaded);
     window.addHook('requestFinished', window.plugin.listTargets.sortTargets);
@@ -87,15 +82,45 @@ function wrapper() {
       // a and b are data structures with difficulty attributes. We want to sort in ascending order.
       return a.difficulty - b.difficulty;
     });
-    console.log("sort targets");
+
+    console.log("sorted targets");
     console.log(window._targetStructs);
-    // now the list is sorted, we should write it into the div
-    var tlStr = "<table>\n<tr><td>Energy</td><td>Portal</td></tr>\n";
-    $.each(window._targetStructs, function(datastruct) {
-      tlStr += "<tr><td>"+datastruct.difficulty+"</td><td><a href=\""+datastruct.plink+"\">"+datastruct.title+"</a></td></tr>\n";
-    });
-    tlStr += "</table>\n";
-    // TODO render tlStr in the div.
+
+    $("#targetListTable").remove();
+
+    var targetTable = document.createElement("table");
+    targetTable.setAttribute('id', 'targetListTable');
+    var thead = document.createElement("thead");
+    var hrow = document.createElement("tr");
+    var cell = document.createElement("th");
+    cell.appendChild(document.createTextNode("Difficulty"));
+    hrow.appendChild(cell);
+
+    cell = document.createElement("th");
+    cell.appendChild(document.createTextNode("Portal Link"));
+    hrow.appendChild(cell);
+
+    thead.appendChild(hrow);
+    targetTable.appendChild(thead);
+    var tbody = document.createElement("tbody");
+    for (var i =0; i < window._targetStructs.length; i++) {
+      var datastruct = window._targetStructs[i];
+      console.log("add row for datastruct");
+      console.log(datastruct);
+      var row = document.createElement("tr");
+      var cell = document.createElement("td");
+      cell.appendChild(document.createTextNode(datastruct.difficulty));
+      row.appendChild(cell);
+      cell = document.createElement("td");
+      var anchor = document.createElement("a");
+      anchor.appendChild(document.createTextNode(datastruct.title));
+      anchor.setAttribute("href", datastruct.plink);
+      cell.appendChild(anchor);
+      row.appendChild(cell);
+      tbody.appendChild(row);
+    };
+    targetTable.appendChild(tbody);
+    $("#targetlist").append(targetTable);
   };
 
 // PLUGIN END //////////////////////////////////////////////////////////
