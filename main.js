@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.10.3.@@DATETIMEVERSION@@
+// @version        0.10.5.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -85,12 +85,16 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '  <div id="sidebar" style="display: none">'
   + '    <div id="playerstat">t</div>'
   + '    <div id="gamestat">&nbsp;loading global control stats</div>'
-  + '    <input id="geosearch" placeholder="Search location…" type="text"/>'
+  + '    <div id="geosearchwrapper">'
+  + '      <input id="geosearch" placeholder="Search location…" type="text"/>'
+  + '      <img src="@@INCLUDEIMAGE:images/current-location.png@@"/ title="Current Location">'
+  + '    </div>'
   + '    <div id="portaldetails"></div>'
   + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
   + '    <div id="toolbox">'
-  + '      <a onmouseover="setPermaLink(this)" onclick="setPermaLink(this);return androidCopy(this.href)" >permalink</a>'
-  + '      <a href="http://iitc.jonatkins.com/" title="IITC = Ingress Intel Total Conversion.\n\nOn the script’s homepage you can:\n– find updates\n– get plugins\n– report bugs\n– and contribute." style="cursor: help">IITC’s page</a></div>'
+  + '      <a onmouseover="setPermaLink(this)" onclick="setPermaLink(this);return androidCopy(this.href)" title="URL link to this map view">Permalink</a>'
+  + '      <a onclick="window.aboutIITC()" style="cursor: help">About IITC</a>'
+  + '    </div>'
   + '  </div>'
   + '</div>'
   + '<div id="updatestatus"></div>'

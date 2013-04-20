@@ -1,6 +1,29 @@
-
-
 // UTILS + MISC  ///////////////////////////////////////////////////////
+
+window.aboutIITC = function(){
+  var v = '@@BUILDNAME@@-@@BUILDDATE@@'
+  var a = ''
+  + '  <div><b>About IITC</b></div> '
+  + '  <div>Ingress Intel Total Conversion</div> '
+  + '  <hr>'
+  + '  <div>'
+  + '    <a href="http://iitc.jonatkins.com/" target="_blank">IITC Homepage</a><br />'
+  + '     On the script’s homepage you can:'
+  + '     <ul>'
+  + '       <li>Find Updates</li>'
+  + '       <li>Get Plugins</li>'
+  + '       <li>Report Bugs</li>'
+  + '       <li>Contribute!</li>'
+  + '     </ul>'
+  + '  </div>'
+  + '  <div>'
+  + '    MapQuest OSM tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png">'
+  + '  </div>'
+  + '  <hr>'
+  + '  <div>Version: ' + v + '</div>';
+  alert(a);
+}
+
 
 window.layerGroupLength = function(layerGroup) {
   var layersCount = 0;
@@ -113,8 +136,8 @@ window.showPortalPosLinks = function(lat, lng, name) {
   } else {
     var qrcode = '<div id="qrcode"></div>';
     var script = '<script>$(\'#qrcode\').qrcode({text:\'GEO:'+lat+','+lng+'\'});</script>';
-    var gmaps = '<a href="https://maps.google.com/?q='+lat+','+lng+portal_name+'">gmaps</a>';
-    var osm = '<a href="http://www.openstreetmap.org/?mlat='+lat+'&mlon='+lng+'&zoom=16">OSM</a>';
+    var gmaps = '<a href="https://maps.google.com/?q='+lat+','+lng+portal_name+'">Google maps</a>';
+    var osm = '<a href="http://www.openstreetmap.org/?mlat='+lat+'&mlon='+lng+'&zoom=16">OpenStreetMap</a>';
     var latLng = '<span>'+lat+','+lng +'</span>';
     alert('<div style="text-align: center;">' + qrcode + script + gmaps + ' ' + osm + '<br />' + latLng + '</div>');
   }
@@ -257,7 +280,7 @@ window.setPermaLink = function(elm) {
   var c = map.getCenter();
   var lat = Math.round(c.lat*1E6);
   var lng = Math.round(c.lng*1E6);
-  var qry = 'latE6='+lat+'&lngE6='+lng+'&z=' + (map.getZoom()-1);
+  var qry = 'latE6='+lat+'&lngE6='+lng+'&z=' + map.getZoom();
   $(elm).attr('href',  '/intel?' + qry);
 }
 

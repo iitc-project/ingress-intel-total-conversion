@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-portals-list@teo96
 // @name           IITC plugin: show list of portals
-// @version        0.0.9.@@DATETIMEVERSION@@
+// @version        0.0.10.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -119,7 +119,7 @@ window.plugin.portalslist.displayPL = function() {
     } else {
     	html = '<table><tr><td>Nothing to Show !</td></tr></table>';
     };
-    alert('<div id="portalslist">' + html + '</div>');
+    alert('<div id="portalslist">' + html + '</div>', true, function() {$(".ui-dialog").removeClass('ui-dialog-portalslist');});
     $(".ui-dialog").addClass('ui-dialog-portalslist');
   
     // Setup sorting
@@ -403,8 +403,7 @@ window.plugin.portalslist.getPortalLink = function(portal,guid) {
 }
 
 var setup =  function() {
-  $('body').append('<div id="portalslist" style="display:none;"></div>');
-  $('#toolbox').append('<a onclick="window.plugin.portalslist.displayPL(0)">Portals List</a>');
+  $('#toolbox').append(' <a onclick="window.plugin.portalslist.displayPL(0)" title="Display a list of portals in the current view">Portals list</a>');
   $('head').append('<style>' + 
     '.ui-dialog-portalslist {position: absolute !important; top: 10px !important; left: 30px !important;max-width:800px !important; width:733px !important;}' + 
     '#portalslist table {margin-top:5px;	border-collapse: collapse; empty-cells: show; width:100%; clear: both;}' +

@@ -105,7 +105,15 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
               && urlPortal !== ent[0]
           ) return;
 
-
+        if('imageByUrl' in ent[2] && 'imageUrl' in ent[2].imageByUrl) {
+          if(window.location.protocol === 'https:') {
+            ent[2].imageByUrl.imageUrl = ent[2].imageByUrl.imageUrl.indexOf('www.panoramio.com') !== -1
+                                       ? ent[2].imageByUrl.imageUrl.replace(/^http:\/\/www/, 'https://ssl').replace('small', 'medium')
+                                       : ent[2].imageByUrl.imageUrl.replace(/^http:\/\//, '//');
+          }
+        } else {
+          ent[2].imageByUrl = {'imageUrl': DEFAULT_PORTAL_IMG};
+        }
 
         ppp.push(ent); // delay portal render
       } else if(ent[2].edge !== undefined) {
@@ -264,7 +272,7 @@ window.renderPortal = function(ent) {
     u = u || oo.level !== portalLevel;
 
     // Allow plugins to add additional conditions as to when a portal gets re-rendered
-    var hookData = {portal: ent[2], oldPortal: oo.details, reRender: false};
+    var hookData = {portal: ent[2], oldPortal: oo.details, portalGuid: ent[0], reRender: false};
     runHooks('beforePortalReRender', hookData);
     u = u || hookData.reRender;
 

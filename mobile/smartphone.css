@@ -19,6 +19,14 @@ body {
 }
 
 
+#geosearch {
+  width: 100%;
+}
+
+#geosearchwrapper img {
+  display: none;
+}
+
 #chatcontrols {
   height: 38px;
   width: 100%;

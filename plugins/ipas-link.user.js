@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-ipas-link@graphracer
 // @name           IITC Plugin: simulate an attack on portal
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/xosofox/IPAS
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -23,19 +23,41 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 window.plugin.ipasLink = function() {};
 
 window.plugin.ipasLink.setupCallback = function() {
-      addHook('portalDetailsUpdated', window.plugin.ipasLink.addLink);
+  addHook('portalDetailsUpdated', window.plugin.ipasLink.addLink);
 }
 
 window.plugin.ipasLink.addLink = function(d) {
-    $('.linkdetails').append('<aside style="text-align: center; display: block"><a href="http://ipas.graphracer.com/index.html#' + window.plugin.ipasLink.getHash(d.portalDetails) + '" target="ipaswindow">simulate attack with IPAS</a></aside>');
+  $('.linkdetails').append('<aside><a href="http://ipas.graphracer.com/index.html#' + window.plugin.ipasLink.getHash(d.portalDetails) + '" target="ipaswindow" title="Use IAPS to simulate an attack on this portal">Simulate attack</a></aside>');
 }
 
-window.plugin.ipasLink.getHash = function(d) {
-    var hashParts=[];
-    $.each(d.resonatorArray.resonators, function(ind, reso) {
-        hashParts.push(reso.level + "," + reso.distanceToPortal + "," + reso.energyTotal);
+window.plugin.ipasLink.getHash = function (d) {
+    var hashParts = [];
+    $.each(d.resonatorArray.resonators, function (ind, reso) {
+        if (reso) {
+            hashParts.push(reso.level + "," + reso.distanceToPortal + "," + reso.energyTotal);
+        } else {
+            hashParts.push("1,20,0");
+        }
     });
-    return hashParts.join(";")+"|" + "0,0,0,0"; //shields not implemented yet
+    var resos = hashParts.join(";");
+
+    hashParts = [];
+    $.each(d.portalV2.linkedModArray, function (ind, mod) {
+        //shields only, so far...
+        var s = "0";
+        if (mod) {
+            if (mod.type === "RES_SHIELD") {
+                s = mod.rarity.charAt(0).toLowerCase();
+            }
+        }
+        hashParts.push(s);
+    });
+    var shields = hashParts.join(",");
+    return resos + "|" + shields;
+}
+
+var setup = function () {
+    window.plugin.ipasLink.setupCallback();
 }
 
 var setup =  function() {
@@ -57,4 +79,3 @@ if(window.iitcLoaded && typeof setup === 'function') {
 var script = document.createElement('script');
 script.appendChild(document.createTextNode('('+ wrapper +')();'));
 (document.body || document.head || document.documentElement).appendChild(script);
-

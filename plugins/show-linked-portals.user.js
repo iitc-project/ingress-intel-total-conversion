@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-show-linked-portals@fstopienski
 // @name           IITC plugin: Show linked portals
-// @version        0.0.3.@@DATETIMEVERSION@@
+// @version        0.0.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -71,9 +71,18 @@ window.plugin.showLinkedPortal.getPortalByGuid = function (guid) {
         var portalDetails = window.portals[guid].options.details;
         portalInfoString = '';
         var portalNameAdressAlt = "'" + portalDetails.portalV2.descriptiveText.TITLE + "' (" + portalDetails.portalV2.descriptiveText.ADDRESS + ")";
-        var portalNameAdressTitle = "'<strong>" + portalDetails.portalV2.descriptiveText.TITLE + "</strong>'<br/> <em>(" + portalDetails.portalV2.descriptiveText.ADDRESS + ")</em>";
+        var portalNameAdressTitle = $('<div/>').append('\'')
+                                               .append($('<strong/>').text(portalDetails.portalV2.descriptiveText.TITLE))
+                                               .append('\'')
+                                               .append($('<br/>'))
+                                               .append($('<em/>').text('(' + portalDetails.portalV2.descriptiveText.ADDRESS + ')'))
+                                               .html();
         var imageUrl = (portalDetails.imageByUrl ? portalDetails.imageByUrl.imageUrl : window.DEFAULT_PORTAL_IMG);
-        portalInfoString = '<img src="' + imageUrl + '" class="minImg" alt="' + portalNameAdressAlt + '" title="' + portalNameAdressTitle + '"/>';
+        portalInfoString = $('<div/>').html($('<img/>').attr('src', imageUrl)
+                                                       .attr('class', 'minImg')
+                                                       .attr('alt', portalNameAdressAlt)
+                                                       .attr('title', portalNameAdressTitle))
+                                      .html();
     }
     return portalInfoString;
 };
@@ -100,10 +109,10 @@ var setup = function () {
         '.showLinkedPortalLink9,.showLinkedPortalLink10,.showLinkedPortalLink11,.showLinkedPortalLink12 {left: 59px}' +
         '.showLinkedPortalLink13,.showLinkedPortalLink14,.showLinkedPortalLink15,.showLinkedPortalLink16 {right: 65px}' +
 
-        '.showLinkedPortalLink1,.showLinkedPortalLink5,.showLinkedPortalLink9,.showLinkedPortalLink13 {top: 100px; }' +
-        '.showLinkedPortalLink2,.showLinkedPortalLink6,.showLinkedPortalLink10,.showLinkedPortalLink14 {top: 144px; }' +
-        '.showLinkedPortalLink3,.showLinkedPortalLink7,.showLinkedPortalLink11,.showLinkedPortalLink15 {top: 188px; }' +
-        '.showLinkedPortalLink4,.showLinkedPortalLink8,.showLinkedPortalLink12,.showLinkedPortalLink16 {top: 232px; }' +
+        '.showLinkedPortalLink1,.showLinkedPortalLink5,.showLinkedPortalLink9,.showLinkedPortalLink13 {top: 25px; }' +
+        '.showLinkedPortalLink2,.showLinkedPortalLink6,.showLinkedPortalLink10,.showLinkedPortalLink14 {top: 69px; }' +
+        '.showLinkedPortalLink3,.showLinkedPortalLink7,.showLinkedPortalLink11,.showLinkedPortalLink15 {top: 113px; }' +
+        '.showLinkedPortalLink4,.showLinkedPortalLink8,.showLinkedPortalLink12,.showLinkedPortalLink16 {top: 157px; }' +
         '#level{text-align:center; margin-right: 0px;}' +
         '</style>');
     window.plugin.showLinkedPortal.setupCallback();

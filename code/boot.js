@@ -1,4 +1,3 @@
-
 // SETUP /////////////////////////////////////////////////////////////
 // these functions set up specific areas after the boot function
 // created a basic framework. All of these functions should only ever
@@ -103,15 +102,36 @@ window.setupStyles = function() {
 window.setupMap = function() {
   $('#map').text('');
 
-  var osmOpt = {attribution: 'Map data © OpenStreetMap contributors', maxZoom: 18, detectRetina: true};
-  var osm = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', osmOpt);
+  //OpenStreetMap attribution - required by several of the layers
+  osmAttribution = 'Map data © OpenStreetMap contributors';
 
-  var cmOpt = {attribution: 'Map data © OpenStreetMap contributors, Imagery © CloudMade', maxZoom: 18, detectRetina: true};
-  var cmMin = new L.TileLayer('http://{s}.tile.cloudmade.com/654cef5fd49a432ab81267e200ecc502/22677/256/{z}/{x}/{y}.png', cmOpt);
-  var cmMid = new L.TileLayer('http://{s}.tile.cloudmade.com/654cef5fd49a432ab81267e200ecc502/999/256/{z}/{x}/{y}.png', cmOpt);
+  //OpenStreetMap tiles - we shouldn't use these by default, or even an option - https://wiki.openstreetmap.org/wiki/Tile_usage_policy
+  // "Heavy use (e.g. distributing an app that uses tiles from openstreetmap.org) is forbidden without prior permission from the System Administrators"
+  //var osmOpt = {attribution: osmAttribution, maxZoom: 18, detectRetina: true};
+  //var osm = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', osmOpt);
 
-  var views = [cmMid, cmMin, osm, new L.Google('INGRESS'), new L.Google('ROADMAP'),
-               new L.Google('SATELLITE'), new L.Google('HYBRID')];
+  //CloudMade layers - only 500,000 tiles/month in their free plan. nowhere near enough for IITC
+  var cmOpt = {attribution: osmAttribution+', Imagery © CloudMade', maxZoom: 18, detectRetina: true};
+  //var cmMin = new L.TileLayer('http://{s}.tile.cloudmade.com/{your api key here}/22677/256/{z}/{x}/{y}.png', cmOpt);
+  //var cmMid = new L.TileLayer('http://{s}.tile.cloudmade.com/{your api key here}/999/256/{z}/{x}/{y}.png', cmOpt);
+
+  //MapQuest offer tiles - http://developer.mapquest.com/web/products/open/map
+  //their usage policy has no limits (except required notification above 4000 tiles/sec - we're perhaps at 50 tiles/sec based on CloudMade stats)
+  var mqSubdomains = [ 'otile1','otile2', 'otile3', 'otile4' ];
+  var mqTileUrlPrefix = window.location.protocol !== 'https:' ? 'http://{s}.mqcdn.com' : 'https://{s}-s.mqcdn.com';
+  var mqMapOpt = {attribution: osmAttribution+', Tiles Courtesy of MapQuest', mazZoom: 18, detectRetena: true, subdomains: mqSubdomains};
+  var mqMap = new L.TileLayer(mqTileUrlPrefix+'/tiles/1.0.0/map/{z}/{x}/{y}.jpg',mqMapOpt);
+  //MapQuest satellite coverage outside of the US is rather limited - so not really worth having as we have google as an option
+  //var mqSatOpt = {attribution: 'Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency', mazZoom: 18, detectRetena: true, subdomains: mqSubdomains};
+  //var mqSat = new L.TileLayer('http://{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg',mqSatOpt);
+
+  var views = [
+    /*0*/ mqMap,
+    /*1*/ new L.Google('INGRESS'),
+    /*2*/ new L.Google('ROADMAP'),
+    /*3*/ new L.Google('SATELLITE'),
+    /*4*/ new L.Google('HYBRID')
+  ];
 
 
   window.map = new L.Map('map', $.extend(getPosition(),
@@ -137,13 +157,11 @@ window.setupMap = function() {
   addLayers['Links'] = linksLayer;
 
   window.layerChooser = new L.Control.Layers({
-    'OSM Midnight': views[0],
-    'OSM Minimal': views[1],
-    'OSM Mapnik': views[2],
-    'Default Ingress Map': views[3],
-    'Google Roads':  views[4],
-    'Google Satellite':  views[5],
-    'Google Hybrid':  views[6]
+    'MapQuest OSM': views[0],
+    'Default Ingress Map': views[1],
+    'Google Roads':  views[2],
+    'Google Satellite':  views[3],
+    'Google Hybrid':  views[4]
     }, addLayers);
 
   map.addControl(window.layerChooser);
@@ -291,12 +309,13 @@ window.setupDialogs = function() {
     autoOpen: false,
     modal: true,
     buttons: [
-      { text: 'OK', click: function() { $(this).dialog('close'); } }
+      { text: 'OK', click: function() { if($(this).data("closeCallback")) {$(this).data("closeCallback")();} $(this).dialog('close'); } }
     ]
   });
 
-  window.alert = function(text, isHTML) {
+  window.alert = function(text, isHTML, closeCallback) {
     var h = isHTML ? text : window.convertTextToTableMagic(text);
+    $('#dialog').data("closeCallback", closeCallback);
     $('#dialog').html(h).dialog('open');
   }
 }

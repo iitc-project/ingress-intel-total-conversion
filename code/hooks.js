@@ -42,7 +42,7 @@
 //              array to change order or add additional values to the
 //              details of a portal.
 // beforePortalReRender: the callback argument is
-//              {portal: ent[2], oldPortal : d, reRender : false}.
+//              {portal: ent[2], oldPortal : d, portalGuid: ent[0], reRender : false}.
 //              The callback needs to update the value of reRender to
 //              true if the plugin has a reason to have the portal
 //              redrawn. It is called early on in the
@@ -59,15 +59,21 @@
 window._hooks = {}
 window.VALID_HOOKS = ['portalAdded', 'portalDetailsUpdated',
   'publicChatDataAvailable', 'factionChatDataAvailable', 'portalDataLoaded',
-  'beforePortalReRender', 'checkRenderLimit', 'requestFinished'];
+  'beforePortalReRender', 'checkRenderLimit', 'requestFinished', 'nicknameClicked',
+  'geoSearch'];
 
 window.runHooks = function(event, data) {
   if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);
 
-  if(!_hooks[event]) return;
+  if(!_hooks[event]) return true;
+  var interupted = false;
   $.each(_hooks[event], function(ind, callback) {
-    callback(data);
+    if (callback(data) === false) {
+      interupted = true;
+      return false;  //break from $.each
+    }
   });
+  return !interupted;
 }
 
 

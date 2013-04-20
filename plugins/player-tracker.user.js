@@ -62,6 +62,8 @@ window.plugin.playerTracker.setup = function() {
     window.plugin.playerTracker.zoomListener();
   });
   window.plugin.playerTracker.zoomListener();
+  
+  plugin.playerTracker.setupUserSearch();
 }
 
 window.plugin.playerTracker.stored = {};
@@ -264,6 +266,7 @@ window.plugin.playerTracker.drawData = function() {
     if(window.plugin.guessPlayerLevels !== undefined &&
        window.plugin.guessPlayerLevels.fetchLevelByPlayer !== undefined) {
       var playerLevel = window.plugin.guessPlayerLevels.fetchLevelByPlayer(pguid);
+      if (playerLevel === undefined) playerLevel = 1;  //if player level unknown, assume level 1
       if(playerLevel !== undefined) {
         title += '<span style="font-weight:bold;margin-left:10px;">Level '
           + playerLevel
@@ -341,8 +344,57 @@ window.plugin.playerTracker.handleData = function(data) {
   plugin.playerTracker.drawData();
 }
 
+window.plugin.playerTracker.findUserPosition = function(nick) {
+  nick = nick.toLowerCase();
+  var foundPlayerData = undefined;
+  $.each(plugin.playerTracker.stored, function(pguid, playerData) {
+    if (playerData.nick.toLowerCase() === nick) {
+      foundPlayerData = playerData;
+      return false;
+    }
+  });
+  
+  if (!foundPlayerData) {
+    return false;
+  }
+  
+  var evtsLength = foundPlayerData.events.length;
+  var last = foundPlayerData.events[evtsLength-1];
+  return plugin.playerTracker.getLatLngFromEvent(last);
+}
 
+window.plugin.playerTracker.centerMapOnUser = function(nick) {
+  var position = plugin.playerTracker.findUserPosition(nick);
+  
+  if (position === false) {
+    return false;
+  }
+  
+  map.setView(position, map.getZoom());
+}
 
+window.plugin.playerTracker.onNicknameClicked = function(info) {
+  if (info.event.ctrlKey) {
+    plugin.playerTracker.centerMapOnUser(info.nickname);
+    return false;
+  }
+}
+
+window.plugin.playerTracker.onGeoSearch = function(search) {
+  if (/^@/.test(search)) {
+    plugin.playerTracker.centerMapOnUser(search.replace(/^@/, ''));
+    return false;
+  }
+}
+
+window.plugin.playerTracker.setupUserSearch = function() {
+  addHook('nicknameClicked', window.plugin.playerTracker.onNicknameClicked);
+  addHook('geoSearch', window.plugin.playerTracker.onGeoSearch);
+  
+  var geoSearch = $('#geosearch');
+  var beforeEllipsis = /(.*)…/.exec(geoSearch.attr('placeholder'))[1];
+  geoSearch.attr('placeholder', beforeEllipsis + ' or @player…');
+}
 
 
 var setup = plugin.playerTracker.setup;

@@ -1,5 +1,4 @@
 
-
 // REDEEMING /////////////////////////////////////////////////////////
 
 window.handleRedeemResponse = function(data, textStatus, jqXHR) {
@@ -27,6 +26,7 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
     var resonators = {};
     var bursts = {};
     var shields = {};
+    var cubes = {};
      
     for(var i in data.result.inventoryAward) {
       var acquired = data.result.inventoryAward[i][2];
@@ -45,6 +45,10 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
           var level = acquired.resourceWithLevels.level
           if(!bursts[level]) bursts[level] = 0;
           bursts[level] += 1;
+        } else if(acquired.resourceWithLevels.resourceType === 'POWER_CUBE') {
+          var level = acquired.resourceWithLevels.level
+          if(!cubes[level]) cubes[level] = 0;
+          cubes[level] += 1;
         }
       }
     }
@@ -59,12 +63,16 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
       if(count >= 2) text += ' ('+count+')';
       tblResult.append($('<tr ><td style="color: ' +window.COLORS_LVL[lvl]+ ';">L' +lvl+ '</td><td>' + text + '</td></tr>'));
     });
+    $.each(cubes, function(lvl, count) {
+      var text = 'Power Cube';
+      if(count >= 2) text += ' ('+count+')';
+      tblResult.append($('<tr ><td style="color: ' +window.COLORS_LVL[lvl]+ ';">L' +lvl+ '</td><td>' + text + '</td></tr>'));
+    });
     $.each(shields, function(lvl, count) {
       var text = 'Portal Shield';
       if(count >= 2) text += ' ('+count+')';
       tblResult.append($('<tr><td>'+lvl+'</td><td>'+text+'</td></tr>'));
     });
-
     alert(tblResult, true);
   }
 }
