@@ -1,11 +1,11 @@
 // ==UserScript==
 // @id             iitc-plugin-ap-list@xelio
 // @name           IITC plugin: AP List
-// @version        0.5.1.@@DATETIMEVERSION@@
+// @version        0.5.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] List top 10 portals by AP of either faction. Other functions and controls please refer to the Userguide.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] List portals by AP of either faction or by effective level. Other functions and controls please refer to the Userguide.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
