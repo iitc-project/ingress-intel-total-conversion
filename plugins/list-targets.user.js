@@ -1,10 +1,10 @@
 // ==UserScript==
-// @id             list-targets@sbeitzel
+// @id             iitc-plugin-list-targets@sbeitzel
 // @name           IITC plugin: list targets
-// @version        0.3.06
-// @updateURL      https://raw.github.com/sbeitzel/ingress-intel-total-conversion/gh-pages/plugins/list-targets.user.js
-// @downloadURL    https://raw.github.com/sbeitzel/ingress-intel-total-conversion/gh-pages/plugins/list-targets.user.js
-// @description    Calls out links to portals which are easy candidates for attack by the current user.
+// @version        0.3.07@@DATETIMEVERSION@@
+// @updateURL      @@UPDATEURL@@
+// @downloadURL    @@DOWNLOADURL@@
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Calls out links to portals which are easy candidates for attack by the current user.
 // @include        https://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // ==/UserScript==
