@@ -46,7 +46,7 @@ public class IITC_WebViewClient extends WebViewClient {
         String[] attributes = header.split(" +");
         String iitc_version = "not found";
         for (int i = 0; i < attributes.length; i++) {
-            // search vor version and use the value
+            // search for version and use the value
             if (attributes[i].equals("@version")) iitc_version = attributes[i+1];
         }
         return iitc_version;
