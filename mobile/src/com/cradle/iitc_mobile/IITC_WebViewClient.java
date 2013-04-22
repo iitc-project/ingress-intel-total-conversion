@@ -119,6 +119,10 @@ public class IITC_WebViewClient extends WebViewClient {
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
         if (url.contains("ingress.com")) {
+            if (url.contains("ingress.com/intel") && url.contains("latE6") && url.contains("lngE6")) {
+                Log.d("iitcm", "should be an internal clicked position link...reload script for: " + url);
+                ((IITC_Mobile) context).loadUrl(url);
+            }
             return false;
         } else {
             Log.d("iitcm", "no ingress intel link, start external app to load url: " + url);
