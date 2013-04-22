@@ -28,7 +28,7 @@ window.plugin.scaleBar.setup  = function() {
   // Before you ask: yes, I explicitly turned off imperial units. Imperial units
   // are worse than Internet Explorer 6 whirring fans combined. Upgrade to the metric
   // system already.
-  window.map.addControl(new L.Control.Scale({position: 'topleft', imperial: false}));
+  window.map.addControl(new L.Control.Scale({position: 'topleft', imperial: false, maxWidth: 200}));
 };
 
 var setup =  window.plugin.scaleBar.setup;

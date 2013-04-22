@@ -68,6 +68,10 @@ body {
   color: #fff;
 }
 
+.nickname {
+  cursor: pointer !important;
+}
+
 a {
   color: #ffce00;
   cursor: pointer;
