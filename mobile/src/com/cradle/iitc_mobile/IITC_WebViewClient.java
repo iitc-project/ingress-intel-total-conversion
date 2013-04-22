@@ -3,6 +3,7 @@ package com.cradle.iitc_mobile;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.preference.PreferenceManager;
@@ -17,6 +18,7 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Scanner;
+import java.util.Set;
 
 public class IITC_WebViewClient extends WebViewClient {
     private static final ByteArrayInputStream style = new ByteArrayInputStream(
@@ -90,6 +92,39 @@ public class IITC_WebViewClient extends WebViewClient {
     public void onReceivedSslError (WebView view, SslErrorHandler handler, SslError error) {
         handler.proceed() ;
     };
+
+    // plugins should be loaded after the main script is injected
+    @Override
+    public void onPageFinished(WebView view, String url) {
+        super.onPageFinished(view, url);
+
+        // get the plugin preferences
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        Set<String> plugin_list = sharedPref.getStringSet("pref_plugins", null);
+
+        // iterate through all enabled plugins and load them
+        if (plugin_list != null) {
+            AssetManager am = context.getAssets();
+            String[] plugin_array = plugin_list.toArray(new String[0]);
+
+            for(int i = 0; i < plugin_list.size(); i++) {
+                if (plugin_array[i].endsWith("user.js"));
+                {
+                    Log.d("iitcm", "adding plugin " + plugin_array[i]);
+                    Scanner s = null;
+                    String src = "";
+                    try {
+                        s = new Scanner(am.open("plugins/" + plugin_array[i])).useDelimiter("\\A");
+                    } catch (IOException e2) {
+                        // TODO Auto-generated catch block
+                        e2.printStackTrace();
+                    }
+                    if (s != null) src = s.hasNext() ? s.next() : "";
+                    view.loadUrl("javascript:" + src);
+                }
+            }
+        }
+    }
 
     // Check every external resource if it’s okay to load it and maybe replace it
     // with our own content. This is used to block loading Niantic resources

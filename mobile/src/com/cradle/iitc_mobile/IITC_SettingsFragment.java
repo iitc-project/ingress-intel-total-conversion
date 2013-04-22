@@ -6,6 +6,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
+import android.preference.MultiSelectListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
@@ -21,7 +22,12 @@ public class IITC_SettingsFragment extends PreferenceFragment {
         iitc_version = getArguments().getString("iitc_version");
 
         addPreferencesFromResource(R.xml.preferences);
-        
+
+        //plugins
+        MultiSelectListPreference pref_plugins = (MultiSelectListPreference) findPreference("pref_plugins");
+        pref_plugins.setEntries(getArguments().getStringArray("ASSETS"));
+        pref_plugins.setEntryValues(getArguments().getStringArray("ASSETS"));
+
         // set build version
         ListPreference pref_build_version = (ListPreference) findPreference("pref_build_version");
         PackageManager pm = getActivity().getPackageManager();

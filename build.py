@@ -156,6 +156,14 @@ for fn in glob.glob("plugins/*.user.js"):
     metafn = fn.replace('.user.js', '.meta.js')
     saveScriptAndMeta(script, os.path.join(outDir,fn), os.path.join(outDir,metafn))
 
+def copytree(src, dst, symlinks=False, ignore=None):
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.isdir(s):
+            shutil.copytree(s, d, symlinks, ignore)
+        else:
+            shutil.copy2(s, d)
 
 # if we're building mobile too
 if buildMobile:
@@ -169,7 +177,12 @@ if buildMobile:
         pass
     shutil.copy(os.path.join(outDir,"total-conversion-build.user.js"), "mobile/assets/iitc.js")
 
-    # TODO? also copy plugins - once the mobile app supports plugins, that is
+    # also copy plugins
+    try:
+        os.makedirs("mobile/assets/plugins")
+    except:
+        pass
+    copytree(os.path.join(outDir,"plugins"), "mobile/assets/plugins")
 
 
     # now launch 'ant' to build the mobile project

@@ -32,6 +32,8 @@
     </string>
 
     <string name="pref_ui_cat">UI</string>
+    <string name="pref_plugins">Plugins</string>
+    <string name="pref_plugins_title">Available plugins</string>
     <string name="pref_force_desktop">Force desktop mode</string>
     <string name="pref_force_desktop_sum">Nice for tablets, looks awful on smartphones</string>
     <string name="pref_developer_options">Developer options</string>
