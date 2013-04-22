@@ -9,10 +9,13 @@ import sys
 import os
 import shutil
 import json
-import urllib2
 import shelve
 import hashlib
 
+try:
+  import urllib2
+except ImportError:
+  import urllib.request as urllib2
 
 # load settings file
 from buildsettings import buildSettings
@@ -72,23 +75,25 @@ def loaderRaw(var):
 
 def loaderMD(var):
     fn = var.group(1)
-    db = shelve.open('build/MD.dat')
-    if db.has_key('files'):
+    # use different MD.dat's for python 2 vs 3 incase user switches versions, as they are not compatible
+    db = shelve.open('build/MDv' + str(sys.version_info.major) + '.dat')
+    if 'files' in db:
       files = db['files']
     else:
       files = {}
     file = readfile(fn)
-    filemd5 = hashlib.md5(file).hexdigest()
+    filemd5 = hashlib.md5(file.encode('utf8')).hexdigest()
     # check if file has already been parsed by the github api
     if fn in files and filemd5 in files[fn]:
       # use the stored copy if nothing has changed to avoid hiting the api more then the 60/hour when not signed in
+      db.close()
       return files[fn][filemd5]
     else:
       url = 'https://api.github.com/markdown'
       payload = {'text': file, 'mode': 'markdown'}
-      req = urllib2.Request(url)
-      req.add_header('Content-Type', 'application/json')
-      md = urllib2.urlopen(req, json.dumps(payload)).read().replace('\n', '').replace('\'', '\\\'')
+      headers = {'Content-Type': 'application/json'}
+      req = urllib2.Request(url, json.dumps(payload).encode('utf8'), headers)
+      md = urllib2.urlopen(req).read().decode('utf8').replace('\n', '').replace('\'', '\\\'')
       files[fn] = {}
       files[fn][filemd5] = md
       db['files'] = files
