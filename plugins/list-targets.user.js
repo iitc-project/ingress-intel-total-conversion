@@ -41,6 +41,7 @@ function wrapper() {
 
 // use own namespace for plugin
   window.plugin.listTargets = function() {};
+  window.plugin.listTargets.listDrawn = false;
 
   window.plugin.listTargets.portalsLoaded = function(data) {
     data.portals.forEach(function(portal, index, portalsRef) {
@@ -147,13 +148,7 @@ function wrapper() {
 
   var setup =  function() {
     // add the UI
-    var portalDiv = document.createElement("div");
-    portalDiv.id = "targetlist";
-    var emptyTable = document.createElement("table");
-    emptyTable.setAttribute('id', 'targetListTable');
-    portalDiv.appendChild(emptyTable);
-    // place the div into the DOM
-    $("#portaldetails").after(portalDiv);
+      window.plugin.listTargets.createDiv();
     // wire in the hook
     window.addHook('portalDataLoaded', window.plugin.listTargets.portalsLoaded);
     window.addHook('requestFinished', window.plugin.listTargets.sortTargets);
@@ -161,23 +156,24 @@ function wrapper() {
     window.requests.addRefreshFunction(window.plugin.listTargets.clearTargetList);
   };
 
+  window.plugin.listTargets.createDiv = function() {
+    var portalDiv = document.createElement("div");
+    portalDiv.id = "targetlist";
+    var emptyTable = document.createElement("table");
+    emptyTable.setAttribute('id', 'targetListTable');
+    portalDiv.appendChild(emptyTable);
+    // place the div into the DOM
+    $("#portaldetails").after(portalDiv);
+  };
+
   window.plugin.listTargets.clearTargetList = function() {
-    console.log("clearTargetList called");
     //noinspection JSPrimitiveTypeWrapperUsage
     window._targetStructs = new Array();
     //noinspection JSPrimitiveTypeWrapperUsage
     window._targetsSeen = new Array();
   };
 
-  window.plugin.listTargets.sortTargets = function() {
-    window._targetStructs.sort(function(a, b) {
-      // a and b are data structures with difficulty attributes. We want to sort in ascending order.
-      return a.difficulty - b.difficulty;
-    });
-
-    console.log("sorted targets");
-    console.log(window._targetStructs);
-
+  window.plugin.listTargets.drawList = function() {
     $("#targetListTable").remove();
 
     var targetTable = document.createElement("table");
@@ -198,23 +194,26 @@ function wrapper() {
     for (var i =0; i < window._targetStructs.length; i++) {
       var datastruct = window._targetStructs[i];
       var row = document.createElement("tr");
-      var cell = document.createElement("td");
+      cell = document.createElement("td");
       cell.appendChild(document.createTextNode(datastruct.difficulty));
       row.appendChild(cell);
       cell = document.createElement("td");
       var anchor = window.plugin.listTargets.getPortalLink(datastruct);
-        // debugging
-        console.log("anchor:");
-        console.log(anchor);
-
       cell.appendChild(anchor);
-        console.log("cell");
-        console.log(cell);
       row.appendChild(cell);
       tbody.appendChild(row);
-    };
+    }
     targetTable.appendChild(tbody);
     $("#targetlist").append(targetTable);
+  };
+
+  window.plugin.listTargets.sortTargets = function() {
+    if(!requests.isLastRequest('getThinnedEntitiesV2')) return;
+    window._targetStructs.sort(function(a, b) {
+      // a and b are data structures with difficulty attributes. We want to sort in ascending order.
+      return a.difficulty - b.difficulty;
+    });
+    window.plugin.listTargets.drawList();
   };
 
 // PLUGIN END //////////////////////////////////////////////////////////
