@@ -47,7 +47,7 @@ window.requestData = function() {
   portalRenderLimit.init();
   // finally send ajax requests
   $.each(tiles, function(ind, tls) {
-    data = { minLevelOfDetail: -1 };
+    data = { zoom: map.getZoom() };
     data.boundsParamsList = tls;
     window.requests.add(window.postAjax('getThinnedEntitiesV2', data, window.handleDataResponse, window.handleFailedRequest));
   });
