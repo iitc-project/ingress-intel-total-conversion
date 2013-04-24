@@ -78,7 +78,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   // portals can be brought to front, this costs extra time. They need
   // to be in the foreground, or they cannot be clicked. See
   // https://github.com/Leaflet/Leaflet/issues/185
-  var ppp = [];
+  var ppp = {};
   var p2f = {};
   $.each(m, function(qk, val) {
     $.each(val.deletedGameEntityGuids || [], function(ind, guid) {
@@ -115,7 +115,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
           ent[2].imageByUrl = {'imageUrl': DEFAULT_PORTAL_IMG};
         }
 
-        ppp.push(ent); // delay portal render
+        ppp[ent[0]] = ent; // delay portal render
       } else if(ent[2].edge !== undefined) {
         renderLink(ent);
       } else if(ent[2].capturedRegion !== undefined) {
@@ -132,6 +132,25 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   });
 
   $.each(ppp, function(ind, portal) {
+    if ('portalV2' in portal[2] && 'linkedEdges' in portal[2].portalV2) {
+      $.each(portal[2].portalV2.linkedEdges, function (ind, edge) {
+        if (!ppp[edge.otherPortalGuid])
+          return;
+        renderLink([
+          edge.edgeGuid,
+          portal[1],
+          {
+            "controllingTeam": portal[2].controllingTeam,
+            "edge": {
+              "destinationPortalGuid": edge.isOrigin ? ppp[edge.otherPortalGuid][0] : portal[0],
+              "destinationPortalLocation": edge.isOrigin ? ppp[edge.otherPortalGuid][2].locationE6 : portal[2].locationE6,
+              "originPortalGuid": !edge.isOrigin ? ppp[edge.otherPortalGuid][0] : portal[0],
+              "originPortalLocation": !edge.isOrigin ? ppp[edge.otherPortalGuid][2].locationE6 : portal[2].locationE6
+            }
+          }
+        ]);
+      });
+    }
     if(portal[2].portalV2['linkedFields'] === undefined) {
       portal[2].portalV2['linkedFields'] = [];
     }
