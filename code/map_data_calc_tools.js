@@ -1,5 +1,4 @@
 
-
 // MAP DATA REQUEST CALCULATORS //////////////////////////////////////
 // Ingress Intel splits up requests for map data (portals, links,
 // fields) into tiles. To get data for the current viewport (i.e. what
@@ -23,9 +22,9 @@ window.calculateR = function(convCenterLat) {
 }
 
 window.convertLatLngToPoint = function(latlng, magic, R) {
-  var x = (magic/2 + latlng.lng * magic / 360)*R;
+  var x = (magic + latlng.lng * magic / 180)*R;
   var l = Math.sin(latlng.lat * DEG2RAD);
-  var y =  (magic/2 + 0.5*Math.log((1+l)/(1-l)) * -(magic / (2*Math.PI)))*R;
+  var y =  (magic + Math.log((1+l)/(1-l)) * -(magic / (2*Math.PI)))*R;
   return {x: Math.floor(x/magic), y: Math.floor(y/magic)};
 }
 
@@ -35,13 +34,13 @@ window.convertPointToLatLng = function(x, y, magic, R) {
     // orig function put together from all over the place
     // lat: (2 * Math.atan(Math.exp((((y + 1) * magic / R) - (magic/ 2)) / (-1*(magic / (2 * Math.PI))))) - Math.PI / 2) / (Math.PI / 180),
     // shortened version by your favorite algebra program.
-    lat: (360*Math.atan(Math.exp(Math.PI - 2*Math.PI*(y+1)/R)))/Math.PI - 90,
-    lng: 360*x/R-180
+    lat: (360*Math.atan(Math.exp(Math.PI - Math.PI*(y+1)/R)))/Math.PI - 90,
+    lng: 180*x/R-180
   };
   e.ne = {
     //lat: (2 * Math.atan(Math.exp(((y * magic / R) - (magic/ 2)) / (-1*(magic / (2 * Math.PI))))) - Math.PI / 2) / (Math.PI / 180),
-    lat: (360*Math.atan(Math.exp(Math.PI - 2*Math.PI*y/R)))/Math.PI - 90,
-    lng: 360*(x+1)/R-180
+    lat: (360*Math.atan(Math.exp(Math.PI - Math.PI*y/R)))/Math.PI - 90,
+    lng: 180*(x+1)/R-180
   };
   return e;
 }
@@ -49,20 +48,7 @@ window.convertPointToLatLng = function(x, y, magic, R) {
 // calculates the quad key for a given point. The point is not(!) in
 // lat/lng format.
 window.pointToQuadKey = function(x, y) {
-  var quadkey = [];
-  for(var c = window.map.getZoom(); c > 0; c--) {
-    //  +-------+   quadrants are probably ordered like this
-    //  | 0 | 1 |
-    //  |---|---|
-    //  | 2 | 3 |
-    //  |---|---|
-    var quadrant = 0;
-    var e = 1 << c - 1;
-    (x & e) != 0 && quadrant++;               // push right
-    (y & e) != 0 && (quadrant++, quadrant++); // push down
-    quadkey.push(quadrant);
-  }
-  return quadkey.join("");
+  return window.map.getZoom() + "_" + x + "_" + y;
 }
 
 // given quadkey and bounds, returns the format as required by the
