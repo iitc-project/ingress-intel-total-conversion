@@ -46,7 +46,7 @@ public class IITC_WebViewClient extends WebViewClient {
         String[] attributes = header.split(" +");
         String iitc_version = "not found";
         for (int i = 0; i < attributes.length; i++) {
-            // search vor version and use the value
+            // search for version and use the value
             if (attributes[i].equals("@version")) iitc_version = attributes[i+1];
         }
         return iitc_version;
@@ -154,7 +154,8 @@ public class IITC_WebViewClient extends WebViewClient {
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
         if (url.contains("ingress.com")) {
-            if (url.contains("ingress.com/intel") && url.contains("latE6") && url.contains("lngE6")) {
+            // reload iitc if a poslink is clicked inside the app
+            if (url.contains("intel?ll=") || (url.contains("latE6") && url.contains("lngE6"))) {
                 Log.d("iitcm", "should be an internal clicked position link...reload script for: " + url);
                 ((IITC_Mobile) context).loadUrl(url);
             }

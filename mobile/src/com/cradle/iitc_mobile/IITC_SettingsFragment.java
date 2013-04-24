@@ -26,7 +26,7 @@ public class IITC_SettingsFragment extends PreferenceFragment {
         //plugins
         MultiSelectListPreference pref_plugins = (MultiSelectListPreference) findPreference("pref_plugins");
         pref_plugins.setEntries(getArguments().getStringArray("ASSETS"));
-        pref_plugins.setEntryValues(getArguments().getStringArray("ASSETS"));
+        pref_plugins.setEntryValues(getArguments().getStringArray("ASSETS_VAL"));
 
         // set build version
         ListPreference pref_build_version = (ListPreference) findPreference("pref_build_version");
