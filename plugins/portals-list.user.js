@@ -13,7 +13,7 @@
 // ==/UserScript==
 
 /* whatsnew
-* 0.0.11: Add nominal energy column, fix sort bug when opened even amounts of times, nits
+* 0.0.11: Add nominal energy column and # links, fix sort bug when opened even amounts of times, nits
 * 0.0.10: Fixed persistent css problem with alert
 * 0.0.9 : bugs hunt
 * 0.0.8 : Aborted to avoid problems with Niantic (export portals informations as csv or kml file)
@@ -100,7 +100,7 @@ window.plugin.portalslist.getPortals = function() {
     });
 
     var APgain= getAttackApGain(d).enemyAp;
-    var thisPortal = {'portal':d,'name':name,'team':team,'level':level,'guid':guid, 'resonators':resonators,'energyratio' : Math.floor(energy/maxenergy*100), 'shields':shields, 'APgain':APgain, 'EAP' : (energy/APgain).toFixed(2), 'energy': energy, 'maxenergy':maxenergy, 'lat':portal._latlng.lat, 'lng':portal._latlng.lng, 'address': address, 'img' : img};
+    var thisPortal = {'portal': d, 'name': name, 'team': team, 'level': level, 'guid': guid, 'resonators': resonators, 'energyratio': maxenergy ? Math.floor(energy/maxenergy*100) : 0, 'shields': shields, 'APgain': APgain, 'EAP': (energy/APgain).toFixed(2), 'energy': energy, 'maxenergy': maxenergy, 'links': d.portalV2.linkedEdges.length, 'lat': portal._latlng.lat, 'lng': portal._latlng.lng, 'address': address, 'img': img};
     window.plugin.portalslist.listPortals.push(thisPortal);
   });
 
@@ -219,6 +219,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   + '<th ' + sort('r8', sortBy, -1) + '>R8</th>'
   + '<th ' + sort('energy', sortBy, -1) + '>Energy</th>'
   + '<th ' + sort('energyratio', sortBy, -1) + '>%</th>'
+  + '<th ' + sort('links', sortBy, -1) + '>Links</th>'
   + '<th ' + sort('s1', sortBy, -1) + '>S1</th>'
   + '<th ' + sort('s2', sortBy, -1) + '>S2</th>'
   + '<th ' + sort('s3', sortBy, -1) + '>S3</th>'
@@ -249,6 +250,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
 
       html += '<td style="cursor:help" title="'+ portal.energy +'">' + prettyEnergy(portal.energy) + '</td>'
       + '<td style="cursor:help" title="' + portal.energy + ' / ' + portal.maxenergy +'">' + portal.energyratio + '%</td>'
+      + '<td style="cursor:help" title="' + portal.links + '">' + portal.links + '</td>'
       + '<td style="cursor:help" title="'+ portal.shields[0][1] +'">' + portal.shields[0][0] + '</td>'
       + '<td style="cursor:help" title="'+ portal.shields[1][1] +'">' + portal.shields[1][0] + '</td>'
       + '<td style="cursor:help" title="'+ portal.shields[2][1] +'">' + portal.shields[2][0] + '</td>'
