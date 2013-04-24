@@ -69,10 +69,10 @@ function wrapper() {
     // portal link - single click: select portal
     //               double click: zoom to and select portal
     //               hover: show address
-    // code from getPortalLink function by xelio from iitc: AP List - https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/ap-list.user.js
+    // code from getPortalLink function by xelio from iitc: AP List - https://raw.github.com/jonatkins/ingress-intel-total-conversion/gh-pages/plugins/ap-list.user.js
     window.plugin.listTargets.getPortalLink = function(datastruct) {
         var latlng = [datastruct.latE6/1E6, datastruct.lngE6/1E6].join();
-        var jsSingleClick = 'window.plugin.listTargets.selectPortal(\''+datastruct.pguid+'\');return false';
+        var jsSingleClick = 'window.window.selectPortalWithAnimation(\''+datastruct.pguid+'\');return false';
         var jsDoubleClick = 'window.zoomToAndShowPortal(\''+datastruct.pguid+'\', ['+latlng+']);return false';
         var perma = '/intel?latE6='+datastruct.latE6+'&lngE6='+datastruct.lngE6+'&z=17&pguid='+datastruct.pguid;
 
@@ -89,61 +89,6 @@ function wrapper() {
         div.appendChild(atag);
 
         return div;
-    };
-
-    // selectPortal - copied from ap-list plugin
-    window.plugin.listTargets.selectPortal = function(guid) {
-      // Add error catching to avoid following link of portal if error
-      // occured in renderPortalDetails or hooked plugin
-      try {
-        renderPortalDetails(guid);
-      } catch(e) {
-        console.error(e.message);
-        console.log(e.stack);
-        console.log('Skipping error in renderPortalDetails or hooked plugin')
-      }
-      window.plugin.listTargets.setPortalLocationIndicator(guid);
-    };
-
-    // setPortalLocationIndicator - copied from ap-list plugin
-    window.plugin.listTargets.setPortalLocationIndicator = function(guid) {
-      var portal = window.portals[guid];
-      if(!portal) return;
-      var startRadius = screen.availWidth / 2;
-      var portalRadius = portal.options.radius;
-      var latlng = portal.getLatLng();
-      var property = {
-        radius: startRadius,
-        fill: false,
-        color: COLOR_SELECTED_PORTAL,
-        weight: 2,
-        opacity: 1,
-        portalRadius: portalRadius,
-        clickable: false };
-
-      if(plugin.listTargets.portalLocationIndicator)
-        map.removeLayer(plugin.listTargets.portalLocationIndicator);
-      if(plugin.listTargets.animTimeout)
-        clearTimeout(plugin.apList.animTimeout);
-      plugin.listTargets.portalLocationIndicator = L.circleMarker(latlng, property).addTo(map);
-      plugin.listTargets.animTimeout = setTimeout(plugin.listTargets.animPortalLocationIndicator,100);
-    };
-
-    // animPortalLocationIndicator - copied from ap-list plugin
-    window.plugin.listTargets.animPortalLocationIndicator = function() {
-      var radius = plugin.listTargets.portalLocationIndicator.options.radius;
-      var portalRadius = plugin.listTargets.portalLocationIndicator.options.portalRadius;
-      if(radius > portalRadius) {
-        var step = radius / 3;
-        if(radius < 80) step = step / 3;
-        var newRadius = plugin.listTargets.portalLocationIndicator.options.radius -= step;
-        plugin.listTargets.portalLocationIndicator.setRadius(newRadius);
-        if(plugin.listTargets.animTimeout)
-          clearTimeout(plugin.listTargets.animTimeout);
-        plugin.listTargets.animTimeout = setTimeout(plugin.listTargets.animPortalLocationIndicator,100);
-      } else {
-        map.removeLayer(plugin.listTargets.portalLocationIndicator);
-      }
     };
 
   var setup =  function() {

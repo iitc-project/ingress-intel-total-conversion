@@ -344,3 +344,60 @@ window.convertTextToTableMagic = function(text) {
 window.calcTriArea = function(p) {
   return Math.abs((p[0].lat*(p[1].lng-p[2].lng)+p[1].lat*(p[2].lng-p[0].lng)+p[2].lat*(p[0].lng-p[1].lng))/2);
 }
+
+// select a given portal and highlight it with an animation of a circle zooming in on it.
+// promoted to core from ap-list plugin
+window.selectPortalWithAnimation = function(guid) {
+  // Add error catching to avoid following link of portal if error
+  // occured in renderPortalDetails or hooked plugin
+  try {
+    renderPortalDetails(guid);
+  } catch(e) {
+    console.error(e.message);
+    console.log(e.stack);
+    console.log('Skipping error in renderPortalDetails or hooked plugin')
+  }
+  window.setPortalLocationIndicator(guid);
+};
+
+// promoted to core from ap-list plugin
+window.setPortalLocationIndicator = function(guid) {
+  var portal = window.portals[guid];
+  if(!portal) return;
+  var startRadius = screen.availWidth / 2;
+  var portalRadius = portal.options.radius;
+  var latlng = portal.getLatLng();
+  var property = {
+    radius: startRadius,
+    fill: false,
+    color: COLOR_SELECTED_PORTAL,
+    weight: 2,
+    opacity: 1,
+    portalRadius: portalRadius,
+    clickable: false };
+
+  if(window.portalLocationIndicator)
+    map.removeLayer(window.portalLocationIndicator);
+  if(window.animTimeout)
+    clearTimeout(window.animTimeout);
+  window.portalLocationIndicator = L.circleMarker(latlng, property).addTo(map);
+  window.animTimeout = setTimeout(window.animPortalLocationIndicator,100);
+};
+
+// promoted to core from ap-list plugin
+window.animPortalLocationIndicator = function() {
+  var radius = window.portalLocationIndicator.options.radius;
+  var portalRadius = window.portalLocationIndicator.options.portalRadius;
+  if(radius > portalRadius) {
+    var step = radius / 3;
+    if(radius < 80) step = step / 3;
+    var newRadius = window.portalLocationIndicator.options.radius -= step;
+    window.portalLocationIndicator.setRadius(newRadius);
+    if(window.animTimeout)
+      clearTimeout(window.animTimeout);
+    window.animTimeout = setTimeout(window.animPortalLocationIndicator,100);
+  } else {
+    map.removeLayer(window.portalLocationIndicator);
+  }
+};
+
