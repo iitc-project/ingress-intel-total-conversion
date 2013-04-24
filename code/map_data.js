@@ -12,34 +12,30 @@ window.requestData = function() {
   requests.abort();
   cleanUp();
 
-  var magic = convertCenterLat(map.getCenter().lat);
-  var R = calculateR(magic);
-
   var bounds = map.getBounds();
-  // convert to point values
-  topRight = convertLatLngToPoint(bounds.getNorthEast(), magic, R);
-  bottomLeft = convertLatLngToPoint(bounds.getSouthWest() , magic, R);
-  // how many quadrants intersect the current view?
-  quadsX = Math.abs(bottomLeft.x - topRight.x);
-  quadsY = Math.abs(bottomLeft.y - topRight.y);
+
+  var x1 = lngToTile(bounds.getNorthWest().lng, map.getZoom());
+  var x2 = lngToTile(bounds.getNorthEast().lng, map.getZoom());
+  var y1 = latToTile(bounds.getNorthWest().lat, map.getZoom());
+  var y2 = latToTile(bounds.getSouthWest().lat, map.getZoom());
 
   // will group requests by second-last quad-key quadrant
   tiles = {};
 
   // walk in x-direction, starts right goes left
-  for(var i = 0; i <= quadsX; i++) {
-    var x = Math.abs(topRight.x - i);
-    var qk = pointToQuadKey(x, topRight.y);
-    var bnds = convertPointToLatLng(x, topRight.y, magic, R);
-    if(!tiles[qk.slice(0, -1)]) tiles[qk.slice(0, -1)] = [];
-    tiles[qk.slice(0, -1)].push(generateBoundsParams(qk, bnds));
-
-    // walk in y-direction, starts top, goes down
-    for(var j = 1; j <= quadsY; j++) {
-      var qk = pointToQuadKey(x, topRight.y + j);
-      var bnds = convertPointToLatLng(x, topRight.y + j, magic, R);
-      if(!tiles[qk.slice(0, -1)]) tiles[qk.slice(0, -1)] = [];
-      tiles[qk.slice(0, -1)].push(generateBoundsParams(qk, bnds));
+  for (var x = x1; x <= x2; x++) {
+    for (var y = y1; y <= y2; y++) {
+      var tile_id = pointToTileId(map.getZoom(), x, y);
+      var bucket = Math.floor(x / 2) + "" + Math.floor(y / 2);
+      if (!tiles[bucket])
+        tiles[bucket] = [];
+      tiles[bucket].push(generateBoundsParams(
+        tile_id,
+        tileToLat(y + 1, map.getZoom()),
+        tileToLng(x, map.getZoom()),
+        tileToLat(y, map.getZoom()),
+        tileToLng(x + 1, map.getZoom())
+      ));
     }
   }
 
@@ -78,7 +74,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   // portals can be brought to front, this costs extra time. They need
   // to be in the foreground, or they cannot be clicked. See
   // https://github.com/Leaflet/Leaflet/issues/185
-  var ppp = [];
+  var ppp = {};
   var p2f = {};
   $.each(m, function(qk, val) {
     $.each(val.deletedGameEntityGuids || [], function(ind, guid) {
@@ -115,7 +111,7 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
           ent[2].imageByUrl = {'imageUrl': DEFAULT_PORTAL_IMG};
         }
 
-        ppp.push(ent); // delay portal render
+        ppp[ent[0]] = ent; // delay portal render
       } else if(ent[2].edge !== undefined) {
         renderLink(ent);
       } else if(ent[2].capturedRegion !== undefined) {
@@ -132,6 +128,25 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   });
 
   $.each(ppp, function(ind, portal) {
+    if ('portalV2' in portal[2] && 'linkedEdges' in portal[2].portalV2) {
+      $.each(portal[2].portalV2.linkedEdges, function (ind, edge) {
+        if (!ppp[edge.otherPortalGuid])
+          return;
+        renderLink([
+          edge.edgeGuid,
+          portal[1],
+          {
+            "controllingTeam": portal[2].controllingTeam,
+            "edge": {
+              "destinationPortalGuid": edge.isOrigin ? ppp[edge.otherPortalGuid][0] : portal[0],
+              "destinationPortalLocation": edge.isOrigin ? ppp[edge.otherPortalGuid][2].locationE6 : portal[2].locationE6,
+              "originPortalGuid": !edge.isOrigin ? ppp[edge.otherPortalGuid][0] : portal[0],
+              "originPortalLocation": !edge.isOrigin ? ppp[edge.otherPortalGuid][2].locationE6 : portal[2].locationE6
+            }
+          }
+        ]);
+      });
+    }
     if(portal[2].portalV2['linkedFields'] === undefined) {
       portal[2].portalV2['linkedFields'] = [];
     }
