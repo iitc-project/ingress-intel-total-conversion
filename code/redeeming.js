@@ -18,7 +18,7 @@ window.REDEEM_ERRORS = {'ALREADY_REDEEMED' : 'The passcode has already been rede
 window.REDEEM_STATUSES = {429 : 'You have been rate-limited by the server. Wait a bit and try again.'};
 
 window.handleRedeemResponse = function(data, textStatus, jqXHR) {
-  if (data.error) {
+  if(data.error) {
     // Errors are now in window.REDEEM_ERRORS.
     var error = window.REDEEM_ERRORS[data.error] || 'There was a problem redeeming the passcode. Try again?';
 
@@ -33,21 +33,21 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
 
     // Get AP, XM, and other static quantities
     var scores = [[parseInt(data.result.apAward), 'AP'], [parseInt(data.result.xmAward), 'XM']];
-    for (var i in scores) {
-      if (scores[i][0] > 0) {
+    for(var i in scores) {
+      if(scores[i][0] > 0) {
         table_result.push('<td>+</td><td>' + scores[i][0] + ' ' + scores[i][1] + '</td>');
         plain_result.push(scores[i][0] + ' ' + scores[i][1]);
       }
     }
 
     // Track frequencies and levels of items
-    for (var i in data.result.inventoryAward) {
+    for(var i in data.result.inventoryAward) {
       var acquired = data.result.inventoryAward[i][2], primary, secondary, type;
-      if (acquired.modResource) {
+      if(acquired.modResource) {
         primary   = acquired.modResource.resourceType;
         secondary = acquired.modResource.rarity;
         type = 'mod';
-      } else if (acquired.resourceWithLevels) {
+      } else if(acquired.resourceWithLevels) {
         primary   = acquired.resourceWithLevels.resourceType;
         secondary = parseInt(acquired.resourceWithLevels.level);
         type = 'leveled';
@@ -62,10 +62,10 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
 
     // Build the table and plaintext arrays
     var keys = Object.keys(payload).sort();
-    for (var k in keys) {
+    for(var k in keys) {
       var primary = payload[keys[k]], long_name = window.REDEEM_RES_LONG[keys[k]] || keys[k], short_name = window.REDEEM_RES_SHORT[keys[k]] || '?';
       var table_array = [], plain_array = [];
-      for (var secondary in primary) {
+      for(var secondary in primary) {
         var acquired = primary[secondary];
         var span_prefix = acquired.type === 'leveled' ? '<span style="color: ' + window.COLORS_LVL[secondary] + ';">' : '<span style="color: ' + window.COLORS_MOD[secondary] + ';">';
         var span_infix  = acquired.type === 'leveled' ? secondary : secondary.split('_').map(function (i) {return i[0];}).join('');
@@ -96,7 +96,7 @@ window.setupRedeem = function() {
     window.postAjax('redeemReward', data, window.handleRedeemResponse,
       function(response) {
         var extra = ''
-        if (response.status) {
+        if(response.status) {
           extra = (window.REDEEM_STATUSES[response.status] || 'The server indicated an error.') + ' (HTTP ' + response.status + ')';
         } else {
           extra = 'No status code was returned.';
