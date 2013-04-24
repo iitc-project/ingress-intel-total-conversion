@@ -766,6 +766,11 @@ h3 {
   text-decoration: underline;
 }
 
+.ui-dialog-aboutIITC {
+  max-width: 600px !important;
+  width: 600px !important;
+}
+
 td {
   padding: 0;
   vertical-align: top;

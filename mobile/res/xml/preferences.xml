@@ -17,6 +17,10 @@
         android:title="@string/pref_force_desktop"
         android:summary="@string/pref_force_desktop_sum"
         android:defaultValue="false" />
+    <MultiSelectListPreference
+        android:key="pref_plugins"
+        android:title="@string/pref_plugins"
+        android:dialogTitle="@string/pref_plugins_title"/>
     </PreferenceCategory>
 
     <PreferenceCategory

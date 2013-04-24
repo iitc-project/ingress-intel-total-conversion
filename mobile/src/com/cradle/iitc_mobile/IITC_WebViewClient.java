@@ -3,6 +3,7 @@ package com.cradle.iitc_mobile;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.preference.PreferenceManager;
@@ -17,6 +18,7 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Scanner;
+import java.util.Set;
 
 public class IITC_WebViewClient extends WebViewClient {
     private static final ByteArrayInputStream style = new ByteArrayInputStream(
@@ -44,7 +46,7 @@ public class IITC_WebViewClient extends WebViewClient {
         String[] attributes = header.split(" +");
         String iitc_version = "not found";
         for (int i = 0; i < attributes.length; i++) {
-            // search vor version and use the value
+            // search for version and use the value
             if (attributes[i].equals("@version")) iitc_version = attributes[i+1];
         }
         return iitc_version;
@@ -91,6 +93,39 @@ public class IITC_WebViewClient extends WebViewClient {
         handler.proceed() ;
     };
 
+    // plugins should be loaded after the main script is injected
+    @Override
+    public void onPageFinished(WebView view, String url) {
+        super.onPageFinished(view, url);
+
+        // get the plugin preferences
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        Set<String> plugin_list = sharedPref.getStringSet("pref_plugins", null);
+
+        // iterate through all enabled plugins and load them
+        if (plugin_list != null) {
+            AssetManager am = context.getAssets();
+            String[] plugin_array = plugin_list.toArray(new String[0]);
+
+            for(int i = 0; i < plugin_list.size(); i++) {
+                if (plugin_array[i].endsWith("user.js"));
+                {
+                    Log.d("iitcm", "adding plugin " + plugin_array[i]);
+                    Scanner s = null;
+                    String src = "";
+                    try {
+                        s = new Scanner(am.open("plugins/" + plugin_array[i])).useDelimiter("\\A");
+                    } catch (IOException e2) {
+                        // TODO Auto-generated catch block
+                        e2.printStackTrace();
+                    }
+                    if (s != null) src = s.hasNext() ? s.next() : "";
+                    view.loadUrl("javascript:" + src);
+                }
+            }
+        }
+    }
+
     // Check every external resource if it’s okay to load it and maybe replace it
     // with our own content. This is used to block loading Niantic resources
     // which aren’t required and to inject IITC early into the site.
@@ -119,6 +154,11 @@ public class IITC_WebViewClient extends WebViewClient {
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
         if (url.contains("ingress.com")) {
+            // reload iitc if a poslink is clicked inside the app
+            if (url.contains("intel?ll=") || (url.contains("latE6") && url.contains("lngE6"))) {
+                Log.d("iitcm", "should be an internal clicked position link...reload script for: " + url);
+                ((IITC_Mobile) context).loadUrl(url);
+            }
             return false;
         } else {
             Log.d("iitcm", "no ingress intel link, start external app to load url: " + url);
