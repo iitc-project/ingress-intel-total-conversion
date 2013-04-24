@@ -49,20 +49,6 @@ window.convertPointToLatLng = function(x, y, magic, R) {
 // lat/lng format.
 window.pointToQuadKey = function(x, y) {
   return window.map.getZoom() + "_" + x + "_" + y;
-  /*var quadkey = [];
-  for(var c = window.map.getZoom(); c > 0; c--) {
-    //  +-------+   quadrants are probably ordered like this
-    //  | 0 | 1 |
-    //  |---|---|
-    //  | 2 | 3 |
-    //  |---|---|
-    var quadrant = 0;
-    var e = 1 << c - 1;
-    (x & e) != 0 && quadrant++;               // push right
-    (y & e) != 0 && (quadrant++, quadrant++); // push down
-    quadkey.push(quadrant);
-  }
-  return quadkey.join("");*/
 }
 
 // given quadkey and bounds, returns the format as required by the
