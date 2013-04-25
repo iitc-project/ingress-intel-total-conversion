@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-scoreboard@vita10gy
 // @name           IITC plugin: show a localized scoreboard.
-// @version        0.1.6.@@DATETIMEVERSION@@
+// @version        0.1.7.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -69,7 +69,6 @@ window.plugin.scoreboard.compileStats = function() {
     
     var team = getTeam(val.options.data);
     var player = val.options.data.creator.creatorGuid;
-     
     window.plugin.scoreboard.initPlayer(player,team);    
     
     // Google sends fields long since dead in the data. This makes sure it's still actually up.
@@ -109,29 +108,30 @@ window.plugin.scoreboard.compileStats = function() {
   $.each(window.links, function(qk, link) {
     somethingInView = true;
     var team = getTeam(link.options.data);
-    var player = link.options.data.creator.creatorGuid;
-    window.plugin.scoreboard.initPlayer(player, team);
-    scores['team'][team]['count_links']++;
-    scores['player'][player]['count_links']++;
-    
-    var linkLength = window.plugin.scoreboard.portalDistance(link.options.data.edge.destinationPortalLocation,link.options.data.edge.originPortalLocation);
-    scores['team'][team]['link_length'] += linkLength;
-    scores['player'][player]['link_length'] += linkLength;
-    
-    var largestLink = scores['team'][team]['largest']['link'];
-    if(largestLink === undefined || largestLink.distance < linkLength) {
-      largestLink = {};
-      largestLink.distance = linkLength;
-      largestLink.player = player;
+    if(link.options.data.creator !== undefined) {
+      var player = link.options.data.creator.creatorGuid;
+      window.plugin.scoreboard.initPlayer(player, team);
+      scores['team'][team]['count_links']++;
+      scores['player'][player]['count_links']++;
+      
+      var linkLength = window.plugin.scoreboard.portalDistance(link.options.data.edge.destinationPortalLocation,link.options.data.edge.originPortalLocation);
+      scores['team'][team]['link_length'] += linkLength;
+      scores['player'][player]['link_length'] += linkLength;
+      
+      var largestLink = scores['team'][team]['largest']['link'];
+      if(largestLink === undefined || largestLink.distance < linkLength) {
+        largestLink = {};
+        largestLink.distance = linkLength;
+        largestLink.player = player;
+      }
+      scores['team'][team]['largest']['link'] = largestLink;
+      
+      //var largestLink = scores['player'][player]['largest']['link'];
+      //if(largestLink === undefined || largestLink < linkLength) {
+      //  largestLink = linkLength;
+      //}
+      //scores['player'][player]['largest']['link'] = largestLink;
     }
-    scores['team'][team]['largest']['link'] = largestLink;
-    
-    //var largestLink = scores['player'][player]['largest']['link'];
-    //if(largestLink === undefined || largestLink < linkLength) {
-    //  largestLink = linkLength;
-    //}
-    //scores['player'][player]['largest']['link'] = largestLink;
-    
   });
   $.each(window.portals, function(qk, portal) {
     somethingInView = true;
@@ -204,6 +204,7 @@ window.plugin.scoreboard.fieldInfo = function(field) {
       + window.digits(field.options.data.entityScore.entityScore)
       + ' - ' + window.getPlayerName(field.options.data.creator.creatorGuid)
       + '</div>';
+    
   }  else {
     retVal = 'N/A';
   }
@@ -224,6 +225,7 @@ window.plugin.scoreboard.fieldInfoArea = function(field) {
       + window.digits(Math.round(field.options.data.fieldArea))
       + ' - ' + window.getPlayerName(field.options.data.creator.creatorGuid)
       + '</div>';
+      
   }  else {
     retVal = 'N/A';
   }
