@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.10.5.@@DATETIMEVERSION@@
+// @version        0.11.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -87,7 +87,7 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '    <div id="gamestat">&nbsp;loading global control stats</div>'
   + '    <div id="geosearchwrapper">'
   + '      <input id="geosearch" placeholder="Search location…" type="text"/>'
-  + '      <img src="@@INCLUDEIMAGE:images/current-location.png@@"/>'
+  + '      <img src="@@INCLUDEIMAGE:images/current-location.png@@"/ title="Current Location">'
   + '    </div>'
   + '    <div id="portaldetails"></div>'
   + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'

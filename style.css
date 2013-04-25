@@ -68,6 +68,10 @@ body {
   color: #fff;
 }
 
+.nickname {
+  cursor: pointer !important;
+}
+
 a {
   color: #ffce00;
   cursor: pointer;
@@ -434,6 +438,7 @@ input {
 #geosearchwrapper img{
   vertical-align: bottom;
   margin-bottom: 2px;
+  cursor: pointer;
 }
 ::-webkit-input-placeholder {
   font-style: italic;
@@ -691,9 +696,8 @@ h3 {
 }
 #largepreview img {
   box-shadow: 0 0 40px #000;
-}
-#largepreview img {
   border: 2px solid #f8ff5e;
+  background-color: rgba(8, 48, 78, 0.9);  /* as some images - eg ZipCar - have transparency */
 }
 
 /* tooltips, dialogs */
@@ -760,6 +764,11 @@ h3 {
 
 .ui-dialog-buttonset button:hover {
   text-decoration: underline;
+}
+
+.ui-dialog-aboutIITC {
+  max-width: 600px !important;
+  width: 600px !important;
 }
 
 td {

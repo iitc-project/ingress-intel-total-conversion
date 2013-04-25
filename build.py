@@ -8,7 +8,14 @@ import base64
 import sys
 import os
 import shutil
+import json
+import shelve
+import hashlib
 
+try:
+  import urllib2
+except ImportError:
+  import urllib.request as urllib2
 
 # load settings file
 from buildsettings import buildSettings
@@ -66,6 +73,33 @@ def loaderRaw(var):
     fn = var.group(1)
     return readfile(fn)
 
+def loaderMD(var):
+    fn = var.group(1)
+    # use different MD.dat's for python 2 vs 3 incase user switches versions, as they are not compatible
+    db = shelve.open('build/MDv' + str(sys.version_info.major) + '.dat')
+    if 'files' in db:
+      files = db['files']
+    else:
+      files = {}
+    file = readfile(fn)
+    filemd5 = hashlib.md5(file.encode('utf8')).hexdigest()
+    # check if file has already been parsed by the github api
+    if fn in files and filemd5 in files[fn]:
+      # use the stored copy if nothing has changed to avoid hiting the api more then the 60/hour when not signed in
+      db.close()
+      return files[fn][filemd5]
+    else:
+      url = 'https://api.github.com/markdown'
+      payload = {'text': file, 'mode': 'markdown'}
+      headers = {'Content-Type': 'application/json'}
+      req = urllib2.Request(url, json.dumps(payload).encode('utf8'), headers)
+      md = urllib2.urlopen(req).read().decode('utf8').replace('\n', '').replace('\'', '\\\'')
+      files[fn] = {}
+      files[fn][filemd5] = md
+      db['files'] = files
+      db.close()
+      return md
+
 def loaderImage(var):
     fn = var.group(1)
     return 'data:image/png;base64,{0}'.format(base64.encodestring(open(fn, 'rb').read()).decode('utf8').replace('\n', ''))
@@ -86,6 +120,7 @@ def doReplacements(script,updateUrl,downloadUrl):
 
     script = re.sub('@@INCLUDERAW:([0-9a-zA-Z_./-]+)@@', loaderRaw, script)
     script = re.sub('@@INCLUDESTRING:([0-9a-zA-Z_./-]+)@@', loaderString, script)
+    script = re.sub('@@INCLUDEMD:([0-9a-zA-Z_./-]+)@@', loaderMD, script)
     script = re.sub('@@INCLUDEIMAGE:([0-9a-zA-Z_./-]+)@@', loaderImage, script)
 
     script = script.replace('@@BUILDDATE@@', buildDate)
@@ -156,6 +191,14 @@ for fn in glob.glob("plugins/*.user.js"):
     metafn = fn.replace('.user.js', '.meta.js')
     saveScriptAndMeta(script, os.path.join(outDir,fn), os.path.join(outDir,metafn))
 
+def copytree(src, dst, symlinks=False, ignore=None):
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.isdir(s):
+            shutil.copytree(s, d, symlinks, ignore)
+        else:
+            shutil.copy2(s, d)
 
 # if we're building mobile too
 if buildMobile:
@@ -169,7 +212,12 @@ if buildMobile:
         pass
     shutil.copy(os.path.join(outDir,"total-conversion-build.user.js"), "mobile/assets/iitc.js")
 
-    # TODO? also copy plugins - once the mobile app supports plugins, that is
+    # also copy plugins
+    try:
+        os.makedirs("mobile/assets/plugins")
+    except:
+        pass
+    copytree(os.path.join(outDir,"plugins"), "mobile/assets/plugins")
 
 
     # now launch 'ant' to build the mobile project

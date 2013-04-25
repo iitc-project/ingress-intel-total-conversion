@@ -54,7 +54,7 @@ window.plugin.portalHighligherPortalAP.highlight = function(data) {
 }
 
 var setup =  function() {
-  window.addPortalHighlighter('Portal AP', window.plugin.portalHighligherPortalAP.highlight);
+  window.addPortalHighlighter('AP (Static)', window.plugin.portalHighligherPortalAP.highlight);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

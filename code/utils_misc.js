@@ -1,7 +1,8 @@
 // UTILS + MISC  ///////////////////////////////////////////////////////
 
 window.aboutIITC = function(){
-  var v = '@@BUILDNAME@@-@@BUILDDATE@@'
+  var v = '@@BUILDNAME@@-@@BUILDDATE@@';
+  var attrib = '@@INCLUDEMD:ATTRIBUTION.md@@';
   var a = ''
   + '  <div><b>About IITC</b></div> '
   + '  <div>Ingress Intel Total Conversion</div> '
@@ -20,8 +21,11 @@ window.aboutIITC = function(){
   + '    MapQuest OSM tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png">'
   + '  </div>'
   + '  <hr>'
-  + '  <div>Version: ' + v + '</div>';
-  alert(a);
+  + '  <div>Version: ' + v + '</div>'
+  + '  <hr>'
+  + '  <div>' + attrib + '</div>';
+  alert(a, true, function() {$('.ui-dialog').removeClass('ui-dialog-aboutIITC');});
+  $('.ui-dialog').addClass('ui-dialog-aboutIITC');
 }
 
 
@@ -197,8 +201,8 @@ window.renderLimitReached = function(ratio) {
 
 window.getMinPortalLevel = function() {
   var z = map.getZoom();
-  if(z >= 16) return 0;
-  var conv = ['impossible', 8,7,7,6,6,5,5,4,4,3,3,2,2,1,1];
+  if(z >= 17) return 0;
+  var conv = ['impossible', 8,8,8,7,7,6,6,5,4,4,3,3,2,2,1,1];
   var minLevelByRenderLimit = portalRenderLimit.getMinLevel();
   var result = minLevelByRenderLimit > conv[z]
     ? minLevelByRenderLimit

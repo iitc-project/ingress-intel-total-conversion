@@ -90,10 +90,8 @@ window.plugin.portalHighligherPortalAPRelative.calculateAPLevels = function() {
   });  
 }
 
-  
-
 var setup =  function() {
-  window.addPortalHighlighter('Portal AP (Relative)', window.plugin.portalHighligherPortalAPRelative.highlight);
+  window.addPortalHighlighter('AP (Relative)', window.plugin.portalHighligherPortalAPRelative.highlight);
   window.addHook('requestFinished', window.plugin.portalHighligherPortalAPRelative.resetAPLevels);
   
 }

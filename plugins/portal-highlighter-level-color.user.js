@@ -1,11 +1,11 @@
 // ==UserScript==
-// @id             iitc-plugin-scale-bar@breunigs
-// @name           IITC plugin: scale bar
+// @id             iitc-plugin-highlight-portals-level-color@vita10gy
+// @name           IITC plugin: highlight portals by level color
 // @version        0.1.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Shows scale bar on the map
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Uses the fill color of the portals level color.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -18,20 +18,21 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 
 
 // PLUGIN START ////////////////////////////////////////////////////////
-
-
 // use own namespace for plugin
-window.plugin.scaleBar = function() {};
 
-window.plugin.scaleBar.setup  = function() {
-  $('head').append('<style>.leaflet-control-scale { position: absolute; top: 2px; left: 40px; } </style>');
-  // Before you ask: yes, I explicitely turned off imperial units. Imperial units
-  // are worse than Internet Explorer 6 whirring fans combined. Upgrade to the metric
-  // system already.
-  window.map.addControl(new L.Control.Scale({position: 'topleft', imperial: false, maxWidth: 200}));
-};
+window.plugin.portalHighligherPortalsLevelColor = function() {};
 
-var setup =  window.plugin.scaleBar.setup;
+window.plugin.portalHighligherPortalsLevelColor.colorLevel = function(data) {
+  var d = data.portal.options.details;
+  var portal_level = Math.floor(getPortalLevel(d));
+  var opacity = .6;
+  data.portal.setStyle({fillColor: COLORS_LVL[portal_level], fillOpacity: opacity});
+  window.COLOR_SELECTED_PORTAL = '#f0f';
+}
+
+var setup =  function() {
+  window.addPortalHighlighter('Level Color', window.plugin.portalHighligherPortalsLevelColor.colorLevel);
+}
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
