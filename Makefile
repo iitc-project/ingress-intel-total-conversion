@@ -1,2 +1,2 @@
 default:
-	./build.py local
+	./build.py
