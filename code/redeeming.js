@@ -99,8 +99,8 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
     to_alert = '<strong>' + data.error + '</strong><br />' + (window.REDEEM_ERRORS[data.error] || 'There was a problem redeeming the passcode. Try again?');
     to_log   = '[ERROR] ' + data.error;
   } else if(data.result) {
-    var payload = {};
     var encouragement = window.REDEEM_ENCOURAGEMENT[Math.floor(Math.random() * window.REDEEM_ENCOURAGEMENT.length)];
+    var payload = {};
     var inferred = [];
     var results = {
       'table' : ['<th colspan="2" style="text-align: left;"><strong>' + encouragement + '</strong></th>'],
@@ -172,7 +172,7 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
     // Get AP, XM, and other static quantities
     $.each([{label: 'AP', award: parseInt(data.result.apAward)}, {label: 'XM', award: parseInt(data.result.xmAward)}], function(idx, val) {
       if(val.award > 0) {
-        var formatted = val.award + ' ' + val.label;
+        var formatted = digits(val.award) + ' ' + val.label;
         results.table.push('<td>+</td><td>' + formatted + '</td>');
         results.html.push(formatted);
         results.plain.push(formatted);
@@ -197,7 +197,7 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
       results.table.push('<td style="font-family: monospace;">**<td style="font-family: monospace;"><strong>IITC had to guess!</strong></td>');
       results.table.push('<td style="font-family: monospace;">**<td style="font-family: monospace;"><strong>Submit a log including:</strong></td>');
       $.each(inferred, function (idx, val) {
-        var type = val.type + ':' + val.key, taxonomy = val.handler.taxonomy + ' =~ ' + val.handler.processed_as;
+        var type = val.type + ':' + val.key, taxonomy = val.handler.taxonomy + (val.handler.taxonomy === val.handler.processed_as ? '' : ' =~ ' + val.handler.processed_as);
         results.table.push('<td style="font-family: monospace;">!</td><td style="font-family: monospace;"><em>' + type + '</em></td>');
         results.table.push('<td style="font-family: monospace;">!</td><td style="font-family: monospace;">' + taxonomy + '</td>');
         console.log(passcode + ' => [INFERRED] ' + type + ' :: ' + taxonomy);
