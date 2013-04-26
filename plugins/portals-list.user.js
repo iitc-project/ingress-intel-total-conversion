@@ -298,7 +298,7 @@ window.plugin.portalslist.portalTableSort = function(name, by) {
 window.plugin.portalslist.getPortalLink = function(portal,guid) {
 
   var latlng = [portal.locationE6.latE6/1E6, portal.locationE6.lngE6/1E6].join();
-  var jsSingleClick = 'window.renderPortalDetails(\''+guid+'\');return false';
+  var jsSingleClick = 'window.selectPortalWithAnimation(\''+guid+'\');return false';
   var jsDoubleClick = 'window.zoomToAndShowPortal(\''+guid+'\', ['+latlng+']);return false';
   var perma = '/intel?latE6='+portal.locationE6.latE6+'&lngE6='+portal.locationE6.lngE6+'&z=17&pguid='+guid;
 
