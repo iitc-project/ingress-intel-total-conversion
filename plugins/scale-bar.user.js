@@ -25,7 +25,7 @@ window.plugin.scaleBar = function() {};
 
 window.plugin.scaleBar.setup  = function() {
   $('head').append('<style>.leaflet-control-scale { position: absolute; top: 2px; left: 40px; } </style>');
-  // Before you ask: yes, I explicitely turned off imperial units. Imperial units
+  // Before you ask: yes, I explicitly turned off imperial units. Imperial units
   // are worse than Internet Explorer 6 whirring fans combined. Upgrade to the metric
   // system already.
   window.map.addControl(new L.Control.Scale({position: 'topleft', imperial: false, maxWidth: 200}));
