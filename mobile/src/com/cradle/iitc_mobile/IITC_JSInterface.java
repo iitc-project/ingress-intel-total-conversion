@@ -18,11 +18,13 @@ public class IITC_JSInterface {
         context = c;
     }
 
-    // send intent for gmaps link
+    // send geo intent for navigation apps like gmaps or waze etc...
     @JavascriptInterface
-    public void intentPosLink(String s) {
+    public void intentPosLink(String lat, String lng) {
+        // TODO eventually we want back our lat/lng-query? + "?q=" + lat + "," + lng;
+        String uri = "geo:" + lat + "," + lng;
         Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
-                Uri.parse(s));
+                Uri.parse(uri));
         context.startActivity(intent);
     }
 
