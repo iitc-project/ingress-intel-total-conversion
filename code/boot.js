@@ -127,8 +127,8 @@ window.setupMap = function() {
 
   var views = [
     /*0*/ mqMap,
-    /*1*/ new L.Google('INGRESS'),
-    /*2*/ new L.Google('ROADMAP'),
+    /*1*/ new L.Google('INGRESS',{maxZoom:21}),
+    /*2*/ new L.Google('ROADMAP',{maxZoom:21}),
     /*3*/ new L.Google('SATELLITE',{maxZoom:20}),
     /*4*/ new L.Google('HYBRID',{maxZoom:20})
   ];
