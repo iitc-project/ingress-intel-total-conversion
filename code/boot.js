@@ -119,7 +119,7 @@ window.setupMap = function() {
   //their usage policy has no limits (except required notification above 4000 tiles/sec - we're perhaps at 50 tiles/sec based on CloudMade stats)
   var mqSubdomains = [ 'otile1','otile2', 'otile3', 'otile4' ];
   var mqTileUrlPrefix = window.location.protocol !== 'https:' ? 'http://{s}.mqcdn.com' : 'https://{s}-s.mqcdn.com';
-  var mqMapOpt = {attribution: osmAttribution+', Tiles Courtesy of MapQuest', mazZoom: 18, detectRetena: true, subdomains: mqSubdomains};
+  var mqMapOpt = {attribution: osmAttribution+', Tiles Courtesy of MapQuest', maxZoom: 18, detectRetena: true, subdomains: mqSubdomains};
   var mqMap = new L.TileLayer(mqTileUrlPrefix+'/tiles/1.0.0/map/{z}/{x}/{y}.jpg',mqMapOpt);
   //MapQuest satellite coverage outside of the US is rather limited - so not really worth having as we have google as an option
   //var mqSatOpt = {attribution: 'Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency', mazZoom: 18, detectRetena: true, subdomains: mqSubdomains};
@@ -127,10 +127,11 @@ window.setupMap = function() {
 
   var views = [
     /*0*/ mqMap,
-    /*1*/ new L.Google('INGRESS'),
-    /*2*/ new L.Google('ROADMAP'),
+    /*1*/ new L.Google('INGRESS',{maxZoom:20}),
+    /*2*/ new L.Google('ROADMAP',{maxZoom:20}),
     /*3*/ new L.Google('SATELLITE',{maxZoom:20}),
-    /*4*/ new L.Google('HYBRID',{maxZoom:20})
+    /*4*/ new L.Google('HYBRID',{maxZoom:20}),
+    /*5*/ new L.Google('TERRAIN',{maxZoom:15})
   ];
 
 
@@ -161,7 +162,8 @@ window.setupMap = function() {
     'Default Ingress Map': views[1],
     'Google Roads':  views[2],
     'Google Satellite':  views[3],
-    'Google Hybrid':  views[4]
+    'Google Hybrid':  views[4],
+    'Google Terrain': views[5]
     }, addLayers);
 
   map.addControl(window.layerChooser);

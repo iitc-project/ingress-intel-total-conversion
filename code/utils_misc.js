@@ -137,7 +137,7 @@ window.showPortalPosLinks = function(lat, lng, name) {
     portal_name = encodeURIComponent(' (' + name + ')');
   }
   if (typeof android !== 'undefined' && android && android.intentPosLink) {
-    android.intentPosLink(window.location.protocol + '//maps.google.com/?q='+lat+','+lng);
+    android.intentPosLink(lat, lng, portal_name);
   } else {
     var qrcode = '<div id="qrcode"></div>';
     var script = '<script>$(\'#qrcode\').qrcode({text:\'GEO:'+lat+','+lng+'\'});</script>';
@@ -202,8 +202,8 @@ window.renderLimitReached = function(ratio) {
 
 window.getMinPortalLevel = function() {
   var z = map.getZoom();
-  if(z >= 16) return 0;
-  var conv = ['impossible', 8,7,7,6,6,5,5,4,4,3,3,2,2,1,1];
+  if(z >= 17) return 0;
+  var conv = ['impossible', 8,8,8,7,7,6,6,5,4,4,3,3,2,2,1,1];
   var minLevelByRenderLimit = portalRenderLimit.getMinLevel();
   var result = minLevelByRenderLimit > conv[z]
     ? minLevelByRenderLimit
@@ -233,6 +233,7 @@ window.getTypeByGuid = function(guid) {
   // portals end in “.11” or “.12“, links in “.9", fields in “.b”
   // .11 == portals
   // .12 == portals
+  // .16 == portals
   // .9  == links
   // .b  == fields
   // .c  == player/creator
@@ -246,6 +247,7 @@ window.getTypeByGuid = function(guid) {
   switch(guid.slice(33)) {
     case '11':
     case '12':
+    case '16':
       return TYPE_PORTAL;
 
     case '9':

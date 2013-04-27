@@ -266,12 +266,13 @@ window.plugin.playerTracker.drawData = function() {
     if(window.plugin.guessPlayerLevels !== undefined &&
        window.plugin.guessPlayerLevels.fetchLevelByPlayer !== undefined) {
       var playerLevel = window.plugin.guessPlayerLevels.fetchLevelByPlayer(pguid);
-      if (playerLevel === undefined) playerLevel = 1;  //if player level unknown, assume level 1
       if(playerLevel !== undefined) {
         title += '<span style="font-weight:bold;margin-left:10px;">Level '
           + playerLevel
           + (playerLevel < (window.MAX_XM_PER_LEVEL.length - 1) ? ' (guessed)' : '')
           + '</span>';
+      } else {
+        title += '<span style="font-weight:bold;margin-left:10px;">Level unknown</span>'
       }
     }
     
@@ -370,7 +371,8 @@ window.plugin.playerTracker.centerMapOnUser = function(nick) {
     return false;
   }
   
-  map.setView(position, map.getZoom());
+  if(window.isSmartphone()) window.smartphone.mapButton.click();
+  window.map.setView(position, map.getZoom());
 }
 
 window.plugin.playerTracker.onNicknameClicked = function(info) {
