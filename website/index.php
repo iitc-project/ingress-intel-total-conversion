@@ -35,11 +35,30 @@ function loadUserScriptHeader($path)
 }
 
 ?>
-<?php echo "<?xml version=\"1.0\" encoding=\"utf8\"?>\n" ?>
-<html>
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- ******** head ******** -->
 <head>
-<title>Ingress Intel Total Conversion</title>
-</head>
+ <meta charset="utf-8">
+ <title>Ingress Intel Total Conversion</title>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="description" content="">
+ <meta name="author" content="">
+
+ <!-- Le styles -->
+ <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+ <link href="assets/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+ <link href="assets/css/style.css" rel="stylesheet">
+
+ <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+ <!--[if lt IE 9]>
+  <script src="assets/js/html5shiv.js"></script>
+ <![endif]-->
+
+ <style>
+ .nowrap { white-space: nowrap; }
+ </style>
 
 <?php
 if ( file_exists ( 'tracking.php' ) )
@@ -48,157 +67,112 @@ if ( file_exists ( 'tracking.php' ) )
 }
 ?>
 
-<style>
-body
-{
-	font-family: sans-serif;
-	background: #fff;
-	color: #000;
-}
+</head>
 
-a:link, a:visited { text-decoration: none; }
-a:hover { text-decoration: underline; }
-
-</style>
-
+<!-- ******** body ******** -->
 <body>
-<h1>Ingress Intel Total Conversion</h1>
+<div class="container-fluid">
 
-<p>
-IITC is <a href="https://github.com/breunigs/ingress-intel-total-conversion#readme">dead</a> - long live IITC!
-</p>
+ <!-- **** page header **** -->
+ <div class="row-fluid">
+  <div class="span12 header well well-small">
+   <div class="media">
+    <a class="pull-left" href="./">
+     <img class="media-object" src="assets/img/logo.png" title="IITC" alt="IITC Logo">
+    </a>
+    <div class="media-body">
+     <h1 class="media-heading">Ingress Intel Total Conversion</h1>
+<!--
+<a href="//plus.google.com/105383756361375410867?prsrc=3" rel="publisher" style="text-decoration:none;">
+<img src="//ssl.gstatic.com/images/icons/gplus-16.png" alt="Google+" style="border:0;width:16px;height:16px;"/></a>
+-->
+    </div>
+   </div>
+  </div>
+ </div>
 
-<p>
-The IITC mod is an open source project. Since the original closed, I resurrected it and will try to continue development.
-</p>
 
-<p>
-If you're interested in further development, come on over to
-<a href="https://github.com/jonatkins/ingress-intel-total-conversion">the github page</a>. If you just want to install
-and use it, read on.
-</p>
+ <!-- **** top alert box **** -->
+ <div class="alert alert-block alert-info">
+  IITC now has a
+  <a href="https://plus.google.com/105383756361375410867"><img src="//ssl.gstatic.com/images/icons/gplus-16.png" alt="Google+" style="border:0;width:16px;height:16px;"/> Google+ page</a>.
+  Follow this to keep up to date on the latest news.
+ </div>
 
-<p>
-<b>Note</b>: This site and the scripts are not officially affiliated with Ingress or Niantic Labs at Google.
-Using these scripts is likely to be considered against the Ingress Terms of Service. You do this at your own risk.
-</p>
+ <!-- **** two column body area **** -->
 
-<h2>Downloads</h2>
+ <div class="row-fluid">
+  <!-- **** navigation **** -->
+  <div class="span3 well">
 
-<h3>IITC - browser addon</h3>
-
+  <ul class="nav nav-list nowrap">
 <?php
 
-if ( $path != "release" )
-	print "<p><b>NOTE</b>: the <b>$path</b> build is currently selected. <a href=\"/\">Return to main build</a>.</p>";
-?>
+$pages = Array (
+	'home' => '<i class="icon-home"></i> Home',
+	'news' => '<i class="icon-list"></i> News',
+	'faq' => '<i class="icon-question-sign"></i> FAQ',
+	'desktop' => '<i class="icon-chevron-right"></i> Desktop',
+	'mobile' => '<i class="icon-chevron-right"></i> Mobile',
+	'developer' => '<i class="icon-cog"></i> Developers',
+	'about' => '<i class="icon-info-sign"></i> About',
+);
 
-<p>
-<b>IMPORTANT!</b>: You <b>must</b> uninstall the original IITC before installing this version. Failure to do this
-will result in multiple copes installed which I expect will cause a LOT of issues.
-</p>
+$page = $_REQUEST['page'];
+if ( ! array_key_exists ( $page, $pages ) )
+	$page = "home";
 
-<p>
-<b>NOTE</b>: The first release available here was not configured correctly for auto updates.
-If you installed before this note appeared (22nd March 2013) you will need to
-manually uninstall IITC and all plugins, then reinstall from below. Going forward, updates will work correctly
-(for Chrome + Tampermoneky and Firefox + Greasemonkey users).
-</p>
 
-<?php
-$iitc_details = loadUserScriptHeader ( "$path/total-conversion-build.user.js" );
-?>
-
-<p>
-<a href="<?php print $path;?>/total-conversion-build.user.js">IITC main script</a> - <i>version <?php print $iitc_details['@version'];?></i>.
-</p>
-
-<h4>Plugins</h4>
-
-<ul>
-
-<?php
-foreach ( glob ( "$path/plugins/*.user.js" ) as $path )
+foreach ( $pages as $key => $name )
 {
-	$name = basename ( $path, ".user.js" );
+	# before 'desktop', add a nav-header
+	if ( $key == 'desktop' )
+		print "<li class=\"nav-header\">Downloads</li>";
 
-	$details = loadUserScriptHeader ( $path );
+	if ( $key == "home" )
+		$url = "./";
+	else
+		$url = "?page=$key";
 
-	print "<li>\n";
+	print "<li".($page == $key ? ' class="active"' :'')."><a href=\"$url\">$name</a></li>\n";
 
-	print "<a href=\"$path\">".$details['@name']."</a> <i>$name - version ".$details['@version']."</i>: <br/>\n";
-	print $details['@description'];
-
-	print "</li>\n";
+	# after 'mobile', add a horizontal seperator
+	if ( $key == 'mobile' )
+		print "<li class=\"divider\"></li>";
 }
 
 ?>
-</ul>
-
-<h4>Installation</h4>
-
-<p>Installation varies depending on browser.</p>
-
-<p>
-<b>Chrome</b>:
-<a href="https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo">Tampermonkey</a>
-is highly recommended. (Userscripts can be installed directly within the 'extensions' settings, but will not auto update.)
-</p>
-
-<p>
-<b>Firefox</b>:
-The <a href="https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/">Greasemonkey</a> add-on can be used.
-</p>
-
-<p>
-<b>Opera</b>:
-There is a setting for a userscripts folder.
-</p>
-
-<h3>IITC - mobile</h3>
-
-<p>
-A proper version of mobile will be available in the future. Until then, here's the last build
-available from the original IITC page.
-</p>
-
-<p>
-<a href="mobile/IITC-Mobile-latest.apk">Download</a>.
-</p>
-
-<p>
-This is likely to have some issues, but should work well enough for now.
-</p>
+  </ul> 
+  </div>
+  <!-- **** end of navigation **** -->
 
 
-<h2>Credits</h2>
+  <!-- **** page body **** -->
+  <div class="span9 well">
 
-<p>
-Nearly all the work here is by others.
-<a href="https://github.com/breunigs">Stefan Breunig</a> was the main driving force. See the
-<a href="https://github.com/jonatkins/ingress-intel-total-conversion/commits/master">github commit log</a>
-for full details.
-</p>
+<?php
+include "page/$page.php";
+?>
 
-<h2>License</h2>
+  </div>
+  <!-- **** end of page body **** -->
 
-<pre>
-Copyright © 2013 Stefan Breunig
+ </div> <!-- row - for navigation + page body -->
 
-Permission to use, copy, modify, and/or distribute this software for
-any purpose with or without fee is hereby granted, provided that the
-above copyright notice and this permission notice appear in all
-copies.
 
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
-WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE
-AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
-DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA
-OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-</pre>
+ <!-- **** footer **** -->
+ <div class="alert alert-block alert-error">
+ This site and the scripts are not officially affiliated with Ingress or Niantic Labs at Google.
+ Using these scripts is likely to be considered against the Ingress Terms of Service. Any use is at your own risk.
+ </div>
+
+
+</div> <!-- container -->
+
+<!-- ******** javascript includes ******** -->
+
+<script src="http://code.jquery.com/jquery.js"></script>
+<script src="assets/bootstrap/js/bootstrap.min.js"></script>
 
 
 </body>

@@ -371,7 +371,8 @@ window.plugin.playerTracker.centerMapOnUser = function(nick) {
     return false;
   }
   
-  map.setView(position, map.getZoom());
+  if(window.isSmartphone()) window.smartphone.mapButton.click();
+  window.map.setView(position, map.getZoom());
 }
 
 window.plugin.playerTracker.onNicknameClicked = function(info) {
