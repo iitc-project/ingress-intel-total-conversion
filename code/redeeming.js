@@ -55,7 +55,7 @@ window.REDEEM_HANDLERS = {
       var suffix = '</span>';
       return {
         table: '<td>' + prefix + 'L' + level + suffix + '</td><td>' + acquired.name.long + ' [' + acquired.count + ']</td>',
-        html:  acquired.count + '@' + acquired.name.short + prefix + level + suffix,
+        html:  acquired.count + '&#215;' + acquired.name.short + prefix + level + suffix,
         plain: acquired.count + '@' + acquired.name.short + level
       };
     }
@@ -68,7 +68,7 @@ window.REDEEM_HANDLERS = {
       var abbreviation = rarity.split('_').map(function (i) {return i[0];}).join('');
       return {
         table: '<td>' + prefix + abbreviation + suffix + '</td><td>' + acquired.name.long + ' [' + acquired.count + ']</td>',
-        html:  acquired.count + '@' + prefix + abbreviation + suffix,
+        html:  acquired.count + '&#215;' + prefix + abbreviation + suffix,
         plain: acquired.count + '@' + abbreviation
       };
     }
@@ -78,7 +78,7 @@ window.REDEEM_HANDLERS = {
     format: function(acquired, group) {
       return {
         table: '<td>+</td><td>' + acquired.name.long + ' [' + acquired.count + ']</td>',
-        html:  acquired.count + '@' + acquired.name.short,
+        html:  acquired.count + '&#215;' + acquired.name.short,
         plain: acquired.count + '@' + acquired.name.short
       };
     }
@@ -134,7 +134,6 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
                 };
                 return false;
               }
-              return true;
             });
 
             // Fall back to the default handler if necessary
@@ -148,15 +147,16 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
           // Collect the data that we know
           type = resource.resourceType;
           key  = handler.functions.decode(type, resource);
-          name = window.REDEEM_RESOURCES[type] || {long: type + '*', short: type[0] + '*'};
+          name = window.REDEEM_RESOURCES[type] || {long: type, short: type[0]};
 
           // Decide if we inferred this resource
           if(!(type in window.REDEEM_RESOURCES) || handler.taxonomy !== handler.processed_as) {
+            name.long  += '*';
+            name.short += '*';
             inferred.push({type: type, key: key, handler: handler});
           }
           return false;
         }
-        return true;
       });
 
       // Update frequencies
@@ -169,15 +169,13 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
       payload[type][key].count += 1;
     });
 
-    // Get AP, XM, and other static quantities
+    // Get AP and XM.
     $.each([{label: 'AP', award: parseInt(data.result.apAward)}, {label: 'XM', award: parseInt(data.result.xmAward)}], function(idx, val) {
       if(val.award > 0) {
-        var formatted = digits(val.award) + ' ' + val.label;
-        results.table.push('<td>+</td><td>' + formatted + '</td>');
-        results.html.push(formatted);
-        results.plain.push(formatted);
+        results.table.push('<td>+</td><td>' + digits(val.award) + ' ' + val.label + '</td>');
+        results.html.push(val.award + ' ' + val.label);
+        results.plain.push(val.award + ' ' + val.label);
       }
-      return true;
     });
 
     // Build the formatted results alphabetically
@@ -186,32 +184,28 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
         var acquired = payload[type][key];
         $.each(acquired.handler.functions.format(acquired, key), function(format, string) {
           results[format].push(string);
-          return true;
         });
-        return true;
       });
-      return true;
     });
 
+    // Let the user know if we had to guess
     if (inferred.length > 0) {
-      results.table.push('<td style="font-family: monospace;">**<td style="font-family: monospace;"><strong>IITC had to guess!</strong></td>');
-      results.table.push('<td style="font-family: monospace;">**<td style="font-family: monospace;"><strong>Submit a log including:</strong></td>');
+      results.table.push('<td style="font-family: monospace;">*</td><td style="font-family: monospace;">Guessed (check console)</td>');
       $.each(inferred, function (idx, val) {
-        var type = val.type + ':' + val.key, taxonomy = val.handler.taxonomy + (val.handler.taxonomy === val.handler.processed_as ? '' : ' =~ ' + val.handler.processed_as);
-        results.table.push('<td style="font-family: monospace;">!</td><td style="font-family: monospace;"><em>' + type + '</em></td>');
-        results.table.push('<td style="font-family: monospace;">!</td><td style="font-family: monospace;">' + taxonomy + '</td>');
-        console.log(passcode + ' => [INFERRED] ' + type + ' :: ' + taxonomy);
+        console.log(passcode +
+                    ' => [INFERRED] ' + val.type + ':' + val.key + ' :: ' +
+                    val.handler.taxonomy + ' =~ ' + val.handler.processed_as);
       });
     }
 
     // Add table footers
-    results.table.push('<td style="font-family: monospace;">&gt;&gt;</td><td><a href="javascript:alert(\'' +
+    results.table.push('<td style="font-family: monospace;">&gt;</td><td><a href="javascript:alert(\'' +
                        escape('<span style="font-family: monospace;"><strong>' + encouragement + '</strong><br />' + results.html.join('/') + '</span>') +
                        '\', true);" style="font-family: monospace;">[plaintext]</a>');
 
     // Display formatted versions in a table, plaintext, and the console log
     to_alert = '<table class="redeem-result">' + results.table.map(function(a) {return '<tr>' + a + '</tr>';}).join("\n") + '</table>';
-    to_log = results.plain.join('/');
+    to_log = '[SUCCESS] ' + results.plain.join('/');
   }
 
   alert(to_alert, true);
