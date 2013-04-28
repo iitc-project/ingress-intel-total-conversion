@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-keys-on-map@xelio
 // @name           IITC plugin: Keys on map
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.2.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
