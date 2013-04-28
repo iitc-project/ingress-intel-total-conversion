@@ -59,7 +59,7 @@ $iitc_version = preg_replace ( '/^(\d+\.\d+\.\d+)\.(\d{8}\.\d{6})/', '\1<small c
 IITC version <?php print $iitc_version;?>
 </p>
 
-<a class="btn btn-large btn-primary" href="<?php print $path;?>/total-conversion-build.user.js">Download</a>
+<a class="btn btn-large btn-primary" onclick="if(track){track('desktop','download','iitc');}" href="<?php print $path;?>/total-conversion-build.user.js">Download</a>
 
 <hr>
 
@@ -103,7 +103,7 @@ foreach ( glob ( "$path/plugins/*.user.js" ) as $path )
 	print "<td>$name</td>";
 	print "<td>$basename<br />$version</td>";
 	print "<td>$description</td>";
-	print "<td><a href=\"$path\" class=\"btn btn-small btn-primary\">Download</a></td>";
+	print "<td><a onclick=\"if(track){track('desktop','download','iitc-plugin-$basename');}\" href=\"$path\" class=\"btn btn-small btn-primary\">Download</a></td>";
 
 #	print "<a href=\"$path\">".$details['@name']."</a> <i>$name - version ".$details['@version']."</i>: <br/>\n";
 #	print $details['@description'];

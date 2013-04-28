@@ -40,5 +40,5 @@ IITC Mobile is still in the early stages of development. Many things do not yet 
 IITC Mobile version 0.3 (with IITC version 0.11.2).
 </p>
 
-<a href="mobile/IITC-Mobile-0.3.apk" class="btn btn-large btn-primary">Download</a>
+<a onclick="if(track){track('mobile','download','iitc-mobile');}" href="mobile/IITC-Mobile-0.3.apk" class="btn btn-large btn-primary">Download</a>
 
