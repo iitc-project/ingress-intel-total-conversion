@@ -7,332 +7,1924 @@
 ////////////////////////////////////////////////////////////////////////
 
 {
-  "gameBasket": {
-    "apGains": [{
-      "apGainAmount": "200",
-      "apTrigger": "REDEEMED_AP"
-    }],
-    "deletedEntityGuids": [],
-    "gameEntities": [],
-    "inventory": [
-      ["00000000000000000000000000000000.5",
-      1358631239636, {
-        "inInventory": {
-          "acquisitionTimestampMs": "1358631239302",
-          "playerId": "00000000000000000000000000000000.c"
-        },
-        "modResource": {
-          "displayName": "Portal Shield",
-          "rarity": "VERY_RARE",
-          "resourceType": "RES_SHIELD",
-          "stats": {
-            "MITIGATION": "10"
-          }
-        }
-      }],
-      ["00000000000000000000000000000000.5",
-      1358631239636, {
-        "accessLevel": {
-          "failure": {
-            "isAllowed": false,
-            "requiredLevel": 1
-          },
-          "requiredLevel": 1
-        },
-        "inInventory": {
-          "acquisitionTimestampMs": "1358631239330",
-          "playerId": "00000000000000000000000000000000.c"
-        },
-        "resourceWithLevels": {
-          "level": 1,
-          "resourceType": "EMITTER_A"
-        }
-      }],
-      ["00000000000000000000000000000000.5",
-      1358631239636, {
-        "inInventory": {
-          "acquisitionTimestampMs": "1358631239313",
-          "playerId": "00000000000000000000000000000000.c"
-        },
-        "modResource": {
-          "displayName": "Portal Shield",
-          "rarity": "VERY_RARE",
-          "resourceType": "RES_SHIELD",
-          "stats": {
-            "MITIGATION": "10"
-          }
-        }
-      }],
-      ["00000000000000000000000000000000.5",
-      1358631239636, {
-        "accessLevel": {
-          "failure": {
-            "isAllowed": false,
-            "requiredLevel": 7
-          },
-          "requiredLevel": 7
-        },
-        "empWeapon": {
-          "ammo": 1,
-          "level": 7
-        },
-        "inInventory": {
-          "acquisitionTimestampMs": "1358631239348",
-          "playerId": "00000000000000000000000000000000.c"
-        },
-        "resourceWithLevels": {
-          "level": 7,
-          "resourceType": "EMP_BURSTER"
-        }
-      }],
-      ["00000000000000000000000000000000.5",
-      1358631239636, {
-        "accessLevel": {
-          "failure": {
-            "isAllowed": false,
-            "requiredLevel": 1
-          },
-          "requiredLevel": 1
-        },
-        "inInventory": {
-          "acquisitionTimestampMs": "1358631239319",
-          "playerId": "00000000000000000000000000000000.c"
-        },
-        "resourceWithLevels": {
-          "level": 1,
-          "resourceType": "EMITTER_A"
-        }
-      }],
-      ["00000000000000000000000000000000.5",
-      1358631239636, {
-        "accessLevel": {
-          "failure": {
-            "isAllowed": false,
-            "requiredLevel": 1
-          },
-          "requiredLevel": 1
-        },
-        "inInventory": {
-          "acquisitionTimestampMs": "1358631239342",
-          "playerId": "00000000000000000000000000000000.c"
-        },
-        "resourceWithLevels": {
-          "level": 1,
-          "resourceType": "EMITTER_A"
-        }
-      }],
-      ["00000000000000000000000000000000.5",
-      1358631239636, {
-        "accessLevel": {
-          "failure": {
-            "isAllowed": false,
-            "requiredLevel": 1
-          },
-          "requiredLevel": 1
-        },
-        "inInventory": {
-          "acquisitionTimestampMs": "1358631239336",
-          "playerId": "00000000000000000000000000000000.c"
-        },
-        "resourceWithLevels": {
-          "level": 1,
-          "resourceType": "EMITTER_A"
-        }
-      }],
-      [ "00000000000000000000000000000000.5",
-      1365809491413, { 
-        "accessLevel" : { 
-          "failure" : { 
-            "isAllowed" : false,
-            "requiredLevel" : 4
-          },
-          "requiredLevel" : 4
-        },
-        "inInventory" : { 
-          "acquisitionTimestampMs" : "1365809491260",
-          "playerId" : "00000000000000000000000000000000.c"
-        },
-        "powerCube" : { 
-          "energy" : 4000 
-        },
-        "resourceWithLevels" : { 
-          "level" : 4,
-          "resourceType" : "POWER_CUBE"
-        }
-      }]
-    ],
-    "playerEntity": ["00000000000000000000000000000000.c",
-    1358631239530, {
-      "controllingTeam": {
-        "team": "RESISTANCE"
-      },
-      "playerPersonal": {
-        "allowFactionChoice": false,
-        "allowNicknameEdit": false,
-        "ap": "326513",
-        "clientLevel": 26,
-        "energy": 3205,
-        "energyState": "XM_OK",
-        "mediaHighWaterMarks": {
-          "General": 8,
-          "RESISTANCE": 9
-        },
-        "notificationSettings" : { 
-          "maySendPromoEmail" : false,
-          "shouldSendEmail" : true
-        }
-      }
-    }]
-  },
-  "result": {
-    "apAward": "200",
-    "inventoryAward": [
-      ["00000000000000000000000000000000.5",
-      1358631239636, {
-        "inInventory": {
-          "acquisitionTimestampMs": "1358631239302",
-          "playerId": "00000000000000000000000000000000.c"
-        },
-        "modResource": {
-          "displayName": "Portal Shield",
-          "rarity": "VERY_RARE",
-          "resourceType": "RES_SHIELD",
-          "stats": {
-            "MITIGATION": "10"
-          }
-        }
-      }],
-      ["00000000000000000000000000000000.5",
-      1358631239636, {
-        "accessLevel": {
-          "failure": {
-            "isAllowed": false,
-            "requiredLevel": 1
-          },
-          "requiredLevel": 1
-        },
-        "inInventory": {
-          "acquisitionTimestampMs": "1358631239330",
-          "playerId": "00000000000000000000000000000000.c"
-        },
-        "resourceWithLevels": {
-          "level": 1,
-          "resourceType": "EMITTER_A"
-        }
-      }],
-      ["00000000000000000000000000000000.5",
-      1358631239636, {
-        "inInventory": {
-          "acquisitionTimestampMs": "1358631239313",
-          "playerId": "00000000000000000000000000000000.c"
-        },
-        "modResource": {
-          "displayName": "Portal Shield",
-          "rarity": "VERY_RARE",
-          "resourceType": "RES_SHIELD",
-          "stats": {
-            "MITIGATION": "10"
-          }
-        }
-      }],
-      ["00000000000000000000000000000000.5",
-      1358631239636, {
-        "accessLevel": {
-          "failure": {
-            "isAllowed": false,
-            "requiredLevel": 7
-          },
-          "requiredLevel": 7
-        },
-        "empWeapon": {
-          "ammo": 1,
-          "level": 7
-        },
-        "inInventory": {
-          "acquisitionTimestampMs": "1358631239348",
-          "playerId": "00000000000000000000000000000000.c"
-        },
-        "resourceWithLevels": {
-          "level": 7,
-          "resourceType": "EMP_BURSTER"
-        }
-      }],
-      ["00000000000000000000000000000000.5",
-      1358631239636, {
-        "accessLevel": {
-          "failure": {
-            "isAllowed": false,
-            "requiredLevel": 1
-          },
-          "requiredLevel": 1
-        },
-        "inInventory": {
-          "acquisitionTimestampMs": "1358631239319",
-          "playerId": "00000000000000000000000000000000.c"
-        },
-        "resourceWithLevels": {
-          "level": 1,
-          "resourceType": "EMITTER_A"
-        }
-      }],
-      ["00000000000000000000000000000000.5",
-      1358631239636, {
-        "accessLevel": {
-          "failure": {
-            "isAllowed": false,
-            "requiredLevel": 1
-          },
-          "requiredLevel": 1
-        },
-        "inInventory": {
-          "acquisitionTimestampMs": "1358631239342",
-          "playerId": "00000000000000000000000000000000.c"
-        },
-        "resourceWithLevels": {
-          "level": 1,
-          "resourceType": "EMITTER_A"
-        }
-      }],
-      ["00000000000000000000000000000000.5",
-      1358631239636, {
-        "accessLevel": {
-          "failure": {
-            "isAllowed": false,
-            "requiredLevel": 1
-          },
-          "requiredLevel": 1
-        },
-        "inInventory": {
-          "acquisitionTimestampMs": "1358631239336",
-          "playerId": "00000000000000000000000000000000.c"
-        },
-        "resourceWithLevels": {
-          "level": 1,
-          "resourceType": "EMITTER_A"
-        }
-      }],
-      [ "00000000000000000000000000000000.5",
-      1365809491413, {
-        "accessLevel" : {
-          "failure" : {
-            "isAllowed" : false,
-            "requiredLevel" : 4
-          },
-          "requiredLevel" : 4
-        },
-        "inInventory" : { 
-          "acquisitionTimestampMs" : "1365809491260",
-          "playerId" : "00000000000000000000000000000000.c"
-        },
-        "powerCube" : { 
-          "energy" : 4000 
-        },
-        "resourceWithLevels" : { 
-          "level" : 4,
-          "resourceType" : "POWER_CUBE"
-        }
-      }]
-    ],
-    "xmAward": "300"
-  }
+    "gameBasket": {
+        "playerEntity": [
+            "00000000000000000000000000000000.c",
+            1365600000000,
+            {
+                "playerPersonal": {
+                    "notificationSettings": {
+                        "shouldSendEmail": true,
+                        "maySendPromoEmail": true
+                    },
+                    "energyState": "XM_OK",
+                    "energy": 10000,
+                    "clientLevel": 36,
+                    "ap": "12000000",
+                    "mediaHighWaterMarks": {
+                        "RESISTANCE": 9,
+                        "General": 63
+                    },
+                    "allowNicknameEdit": false,
+                    "allowFactionChoice": false
+                },
+                "controllingTeam": {
+                    "team": "RESISTANCE"
+                }
+            }
+        ],
+        "gameEntities": [],
+        "deletedEntityGuids": [],
+        "inventory": [
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 1
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "modResource": {
+                        "resourceType": "RES_SHIELD",
+                        "stats": {
+                            "MITIGATION": "6"
+                        },
+                        "displayName": "Portal Shield",
+                        "rarity": "COMMON"
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 1
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 1
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 4
+                        },
+                        "requiredLevel": 4
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMITTER_A",
+                        "level": 4
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 6
+                        },
+                        "requiredLevel": 6
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "POWER_CUBE",
+                        "level": 6
+                    },
+                    "powerCube": {
+                        "energy": 6000
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 4
+                        },
+                        "requiredLevel": 4
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMITTER_A",
+                        "level": 4
+                    }
+                }
+            ]
+        ],
+        "apGains": [
+            {
+                "apTrigger": "REDEEMED_AP",
+                "apGainAmount": "200"
+            }
+        ]
+    },
+    "result": {
+        "apAward": "1200000",
+        "xmAward": "10000",
+        "inventoryAward": [
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMITTER_A",
+                        "level": 1
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMITTER_A",
+                        "level": 1
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMITTER_A",
+                        "level": 1
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMITTER_A",
+                        "level": 1
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMITTER_A",
+                        "level": 1
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMITTER_A",
+                        "level": 1
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMITTER_A",
+                        "level": 1
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMITTER_A",
+                        "level": 1
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMITTER_A",
+                        "level": 1
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMITTER_A",
+                        "level": 1
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMITTER_A",
+                        "level": 2
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMITTER_A",
+                        "level": 2
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMITTER_A",
+                        "level": 2
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMITTER_A",
+                        "level": 2
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMITTER_A",
+                        "level": 2
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMITTER_A",
+                        "level": 2
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMITTER_A",
+                        "level": 2
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMITTER_A",
+                        "level": 2
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMITTER_A",
+                        "level": 2
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMITTER_A",
+                        "level": 2
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 3
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 3
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 3
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 3
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 3
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 3
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 3
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 3
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 3
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 3
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 4
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 4
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 4
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 4
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 4
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 4
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 4
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 4
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 4
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 4
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 5
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 5
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 5
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 5
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 5
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 5
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 5
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 5
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 5
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 5
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 6
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 6
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 6
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 6
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 6
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 6
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 6
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 6
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 6
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 1
+                        },
+                        "requiredLevel": 1
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "EMP_BURSTER",
+                        "level": 6
+                    },
+                    "empWeapon": {
+                        "ammo": 1,
+                        "level": 1
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 6
+                        },
+                        "requiredLevel": 6
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "POWER_CUBE",
+                        "level": 7
+                    },
+                    "powerCube": {
+                        "energy": 6000
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 6
+                        },
+                        "requiredLevel": 6
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "POWER_CUBE",
+                        "level": 8
+                    },
+                    "powerCube": {
+                        "energy": 6000
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "modResource": {
+                        "resourceType": "RES_SHIELD",
+                        "stats": {
+                            "MITIGATION": "6"
+                        },
+                        "displayName": "Portal Shield",
+                        "rarity": "COMMON"
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "modResource": {
+                        "resourceType": "RES_SHIELD",
+                        "stats": {
+                            "MITIGATION": "6"
+                        },
+                        "displayName": "Portal Shield",
+                        "rarity": "COMMON"
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "modResource": {
+                        "resourceType": "RES_SHIELD",
+                        "stats": {
+                            "MITIGATION": "6"
+                        },
+                        "displayName": "Portal Shield",
+                        "rarity": "RARE"
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "modResource": {
+                        "resourceType": "RES_SHIELD",
+                        "stats": {
+                            "MITIGATION": "6"
+                        },
+                        "displayName": "Portal Shield",
+                        "rarity": "RARE"
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "modResource": {
+                        "resourceType": "RES_SHIELD",
+                        "stats": {
+                            "MITIGATION": "6"
+                        },
+                        "displayName": "Portal Shield",
+                        "rarity": "VERY_RARE"
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "modResource": {
+                        "resourceType": "RES_SHIELD",
+                        "stats": {
+                            "MITIGATION": "6"
+                        },
+                        "displayName": "Portal Shield",
+                        "rarity": "VERY_RARE"
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 6
+                        },
+                        "requiredLevel": 6
+                    },
+                    "doesNotExist": {
+                        "resourceType": "MEDIA",
+                        "level": 8
+                    },
+                    "powerCube": {
+                        "energy": 6000
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "modResource": {
+                        "resourceType": "PORTAL_TURRET",
+                        "stats": {
+                            "MITIGATION": "6"
+                        },
+                        "displayName": "Portal Turret",
+                        "rarity": "VERY_RARE"
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 6
+                        },
+                        "requiredLevel": 6
+                    },
+                    "doesNotExist": {
+                        "resourceType": "SUPER_SECRET"
+                    }
+                }
+            ]
+        ]
+    }
 }
