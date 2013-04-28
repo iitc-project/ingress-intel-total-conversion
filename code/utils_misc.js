@@ -82,13 +82,14 @@ window.digits = function(d) {
 //          able arguments: http://api.jquery.com/jQuery.ajax/
 // error: see above. Additionally it is logged if the request failed.
 window.postAjax = function(action, data, success, error) {
-  data = JSON.stringify($.extend({method: 'dashboard.'+action}, data));
+  var post_data = JSON.stringify($.extend({method: 'dashboard.'+action}, data));
   var remove = function(data, textStatus, jqXHR) { window.requests.remove(jqXHR); };
   var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
   var result = $.ajax({
     url: '/rpc/dashboard.'+action,
     type: 'POST',
-    data: data,
+    data: post_data,
+    context: data,
     dataType: 'json',
     success: [remove, success],
     error: error ? [errCnt, error] : errCnt,
