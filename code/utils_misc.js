@@ -346,3 +346,25 @@ window.convertTextToTableMagic = function(text) {
 window.calcTriArea = function(p) {
   return Math.abs((p[0].lat*(p[1].lng-p[2].lng)+p[1].lat*(p[2].lng-p[0].lng)+p[2].lat*(p[0].lng-p[1].lng))/2);
 }
+
+// Update layerGroups display status to window.overlayStatus and cookie 'ingress.intelmap.layergroupdisplayed'
+window.updateDisplayedLayerGroup = function(name, display) {
+  overlayStatus[name] = display;
+  writeCookie('ingress.intelmap.layergroupdisplayed', JSON.stringify(overlayStatus));
+}
+
+// Read layerGroup status from window.overlayStatus if it was added to map,
+// read from cookie if it has not added to map yet.
+// return true if both overlayStatus and cookie didn't have the record
+window.isLayerGroupDisplayed = function(name) {
+  if(typeof(overlayStatus[name]) !== 'undefined') return overlayStatus[name];
+
+  var layersJSON = readCookie('ingress.intelmap.layergroupdisplayed');
+  if(!layersJSON) return true;
+
+  var layers = JSON.parse(layersJSON);
+  // keep latest overlayStatus
+  overlayStatus = $.extend(layers, overlayStatus);
+  if(typeof(overlayStatus[name]) === 'undefined') return true;
+  return overlayStatus[name];
+}
