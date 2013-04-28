@@ -90,7 +90,7 @@ window.plugin.keysOnMap.disableMessage = function() {
   }
 }
 
-var setup =  function() {
+window.plugin.keysOnMap.setupCSS = function() {
   $("<style>")
     .prop("type", "text/css")
     .html(".plugin-keys-on-map-key {\
@@ -103,9 +103,18 @@ var setup =  function() {
             -webkit-text-size-adjust:none;\
           }")
   .appendTo("head");
+}
 
+window.plugin.keysOnMap.setupLayer = function() {
   window.layerChooser.addOverlay(window.plugin.keysOnMap.keyLayerGroup, 'Keys');
-  map.addLayer(window.plugin.keysOnMap.keyLayerGroup);
+  if(isLayerGroupDisplayed('Keys'))
+    map.addLayer(window.plugin.keysOnMap.keyLayerGroup);
+}
+
+var setup =  function() {
+
+  window.plugin.keysOnMap.setupCSS();
+  window.plugin.keysOnMap.setupLayer();
 
   // Avoid error if this plugin load first
   if($.inArray('pluginKeysUpdateKey', window.VALID_HOOKS) < 0)
