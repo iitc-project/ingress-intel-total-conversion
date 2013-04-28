@@ -124,6 +124,25 @@ public class IITC_WebViewClient extends WebViewClient {
                 }
             }
         }
+
+        // inject the user location script if enabled in settings
+        if (sharedPref.getBoolean("pref_user_loc", false))
+            enableTracking(view);
+    }
+
+    public void enableTracking(WebView view) {
+        Log.d("iitcm", "enable tracking...");
+        AssetManager am = context.getAssets();
+        Scanner s = null;
+        String src = "";
+        try {
+            s = new Scanner(am.open("user-location.user.js")).useDelimiter("\\A");
+        } catch (IOException e2) {
+            // TODO Auto-generated catch block
+            e2.printStackTrace();
+        }
+        if (s != null) src = s.hasNext() ? s.next() : "";
+        view.loadUrl("javascript:" + src);
     }
 
     // Check every external resource if it’s okay to load it and maybe replace it
