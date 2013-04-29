@@ -23,6 +23,7 @@ import android.content.res.Configuration;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.Toast;
 
 public class IITC_Mobile extends Activity {
@@ -35,6 +36,7 @@ public class IITC_Mobile extends Activity {
     private boolean user_loc = false;
     private LocationManager loc_mngr = null;
     private LocationListener loc_listener = null;
+    private boolean keyboad_open = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +61,21 @@ public class IITC_Mobile extends Activity {
         };
         sharedPref.registerOnSharedPreferenceChangeListener(listener);
 
+        // we need this one to prevent location updates to javascript when keyboard is open
+        // it closes on updates
+        iitc_view.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if ((iitc_view.getRootView().getHeight() - iitc_view.getHeight()) >
+                    iitc_view.getRootView().getHeight()/3) {
+                    Log.d("iitcm", "Open Keyboard...");
+                    IITC_Mobile.this.keyboad_open = true;
+                } else {
+                    Log.d("iitcm", "Close Keyboard...");
+                    IITC_Mobile.this.keyboad_open = false;
+                }
+            }
+        });
         // Acquire a reference to the system Location Manager
         loc_mngr = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
@@ -254,9 +271,11 @@ public class IITC_Mobile extends Activity {
         // throw away all positions with accuracy > 100 meters
         // should avoid gps glitches
         if (loc.getAccuracy() < 100) {
-            iitc_view.loadUrl("javascript: " +
-                    "window.plugin.userLocation.updateLocation( " +
-                    loc.getLatitude() + ", " + loc.getLongitude() + ");");
+            if (keyboad_open == false) {
+                iitc_view.loadUrl("javascript: " +
+                        "window.plugin.userLocation.updateLocation( " +
+                        loc.getLatitude() + ", " + loc.getLongitude() + ");");
+            }
         }
     }
 }
