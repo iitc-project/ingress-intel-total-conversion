@@ -53,7 +53,7 @@ function loadUserScriptHeader($path)
 
  <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
  <!--[if lt IE 9]>
-  <script src="assets/js/html5shiv.js"></script>
+  <script src="assets/html5shiv/html5shiv.js"></script>
  <![endif]-->
 
  <style>
