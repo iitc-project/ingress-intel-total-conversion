@@ -251,8 +251,6 @@ public class IITC_Mobile extends Activity {
 
     // update the user location marker on the map
     public void drawMarker(Location loc) {
-        Log.d("iitcm", "update location..." + loc.toString());
-        iitc_view.loadUrl("javascript: window.console.log('" + loc.toString() + "');");
         // throw away all positions with accuracy > 100 meters
         // should avoid gps glitches
         if (loc.getAccuracy() < 100) {
