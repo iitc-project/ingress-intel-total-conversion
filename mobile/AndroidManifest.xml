@@ -14,7 +14,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/iitc_icon"
+        android:icon="@drawable/ic_iitcm"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
