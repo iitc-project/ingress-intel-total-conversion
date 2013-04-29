@@ -34,9 +34,14 @@ window.plugin.userLocation.setup = function() {
         iconRetinaUrl: iconRetImage
     }});
 
-    var marker = L.marker(window.map.getCenter(), {icon: new plugin.userLocation.icon()});
+    var marker = L.marker(window.map.getCenter(), {
+        title: "User Location",
+        icon: new plugin.userLocation.icon()
+    });
     plugin.userLocation.marker = marker;
     marker.addTo(window.map);
+    // jQueryUI doesn’t automatically notice the new markers
+    window.setupTooltips($(marker._icon));
 };
 
 window.plugin.userLocation.updateLocation = function(lat, lng) {
