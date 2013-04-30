@@ -1,40 +1,3 @@
-<?php
-
-$path = "release";
-
-if ( $_REQUEST['build'] == 'dev' )
-	$path = "dev";
-
-
-function loadUserScriptHeader($path)
-{
-	$result = Array();
-
-	$f = fopen ( $path, "rt" );
-	while ( ( $line = fgets ( $f ) ) !== FALSE )
-	{
-		if ( preg_match ( '#//[ \\t]*==/UserScript==#', $line ) )
-			break;
-
-		$matches = Array();
-		if ( preg_match ( '#^//[ \\t]*(@[a-zA-Z0-9]+)[ \\t]+(.*)$#', $line, $matches ) )
-		{
-			$name = $matches[1];
-			$value = $matches[2];
-
-			if ( ! array_key_exists ( $name, $result ) )
-			{
-				$result[$name] = $value;
-			}
-		}
-	}
-
-	fclose ( $f );
-
-	return $result;
-}
-
-?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -114,6 +77,7 @@ $pages = Array (
 	'faq' => '<i class="icon-question-sign"></i> FAQ',
 	'desktop' => '<i class="icon-chevron-right"></i> Desktop',
 	'mobile' => '<i class="icon-chevron-right"></i> Mobile',
+	'test' => '<i class="icon-wrench"></i> Test Builds',
 	'developer' => '<i class="icon-cog"></i> Developers',
 	'about' => '<i class="icon-info-sign"></i> About',
 	'donate' => '<i class="icon-gift"></i> Donate',
@@ -138,7 +102,7 @@ foreach ( $pages as $key => $name )
 	print "<li".($page == $key ? ' class="active"' :'')."><a href=\"$url\">$name</a></li>\n";
 
 	# after 'mobile', add a horizontal seperator
-	if ( $key == 'mobile' )
+	if ( $key == 'test' )
 		print "<li class=\"divider\"></li>";
 }
 
