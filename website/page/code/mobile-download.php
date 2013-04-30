@@ -58,7 +58,7 @@ IITC Mobile version <?php print $apk_version; ?>, with IITC version <?php print 
 </p>
 
 </div>
-<div style="clear: both"><div>
+<div style="clear: both"></div>
 
 
 <?php
