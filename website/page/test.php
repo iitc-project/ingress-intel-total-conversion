@@ -60,26 +60,20 @@ iitcDesktopPluginDownloadTable ( $path );
 
 <?php
 
-include_once ( "code/mobile-version.php" );
+include_once ( "code/mobile-download.php" );
 
 $apkfile = "$path/IITC_Mobile-test.apk";
 
+
 if ( file_exists($apkfile) )
 {
-	$version = getMobileVersion ( $apkfile );
-
-	$apk_version = $version['apk_version'];
-	$iitc_version = preg_replace ( '/^(\d+\.\d+\.\d+)\.(\d{8}\.\d{6})/', '\1<small class="muted">.\2</small>', $version['iitc_version'] );
-
-	print "<p>IITC Mobile version $apk_version, with IITC version $iitc_version</p>\n";
-
-	print "<a onclick=\"if(track)({track{'mobile','download','$path');}\" class=\"btn btn-large btn-primary\" href=\"$apkfile\">Download</a>\n";
-
+	iitcMobileDownload ( $apkfile );
 }
 else
 {
 	print "<div class=\"alert alert-error\">Error: <b>$apkfile</b> not found</div>\n";
 }
+
 
 ?>
 
