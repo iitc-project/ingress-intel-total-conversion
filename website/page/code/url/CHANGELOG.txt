@@ -1,0 +1,24 @@
+Changelog
+---------
+
+absoluteurl v1.6, March 12, 2010
+---------------------------------
+- added encode_url function to convert an absolute url to its percentage 
+  encoded equivalent, according to RFC 3986
+
+absoluteurl v1.5, March 11, 2010
+---------------------------------
+- fixed to allow spaces in the path of url
+
+absoluteurl v1.4, October 2, 2009
+----------------------------------------------
+- Percentage encoding of the absolute url disabled.
+
+absoluteurl v1.2, 2009-02-27
+-----------------------------------------------
+- Minor bug fix
+
+
+absoluteurl v1.0, 2009-08-28
+----------------------------------------
+- Initial release
