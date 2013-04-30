@@ -1,11 +1,14 @@
 <?php
 
-function loadUserScriptHeader($path)
+function loadUserScriptHeader($file)
 {
 	$result = Array();
 
-	$f = fopen ( $path, "rt" );
-	while ( ( $line = fgets ( $f ) ) !== FALSE )
+	if ( is_string($file) )
+		$file = fopen ( $file, "rt" );
+	# else assume it's already a readable stream
+
+	while ( ( $line = fgets ( $file ) ) !== FALSE )
 	{
 		if ( preg_match ( '#//[ \\t]*==/UserScript==#', $line ) )
 			break;

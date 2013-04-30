@@ -16,6 +16,7 @@ builds.
 
 include_once ( "code/desktop-download.php" );
 
+
 $path = "test";
 
 if ( $_REQUEST['build'] == 'dev' )
@@ -57,7 +58,30 @@ iitcDesktopPluginDownloadTable ( $path );
 
 <h3 id="test-mobile">Mobile test build</h3>
 
-<p>IITC Mobile version informpation - not currently available for test builds</p>
+<?php
 
-<a class="btn btn-large btn-primary" href="<?php print $path; ?>/IITC_Mobile-test.apk">Download</a>
+include_once ( "code/mobile-version.php" );
+
+$apkfile = "$path/IITC_Mobile-test.apk";
+
+if ( file_exists($apkfile) )
+{
+	$version = getMobileVersion ( $apkfile );
+
+	$apk_version = $version['apk_version'];
+	$iitc_version = preg_replace ( '/^(\d+\.\d+\.\d+)\.(\d{8}\.\d{6})/', '\1<small class="muted">.\2</small>', $version['iitc_version'] );
+
+	print "<p>IITC Mobile version $apk_version, with IITC version $iitc_version</p>\n";
+
+	print "<a onclick=\"if(track)({track{'mobile','download','$path');}\" class=\"btn btn-large btn-primary\" href=\"$apkfile\">Download</a>\n";
+
+}
+else
+{
+	print "<div class=\"alert alert-error\">Error: <b>$apkfile</b> not found</div>\n";
+}
+
+?>
+
+
 
