@@ -19,6 +19,9 @@
   <script src="assets/html5shiv/html5shiv.js"></script>
  <![endif]-->
 
+ <!-- android uses the apple icons when adding shortcuts - looks better than favicons -->
+ <link rel="apple-touch-icon-precomposed" href="/apple-touch-icon-precomposed.png">
+
  <style>
  .nowrap { white-space: nowrap; }
  </style>
