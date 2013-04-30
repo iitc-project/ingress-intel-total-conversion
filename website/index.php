@@ -116,6 +116,7 @@ $pages = Array (
 	'mobile' => '<i class="icon-chevron-right"></i> Mobile',
 	'developer' => '<i class="icon-cog"></i> Developers',
 	'about' => '<i class="icon-info-sign"></i> About',
+	'donate' => '<i class="icon-gift"></i> Donate',
 );
 
 $page = $_REQUEST['page'];
