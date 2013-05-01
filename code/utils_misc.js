@@ -3,6 +3,7 @@
 window.aboutIITC = function(){
   var v = '@@BUILDNAME@@-@@BUILDDATE@@';
   var attrib = '@@INCLUDEMD:ATTRIBUTION.md@@';
+  var contrib = '@@INCLUDEMD:CONTRIBS.md@@'
   var a = ''
   + '  <div><b>About IITC</b></div> '
   + '  <div>Ingress Intel Total Conversion</div> '
@@ -23,7 +24,9 @@ window.aboutIITC = function(){
   + '  <hr>'
   + '  <div>Version: ' + v + '</div>'
   + '  <hr>'
-  + '  <div>' + attrib + '</div>';
+  + '  <div>' + attrib + '</div>'
+  + '  <hr>'
+  + '  <div>' + contrib + '</div>';
   alert(a, true, function() {$('.ui-dialog').removeClass('ui-dialog-aboutIITC');});
   $('.ui-dialog').addClass('ui-dialog-aboutIITC');
 }
