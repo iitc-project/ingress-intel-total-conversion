@@ -226,14 +226,16 @@ window.setupMap = function() {
 
   // update map hooks
   map.on('movestart zoomstart', window.requests.abort);
-  map.on('moveend zoomend', function() { window.startRefreshTimeout(500) });
-
-  // run once on init
-  window.requestData();
-  window.startRefreshTimeout();
+  map.on('moveend zoomend', function() { console.log('map moveend'); window.startRefreshTimeout(ON_MOVE_REFRESH*1000) });
 
   window.addResumeFunction(window.requestData);
   window.requests.addRefreshFunction(window.requestData);
+
+  // start the refresh process with a small timeout, so the first data request happens quickly
+  // (the code originally called the request function directly, and triggered a normal delay for the nxt refresh.
+  //  however, the moveend/zoomend gets triggered on map load, causing a duplicate refresh. this helps prevent that
+  window.startRefreshTimeout(ON_MOVE_REFRESH*1000);
+
 };
 
 // renders player details into the website. Since the player info is
