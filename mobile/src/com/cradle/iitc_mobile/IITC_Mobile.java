@@ -4,6 +4,9 @@ import java.io.IOException;
 
 import com.cradle.iitc_mobile.R;
 
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -20,6 +23,7 @@ import android.content.res.Configuration;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.Toast;
 
 public class IITC_Mobile extends Activity {
@@ -29,6 +33,10 @@ public class IITC_Mobile extends Activity {
     private boolean desktop = false;
     private OnSharedPreferenceChangeListener listener;
     private String intel_url = "https://www.ingress.com/intel";
+    private boolean user_loc = false;
+    private LocationManager loc_mngr = null;
+    private LocationListener loc_listener = null;
+    private boolean keyboad_open = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,10 +53,52 @@ public class IITC_Mobile extends Activity {
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
                 if (key.equals("pref_force_desktop"))
                     desktop = sharedPreferences.getBoolean("pref_force_desktop", false);
+                if (key.equals("pref_user_loc")) {
+                    user_loc = sharedPreferences.getBoolean("pref_user_loc", false);
+                }
                 IITC_Mobile.this.loadUrl(intel_url);
             }
         };
         sharedPref.registerOnSharedPreferenceChangeListener(listener);
+
+        // we need this one to prevent location updates to javascript when keyboard is open
+        // it closes on updates
+        iitc_view.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if ((iitc_view.getRootView().getHeight() - iitc_view.getHeight()) >
+                    iitc_view.getRootView().getHeight()/3) {
+                    Log.d("iitcm", "Open Keyboard...");
+                    IITC_Mobile.this.keyboad_open = true;
+                } else {
+                    Log.d("iitcm", "Close Keyboard...");
+                    IITC_Mobile.this.keyboad_open = false;
+                }
+            }
+        });
+        // Acquire a reference to the system Location Manager
+        loc_mngr = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+        // Define a listener that responds to location updates
+        loc_listener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+              // Called when a new location is found by the network location provider.
+              drawMarker(location);
+            }
+
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+            public void onProviderEnabled(String provider) {}
+
+            public void onProviderDisabled(String provider) {}
+          };
+
+        user_loc = sharedPref.getBoolean("pref_user_loc", false);
+        if (user_loc == true) {
+            // Register the listener with the Location Manager to receive location updates
+            loc_mngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, loc_listener);
+            loc_mngr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, loc_listener);
+        }
 
         // load new iitc web view with ingress intel page
         Intent intent = getIntent();
@@ -78,6 +128,12 @@ public class IITC_Mobile extends Activity {
         Log.d("iitcm", "resuming...setting reset idleTimer");
         iitc_view.loadUrl("javascript: window.idleTime = 0");
         iitc_view.loadUrl("javascript: window.renderUpdateStatus()");
+
+        if (user_loc == true) {
+            // Register the listener with the Location Manager to receive location updates
+            loc_mngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, loc_listener);
+            loc_mngr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, loc_listener);
+        }
     }
 
     @Override
@@ -107,6 +163,10 @@ public class IITC_Mobile extends Activity {
             }
         }
         Log.d("iitcm", "stopping iitcm");
+
+        if (user_loc == true)
+            loc_mngr.removeUpdates(loc_listener);
+
         super.onStop();
     }
 
@@ -185,6 +245,7 @@ public class IITC_Mobile extends Activity {
         }
     }
 
+    // vp=f enables desktop mode...vp=m is the defaul mobile view
     private String addUrlParam(String url) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         this.desktop = sharedPref.getBoolean("pref_force_desktop", false);
@@ -195,11 +256,26 @@ public class IITC_Mobile extends Activity {
             return (url + "?vp=m");
     }
 
+    // inject the iitc-script and load the intel url
+    // plugins are injected onPageFinished
     public void loadUrl(String url) {
         url = addUrlParam(url);
         Log.d("iitcm", "injecting js...");
         injectJS();
         Log.d("iitcm", "loading url: " + url);
         iitc_view.loadUrl(url);
+    }
+
+    // update the user location marker on the map
+    public void drawMarker(Location loc) {
+        // throw away all positions with accuracy > 100 meters
+        // should avoid gps glitches
+        if (loc.getAccuracy() < 100) {
+            if (keyboad_open == false) {
+                iitc_view.loadUrl("javascript: " +
+                        "window.plugin.userLocation.updateLocation( " +
+                        loc.getLatitude() + ", " + loc.getLongitude() + ");");
+            }
+        }
     }
 }

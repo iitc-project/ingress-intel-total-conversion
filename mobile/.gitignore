@@ -7,4 +7,5 @@ libs/
 proguard-project.txt
 local.properties
 assets/iitc.js
+assets/user-location.user.js
 assets/plugins/

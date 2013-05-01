@@ -93,7 +93,7 @@ def loaderMD(var):
       payload = {'text': file, 'mode': 'markdown'}
       headers = {'Content-Type': 'application/json'}
       req = urllib2.Request(url, json.dumps(payload).encode('utf8'), headers)
-      md = urllib2.urlopen(req).read().decode('utf8').replace('\n', '').replace('\'', '\\\'')
+      md = urllib2.urlopen(req).read().decode('utf8').replace('\n', '\\n').replace('\'', '\\\'')
       files[fn] = {}
       files[fn][filemd5] = md
       db['files'] = files
@@ -205,12 +205,24 @@ if buildMobile:
     if buildMobile not in ['debug','release']:
         raise Exception("Error: buildMobile must be 'debug' or 'release'")
 
-    # first, copy the IITC script into the mobile folder. create the folder if needed
+    # compile the user location script
+    fn = "user-location.user.js"
+    script = readfile("mobile/" + fn)
+    downloadUrl = distUrlBase and distUrlBase + '/' + fn.replace("\\","/") or 'none'
+    updateUrl = distUrlBase and downloadUrl.replace('.user.js', '.meta.js') or 'none'
+    script = doReplacements(script, downloadUrl=downloadUrl, updateUrl=updateUrl)
+
+    metafn = fn.replace('.user.js', '.meta.js')
+    saveScriptAndMeta(script, os.path.join(outDir,fn), os.path.join(outDir,metafn))
+
+    # copy the IITC script into the mobile folder. create the folder if needed
     try:
         os.makedirs("mobile/assets")
     except:
         pass
     shutil.copy(os.path.join(outDir,"total-conversion-build.user.js"), "mobile/assets/iitc.js")
+    # copy the user location script into the mobile folder.
+    shutil.copy(os.path.join(outDir,"user-location.user.js"), "mobile/assets/user-location.user.js")
 
     # also copy plugins
     try:

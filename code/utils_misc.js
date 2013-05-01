@@ -3,6 +3,7 @@
 window.aboutIITC = function(){
   var v = '@@BUILDNAME@@-@@BUILDDATE@@';
   var attrib = '@@INCLUDEMD:ATTRIBUTION.md@@';
+  var contrib = '@@INCLUDEMD:CONTRIBS.md@@'
   var a = ''
   + '  <div><b>About IITC</b></div> '
   + '  <div>Ingress Intel Total Conversion</div> '
@@ -23,7 +24,9 @@ window.aboutIITC = function(){
   + '  <hr>'
   + '  <div>Version: ' + v + '</div>'
   + '  <hr>'
-  + '  <div>' + attrib + '</div>';
+  + '  <div>' + attrib + '</div>'
+  + '  <hr>'
+  + '  <div>' + contrib + '</div>';
   alert(a, true, function() {$('.ui-dialog').removeClass('ui-dialog-aboutIITC');});
   $('.ui-dialog').addClass('ui-dialog-aboutIITC');
 }
@@ -82,13 +85,14 @@ window.digits = function(d) {
 //          able arguments: http://api.jquery.com/jQuery.ajax/
 // error: see above. Additionally it is logged if the request failed.
 window.postAjax = function(action, data, success, error) {
-  data = JSON.stringify($.extend({method: 'dashboard.'+action}, data));
+  var post_data = JSON.stringify($.extend({method: 'dashboard.'+action}, data));
   var remove = function(data, textStatus, jqXHR) { window.requests.remove(jqXHR); };
   var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
   var result = $.ajax({
     url: '/rpc/dashboard.'+action,
     type: 'POST',
-    data: data,
+    data: post_data,
+    context: data,
     dataType: 'json',
     success: [remove, success],
     error: error ? [errCnt, error] : errCnt,
@@ -345,4 +349,26 @@ window.convertTextToTableMagic = function(text) {
 // Given 3 sets of points in an array[3]{lat, lng} returns the area of the triangle
 window.calcTriArea = function(p) {
   return Math.abs((p[0].lat*(p[1].lng-p[2].lng)+p[1].lat*(p[2].lng-p[0].lng)+p[2].lat*(p[0].lng-p[1].lng))/2);
+}
+
+// Update layerGroups display status to window.overlayStatus and cookie 'ingress.intelmap.layergroupdisplayed'
+window.updateDisplayedLayerGroup = function(name, display) {
+  overlayStatus[name] = display;
+  writeCookie('ingress.intelmap.layergroupdisplayed', JSON.stringify(overlayStatus));
+}
+
+// Read layerGroup status from window.overlayStatus if it was added to map,
+// read from cookie if it has not added to map yet.
+// return true if both overlayStatus and cookie didn't have the record
+window.isLayerGroupDisplayed = function(name) {
+  if(typeof(overlayStatus[name]) !== 'undefined') return overlayStatus[name];
+
+  var layersJSON = readCookie('ingress.intelmap.layergroupdisplayed');
+  if(!layersJSON) return true;
+
+  var layers = JSON.parse(layersJSON);
+  // keep latest overlayStatus
+  overlayStatus = $.extend(layers, overlayStatus);
+  if(typeof(overlayStatus[name]) === 'undefined') return true;
+  return overlayStatus[name];
 }

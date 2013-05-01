@@ -83,6 +83,26 @@ window.setupLayerChooserSelectOne = function() {
   });
 }
 
+// Setup the function to record the on/off status of overlay layerGroups
+window.setupLayerChooserStatusRecorder = function() {
+  // Record already added layerGroups
+  $.each(window.layerChooser._layers, function(ind, chooserEntry) {
+    if(!chooserEntry.overlay) return true;
+    var display = window.map.hasLayer(chooserEntry.layer);
+    window.updateDisplayedLayerGroup(chooserEntry.name, display);
+  });
+
+  // Record layerGroups change
+  window.map.on('layeradd layerremove', function(e) {
+    var id = L.stamp(e.layer);
+    var layerGroup = this._layers[id];
+    if (layerGroup && layerGroup.overlay) {
+      var display = (e.type === 'layeradd');
+      window.updateDisplayedLayerGroup(layerGroup.name, display);
+    }
+  }, window.layerChooser);
+}
+
 window.setupStyles = function() {
   $('head').append('<style>' +
     [ '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
@@ -206,14 +226,16 @@ window.setupMap = function() {
 
   // update map hooks
   map.on('movestart zoomstart', window.requests.abort);
-  map.on('moveend zoomend', function() { window.startRefreshTimeout(500) });
-
-  // run once on init
-  window.requestData();
-  window.startRefreshTimeout();
+  map.on('moveend zoomend', function() { console.log('map moveend'); window.startRefreshTimeout(ON_MOVE_REFRESH*1000) });
 
   window.addResumeFunction(window.requestData);
   window.requests.addRefreshFunction(window.requestData);
+
+  // start the refresh process with a small timeout, so the first data request happens quickly
+  // (the code originally called the request function directly, and triggered a normal delay for the nxt refresh.
+  //  however, the moveend/zoomend gets triggered on map load, causing a duplicate refresh. this helps prevent that
+  window.startRefreshTimeout(ON_MOVE_REFRESH*1000);
+
 };
 
 // renders player details into the website. Since the player info is
@@ -370,6 +392,7 @@ function boot() {
   window.chat.setup();
   window.setupQRLoadLib();
   window.setupLayerChooserSelectOne();
+  window.setupLayerChooserStatusRecorder();
   window.setupBackButton();
   // read here ONCE, so the URL is only evaluated one time after the
   // necessary data has been loaded.

@@ -1,9 +1,7 @@
 <h2>IITC Browser Addon</h2>
 
 <?php
-
-if ( $path != "release" )
-	print "<div class=\"alert alert-block alert-error\"><b>NOTE</b>: the <b>$path</b> build is currently selected. <a href=\"?page=desktop\">Return to the standard build</a>.</div>";
+include_once ( "code/desktop-download.php" );
 ?>
 
 <div class="alert alert-block">
@@ -51,15 +49,8 @@ Check your browser documentation for details on installing userscripts.
 <h3>Download</h3>
 
 <?php
-$iitc_details = loadUserScriptHeader ( "$path/total-conversion-build.user.js" );
-$iitc_version = preg_replace ( '/^(\d+\.\d+\.\d+)\.(\d{8}\.\d{6})/', '\1<small class="muted">.\2</small>', $iitc_details['@version'] );
+iitcDesktopDownload ( "release" );
 ?>
-
-<p>
-IITC version <?php print $iitc_version;?>
-</p>
-
-<a class="btn btn-large btn-primary" href="<?php print $path;?>/total-conversion-build.user.js">Download</a>
 
 <hr>
 
@@ -71,47 +62,6 @@ Plugins extend/modify the IITC experience. You do <b>not</b> need to install all
 a minority of users.
 </p>
 
-<table class="table table-condensed table-hover">
- <thead>
-  <tr>
-   <th>Name</th>
-   <th>ID / Version</th>
-   <th>Description</th>
-   <th>Download</th>
-  </tr>
- </thead>
- <tbody>
-
 <?php
-foreach ( glob ( "$path/plugins/*.user.js" ) as $path )
-{
-	$basename = basename ( $path, ".user.js" );
-
-	$details = loadUserScriptHeader ( $path );
-
-	print "<tr id=\"plugin-$basename\">\n";
-
-	# remove 'IITC Plugin: ' prefix if it's there, for neatness
-	$name = preg_replace ( '/^IITC plugin: /i', '', $details['@name'] );
-
-	# format extended version info in less prominant font
-	$version = preg_replace ( '/^(\d+\.\d+\.\d+)\.(\d{8}\.\d{6})/', '\1<small class="muted">.\2</small>', $details['@version'] );
-
-	# remove unneeded prefix from description
-	$description = preg_replace ( '/^\[[^]]*\] */', '', $details['@description'] );
-
-	print "<td>$name</td>";
-	print "<td>$basename<br />$version</td>";
-	print "<td>$description</td>";
-	print "<td><a href=\"$path\" class=\"btn btn-small btn-primary\">Download</a></td>";
-
-#	print "<a href=\"$path\">".$details['@name']."</a> <i>$name - version ".$details['@version']."</i>: <br/>\n";
-#	print $details['@description'];
-
-	print "</tr>\n";
-}
-
+iitcDesktopPluginDownloadTable ( "release" );
 ?>
- </tbody>
-</table>
-

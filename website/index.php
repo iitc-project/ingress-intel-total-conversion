@@ -1,40 +1,3 @@
-<?php
-
-$path = "release";
-
-if ( $_REQUEST['build'] == 'dev' )
-	$path = "dev";
-
-
-function loadUserScriptHeader($path)
-{
-	$result = Array();
-
-	$f = fopen ( $path, "rt" );
-	while ( ( $line = fgets ( $f ) ) !== FALSE )
-	{
-		if ( preg_match ( '#//[ \\t]*==/UserScript==#', $line ) )
-			break;
-
-		$matches = Array();
-		if ( preg_match ( '#^//[ \\t]*(@[a-zA-Z0-9]+)[ \\t]+(.*)$#', $line, $matches ) )
-		{
-			$name = $matches[1];
-			$value = $matches[2];
-
-			if ( ! array_key_exists ( $name, $result ) )
-			{
-				$result[$name] = $value;
-			}
-		}
-	}
-
-	fclose ( $f );
-
-	return $result;
-}
-
-?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -53,8 +16,11 @@ function loadUserScriptHeader($path)
 
  <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
  <!--[if lt IE 9]>
-  <script src="assets/js/html5shiv.js"></script>
+  <script src="assets/html5shiv/html5shiv.js"></script>
  <![endif]-->
+
+ <!-- android uses the apple icons when adding shortcuts - looks better than favicons -->
+ <link rel="apple-touch-icon-precomposed" href="/apple-touch-icon-precomposed.png">
 
  <style>
  .nowrap { white-space: nowrap; }
@@ -114,8 +80,10 @@ $pages = Array (
 	'faq' => '<i class="icon-question-sign"></i> FAQ',
 	'desktop' => '<i class="icon-chevron-right"></i> Desktop',
 	'mobile' => '<i class="icon-chevron-right"></i> Mobile',
+	'test' => '<i class="icon-wrench"></i> Test Builds',
 	'developer' => '<i class="icon-cog"></i> Developers',
 	'about' => '<i class="icon-info-sign"></i> About',
+	'donate' => '<i class="icon-gift"></i> Donate',
 );
 
 $page = $_REQUEST['page'];
@@ -137,7 +105,7 @@ foreach ( $pages as $key => $name )
 	print "<li".($page == $key ? ' class="active"' :'')."><a href=\"$url\">$name</a></li>\n";
 
 	# after 'mobile', add a horizontal seperator
-	if ( $key == 'mobile' )
+	if ( $key == 'test' )
 		print "<li class=\"divider\"></li>";
 }
 

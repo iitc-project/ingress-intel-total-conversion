@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.11.2.@@DATETIMEVERSION@@
+// @version        0.11.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -112,8 +112,10 @@ function wrapper() {
 L_PREFER_CANVAS = false;
 
 // CONFIG OPTIONS ////////////////////////////////////////////////////
-window.REFRESH = 30; // refresh view every 30s (base time)
+window.REFRESH = 60; // refresh view every 60s (base time)
 window.ZOOM_LEVEL_ADJ = 5; // add 5 seconds per zoom level
+window.ON_MOVE_REFRESH = 0.8;  //refresh time to use after a movement event
+window.MINIMUM_OVERRIDE_REFRESH = 5; //limit on refresh time since previous refresh, limiting repeated move refresh rate
 window.REFRESH_GAME_SCORE = 5*60; // refresh game score every 5 minutes
 window.MAX_IDLE_TIME = 4; // stop updating map after 4min idling
 window.PRECACHE_PLAYER_NAMES_ZOOM = 17; // zoom level to start pre-resolving player names
@@ -231,6 +233,10 @@ window.portals = {};
 window.links = {};
 window.fields = {};
 window.resonators = {};
+
+// contain current status(on/off) of overlay layerGroups.
+// But you should use isLayerGroupDisplayed(name) to check the status
+window.overlayStatus = {};
 
 // plugin framework. Plugins may load earlier than iitc, so don’t
 // overwrite data

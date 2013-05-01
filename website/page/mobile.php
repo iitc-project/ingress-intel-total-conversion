@@ -36,9 +36,26 @@ IITC Mobile is still in the early stages of development. Many things do not yet 
 
 <h3>Download</h3>
 
-<p>
-IITC Mobile version 0.3 (with IITC version 0.11.2).
-</p>
+<?php
 
-<a href="mobile/IITC-Mobile-0.3.apk" class="btn btn-large btn-primary">Download</a>
+include_once ( "code/mobile-download.php" );
 
+$apkfile = "mobile/IITC-Mobile-0.3.apk";
+
+
+if ( file_exists($apkfile) )
+{
+	iitcMobileDownload ( $apkfile );
+}
+else
+{
+	print "<div class=\"alert alert-error\">Error: <b>$apkfile</b> not found</div>\n";
+}
+
+?>
+
+
+<div class="alert alert-info">
+As IITC Mobile is regularly updated, you may want to consider trying the latest
+<a href="?page=test#test-mobile">test build</a>.
+</div>
