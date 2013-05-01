@@ -202,8 +202,8 @@ def copytree(src, dst, symlinks=False, ignore=None):
 
 # if we're building mobile too
 if buildMobile:
-    if buildMobile not in ['debug','release']:
-        raise Exception("Error: buildMobile must be 'debug' or 'release'")
+    if buildMobile not in ['debug','release','copyonly']:
+        raise Exception("Error: buildMobile must be 'debug' or 'release' or 'copyonly'")
 
     # compile the user location script
     fn = "user-location.user.js"
@@ -232,13 +232,14 @@ if buildMobile:
     copytree(os.path.join(outDir,"plugins"), "mobile/assets/plugins")
 
 
-    # now launch 'ant' to build the mobile project
-    retcode = os.system("ant -buildfile mobile/build.xml %s" % buildMobile)
+    if buildMobile != 'copyonly':
+        # now launch 'ant' to build the mobile project
+        retcode = os.system("ant -buildfile mobile/build.xml %s" % buildMobile)
 
-    if retcode != 0:
-        print ("Error: mobile app failed to build. ant returned %d" % retcode)
-    else:
-        shutil.copy("mobile/bin/IITC_Mobile-%s.apk" % buildMobile, os.path.join(outDir,"IITC_Mobile-%s.apk" % buildMobile) )
+        if retcode != 0:
+            print ("Error: mobile app failed to build. ant returned %d" % retcode)
+        else:
+            shutil.copy("mobile/bin/IITC_Mobile-%s.apk" % buildMobile, os.path.join(outDir,"IITC_Mobile-%s.apk" % buildMobile) )
 
 
 # vim: ai si ts=4 sw=4 sts=4 et
