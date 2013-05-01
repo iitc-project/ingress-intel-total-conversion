@@ -160,6 +160,7 @@ window.setupMap = function() {
   ));
 
   var addLayers = {};
+  var hiddenLayer = [];
 
   portalsLayers = [];
   for(var i = 0; i <= 8; i++) {
@@ -167,15 +168,21 @@ window.setupMap = function() {
     map.addLayer(portalsLayers[i]);
     var t = (i === 0 ? 'Unclaimed' : 'Level ' + i) + ' Portals';
     addLayers[t] = portalsLayers[i];
+    // Store it in hiddenLayer to remove later
+    if(!isLayerGroupDisplayed(t)) hiddenLayer.push(portalsLayers[i]);
   }
 
   fieldsLayer = L.layerGroup([]);
   map.addLayer(fieldsLayer, true);
   addLayers['Fields'] = fieldsLayer;
+  // Store it in hiddenLayer to remove later
+  if(!isLayerGroupDisplayed('Fields')) hiddenLayer.push(fieldsLayer);
 
   linksLayer = L.layerGroup([]);
   map.addLayer(linksLayer, true);
   addLayers['Links'] = linksLayer;
+  // Store it in hiddenLayer to remove later
+  if(!isLayerGroupDisplayed('Links')) hiddenLayer.push(linksLayer);
 
   window.layerChooser = new L.Control.Layers({
     'MapQuest OSM': views[0],
@@ -185,6 +192,10 @@ window.setupMap = function() {
     'Google Hybrid':  views[4],
     'Google Terrain': views[5]
     }, addLayers);
+  // Remove the hidden layer after layerChooser built, to avoid messing up ordering of layers 
+  $.each(hiddenLayer, function(ind, layer){
+    map.removeLayer(layer);
+  });
 
   map.addControl(window.layerChooser);
 
