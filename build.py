@@ -93,7 +93,7 @@ def loaderMD(var):
       payload = {'text': file, 'mode': 'markdown'}
       headers = {'Content-Type': 'application/json'}
       req = urllib2.Request(url, json.dumps(payload).encode('utf8'), headers)
-      md = urllib2.urlopen(req).read().decode('utf8').replace('\n', '').replace('\'', '\\\'')
+      md = urllib2.urlopen(req).read().decode('utf8').replace('\n', '\\n').replace('\'', '\\\'')
       files[fn] = {}
       files[fn][filemd5] = md
       db['files'] = files

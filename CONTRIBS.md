@@ -1,9 +1,9 @@
 So far, these people have contributed:
---------------------------------------
 
 [Bananeweizen](https://github.com/Bananeweizen),
 [blakjakau](https://github.com/blakjakau),
 [boombuler](https://github.com/boombuler),
+[breunigs](https://github.com/breunigs),
 [ccjon](https://github.com/ccjon),
 [cmrn](https://github.com/cmrn),
 [epf](https://github.com/epf),
