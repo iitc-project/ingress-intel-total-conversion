@@ -396,6 +396,11 @@ function boot() {
   window.setupBackButton();
   // read here ONCE, so the URL is only evaluated one time after the
   // necessary data has been loaded.
+  urlPortalLL = getURLParam('pll');
+  if(urlPortalLL) {
+    urlPortalLL = urlPortalLL.split(",");
+    urlPortalLL = [parseFloat(urlPortalLL[0]) || 0.0, parseFloat(urlPortalLL[1]) || 0.0];
+  }
   urlPortal = getURLParam('pguid');
 
   // load only once
