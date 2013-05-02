@@ -44,8 +44,8 @@
 
 	    <CheckBoxPreference
 	        android:key="pref_dev_checkbox"
-	        android:title="@string/pref_enable_dev_options"
-	        android:summary="@string/pref_enable_dev_options_sum"
+	        android:title="@string/pref_enable_dev_mode"
+	        android:summary="@string/pref_enable_dev_mode_sum"
 	        android:defaultValue="false" />
 
         <ListPreference

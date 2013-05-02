@@ -61,22 +61,22 @@ public class IITC_WebViewClient extends WebViewClient {
     }
 
     public void loadIITC_JS(Context c) throws java.io.IOException {
-        // in developer options, you are able to load the script from external source
+        // You are able to load the script from external source
         // if a http address is given, use script from this address. else use the local script
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(c);
         String iitc_source = sharedPref.getString("pref_iitc_source", "local");
         String js = "";
 
-        // if developer options are enabled, load all iitc script from external storage
+        // if developer mode are enabled, load all iitc script from external storage
         if (sharedPref.getBoolean("pref_dev_checkbox", true)) {
             File js_file = new File(dev_path + "total-conversion-build.user.js");
             if (!js_file.exists()) {
                 Toast.makeText(context, "File " + dev_path +
                         "total-conversion-build.user.js not found. " +
-                        "Disable developer options or add iitc files " +
+                        "Disable developer mode or add iitc files " +
                         "to the dev folder.", Toast.LENGTH_LONG).show();
             } else {
-                Toast.makeText(context, "Developer options enabled", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Developer mode enabled", Toast.LENGTH_SHORT).show();
             }
             Scanner s = null;
             s = new Scanner(js_file).useDelimiter("\\A");
@@ -141,7 +141,7 @@ public class IITC_WebViewClient extends WebViewClient {
                     Scanner s = null;
                     String src = "";
                     try {
-                        // load plugins from external storage if dev options are enabled
+                        // load plugins from external storage if dev mode are enabled
                         if (dev_enabled) {
                             File js_file = new File(dev_path + "plugins/" + plugin_array[i]);
                             s = new Scanner(js_file).useDelimiter("\\A");
@@ -170,7 +170,7 @@ public class IITC_WebViewClient extends WebViewClient {
         Scanner s = null;
         String src = "";
         try {
-            // load plugin from external storage if dev options are enabled
+            // load plugin from external storage if dev mode are enabled
             if (dev_enabled) {
                 File js_file = new File(dev_path + "user-location.user.js");
                 s = new Scanner(js_file).useDelimiter("\\A");

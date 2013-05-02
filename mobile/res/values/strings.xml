@@ -38,8 +38,8 @@
     <string name="pref_user_loc">Display user location</string>
     <string name="pref_user_loc_sum">Show users position on map</string>
     <string name="pref_developer_options">Developer options</string>
-	<string name="pref_enable_dev_options">Enable developer options</string>
-	<string name="pref_enable_dev_options_sum">If enabled, all IITC sources will be loaded from external storage of the Android device.
+	<string name="pref_enable_dev_mode">Enable developer mode</string>
+	<string name="pref_enable_dev_mode_sum">If enabled, all IITC sources will be loaded from external storage of the Android device.
 	    Please copy all sources from $IITC_folder/build/mobile/ to /sdcard/IITC_Mobile/dev/.</string>
     <string name="pref_select_iitc">IITC source</string>
 
