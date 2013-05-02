@@ -372,3 +372,8 @@ window.isLayerGroupDisplayed = function(name) {
   if(typeof(overlayStatus[name]) === 'undefined') return true;
   return overlayStatus[name];
 }
+
+window.addLayerGroup = function(name, layerGroup, defaultDisplay) {
+  if(isLayerGroupDisplayed(name) || defaultDisplay) map.addLayer(layerGroup);
+  layerChooser.addOverlay(layerGroup, name);
+}
