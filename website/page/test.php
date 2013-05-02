@@ -19,6 +19,8 @@ include_once ( "code/desktop-download.php" );
 
 $path = "test";
 
+if ( $_REQUEST['build'] == 'experimental' )
+	$path = "experimental";
 if ( $_REQUEST['build'] == 'dev' )
 	$path = "dev";
 
