@@ -220,7 +220,7 @@ if buildMobile:
         os.makedirs("mobile/assets")
     except:
         pass
-    shutil.copy(os.path.join(outDir,"total-conversion-build.user.js"), "mobile/assets/iitc.js")
+    shutil.copy(os.path.join(outDir,"total-conversion-build.user.js"), "mobile/assets/total-conversion-build.user.js")
     # copy the user location script into the mobile folder.
     shutil.copy(os.path.join(outDir,"user-location.user.js"), "mobile/assets/user-location.user.js")
 

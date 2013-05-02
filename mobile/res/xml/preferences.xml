@@ -38,6 +38,12 @@
             android:summary=""
             android:defaultValue="local"/>
 
+	    <CheckBoxPreference
+	        android:key="pref_dev_checkbox"
+	        android:title="@string/pref_enable_dev_options"
+	        android:summary="@string/pref_enable_dev_options_sum"
+	        android:defaultValue="false" />
+
         <ListPreference
             android:key="pref_build_version"
             android:title="@string/build_version"
