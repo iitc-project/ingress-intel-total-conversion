@@ -53,9 +53,8 @@ public class IITC_Mobile extends Activity {
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
                 if (key.equals("pref_force_desktop"))
                     desktop = sharedPreferences.getBoolean("pref_force_desktop", false);
-                if (key.equals("pref_user_loc")) {
+                if (key.equals("pref_user_loc"))
                     user_loc = sharedPreferences.getBoolean("pref_user_loc", false);
-                }
                 IITC_Mobile.this.loadUrl(intel_url);
             }
         };

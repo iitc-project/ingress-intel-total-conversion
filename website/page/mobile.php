@@ -40,7 +40,7 @@ IITC Mobile is still in the early stages of development. Many things do not yet 
 
 include_once ( "code/mobile-download.php" );
 
-$apkfile = "mobile/IITC-Mobile-0.3.apk";
+$apkfile = "release/IITC_Mobile-release.apk";
 
 
 if ( file_exists($apkfile) )

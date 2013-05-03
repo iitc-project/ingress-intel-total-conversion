@@ -25,13 +25,12 @@
         is continued on a fork of <a href="https://github.com/jonatkins"><b>jonatkins</b></a>.<br><br>
         <b>Website:</b><br>
         <a href="http://iitc.jonatkins.com/">http://iitc.jonatkins.com/</a><br><br>
-        <b>Fork github:</b><br>
-        <a href="https://github.com/jonatkins/ingress-intel-total-conversion">https://github.com/jonatkins/ingress-intel-total-conversion</a><br><br>
-        <b>Old github:</b><br>
-        <a href="https://github.com/breunigs/ingress-intel-total-conversion">https://github.com/breunigs/ingress-intel-total-conversion</a>]]>
+        <b>IITC on Github:</b><br>
+        <a href="https://github.com/jonatkins/ingress-intel-total-conversion">https://github.com/jonatkins/ingress-intel-total-conversion</a>]]>
     </string>
 
     <string name="pref_ui_cat">UI</string>
+    <string name="pref_misc_cat">Misc</string>
     <string name="pref_plugins">Plugins</string>
     <string name="pref_plugins_title">Available plugins</string>
     <string name="pref_force_desktop">Force desktop mode</string>
@@ -39,6 +38,9 @@
     <string name="pref_user_loc">Display user location</string>
     <string name="pref_user_loc_sum">Show users position on map</string>
     <string name="pref_developer_options">Developer options</string>
+	<string name="pref_enable_dev_mode">Enable developer mode</string>
+	<string name="pref_enable_dev_mode_sum">If enabled, all IITC sources will be loaded from external storage of the Android device.
+	    Please copy all sources from $IITC_folder/build/mobile/ to /sdcard/IITC_Mobile/dev/.</string>
     <string name="pref_select_iitc">IITC source</string>
 
 </resources>
