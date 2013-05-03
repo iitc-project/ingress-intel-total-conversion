@@ -86,7 +86,9 @@ $pages = Array (
 	'donate' => '<i class="icon-gift"></i> Donate',
 );
 
-$page = $_REQUEST['page'];
+$page = 'home';
+if ( array_key_exists ( 'page', $_REQUEST ) )
+	$page = $_REQUEST['page'];
 if ( ! array_key_exists ( $page, $pages ) )
 	$page = "home";
 

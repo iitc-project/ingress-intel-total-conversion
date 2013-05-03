@@ -19,10 +19,13 @@ include_once ( "code/desktop-download.php" );
 
 $path = "test";
 
-if ( $_REQUEST['build'] == 'experimental' )
-	$path = "experimental";
-if ( $_REQUEST['build'] == 'dev' )
-	$path = "dev";
+if ( array_key_exists ( 'build', $_REQUEST ) )
+{
+	if ( $_REQUEST['build'] == 'experimental' )
+		$path = "experimental";
+	if ( $_REQUEST['build'] == 'dev' )
+		$path = "dev";
+}
 
 if ( $path != "test" )
 	print "<div class=\"alert alert-block alert-error\"><b>NOTE</b>: A non-standard test build, <b>$path</b>, is currently selected. The notes <b>may not apply!</b> <a href=\"?page=test\">Return to the standard test build</a>.</div>";
