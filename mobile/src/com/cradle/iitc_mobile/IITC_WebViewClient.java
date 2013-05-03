@@ -6,14 +6,17 @@ import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.net.http.SslError;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -27,10 +30,13 @@ public class IITC_WebViewClient extends WebViewClient {
 
     private WebResourceResponse iitcjs;
     private String js = null;
+    private String dev_path = null;
     Context context;
 
     public IITC_WebViewClient(Context c) {
         this.context = c;
+        this.dev_path = Environment.getExternalStorageDirectory().getPath() +
+                        "/IITC_Mobile/dev/";
         try {
             loadIITC_JS(c);
         } catch(IOException e) {
@@ -39,7 +45,9 @@ public class IITC_WebViewClient extends WebViewClient {
     }
 
     public String getIITCVersion() {
-        String header = js.substring(js.indexOf("==UserScript=="), js.indexOf("==/UserScript=="));
+        String header = "";
+        if (js != null)
+            header = js.substring(js.indexOf("==UserScript=="), js.indexOf("==/UserScript=="));
         // remove new line comments
         header = header.replace("\n//", "");
         // get a list of key-value
@@ -53,22 +61,40 @@ public class IITC_WebViewClient extends WebViewClient {
     }
 
     public void loadIITC_JS(Context c) throws java.io.IOException {
-        // in developer options, you are able to load the script from external source
+        // You are able to load the script from external source
         // if a http address is given, use script from this address. else use the local script
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(c);
         String iitc_source = sharedPref.getString("pref_iitc_source", "local");
         String js = "";
-        if (iitc_source.contains("http")) {
-            URL url = new URL(iitc_source);
-            js = new Scanner(url.openStream(), "UTF-8").useDelimiter("\\A").next();
+
+        // if developer mode are enabled, load all iitc script from external storage
+        if (sharedPref.getBoolean("pref_dev_checkbox", true)) {
+            File js_file = new File(dev_path + "total-conversion-build.user.js");
+            if (!js_file.exists()) {
+                Toast.makeText(context, "File " + dev_path +
+                        "total-conversion-build.user.js not found. " +
+                        "Disable developer mode or add iitc files " +
+                        "to the dev folder.", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(context, "Developer mode enabled", Toast.LENGTH_SHORT).show();
+            }
+            Scanner s = null;
+            s = new Scanner(js_file).useDelimiter("\\A");
+            if (s != null) js = s.hasNext() ? s.next() : "";
         } else {
-            InputStream input;
-            input = c.getAssets().open("iitc.js");
-            int size = input.available();
-            byte[] buffer = new byte[size];
-            input.read(buffer);
-            input.close();
-            js = new String(buffer);
+            // load iitc script from web or asset folder
+            if (iitc_source.contains("http")) {
+                URL url = new URL(iitc_source);
+                js = new Scanner(url.openStream(), "UTF-8").useDelimiter("\\A").next();
+            } else {
+                InputStream input;
+                input = c.getAssets().open("total-conversion-build.user.js");
+                int size = input.available();
+                byte[] buffer = new byte[size];
+                input.read(buffer);
+                input.close();
+                js = new String(buffer);
+            }
         }
 
         this.js = js;
@@ -101,6 +127,7 @@ public class IITC_WebViewClient extends WebViewClient {
         // get the plugin preferences
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
         Set<String> plugin_list = sharedPref.getStringSet("pref_plugins", null);
+        boolean dev_enabled = sharedPref.getBoolean("pref_dev_checkbox", true);
 
         // iterate through all enabled plugins and load them
         if (plugin_list != null) {
@@ -114,7 +141,14 @@ public class IITC_WebViewClient extends WebViewClient {
                     Scanner s = null;
                     String src = "";
                     try {
-                        s = new Scanner(am.open("plugins/" + plugin_array[i])).useDelimiter("\\A");
+                        // load plugins from external storage if dev mode are enabled
+                        if (dev_enabled) {
+                            File js_file = new File(dev_path + "plugins/" + plugin_array[i]);
+                            s = new Scanner(js_file).useDelimiter("\\A");
+                        }
+                        else
+                            // load plugins from asset folder
+                            s = new Scanner(am.open("plugins/" + plugin_array[i])).useDelimiter("\\A");
                     } catch (IOException e2) {
                         // TODO Auto-generated catch block
                         e2.printStackTrace();
@@ -127,16 +161,23 @@ public class IITC_WebViewClient extends WebViewClient {
 
         // inject the user location script if enabled in settings
         if (sharedPref.getBoolean("pref_user_loc", false))
-            enableTracking(view);
+            enableTracking(view, dev_enabled);
     }
 
-    public void enableTracking(WebView view) {
+    public void enableTracking(WebView view, boolean dev_enabled) {
         Log.d("iitcm", "enable tracking...");
         AssetManager am = context.getAssets();
         Scanner s = null;
         String src = "";
         try {
-            s = new Scanner(am.open("user-location.user.js")).useDelimiter("\\A");
+            // load plugin from external storage if dev mode are enabled
+            if (dev_enabled) {
+                File js_file = new File(dev_path + "user-location.user.js");
+                s = new Scanner(js_file).useDelimiter("\\A");
+            }
+            else
+                // load plugin from asset folder
+                s = new Scanner(am.open("user-location.user.js")).useDelimiter("\\A");
         } catch (IOException e2) {
             // TODO Auto-generated catch block
             e2.printStackTrace();

@@ -5,7 +5,9 @@ The Android App behaves like the desktop version, but uses the mobile view, whic
 
 - it should be much faster than the standard mobile ingress intel map
 
-- a gmaps intent is sent, when a portals Map link is clicked (lets you navigate to portals)
+- plugin support
+
+- a geo intent is sent, when a portals Map link is clicked (lets you navigate to portals)
 
 - a geolocate button (you have to enable GPS satellites + location access to use this feature)
 

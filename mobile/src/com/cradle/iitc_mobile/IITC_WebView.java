@@ -23,6 +23,8 @@ public class IITC_WebView extends WebView {
         settings.setAllowFileAccess(true);
         settings.setGeolocationEnabled(true);
         settings.setDatabasePath(this.getContext().getApplicationInfo().dataDir + "/databases/");
+        settings.setAppCachePath(this.getContext().getApplicationInfo().dataDir + "/cache/");
+        settings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         this.js_interface = new IITC_JSInterface(c);
         this.addJavascriptInterface(js_interface, "android");
 

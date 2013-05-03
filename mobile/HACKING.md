@@ -7,6 +7,11 @@ Communication from app to script is handled by loading Javascript function calls
 
 Communication from script to app is handled by the JavascriptInterface (see /mobile/src/com/cradle/iitc\_mobile/IITC_JSInterface.java). If a method ```foo(String)``` is defined in JSInterface, it can be called by ```android.foo("Hello World")``` in the IITC script.
 
+Developing IITC and Plugins for IITC Mobile
+-------------------------------------------
+
+The developer mode can be enabled in the settings. Create a folder ```IITC_Mobile/dev/``` on your external storage of your Android device and copy the sources from ```$IITC_folder/build/mobile/``` to it. If the developer mode is enabled all sources will be loaded from there.
+
 Debugging
 ---------
 
