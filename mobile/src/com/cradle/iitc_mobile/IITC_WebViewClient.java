@@ -165,6 +165,9 @@ public class IITC_WebViewClient extends WebViewClient {
         if (files != null) {
             for (int i = 0; i < files.length; ++i) {
                 try {
+                    // the file should be a user.js-file
+                    if (!files[i].toString().endsWith("user.js"))
+                        continue;
                     String src = "";
                     Scanner s = new Scanner(files[i]).useDelimiter("\\A");
                     if (s != null) src = s.hasNext() ? s.next() : "";
