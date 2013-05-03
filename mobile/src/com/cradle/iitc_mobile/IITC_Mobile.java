@@ -241,6 +241,8 @@ public class IITC_Mobile extends Activity {
             attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
             this.getWindow().setAttributes(attrs);
             this.fullscreen_mode = true;
+            // show a little toast for the user
+            Toast.makeText(this, "Press back button to exit fullscreen", Toast.LENGTH_SHORT).show();
             return true;
         // get the users current location and focus it on map
         case R.id.locate:
