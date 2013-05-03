@@ -29,32 +29,30 @@ public class IITC_Settings extends Activity {
         ArrayList<String> asset_values = new ArrayList<String>();
 
         for (int i = 0; i < asset_array.length ; i++) {
-            if (asset_array[i].endsWith("user.js")) {
-                // find user plugin name for user readable entries
-                Scanner s = null;
-                String src = "";
-                try {
-                    s = new Scanner(am.open("plugins/" + asset_array[i])).useDelimiter("\\A");
-                } catch (IOException e2) {
-                    // TODO Auto-generated catch block
-                    e2.printStackTrace();
-                }
-                if (s != null) src = s.hasNext() ? s.next() : "";
-                String header = src.substring(src.indexOf("==UserScript=="), src.indexOf("==/UserScript=="));
-                // remove new line comments and replace with space
-                // this way we get double spaces instead of newline + double slash
-                header = header.replace("\n//", " ");
-                // get a list of key-value...split on multiple spaces
-                String[] attributes = header.split("  +");
-                String plugin_name = "not found";
-                for (int j = 0; j < attributes.length; j++) {
-                    // search for name and use the value
-                    if (attributes[j].equals("@name")) plugin_name = attributes[j+1];
-                }
-                asset_list.add(plugin_name);
-                // real value
-                asset_values.add(asset_array[i]);
+            // find user plugin name for user readable entries
+            Scanner s = null;
+            String src = "";
+            try {
+                s = new Scanner(am.open("plugins/" + asset_array[i])).useDelimiter("\\A");
+            } catch (IOException e2) {
+                // TODO Auto-generated catch block
+                e2.printStackTrace();
             }
+            if (s != null) src = s.hasNext() ? s.next() : "";
+            String header = src.substring(src.indexOf("==UserScript=="), src.indexOf("==/UserScript=="));
+            // remove new line comments and replace with space
+            // this way we get double spaces instead of newline + double slash
+            header = header.replace("\n//", " ");
+            // get a list of key-value...split on multiple spaces
+            String[] attributes = header.split("  +");
+            String plugin_name = "not found";
+            for (int j = 0; j < attributes.length; j++) {
+                // search for name and use the value
+                if (attributes[j].equals("@name")) plugin_name = attributes[j+1];
+            }
+            asset_list.add(plugin_name);
+            // real value
+            asset_values.add(asset_array[i]);
         }
 
         Bundle bundle = getIntent().getExtras();

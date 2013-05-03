@@ -135,27 +135,24 @@ public class IITC_WebViewClient extends WebViewClient {
             String[] plugin_array = plugin_list.toArray(new String[0]);
 
             for(int i = 0; i < plugin_list.size(); i++) {
-                if (plugin_array[i].endsWith("user.js"));
-                {
-                    Log.d("iitcm", "adding plugin " + plugin_array[i]);
-                    Scanner s = null;
-                    String src = "";
-                    try {
-                        // load plugins from external storage if dev mode are enabled
-                        if (dev_enabled) {
-                            File js_file = new File(dev_path + "plugins/" + plugin_array[i]);
-                            s = new Scanner(js_file).useDelimiter("\\A");
-                        }
-                        else
-                            // load plugins from asset folder
-                            s = new Scanner(am.open("plugins/" + plugin_array[i])).useDelimiter("\\A");
-                    } catch (IOException e2) {
-                        // TODO Auto-generated catch block
-                        e2.printStackTrace();
+                Log.d("iitcm", "adding plugin " + plugin_array[i]);
+                Scanner s = null;
+                String src = "";
+                try {
+                    // load plugins from external storage if dev mode are enabled
+                    if (dev_enabled) {
+                        File js_file = new File(dev_path + "plugins/" + plugin_array[i]);
+                        s = new Scanner(js_file).useDelimiter("\\A");
                     }
-                    if (s != null) src = s.hasNext() ? s.next() : "";
-                    view.loadUrl("javascript:" + src);
+                    else
+                        // load plugins from asset folder
+                        s = new Scanner(am.open("plugins/" + plugin_array[i])).useDelimiter("\\A");
+                } catch (IOException e2) {
+                    // TODO Auto-generated catch block
+                    e2.printStackTrace();
                 }
+                if (s != null) src = s.hasNext() ? s.next() : "";
+                view.loadUrl("javascript:" + src);
             }
         }
 

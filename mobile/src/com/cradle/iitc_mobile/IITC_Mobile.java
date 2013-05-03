@@ -114,7 +114,6 @@ public class IITC_Mobile extends Activity {
             }
         }
         else {
-            Log.d("iitcm", "no intent...loading " + intel_url);
             this.loadUrl(intel_url);
         }
     }
@@ -260,9 +259,8 @@ public class IITC_Mobile extends Activity {
     // plugins are injected onPageFinished
     public void loadUrl(String url) {
         url = addUrlParam(url);
-        Log.d("iitcm", "injecting js...");
+        Log.d("iitcm", "injecting main-script...");
         injectJS();
-        Log.d("iitcm", "loading url: " + url);
         iitc_view.loadUrl(url);
     }
 

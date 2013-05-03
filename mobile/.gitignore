@@ -6,6 +6,6 @@ gen/
 libs/
 proguard-project.txt
 local.properties
-assets/iitc.js
+assets/total-conversion-build.user.js
 assets/user-location.user.js
 assets/plugins/

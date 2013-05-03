@@ -36,6 +36,11 @@
 	        android:key="pref_plugins"
 	        android:title="@string/pref_plugins"
 	        android:dialogTitle="@string/pref_plugins_title"/>
+	    <CheckBoxPreference
+	        android:key="pref_force_https"
+	        android:title="@string/pref_force_https"
+	        android:summary="@string/pref_force_https_sum"
+	        android:defaultValue="true" />
     </PreferenceCategory>
 
     <PreferenceCategory
