@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 public class IITC_Mobile extends Activity {
@@ -37,6 +38,7 @@ public class IITC_Mobile extends Activity {
     private LocationManager loc_mngr = null;
     private LocationListener loc_listener = null;
     private boolean keyboad_open = false;
+    private boolean fullscreen_mode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -181,6 +183,17 @@ public class IITC_Mobile extends Activity {
     // we want a self defined behavior for the back button
     @Override
     public void onBackPressed() {
+        // leave fullscreen mode if it is enabled
+        if (fullscreen_mode) {
+            // get back action bar
+            this.getActionBar().show();
+            // show notification bar again
+            WindowManager.LayoutParams attrs = getWindow().getAttributes();
+            attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
+            this.getWindow().setAttributes(attrs);
+            this.fullscreen_mode = false;
+            return;
+        }
         if (this.back_button_pressed) {
             super.onBackPressed();
             return;
@@ -218,6 +231,16 @@ public class IITC_Mobile extends Activity {
             iitc_view.clearHistory();
             iitc_view.clearFormData();
             iitc_view.clearCache(true);
+            return true;
+        // toggle fullscreen
+        case R.id.toggle_fullscreen:
+            // get rid of action bar
+            this.getActionBar().hide();
+            // hide notification bar
+            WindowManager.LayoutParams attrs = getWindow().getAttributes();
+            attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
+            this.getWindow().setAttributes(attrs);
+            this.fullscreen_mode = true;
             return true;
         // get the users current location and focus it on map
         case R.id.locate:
