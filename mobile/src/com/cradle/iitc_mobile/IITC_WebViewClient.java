@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -30,13 +31,12 @@ public class IITC_WebViewClient extends WebViewClient {
 
     private WebResourceResponse iitcjs;
     private String js = null;
-    private String dev_path = null;
+    private String iitc_path = null;
     Context context;
 
     public IITC_WebViewClient(Context c) {
         this.context = c;
-        this.dev_path = Environment.getExternalStorageDirectory().getPath() +
-                        "/IITC_Mobile/dev/";
+        this.iitc_path = Environment.getExternalStorageDirectory().getPath() + "/IITC_Mobile/";
         try {
             loadIITC_JS(c);
         } catch(IOException e) {
@@ -69,10 +69,10 @@ public class IITC_WebViewClient extends WebViewClient {
 
         // if developer mode are enabled, load all iitc script from external storage
         if (sharedPref.getBoolean("pref_dev_checkbox", true)) {
-            File js_file = new File(dev_path + "total-conversion-build.user.js");
+            File js_file = new File(iitc_path + "/dev/total-conversion-build.user.js");
             if (!js_file.exists()) {
-                Toast.makeText(context, "File " + dev_path +
-                        "total-conversion-build.user.js not found. " +
+                Toast.makeText(context, "File " + iitc_path +
+                        "/dev/total-conversion-build.user.js not found. " +
                         "Disable developer mode or add iitc files " +
                         "to the dev folder.", Toast.LENGTH_LONG).show();
             } else {
@@ -141,14 +141,13 @@ public class IITC_WebViewClient extends WebViewClient {
                 try {
                     // load plugins from external storage if dev mode are enabled
                     if (dev_enabled) {
-                        File js_file = new File(dev_path + "plugins/" + plugin_array[i]);
+                        File js_file = new File(iitc_path + "/dev/plugins/" + plugin_array[i]);
                         s = new Scanner(js_file).useDelimiter("\\A");
                     }
                     else
                         // load plugins from asset folder
                         s = new Scanner(am.open("plugins/" + plugin_array[i])).useDelimiter("\\A");
                 } catch (IOException e2) {
-                    // TODO Auto-generated catch block
                     e2.printStackTrace();
                 }
                 if (s != null) src = s.hasNext() ? s.next() : "";
@@ -159,6 +158,23 @@ public class IITC_WebViewClient extends WebViewClient {
         // inject the user location script if enabled in settings
         if (sharedPref.getBoolean("pref_user_loc", false))
             enableTracking(view, dev_enabled);
+
+        // load additional plugins from <storage-path>/IITC-Mobile/plugins/
+        File directory = new File(iitc_path + "plugins/");
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (int i = 0; i < files.length; ++i) {
+                try {
+                    String src = "";
+                    Scanner s = new Scanner(files[i]).useDelimiter("\\A");
+                    if (s != null) src = s.hasNext() ? s.next() : "";
+                    Log.d("iitcm", "Loading additional plugin " + iitc_path + files[i]);
+                    view.loadUrl("javascript:" + src);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public void enableTracking(WebView view, boolean dev_enabled) {
@@ -169,14 +185,13 @@ public class IITC_WebViewClient extends WebViewClient {
         try {
             // load plugin from external storage if dev mode are enabled
             if (dev_enabled) {
-                File js_file = new File(dev_path + "user-location.user.js");
+                File js_file = new File(iitc_path + "/dev/user-location.user.js");
                 s = new Scanner(js_file).useDelimiter("\\A");
             }
             else
                 // load plugin from asset folder
                 s = new Scanner(am.open("user-location.user.js")).useDelimiter("\\A");
         } catch (IOException e2) {
-            // TODO Auto-generated catch block
             e2.printStackTrace();
         }
         if (s != null) src = s.hasNext() ? s.next() : "";
