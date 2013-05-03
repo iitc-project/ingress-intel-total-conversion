@@ -127,6 +127,7 @@ public class IITC_Mobile extends Activity {
         Log.d("iitcm", "resuming...setting reset idleTimer");
         iitc_view.loadUrl("javascript: window.idleTime = 0");
         iitc_view.loadUrl("javascript: window.renderUpdateStatus()");
+        iitc_view.updateCaching();
 
         if (user_loc == true) {
             // Register the listener with the Location Manager to receive location updates
