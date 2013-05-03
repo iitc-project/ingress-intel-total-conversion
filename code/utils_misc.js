@@ -359,7 +359,7 @@ window.updateDisplayedLayerGroup = function(name, display) {
 
 // Read layerGroup status from window.overlayStatus if it was added to map,
 // read from cookie if it has not added to map yet.
-// return true if both overlayStatus and cookie didn't have the record
+// return 'defaultDisplay' if both overlayStatus and cookie didn't have the record
 window.isLayerGroupDisplayed = function(name, defaultDisplay) {
   if(typeof(overlayStatus[name]) !== 'undefined') return overlayStatus[name];
 
