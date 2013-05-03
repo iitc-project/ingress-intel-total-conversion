@@ -168,6 +168,11 @@ else:
     os.makedirs(outDir)
 
 
+# run any preBuild commands
+for cmd in settings.get('preBuild',[]):
+    os.system ( cmd )
+
+
 # load main.js, parse, and create main total-conversion-build.user.js
 main = readfile('main.js')
 
@@ -240,6 +245,11 @@ if buildMobile:
             print ("Error: mobile app failed to build. ant returned %d" % retcode)
         else:
             shutil.copy("mobile/bin/IITC_Mobile-%s.apk" % buildMobile, os.path.join(outDir,"IITC_Mobile-%s.apk" % buildMobile) )
+
+
+# run any postBuild commands
+for cmd in settings.get('postBuild',[]):
+    os.system ( cmd )
 
 
 # vim: ai si ts=4 sw=4 sts=4 et
