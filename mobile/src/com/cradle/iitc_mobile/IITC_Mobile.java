@@ -234,15 +234,26 @@ public class IITC_Mobile extends Activity {
             return true;
         // toggle fullscreen
         case R.id.toggle_fullscreen:
-            // get rid of action bar
-            this.getActionBar().hide();
-            // hide notification bar
-            WindowManager.LayoutParams attrs = getWindow().getAttributes();
-            attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
-            this.getWindow().setAttributes(attrs);
-            this.fullscreen_mode = true;
-            // show a little toast for the user
-            Toast.makeText(this, "Press back button to exit fullscreen", Toast.LENGTH_SHORT).show();
+            if (!this.fullscreen_mode) {
+                // get rid of action bar
+                this.getActionBar().hide();
+                // hide notification bar
+                WindowManager.LayoutParams attrs = getWindow().getAttributes();
+                attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
+                this.getWindow().setAttributes(attrs);
+                this.fullscreen_mode = true;
+                // show a little toast for the user
+                Toast.makeText(this, "Press back button to exit fullscreen", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                // get back action bar
+                this.getActionBar().show();
+                // show notification bar again
+                WindowManager.LayoutParams attrs = getWindow().getAttributes();
+                attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
+                this.getWindow().setAttributes(attrs);
+                this.fullscreen_mode = false;
+            }
             return true;
         // get the users current location and focus it on map
         case R.id.locate:
