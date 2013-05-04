@@ -67,7 +67,7 @@ public class IITC_WebViewClient extends WebViewClient {
         String js = "";
 
         // if developer mode are enabled, load all iitc script from external storage
-        if (sharedPref.getBoolean("pref_dev_checkbox", true)) {
+        if (sharedPref.getBoolean("pref_dev_checkbox", false)) {
             js = this.fileToString(iitc_path + "dev/total-conversion-build.user.js", false);
             if (js.equals("false")) {
                 Toast.makeText(context, "File " + iitc_path +
