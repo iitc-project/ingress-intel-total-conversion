@@ -17,8 +17,9 @@
 
     <item android:id="@+id/toggle_fullscreen"
         android:orderInCategory="100"
-        android:showAsAction="never"
-        android:title="@string/toggle_fullscreen"></item>
+        android:showAsAction="ifRoom"
+        android:title="@string/toggle_fullscreen"
+        android:icon="@android:drawable/ic_menu_zoom"></item>
 
     <item android:id="@+id/locate"
         android:icon="@android:drawable/ic_menu_mylocation"
