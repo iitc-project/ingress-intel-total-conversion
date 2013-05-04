@@ -68,10 +68,10 @@ public class IITC_WebViewClient extends WebViewClient {
 
         // if developer mode are enabled, load all iitc script from external storage
         if (sharedPref.getBoolean("pref_dev_checkbox", true)) {
-            js = this.fileToString(iitc_path + "/dev/total-conversion-build.user.js", false);
+            js = this.fileToString(iitc_path + "dev/total-conversion-build.user.js", false);
             if (js.equals("false")) {
                 Toast.makeText(context, "File " + iitc_path +
-                        "/dev/total-conversion-build.user.js not found. " +
+                        "dev/total-conversion-build.user.js not found. " +
                         "Disable developer mode or add iitc files " +
                         "to the dev folder.", Toast.LENGTH_LONG).show();
                 return;
@@ -127,7 +127,7 @@ public class IITC_WebViewClient extends WebViewClient {
             for(int i = 0; i < plugin_list.size(); i++) {
                 Log.d("iitcm", "adding plugin " + plugin_array[i]);
                 if (dev_enabled)
-                    this.loadJS(iitc_path + "/dev/plugins/" + plugin_array[i], false, view);
+                    this.loadJS(iitc_path + "dev/plugins/" + plugin_array[i], false, view);
                 else
                     this.loadJS("plugins/" + plugin_array[i], true, view);
             }
@@ -152,7 +152,7 @@ public class IITC_WebViewClient extends WebViewClient {
         Log.d("iitcm", "enable tracking...");
             // load plugin from external storage if dev mode are enabled
             if (dev_enabled)
-                this.loadJS(iitc_path + "/dev/user-location.user.js", false, view);
+                this.loadJS(iitc_path + "dev/user-location.user.js", false, view);
             else
                 // load plugin from asset folder
                 this.loadJS("user-location.user.js", true, view);
