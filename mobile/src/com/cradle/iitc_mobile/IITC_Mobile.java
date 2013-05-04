@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
+import android.graphics.Rect;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -67,8 +68,14 @@ public class IITC_Mobile extends Activity {
         iitc_view.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if ((iitc_view.getRootView().getHeight() - iitc_view.getHeight()) >
-                    iitc_view.getRootView().getHeight()/3) {
+              Rect r = new Rect();
+              //r will be populated with the coordinates of your view that area still visible.
+              iitc_view.getWindowVisibleDisplayFrame(r);
+
+              int screenHeight = iitc_view.getRootView().getHeight();
+              int heightDiff = screenHeight - (r.bottom - r.top);
+              boolean visible = heightDiff > screenHeight / 3;
+                if (visible == true) {
                     Log.d("iitcm", "Open Keyboard...");
                     IITC_Mobile.this.keyboad_open = true;
                 } else {
