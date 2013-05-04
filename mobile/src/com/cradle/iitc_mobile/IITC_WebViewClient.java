@@ -18,7 +18,6 @@ import android.widget.Toast;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Scanner;
@@ -69,31 +68,23 @@ public class IITC_WebViewClient extends WebViewClient {
 
         // if developer mode are enabled, load all iitc script from external storage
         if (sharedPref.getBoolean("pref_dev_checkbox", true)) {
-            File js_file = new File(iitc_path + "/dev/total-conversion-build.user.js");
-            if (!js_file.exists()) {
+            js = this.fileToString(iitc_path + "/dev/total-conversion-build.user.js", false);
+            if (js.equals("false")) {
                 Toast.makeText(context, "File " + iitc_path +
                         "/dev/total-conversion-build.user.js not found. " +
                         "Disable developer mode or add iitc files " +
                         "to the dev folder.", Toast.LENGTH_LONG).show();
+                return;
             } else {
                 Toast.makeText(context, "Developer mode enabled", Toast.LENGTH_SHORT).show();
             }
-            Scanner s = null;
-            s = new Scanner(js_file).useDelimiter("\\A");
-            if (s != null) js = s.hasNext() ? s.next() : "";
         } else {
             // load iitc script from web or asset folder
             if (iitc_source.contains("http")) {
                 URL url = new URL(iitc_source);
                 js = new Scanner(url.openStream(), "UTF-8").useDelimiter("\\A").next();
             } else {
-                InputStream input;
-                input = c.getAssets().open("total-conversion-build.user.js");
-                int size = input.available();
-                byte[] buffer = new byte[size];
-                input.read(buffer);
-                input.close();
-                js = new String(buffer);
+                js = this.fileToString("total-conversion-build.user.js", true);
             }
         }
 
@@ -131,27 +122,14 @@ public class IITC_WebViewClient extends WebViewClient {
 
         // iterate through all enabled plugins and load them
         if (plugin_list != null) {
-            AssetManager am = context.getAssets();
             String[] plugin_array = plugin_list.toArray(new String[0]);
 
             for(int i = 0; i < plugin_list.size(); i++) {
                 Log.d("iitcm", "adding plugin " + plugin_array[i]);
-                Scanner s = null;
-                String src = "";
-                try {
-                    // load plugins from external storage if dev mode are enabled
-                    if (dev_enabled) {
-                        File js_file = new File(iitc_path + "/dev/plugins/" + plugin_array[i]);
-                        s = new Scanner(js_file).useDelimiter("\\A");
-                    }
-                    else
-                        // load plugins from asset folder
-                        s = new Scanner(am.open("plugins/" + plugin_array[i])).useDelimiter("\\A");
-                } catch (IOException e2) {
-                    e2.printStackTrace();
-                }
-                if (s != null) src = s.hasNext() ? s.next() : "";
-                view.loadUrl("javascript:" + src);
+                if (dev_enabled)
+                    this.loadJS(iitc_path + "/dev/plugins/" + plugin_array[i], false, view);
+                else
+                    this.loadJS("plugins/" + plugin_array[i], true, view);
             }
         }
 
@@ -164,41 +142,63 @@ public class IITC_WebViewClient extends WebViewClient {
         File[] files = directory.listFiles();
         if (files != null) {
             for (int i = 0; i < files.length; ++i) {
-                try {
-                    // the file should be a user.js-file
-                    if (!files[i].toString().endsWith("user.js"))
-                        continue;
-                    String src = "";
-                    Scanner s = new Scanner(files[i]).useDelimiter("\\A");
-                    if (s != null) src = s.hasNext() ? s.next() : "";
-                    Log.d("iitcm", "Loading additional plugin " + iitc_path + files[i]);
-                    view.loadUrl("javascript:" + src);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
+                if(this.loadJS(files[i].toString(), false, view))
+                    Log.d("iitcm", "loading additional plugin " + files[i].toString());
             }
         }
     }
 
     public void enableTracking(WebView view, boolean dev_enabled) {
         Log.d("iitcm", "enable tracking...");
-        AssetManager am = context.getAssets();
-        Scanner s = null;
-        String src = "";
-        try {
             // load plugin from external storage if dev mode are enabled
-            if (dev_enabled) {
-                File js_file = new File(iitc_path + "/dev/user-location.user.js");
-                s = new Scanner(js_file).useDelimiter("\\A");
-            }
+            if (dev_enabled)
+                this.loadJS(iitc_path + "/dev/user-location.user.js", false, view);
             else
                 // load plugin from asset folder
-                s = new Scanner(am.open("user-location.user.js")).useDelimiter("\\A");
-        } catch (IOException e2) {
-            e2.printStackTrace();
+                this.loadJS("user-location.user.js", true, view);
+    }
+
+    // read a file into a string
+    // use the full path for File
+    // if asset == true use the asset manager to open file
+    public String fileToString(String file, boolean asset) {
+        Scanner s = null;
+        String src= "";
+        if (!asset) {
+            File js_file = new File(file);
+            try {
+                s = new Scanner(js_file).useDelimiter("\\A");
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                Log.d("iitcm", "failed to parse file " + file);
+                return "false";
+            }
+        } else {
+            // load plugins from asset folder
+            AssetManager am = context.getAssets();
+            try {
+                s = new Scanner(am.open(file)).useDelimiter("\\A");
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.d("iitcm", "failed to parse file assets/" + file);
+                return "false";
+            }
         }
+
         if (s != null) src = s.hasNext() ? s.next() : "";
-        view.loadUrl("javascript:" + src);
+        return src;
+    }
+
+    // read a file into a string
+    // load it as javascript
+    public boolean loadJS(String file, boolean asset, WebView view) {
+        if (!file.endsWith("user.js"))
+            return false;
+        String js = fileToString(file, asset);
+        if (js.equals("false"))
+            return false;
+        else view.loadUrl("javascript:" + js);
+        return true;
     }
 
     // Check every external resource if it’s okay to load it and maybe replace it
