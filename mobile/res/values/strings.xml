@@ -6,6 +6,7 @@
     <string name="reload">Reload IITC</string>
     <string name="version">Print Version</string>
     <string name="cache_clear">Clear Cache</string>
+    <string name="toggle_fullscreen">Toggle fullscreen</string>
     <string name="locate">Get Location</string>
     <string name="local">local</string>
     <string name="close">close</string>
@@ -37,6 +38,8 @@
     <string name="pref_force_desktop_sum">Nice for tablets, looks awful on smartphones</string>
     <string name="pref_user_loc">Display user location</string>
     <string name="pref_user_loc_sum">Show users position on map</string>
+    <string name="pref_force_https">Force https</string>
+    <string name="pref_force_https_sum">Disabling may improve performance</string>
     <string name="pref_developer_options">Developer options</string>
 	<string name="pref_enable_dev_mode">Enable developer mode</string>
 	<string name="pref_enable_dev_mode_sum">If enabled, all IITC sources will be loaded from external storage of the Android device.

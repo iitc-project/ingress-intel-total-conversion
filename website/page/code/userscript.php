@@ -26,7 +26,7 @@ function loadUserScriptHeader($file)
 		}
 	}
 
-	fclose ( $f );
+	fclose ( $file );
 
 	return $result;
 }

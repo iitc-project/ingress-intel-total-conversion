@@ -2,7 +2,12 @@ package com.cradle.iitc_mobile;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.preference.PreferenceManager;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -22,9 +27,10 @@ public class IITC_WebView extends WebView {
         settings.setDomStorageEnabled(true);
         settings.setAllowFileAccess(true);
         settings.setGeolocationEnabled(true);
+        settings.setAppCacheEnabled(true);
         settings.setDatabasePath(this.getContext().getApplicationInfo().dataDir + "/databases/");
-        settings.setAppCachePath(this.getContext().getApplicationInfo().dataDir + "/cache/");
-        settings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+        settings.setAppCachePath(this.getContext().getCacheDir().getAbsolutePath());
+        // use cache if on mobile network...saves traffic
         this.js_interface = new IITC_JSInterface(c);
         this.addJavascriptInterface(js_interface, "android");
 
@@ -61,12 +67,43 @@ public class IITC_WebView extends WebView {
     }
     //----------------------------------------------------------------
 
+    @Override
+    public void loadUrl(String url) {
+        if (!url.startsWith("javascript:")) {
+            // force https if enabled in settings
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
+            if (sharedPref.getBoolean("pref_force_https", true))
+                url = url.replace("http://", "https://");
+            else
+                url = url.replace("https://", "http://");
+            Log.d("iitcm", "loading url: " + url);
+        }
+        super.loadUrl(url);
+    }
+
     public IITC_WebViewClient getWebViewClient() {
         return this.webclient;
     }
 
     public IITC_JSInterface getJSInterface() {
         return this.js_interface;
+    }
+
+    public void updateCaching() {
+        if (!this.isConnectedToWifi())
+        {
+            Log.d("iitcm", "not connected to wifi...load tiles from cache");
+            settings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+        } else {
+            Log.d("iitcm", "connected to wifi...load tiles from network");
+            settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        }
+    }
+
+    private boolean isConnectedToWifi() {
+        ConnectivityManager conMan = (ConnectivityManager) getContext().getSystemService( Context.CONNECTIVITY_SERVICE );
+        NetworkInfo wifi = conMan.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        return wifi.getState() == NetworkInfo.State.CONNECTED;
     }
 
 }

@@ -168,6 +168,11 @@ else:
     os.makedirs(outDir)
 
 
+# run any preBuild commands
+for cmd in settings.get('preBuild',[]):
+    os.system ( cmd )
+
+
 # load main.js, parse, and create main total-conversion-build.user.js
 main = readfile('main.js')
 
@@ -190,15 +195,6 @@ for fn in glob.glob("plugins/*.user.js"):
 
     metafn = fn.replace('.user.js', '.meta.js')
     saveScriptAndMeta(script, os.path.join(outDir,fn), os.path.join(outDir,metafn))
-
-def copytree(src, dst, symlinks=False, ignore=None):
-    for item in os.listdir(src):
-        s = os.path.join(src, item)
-        d = os.path.join(dst, item)
-        if os.path.isdir(s):
-            shutil.copytree(s, d, symlinks, ignore)
-        else:
-            shutil.copy2(s, d)
 
 # if we're building mobile too
 if buildMobile:
@@ -223,13 +219,9 @@ if buildMobile:
     shutil.copy(os.path.join(outDir,"total-conversion-build.user.js"), "mobile/assets/total-conversion-build.user.js")
     # copy the user location script into the mobile folder.
     shutil.copy(os.path.join(outDir,"user-location.user.js"), "mobile/assets/user-location.user.js")
-
     # also copy plugins
-    try:
-        os.makedirs("mobile/assets/plugins")
-    except:
-        pass
-    copytree(os.path.join(outDir,"plugins"), "mobile/assets/plugins")
+    shutil.rmtree("mobile/assets/plugins")
+    shutil.copytree(os.path.join(outDir,"plugins"), "mobile/assets/plugins", ignore=shutil.ignore_patterns('*.meta.js', 'force-https*'))
 
 
     if buildMobile != 'copyonly':
@@ -240,6 +232,11 @@ if buildMobile:
             print ("Error: mobile app failed to build. ant returned %d" % retcode)
         else:
             shutil.copy("mobile/bin/IITC_Mobile-%s.apk" % buildMobile, os.path.join(outDir,"IITC_Mobile-%s.apk" % buildMobile) )
+
+
+# run any postBuild commands
+for cmd in settings.get('postBuild',[]):
+    os.system ( cmd )
 
 
 # vim: ai si ts=4 sw=4 sts=4 et

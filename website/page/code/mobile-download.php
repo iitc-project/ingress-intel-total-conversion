@@ -17,15 +17,21 @@ function getMobileVersion ( $apkfile )
 
 
 	$archive = $apkinfo->getApkArchive();
-	$iitc_file = "assets/total-conversion-build.user.js";
-	if ( $archive->statName ( $iitc_file ) === FALSE );
-		$iitc_file = "assets/iitc.js";
 
-	$stream = $archive->getStream ( $iitc_file );
+	$stream = $archive->getStream ( "assets/total-conversion-build.user.js" );
+	if ( ! $stream )
+		$stream = $archive->getStream ( "assets/iitc.js" );
 
-	$header = loadUserScriptHeader ( $stream );
+	if ( $stream )
+	{
+		$header = loadUserScriptHeader ( $stream );
 
-	$result['iitc_version'] = $header['@version'];
+		$result['iitc_version'] = $header['@version'];
+	}
+	else
+	{
+		$result['iitc_version'] = 'unknown';
+	}
 
 	return $result;
 }
@@ -40,7 +46,7 @@ function iitcMobileDownload ( $apkfile )
 
 	# we need an absolute link for the QR Code
 	# get the URL of this page itself
-	$pageurl = ($_SERVER['HTTPS'] ? "https" : "http")."://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+	$pageurl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? "https" : "http")."://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 	$apkurl = url_to_absolute ( $pageurl, $apkfile );
 ?>
 

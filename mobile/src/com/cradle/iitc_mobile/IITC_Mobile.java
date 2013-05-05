@@ -20,10 +20,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
+import android.graphics.Rect;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 public class IITC_Mobile extends Activity {
@@ -37,6 +39,7 @@ public class IITC_Mobile extends Activity {
     private LocationManager loc_mngr = null;
     private LocationListener loc_listener = null;
     private boolean keyboad_open = false;
+    private boolean fullscreen_mode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +68,14 @@ public class IITC_Mobile extends Activity {
         iitc_view.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if ((iitc_view.getRootView().getHeight() - iitc_view.getHeight()) >
-                    iitc_view.getRootView().getHeight()/3) {
+              Rect r = new Rect();
+              //r will be populated with the coordinates of your view that area still visible.
+              iitc_view.getWindowVisibleDisplayFrame(r);
+
+              int screenHeight = iitc_view.getRootView().getHeight();
+              int heightDiff = screenHeight - (r.bottom - r.top);
+              boolean visible = heightDiff > screenHeight / 3;
+                if (visible == true) {
                     Log.d("iitcm", "Open Keyboard...");
                     IITC_Mobile.this.keyboad_open = true;
                 } else {
@@ -114,7 +123,6 @@ public class IITC_Mobile extends Activity {
             }
         }
         else {
-            Log.d("iitcm", "no intent...loading " + intel_url);
             this.loadUrl(intel_url);
         }
     }
@@ -127,6 +135,7 @@ public class IITC_Mobile extends Activity {
         Log.d("iitcm", "resuming...setting reset idleTimer");
         iitc_view.loadUrl("javascript: window.idleTime = 0");
         iitc_view.loadUrl("javascript: window.renderUpdateStatus()");
+        iitc_view.updateCaching();
 
         if (user_loc == true) {
             // Register the listener with the Location Manager to receive location updates
@@ -181,6 +190,17 @@ public class IITC_Mobile extends Activity {
     // we want a self defined behavior for the back button
     @Override
     public void onBackPressed() {
+        // leave fullscreen mode if it is enabled
+        if (fullscreen_mode) {
+            // get back action bar
+            this.getActionBar().show();
+            // show notification bar again
+            WindowManager.LayoutParams attrs = getWindow().getAttributes();
+            attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
+            this.getWindow().setAttributes(attrs);
+            this.fullscreen_mode = false;
+            return;
+        }
         if (this.back_button_pressed) {
             super.onBackPressed();
             return;
@@ -218,6 +238,29 @@ public class IITC_Mobile extends Activity {
             iitc_view.clearHistory();
             iitc_view.clearFormData();
             iitc_view.clearCache(true);
+            return true;
+        // toggle fullscreen
+        case R.id.toggle_fullscreen:
+            if (!this.fullscreen_mode) {
+                // get rid of action bar
+                this.getActionBar().hide();
+                // hide notification bar
+                WindowManager.LayoutParams attrs = getWindow().getAttributes();
+                attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
+                this.getWindow().setAttributes(attrs);
+                this.fullscreen_mode = true;
+                // show a little toast for the user
+                Toast.makeText(this, "Press back button to exit fullscreen", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                // get back action bar
+                this.getActionBar().show();
+                // show notification bar again
+                WindowManager.LayoutParams attrs = getWindow().getAttributes();
+                attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
+                this.getWindow().setAttributes(attrs);
+                this.fullscreen_mode = false;
+            }
             return true;
         // get the users current location and focus it on map
         case R.id.locate:
@@ -259,9 +302,8 @@ public class IITC_Mobile extends Activity {
     // plugins are injected onPageFinished
     public void loadUrl(String url) {
         url = addUrlParam(url);
-        Log.d("iitcm", "injecting js...");
+        Log.d("iitcm", "injecting main-script...");
         injectJS();
-        Log.d("iitcm", "loading url: " + url);
         iitc_view.loadUrl(url);
     }
 

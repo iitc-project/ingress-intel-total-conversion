@@ -2,6 +2,14 @@
 
 # if you want to have custom builds, copy this file to "localbuildsettings.py" and make changes there.
 
+# possible fields:
+# resourceBaseUrl - optional - the URL base for external resources (all resources embedded in standard IITC)
+# distUrlBase - optional - the base URL to use for update checks
+# buildMobild - optional - if set, mobild builds are built with 'ant'. requires the Android SDK and appropriate mobile/local.properties file configured
+# preBuild - optional - an array of strings to run as commands, via os.system, before building the scripts
+# postBuild - optional - an array of string to run as commands, via os.system, after all builds are complete
+
+
 buildSettings = {
     # local: use this build if you're not modifying external resources
     # no external resources allowed - they're not needed any more
@@ -38,6 +46,7 @@ buildSettings = {
 
 
 }
+
 
 
 # defaultBuild - the name of the default build to use if none is specified on the build.py command line
