@@ -359,16 +359,21 @@ window.updateDisplayedLayerGroup = function(name, display) {
 
 // Read layerGroup status from window.overlayStatus if it was added to map,
 // read from cookie if it has not added to map yet.
-// return true if both overlayStatus and cookie didn't have the record
-window.isLayerGroupDisplayed = function(name) {
+// return 'defaultDisplay' if both overlayStatus and cookie didn't have the record
+window.isLayerGroupDisplayed = function(name, defaultDisplay) {
   if(typeof(overlayStatus[name]) !== 'undefined') return overlayStatus[name];
 
   var layersJSON = readCookie('ingress.intelmap.layergroupdisplayed');
-  if(!layersJSON) return true;
+  if(!layersJSON) return defaultDisplay;
 
   var layers = JSON.parse(layersJSON);
   // keep latest overlayStatus
   overlayStatus = $.extend(layers, overlayStatus);
-  if(typeof(overlayStatus[name]) === 'undefined') return true;
+  if(typeof(overlayStatus[name]) === 'undefined') return defaultDisplay;
   return overlayStatus[name];
+}
+
+window.addLayerGroup = function(name, layerGroup, defaultDisplay) {
+  if(isLayerGroupDisplayed(name, defaultDisplay)) map.addLayer(layerGroup);
+  layerChooser.addOverlay(layerGroup, name);
 }
