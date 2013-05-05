@@ -106,9 +106,7 @@ window.plugin.keysOnMap.setupCSS = function() {
 }
 
 window.plugin.keysOnMap.setupLayer = function() {
-  window.layerChooser.addOverlay(window.plugin.keysOnMap.keyLayerGroup, 'Keys');
-  if(isLayerGroupDisplayed('Keys'))
-    map.addLayer(window.plugin.keysOnMap.keyLayerGroup);
+  window.addLayerGroup('Keys', window.plugin.keysOnMap.keyLayerGroup, false);
 }
 
 var setup =  function() {
