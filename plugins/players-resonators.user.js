@@ -71,7 +71,7 @@ window.plugin.playersResonators.findReso = function(playername) {
     fakeLinkPlayer = '<a href="#" onClick="return false;">' + effectiveNick + '</a>'
     s = fakeLinkPlayer + " has resonators on these portals:\n\n" + s;  
   } else {
-    s = fakeLinkPlayer + " has no resonators in this range\n";  
+    s = playername + " has no resonators in this range\n";  
   }
   alert(s);
 }
