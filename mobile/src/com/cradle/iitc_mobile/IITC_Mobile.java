@@ -223,6 +223,7 @@ public class IITC_Mobile extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        this.getActionBar().setHomeButtonEnabled(true);
         return true;
     }
 
@@ -230,6 +231,9 @@ public class IITC_Mobile extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
+        case android.R.id.home:
+        	iitc_view.loadUrl("javascript: window.smartphone.mapButton.click();");
+        	return true;
         case R.id.reload_button:
             this.loadUrl(intel_url);
             return true;
@@ -272,6 +276,9 @@ public class IITC_Mobile extends Activity {
             intent.putExtra("iitc_version", iitc_view.getWebViewClient().getIITCVersion());
             startActivity(intent);
             return true;
+        case R.id.info:
+        	iitc_view.loadUrl("javascript: window.smartphone.sideButton.click();");
+        	return true;
         default:
             return super.onOptionsItemSelected(item);
         }
