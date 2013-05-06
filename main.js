@@ -97,8 +97,7 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '    </div>'
   + '  </div>'
   + '</div>'
-  + '<div id="updatestatus"></div>'
-  + '<div id="dialog"></div>';
+  + '<div id="updatestatus"></div>';
 
 // putting everything in a wrapper function that in turn is placed in a
 // script tag on the website allows us to execute in the site’s context

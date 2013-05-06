@@ -732,9 +732,9 @@ h3 {
   opacity: 0.6;
 }
 
-.ui-dialog-titlebar {
+/*.ui-dialog-titlebar {
   display: none;
-}
+}*/
 
 .ui-dialog-content {
   padding: 12px;
