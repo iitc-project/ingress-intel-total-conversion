@@ -85,11 +85,17 @@
             <item
                 android:id="@+id/cache_clear"
                 android:icon="@drawable/content_remove"
-                android:orderInCategory="200"
+                android:orderInCategory="150"
                 android:showAsAction="never"
                 android:title="@string/cache_clear">
             </item>
-        </menu>
+            <item
+                android:id="@+id/menu_exit"
+                android:orderInCategory="200"
+                android:showAsAction="never"
+                android:title="@string/menu_exit">
+            </item>
+            </menu>
     </item>
 
 </menu>

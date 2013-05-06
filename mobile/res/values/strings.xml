@@ -53,4 +53,5 @@
     <string name="menu_public">Public</string>
     <string name="menu_faction">Faction</string>
     <string name="menu_info">Info</string>
+    <string name="menu_exit">Exit</string>
 </resources>

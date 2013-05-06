@@ -281,6 +281,7 @@ public class IITC_Mobile extends Activity {
             return true;
         // get the users current location and focus it on map
         case R.id.locate:
+        	iitc_view.loadUrl("javascript: window.smartphone.mapButton.click();");
             iitc_view.loadUrl("javascript: window.map.locate({setView : true, maxZoom: 13});");
         	actionBar.setTitle(getString(R.string.menu_map));
             return true;
@@ -309,6 +310,9 @@ public class IITC_Mobile extends Activity {
         case R.id.menu_faction:
         	iitc_view.loadUrl("javascript: window.chat.choose('faction');");
             actionBar.setTitle(getString(R.string.menu_faction));
+        	return true;
+        case R.id.menu_exit:
+        	super.onBackPressed();
         	return true;
         default:
             return super.onOptionsItemSelected(item);
