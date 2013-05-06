@@ -708,7 +708,7 @@ h3 {
   background-color: rgba(8, 48, 78, 0.9);
   border: 1px solid #20A8B1;
   color: #eee;
-  font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+  font: 13px/15px Roboto, Arial, Helvetica, sans-serif;
   padding: 2px 4px;
 }
 
@@ -732,9 +732,22 @@ h3 {
   opacity: 0.6;
 }
 
-/*.ui-dialog-titlebar {
-  display: none;
-}*/
+.ui-dialog-titlebar {
+  text-align: center;
+  padding: 4px;
+  background-color: rgba(8, 60, 78, 0.9);
+}
+
+.ui-dialog-title {
+  padding: 2px;
+  font-weight: bold;
+}
+
+.ui-dialog-titlebar-close {
+  position: absolute;
+  right: .2em;
+  top: 0;
+}
 
 .ui-dialog-content {
   padding: 12px;
@@ -756,7 +769,7 @@ h3 {
 .ui-dialog-buttonset button,
 .ui-dialog-content button {
   padding: 2px;
-  min-width: 80px;
+  min-width: 40px;
   color: #FFCE00;
   border: 1px solid #FFCE00;
   background-color: rgba(8, 48, 78, 0.9);
@@ -782,12 +795,12 @@ td + td {
 
 #qrcode > canvas {
   border: 8px solid white;
-} 
+}
 
 /* redeem results *****************************************************/
 .redeem-result {
   font-size: 14px;
-  font-family: arial,helvetica,sans-serif;
+  font-family: Roboto, Arial, Helvetica, sans-serif;
   table-layout: fixed;
 }
 

@@ -339,27 +339,6 @@ window.setupTooltips = function(element) {
   }
 }
 
-window.setupDialogs = function() {
-  window.dialogID = 0;
-  window.alert = function(text, isHTML, closeCallback) {
-    var id = 'dialog-' + window.dialogID++;
-    $('body').append('<div id="' + id + '"></div>');
-    $('#' + id).dialog({
-      autoOpen: false,
-      modal: false,
-      data: {closeCallback: closeCallback},
-      buttons: {
-	'OK': function() {
-	  if($(this).data("closeCallback")) {
-	    $(this).data("closeCallback")();
-	  }
-	  $(this).dialog('close');
-	}
-      }
-    }).html(isHTML ? text : window.convertTextToTableMagic(text)).dialog('open');
-  }
-}
-
 window.setupTaphold = function() {
   @@INCLUDERAW:external/taphold.js@@
 }
