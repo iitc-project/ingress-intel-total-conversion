@@ -80,7 +80,7 @@ window.runOnSmartphonesAfterBoot = function() {
   if(!isSmartphone()) return;
   console.warn('running smartphone post boot stuff');
 
-  chat.toggle();
+  //chat.toggle();
   smartphone.mapButton.click();
 
   // disable img full view

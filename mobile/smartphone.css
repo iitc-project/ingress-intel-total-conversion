@@ -30,6 +30,7 @@ body {
 #chatcontrols {
   height: 38px;
   width: 100%;
+  display: hidden;
 }
 
 /* hide shrink button */
@@ -52,7 +53,6 @@ body {
 #chat {
   left:0;
   right:0;
-  top:37px !important;
   bottom:30px;
   width: auto;
 }
@@ -74,7 +74,6 @@ body {
 }
 
 #scrollwrapper {
-  top: 36px;
   bottom: 0;
   max-height: none !important;
   width: 100% !important;

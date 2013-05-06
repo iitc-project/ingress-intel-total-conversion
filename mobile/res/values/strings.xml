@@ -3,7 +3,6 @@
 
     <string name="app_name">IITC mobile</string>
     <string name="action_settings">Settings</string>
-    <string name="action_info">Info</string>
     <string name="reload">Reload IITC</string>
     <string name="version">Print Version</string>
     <string name="cache_clear">Clear Cache</string>
@@ -46,5 +45,12 @@
 	<string name="pref_enable_dev_mode_sum">If enabled, all IITC sources will be loaded from external storage of the Android device.
 	    Please copy all sources from $IITC_folder/build/mobile/ to /sdcard/IITC_Mobile/dev/.</string>
     <string name="pref_select_iitc">IITC source</string>
-
+    
+    <string name="menu_chat">Chat</string>
+    <string name="menu_map">Map</string>
+    <string name="menu_full">Full</string>
+    <string name="menu_compact">Compact</string>
+    <string name="menu_public">Public</string>
+    <string name="menu_faction">Faction</string>
+    <string name="menu_info">Info</string>
 </resources>

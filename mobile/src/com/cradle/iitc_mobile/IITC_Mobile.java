@@ -3,7 +3,6 @@ package com.cradle.iitc_mobile;
 import java.io.IOException;
 
 import com.cradle.iitc_mobile.R;
-
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -14,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -40,16 +40,23 @@ public class IITC_Mobile extends Activity {
     private LocationListener loc_listener = null;
     private boolean keyboad_open = false;
     private boolean fullscreen_mode = false;
+    private ActionBar actionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+                
         // TODO build an async task for url.openStream() in IITC_WebViewClient
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);        
         iitc_view = (IITC_WebView) findViewById(R.id.iitc_webview);
 
+        actionBar = this.getActionBar();
+        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_TITLE);
+        actionBar.setTitle(getString(R.string.menu_map));
+        actionBar.setHomeButtonEnabled(true);
+        
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         listener = new OnSharedPreferenceChangeListener() {
             @Override
@@ -193,7 +200,7 @@ public class IITC_Mobile extends Activity {
         // leave fullscreen mode if it is enabled
         if (fullscreen_mode) {
             // get back action bar
-            this.getActionBar().show();
+            actionBar.show();
             // show notification bar again
             WindowManager.LayoutParams attrs = getWindow().getAttributes();
             attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
@@ -223,7 +230,7 @@ public class IITC_Mobile extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        this.getActionBar().setHomeButtonEnabled(true);
+        
         return true;
     }
 
@@ -233,9 +240,15 @@ public class IITC_Mobile extends Activity {
         switch (item.getItemId()) {
         case android.R.id.home:
         	iitc_view.loadUrl("javascript: window.smartphone.mapButton.click();");
+        	actionBar.setTitle(getString(R.string.menu_map));
+        	return true;
+        case R.id.menu_map:
+        	iitc_view.loadUrl("javascript: window.smartphone.mapButton.click();");
+        	actionBar.setTitle(getString(R.string.menu_map));
         	return true;
         case R.id.reload_button:
             this.loadUrl(intel_url);
+        	actionBar.setTitle(getString(R.string.menu_map));
             return true;
         // clear cache
         case R.id.cache_clear:
@@ -269,15 +282,33 @@ public class IITC_Mobile extends Activity {
         // get the users current location and focus it on map
         case R.id.locate:
             iitc_view.loadUrl("javascript: window.map.locate({setView : true, maxZoom: 13});");
+        	actionBar.setTitle(getString(R.string.menu_map));
             return true;
         // start settings activity
-        case R.id.settings:
+        case R.id.action_settings:
             Intent intent = new Intent(this, IITC_Settings.class);
             intent.putExtra("iitc_version", iitc_view.getWebViewClient().getIITCVersion());
             startActivity(intent);
             return true;
-        case R.id.info:
+        case R.id.menu_info:
         	iitc_view.loadUrl("javascript: window.smartphone.sideButton.click();");
+            actionBar.setTitle(getString(R.string.menu_info));
+        	return true;
+        case R.id.menu_full:
+        	iitc_view.loadUrl("javascript: window.chat.choose('full');");
+            actionBar.setTitle(getString(R.string.menu_full));
+        	return true;
+        case R.id.menu_compact:
+        	iitc_view.loadUrl("javascript: window.chat.choose('compact');");
+            actionBar.setTitle(getString(R.string.menu_compact));
+        	return true;
+        case R.id.menu_public:
+        	iitc_view.loadUrl("javascript: window.chat.choose('public');");
+            actionBar.setTitle(getString(R.string.menu_public));
+        	return true;
+        case R.id.menu_faction:
+        	iitc_view.loadUrl("javascript: window.chat.choose('faction');");
+            actionBar.setTitle(getString(R.string.menu_faction));
         	return true;
         default:
             return super.onOptionsItemSelected(item);

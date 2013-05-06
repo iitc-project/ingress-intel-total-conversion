@@ -473,9 +473,7 @@ window.chat.needMoreMessages = function() {
     chat.requestPublic(true);
 }
 
-
-window.chat.chooser = function(event) {
-  var t = $(event.target);
+window.chat.chooseAnchor = function(t) {
   var tt = t.text();
 
   var mark = $('#chatinput mark');
@@ -524,6 +522,18 @@ window.chat.chooser = function(event) {
   chat.needMoreMessages();
 }
 
+window.chat.choose = function(name) {
+    $('#chat, #chatinput, #updatestatus').show();
+    $('#map').css('visibility', 'hidden');
+	
+    var t = $('<a>'+name+'</a>');
+    window.chat.chooseAnchor(t);
+}
+
+window.chat.chooser = function(event) {
+  var t = $(event.target);
+  window.chat.chooseAnchor(t);
+}
 
 // contains the logic to keep the correct scroll position.
 window.chat.keepScrollPosition = function(box, scrollBefore, isOldMsgs) {
