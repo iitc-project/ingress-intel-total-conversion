@@ -21,7 +21,8 @@ public class IITC_JSInterface {
     // send geo intent for navigation apps like gmaps or waze etc...
     @JavascriptInterface
     public void intentPosLink(String lat, String lng, String portal_name) {
-        String uri = "geo:" + lat + "," + lng + "?q=" + lat + "," + lng + portal_name;
+        String uri = "geo:" + lat + "," + lng + "?q=" + lat + "," + lng
+                + portal_name;
         Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
                 Uri.parse(uri));
         context.startActivity(intent);
@@ -30,9 +31,11 @@ public class IITC_JSInterface {
     // copy link to specific portal to android clipboard
     @JavascriptInterface
     public void copy(String s) {
-        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipboardManager clipboard = (ClipboardManager) context
+                .getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("Copied Text ", s);
-            clipboard.setPrimaryClip(clip);
-        Toast.makeText(context, "copied to clipboard", Toast.LENGTH_SHORT).show();
+        clipboard.setPrimaryClip(clip);
+        Toast.makeText(context, "copied to clipboard", Toast.LENGTH_SHORT)
+                .show();
     }
 }

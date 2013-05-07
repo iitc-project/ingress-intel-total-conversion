@@ -34,8 +34,8 @@
     <string name="pref_misc_cat">Misc</string>
     <string name="pref_plugins">Plugins</string>
     <string name="pref_plugins_title">Available plugins</string>
-    <string name="pref_force_desktop">Force desktop mode</string>
-    <string name="pref_force_desktop_sum">Nice for tablets, looks awful on smartphones</string>
+    <string name="pref_user_zoom">Show zoom control</string>
+    <string name="pref_user_zoom_sum">Shows +/- buttons even on multitouch capable devices.</string>
     <string name="pref_user_loc">Display user location</string>
     <string name="pref_user_loc_sum">Show users position on map</string>
     <string name="pref_force_https">Force https</string>
@@ -46,4 +46,12 @@
 	    Please copy all sources from $IITC_folder/build/mobile/ to /sdcard/IITC_Mobile/dev/.</string>
     <string name="pref_select_iitc">IITC source</string>
 
+    <string name="menu_chat">Chat</string>
+    <string name="menu_map">Map</string>
+    <string name="menu_full">Full</string>
+    <string name="menu_compact">Compact</string>
+    <string name="menu_public">Public</string>
+    <string name="menu_faction">Faction</string>
+    <string name="menu_info">Info</string>
+    <string name="menu_debug">Debug</string>
 </resources>

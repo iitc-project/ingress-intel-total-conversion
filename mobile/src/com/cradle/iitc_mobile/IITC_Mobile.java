@@ -3,7 +3,6 @@ package com.cradle.iitc_mobile;
 import java.io.IOException;
 
 import com.cradle.iitc_mobile.R;
-
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -14,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -32,7 +32,6 @@ public class IITC_Mobile extends Activity {
 
     private IITC_WebView iitc_view;
     private boolean back_button_pressed = false;
-    private boolean desktop = false;
     private OnSharedPreferenceChangeListener listener;
     private String intel_url = "https://www.ingress.com/intel";
     private boolean user_loc = false;
@@ -40,72 +39,94 @@ public class IITC_Mobile extends Activity {
     private LocationListener loc_listener = null;
     private boolean keyboad_open = false;
     private boolean fullscreen_mode = false;
+    private ActionBar actionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         // TODO build an async task for url.openStream() in IITC_WebViewClient
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                .permitAll().build();
         StrictMode.setThreadPolicy(policy);
         setContentView(R.layout.activity_main);
         iitc_view = (IITC_WebView) findViewById(R.id.iitc_webview);
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        actionBar = this.getActionBar();
+        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
+                | ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_TITLE);
+        actionBar.setTitle(getString(R.string.menu_map));
+        actionBar.setHomeButtonEnabled(true);
+
+        SharedPreferences sharedPref = PreferenceManager
+                .getDefaultSharedPreferences(this);
         listener = new OnSharedPreferenceChangeListener() {
             @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                if (key.equals("pref_force_desktop"))
-                    desktop = sharedPreferences.getBoolean("pref_force_desktop", false);
+            public void onSharedPreferenceChanged(
+                    SharedPreferences sharedPreferences, String key) {
                 if (key.equals("pref_user_loc"))
-                    user_loc = sharedPreferences.getBoolean("pref_user_loc", false);
+                    user_loc = sharedPreferences.getBoolean("pref_user_loc",
+                            false);
                 IITC_Mobile.this.loadUrl(intel_url);
             }
         };
         sharedPref.registerOnSharedPreferenceChangeListener(listener);
 
-        // we need this one to prevent location updates to javascript when keyboard is open
+        // we need this one to prevent location updates to javascript when
+        // keyboard is open
         // it closes on updates
-        iitc_view.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-              Rect r = new Rect();
-              //r will be populated with the coordinates of your view that area still visible.
-              iitc_view.getWindowVisibleDisplayFrame(r);
+        iitc_view.getViewTreeObserver().addOnGlobalLayoutListener(
+                new OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        Rect r = new Rect();
+                        // r will be populated with the coordinates of your view
+                        // that area still visible.
+                        iitc_view.getWindowVisibleDisplayFrame(r);
 
-              int screenHeight = iitc_view.getRootView().getHeight();
-              int heightDiff = screenHeight - (r.bottom - r.top);
-              boolean visible = heightDiff > screenHeight / 3;
-                if (visible == true) {
-                    Log.d("iitcm", "Open Keyboard...");
-                    IITC_Mobile.this.keyboad_open = true;
-                } else {
-                    Log.d("iitcm", "Close Keyboard...");
-                    IITC_Mobile.this.keyboad_open = false;
-                }
-            }
-        });
+                        int screenHeight = iitc_view.getRootView().getHeight();
+                        int heightDiff = screenHeight - (r.bottom - r.top);
+                        boolean visible = heightDiff > screenHeight / 3;
+                        if (visible == true) {
+                            Log.d("iitcm", "Open Keyboard...");
+                            IITC_Mobile.this.keyboad_open = true;
+                        } else {
+                            Log.d("iitcm", "Close Keyboard...");
+                            IITC_Mobile.this.keyboad_open = false;
+                        }
+                    }
+                });
         // Acquire a reference to the system Location Manager
-        loc_mngr = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        loc_mngr = (LocationManager) this
+                .getSystemService(Context.LOCATION_SERVICE);
 
         // Define a listener that responds to location updates
         loc_listener = new LocationListener() {
             public void onLocationChanged(Location location) {
-              // Called when a new location is found by the network location provider.
-              drawMarker(location);
+                // Called when a new location is found by the network location
+                // provider.
+                drawMarker(location);
             }
 
-            public void onStatusChanged(String provider, int status, Bundle extras) {}
+            public void onStatusChanged(String provider, int status,
+                    Bundle extras) {
+            }
 
-            public void onProviderEnabled(String provider) {}
+            public void onProviderEnabled(String provider) {
+            }
 
-            public void onProviderDisabled(String provider) {}
-          };
+            public void onProviderDisabled(String provider) {
+            }
+        };
 
         user_loc = sharedPref.getBoolean("pref_user_loc", false);
         if (user_loc == true) {
-            // Register the listener with the Location Manager to receive location updates
-            loc_mngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, loc_listener);
-            loc_mngr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, loc_listener);
+            // Register the listener with the Location Manager to receive
+            // location updates
+            loc_mngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
+                    0, 0, loc_listener);
+            loc_mngr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
+                    loc_listener);
         }
 
         // load new iitc web view with ingress intel page
@@ -121,8 +142,7 @@ public class IITC_Mobile extends Activity {
                 Log.d("iitcm", "loading url...");
                 this.loadUrl(url);
             }
-        }
-        else {
+        } else {
             this.loadUrl(intel_url);
         }
     }
@@ -138,9 +158,12 @@ public class IITC_Mobile extends Activity {
         iitc_view.updateCaching();
 
         if (user_loc == true) {
-            // Register the listener with the Location Manager to receive location updates
-            loc_mngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, loc_listener);
-            loc_mngr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, loc_listener);
+            // Register the listener with the Location Manager to receive
+            // location updates
+            loc_mngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
+                    0, 0, loc_listener);
+            loc_mngr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
+                    loc_listener);
         }
     }
 
@@ -148,25 +171,32 @@ public class IITC_Mobile extends Activity {
     protected void onStop() {
         ConnectivityManager conMan = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        NetworkInfo mobile = conMan.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        NetworkInfo mobile = conMan
+                .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
         NetworkInfo wifi = conMan.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
         // check if Mobile or Wifi module is available..then handle states
-        // TODO: theory...we do not have to check for a Wifi module...every android device should have one
+        // TODO: theory...we do not have to check for a Wifi module...every
+        // android device should have one
         if (mobile != null) {
             Log.d("iitcm", "mobile internet module detected...check states");
-            if (mobile.getState() == NetworkInfo.State.CONNECTED || mobile.getState() == NetworkInfo.State.CONNECTING) {
-                Log.d("iitcm", "connected to mobile net...abort all running requests");
+            if (mobile.getState() == NetworkInfo.State.CONNECTED
+                    || mobile.getState() == NetworkInfo.State.CONNECTING) {
+                Log.d("iitcm",
+                        "connected to mobile net...abort all running requests");
                 // cancel all current requests
                 iitc_view.loadUrl("javascript: window.requests.abort()");
                 // set idletime to maximum...no need for more
                 iitc_view.loadUrl("javascript: window.idleTime = 999");
-            } else if (wifi.getState() == NetworkInfo.State.CONNECTED || wifi.getState() == NetworkInfo.State.CONNECTING) {
-                    iitc_view.loadUrl("javascript: window.idleTime = 999");
+            } else if (wifi.getState() == NetworkInfo.State.CONNECTED
+                    || wifi.getState() == NetworkInfo.State.CONNECTING) {
+                iitc_view.loadUrl("javascript: window.idleTime = 999");
             }
         } else {
-            Log.d("iitcm", "no mobile internet module detected...check wifi state");
-            if (wifi.getState() == NetworkInfo.State.CONNECTED || wifi.getState() == NetworkInfo.State.CONNECTING) {
+            Log.d("iitcm",
+                    "no mobile internet module detected...check wifi state");
+            if (wifi.getState() == NetworkInfo.State.CONNECTED
+                    || wifi.getState() == NetworkInfo.State.CONNECTING) {
                 iitc_view.loadUrl("javascript: window.idleTime = 999");
             }
         }
@@ -193,7 +223,7 @@ public class IITC_Mobile extends Activity {
         // leave fullscreen mode if it is enabled
         if (fullscreen_mode) {
             // get back action bar
-            this.getActionBar().show();
+            actionBar.show();
             // show notification bar again
             WindowManager.LayoutParams attrs = getWindow().getAttributes();
             attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
@@ -214,7 +244,7 @@ public class IITC_Mobile extends Activity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                back_button_pressed=false;
+                back_button_pressed = false;
             }
         }, 500);
     }
@@ -223,6 +253,7 @@ public class IITC_Mobile extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+
         return true;
     }
 
@@ -230,50 +261,90 @@ public class IITC_Mobile extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-        case R.id.reload_button:
-            this.loadUrl(intel_url);
-            return true;
-        // clear cache
-        case R.id.cache_clear:
-            iitc_view.clearHistory();
-            iitc_view.clearFormData();
-            iitc_view.clearCache(true);
-            return true;
-        // toggle fullscreen
-        case R.id.toggle_fullscreen:
-            if (!this.fullscreen_mode) {
-                // get rid of action bar
-                this.getActionBar().hide();
-                // hide notification bar
-                WindowManager.LayoutParams attrs = getWindow().getAttributes();
-                attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
-                this.getWindow().setAttributes(attrs);
-                this.fullscreen_mode = true;
-                // show a little toast for the user
-                Toast.makeText(this, "Press back button to exit fullscreen", Toast.LENGTH_SHORT).show();
-            }
-            else {
-                // get back action bar
-                this.getActionBar().show();
-                // show notification bar again
-                WindowManager.LayoutParams attrs = getWindow().getAttributes();
-                attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
-                this.getWindow().setAttributes(attrs);
-                this.fullscreen_mode = false;
-            }
-            return true;
-        // get the users current location and focus it on map
-        case R.id.locate:
-            iitc_view.loadUrl("javascript: window.map.locate({setView : true, maxZoom: 13});");
-            return true;
-        // start settings activity
-        case R.id.settings:
-            Intent intent = new Intent(this, IITC_Settings.class);
-            intent.putExtra("iitc_version", iitc_view.getWebViewClient().getIITCVersion());
-            startActivity(intent);
-            return true;
-        default:
-            return super.onOptionsItemSelected(item);
+            case android.R.id.home :
+                iitc_view.loadUrl("javascript: window.show('map');");
+                actionBar.setTitle(getString(R.string.menu_map));
+                return true;
+            case R.id.menu_map :
+                iitc_view.loadUrl("javascript: window.show('map');");
+                actionBar.setTitle(getString(R.string.menu_map));
+                return true;
+            case R.id.reload_button :
+                this.loadUrl(intel_url);
+                actionBar.setTitle(getString(R.string.menu_map));
+                return true;
+                // clear cache
+            case R.id.cache_clear :
+                iitc_view.clearHistory();
+                iitc_view.clearFormData();
+                iitc_view.clearCache(true);
+                return true;
+                // toggle fullscreen
+            case R.id.toggle_fullscreen :
+                if (!this.fullscreen_mode) {
+                    // get rid of action bar
+                    this.getActionBar().hide();
+                    // hide notification bar
+                    WindowManager.LayoutParams attrs = getWindow()
+                            .getAttributes();
+                    attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
+                    this.getWindow().setAttributes(attrs);
+                    this.fullscreen_mode = true;
+                    // show a little toast for the user
+                    Toast.makeText(this,
+                            "Press back button to exit fullscreen",
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    // get back action bar
+                    this.getActionBar().show();
+                    // show notification bar again
+                    WindowManager.LayoutParams attrs = getWindow()
+                            .getAttributes();
+                    attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
+                    this.getWindow().setAttributes(attrs);
+                    this.fullscreen_mode = false;
+                }
+                return true;
+                // get the users current location and focus it on map
+            case R.id.locate :
+                iitc_view.loadUrl("javascript: window.show('map');");
+                iitc_view
+                        .loadUrl("javascript: window.map.locate({setView : true, maxZoom: 13});");
+                actionBar.setTitle(getString(R.string.menu_map));
+                return true;
+                // start settings activity
+            case R.id.action_settings :
+                Intent intent = new Intent(this, IITC_Settings.class);
+                intent.putExtra("iitc_version", iitc_view.getWebViewClient()
+                        .getIITCVersion());
+                startActivity(intent);
+                return true;
+            case R.id.menu_info :
+                iitc_view.loadUrl("javascript: window.show('info');");
+                actionBar.setTitle(getString(R.string.menu_info));
+                return true;
+            case R.id.menu_full :
+                iitc_view.loadUrl("javascript: window.show('full');");
+                actionBar.setTitle(getString(R.string.menu_full));
+                return true;
+            case R.id.menu_compact :
+                iitc_view.loadUrl("javascript: window.show('compact');");
+                actionBar.setTitle(getString(R.string.menu_compact));
+                return true;
+            case R.id.menu_public :
+                iitc_view.loadUrl("javascript: window.show('public');");
+                actionBar.setTitle(getString(R.string.menu_public));
+                return true;
+            case R.id.menu_faction :
+                iitc_view.loadUrl("javascript: window.show('faction');");
+                actionBar.setTitle(getString(R.string.menu_faction));
+                return true;
+            case R.id.menu_debug :
+                iitc_view.loadUrl("javascript: window.show('debug')");
+                actionBar.setTitle(getString(R.string.menu_debug));
+                return true;
+            default :
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -287,15 +358,10 @@ public class IITC_Mobile extends Activity {
         }
     }
 
-    // vp=f enables desktop mode...vp=m is the defaul mobile view
+    // Force mobile view.
+    // New actions are not compatible with desktop mode
     private String addUrlParam(String url) {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        this.desktop = sharedPref.getBoolean("pref_force_desktop", false);
-
-        if (desktop)
-            return (url + "?vp=f");
-        else
-            return (url + "?vp=m");
+        return (url + "?vp=m");
     }
 
     // inject the iitc-script and load the intel url
@@ -313,9 +379,9 @@ public class IITC_Mobile extends Activity {
         // should avoid gps glitches
         if (loc.getAccuracy() < 100) {
             if (keyboad_open == false) {
-                iitc_view.loadUrl("javascript: " +
-                        "window.plugin.userLocation.updateLocation( " +
-                        loc.getLatitude() + ", " + loc.getLongitude() + ");");
+                iitc_view.loadUrl("javascript: "
+                        + "window.plugin.userLocation.updateLocation( "
+                        + loc.getLatitude() + ", " + loc.getLongitude() + ");");
             }
         }
     }
