@@ -18,7 +18,7 @@
     <!-- Use CDATA to prevent android from parsing html tags....we are doing this with Html.fromHtml() -->
     <string name="pref_about_msg">
         <![CDATA[<big><b>Ingress Intel Total Conversion Mobile</b></big><br><br>
-        <b>by <a href="https://github.com/leCradle">cradle</a></b><br><br>
+        <b>by <a href="https://github.com/leCradle">cradle</a> and contributors</b><br><br>
         <b>Icon by <a href="http://www.ludolab.net">Giuseppe Lucido</a></b><br><br>
         IITC Mobile is an optimized mobile browser for the
         Ingress Intel Total Conversion (IITC) userscript by <a href="https://github.com/breunigs"><b>breunigs</b></a>.
