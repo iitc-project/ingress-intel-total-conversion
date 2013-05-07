@@ -236,8 +236,8 @@ window.setupMap = function() {
   map.on('moveend zoomend', function() { window.mapRunsUserAction = false });
 
   // update map hooks
-  map.on('movestart zoomstart', window.requests.abort);
-  map.on('moveend zoomend', function() { console.log('map moveend'); window.startRefreshTimeout(ON_MOVE_REFRESH*1000) });
+  map.on('movestart zoomstart', function() { window.requests.abort(); window.startRefreshTimeout(-1); });
+  map.on('moveend zoomend', function() { window.startRefreshTimeout(ON_MOVE_REFRESH*1000) });
 
   window.addResumeFunction(window.requestData);
   window.requests.addRefreshFunction(window.requestData);
