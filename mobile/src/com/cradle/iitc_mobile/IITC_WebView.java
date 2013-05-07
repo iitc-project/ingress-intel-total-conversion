@@ -28,8 +28,10 @@ public class IITC_WebView extends WebView {
         settings.setAllowFileAccess(true);
         settings.setGeolocationEnabled(true);
         settings.setAppCacheEnabled(true);
-        settings.setDatabasePath(this.getContext().getApplicationInfo().dataDir + "/databases/");
-        settings.setAppCachePath(this.getContext().getCacheDir().getAbsolutePath());
+        settings.setDatabasePath(this.getContext().getApplicationInfo().dataDir
+                + "/databases/");
+        settings.setAppCachePath(this.getContext().getCacheDir()
+                .getAbsolutePath());
         // use cache if on mobile network...saves traffic
         this.js_interface = new IITC_JSInterface(c);
         this.addJavascriptInterface(js_interface, "android");
@@ -38,7 +40,8 @@ public class IITC_WebView extends WebView {
         // allow access by default
         this.setWebChromeClient(new WebChromeClient() {
             @Override
-            public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
+            public void onGeolocationPermissionsShowPrompt(String origin,
+                    GeolocationPermissions.Callback callback) {
                 callback.invoke(origin, true, false);
             }
         });
@@ -65,13 +68,15 @@ public class IITC_WebView extends WebView {
 
         iitc_init(context);
     }
-    //----------------------------------------------------------------
+
+    // ----------------------------------------------------------------
 
     @Override
     public void loadUrl(String url) {
         if (!url.startsWith("javascript:")) {
             // force https if enabled in settings
-            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
+            SharedPreferences sharedPref = PreferenceManager
+                    .getDefaultSharedPreferences(getContext());
             if (sharedPref.getBoolean("pref_force_https", true))
                 url = url.replace("http://", "https://");
             else
@@ -90,8 +95,7 @@ public class IITC_WebView extends WebView {
     }
 
     public void updateCaching() {
-        if (!this.isConnectedToWifi())
-        {
+        if (!this.isConnectedToWifi()) {
             Log.d("iitcm", "not connected to wifi...load tiles from cache");
             settings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         } else {
@@ -101,7 +105,8 @@ public class IITC_WebView extends WebView {
     }
 
     private boolean isConnectedToWifi() {
-        ConnectivityManager conMan = (ConnectivityManager) getContext().getSystemService( Context.CONNECTIVITY_SERVICE );
+        ConnectivityManager conMan = (ConnectivityManager) getContext()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo wifi = conMan.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         return wifi.getState() == NetworkInfo.State.CONNECTED;
     }
