@@ -126,6 +126,9 @@ window.dialog = function(options) {
     $(jqID).parent().addClass('ui-modal');
   }
 
+  // Enable snapping
+  $(jqID).dialog().parents('.ui-dialog').draggable('option', 'snap', true);
+
   // Run it
   $(jqID).dialog('open');
   return $(jqID);
