@@ -137,6 +137,8 @@ public class IITC_Mobile extends Activity {
                     loc_listener);
         }
 
+        fullscreen_actionbar = sharedPref.getBoolean("pref_fullscreen_actionbar", false);
+
         // load new iitc web view with ingress intel page
         Intent intent = getIntent();
         String action = intent.getAction();
