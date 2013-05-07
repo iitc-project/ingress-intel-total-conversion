@@ -53,6 +53,7 @@ body {
 #chat {
   left:0;
   right:0;
+  top: 1px !important;
   bottom:30px;
   width: auto;
 }
