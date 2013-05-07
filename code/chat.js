@@ -480,7 +480,7 @@ window.chat.chooseAnchor = function(t) {
   var input = $('#chatinput input');
 
   $('#chatcontrols .active').removeClass('active');
-  t.addClass('active');
+  $("#chatcontrols a:contains('" + tt + "')").addClass('active');
 
   $('#chat > div').hide();
 

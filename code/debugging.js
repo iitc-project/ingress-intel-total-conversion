@@ -58,7 +58,7 @@ window.debug.console.show = function() {
     $('#chat > div').hide();
     $('#debugconsole').show();
     $('#chatcontrols .active').removeClass('active');
-    $(this).addClass('active');
+    $("#chatcontrols a:contains('debug')").addClass('active');
 }
 
 window.debug.console.create = function() {

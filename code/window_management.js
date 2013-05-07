@@ -24,7 +24,7 @@ window.show = function(id) {
 			window.smartphone.sideButton.click();
 			break;
 		default:
-			window.smartphone.mapButton.Click();
+			window.smartphone.mapButton.click();
 			break;
 	}
 }

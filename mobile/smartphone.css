@@ -67,8 +67,15 @@ body {
   width: 77px;
 }
 
+#chatcontrols a.active {
+  border-color: #FFCE00;
+  border-bottom-width:0px;
+  font-weight:bold
+}
 
-
+#chatcontrols a.active + a {
+  border-left-color: #FFCE00
+}
 
 #sidebartoggle {
   display: none !important;

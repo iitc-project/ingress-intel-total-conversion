@@ -313,7 +313,7 @@ public class IITC_Mobile extends Activity {
         	return true;
         case R.id.menu_debug:
         	iitc_view.loadUrl("javascript: window.show('debug')");        	
-            actionBar.setTitle(getString(R.string.menu_debug));            
+            actionBar.setTitle(getString(R.string.menu_debug));
         	return true;
         default:
             return super.onOptionsItemSelected(item);

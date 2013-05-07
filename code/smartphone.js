@@ -38,8 +38,8 @@ window.runOnSmartphonesBeforeBoot = function() {
     $('#chat, #chatinput, #scrollwrapper').hide();
     $('#map').css('visibility', 'visible');
     $('#updatestatus').show();
-    $('.active').removeClass('active');
-    $(this).addClass('active');
+    $('#chatcontrols a .active').removeClass('active');
+    $("#chatcontrols a:contains('map')").addClass('active');
   });
 
   window.smartphone.sideButton = $('<a>info</a>').click(function() {
@@ -47,7 +47,7 @@ window.runOnSmartphonesBeforeBoot = function() {
     $('#map').css('visibility', 'hidden');
     $('#scrollwrapper').show();
     $('.active').removeClass('active');
-    $(this).addClass('active');
+    $("#chatcontrols a:contains('info')").addClass('active');
   });
 
   $('#chatcontrols').append(smartphone.mapButton).append(smartphone.sideButton);
@@ -72,7 +72,6 @@ window.runOnSmartphonesAfterBoot = function() {
   if(!isSmartphone()) return;
   console.warn('running smartphone post boot stuff');
 
-  //chat.toggle();
   smartphone.mapButton.click();
 
   // disable img full view
