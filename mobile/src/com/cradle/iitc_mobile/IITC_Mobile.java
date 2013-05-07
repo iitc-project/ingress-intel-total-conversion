@@ -39,6 +39,7 @@ public class IITC_Mobile extends Activity {
     private LocationListener loc_listener = null;
     private boolean keyboad_open = false;
     private boolean fullscreen_mode = false;
+    private boolean fullscreen_actionbar = false;
     private ActionBar actionBar;
 
     @Override
@@ -58,6 +59,7 @@ public class IITC_Mobile extends Activity {
         actionBar.setTitle(getString(R.string.menu_map));
         actionBar.setHomeButtonEnabled(true);
 
+        // do something if user changed something in the settings
         SharedPreferences sharedPref = PreferenceManager
                 .getDefaultSharedPreferences(this);
         listener = new OnSharedPreferenceChangeListener() {
@@ -67,6 +69,12 @@ public class IITC_Mobile extends Activity {
                 if (key.equals("pref_user_loc"))
                     user_loc = sharedPreferences.getBoolean("pref_user_loc",
                             false);
+                if (key.equals("pref_fullscreen_actionbar")) {
+                    fullscreen_actionbar =sharedPreferences.getBoolean("pref_fullscreen_actionbar",
+                            false);
+                    if (fullscreen_mode)
+                        IITC_Mobile.this.getActionBar().hide();
+                }
                 IITC_Mobile.this.loadUrl(intel_url);
             }
         };
@@ -222,6 +230,8 @@ public class IITC_Mobile extends Activity {
     public void onBackPressed() {
         // leave fullscreen mode if it is enabled
         if (fullscreen_mode) {
+            if (fullscreen_actionbar)
+                this.getActionBar().show();
             // show notification bar again
             WindowManager.LayoutParams attrs = getWindow().getAttributes();
             attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
@@ -280,6 +290,8 @@ public class IITC_Mobile extends Activity {
                 // toggle fullscreen
             case R.id.toggle_fullscreen :
                 if (!this.fullscreen_mode) {
+                    if (fullscreen_actionbar)
+                        this.getActionBar().hide();
                     // hide notification bar
                     WindowManager.LayoutParams attrs = getWindow()
                             .getAttributes();
@@ -291,6 +303,8 @@ public class IITC_Mobile extends Activity {
                             "Press back button to exit fullscreen",
                             Toast.LENGTH_SHORT).show();
                 } else {
+                    if (fullscreen_actionbar)
+                        this.getActionBar().show();
                     // show notification bar again
                     WindowManager.LayoutParams attrs = getWindow()
                             .getAttributes();
