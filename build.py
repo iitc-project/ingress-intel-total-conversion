@@ -220,6 +220,10 @@ if buildMobile:
     # copy the user location script into the mobile folder.
     shutil.copy(os.path.join(outDir,"user-location.user.js"), "mobile/assets/user-location.user.js")
     # also copy plugins
+    try:
+        os.makedirs("mobile/assets/plugins")
+    except:
+        pass
     shutil.rmtree("mobile/assets/plugins")
     shutil.copytree(os.path.join(outDir,"plugins"), "mobile/assets/plugins", ignore=shutil.ignore_patterns('*.meta.js', 'force-https*'))
 

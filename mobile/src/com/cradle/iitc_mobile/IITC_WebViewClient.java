@@ -3,6 +3,7 @@ package com.cradle.iitc_mobile;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.net.http.SslError;
@@ -25,8 +26,10 @@ import java.util.Set;
 
 public class IITC_WebViewClient extends WebViewClient {
     private static final ByteArrayInputStream style = new ByteArrayInputStream(
-        "body, #dashboard_container, #map_canvas { background: #000 !important; }".getBytes());
-    private static final ByteArrayInputStream empty = new ByteArrayInputStream("".getBytes());
+            "body, #dashboard_container, #map_canvas { background: #000 !important; }"
+                    .getBytes());
+    private static final ByteArrayInputStream empty = new ByteArrayInputStream(
+            "".getBytes());
 
     private WebResourceResponse iitcjs;
     private String js = null;
@@ -35,10 +38,11 @@ public class IITC_WebViewClient extends WebViewClient {
 
     public IITC_WebViewClient(Context c) {
         this.context = c;
-        this.iitc_path = Environment.getExternalStorageDirectory().getPath() + "/IITC_Mobile/";
+        this.iitc_path = Environment.getExternalStorageDirectory().getPath()
+                + "/IITC_Mobile/";
         try {
             loadIITC_JS(c);
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -46,7 +50,8 @@ public class IITC_WebViewClient extends WebViewClient {
     public String getIITCVersion() {
         String header = "";
         if (js != null)
-            header = js.substring(js.indexOf("==UserScript=="), js.indexOf("==/UserScript=="));
+            header = js.substring(js.indexOf("==UserScript=="),
+                    js.indexOf("==/UserScript=="));
         // remove new line comments
         header = header.replace("\n//", "");
         // get a list of key-value
@@ -54,41 +59,61 @@ public class IITC_WebViewClient extends WebViewClient {
         String iitc_version = "not found";
         for (int i = 0; i < attributes.length; i++) {
             // search for version and use the value
-            if (attributes[i].equals("@version")) iitc_version = attributes[i+1];
+            if (attributes[i].equals("@version"))
+                iitc_version = attributes[i + 1];
         }
         return iitc_version;
     }
 
     public void loadIITC_JS(Context c) throws java.io.IOException {
         // You are able to load the script from external source
-        // if a http address is given, use script from this address. else use the local script
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(c);
+        // if a http address is given, use script from this address. else use
+        // the local script
+        SharedPreferences sharedPref = PreferenceManager
+                .getDefaultSharedPreferences(c);
         String iitc_source = sharedPref.getString("pref_iitc_source", "local");
         String js = "";
 
-        // if developer mode are enabled, load all iitc script from external storage
+        // if developer mode are enabled, load all iitc script from external
+        // storage
         if (sharedPref.getBoolean("pref_dev_checkbox", false)) {
-            js = this.fileToString(iitc_path + "dev/total-conversion-build.user.js", false);
+            js = this.fileToString(iitc_path
+                    + "dev/total-conversion-build.user.js", false);
             if (js.equals("false")) {
-                Toast.makeText(context, "File " + iitc_path +
-                        "dev/total-conversion-build.user.js not found. " +
-                        "Disable developer mode or add iitc files " +
-                        "to the dev folder.", Toast.LENGTH_LONG).show();
+                Toast.makeText(
+                        context,
+                        "File "
+                                + iitc_path
+                                + "dev/total-conversion-build.user.js not found. "
+                                + "Disable developer mode or add iitc files "
+                                + "to the dev folder.", Toast.LENGTH_LONG)
+                        .show();
                 return;
             } else {
-                Toast.makeText(context, "Developer mode enabled", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Developer mode enabled",
+                        Toast.LENGTH_SHORT).show();
             }
         } else {
             // load iitc script from web or asset folder
             if (iitc_source.contains("http")) {
                 URL url = new URL(iitc_source);
-                js = new Scanner(url.openStream(), "UTF-8").useDelimiter("\\A").next();
+                js = new Scanner(url.openStream(), "UTF-8").useDelimiter("\\A")
+                        .next();
             } else {
                 js = this.fileToString("total-conversion-build.user.js", true);
             }
         }
 
         this.js = js;
+
+        PackageManager pm = context.getPackageManager();
+        boolean hasMultitouch = pm
+                .hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH);
+        boolean forcedZoom = sharedPref.getBoolean("pref_user_zoom", false);
+        if (hasMultitouch && !forcedZoom) {
+            js = js.replace("window.showZoom = true;",
+                    "window.showZoom = false;");
+        }
 
         // need to wrap the mobile iitc.js version in a document ready. IITC
         // expects to be injected after the DOM has been loaded completely.
@@ -97,17 +122,15 @@ public class IITC_WebViewClient extends WebViewClient {
         // so it boots correctly.
         js = "$(document).ready(function(){" + js + "});";
 
-        iitcjs = new WebResourceResponse(
-            "text/javascript",
-            "UTF-8",
-            new ByteArrayInputStream(js.getBytes())
-        );
+        iitcjs = new WebResourceResponse("text/javascript", "UTF-8",
+                new ByteArrayInputStream(js.getBytes()));
     };
 
     // enable https
     @Override
-    public void onReceivedSslError (WebView view, SslErrorHandler handler, SslError error) {
-        handler.proceed() ;
+    public void onReceivedSslError(WebView view, SslErrorHandler handler,
+            SslError error) {
+        handler.proceed();
     };
 
     // plugins should be loaded after the main script is injected
@@ -116,18 +139,20 @@ public class IITC_WebViewClient extends WebViewClient {
         super.onPageFinished(view, url);
 
         // get the plugin preferences
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences sharedPref = PreferenceManager
+                .getDefaultSharedPreferences(context);
         Set<String> plugin_list = sharedPref.getStringSet("pref_plugins", null);
-        boolean dev_enabled = sharedPref.getBoolean("pref_dev_checkbox", true);
+        boolean dev_enabled = sharedPref.getBoolean("pref_dev_checkbox", false);
 
         // iterate through all enabled plugins and load them
         if (plugin_list != null) {
             String[] plugin_array = plugin_list.toArray(new String[0]);
 
-            for(int i = 0; i < plugin_list.size(); i++) {
+            for (int i = 0; i < plugin_list.size(); i++) {
                 Log.d("iitcm", "adding plugin " + plugin_array[i]);
                 if (dev_enabled)
-                    this.loadJS(iitc_path + "dev/plugins/" + plugin_array[i], false, view);
+                    this.loadJS(iitc_path + "dev/plugins/" + plugin_array[i],
+                            false, view);
                 else
                     this.loadJS("plugins/" + plugin_array[i], true, view);
             }
@@ -142,20 +167,21 @@ public class IITC_WebViewClient extends WebViewClient {
         File[] files = directory.listFiles();
         if (files != null) {
             for (int i = 0; i < files.length; ++i) {
-                if(this.loadJS(files[i].toString(), false, view))
-                    Log.d("iitcm", "loading additional plugin " + files[i].toString());
+                if (this.loadJS(files[i].toString(), false, view))
+                    Log.d("iitcm",
+                            "loading additional plugin " + files[i].toString());
             }
         }
     }
 
     public void enableTracking(WebView view, boolean dev_enabled) {
         Log.d("iitcm", "enable tracking...");
-            // load plugin from external storage if dev mode are enabled
-            if (dev_enabled)
-                this.loadJS(iitc_path + "dev/user-location.user.js", false, view);
-            else
-                // load plugin from asset folder
-                this.loadJS("user-location.user.js", true, view);
+        // load plugin from external storage if dev mode are enabled
+        if (dev_enabled)
+            this.loadJS(iitc_path + "dev/user-location.user.js", false, view);
+        else
+            // load plugin from asset folder
+            this.loadJS("user-location.user.js", true, view);
     }
 
     // read a file into a string
@@ -163,7 +189,7 @@ public class IITC_WebViewClient extends WebViewClient {
     // if asset == true use the asset manager to open file
     public String fileToString(String file, boolean asset) {
         Scanner s = null;
-        String src= "";
+        String src = "";
         if (!asset) {
             File js_file = new File(file);
             try {
@@ -185,7 +211,8 @@ public class IITC_WebViewClient extends WebViewClient {
             }
         }
 
-        if (s != null) src = s.hasNext() ? s.next() : "";
+        if (s != null)
+            src = s.hasNext() ? s.next() : "";
         return src;
     }
 
@@ -197,21 +224,24 @@ public class IITC_WebViewClient extends WebViewClient {
         String js = fileToString(file, asset);
         if (js.equals("false"))
             return false;
-        else view.loadUrl("javascript:" + js);
+        else
+            view.loadUrl("javascript:" + js);
         return true;
     }
 
-    // Check every external resource if it’s okay to load it and maybe replace it
+    // Check every external resource if it’s okay to load it and maybe replace
+    // it
     // with our own content. This is used to block loading Niantic resources
     // which aren’t required and to inject IITC early into the site.
     // via http://stackoverflow.com/a/8274881/1684530
     @Override
-    public WebResourceResponse shouldInterceptRequest (final WebView view, String url) {
-        if(url.contains("/css/common.css")) {
+    public WebResourceResponse shouldInterceptRequest(final WebView view,
+            String url) {
+        if (url.contains("/css/common.css")) {
             return new WebResourceResponse("text/css", "UTF-8", style);
-        } else if(url.contains("gen_dashboard.js")) {
+        } else if (url.contains("gen_dashboard.js")) {
             return this.iitcjs;
-        } else if(url.contains("/css/ap_icons.css")
+        } else if (url.contains("/css/ap_icons.css")
                 || url.contains("/css/map_icons.css")
                 || url.contains("/css/misc_icons.css")
                 || url.contains("/css/style_full.css")
@@ -230,13 +260,18 @@ public class IITC_WebViewClient extends WebViewClient {
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
         if (url.contains("ingress.com") || url.contains("appengine.google.com")) {
             // reload iitc if a poslink is clicked inside the app
-            if (url.contains("intel?ll=") || (url.contains("latE6") && url.contains("lngE6"))) {
-                Log.d("iitcm", "should be an internal clicked position link...reload script for: " + url);
+            if (url.contains("intel?ll=")
+                    || (url.contains("latE6") && url.contains("lngE6"))) {
+                Log.d("iitcm",
+                        "should be an internal clicked position link...reload script for: "
+                                + url);
                 ((IITC_Mobile) context).loadUrl(url);
             }
             return false;
         } else {
-            Log.d("iitcm", "no ingress intel link, start external app to load url: " + url);
+            Log.d("iitcm",
+                    "no ingress intel link, start external app to load url: "
+                            + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             context.startActivity(intent);
             return true;
