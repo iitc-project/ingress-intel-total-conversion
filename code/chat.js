@@ -523,7 +523,9 @@ window.chat.chooseAnchor = function(t) {
 }
 
 window.chat.show = function(name) {
-	 if (!window.isSmartphone) $('#updatestatus').show();
+	window.isSmartphone 
+		? $('#updatestatus').hide()
+		: $('#updatestatus').show();
     $('#chat, #chatinput').show();
     $('#map').css('visibility', 'hidden');
 
