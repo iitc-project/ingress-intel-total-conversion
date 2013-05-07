@@ -95,8 +95,15 @@ window.setPortalIndicators = function(d) {
     ).addTo(map);
   else
     portalAccessIndicator.setLatLng(coord);
-
 }
+
+window.clearPortalIndicators = function() {
+  if(portalRangeIndicator) map.removeLayer(portalRangeIndicator);
+  portalRangeIndicator = null;
+  if(portalAccessIndicator) map.removeLayer(portalAccessIndicator);
+  portalAccessIndicator = null;
+}
+
 
 // highlights portal with given GUID. Automatically clears highlights
 // on old selection. Returns false if the selected portal changed.
@@ -123,4 +130,5 @@ window.unselectOldPortal = function() {
   if(oldPortal) portalResetColor(oldPortal);
   selectedPortal = null;
   $('#portaldetails').html('');
+  clearPortalIndicators();
 }
