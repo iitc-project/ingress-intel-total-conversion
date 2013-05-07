@@ -92,12 +92,16 @@ window.REDEEM_HINTS = {
 };
 
 window.handleRedeemResponse = function(data, textStatus, jqXHR) {
-  var passcode = this.passcode, to_dialog, to_log, buttons;
+  var passcode = this.passcode, to_dialog, to_log, dialog_title, dialog_buttons;
 
   if(data.error) {
+    // What to display
     to_dialog = '<strong>' + data.error + '</strong><br />' + (window.REDEEM_ERRORS[data.error] || 'There was a problem redeeming the passcode. Try again?');
     to_log    = '[ERROR] ' + data.error;
-    buttons   = {};
+
+    // Dialog options
+    dialog_title   = 'Error: ' + passcode;
+    dialog_buttons = {};
   } else if(data.result) {
     var encouragement = window.REDEEM_ENCOURAGEMENT[Math.floor(Math.random() * window.REDEEM_ENCOURAGEMENT.length)];
     var payload = {};
@@ -199,32 +203,34 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
     }
 
     // Display formatted versions in a table, plaintext, and the console log
-    to_dialog = '<table class="redeem-result">' +
+    to_dialog = '<table class="redeem-result-table">' +
                 results.table.map(function(a) {return '<tr>' + a + '</tr>';}).join("\n") +
                 '</table>';
     to_log    = '[SUCCESS] ' + results.plain.join('/');
-    buttons   = {
+
+    dialog_title   = 'Passcode: ' + passcode;
+    dialog_buttons = {
       'PLAINTEXT' : function() {
         dialog({
-          title: 'Passcode: ' + passcode,
-          html: '<span style="font-family: monospace;"><strong>' + encouragement + '</strong>' +
-                '<br />' + results.html.join('/') + '</span>'
+          title: 'Rewards: ' + passcode,
+          html: '<span class="redeem-result-html">' + results.html.join('/') + '</span>'
         });
       }
     }
   }
 
+  // Display it
   dialog({
-    title: 'Passcode: ' + passcode,
-    html: to_dialog,
-    buttons: buttons
+    title: dialog_title,
+    buttons: dialog_buttons,
+    html: to_dialog
   });
   console.log(passcode + ' => ' + to_log);
 }
 
 window.setupRedeem = function() {
   $("#redeem").keypress(function(e) {
-    if((e.keyCode ? e.keyCode : e.which) !== 13) return;
+    if((e.keyCode ? e.keyCode : e.which) !== 13 || !$(this).val()) return;
     var data = {passcode: $(this).val()};
 
     window.postAjax('redeemReward', data, window.handleRedeemResponse,
@@ -236,6 +242,7 @@ window.setupRedeem = function() {
           extra = 'No status code was returned.';
         }
         dialog({
+          title: 'Request failed: ' + data.passcode,
           html: '<strong>The HTTP request failed.</strong> ' + extra
         });
       });

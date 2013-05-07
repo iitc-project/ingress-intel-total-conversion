@@ -27,8 +27,12 @@ window.aboutIITC = function(){
   + '  <div>' + attrib + '</div>'
   + '  <hr>'
   + '  <div>' + contrib + '</div>';
-  alert(a, true, function() {$('.ui-dialog').removeClass('ui-dialog-aboutIITC');});
-  $('.ui-dialog').addClass('ui-dialog-aboutIITC');
+  dialog({
+    title: 'IITC ' + v,
+    html: a,
+    dialogClass: 'ui-dialog-aboutIITC',
+    closeCallback: function() {$('.ui-dialog').removeClass('ui-dialog-aboutIITC');}
+  });
 }
 
 
