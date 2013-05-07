@@ -9,3 +9,5 @@ local.properties
 assets/total-conversion-build.user.js
 assets/user-location.user.js
 assets/plugins/
+.idea/
+target/

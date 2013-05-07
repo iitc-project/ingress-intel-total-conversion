@@ -60,7 +60,7 @@ public class IITC_SettingsFragment extends PreferenceFragment {
                     }
                 });
         // first init of summary
-        String pref_iitc_source_sum = (String) pref_iitc_source.getSummary()
+        String pref_iitc_source_sum = pref_iitc_source.getSummary()
                 + pref_iitc_source.getText();
         pref_iitc_source.setSummary(pref_iitc_source_sum);
     }
