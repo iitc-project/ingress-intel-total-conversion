@@ -222,8 +222,6 @@ public class IITC_Mobile extends Activity {
     public void onBackPressed() {
         // leave fullscreen mode if it is enabled
         if (fullscreen_mode) {
-            // get back action bar
-            actionBar.show();
             // show notification bar again
             WindowManager.LayoutParams attrs = getWindow().getAttributes();
             attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
@@ -282,8 +280,6 @@ public class IITC_Mobile extends Activity {
                 // toggle fullscreen
             case R.id.toggle_fullscreen :
                 if (!this.fullscreen_mode) {
-                    // get rid of action bar
-                    this.getActionBar().hide();
                     // hide notification bar
                     WindowManager.LayoutParams attrs = getWindow()
                             .getAttributes();
@@ -295,8 +291,6 @@ public class IITC_Mobile extends Activity {
                             "Press back button to exit fullscreen",
                             Toast.LENGTH_SHORT).show();
                 } else {
-                    // get back action bar
-                    this.getActionBar().show();
                     // show notification bar again
                     WindowManager.LayoutParams attrs = getWindow()
                             .getAttributes();
