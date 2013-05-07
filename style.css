@@ -45,7 +45,7 @@ body {
   margin-top: -31px; /* -(toggle height / 2) */
   line-height: 10px;
   position: absolute;
-  top: 325px; /* (sidebar height / 2) */
+  top: 108px;
   z-index: 3001;
   background-color: rgba(8, 48, 78, 0.9);
   color: #FFCE00;
@@ -53,7 +53,7 @@ body {
   border-right: none;
   border-radius: 5px 0 0 5px;
   text-decoration: none;
-  right: 301px; /* overwritten later by the script with SIDEBAR_WIDTH */
+  right: -50px; /* overwritten later by the script with SIDEBAR_WIDTH */
 }
 
 .enl {
@@ -652,7 +652,7 @@ h3 {
  * content when first selecting a portal) */
 
 #portaldetails {
-  min-height: 485px;
+  min-height: 63px;
   position: relative; /* so the below '#portaldetails .close' is relative to this */
 }
 

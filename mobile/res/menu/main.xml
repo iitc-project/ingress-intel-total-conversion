@@ -1,30 +1,92 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:id="@+id/reload_button"
-        android:icon="@drawable/ic_menu_refresh"
-        android:orderInCategory="90"
-        android:showAsAction="ifRoom"
-        android:title="@string/reload"></item>
 
-    <item android:id="@+id/settings"
+    <item
+        android:id="@+id/menu_map"
+        android:icon="@drawable/location_map"
+        android:orderInCategory="20"
+        android:showAsAction="ifRoom"
+        android:title="@string/menu_map">
+    </item>
+    <item
+        android:id="@+id/menu_info"
+        android:icon="@drawable/action_about"
+        android:orderInCategory="30"
+        android:showAsAction="ifRoom"
+        android:title="@string/menu_info">
+    </item>
+    <item
+        android:id="@+id/menu_chat"
+        android:icon="@drawable/social_group"
+        android:orderInCategory="35"
+        android:showAsAction="ifRoom"
+        android:title="@string/menu_chat">
+        <menu>
+            <item
+                android:id="@+id/menu_full"
+                android:orderInCategory="40"
+                android:showAsAction="never"
+                android:title="@string/menu_full">
+            </item>
+            <item
+                android:id="@+id/menu_compact"
+                android:orderInCategory="50"
+                android:showAsAction="never"
+                android:title="@string/menu_compact">
+            </item>
+            <item
+                android:id="@+id/menu_public"
+                android:orderInCategory="60"
+                android:showAsAction="never"
+                android:title="@string/menu_public">
+            </item>
+            <item
+                android:id="@+id/menu_faction"
+                android:orderInCategory="70"
+                android:showAsAction="never"
+                android:title="@string/menu_faction">
+            </item>
+        </menu>
+    </item>
+    <item
+        android:id="@+id/locate"
+        android:icon="@drawable/device_access_location_found"
+        android:orderInCategory="100"
+        android:showAsAction="ifRoom"
+        android:title="@string/locate">
+    </item>
+    <item
+        android:id="@+id/reload_button"
+        android:icon="@drawable/navigation_refresh"
+        android:orderInCategory="110"
+        android:showAsAction="ifRoom"
+        android:title="@string/reload">
+    </item>
+    <item
+        android:id="@+id/toggle_fullscreen"
+        android:icon="@drawable/av_full_screen"
         android:orderInCategory="120"
-        android:showAsAction="never"
-        android:title="@string/action_settings"></item>
-
-    <item android:id="@+id/cache_clear"
-        android:orderInCategory="100"
-        android:showAsAction="never"
-        android:title="@string/cache_clear"></item>
-
-    <item android:id="@+id/toggle_fullscreen"
-        android:orderInCategory="100"
         android:showAsAction="ifRoom"
-        android:title="@string/toggle_fullscreen"
-        android:icon="@android:drawable/ic_menu_zoom"></item>
-
-    <item android:id="@+id/locate"
-        android:icon="@android:drawable/ic_menu_mylocation"
-        android:orderInCategory="80"
+        android:title="@string/toggle_fullscreen">
+    </item>
+    <item
+        android:id="@+id/action_settings"
+        android:icon="@drawable/action_settings"
+        android:orderInCategory="130"
         android:showAsAction="ifRoom"
-        android:title="@string/locate"></item>
-
+        android:title="@string/action_settings">
+    </item>
+    <item
+        android:id="@+id/cache_clear"
+        android:icon="@drawable/content_remove"
+        android:orderInCategory="150"
+        android:showAsAction="never"
+        android:title="@string/cache_clear">
+    </item>
+    <item
+        android:id="@+id/menu_debug"
+        android:icon="@drawable/alerts_and_states_warning"
+        android:orderInCategory="190"
+        android:showAsAction="never"
+        android:title="@string/menu_debug">
+    </item>
 </menu>

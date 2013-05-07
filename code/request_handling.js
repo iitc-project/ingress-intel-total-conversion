@@ -38,6 +38,7 @@ window.requests.abort = function() {
 // gives user feedback about pending operations. Draws current status
 // to website. Updates info in layer chooser.
 window.renderUpdateStatus = function() {
+
   var t = '<b>map status:</b> ';
   if(mapRunsUserAction)
     t += 'paused during interaction';
@@ -48,7 +49,7 @@ window.renderUpdateStatus = function() {
   else if(window.requests._quickRefreshPending)
     t += 'refreshing...';
   else
-    t += 'Up to date.';
+    t += 'Up to date. <a style="cursor: pointer" onclick="startRefreshTimeout(10)" title="Refresh">⟳</a>';
 
   if(renderLimitReached())
     t += ' <span style="color:#f66" class="help" title="Can only render so much before it gets unbearably slow. Not all entities are shown. Zoom in or increase the limit (search for MAX_DRAWN_*).">RENDER LIMIT</span> '
@@ -82,6 +83,8 @@ window.startRefreshTimeout = function(override) {
   // status bar
   window.renderUpdateStatus();
   if(refreshTimeout) clearTimeout(refreshTimeout);
+  if(override == -1) return;  //don't set a new timeout
+
   var t = 0;
   if(override) {
     window.requests._quickRefreshPending = true;
