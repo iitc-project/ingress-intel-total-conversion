@@ -518,8 +518,6 @@ window.chat.chooseAnchor = function(t) {
     elm.scrollTop(elm.data('needsScrollTop'));
     elm.data('needsScrollTop', null);
   }
-
-  chat.needMoreMessages();
 }
 
 window.chat.show = function(name) {

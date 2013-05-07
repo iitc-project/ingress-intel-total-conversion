@@ -32,7 +32,6 @@ public class IITC_Mobile extends Activity {
 
     private IITC_WebView iitc_view;
     private boolean back_button_pressed = false;
-    private boolean desktop = false;
     private OnSharedPreferenceChangeListener listener;
     private String intel_url = "https://www.ingress.com/intel";
     private boolean user_loc = false;
@@ -45,7 +44,7 @@ public class IITC_Mobile extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-                
+
         // TODO build an async task for url.openStream() in IITC_WebViewClient
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);

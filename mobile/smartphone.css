@@ -30,7 +30,7 @@ body {
 #chatcontrols {
   height: 38px;
   width: 100%;
-  display: hidden;
+  display: none !important;
 }
 
 /* hide shrink button */
