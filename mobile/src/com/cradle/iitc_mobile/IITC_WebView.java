@@ -18,9 +18,8 @@ public class IITC_WebView extends WebView {
 
     private WebSettings settings;
     private IITC_WebViewClient webclient;
-    private IITC_JSInterface js_interface;
 
-    // init web view
+	// init web view
     private void iitc_init(Context c) {
         settings = this.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -33,7 +32,7 @@ public class IITC_WebView extends WebView {
         settings.setAppCachePath(this.getContext().getCacheDir()
                 .getAbsolutePath());
         // use cache if on mobile network...saves traffic
-        this.js_interface = new IITC_JSInterface(c);
+	    IITC_JSInterface js_interface = new IITC_JSInterface(c);
         this.addJavascriptInterface(js_interface, "android");
 
         // our webchromeclient should share geolocation with the iitc script
@@ -50,20 +49,7 @@ public class IITC_WebView extends WebView {
         this.setWebViewClient(webclient);
     }
 
-    // constructors -------------------------------------------------
-    public IITC_WebView(Context context) {
-        super(context);
-
-        iitc_init(context);
-    }
-
-    public IITC_WebView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-
-        iitc_init(context);
-    }
-
-    public IITC_WebView(Context context, AttributeSet attrs, int defStyle) {
+	public IITC_WebView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         iitc_init(context);
@@ -90,11 +76,7 @@ public class IITC_WebView extends WebView {
         return this.webclient;
     }
 
-    public IITC_JSInterface getJSInterface() {
-        return this.js_interface;
-    }
-
-    public void updateCaching() {
+	public void updateCaching() {
         if (!this.isConnectedToWifi()) {
             Log.d("iitcm", "not connected to wifi...load tiles from cache");
             settings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);

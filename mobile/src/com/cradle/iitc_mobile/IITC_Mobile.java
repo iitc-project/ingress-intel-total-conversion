@@ -1,8 +1,13 @@
 package com.cradle.iitc_mobile;
 
-import java.io.IOException;
-
-import com.cradle.iitc_mobile.R;
+import android.app.ActionBar;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Configuration;
+import android.graphics.Rect;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -13,14 +18,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
-import android.app.ActionBar;
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.res.Configuration;
-import android.graphics.Rect;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,12 +25,13 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import java.io.IOException;
+
 public class IITC_Mobile extends Activity {
 
     private IITC_WebView iitc_view;
     private boolean back_button_pressed = false;
-    private OnSharedPreferenceChangeListener listener;
-    private String intel_url = "https://www.ingress.com/intel";
+	private String intel_url = "https://www.ingress.com/intel";
     private boolean user_loc = false;
     private LocationManager loc_mngr = null;
     private LocationListener loc_listener = null;
@@ -62,22 +60,22 @@ public class IITC_Mobile extends Activity {
         // do something if user changed something in the settings
         SharedPreferences sharedPref = PreferenceManager
                 .getDefaultSharedPreferences(this);
-        listener = new OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(
-                    SharedPreferences sharedPreferences, String key) {
-                if (key.equals("pref_user_loc"))
-                    user_loc = sharedPreferences.getBoolean("pref_user_loc",
-                            false);
-                if (key.equals("pref_fullscreen_actionbar")) {
-                    fullscreen_actionbar =sharedPreferences.getBoolean("pref_fullscreen_actionbar",
-                            false);
-                    if (fullscreen_mode)
-                        IITC_Mobile.this.getActionBar().hide();
-                }
-                IITC_Mobile.this.loadUrl(intel_url);
-            }
-        };
+	    OnSharedPreferenceChangeListener listener = new OnSharedPreferenceChangeListener() {
+		    @Override
+		    public void onSharedPreferenceChanged(
+				                                         SharedPreferences sharedPreferences, String key) {
+			    if (key.equals("pref_user_loc"))
+				    user_loc = sharedPreferences.getBoolean("pref_user_loc",
+						                                           false);
+			    if (key.equals("pref_fullscreen_actionbar")) {
+				    fullscreen_actionbar = sharedPreferences.getBoolean("pref_fullscreen_actionbar",
+						                                                       false);
+				    if (fullscreen_mode)
+					    IITC_Mobile.this.getActionBar().hide();
+			    }
+			    IITC_Mobile.this.loadUrl(intel_url);
+		    }
+	    };
         sharedPref.registerOnSharedPreferenceChangeListener(listener);
 
         // we need this one to prevent location updates to javascript when
@@ -95,7 +93,7 @@ public class IITC_Mobile extends Activity {
                         int screenHeight = iitc_view.getRootView().getHeight();
                         int heightDiff = screenHeight - (r.bottom - r.top);
                         boolean visible = heightDiff > screenHeight / 3;
-                        if (visible == true) {
+                        if (visible) {
                             Log.d("iitcm", "Open Keyboard...");
                             IITC_Mobile.this.keyboad_open = true;
                         } else {
@@ -128,7 +126,7 @@ public class IITC_Mobile extends Activity {
         };
 
         user_loc = sharedPref.getBoolean("pref_user_loc", false);
-        if (user_loc == true) {
+        if (user_loc) {
             // Register the listener with the Location Manager to receive
             // location updates
             loc_mngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
@@ -167,7 +165,7 @@ public class IITC_Mobile extends Activity {
         iitc_view.loadUrl("javascript: window.renderUpdateStatus()");
         iitc_view.updateCaching();
 
-        if (user_loc == true) {
+        if (user_loc) {
             // Register the listener with the Location Manager to receive
             // location updates
             loc_mngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
@@ -212,7 +210,7 @@ public class IITC_Mobile extends Activity {
         }
         Log.d("iitcm", "stopping iitcm");
 
-        if (user_loc == true)
+        if (user_loc)
             loc_mngr.removeUpdates(loc_listener);
 
         super.onStop();
@@ -388,7 +386,7 @@ public class IITC_Mobile extends Activity {
         // throw away all positions with accuracy > 100 meters
         // should avoid gps glitches
         if (loc.getAccuracy() < 100) {
-            if (keyboad_open == false) {
+            if (!keyboad_open) {
                 iitc_view.loadUrl("javascript: "
                         + "window.plugin.userLocation.updateLocation( "
                         + loc.getLatitude() + ", " + loc.getLongitude() + ");");

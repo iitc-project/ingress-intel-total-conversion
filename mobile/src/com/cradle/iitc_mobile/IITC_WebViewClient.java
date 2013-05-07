@@ -72,7 +72,7 @@ public class IITC_WebViewClient extends WebViewClient {
         SharedPreferences sharedPref = PreferenceManager
                 .getDefaultSharedPreferences(c);
         String iitc_source = sharedPref.getString("pref_iitc_source", "local");
-        String js = "";
+        String js;
 
         // if developer mode are enabled, load all iitc script from external
         // storage
@@ -124,14 +124,14 @@ public class IITC_WebViewClient extends WebViewClient {
 
         iitcjs = new WebResourceResponse("text/javascript", "UTF-8",
                 new ByteArrayInputStream(js.getBytes()));
-    };
+    }
 
     // enable https
     @Override
     public void onReceivedSslError(WebView view, SslErrorHandler handler,
             SslError error) {
         handler.proceed();
-    };
+    }
 
     // plugins should be loaded after the main script is injected
     @Override
@@ -146,7 +146,7 @@ public class IITC_WebViewClient extends WebViewClient {
 
         // iterate through all enabled plugins and load them
         if (plugin_list != null) {
-            String[] plugin_array = plugin_list.toArray(new String[0]);
+            String[] plugin_array = plugin_list.toArray(new String[plugin_list.size()]);
 
             for (int i = 0; i < plugin_list.size(); i++) {
                 Log.d("iitcm", "adding plugin " + plugin_array[i]);
@@ -166,11 +166,11 @@ public class IITC_WebViewClient extends WebViewClient {
         File directory = new File(iitc_path + "plugins/");
         File[] files = directory.listFiles();
         if (files != null) {
-            for (int i = 0; i < files.length; ++i) {
-                if (this.loadJS(files[i].toString(), false, view))
-                    Log.d("iitcm",
-                            "loading additional plugin " + files[i].toString());
-            }
+	        for (File file : files) {
+		        if (this.loadJS(file.toString(), false, view))
+			        Log.d("iitcm",
+					             "loading additional plugin " + file.toString());
+	        }
         }
     }
 
@@ -188,7 +188,7 @@ public class IITC_WebViewClient extends WebViewClient {
     // use the full path for File
     // if asset == true use the asset manager to open file
     public String fileToString(String file, boolean asset) {
-        Scanner s = null;
+        Scanner s;
         String src = "";
         if (!asset) {
             File js_file = new File(file);
