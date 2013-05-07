@@ -3,6 +3,8 @@
 // created a basic framework. All of these functions should only ever
 // be run once.
 
+// Used to disable on multitouch devices
+window.showZoom = true;
 
 window.setupBackButton = function() {
   var c = window.isSmartphone()
@@ -156,7 +158,7 @@ window.setupMap = function() {
 
 
   window.map = new L.Map('map', $.extend(getPosition(),
-    {zoomControl: true}
+    {zoomControl: window.showZoom}
   ));
 
   var addLayers = {};
@@ -169,20 +171,20 @@ window.setupMap = function() {
     var t = (i === 0 ? 'Unclaimed' : 'Level ' + i) + ' Portals';
     addLayers[t] = portalsLayers[i];
     // Store it in hiddenLayer to remove later
-    if(!isLayerGroupDisplayed(t)) hiddenLayer.push(portalsLayers[i]);
+    if(!isLayerGroupDisplayed(t, true)) hiddenLayer.push(portalsLayers[i]);
   }
 
   fieldsLayer = L.layerGroup([]);
   map.addLayer(fieldsLayer, true);
   addLayers['Fields'] = fieldsLayer;
   // Store it in hiddenLayer to remove later
-  if(!isLayerGroupDisplayed('Fields')) hiddenLayer.push(fieldsLayer);
+  if(!isLayerGroupDisplayed('Fields', true)) hiddenLayer.push(fieldsLayer);
 
   linksLayer = L.layerGroup([]);
   map.addLayer(linksLayer, true);
   addLayers['Links'] = linksLayer;
   // Store it in hiddenLayer to remove later
-  if(!isLayerGroupDisplayed('Links')) hiddenLayer.push(linksLayer);
+  if(!isLayerGroupDisplayed('Links', true)) hiddenLayer.push(linksLayer);
 
   window.layerChooser = new L.Control.Layers({
     'MapQuest OSM': views[0],
@@ -236,8 +238,8 @@ window.setupMap = function() {
   map.on('moveend zoomend', function() { window.mapRunsUserAction = false });
 
   // update map hooks
-  map.on('movestart zoomstart', window.requests.abort);
-  map.on('moveend zoomend', function() { console.log('map moveend'); window.startRefreshTimeout(ON_MOVE_REFRESH*1000) });
+  map.on('movestart zoomstart', function() { window.requests.abort(); window.startRefreshTimeout(-1); });
+  map.on('moveend zoomend', function() { window.startRefreshTimeout(ON_MOVE_REFRESH*1000) });
 
   window.addResumeFunction(window.requestData);
   window.requests.addRefreshFunction(window.requestData);

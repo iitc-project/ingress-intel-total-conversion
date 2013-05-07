@@ -473,16 +473,14 @@ window.chat.needMoreMessages = function() {
     chat.requestPublic(true);
 }
 
-
-window.chat.chooser = function(event) {
-  var t = $(event.target);
+window.chat.chooseAnchor = function(t) {
   var tt = t.text();
 
   var mark = $('#chatinput mark');
   var input = $('#chatinput input');
 
   $('#chatcontrols .active').removeClass('active');
-  t.addClass('active');
+  $("#chatcontrols a:contains('" + tt + "')").addClass('active');
 
   $('#chat > div').hide();
 
@@ -520,10 +518,23 @@ window.chat.chooser = function(event) {
     elm.scrollTop(elm.data('needsScrollTop'));
     elm.data('needsScrollTop', null);
   }
-
-  chat.needMoreMessages();
 }
 
+window.chat.show = function(name) {
+        window.isSmartphone
+                ? $('#updatestatus').hide()
+                : $('#updatestatus').show();
+    $('#chat, #chatinput').show();
+    $('#map').css('visibility', 'hidden');
+
+    var t = $('<a>'+name+'</a>');
+    window.chat.chooseAnchor(t);
+}
+
+window.chat.chooser = function(event) {
+  var t = $(event.target);
+  window.chat.chooseAnchor(t);
+}
 
 // contains the logic to keep the correct scroll position.
 window.chat.keepScrollPosition = function(box, scrollBefore, isOldMsgs) {
