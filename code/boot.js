@@ -156,7 +156,7 @@ window.setupMap = function() {
 
 
   window.map = new L.Map('map', $.extend(getPosition(),
-    {zoomControl: true}
+    {zoomControl: !window.isSmartphone()}
   ));
 
   var addLayers = {};
