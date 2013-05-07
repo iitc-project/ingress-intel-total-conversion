@@ -34,14 +34,6 @@ window.runOnSmartphonesBeforeBoot = function() {
       + '</style>');
   }
 
-  // this also matches the expand button, but it is hidden via CSS
-  $('#chatcontrols a').click(function() {
-    $('#scrollwrapper, #updatestatus').hide();
-    // not displaying the map causes bugs in Leaflet
-    $('#map').css('visibility', 'hidden');
-    $('#chat, #chatinput').show();
-  });
-
   window.smartphone.mapButton = $('<a>map</a>').click(function() {
     $('#chat, #chatinput, #scrollwrapper').hide();
     $('#map').css('visibility', 'visible');

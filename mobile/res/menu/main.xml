@@ -90,10 +90,11 @@
                 android:title="@string/cache_clear">
             </item>
             <item
-                android:id="@+id/menu_exit"
-                android:orderInCategory="200"
+                android:id="@+id/menu_debug"
+                android:icon="@drawable/alerts_and_states_warning"
+                android:orderInCategory="190"
                 android:showAsAction="never"
-                android:title="@string/menu_exit">
+                android:title="@string/menu_debug">
             </item>
             </menu>
     </item>

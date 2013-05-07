@@ -239,11 +239,11 @@ public class IITC_Mobile extends Activity {
         // Handle item selection
         switch (item.getItemId()) {
         case android.R.id.home:
-        	iitc_view.loadUrl("javascript: window.smartphone.mapButton.click();");
+        	iitc_view.loadUrl("javascript: window.show('map');");
         	actionBar.setTitle(getString(R.string.menu_map));
         	return true;
         case R.id.menu_map:
-        	iitc_view.loadUrl("javascript: window.smartphone.mapButton.click();");
+        	iitc_view.loadUrl("javascript: window.show('map');");
         	actionBar.setTitle(getString(R.string.menu_map));
         	return true;
         case R.id.reload_button:
@@ -281,7 +281,7 @@ public class IITC_Mobile extends Activity {
             return true;
         // get the users current location and focus it on map
         case R.id.locate:
-        	iitc_view.loadUrl("javascript: window.smartphone.mapButton.click();");
+        	iitc_view.loadUrl("javascript: window.show('map');");
             iitc_view.loadUrl("javascript: window.map.locate({setView : true, maxZoom: 13});");
         	actionBar.setTitle(getString(R.string.menu_map));
             return true;
@@ -292,27 +292,28 @@ public class IITC_Mobile extends Activity {
             startActivity(intent);
             return true;
         case R.id.menu_info:
-        	iitc_view.loadUrl("javascript: window.smartphone.sideButton.click();");
+        	iitc_view.loadUrl("javascript: window.show('info');");
             actionBar.setTitle(getString(R.string.menu_info));
         	return true;
         case R.id.menu_full:
-        	iitc_view.loadUrl("javascript: window.chat.choose('full');");
+        	iitc_view.loadUrl("javascript: window.show('full');");
             actionBar.setTitle(getString(R.string.menu_full));
         	return true;
         case R.id.menu_compact:
-        	iitc_view.loadUrl("javascript: window.chat.choose('compact');");
+        	iitc_view.loadUrl("javascript: window.show('compact');");
             actionBar.setTitle(getString(R.string.menu_compact));
         	return true;
         case R.id.menu_public:
-        	iitc_view.loadUrl("javascript: window.chat.choose('public');");
+        	iitc_view.loadUrl("javascript: window.show('public');");
             actionBar.setTitle(getString(R.string.menu_public));
         	return true;
         case R.id.menu_faction:
-        	iitc_view.loadUrl("javascript: window.chat.choose('faction');");
+        	iitc_view.loadUrl("javascript: window.show('faction');");
             actionBar.setTitle(getString(R.string.menu_faction));
         	return true;
-        case R.id.menu_exit:
-        	super.onBackPressed();
+        case R.id.menu_debug:
+        	iitc_view.loadUrl("javascript: window.show('debug')");        	
+            actionBar.setTitle(getString(R.string.menu_debug));            
         	return true;
         default:
             return super.onOptionsItemSelected(item);

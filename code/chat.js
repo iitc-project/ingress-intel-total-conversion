@@ -522,10 +522,11 @@ window.chat.chooseAnchor = function(t) {
   chat.needMoreMessages();
 }
 
-window.chat.choose = function(name) {
-    $('#chat, #chatinput, #updatestatus').show();
+window.chat.show = function(name) {
+	 if (!window.isSmartphone) $('#updatestatus').show();
+    $('#chat, #chatinput').show();
     $('#map').css('visibility', 'hidden');
-	
+
     var t = $('<a>'+name+'</a>');
     window.chat.chooseAnchor(t);
 }
