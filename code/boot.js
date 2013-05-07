@@ -3,6 +3,8 @@
 // created a basic framework. All of these functions should only ever
 // be run once.
 
+// Used to disable on multitouch devices
+window.showZoom = true;
 
 window.setupBackButton = function() {
   var c = window.isSmartphone()
@@ -156,7 +158,7 @@ window.setupMap = function() {
 
 
   window.map = new L.Map('map', $.extend(getPosition(),
-    {zoomControl: !window.isSmartphone()}
+    {zoomControl: window.showZoom}
   ));
 
   var addLayers = {};

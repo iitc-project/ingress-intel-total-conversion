@@ -3,6 +3,7 @@ package com.cradle.iitc_mobile;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.net.http.SslError;
@@ -89,6 +90,16 @@ public class IITC_WebViewClient extends WebViewClient {
         }
 
         this.js = js;
+        
+        PackageManager pm = context.getPackageManager();
+        boolean hasMultitouch = 
+            pm.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH);
+        boolean forcedZoom = sharedPref.getBoolean("pref_user_zoom", false);
+		if (hasMultitouch && !forcedZoom) {
+            js = js.replace("window.showZoom = true;", "window.showZoom = false;");
+        }
+        
+
 
         // need to wrap the mobile iitc.js version in a document ready. IITC
         // expects to be injected after the DOM has been loaded completely.
