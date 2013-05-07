@@ -53,7 +53,7 @@ window.debug.console.show = function() {
     // not displaying the map causes bugs in Leaflet
     $('#map').css('visibility', 'hidden');
     $('#chat, #chatinput').show();
-	 window.debug.console.create();
+         window.debug.console.create();
     $('#chatinput mark').css('cssText', 'color: #bbb !important').text('debug:');
     $('#chat > div').hide();
     $('#debugconsole').show();

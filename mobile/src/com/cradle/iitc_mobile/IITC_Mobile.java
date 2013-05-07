@@ -48,14 +48,14 @@ public class IITC_Mobile extends Activity {
         // TODO build an async task for url.openStream() in IITC_WebViewClient
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-        setContentView(R.layout.activity_main);        
+        setContentView(R.layout.activity_main);
         iitc_view = (IITC_WebView) findViewById(R.id.iitc_webview);
 
         actionBar = this.getActionBar();
         actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_TITLE);
         actionBar.setTitle(getString(R.string.menu_map));
         actionBar.setHomeButtonEnabled(true);
-        
+
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         listener = new OnSharedPreferenceChangeListener() {
             @Override
@@ -227,7 +227,7 @@ public class IITC_Mobile extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        
+
         return true;
     }
 
@@ -236,16 +236,16 @@ public class IITC_Mobile extends Activity {
         // Handle item selection
         switch (item.getItemId()) {
         case android.R.id.home:
-        	iitc_view.loadUrl("javascript: window.show('map');");
-        	actionBar.setTitle(getString(R.string.menu_map));
-        	return true;
+                iitc_view.loadUrl("javascript: window.show('map');");
+                actionBar.setTitle(getString(R.string.menu_map));
+                return true;
         case R.id.menu_map:
-        	iitc_view.loadUrl("javascript: window.show('map');");
-        	actionBar.setTitle(getString(R.string.menu_map));
-        	return true;
+                iitc_view.loadUrl("javascript: window.show('map');");
+                actionBar.setTitle(getString(R.string.menu_map));
+                return true;
         case R.id.reload_button:
             this.loadUrl(intel_url);
-        	actionBar.setTitle(getString(R.string.menu_map));
+                actionBar.setTitle(getString(R.string.menu_map));
             return true;
         // clear cache
         case R.id.cache_clear:
@@ -278,9 +278,9 @@ public class IITC_Mobile extends Activity {
             return true;
         // get the users current location and focus it on map
         case R.id.locate:
-        	iitc_view.loadUrl("javascript: window.show('map');");
+                iitc_view.loadUrl("javascript: window.show('map');");
             iitc_view.loadUrl("javascript: window.map.locate({setView : true, maxZoom: 13});");
-        	actionBar.setTitle(getString(R.string.menu_map));
+                actionBar.setTitle(getString(R.string.menu_map));
             return true;
         // start settings activity
         case R.id.action_settings:
@@ -289,29 +289,29 @@ public class IITC_Mobile extends Activity {
             startActivity(intent);
             return true;
         case R.id.menu_info:
-        	iitc_view.loadUrl("javascript: window.show('info');");
+                iitc_view.loadUrl("javascript: window.show('info');");
             actionBar.setTitle(getString(R.string.menu_info));
-        	return true;
+                return true;
         case R.id.menu_full:
-        	iitc_view.loadUrl("javascript: window.show('full');");
+                iitc_view.loadUrl("javascript: window.show('full');");
             actionBar.setTitle(getString(R.string.menu_full));
-        	return true;
+                return true;
         case R.id.menu_compact:
-        	iitc_view.loadUrl("javascript: window.show('compact');");
+                iitc_view.loadUrl("javascript: window.show('compact');");
             actionBar.setTitle(getString(R.string.menu_compact));
-        	return true;
+                return true;
         case R.id.menu_public:
-        	iitc_view.loadUrl("javascript: window.show('public');");
+                iitc_view.loadUrl("javascript: window.show('public');");
             actionBar.setTitle(getString(R.string.menu_public));
-        	return true;
+                return true;
         case R.id.menu_faction:
-        	iitc_view.loadUrl("javascript: window.show('faction');");
+                iitc_view.loadUrl("javascript: window.show('faction');");
             actionBar.setTitle(getString(R.string.menu_faction));
-        	return true;
+                return true;
         case R.id.menu_debug:
-        	iitc_view.loadUrl("javascript: window.show('debug')");        	
+                iitc_view.loadUrl("javascript: window.show('debug')");
             actionBar.setTitle(getString(R.string.menu_debug));
-        	return true;
+                return true;
         default:
             return super.onOptionsItemSelected(item);
         }
@@ -327,7 +327,7 @@ public class IITC_Mobile extends Activity {
         }
     }
 
-    // Force mobile view.  
+    // Force mobile view.
     // New actions are not compatible with desktop mode
     private String addUrlParam(String url) {
             return (url + "?vp=m");

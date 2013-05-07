@@ -90,15 +90,15 @@ public class IITC_WebViewClient extends WebViewClient {
         }
 
         this.js = js;
-        
+
         PackageManager pm = context.getPackageManager();
-        boolean hasMultitouch = 
+        boolean hasMultitouch =
             pm.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH);
         boolean forcedZoom = sharedPref.getBoolean("pref_user_zoom", false);
-		if (hasMultitouch && !forcedZoom) {
+                if (hasMultitouch && !forcedZoom) {
             js = js.replace("window.showZoom = true;", "window.showZoom = false;");
         }
-        
+
 
 
         // need to wrap the mobile iitc.js version in a document ready. IITC
