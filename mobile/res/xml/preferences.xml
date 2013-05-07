@@ -13,11 +13,6 @@
         android:key="pref_about_cat"
         android:title="@string/pref_ui_cat">
 	    <CheckBoxPreference
-	        android:key="pref_force_desktop"
-	        android:title="@string/pref_force_desktop"
-	        android:summary="@string/pref_force_desktop_sum"
-	        android:defaultValue="false" />
-	    <CheckBoxPreference
 	        android:key="pref_user_loc"
 	        android:title="@string/pref_user_loc"
 	        android:summary="@string/pref_user_loc_sum"

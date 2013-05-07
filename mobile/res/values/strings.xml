@@ -34,8 +34,6 @@
     <string name="pref_misc_cat">Misc</string>
     <string name="pref_plugins">Plugins</string>
     <string name="pref_plugins_title">Available plugins</string>
-    <string name="pref_force_desktop">Force desktop mode</string>
-    <string name="pref_force_desktop_sum">Nice for tablets, looks awful on smartphones</string>
     <string name="pref_user_loc">Display user location</string>
     <string name="pref_user_loc_sum">Show users position on map</string>
     <string name="pref_force_https">Force https</string>

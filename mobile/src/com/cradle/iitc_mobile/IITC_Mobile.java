@@ -330,14 +330,9 @@ public class IITC_Mobile extends Activity {
         }
     }
 
-    // vp=f enables desktop mode...vp=m is the defaul mobile view
+    // Force mobile view.  
+    // New actions are not compatible with desktop mode
     private String addUrlParam(String url) {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        this.desktop = sharedPref.getBoolean("pref_force_desktop", false);
-
-        if (desktop)
-            return (url + "?vp=f");
-        else
             return (url + "?vp=m");
     }
 
