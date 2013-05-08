@@ -69,7 +69,6 @@ window.dialog = function(options) {
   if(options.modal) {
     options.dialogClass = 'ui-dialog-modal';
     options.draggable = false;
-    options.resizable = false;
   }
 
   // Close out existing dialogs.
@@ -87,7 +86,6 @@ window.dialog = function(options) {
     autoOpen: false,
     modal: false,
     draggable: true,
-    resizable: true,
     closeText: '&nbsp;',
     title: '#<Dialog: ' + id + '>',
     buttons: {
