@@ -503,7 +503,7 @@ h3 {
 
 .mods span {
   background-color: rgba(0, 0, 0, 0.3);
-  /* can’t use inline-block because Webkit’s implementation is buggy and
+  /* can’t use inline-block because Webkit's implementation is buggy and
    * introduces additional margins in random cases. No clear necessary,
    * as that’s solved by setting height on .mods. */
   display: block;
@@ -666,7 +666,6 @@ h3 {
   font-size: 16px;
 }
 
-
 /* update status */
 #updatestatus {
   background-color: rgba(8, 48, 78, 0.9);
@@ -685,22 +684,8 @@ h3 {
   box-sizing: border-box;
 }
 
-
-/* preview */
-
-#largepreview {
-  left: 50%;
-  position: fixed;
-  top: 50%;
-  z-index: 2000;
-}
-#largepreview img {
-  box-shadow: 0 0 40px #000;
-  border: 2px solid #f8ff5e;
-  background-color: rgba(8, 48, 78, 0.9);  /* as some images - eg ZipCar - have transparency */
-}
-
-/* tooltips, dialogs */
+/* Dialogs
+ */
 .ui-tooltip, .ui-dialog {
   max-width: 300px;
   position: absolute;
@@ -708,8 +693,27 @@ h3 {
   background-color: rgba(8, 48, 78, 0.9);
   border: 1px solid #20A8B1;
   color: #eee;
-  font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+  font: 13px/15px Roboto, Arial, Helvetica, sans-serif;
   padding: 2px 4px;
+}
+
+.ui-widget-overlay {
+  height: 100%;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 10000;
+  background:  #444;
+  opacity: 0.6;
+}
+
+.ui-modal {
+  z-index: 10001 !important;
+}
+
+.ui-tooltip {
+  z-index: 10002 !important;
 }
 
 .ui-tooltip, .ui-dialog a {
@@ -721,19 +725,61 @@ h3 {
   border-radius: 2px;
 }
 
-.ui-widget-overlay {
-  height: 100%;
-  left: 0;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index:9998;
-  background:  #444;
-  opacity: 0.6;
+.ui-dialog-modal .ui-dialog-titlebar-close {
+  display: none;
 }
 
 .ui-dialog-titlebar {
-  display: none;
+  text-align: center;
+  padding: 4px;
+  background-color: rgba(8, 60, 78, 0.9);
+  min-width: 250px;
+}
+
+.ui-dialog-title {
+  padding: 2px;
+  font-weight: bold;
+}
+
+.ui-dialog-title-active {
+  color: #ffce00;
+}
+
+.ui-dialog-title-inactive {
+  color: #ffffff;
+}
+
+.ui-dialog-titlebar-button {
+  position: absolute;
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+  width: 17px;
+  height: 17px;
+  top: 3px;
+  cursor: pointer;
+  border: 1px solid rgb(32, 168, 177);
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.ui-dialog-titlebar-button:active {
+  background-color: rgb(32, 168, 177);
+}
+
+.ui-dialog-titlebar-button-close {
+  right: 4px;
+}
+
+.ui-dialog-titlebar-button-collapse {
+  right: 25px;
+}
+
+.ui-dialog-titlebar-button-collapse-expanded {
+
+}
+
+.ui-dialog-titlebar-button-collapse-collapsed {
+   background-color: rgb(32, 168, 177);
 }
 
 .ui-dialog-content {
@@ -742,6 +788,10 @@ h3 {
   overflow-x: hidden;
   max-height: 600px !important;
   max-width: 700px !important;
+}
+
+.ui-dialog-content-hidden {
+  display: none !important;
 }
 
 .ui-dialog-buttonpane {
@@ -756,7 +806,7 @@ h3 {
 .ui-dialog-buttonset button,
 .ui-dialog-content button {
   padding: 2px;
-  min-width: 80px;
+  min-width: 40px;
   color: #FFCE00;
   border: 1px solid #FFCE00;
   background-color: rgba(8, 48, 78, 0.9);
@@ -767,8 +817,9 @@ h3 {
 }
 
 .ui-dialog-aboutIITC {
+  width: auto !important;
+  min-width: 400px !important;
   max-width: 600px !important;
-  width: 600px !important;
 }
 
 td {
@@ -782,18 +833,22 @@ td + td {
 
 #qrcode > canvas {
   border: 8px solid white;
-} 
+}
 
 /* redeem results *****************************************************/
-.redeem-result {
+.redeem-result-table {
   font-size: 14px;
-  font-family: arial,helvetica,sans-serif;
+  font-family: Roboto, Arial, Helvetica, sans-serif;
   table-layout: fixed;
 }
 
 .redeem-result tr > td:first-child {
   width: 50px;
   text-align: right;
+}
+
+.redeem-result-html {
+  font-family: Inconsolata, Consolas, Menlo, "Courier New", monospace;
 }
 
 .pl_nudge_date {

@@ -19,7 +19,7 @@ window.aboutIITC = function(){
   + '     </ul>'
   + '  </div>'
   + '  <div>'
-  + '    MapQuest OSM tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png">'
+  + '    MapQuest OSM tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="https://developer.mapquest.com/content/osm/mq_logo.png">'
   + '  </div>'
   + '  <hr>'
   + '  <div>Version: ' + v + '</div>'
@@ -27,8 +27,12 @@ window.aboutIITC = function(){
   + '  <div>' + attrib + '</div>'
   + '  <hr>'
   + '  <div>' + contrib + '</div>';
-  alert(a, true, function() {$('.ui-dialog').removeClass('ui-dialog-aboutIITC');});
-  $('.ui-dialog').addClass('ui-dialog-aboutIITC');
+  dialog({
+    title: 'IITC ' + v,
+    html: a,
+    dialogClass: 'ui-dialog-aboutIITC',
+    closeCallback: function() {$('.ui-dialog').removeClass('ui-dialog-aboutIITC');}
+  });
 }
 
 
@@ -135,19 +139,23 @@ window.rangeLinkClick = function() {
 }
 
 window.showPortalPosLinks = function(lat, lng, name) {
-  var portal_name = '';
+  var encoded_name = '';
   if(name !== undefined) {
-    portal_name = encodeURIComponent(' (' + name + ')');
+    encoded_name = encodeURIComponent(' (' + name + ')');
   }
   if (typeof android !== 'undefined' && android && android.intentPosLink) {
     android.intentPosLink(lat, lng, portal_name);
   } else {
     var qrcode = '<div id="qrcode"></div>';
     var script = '<script>$(\'#qrcode\').qrcode({text:\'GEO:'+lat+','+lng+'\'});</script>';
-    var gmaps = '<a href="https://maps.google.com/?q='+lat+','+lng+portal_name+'">Google maps</a>';
+    var gmaps = '<a href="https://maps.google.com/?q='+lat+','+lng+encoded_name+'">Google Maps</a>';
     var osm = '<a href="http://www.openstreetmap.org/?mlat='+lat+'&mlon='+lng+'&zoom=16">OpenStreetMap</a>';
-    var latLng = '<span>'+lat+','+lng +'</span>';
-    alert('<div style="text-align: center;">' + qrcode + script + gmaps + ' ' + osm + '<br />' + latLng + '</div>');
+    var latLng = '<span>&lt;' + lat + ',' + lng +'&gt;</span>';
+    dialog({
+      html: '<div style="text-align: center;">' + qrcode + script + gmaps + '; ' + osm + '<br />' + latLng + '</div>',
+      title: name,
+      id: 'poslinks'
+    });
   }
 }
 
