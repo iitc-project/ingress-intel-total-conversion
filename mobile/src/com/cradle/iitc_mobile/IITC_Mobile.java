@@ -318,8 +318,7 @@ public class IITC_Mobile extends Activity {
                 // get the users current location and focus it on map
             case R.id.locate :
                 iitc_view.loadUrl("javascript: window.show('map');");
-                iitc_view
-                        .loadUrl("javascript: window.map.locate({setView : true, maxZoom: 13});");
+                iitc_view.loadUrl("javascript: window.map.locate({setView : true, maxZoom: 15});");
                 actionBar.setTitle(getString(R.string.menu_map));
                 return true;
                 // start settings activity
