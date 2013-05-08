@@ -419,7 +419,7 @@ window.plugin.sync.searchFileOrFolder = function(queryOption, callback) {
 // http://stackoverflow.com/a/7221797/2322660
 // With format fixing: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx where y in [8,9,a,b]
 window.plugin.sync.generateUUID = function() {
-  if(window.crypto) {
+  if(window.crypto && window.crypto.getRandomValues) {
     var buf = new Uint16Array(8);
     window.crypto.getRandomValues(buf);
     var S4 = function(num) {
