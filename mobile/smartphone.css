@@ -10,7 +10,7 @@ body {
 
 .leaflet-control-layers {
   margin-left: 0 !important;
-  margin-top: 40px !important;
+  margin-top: 0 !important;
 }
 
 .leaflet-control-zoom {
