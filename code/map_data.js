@@ -173,15 +173,16 @@ window.handlePortalsRender = function(portals) {
   // Preserve selectedPortal because it will get lost on re-rendering
   // the portal
   var oldSelectedPortal = selectedPortal;
-
   runHooks('portalDataLoaded', {portals : portals});
   $.each(portals, function(ind, portal) {
     //~ if(selectedPortal === portal[0]) portalUpdateAvailable = true;
-    if(urlPortal && portal[0] === urlPortal) portalInUrlAvailable = true;
     if(urlPortalLL && urlPortalLL[0] === portal[2].locationE6.latE6/1E6 && urlPortalLL[1] === portal[2].locationE6.lngE6/1E6) {
       urlPortal = portal[0];
       portalInUrlAvailable = true;
       urlPortalLL = null;
+    }
+    if(window.portals[portal[0]]) {
+      highlightPortal(window.portals[portal[0]]);
     }
     renderPortal(portal);
   });
@@ -285,7 +286,7 @@ window.renderPortal = function(ent) {
   // do nothing if portal did not change
   var layerGroup = portalsLayers[parseInt(portalLevel)];
   var old = findEntityInLeaflet(layerGroup, window.portals, ent[0]);
-  if(old) {
+  if(!changing_highlighters && old) {
     var oo = old.options;
 
     // Default checks to see if a portal needs to be re-rendered
@@ -333,6 +334,7 @@ window.renderPortal = function(ent) {
     clickable: true,
     level: portalLevel,
     team: team,
+    ent: ent,
     details: ent[2],
     guid: ent[0]});
 
@@ -370,7 +372,7 @@ window.renderPortal = function(ent) {
   });
 
   window.renderResonators(ent, null);
-
+  highlightPortal(p);
   window.runHooks('portalAdded', {portal: p});
   p.addTo(layerGroup);
 }
