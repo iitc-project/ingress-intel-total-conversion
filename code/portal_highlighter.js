@@ -33,7 +33,7 @@ window.portalHighlighterControl = function() {
     });
     $("#portal_highlight_select").val(_current_highlighter);
     $("#portal_highlight_select").change(function(){ changePortalHighlights($(this).val());});
-    $(".leaflet-top.leaflet-left").css('padding-top', window.isSmartphone ? '55px' : '20px');
+    $(".leaflet-top.leaflet-left").css('padding-top', '20px');
     $(".leaflet-control-scale-line").css('margin-top','25px');
   }
 }
