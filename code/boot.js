@@ -423,7 +423,13 @@ function boot() {
   $('#sidebar').show();
 
   if(window.bootPlugins)
-    $.each(window.bootPlugins, function(ind, ref) { ref(); });
+    $.each(window.bootPlugins, function(ind, ref) {
+      try {
+        ref();
+      } catch(err) {
+        console.log("error starting plugin: index "+ind+", error: "+err);
+      }
+    });
 
   window.runOnSmartphonesAfterBoot();
 
