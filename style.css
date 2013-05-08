@@ -684,21 +684,6 @@ h3 {
   box-sizing: border-box;
 }
 
-
-/* preview */
-
-#largepreview {
-  left: 50%;
-  position: fixed;
-  top: 50%;
-  z-index: 2000;
-}
-#largepreview img {
-  box-shadow: 0 0 40px #000;
-  border: 2px solid #f8ff5e;
-  background-color: rgba(8, 48, 78, 0.9);  /* as some images - eg ZipCar - have transparency */
-}
-
 /* Dialogs
  */
 .ui-tooltip, .ui-dialog {
