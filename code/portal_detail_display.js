@@ -18,7 +18,7 @@ window.renderPortalDetails = function(guid) {
   if(d.portalV2.linkedEdges) $.each(d.portalV2.linkedEdges, function(ind, link) {
     links[link.isOrigin ? 'outgoing' : 'incoming']++;
   });
-  function linkExpl(t) { return '<tt title="↳ incoming links\n↴ outgoing links\n• is meant to be the portal.">'+t+'</tt>'; }
+  function linkExpl(t) { return '<tt title="↳ incoming links\n↴ outgoing links\n• is the portal">'+t+'</tt>'; }
   var linksText = [linkExpl('links'), linkExpl(' ↳ ' + links.incoming+'&nbsp;&nbsp;•&nbsp;&nbsp;'+links.outgoing+' ↴')];
 
   var player = d.captured && d.captured.capturingPlayerId
@@ -50,14 +50,13 @@ window.renderPortalDetails = function(guid) {
   var perma = '/intel?ll='+lat+','+lng+'&z=17&pll='+lat+','+lng;
   var imgTitle = 'title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."';
   var poslinks = 'window.showPortalPosLinks('+lat+','+lng+',\'' + d.portalV2.descriptiveText.TITLE + '\')';
-  var postcard = 'Send in a postcard. Will put it online after receiving. Address:\\n\\nStefan Breunig\\nINF 305 – R045\\n69120 Heidelberg\\nGermany';
 
   $('#portaldetails')
     .attr('class', TEAM_TO_CSS[getTeam(d)])
     .html(''
       + '<h3 class="title">'+d.portalV2.descriptiveText.TITLE+'</h3>'
       + '<span class="close" onclick="unselectOldPortal();" title="Close">X</span>'
-      // help cursor via “.imgpreview img”
+      // help cursor via ".imgpreview img"
       + '<div class="imgpreview" '+imgTitle+' style="background-image: url('+img+')">'
       + '<img class="hide" src="'+img+'"/>'
       + '<span id="level">'+Math.floor(getPortalLevel(d))+'</span>'
@@ -73,7 +72,7 @@ window.renderPortalDetails = function(guid) {
     );
 
   // try to resolve names that were required for above functions, but
-  // weren’t available yet.
+  // weren't available yet.
   resolvePlayerNames();
 
   runHooks('portalDetailsUpdated', {portalDetails: d});
@@ -107,7 +106,7 @@ window.clearPortalIndicators = function() {
 
 // highlights portal with given GUID. Automatically clears highlights
 // on old selection. Returns false if the selected portal changed.
-// Returns true if it’s still the same portal that just needs an
+// Returns true if it's still the same portal that just needs an
 // update.
 window.selectPortal = function(guid) {
   var update = selectedPortal === guid;

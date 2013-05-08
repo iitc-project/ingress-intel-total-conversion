@@ -699,7 +699,8 @@ h3 {
   background-color: rgba(8, 48, 78, 0.9);  /* as some images - eg ZipCar - have transparency */
 }
 
-/* tooltips, dialogs */
+/* Dialogs
+ */
 .ui-tooltip, .ui-dialog {
   max-width: 300px;
   position: absolute;
@@ -747,6 +748,7 @@ h3 {
   text-align: center;
   padding: 4px;
   background-color: rgba(8, 60, 78, 0.9);
+  min-width: 250px;
 }
 
 .ui-dialog-title {
@@ -754,18 +756,29 @@ h3 {
   font-weight: bold;
 }
 
+.ui-dialog-title-active {
+  color: #ffce00;
+}
+
+.ui-dialog-title-inactive {
+  color: #ffffff;
+}
+
 .ui-dialog-titlebar-button {
   position: absolute;
-  float: left;
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
   width: 17px;
-  height: 19px;
-  top: 2px;
+  height: 17px;
+  top: 3px;
   cursor: pointer;
-  color: #FFCE00;
-  font-family: "Arial", sans;
-  font-size: 14px;
-  border-style: none;
+  border: 1px solid rgb(32, 168, 177);
   background-color: rgba(0, 0, 0, 0);
+}
+
+.ui-dialog-titlebar-button:active {
+  background-color: rgb(32, 168, 177);
 }
 
 .ui-dialog-titlebar-button-close {
@@ -773,7 +786,15 @@ h3 {
 }
 
 .ui-dialog-titlebar-button-collapse {
-  right: 28px;
+  right: 25px;
+}
+
+.ui-dialog-titlebar-button-collapse-expanded {
+
+}
+
+.ui-dialog-titlebar-button-collapse-collapsed {
+   background-color: rgb(32, 168, 177);
 }
 
 .ui-dialog-content {
@@ -811,8 +832,9 @@ h3 {
 }
 
 .ui-dialog-aboutIITC {
+  width: auto !important;
+  min-width: 400px !important;
   max-width: 600px !important;
-  width: 600px !important;
 }
 
 td {

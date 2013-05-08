@@ -27,25 +27,23 @@ window.setupBackButton = function() {
   }
 }
 
-
-
-
 window.setupLargeImagePreview = function() {
   $('#portaldetails').on('click', '.imgpreview', function() {
-    var ex = $('#largepreview');
-    if(ex.length > 0) {
-      ex.remove();
-      return;
-    }
     var img = $(this).find('img')[0];
-    var w = img.naturalWidth/2;
-    var h = img.naturalHeight/2;
-    var c = $('#portaldetails').attr('class');
-    $('body').append(
-      '<div id="largepreview" class="'+c+'" style="margin-left: '+(-SIDEBAR_WIDTH/2-w-2)+'px; margin-top: '+(-h-2)+'px">' + img.outerHTML + '</div>'
-    );
-    $('#largepreview').click(function() { $(this).remove() });
-  });
+    var w = img.naturalWidth, c = $('#portaldetails').attr('class');
+    var d = dialog({
+      html: '<span class="' + c + '" style="position: relative; width: 100%; left: 50%; margin-left: ' + -(w / 2) + 'px;">' + img.outerHTML + '</span>',
+      title: $(this).parent().find('h3.title').html()
+    });
+
+    // We have to dynamically set the width of this dialog, so get the .ui-dialog component
+    var p = d.parents('.ui-dialog');
+
+    // Don't let this dialog get smaller than the default maximum dialog width
+    var width = Math.max(parseInt(p.css('max-width')), w);
+    p.css('min-width', width + 'px');
+    p.css('width', width + 'px');
+   });
 }
 
 // adds listeners to the layer chooser such that a long press hides

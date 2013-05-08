@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           IITC plugin: guess player level
-// @version        0.4.0.@@DATETIMEVERSION@@
+// @version        0.4.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -101,7 +101,7 @@ window.plugin.guessPlayerLevels.guess = function() {
     });
   });
 
-  var s = 'the players have at least the following level:\n\n';
+  var s = 'Players have at least the following level:\n\n';
   s += 'Resistance:\t&nbsp;&nbsp;&nbsp;\tEnlightened:\t\n';
 
   var namesR = plugin.guessPlayerLevels.sort(playersRes);
@@ -132,7 +132,10 @@ window.plugin.guessPlayerLevels.guess = function() {
   s += '\nAverage level:\t'+averageR.toFixed(2)+'\tAverage level:\t'+averageE.toFixed(2);
   s += '\n\nIf there are some unresolved names, simply try again.'
   //console.log(s);
-  alert(s);
+  dialog({
+    text: s,
+    title: 'Player levels: R' + averageR.toFixed(2) + ', E' + averageE.toFixed(2)
+  });
 }
 
 window.plugin.guessPlayerLevels.sort = function(playerHash) {

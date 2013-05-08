@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-scoreboard@vita10gy
 // @name           IITC plugin: show a localized scoreboard.
-// @version        0.1.7.@@DATETIMEVERSION@@
+// @version        0.1.8.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -298,6 +298,7 @@ window.plugin.scoreboard.display = function() {
   var resMu = scores['team'][TEAM_RES]['mu'];
   var enlMu = scores['team'][TEAM_ENL]['mu'];
   var scoreHtml = '';
+  var title = '';
   
   if(somethingInView) {
   
@@ -307,6 +308,10 @@ window.plugin.scoreboard.display = function() {
         + window.plugin.scoreboard.percentSpan(resMuPercent, 'res')
         + window.plugin.scoreboard.percentSpan(100-resMuPercent, 'enl')
         + '</div>';
+      title = window.digits(resMu) + ' R (' + resMuPercent + '%), ' + window.digits(enlMu) + ' E (' + (100-resMuPercent) + '%)';
+    }
+    else {
+      title = 'no MU in view';
     }
     
     scoreHtml += '<table>'
@@ -361,12 +366,17 @@ window.plugin.scoreboard.display = function() {
       + 'Score is subject to portals available based on zoom level. '
       + 'If names are unresolved try again. For best results wait until updates are fully loaded.</div>';
   } else {
-    scoreHtml += 'You need something in view.';  
+    scoreHtml += 'You need something in view.';
+    title = 'nothing in view';
   }
   
-  alert('<div id="scoreboard">' + scoreHtml + '</div>', true, function() {$(".ui-dialog").removeClass('ui-dialog-scoreboard');});
-  $(".ui-dialog").addClass('ui-dialog-scoreboard');
-  
+  dialog({
+    html: '<div id="scoreboard">' + scoreHtml + '</div>',
+    title: 'Scoreboard: ' + title,
+    dialogClass: 'ui-dialog-scoreboard',
+    id: 'scoreboard'
+  });
+
   // Setup sorting
   $(document).on('click', '#players table th', function() {
     $('#players').html(window.plugin.scoreboard.playerTable($(this).data('sort')));
@@ -393,7 +403,7 @@ window.plugin.scoreboard.fieldArea = function(field) {
 var setup =  function() {
   $('#toolbox').append(' <a onclick="window.plugin.scoreboard.display()" title="Display a scoreboard per team for the current view">Scoreboard</a>');
   $('head').append('<style>' +
-    '.ui-dialog-scoreboard {max-width:600px !important; width:600px !important;}' +
+    '.ui-dialog-scoreboard {width: auto !important; min-width: 400px !important; max-width: 600px !important;}' +
     '#scoreboard table {margin-top:10px;	border-collapse: collapse; empty-cells: show; width:100%; clear: both;}' +
     '#scoreboard table td, #scoreboard table th {border-bottom: 1px solid #0b314e; padding:3px; color:white; background-color:#1b415e}' +
     '#scoreboard table tr.res td { background-color: #005684; }' +

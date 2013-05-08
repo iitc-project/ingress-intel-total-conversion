@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-portals-list@teo96
 // @name           IITC plugin: show list of portals
-// @version        0.0.11.@@DATETIMEVERSION@@
+// @version        0.0.12.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -13,6 +13,7 @@
 // ==/UserScript==
 
 /* whatsnew
+* 0.0.12: Use dialog() instead of alert so the user can drag the box around
 * 0.0.11: Add nominal energy column and # links, fix sort bug when opened even amounts of times, nits
 * 0.0.10: Fixed persistent css problem with alert
 * 0.0.9 : bugs hunt
@@ -120,13 +121,15 @@ window.plugin.portalslist.displayPL = function() {
   if (window.plugin.portalslist.getPortals()) {
     html += window.plugin.portalslist.portalTable('level', window.plugin.portalslist.sortOrder,window.plugin.portalslist.filter);
   } else {
-    html = '<table><tr><td>Nothing to Show !</td></tr></table>';
+    html = '<table><tr><td>Nothing to show!</td></tr></table>';
   };
-  alert('<div id="portalslist">' + html + '</div>', true, function() {
-      $(".ui-dialog").removeClass('ui-dialog-portalslist');
-      $(document).off('.portalslist');
-    });
-  $(".ui-dialog").addClass('ui-dialog-portalslist');
+
+  dialog({
+    html: '<div id="portalslist">' + html + '</div>',
+    dialogClass: 'ui-dialog-portalslist',
+    title: 'Portal list: ' + window.plugin.portalslist.listPortals.length + ' ' + (window.plugin.portalslist.listPortals.length == 1 ? 'portal' : 'portals'),
+    id: 'portal-list'
+  });
 
   // Setup sorting
   $(document).on('click.portalslist', '#portalslist table th', function() {
@@ -264,7 +267,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   html += '</table>';
 
   html += '<div class="disclaimer">Click on portals table headers to sort by that column. '
-    + 'Click on <b>All Portals, Resistant Portals, Enlightened Portals</b> to filter<br>'
+    + 'Click on <b>All Portals, Resistance Portals, Enlightened Portals</b> to filter<br>'
     + 'Thanks to @vita10gy & @xelio for their IITC plugins who inspired me. A <a href="https://plus.google.com/113965246471577467739">@teo96</a> production. Vive la Résistance !</div>';
 
   window.plugin.portalslist.sortOrder = window.plugin.portalslist.sortOrder*-1;
@@ -275,7 +278,7 @@ window.plugin.portalslist.stats = function(sortBy) {
   //console.log('** stats');
   var html = '<table><tr>'
   + '<td class="filterAll" style="cursor:pointer"  onclick="window.plugin.portalslist.portalTable(\'level\',-1,0)"><a href=""></a>All Portals : (click to filter)</td><td class="filterAll">' + window.plugin.portalslist.listPortals.length + '</td>'
-  + '<td class="filterRes" style="cursor:pointer" class="sorted" onclick="window.plugin.portalslist.portalTable(\'level\',-1,1)">Resistant Portals : </td><td class="filterRes">' + window.plugin.portalslist.resP +' (' + Math.floor(window.plugin.portalslist.resP/window.plugin.portalslist.listPortals.length*100) + '%)</td>' 
+  + '<td class="filterRes" style="cursor:pointer" class="sorted" onclick="window.plugin.portalslist.portalTable(\'level\',-1,1)">Resistance Portals : </td><td class="filterRes">' + window.plugin.portalslist.resP +' (' + Math.floor(window.plugin.portalslist.resP/window.plugin.portalslist.listPortals.length*100) + '%)</td>' 
   + '<td class="filterEnl" style="cursor:pointer" class="sorted" onclick="window.plugin.portalslist.portalTable(\'level\',-1,2)">Enlightened Portals : </td><td class="filterEnl">'+ window.plugin.portalslist.enlP +' (' + Math.floor(window.plugin.portalslist.enlP/window.plugin.portalslist.listPortals.length*100) + '%)</td>'  
   + '</tr>'
   + '</table>';
@@ -318,8 +321,8 @@ window.plugin.portalslist.getPortalLink = function(portal,guid) {
 var setup =  function() {
   $('#toolbox').append(' <a onclick="window.plugin.portalslist.displayPL()" title="Display a list of portals in the current view">Portals list</a>');
   $('head').append('<style>' +
-    '.ui-dialog-portalslist {position: absolute !important; top: 10px !important; left: 30px !important;max-width:800px !important; width:auto !important;}' +
-    '#portalslist table {margin-top:5px;	border-collapse: collapse; empty-cells: show; width:100%; clear: both;}' +
+    '.ui-dialog-portalslist {max-width: 800px !important; width: auto !important;}' +
+    '#portalslist table {margin-top:5px; border-collapse: collapse; empty-cells: show; width:100%; clear: both;}' +
     '#portalslist table td, #portalslist table th {border-bottom: 1px solid #0b314e; padding:3px; color:white; background-color:#1b415e}' +
     '#portalslist table tr.res td {  background-color: #005684; }' +
     '#portalslist table tr.enl td {  background-color: #017f01; }' +
