@@ -431,6 +431,7 @@ function boot() {
   setTimeout('window.map.invalidateSize(false);', 500);
 
   window.iitcLoaded = true;
+  window.runHooks('iitcLoaded');
 }
 
 // this is the minified load.js script that allows us to easily load
