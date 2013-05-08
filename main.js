@@ -114,7 +114,7 @@ L_PREFER_CANVAS = false;
 // CONFIG OPTIONS ////////////////////////////////////////////////////
 window.REFRESH = 60; // refresh view every 60s (base time)
 window.ZOOM_LEVEL_ADJ = 5; // add 5 seconds per zoom level
-window.ON_MOVE_REFRESH = 0.8;  //refresh time to use after a movement event
+window.ON_MOVE_REFRESH = 1.25;  //refresh time to use after a movement event
 window.MINIMUM_OVERRIDE_REFRESH = 5; //limit on refresh time since previous refresh, limiting repeated move refresh rate
 window.REFRESH_GAME_SCORE = 5*60; // refresh game score every 5 minutes
 window.MAX_IDLE_TIME = 4; // stop updating map after 4min idling
