@@ -24,6 +24,6 @@ window.setupGeosearch = function() {
     e.preventDefault();
   });
   $('#geosearchwrapper img').click(function(){
-    map.locate({setView : true});;
+    map.locate({setView : true, maxZoom: 13});;
   });
 }

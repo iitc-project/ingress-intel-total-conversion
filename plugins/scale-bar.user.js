@@ -24,11 +24,16 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 window.plugin.scaleBar = function() {};
 
 window.plugin.scaleBar.setup  = function() {
-  $('head').append('<style>.leaflet-control-scale { position: absolute; top: 2px; left: 40px; } </style>');
   // Before you ask: yes, I explicitely turned off imperial units. Imperial units
   // are worse than Internet Explorer 6 whirring fans combined. Upgrade to the metric
   // system already.
-  window.map.addControl(new L.Control.Scale({position: 'topleft', imperial: false, maxWidth: 200}));
+  if (window.isSmartphone()) {
+      $('head').append('<style>.leaflet-control-scale { position: absolute; bottom: 15px; left: 0px; } </style>');
+      window.map.addControl(new L.Control.Scale({position: 'bottomleft', imperial: false, maxWidth: 200}));
+  } else {
+      $('head').append('<style>.leaflet-control-scale { position: absolute; top: 2px; left: 40px; } </style>');
+      window.map.addControl(new L.Control.Scale({position: 'topleft', imperial: false, maxWidth: 200}));
+  }
 };
 
 var setup =  window.plugin.scaleBar.setup;
