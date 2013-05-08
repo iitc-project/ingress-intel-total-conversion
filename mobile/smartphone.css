@@ -7,15 +7,18 @@ body {
   background: #0B3351 !important
 }
 
+.leaflet-top .leaflet-control {
+  margin-top: 0 !important;
+}
 
 .leaflet-control-layers {
   margin-left: 0 !important;
   margin-top: 0 !important;
 }
 
-.leaflet-control-zoom {
+.leaflet-top .leaflet-control-zoom {
   margin-left: 5px !important;
-  margin-top: 80px !important;
+  margin-top: 30px !important;
 }
 
 
