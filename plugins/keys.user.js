@@ -87,6 +87,7 @@ window.plugin.keys.delaySync = function() {
     }, plugin.keys.SYNC_DELAY);
 }
 
+// Store the upadteQueue in updatingQueue and upload
 window.plugin.keys.syncNow = function() {
   if(!plugin.keys.enableSync) return;
   $.extend(plugin.keys.updatingQueue, plugin.keys.updateQueue);
@@ -97,18 +98,22 @@ window.plugin.keys.syncNow = function() {
   plugin.sync.updateMap('keys', 'keys', Object.keys(plugin.keys.updatingQueue));
 }
 
-// Called after IITC and all plugin loaded
+// Call after IITC and all plugin loaded
 window.plugin.keys.registerFieldForSyncing = function() {
   if(!window.plugin.sync) return;
   window.plugin.sync.registerMapForSync('keys', 'keys', window.plugin.keys.syncCallback, window.plugin.keys.syncInitialed);
 }
 
+// Call after local or remote change uploaded
 window.plugin.keys.syncCallback = function(pluginName, fieldName, e, fullUpdated) {
   if(fieldName === 'keys') {
     plugin.keys.storeLocal(plugin.keys.KEY);
+    // All data is replaced if other client update the data duing this client offline, 
+    // fire 'pluginKeysRefreshAll' to notify a full update
     if(fullUpdated) {
       plugin.keys.updateDisplayCount();
       window.runHooks('pluginKeysRefreshAll');
+      return;
     }
 
     if(!e) return;
@@ -125,7 +130,7 @@ window.plugin.keys.syncCallback = function(pluginName, fieldName, e, fullUpdated
   }
 }
 
-// syncing of the field is initialed
+// syncing of the field is initialed, upload all queued update
 window.plugin.keys.syncInitialed = function(pluginName, fieldName) {
   if(fieldName === 'keys') {
     plugin.keys.enableSync = true;
