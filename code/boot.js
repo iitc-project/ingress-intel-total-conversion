@@ -171,20 +171,20 @@ window.setupMap = function() {
     var t = (i === 0 ? 'Unclaimed' : 'Level ' + i) + ' Portals';
     addLayers[t] = portalsLayers[i];
     // Store it in hiddenLayer to remove later
-    if(!isLayerGroupDisplayed(t)) hiddenLayer.push(portalsLayers[i]);
+    if(!isLayerGroupDisplayed(t, true)) hiddenLayer.push(portalsLayers[i]);
   }
 
   fieldsLayer = L.layerGroup([]);
   map.addLayer(fieldsLayer, true);
   addLayers['Fields'] = fieldsLayer;
   // Store it in hiddenLayer to remove later
-  if(!isLayerGroupDisplayed('Fields')) hiddenLayer.push(fieldsLayer);
+  if(!isLayerGroupDisplayed('Fields', true)) hiddenLayer.push(fieldsLayer);
 
   linksLayer = L.layerGroup([]);
   map.addLayer(linksLayer, true);
   addLayers['Links'] = linksLayer;
   // Store it in hiddenLayer to remove later
-  if(!isLayerGroupDisplayed('Links')) hiddenLayer.push(linksLayer);
+  if(!isLayerGroupDisplayed('Links', true)) hiddenLayer.push(linksLayer);
 
   window.layerChooser = new L.Control.Layers({
     'MapQuest OSM': views[0],

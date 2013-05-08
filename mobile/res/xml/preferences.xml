@@ -13,14 +13,19 @@
         android:key="pref_about_cat"
         android:title="@string/pref_ui_cat">
 	    <CheckBoxPreference
+	        android:key="pref_user_loc"
+	        android:title="@string/pref_user_loc"
+	        android:summary="@string/pref_user_loc_sum"
+	        android:defaultValue="false" />
+	    <CheckBoxPreference
                 android:key="pref_user_zoom"
                 android:title="@string/pref_user_zoom"
                 android:summary="@string/pref_user_zoom_sum"
 	        android:defaultValue="false" />
 	    <CheckBoxPreference
-	        android:key="pref_user_loc"
-	        android:title="@string/pref_user_loc"
-	        android:summary="@string/pref_user_loc_sum"
+                android:key="pref_fullscreen_actionbar"
+                android:title="@string/pref_fullscreen_actionbar"
+                android:summary="@string/pref_fullscreen_actionbar_sum"
 	        android:defaultValue="false" />
             </PreferenceCategory>
 

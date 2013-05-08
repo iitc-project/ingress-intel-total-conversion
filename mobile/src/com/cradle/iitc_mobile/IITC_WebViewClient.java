@@ -142,7 +142,7 @@ public class IITC_WebViewClient extends WebViewClient {
         SharedPreferences sharedPref = PreferenceManager
                 .getDefaultSharedPreferences(context);
         Set<String> plugin_list = sharedPref.getStringSet("pref_plugins", null);
-        boolean dev_enabled = sharedPref.getBoolean("pref_dev_checkbox", true);
+        boolean dev_enabled = sharedPref.getBoolean("pref_dev_checkbox", false);
 
         // iterate through all enabled plugins and load them
         if (plugin_list != null) {
