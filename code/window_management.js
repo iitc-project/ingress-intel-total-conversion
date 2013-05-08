@@ -1,6 +1,7 @@
 // created to start cleaning up "window" interaction
 //
 window.show = function(id) {
+        window.hideall();
         switch(id) {
                 case 'full':
                         window.chat.show('full');
@@ -19,6 +20,7 @@ window.show = function(id) {
                         break;
                 case 'map':
                         window.smartphone.mapButton.click();
+                        $('#portal_highlight_select').show();
                         break;
                 case 'info':
                         window.smartphone.sideButton.click();
@@ -27,4 +29,9 @@ window.show = function(id) {
                         window.smartphone.mapButton.click();
                         break;
         }
+}
+
+window.hideall = function() {
+    $('#chatcontrols, #chat, #chatinput, #sidebartoggle, #scrollwrapper, #updatestatus, #portal_highlight_select').hide();
+    $('#map').css('visibility', 'hidden');
 }
