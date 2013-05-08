@@ -47,9 +47,12 @@ window.plugin.sync.updateMap = function(pluginName, fieldName, keyArray) {
 // example: plugin.sync.registerMapForSync('keys', 'keysdata', plugin.keys.updateCallback, plugin.keys.initializedCallback)
 // which register plugin.keys.keysdata
 //
-// updateCallback function format: function(pluginName, fieldName, eventObejct)
+// updateCallback function format: function(pluginName, fieldName, eventObejct, fullUpdated)
 // updateCallback will be fired when local or remote pushed update to Google Realtime API
-// eventObject is a ValueChangedEvent, refer to following url
+// fullUpdated is true when remote update occur during local client offline, all data is replaced by remote data
+// eventObject is a ValueChangedEvent, is null if fullUpdated is true
+//
+// detail of ValueChangedEvent refer to following url
 // https://developers.google.com/drive/realtime/reference/gapi.drive.realtime.ValueChangedEvent
 //
 // initializedCallback funciton format: function(pluginName, fieldName)
@@ -153,7 +156,6 @@ window.plugin.sync.RegisteredMap.prototype.searchOrCreateFile = function(callbac
 }
 
 window.plugin.sync.RegisteredMap.prototype.updateListener = function(e) {
-  console.log(e);
   if(!e.isLocal) {
     if(!window.plugin[this.pluginName][this.fieldName]) {
       window.plugin[this.pluginName][this.fieldName] = {};
@@ -210,6 +212,7 @@ window.plugin.sync.RegisteredMap.prototype.initialize = function(callback) {
       $.each(_this.map.keys(), function(ind, key) {
         window.plugin[_this.pluginName][_this.fieldName][key] = _this.map.get(key);
       });
+      if(_this.callback) _this.callback(_this.pluginName, _this.fieldName, null, true);
     }
 
     _this.initialized = true;
