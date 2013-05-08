@@ -7,6 +7,7 @@ import java.util.Scanner;
 import android.app.Activity;
 import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.view.MenuItem;
 
 public class IITC_Settings extends Activity {
 
@@ -24,6 +25,10 @@ public class IITC_Settings extends Activity {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+
+        // set action bar title
+        this.getActionBar().setTitle("IITC Mobile Settings");
+        this.getActionBar().setHomeButtonEnabled(true);
 
         ArrayList<String> asset_list = new ArrayList<String>();
         ArrayList<String> asset_values = new ArrayList<String>();
@@ -69,5 +74,17 @@ public class IITC_Settings extends Activity {
         // Display the fragment as the main content.
         getFragmentManager().beginTransaction()
                 .replace(android.R.id.content, settings).commit();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // exit settings when home button (iitc icon) is pressed
+            case android.R.id.home :
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

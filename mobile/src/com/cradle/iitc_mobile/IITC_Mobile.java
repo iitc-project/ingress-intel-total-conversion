@@ -53,6 +53,7 @@ public class IITC_Mobile extends Activity {
         setContentView(R.layout.activity_main);
         iitc_view = (IITC_WebView) findViewById(R.id.iitc_webview);
 
+        // fetch actionbar, set display flags, title and enable home button
         actionBar = this.getActionBar();
         actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
                 | ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_TITLE);
@@ -230,15 +231,9 @@ public class IITC_Mobile extends Activity {
     // we want a self defined behavior for the back button
     @Override
     public void onBackPressed() {
-        // leave fullscreen mode if it is enabled
+        // exit fullscreen mode if it is enabled
         if (fullscreen_mode) {
-            if (fullscreen_actionbar)
-                this.getActionBar().show();
-            // show notification bar again
-            WindowManager.LayoutParams attrs = getWindow().getAttributes();
-            attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
-            this.getWindow().setAttributes(attrs);
-            this.fullscreen_mode = false;
+            this.toggleFullscreen();
             return;
         }
         if (this.back_button_pressed) {
@@ -289,31 +284,8 @@ public class IITC_Mobile extends Activity {
                 iitc_view.clearFormData();
                 iitc_view.clearCache(true);
                 return true;
-                // toggle fullscreen
             case R.id.toggle_fullscreen :
-                if (!this.fullscreen_mode) {
-                    if (fullscreen_actionbar)
-                        this.getActionBar().hide();
-                    // hide notification bar
-                    WindowManager.LayoutParams attrs = getWindow()
-                            .getAttributes();
-                    attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
-                    this.getWindow().setAttributes(attrs);
-                    this.fullscreen_mode = true;
-                    // show a little toast for the user
-                    Toast.makeText(this,
-                            "Press back button to exit fullscreen",
-                            Toast.LENGTH_SHORT).show();
-                } else {
-                    if (fullscreen_actionbar)
-                        this.getActionBar().show();
-                    // show notification bar again
-                    WindowManager.LayoutParams attrs = getWindow()
-                            .getAttributes();
-                    attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
-                    this.getWindow().setAttributes(attrs);
-                    this.fullscreen_mode = false;
-                }
+                toggleFullscreen();
                 return true;
                 // get the users current location and focus it on map
             case R.id.locate :
@@ -393,5 +365,24 @@ public class IITC_Mobile extends Activity {
                         + loc.getLatitude() + ", " + loc.getLongitude() + ");");
             }
         }
+    }
+
+    public void toggleFullscreen() {
+        if (fullscreen_mode) {
+            if (fullscreen_actionbar)
+                this.getActionBar().show();
+            this.fullscreen_mode = false;
+        } else {
+            if (fullscreen_actionbar)
+                this.getActionBar().hide();
+            this.fullscreen_mode = true;
+            // show a toast with instructions to exit the fc mode again
+            Toast.makeText(this, "Press back button to exit fullscreen",
+                    Toast.LENGTH_SHORT).show();
+        }
+        // toggle notification bar
+        WindowManager.LayoutParams attrs = getWindow().getAttributes();
+        attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
+        this.getWindow().setAttributes(attrs);
     }
 }
