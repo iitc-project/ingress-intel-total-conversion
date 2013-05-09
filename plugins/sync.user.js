@@ -93,6 +93,7 @@ window.plugin.sync.RegisteredMap = function(options) {
   this.initialized = false;
   this.updateListener = this.updateListener.bind(this);
   this.initialize = this.initialize.bind(this);
+  this.loadRealtimeDocument = this.loadRealtimeDocument.bind(this);
 }
 
 window.plugin.sync.RegisteredMap.prototype.updateMap = function(keyArray) {
@@ -123,10 +124,10 @@ window.plugin.sync.RegisteredMap.prototype.getFileName = function() {
 }
 
 window.plugin.sync.RegisteredMap.prototype.searchOrCreateFile = function(callback) {
-  var queryOption, createOption, searchCallBack, _this;
+  var searchOption, createOption, assignIdCallback, failedCallback, fileSearcher, _this;
   _this = this;
 
-  queryOption = 'title = "' + this.getFileName() +'" and "' + this.authorizer.folderId + '" in parents and trashed = false';
+  searchOption = 'title = "' + this.getFileName() +'" and "' + this.authorizer.folderId + '" in parents and trashed = false';
   createOption = {'convert': 'false'
               , 'ocr': 'false'
               , 'resource': {'title': this.getFileName(),
@@ -135,24 +136,22 @@ window.plugin.sync.RegisteredMap.prototype.searchOrCreateFile = function(callbac
                              'parents': [{'id': this.authorizer.folderId}]
                             }
                };
-  searchCallBack = function(resp) {
-    if(resp.items) {
-      _this.fileId = resp.items[0].id;
-      if(callback) callback();
-    } else {
-      plugin.sync.createFileOrFolder(createOption, function(resp) {
-        if (resp.id) {
-          _this.fileId = resp.id;
-          if(callback) callback();
-        } else {
-          _this.initializing = false;
-          console.log('Plugin Sync: Could not create file ' + _this.getFileName());
-        }
-      });
-    }
+
+  assignIdCallback = function(id) {
+    _this.fileId = id;
+    if(callback) callback();
   };
 
-  plugin.sync.searchFileOrFolder(queryOption, searchCallBack);
+  failedCallback = function() {
+    _this.initializing = false;
+    console.log('Plugin Sync: Could not create file ' + _this.getFileName());
+  }
+
+  fileSearcher = new plugin.sync.FileSearcher({'searchOption': searchOption,
+                                               'createOption': createOption,
+                                               'assignIdCallback': assignIdCallback,
+                                               'failedCallback': failedCallback})
+  fileSearcher.start();
 }
 
 window.plugin.sync.RegisteredMap.prototype.updateListener = function(e) {
@@ -170,13 +169,13 @@ window.plugin.sync.RegisteredMap.prototype.updateListener = function(e) {
 }
 
 window.plugin.sync.RegisteredMap.prototype.initialize = function(callback) {
+  this.searchOrCreateFile(this.loadRealtimeDocument);
+}
+
+window.plugin.sync.RegisteredMap.prototype.loadRealtimeDocument = function(callback) {
   this.initializing = true;
   var initRealtime, initializeModel, onFileLoaded, handleError, _this;
   _this = this;
-
-  initRealtime = function() {
-    gapi.drive.realtime.load(_this.fileId, onFileLoaded, initializeModel, handleError);
-  };
 
   // this function called when the document is created first time
   // and the CollaborativeMap is populated with data in plugin field
@@ -224,14 +223,12 @@ window.plugin.sync.RegisteredMap.prototype.initialize = function(callback) {
 
   // Stop the sync if any error occur and try to re-authorize
   handleError = function(e) {
-    _this.initializing = false;
-    console.log('handle error');
+    console.log('Realtime API Error: ' + e.type);
     _this.stopSync();
     _this.authorizer.authorize();
-    console.log('Realtime API Error: ' + e.type);
   };
 
-  this.searchOrCreateFile(initRealtime);
+  gapi.drive.realtime.load(_this.fileId, onFileLoaded, initializeModel, handleError);
 }
 
 window.plugin.sync.RegisteredMap.prototype.stopSync = function() {
@@ -320,6 +317,61 @@ window.plugin.sync.RegisterdPluginsFields.prototype.initializeWorker = function(
 
 
 
+//// FileSearcher
+//
+// assignIdCallback function format: function(id)
+// allow you to assign the file/folder id elsewhere
+//
+// failedCallback function format: function()
+// call when the file/folder couldn't create
+window.plugin.sync.FileSearcher = function(options) {
+  this.searchOption = options['searchOption'];
+  this.createOption = options['createOption'];
+  this.assignIdCallback = options['assignIdCallback'];
+  this.failedCallback = options['failedCallback'];
+}
+
+window.plugin.sync.FileSearcher.prototype.start = function() {
+  var searchCallback, createCallback, _this;
+
+  _this = this;
+
+  createCallback = function(resp) {
+    if(resp.id) {
+      _this.assignIdCallback(resp.id); // file created
+    } else {
+      _this.failedCallback(); // could not creat file
+    }
+  }
+
+  searchCallback = function(resp) {
+    if(resp.items) {
+      _this.assignIdCallback(resp.items[0].id); // file found
+    } else {
+      _this.createFileOrFolder(_this.createOption, createCallback); // file not found, create file
+    }
+  }
+
+  this.searchFileOrFolder(this.searchOption, searchCallback);
+}
+
+window.plugin.sync.FileSearcher.prototype.createFileOrFolder = function(createOption, callback) {
+  gapi.client.load('drive', 'v2', function() {
+    gapi.client.drive.files.insert(createOption).execute(callback);
+  });
+}
+
+window.plugin.sync.FileSearcher.prototype.searchFileOrFolder = function(searchOption, callback) {
+  gapi.client.load('drive', 'v2', function() {
+    var option = {'q': searchOption};
+    gapi.client.drive.files.list(option).execute(callback);
+  });
+}
+//// end FileSearcher
+
+
+
+
 //// Authorizer
 // authorize user google account and create a folder 'IITC-SYNC-DATA' to store Realtime document
 window.plugin.sync.Authorizer = function(options) {
@@ -351,11 +403,11 @@ window.plugin.sync.Authorizer.prototype.authComplete = function() {
   }
 }
 
-window.plugin.sync.Authorizer.prototype.initFolder = function(callback) {
-  var queryOption, createOption, searchCallBack, _this;
+window.plugin.sync.Authorizer.prototype.initFolder = function() {
+  var searchOption, createOption, assignIdCallback, failedCallback, fileSearcher, _this;
   _this = this;
 
-  queryOption = 'title = "IITC-SYNC-DATA" and mimeType = "application/vnd.google-apps.folder" and trashed = false';
+  searchOption = 'title = "IITC-SYNC-DATA" and mimeType = "application/vnd.google-apps.folder" and trashed = false';
   createOption = {'convert': 'false'
                 , 'ocr': 'false'
                 , 'resource': {'title': 'IITC-SYNC-DATA',
@@ -363,34 +415,31 @@ window.plugin.sync.Authorizer.prototype.initFolder = function(callback) {
                                'mimeType': 'application/vnd.google-apps.folder'
                               }
                  };
-  searchCallBack = function(resp) {
-    if(resp.items) {
-      _this.folderId = resp.items[0].id;
-      if(callback) callback();
-      _this.authComplete();
-    } else {
-      plugin.sync.createFileOrFolder(createOption, function(resp) {
-        if (resp.id) {
-          _this.folderId = resp.id;
-          if(callback) callback();
-        } else {
-          console.log('Plugin Sync: Could not create folder "IITC-SYNC-DATA"');
-        }
-        _this.authComplete();
-      });
-    }
+
+  assignIdCallback = function(id) {
+    _this.folderId = id;
+    _this.authComplete();
   };
 
-  plugin.sync.searchFileOrFolder(queryOption, searchCallBack);
+  failedCallback = function() {
+    _this.authComplete();
+    console.log('Could not create "IITC-SYNC-DATA" folder');
+  }
+
+  fileSearcher = new plugin.sync.FileSearcher({'searchOption': searchOption,
+                                               'createOption': createOption,
+                                               'assignIdCallback': assignIdCallback,
+                                               'failedCallback': failedCallback})
+  fileSearcher.start();
 }
 
-window.plugin.sync.Authorizer.prototype.authorize = function(popup, callback) {
+window.plugin.sync.Authorizer.prototype.authorize = function(popup) {
   var handleAuthResult, _this;
   _this = this;
 
   handleAuthResult = function(authResult) {
     if(authResult && !authResult.error) {
-      _this.initFolder(callback);
+      _this.initFolder();
     } else {
       _this.folderId = null;
       _this.authComplete();
@@ -403,18 +452,7 @@ window.plugin.sync.Authorizer.prototype.authorize = function(popup, callback) {
 }
 //// end Authorizer
 
-window.plugin.sync.createFileOrFolder = function(option, callback) {
-  gapi.client.load('drive', 'v2', function() {
-    gapi.client.drive.files.insert(option).execute(callback);
-  });
-}
 
-window.plugin.sync.searchFileOrFolder = function(queryOption, callback) {
-  gapi.client.load('drive', 'v2', function() {
-    var option = {'q': queryOption};
-    gapi.client.drive.files.list(option).execute(callback);
-  });
-}
 
 
 // http://stackoverflow.com/a/8809472/2322660
