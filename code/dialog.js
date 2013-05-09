@@ -51,7 +51,7 @@ window.dialog = function(options) {
   }
 
   // Build an identifier for this dialog
-  var id = 'dialog-' + (options.modal ? 'modal' : (options.id ? options.id : 'anonymous-' + window.DIALOG_ID++));
+  var id = 'dialog-' + (options.modal ? 'modal' : (options.id ? options.id : 'anon-' + window.DIALOG_ID++));
   var jqID = '#' + id;
   var html = '';
 
@@ -74,9 +74,9 @@ window.dialog = function(options) {
   // Close out existing dialogs.
   if(window.DIALOGS[id]) {
     try {
-      window.DIALOGS[id].dialog('close');
+      $(window.DIALOGS[id]).dialog('close');
     } catch(err) {
-      // This dialog doesn't exist anyway
+      console.log('window.dialog: Tried to close nonexistent dialog ' + id);
     }
   }
 
@@ -87,7 +87,7 @@ window.dialog = function(options) {
     modal: false,
     draggable: true,
     closeText: '&nbsp;',
-    title: '#<Dialog: ' + id + '>',
+    title: '',
     buttons: {
       'OK': function() {
         $(this).dialog('close');
@@ -144,6 +144,7 @@ window.dialog = function(options) {
         close.addClass('ui-dialog-titlebar-button-close');
       }
 
+      window.DIALOGS[$(this).data('id')] = this;
       window.DIALOG_COUNT++;
 
       console.log('window.dialog: ' + $(this).data('id') + ' (' + $(this).dialog('option', 'title') + ') opened. ' + window.DIALOG_COUNT + ' remain.');
@@ -187,8 +188,6 @@ window.dialog = function(options) {
     }
   }, options));
 
-  window.DIALOGS[id] = dialog[0];
-
   // Set HTML and IDs
   dialog.html(html);
   dialog.data('id', id);
@@ -220,7 +219,7 @@ window.dialog = function(options) {
  * If you want more configurability, use window.dialog instead.
  */
 window.alert = function(text, isHTML, closeCallback) {
-  var obj = {title: '', closeCallback: closeCallback};
+  var obj = {closeCallback: closeCallback};
   if(isHTML) {
     obj.html = text;
   } else {
