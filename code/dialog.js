@@ -74,7 +74,9 @@ window.dialog = function(options) {
   // Close out existing dialogs.
   if(window.DIALOGS[id]) {
     try {
-      $(window.DIALOGS[id]).dialog('close');
+      var selector = $(window.DIALOGS[id]);
+      selector.dialog('close');
+      selector.remove();
     } catch(err) {
       console.log('window.dialog: Tried to close nonexistent dialog ' + id);
     }
