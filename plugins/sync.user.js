@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-sync@xelio
 // @name           IITC plugin: Sync
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -249,10 +249,9 @@ window.plugin.sync.RegisteredMap.prototype.stopSync = function() {
 
 
 
-
-//// registerdPluginsFields
+//// RegisterdPluginsFields
 // Store RegisteredMap and handle initialization of RegisteredMap
-window.plugin.sync.registerdPluginsFields = function(options) {
+window.plugin.sync.RegisterdPluginsFields = function(options) {
   this.authorizer = options['authorizer'];
   this.pluginsfields = {};
   this.waitingInitialize = [];
@@ -262,7 +261,7 @@ window.plugin.sync.registerdPluginsFields = function(options) {
   this.authorizer.addAuthCallback(this.initializeRegistered);
 }
 
-window.plugin.sync.registerdPluginsFields.prototype.add = function(registeredMap) {
+window.plugin.sync.RegisterdPluginsFields.prototype.add = function(registeredMap) {
   var pluginName, fieldName;
   pluginName = registeredMap.pluginName;
   fieldName = registeredMap.fieldName;
@@ -276,7 +275,7 @@ window.plugin.sync.registerdPluginsFields.prototype.add = function(registeredMap
   this.initializeWorker();
 }
 
-window.plugin.sync.registerdPluginsFields.prototype.addToWaitingInitialize = function(pluginName, fieldName) {
+window.plugin.sync.RegisterdPluginsFields.prototype.addToWaitingInitialize = function(pluginName, fieldName) {
   var registeredMap = this.get(pluginName, fieldName);
   if(!registeredMap) return;
   this.waitingInitialize.push(registeredMap);
@@ -284,12 +283,12 @@ window.plugin.sync.registerdPluginsFields.prototype.addToWaitingInitialize = fun
   this.initializeWorker();
 }
 
-window.plugin.sync.registerdPluginsFields.prototype.get = function(pluginName, fieldName) {
+window.plugin.sync.RegisterdPluginsFields.prototype.get = function(pluginName, fieldName) {
   if(!this.pluginsfields[pluginName]) return;
   return this.pluginsfields[pluginName][fieldName];
 }
 
-window.plugin.sync.registerdPluginsFields.prototype.initializeRegistered = function() {
+window.plugin.sync.RegisterdPluginsFields.prototype.initializeRegistered = function() {
   var _this = this;
   if(this.authorizer.isAuthed()) {
     $.each(this.waitingInitialize, function(ind, map) {
@@ -300,11 +299,11 @@ window.plugin.sync.registerdPluginsFields.prototype.initializeRegistered = funct
   }
 }
 
-window.plugin.sync.registerdPluginsFields.prototype.cleanWaitingInitialize = function() {
+window.plugin.sync.RegisterdPluginsFields.prototype.cleanWaitingInitialize = function() {
   this.waitingInitialize = $.grep(this.waitingInitialize, function(map, ind) {return !map.initialized;});
 }
 
-window.plugin.sync.registerdPluginsFields.prototype.initializeWorker = function() {
+window.plugin.sync.RegisterdPluginsFields.prototype.initializeWorker = function() {
   var _this = this;
 
   if(this.authorizer.isAuthed()) {
@@ -316,7 +315,7 @@ window.plugin.sync.registerdPluginsFields.prototype.initializeWorker = function(
     this.timer = setTimeout(function() {_this.initializeWorker()}, 10000);
   }
 }
-//// end registerdPluginsFields
+//// end RegisterdPluginsFields
 
 
 
@@ -518,7 +517,7 @@ var setup =  function() {
   window.plugin.sync.setupDialog();
 
   window.plugin.sync.authorizer = new window.plugin.sync.Authorizer({'authCallback': [plugin.sync.toggleAuthButton]});
-  window.plugin.sync.registerdPluginsFields = new window.plugin.sync.registerdPluginsFields({'authorizer': window.plugin.sync.authorizer});
+  window.plugin.sync.registerdPluginsFields = new window.plugin.sync.RegisterdPluginsFields({'authorizer': window.plugin.sync.authorizer});
   gapi.load('auth:client,drive-realtime,drive-share', window.plugin.sync.authorizer.authorize);
 }
 
