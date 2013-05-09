@@ -36,6 +36,7 @@ window.plugin.playersResonators.findReso = function(playername) {
   var s = "";
   var portalSet = {};
   var effectiveNick = "";
+  var counter = 0;
   // Assuming there can be no agents with same nick with different lower/uppercase
   var nickToFind = playername.toLowerCase();
   $.each(window.portals, function(ind, portal){
@@ -61,6 +62,7 @@ window.plugin.playersResonators.findReso = function(playername) {
                       href: perma,
                       onClick: zoomPortal
                   })[0].outerHTML;
+                  counter += 1;
                   s += a + "\n";
               }
           }
@@ -69,7 +71,7 @@ window.plugin.playersResonators.findReso = function(playername) {
   if (s) {
     // Showing the playername as a "fake" link to avoid the auto-mouseover effect on the first portal
     fakeLinkPlayer = '<a href="#" onClick="return false;">' + effectiveNick + '</a>'
-    s = fakeLinkPlayer + " has resonators on these portals:\n\n" + s;  
+    s = fakeLinkPlayer + " has resonators on " + counter + " portals:\n\n" + s;  
   } else {
     s = playername + " has no resonators in this range\n";  
   }
