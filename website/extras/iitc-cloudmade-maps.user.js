@@ -22,7 +22,8 @@ window.plugin.mapCloudMade = function() {};
 window.plugin.mapCloudMade.setup = function() {
   //**** CloudMade settings start ****
   //set this to your API key - get an API key by registering at www.cloudmade.com
-  var cmApiKey = '8ee2a50541944fb9bcedded5165f09d9';
+  //e.g. var cmApiKey = '8ee2a50541944fb9bcedded5165f09d9';
+  var cmApiKey = 'YOUR_API_KEY';
   //the list of styles you'd like to see
   var cmStyles = {
     '999': "Midnight",
