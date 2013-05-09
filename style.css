@@ -775,7 +775,7 @@ h3 {
 }
 
 .ui-dialog-titlebar-button-collapse-expanded {
-
+  /* For future changes */
 }
 
 .ui-dialog-titlebar-button-collapse-collapsed {
@@ -795,7 +795,7 @@ h3 {
 }
 
 .ui-dialog-buttonpane {
-  padding: 12px;
+  padding: 6px;
   border-top: 1px solid #20A8B1;
 }
 
