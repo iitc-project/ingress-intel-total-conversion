@@ -1,5 +1,6 @@
-
-// REDEEMING /////////////////////////////////////////////////////////
+// REDEEMING ///////////////////////////////////////////////////////
+// Heuristic passcode redemption that tries to guess unknown items /
+////////////////////////////////////////////////////////////////////
 
 /* Resource type names mapped to actual names and abbreviations.
  * Add more here if necessary.
@@ -93,11 +94,16 @@ window.REDEEM_HINTS = {
 };
 
 window.handleRedeemResponse = function(data, textStatus, jqXHR) {
-  var passcode = this.passcode, to_alert, to_log;
+  var passcode = this.passcode, to_dialog, to_log, dialog_title, dialog_buttons;
 
   if(data.error) {
-    to_alert = '<strong>' + data.error + '</strong><br />' + (window.REDEEM_ERRORS[data.error] || 'There was a problem redeeming the passcode. Try again?');
-    to_log   = '[ERROR] ' + data.error;
+    // What to display
+    to_dialog = '<strong>' + data.error + '</strong><br />' + (window.REDEEM_ERRORS[data.error] || 'There was a problem redeeming the passcode. Try again?');
+    to_log    = '[ERROR] ' + data.error;
+
+    // Dialog options
+    dialog_title   = 'Error: ' + passcode;
+    dialog_buttons = {};
   } else if(data.result) {
     var encouragement = window.REDEEM_ENCOURAGEMENT[Math.floor(Math.random() * window.REDEEM_ENCOURAGEMENT.length)];
     var payload = {};
@@ -190,7 +196,7 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
 
     // Let the user know if we had to guess
     if (inferred.length > 0) {
-      results.table.push('<td style="font-family: monospace;">*</td><td style="font-family: monospace;">Guessed (check console)</td>');
+      results.table.push('<td>*</td><td>Guessed (check console)</td>');
       $.each(inferred, function (idx, val) {
         console.log(passcode +
                     ' => [INFERRED] ' + val.type + ':' + val.key + ' :: ' +
@@ -198,23 +204,35 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
       });
     }
 
-    // Add table footers
-    results.table.push('<td style="font-family: monospace;">&gt;</td><td><a href="javascript:alert(\'' +
-                       escape('<span style="font-family: monospace;"><strong>' + encouragement + '</strong><br />' + results.html.join('/') + '</span>') +
-                       '\', true);" style="font-family: monospace;">[plaintext]</a>');
-
     // Display formatted versions in a table, plaintext, and the console log
-    to_alert = '<table class="redeem-result">' + results.table.map(function(a) {return '<tr>' + a + '</tr>';}).join("\n") + '</table>';
-    to_log = '[SUCCESS] ' + results.plain.join('/');
+    to_dialog = '<table class="redeem-result-table">' +
+                results.table.map(function(a) {return '<tr>' + a + '</tr>';}).join("\n") +
+                '</table>';
+    to_log    = '[SUCCESS] ' + results.plain.join('/');
+
+    dialog_title   = 'Passcode: ' + passcode;
+    dialog_buttons = {
+      'PLAINTEXT' : function() {
+        dialog({
+          title: 'Rewards: ' + passcode,
+          html: '<span class="redeem-result-html">' + results.html.join('/') + '</span>'
+        });
+      }
+    }
   }
 
-  alert(to_alert, true);
+  // Display it
+  dialog({
+    title: dialog_title,
+    buttons: dialog_buttons,
+    html: to_dialog
+  });
   console.log(passcode + ' => ' + to_log);
 }
 
 window.setupRedeem = function() {
   $("#redeem").keypress(function(e) {
-    if((e.keyCode ? e.keyCode : e.which) !== 13) return;
+    if((e.keyCode ? e.keyCode : e.which) !== 13 || !$(this).val()) return;
     var data = {passcode: $(this).val()};
 
     window.postAjax('redeemReward', data, window.handleRedeemResponse,
@@ -225,7 +243,10 @@ window.setupRedeem = function() {
         } else {
           extra = 'No status code was returned.';
         }
-        alert('<strong>The HTTP request failed.</strong> ' + extra);
+        dialog({
+          title: 'Request failed: ' + data.passcode,
+          html: '<strong>The HTTP request failed.</strong> ' + extra
+        });
       });
   });
 }

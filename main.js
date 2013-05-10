@@ -61,7 +61,8 @@ document.getElementsByTagName('head')[0].innerHTML = ''
   + '<style>@@INCLUDESTRING:style.css@@</style>'
   + '<style>@@INCLUDESTRING:external/leaflet.css@@</style>'
 //note: smartphone.css injection moved into code/smartphone.js
-  + '<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Coda"/>';
+  + '<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Coda"/>'
+  + '<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto"/>';
 
 document.getElementsByTagName('body')[0].innerHTML = ''
   + '<div id="map">Loading, please wait</div>'
@@ -97,8 +98,7 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '    </div>'
   + '  </div>'
   + '</div>'
-  + '<div id="updatestatus"></div>'
-  + '<div id="dialog"></div>';
+  + '<div id="updatestatus"></div>';
 
 // putting everything in a wrapper function that in turn is placed in a
 // script tag on the website allows us to execute in the site’s context

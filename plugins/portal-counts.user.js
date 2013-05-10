@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-portals-count@yenky
 // @name           IITC plugin: Show total counts of portals
-// @version        0.0.7.@@DATETIMEVERSION@@
+// @version        0.0.8.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -13,6 +13,7 @@
 // ==/UserScript==
 
 /* whatsnew
+* 0.0.8 : use dialog() instead of alert()
 * 0.0.6 : ignoring outside bounds portals (even if close to)
 * 0.0.5 : changed table layout, added some colors
 * 0.0.4 : reverse show order of portals, using MAX_PORTAL_LEVEL now for array, changed table layout to be more compact, cleaned up code
@@ -74,7 +75,7 @@ window.plugin.portalcounts.getPortals = function(){
 
   var counts = '<table>';
   if(retval) {
-    counts += '<tr><th></th><th class="enl">Enlightment</th><th class="res">Resistance</th></tr>';  //'+window.plugin.portalcounts.enlP+' Portal(s)</th></tr>';
+    counts += '<tr><th></th><th class="enl">Enlightened</th><th class="res">Resistance</th></tr>';  //'+window.plugin.portalcounts.enlP+' Portal(s)</th></tr>';
     for(var level = window.MAX_PORTAL_LEVEL; level > 0; level--){
       counts += '<tr><td class="L'+level+'">Level '+level+'</td>';
       if(minlvl > level)
@@ -90,12 +91,18 @@ window.plugin.portalcounts.getPortals = function(){
     else
       counts += window.plugin.portalcounts.neuP;
     counts += ' Portal(s)</td></tr>';
-    counts += '<tr class="enl"><th colspan="2">Enlightment:</th><td>'+window.plugin.portalcounts.enlP+' Portal(s)</td></tr>';
+    counts += '<tr class="enl"><th colspan="2">Enlightened:</th><td>'+window.plugin.portalcounts.enlP+' Portal(s)</td></tr>';
     counts += '<tr class="res"><th colspan="2">Resistance:</th><td>'+window.plugin.portalcounts.resP+' Portal(s)</td></tr>';
   } else
-    counts += '<tr><td>No Portals in range !</td></tr>';
+    counts += '<tr><td>No Portals in range!</td></tr>';
   counts += '</table>';
-  alert('<div id="portalcounts">'+counts+'</div>');
+
+
+  var total = window.plugin.portalcounts.enlP + window.plugin.portalcounts.resP + window.plugin.portalcounts.neuP;
+  dialog({
+    html: '<div id="portalcounts">' + counts + '</div>',
+    title: 'Portal counts: ' + total + ' ' + (total == 1 ? 'portal' : 'portals'),
+  });
 }
 
 var setup =  function() {
