@@ -289,6 +289,12 @@ if (typeof String.prototype.startsWith !== 'function') {
   };
 }
 
+// escape a javascript string, so quotes and backslashes are escaped with a backslash
+// (for strings passed as parameters to html onclick="..." for example)
+window.escapeJavascriptString = function(str) {
+  return (str+'').replace(/[\\"']/g,'\\$&');
+}
+
 window.prettyEnergy = function(nrg) {
   return nrg> 1000 ? Math.round(nrg/1000) + ' k': nrg;
 }

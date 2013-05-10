@@ -49,7 +49,7 @@ window.renderPortalDetails = function(guid) {
   var lng = d.locationE6.lngE6/1E6;
   var perma = '/intel?ll='+lat+','+lng+'&z=17&pll='+lat+','+lng;
   var imgTitle = 'title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."';
-  var poslinks = 'window.showPortalPosLinks('+lat+','+lng+',\'' + d.portalV2.descriptiveText.TITLE + '\')';
+  var poslinks = 'window.showPortalPosLinks('+lat+','+lng+',\''+escapeJavascriptString(d.portalV2.descriptiveText.TITLE)+'\')';
 
   $('#portaldetails')
     .attr('class', TEAM_TO_CSS[getTeam(d)])
