@@ -72,6 +72,22 @@ window.writeCookie = function(name, val) {
   document.cookie = name + "=" + val + '; expires=Thu, 31 Dec 2020 23:59:59 GMT; path=/';
 }
 
+window.eraseCookie = function(name) {
+  document.cookie = name + '=; expires=Thu, 1 Jan 1970 00:00:00 GMT; path=/';
+}
+
+//certain values were stored in cookies, but we're better off using localStorage instead - make it easy to convert
+window.convertCookieToLocalStorage = function(name) {
+  var cookie=readCookie(name);
+  if(cookie !== undefined) {
+    console.log('converting cookie '+name+' to localStorage');
+    if(localStorage[name] === undefined) {
+      localStorage[name] = cookie;
+    }
+    eraseCookie(name);
+  }
+}
+
 // add thousand separators to given number.
 // http://stackoverflow.com/a/1990590/1684530 by Doug Neiner.
 window.digits = function(d) {
@@ -364,10 +380,10 @@ window.calcTriArea = function(p) {
   return Math.abs((p[0].lat*(p[1].lng-p[2].lng)+p[1].lat*(p[2].lng-p[0].lng)+p[2].lat*(p[0].lng-p[1].lng))/2);
 }
 
-// Update layerGroups display status to window.overlayStatus and cookie 'ingress.intelmap.layergroupdisplayed'
+// Update layerGroups display status to window.overlayStatus and localStorage 'ingress.intelmap.layergroupdisplayed'
 window.updateDisplayedLayerGroup = function(name, display) {
   overlayStatus[name] = display;
-  writeCookie('ingress.intelmap.layergroupdisplayed', JSON.stringify(overlayStatus));
+  localStorage['ingress.intelmap.layergroupdisplayed'] = JSON.stringify(overlayStatus);
 }
 
 // Read layerGroup status from window.overlayStatus if it was added to map,
@@ -376,7 +392,8 @@ window.updateDisplayedLayerGroup = function(name, display) {
 window.isLayerGroupDisplayed = function(name, defaultDisplay) {
   if(typeof(overlayStatus[name]) !== 'undefined') return overlayStatus[name];
 
-  var layersJSON = readCookie('ingress.intelmap.layergroupdisplayed');
+  convertCookieToLocalStorage('ingress.intelmap.layergroupdisplayed');
+  var layersJSON = localStorage['ingress.intelmap.layergroupdisplayed'];
   if(!layersJSON) return defaultDisplay;
 
   var layers = JSON.parse(layersJSON);

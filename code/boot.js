@@ -203,7 +203,8 @@ window.setupMap = function() {
   // layers. This likely leads to broken layer selection because the
   // views/cookie order does not match the layer chooser order.
   try {
-    map.addLayer(views[readCookie('ingress.intelmap.type')]);
+    convertCookieToLocalStorage('ingress.intelmap.type');
+    map.addLayer(views[localStorage['ingress.intelmap.type']]);
   } catch(e) { map.addLayer(views[0]); }
 
   map.attributionControl.setPrefix('');
@@ -228,7 +229,7 @@ window.setupMap = function() {
 
   map.on('baselayerchange', function () {
     var selInd = $('[name=leaflet-base-layers]:checked').parent().index();
-    writeCookie('ingress.intelmap.type', selInd);
+    localStorage['ingress.intelmap.type']=selInd;
   });
 
   // map update status handling
