@@ -116,9 +116,9 @@ window.dialog = function(options) {
           if($(this).data('collapseExpandCallback')) {
             $.proxy($(this).data('collapseExpandCallback'), this)(!collapsed);
           } else {
-            if(collapsed && $(this).data('collapseCallback')) {
+            if(!collapsed && $(this).data('collapseCallback')) {
               $.proxy($(this).data('collapseCallback'), this)();
-            } else if (!collapsed && $(this).data('expandCallback')) {
+            } else if (collapsed && $(this).data('expandCallback')) {
               $.proxy($(this).data('expandCallback'), this)();
             }
           }
