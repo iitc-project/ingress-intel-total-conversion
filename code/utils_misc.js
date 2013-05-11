@@ -159,7 +159,7 @@ window.showPortalPosLinks = function(lat, lng, name) {
     encoded_name = encodeURIComponent(' (' + name + ')');
   }
   if (typeof android !== 'undefined' && android && android.intentPosLink) {
-    android.intentPosLink(lat, lng, portal_name);
+    android.intentPosLink(lat, lng, encoded_name);
   } else {
     var qrcode = '<div id="qrcode"></div>';
     var script = '<script>$(\'#qrcode\').qrcode({text:\'GEO:'+lat+','+lng+'\'});</script>';

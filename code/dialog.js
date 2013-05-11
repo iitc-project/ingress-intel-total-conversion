@@ -127,7 +127,7 @@ window.dialog = function(options) {
           var dialog   = $(this).closest('.ui-dialog');
           var selector = dialog.find('.ui-dialog-content,.ui-dialog-buttonpane');
           var button   = dialog.find('.ui-dialog-titlebar-button-collapse');
-          if (collapsed) {
+          if(collapsed) {
             $(selector).removeClass('ui-dialog-content-hidden');
             $(button).removeClass('ui-dialog-titlebar-button-collapse-collapsed');
             $(button).addClass('ui-dialog-titlebar-button-collapse-expanded');
@@ -151,7 +151,7 @@ window.dialog = function(options) {
 
       console.log('window.dialog: ' + $(this).data('id') + ' (' + $(this).dialog('option', 'title') + ') opened. ' + window.DIALOG_COUNT + ' remain.');
     },
-    close:  function() {
+    close: function() {
       // Run the close callback if we have one
       if($(this).data('closeCallback')) {
         $.proxy($(this).data('closeCallback'), this)();
@@ -203,13 +203,13 @@ window.dialog = function(options) {
   dialog.data('focusCallback', options.focusCallback);
   dialog.data('blurCallback', options.blurCallback);
 
-  // ui-modal includes overrides for modal dialogs
-  if (options.modal) {
+  if(options.modal) {
+    // ui-modal includes overrides for modal dialogs
     dialog.parent().addClass('ui-modal');
+  } else {
+    // Enable snapping
+    dialog.dialog().parents('.ui-dialog').draggable('option', 'snap', true);
   }
-
-  // Enable snapping
-  dialog.dialog().parents('.ui-dialog').draggable('option', 'snap', true);
 
   // Run it
   dialog.dialog('open');
