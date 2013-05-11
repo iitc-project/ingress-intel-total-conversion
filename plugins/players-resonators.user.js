@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-players-resonators@rbino
 // @name           IITC plugin: Player's Resonators
-// @version        0.1.4.@@DATETIMEVERSION@@
+// @version        0.1.5.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -15,6 +15,7 @@
 /*********************************************************************************************************
 * Changelog:
 *
+* 0.1.5 Added portal and reso counter and reso details (Thanks BJT)
 * 0.1.4 Added focus link in the toolbox. Some renaming. Removed div to use sidebar style.
 * 0.1.3 Effective player name (with wrong capitalization) if it finds some reso
 * 0.1.2 Made nickname case insensitive
@@ -36,20 +37,28 @@ window.plugin.playersResonators.findReso = function(playername) {
   var s = "";
   var portalSet = {};
   var effectiveNick = "";
+  var portalCounter = 0;
+  var resoCounter = 0;
   // Assuming there can be no agents with same nick with different lower/uppercase
   var nickToFind = playername.toLowerCase();
   $.each(window.portals, function(ind, portal){
+      var resoLevels = {};
       var r = portal.options.details.resonatorArray.resonators;
       $.each(r, function(ind, reso) {
           if (!reso) return true; 
           var nick = getPlayerName(reso.ownerGuid);
           if (nick.toLowerCase() === nickToFind){
+              resoCounter += 1;
               if (!effectiveNick) {
                 effectiveNick = nick;              
               }
+              if (reso.level in resoLevels){
+                resoLevels[reso.level] += 1;              
+              } else {
+                resoLevels[reso.level] = 1;
+              }
               if (!portalSet.hasOwnProperty(portal.options.guid)){
-                  portalSet[portal.options.guid] = true;
-                  console.log(portalSet);                
+                  portalSet[portal.options.guid] = true;            
                   var latlng = [portal.options.details.locationE6.latE6/1E6, portal.options.details.locationE6.lngE6/1E6].join();
                   var guid = portal.options.guid;
                   var zoomPortal = 'window.zoomToAndShowPortal(\''+guid+'\', ['+latlng+']);return false';
@@ -61,15 +70,23 @@ window.plugin.playersResonators.findReso = function(playername) {
                       href: perma,
                       onClick: zoomPortal
                   })[0].outerHTML;
-                  s += a + "\n";
+                  portalCounter += 1;
+                  s += a + ": ";
               }
           }
       });
+      if (portalSet.hasOwnProperty(portal.options.guid)){
+        for (var i = 8; i>0; i--){
+          if (i in resoLevels)
+            s += resoLevels[i] + "xL" + i + " ";
+        }
+        s += "\n";      
+      }
   });
   if (s) {
     // Showing the playername as a "fake" link to avoid the auto-mouseover effect on the first portal
     fakeLinkPlayer = '<a href="#" onClick="return false;">' + effectiveNick + '</a>'
-    s = fakeLinkPlayer + " has resonators on these portals:\n\n" + s;  
+    s = fakeLinkPlayer + " has " + resoCounter + " resonators on " + portalCounter + " portals:\n\n" + s;  
   } else {
     s = playername + " has no resonators in this range\n";  
   }

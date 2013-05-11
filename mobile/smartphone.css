@@ -7,17 +7,15 @@ body {
   background: #0B3351 !important
 }
 
+.leaflet-top .leaflet-control {
+  margin-top: 5px !important;
+  margin-left: 5px !important;
+}
 
 .leaflet-control-layers {
   margin-left: 0 !important;
-  margin-top: 40px !important;
+  margin-top: 0 !important;
 }
-
-.leaflet-control-zoom {
-  margin-left: 5px !important;
-  margin-top: 80px !important;
-}
-
 
 #geosearch {
   width: 100%;
@@ -126,10 +124,20 @@ body {
   display: none;
 }
 
+.leaflet-control-layers-toggle {
+    width: 50px !important;
+    height: 50px !important;
+}
+
 .leaflet-control-layers-list label {
   padding: 6px 0;
 }
 
 .leaflet-control-attribution {
 
+}
+
+#portal_highlight_select{
+  top:0px !important;
+  left:0px !important;
 }

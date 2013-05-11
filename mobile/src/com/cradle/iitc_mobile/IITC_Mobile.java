@@ -20,11 +20,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
-import android.graphics.Rect;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -37,7 +35,6 @@ public class IITC_Mobile extends Activity {
     private boolean user_loc = false;
     private LocationManager loc_mngr = null;
     private LocationListener loc_listener = null;
-    private boolean keyboad_open = false;
     private boolean fullscreen_mode = false;
     private boolean fullscreen_actionbar = false;
     private ActionBar actionBar;
@@ -53,6 +50,7 @@ public class IITC_Mobile extends Activity {
         setContentView(R.layout.activity_main);
         iitc_view = (IITC_WebView) findViewById(R.id.iitc_webview);
 
+        // fetch actionbar, set display flags, title and enable home button
         actionBar = this.getActionBar();
         actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
                 | ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_TITLE);
@@ -80,30 +78,6 @@ public class IITC_Mobile extends Activity {
         };
         sharedPref.registerOnSharedPreferenceChangeListener(listener);
 
-        // we need this one to prevent location updates to javascript when
-        // keyboard is open
-        // it closes on updates
-        iitc_view.getViewTreeObserver().addOnGlobalLayoutListener(
-                new OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        Rect r = new Rect();
-                        // r will be populated with the coordinates of your view
-                        // that area still visible.
-                        iitc_view.getWindowVisibleDisplayFrame(r);
-
-                        int screenHeight = iitc_view.getRootView().getHeight();
-                        int heightDiff = screenHeight - (r.bottom - r.top);
-                        boolean visible = heightDiff > screenHeight / 3;
-                        if (visible == true) {
-                            Log.d("iitcm", "Open Keyboard...");
-                            IITC_Mobile.this.keyboad_open = true;
-                        } else {
-                            Log.d("iitcm", "Close Keyboard...");
-                            IITC_Mobile.this.keyboad_open = false;
-                        }
-                    }
-                });
         // Acquire a reference to the system Location Manager
         loc_mngr = (LocationManager) this
                 .getSystemService(Context.LOCATION_SERVICE);
@@ -230,15 +204,9 @@ public class IITC_Mobile extends Activity {
     // we want a self defined behavior for the back button
     @Override
     public void onBackPressed() {
-        // leave fullscreen mode if it is enabled
+        // exit fullscreen mode if it is enabled
         if (fullscreen_mode) {
-            if (fullscreen_actionbar)
-                this.getActionBar().show();
-            // show notification bar again
-            WindowManager.LayoutParams attrs = getWindow().getAttributes();
-            attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
-            this.getWindow().setAttributes(attrs);
-            this.fullscreen_mode = false;
+            this.toggleFullscreen();
             return;
         }
         if (this.back_button_pressed) {
@@ -289,37 +257,13 @@ public class IITC_Mobile extends Activity {
                 iitc_view.clearFormData();
                 iitc_view.clearCache(true);
                 return true;
-                // toggle fullscreen
             case R.id.toggle_fullscreen :
-                if (!this.fullscreen_mode) {
-                    if (fullscreen_actionbar)
-                        this.getActionBar().hide();
-                    // hide notification bar
-                    WindowManager.LayoutParams attrs = getWindow()
-                            .getAttributes();
-                    attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
-                    this.getWindow().setAttributes(attrs);
-                    this.fullscreen_mode = true;
-                    // show a little toast for the user
-                    Toast.makeText(this,
-                            "Press back button to exit fullscreen",
-                            Toast.LENGTH_SHORT).show();
-                } else {
-                    if (fullscreen_actionbar)
-                        this.getActionBar().show();
-                    // show notification bar again
-                    WindowManager.LayoutParams attrs = getWindow()
-                            .getAttributes();
-                    attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
-                    this.getWindow().setAttributes(attrs);
-                    this.fullscreen_mode = false;
-                }
+                toggleFullscreen();
                 return true;
                 // get the users current location and focus it on map
             case R.id.locate :
                 iitc_view.loadUrl("javascript: window.show('map');");
-                iitc_view
-                        .loadUrl("javascript: window.map.locate({setView : true, maxZoom: 13});");
+                iitc_view.loadUrl("javascript: window.map.locate({setView : true, maxZoom: 15});");
                 actionBar.setTitle(getString(R.string.menu_map));
                 return true;
                 // start settings activity
@@ -388,11 +332,28 @@ public class IITC_Mobile extends Activity {
         // throw away all positions with accuracy > 100 meters
         // should avoid gps glitches
         if (loc.getAccuracy() < 100) {
-            if (keyboad_open == false) {
-                iitc_view.loadUrl("javascript: "
-                        + "window.plugin.userLocation.updateLocation( "
-                        + loc.getLatitude() + ", " + loc.getLongitude() + ");");
-            }
+            iitc_view.loadUrl("javascript: "
+                    + "window.plugin.userLocation.updateLocation( "
+                    + loc.getLatitude() + ", " + loc.getLongitude() + ");");
         }
+    }
+
+    public void toggleFullscreen() {
+        if (fullscreen_mode) {
+            if (fullscreen_actionbar)
+                this.getActionBar().show();
+            this.fullscreen_mode = false;
+        } else {
+            if (fullscreen_actionbar)
+                this.getActionBar().hide();
+            this.fullscreen_mode = true;
+            // show a toast with instructions to exit the fc mode again
+            Toast.makeText(this, "Press back button to exit fullscreen",
+                    Toast.LENGTH_SHORT).show();
+        }
+        // toggle notification bar
+        WindowManager.LayoutParams attrs = getWindow().getAttributes();
+        attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
+        this.getWindow().setAttributes(attrs);
     }
 }

@@ -73,6 +73,18 @@ public class IITC_WebView extends WebView {
 
     @Override
     public void loadUrl(String url) {
+        // if in edit text mode, don't load javascript otherwise the keyboard closes.
+        HitTestResult testResult = this.getHitTestResult();
+        if (url.startsWith("javascript:") && testResult != null && testResult.getType() == HitTestResult.EDIT_TEXT_TYPE)
+        {
+            // let window.show(...) interupt input
+            // window.show(...) is called if one of the action bar buttons
+            // is clicked
+            if (!url.startsWith("javascript: window.show(")) {
+                Log.d("iitcm", "in insert mode. do not load script.");
+                return;
+            }
+        }
         if (!url.startsWith("javascript:")) {
             // force https if enabled in settings
             SharedPreferences sharedPref = PreferenceManager

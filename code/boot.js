@@ -139,10 +139,10 @@ window.setupMap = function() {
   //their usage policy has no limits (except required notification above 4000 tiles/sec - we're perhaps at 50 tiles/sec based on CloudMade stats)
   var mqSubdomains = [ 'otile1','otile2', 'otile3', 'otile4' ];
   var mqTileUrlPrefix = window.location.protocol !== 'https:' ? 'http://{s}.mqcdn.com' : 'https://{s}-s.mqcdn.com';
-  var mqMapOpt = {attribution: osmAttribution+', Tiles Courtesy of MapQuest', maxZoom: 18, detectRetena: true, subdomains: mqSubdomains};
+  var mqMapOpt = {attribution: osmAttribution+', Tiles Courtesy of MapQuest', maxZoom: 18, subdomains: mqSubdomains};
   var mqMap = new L.TileLayer(mqTileUrlPrefix+'/tiles/1.0.0/map/{z}/{x}/{y}.jpg',mqMapOpt);
   //MapQuest satellite coverage outside of the US is rather limited - so not really worth having as we have google as an option
-  //var mqSatOpt = {attribution: 'Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency', mazZoom: 18, detectRetena: true, subdomains: mqSubdomains};
+  //var mqSatOpt = {attribution: 'Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency', mazZoom: 18, subdomains: mqSubdomains};
   //var mqSat = new L.TileLayer('http://{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg',mqSatOpt);
 
   var views = [
@@ -203,7 +203,8 @@ window.setupMap = function() {
   // layers. This likely leads to broken layer selection because the
   // views/cookie order does not match the layer chooser order.
   try {
-    map.addLayer(views[readCookie('ingress.intelmap.type')]);
+    convertCookieToLocalStorage('ingress.intelmap.type');
+    map.addLayer(views[localStorage['ingress.intelmap.type']]);
   } catch(e) { map.addLayer(views[0]); }
 
   map.attributionControl.setPrefix('');
@@ -228,7 +229,7 @@ window.setupMap = function() {
 
   map.on('baselayerchange', function () {
     var selInd = $('[name=leaflet-base-layers]:checked').parent().index();
-    writeCookie('ingress.intelmap.type', selInd);
+    localStorage['ingress.intelmap.type']=selInd;
   });
 
   // map update status handling
@@ -405,7 +406,13 @@ function boot() {
   $('#sidebar').show();
 
   if(window.bootPlugins)
-    $.each(window.bootPlugins, function(ind, ref) { ref(); });
+    $.each(window.bootPlugins, function(ind, ref) {
+      try {
+        ref();
+      } catch(err) {
+        console.log("error starting plugin: index "+ind+", error: "+err);
+      }
+    });
 
   window.runOnSmartphonesAfterBoot();
 
@@ -413,6 +420,7 @@ function boot() {
   setTimeout('window.map.invalidateSize(false);', 500);
 
   window.iitcLoaded = true;
+  window.runHooks('iitcLoaded');
 }
 
 // this is the minified load.js script that allows us to easily load
