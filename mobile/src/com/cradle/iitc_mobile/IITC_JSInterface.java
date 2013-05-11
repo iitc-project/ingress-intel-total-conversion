@@ -5,6 +5,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
@@ -26,6 +27,14 @@ public class IITC_JSInterface {
         Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
                 Uri.parse(uri));
         context.startActivity(intent);
+    }
+
+    // disable javascript injection while spinner is enabled
+    // prevent the spinner from closing automatically
+    @JavascriptInterface
+    public void spinnerEnabled(boolean en) {
+        Log.d("iitcm", "disableJS? " + en);
+        ((IITC_Mobile) context).getWebView().disableJS(en);
     }
 
     // copy link to specific portal to android clipboard

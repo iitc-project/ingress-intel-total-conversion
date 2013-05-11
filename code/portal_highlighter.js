@@ -33,6 +33,13 @@ window.portalHighlighterControl = function() {
     });
     $("#portal_highlight_select").val(_current_highlighter);
     $("#portal_highlight_select").change(function(){ changePortalHighlights($(this).val());});
+    // notify android that the select spinner is enabled.
+    // this disables javascript injection on android side.
+    // if android is not notified, the spinner closes on the next JS call
+    if (typeof android !== 'undefined' && android && android.spinnerEnabled) {
+      $("#portal_highlight_select").click(function(){ android.spinnerEnabled(true);});
+      $("#portal_highlight_select").focus(function(){ android.spinnerEnabled(false);});
+    }
     $(".leaflet-top.leaflet-left").css('padding-top', '20px');
     $(".leaflet-control-scale-line").css('margin-top','25px');
   }

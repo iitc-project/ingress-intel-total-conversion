@@ -356,4 +356,8 @@ public class IITC_Mobile extends Activity {
         attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
         this.getWindow().setAttributes(attrs);
     }
+
+    public IITC_WebView getWebView() {
+        return this.iitc_view;
+    }
 }

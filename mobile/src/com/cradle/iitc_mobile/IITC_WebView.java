@@ -19,6 +19,7 @@ public class IITC_WebView extends WebView {
     private WebSettings settings;
     private IITC_WebViewClient webclient;
     private IITC_JSInterface js_interface;
+    private boolean disableJS = false;
 
     // init web view
     private void iitc_init(Context c) {
@@ -85,6 +86,11 @@ public class IITC_WebView extends WebView {
                 return;
             }
         }
+        // do nothing if script is enabled;
+        if (this.disableJS == true) {
+            Log.d("iitcm", "javascript injection disabled...return");
+            return;
+        }
         if (!url.startsWith("javascript:")) {
             // force https if enabled in settings
             SharedPreferences sharedPref = PreferenceManager
@@ -121,6 +127,10 @@ public class IITC_WebView extends WebView {
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo wifi = conMan.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         return wifi.getState() == NetworkInfo.State.CONNECTED;
+    }
+
+    public void disableJS(boolean val) {
+        this.disableJS = val;
     }
 
 }
