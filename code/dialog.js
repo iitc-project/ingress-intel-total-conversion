@@ -151,7 +151,7 @@ window.dialog = function(options) {
 
       console.log('window.dialog: ' + $(this).data('id') + ' (' + $(this).dialog('option', 'title') + ') opened. ' + window.DIALOG_COUNT + ' remain.');
     },
-    close:  function() {
+    close: function() {
       // Run the close callback if we have one
       if($(this).data('closeCallback')) {
         $.proxy($(this).data('closeCallback'), this)();
@@ -203,7 +203,7 @@ window.dialog = function(options) {
   dialog.data('focusCallback', options.focusCallback);
   dialog.data('blurCallback', options.blurCallback);
 
-  if (options.modal) {
+  if(options.modal) {
     // ui-modal includes overrides for modal dialogs
     dialog.parent().addClass('ui-modal');
   } else {
