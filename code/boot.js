@@ -232,13 +232,10 @@ window.setupMap = function() {
     localStorage['ingress.intelmap.type']=selInd;
   });
 
-  // map update status handling
-  map.on('movestart zoomstart', function() { window.mapRunsUserAction = true });
-  map.on('moveend zoomend', function() { window.mapRunsUserAction = false });
-
-  // update map hooks
-  map.on('movestart zoomstart', function() { window.requests.abort(); window.startRefreshTimeout(-1); });
-  map.on('moveend zoomend', function() { window.startRefreshTimeout(ON_MOVE_REFRESH*1000) });
+  // map update status handling & update map hooks
+  // ensures order of calls
+  map.on('movestart zoomstart', function() { window.mapRunsUserAction = true; window.requests.abort(); window.startRefreshTimeout(-1); });
+  map.on('moveend zoomend', function() { window.mapRunsUserAction = false; window.startRefreshTimeout(ON_MOVE_REFRESH*1000); });
 
   window.addResumeFunction(window.requestData);
   window.requests.addRefreshFunction(window.requestData);

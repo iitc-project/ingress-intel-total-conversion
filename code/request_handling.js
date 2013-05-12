@@ -39,17 +39,25 @@ window.requests.abort = function() {
 // to website. Updates info in layer chooser.
 window.renderUpdateStatus = function() {
 
-  var t = '<b>map status:</b> ';
-  if(mapRunsUserAction)
-    t += 'paused during interaction';
-  else if(isIdle())
-    t += '<span style="color:#888">Idle, not updating.</span>';
-  else if(window.activeRequests.length > 0)
-    t += window.activeRequests.length + ' requests running.';
-  else if(window.requests._quickRefreshPending)
-    t += 'refreshing...';
+  var t = '<div><span class="help" title="Indicates portal levels displayed.  Zoom in to display lower level portals."><b>portals:</b> ';
+  var minlvl = getMinPortalLevel();
+  if(minlvl === 0)
+    t += 'all';
   else
-    t += 'Up to date. <a style="cursor: pointer" onclick="startRefreshTimeout(10)" title="Refresh">⟳</a>';
+    t+= 'L'+minlvl+'+';
+  t +='</span>';
+
+  t += ' <b>map:</b> ';
+  if(mapRunsUserAction)
+    t += '<span class="help" title="Paused due to user interaction">paused</span';
+  else if(isIdle())
+    t += '<span style="color:#888">Idle</span>';
+  else if(window.activeRequests.length > 0)
+    t += window.activeRequests.length + ' requests';
+  else if(window.requests._quickRefreshPending)
+    t += 'refreshing';
+  else
+    t += 'Up to date';
 
   if(renderLimitReached())
     t += ' <span style="color:#f66" class="help" title="Can only render so much before it gets unbearably slow. Not all entities are shown. Zoom in or increase the limit (search for MAX_DRAWN_*).">RENDER LIMIT</span> '
@@ -57,20 +65,15 @@ window.renderUpdateStatus = function() {
   if(window.failedRequestCount > 0)
     t += ' <span style="color:#f66">' + window.failedRequestCount + ' failed</span>.'
 
-  t += '<br/>(';
-  var minlvl = getMinPortalLevel();
-  if(minlvl === 0)
-    t += 'loading all portals';
-  else
-    t+= 'only loading portals with level '+minlvl+' and up';
-  t += ')';
-
+    t += '</div>';
   var portalSelection = $('.leaflet-control-layers-overlays label');
   portalSelection.slice(0, minlvl+1).addClass('disabled').attr('title', 'Zoom in to show those.');
   portalSelection.slice(minlvl, 8).removeClass('disabled').attr('title', '');
 
 
   $('#updatestatus').html(t);
+  //$('#updatestatus').click(function() { startRefreshTimeout(10); });
+  //. <a style="cursor: pointer" onclick="startRefreshTimeout(10)" title="Refresh">⟳</a>';
 }
 
 
