@@ -39,20 +39,21 @@ window.requests.abort = function() {
 // to website. Updates info in layer chooser.
 window.renderUpdateStatus = function() {
 
-  var t = '<div><b>portals:</b> ';
+  var t = '<div><span class="help" title="Indicates portal levels displayed.  Zoom in to display lower level portals."><b>portals:</b> ';
   var minlvl = getMinPortalLevel();
   if(minlvl === 0)
     t += 'all';
   else
     t+= 'L'+minlvl+'+';
+  t +='</span>';
 
   t += ' <b>map:</b> ';
   if(mapRunsUserAction)
-    t += 'paused';
+    t += '<span class="help" title="Paused due to user interaction">paused</span';
   else if(isIdle())
     t += '<span style="color:#888">Idle</span>';
   else if(window.activeRequests.length > 0)
-    t += window.activeRequests.length + ' updates';
+    t += window.activeRequests.length + ' requests';
   else if(window.requests._quickRefreshPending)
     t += 'refreshing';
   else
