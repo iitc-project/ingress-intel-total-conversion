@@ -109,10 +109,12 @@ body {
   width: 100%;
 }
 
+/* base layer selection - first column */
 .leaflet-control-layers-base {
   float: left;
 }
 
+/* overlays layer selection - 2nd column */
 .leaflet-control-layers-overlays {
   float: left;
   margin-left: 8px;
@@ -120,18 +122,17 @@ body {
   padding-left: 8px;
 }
 
+/* hide the usual seperator */
 .leaflet-control-layers-separator {
   display: none;
 }
 
-.leaflet-control-layers-toggle {
-    width: 50px !important;
-    height: 50px !important;
-}
-
+/* increase padding on list items - easier for touchscreens */
+/* removed for now. could consider adding it back, conditional on device screen size?
 .leaflet-control-layers-list label {
   padding: 6px 0;
 }
+*/
 
 .leaflet-control-attribution {
 
