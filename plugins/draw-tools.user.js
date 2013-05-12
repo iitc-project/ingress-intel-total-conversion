@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-draw-tools@breunigs
 // @name           IITC plugin: draw tools
-// @version        0.3.0.@@DATETIMEVERSION@@
+// @version        0.4.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
