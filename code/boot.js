@@ -360,7 +360,7 @@ function boot() {
   window.runOnSmartphonesBeforeBoot();
 
   var iconDefImage = '@@INCLUDEIMAGE:images/marker-icon.png@@';
-  var iconDefRetImage = '@@INCLUDEIMAGE:images/marker-icon_2x.png@@';
+  var iconDefRetImage = '@@INCLUDEIMAGE:images/marker-icon-2x.png@@';
   var iconShadowImage = '@@INCLUDEIMAGE:images/marker-shadow.png@@';
 
   L.Icon.Default = L.Icon.extend({options: {

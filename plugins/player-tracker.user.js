@@ -33,9 +33,9 @@ window.plugin.playerTracker.setup = function() {
   try { console.log('done loading OverlappingMarkerSpiderfier JS'); } catch(e) {}
 
   var iconEnlImage = '@@INCLUDEIMAGE:images/marker-green.png@@';
-  var iconEnlRetImage = '@@INCLUDEIMAGE:images/marker-green_2x.png@@';
+  var iconEnlRetImage = '@@INCLUDEIMAGE:images/marker-green-2x.png@@';
   var iconResImage = '@@INCLUDEIMAGE:images/marker-blue.png@@';
-  var iconResRetImage = '@@INCLUDEIMAGE:images/marker-blue_2x.png@@';
+  var iconResRetImage = '@@INCLUDEIMAGE:images/marker-blue-2x.png@@';
 
   plugin.playerTracker.iconEnl = L.Icon.Default.extend({options: {
     iconUrl: iconEnlImage,

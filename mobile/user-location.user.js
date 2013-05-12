@@ -27,7 +27,7 @@ window.plugin.userLocation.locationLayer = new L.LayerGroup();
 window.plugin.userLocation.setup = function() {
 
     var iconImage = '@@INCLUDEIMAGE:images/marker-icon.png@@';
-    var iconRetImage = '@@INCLUDEIMAGE:images/marker-icon_2x.png@@';
+    var iconRetImage = '@@INCLUDEIMAGE:images/marker-icon-2x.png@@';
 
     plugin.userLocation.icon = L.Icon.Default.extend({options: {
         iconUrl: iconImage,
