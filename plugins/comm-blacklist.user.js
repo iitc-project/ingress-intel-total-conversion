@@ -24,10 +24,15 @@ window.plugin.commBlacklist = function() {};
 
 window.plugin.commBlacklist.setupCallback = function() {
 	$('#toolbox').append(' <a onclick="window.plugin.commBlacklist.config()" title="setup blacklist.">Setup Blacklist</a>');
-	addHook('factionChatDataAvailable', function() {
-		setTimeout(window.plugin.commBlacklist.blackIt, 50)
-		setTimeout(window.plugin.commBlacklist.blackIt, 500)
-	});
+	addHook('factionChatDataAvailable', window.plugin.commBlacklist.blackItCallback);
+	addHook('publicChatDataAvailable', window.plugin.commBlacklist.blackItCallback);
+	$('#chatcontrols a').click(window.plugin.commBlacklist.blackItCallback);
+};
+
+window.plugin.commBlacklist.blackItCallback = function() {
+	setTimeout(window.plugin.commBlacklist.blackIt, 20);
+	// for slower computer?
+	// setTimeout(window.plugin.commBlacklist.blackIt, 500);
 };
 
 window.plugin.commBlacklist.blackIt = function() {
@@ -36,7 +41,8 @@ window.plugin.commBlacklist.blackIt = function() {
 	console.log("blacklist:" + JSON.stringify(data.list));
 	var list = data.list.toLowerCase().replace(/\s+/g, '').split(",");
 	var replace = data.text;
-	$('#chatfaction .nickname').each(function(index, el) {
+
+	var blackEach = function(el) {
 		var id = $(el).text().toLowerCase();
 		if($.inArray(id, list) > -1) {
 			// $(el).text("hacked/634");
@@ -49,13 +55,16 @@ window.plugin.commBlacklist.blackIt = function() {
 			td.attr('title', text);
 			td.html('<span style="cursor:pointer;color:red;">' + replace + '</span>');
 		}
-	});
+	};
+
+	$('#chatfaction .nickname').each(function(index, el) { blackEach(el); });
+	$('#chatpublic .nickname').each(function(index, el) { blackEach(el); });
 };
 
 // public interface
 window.plugin.commBlacklist.fetchBlacklist = function() {
 	var list = window.localStorage['comm-blacklist'];
-	var defaultData = { list:'', text: '*** censored ***' };
+	var defaultData = { list:'LuoboTiX,wanx,Fire', text: '*** censored ***' };
 	try {
 		return null == list ? defaultData : JSON.parse(list);
 	} catch(e) {
