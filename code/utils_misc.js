@@ -256,19 +256,33 @@ window.zoomToAndShowPortal = function(guid, latlng) {
 
 // translates guids to entity types
 window.getTypeByGuid = function(guid) {
-  // portals end in “.11” or “.12“, links in “.9", fields in “.b”
-  // .11 == portals
-  // .12 == portals
-  // .16 == portals
-  // .9  == links
-  // .b  == fields
-  // .c  == player/creator
-  // .d  == chat messages
-  //
-  // others, not used in web:
-  // .5  == resources (burster/resonator)
-  // .6  == XM
-  // .4  == media items, maybe all droppped resources (?)
+  // All GUID type values, extracted from the ingress app .apk
+  // some are almost certainly Niantic internal use only - never seen on the network
+  // .1  == Panoramio portal [deprecated]
+  // .2  == Random portal
+  // .3  == Beacon
+  // .4  == Resource (dropped media - other dropped items?)
+  // .5  == Inventory item
+  // .6  == Energy glob (XM)
+  // .7  == Energy spawn location
+  // .8  == HMDB portal [deprecated]
+  // .9  == Link (internally "edge")                     ** TYPE_LINK
+  // .a  == LocalStore portal [deprecated]
+  // .b  == Control field (internally "captured region") ** TYPE_FIELD
+  // .c  == Player                                       ** TYPE_PLAYER
+  // .d  == COMM message (internally "plext")            ** TYPE_CHAT
+  // .e  == Tracking record
+  // .f  == Tracking group
+  // .10 == Passcode reward [deprecated]
+  // .11 == SuperOps portal                              ** TYPE_PORTAL - the batch loaded from panorimo, etc?
+  // .12 == Anon portal                                  ** TYPE_PORTAL - user submitted by email?
+  // .13 == Account info
+  // .14 == GeoStore POI [deprecated]
+  // .15 == GeoStore mod
+  // .16 == GeoStore portal                              ** TYPE_PORTAL - new in-app submissions?
+  // .17 == Portal image
+  // .18 == PMRR change
+  
   // resonator guid is [portal guid]-resonator-[slot]
   switch(guid.slice(33)) {
     case '11':
