@@ -69,8 +69,11 @@ window.renderUpdateStatus = function() {
   t += '</div>';
 
   var portalSelection = $('.leaflet-control-layers-overlays label');
-  portalSelection.slice(0, minlvl+1).addClass('disabled').attr('title', 'Zoom in to show those.');
-  portalSelection.slice(minlvl, 8).removeClass('disabled').attr('title', '');
+  //it's an array - 0=unclaimed, 1=lvl 1, 2=lvl 2, ..., 8=lvl 8 - 9 relevant entries
+  //mark all levels below (but not at) minlvl as disabled
+  portalSelection.slice(0, minlvl).addClass('disabled').attr('title', 'Zoom in to show those.');
+  //and all from minlvl to 8 as enabled
+  portalSelection.slice(minlvl, 8+1).removeClass('disabled').attr('title', '');
 
 
   $('#updatestatus').html(t);
