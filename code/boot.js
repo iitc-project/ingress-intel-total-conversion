@@ -275,7 +275,7 @@ window.setupPlayerStat = function() {
         + 'XM:\t' + PLAYER.energy + ' / ' + xmMax + '\n'
         + 'AP:\t' + digits(ap) + '\n'
         + (level < 8 ? 'level up in:\t' + lvlUpAp + ' AP' : 'Congrats! (neeeeerd)')
-        + '\n\Invites:\t'+PLAYER.available_invites;
+        + '\n\Invites:\t'+PLAYER.available_invites
         + '\n\nNote: your player stats can only be updated by a full reload (F5)';
 
   $('#playerstat').html(''
