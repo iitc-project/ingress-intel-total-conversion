@@ -88,6 +88,14 @@ a:hover {
   z-index: 1000;
 }
 
+/* leaflet layer chooser, when opened, is above other panels */
+/* doesn't actually work :( - left commented out for reference
+.leaflet-control-layers-expanded {
+  z-index: 9999 !important;
+}
+*/
+
+
 .leaflet-control-layers-overlays label.disabled {
   text-decoration: line-through;
   cursor: help;
@@ -121,7 +129,7 @@ a:hover {
   background: rgba(8, 48, 78, 0.9);
   position: absolute;
   left: 0;
-  z-index: 99999;
+  z-index: 3000;
   height: 26px;
   padding-left:1px;
 }
@@ -178,7 +186,7 @@ a:hover {
   width: 708px;
   bottom: 23px;
   left: 0;
-  z-index: 99999;
+  z-index: 3000;
   background: rgba(8, 48, 78, 0.9);
   font-size: 12.6px;
   color: #eee;
@@ -678,7 +686,7 @@ h3 {
   padding: 4px;
   position: fixed;
   right: 0;
-  z-index:3002;
+  z-index: 3002;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -897,7 +905,7 @@ td + td {
   position: absolute;
   top:5px;
   left:10px;
-  z-index: 9999;
+  z-index: 2500;
   font-size:11px;
   font-family: "coda",arial,helvetica,sans-serif;
   background-color:#0E3C46;
