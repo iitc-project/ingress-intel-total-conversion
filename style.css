@@ -684,6 +684,10 @@ h3 {
   box-sizing: border-box;
 }
 
+#updatestatus .map {
+  margin-left: 8px;
+}
+
 /* Dialogs
  */
 .ui-tooltip, .ui-dialog {

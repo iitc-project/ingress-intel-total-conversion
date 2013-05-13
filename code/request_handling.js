@@ -39,15 +39,15 @@ window.requests.abort = function() {
 // to website. Updates info in layer chooser.
 window.renderUpdateStatus = function() {
 
-  var t = '<div><span class="help" title="Indicates portal levels displayed.  Zoom in to display lower level portals."><b>portals:</b> ';
+  var t = '<div><span class="help portallevel" title="Indicates portal levels displayed.  Zoom in to display lower level portals."><b>portals</b>: ';
   var minlvl = getMinPortalLevel();
   if(minlvl === 0)
     t += 'all';
   else
-    t+= 'L'+minlvl+'+';
+    t+= 'L'+minlvl+(minlvl<8?'+':'');
   t +='</span>';
 
-  t += ' <b>map:</b> ';
+  t += ' <span class="map"><b>map</b>: ';
   if(mapRunsUserAction)
     t += '<span class="help" title="Paused due to user interaction">paused</span';
   else if(isIdle())
@@ -58,14 +58,16 @@ window.renderUpdateStatus = function() {
     t += 'refreshing';
   else
     t += 'Up to date';
+  t += '</span>';
 
   if(renderLimitReached())
-    t += ' <span style="color:#f66" class="help" title="Can only render so much before it gets unbearably slow. Not all entities are shown. Zoom in or increase the limit (search for MAX_DRAWN_*).">RENDER LIMIT</span> '
+    t += ' <span style="color:#f66" class="help" title="Can only render so much before it gets unbearably slow. Not all entities are shown. Zoom in or increase the limit (search for MAX_DRAWN_*).">RENDER LIMIT</span>'
 
   if(window.failedRequestCount > 0)
-    t += ' <span style="color:#f66">' + window.failedRequestCount + ' failed</span>.'
+    t += ' <span style="color:#f66">' + window.failedRequestCount + ' failed</span>'
 
-    t += '</div>';
+  t += '</div>';
+
   var portalSelection = $('.leaflet-control-layers-overlays label');
   portalSelection.slice(0, minlvl+1).addClass('disabled').attr('title', 'Zoom in to show those.');
   portalSelection.slice(minlvl, 8).removeClass('disabled').attr('title', '');
