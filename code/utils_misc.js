@@ -407,3 +407,30 @@ window.addLayerGroup = function(name, layerGroup, defaultDisplay) {
   if(isLayerGroupDisplayed(name, defaultDisplay)) map.addLayer(layerGroup);
   layerChooser.addOverlay(layerGroup, name);
 }
+
+
+
+window.clampLat = function(lat) {
+  if (lat > 90.0)
+    lat = 90.0;
+  else if (lat < -90.0)
+    lat = -90.0;
+  return lat;
+}
+
+window.clampLng = function(lng) {
+  if (lng > 180.0)
+    lng = 180.0
+  else if (lng < -180.0)
+    lng = -180.0;
+  return lng;
+}
+
+
+window.clampLatLng = function(latlng) {
+  return new L.LatLng ( clampLat(latlng.lat), clampLng(latlng.lng) );
+}
+
+window.clampLatLngBounds = function(bounds) {
+  return new L.LatLngBounds ( clampLatLng(bounds.getSouthWest()), clampLatLng(bounds.getNorthEast()) );
+}
