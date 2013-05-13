@@ -22,20 +22,71 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 // use own namespace for plugin
 window.plugin.commBlacklist = function() {};
 
-window.plugin.commBlacklist.setCallback = function() {
+window.plugin.commBlacklist.setupCallback = function() {
 	$('#toolbox').append(' <a onclick="window.plugin.commBlacklist.config()" title="setup blacklist.">Setup Blacklist</a>');
-	addHook('factionChatDataAvailable', window.plugin.commBlacklist.blackIt);
-}
-
+	addHook('factionChatDataAvailable', function() {
+		setTimeout(window.plugin.commBlacklist.blackIt, 50)
+		setTimeout(window.plugin.commBlacklist.blackIt, 500)
+	});
+};
 
 window.plugin.commBlacklist.blackIt = function() {
-	$('#chatfaction').find('nickname').text('hacked/634');
+	// alert('blackIt');
+	var data = window.plugin.commBlacklist.fetchBlacklist();
+	console.log("blacklist:" + JSON.stringify(data.list));
+	var list = data.list.toLowerCase().replace(/\s+/g, '').split(",");
+	var replace = data.text;
+	$('#chatfaction .nickname').each(function(index, el) {
+		var id = $(el).text().toLowerCase();
+		if($.inArray(id, list) > -1) {
+			// $(el).text("hacked/634");
+			var td = $(el).closest('td').next();
+			var text = td.data('blacked');
+			if(null == text) {
+				text = td.text();
+				td.data('blacked', text);
+			}
+			td.attr('title', text);
+			td.html('<span style="cursor:pointer;color:red;">' + replace + '</span>');
+		}
+	});
+};
+
+// public interface
+window.plugin.commBlacklist.fetchBlacklist = function() {
+	var list = window.localStorage['comm-blacklist'];
+	var defaultData = { list:'', text: '*** censored ***' };
+	try {
+		return null == list ? defaultData : JSON.parse(list);
+	} catch(e) {
+		return defaultData;
+	}
+};
+
+window.plugin.commBlacklist.config = function() {
+        var data = window.plugin.commBlacklist.fetchBlacklist();
+	console.log("blacklist read: " + JSON.stringify(data));
+
+	var div = $('<div>');
+	var names = $('<input placeholder="Example: wanx,LuoboTiX" value="' + data.list + '" style="width:280px" />');
+	var replace = $('<input placeholder="Example: *** censored *** " value="' + data.text + '" style="width:280px" />');
+	div.append("BlackList Ids:\n").append(names).append("\n\nReplace Text:\n").append(replace);
+	
+	var s = div.html();
+	// console.log(s);
+	alert(s, true, function() {
+		var list = $(".ui-dialog-content").find("input")[0].value;
+		var text = $(".ui-dialog-content").find("input")[1].value;
+		var d = { list:list, text:text };
+		console.log("blacklist saved:" + JSON.stringify(d));
+		window.localStorage['comm-blacklist'] = JSON.stringify(d);
+	});
 };
 
 var setup = function() {
 	window.plugin.commBlacklist.setupCallback();
 	window.plugin.commBlacklist.blackIt();
-}
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
