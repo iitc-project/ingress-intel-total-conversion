@@ -23,7 +23,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 window.plugin.commBlacklist = function() {};
 
 window.plugin.commBlacklist.setupCallback = function() {
-	$('#toolbox').append(' <a onclick="window.plugin.commBlacklist.config()" title="setup blacklist.">Setup Blacklist</a>');
+	$('#toolbox').append('<a onclick="window.plugin.commBlacklist.config()" title="setup blacklist.">Setup Blacklist</a>');
 	addHook('factionChatDataAvailable', window.plugin.commBlacklist.blackItCallback);
 	addHook('publicChatDataAvailable', window.plugin.commBlacklist.blackItCallback);
 	$('#chatcontrols a').click(window.plugin.commBlacklist.blackItCallback);
@@ -64,7 +64,7 @@ window.plugin.commBlacklist.blackIt = function() {
 // public interface
 window.plugin.commBlacklist.fetchBlacklist = function() {
 	var list = window.localStorage['comm-blacklist'];
-	var defaultData = { list:'LuoboTiX,wanx,Fire', text: '*** censored ***' };
+	var defaultData = { list:'', text: '*** censored ***' };
 	try {
 		return null == list ? defaultData : JSON.parse(list);
 	} catch(e) {
@@ -77,7 +77,7 @@ window.plugin.commBlacklist.config = function() {
 	console.log("blacklist read: " + JSON.stringify(data));
 
 	var div = $('<div>');
-	var names = $('<input placeholder="Example: wanx,LuoboTiX" value="' + data.list + '" style="width:280px" />');
+	var names = $('<input placeholder="Example: wanx,fire,marstone" value="' + data.list + '" style="width:280px" />');
 	var replace = $('<input placeholder="Example: *** censored *** " value="' + data.text + '" style="width:280px" />');
 	div.append("BlackList Ids:\n").append(names).append("\n\nReplace Text:\n").append(replace);
 	
