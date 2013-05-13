@@ -12,12 +12,12 @@ window.requestData = function() {
   requests.abort();
   cleanUp();
 
-  var bounds = map.getBounds();
+  var bounds = clampLatLngBounds(map.getBounds());
 
-  var x1 = lngToTile(bounds.getNorthWest().lng, map.getZoom());
-  var x2 = lngToTile(bounds.getNorthEast().lng, map.getZoom());
-  var y1 = latToTile(bounds.getNorthWest().lat, map.getZoom());
-  var y2 = latToTile(bounds.getSouthWest().lat, map.getZoom());
+  var x1 = lngToTile(bounds.getWest(), map.getZoom());
+  var x2 = lngToTile(bounds.getEast(), map.getZoom());
+  var y1 = latToTile(bounds.getNorth(), map.getZoom());
+  var y2 = latToTile(bounds.getSouth(), map.getZoom());
 
   // will group requests by second-last quad-key quadrant
   tiles = {};
