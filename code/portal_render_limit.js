@@ -4,21 +4,19 @@
 // limit is reached. 
 //
 // On initialization, previous minLevel will preserve to previousMinLevel
-// with zoom level difference. 
+// and modify with zoom level difference. 
 //
 // After initialized and reset in window.requestData(), "processPortals" 
 // intercept all portals data in "handleDataResponse". Put the count of 
-// new portals to newPortalsPerLevel[portal level]. And split portals 
-// into two parts base on previousMinLevel. Portals with level >= 
-// previousMinLevel will return as result and continue to render. 
-// Others will save to portalsPreviousMinLevel. If there is no more 
-// active request of map data, portals will not split and 
-// portalsPreviousMinLevel will add back to result and render base on 
-// current minLevel. 
+// new portals to newPortalsPerLevel[portal level]. Portals with level >= 
+// previousMinLevel and already on map will return as result and continue 
+// to render. Others will save to portalsLowerThanPrevMinLv. If there is 
+// no more active request of map data, portalsLowerThanPrevMinLv will add 
+// back to result and render base on current minLevel. 
 //
-// "handleFailRequest" is added to handle the case when the last request 
+// "window.handleFailRequest" is added to handle the case when the last request 
 // failed and "processPortals" didn't get called. It will get
-// portalsPreviousMinLevel base on current minLevel and render them.
+// portalsLowerThanPrevMinLv base on current minLevel and render them.
 //
 // "getMinLevel" will be called by "getMinPortalLevel" in utils_misc.js 
 // to determine min portal level to draw on map.
@@ -30,9 +28,7 @@
 // high to low, and sum total portal count (old + new) to check 
 // minLevel. 
 //
-// In each call of window.handleDataResponse(), it will call 
-// "resetCounting" to reset previous response data. But minLevel
-// is preserved and only replaced when render limit reached in 
+// minLevel is preserved and only replaced when render limit reached in 
 // higher level, until next window.requestData() called and reset.
 // 
 
@@ -42,12 +38,13 @@ window.portalRenderLimit.initialized = false;
 window.portalRenderLimit.minLevelSet = false;
 window.portalRenderLimit.minLevel = -1;
 window.portalRenderLimit.previousMinLevel = -1;
-window.portalRenderLimit.previousZoomLevel;
+window.portalRenderLimit.previousZoomLevel = null;
 window.portalRenderLimit.newPortalsPerLevel = new Array(MAX_PORTAL_LEVEL + 1);
-window.portalRenderLimit.portalsPreviousMinLevel = new Array(MAX_PORTAL_LEVEL + 1);
+window.portalRenderLimit.portalsLowerThanPrevMinLv = new Array(MAX_PORTAL_LEVEL + 1);
 
 window.portalRenderLimit.init = function () {
   var currentZoomLevel = map.getZoom();
+  // previousZoomLevel set to current zoom level on the first run
   portalRenderLimit.previousZoomLevel = portalRenderLimit.previousZoomLevel || currentZoomLevel;
 
   // If there is a minLevel set in previous run, calculate previousMinLevel with it.
@@ -59,10 +56,10 @@ window.portalRenderLimit.init = function () {
 
   portalRenderLimit.previousZoomLevel = currentZoomLevel;
 
-  portalRenderLimit.initialized = true;
   portalRenderLimit.minLevel = -1;
   portalRenderLimit.resetCounting();
-  portalRenderLimit.resetPortalsPreviousMinLevel();
+  portalRenderLimit.resetPortalsLowerThanPrevMinLv();
+  portalRenderLimit.initialized = true;
 }
 
 window.portalRenderLimit.resetCounting = function() {
@@ -72,12 +69,22 @@ window.portalRenderLimit.resetCounting = function() {
   }
 }
 
-window.portalRenderLimit.resetPortalsPreviousMinLevel = function() {
+window.portalRenderLimit.resetPortalsLowerThanPrevMinLv = function() {
   for(var i = 0; i <= MAX_PORTAL_LEVEL; i++) {
-    portalRenderLimit.portalsPreviousMinLevel[i] = new Array();
+    portalRenderLimit.portalsLowerThanPrevMinLv[i] = {};
   }
 }
 
+// Use to clean up level of portals which is over render limit after counting new portals
+window.portalRenderLimit.cleanUpOverLimitPortalLevel = function() {
+  var currentMinLevel = window.getMinPortalLevel();
+  for(var i = 0; i < currentMinLevel; i++) {
+    portalsLayers[i].clearLayers();
+  }
+}
+
+// Count new portals. Then split lower level portal if it's not last request. 
+// And Merge back if it's last request and render limit not yet hit
 window.portalRenderLimit.splitOrMergeLowLevelPortals = function(originPortals) {
   portalRenderLimit.resetCounting();
   portalRenderLimit.countingPortals(originPortals);
@@ -101,29 +108,33 @@ window.portalRenderLimit.countingPortals = function(portals) {
   });
 }
 
+// Split the portal if it's lower level and not on map
 window.portalRenderLimit.splitLowLevelPortals = function(portals) {
-  var resultPortals = new Array();
-  $.each(portals, function(ind, portal) {
+  var resultPortals = {};
+
+  $.each(portals || {}, function(guid, portal) {
     var portalLevel = parseInt(getPortalLevel(portal[2]));
-    if(portalLevel < portalRenderLimit.previousMinLevel) {
-      portalRenderLimit.portalsPreviousMinLevel[portalLevel].push(portal);
-    }else{
-      resultPortals.push(portal);
+    var portalOnMap = window.portals[guid];
+
+    if(!portalOnMap && portalLevel < portalRenderLimit.previousMinLevel) {
+      portalRenderLimit.portalsLowerThanPrevMinLv[portalLevel][guid] = portal;
+    } else {
+      resultPortals[guid] = portal;
     }
   });
   return resultPortals;
 }
 
 window.portalRenderLimit.mergeLowLevelPortals = function(appendTo) {
-  var resultPortals = appendTo ? appendTo : new Array();
-  for(var i = portalRenderLimit.getMinLevel(); 
-      i < portalRenderLimit.previousMinLevel; 
+  var resultPortals = appendTo ? appendTo : {};
+  for(var i = portalRenderLimit.getMinLevel();
+      i < portalRenderLimit.previousMinLevel;
      i++) {
-    $.merge(resultPortals, portalRenderLimit.portalsPreviousMinLevel[i]);
+    $.extend(resultPortals, portalRenderLimit.portalsLowerThanPrevMinLv[i]);
   }
 
-  // Reset portalsPreviousMinLevel, ensure they return only once
-  portalRenderLimit.resetPortalsPreviousMinLevel();
+  // Reset portalsLowerThanPrevMinLv, ensure they return only once
+  portalRenderLimit.resetPortalsLowerThanPrevMinLv();
   return resultPortals;
 }
 
@@ -140,7 +151,9 @@ window.portalRenderLimit.setMinLevel = function() {
   // Find the min portal level under render limit
   while(newMinLevel > 0) {
     var oldPortalCount = layerGroupLength(portalsLayers[newMinLevel - 1]);
-    var newPortalCount = portalRenderLimit.newPortalsPerLevel[newMinLevel - 1];
+    var storedPortalCount = Object.keys(portalRenderLimit.portalsLowerThanPrevMinLv[newMinLevel - 1]).length;
+    var newPortalCount = Math.max(storedPortalCount, portalRenderLimit.newPortalsPerLevel[newMinLevel - 1]);
+
     totalPortalsCount += oldPortalCount + newPortalCount;
     if(totalPortalsCount >= MAX_DRAWN_PORTALS)
       break;
