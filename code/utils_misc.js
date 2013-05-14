@@ -154,20 +154,22 @@ window.rangeLinkClick = function() {
 }
 
 window.showPortalPosLinks = function(lat, lng, name) {
-  var encoded_name = '';
+  var encoded_name = 'undefined';
   if(name !== undefined) {
-    encoded_name = encodeURIComponent(' (' + name + ')');
+    encoded_name = encodeURIComponent(name);
   }
+
   if (typeof android !== 'undefined' && android && android.intentPosLink) {
     android.intentPosLink(lat, lng, encoded_name);
   } else {
     var qrcode = '<div id="qrcode"></div>';
     var script = '<script>$(\'#qrcode\').qrcode({text:\'GEO:'+lat+','+lng+'\'});</script>';
-    var gmaps = '<a href="https://maps.google.com/?q='+lat+','+lng+encoded_name+'">Google Maps</a>';
+    var gmaps = '<a href="https://maps.google.com/?q='+lat+','+lng+'%20('+encoded_name+')">Google Maps</a>';
+    var bingmaps = '<a href="http://www.bing.com/maps/?v=2&cp='+lat+'~'+lng+'&lvl=16&sp=Point.'+lat+'_'+lng+'_'+encoded_name+'___">Bing Maps</a>';
     var osm = '<a href="http://www.openstreetmap.org/?mlat='+lat+'&mlon='+lng+'&zoom=16">OpenStreetMap</a>';
     var latLng = '<span>&lt;' + lat + ',' + lng +'&gt;</span>';
     dialog({
-      html: '<div style="text-align: center;">' + qrcode + script + gmaps + '; ' + osm + '<br />' + latLng + '</div>',
+      html: '<div style="text-align: center;">' + qrcode + script + gmaps + '; ' + bingmaps + '; ' + osm + '<br />' + latLng + '</div>',
       title: name,
       id: 'poslinks'
     });
