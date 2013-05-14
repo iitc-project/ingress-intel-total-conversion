@@ -68,7 +68,7 @@ public class IITC_Mobile extends Activity {
                     user_loc = sharedPreferences.getBoolean("pref_user_loc",
                             false);
                 if (key.equals("pref_fullscreen_actionbar")) {
-                    fullscreen_actionbar =sharedPreferences.getBoolean("pref_fullscreen_actionbar",
+                    fullscreen_actionbar = sharedPreferences.getBoolean("pref_fullscreen_actionbar",
                             false);
                     if (fullscreen_mode)
                         IITC_Mobile.this.getActionBar().hide();
@@ -250,12 +250,6 @@ public class IITC_Mobile extends Activity {
             case R.id.reload_button :
                 this.loadUrl(intel_url);
                 actionBar.setTitle(getString(R.string.menu_map));
-                return true;
-                // clear cache
-            case R.id.cache_clear :
-                iitc_view.clearHistory();
-                iitc_view.clearFormData();
-                iitc_view.clearCache(true);
                 return true;
             case R.id.toggle_fullscreen :
                 toggleFullscreen();
