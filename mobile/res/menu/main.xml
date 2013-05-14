@@ -76,13 +76,6 @@
         android:title="@string/action_settings">
     </item>
     <item
-        android:id="@+id/cache_clear"
-        android:icon="@drawable/content_remove"
-        android:orderInCategory="150"
-        android:showAsAction="never"
-        android:title="@string/cache_clear">
-    </item>
-    <item
         android:id="@+id/menu_debug"
         android:icon="@drawable/alerts_and_states_warning"
         android:orderInCategory="190"
