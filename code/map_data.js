@@ -160,6 +160,8 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   // Process the portals with portal render limit handler first
   // Low level portal will hold until last request
   var newPpp = portalRenderLimit.splitOrMergeLowLevelPortals(ppp);
+  // Clean up level of portal which over render limit after portalRenderLimit handler counted the new portals
+  portalRenderLimit.cleanUpOverLimitPortalLevel();
   handlePortalsRender(newPpp);
 
   resolvePlayerNames();
@@ -174,15 +176,15 @@ window.handlePortalsRender = function(portals) {
   // the portal
   var oldSelectedPortal = selectedPortal;
   runHooks('portalDataLoaded', {portals : portals});
-  $.each(portals, function(ind, portal) {
+  $.each(portals, function(guid, portal) {
     //~ if(selectedPortal === portal[0]) portalUpdateAvailable = true;
     if(urlPortalLL && urlPortalLL[0] === portal[2].locationE6.latE6/1E6 && urlPortalLL[1] === portal[2].locationE6.lngE6/1E6) {
-      urlPortal = portal[0];
+      urlPortal = guid;
       portalInUrlAvailable = true;
       urlPortalLL = null;
     }
-    if(window.portals[portal[0]]) {
-      highlightPortal(window.portals[portal[0]]);
+    if(window.portals[guid]) {
+      highlightPortal(window.portals[guid]);
     }
     renderPortal(portal);
   });
