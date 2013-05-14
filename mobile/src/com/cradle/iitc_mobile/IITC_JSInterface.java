@@ -23,7 +23,7 @@ public class IITC_JSInterface {
     @JavascriptInterface
     public void intentPosLink(String lat, String lng, String portal_name) {
         String uri = "geo:" + lat + "," + lng + "?q=" + lat + "," + lng
-                + portal_name;
+                + "%20(" + portal_name + ")";
         Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
                 Uri.parse(uri));
         context.startActivity(intent);
