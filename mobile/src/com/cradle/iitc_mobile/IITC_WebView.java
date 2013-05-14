@@ -130,7 +130,7 @@ public class IITC_WebView extends WebView {
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo wifi = conMan.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            return wifi.getState() == NetworkInfo.State.CONNECTED && conMan.isActiveNetworkMetered();
+            return wifi.getState() == NetworkInfo.State.CONNECTED && !conMan.isActiveNetworkMetered();
         }
         return wifi.getState() == NetworkInfo.State.CONNECTED;
     }
