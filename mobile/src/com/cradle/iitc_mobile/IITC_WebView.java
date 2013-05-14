@@ -1,10 +1,12 @@
 package com.cradle.iitc_mobile;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -122,10 +124,14 @@ public class IITC_WebView extends WebView {
         }
     }
 
+    @TargetApi(16)
     private boolean isConnectedToWifi() {
         ConnectivityManager conMan = (ConnectivityManager) getContext()
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo wifi = conMan.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            return wifi.getState() == NetworkInfo.State.CONNECTED && conMan.isActiveNetworkMetered();
+        }
         return wifi.getState() == NetworkInfo.State.CONNECTED;
     }
 
