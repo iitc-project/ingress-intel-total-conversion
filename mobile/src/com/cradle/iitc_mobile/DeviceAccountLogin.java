@@ -85,8 +85,7 @@ public class DeviceAccountLogin implements AccountManagerCallback<Bundle> {
     }
 
     private void onLoginFailed() {
-        Toast.makeText(mActivity, "Login failed.", Toast.LENGTH_SHORT).show();
-        // TODO l10n
+        Toast.makeText(mActivity, R.string.login_failed, Toast.LENGTH_SHORT).show();
     }
 
     private void startAuthentication() {
