@@ -19,6 +19,19 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 
 // PLUGIN START ////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////
+// Notice for developers:
+// 
+// You should treat the data stored on Google Realtime API as volatile. 
+// Because if there are change in Google API client ID, Google will 
+// treat it as another application and could not access the data created 
+// by old client ID. Store any important data locally and only use this 
+// plugin as syncing function. 
+//
+// Google Realtime API reference
+// https://developers.google.com/drive/realtime/application
+////////////////////////////////////////////////////////////////////////
+
 // use own namespace for plugin
 window.plugin.sync = function() {};
 
