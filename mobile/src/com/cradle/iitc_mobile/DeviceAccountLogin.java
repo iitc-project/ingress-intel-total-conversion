@@ -72,6 +72,11 @@ public class DeviceAccountLogin implements AccountManagerCallback<Bundle> {
         mWebView = webView;
         mAccountManager = AccountManager.get(activity);
         mAccountAdapter = new AccountAdapter();
+
+        mProgressbar = new AlertDialog.Builder(mActivity)
+                .setCancelable(false)
+                .setView(mActivity.getLayoutInflater().inflate(R.layout.dialog_progressbar, null))
+                .create();
     }
 
     private void displayAccountList() {
@@ -89,10 +94,6 @@ public class DeviceAccountLogin implements AccountManagerCallback<Bundle> {
     }
 
     private void startAuthentication() {
-        mProgressbar = new AlertDialog.Builder(mActivity)
-                .setCancelable(false)
-                .setView(mActivity.getLayoutInflater().inflate(R.layout.dialog_progressbar, null))
-                .create();
         mProgressbar.show();
 
         mAccountManager.getAuthToken(mAccount, mAuthToken, null, mActivity, this, null);
@@ -107,8 +108,7 @@ public class DeviceAccountLogin implements AccountManagerCallback<Bundle> {
 
     @Override
     public void run(AccountManagerFuture<Bundle> value) {
-        if (mProgressbar != null)
-            mProgressbar.hide();
+        mProgressbar.hide();
 
         try {
             Intent launch = (Intent) value.getResult().get(AccountManager.KEY_INTENT);
