@@ -133,6 +133,11 @@ public class IITC_WebViewClient extends WebViewClient {
         handler.proceed();
     };
 
+    @Override
+    public void onReceivedLoginRequest(WebView view, String realm, String account, String args) {
+        ((IITC_Mobile) context).onReceivedLoginRequest(this, view, realm, account, args);
+    }
+
     // plugins should be loaded after the main script is injected
     @Override
     public void onPageFinished(WebView view, String url) {
