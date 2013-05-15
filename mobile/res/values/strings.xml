@@ -5,7 +5,6 @@
     <string name="action_settings">Settings</string>
     <string name="reload">Reload IITC</string>
     <string name="version">Print Version</string>
-    <string name="cache_clear">Clear Cache</string>
     <string name="toggle_fullscreen">Toggle fullscreen</string>
     <string name="locate">Get Location</string>
     <string name="local">local</string>

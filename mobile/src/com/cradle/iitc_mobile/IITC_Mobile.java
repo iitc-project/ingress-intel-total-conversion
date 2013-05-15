@@ -255,12 +255,6 @@ public class IITC_Mobile extends Activity {
                 this.loadUrl(intel_url);
                 actionBar.setTitle(getString(R.string.menu_map));
                 return true;
-                // clear cache
-            case R.id.cache_clear :
-                iitc_view.clearHistory();
-                iitc_view.clearFormData();
-                iitc_view.clearCache(true);
-                return true;
             case R.id.toggle_fullscreen :
                 toggleFullscreen();
                 return true;
