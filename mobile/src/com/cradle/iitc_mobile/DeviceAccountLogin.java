@@ -120,6 +120,7 @@ public class DeviceAccountLogin implements AccountManagerCallback<Bundle> {
             String result = value.getResult().getString(AccountManager.KEY_AUTHTOKEN);
             if (result != null) {
                 mWebView.loadUrl(result);
+                mActivity.loginSucceded();
             } else {
                 onLoginFailed();
             }

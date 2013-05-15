@@ -394,4 +394,8 @@ public class IITC_Mobile extends Activity {
         mLogin = new DeviceAccountLogin(this, view, client);
         mLogin.startLogin(realm, account, args);
     }
+
+    public void loginSucceded() {
+        mLogin = null;
+    }
 }
