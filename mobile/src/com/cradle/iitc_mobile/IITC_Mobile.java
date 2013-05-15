@@ -24,9 +24,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.webkit.WebView;
 import android.widget.Toast;
 
 public class IITC_Mobile extends Activity {
+
+    private static final int REQUEST_LOGIN = 1;
 
     private IITC_WebView iitc_view;
     private boolean back_button_pressed = false;
@@ -38,6 +41,7 @@ public class IITC_Mobile extends Activity {
     private boolean fullscreen_mode = false;
     private boolean fullscreen_actionbar = false;
     private ActionBar actionBar;
+    private DeviceAccountLogin mLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +72,7 @@ public class IITC_Mobile extends Activity {
                     user_loc = sharedPreferences.getBoolean("pref_user_loc",
                             false);
                 if (key.equals("pref_fullscreen_actionbar")) {
-                    fullscreen_actionbar =sharedPreferences.getBoolean("pref_fullscreen_actionbar",
+                    fullscreen_actionbar = sharedPreferences.getBoolean("pref_fullscreen_actionbar",
                             false);
                     if (fullscreen_mode)
                         IITC_Mobile.this.getActionBar().hide();
@@ -359,5 +363,27 @@ public class IITC_Mobile extends Activity {
 
     public IITC_WebView getWebView() {
         return this.iitc_view;
+    }
+
+    public void startLoginActivity(Intent launch) {
+        startActivityForResult(launch, REQUEST_LOGIN);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_LOGIN :
+                mLogin.onActivityResult(resultCode, data);
+                break;
+
+            default :
+                super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    public void onReceivedLoginRequest(IITC_WebViewClient client, WebView view,
+            String realm, String account, String args) {
+        mLogin = new DeviceAccountLogin(this, view, client);
+        mLogin.startLogin(realm, account, args);
     }
 }
