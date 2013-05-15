@@ -56,17 +56,6 @@ public class IITC_Mobile extends Activity {
         StrictMode.setThreadPolicy(policy);
         setContentView(R.layout.activity_main);
         iitc_view = (IITC_WebView) findViewById(R.id.iitc_webview);
-        iitc_view.setWebChromeClient(new WebChromeClient()
-        {
-            @Override
-            public void onProgressChanged(WebView view, int newProgress) {
-                super.onProgressChanged(view, newProgress);
-
-                // maximum for newProgress is 100
-                // maximum for setProgress is 10,000
-                setProgress(newProgress * 100);
-            }
-        });
 
         // fetch actionbar, set display flags, title and enable home button
         actionBar = this.getActionBar();

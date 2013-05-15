@@ -2,6 +2,7 @@ package com.cradle.iitc_mobile;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -39,13 +40,22 @@ public class IITC_WebView extends WebView {
         this.js_interface = new IITC_JSInterface(c);
         this.addJavascriptInterface(js_interface, "android");
 
-        // our webchromeclient should share geolocation with the iitc script
-        // allow access by default
         this.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin,
                     GeolocationPermissions.Callback callback) {
+                // our webchromeclient should share geolocation with the iitc script
+                // allow access by default
                 callback.invoke(origin, true, false);
+            }
+
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                super.onProgressChanged(view, newProgress);
+
+                // maximum for newProgress is 100
+                // maximum for setProgress is 10,000
+                ((Activity) getContext()).setProgress(newProgress * 100);
             }
         });
 
