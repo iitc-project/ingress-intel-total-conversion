@@ -53,6 +53,7 @@ public class DeviceAccountLogin implements AccountManagerCallback<Bundle> {
     private Account[] mAccounts;
     private IITC_Mobile mActivity;
     private String mAuthToken;
+    private AlertDialog mProgressbar;
     private WebView mWebView;
 
     private DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
@@ -74,8 +75,7 @@ public class DeviceAccountLogin implements AccountManagerCallback<Bundle> {
     }
 
     private void displayAccountList() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-        builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity)
                 .setTitle(R.string.choose_account_to_login)
                 .setSingleChoiceItems(mAccountAdapter, 0, onClickListener)
                 .setNegativeButton(android.R.string.cancel, onClickListener);
@@ -89,6 +89,12 @@ public class DeviceAccountLogin implements AccountManagerCallback<Bundle> {
     }
 
     private void startAuthentication() {
+        mProgressbar = new AlertDialog.Builder(mActivity)
+                .setCancelable(false)
+                .setView(mActivity.getLayoutInflater().inflate(R.layout.dialog_progressbar, null))
+                .create();
+        mProgressbar.show();
+
         mAccountManager.getAuthToken(mAccount, mAuthToken, null, mActivity, this, null);
     }
 
@@ -101,6 +107,9 @@ public class DeviceAccountLogin implements AccountManagerCallback<Bundle> {
 
     @Override
     public void run(AccountManagerFuture<Bundle> value) {
+        if (mProgressbar != null)
+            mProgressbar.hide();
+
         try {
             Intent launch = (Intent) value.getResult().get(AccountManager.KEY_INTENT);
             if (launch != null) {
