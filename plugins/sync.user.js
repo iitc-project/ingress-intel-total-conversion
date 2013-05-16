@@ -518,12 +518,6 @@ window.plugin.sync.loadUUID = function() {
   }
 }
 
-window.plugin.sync.loadGapi = function() {
-  try { console.log('Loading Gapi JS now'); } catch(e) {}
-  @@INCLUDERAW:external/gapi.js@@
-  try { console.log('done loading delaunay JS'); } catch(e) {}
-}
-
 window.plugin.sync.toggleAuthButton = function() {
   var authed = plugin.sync.authorizer.isAuthed();
   $('#sync-authButton').attr('disabled', authed);
@@ -563,13 +557,16 @@ window.plugin.sync.setupCSS = function() {
 
 var setup =  function() {
   window.plugin.sync.loadUUID();
-  window.plugin.sync.loadGapi();
   window.plugin.sync.setupCSS();
   window.plugin.sync.setupDialog();
 
   window.plugin.sync.authorizer = new window.plugin.sync.Authorizer({'authCallback': [plugin.sync.toggleAuthButton]});
   window.plugin.sync.registerdPluginsFields = new window.plugin.sync.RegisterdPluginsFields({'authorizer': window.plugin.sync.authorizer});
-  gapi.load('auth:client,drive-realtime,drive-share', window.plugin.sync.authorizer.authorize);
+
+  var GOOGLEAPI = 'https://apis.google.com/js/api.js';
+  load(GOOGLEAPI).thenRun(function() {
+    gapi.load('auth:client,drive-realtime,drive-share', window.plugin.sync.authorizer.authorize);
+  });
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////
