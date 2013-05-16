@@ -101,4 +101,65 @@ window.runOnSmartphonesAfterBoot = function() {
   window.MAX_DRAWN_PORTALS = 500;
   window.MAX_DRAWN_LINKS = 200;
   window.MAX_DRAWN_FIELDS = 100;
+
+  //hook some additional code into the LayerControl so it's easy for the mobile app to interface with it
+  //WARNING: does depend on internals of the L.Control.Layers code
+  window.layerChooser.getLayers = function() {
+    var baseLayers = new Array();
+    var overlayLayers = new Array();
+
+    for (i in this._layers) {
+      var obj = this._layers[i];
+      var layerActive = window.map.hasLayer(obj.layer);
+      var info = {
+        layerId: L.stamp(obj.layer),
+        name: obj.name,
+        active: layerActive
+      }
+      if (obj.overlay) {
+        overlayLayers.push(info);
+      } else {
+        baseLayers.push(info);
+      }
+    }
+
+    return {
+      baseLayers: baseLayers,
+      overlayLayers: overlayLayers
+    }
+  }
+  window.layerChooser.showLayer = function(id,show) {
+    if (show === undefined) show = true;
+    obj = this._layers[id];
+    if (!obj) return false;
+
+    if(show) {
+      if (!this._map.hasLayer(obj.layer)) {
+        //the layer to show is not currently active
+        this._map.addLayer(obj.layer);
+
+        //if it's an overlay, remove any others
+        if (!obj.overlay) {
+          for(i in this._layers) {
+            if (i != id) {
+              var other = this._layers[i];
+              if (!other.overlay && this._map.hasLayer(other.layer)) this._map.removeLayer(other.layer);
+            }
+          }
+        }
+      }
+    } else {
+      if (this._map.hasLayer(obj.layer)) {
+        this._map.removeLayer(obj.layer);
+      }
+    }
+    //below logic based on code in L.Control.Layers _onInputClick
+    if(!obj.overlay) {
+      this._map.setZoom(this._map.getZoom());
+      this._map.fire('baselayerchange', {layer: obj.layer});
+    }
+
+    return true;
+  }
+
 }
