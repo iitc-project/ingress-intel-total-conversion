@@ -47,6 +47,7 @@ public class IITC_Mobile extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // enable progress bar above action bar
         requestWindowFeature(Window.FEATURE_PROGRESS);
 
         // TODO build an async task for url.openStream() in IITC_WebViewClient
@@ -361,14 +362,19 @@ public class IITC_Mobile extends Activity {
         return this.iitc_view;
     }
 
+    /**
+     * It can occur that in order to authenticate, an external activity has to be launched. (This could for example be a
+     * confirmation dialog.)
+     */
     public void startLoginActivity(Intent launch) {
-        startActivityForResult(launch, REQUEST_LOGIN);
+        startActivityForResult(launch, REQUEST_LOGIN); // REQUEST_LOGIN is to recognize the result
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUEST_LOGIN :
+                // authentication activity has returned. mLogin will continue authentication
                 mLogin.onActivityResult(resultCode, data);
                 break;
 
@@ -377,13 +383,20 @@ public class IITC_Mobile extends Activity {
         }
     }
 
+    /**
+     * called by IITC_WebViewClient when the Google login form is opened.
+     */
     public void onReceivedLoginRequest(IITC_WebViewClient client, WebView view,
             String realm, String account, String args) {
         mLogin = new IITC_DeviceAccountLogin(this, view, client);
         mLogin.startLogin(realm, account, args);
     }
 
+    /**
+     * called after successful login
+     */
     public void loginSucceded() {
+        // garbage collection
         mLogin = null;
     }
 }

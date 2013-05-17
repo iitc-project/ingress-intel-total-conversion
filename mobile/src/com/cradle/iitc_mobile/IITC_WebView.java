@@ -41,14 +41,20 @@ public class IITC_WebView extends WebView {
         this.addJavascriptInterface(js_interface, "android");
 
         this.setWebChromeClient(new WebChromeClient() {
+            /**
+             * our webchromeclient should share geolocation with the iitc script
+             * 
+             * allow access by default
+             */
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin,
                     GeolocationPermissions.Callback callback) {
-                // our webchromeclient should share geolocation with the iitc script
-                // allow access by default
                 callback.invoke(origin, true, false);
             }
 
+            /**
+             * display progress bar in activity
+             */
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
                 super.onProgressChanged(view, newProgress);
