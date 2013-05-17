@@ -18,7 +18,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class DeviceAccountLogin implements AccountManagerCallback<Bundle> {
+public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
     private class AccountAdapter extends BaseAdapter {
         @Override
         public int getCount() {
@@ -67,7 +67,7 @@ public class DeviceAccountLogin implements AccountManagerCallback<Bundle> {
         }
     };
 
-    public DeviceAccountLogin(IITC_Mobile activity, WebView webView, WebViewClient webViewClient) {
+    public IITC_DeviceAccountLogin(IITC_Mobile activity, WebView webView, WebViewClient webViewClient) {
         mActivity = activity;
         mWebView = webView;
         mAccountManager = AccountManager.get(activity);

@@ -41,7 +41,7 @@ public class IITC_Mobile extends Activity {
     private boolean fullscreen_mode = false;
     private boolean fullscreen_actionbar = false;
     private ActionBar actionBar;
-    private DeviceAccountLogin mLogin;
+    private IITC_DeviceAccountLogin mLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -379,7 +379,7 @@ public class IITC_Mobile extends Activity {
 
     public void onReceivedLoginRequest(IITC_WebViewClient client, WebView view,
             String realm, String account, String args) {
-        mLogin = new DeviceAccountLogin(this, view, client);
+        mLogin = new IITC_DeviceAccountLogin(this, view, client);
         mLogin.startLogin(realm, account, args);
     }
 
