@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-pan-control@fragger
 // @name           IITC plugin: pan control
-// @version        0.2.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
