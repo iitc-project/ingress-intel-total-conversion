@@ -1,7 +1,9 @@
 /** Slider **/
 .leaflet-control-zoomslider-slider {
-	padding-top: 5px ;
+	padding-top: 5px;
 	padding-bottom: 5px;
+	background-color: #fff;
+	border-bottom: 1px solid #ccc;
 }
 
 .leaflet-control-zoomslider-slider-body {
@@ -17,7 +19,7 @@
 	height:5px;
 	background-color: black;
 	background-position: center;
-  -webkit-border-radius: 15px;
+ 	-webkit-border-radius: 15px;
 	border-radius: 15px;
 	margin-left: 5px;
 	/*border: 5px; */
