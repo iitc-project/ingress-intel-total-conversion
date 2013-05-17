@@ -2,7 +2,13 @@ package com.cradle.iitc_mobile;
 
 import java.io.IOException;
 
-import com.cradle.iitc_mobile.R;
+import android.app.ActionBar;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Configuration;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -13,20 +19,17 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
-import android.app.ActionBar;
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.res.Configuration;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.WebView;
 import android.widget.Toast;
 
 public class IITC_Mobile extends Activity {
+
+    private static final int REQUEST_LOGIN = 1;
 
     private IITC_WebView iitc_view;
     private boolean back_button_pressed = false;
@@ -38,10 +41,14 @@ public class IITC_Mobile extends Activity {
     private boolean fullscreen_mode = false;
     private boolean fullscreen_actionbar = false;
     private ActionBar actionBar;
+    private IITC_DeviceAccountLogin mLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // enable progress bar above action bar
+        requestWindowFeature(Window.FEATURE_PROGRESS);
 
         // TODO build an async task for url.openStream() in IITC_WebViewClient
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
@@ -353,5 +360,43 @@ public class IITC_Mobile extends Activity {
 
     public IITC_WebView getWebView() {
         return this.iitc_view;
+    }
+
+    /**
+     * It can occur that in order to authenticate, an external activity has to be launched. (This could for example be a
+     * confirmation dialog.)
+     */
+    public void startLoginActivity(Intent launch) {
+        startActivityForResult(launch, REQUEST_LOGIN); // REQUEST_LOGIN is to recognize the result
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_LOGIN :
+                // authentication activity has returned. mLogin will continue authentication
+                mLogin.onActivityResult(resultCode, data);
+                break;
+
+            default :
+                super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    /**
+     * called by IITC_WebViewClient when the Google login form is opened.
+     */
+    public void onReceivedLoginRequest(IITC_WebViewClient client, WebView view,
+            String realm, String account, String args) {
+        mLogin = new IITC_DeviceAccountLogin(this, view, client);
+        mLogin.startLogin(realm, account, args);
+    }
+
+    /**
+     * called after successful login
+     */
+    public void loginSucceded() {
+        // garbage collection
+        mLogin = null;
     }
 }

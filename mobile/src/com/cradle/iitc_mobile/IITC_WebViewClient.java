@@ -133,6 +133,14 @@ public class IITC_WebViewClient extends WebViewClient {
         handler.proceed();
     };
 
+    /**
+     * this method is called automatically when the Google login form is opened.
+     */
+    @Override
+    public void onReceivedLoginRequest(WebView view, String realm, String account, String args) {
+        ((IITC_Mobile) context).onReceivedLoginRequest(this, view, realm, account, args);
+    }
+
     // plugins should be loaded after the main script is injected
     @Override
     public void onPageFinished(WebView view, String url) {
