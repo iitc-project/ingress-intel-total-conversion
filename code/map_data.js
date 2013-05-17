@@ -14,10 +14,13 @@ window.requestData = function() {
 
   var bounds = clampLatLngBounds(map.getBounds());
 
-  var x1 = lngToTile(bounds.getWest(), map.getZoom());
-  var x2 = lngToTile(bounds.getEast(), map.getZoom());
-  var y1 = latToTile(bounds.getNorth(), map.getZoom());
-  var y2 = latToTile(bounds.getSouth(), map.getZoom());
+  //we query the server as if the zoom level was effectiveZoom
+  var z = getPortalDataZoom();
+
+  var x1 = lngToTile(bounds.getWest(), z);
+  var x2 = lngToTile(bounds.getEast(), z);
+  var y1 = latToTile(bounds.getNorth(), z);
+  var y2 = latToTile(bounds.getSouth(), z);
 
   // will group requests by second-last quad-key quadrant
   tiles = {};
@@ -25,16 +28,16 @@ window.requestData = function() {
   // walk in x-direction, starts right goes left
   for (var x = x1; x <= x2; x++) {
     for (var y = y1; y <= y2; y++) {
-      var tile_id = pointToTileId(map.getZoom(), x, y);
+      var tile_id = pointToTileId(z, x, y);
       var bucket = Math.floor(x / 2) + "" + Math.floor(y / 2);
       if (!tiles[bucket])
         tiles[bucket] = [];
       tiles[bucket].push(generateBoundsParams(
         tile_id,
-        tileToLat(y + 1, map.getZoom()),
-        tileToLng(x, map.getZoom()),
-        tileToLat(y, map.getZoom()),
-        tileToLng(x + 1, map.getZoom())
+        tileToLat(y + 1, z),
+        tileToLng(x, z),
+        tileToLat(y, z),
+        tileToLng(x + 1, z)
       ));
     }
   }
@@ -43,7 +46,7 @@ window.requestData = function() {
   portalRenderLimit.init();
   // finally send ajax requests
   $.each(tiles, function(ind, tls) {
-    data = { zoom: map.getZoom() };
+    data = { zoom: z };
     data.boundsParamsList = tls;
     window.requests.add(window.postAjax('getThinnedEntitiesV2', data, window.handleDataResponse, window.handleFailedRequest));
   });
