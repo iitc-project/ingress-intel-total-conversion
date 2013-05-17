@@ -5,7 +5,7 @@
    should make all the child boxes be center-aligned instead.
    Not sure if that is possible though.
 */
-.leaflet-control-zoom {
+.leaflet-bar {
 	position: relative;
 	left:23px;
 }
