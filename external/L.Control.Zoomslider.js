@@ -1,19 +1,14 @@
-L.Control.Zoomslider = (function(){
+L.Control.Zoomslider = (function () {
 
 	var Knob = L.Draggable.extend({
-		initialize: function (element, steps, stepHeight, knobHeight) {
-			var sliderHeight = steps * stepHeight;
+		initialize: function (element, stepHeight, knobHeight) {
 			L.Draggable.prototype.initialize.call(this, element, element);
-
 			this._element = element;
-			this._maxValue = steps - 1;
 
-			// conversion parameters
-			// the conversion is just a common linear function.
-			this._k = -stepHeight;
-			this._m = sliderHeight - (stepHeight + knobHeight) / 2;
+			this._stepHeight = stepHeight;
+			this._knobHeight = knobHeight;
 
-			this.on('predrag', function() {
+			this.on('predrag', function () {
 				this._newPos.x = 0;
 				this._newPos.y = this._adjust(this._newPos.y);
 			}, this);
@@ -32,6 +27,16 @@ L.Control.Zoomslider = (function(){
 		// v = (y - m) / k
 		_toValue: function (y) {
 			return (y - this._m) / this._k;
+		},
+
+		setSteps: function (steps) {
+			var sliderHeight = steps * this._stepHeight;
+			this._maxValue = steps - 1;
+
+			// conversion parameters
+			// the conversion is just a common linear function.
+			this._k = -this._stepHeight;
+			this._m = sliderHeight - (this._stepHeight + this._knobHeight) / 2;
 		},
 
 		setPosition: function (y) {
@@ -76,64 +81,47 @@ L.Control.Zoomslider = (function(){
 			this._zoomOutButton = this._createZoomButton(
 				'out', 'bottom', container, this._zoomOut);
 
-			map .on('layeradd layerremove', this._refresh, this)
-				.on("zoomend", this._updateSlider, this)
+			map .on('zoomlevelschange', this._refresh, this)
+				.on("zoomend", this._updateKnob, this)
 				.on("zoomend", this._updateDisabled, this)
 				.whenReady(this._createSlider, this)
 				.whenReady(this._createKnob, this)
-				.whenReady(this._updateSlider, this)
-				.whenReady(this._updateDisabled, this);
+				.whenReady(this._refresh, this);
 
 			return container;
 		},
 
 		onRemove: function (map) {
-			map .off("zoomend", this._updateSlider)
+			map .off("zoomend", this._updateKnob)
 				.off("zoomend", this._updateDisabled)
-				.off('layeradd layerremove', this._refresh);
+				.off('zoomlevelschange', this._refresh);
 		},
 
 		_refresh: function () {
-			// TODO: listen to zoomlevelschange-event instead in 0.6.x
-			this._map
-				.removeControl(this)
-				.addControl(this);
+			var zoomLevels = this._zoomLevels();
+			if (zoomLevels < Infinity  && this._knob  && this._sliderBody) {
+				this._setSteps(zoomLevels);
+				this._updateKnob();
+				this._updateDisabled();
+			}
 		},
-		_zoomLevels: function(){
+		_zoomLevels: function () {
 			return this._map.getMaxZoom() - this._map.getMinZoom() + 1;
 		},
 
 		_createSlider: function () {
-			var zoomLevels = this._zoomLevels();
-
-			// No tilelayer probably
-			if(zoomLevels == Infinity){
-				return;
-			}
-
 			this._sliderBody = L.DomUtil.create('div',
 												this.options.styleNS + '-slider-body',
 												this._sliderElem);
-			this._sliderBody.style.height
-				= (this.options.stepHeight * zoomLevels) + "px";
 			L.DomEvent.on(this._sliderBody, 'click', this._onSliderClick, this);
 		},
 
 		_createKnob: function () {
-			var knobElem,
-				zoomLevels = this._zoomLevels();
-
-			// No tilelayer probably
-			if(zoomLevels == Infinity) {
-				return;
-			}
-
-			knobElem = L.DomUtil.create('div', this.options.styleNS + '-slider-knob',
-										this._sliderBody);
+			var knobElem = L.DomUtil.create('div', this.options.styleNS + '-slider-knob',
+											this._sliderBody);
 			L.DomEvent.disableClickPropagation(knobElem);
 
 			this._knob = new Knob(knobElem,
-								  this._zoomLevels(),
 								  this.options.stepHeight,
 								  this.options.knobHeight)
 				.on('dragend', this._updateZoom, this);
@@ -171,19 +159,23 @@ L.Control.Zoomslider = (function(){
 
 			return link;
 		},
-		_toZoomLevel: function (sliderValue) {
-			return sliderValue + this._map.getMinZoom();
+		_toZoomLevel: function (value) {
+			return value + this._map.getMinZoom();
 		},
-		_toSliderValue: function (zoomLevel) {
+		_toValue: function (zoomLevel) {
 			return zoomLevel - this._map.getMinZoom();
 		},
-
-		_updateZoom: function(){
+		_setSteps: function (zoomLevels) {
+			this._sliderBody.style.height 
+				= (this.options.stepHeight * zoomLevels) + "px";
+			this._knob.setSteps(zoomLevels);
+		},
+		_updateZoom: function () {
 			this._map.setZoom(this._toZoomLevel(this._knob.getValue()));
 		},
-		_updateSlider: function(){
-			if(this._knob){
-				this._knob.setValue(this._toSliderValue(this._map.getZoom()));
+		_updateKnob: function () {
+			if (this._knob) {
+				this._knob.setValue(this._toValue(this._map.getZoom()));
 			}
 		},
 		_updateDisabled: function () {
