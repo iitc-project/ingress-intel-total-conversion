@@ -119,14 +119,31 @@ window.plugin.drawTools.boot = function() {
   //create a leaflet FeatureGroup to hold drawn items
 
   window.plugin.drawTools.drawnItems = new L.FeatureGroup();
-  var drawnItems = window.plugin.drawTools.drawnItems;
-
-  window.layerChooser.addOverlay(drawnItems, 'Drawn Items');
-  map.addLayer(drawnItems);
 
   //add the draw control - this references the above FeatureGroup for editing purposes
   plugin.drawTools.addDrawControl();
 
+  //start off hidden. if the layer is enabled, the below addLayerGroup will add it, triggering a 'show'
+  $('.leaflet-draw-section').hide();
+
+
+  //hide the draw tools when the 'drawn items' layer is off, show it when on
+  map.on('layeradd', function(obj) {
+    if(obj.layer === window.plugin.drawTools.drawnItems) {
+      $('.leaflet-draw-section').show();
+    }
+  });
+  map.on('layerremove', function(obj) {
+    if(obj.layer === window.plugin.drawTools.drawnItems) {
+      $('.leaflet-draw-section').hide();
+    }
+  });
+
+  //add the layer
+  window.addLayerGroup('Drawn Items', window.plugin.drawTools.drawnItems);
+
+
+  //place created items into the specific layer
   map.on('draw:created', function(e) {
     var type=e.layerType;
     var layer=e.layer;

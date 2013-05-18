@@ -47,8 +47,7 @@ window.plugin.playerTracker.setup = function() {
   }});
 
   plugin.playerTracker.drawnTraces = new L.LayerGroup();
-  window.layerChooser.addOverlay(plugin.playerTracker.drawnTraces, 'Player Tracker');
-  map.addLayer(plugin.playerTracker.drawnTraces);
+  window.addLayerGroup('Player Tracker', plugin.playerTracker.drawnTraces);
   map.on('layeradd',function(obj) {
     if(obj.layer === plugin.playerTracker.drawnTraces)
     {

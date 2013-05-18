@@ -77,8 +77,7 @@ var setup =  function() {
           }")
   .appendTo("head");
 
-  window.layerChooser.addOverlay(window.plugin.portalLevelNumbers.levelLayerGroup, 'Portal Levels');
-  map.addLayer(window.plugin.portalLevelNumbers.levelLayerGroup);
+  window.addLayerGroup('Portal Levels', window.plugin.portalLevelNumbers.levelLayerGroup, true);
 
   window.addHook('portalAdded', window.plugin.portalLevelNumbers.portalAdded);
 }
