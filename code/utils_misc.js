@@ -308,6 +308,7 @@ window.getTypeByGuid = function(guid) {
   
   // resonator guid is [portal guid]-resonator-[slot]
   switch(guid.slice(33)) {
+    case '2':
     case '11':
     case '12':
     case '16':
