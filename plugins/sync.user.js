@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-sync@xelio
 // @name           IITC plugin: Sync
-// @version        0.1.1.@@DATETIMEVERSION@@
+// @version        0.1.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -389,6 +389,7 @@ window.plugin.sync.FileSearcher.prototype.searchFileOrFolder = function(searchOp
 // authorize user google account and create a folder 'IITC-SYNC-DATA' to store Realtime document
 window.plugin.sync.Authorizer = function(options) {
   this.authCallback = options['authCallback'];
+  this.authorizing = false;
   this.folderId = null;
   this.authorize = this.authorize.bind(this);
 }
@@ -400,12 +401,16 @@ window.plugin.sync.Authorizer.prototype.isAuthed = function() {
   return this.folderId !== null;
 }
 
+window.plugin.sync.Authorizer.prototype.isAuthorizing = function() {
+  return this.authorizing;
+}
 window.plugin.sync.Authorizer.prototype.addAuthCallback = function(callback) {
   if(typeof(this.authCallback) === 'function') this.authCallback = [this.authCallback];
   this.authCallback.push(callback);
 }
 
 window.plugin.sync.Authorizer.prototype.authComplete = function() {
+  this.authorizing = false;
   if(this.authCallback) {
     if(typeof(this.authCallback) === 'function') this.authCallback();
     if(this.authCallback instanceof Array && this.authCallback.length > 0) {
@@ -447,6 +452,7 @@ window.plugin.sync.Authorizer.prototype.initFolder = function() {
 }
 
 window.plugin.sync.Authorizer.prototype.authorize = function(popup) {
+  this.authorizing = true;
   var handleAuthResult, _this;
   _this = this;
 
@@ -519,8 +525,11 @@ window.plugin.sync.loadUUID = function() {
 }
 
 window.plugin.sync.toggleAuthButton = function() {
-  var authed = plugin.sync.authorizer.isAuthed();
-  $('#sync-authButton').attr('disabled', authed);
+  var authed, authorizing;
+  authed = plugin.sync.authorizer.isAuthed();
+  authorizing = plugin.sync.authorizer.isAuthorizing();
+
+  $('#sync-authButton').attr('disabled', (authed || authorizing));
   $('#sync-authButton').html(authed ? 'Authorized' : 'Authorize');
   if(authed) {
     $('#sync-authButton').addClass('sync-authButton-authed');
@@ -529,10 +538,15 @@ window.plugin.sync.toggleAuthButton = function() {
     $('#sync-authButton').removeClass('sync-authButton-authed');
     $('#sync-show-dialog').addClass('sync-show-dialog-error');
   }
+
+  // Dim the button if authorinzing
+  if(authorizing) {
+    $('#sync-authButton').addClass('sync-authButton-authed');
+  }
 }
 
 window.plugin.sync.showDialog = function() {
-  alert(plugin.sync.dialogHTML);
+  window.dialog({html: plugin.sync.dialogHTML, title: 'Sync', modal: true, id: 'sync-setting'});
   plugin.sync.toggleAuthButton();
 }
 
