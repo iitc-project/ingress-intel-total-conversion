@@ -79,7 +79,14 @@ window.portalRenderLimit.resetPortalsLowerThanPrevMinLv = function() {
 window.portalRenderLimit.cleanUpOverLimitPortalLevel = function() {
   var currentMinLevel = window.getMinPortalLevel();
   for(var i = 0; i < currentMinLevel; i++) {
-    portalsLayers[i].clearLayers();
+    portalsLayers[i].eachLayer(function(item) {
+      var itemGuid = item.options.guid;
+      // check if 'item' is a portal
+      if(getTypeByGuid(itemGuid) != TYPE_PORTAL) return true;
+      // Don’t remove if it is selected.
+      if(itemGuid == window.selectedPortal) return true;
+      portalsLayers[i].removeLayer(item);
+    });
   }
 }
 
