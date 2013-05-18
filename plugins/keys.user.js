@@ -5,7 +5,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Store portal keys. Install Plugin Sync to sync the keys between clients.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Store portal keys. Install the 'Sync' plugin to sync the keys between clients.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
