@@ -355,8 +355,6 @@ window.renderPortal = function(ent) {
     delete window.portals[portalGuid];
     if(window.selectedPortal === portalGuid) {
       window.unselectOldPortal();
-      window.map.removeLayer(window.portalAccessIndicator);
-      window.portalAccessIndicator = null;
     }
   });
 
