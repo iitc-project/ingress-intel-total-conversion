@@ -14,7 +14,7 @@ window.requestData = function() {
 
   var bounds = clampLatLngBounds(map.getBounds());
 
-  //we query the server as if the zoom level was effectiveZoom
+  //we query the server as if the zoom level was this. it may not match the actual map zoom level
   var z = getPortalDataZoom();
 
   var x1 = lngToTile(bounds.getWest(), z);

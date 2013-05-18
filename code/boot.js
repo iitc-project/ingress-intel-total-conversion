@@ -192,6 +192,7 @@ window.setupMap = function() {
     'Google Hybrid':  views[4],
     'Google Terrain': views[5]
     }, addLayers);
+
   // Remove the hidden layer after layerChooser built, to avoid messing up ordering of layers 
   $.each(hiddenLayer, function(ind, layer){
     map.removeLayer(layer);
