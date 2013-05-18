@@ -116,7 +116,7 @@ window.plugin.maxLinks.setup = function() {
       window.plugin.maxLinks.updateLayer();
   });
   window.map.on('zoomend moveend', window.plugin.maxLinks.updateLayer);
-  window.layerChooser.addOverlay(window.plugin.maxLinks.layer, 'Maximum Links');
+  window.addLayerGroup('Maximum Links', window.plugin.maxLinks.layer);
 }
 var setup = window.plugin.maxLinks.setup;
 
