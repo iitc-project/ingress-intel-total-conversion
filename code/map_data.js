@@ -306,7 +306,7 @@ window.renderPortal = function(ent) {
     // nothing changed that requires re-rendering the portal.
     if(!u) {
       // let resos handle themselves if they need to be redrawn
-      renderResonators(ent, old);
+      renderResonators(ent[0], ent[2], old);
       // update stored details for portal details in sidebar.
       old.options.details = ent[2];
       return;
@@ -355,8 +355,6 @@ window.renderPortal = function(ent) {
     delete window.portals[portalGuid];
     if(window.selectedPortal === portalGuid) {
       window.unselectOldPortal();
-      window.map.removeLayer(window.portalAccessIndicator);
-      window.portalAccessIndicator = null;
     }
   });
 
@@ -364,6 +362,8 @@ window.renderPortal = function(ent) {
     // enable for debugging
     if(window.portals[this.options.guid]) throw('duplicate portal detected');
     window.portals[this.options.guid] = this;
+
+    window.renderResonators(this.options.guid, this.options.details, this);
     // handles the case where a selected portal gets removed from the
     // map by hiding all portals with said level
     if(window.selectedPortal !== this.options.guid)
@@ -376,84 +376,59 @@ window.renderPortal = function(ent) {
     window.map.setView(latlng, 17);
   });
 
-  window.renderResonators(ent, null);
   highlightPortal(p);
   window.runHooks('portalAdded', {portal: p});
   p.addTo(layerGroup);
 }
 
-window.renderResonators = function(ent, portalLayer) {
+window.renderResonators = function(portalGuid, portalDetails, portalLayer) {
   if(!isResonatorsShow()) return;
 
-  var portalLevel = getPortalLevel(ent[2]);
-  if(portalLevel < getMinPortalLevel()  && ent[0] !== selectedPortal) return;
-  var portalLatLng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
+  // only draw when the portal is not hidden
+  if(portalLayer && !window.map.hasLayer(portalLayer)) return;
 
-  var layerGroup = portalsLayers[parseInt(portalLevel)];
+  var portalLevel = getPortalLevel(portalDetails);
+  var portalLatLng = [portalDetails.locationE6.latE6/1E6, portalDetails.locationE6.lngE6/1E6];
+
   var reRendered = false;
-  $.each(ent[2].resonatorArray.resonators, function(i, rdata) {
+  $.each(portalDetails.resonatorArray.resonators, function(i, rdata) {
     // skip if resonator didn't change
-    if(portalLayer) {
-      var oldRes = findEntityInLeaflet(layerGroup, window.resonators, portalResonatorGuid(ent[0], i));
-      if(oldRes && isSameResonator(oldRes.options.details, rdata)) return true;
-      if(oldRes) {
-        if(isSameResonator(oldRes.options.details, rdata)) return true;
-        removeByGuid(oldRes.options.guid);
-      }
+    var oldRes = window.resonators[portalResonatorGuid(portalGuid, i)];
+    if(oldRes) {
+      if(isSameResonator(oldRes.options.details, rdata)) return true;
+      // remove old resonator if exist
+      removeByGuid(oldRes.options.guid);
     }
 
     // skip and remove old resonator if no new resonator
-    if(rdata === null) {
-      return true;
-    }
+    if(rdata === null) return true;
 
-    // offset in meters
-    var dn = rdata.distanceToPortal*SLOT_TO_LAT[rdata.slot];
-    var de = rdata.distanceToPortal*SLOT_TO_LNG[rdata.slot];
-
-    // Coordinate offset in radians
-    var dLat = dn/EARTH_RADIUS;
-    var dLon = de/(EARTH_RADIUS*Math.cos(Math.PI/180*(ent[2].locationE6.latE6/1E6)));
-
-    // OffsetPosition, decimal degrees
-    var lat0 = ent[2].locationE6.latE6/1E6 + dLat * 180/Math.PI;
-    var lon0 = ent[2].locationE6.lngE6/1E6 + dLon * 180/Math.PI;
-    var Rlatlng = [lat0, lon0];
-
-    var resoGuid = portalResonatorGuid(ent[0], i);
+    var resoLatLng = getResonatorLatLng(rdata.distanceToPortal, rdata.slot, portalLatLng);
+    var resoGuid = portalResonatorGuid(portalGuid, i);
 
     // the resonator
     var resoStyle =
-      ent[0] === selectedPortal ? OPTIONS_RESONATOR_SELECTED : OPTIONS_RESONATOR_NON_SELECTED;
+      portalGuid === selectedPortal ? OPTIONS_RESONATOR_SELECTED : OPTIONS_RESONATOR_NON_SELECTED;
     var resoProperty = $.extend({
-        opacity: 1,
         fillColor: COLORS_LVL[rdata.level],
         fillOpacity: rdata.energyTotal/RESO_NRG[rdata.level],
-        clickable: false,
         guid: resoGuid
       }, resoStyle);
 
-    var reso =  L.circleMarker(Rlatlng, resoProperty);
+    var reso =  L.circleMarker(resoLatLng, resoProperty);
 
     // line connecting reso to portal
-    var connStyle =
-      ent[0] === selectedPortal ? OPTIONS_RESONATOR_LINE_SELECTED : OPTIONS_RESONATOR_LINE_NON_SELECTED;
-    var connProperty =  $.extend({
-        color: '#FFA000',
-        dashArray: '0,10,8,4,8,4,8,4,8,4,8,4,8,4,8,4,8,4,8,4',
-        fill: false,
-        clickable: false
-      }, connStyle);
+    var connProperty =
+      portalGuid === selectedPortal ? OPTIONS_RESONATOR_LINE_SELECTED : OPTIONS_RESONATOR_LINE_NON_SELECTED;
 
-    var conn = L.polyline([portalLatLng, Rlatlng], connProperty);
-
+    var conn = L.polyline([portalLatLng, resoLatLng], connProperty);
 
     // put both in one group, so they can be handled by the same logic.
     var r = L.layerGroup([reso, conn]);
     r.options = {
       level: rdata.level,
       details: rdata,
-      pDetails: ent[2],
+      pDetails: portalDetails,
       guid: resoGuid
     };
 
@@ -463,10 +438,7 @@ window.renderResonators = function(ent, portalLayer) {
     // will add/remove all elements of the LayerGroup at once.
     reso.on('remove', function() { delete window.resonators[this.options.guid]; });
     reso.on('add',    function() {
-      if(window.resonators[this.options.guid]) {
-        console.error('dup reso: ' + this.options.guid);
-        window.debug.printStackTrace();
-      }
+      if(window.resonators[this.options.guid]) throw('duplicate resonator detected');
       window.resonators[this.options.guid] = r;
     });
 
