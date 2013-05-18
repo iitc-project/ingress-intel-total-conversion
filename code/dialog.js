@@ -167,6 +167,9 @@ window.dialog = function(options) {
 
       window.DIALOG_COUNT--;
       console.log('window.dialog: ' + $(this).data('id') + ' (' + $(this).dialog('option', 'title') + ') closed. ' + window.DIALOG_COUNT + ' remain.');
+
+      // remove from DOM and destroy
+      $(this).dialog('destroy').remove();
     },
     focus: function() {
       if($(this).data('focusCallback')) {
