@@ -393,7 +393,7 @@ window.plugin.sync.Authorizer = function(options) {
   this.authorize = this.authorize.bind(this);
 }
 
-window.plugin.sync.Authorizer.prototype.CLIENT_ID = '686674438052.apps.googleusercontent.com';
+window.plugin.sync.Authorizer.prototype.CLIENT_ID = '893806110732.apps.googleusercontent.com';
 window.plugin.sync.Authorizer.prototype.SCOPES = ['https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/drive.metadata.readonly'];
 
 window.plugin.sync.Authorizer.prototype.isAuthed = function() {
