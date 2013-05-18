@@ -43,3 +43,19 @@ window.generateBoundsParams = function(tile_id, minLat, minLng, maxLat, maxLng) 
     maxLngE6: Math.round(maxLng * 1E6)
   };
 }
+
+window.getResonatorLatLng = function(dist, slot, portalLatLng) {
+  // offset in meters
+  var dn = dist*SLOT_TO_LAT[slot];
+  var de = dist*SLOT_TO_LNG[slot];
+
+  // Coordinate offset in radians
+  var dLat = dn/EARTH_RADIUS;
+  var dLon = de/(EARTH_RADIUS*Math.cos(Math.PI/180*portalLatLng[0]));
+
+  // OffsetPosition, decimal degrees
+  var lat0 = portalLatLng[0] + dLat * 180/Math.PI;
+  var lon0 = portalLatLng[1] + dLon * 180/Math.PI;
+
+  return [lat0, lon0];
+}
