@@ -6,6 +6,7 @@
     <string name="reload">Reload IITC</string>
     <string name="version">Print Version</string>
     <string name="toggle_fullscreen">Toggle fullscreen</string>
+    <string name="layer_chooser">Layer Chooser</string>
     <string name="locate">Get Location</string>
     <string name="local">local</string>
     <string name="close">close</string>

@@ -123,12 +123,18 @@ window.runOnSmartphonesAfterBoot = function() {
       }
     }
 
+    var overlayLayersJSON = JSON.stringify(overlayLayers);
+    var baseLayersJSON = JSON.stringify(baseLayers);
+
+    android.setLayers(baseLayersJSON, overlayLayersJSON);
+
     return {
       baseLayers: baseLayers,
       overlayLayers: overlayLayers
     }
   }
   window.layerChooser.showLayer = function(id,show) {
+    window.console.log('yeay' + id + show);
     if (show === undefined) show = true;
     obj = this._layers[id];
     if (!obj) return false;

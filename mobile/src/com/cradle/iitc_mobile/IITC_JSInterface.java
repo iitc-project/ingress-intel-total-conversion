@@ -1,8 +1,17 @@
 package com.cradle.iitc_mobile;
 
+import java.util.HashMap;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
@@ -14,8 +23,14 @@ public class IITC_JSInterface {
 
     // context of main activity
     Context context;
+    HashMap<String, String> layer_ids;
+    boolean[] active_array;
+    String[] all_layers;
+    int num_base_layers;
+    int active_base_layer;
 
     IITC_JSInterface(Context c) {
+        layer_ids = new HashMap<String, String>();
         context = c;
     }
 
@@ -46,5 +61,103 @@ public class IITC_JSInterface {
         clipboard.setPrimaryClip(clip);
         Toast.makeText(context, "copied to clipboard", Toast.LENGTH_SHORT)
                 .show();
+    }
+
+    @JavascriptInterface
+    public void setLayers(String base_layers, String overlay_layers) {
+
+        JSONArray base_layersJSON = null;
+        JSONArray overlay_layersJSON = null;
+        try {
+            base_layersJSON = new JSONArray(base_layers);
+            overlay_layersJSON = new JSONArray(overlay_layers);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        num_base_layers = base_layersJSON.length();
+        int total_lenght = base_layersJSON.length() + overlay_layersJSON.length();
+        active_array = new boolean[total_lenght];
+        all_layers = new String[total_lenght];
+        layer_ids.clear();
+
+        // --------------- base layers ------------------------
+        for (int i = 0; i < base_layersJSON.length(); ++i) {
+            try {
+                String layer = base_layersJSON.getString(i);
+                layer = layer.replace("{", "");
+                layer = layer.replace("}", "");
+                String[] layers = layer.split(",");
+                String id = "";
+                String name = "";
+                boolean isActive = false;
+                for (int j = 0; j < layers.length; ++j) {
+                    String[] values = layers[j].split(":");
+                    if (values[0].contains("active")) isActive = values[1].equals("true");
+                    if (values[0].contains("layerId")) id = values[1];
+                    if (values[0].contains("name")) name = values[1];
+                }
+                layer_ids.put(name, id);
+                all_layers[i] = name;
+                active_array[i] = isActive;
+                if (isActive) active_base_layer = i;
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+        // --------------- overlay layers ------------------------
+        for (int i = 0; i < overlay_layersJSON.length(); ++i) {
+            try {
+                String layer = overlay_layersJSON.getString(i);
+                layer = layer.replace("{", "");
+                layer = layer.replace("}", "");
+                String[] layers = layer.split(",");
+                String id = "";
+                String name = "";
+                boolean isActive = false;
+                for (int j = 0; j < layers.length; ++j) {
+                    String[] values = layers[j].split(":");
+                    if (values[0].contains("active")) isActive = values[1].equals("true");
+                    if (values[0].contains("layerId")) id = values[1];
+                    if (values[0].contains("name")) name = values[1];
+                }
+                layer_ids.put(name, id);
+                all_layers[i + num_base_layers] = name;
+                active_array[i + num_base_layers] = isActive;
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+        // build the layer chooser dialog
+        AlertDialog.Builder  d = new AlertDialog.Builder(context);
+        OnMultiChoiceClickListener m_listener = new OnMultiChoiceClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                // activate clicked layer
+                ((IITC_Mobile) context).getWebView().loadUrl("javascript: window.layerChooser.showLayer("
+                        + layer_ids.get(all_layers[which]) + ","
+                        + active_array[which] + ");");
+                // disable old base layer...we can only have one active base layer
+                if (which < num_base_layers) {
+                    active_array[active_base_layer] = false;
+                    ((AlertDialog) dialog).getListView().setItemChecked(active_base_layer, false);
+                    active_base_layer = which;
+                }
+            }
+        };
+        d.setMultiChoiceItems(all_layers, active_array , m_listener);
+        d.setPositiveButton("Close", new OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
+                  dialog.cancel();
+              }
+        });
+        d.show();
+
     }
 }

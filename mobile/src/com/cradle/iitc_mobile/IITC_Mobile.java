@@ -261,6 +261,9 @@ public class IITC_Mobile extends Activity {
             case R.id.toggle_fullscreen :
                 toggleFullscreen();
                 return true;
+            case R.id.layer_chooser:
+                iitc_view.loadUrl("javascript: window.layerChooser.getLayers()");
+                return true;
                 // get the users current location and focus it on map
             case R.id.locate :
                 iitc_view.loadUrl("javascript: window.show('map');");
