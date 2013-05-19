@@ -27,6 +27,7 @@ public class IITC_JSInterface {
     boolean[] active_array;
     String[] all_layers;
     int num_base_layers;
+    int num_overlay_layers;
     int active_base_layer;
 
     IITC_JSInterface(Context c) {
@@ -76,36 +77,11 @@ public class IITC_JSInterface {
         }
 
         num_base_layers = base_layersJSON.length();
-        int total_lenght = base_layersJSON.length() + overlay_layersJSON.length();
+        num_overlay_layers = overlay_layersJSON.length();
+        int total_lenght = num_base_layers + num_overlay_layers;
         active_array = new boolean[total_lenght];
         all_layers = new String[total_lenght];
         layer_ids.clear();
-
-        // --------------- base layers ------------------------
-        for (int i = 0; i < base_layersJSON.length(); ++i) {
-            try {
-                String layer = base_layersJSON.getString(i);
-                layer = layer.replace("{", "");
-                layer = layer.replace("}", "");
-                String[] layers = layer.split(",");
-                String id = "";
-                String name = "";
-                boolean isActive = false;
-                for (int j = 0; j < layers.length; ++j) {
-                    String[] values = layers[j].split(":");
-                    if (values[0].contains("active")) isActive = values[1].equals("true");
-                    if (values[0].contains("layerId")) id = values[1];
-                    if (values[0].contains("name")) name = values[1];
-                }
-                layer_ids.put(name, id);
-                all_layers[i] = name;
-                active_array[i] = isActive;
-                if (isActive) active_base_layer = i;
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
 
         // --------------- overlay layers ------------------------
         for (int i = 0; i < overlay_layersJSON.length(); ++i) {
@@ -124,8 +100,34 @@ public class IITC_JSInterface {
                     if (values[0].contains("name")) name = values[1];
                 }
                 layer_ids.put(name, id);
-                all_layers[i + num_base_layers] = name;
-                active_array[i + num_base_layers] = isActive;
+                all_layers[i] = name;
+                active_array[i] = isActive;
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+        // --------------- base layers ------------------------
+        for (int i = 0; i < base_layersJSON.length(); ++i) {
+            try {
+                String layer = base_layersJSON.getString(i);
+                layer = layer.replace("{", "");
+                layer = layer.replace("}", "");
+                String[] layers = layer.split(",");
+                String id = "";
+                String name = "";
+                boolean isActive = false;
+                for (int j = 0; j < layers.length; ++j) {
+                    String[] values = layers[j].split(":");
+                    if (values[0].contains("active")) isActive = values[1].equals("true");
+                    if (values[0].contains("layerId")) id = values[1];
+                    if (values[0].contains("name")) name = values[1];
+                }
+                layer_ids.put(name, id);
+                all_layers[i + num_overlay_layers] = name;
+                active_array[i + num_overlay_layers] = isActive;
+                if (isActive) active_base_layer = i + num_overlay_layers;
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -143,7 +145,7 @@ public class IITC_JSInterface {
                         + layer_ids.get(all_layers[which]) + ","
                         + active_array[which] + ");");
                 // disable old base layer...we can only have one active base layer
-                if (which < num_base_layers) {
+                if (which >= num_overlay_layers) {
                     active_array[active_base_layer] = false;
                     ((AlertDialog) dialog).getListView().setItemChecked(active_base_layer, false);
                     active_base_layer = which;
