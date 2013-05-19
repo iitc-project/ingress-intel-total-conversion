@@ -84,12 +84,17 @@ window.plugin.commBlacklist.config = function() {
 	
 	var s = div.html();
 	// console.log(s);
-	alert(s, true, function() {
-		var list = $(".ui-dialog-content").find("input")[0].value;
-		var text = $(".ui-dialog-content").find("input")[1].value;
-		var d = { list:list, text:text };
-		console.log("blacklist saved:" + JSON.stringify(d));
-		window.localStorage['comm-blacklist'] = JSON.stringify(d);
+	
+
+	dialog({
+		html : s, 
+		closeCallback : function() {
+			var list = $(".ui-dialog-content").find("input")[0].value;
+			var text = $(".ui-dialog-content").find("input")[1].value;
+			var d = { list:list, text:text };
+			console.log("blacklist saved:" + JSON.stringify(d));
+			window.localStorage['comm-blacklist'] = JSON.stringify(d);
+		}
 	});
 };
 
