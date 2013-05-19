@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-comm-blacklist@marstone
 // @name           IITC plugin: blacklist
-// @version        0.1
+// @version        0.1.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/marstone/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
