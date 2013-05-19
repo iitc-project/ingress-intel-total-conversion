@@ -13,8 +13,7 @@ body {
 }
 
 .leaflet-control-layers {
-  margin-left: 0 !important;
-  margin-top: 0 !important;
+  display: none;    /* hide layer control - it's now handled by an in-app option */
 }
 
 #geosearch {
@@ -109,34 +108,6 @@ body {
   width: 100%;
 }
 
-/* base layer selection - first column */
-.leaflet-control-layers-base {
-  float: left;
-}
-
-/* overlays layer selection - 2nd column */
-.leaflet-control-layers-overlays {
-  float: left;
-  margin-left: 8px;
-  border-left: 1px solid #DDDDDD;
-  padding-left: 8px;
-}
-
-/* hide the usual seperator */
-.leaflet-control-layers-separator {
-  display: none;
-}
-
-/* increase padding on list items - easier for touchscreens */
-/* removed for now. could consider adding it back, conditional on device screen size?
-.leaflet-control-layers-list label {
-  padding: 6px 0;
-}
-*/
-
-.leaflet-control-attribution {
-
-}
 
 #portal_highlight_select{
   top:0px !important;
