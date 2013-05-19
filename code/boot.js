@@ -253,6 +253,12 @@ window.setMapBaseLayer = function() {
   var baseLayer = nameToLayer[localStorage['iitc-base-map']] || firstLayer;
   map.addLayer(baseLayer);
 
+  //after choosing a base layer, ensure the zoom is valid for this layer
+  //(needs to be done here - as we don't know the base layer zoom limit before this)
+  map.setZoom(map.getZoom());
+
+
+  //event to track layer changes and store the name
   map.on('baselayerchange', function() {
     for(i in window.layerChooser._layers) {
       var obj = window.layerChooser._layers[i];
@@ -263,6 +269,7 @@ window.setMapBaseLayer = function() {
     }
 
   });
+
 
 }
 
