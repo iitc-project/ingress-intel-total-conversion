@@ -17,14 +17,21 @@ window.getPlayerName = function(guid) {
   return '{'+guid.slice(0, 12)+'}';
 }
 
-window.playerNameToGuid = function(playerName){
+window._playerNameToGuidCache = {};
+
+window.playerNameToGuid = function(playerName) {
+  var cachedGuid = window._playerNameToGuidCache[playerName];
+  if (cachedGuid !== undefined) return cachedGuid;
+
   var guid = null;
   $.each(Object.keys(localStorage), function(ind,key) {
     if(playerName === localStorage[key]) {
       guid = key;
-      return false;
+      return false;  //break from $.each
     }
   });
+
+  window._playerNameToGuidCache[playerName] = guid;
   return guid;
 }
 
