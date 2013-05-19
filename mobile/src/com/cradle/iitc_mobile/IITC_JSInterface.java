@@ -99,6 +99,7 @@ public class IITC_JSInterface {
                     if (values[0].contains("layerId")) id = values[1];
                     if (values[0].contains("name")) name = values[1];
                 }
+                name = name.replace("\"", "");
                 layer_ids.put(name, id);
                 all_layers[i] = name;
                 active_array[i] = isActive;
@@ -124,6 +125,7 @@ public class IITC_JSInterface {
                     if (values[0].contains("layerId")) id = values[1];
                     if (values[0].contains("name")) name = values[1];
                 }
+                name = name.replace("\"", "");
                 layer_ids.put(name, id);
                 all_layers[i + num_overlay_layers] = name;
                 active_array[i + num_overlay_layers] = isActive;
