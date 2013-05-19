@@ -21,25 +21,22 @@ window.plugin.importkeys = function() {};
 
 window.plugin.importkeys.APPSPOT_URL = 'https://m-dot-betaspike.appspot.com';
 
+window.plugin.importkeys._dialog = null;
+
 window.plugin.importkeys.messageCallback = function(event) {
-  console.log(event);
   if (event.origin !== window.plugin.importkeys.APPSPOT_URL) {
     return;
   }
   try {
     var object = window.JSON.parse(event.data);
-    var dialog = document.getElementById('importkeysdialog');
-    if (dialog && dialog.parentNode) {
-      dialog.parentNode.removeChild(dialog);
-    }
     localStorage[window.plugin.keys.LOCAL_STORAGE_KEY] = event.data;
-    var keys = object['keys'];
-    window.plugin.keys.keys = keys;
-    window.plugin.keys.updateDisplayCount();
-    var guids = Object.keys(keys);
-    for (var i = 0; i < guids.length; i++) {
-      window.runHooks('pluginKeysUpdateKey', {guid: guids[i], count: keys[guids[i]]});
+    if (window.plugin.importkeys._dialog) {
+      $(window.plugin.importkeys._dialog).dialog('close');
+      window.plugin.importkeys._dialog = null;
     }
+    window.plugin.keys.keys = object['keys'];
+    window.plugin.keys.updateDisplayCount();
+    window.runHooks('pluginKeysRefreshAll');
     alert('Inventory import was successful');
   } catch (e) {
     alert('There was an error parsing the inventory data\n' + e);
@@ -51,39 +48,39 @@ window.plugin.importkeys.openDialog = function(event) {
     alert('Error: The Keys plugin must be installed before using the Import Keys plugin');
     return;
   }
+  if (window.plugin.importkeys._dialog) {
+    return;
+  }
   var handshakeUrl = window.plugin.importkeys.APPSPOT_URL + '/handshake?json='
     + encodeURIComponent(window.JSON.stringify({'nemesisSoftwareVersion': '2013-05-03T19:32:11Z 929c2cce62eb opt', 'deviceSoftwareVersion': '4.1.1'}));
   var div = document.createElement('div');
   var span = document.createElement('span');
   span.appendChild(document.createTextNode('Log in below to import your Ingress inventory'));
   div.appendChild(span);
-  var a = document.createElement('a');
-  a.appendChild(document.createTextNode('Close window'));
-  a.style.cssFloat = 'right';
-  a.addEventListener('click', function(event) {
-    document.body.removeChild(div);
-  }, false);
-  div.appendChild(a);
   var br = document.createElement('br');
   div.appendChild(br);
   var iframe = document.createElement('iframe');
-  iframe.style.width = '100%';
-  iframe.style.height = '100%';
+  iframe.style.width = '300px';
+  iframe.style.height = '300px';
   iframe.setAttribute('src', handshakeUrl);
   div.appendChild(iframe);
-  div.style.position = 'fixed';
-  div.style.width = '80%';
-  div.style.height = '80%';
-  div.style.top = '10%';
-  div.style.left = '10%';
-  div.style.zIndex = '9999';
-  div.style.backgroundColor = 'white';
-  div.setAttribute('id', 'importkeysdialog');
-  // TODO: Look into dialog toolkit in use
-  document.body.appendChild(div);
+  var html = div.innerHTML;
+  var dialog = window.dialog({
+    html: html,
+    title: 'Import Keys',
+    dialogClass: 'ui-dialog-import-keys',
+    id: 'import-keys-dialog',
+    closeCallback: function() {
+      window.plugin.importkeys._dialog = null;
+    }
+  });
+  window.plugin.importkeys._dialog = dialog;
 }
 
 var setup = function() {
+  $('head').append('<style>' +
+    '.ui-dialog-import-keys { max-width: 800px !important; width: auto !important; }' +
+    '</style>');
   window.addEventListener('message', window.plugin.importkeys.messageCallback, false);
   var a = document.createElement('a');
   a.appendChild(document.createTextNode('Import keys'));
@@ -139,7 +136,6 @@ function inventoryCallback(event)
 
 if (window.location.host == 'm-dot-betaspike.appspot.com') {
   if (window.location.pathname == '/handshake') {
-    console.log('Starting request', window.location, window.referrer);
     var xsrf;
     var re_match = document.body.innerHTML.match(/"xsrfToken":"((?:\\"|[^"])*)"/);
     if (!re_match) {
