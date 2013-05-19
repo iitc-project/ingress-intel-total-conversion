@@ -25,7 +25,7 @@ window.getPosition = function() {
     var lat = parseInt(getURLParam('latE6'))/1E6 || 0.0;
     var lng = parseInt(getURLParam('lngE6'))/1E6 || 0.0;
     var z = parseInt(getURLParam('z')) || 17;
-    return {center: new L.LatLng(lat, lng), zoom: z > 18 ? 18 : z};
+    return {center: new L.LatLng(lat, lng), zoom: z};
   }
 
   if(getURLParam('ll')) {
@@ -33,7 +33,7 @@ window.getPosition = function() {
     var lat = parseFloat(getURLParam('ll').split(",")[0]) || 0.0;
     var lng = parseFloat(getURLParam('ll').split(",")[1]) || 0.0;
     var z = parseInt(getURLParam('z')) || 17;
-    return {center: new L.LatLng(lat, lng), zoom: z > 18 ? 18 : z};
+    return {center: new L.LatLng(lat, lng), zoom: z};
   }
 
   if(readCookie('ingress.intelmap.lat') && readCookie('ingress.intelmap.lng')) {
@@ -45,10 +45,10 @@ window.getPosition = function() {
     if(lat < -90  || lat > 90) lat = 0.0;
     if(lng < -180 || lng > 180) lng = 0.0;
 
-    return {center: new L.LatLng(lat, lng), zoom: z > 18 ? 18 : z};
+    return {center: new L.LatLng(lat, lng), zoom: z};
   }
 
-  setTimeout("window.map.locate({setView : true, maxZoom: 13});", 50);
+  setTimeout("window.map.locate({setView : true});", 50);
 
   return {center: new L.LatLng(0.0, 0.0), zoom: 1};
 }
