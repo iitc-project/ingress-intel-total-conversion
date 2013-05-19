@@ -200,14 +200,6 @@ window.setupMap = function() {
 
   map.addControl(window.layerChooser);
 
-  // set the map AFTER adding the layer chooser, or Chrome reorders the
-  // layers. This likely leads to broken layer selection because the
-  // views/cookie order does not match the layer chooser order.
-  try {
-    convertCookieToLocalStorage('ingress.intelmap.type');
-    map.addLayer(views[localStorage['ingress.intelmap.type']]);
-  } catch(e) { map.addLayer(views[0]); }
-
   map.attributionControl.setPrefix('');
   // listen for changes and store them in cookies
   map.on('moveend', window.storeMapPosition);
@@ -228,10 +220,6 @@ window.setupMap = function() {
     console.log('Remove all resonators');
   });
 
-  map.on('baselayerchange', function () {
-    var selInd = $('[name=leaflet-base-layers]:checked').parent().index();
-    localStorage['ingress.intelmap.type']=selInd;
-  });
 
   // map update status handling & update map hooks
   // ensures order of calls
@@ -247,6 +235,36 @@ window.setupMap = function() {
   window.startRefreshTimeout(ON_MOVE_REFRESH*1000);
 
 };
+
+//adds a base layer to the map. done separately from the above, so that plugins that add base layers can be the default
+window.setMapBaseLayer = function() {
+  //create a map name -> layer mapping - depends on internals of L.Control.Layers
+  var nameToLayer = {};
+  var firstLayer = null;
+
+  for (i in window.layerChooser._layers) {
+    var obj = window.layerChooser._layers[i];
+    if (!obj.overlay) {
+      nameToLayer[obj.name] = obj.layer;
+      if (!firstLayer) firstLayer = obj.layer;
+    }
+  }
+
+  var baseLayer = nameToLayer[localStorage['iitc-base-map']] || firstLayer;
+  map.addLayer(baseLayer);
+
+  map.on('baselayerchange', function() {
+    for(i in window.layerChooser._layers) {
+      var obj = window.layerChooser._layers[i];
+      if (!obj.overlay && map.hasLayer(obj.layer)) {
+        localStorage['iitc-base-map'] = obj.name;
+        break;
+      }
+    }
+
+  });
+
+}
 
 // renders player details into the website. Since the player info is
 // included as inline script in the original site, the data is static
@@ -411,6 +429,8 @@ function boot() {
         console.log("error starting plugin: index "+ind+", error: "+err);
       }
     });
+
+  window.setMapBaseLayer();
 
   window.runOnSmartphonesAfterBoot();
 
