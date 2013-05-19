@@ -1,11 +1,17 @@
 // ==UserScript==
+// @id          iitc-plugin-keys-import@dnc
 // @name        IITC plugin: Import keys
-// @namespace   dnc
-// @description Import the list of portal keys from your inventory
+// @version     0.0.1@@DATETIMEVERSION@@
+// @namespace   https://github.com/jonatkins/ingress-intel-total-conversion
+// @updateURL   @@UPDATEURL@@
+// @downloadURL @@DOWNLOADURL@@
+// @description [@@BUILDNAME@@-@@BUILDDATE@@] Import the list of portal keys from your inventory. Install the 'Keys' plugin first.
 // @include     https://www.ingress.com/intel*
 // @include     http://www.ingress.com/intel*
 // @include     https://m-dot-betaspike.appspot.com/handshake*
-// @version     0.0.1
+// @match       https://www.ingress.com/intel*
+// @match       http://www.ingress.com/intel*
+// @match       https://m-dot-betaspike.appspot.com/handshake*
 // @grant       none
 // ==/UserScript==
 
@@ -105,7 +111,8 @@ var script = document.createElement('script');
 script.appendChild(document.createTextNode('('+ wrapper +')();'));
 (document.body || document.head || document.documentElement).appendChild(script);
 
-// EXTRA STUFF, SORRY GUYS /////////////////////////////////////////////
+// The code below needs to be run on the m-dot-betaspike.appspot.com domain.
+// As such, it needs to be outside of the standard IITC plugin wrapper.
 (function(){
 function inventoryCallback(event)
 {
