@@ -27,35 +27,31 @@ window.plugin.guessPlayerLevels.setupCallback = function() {
   addHook('portalAdded', window.plugin.guessPlayerLevels.extractPortalData);
 }
 
+
 // This function is intended to be called by other plugins
 window.plugin.guessPlayerLevels.fetchLevelByPlayer = function(guid) {
   return(window.localStorage['level-' + guid]);
 }
 
+window.plugin.guessPlayerLevels._nameToGuidCache = {};
+
 window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
   // expects dom node with nick in its child text node
 
-  var playersNamed = {};
-  for (var i = 0; i < localStorage.length; i++) {
-    var ident = localStorage.key(i);
-    if(ident.startsWith('level-')) {
-      var guid = ident.slice(6);
-      var level = localStorage[ident];
-      playersNamed[getPlayerName(guid)] = level;
-    }
-  }
-
   var el = $(dom);
   var nick = el.text();
+  var guid = window.playerNameToGuid(nick);
+  var level = guid ? localStorage['level-'+guid] : null;
+
   var text;
-  if (nick in playersNamed) {
-    text = 'Min player level: ' + playersNamed[nick];
-    if(playersNamed[nick] < window.MAX_XM_PER_LEVEL.length - 1) text += ' (guessed)';
+  if (level) {
+    text = 'Min player level: ' + level;
+    if(level < window.MAX_XM_PER_LEVEL.length - 1) text += ' (guessed)';
   } else {
     text = 'Min player level unknown';
   }
   window.setupTooltips(el);
-  
+ 
   /*
   This code looks hacky but since we are a little late within the mouseenter so
   we need to improvise a little. The open method doesn't open the tooltip directly.
