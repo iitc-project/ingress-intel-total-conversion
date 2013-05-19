@@ -55,6 +55,13 @@
         android:title="@string/locate">
     </item>
     <item
+        android:id="@+id/layer_chooser"
+        android:icon="@drawable/ic_layer_chooser"
+        android:orderInCategory="105"
+        android:showAsAction="ifRoom"
+        android:title="@string/layer_chooser">
+    </item>
+    <item
         android:id="@+id/reload_button"
         android:icon="@drawable/navigation_refresh"
         android:orderInCategory="110"
@@ -74,12 +81,6 @@
         android:orderInCategory="130"
         android:showAsAction="ifRoom"
         android:title="@string/action_settings">
-    </item>
-    <item
-        android:id="@+id/layer_chooser"
-        android:orderInCategory="100"
-        android:showAsAction="never"
-        android:title="@string/layer_chooser">
     </item>
     <item
         android:id="@+id/menu_debug"
