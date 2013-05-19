@@ -126,7 +126,9 @@ window.runOnSmartphonesAfterBoot = function() {
     var overlayLayersJSON = JSON.stringify(overlayLayers);
     var baseLayersJSON = JSON.stringify(baseLayers);
 
-    android.setLayers(baseLayersJSON, overlayLayersJSON);
+    if (typeof android !== 'undefined' && android && android.setLayers) {
+        android.setLayers(baseLayersJSON, overlayLayersJSON);
+    }
 
     return {
       baseLayers: baseLayers,
