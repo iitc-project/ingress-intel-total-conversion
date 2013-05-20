@@ -211,6 +211,13 @@ if buildMobile:
     metafn = fn.replace('.user.js', '.meta.js')
     saveScriptAndMeta(script, os.path.join(outDir,fn), os.path.join(outDir,metafn))
 
+    # compile the key import injection script
+    fn = "plugins/keys-import-inject.js"
+    script = readfile(fn)
+    script = doReplacements(script, '', '')
+    with io.open(os.path.join(outDir, fn), 'w', encoding='utf8') as f:
+        f.write(script)
+
     # copy the IITC script into the mobile folder. create the folder if needed
     try:
         os.makedirs("mobile/assets")
