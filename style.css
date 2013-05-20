@@ -101,6 +101,27 @@ a:hover {
   cursor: help;
 }
 
+
+/* base layer selection - first column */
+.leaflet-control-layers-base {
+  float: left;
+}
+
+/* overlays layer selection - 2nd column */
+.leaflet-control-layers-overlays {
+  float: left;
+  margin-left: 8px;
+  border-left: 1px solid #DDDDDD;
+  padding-left: 8px;
+}
+
+/* hide the usual seperator */
+.leaflet-control-layers-separator {
+  display: none;
+}
+
+
+
 .help {
   cursor: help;
 }
