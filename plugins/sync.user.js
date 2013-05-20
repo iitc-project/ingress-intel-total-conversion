@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-sync@xelio
 // @name           IITC plugin: Sync
-// @version        0.2.0.@@DATETIMEVERSION@@
+// @version        0.2.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -10,6 +10,7 @@
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
+// @grant          none
 // ==/UserScript==
 
 function wrapper() {
@@ -383,7 +384,7 @@ window.plugin.sync.FileSearcher.prototype.instances = {};
 window.plugin.sync.FileSearcher.prototype.RETRY_LIMIT = 2;
 window.plugin.sync.FileSearcher.prototype.MIMETYPE_FILE = 'application/vnd.google-apps.drive-sdk';
 window.plugin.sync.FileSearcher.prototype.MIMETYPE_FOLDER = 'application/vnd.google-apps.folder';
-window.plugin.sync.FileSearcher.prototype.parentName = 'IITC-SYNC-DATA';
+window.plugin.sync.FileSearcher.prototype.parentName = 'IITC-SYNC-DATA-V2';
 window.plugin.sync.FileSearcher.prototype.parentDescription = 'Store IITC sync data';
 
 window.plugin.sync.FileSearcher.prototype.initialize = function(force) {
