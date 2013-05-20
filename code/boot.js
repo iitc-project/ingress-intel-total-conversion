@@ -259,10 +259,10 @@ window.setMapBaseLayer = function() {
 
 
   //event to track layer changes and store the name
-  map.on('baselayerchange', function() {
+  map.on('baselayerchange', function(info) {
     for(i in window.layerChooser._layers) {
       var obj = window.layerChooser._layers[i];
-      if (!obj.overlay && map.hasLayer(obj.layer)) {
+      if (info.layer === obj.layer) {
         localStorage['iitc-base-map'] = obj.name;
         break;
       }
