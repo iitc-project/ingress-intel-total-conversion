@@ -24,11 +24,11 @@ public class IITC_JSInterface {
     // context of main activity
     Context context;
     HashMap<String, String> layer_ids;
-    boolean[] active_array;
-    String[] all_layers;
+    boolean[] overlay_is_active;
+    int active_base_layer;
+    String[] overlay_layers, base_layers;
     int num_base_layers;
     int num_overlay_layers;
-    int active_base_layer;
 
     IITC_JSInterface(Context c) {
         layer_ids = new HashMap<String, String>();
@@ -65,26 +65,27 @@ public class IITC_JSInterface {
     }
 
     @JavascriptInterface
-    public void setLayers(String base_layers, String overlay_layers) {
+    public void setLayers(String base_layer, String overlay_layer) {
 
         JSONArray base_layersJSON = null;
         JSONArray overlay_layersJSON = null;
         try {
-            base_layersJSON = new JSONArray(base_layers);
-            overlay_layersJSON = new JSONArray(overlay_layers);
+            base_layersJSON = new JSONArray(base_layer);
+            overlay_layersJSON = new JSONArray(overlay_layer);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
+        // get length and initialize arrays
         num_base_layers = base_layersJSON.length();
         num_overlay_layers = overlay_layersJSON.length();
-        int total_lenght = num_base_layers + num_overlay_layers;
-        active_array = new boolean[total_lenght];
-        all_layers = new String[total_lenght];
+        overlay_is_active = new boolean[num_overlay_layers];
+        overlay_layers = new String[num_overlay_layers];
+        base_layers = new String[num_base_layers];
         layer_ids.clear();
 
         // --------------- overlay layers ------------------------
-        for (int i = 0; i < overlay_layersJSON.length(); ++i) {
+        for (int i = 0; i < num_overlay_layers; ++i) {
             try {
                 String layer = overlay_layersJSON.getString(i);
                 layer = layer.replace("{", "");
@@ -101,8 +102,8 @@ public class IITC_JSInterface {
                 }
                 name = name.replace("\"", "");
                 layer_ids.put(name, id);
-                all_layers[i] = name;
-                active_array[i] = isActive;
+                this.overlay_layers[i] = name;
+                this.overlay_is_active[i] = isActive;
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -110,7 +111,7 @@ public class IITC_JSInterface {
         }
 
         // --------------- base layers ------------------------
-        for (int i = 0; i < base_layersJSON.length(); ++i) {
+        for (int i = 0; i < num_base_layers; ++i) {
             try {
                 String layer = base_layersJSON.getString(i);
                 layer = layer.replace("{", "");
@@ -127,41 +128,78 @@ public class IITC_JSInterface {
                 }
                 name = name.replace("\"", "");
                 layer_ids.put(name, id);
-                all_layers[i + num_overlay_layers] = name;
-                active_array[i + num_overlay_layers] = isActive;
-                if (isActive) active_base_layer = i + num_overlay_layers;
+                this.base_layers[i] = name;
+                if (isActive) active_base_layer = i;
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
+        // show overlay layers by default
+        show_multi_selection();
+    }
 
+    // show all overlay layers in a multi selection list dialog
+    private void show_multi_selection() {
         // build the layer chooser dialog
-        AlertDialog.Builder  d = new AlertDialog.Builder(context);
+        AlertDialog.Builder  d_m = new AlertDialog.Builder(context);
         OnMultiChoiceClickListener m_listener = new OnMultiChoiceClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                 // activate clicked layer
                 ((IITC_Mobile) context).getWebView().loadUrl("javascript: window.layerChooser.showLayer("
-                        + layer_ids.get(all_layers[which]) + ","
-                        + active_array[which] + ");");
-                // disable old base layer...we can only have one active base layer
-                if (which >= num_overlay_layers) {
-                    active_array[active_base_layer] = false;
-                    ((AlertDialog) dialog).getListView().setItemChecked(active_base_layer, false);
-                    active_base_layer = which;
-                }
+                        + layer_ids.get(overlay_layers[which]) + ","
+                        + overlay_is_active[which] + ");");
             }
         };
-        d.setMultiChoiceItems(all_layers, active_array , m_listener);
-        d.setPositiveButton("Close", new OnClickListener() {
+
+        d_m.setMultiChoiceItems(overlay_layers, overlay_is_active , m_listener);
+        d_m.setPositiveButton("Base Layers", new OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
+                  show_single_selection();
+                  dialog.cancel();
+              }
+        });
+        d_m.setNegativeButton("Close", new OnClickListener() {
               @Override
               public void onClick(DialogInterface dialog, int which) {
                   dialog.cancel();
               }
         });
-        d.show();
+        d_m.setTitle("Overlay Layers");
+        d_m.show();
+    }
 
+    // show all base layers in a single selection list dialog
+    private void show_single_selection() {
+        OnClickListener s_listener = new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // activate clicked layer
+                ((IITC_Mobile) context).getWebView().loadUrl("javascript: window.layerChooser.showLayer("
+                        + layer_ids.get(base_layers[which]) + ","
+                        + true + ");");
+                active_base_layer = which;
+                }
+        };
+        AlertDialog.Builder d_s = new AlertDialog.Builder(context);
+        d_s.setSingleChoiceItems(base_layers, active_base_layer, s_listener);
+        d_s.setPositiveButton("Overlay Layers", new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                show_multi_selection();
+                dialog.cancel();
+            }
+        });
+        d_s.setNegativeButton("Close", new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        d_s.setTitle("Base Layers");
+        d_s.show();
     }
 }
