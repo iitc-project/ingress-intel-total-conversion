@@ -53,7 +53,7 @@ settings = buildSettings[buildName]
 utcTime = time.gmtime()
 buildDate = time.strftime('%Y-%m-%d-%H%M%S',utcTime)
 # userscripts have specific specifications for version numbers - the above date format doesn't match
-dateTimeVersion = time.strftime('%Y%m%d.%H%M%S',utcTime)
+dateTimeVersion = time.strftime('%Y%m%d.',utcTime) + time.strftime('%H%M%S',utcTime).lstrip('0')
 
 # extract required values from the settings entry
 resourceUrlBase = settings.get('resourceUrlBase')
