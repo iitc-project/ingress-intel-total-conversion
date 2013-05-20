@@ -7,15 +7,23 @@ The Android App behaves like the desktop version, but uses the mobile view, whic
 
 - plugin support
 
+- support for unofficial plugins. just copy the *.user.js file to ```<storage_path>/IITC_Mobile/plugins/``` and they should be parsed on start-up
+
+- in-app layer chooser
+
+- in-app IITC buttons
+
+- show users current location
+
 - a geo intent is sent, when a portals Map link is clicked (lets you navigate to portals)
 
 - a geolocate button (you have to enable GPS satellites + location access to use this feature)
 
-- toggle between desktop and mobile view (nice for tablets)
-
 - possibility to use a custom IITC script source
 
 - a click on Portal link copies it to clipboard
+
+- developer mode: all script source will be loaded from ```<storage_path>/IITC_Mobile/dev/```
 
 - more features will be added soon...
 

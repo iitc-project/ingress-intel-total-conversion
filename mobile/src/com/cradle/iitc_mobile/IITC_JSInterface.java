@@ -64,11 +64,18 @@ public class IITC_JSInterface {
                 .show();
     }
 
+    // get layers and list them in a dialog
     @JavascriptInterface
     public void setLayers(String base_layer, String overlay_layer) {
 
+        /*
+         *  the layer strings have a form like:
+         *  [{"layerId":27,"name":"MapQuest OSM","active":true},{"layerId":28,"name":"Default Ingress Map","active":false}]
+         *  Put it in a JSONArray and parse it
+         */
         JSONArray base_layersJSON = null;
         JSONArray overlay_layersJSON = null;
+        Log.d("iitcm", base_layer);
         try {
             base_layersJSON = new JSONArray(base_layer);
             overlay_layersJSON = new JSONArray(overlay_layer);
@@ -83,6 +90,42 @@ public class IITC_JSInterface {
         overlay_layers = new String[num_overlay_layers];
         base_layers = new String[num_base_layers];
         layer_ids.clear();
+
+        // --------------- base layers ------------------------
+        for (int i = 0; i < num_base_layers; ++i) {
+            try {
+                String layer = base_layersJSON.getString(i);
+                layer = layer.replace("{", "");
+                layer = layer.replace("}", "");
+                /*
+                 * we now should have a string like
+                 * ["layerId":27,"name":"MapQuest OSM","active":true]
+                 * split it on ,
+                 */
+                String[] layers = layer.split(",");
+                /*
+                 * we should have 3 strings in a form like
+                 * "name":"MapQuest OSM"
+                 * get the values and get rid of the quotation marks
+                 */
+                String id = "";
+                String name = "";
+                boolean isActive = false;
+                for (int j = 0; j < layers.length; ++j) {
+                    String[] values = layers[j].split(":");
+                    if (values[0].contains("active")) isActive = values[1].equals("true");
+                    if (values[0].contains("layerId")) id = values[1];
+                    if (values[0].contains("name")) name = values[1];
+                }
+                name = name.replace("\"", "");
+                layer_ids.put(name, id);
+                this.base_layers[i] = name;
+                if (isActive) active_base_layer = i;
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
 
         // --------------- overlay layers ------------------------
         for (int i = 0; i < num_overlay_layers; ++i) {
@@ -109,32 +152,6 @@ public class IITC_JSInterface {
                 e.printStackTrace();
             }
         }
-
-        // --------------- base layers ------------------------
-        for (int i = 0; i < num_base_layers; ++i) {
-            try {
-                String layer = base_layersJSON.getString(i);
-                layer = layer.replace("{", "");
-                layer = layer.replace("}", "");
-                String[] layers = layer.split(",");
-                String id = "";
-                String name = "";
-                boolean isActive = false;
-                for (int j = 0; j < layers.length; ++j) {
-                    String[] values = layers[j].split(":");
-                    if (values[0].contains("active")) isActive = values[1].equals("true");
-                    if (values[0].contains("layerId")) id = values[1];
-                    if (values[0].contains("name")) name = values[1];
-                }
-                name = name.replace("\"", "");
-                layer_ids.put(name, id);
-                this.base_layers[i] = name;
-                if (isActive) active_base_layer = i;
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
         // show overlay layers by default
         show_multi_selection();
     }
@@ -155,6 +172,7 @@ public class IITC_JSInterface {
         };
 
         d_m.setMultiChoiceItems(overlay_layers, overlay_is_active , m_listener);
+        // switch to base layers
         d_m.setPositiveButton("Base Layers", new OnClickListener() {
               @Override
               public void onClick(DialogInterface dialog, int which) {
@@ -186,6 +204,7 @@ public class IITC_JSInterface {
         };
         AlertDialog.Builder d_s = new AlertDialog.Builder(context);
         d_s.setSingleChoiceItems(base_layers, active_base_layer, s_listener);
+        // switch to overlay layers
         d_s.setPositiveButton("Overlay Layers", new OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
