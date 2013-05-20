@@ -16,11 +16,20 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.IOException;
+import java.io.SequenceInputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -258,8 +267,54 @@ public class IITC_WebViewClient extends WebViewClient {
                 || url.contains("js/analytics.js")
                 || url.contains("google-analytics.com/ga.js")) {
             return new WebResourceResponse("text/plain", "UTF-8", empty);
+        } else if (url.contains("/handshake")) {
+            InputStream inject = injectHelper(view, url);
+            if (inject == null) return super.shouldInterceptRequest(view, url);
+            return new WebResourceResponse("text/html", "UTF-8", inject);
         } else {
             return super.shouldInterceptRequest(view, url);
+        }
+    }
+
+    private InputStream injectHelper(final WebView view, String urlString) {
+        InputStream prefix = new ByteArrayInputStream("<html><head></head><body><pre>".getBytes());
+        InputStream middle = new ByteArrayInputStream("</pre><script>window.targetDomain='*';\n".getBytes());
+        InputStream suffix = new ByteArrayInputStream("</script></body></html".getBytes());
+        android.webkit.CookieManager cm = android.webkit.CookieManager.getInstance();
+        String cookie = cm.getCookie(urlString);
+        SharedPreferences sharedPref = PreferenceManager
+                .getDefaultSharedPreferences(context);
+        try {
+            InputStream script = null;
+            if (sharedPref.getBoolean("pref_dev_checkbox", false)) {
+                String path = iitc_path + "dev/plugins/keys-import-inject.js";
+                File f = new File(path);
+                script = new BufferedInputStream(new FileInputStream(f));
+            } else {
+                String path = "plugins/keys-import-inject.js";
+                AssetManager am = context.getAssets();
+                script = am.open(path);
+            }
+            URL url = new URL(urlString);
+            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+            conn.setRequestProperty("Cookie", cookie);
+            InputStream rawNet = conn.getInputStream();
+            InputStream bufferedNet = new BufferedInputStream(rawNet);
+            ArrayList<InputStream> list = new ArrayList<InputStream>(5);
+            list.add(prefix);
+            list.add(bufferedNet);
+            list.add(middle);
+            list.add(script);
+            list.add(suffix);
+            Enumeration<InputStream> e = Collections.enumeration(list);
+            InputStream injected = new SequenceInputStream(e);
+            return injected;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
