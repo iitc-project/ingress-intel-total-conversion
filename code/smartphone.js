@@ -136,7 +136,6 @@ window.runOnSmartphonesAfterBoot = function() {
     }
   }
   window.layerChooser.showLayer = function(id,show) {
-    window.console.log('yeay' + id + show);
     if (show === undefined) show = true;
     obj = this._layers[id];
     if (!obj) return false;
@@ -146,7 +145,7 @@ window.runOnSmartphonesAfterBoot = function() {
         //the layer to show is not currently active
         this._map.addLayer(obj.layer);
 
-        //if it's an overlay, remove any others
+        //if it's a base layer, remove any others
         if (!obj.overlay) {
           for(i in this._layers) {
             if (i != id) {
@@ -161,6 +160,7 @@ window.runOnSmartphonesAfterBoot = function() {
         this._map.removeLayer(obj.layer);
       }
     }
+
     //below logic based on code in L.Control.Layers _onInputClick
     if(!obj.overlay) {
       this._map.setZoom(this._map.getZoom());
