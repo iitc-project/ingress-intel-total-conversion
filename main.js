@@ -199,6 +199,7 @@ window.MAX_XM_PER_LEVEL = [0, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000];
 window.MIN_AP_FOR_LEVEL = [0, 10000, 30000, 70000, 150000, 300000, 600000, 1200000];
 window.HACK_RANGE = 40; // in meters, max. distance from portal to be able to access it
 window.OCTANTS = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
+window.OCTANTS_ARROW = ['→', '↗', '↑', '↖', '←', '↙', '↓', '↘'];
 window.DESTROY_RESONATOR = 75; //AP for destroying portal
 window.DESTROY_LINK = 187; //AP for destroying link
 window.DESTROY_FIELD = 750; //AP for destroying field
