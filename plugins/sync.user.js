@@ -46,6 +46,7 @@ window.plugin.sync.authorizer = null;
 
 // Store registered CollaborativeMap
 window.plugin.sync.registerdPluginsFields = null;
+window.plugin.sync.logger = null;
 
 // Other plugin call this function to push update to Google Realtime API
 // example:
@@ -156,7 +157,7 @@ window.plugin.sync.RegisteredMap.prototype.initFile = function(callback) {
   failedCallback = function(resp) {
     _this.initializing = false;
     _this.failed = true;
-    console.log('Plugin Sync: Could not create file: ' + _this.getFileName());
+    plugin.sync.logger.log('Could not create file: ' + _this.getFileName() + '. If this problem persist, delete this file in IITC-SYNC-DATA-V2 and empty trash in your Google drive and try again.');
   }
 
   this.fileSearcher = new plugin.sync.FileSearcher({'fileName': this.getFileName(),
@@ -203,7 +204,7 @@ window.plugin.sync.RegisteredMap.prototype.loadRealtimeDocument = function(callb
 
     model.getRoot().set('map', map);
     model.getRoot().set('last-udpate-uuid', lastUpdateUUID);
-    console.log('Plugin Sync: model initialized: ' + _this.pluginName + '[' + _this.fieldName + ']');
+    plugin.sync.logger.log('Model initialized: ' + _this.pluginName + '[' + _this.fieldName + ']');
   };
 
   // this function called when the document is loaded
@@ -218,7 +219,7 @@ window.plugin.sync.RegisteredMap.prototype.loadRealtimeDocument = function(callb
 
     // Replace local value if data is changed by others
     if(_this.isUpdatedByOthers()) {
-    console.log('Plugin Sync: updated by others, replacing content: ' + _this.pluginName + '[' + _this.fieldName + ']');
+    plugin.sync.logger.log('Updated by others, replacing content: ' + _this.pluginName + '[' + _this.fieldName + ']');
       window.plugin[_this.pluginName][_this.fieldName] = {};
       $.each(_this.map.keys(), function(ind, key) {
         window.plugin[_this.pluginName][_this.fieldName][key] = _this.map.get(key);
@@ -228,14 +229,14 @@ window.plugin.sync.RegisteredMap.prototype.loadRealtimeDocument = function(callb
 
     _this.initialized = true;
     _this.initializing = false;
-    console.log('Plugin Sync: data loaded: ' + _this.pluginName + '[' + _this.fieldName + ']');
+    plugin.sync.logger.log('Data loaded: ' + _this.pluginName + '[' + _this.fieldName + ']');
     if(callback) callback();
     if(_this.initializedCallback) _this.initializedCallback(_this.pluginName, _this.fieldName);
   };
 
   // Stop the sync if any error occur and try to re-authorize
   handleError = function(e) {
-    console.log('Realtime API Error: ' + e.type);
+    plugin.sync.logger.log('Realtime API Error: ' + e.type);
     _this.stopSync();
     if(e.type === gapi.drive.realtime.ErrorType.TOKEN_REFRESH_REQUIRED) {
       _this.authorizer.authorize();
@@ -305,7 +306,7 @@ window.plugin.sync.RegisterdPluginsFields.prototype.addToWaitingInitialize = fun
 
   clearTimeout(this.timer);
   this.timer = setTimeout(function() {_this.initializeWorker()}, 10000);
-  console.log('Plugin Sync: Retry in 10 sec.: ' +  pluginName + '[' + fieldName + ']');
+  plugin.sync.logger.log('Retry in 10 sec.: ' +  pluginName + '[' + fieldName + ']');
 }
 
 window.plugin.sync.RegisterdPluginsFields.prototype.get = function(pluginName, fieldName) {
@@ -391,7 +392,7 @@ window.plugin.sync.FileSearcher.prototype.initialize = function(force) {
   this.force = force;
   // throw error if too many retry
   if(this.retryCount >= this.RETRY_LIMIT) {
-    console.log('Plugin Sync: Too many file operation: ' + this.fileName);
+    plugin.sync.logger.log('Too many file operation: ' + this.fileName);
     this.failedCallback();
     return;
   }
@@ -423,7 +424,7 @@ window.plugin.sync.FileSearcher.prototype.initFile = function() {
   handleFailed = function(resp) {
     _this.fileId = null;
     _this.saveFileId();
-    console.log('Plugin Sync: file operation failed: ' + (resp.error || 'unknown error'));
+    plugin.sync.logger.log('File operation failed: ' + (resp.error || 'unknown error'));
     _this.failedCallback(resp);
   }
 
@@ -459,7 +460,7 @@ window.plugin.sync.FileSearcher.prototype.initParent = function() {
   failedCallback = function(resp) {
     _this.fileId = null;
     _this.saveFileId();
-    console.log('Plugin Sync: file operation failed: ' + (resp.error || 'unknown error'));
+    plugin.sync.logger.log('File operation failed: ' + (resp.error || 'unknown error'));
     _this.failedCallback(resp);
   }
 
@@ -572,11 +573,11 @@ window.plugin.sync.Authorizer.prototype.authorize = function(popup) {
   handleAuthResult = function(authResult) {
     if(authResult && !authResult.error) {
       _this.authorized = true;
-      console.log('Plugin Sync: Authorized');
+      plugin.sync.logger.log('Authorized');
     } else {
       _this.authorized = false;
       var error = (authResult && authResult.error) ? authResult.error : 'not authorized';
-      console.log('Plugin Sync: Authorization error: ' + error);
+      plugin.sync.logger.log('Authorization error: ' + error);
     }
     _this.authComplete();
   };
@@ -585,6 +586,38 @@ window.plugin.sync.Authorizer.prototype.authorize = function(popup) {
     , handleAuthResult);
 }
 //// end Authorizer
+
+
+
+
+//// Logger
+window.plugin.sync.Logger = function(options) {
+  this.logLimit = options['logLimit'];
+  this.logUpdateCallback = options['logUpdateCallback'];
+  this.logs = [];
+  this.log = this.log.bind(this);
+  this.getLogs = this.getLogs.bind(this);
+}
+
+window.plugin.sync.Logger.prototype.log = function(message) {
+  var log = {'time': new Date(), 'message': message};
+  this.logs.unshift(log);
+  if(this.logs.length > this.logLimit) {
+    this.logs.pop();
+  }
+  if(this.logUpdateCallback) this.logUpdateCallback(this.getLogs());
+}
+
+window.plugin.sync.Logger.prototype.getLogs = function() {
+  var allLogs = '';
+  $.each(this.logs, function(ind,log) {
+    allLogs += log.time.toLocaleTimeString() + ': ' + log.message + '<br />';
+  });
+  return allLogs;
+}
+
+
+//// end Logger
 
 
 
@@ -639,6 +672,10 @@ window.plugin.sync.loadUUID = function() {
   }
 }
 
+window.plugin.sync.updateLog = function(messages) {
+  $('#sync-log').html(messages);
+}
+
 window.plugin.sync.toggleAuthButton = function() {
   var authed, authorizing;
   authed = plugin.sync.authorizer.isAuthed();
@@ -662,11 +699,15 @@ window.plugin.sync.showDialog = function() {
   window.dialog({html: plugin.sync.dialogHTML, title: 'Sync', modal: true, id: 'sync-setting'});
   plugin.sync.toggleAuthButton();
   plugin.sync.toggleDialogLink();
+  plugin.sync.updateLog(plugin.sync.logger.getLogs());
 }
 
 window.plugin.sync.setupDialog = function() {
   plugin.sync.dialogHTML = '<div id="sync-dialog">'
-                         + '<button id="sync-authButton" class="sync-authButton-dimmed" onclick="setTimeout(function(){window.plugin.sync.authorizer.authorize(true)}, 1)" disabled="disabled">Authorize</button>'
+                         + '<button id="sync-authButton" class="sync-authButton-dimmed" '
+                         + 'onclick="setTimeout(function(){window.plugin.sync.authorizer.authorize(true)}, 1)" '
+                         + 'disabled="disabled">Authorize</button>'
+                         + '<div id="sync-log"></div>'
                          + '</div>';
   $('#toolbox').append('<a id="sync-show-dialog" onclick="window.plugin.sync.showDialog();">Sync</a> ');
 }
@@ -679,11 +720,20 @@ window.plugin.sync.setupCSS = function() {
           }\
           .sync-show-dialog-error {\
             color: #FF2222;\
+          }\
+          #sync-log {\
+            height: 300px;\
+            white-space: pre-wrap;\
+            white-space: -moz-pre-wrap;\
+            white-space: -o-pre-wrap;\
+            word-wrap: break-word;\
+            overflow-y: auto;\
           }")
   .appendTo("head");
 }
 
 var setup =  function() {
+  window.plugin.sync.logger = new plugin.sync.Logger({'logLimit':10, 'logUpdateCallback': plugin.sync.updateLog});
   window.plugin.sync.loadUUID();
   window.plugin.sync.setupCSS();
   window.plugin.sync.setupDialog();
