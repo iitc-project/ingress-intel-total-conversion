@@ -111,7 +111,7 @@ window.getResonatorDetails = function(d) {
 // rotates clockwise. So, last one is 7 (southeast).
 window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
   if(level === 0) {
-    var meter = '<span class="meter" title="octant:\t' + OCTANTS[slot] + '"></span>';
+    var meter = '<span class="meter" title="octant:\t' + OCTANTS[slot] + ' ' + OCTANTS_ARROW[slot] + '"></span>';
   } else {
     var max = RESO_NRG[level];
     var fillGrade = nrg/max*100;
@@ -120,7 +120,7 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
             + 'level:\t'  + level + '\n'
             + 'distance:\t' + dist  + 'm\n'
             + 'owner:\t'  + nick  + '\n'
-            + 'octant:\t' + OCTANTS[slot];
+            + 'octant:\t' + OCTANTS[slot] + ' ' + OCTANTS_ARROW[slot];
 
     var style = 'width:'+fillGrade+'%; background:'+COLORS_LVL[level]+';';
 
