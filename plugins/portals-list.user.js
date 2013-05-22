@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-portals-list@teo96
 // @name           IITC plugin: show list of portals
-// @version        0.0.12.@@DATETIMEVERSION@@
+// @version        0.0.13.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -54,9 +54,13 @@ window.plugin.portalslist.getPortals = function() {
   //console.log('** getPortals');
   var retval=false;
 
+  var displayBounds = map.getBounds();
+
   window.plugin.portalslist.listPortals = [];
   //get portals informations from IITC
   $.each(window.portals, function(i, portal) {
+    // eliminate offscreen portals (selected, and in padding)
+    if(!displayBounds.contains(portal.getLatLng())) return true;
 
     retval=true;
     var d = portal.options.details;
