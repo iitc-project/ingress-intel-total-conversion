@@ -26,7 +26,8 @@ IITC version 0.12.0 has been released. This contains quite a few changes and new
 <li>... and many other tweaks, bug fixes, etc</li>
 </ul>
 IITC Mobile 0.4.0 is also released. THis has also had major work. Along with the above, it includes a
-new in-app layer chooser and chat/map switcher.
+new in-app layer chooser and chat/map switcher, and authentication has been revamped to use the native
+Android authentication rather than entering your password.
 </p>
 
 <a class="btn btn-small" href="?page=news">Older news</a>
