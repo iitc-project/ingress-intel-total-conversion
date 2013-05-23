@@ -1,0 +1,15 @@
+# view res/xml/preferences.xml #generated:4
+-keep class com.cradle.iitc_mobile.IITC_AboutDialogPreference { <init>(...); }
+
+# view AndroidManifest.xml #generated:23
+-keep class com.cradle.iitc_mobile.IITC_Mobile { <init>(...); }
+
+# view AndroidManifest.xml #generated:40
+-keep class com.cradle.iitc_mobile.IITC_Settings { <init>(...); }
+
+# view res/layout/activity_main.xml #generated:6
+-keep class com.cradle.iitc_mobile.IITC_WebView { <init>(...); }
+
+# Needed for Samsung Multi Window
+-keep class com.samsung.**
+-keep class android.sec.**
