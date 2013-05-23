@@ -10,6 +10,12 @@
 // 4. Reload the page
 // optional: browse their map styles, add/modify any you like to the cmStyles list
 
+// You take your own responsibility for any API key you register and use. Please read
+// any relevant terms and conditions. At the time of writing, Cloudmade offer a reasonable
+// number of free requests, which should be more than enough for personal use. You could
+// probably share a key with a group of people without issues, but it is your responsibility
+// to remain within any terms and usage limits.
+
 //******************************
 //******************************
 //******************************
