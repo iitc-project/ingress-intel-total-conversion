@@ -3,6 +3,7 @@ localbuildsettings.py
 *.pyc
 *.swp
 *~
+*.bak
 
 # built application files
 *.apk
