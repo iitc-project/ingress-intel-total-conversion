@@ -399,7 +399,7 @@ public class IITC_Mobile extends Activity {
     /**
      * called after successful login
      */
-    public void loginSucceded() {
+    public void loginSucceeded() {
         // garbage collection
         mLogin = null;
     }
