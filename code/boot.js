@@ -125,13 +125,9 @@ window.setupMap = function() {
   //OpenStreetMap attribution - required by several of the layers
   osmAttribution = 'Map data © OpenStreetMap contributors';
 
-  //OpenStreetMap tiles - we shouldn't use these by default, or even an option - https://wiki.openstreetmap.org/wiki/Tile_usage_policy
-  // "Heavy use (e.g. distributing an app that uses tiles from openstreetmap.org) is forbidden without prior permission from the System Administrators"
-  //var osmOpt = {attribution: osmAttribution, maxZoom: 18, detectRetina: true};
-  //var osm = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', osmOpt);
 
   //CloudMade layers - only 500,000 tiles/month in their free plan. nowhere near enough for IITC
-  var cmOpt = {attribution: osmAttribution+', Imagery © CloudMade', maxZoom: 18, detectRetina: true};
+  //var cmOpt = {attribution: osmAttribution+', Imagery © CloudMade', maxZoom: 18, detectRetina: true};
   //var cmMin = new L.TileLayer('http://{s}.tile.cloudmade.com/{your api key here}/22677/256/{z}/{x}/{y}.png', cmOpt);
   //var cmMid = new L.TileLayer('http://{s}.tile.cloudmade.com/{your api key here}/999/256/{z}/{x}/{y}.png', cmOpt);
 
