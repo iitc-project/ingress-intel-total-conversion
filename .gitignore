@@ -4,7 +4,3 @@ localbuildsettings.py
 *.swp
 *~
 *.bak
-
-# built application files
-*.apk
-*.ap_
