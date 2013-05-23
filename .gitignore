@@ -1,7 +1,35 @@
-mobile/IngressIntelTC/bin
 build
 localbuildsettings.py
 *.pyc
 *.swp
 *~
-*.bak
+
+# built application files
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+# generated files
+mobile/bin/
+mobile/gen/
+mobile/out/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Eclipse project files
+.classpath
+.project
+
+# IntelliJ IDEA user settings
+*.iws
+mobile/.idea/workspace.xml
+mobile/.idea/tasks.xml
+
+# Proguard logs
+mobile/proguard_logs/
