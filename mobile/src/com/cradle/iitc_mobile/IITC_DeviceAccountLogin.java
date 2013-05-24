@@ -153,7 +153,7 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
             if (result != null) {
                 // authentication succeded, we can load the given url, which will redirect back to the intel map
                 mWebView.loadUrl(result);
-                mActivity.loginSucceded();
+                mActivity.loginSucceeded();
             } else {
                 onLoginFailed();
             }
