@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-player-tracker@breunigs
 // @name           IITC Plugin: Player tracker
-// @version        0.9.3.@@DATETIMEVERSION@@
+// @version        0.9.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -48,7 +48,7 @@ window.plugin.playerTracker.setup = function() {
   }});
 
   plugin.playerTracker.drawnTraces = new L.LayerGroup();
-  window.addLayerGroup('Player Tracker', plugin.playerTracker.drawnTraces);
+  window.addLayerGroup('Player Tracker', plugin.playerTracker.drawnTraces, true);
   map.on('layeradd',function(obj) {
     if(obj.layer === plugin.playerTracker.drawnTraces)
     {
