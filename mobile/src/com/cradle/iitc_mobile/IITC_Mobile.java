@@ -5,6 +5,7 @@ import java.io.IOException;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.SearchManager;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,7 +22,12 @@ import android.os.Handler;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.*;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -41,6 +47,7 @@ public class IITC_Mobile extends Activity {
     private boolean fullscreen_actionbar = false;
     private ActionBar actionBar;
     private IITC_DeviceAccountLogin mLogin;
+    private MenuItem searchMenuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,16 +126,16 @@ public class IITC_Mobile extends Activity {
 
         fullscreen_actionbar = sharedPref.getBoolean("pref_fullscreen_actionbar", false);
 
-        handleIntent(getIntent());
+        handleIntent(getIntent(), true);
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         setIntent(intent);
-        handleIntent(intent);
+        handleIntent(intent, false);
     }
 
-    private void handleIntent(Intent intent) {
+    private void handleIntent(Intent intent, boolean onCreate) {
         // load new iitc web view with ingress intel page
         String action = intent.getAction();
         if (Intent.ACTION_VIEW.equals(action)) {
@@ -144,8 +151,12 @@ public class IITC_Mobile extends Activity {
         } else if (Intent.ACTION_SEARCH.equals(action)) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             query = query.replace("'", "''");
+            final SearchView searchView =
+                    (SearchView) searchMenuItem.getActionView();
+            searchView.setQuery(query, false);
+            searchView.clearFocus();
             iitc_view.loadUrl("javascript:search('" + query + "');");
-        } else {
+        } else if (onCreate){
             this.loadUrl(intel_url);
         }
     }
@@ -252,21 +263,12 @@ public class IITC_Mobile extends Activity {
         getMenuInflater().inflate(R.menu.main, menu);
         // Get the SearchView and set the searchable configuration
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        final MenuItem searchMenuItem = menu.findItem(R.id.menu_search);
+        this.searchMenuItem = menu.findItem(R.id.menu_search);
         final SearchView searchView =
                 (SearchView) searchMenuItem.getActionView();
         // Assumes current activity is the searchable activity
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
-        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean queryTextFocused) {
-                if(!queryTextFocused) {
-                    searchMenuItem.collapseActionView();
-                    searchView.setQuery("", false);
-                }
-            }
-        });
         return true;
     }
 
