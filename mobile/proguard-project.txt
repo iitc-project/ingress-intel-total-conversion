@@ -9,3 +9,5 @@
 
 # view res/layout/activity_main.xml #generated:6
 -keep class com.cradle.iitc_mobile.IITC_WebView { <init>(...); }
+
+-keep class com.cradle.iitc_mobile.IITC_JSInterface { <init>(...); }
