@@ -17,7 +17,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -34,7 +33,6 @@ public class IITC_Mobile extends Activity {
     private static final int REQUEST_LOGIN = 1;
 
     private IITC_WebView iitc_view;
-    private boolean back_button_pressed = false;
     private OnSharedPreferenceChangeListener listener;
     private String intel_url = "https://www.ingress.com/intel";
     private boolean user_loc = false;
@@ -236,22 +234,7 @@ public class IITC_Mobile extends Activity {
             this.toggleFullscreen();
             return;
         }
-        if (this.back_button_pressed) {
-            super.onBackPressed();
-            return;
-        }
-
         iitc_view.loadUrl("javascript: window.goBack();");
-        this.back_button_pressed = true;
-        Toast.makeText(this, "Press twice to exit", Toast.LENGTH_SHORT).show();
-
-        // reset back button after 0.5 seconds
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                back_button_pressed = false;
-            }
-        }, 500);
     }
 
     @Override
