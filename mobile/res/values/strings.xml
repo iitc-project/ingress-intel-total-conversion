@@ -58,4 +58,6 @@
     <string name="menu_debug">Debug</string>
     <string name="choose_account_to_login">Choose account to login</string>
     <string name="login_failed">Login failed.</string>
+    <string name="search_hint">Search Locations</string>
+    <string name="menu_search">Search</string>
 </resources>
