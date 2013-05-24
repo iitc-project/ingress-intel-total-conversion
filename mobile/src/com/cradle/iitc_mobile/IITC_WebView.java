@@ -11,6 +11,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -26,6 +27,7 @@ public class IITC_WebView extends WebView {
 
     // init web view
     private void iitc_init(Context c) {
+        if ( this.isInEditMode() ) return;
         settings = this.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
