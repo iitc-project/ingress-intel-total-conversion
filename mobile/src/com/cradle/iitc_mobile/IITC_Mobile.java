@@ -330,9 +330,6 @@ public class IITC_Mobile extends Activity {
                 iitc_view.loadUrl("javascript: window.show('debug')");
                 actionBar.setTitle(getString(R.string.menu_debug));
                 return true;
-            case R.id.menu_search:
-                onSearchRequested();
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
