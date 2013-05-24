@@ -12,7 +12,7 @@ window.setupGeosearch = function() {
     e.preventDefault();
   });
   $('#geosearchwrapper img').click(function(){
-    map.locate({setView : true, maxZoom: 13});;
+    map.locate({setView : true, maxZoom: 13});
   });
 }
 
