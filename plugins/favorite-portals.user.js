@@ -1,12 +1,11 @@
 // ==UserScript==
-// @id       iitc-plugin-favorite-portals@soulBit
-// @name       IITC plugin: Favorite Portals
-// @version    0.01
-// @description  Allows you to save a list of portals, to speed up switching from one area of the map to another.
-// @include    https://www.ingress.com/intel*
-// @include    http://www.ingress.com/intel*
-// @match      https://www.ingress.com/intel*
-// @match      http://www.ingress.com/intel*
+// @id             iitc-plugin-favorite-portals@soulBit
+// @name           IITC plugin: Favorite Portals
+// @version        0.1.0@@DATETIMEVERSION@@
+// @description    Allows you to save a list of portals, to speed up switching from one area of the map to another.
+// @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
+// @updateURL      @@UPDATEURL@@
+// @downloadURL    @@DOWNLOADURL@@
 // @grant          none
 // ==/UserScript==
 function wrapper() {
