@@ -54,14 +54,14 @@
     <item
         android:id="@+id/layer_chooser"
         android:icon="@drawable/ic_layer_chooser"
-        android:orderInCategory="105"
+        android:orderInCategory="100"
         android:showAsAction="ifRoom"
         android:title="@string/layer_chooser">
     </item>
     <item
         android:id="@+id/locate"
         android:icon="@drawable/device_access_location_found"
-        android:orderInCategory="100"
+        android:orderInCategory="105"
         android:showAsAction="ifRoom"
         android:title="@string/locate">
     </item>
