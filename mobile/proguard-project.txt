@@ -4,7 +4,10 @@
 # view AndroidManifest.xml #generated:23
 -keep class com.cradle.iitc_mobile.IITC_Mobile { <init>(...); }
 
-# view AndroidManifest.xml #generated:40
+# view AndroidManifest.xml #generated:56
+-keep class com.cradle.iitc_mobile.IITC_SearchableActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:50
 -keep class com.cradle.iitc_mobile.IITC_Settings { <init>(...); }
 
 # view res/layout/activity_main.xml #generated:6
