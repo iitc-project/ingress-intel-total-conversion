@@ -3,7 +3,6 @@ package com.cradle.iitc_mobile;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.SearchManager;
@@ -255,8 +254,6 @@ public class IITC_Mobile extends Activity {
     }
 
     private void BackStackPop() {
-        int index = backStack.size() - 1;
-        int itemId = backStack.remove(index);
         if (backStack.isEmpty()) {
             // Empty back stack means we should be at home (ie map) screen
             SetActionBarHomeEnabledWithUp(false);
@@ -264,6 +261,9 @@ public class IITC_Mobile extends Activity {
             iitc_view.loadUrl("javascript: window.show('map');");
             return;
         }
+        int index = backStack.size() - 1;
+        int itemId = backStack.remove(index);
+        currentPane = itemId;
         HandleMenuItemSelected(itemId, false);
     }
 
@@ -310,6 +310,8 @@ public class IITC_Mobile extends Activity {
                 if (!backStack.isEmpty()) {
                     BackStackPop();
                 }
+                iitc_view.loadUrl("javascript: window.show('map');");
+                actionBar.setTitle(getString(R.string.app_name));
                 return true;
             case R.id.reload_button:
                 actionBar.setTitle(getString(R.string.app_name));
