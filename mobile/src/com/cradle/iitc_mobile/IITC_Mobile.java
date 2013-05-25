@@ -318,6 +318,7 @@ public class IITC_Mobile extends Activity {
                 actionBar.setTitle(getString(R.string.app_name));
                 this.backStack.clear();
                 setActionBarHomeEnabledWithUp(false);
+                currentPane = android.R.id.home;
                 return true;
             case R.id.reload_button:
                 actionBar.setTitle(getString(R.string.app_name));
