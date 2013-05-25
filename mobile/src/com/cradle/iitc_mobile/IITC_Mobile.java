@@ -346,37 +346,31 @@ public class IITC_Mobile extends Activity {
             case R.id.menu_info:
                 iitc_view.loadUrl("javascript: window.show('info');");
                 actionBar.setTitle(getString(R.string.menu_info));
-                actionBar.setDisplayHomeAsUpEnabled(true);
                 if (addToBackStack) BackStackUpdate(itemId);
                 return true;
             case R.id.menu_full:
                 iitc_view.loadUrl("javascript: window.show('full');");
                 actionBar.setTitle(getString(R.string.menu_full));
-                actionBar.setDisplayHomeAsUpEnabled(true);
                 if (addToBackStack) BackStackUpdate(itemId);
                 return true;
             case R.id.menu_compact:
                 iitc_view.loadUrl("javascript: window.show('compact');");
                 actionBar.setTitle(getString(R.string.menu_compact));
-                actionBar.setDisplayHomeAsUpEnabled(true);
                 if (addToBackStack) BackStackUpdate(itemId);
                 return true;
             case R.id.menu_public:
                 iitc_view.loadUrl("javascript: window.show('public');");
                 actionBar.setTitle(getString(R.string.menu_public));
-                actionBar.setDisplayHomeAsUpEnabled(true);
                 if (addToBackStack) BackStackUpdate(itemId);
                 return true;
             case R.id.menu_faction:
                 iitc_view.loadUrl("javascript: window.show('faction');");
                 actionBar.setTitle(getString(R.string.menu_faction));
-                actionBar.setDisplayHomeAsUpEnabled(true);
                 if (addToBackStack) BackStackUpdate(itemId);
                 return true;
             case R.id.menu_debug:
                 iitc_view.loadUrl("javascript: window.show('debug')");
                 actionBar.setTitle(getString(R.string.menu_debug));
-                actionBar.setDisplayHomeAsUpEnabled(true);
                 if (addToBackStack) BackStackUpdate(itemId);
                 return true;
             default:
