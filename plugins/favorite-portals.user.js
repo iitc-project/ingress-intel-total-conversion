@@ -22,7 +22,6 @@ window.plugin.favoritePortals = function() {};
 window.plugin.favoritePortals.portalList = {};
 window.plugin.favoritePortals.LOCAL_STORAGE_KEY = "plugin-favorite-portals";
 window.plugin.favoritePortals.hasLocalStorage = ('localStorage' in window && window['localStorage'] !== null);
-window.plugin.favoritePortals.dialogBox = null; //Keep reference for closing later on
 
 window.plugin.favoritePortals.onDetailsUpdated = function(data) {
   $('.linkdetails').prepend("<div title='Favorite this portal' class='toggle-favorite-portal' onclick='window.plugin.favoritePortals.togglePortal()' />");
@@ -42,7 +41,7 @@ window.plugin.favoritePortals.display = function() {
     if ($.isEmptyObject(window.plugin.favoritePortals.portalList)) {
       output += "No portals have been marked as favorite, click the blue square in the bottom left corner of the portal details to save one.";
     } else {
-      output += "<div class='header'>Favorite portal list (values not current till portal on screen):</div>";
+      output += "<div class='header'>Portal list (values not current till portal on screen):</div>";
       output += "<div class='portal-list-container'>";
 
       var portals = [], dataChanged = false, portalData;
@@ -87,7 +86,7 @@ window.plugin.favoritePortals.display = function() {
     }
   }
 
-  window.plugin.favoritePortals.dialogBox = alert("<div id='favorite-portal-list'>" + output + "</div>", true );
+  window.dialog({'html': "<div id='favorite-portal-list'>" + output + "</div>", 'title': 'Favorite portals', 'id': 'favorite-portals'});
 }
 
 window.plugin.favoritePortals.onDelete = function(guid) {
@@ -100,7 +99,7 @@ window.plugin.favoritePortals.onDelete = function(guid) {
 
 window.plugin.favoritePortals.onPortalClicked = function(guid, coords) {
   window.zoomToAndShowPortal(guid, coords);
-  window.plugin.favoritePortals.dialogBox.dialog('close');
+  $('#dialog-favorite-portals').dialog('close');
 }
 
 window.plugin.favoritePortals.togglePortal = function() {
