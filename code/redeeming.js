@@ -168,7 +168,7 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
 
   if(data.error) {
     // What to display
-    to_dialog = '<strong>' + data.error + '</strong><br />' +(window.REDEEM_ERRORS[data.error] || 'There was a problem redeeming the passcode. Try again?');
+    to_dialog = '<strong>' + data.error + '</strong><br />' + (window.REDEEM_ERRORS[data.error] || 'There was a problem redeeming the passcode. Try again?');
     to_log    = '[ERROR] ' + data.error;
 
     // Dialog options
