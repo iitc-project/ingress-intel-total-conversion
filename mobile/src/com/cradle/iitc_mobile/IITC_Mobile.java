@@ -162,7 +162,7 @@ public class IITC_Mobile extends Activity {
             searchView.setQuery(query, false);
             searchView.clearFocus();
             actionBar.setTitle(getString(R.string.app_name));
-            BackStackUpdate(android.R.id.home);
+            backStackUpdate(android.R.id.home);
             iitc_view.loadUrl("javascript:search('" + query + "');");
         } else if (onCreate) {
             this.loadUrl(intel_url);
@@ -247,13 +247,19 @@ public class IITC_Mobile extends Activity {
             this.toggleFullscreen();
         } else if (!backStack.isEmpty()) {
             // Pop last item from backStack and pretend the relevant menu item was clicked
-            BackStackPop();
+            backStackPop();
         } else {
             super.onBackPressed();
         }
     }
 
-    private void BackStackPop() {
+    private void SetActionBarHomeEnabledWithUp(boolean enabled) {
+        actionBar.setDisplayHomeAsUpEnabled(enabled);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+            actionBar.setHomeButtonEnabled(enabled);
+    }
+
+    public void backStackPop() {
         if (backStack.isEmpty()) {
             // Empty back stack means we should be at home (ie map) screen
             SetActionBarHomeEnabledWithUp(false);
@@ -264,16 +270,10 @@ public class IITC_Mobile extends Activity {
         int index = backStack.size() - 1;
         int itemId = backStack.remove(index);
         currentPane = itemId;
-        HandleMenuItemSelected(itemId, false);
+        handleMenuItemSelected(itemId, false);
     }
 
-    private void SetActionBarHomeEnabledWithUp(boolean enabled) {
-        actionBar.setDisplayHomeAsUpEnabled(enabled);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-            actionBar.setHomeButtonEnabled(enabled);
-    }
-
-    private void BackStackUpdate(int itemId) {
+    public void backStackUpdate(int itemId) {
         if (itemId == currentPane) return;
         backStack.add(currentPane);
         currentPane = itemId;
@@ -299,16 +299,16 @@ public class IITC_Mobile extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         final int itemId = item.getItemId();
-        boolean result = HandleMenuItemSelected(itemId, true);
+        boolean result = handleMenuItemSelected(itemId, true);
         if (!result) return super.onOptionsItemSelected(item);
         return true;
     }
 
-    private boolean HandleMenuItemSelected(int itemId, boolean addToBackStack) {
+    public boolean handleMenuItemSelected(int itemId, boolean addToBackStack) {
         switch (itemId) {
             case android.R.id.home:
                 if (!backStack.isEmpty()) {
-                    BackStackPop();
+                    backStackPop();
                 }
                 iitc_view.loadUrl("javascript: window.show('map');");
                 actionBar.setTitle(getString(R.string.app_name));
@@ -329,14 +329,14 @@ public class IITC_Mobile extends Activity {
                 // the getLayers function calls the setLayers method of IITC_JSInterface
                 iitc_view.loadUrl("javascript: window.layerChooser.getLayers()");
                 actionBar.setTitle(getString(R.string.app_name));
-                BackStackUpdate(android.R.id.home);
+                backStackUpdate(android.R.id.home);
                 return true;
             // get the users current location and focus it on map
             case R.id.locate:
                 iitc_view.loadUrl("javascript: window.show('map');");
                 iitc_view.loadUrl("javascript: window.map.locate({setView : true, maxZoom: 15});");
                 actionBar.setTitle(getString(R.string.app_name));
-                BackStackUpdate(android.R.id.home);
+                backStackUpdate(android.R.id.home);
                 return true;
             // start settings activity
             case R.id.action_settings:
@@ -347,33 +347,33 @@ public class IITC_Mobile extends Activity {
                 return true;
             case R.id.menu_info:
                 iitc_view.loadUrl("javascript: window.show('info');");
-                actionBar.setTitle(getString(R.string.menu_info));
-                if (addToBackStack) BackStackUpdate(itemId);
+                actionBar.setTitle((R.string.menu_info));
+                if (addToBackStack) backStackUpdate(itemId);
                 return true;
             case R.id.menu_full:
                 iitc_view.loadUrl("javascript: window.show('full');");
                 actionBar.setTitle(getString(R.string.menu_full));
-                if (addToBackStack) BackStackUpdate(itemId);
+                if (addToBackStack) backStackUpdate(itemId);
                 return true;
             case R.id.menu_compact:
                 iitc_view.loadUrl("javascript: window.show('compact');");
                 actionBar.setTitle(getString(R.string.menu_compact));
-                if (addToBackStack) BackStackUpdate(itemId);
+                if (addToBackStack) backStackUpdate(itemId);
                 return true;
             case R.id.menu_public:
                 iitc_view.loadUrl("javascript: window.show('public');");
                 actionBar.setTitle(getString(R.string.menu_public));
-                if (addToBackStack) BackStackUpdate(itemId);
+                if (addToBackStack) backStackUpdate(itemId);
                 return true;
             case R.id.menu_faction:
                 iitc_view.loadUrl("javascript: window.show('faction');");
                 actionBar.setTitle(getString(R.string.menu_faction));
-                if (addToBackStack) BackStackUpdate(itemId);
+                if (addToBackStack) backStackUpdate(itemId);
                 return true;
             case R.id.menu_debug:
                 iitc_view.loadUrl("javascript: window.show('debug')");
                 actionBar.setTitle(getString(R.string.menu_debug));
-                if (addToBackStack) BackStackUpdate(itemId);
+                if (addToBackStack) backStackUpdate(itemId);
                 return true;
             default:
                 return false;

@@ -81,7 +81,24 @@ window.runOnSmartphonesAfterBoot = function() {
   var l = $('#chatcontrols a:visible');
   l.css('width', 100/l.length + '%');
 
-  // NOTE: Removed long press hook as it would break new back stack handling
+  // add event to portals that allows long press to switch to sidebar
+  window.addHook('portalAdded', function(data) {
+    data.portal.on('add', function() {
+      if(!this._container || this.options.addedTapHoldHandler) return;
+      this.options.addedTapHoldHandler = true;
+      var guid = this.options.guid;
+
+      // this is a hack, accessing Leaflet’s private _container is evil
+      $(this._container).on('taphold', function() {
+        if (typeof android !== 'undefined' && android && android.portalLongPressed) {
+          android.portalLongPressed();
+        } else {
+          window.renderPortalDetails(guid);
+          window.smartphone.sideButton.click();
+        }
+      });
+    });
+  });
 
   // Force lower render limits for mobile
   window.VIEWPORT_PAD_RATIO = 0.1;

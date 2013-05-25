@@ -64,6 +64,16 @@ public class IITC_JSInterface {
                 .show();
     }
 
+    @JavascriptInterface
+    public void portalLongPressed() {
+        final IITC_Mobile iitcm = (IITC_Mobile) context;
+        iitcm.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                iitcm.handleMenuItemSelected(R.id.menu_info, true);
+            }
+        });
+    }
     // get layers and list them in a dialog
     @JavascriptInterface
     public void setLayers(String base_layer, String overlay_layer) {
