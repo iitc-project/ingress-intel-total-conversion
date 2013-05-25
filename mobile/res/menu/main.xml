@@ -2,15 +2,9 @@
     <item android:id="@+id/menu_search"
           android:title="@string/menu_search"
           android:icon="@drawable/action_search"
+          android:orderInCategory="10"
           android:showAsAction="ifRoom|collapseActionView"
           android:actionViewClass="android.widget.SearchView" />
-    <item
-        android:id="@+id/menu_map"
-        android:icon="@drawable/location_map"
-        android:orderInCategory="20"
-        android:showAsAction="ifRoom"
-        android:title="@string/menu_map">
-    </item>
     <item
         android:id="@+id/menu_info"
         android:icon="@drawable/action_about"

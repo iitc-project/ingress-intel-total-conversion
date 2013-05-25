@@ -1,7 +1,9 @@
 package com.cradle.iitc_mobile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.SearchManager;
@@ -16,6 +18,7 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
@@ -44,6 +47,10 @@ public class IITC_Mobile extends Activity {
     private IITC_DeviceAccountLogin mLogin;
     private MenuItem searchMenuItem;
 
+    // Used for custom back stack handling
+    private ArrayList<Integer> backStack = new ArrayList<Integer>();
+    private int currentPane = android.R.id.home;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,8 +69,9 @@ public class IITC_Mobile extends Activity {
         actionBar = this.getActionBar();
         actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
                 | ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_TITLE);
-        actionBar.setTitle(getString(R.string.menu_map));
-        actionBar.setHomeButtonEnabled(true);
+        actionBar.setTitle(getString(R.string.app_name));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+            actionBar.setHomeButtonEnabled(true);
 
         // do something if user changed something in the settings
         SharedPreferences sharedPref = PreferenceManager
@@ -121,6 +129,10 @@ public class IITC_Mobile extends Activity {
 
         fullscreen_actionbar = sharedPref.getBoolean("pref_fullscreen_actionbar", false);
 
+        // Clear the back stack
+        backStack.clear();
+        SetActionBarHomeEnabledWithUp(false);
+
         handleIntent(getIntent(), true);
     }
 
@@ -150,8 +162,10 @@ public class IITC_Mobile extends Activity {
                     (SearchView) searchMenuItem.getActionView();
             searchView.setQuery(query, false);
             searchView.clearFocus();
+            actionBar.setTitle(getString(R.string.app_name));
+            BackStackUpdate(android.R.id.home);
             iitc_view.loadUrl("javascript:search('" + query + "');");
-        } else if (onCreate){
+        } else if (onCreate) {
             this.loadUrl(intel_url);
         }
     }
@@ -229,12 +243,41 @@ public class IITC_Mobile extends Activity {
     // we want a self defined behavior for the back button
     @Override
     public void onBackPressed() {
-        // exit fullscreen mode if it is enabled
-        if (fullscreen_mode) {
+        // exit fullscreen mode if it is enabled and action bar is disabled or the back stack is empty
+        if (fullscreen_mode && (backStack.isEmpty() || fullscreen_actionbar)) {
             this.toggleFullscreen();
+        } else if (!backStack.isEmpty()) {
+            // Pop last item from backStack and pretend the relevant menu item was clicked
+            BackStackPop();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    private void BackStackPop() {
+        int index = backStack.size() - 1;
+        int itemId = backStack.remove(index);
+        if (backStack.isEmpty()) {
+            // Empty back stack means we should be at home (ie map) screen
+            SetActionBarHomeEnabledWithUp(false);
+            actionBar.setTitle(getString(R.string.app_name));
+            iitc_view.loadUrl("javascript: window.show('map');");
             return;
         }
-        iitc_view.loadUrl("javascript: window.goBack();");
+        HandleMenuItemSelected(itemId, false);
+    }
+
+    private void SetActionBarHomeEnabledWithUp(boolean enabled) {
+        actionBar.setDisplayHomeAsUpEnabled(enabled);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+            actionBar.setHomeButtonEnabled(enabled);
+    }
+
+    private void BackStackUpdate(int itemId) {
+        if (itemId == currentPane) return;
+        backStack.add(currentPane);
+        currentPane = itemId;
+        if (backStack.size() == 1) SetActionBarHomeEnabledWithUp(true);
     }
 
     @Override
@@ -255,31 +298,43 @@ public class IITC_Mobile extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
-        switch (item.getItemId()) {
+        final int itemId = item.getItemId();
+        boolean result = HandleMenuItemSelected(itemId, true);
+        if (!result) return super.onOptionsItemSelected(item);
+        return true;
+    }
+
+    private boolean HandleMenuItemSelected(int itemId, boolean addToBackStack) {
+        switch (itemId) {
             case android.R.id.home:
-                iitc_view.loadUrl("javascript: window.show('map');");
-                actionBar.setTitle(getString(R.string.menu_map));
-                return true;
-            case R.id.menu_map:
-                iitc_view.loadUrl("javascript: window.show('map');");
-                actionBar.setTitle(getString(R.string.menu_map));
+                if (!backStack.isEmpty()) {
+                    BackStackPop();
+                }
                 return true;
             case R.id.reload_button:
+                actionBar.setTitle(getString(R.string.app_name));
+                backStack.clear();
+                SetActionBarHomeEnabledWithUp(false);
                 this.loadUrl(intel_url);
-                actionBar.setTitle(getString(R.string.menu_map));
                 return true;
             case R.id.toggle_fullscreen:
                 toggleFullscreen();
                 return true;
             case R.id.layer_chooser:
+                // Force map view to handle potential issue with back stack
+                if (!backStack.isEmpty() && currentPane != android.R.id.home)
+                    iitc_view.loadUrl("javascript: window.show('map');");
                 // the getLayers function calls the setLayers method of IITC_JSInterface
                 iitc_view.loadUrl("javascript: window.layerChooser.getLayers()");
+                actionBar.setTitle(getString(R.string.app_name));
+                BackStackUpdate(android.R.id.home);
                 return true;
             // get the users current location and focus it on map
             case R.id.locate:
                 iitc_view.loadUrl("javascript: window.show('map');");
                 iitc_view.loadUrl("javascript: window.map.locate({setView : true, maxZoom: 15});");
-                actionBar.setTitle(getString(R.string.menu_map));
+                actionBar.setTitle(getString(R.string.app_name));
+                BackStackUpdate(android.R.id.home);
                 return true;
             // start settings activity
             case R.id.action_settings:
@@ -291,29 +346,35 @@ public class IITC_Mobile extends Activity {
             case R.id.menu_info:
                 iitc_view.loadUrl("javascript: window.show('info');");
                 actionBar.setTitle(getString(R.string.menu_info));
+                if (addToBackStack) BackStackUpdate(itemId);
                 return true;
             case R.id.menu_full:
                 iitc_view.loadUrl("javascript: window.show('full');");
                 actionBar.setTitle(getString(R.string.menu_full));
+                if (addToBackStack) BackStackUpdate(itemId);
                 return true;
             case R.id.menu_compact:
                 iitc_view.loadUrl("javascript: window.show('compact');");
                 actionBar.setTitle(getString(R.string.menu_compact));
+                if (addToBackStack) BackStackUpdate(itemId);
                 return true;
             case R.id.menu_public:
                 iitc_view.loadUrl("javascript: window.show('public');");
                 actionBar.setTitle(getString(R.string.menu_public));
+                if (addToBackStack) BackStackUpdate(itemId);
                 return true;
             case R.id.menu_faction:
                 iitc_view.loadUrl("javascript: window.show('faction');");
                 actionBar.setTitle(getString(R.string.menu_faction));
+                if (addToBackStack) BackStackUpdate(itemId);
                 return true;
             case R.id.menu_debug:
                 iitc_view.loadUrl("javascript: window.show('debug')");
                 actionBar.setTitle(getString(R.string.menu_debug));
+                if (addToBackStack) BackStackUpdate(itemId);
                 return true;
             default:
-                return super.onOptionsItemSelected(item);
+                return false;
         }
     }
 
@@ -354,17 +415,20 @@ public class IITC_Mobile extends Activity {
     }
 
     public void toggleFullscreen() {
+        // TODO: Figure out how to handle this with new back stack?
+
         if (fullscreen_mode) {
             if (fullscreen_actionbar)
                 this.getActionBar().show();
             this.fullscreen_mode = false;
         } else {
-            if (fullscreen_actionbar)
+            if (fullscreen_actionbar) {
                 this.getActionBar().hide();
+                // show a toast with instructions to exit the fc mode again
+                Toast.makeText(this, "Press back button to exit fullscreen",
+                        Toast.LENGTH_SHORT).show();
+            }
             this.fullscreen_mode = true;
-            // show a toast with instructions to exit the fc mode again
-            Toast.makeText(this, "Press back button to exit fullscreen",
-                    Toast.LENGTH_SHORT).show();
         }
         // toggle notification bar
         WindowManager.LayoutParams attrs = getWindow().getAttributes();
