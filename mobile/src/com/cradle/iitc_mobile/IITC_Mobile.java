@@ -354,7 +354,7 @@ public class IITC_Mobile extends Activity {
                 return true;
             case R.id.menu_info:
                 iitc_view.loadUrl("javascript: window.show('info');");
-                actionBar.setTitle((R.string.menu_info));
+                actionBar.setTitle(getString(R.string.menu_info));
                 if (addToBackStack) backStackUpdate(itemId);
                 return true;
             case R.id.menu_full:
