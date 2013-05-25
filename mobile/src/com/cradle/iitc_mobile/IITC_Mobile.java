@@ -130,7 +130,7 @@ public class IITC_Mobile extends Activity {
 
         // Clear the back stack
         backStack.clear();
-        SetActionBarHomeEnabledWithUp(false);
+        setActionBarHomeEnabledWithUp(false);
 
         handleIntent(getIntent(), true);
     }
@@ -253,16 +253,18 @@ public class IITC_Mobile extends Activity {
         }
     }
 
-    private void SetActionBarHomeEnabledWithUp(boolean enabled) {
+    private void setActionBarHomeEnabledWithUp(boolean enabled) {
         actionBar.setDisplayHomeAsUpEnabled(enabled);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
             actionBar.setHomeButtonEnabled(enabled);
     }
 
     public void backStackPop() {
+        // shouldn't be called when back stack is empty
+        // catch wrong usage
         if (backStack.isEmpty()) {
             // Empty back stack means we should be at home (ie map) screen
-            SetActionBarHomeEnabledWithUp(false);
+            setActionBarHomeEnabledWithUp(false);
             actionBar.setTitle(getString(R.string.app_name));
             iitc_view.loadUrl("javascript: window.show('map');");
             return;
@@ -271,13 +273,18 @@ public class IITC_Mobile extends Activity {
         int itemId = backStack.remove(index);
         currentPane = itemId;
         handleMenuItemSelected(itemId, false);
+        // if we popped our last item from stack...illustrate it on home button
+        if (backStack.isEmpty()) {
+            // Empty back stack means we should be at home (ie map) screen
+            setActionBarHomeEnabledWithUp(false);
+        }
     }
 
     public void backStackUpdate(int itemId) {
         if (itemId == currentPane) return;
         backStack.add(currentPane);
         currentPane = itemId;
-        if (backStack.size() == 1) SetActionBarHomeEnabledWithUp(true);
+        if (backStack.size() == 1) setActionBarHomeEnabledWithUp(true);
     }
 
     @Override
@@ -307,16 +314,15 @@ public class IITC_Mobile extends Activity {
     public boolean handleMenuItemSelected(int itemId, boolean addToBackStack) {
         switch (itemId) {
             case android.R.id.home:
-                if (!backStack.isEmpty()) {
-                    backStackPop();
-                }
                 iitc_view.loadUrl("javascript: window.show('map');");
                 actionBar.setTitle(getString(R.string.app_name));
+                this.backStack.clear();
+                setActionBarHomeEnabledWithUp(false);
                 return true;
             case R.id.reload_button:
                 actionBar.setTitle(getString(R.string.app_name));
                 backStack.clear();
-                SetActionBarHomeEnabledWithUp(false);
+                setActionBarHomeEnabledWithUp(false);
                 this.loadUrl(intel_url);
                 return true;
             case R.id.toggle_fullscreen:
