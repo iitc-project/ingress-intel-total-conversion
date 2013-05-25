@@ -64,6 +64,13 @@ public class IITC_JSInterface {
                 .show();
     }
 
+    // exit IITC Mobile
+    @JavascriptInterface
+    public void exitIITC() {
+        Log.d("iitcm","no back stack...finishing iitc");
+        ((IITC_Mobile) context).finish();
+    }
+
     // get layers and list them in a dialog
     @JavascriptInterface
     public void setLayers(String base_layer, String overlay_layer) {

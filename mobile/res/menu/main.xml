@@ -1,5 +1,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-
+    <item android:id="@+id/menu_search"
+          android:title="@string/menu_search"
+          android:icon="@drawable/action_search"
+          android:showAsAction="ifRoom|collapseActionView"
+          android:actionViewClass="android.widget.SearchView" />
     <item
         android:id="@+id/menu_map"
         android:icon="@drawable/location_map"
@@ -48,18 +52,18 @@
         </menu>
     </item>
     <item
-        android:id="@+id/locate"
-        android:icon="@drawable/device_access_location_found"
-        android:orderInCategory="100"
-        android:showAsAction="ifRoom"
-        android:title="@string/locate">
-    </item>
-    <item
         android:id="@+id/layer_chooser"
         android:icon="@drawable/ic_layer_chooser"
-        android:orderInCategory="105"
+        android:orderInCategory="100"
         android:showAsAction="ifRoom"
         android:title="@string/layer_chooser">
+    </item>
+    <item
+        android:id="@+id/locate"
+        android:icon="@drawable/device_access_location_found"
+        android:orderInCategory="105"
+        android:showAsAction="ifRoom"
+        android:title="@string/locate">
     </item>
     <item
         android:id="@+id/reload_button"

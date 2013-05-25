@@ -26,7 +26,6 @@ install from the link below.
 <p>
 IITC Mobile is still in the early stages of development. Many things do not yet work right. Major known issues are:
 <ol>
-<li>The layer chooser selects the first map layer every time it's opened.</li>
 <li>Some plugins do not work well, or at all, at this time.</li>
 <li>Serious issues exist on Android 4.0 devices.
 <a href="https://github.com/jonatkins/ingress-intel-total-conversion/issues/90">details</a>.</li>

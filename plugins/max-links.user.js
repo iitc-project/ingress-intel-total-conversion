@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             max-links@boombuler
 // @name           IITC plugin: Max Links
-// @version        0.3.0.@@DATETIMEVERSION@@
+// @version        0.3.1.@@DATETIMEVERSION@@
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Calculates how to link the portals to create the maximum number of fields.
@@ -117,7 +117,7 @@ window.plugin.maxLinks.setup = function() {
       window.plugin.maxLinks.updateLayer();
   });
   window.map.on('zoomend moveend', window.plugin.maxLinks.updateLayer);
-  window.addLayerGroup('Maximum Links', window.plugin.maxLinks.layer);
+  window.addLayerGroup('Maximum Links', window.plugin.maxLinks.layer, false);
 }
 var setup = window.plugin.maxLinks.setup;
 

@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,7 +17,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -25,6 +25,7 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebView;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 public class IITC_Mobile extends Activity {
@@ -32,7 +33,6 @@ public class IITC_Mobile extends Activity {
     private static final int REQUEST_LOGIN = 1;
 
     private IITC_WebView iitc_view;
-    private boolean back_button_pressed = false;
     private OnSharedPreferenceChangeListener listener;
     private String intel_url = "https://www.ingress.com/intel";
     private boolean user_loc = false;
@@ -42,6 +42,7 @@ public class IITC_Mobile extends Activity {
     private boolean fullscreen_actionbar = false;
     private ActionBar actionBar;
     private IITC_DeviceAccountLogin mLogin;
+    private MenuItem searchMenuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +99,7 @@ public class IITC_Mobile extends Activity {
             }
 
             public void onStatusChanged(String provider, int status,
-                    Bundle extras) {
+                                        Bundle extras) {
             }
 
             public void onProviderEnabled(String provider) {
@@ -120,8 +121,17 @@ public class IITC_Mobile extends Activity {
 
         fullscreen_actionbar = sharedPref.getBoolean("pref_fullscreen_actionbar", false);
 
+        handleIntent(getIntent(), true);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        setIntent(intent);
+        handleIntent(intent, false);
+    }
+
+    private void handleIntent(Intent intent, boolean onCreate) {
         // load new iitc web view with ingress intel page
-        Intent intent = getIntent();
         String action = intent.getAction();
         if (Intent.ACTION_VIEW.equals(action)) {
             Uri uri = intent.getData();
@@ -133,7 +143,15 @@ public class IITC_Mobile extends Activity {
                 Log.d("iitcm", "loading url...");
                 this.loadUrl(url);
             }
-        } else {
+        } else if (Intent.ACTION_SEARCH.equals(action)) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            query = query.replace("'", "''");
+            final SearchView searchView =
+                    (SearchView) searchMenuItem.getActionView();
+            searchView.setQuery(query, false);
+            searchView.clearFocus();
+            iitc_view.loadUrl("javascript:search('" + query + "');");
+        } else if (onCreate){
             this.loadUrl(intel_url);
         }
     }
@@ -216,29 +234,21 @@ public class IITC_Mobile extends Activity {
             this.toggleFullscreen();
             return;
         }
-        if (this.back_button_pressed) {
-            super.onBackPressed();
-            return;
-        }
-
         iitc_view.loadUrl("javascript: window.goBack();");
-        this.back_button_pressed = true;
-        Toast.makeText(this, "Press twice to exit", Toast.LENGTH_SHORT).show();
-
-        // reset back button after 0.5 seconds
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                back_button_pressed = false;
-            }
-        }, 500);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-
+        // Get the SearchView and set the searchable configuration
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        this.searchMenuItem = menu.findItem(R.id.menu_search);
+        final SearchView searchView =
+                (SearchView) searchMenuItem.getActionView();
+        // Assumes current activity is the searchable activity
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
         return true;
     }
 
@@ -246,63 +256,63 @@ public class IITC_Mobile extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-            case android.R.id.home :
+            case android.R.id.home:
                 iitc_view.loadUrl("javascript: window.show('map');");
                 actionBar.setTitle(getString(R.string.menu_map));
                 return true;
-            case R.id.menu_map :
+            case R.id.menu_map:
                 iitc_view.loadUrl("javascript: window.show('map');");
                 actionBar.setTitle(getString(R.string.menu_map));
                 return true;
-            case R.id.reload_button :
+            case R.id.reload_button:
                 this.loadUrl(intel_url);
                 actionBar.setTitle(getString(R.string.menu_map));
                 return true;
-            case R.id.toggle_fullscreen :
+            case R.id.toggle_fullscreen:
                 toggleFullscreen();
                 return true;
             case R.id.layer_chooser:
                 // the getLayers function calls the setLayers method of IITC_JSInterface
                 iitc_view.loadUrl("javascript: window.layerChooser.getLayers()");
                 return true;
-                // get the users current location and focus it on map
-            case R.id.locate :
+            // get the users current location and focus it on map
+            case R.id.locate:
                 iitc_view.loadUrl("javascript: window.show('map');");
                 iitc_view.loadUrl("javascript: window.map.locate({setView : true, maxZoom: 15});");
                 actionBar.setTitle(getString(R.string.menu_map));
                 return true;
-                // start settings activity
-            case R.id.action_settings :
+            // start settings activity
+            case R.id.action_settings:
                 Intent intent = new Intent(this, IITC_Settings.class);
                 intent.putExtra("iitc_version", iitc_view.getWebViewClient()
                         .getIITCVersion());
                 startActivity(intent);
                 return true;
-            case R.id.menu_info :
+            case R.id.menu_info:
                 iitc_view.loadUrl("javascript: window.show('info');");
                 actionBar.setTitle(getString(R.string.menu_info));
                 return true;
-            case R.id.menu_full :
+            case R.id.menu_full:
                 iitc_view.loadUrl("javascript: window.show('full');");
                 actionBar.setTitle(getString(R.string.menu_full));
                 return true;
-            case R.id.menu_compact :
+            case R.id.menu_compact:
                 iitc_view.loadUrl("javascript: window.show('compact');");
                 actionBar.setTitle(getString(R.string.menu_compact));
                 return true;
-            case R.id.menu_public :
+            case R.id.menu_public:
                 iitc_view.loadUrl("javascript: window.show('public');");
                 actionBar.setTitle(getString(R.string.menu_public));
                 return true;
-            case R.id.menu_faction :
+            case R.id.menu_faction:
                 iitc_view.loadUrl("javascript: window.show('faction');");
                 actionBar.setTitle(getString(R.string.menu_faction));
                 return true;
-            case R.id.menu_debug :
+            case R.id.menu_debug:
                 iitc_view.loadUrl("javascript: window.show('debug')");
                 actionBar.setTitle(getString(R.string.menu_debug));
                 return true;
-            default :
+            default:
                 return super.onOptionsItemSelected(item);
         }
     }
@@ -377,12 +387,12 @@ public class IITC_Mobile extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case REQUEST_LOGIN :
+            case REQUEST_LOGIN:
                 // authentication activity has returned. mLogin will continue authentication
                 mLogin.onActivityResult(resultCode, data);
                 break;
 
-            default :
+            default:
                 super.onActivityResult(requestCode, resultCode, data);
         }
     }
@@ -391,7 +401,7 @@ public class IITC_Mobile extends Activity {
      * called by IITC_WebViewClient when the Google login form is opened.
      */
     public void onReceivedLoginRequest(IITC_WebViewClient client, WebView view,
-            String realm, String account, String args) {
+                                       String realm, String account, String args) {
         mLogin = new IITC_DeviceAccountLogin(this, view, client);
         mLogin.startLogin(realm, account, args);
     }
@@ -399,7 +409,7 @@ public class IITC_Mobile extends Activity {
     /**
      * called after successful login
      */
-    public void loginSucceded() {
+    public void loginSucceeded() {
         // garbage collection
         mLogin = null;
     }

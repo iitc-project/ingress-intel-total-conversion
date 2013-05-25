@@ -1,11 +1,34 @@
-.classpath
-.project
 .settings/
-bin/
-gen/
-libs/
-proguard-project.txt
-local.properties
 assets/total-conversion-build.user.js
 assets/user-location.user.js
 assets/plugins/
+
+# built application files
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+# generated files
+bin/
+gen/
+out/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Eclipse project files
+.classpath
+.project
+
+# IntelliJ IDEA user settings
+*.iws
+.idea/workspace.xml
+.idea/tasks.xml
+
+# Proguard logs
+proguard_logs/

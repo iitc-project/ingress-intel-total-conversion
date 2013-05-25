@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-draw-tools@breunigs
 // @name           IITC plugin: draw tools
-// @version        0.4.0.@@DATETIMEVERSION@@
+// @version        0.4.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -141,7 +141,7 @@ window.plugin.drawTools.boot = function() {
   });
 
   //add the layer
-  window.addLayerGroup('Drawn Items', window.plugin.drawTools.drawnItems);
+  window.addLayerGroup('Drawn Items', window.plugin.drawTools.drawnItems, true);
 
 
   //place created items into the specific layer
