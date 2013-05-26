@@ -124,18 +124,34 @@ window.postAjax = function(action, data, success, error) {
   return result;
 }
 
-// converts unix timestamps to HH:mm:ss format if it was today;
+window.zeroPad = function(number,pad) {
+  number = number.toString();
+  var zeros = pad - number.length;
+  return Array(zeros>0?zeros+1:0).join("0") + number;
+}
+
+
+// converts javascript timestamps to HH:mm:ss format if it was today;
 // otherwise it returns YYYY-MM-DD
 window.unixTimeToString = function(time, full) {
   if(!time) return null;
   var d = new Date(typeof time === 'string' ? parseInt(time) : time);
   var time = d.toLocaleTimeString();
-  var date = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+  var date = d.getFullYear()+'-'+zeroPad(d.getMonth()+1,2)+'-'+zeroPad(d.getDate(),2);
   if(typeof full !== 'undefined' && full) return date + ' ' + time;
   if(d.toDateString() == new Date().toDateString())
     return time;
   else
     return date;
+}
+
+// converts a javascript time to a precise date and time (optionally with millisecond precision)
+// formatted in ISO-style YYYY-MM-DD hh:mm:ss.mmm - but using local timezone
+window.unixTimeToDateTimeString = function(time, millisecond) {
+  if(!time) return null;
+  var d = new Date(typeof time === 'string' ? parseInt(time) : time);
+  return d.getFullYear()+'-'+zeroPad(d.getMonth()+1,2)+'-'+zeroPad(d.getDate(),2)
+    +' '+d.toLocaleTimeString()+(millisecond?'.'+zeroPad(d.getMilliseconds(),3):'');
 }
 
 window.unixTimeToHHmm = function(time) {

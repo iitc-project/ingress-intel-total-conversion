@@ -394,7 +394,10 @@ window.chat.renderDivider = function(text) {
 
 window.chat.renderMsg = function(msg, nick, time, team, msgToPlayer, systemNarrowcast) {
   var ta = unixTimeToHHmm(time);
-  var tb = unixTimeToString(time, true);
+  var tb = unixTimeToDateTimeString(time, true);
+  //add <small> tags around the milliseconds
+  tb = (tb.slice(0,19)+'<small class="milliseconds">'+tb.slice(19)+'</small>').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
   // help cursor via “#chat time”
   var t = '<time title="'+tb+'" data-timestamp="'+time+'">'+ta+'</time>';
   if ( msgToPlayer )
