@@ -6,27 +6,6 @@
 // Used to disable on multitouch devices
 window.showZoom = true;
 
-window.setupBackButton = function() {
-  var c = window.isSmartphone()
-    ? window.smartphone.mapButton
-    : $('#chatcontrols a.active');
-
-  window.setupBackButton._actions = [c.get(0)];
-  $('#chatcontrols a').click(function() {
-    // ignore shrink button
-    if($(this).hasClass('toggle')) return;
-    window.setupBackButton._actions.push(this);
-    window.setupBackButton._actions = window.setupBackButton._actions.slice(-2);
-  });
-
-  window.goBack = function() {
-    var a = window.setupBackButton._actions[0];
-    if(!a) return;
-    $(a).click();
-    window.setupBackButton._actions = [a];
-  }
-}
-
 window.setupLargeImagePreview = function() {
   $('#portaldetails').on('click', '.imgpreview', function() {
     var img = $(this).find('img')[0];
@@ -408,7 +387,6 @@ function boot() {
   window.setupQRLoadLib();
   window.setupLayerChooserSelectOne();
   window.setupLayerChooserStatusRecorder();
-  window.setupBackButton();
   // read here ONCE, so the URL is only evaluated one time after the
   // necessary data has been loaded.
   urlPortalLL = getURLParam('pll');
