@@ -1878,12 +1878,13 @@
                         },
                         "requiredLevel": 6
                     },
-                    "doesNotExist": {
+                    "resourceWithLevels": {
                         "resourceType": "MEDIA",
                         "level": 8
                     },
-                    "powerCube": {
-                        "energy": 6000
+                    "storyItem": {
+                        "shortDescription": "INGRESS_REPORT_42",
+                        "primaryUrl": "http://www.nianticproject.com"
                     }
                 }
             ],
@@ -1895,13 +1896,38 @@
                         "playerId": "00000000000000000000000000000000.c",
                         "acquisitionTimestampMs": "1365600000000"
                     },
-                    "modResource": {
-                        "resourceType": "PORTAL_TURRET",
-                        "stats": {
-                            "MITIGATION": "6"
+                    "accessLevel": {
+                        "failure": {
+                            "isAllowed": false,
+                            "requiredLevel": 6
                         },
-                        "displayName": "Portal Turret",
-                        "rarity": "VERY_RARE"
+                        "requiredLevel": 6
+                    },
+                    "resourceWithLevels": {
+                        "resourceType": "MEDIA",
+                        "level": 8
+                    },
+                    "storyItem": {
+                        "shortDescription": "INGRESS_REPORT_42",
+                        "primaryUrl": "http://www.nianticproject.com"
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "resource": {
+                        "resourceType": "PORTAL_LINK_KEY",
+                        "displayName": "Portal Key"
+                    },
+                    "portalCoupler": {
+                        "portalGuid": "00000000000000000000000000000000.7",
+                        "portalTitle": "Portal Name"
                     }
                 }
             ],
@@ -1922,6 +1948,48 @@
                     },
                     "doesNotExist": {
                         "resourceType": "SUPER_SECRET"
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "resource": {
+                        "resourceType": "FLIP_CARD",
+                        "resourceRarity": "VERY_RARE"
+                    },
+                    "displayName": {
+                        "displayDescription": "The ADA Refactor can be used to reverse the alignment of an Enlightened Portal.",
+                        "displayName": "ADA Refactor"
+                    },
+                    "flipCard": {
+                        "flipCardType": "ADA"
+                    }
+                }
+            ],
+            [
+                "00000000000000000000000000000000.5",
+                1365600000000,
+                {
+                    "inInventory": {
+                        "playerId": "00000000000000000000000000000000.c",
+                        "acquisitionTimestampMs": "1365600000000"
+                    },
+                    "resource": {
+                        "resourceType": "FLIP_CARD",
+                        "resourceRarity": "VERY_RARE"
+                    },
+                    "displayName": {
+                        "displayDescription": "The JARVIS Virus can be used to reverse the alignment of a Resistance Portal.",
+                        "displayName": "JARVIS Virus"
+                    },
+                    "flipCard": {
+                        "flipCardType": "JARVIS"
                     }
                 }
             ]
