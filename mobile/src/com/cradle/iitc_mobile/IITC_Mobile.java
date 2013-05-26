@@ -45,6 +45,7 @@ public class IITC_Mobile extends Activity {
     private ActionBar actionBar;
     private IITC_DeviceAccountLogin mLogin;
     private MenuItem searchMenuItem;
+    private boolean desktop = false;
 
     // Used for custom back stack handling
     private ArrayList<Integer> backStack = new ArrayList<Integer>();
@@ -79,6 +80,10 @@ public class IITC_Mobile extends Activity {
             @Override
             public void onSharedPreferenceChanged(
                     SharedPreferences sharedPreferences, String key) {
+                if (key.equals("pref_force_desktop")) {
+                    desktop = sharedPreferences.getBoolean("pref_force_desktop", false);
+                    invalidateOptionsMenu();
+                }
                 if (key.equals("pref_user_loc"))
                     user_loc = sharedPreferences.getBoolean("pref_user_loc",
                             false);
@@ -92,6 +97,9 @@ public class IITC_Mobile extends Activity {
             }
         };
         sharedPref.registerOnSharedPreferenceChangeListener(listener);
+
+        // enable/disable desktop mode on menu create and url load
+        desktop = sharedPref.getBoolean("pref_force_desktop", false);
 
         // Acquire a reference to the system Location Manager
         loc_mngr = (LocationManager) this
@@ -299,6 +307,8 @@ public class IITC_Mobile extends Activity {
         // Assumes current activity is the searchable activity
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
+        // enable/disable desktop menu
+        enableDesktopUI(menu, desktop);
         return true;
     }
 
@@ -397,10 +407,13 @@ public class IITC_Mobile extends Activity {
         }
     }
 
-    // Force mobile view.
-    // New actions are not compatible with desktop mode
+    // vp=f enables desktop mode...vp=m is the defaul mobile view
     private String addUrlParam(String url) {
-        return (url + "?vp=m");
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        if (sharedPref.getBoolean("pref_force_desktop", false))
+            return (url + "?vp=f");
+        else
+            return (url + "?vp=m");
     }
 
     // inject the iitc-script and load the intel url
@@ -485,5 +498,18 @@ public class IITC_Mobile extends Activity {
     public void loginSucceeded() {
         // garbage collection
         mLogin = null;
+    }
+
+    // disable/enable some menu buttons...
+    public void enableDesktopUI(Menu menu, boolean desktop) {
+        MenuItem item;
+        item = menu.findItem(R.id.menu_chat);
+        item.setVisible(!desktop);
+        item = menu.findItem(R.id.menu_info);
+        item.setVisible(!desktop);
+        item = menu.findItem(R.id.menu_debug);
+        item.setVisible(!desktop);
+        item = menu.findItem(R.id.layer_chooser);
+        item.setVisible(!desktop);
     }
 }
