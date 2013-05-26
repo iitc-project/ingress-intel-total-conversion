@@ -54,7 +54,7 @@ window.renderPortalDetails = function(guid) {
   $('#portaldetails')
     .attr('class', TEAM_TO_CSS[getTeam(d)])
     .html(''
-      + '<h3 class="title">'+d.portalV2.descriptiveText.TITLE+'</h3>'
+      + '<h3 class="title">'+escapeHtmlSpecialChars(d.portalV2.descriptiveText.TITLE)+'</h3>'
       + '<span class="close" onclick="unselectOldPortal();" title="Close">X</span>'
       // help cursor via ".imgpreview img"
       + '<div class="imgpreview" '+imgTitle+' style="background-image: url('+img+')">'

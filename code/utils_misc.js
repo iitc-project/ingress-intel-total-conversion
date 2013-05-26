@@ -365,6 +365,14 @@ window.escapeJavascriptString = function(str) {
   return (str+'').replace(/[\\"']/g,'\\$&');
 }
 
+//escape special characters, such as tags
+window.escapeHtmlSpecialChars = function(str) {
+  var div = document.createElement(div);
+  var text = document.createTextNode(str);
+  div.appendChild(text);
+  return div.innerHTML;
+}
+
 window.prettyEnergy = function(nrg) {
   return nrg> 1000 ? Math.round(nrg/1000) + ' k': nrg;
 }
