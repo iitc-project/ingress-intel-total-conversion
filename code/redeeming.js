@@ -2,14 +2,136 @@
 // Heuristic passcode redemption that tries to guess unknown items /
 ////////////////////////////////////////////////////////////////////
 
+/* Abbreviates redemption items.
+ * Example: VERY_RARE => VR
+ */
+window.REDEEM_ABBREVIATE = function(tag) {return tag.split('_').map(function (i) {return i[0];}).join('');};
+
 /* Resource type names mapped to actual names and abbreviations.
  * Add more here if necessary.
+ * Sometimes, items will have more information than just a level. Allow for specialization.
  */
 window.REDEEM_RESOURCES = {
-  RES_SHIELD:  {long: 'Portal Shield', short: 'SH'},
-  EMITTER_A:   {long: 'Resonator', short: 'R'},
-  EMP_BURSTER: {long: 'XMP Burster', short: 'X'},
-  POWER_CUBE:  {long: 'Power Cube', short: 'C'}
+  RES_SHIELD: {
+    /* modResource */
+    format: function(acquired) {
+      return {long: 'Portal Shield', short: 'S'};
+    }
+  },
+  EMITTER_A: {
+    /* resourceWithLevels */
+    format: function(acquired) {
+      return {long: 'Resonator', short: 'R'};
+    }
+  },
+  EMP_BURSTER: {
+    /* resourceWithLevels */
+    format: function(acquired) {
+      return {long: 'XMP Burster', short: 'X'};
+    }
+  },
+  POWER_CUBE: {
+    /* resourceWithLevels */
+    format: function(acquired) {
+      return {long: 'Power Cube', short: 'C'};
+    }
+  },
+  MEDIA: {
+    /* resourceWithLevels */
+    format: function(acquired) {
+      return {
+        long: 'Media: <a href="' + (acquired.storyItem.primaryUrl || '#') + '" target="_blank">' + (acquired.storyItem.shortDescription || 'UNKNOWN') + '</a>',
+        short: 'M'
+      };
+    }
+  },
+  FLIP_CARD: {
+    decode: function(type, acquired, key) {
+      /* ADA or JARVIS */
+      return acquired.flipCard.flipCardType;
+    },
+    format: function(acquired) {
+      var type = acquired.flipCard.flipCardType;
+      return {
+        long: type,
+        short: ({ADA: 'AR', JARVIS: 'JV'}[type] || 'FC'),
+        prefix: '<span title="' + (acquired.displayName ? (acquired.displayName.displayDescription || '') : '') + '" class="' + ({ADA: 'res', JARVIS: 'enl'}[type] || '') + '">',
+        suffix: '</span>'
+      };
+    }
+  },
+  PORTAL_LINK_KEY: {
+    decode: function(type, acquired, key) {
+      /* A unique identifier for this portal. */
+      return acquired.portalCoupler.portalGuid;
+    },
+    format: function(acquired) {
+      return {
+        long: 'Portal Key: ' + acquired.portalCoupler.portalTitle || 'Unknown Portal',
+        short: 'K'
+      };
+    }
+  }
+};
+
+/* Redemption "handlers" handle decoding and formatting for rewards.
+ *
+ * Redemption "decoders" are used for returning the primary attribute (key) from
+ * different types of items. Pretty self-explanatory.
+ *
+ * Redemption "formatters" are used for formatting specific types of password rewards.
+ * Right now, Ingress has resourceWithLevels (leveled resources) and modResource (mods).
+ * Resources with levels have levels, and mods have rarity. Format them appropriately.
+ */
+window.REDEEM_HANDLERS = {
+  resource: {
+    decode: function(type, acquired, key) {return 'RESOURCE';},
+    format: function(acquired, group) {
+      var prefix = acquired.str.prefix || '';
+      var suffix = acquired.str.suffix || '';
+      return {
+        table: '<td>+</td><td>' + prefix + acquired.str.long + suffix + ' [' + acquired.count + ']</td>',
+        html:  acquired.count + '&#215;' + prefix + acquired.str.short + suffix,
+        plain: acquired.count + '@' + acquired.str.short
+      };
+    }
+  },
+
+  // A leveled resource, such as XMPs, resonators, or power cubes.
+  resourceWithLevels: {
+    decode: function(type, acquired, key) {return acquired[key].level;},
+    format: function(acquired, level) {
+      var prefix = '<span style="color: ' + (window.COLORS_LVL[level] || 'white') + ';">';
+      var suffix = '</span>';
+      return {
+        table: '<td>' + prefix + 'L' + level + suffix + '</td><td>' + acquired.str.long + ' [' + acquired.count + ']</td>',
+        html:  acquired.count + '&#215;' + acquired.str.short + prefix + level + suffix,
+        plain: acquired.count + '@' + acquired.str.short + level
+      };
+    }
+  },
+
+  // A mod, such as portal shields or link amplifiers.
+  modResource: {
+    decode: function(type, acquired, key) {return acquired[key].rarity;},
+    format: function(acquired, rarity) {
+      var prefix = '<span style="color: ' + (window.COLORS_MOD[rarity] || 'white') + ';">';
+      var suffix = '</span>';
+      var abbreviation = window.REDEEM_ABBREVIATE(rarity);
+      return {
+        table: '<td>' + prefix + abbreviation + suffix + '</td><td>' + acquired.str.long + ' [' + acquired.count + ']</td>',
+        html:  acquired.count + '&#215;' + acquired.str.short + ':' + prefix + abbreviation + suffix,
+        plain: acquired.count + '@' + acquired.str.short + ':' + abbreviation
+      };
+    }
+  }
+};
+
+/* Redemption "hints" hint at what an unknown resource might be from its object properties.
+ */
+window.REDEEM_HINTS = {
+  level: 'resourceWithLevels',
+  rarity: 'modResource'
 };
 
 /* Redemption errors. Very self-explanatory.
@@ -34,64 +156,12 @@ window.REDEEM_STATUSES = {
 window.REDEEM_ENCOURAGEMENT = [
   "Passcode accepted!",
   "Access granted.",
+  "Resources acquired.",
+  "Power up!",
   "Asset transfer in progress.",
   "Well done, Agent.",
   "Make the " + {'RESISTANCE' : 'Resistance', 'ALIENS' : 'Enlightened'}[PLAYER.team] + " proud!"
 ];
-
-/* Redemption "handlers" handle decoding and formatting for rewards.
- *
- * Redemption "decoders" are used for returning the primary attribute (key) from
- * different types of items. Pretty self-explanatory.
- *
- * Redemption "formatters" are used for formatting specific types of password rewards.
- * Right now, Ingress has resourceWithLevels (leveled resources) and modResource (mods).
- * Resources with levels have levels, and mods have rarity. Format them appropriately.
- */
-window.REDEEM_HANDLERS = {
-  'resourceWithLevels' : {
-    decode: function(type, resource) {return resource.level;},
-    format: function(acquired, level) {
-      var prefix = '<span style="color: ' + (window.COLORS_LVL[level] || 'white') + ';">';
-      var suffix = '</span>';
-      return {
-        table: '<td>' + prefix + 'L' + level + suffix + '</td><td>' + acquired.name.long + ' [' + acquired.count + ']</td>',
-        html:  acquired.count + '&#215;' + acquired.name.short + prefix + level + suffix,
-        plain: acquired.count + '@' + acquired.name.short + level
-      };
-    }
-  },
-  'modResource' : {
-    decode: function(type, resource) {return resource.rarity;},
-    format: function(acquired, rarity) {
-      var prefix = '<span style="color: ' + (window.COLORS_MOD[rarity] || 'white') + ';">';
-      var suffix = '</span>';
-      var abbreviation = rarity.split('_').map(function (i) {return i[0];}).join('');
-      return {
-        table: '<td>' + prefix + abbreviation + suffix + '</td><td>' + acquired.name.long + ' [' + acquired.count + ']</td>',
-        html:  acquired.count + '&#215;' + prefix + abbreviation + suffix,
-        plain: acquired.count + '@' + abbreviation
-      };
-    }
-  },
-  'default' : {
-    decode: function(type, resource) {return 'UNKNOWN';},
-    format: function(acquired, group) {
-      return {
-        table: '<td>+</td><td>' + acquired.name.long + ' [' + acquired.count + ']</td>',
-        html:  acquired.count + '&#215;' + acquired.name.short,
-        plain: acquired.count + '@' + acquired.name.short
-      };
-    }
-  }
-};
-
-/* Redemption "hints" hint at what an unknown resource might be from its object properties.
- */
-window.REDEEM_HINTS = {
-  level: 'resourceWithLevels',
-  rarity: 'modResource'
-};
 
 window.handleRedeemResponse = function(data, textStatus, jqXHR) {
   var passcode = this.passcode, to_dialog, to_log, dialog_title, dialog_buttons;
@@ -116,11 +186,11 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
 
     // Track frequencies and levels of items
     $.each(data.result.inventoryAward, function (award_idx, award) {
-      var acquired = award[2], handler, type, key, name;
+      var acquired = award[2], handler, type, resource, key, str;
 
       // The "what the heck is this item" heuristic
-      $.each(acquired, function (taxonomy, resource) {
-        if('resourceType' in resource) {
+      $.each(acquired, function (taxonomy, attribute) {
+        if('resourceType' in attribute) {
           if(taxonomy in window.REDEEM_HANDLERS) {
             // Cool. We know how to directly handle this item.
             handler = {
@@ -130,13 +200,13 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
             };
           } else {
             // Let's see if we can get a hint for how we should handle this.
-            $.each(resource, function (resource_key, resource_value) {
-              if(resource_key in window.REDEEM_HINTS) {
+            $.each(attribute, function (attribute_key, attribute_value) {
+              if(attribute_key in window.REDEEM_HINTS) {
                 // We're not sure what this item is, but we can process it like another item
                 handler = {
-                  functions: (window.REDEEM_HANDLERS[window.REDEEM_HINTS[resource_key]] || window.REDEEM_HANDLERS['default']),
+                  functions: (window.REDEEM_HANDLERS[window.REDEEM_HINTS[attribute_key]] || window.REDEEM_HANDLERS.resource),
                   taxonomy: taxonomy,
-                  processed_as: window.REDEEM_HINTS[resource_key]
+                  processed_as: window.REDEEM_HINTS[attribute_key]
                 };
                 return false;
               }
@@ -144,21 +214,31 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
 
             // Fall back to the default handler if necessary
             handler = handler || {
-              functions: window.REDEEM_HANDLERS['default'],
+              functions: window.REDEEM_HANDLERS.resource,
               taxonomy: taxonomy,
-              processed_as: 'default'
+              processed_as: 'resource'
             };
           }
 
-          // Collect the data that we know
-          type = resource.resourceType;
-          key  = handler.functions.decode(type, resource);
-          name = window.REDEEM_RESOURCES[type] || {long: type, short: type[0]};
+          // Grab the type
+          type = attribute.resourceType;
+
+          // Prefer the resource's native format, falling back to a generic version that applies to an entire taxonomy
+          resource = $.extend({format: function(acquired) {return {long: type, short: type[0]};}}, window.REDEEM_RESOURCES[type] || {});
+
+          // Get strings pertaining to this item, using server overrides for the item name if possible
+          str = $.extend(resource.format(acquired),
+                         acquired.displayName && acquired.displayName.displayName ? {
+                           long: attribute.displayName || acquired.displayName.displayName
+                         } : {});
+
+          // Get the primary key. Once again, prefer the resource's native format, but use the generic version if we don't have one.
+          key  = (resource.decode || handler.functions.decode)(type, acquired, handler.taxonomy);
 
           // Decide if we inferred this resource
           if(!(type in window.REDEEM_RESOURCES) || handler.taxonomy !== handler.processed_as) {
-            name.long  += '*';
-            name.short += '*';
+            str.long  += '*';
+            str.short += '*';
             inferred.push({type: type, key: key, handler: handler});
           }
           return false;
@@ -170,7 +250,7 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
       payload[type][key] = payload[type][key] || {};
       payload[type][key].handler = payload[type][key].handler || handler;
       payload[type][key].type = payload[type][key].type || type;
-      payload[type][key].name = payload[type][key].name || name;
+      payload[type][key].str = payload[type][key].str || str;
       payload[type][key].count = payload[type][key].count || 0;
       payload[type][key].count += 1;
     });
@@ -195,13 +275,14 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
     });
 
     // Let the user know if we had to guess
-    if (inferred.length > 0) {
+    if(inferred.length > 0) {
       results.table.push('<td>*</td><td>Guessed (check console)</td>');
       $.each(inferred, function (idx, val) {
         console.log(passcode +
                     ' => [INFERRED] ' + val.type + ':' + val.key + ' :: ' +
                     val.handler.taxonomy + ' =~ ' + val.handler.processed_as);
       });
+      console.log(passcode + ' => [RESPONSE] ' + JSON.stringify(data));
     }
 
     // Display formatted versions in a table, plaintext, and the console log
@@ -228,7 +309,7 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
     html: to_dialog
   });
   console.log(passcode + ' => ' + to_log);
-}
+};
 
 window.setupRedeem = function() {
   $("#redeem").keypress(function(e) {
@@ -249,4 +330,4 @@ window.setupRedeem = function() {
         });
       });
   });
-}
+};
