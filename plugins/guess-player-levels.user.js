@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           IITC plugin: guess player level
-// @version        0.4.2.@@DATETIMEVERSION@@
+// @version        0.4.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -133,6 +133,9 @@ window.plugin.guessPlayerLevels.guess = function() {
     text: s,
     title: 'Player levels: R' + averageR.toFixed(2) + ', E' + averageE.toFixed(2)
   });
+
+  //run the name resolving process
+  resolvePlayerNames();
 }
 
 window.plugin.guessPlayerLevels.sort = function(playerHash) {
