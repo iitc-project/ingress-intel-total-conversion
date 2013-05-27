@@ -12,6 +12,9 @@ window.requestData = function() {
   requests.abort();
   cleanUp();
 
+  //a limit on the number of map tiles to be pulled in a single request
+  var MAX_TILES_PER_BUCKET = 20;
+
   var bounds = clampLatLngBounds(map.getBounds());
 
   //we query the server as if the zoom level was this. it may not match the actual map zoom level
@@ -24,14 +27,24 @@ window.requestData = function() {
 
   // will group requests by second-last quad-key quadrant
   tiles = {};
+  fullBucketCount = 0;
 
   // walk in x-direction, starts right goes left
   for (var x = x1; x <= x2; x++) {
     for (var y = y1; y <= y2; y++) {
       var tile_id = pointToTileId(z, x, y);
       var bucket = (x % 2) + ":" + (y % 2);
-      if (!tiles[bucket])
+      if (!tiles[bucket]) {
+        //create empty bucket
         tiles[bucket] = [];
+      }
+      else if(tiles[bucket].length >= MAX_TILES_PER_BUCKET) {
+        //too many items in bucket. rename it, and create a new empty one
+        tiles[bucket+'_'+fullBucketCount] = tiles[bucket];
+        fullBucketCount++;
+        tiles[bucket] = [];      
+      }
+
       tiles[bucket].push(generateBoundsParams(
         tile_id,
         tileToLat(y + 1, z),
@@ -41,6 +54,9 @@ window.requestData = function() {
       ));
     }
   }
+for (i in tiles) {
+console.log('bucket '+i+' size '+tiles[i].length);
+}
 
   // Reset previous result of Portal Render Limit handler
   portalRenderLimit.init();
