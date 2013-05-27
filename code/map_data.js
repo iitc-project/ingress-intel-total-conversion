@@ -54,9 +54,6 @@ window.requestData = function() {
       ));
     }
   }
-for (i in tiles) {
-console.log('bucket '+i+' size '+tiles[i].length);
-}
 
   // Reset previous result of Portal Render Limit handler
   portalRenderLimit.init();
