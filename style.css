@@ -720,7 +720,6 @@ h3 {
 /* Dialogs
  */
 .ui-tooltip, .ui-dialog {
-  max-width: 300px;
   position: absolute;
   z-index: 9999;
   background-color: rgba(8, 48, 78, 0.9);
@@ -728,6 +727,10 @@ h3 {
   color: #eee;
   font: 13px/15px Roboto, Arial, Helvetica, sans-serif;
   padding: 2px 4px;
+}
+
+.ui-tooltip {
+  max-width: 300px;
 }
 
 .ui-widget-overlay {
