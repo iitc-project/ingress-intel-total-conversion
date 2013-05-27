@@ -79,10 +79,13 @@ window.getAttackApGain = function(d) {
     if(!reso)
       return true;
     resoCount += 1;
+    var reslevel=parseInt(reso.level);
     if(reso.ownerGuid === PLAYER.guid) {
-      maxResonators[parseInt(reso.level)] -= 1;
+      if(maxResonators[reslevel] > 0) {
+        maxResonators[reslevel] -= 1;
+      }
     } else {
-      curResonators[parseInt(reso.level)] += 1;
+      curResonators[reslevel] += 1;
     }
   });
 
