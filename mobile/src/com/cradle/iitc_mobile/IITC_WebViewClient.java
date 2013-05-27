@@ -247,6 +247,8 @@ public class IITC_WebViewClient extends WebViewClient {
         if (!file.endsWith("user.js")) return "";
         String js = fileToString(file, asset);
         if (js == "false") return "";
+        js = js.replaceAll("\r\n", "\n");  //convert CR-LF pairs to LF - windows format text files
+        js = js.replaceAll("\r", "\n");    //convert remaining CR to LF - Mac format files(?)
         String wrapper_start = "function wrapper() {";
         String wrapper_end = "} // wrapper end";
         String injection_code = "// inject code into site context\n" +
