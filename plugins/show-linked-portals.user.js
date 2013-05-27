@@ -131,5 +131,5 @@ if (window.iitcLoaded && typeof setup === 'function') {
 } // wrapper end
 // inject code into site context
 var script = document.createElement('script');
-script.appendChild(document.createTextNode('(' + wrapper + ')();'));
+script.appendChild(document.createTextNode('('+ wrapper +')();'));
 (document.body || document.head || document.documentElement).appendChild(script);
