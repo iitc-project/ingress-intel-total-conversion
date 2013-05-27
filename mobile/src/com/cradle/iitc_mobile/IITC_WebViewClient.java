@@ -99,10 +99,6 @@ public class IITC_WebViewClient extends WebViewClient {
             }
         }
 
-        // add all plugins to the script...inject plugins + main script simultaneously
-        js += parsePlugins();
-        this.js = js;
-
         PackageManager pm = context.getPackageManager();
         boolean hasMultitouch = pm
                 .hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH);
@@ -111,6 +107,10 @@ public class IITC_WebViewClient extends WebViewClient {
             js = js.replace("window.showZoom = true;",
                     "window.showZoom = false;");
         }
+
+        // add all plugins to the script...inject plugins + main script simultaneously
+        js += parsePlugins();
+        this.js = js;
 
         // need to wrap the mobile iitc.js version in a document ready. IITC
         // expects to be injected after the DOM has been loaded completely.
