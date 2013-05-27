@@ -40,11 +40,6 @@ public class IITC_WebViewClient extends WebViewClient {
         this.context = c;
         this.iitc_path = Environment.getExternalStorageDirectory().getPath()
                 + "/IITC_Mobile/";
-        try {
-            loadIITC_JS(c);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public String getIITCVersion() {
@@ -104,6 +99,8 @@ public class IITC_WebViewClient extends WebViewClient {
             }
         }
 
+        // add all plugins to the script...inject plugins + main script simultaneously
+        js += parsePlugins();
         this.js = js;
 
         PackageManager pm = context.getPackageManager();
@@ -141,11 +138,10 @@ public class IITC_WebViewClient extends WebViewClient {
         ((IITC_Mobile) context).onReceivedLoginRequest(this, view, realm, account, args);
     }
 
-    // plugins should be loaded after the main script is injected
-    @Override
-    public void onPageFinished(WebView view, String url) {
-        super.onPageFinished(view, url);
-
+    // parse all enabled iitc plugins
+    // returns a string containing all plugins without their wrappers
+    public String parsePlugins() {
+        String js = "";
         // get the plugin preferences
         SharedPreferences sharedPref = PreferenceManager
                 .getDefaultSharedPreferences(context);
@@ -159,37 +155,43 @@ public class IITC_WebViewClient extends WebViewClient {
             for (int i = 0; i < plugin_list.size(); i++) {
                 Log.d("iitcm", "adding plugin " + plugin_array[i]);
                 if (dev_enabled)
-                    this.loadJS(iitc_path + "dev/plugins/" + plugin_array[i],
-                            false, view);
+                    js += this.removePluginWrapper(iitc_path + "dev/plugins/"
+                            + plugin_array[i], false);
                 else
-                    this.loadJS("plugins/" + plugin_array[i], true, view);
+                    js += this.removePluginWrapper("plugins/" + plugin_array[i], true);
             }
         }
 
         // inject the user location script if enabled in settings
         if (sharedPref.getBoolean("pref_user_loc", false))
-            enableTracking(view, dev_enabled);
+            js += parseTrackingPlugin(dev_enabled);
 
         // load additional plugins from <storage-path>/IITC-Mobile/plugins/
         File directory = new File(iitc_path + "plugins/");
         File[] files = directory.listFiles();
         if (files != null) {
             for (int i = 0; i < files.length; ++i) {
-                if (this.loadJS(files[i].toString(), false, view))
+                String add_js = "";
+                if ((add_js = this.removePluginWrapper(files[i].toString(), false)) != "") {
                     Log.d("iitcm",
                             "loading additional plugin " + files[i].toString());
+                    js += add_js;
+                }
             }
         }
+        return js;
     }
 
-    public void enableTracking(WebView view, boolean dev_enabled) {
+    public String parseTrackingPlugin(boolean dev_enabled) {
         Log.d("iitcm", "enable tracking...");
+        String js = "";
         // load plugin from external storage if dev mode are enabled
         if (dev_enabled)
-            this.loadJS(iitc_path + "dev/user-location.user.js", false, view);
+            js = this.removePluginWrapper(iitc_path + "dev/user-location.user.js", false);
         else
             // load plugin from asset folder
-            this.loadJS("user-location.user.js", true, view);
+            js = this.removePluginWrapper("user-location.user.js", true);
+        return js;
     }
 
     // read a file into a string
@@ -226,6 +228,7 @@ public class IITC_WebViewClient extends WebViewClient {
 
     // read a file into a string
     // load it as javascript
+    // at the moment not needed, but not bad to have it in the IITC_WebViewClient API
     public boolean loadJS(String file, boolean asset, WebView view) {
         if (!file.endsWith("user.js"))
             return false;
@@ -237,6 +240,24 @@ public class IITC_WebViewClient extends WebViewClient {
         return true;
     }
 
+    // iitc and all plugins are loaded at the same time
+    // so remove the wrapper functions and injection code
+    // TODO: it only works if the plugin is coded with the iitc plugin template
+    public String removePluginWrapper(String file, boolean asset) {
+        if (!file.endsWith("user.js")) return "";
+        String js = fileToString(file, asset);
+        if (js == "false") return "";
+        // remove the wrapper function
+        js = js.replace("function wrapper() {", "");
+        js = js.replace("} // wrapper end", "");
+        // remove the injection (should be the last 4 lines)...will be done by the iitc script
+        js = js.substring(0,js.lastIndexOf('\n'));
+        js = js.substring(0,js.lastIndexOf('\n'));
+        js = js.substring(0,js.lastIndexOf('\n'));
+        js = js.substring(0,js.lastIndexOf('\n'));
+        js = js.substring(0,js.lastIndexOf('\n'));
+        return js;
+    }
     // Check every external resource if it’s okay to load it and maybe replace
     // it
     // with our own content. This is used to block loading Niantic resources
