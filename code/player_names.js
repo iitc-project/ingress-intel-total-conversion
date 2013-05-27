@@ -11,7 +11,6 @@ window.getPlayerName = function(guid) {
   if(localStorage[guid]) return localStorage[guid];
   // only add to queue if it isn’t already
   if(playersToResolve.indexOf(guid) === -1 && playersInResolving.indexOf(guid) === -1) {
-    console.log('resolving player guid=' + guid);
     playersToResolve.push(guid);
   }
   return '{'+guid.slice(0, 12)+'}';
@@ -40,18 +39,38 @@ window.playerNameToGuid = function(playerName) {
 // get replaced by their correct versions.
 window.resolvePlayerNames = function() {
   if(window.playersToResolve.length === 0) return;
-  var p = window.playersToResolve;
+
+  //limit per request. stock site is never more than 13 (8 res, 4 mods, owner)
+  //testing shows 15 works and 20 fails
+  var MAX_RESOLVE_PLAYERS_PER_REQUEST = 15;
+
+  var p = window.playersToResolve.slice(0,MAX_RESOLVE_PLAYERS_PER_REQUEST);
+  window.playersToResolve = playersToResolve.slice(MAX_RESOLVE_PLAYERS_PER_REQUEST);
+
   var d = {guids: p};
-  playersInResolving = window.playersInResolving.concat(p);
-  playersToResolve = [];
+  window.playersInResolving = window.playersInResolving.concat(p);
+
   postAjax('getPlayersByGuids', d, function(dat) {
-    $.each(dat.result, function(ind, player) {
-      window.setPlayerName(player.guid, player.nickname);
-      // remove from array
-      window.playersInResolving.splice(window.playersInResolving.indexOf(player.guid), 1);
-    });
+    if(dat.result) {
+      $.each(dat.result, function(ind, player) {
+        window.setPlayerName(player.guid, player.nickname);
+        // remove from array
+        window.playersInResolving.splice(window.playersInResolving.indexOf(player.guid), 1);
+      });
+    } else {
+      //no 'result' - a successful http request, but the returned result was an error of some kind
+      console.warn('getplayers problem - no result in response: '+dat);
+
+      //likely to be some kind of 'bad request' (e.g. too many names at once, or otherwise badly formatted data.
+      //therefore, not a good idea to automatically retry by adding back to the playersToResolve list
+    }
+
+    //TODO: have an event triggered for this instead of hard-coded single function call
     if(window.selectedPortal)
       window.renderPortalDetails(window.selectedPortal);
+
+    //if more to do, run again
+    if(window.playersToResolve.length>0) resolvePlayerNames();
   },
   function() {
     // append failed resolves to the list again
