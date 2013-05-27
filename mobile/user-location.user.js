@@ -66,4 +66,3 @@ if(window.iitcLoaded && typeof setup === 'function') {
 var script = document.createElement('script');
 script.appendChild(document.createTextNode('('+ wrapper +')();'));
 (document.body || document.head || document.documentElement).appendChild(script);
-
