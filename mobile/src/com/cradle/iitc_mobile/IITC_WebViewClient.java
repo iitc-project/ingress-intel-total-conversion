@@ -247,15 +247,25 @@ public class IITC_WebViewClient extends WebViewClient {
         if (!file.endsWith("user.js")) return "";
         String js = fileToString(file, asset);
         if (js == "false") return "";
-        // remove the wrapper function
-        js = js.replace("function wrapper() {", "");
-        js = js.replace("} // wrapper end", "");
-        // remove the injection (should be the last 4 lines)...will be done by the iitc script
-        js = js.substring(0,js.lastIndexOf('\n'));
-        js = js.substring(0,js.lastIndexOf('\n'));
-        js = js.substring(0,js.lastIndexOf('\n'));
-        js = js.substring(0,js.lastIndexOf('\n'));
-        js = js.substring(0,js.lastIndexOf('\n'));
+        String wrapper_start = "function wrapper() {";
+        String wrapper_end = "} // wrapper end";
+        String injection_code = "// inject code into site context\n" +
+                                "var script = document.createElement('script');\n" +
+                                "script.appendChild(document.createTextNode('('+ wrapper +')();'));\n" +
+                                "(document.body || document.head || document.documentElement).appendChild(script);";
+        if (js.contains(wrapper_start) && js.contains(wrapper_end) && js.contains(injection_code)) {
+            js = js.replace("function wrapper() {", "");
+            // remove the wrapper function
+            js = js.replace("} // wrapper end", "");
+            // and the code injection
+            js = js.replace("// inject code into site context\n" +
+                            "var script = document.createElement('script');\n" +
+                            "script.appendChild(document.createTextNode('('+ wrapper +')();'));\n" +
+                            "(document.body || document.head || document.documentElement).appendChild(script);", "");
+        } else {
+            Log.d("iitcm", "Removal of wrapper/injection code failed for " + file);
+            return "";
+        }
         return js;
     }
     // Check every external resource if it’s okay to load it and maybe replace
