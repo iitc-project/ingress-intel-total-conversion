@@ -71,18 +71,15 @@ public class IITC_WebViewClient extends WebViewClient {
 
         // if developer mode are enabled, load all iitc script from external
         // storage
+        Log.d("iitcm", "adding iitc main script");
         if (sharedPref.getBoolean("pref_dev_checkbox", false)) {
             js = this.fileToString(iitc_path
                     + "dev/total-conversion-build.user.js", false);
             if (js.equals("false")) {
-                Toast.makeText(
-                        context,
-                        "File "
-                                + iitc_path
-                                + "dev/total-conversion-build.user.js not found. "
-                                + "Disable developer mode or add iitc files "
-                                + "to the dev folder.", Toast.LENGTH_LONG)
-                        .show();
+                Toast.makeText( context, "File " + iitc_path +
+                        "dev/total-conversion-build.user.js not found. " +
+                        "Disable developer mode or add iitc files to the dev folder.",
+                        Toast.LENGTH_LONG).show();
                 return;
             } else {
                 Toast.makeText(context, "Developer mode enabled",
@@ -153,12 +150,19 @@ public class IITC_WebViewClient extends WebViewClient {
             String[] plugin_array = plugin_list.toArray(new String[0]);
 
             for (int i = 0; i < plugin_list.size(); i++) {
-                Log.d("iitcm", "adding plugin " + plugin_array[i]);
-                if (dev_enabled)
-                    js += this.removePluginWrapper(iitc_path + "dev/plugins/"
-                            + plugin_array[i], false);
-                else
-                    js += this.removePluginWrapper("plugins/" + plugin_array[i], true);
+                // load default iitc plugins
+                if (!plugin_array[i].startsWith(iitc_path)) {
+                    Log.d("iitcm", "adding plugin " + plugin_array[i]);
+                    if (dev_enabled)
+                        js += this.removePluginWrapper(iitc_path + "dev/plugins/"
+                                + plugin_array[i], false);
+                    else
+                        js += this.removePluginWrapper("plugins/" + plugin_array[i], true);
+                // load additional iitc plugins
+                } else {
+                    Log.d("iitcm", "adding additional plugin " + plugin_array[i]);
+                    js += this.removePluginWrapper(plugin_array[i], false);
+                }
             }
         }
 
@@ -166,19 +170,6 @@ public class IITC_WebViewClient extends WebViewClient {
         if (sharedPref.getBoolean("pref_user_loc", false))
             js += parseTrackingPlugin(dev_enabled);
 
-        // load additional plugins from <storage-path>/IITC-Mobile/plugins/
-        File directory = new File(iitc_path + "plugins/");
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (int i = 0; i < files.length; ++i) {
-                String add_js = "";
-                if ((add_js = this.removePluginWrapper(files[i].toString(), false)) != "") {
-                    Log.d("iitcm",
-                            "loading additional plugin " + files[i].toString());
-                    js += add_js;
-                }
-            }
-        }
         return js;
     }
 
@@ -281,6 +272,8 @@ public class IITC_WebViewClient extends WebViewClient {
         if (url.contains("/css/common.css")) {
             return new WebResourceResponse("text/css", "UTF-8", style);
         } else if (url.contains("gen_dashboard.js")) {
+            Log.d("iitcm", "replacing gen_dashboard.js with iitc script");
+            Log.d("iitcm", "injecting iitc...");
             return this.iitcjs;
         } else if (url.contains("/css/ap_icons.css")
                 || url.contains("/css/map_icons.css")
