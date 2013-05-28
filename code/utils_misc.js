@@ -470,8 +470,6 @@ window.addLayerGroup = function(name, layerGroup, defaultDisplay) {
   layerChooser.addOverlay(layerGroup, name);
 }
 
-
-
 window.clampLat = function(lat) {
   if (lat > 90.0)
     lat = 90.0;
