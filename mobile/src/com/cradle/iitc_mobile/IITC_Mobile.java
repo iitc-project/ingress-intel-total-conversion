@@ -507,7 +507,5 @@ public class IITC_Mobile extends Activity {
         item.setVisible(!desktop);
         item = menu.findItem(R.id.menu_debug);
         item.setVisible(!desktop);
-        item = menu.findItem(R.id.layer_chooser);
-        item.setVisible(!desktop);
     }
 }

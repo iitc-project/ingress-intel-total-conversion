@@ -105,6 +105,13 @@ public class IITC_WebViewClient extends WebViewClient {
                     "window.showZoom = false;");
         }
 
+        // hide layer chooser on desktop mode
+        // on mobile mode it is hidden via smartphone.css
+        boolean desktopMode = sharedPref.getBoolean("pref_force_desktop", false);
+        if (desktopMode) {
+            js = js.replace("window.showLayerChooser = true;",
+                    "window.showLayerChooser = false");
+        }
         // add all plugins to the script...inject plugins + main script simultaneously
         js += parsePlugins();
         this.js = js;
