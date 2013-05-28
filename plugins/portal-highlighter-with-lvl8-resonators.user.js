@@ -26,38 +26,25 @@ window.plugin.portalsWithL8Resonators = function() {};
 window.plugin.portalsWithL8Resonators.highlight = function(data) {
   var d = data.portal.options.details;
   var has_L8 = 0;
-  var portal_weakness = 0;
   if(getTeam(d) !== 0) {
-    //Ding the portal for every missing resonator.
-    var resCount = 0;
     $.each(d.resonatorArray.resonators, function(ind, reso) {
-      if(reso === null) {
-        portal_weakness += .125;
-      } else {
+      if(reso) {
         var level = parseInt(reso.level);
         if(level == 8)
         {
           has_L8+=1;
         }
-        resCount++;
       }
     });
+  }   
     
-    //alert("has L8 res"+has_L8);
-      
-    if(has_L8 > 0)
-    {
-      var color = 'red';
-      var params = {fillColor: color, fillOpacity: 0.5};
-      data.portal.setStyle(params);  
-    }else
-    {
-      /* var color = 'blue';
-      var params = {fillColor: color, fillOpacity: 0.5};
-      data.portal.setStyle(params);
-      */
-    }
-  }
+  if(has_L8 > 0)
+  {
+    var color = 'red';
+    var opa = has_L8 * 0.125;
+    var params = {fillColor: color, fillOpacity: opa};
+    data.portal.setStyle(params);  
+   }
   window.COLOR_SELECTED_PORTAL = '#f0f';
 }
 
