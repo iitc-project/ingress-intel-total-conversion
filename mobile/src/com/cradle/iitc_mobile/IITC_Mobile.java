@@ -397,7 +397,7 @@ public class IITC_Mobile extends Activity {
         }
     }
 
-    private void injectJS() {
+    private void loadIITC() {
         try {
             iitc_view.getWebViewClient().loadIITC_JS(this);
         } catch (IOException e1) {
@@ -419,8 +419,7 @@ public class IITC_Mobile extends Activity {
     // plugins are injected onPageFinished
     public void loadUrl(String url) {
         url = addUrlParam(url);
-        Log.d("iitcm", "injecting main-script...");
-        injectJS();
+        loadIITC();
         iitc_view.loadUrl(url);
     }
 
