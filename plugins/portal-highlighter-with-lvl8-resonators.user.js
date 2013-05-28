@@ -1,11 +1,11 @@
 // ==UserScript==
 // @id             iitc-plugin-highlight-portals-with-L8-resonators@superd
 // @name           IITC plugin: highlight portals with L8 resonators
-// @version        0.1.0.20130522.175822
+// @version        0.1.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
-// @updateURL      https://secure.jonatkins.com/iitc/release/plugins/portal-highlighter-with-L8-resonators.meta.js
-// @downloadURL    https://secure.jonatkins.com/iitc/release/plugins/portal-highlighter-missing-resonators.user.js
-// @description    [superd-2013-05-28-175822] Uses the fill red of the portals, if portal has L8 res
+// @updateURL      @@UPDATEURL@@
+// @downloadURL    @@DOWNLOADURL@@
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Uses the fill red of the portals, if portal has L8 res
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
