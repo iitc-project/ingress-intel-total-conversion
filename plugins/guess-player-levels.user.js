@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           IITC plugin: guess player level
-// @version        0.4.4.@@DATETIMEVERSION@@
+// @version        0.4.5.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -73,12 +73,34 @@ window.plugin.guessPlayerLevels.setupChatNickHelper = function() {
 
 window.plugin.guessPlayerLevels.extractPortalData = function(data) {
   var r = data.portal.options.details.resonatorArray.resonators;
+
+  //due to the Jarvis Virus/ADA Refactor it's possible for a player to own resonators on a portal
+  //at a higher level than the player themselves. It is not possible to detect for sure when this
+  //has happened, but in many cases it will result in an impossible deployment arrangement
+  //(over 1 L8/7 res, over 2 L6/5 res, etc). if we detect this case, ignore all resonators owned
+  //by that player on the portal
+
+  var perPlayerResMaxLevel = {};
+  var perPlayerResMaxLevelCount = {};
+
   $.each(r, function(ind, reso) {
     if(!reso) return true;
-    var p = 'level-'+reso.ownerGuid;
-    var l = reso.level;
-    if(!window.localStorage[p] || window.localStorage[p] < l)
-      window.localStorage[p] = l;
+
+    if(!perPlayerResMaxLevel[reso.ownerGuid] || reso.level > perPlayerResMaxLevel[reso.ownerGuid]) {
+      perPlayerResMaxLevel[reso.ownerGuid] = reso.level;
+      perPlayerResMaxLevelCount[reso.ownerGuid] = 0;
+    }
+    if (reso.level == perPlayerResMaxLevel[reso.ownerGuid]) perPlayerResMaxLevelCount[reso.ownerGuid]++;
+  });
+
+  $.each(perPlayerResMaxLevel, function(guid, level) {
+    if (perPlayerResMaxLevelCount[guid] <= window.MAX_RESO_PER_PLAYER[level]) {
+      var p = 'level-'+guid;
+      if(!window.localStorage[p] || window.localStorage[p] < level)
+        window.localStorage[p] = level;
+    } else {
+      console.log('player guid '+guid+' has '+perPlayerResMaxLevelCount[guid]+' level '+level+' res on one portal - ignoring (ada refactor/jarvis virus)');
+    }
   });
 }
 
