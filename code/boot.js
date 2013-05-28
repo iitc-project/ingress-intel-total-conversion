@@ -9,19 +9,14 @@ window.showZoom = true;
 window.setupLargeImagePreview = function() {
   $('#portaldetails').on('click', '.imgpreview', function() {
     var img = $(this).find('img')[0];
-    var w = img.naturalWidth, c = $('#portaldetails').attr('class');
-    var d = dialog({
-      html: '<span class="' + c + '" style="position: relative; width: 100%; left: 50%; margin-left: ' + -(w / 2) + 'px;">' + img.outerHTML + '</span>',
-      title: $(this).parent().find('h3.title').html()
+    //dialogs have 12px padding around the content
+    var dlgWidth = Math.max(img.naturalWidth+24,400);
+    dialog({
+      html: '<div style="text-align: center">' + img.outerHTML + '</div>',
+      title: $(this).parent().find('h3.title').text(),
+      width: dlgWidth,
     });
 
-    // We have to dynamically set the width of this dialog, so get the .ui-dialog component
-    var p = d.parents('.ui-dialog');
-
-    // Don't let this dialog get smaller than the default maximum dialog width
-    var width = Math.max(parseInt(p.css('max-width')), w);
-    p.css('min-width', width + 'px');
-    p.css('width', width + 'px');
    });
 }
 
