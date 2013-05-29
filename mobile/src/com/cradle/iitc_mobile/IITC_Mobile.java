@@ -82,6 +82,11 @@ public class IITC_Mobile extends Activity {
                     SharedPreferences sharedPreferences, String key) {
                 if (key.equals("pref_force_desktop")) {
                     desktop = sharedPreferences.getBoolean("pref_force_desktop", false);
+                    if (desktop) {
+                        setActionBarHomeEnabledWithUp(false);
+                        actionBar.setTitle(getString(R.string.app_name));
+                    }
+                    else actionBar.setHomeButtonEnabled(true);
                     invalidateOptionsMenu();
                 }
                 if (key.equals("pref_user_loc"))
