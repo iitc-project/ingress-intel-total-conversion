@@ -165,7 +165,7 @@ window.unixTimeToHHmm = function(time) {
 window.rangeLinkClick = function() {
   if(window.portalRangeIndicator)
     window.map.fitBounds(window.portalRangeIndicator.getBounds());
-  if(window.isSmartphone)
+  if(window.isSmartphone())
     window.smartphone.mapButton.click();
 }
 

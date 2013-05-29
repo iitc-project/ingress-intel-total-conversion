@@ -49,11 +49,12 @@ window.debug.console = function() {
 }
 
 window.debug.console.show = function() {
-    $('#scrollwrapper, #updatestatus').hide();
-    // not displaying the map causes bugs in Leaflet
-    $('#map').css('visibility', 'hidden');
+    if (window.isSmartphone()) {
+        $('#scrollwrapper, #updatestatus').hide();
+        $('#map').css('visibility', 'hidden');
+    }
     $('#chat, #chatinput').show();
-         window.debug.console.create();
+    window.debug.console.create();
     $('#chatinput mark').css('cssText', 'color: #bbb !important').text('debug:');
     $('#chat > div').hide();
     $('#debugconsole').show();
