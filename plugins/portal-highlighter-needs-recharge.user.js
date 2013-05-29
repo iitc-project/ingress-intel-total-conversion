@@ -23,7 +23,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 // use own namespace for plugin
 window.plugin.portalHighligherNeedsRecharge = function() {};
 
-window.plugin.portalHighligherNeedsRecharge.highlightWeakness = function(data) {
+window.plugin.portalHighligherNeedsRecharge.highlight = function(data) {
   var d = data.portal.options.details;
   var portal_weakness = 0;
   if(getTeam(d) !== 0) {
@@ -41,7 +41,7 @@ window.plugin.portalHighligherNeedsRecharge.highlightWeakness = function(data) {
 }
 
 var setup =  function() {
-  window.addPortalHighlighter('Portal Weakness', window.plugin.portalHighligherNeedsRecharge.highlightWeakness);
+  window.addPortalHighlighter('Needs Recharge', window.plugin.portalHighligherNeedsRecharge.highlight);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////
