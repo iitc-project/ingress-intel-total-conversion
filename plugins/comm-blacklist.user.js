@@ -94,7 +94,7 @@ window.plugin.commBlacklist.config = function() {
 	};
 
 	// alert(s, true, onSave);
-	
+	dialog({html:s, closeCallback:onSave);	
 };
 
 var setup = function() {
