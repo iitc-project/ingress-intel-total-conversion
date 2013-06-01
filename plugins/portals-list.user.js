@@ -169,25 +169,32 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
         break;
       case 'r1':
         retVal = b.resonators[0][0] - a.resonators[0][0];
-        break;
+        if (retVal)
+          break;
       case 'r2':
         retVal = b.resonators[1][0] - a.resonators[1][0];
-        break;
+        if (retVal)
+          break;
       case 'r3':
         retVal = b.resonators[2][0] - a.resonators[2][0];
-        break;
+        if (retVal)
+          break;
       case 'r4':
         retVal = b.resonators[3][0] - a.resonators[3][0];
-        break;
+        if (retVal)
+          break;
       case 'r5':
         retVal = b.resonators[4][0] - a.resonators[4][0];
-        break;
+        if (retVal)
+          break;
       case 'r6':
         retVal = b.resonators[5][0] - a.resonators[5][0];
-        break;
+        if (retVal)
+          break;
       case 'r7':
         retVal = b.resonators[6][0] - a.resonators[6][0];
-        break;
+        if (retVal)
+          break;
       case 'r8':
         retVal = b.resonators[7][0] - a.resonators[7][0];
         break;
