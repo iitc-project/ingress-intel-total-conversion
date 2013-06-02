@@ -3,7 +3,7 @@ ingress intel total conversion mobile (IITCM)
 
 The Android App behaves like the desktop version, but uses the mobile view, which is optimized for mobile devices, as default. Furthermore, there are some nice additions:
 
-- it should be much faster then the standard mobile ingress intel map
+- it should be much faster than the standard mobile ingress intel map
 
 - plugin support
 
