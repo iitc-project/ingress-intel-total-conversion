@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-ap-list@xelio
 // @name           IITC plugin: AP List
-// @version        0.5.2.@@DATETIMEVERSION@@
+// @version        0.5.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -497,14 +497,12 @@ window.plugin.apList.getEffectiveLevel = function(portal) {
   var effectiveLevel = 0;
 
   var resosStats = plugin.apList.getResonatorsStats(portal);
-  var shieldsMitigation = plugin.apList.getShieldsMitigation(portal);
+
 
   // Calculate effective energy
 
-  // Portal damage = Damage output * (1 - shieldsMitigation / 100)
-  // Reverse it and we get 
-  // Damage output = Portal damage * (100 / (100 - shieldsMitigation))
-  var effectOfShields = 100 / (100 - shieldsMitigation);
+  var effectOfShields = plugin.apList.getShieldsEffect(portal);
+
   // If avgResoDistance is 0, 8 resonators in the same place and can be treated as 1 resonator.
   // So the minimum effect of resonator distance is 1/8 
   var effectOfResoDistance = (1 + (resosStats.avgResoDistance / HACK_RANGE) * 7 ) / 8;
@@ -560,14 +558,26 @@ window.plugin.apList.getResonatorsStats = function(portal) {
     avgResoDistance: avgResoDistance};
 }
 
-window.plugin.apList.getShieldsMitigation = function(portal) {
-  var shieldsMitigation = 0;
+window.plugin.apList.getShieldsEffect = function(portal) {
+  // shield effect: each shield's mitigation value is assumed to be the percentage of the damage it will absorb
+  // the rest of the damage gets through to the next shield, and so on.
+  // so, to calculate the total protection, we multiply the fractions of damage allowed through each shield
+  // to get a final figure of how much damage gets through
+  // e.g.
+  // one shield: mitigation 10 - lets 90% of the damage through
+  // two shields: mitigation 20 and 30 - first one lets 80% through, second 70% of the remaining
+  //              so final amount let through = 0.8 * 0.7 = 0.56 = 56% damage let through
+  // four shields: mitigation 30 - 70% through each = 0.7 * 0.7 * 0.7 * 0.7 = 0.24 = 24% damage gets through all four
+
+  var shieldsEffect = 1;
   $.each(portal.portalV2.linkedModArray, function(ind, mod) {
     if(!mod)
       return true;
-    shieldsMitigation += parseInt(mod.stats.MITIGATION);
+    if(!mod.stats.MITIGATION)
+      return true;
+    shieldsEffect *= (1 - parseInt(mod.stats.MITIGATION)/100.0);
   });
-  return shieldsMitigation;
+  return shieldsEffect;
 }
 
 // For using in .sort(func) of sortedPortals
