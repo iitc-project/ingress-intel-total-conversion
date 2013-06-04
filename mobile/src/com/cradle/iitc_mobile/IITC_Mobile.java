@@ -46,6 +46,7 @@ public class IITC_Mobile extends Activity {
     private IITC_DeviceAccountLogin mLogin;
     private MenuItem searchMenuItem;
     private boolean desktop = false;
+    private boolean reload_needed = false;
 
     // Used for custom back stack handling
     private ArrayList<Integer> backStack = new ArrayList<Integer>();
@@ -97,8 +98,10 @@ public class IITC_Mobile extends Activity {
                             false);
                     if (fullscreen_mode)
                         IITC_Mobile.this.getActionBar().hide();
+                    // no iitc reload needed here
+                    return;
                 }
-                IITC_Mobile.this.loadUrl(intel_url);
+                reload_needed = true;
             }
         };
         sharedPref.registerOnSharedPreferenceChangeListener(listener);
@@ -199,6 +202,12 @@ public class IITC_Mobile extends Activity {
                     0, 0, loc_listener);
             loc_mngr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
                     loc_listener);
+        }
+
+        if (reload_needed) {
+            Log.d("iitcm", "preference had changed...reload needed");
+            this.loadUrl(intel_url);
+            reload_needed = false;
         }
     }
 
