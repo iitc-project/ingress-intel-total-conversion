@@ -31,14 +31,26 @@ window.renderPortalDetails = function(guid) {
       +  unixTimeToString(d.captured.capturedTime) + '</span>'
     : null;
   var sinceText  = time ? ['since', time] : null;
-
+  
   var linkedFields = ['fields', d.portalV2.linkedFields.length];
-
+  
+  var effectiveEnergy = getEffectivePortalEnergy(d);
+  var mitigation = ['mitigation',
+                    '<span title="Link Mitigation: '
+                    + effectiveEnergy.link_mitigation
+                    + '% - Shield Mitigation: '
+                    + effectiveEnergy.shield_mitigation
+                    + '%">'
+                    + (effectiveEnergy.link_mitigation+effectiveEnergy.shield_mitigation)
+                    + '%</span>']
+  var effectiveEnergyText = ['<span title="Effective Energy - The current energy this portal has, plus the energy absorbed by the portal\'s defenses">EfEn</span>',
+                             effectiveEnergy.effective_energy];
+  
   // collect and html-ify random data
   var randDetails = [
     playerText, sinceText, getRangeText(d), getEnergyText(d),
-    linksText, getAvgResoDistText(d), linkedFields, getAttackApGainText(d)
-  ];
+    linksText, getAvgResoDistText(d), linkedFields, getAttackApGainText(d),
+    mitigation, effectiveEnergyText];
   randDetails = '<table id="randdetails">' + genFourColumnTable(randDetails) + '</table>';
 
   var resoDetails = '<table id="resodetails">' + getResonatorDetails(d) + '</table>';

@@ -40,6 +40,35 @@ window.getCurrentPortalEnergy = function(d) {
   return nrg;
 }
 
+
+window.getEffectivePortalEnergy = function(d) {
+  var current_nrg = getCurrentPortalEnergy(d);
+  var return_val = current_nrg;
+  
+  //Find the mitigation of each sheild.
+  var shield_rate = 100;
+  $.each(d.portalV2.linkedModArray, function(ind, mod) {
+    if(mod !== null) {
+      shield_rate *= 1 - mod.stats.MITIGATION/100;
+    }
+  });
+  //Add shield's effect to energy
+  var shield_mitigation = 100 - shield_rate;
+  return_val += current_nrg * (shield_mitigation/100);
+  
+  //Find the link effect
+  var links = 0;
+  if(d.portalV2.linkedEdges) $.each(d.portalV2.linkedEdges, function(ind, link) {
+    links++;
+  });
+  var link_mitigation = 4/9 * Math.atan(links / Math.E);
+  
+  //Add links's effect to energy
+  return_val += current_nrg * link_mitigation;
+  
+  return({ effective_energy: Math.round(return_val), link_mitigation: Math.round(link_mitigation*100), shield_mitigation: Math.round(shield_mitigation)});
+}
+
 window.getPortalRange = function(d) {
   // formula by the great gals and guys at
   // http://decodeingress.me/2012/11/18/ingress-portal-levels-and-link-range/
