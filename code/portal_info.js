@@ -61,7 +61,14 @@ window.getEffectivePortalEnergy = function(d) {
   if(d.portalV2.linkedEdges) $.each(d.portalV2.linkedEdges, function(ind, link) {
     links++;
   });
-  var link_mitigation = 4/9 * Math.atan(links / Math.E);
+  
+  var link_mitigation_values = [0,0.1,0.225,0.3,0.35,0.4,0.45,0.475,0.5];
+  
+  if(links > 8) {
+    links = 8;
+  }
+  
+  var link_mitigation = link_mitigation_values[links];//4/9 * Math.atan(links / Math.E);
   
   //Add links's effect to energy
   return_val += current_nrg * link_mitigation;
