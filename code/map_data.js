@@ -94,6 +94,10 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   var ppp = {};
   var p2f = {};
   $.each(m, function(qk, val) {
+    if('error' in val) {
+      console.log('map data tile '+qk+' response error: '+val.error);
+    }
+
     $.each(val.deletedGameEntityGuids || [], function(ind, guid) {
       if(getTypeByGuid(guid) === TYPE_FIELD && window.fields[guid] !== undefined) {
         $.each(window.fields[guid].options.vertices, function(ind, vertex) {
