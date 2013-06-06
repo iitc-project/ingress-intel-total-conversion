@@ -15,6 +15,7 @@
 	ss.rel = 'shortcut icon';
 	ss.type = 'image/x-icon';
 	ss.href = 'http://iitc.jonatkins.com/assets/img/logo.png';
+	document.title = "IITC Map";
 	var links = h.getElementsByTagName('link');
 	for (var i=0; i<links.length; i++) {
 		if (links[i].href == ss.href) return;
