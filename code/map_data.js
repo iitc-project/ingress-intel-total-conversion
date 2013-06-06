@@ -150,10 +150,15 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   });
 
   $.each(ppp, function(ind, portal) {
+
+    // when both source and destination portal are in the same response, no explicit 'edge' is returned
+    // instead, we need to reconstruct them from the data within the portal details
+
     if ('portalV2' in portal[2] && 'linkedEdges' in portal[2].portalV2) {
       $.each(portal[2].portalV2.linkedEdges, function (ind, edge) {
         if (!ppp[edge.otherPortalGuid])
           return;
+
         renderLink([
           edge.edgeGuid,
           portal[1],
@@ -164,11 +169,12 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
               "destinationPortalLocation": edge.isOrigin ? ppp[edge.otherPortalGuid][2].locationE6 : portal[2].locationE6,
               "originPortalGuid": !edge.isOrigin ? ppp[edge.otherPortalGuid][0] : portal[0],
               "originPortalLocation": !edge.isOrigin ? ppp[edge.otherPortalGuid][2].locationE6 : portal[2].locationE6
-            }
+            },
           }
         ]);
       });
     }
+
     if(portal[2].portalV2['linkedFields'] === undefined) {
       portal[2].portalV2['linkedFields'] = [];
     }
@@ -522,9 +528,17 @@ window.renderLink = function(ent) {
   if(Object.keys(links).length >= MAX_DRAWN_LINKS)
     return removeByGuid(ent[0]);
 
-  // assume that links never change. If they do, they will have a
-  // different ID.
-  if(findEntityInLeaflet(linksLayer, links, ent[0])) return;
+  // some links are constructed from portal linkedEdges data. These have no valid 'creator' data.
+  // replace with the more detailed data
+  // (we assume the other values - coordinates, etc - remain unchanged)
+  var found=findEntityInLeaflet(linksLayer, links, ent[0]);
+  if (found) {
+    if (!found.options.data.creator && ent[2].creator) {
+      //our existing data has no creator, but the new data does - update
+      found.options.data = ent[2];
+    }
+    return;
+  }
 
   var team = getTeam(ent[2]);
   var edge = ent[2].edge;
