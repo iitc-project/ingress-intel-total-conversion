@@ -1,368 +1,380 @@
-#bookmarksBox * {
-  display: block;
-  width: auto;
-  height: auto;
-  font-family: Verdana,Geneva,sans-serif;
-  font-size: 13px;
-  line-height: 22px;
-  text-indent: 0;
-  text-decoration: none;
-  margin: 0;
-  padding: 0;
+
+#bookmarksBox *{
+	display:block;
+	padding:0;
+	margin:0;
+	width:auto;
+	height:auto;
+	font-family:Verdana, Geneva, sans-serif;
+	font-size:13px;
+	line-height:22px;
+	text-indent:0;
+	text-decoration:none;
 }
 
-#bookmarksBox {
-  margin-top: -100%;
-  position: absolute!important;
-  z-index: 4001;
-  top: 100px;
-  left: 100px;
+
+#bookmarksBox{
+	margin-top:-100%;
+	position:absolute !important;
+	z-index:4001;
+	top:100px;
+	left:100px;
+}
+#bookmarksBox .addForm,
+#bookmarksBox #bookmarksTypeBar,
+#bookmarksBox h5{
+	height:28px;
+	overflow:hidden;
+	color:#fff;
+	font-size:14px;
 }
 
-#bookmarksBox .addForm,#bookmarksBox #bookmarksTypeBar,#bookmarksBox h5 {
-  height: 28px;
-  overflow: hidden;
-  color: #fff;
-  font-size: 14px;
+
+#bookmarksBox #topBar,
+#bookmarksBox #topBar *{
+	height:15px !important;
 }
 
-#bookmarksBox #topBar,#bookmarksBox #topBar * {
-  height: 15px!important;
+#bookmarksBox #topBar *{
+	float:left !important;
+}
+#bookmarksBox .handle{
+	text-indent:-20px;
+	width:209px;
+	text-align:center;
+	color:#fff;
+	line-height:8px;
+	cursor:move;
 }
 
-#bookmarksBox #topBar * {
-  float: left!important;
+#bookmarksBox #topBar .btn{
+	display:block;
+	width:19px;
+	cursor:pointer;
+	color:#20a8b1;
+}
+#bookmarksBox #topBar #bookmarksMin{
+	font-weight:bold;
+	text-align:center;
+	line-height:14px;
+	font-size:18px;
+}
+#bookmarksBox #topBar #bookmarksMin:hover{
+	color:gold;
 }
 
-#bookmarksBox .handle {
-  text-indent: -20px;
-  width: 209px;
-  text-align: center;
-  color: #fff;
-  line-height: 8px;
-  cursor: move;
+#bookmarksBox #bookmarksTypeBar{
+	clear:both;
 }
 
-#bookmarksBox #topBar .btn {
-  display: block;
-  width: 19px;
-  cursor: pointer;
-  color: #20a8b1;
+#bookmarksBox h5{
+	padding:4px 0;
+	width:114px;
+	text-align:center;
+	color:#788;
 }
 
-#bookmarksBox #topBar #bookmarksMin {
-  font-weight: 700;
-  text-align: center;
-  line-height: 14px;
-  font-size: 18px;
+#bookmarksBox h5.current{
+	cursor:default;
+	background:none;
+	color:#fff !important;
+}
+#bookmarksBox h5:hover{
+	color:gold;
+	background:rgba(0,0,0,0);
 }
 
-#bookmarksBox #topBar #bookmarksMin: hover {
-  color: #FFD700;
+#bookmarksBox #topBar .btn,
+#bookmarksBox .addForm,
+#bookmarksBox .handle,
+#bookmarksBox #bookmarksTypeBar,
+#bookmarksBox .bookmarkList li.bookmarksEmpty,
+#bookmarksBox .bookmarkList li.bkmrk a,
+#bookmarksBox .bookmarkList li.bkmrk:hover{
+	background-color:rgba(8,48,78,.85);
 }
 
-#bookmarksBox #bookmarksTypeBar {
-  clear: both;
+#bookmarksBox h5,
+#bookmarksBox .bookmarkList li.bkmrk:hover .bookmarksLink,
+#bookmarksBox .addForm *{
+	background:rgba(0,0,0,.3);
 }
 
-#bookmarksBox h5 {
-  width: 114px;
-  text-align: center;
-  color: #788;
-  padding: 4px 0;
+#bookmarksBox .addForm *{
+	display:block;
+	float:left;
+	padding:4px 8px 3px;
 }
 
-#bookmarksBox h5.current {
-  cursor: default;
-  background: 0;
-  color: #fff!important;
+#bookmarksBox .addForm a{
+	cursor:pointer;
+	color:#20a8b1;
+	font-size:12px;
+	width:65px;
+	text-align:center;
+	line-height:20px;
+	padding:4px 0 3px;
 }
 
-#bookmarksBox h5: hover {
-  color: #FFD700;
-  background: rgba(0,0,0,0);
+#bookmarksBox .addForm a:hover{
+	background:gold;
+	color:#000;
+	text-decoration:none;
 }
 
-#bookmarksBox #topBar .btn,#bookmarksBox .addForm,#bookmarksBox .handle,#bookmarksBox #bookmarksTypeBar,#bookmarksBox .bookmarkList li.bookmarksEmpty,#bookmarksBox .bookmarkList li.bkmrk a,#bookmarksBox .bookmarkList li.bkmrk: hover {
-  background-color: rgba(8,48,78,.85);
+#bookmarksBox .addForm input{
+	font-size:11px !important;
+	color:#ffce00;
+	width:81px;
+	line-height:11px;
+	font-size:12px;
+	-webkit-box-sizing:content-box;
+	-moz-box-sizing:content-box;
+	box-sizing:content-box;
 }
 
-#bookmarksBox h5,#bookmarksBox .bookmarkList li.bkmrk: hover .bookmarksLink,#bookmarksBox .addForm * {
-  background: rgba(0,0,0,.3);
+#bookmarksBox #bkmrk_portals .addForm input{
+	width:147px;
 }
 
-#bookmarksBox .addForm * {
-  display: block;
-  float: left;
-  padding: 4px 8px 3px;
+#bookmarksBox .addForm input:hover,
+#bookmarksBox .addForm input:focus{
+	outline:0;
+	background:rgba(0,0,0,.6);
 }
 
-#bookmarksBox .addForm a {
-  cursor: pointer;
-  color: #20a8b1;
-  font-size: 12px;
-  width: 65px;
-  text-align: center;
-  line-height: 20px;
-  padding: 4px 0 3px;
+#bookmarksBox .bookmarkList > ul{
+	width:231px;
+	clear:both;
+	list-style-type:none;
+	color:#fff;
+    overflow:hidden;
+	max-height:550px;
 }
 
-#bookmarksBox .addForm a: hover {
-  background: #FFD700;
-  color: #000;
-  text-decoration: none;
+#bookmarksBox .sortable-placeholder{
+	background:rgba(8,48,78,.55);
+	box-shadow:inset 1px 0 0 #20a8b1;
+}
+#bookmarksBox .ui-sortable-helper{
+	border-top-width:1px;
 }
 
-#bookmarksBox .addForm input {
-  font-size: 11px!important;
-  color: #ffce00;
-  width: 81px;
-  line-height: 11px;
-  -webkit-box-sizing: content-box;
-  -moz-box-sizing: content-box;
-  box-sizing: content-box;
+#bookmarksBox .bookmarkList{ display:none; }
+#bookmarksBox .bookmarkList.current{ display:block; }
+
+#bookmarksBox h5,
+#bookmarksBox .addForm *,
+#bookmarksBox ul li.bkmrk,
+#bookmarksBox ul li.bkmrk a{
+	height:22px;
 }
 
-#bookmarksBox #bkmrk_portals .addForm input {
-  width: 147px;
+#bookmarksBox h5,
+#bookmarksBox ul li.bkmrk a{
+	overflow:hidden;
+	cursor:pointer;
+	float:left;
+}
+#bookmarksBox ul .bookmarksEmpty{ text-indent:27px; color:#eee; }
+#bookmarksBox ul .bookmarksRemoveFrom{ width:19px; text-align:center; color:#fff; }
+#bookmarksBox ul .bookmarksLink{ width:171px; padding:0 10px 0 8px; color:gold; }
+#bookmarksBox ul .bookmarksLink.selected{ color:#03fe03; }
+#bookmarksBox ul .othersBookmarks .bookmarksLink{ width:190px; }
+
+#bookmarksBox ul .bookmarksLink:hover{ color:#03fe03; }
+#bookmarksBox ul .bookmarksRemoveFrom:hover{ color:#fff; background:#e22; }
+
+/************************************/
+
+#bookmarksBox,
+#bookmarksBox *
+{ border-color:#20a8b1; border-style:solid; border-width:0; }
+
+#bookmarksBox #topBar
+, #bookmarksBox ul .bookmarkFolder
+{ border-top-width:1px; }
+
+#bookmarksBox #topBar
+, #bookmarksBox #bookmarksTypeBar
+, #bookmarksBox .addForm
+, #bookmarksBox ul .bookmarkFolder .folderLabel
+, #bookmarksBox ul li.bkmrk
+{ border-bottom-width:1px; }
+
+#bookmarksBox ul .bookmarkFolder
+, #bookmarksBox ul .bookmarksRemoveFrom
+{ border-right-width:1px; border-left-width:1px; }
+
+#bookmarksBox #topBar *
+, #bookmarksBox #bookmarksTypeBar *
+, #bookmarksBox .addForm *
+{ border-left-width:1px; }
+
+#bookmarksBox #topBar
+, #bookmarksBox #bookmarksTypeBar
+, #bookmarksBox .addForm
+{ border-right-width:1px; }
+
+#bookmarksBox ul .othersBookmarks .bookmarksRemoveFrom
+, #bookmarksBox ul .bookmarkFolder .folderLabel .bookmarksRemoveFrom
+{ border-left-width:0px; }
+
+/************************************/
+
+#bookmarksShow{
+	display:block;
+	position:absolute;
+	top:0;
+	left:250px;
+	width:47px;
+	margin-top:-36px;
+	height:64px;
+	cursor:pointer;
+	z-index:4005;
+
+	background-position:center bottom;
+	background-repeat:no-repeat;
+	transition:margin-top 100ms ease-in-out;
+	background-image:url(@@INCLUDEIMAGE:plugins/bookmarks-by-zaso-logo.png@@);
+}
+#bookmarksShow:hover{
+	margin-top:0px !important;
 }
 
-#bookmarksBox .addForm input: hover,#bookmarksBox .addForm input: focus {
-  outline: 0;
-  background: rgba(0,0,0,.6);
+#bookmarkStar{
+	display:inline-block;
+	position:relative;
+	top:1px;
+	margin-right:3px;
+	width:16px;
+	height:15px;
+	overflow:hidden;
+	background-image:url(@@INCLUDEIMAGE:plugins/bookmarks-by-zaso-star.png@@);
+	background-position:left center;
+	background-repeat:no-repeat;
+}
+#bookmarkStar:hover,
+#bookmarkStar.favorite{
+	background-position:right center;
 }
 
-#bookmarksBox .bookmarkList>ul {
-  width: 231px;
-  clear: both;
-  list-style-type: none;
-  color: #fff;
-  overflow: hidden;
-  max-height: 550px;
+#bookmarksBox .handleScroll{
+	cursor:s-resize;
+	width:3px;
+	right:3px;
+	background:gold;
+	opacity:.7;
 }
 
-#bookmarksBox .sortable-placeholder {
-  background: rgba(8,48,78,.55);
-  box-shadow: inset 1px 0 0 #20a8b1;
+/************************************/
+
+#bookmarksBox .bookmarkList .bookmarkFolder{
+	overflow:hidden;
+	margin-top:-1px;
+	height:auto;
+	background:rgba(8,58,78,.7);
 }
 
-#bookmarksBox .bookmarkList {
-  display: none;
+#bookmarksBox .bookmarkList ul li.sortable-placeholder{
+	box-shadow:inset -1px 0 0 #20a8b1, inset 1px 0 0 #20a8b1, 0 -1px 0 #20a8b1;
+	background:rgba(8,58,78,.9);
 }
 
-#bookmarksBox h5,#bookmarksBox .addForm *,#bookmarksBox ul li.bkmrk,#bookmarksBox ul li.bkmrk a {
-  height: 22px;
+#bookmarksBox .bookmarkList .bkmrk.ui-sortable-helper{
+	border-right-width:1px;
+	border-left-width:1px;
+}
+#bookmarksBox .bookmarkList ul li ul li.sortable-placeholder{
+	height:23px;
+	box-shadow:inset 0 -1px 0 #20a8b1, inset 1px 0 0 #20a8b1;
 }
 
-#bookmarksBox h5,#bookmarksBox ul li.bkmrk a {
-  overflow: hidden;
-  cursor: pointer;
-  float: left;
+#bookmarksBox .bookmarkList ul li.bookmarkFolder.ui-sortable-helper,
+#bookmarksBox .bookmarkList ul li.othersBookmarks ul,
+#bookmarksBox .bookmarkList ul li.othersBookmarks ul li.sortable-placeholder{
+	box-shadow:inset 0 -1px 0 #20a8b1;
 }
 
-#bookmarksBox ul .bookmarksEmpty {
-  text-indent: 27px;
-  color: #eee;
+#bookmarksBox .bookmarkList .bookmarkFolder .folderLabel .bookmarksAnchor span,
+#bookmarksBox .bookmarkList .bookmarkFolder .folderLabel > span,
+#bookmarksBox .bookmarkList .bookmarkFolder .folderLabel > span > span,
+#bookmarksBox .bookmarkList .triangle{
+	width:0px;
+	height:0px;
 }
 
-#bookmarksBox ul .bookmarksRemoveFrom {
-  width: 19px;
-  text-align: center;
-  color: #fff;
+/************************************/
+
+#bookmarksBox .bookmarkList .bookmarkFolder .folderLabel{
+	overflow:visible;
+	height:25px;
+	cursor:pointer;
+	background:#069;
+	text-indent:0px;
+}
+#bookmarksBox .bookmarkList .bookmarkFolder .folderLabel > *{
+	height:25px;
+	float:left;
+}
+#bookmarksBox .bookmarkList .bookmarkFolder .folderLabel .bookmarksAnchor{
+	line-height:25px;
+	color:#fff;
+	width:209px;
+}
+#bookmarksBox .bookmarkList .bookmarkFolder .folderLabel .bookmarksAnchor span{
+	float:left;
+	border-width:5px 0 5px 7px;
+	border-color:transparent transparent transparent white;
+	margin:7px 7px 0 6px;
+}
+#bookmarksBox .bookmarkList .bookmarkFolder.active .folderLabel .bookmarksAnchor span{
+	margin:9px 5px 0 5px;
+	border-width:7px 5px 0 5px;
+	border-color:white transparent transparent transparent;
 }
 
-#bookmarksBox ul .bookmarksLink {
-  width: 171px;
-  color: #FFD700;
-  padding: 0 10px 0 8px;
+/************************************************************************************************************/
+
+#bookmarksBox .bookmarkList .bookmarkFolder .folderLabel > span,
+#bookmarksBox .bookmarkList .bookmarkFolder .folderLabel > span > span{
+	display:none;
+	border-width:0px 12px 10px 0;
+	border-color:transparent #20a8b1 transparent transparent;
+	margin:-20px 0 0;
+	position:relative;
+	top:21px;
+	left:219px;
+}
+#bookmarksBox .bookmarkList .bookmarkFolder .folderLabel > span > span{
+	top:18px;
+	left:0px;
+	border-width:0px 10px 9px 0;
+	border-color:transparent #069 transparent transparent;
+}
+#bookmarksBox .bookmarkList .bookmarkFolder.active .folderLabel > span,
+#bookmarksBox .bookmarkList .bookmarkFolder.active .folderLabel > span > span{
+	display:block;
+}
+#bookmarksBox .bookmarkList .bookmarkFolder.active .folderLabel:hover > span > span{
+	border-color:transparent #036 transparent transparent;
 }
 
-#bookmarksBox ul .othersBookmarks .bookmarksLink {
-  width: 190px;
+/************************************************************************************************************/
+
+#bookmarksBox .bookmarkList .bookmarkFolder .folderLabel:hover .bookmarksAnchor{
+	background:#036;
 }
 
-#bookmarksBox ul .bookmarksRemoveFrom: hover {
-  color: #fff;
-  background: #e22;
+#bookmarksBox .bookmarkList .bookmarkFolder ul{
+	display:none;
+	margin-left:19px;
+}
+#bookmarksBox .bookmarkList .bookmarkFolder.active ul{
+	display:block;
+	min-height:22px;
 }
 
-#bookmarksBox,#bookmarksBox * {
-  border-color: #20a8b1;
-  border-style: solid;
-  border-width: 0;
-}
-
-#bookmarksBox #topBar,#bookmarksBox #bookmarksTypeBar,#bookmarksBox .addForm,#bookmarksBox ul .bookmarkFolder .folderLabel,#bookmarksBox ul li.bkmrk {
-  border-bottom-width: 1px;
-}
-
-#bookmarksBox #topBar *,#bookmarksBox #bookmarksTypeBar *,#bookmarksBox .addForm * {
-  border-left-width: 1px;
-}
-
-#bookmarksBox #topBar,#bookmarksBox #bookmarksTypeBar,#bookmarksBox .addForm {
-  border-right-width: 1px;
-}
-
-#bookmarksBox ul .othersBookmarks .bookmarksRemoveFrom,#bookmarksBox ul .bookmarkFolder .folderLabel .bookmarksRemoveFrom {
-  border-left-width: 0;
-}
-
-#bookmarksShow {
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 250px;
-  width: 47px;
-  margin-top: -100%;
-  height: 64px;
-  cursor: pointer;
-  z-index: 4005;
-  background-position: center bottom;
-  background-repeat: no-repeat;
-  transition: margin-top 100ms ease-in-out;
-  background-image: url(@@INCLUDEIMAGE:plugins/bookmarks-by-zaso-logo.png@@);
-}
-
-#bookmarksShow: hover {
-  margin-top: 0!important;
-}
-
-#bookmarkStar {
-  display: inline-block;
-  position: relative;
-  top: 1px;
-  margin-right: 3px;
-  width: 16px;
-  height: 15px;
-  overflow: hidden;
-  background-image: url(@@INCLUDEIMAGE:plugins/bookmarks-by-zaso-star.png@@);
-  background-position: left center;
-  background-repeat: no-repeat;
-}
-
-#bookmarkStar: hover,#bookmarkStar.favorite {
-  background-position: right center;
-}
-
-#bookmarksBox .handleScroll {
-  cursor: s-resize;
-  width: 3px;
-  right: 3px;
-  background: #FFD700;
-  opacity: .7;
-}
-
-#bookmarksBox .bookmarkList .bookmarkFolder {
-  overflow: hidden;
-  margin-top: -1px;
-  height: auto;
-  background: rgba(8,58,78,.7);
-}
-
-#bookmarksBox .bookmarkList ul li.sortable-placeholder {
-  box-shadow: inset -1px 0 0 #20a8b1,inset 1px 0 0 #20a8b1,0 -1px 0 #20a8b1;
-  background: rgba(8,58,78,.9);
-}
-
-#bookmarksBox .bookmarkList ul li ul li.sortable-placeholder {
-  height: 23px;
-  box-shadow: inset 0 -1px 0 #20a8b1,inset 1px 0 0 #20a8b1;
-}
-
-#bookmarksBox .bookmarkList ul li.bookmarkFolder.ui-sortable-helper,#bookmarksBox .bookmarkList ul li.othersBookmarks ul,#bookmarksBox .bookmarkList ul li.othersBookmarks ul li.sortable-placeholder {
-  box-shadow: inset 0 -1px 0 #20a8b1;
-}
-
-#bookmarksBox .bookmarkList .bookmarkFolder .folderLabel .bookmarksAnchor span,#bookmarksBox .bookmarkList .bookmarkFolder .folderLabel>span,#bookmarksBox .bookmarkList .bookmarkFolder .folderLabel>span>span,#bookmarksBox .bookmarkList .triangle {
-  width: 0;
-  height: 0;
-}
-
-#bookmarksBox .bookmarkList .bookmarkFolder .folderLabel {
-  overflow: visible;
-  height: 25px;
-  cursor: pointer;
-  background: #069;
-  text-indent: 0;
-}
-
-#bookmarksBox .bookmarkList .bookmarkFolder .folderLabel>* {
-  height: 25px;
-  float: left;
-}
-
-#bookmarksBox .bookmarkList .bookmarkFolder .folderLabel .bookmarksAnchor {
-  line-height: 25px;
-  color: #fff;
-  width: 209px;
-}
-
-#bookmarksBox .bookmarkList .bookmarkFolder .folderLabel .bookmarksAnchor span {
-  float: left;
-  border-color: transparent transparent transparent #FFF;
-  border-width: 5px 0 5px 7px;
-  margin: 7px 7px 0 6px;
-}
-
-#bookmarksBox .bookmarkList .bookmarkFolder.active .folderLabel .bookmarksAnchor span {
-  border-color: #FFF transparent transparent;
-  border-width: 7px 5px 0;
-  margin: 9px 5px 0;
-}
-
-#bookmarksBox .bookmarkList .bookmarkFolder .folderLabel>span,#bookmarksBox .bookmarkList .bookmarkFolder .folderLabel>span>span {
-  display: none;
-  position: relative;
-  top: 21px;
-  left: 219px;
-  border-color: transparent #20a8b1 transparent transparent;
-  border-width: 0 12px 10px 0;
-  margin: -20px 0 0;
-}
-
-#bookmarksBox .bookmarkList .bookmarkFolder .folderLabel>span>span {
-  top: 18px;
-  left: 0;
-  border-color: transparent #069 transparent transparent;
-  border-width: 0 10px 9px 0;
-}
-
-#bookmarksBox .bookmarkList .bookmarkFolder.active .folderLabel: hover>span>span {
-  border-color: transparent #036 transparent transparent;
-}
-
-#bookmarksBox .bookmarkList .bookmarkFolder .folderLabel: hover .bookmarksAnchor {
-  background: #036;
-}
-
-#bookmarksBox .bookmarkList .bookmarkFolder ul {
-  display: none;
-  margin-left: 19px;
-}
-
-#bookmarksBox .bookmarkList .bookmarkFolder.active ul {
-  display: block;
-  min-height: 22px;
-}
-
-#bookmarksBox .bookmarkFolder.othersBookmarks ul {
-  margin-left: 0;
-}
-
-#bookmarksBox .ui-sortable-helper,#bookmarksBox #topBar,#bookmarksBox ul .bookmarkFolder {
-  border-top-width: 1px;
-}
-
-#bookmarksBox .bookmarkList.current,#bookmarksBox .bookmarkList .bookmarkFolder.active .folderLabel>span,#bookmarksBox .bookmarkList .bookmarkFolder.active .folderLabel>span>span {
-  display: block;
-}
-
-#bookmarksBox ul .bookmarksLink.selected,#bookmarksBox ul .bookmarksLink: hover {
-  color: #03fe03;
-}
-
-#bookmarksBox ul .bookmarkFolder,#bookmarksBox ul .bookmarksRemoveFrom,#bookmarksBox .bookmarkList .bkmrk.ui-sortable-helper {
-  border-right-width: 1px;
-  border-left-width: 1px;
+#bookmarksBox .bookmarkFolder.othersBookmarks ul{
+	margin-left:0;
 }
