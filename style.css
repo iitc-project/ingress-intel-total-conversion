@@ -821,10 +821,10 @@ h3 {
 }
 
 .ui-dialog-titlebar-button-collapse-expanded:hover {
-  background-color: rgba(255, 206, 0, 0.8);
+  background-color: rgba(32, 168, 177, 1);
 }
 .ui-dialog-titlebar-button-collapse-collapsed {
-   background-color: rgb(32, 168, 177);
+   background-color: rgba(32, 168, 177, .81);
 }
 
 .ui-dialog-content {
