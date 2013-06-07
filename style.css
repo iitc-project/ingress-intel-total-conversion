@@ -795,7 +795,8 @@ h3 {
   top: 3px;
   cursor: pointer;
   border: 1px solid rgb(32, 168, 177);
-  background-color: rgba(0, 0, 0, 0);
+  background-color: rgba(174, 187, 185, 0.3);
+  button-radius: 15px;
 }
 
 .ui-dialog-titlebar-button:active {
@@ -804,6 +805,11 @@ h3 {
 
 .ui-dialog-titlebar-button-close {
   right: 4px;
+  background-color: rgba(193, 59, 35, 0.4);
+}
+
+.ui-dialog-titlebar-button-close {
+  background-color: rgba(193, 59, 35, 0.8);
 }
 
 .ui-dialog-titlebar-button-collapse {
@@ -814,6 +820,9 @@ h3 {
   /* For future changes */
 }
 
+.ui-dialog-titlebar-button-collapse-expanded:hover {
+  background-color: rgba(255, 206, 0, 0.8);
+}
 .ui-dialog-titlebar-button-collapse-collapsed {
    background-color: rgb(32, 168, 177);
 }
