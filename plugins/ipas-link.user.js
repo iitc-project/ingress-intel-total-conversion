@@ -45,10 +45,18 @@ window.plugin.ipasLink.getHash = function (d) {
     hashParts = [];
     $.each(d.portalV2.linkedModArray, function (ind, mod) {
         //shields only, so far...
+        var modCodes={
+            c: "cs",
+            r: "rs",
+            v: "vrs"
+        };
+
         var s = "0";
         if (mod) {
             if (mod.type === "RES_SHIELD") {
                 s = mod.rarity.charAt(0).toLowerCase();
+                s=modCodes[s];
+                s = s + mod.stats.MITIGATION;
             }
         }
         hashParts.push(s);
