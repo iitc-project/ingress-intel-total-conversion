@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -152,23 +153,24 @@ public class IITC_WebViewClient extends WebViewClient {
         Set<String> plugin_list = sharedPref.getStringSet("pref_plugins", null);
         boolean dev_enabled = sharedPref.getBoolean("pref_dev_checkbox", false);
 
-        // iterate through all enabled plugins and load them
-        if (plugin_list != null) {
-            String[] plugin_array = plugin_list.toArray(new String[0]);
+        Map<String, ?> all_prefs = sharedPref.getAll();
 
-            for (int i = 0; i < plugin_list.size(); i++) {
+        // iterate through all plugins
+        for(Map.Entry<String, ?> entry : all_prefs.entrySet()){
+            String plugin = entry.getKey();
+            if (plugin.endsWith("user.js") && entry.getValue().toString() == "true") {
                 // load default iitc plugins
-                if (!plugin_array[i].startsWith(iitc_path)) {
-                    Log.d("iitcm", "adding plugin " + plugin_array[i]);
+                if (!plugin.startsWith(iitc_path)) {
+                    Log.d("iitcm", "adding plugin " + plugin);
                     if (dev_enabled)
                         js += this.removePluginWrapper(iitc_path + "dev/plugins/"
-                                + plugin_array[i], false);
+                                + plugin, false);
                     else
-                        js += this.removePluginWrapper("plugins/" + plugin_array[i], true);
-                // load additional iitc plugins
+                        js += this.removePluginWrapper("plugins/" + plugin, true);
+                    // load additional iitc plugins
                 } else {
-                    Log.d("iitcm", "adding additional plugin " + plugin_array[i]);
-                    js += this.removePluginWrapper(plugin_array[i], false);
+                    Log.d("iitcm", "adding additional plugin " + plugin);
+                    js += this.removePluginWrapper(plugin, false);
                 }
             }
         }

@@ -1,6 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-zoom-slider@fragger
 // @name           IITC plugin: zoom slider
+// @category       Controls
 // @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@

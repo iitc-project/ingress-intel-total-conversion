@@ -42,10 +42,9 @@
             android:title="@string/pref_select_iitc"
             android:summary="Load IITC main script from url or use local script. Currently used source: "
             android:defaultValue="local"/>
-	    <MultiSelectListPreference
-	        android:key="pref_plugins"
-	        android:title="@string/pref_plugins"
-	        android:dialogTitle="@string/pref_plugins_title"/>
+        <PreferenceScreen
+            android:key="pref_plugins"
+            android:title="@string/pref_plugins" />
 	    <CheckBoxPreference
 	        android:key="pref_force_https"
 	        android:title="@string/pref_force_https"

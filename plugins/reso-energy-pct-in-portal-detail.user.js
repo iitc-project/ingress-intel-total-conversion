@@ -1,6 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-reso-energy-pct-in-portal-detail@xelio
 // @name           IITC plugin: reso energy pct in portal detail
+// @category       Info
 // @version        0.1.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
