@@ -45,6 +45,9 @@ function iitcDesktopPluginDownloadTable ( $build )
 		}
 	}
 
+	ksort ( $plugins );
+
+
 ?>
 <table class="table table-condensed">
  <thead>
