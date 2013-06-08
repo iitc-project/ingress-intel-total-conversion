@@ -3,3 +3,7 @@ body {
 	background: url('../img/bg.jpg');
 }
 
+
+table tr.category_header {
+	background: #ddd;
+}
