@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-scale-bar@breunigs
 // @name           IITC plugin: scale bar
-// @category       UI
+// @category       Controls
 // @version        0.1.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
