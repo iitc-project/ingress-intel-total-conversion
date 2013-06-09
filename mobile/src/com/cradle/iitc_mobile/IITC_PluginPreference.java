@@ -2,7 +2,6 @@ package com.cradle.iitc_mobile;
 
 import android.content.Context;
 import android.preference.CheckBoxPreference;
-import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -14,12 +13,12 @@ public class IITC_PluginPreference extends CheckBoxPreference {
         super(context);
     }
 
-    protected void onBindView( View view) {
+    protected void onBindView(View view) {
         super.onBindView(view);
         makeMultiline(view);
     }
 
-    protected void makeMultiline( View view) {
+    protected void makeMultiline(View view) {
         if ( view instanceof ViewGroup) {
             ViewGroup grp=(ViewGroup)view;
             for ( int index = 0; index < grp.getChildCount(); index++) {
@@ -31,4 +30,5 @@ public class IITC_PluginPreference extends CheckBoxPreference {
             t.setEllipsize(null);
         }
     }
+
 }
