@@ -808,7 +808,7 @@ h3 {
   background-color: rgba(193, 59, 35, 0.4);
 }
 
-.ui-dialog-titlebar-button-close {
+.ui-dialog-titlebar-button-close:hover {
   background-color: rgba(193, 59, 35, 0.8);
 }
 
