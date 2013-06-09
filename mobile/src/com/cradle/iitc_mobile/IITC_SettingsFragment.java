@@ -175,7 +175,7 @@ public class IITC_SettingsFragment extends PreferenceFragment {
         }
 
         // now build a new checkable preference for the plugin
-        CheckBoxPreference plugin_pref = new CheckBoxPreference(pref_screen.getContext());
+        IITC_PluginPreference plugin_pref = new IITC_PluginPreference(pref_screen.getContext());
         plugin_pref.setKey(plugin_key);
         plugin_pref.setTitle(plugin_name);
         plugin_pref.setSummary(plugin_desc);
