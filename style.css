@@ -824,6 +824,7 @@ h3 {
   overflow-x: hidden;
   max-height: 600px !important;
   max-width: 700px !important;
+  position: relative;
 }
 
 .ui-dialog-content-hidden {
