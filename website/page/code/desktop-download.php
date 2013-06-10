@@ -17,9 +17,10 @@ function iitcDesktopDownload ( $build )
 function iitcDesktopPluginDownloadTable ( $build )
 {
 	$categories = Array (
-		'Info' => "",
-		'Keys' => "Key management",
-		'Controls' => "Map controls",
+		'Portal Info' => "Enhanced information on the selected portal",
+		'Info' => "Display additional information",
+		'Keys' => "Manual key management",
+		'Controls' => "Map controls/widgets",
 		'Highlighter' => "Portal highliters",
 		'Layer' => "Additional map layers",
 		'Map Tiles' => "Alternative map layers",
