@@ -21,7 +21,7 @@ function iitcDesktopPluginDownloadTable ( $build )
 		'Info' => "Display additional information",
 		'Keys' => "Manual key management",
 		'Controls' => "Map controls/widgets",
-		'Highlighter' => "Portal highliters",
+		'Highlighter' => "Portal highlighters",
 		'Layer' => "Additional map layers",
 		'Map Tiles' => "Alternative map layers",
 		'Tweaks' => "Adjust IITC settings",
