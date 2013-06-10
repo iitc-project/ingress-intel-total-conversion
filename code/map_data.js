@@ -33,7 +33,7 @@ window.requestData = function() {
   for (var x = x1; x <= x2; x++) {
     for (var y = y1; y <= y2; y++) {
       var tile_id = pointToTileId(z, x, y);
-      var bucket = (x % 2) + ":" + (y % 2);
+      var bucket = (Math.floor(x/2) % 2) + ":" + (Math.floor(y/2) % 2);
       if (!tiles[bucket]) {
         //create empty bucket
         tiles[bucket] = [];
