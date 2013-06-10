@@ -43,6 +43,11 @@ window.REDEEM_RESOURCES = {
       return {long: 'Turret', short: 'T'};
     }
   },
+  UNUSUAL: {
+    format: function(acquired) {
+      return {long: 'Unusual Object', short: 'U'};
+    }
+  },
   EMITTER_A: {
     /* resourceWithLevels */
     format: function(acquired) {

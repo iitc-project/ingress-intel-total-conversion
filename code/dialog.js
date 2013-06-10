@@ -133,8 +133,8 @@ window.dialog = function(options) {
           var selector = dialog.find('.ui-dialog-content,.ui-dialog-buttonpane');
           var button   = dialog.find('.ui-dialog-titlebar-button-collapse');
 
-	  // Slide toggle
-	  $(selector).slideToggle({duration: window.DIALOG_SLIDE_DURATION});
+          // Slide toggle
+          $(selector).slideToggle({duration: window.DIALOG_SLIDE_DURATION});
 
           if(collapsed) {
             $(button).removeClass('ui-dialog-titlebar-button-collapse-collapsed');
