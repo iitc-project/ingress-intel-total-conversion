@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id                      portals-shields@fedepupo.it
 // @name                    IITC plugin: Portal's shields
-// @version                 0.1.0.20130609.010500
+// @version                 0.1.1.20130610.010300
 // @description             The plugins show the portal's shiedls mitigation on map  
 // @updateURL               http://www.fedepupo.it/ingress/portals-shields.user.js
 // @downloadURL             http://www.fedepupo.it/ingress/portals-shields.user.js
@@ -11,6 +11,12 @@
 // @match                   http://www.ingress.com/intel*
 // ==/UserScript==
 
+/*********************************************************************************************************
+* Changelog:
+*
+* 0.1.1 fix label
+* 0.1.0 First public release
+*********************************************************************************************************/
 function wrapper() {
 if(typeof window.plugin !== 'function') window.plugin = function() {};
 
@@ -85,7 +91,7 @@ var setup =  function() {
           }")
   .appendTo("head");
 
-  window.addLayerGroup('Portal Levels', window.plugin.portalShieldsMitigation.levelLayerGroup, true);
+  window.addLayerGroup('Portal Shields', window.plugin.portalShieldsMitigation.levelLayerGroup, true);
 
   window.addHook('portalAdded', window.plugin.portalShieldsMitigation.portalAdded);
 }
