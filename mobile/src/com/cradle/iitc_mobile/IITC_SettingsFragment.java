@@ -3,13 +3,22 @@ package com.cradle.iitc_mobile;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.os.Environment;
+import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
-import android.preference.MultiSelectListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceScreen;
+import android.util.Log;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Scanner;
 
 public class IITC_SettingsFragment extends PreferenceFragment {
 
@@ -24,10 +33,7 @@ public class IITC_SettingsFragment extends PreferenceFragment {
         addPreferencesFromResource(R.xml.preferences);
 
         // plugins
-        MultiSelectListPreference pref_plugins = (MultiSelectListPreference) findPreference("pref_plugins");
-        pref_plugins.setEntries(getArguments().getStringArray("ASSETS"));
-        pref_plugins
-                .setEntryValues(getArguments().getStringArray("ASSETS_VAL"));
+        setUpPluginPreferenceScreen();
 
         // set build version
         ListPreference pref_build_version = (ListPreference) findPreference("pref_build_version");
@@ -63,5 +69,118 @@ public class IITC_SettingsFragment extends PreferenceFragment {
         String pref_iitc_source_sum = (String) pref_iitc_source.getSummary()
                 + pref_iitc_source.getText();
         pref_iitc_source.setSummary(pref_iitc_source_sum);
+    }
+
+    void setUpPluginPreferenceScreen() {
+        PreferenceScreen root = (PreferenceScreen) findPreference("pref_plugins");
+        // alphabetical order
+        root.setOrderingAsAdded(false);
+        root.setPersistent(true);
+
+        // get all plugins from asset manager
+        AssetManager am = this.getActivity().getAssets();
+        String[] asset_array = null;
+        try {
+            asset_array = am.list("plugins");
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        for (int i = 0; i < asset_array.length; i++) {
+            // find user plugin name for user readable entries
+            Scanner s = null;
+            String src = "";
+            try {
+                s = new Scanner(am.open("plugins/" + asset_array[i]))
+                        .useDelimiter("\\A");
+            } catch (IOException e2) {
+                // TODO Auto-generated catch block
+                e2.printStackTrace();
+            }
+            if (s != null)
+                src = s.hasNext() ? s.next() : "";
+            // now we have all stuff together and can build the pref screen
+            addPluginPreference(root, src, asset_array[i], false);
+        }
+
+        // load additional plugins from <storage-path>/IITC_Mobile/plugins/
+        String iitc_path = Environment.getExternalStorageDirectory().getPath()
+                + "/IITC_Mobile/";
+        File directory = new File(iitc_path + "plugins/");
+        File[] files = directory.listFiles();
+        if (files != null) {
+            Scanner s = null;
+            String src = "";
+            for (int i = 0; i < files.length; ++i) {
+                try {
+                    s = new Scanner(files[i]).useDelimiter("\\A");
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    Log.d("iitcm", "failed to parse file " + files[i]);
+                }
+                if (s != null)
+                    src = s.hasNext() ? s.next() : "";
+
+                // now we have all stuff together and can build the pref screen
+                addPluginPreference(root, src, files[i].toString(), true);
+            }
+        }
+    }
+
+    void addPluginPreference(PreferenceScreen root, String src, String plugin_key, boolean additional) {
+
+        // now parse plugin name, description and category
+        String header = src.substring(src.indexOf("==UserScript=="),
+                src.indexOf("==/UserScript=="));
+        // remove new line comments and replace with space
+        // this way we get double spaces instead of newline + double slash
+        header = header.replace("\n//", " ");
+        // get a list of key-value...split on multiple spaces
+        String[] attributes = header.split("  +");
+        String plugin_name = "not found";
+        String plugin_desc = "not found";
+        String plugin_cat = "Misc";
+        for (int j = 0; j < attributes.length; j++) {
+            // search for name and use the value
+            if (attributes[j].equals("@name"))
+                plugin_name = attributes[j + 1];
+            if (attributes[j].equals("@description"))
+                plugin_desc = attributes[j + 1];
+            if (attributes[j].equals("@category"))
+                plugin_cat = attributes[j + 1];
+        }
+
+        // remove IITC plugin prefix from plugin_name
+        plugin_name = plugin_name.replace("IITC Plugin: ", "");
+        plugin_name = plugin_name.replace("IITC plugin: ", "");
+
+        // add [User] tag to additional plugins
+        if (additional)
+            plugin_cat = "[User] " + plugin_cat;
+        // now we have all stuff together and can build the pref screen
+        PreferenceScreen pref_screen;
+        if (root.findPreference(plugin_cat) == null) {
+            Log.d("iitcm", "create " + plugin_cat + " and add " + plugin_name);
+            pref_screen = getPreferenceManager().createPreferenceScreen(root.getContext());
+            pref_screen.setTitle(plugin_cat);
+            pref_screen.setKey(plugin_cat);
+            // alphabetical order
+            pref_screen.setOrderingAsAdded(false);
+            pref_screen.setPersistent(true);
+            root.addPreference(pref_screen);
+        } else {
+            Log.d("iitcm", "add " + plugin_name + " to " + plugin_cat);
+            pref_screen = (PreferenceScreen) findPreference(plugin_cat);
+        }
+
+        // now build a new checkable preference for the plugin
+        IITC_PluginPreference plugin_pref = new IITC_PluginPreference(pref_screen.getContext());
+        plugin_pref.setKey(plugin_key);
+        plugin_pref.setTitle(plugin_name);
+        plugin_pref.setSummary(plugin_desc);
+        plugin_pref.setDefaultValue(false);
+        plugin_pref.setPersistent(true);
+        pref_screen.addPreference(plugin_pref);
     }
 }

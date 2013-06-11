@@ -100,12 +100,6 @@ window.setupMap = function() {
   //OpenStreetMap attribution - required by several of the layers
   osmAttribution = 'Map data © OpenStreetMap contributors';
 
-
-  //CloudMade layers - only 500,000 tiles/month in their free plan. nowhere near enough for IITC
-  //var cmOpt = {attribution: osmAttribution+', Imagery © CloudMade', maxZoom: 18, detectRetina: true};
-  //var cmMin = new L.TileLayer('http://{s}.tile.cloudmade.com/{your api key here}/22677/256/{z}/{x}/{y}.png', cmOpt);
-  //var cmMid = new L.TileLayer('http://{s}.tile.cloudmade.com/{your api key here}/999/256/{z}/{x}/{y}.png', cmOpt);
-
   //MapQuest offer tiles - http://developer.mapquest.com/web/products/open/map
   //their usage policy has no limits (except required notification above 4000 tiles/sec - we're perhaps at 50 tiles/sec based on CloudMade stats)
   var mqSubdomains = [ 'otile1','otile2', 'otile3', 'otile4' ];
@@ -129,6 +123,13 @@ window.setupMap = function() {
   window.map = new L.Map('map', $.extend(getPosition(),
     {zoomControl: window.showZoom}
   ));
+
+  // add empty div to leaflet control areas - to force other leaflet controls to move around IITC UI elements
+  // TODO? move the actual IITC DOM into the leaflet control areas, so dummy <div>s aren't needed
+  if(!isSmartphone()) {
+    // chat window area
+    $(window.map._controlCorners['bottomleft']).append($('<div>').width(708).height(108).addClass('leaflet-control').css('margin','0'));
+  }
 
   var addLayers = {};
   var hiddenLayer = [];

@@ -74,6 +74,12 @@ public class IITC_JSInterface {
             }
         });
     }
+
+    @JavascriptInterface
+    public void dialogOpened(String id) {
+        ((IITC_Mobile) context).dialogOpened(id);
+    }
+
     // get layers and list them in a dialog
     @JavascriptInterface
     public void setLayers(String base_layer, String overlay_layer) {

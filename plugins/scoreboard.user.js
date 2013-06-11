@@ -1,6 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-scoreboard@vita10gy
 // @name           IITC plugin: show a localized scoreboard.
+// @category       Info
 // @version        0.1.8.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@

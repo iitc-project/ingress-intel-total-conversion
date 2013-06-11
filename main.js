@@ -21,6 +21,7 @@ window.iitcBuildDate = '@@BUILDDATE@@';
 
 // disable vanilla JS
 window.onload = function() {};
+document.body.onload = function() {};
 
 
 // rescue user data from original page

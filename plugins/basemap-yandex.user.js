@@ -1,6 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-basemap-yandex@jonatkins
 // @name           IITC plugin: Yandex maps
+// @category       Map Tiles
 // @version        0.1.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@

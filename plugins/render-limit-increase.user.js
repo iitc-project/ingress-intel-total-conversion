@@ -1,6 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-render-limit-increase@jonatkins
 // @name           IITC plugin: render limit increase
+// @category       Tweaks
 // @version        0.3.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@

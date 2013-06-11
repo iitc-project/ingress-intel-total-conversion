@@ -1,6 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-portals-count@yenky
 // @name           IITC plugin: Show total counts of portals
+// @category       Info
 // @version        0.0.8.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@

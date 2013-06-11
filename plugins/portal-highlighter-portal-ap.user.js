@@ -1,6 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-highlight-portals-by-ap@vita10gy
 // @name           IITC plugin: highlight portals by ap
+// @category       Highlighter
 // @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@

@@ -1,6 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-portal-level-numbers@rongou
 // @name           IITC plugin: Portal Level Numbers
+// @category       Layer
 // @version        0.1.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@

@@ -1,6 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-show-address@vita10gy
 // @name           IITC plugin: show portal address in sidebar
+// @category       Portal Info
 // @version        0.2.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@

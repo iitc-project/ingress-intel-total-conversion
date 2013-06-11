@@ -42,7 +42,7 @@ window.getModDetails = function(d) {
       title += '\nStats:';
       for (var key in mod.stats) {
         if (!mod.stats.hasOwnProperty(key)) continue;
-        title += '\n+' +  mod.stats[key] + ' ' + key.capitalize();
+        title += '\n+' +  mod.stats[key] + ' ' + key.capitalize().replace(/_/g,' ');
       }
 
       mods.push(mod.rarity.capitalize().replace('_', ' ') + ' ' + mod.displayName);

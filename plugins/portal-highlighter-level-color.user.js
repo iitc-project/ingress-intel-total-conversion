@@ -1,6 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-highlight-portals-level-color@vita10gy
 // @name           IITC plugin: highlight portals by level color
+// @category       Highlighter
 // @version        0.1.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@

@@ -55,6 +55,11 @@ window.dialog = function(options) {
   var jqID = '#' + id;
   var html = '';
 
+  // hint for iitc mobile that a dialog was opened
+  if (typeof android !== 'undefined' && android && android.dialogOpened) {
+    android.dialogOpened(id);
+  }
+
   // Convert text to HTML if necessary
   if(options.text) {
     html = window.convertTextToTableMagic(options.text);

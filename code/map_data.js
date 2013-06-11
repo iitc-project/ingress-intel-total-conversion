@@ -33,7 +33,7 @@ window.requestData = function() {
   for (var x = x1; x <= x2; x++) {
     for (var y = y1; y <= y2; y++) {
       var tile_id = pointToTileId(z, x, y);
-      var bucket = (x % 2) + ":" + (y % 2);
+      var bucket = (Math.floor(x/2) % 2) + ":" + (Math.floor(y/2) % 2);
       if (!tiles[bucket]) {
         //create empty bucket
         tiles[bucket] = [];
@@ -94,6 +94,10 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   var ppp = {};
   var p2f = {};
   $.each(m, function(qk, val) {
+    if('error' in val) {
+      console.log('map data tile '+qk+' response error: '+val.error);
+    }
+
     $.each(val.deletedGameEntityGuids || [], function(ind, guid) {
       if(getTypeByGuid(guid) === TYPE_FIELD && window.fields[guid] !== undefined) {
         $.each(window.fields[guid].options.vertices, function(ind, vertex) {
@@ -146,10 +150,15 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   });
 
   $.each(ppp, function(ind, portal) {
+
+    // when both source and destination portal are in the same response, no explicit 'edge' is returned
+    // instead, we need to reconstruct them from the data within the portal details
+
     if ('portalV2' in portal[2] && 'linkedEdges' in portal[2].portalV2) {
       $.each(portal[2].portalV2.linkedEdges, function (ind, edge) {
         if (!ppp[edge.otherPortalGuid])
           return;
+
         renderLink([
           edge.edgeGuid,
           portal[1],
@@ -160,11 +169,12 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
               "destinationPortalLocation": edge.isOrigin ? ppp[edge.otherPortalGuid][2].locationE6 : portal[2].locationE6,
               "originPortalGuid": !edge.isOrigin ? ppp[edge.otherPortalGuid][0] : portal[0],
               "originPortalLocation": !edge.isOrigin ? ppp[edge.otherPortalGuid][2].locationE6 : portal[2].locationE6
-            }
+            },
           }
         ]);
       });
     }
+
     if(portal[2].portalV2['linkedFields'] === undefined) {
       portal[2].portalV2['linkedFields'] = [];
     }
@@ -518,9 +528,17 @@ window.renderLink = function(ent) {
   if(Object.keys(links).length >= MAX_DRAWN_LINKS)
     return removeByGuid(ent[0]);
 
-  // assume that links never change. If they do, they will have a
-  // different ID.
-  if(findEntityInLeaflet(linksLayer, links, ent[0])) return;
+  // some links are constructed from portal linkedEdges data. These have no valid 'creator' data.
+  // replace with the more detailed data
+  // (we assume the other values - coordinates, etc - remain unchanged)
+  var found=findEntityInLeaflet(linksLayer, links, ent[0]);
+  if (found) {
+    if (!found.options.data.creator && ent[2].creator) {
+      //our existing data has no creator, but the new data does - update
+      found.options.data = ent[2];
+    }
+    return;
+  }
 
   var team = getTeam(ent[2]);
   var edge = ent[2].edge;

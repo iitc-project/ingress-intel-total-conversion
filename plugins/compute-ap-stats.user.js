@@ -1,6 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-compute-ap-stats@Hollow011
 // @name           IITC plugin: Compute AP statistics
+// @category       Info
 // @version        0.3.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@

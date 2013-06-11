@@ -1,10 +1,11 @@
 // ==UserScript==
 // @id             max-links@boombuler
 // @name           IITC plugin: Max Links
-// @version        0.3.1.@@DATETIMEVERSION@@
+// @category       Layer
+// @version        0.4.0.@@DATETIMEVERSION@@
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Calculates how to link the portals to create the maximum number of fields.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Calculates how to link the portals to create the maximum number of fields. Enable from the layer chooser.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -29,14 +30,23 @@ window.plugin.maxLinks.MAX_DRAWN_LINKS_INCREASED_LIMIT = 1000;
 window.plugin.maxLinks.STROKE_STYLE = {
   color: '#FF0000',
   opacity: 1,
-  weight:2,
+  weight: 2,
   clickable: false,
-  smoothFactor: 10
+  dashArray: [8,6],
+  smoothFactor: 10,
 };
 window.plugin.maxLinks.layer = null;
 
 window.plugin.maxLinks._updating = false;
 window.plugin.maxLinks._renderLimitReached = false;
+
+window.plugin.maxLinks.Point = function(x,y) {
+  this.x=x;
+  this.y=y;
+}
+window.plugin.maxLinks.Point.prototype.toString = function() {
+  return this.x+","+this.y;
+}
 
 window.plugin.maxLinks.updateLayer = function() {
   if (window.plugin.maxLinks._updating ||
@@ -47,36 +57,62 @@ window.plugin.maxLinks.updateLayer = function() {
   window.plugin.maxLinks.layer.clearLayers();
 
   var locations = [];
-  var minX = 0;
-  var minY = 0;
 
   $.each(window.portals, function(guid, portal) {
     var loc = portal.options.details.locationE6;
-    var nloc = { x: loc.lngE6, y: loc.latE6 };
-    if (nloc.x < minX)
-      minX = nloc.x;
-    if (nloc.y < minY)
-      minY = nloc.y;
+    var nloc = new window.plugin.maxLinks.Point(loc.latE6/1E6, loc.lngE6/1E6);
     locations.push(nloc);
   });
 
-  $.each(locations, function(idx, nloc) {
-    nloc.x += Math.abs(minX);
-    nloc.y += Math.abs(minY);
-  });
-
   var triangles = window.delaunay.triangulate(locations);
-  var drawnLinks = 0;
+
+  var drawnLinkCount = 0;
   window.plugin.maxLinks._renderLimitReached = false;
-  var renderlimit = window.USE_INCREASED_RENDER_LIMIT ?
+  var renderLimit = window.USE_INCREASED_RENDER_LIMIT ?
     window.plugin.maxLinks.MAX_DRAWN_LINKS_INCREASED_LIMIT :
     window.plugin.maxLinks.MAX_DRAWN_LINKS;
+
+  var orderedPoints = function(a,b) {
+    if(a.x<b.x) return [a,b];
+    if(a.x==b.x && a.y<b.y) return [a,b];
+    return [b,a];
+  }
+  var drawnLinks = {};
+
+  //draw a link, but only if it hasn't already been drawn
+  var drawLink = function(a,b) {
+    //order the points, so a pair of coordinates in any order is handled in one direction only
+    var points = orderedPoints(a,b);
+    a=points[0];
+    b=points[1];
+
+    //do we have a line already drawn from a to b?
+    if(!(a in drawnLinks)) {
+      //no lines from a to anywhere yet - create an empty target array
+      drawnLinks[a] = {};
+    }
+
+    if (!(b in drawnLinks[a])) {
+      //no line from a to b yet
+
+      //using drawnLinks[a] as a set - so the stored value is of no importance
+      drawnLinks[a][b] = null;
+
+      var poly = L.polyline([[a.x,a.y],[b.x,b.y]], window.plugin.maxLinks.STROKE_STYLE);
+      poly.addTo(window.plugin.maxLinks.layer);
+      drawnLinkCount++;
+    }
+  }
+
   $.each(triangles, function(idx, triangle) {
-    if (drawnLinks <= renderlimit) {
-      triangle.draw(window.plugin.maxLinks.layer, minX, minY)
-      drawnLinks += 3;
-    } else {
+    drawLink(triangle.a,triangle.b);
+    drawLink(triangle.b,triangle.c);
+    drawLink(triangle.c,triangle.a);
+
+    // we only check the render limit after drawing all three edges of a triangle, for efficency
+    if (drawnLinkCount > renderLimit ) {
       window.plugin.maxLinks._renderLimitReached = true;
+      return false;  //$.each break
     }
   });
   window.plugin.maxLinks._updating = false;
@@ -88,17 +124,6 @@ window.plugin.maxLinks.setup = function() {
   @@INCLUDERAW:external/delaunay.js@@
   try { console.log('done loading delaunay JS'); } catch(e) {}
 
-  window.delaunay.Triangle.prototype.draw = function(layer, divX, divY) {
-    var drawLine = function(src, dest) {
-      var poly = L.polyline([[(src.y + divY)/1E6, (src.x + divX)/1E6], [(dest.y + divY)/1E6, (dest.x + divX)/1E6]], window.plugin.maxLinks.STROKE_STYLE);
-      poly.addTo(layer);
-    };
-
-    drawLine(this.a, this.b);
-    drawLine(this.b, this.c);
-    drawLine(this.c, this.a);
-  }
-
   window.plugin.maxLinks.layer = L.layerGroup([]);
 
   window.addHook('checkRenderLimit', function(e) {
@@ -107,9 +132,8 @@ window.plugin.maxLinks.setup = function() {
       e.reached = true;
   });
 
-  window.addHook('portalDataLoaded', function(e) {
-    if (window.map.hasLayer(window.plugin.maxLinks.layer))
-      window.plugin.maxLinks.updateLayer();
+  window.addHook('requestFinished', function(e) {
+    window.plugin.maxLinks.updateLayer();
   });
 
   window.map.on('layeradd', function(e) {
