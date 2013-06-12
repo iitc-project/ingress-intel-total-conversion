@@ -37,7 +37,8 @@ public class IITC_Mobile extends Activity {
     private IITC_WebView iitc_view;
     private OnSharedPreferenceChangeListener listener;
     private String intel_url = "https://www.ingress.com/intel";
-    private boolean user_loc = false;
+    private boolean is_loc_enabled = false;
+    private Location last_location = null;
     private LocationManager loc_mngr = null;
     private LocationListener loc_listener = null;
     private boolean fullscreen_mode = false;
@@ -92,7 +93,7 @@ public class IITC_Mobile extends Activity {
                     invalidateOptionsMenu();
                 }
                 if (key.equals("pref_user_loc"))
-                    user_loc = sharedPreferences.getBoolean("pref_user_loc",
+                    is_loc_enabled = sharedPreferences.getBoolean("pref_user_loc",
                             false);
                 if (key.equals("pref_fullscreen_actionbar")) {
                     fullscreen_actionbar = sharedPreferences.getBoolean("pref_fullscreen_actionbar",
@@ -120,6 +121,7 @@ public class IITC_Mobile extends Activity {
                 // Called when a new location is found by the network location
                 // provider.
                 drawMarker(location);
+                last_location = location;
             }
 
             public void onStatusChanged(String provider, int status,
@@ -133,8 +135,8 @@ public class IITC_Mobile extends Activity {
             }
         };
 
-        user_loc = sharedPref.getBoolean("pref_user_loc", false);
-        if (user_loc == true) {
+        is_loc_enabled = sharedPref.getBoolean("pref_user_loc", false);
+        if (is_loc_enabled == true) {
             // Register the listener with the Location Manager to receive
             // location updates
             loc_mngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
@@ -196,7 +198,7 @@ public class IITC_Mobile extends Activity {
         iitc_view.loadUrl("javascript: window.renderUpdateStatus()");
         iitc_view.updateCaching();
 
-        if (user_loc == true) {
+        if (is_loc_enabled == true) {
             // Register the listener with the Location Manager to receive
             // location updates
             loc_mngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
@@ -247,7 +249,7 @@ public class IITC_Mobile extends Activity {
         }
         Log.d("iitcm", "stopping iitcm");
 
-        if (user_loc == true)
+        if (is_loc_enabled == true)
             loc_mngr.removeUpdates(loc_listener);
 
         super.onStop();
@@ -377,7 +379,16 @@ public class IITC_Mobile extends Activity {
             // get the users current location and focus it on map
             case R.id.locate:
                 iitc_view.loadUrl("javascript: window.show('map');");
-                iitc_view.loadUrl("javascript: window.map.locate({setView : true, maxZoom: 15});");
+                // get location from network by default
+                if (!is_loc_enabled) {
+                    iitc_view.loadUrl("javascript: window.map.locate({setView : true, maxZoom: 15});");
+                // if gps location is displayed we can use a better location without any costs
+                } else {
+                    if (last_location != null)
+                        iitc_view.loadUrl("javascript: window.map.setView(new L.LatLng(" +
+                                last_location.getLatitude() + "," +
+                                last_location.getLongitude() + "), 15);");
+                }
                 actionBar.setTitle(getString(R.string.app_name));
                 backStackUpdate(android.R.id.home);
                 return true;
