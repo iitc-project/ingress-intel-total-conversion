@@ -41,10 +41,10 @@ window.renderPortalDetails = function(guid) {
                     + '% - Shield Mitigation: '
                     + effectiveEnergy.shield_mitigation
                     + '%">'
-                    + (effectiveEnergy.link_mitigation+effectiveEnergy.shield_mitigation)
+                    + (effectiveEnergy.total_mitigation)
                     + '%</span>']
   var effectiveEnergyText = ['<span title="Effective Energy - The current energy this portal has, plus the energy absorbed by the portal\'s defenses">EfEn</span>',
-                             effectiveEnergy.effective_energy];
+                             digits(effectiveEnergy.effective_energy)];
   
   // collect and html-ify random data
   var randDetails = [
