@@ -1,5 +1,20 @@
 <h2>News</h2>
 
+<h4>12th June 2013</h4>
+<p>
+IITC version 0.12.1 released, and IITC Mobile 0.4.6. Changes include:
+<ul>
+<li>Display details about the new portal mods</li>
+<li>Updated Leaflet.js version - may reduce issues found on some Samsung devices running Android 4.1 (Jellybean)</li>
+<li>Fix resolving a large number of player names in one go</li>
+<li>Prevent refreshing old chat messages on small map movements - can vastly reduce repeated requests in some cases</li>
+<li>Various improvements/tweaks to the mobile version</li>
+<li>AP list plugin: fixed shield mitigation calculation</li>
+<li>New basemap plugins: OpenStreetMap, OpenCycleMap, Yandex (Russian), and a template for CloudMade.com to restore the original blue map</li>
+<li>Guess player level plugin: attempt to spot when a Jarvis Virus/ADA Refactor has been used and ignore that player's resonators when guessing the level</li>
+<li>Max links plugin: optimisations and dashed lines</li>
+</ul>
+
 <h4>22nd May 2013</h4>
 <p>
 IITC version 0.12.0 has been released. This contains quite a few changes and new features, including
