@@ -69,6 +69,8 @@ function iitcDesktopPluginDownloadTable ( $build )
 		$empty = True;
 		foreach ( $plugins as $basename => $details )
 		{
+			$path = "$build/plugins/$basename.user.js";
+
 			$this_category = array_key_exists('@category',$details) ? $details['@category'] : 'Misc';
 
 			if ( $category != $this_category )
