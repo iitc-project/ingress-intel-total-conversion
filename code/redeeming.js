@@ -18,6 +18,36 @@ window.REDEEM_RESOURCES = {
       return {long: 'Portal Shield', short: 'S'};
     }
   },
+  FORCE_AMP: {
+    format: function(acquired) {
+      return {long: 'Force Amp', short: 'FA'};
+    }
+  },
+  LINK_AMP: {
+    format: function(acquired) {
+      return {long: 'Link Amp', short: 'LA'};
+    }
+  },
+  HEATSINK: {
+    format: function(acquired) {
+      return {long: 'Heatsink', short: 'H'};
+    }
+  },
+  MULTIHACK: {
+    format: function(acquired) {
+      return {long: 'Multihack', short: 'M'};
+    }
+  },
+  TURRET: {
+    format: function(acquired) {
+      return {long: 'Turret', short: 'T'};
+    }
+  },
+  UNUSUAL: {
+    format: function(acquired) {
+      return {long: 'Unusual Object', short: 'U'};
+    }
+  },
   EMITTER_A: {
     /* resourceWithLevels */
     format: function(acquired) {

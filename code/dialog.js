@@ -19,6 +19,11 @@ window.DIALOG_COUNT = 0;
  */
 window.DIALOG_FOCUS = null;
 
+/* Controls how quickly the slide toggle animation
+ * should play for dialog collapsing and expanding.
+ */
+window.DIALOG_SLIDE_DURATION = 100;
+
 /* Creates a dialog and puts it onscreen. Takes one argument: options, a JS object.
  * == Common options
  * (text|html): The text or HTML to display in the dialog. Text is auto-converted to HTML.
@@ -132,12 +137,14 @@ window.dialog = function(options) {
           var dialog   = $(this).closest('.ui-dialog');
           var selector = dialog.find('.ui-dialog-content,.ui-dialog-buttonpane');
           var button   = dialog.find('.ui-dialog-titlebar-button-collapse');
+
+          // Slide toggle
+          $(selector).slideToggle({duration: window.DIALOG_SLIDE_DURATION});
+
           if(collapsed) {
-            $(selector).removeClass('ui-dialog-content-hidden');
             $(button).removeClass('ui-dialog-titlebar-button-collapse-collapsed');
             $(button).addClass('ui-dialog-titlebar-button-collapse-expanded');
           } else {
-            $(selector).addClass('ui-dialog-content-hidden');
             $(button).removeClass('ui-dialog-titlebar-button-collapse-expanded');
             $(button).addClass('ui-dialog-titlebar-button-collapse-collapsed');
           }
