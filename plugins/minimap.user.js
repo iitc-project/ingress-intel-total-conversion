@@ -44,8 +44,13 @@ window.plugin.miniMap.setup  = function() {
   var mqMapOpt = {attribution: osmAttribution+', Tiles Courtesy of MapQuest', maxZoom: 18, subdomains: mqSubdomains};
   var mqMap = new L.TileLayer(mqTileUrlPrefix+'/tiles/1.0.0/map/{z}/{x}/{y}.jpg',mqMapOpt);
 
-  new L.Control.MiniMap(mqMap, {toggleDisplay: true, position: 'bottomleft'}).addTo(window.map);
-
+  if(!isSmartphone()) {
+    // desktop mode - bottom-left, so it doesn't clash with the sidebar
+    new L.Control.MiniMap(mqMap, {toggleDisplay: true, position: 'bottomleft'}).addTo(window.map);
+  } else {
+    // mobile mode - bottom-right - so it floats above the map copyright text
+    new L.Control.MiniMap(mqMap, {toggleDisplay: true, position: 'bottomright'}).addTo(window.map);
+  }
 
   $('head').append('<style>@@INCLUDESTRING:external/Control.MiniMap.css@@</style>');
 
