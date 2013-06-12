@@ -54,7 +54,6 @@ window.getEffectivePortalEnergy = function(d) {
   });
   //Add shield's effect to energy
   var shield_mitigation = 100 - shield_rate;
-  return_val += current_nrg * (shield_mitigation/100);
   
   //Find the link effect
   var links = 0;
@@ -62,7 +61,7 @@ window.getEffectivePortalEnergy = function(d) {
     links++;
   });
   
-  var link_mitigation_values = [0,0.1,0.225,0.3,0.35,0.4,0.45,0.475,0.5];
+  var link_mitigation_values = [0,10,23,30,35,40,45,48,50];
   
   if(links > 8) {
     links = 8;
@@ -70,10 +69,15 @@ window.getEffectivePortalEnergy = function(d) {
   
   var link_mitigation = link_mitigation_values[links];//4/9 * Math.atan(links / Math.E);
   
-  //Add links's effect to energy
-  return_val += current_nrg * link_mitigation;
+  var total_mitigation = 100 - ((1 - link_mitigation/100) * (1 - shield_mitigation/100) * 100);
   
-  return({ effective_energy: Math.round(return_val), link_mitigation: Math.round(link_mitigation*100), shield_mitigation: Math.round(shield_mitigation)});
+  return_val += current_nrg * total_mitigation / 100;
+  
+  //Keep everything in whole numbers to mimic the shield mitigation we're all used to.
+  return({ effective_energy: Math.round(return_val),
+           total_mitigation: Math.round(total_mitigation), 
+           link_mitigation: Math.round(link_mitigation),
+           shield_mitigation: Math.round(shield_mitigation)});
 }
 
 window.getPortalRange = function(d) {
