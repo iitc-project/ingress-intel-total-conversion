@@ -59,15 +59,16 @@ public class IITC_SettingsFragment extends PreferenceFragment {
                     @Override
                     public boolean onPreferenceChange(Preference preference,
                             Object newValue) {
-                        preference.setSummary((CharSequence) newValue);
+                        preference.setSummary(getString(R.string.pref_select_iitc_sum) +
+                                " " + (CharSequence) newValue);
                         // TODO: update iitc_version when iitc source has
                         // changed
                         return true;
                     }
                 });
         // first init of summary
-        String pref_iitc_source_sum = (String) pref_iitc_source.getSummary()
-                + pref_iitc_source.getText();
+        String pref_iitc_source_sum = getString(R.string.pref_select_iitc_sum)
+                + " " + pref_iitc_source.getText();
         pref_iitc_source.setSummary(pref_iitc_source_sum);
     }
 
