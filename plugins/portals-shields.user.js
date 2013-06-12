@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id                      portals-shields@fedepupo.it
 // @name                    IITC plugin: Portal's shields
-// @version                 0.1.1.20130610.010300
+// @version                 0.1.2.20131210.194600
 // @description             The plugins show the portal's shiedls mitigation on map  
 // @updateURL               http://www.fedepupo.it/ingress/portals-shields.user.js
 // @downloadURL             http://www.fedepupo.it/ingress/portals-shields.user.js
@@ -14,9 +14,11 @@
 /*********************************************************************************************************
 * Changelog:
 *
+* 0.1.2 fix error "Nan" 
 * 0.1.1 fix label
 * 0.1.0 First public release
 *********************************************************************************************************/
+
 function wrapper() {
 if(typeof window.plugin !== 'function') window.plugin = function() {};
 
@@ -50,8 +52,11 @@ window.plugin.portalShieldsMitigation.renderLevel = function(guid,latLng) {
     var r = d.portalV2.linkedModArray;
     $.each(r, function(ind, shield){
             if (!shield) return true;
-            mitigation = mitigation + Math.floor(shield.stats.MITIGATION);                       
+            if(Math.floor(shield.stats.MITIGATION) > 0){
+                mitigation = mitigation + Math.floor(shield.stats.MITIGATION);                       
+            }
     });
+    
                 
     var level = L.marker(latLng, {
       icon: L.divIcon({
@@ -66,7 +71,6 @@ window.plugin.portalShieldsMitigation.renderLevel = function(guid,latLng) {
     plugin.portalShieldsMitigation.levelLayers[guid] = level;
     level.addTo(plugin.portalShieldsMitigation.levelLayerGroup);
 }
-
 window.plugin.portalShieldsMitigation.removeLevel = function(guid) {
     var previousLayer = plugin.portalShieldsMitigation.levelLayers[guid];
     if(previousLayer) {
@@ -111,4 +115,3 @@ if(window.iitcLoaded && typeof setup === 'function') {
 var script = document.createElement('script');
 script.appendChild(document.createTextNode('('+ wrapper +')();'));
 (document.body || document.head || document.documentElement).appendChild(script);
-
