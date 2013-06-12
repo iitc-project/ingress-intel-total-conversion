@@ -61,13 +61,7 @@ window.getEffectivePortalEnergy = function(d) {
     links++;
   });
   
-  var link_mitigation_values = [0,10,23,30,35,40,45,48,50];
-  
-  if(links > 8) {
-    links = 8;
-  }
-  
-  var link_mitigation = link_mitigation_values[links];//4/9 * Math.atan(links / Math.E);
+  var link_mitigation = 4/9 * Math.atan(links / Math.E) * 100;
   
   var total_mitigation = 100 - ((1 - link_mitigation/100) * (1 - shield_mitigation/100) * 100);
   
