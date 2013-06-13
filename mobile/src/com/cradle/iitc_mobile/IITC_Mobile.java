@@ -271,7 +271,6 @@ public class IITC_Mobile extends Activity {
         if (!dialogStack.isEmpty()) {
             int last = dialogStack.size() - 1;
             String id = dialogStack.get(last);
-            dialogStack.remove(last);
             iitc_view.loadUrl("javascript: " +
                     "var selector = $(window.DIALOGS['" + id + "']); " +
                     "selector.dialog('close'); " +
