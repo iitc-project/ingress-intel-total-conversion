@@ -36,7 +36,7 @@ public class IITC_Mobile extends Activity {
 
     private IITC_WebView iitc_view;
     private OnSharedPreferenceChangeListener listener;
-    private String intel_url = "https://www.ingress.com/intel";
+    String intel_url = "https://www.ingress.com/intel";
     private boolean is_loc_enabled = false;
     private Location last_location = null;
     private LocationManager loc_mngr = null;
@@ -547,8 +547,14 @@ public class IITC_Mobile extends Activity {
     }
 
     // called by the javascript interface
-    public void dialogOpened(String id) {
-        Log.d("iitcm", "Dialog " + id + " added");
-        dialogStack.add(id);
+    public void dialogOpened(String id, boolean open) {
+        if (open) {
+            Log.d("iitcm", "Dialog " + id + " added");
+            dialogStack.add(id);
+        } else {
+            Log.d("iitcm", "Dialog " + id + " closed");
+            int index = dialogStack.indexOf(id);
+            dialogStack.remove(index);
+        }
     }
 }
