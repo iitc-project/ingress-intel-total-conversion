@@ -37,10 +37,10 @@
     <PreferenceCategory
         android:key="pref_mics"
         android:title="@string/pref_misc_cat">
+        <!-- summary is set in settings fragment -->
         <EditTextPreference
             android:key="pref_iitc_source"
             android:title="@string/pref_select_iitc"
-            android:summary="Load IITC main script from url or use local script. Currently used source: "
             android:defaultValue="local"/>
         <PreferenceScreen
             android:key="pref_plugins"

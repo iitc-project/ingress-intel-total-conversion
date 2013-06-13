@@ -12,7 +12,7 @@
 // @match          http://www.ingress.com/intel*
 // ==/UserScript==
 
-function wrapper(){
+function wrapper() {
 	// ensure plugin framework is there, even if iitc is not yet loaded
 	if(typeof window.plugin !== 'function') window.plugin = function(){};
 

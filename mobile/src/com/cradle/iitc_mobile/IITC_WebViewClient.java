@@ -256,14 +256,11 @@ public class IITC_WebViewClient extends WebViewClient {
                                 "script.appendChild(document.createTextNode('('+ wrapper +')();'));\n" +
                                 "(document.body || document.head || document.documentElement).appendChild(script);";
         if (js.contains(wrapper_start) && js.contains(wrapper_end) && js.contains(injection_code)) {
-            js = js.replace("function wrapper() {", "");
+            js = js.replace(wrapper_start, "");
             // remove the wrapper function
-            js = js.replace("} // wrapper end", "");
+            js = js.replace(wrapper_end, "");
             // and the code injection
-            js = js.replace("// inject code into site context\n" +
-                            "var script = document.createElement('script');\n" +
-                            "script.appendChild(document.createTextNode('('+ wrapper +')();'));\n" +
-                            "(document.body || document.head || document.documentElement).appendChild(script);", "");
+            js = js.replace(injection_code, "");
         } else {
             Log.d("iitcm", "Removal of wrapper/injection code failed for " + file);
             return "";

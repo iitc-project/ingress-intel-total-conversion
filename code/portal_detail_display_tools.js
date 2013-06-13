@@ -30,29 +30,49 @@ window.getModDetails = function(d) {
   var modsTitle = [];
   var modsColor = [];
   $.each(d.portalV2.linkedModArray, function(ind, mod) {
-    if(!mod) {
-      mods.push('');
-      modsTitle.push('');
-      modsColor.push('#000');
-    } else if(mod.type === 'RES_SHIELD') {
+    var modName = '';
+    var modTooltip = '';
+    var modColor = '#000';
 
-      var title = mod.rarity.capitalize() + ' ' + mod.displayName + '\n';
-      title += 'Installed by: '+ getPlayerName(mod.installingUser);
+    if (mod) {
+      // all mods seem to follow the same pattern for the data structure
+      // but let's try and make this robust enough to handle possible future differences
 
-      title += '\nStats:';
-      for (var key in mod.stats) {
-        if (!mod.stats.hasOwnProperty(key)) continue;
-        title += '\n+' +  mod.stats[key] + ' ' + key.capitalize().replace(/_/g,' ');
+      if (mod.displayName) {
+        modName = mod.displayName;
+      } else if (mod.type) {
+        modName = mod.type;
+      } else {
+        modName = '(unknown mod)';
       }
 
-      mods.push(mod.rarity.capitalize().replace('_', ' ') + ' ' + mod.displayName);
-      modsTitle.push(title);
-      modsColor.push(COLORS_MOD[mod.rarity]);
-    } else {
-      mods.push(mod.type);
-      modsTitle.push('Unknown mod. No further details available.');
-      modsColor.push('#FFF');
+      if (mod.rarity) {
+        modName = mod.rarity.capitalize().replace(/_/g,' ') + ' ' + modName;
+      }
+
+      modTooltip = modName + '\n';
+      if (mod.installingUser) {
+        modTooltip += 'Installed by: '+ getPlayerName(mod.installingUser) + '\n';
+      }
+
+      if (mod.stats) {
+        modTooltip += 'Stats:';
+        for (var key in mod.stats) {
+          if (!mod.stats.hasOwnProperty(key)) continue;
+          modTooltip += '\n+' +  mod.stats[key] + ' ' + key.capitalize().replace(/_/g,' ');
+        }
+      }
+
+      if (mod.rarity) {
+        modColor = COLORS_MOD[mod.rarity];
+      } else {
+        modColor = '#fff';
+      }
     }
+
+    mods.push(modName);
+    modsTitle.push(modTooltip);
+    modsColor.push(modColor);
   });
 
   var t = '<span'+(modsTitle[0].length ? ' title="'+modsTitle[0]+'"' : '')+' style="color:'+modsColor[0]+'">'+mods[0]+'</span>'
