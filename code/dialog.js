@@ -62,7 +62,7 @@ window.dialog = function(options) {
 
   // hint for iitc mobile that a dialog was opened
   if (typeof android !== 'undefined' && android && android.dialogOpened) {
-    android.dialogOpened(id);
+    android.dialogOpened(id, true);
   }
 
   // Convert text to HTML if necessary
@@ -179,6 +179,10 @@ window.dialog = function(options) {
 
       window.DIALOG_COUNT--;
       console.log('window.dialog: ' + $(this).data('id') + ' (' + $(this).dialog('option', 'title') + ') closed. ' + window.DIALOG_COUNT + ' remain.');
+      // hint for iitc mobile that a dialog was closed
+      if (typeof android !== 'undefined' && android && android.dialogOpened) {
+        android.dialogOpened(id, false);
+      }
 
       // remove from DOM and destroy
       $(this).dialog('destroy').remove();
