@@ -76,8 +76,8 @@ public class IITC_JSInterface {
     }
 
     @JavascriptInterface
-    public void dialogOpened(String id) {
-        ((IITC_Mobile) context).dialogOpened(id);
+    public void dialogOpened(String id, boolean open) {
+        ((IITC_Mobile) context).dialogOpened(id, open);
     }
 
     // get layers and list them in a dialog
