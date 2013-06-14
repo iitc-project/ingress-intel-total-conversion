@@ -92,10 +92,9 @@ window.runOnSmartphonesAfterBoot = function() {
       $(this._container).on('taphold', function() {
         if (typeof android !== 'undefined' && android && android.portalLongPressed) {
           android.portalLongPressed();
-        } else {
-          window.renderPortalDetails(guid);
-          window.smartphone.sideButton.click();
         }
+        window.renderPortalDetails(guid);
+        window.smartphone.sideButton.click();
       });
     });
   });
