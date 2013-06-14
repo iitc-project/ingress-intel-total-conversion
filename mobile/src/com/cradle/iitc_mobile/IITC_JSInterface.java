@@ -65,12 +65,52 @@ public class IITC_JSInterface {
     }
 
     @JavascriptInterface
-    public void portalLongPressed() {
+    public void switchToPane(String id) {
+
         final IITC_Mobile iitcm = (IITC_Mobile) context;
+        final int button_id;
+        final String title;
+
+        if (id.equals("map")) {
+            button_id = android.R.id.home;
+            title = iitcm.getString(R.string.app_name);
+        }
+        else if (id.equals("info")) {
+            button_id = R.id.menu_info;
+            title = "Info";
+        }
+        else if (id.equals("full")) {
+            button_id = R.id.menu_full;
+            title = "Full";
+        }
+        else if (id.equals("compact")) {
+            button_id = R.id.menu_compact;
+            title = "Compact";
+        }
+        else if (id.equals("public")) {
+            button_id = R.id.menu_public;
+            title = "Public";
+        }
+        else if (id.equals("faction")) {
+            button_id = R.id.menu_faction;
+            title = "Faction";
+        }
+        else if (id.equals("debug")) {
+            button_id = R.id.menu_debug;
+            title = "Debug";
+        }
+        // default
+        else {
+            button_id = android.R.id.home;
+            title = iitcm.getString(R.string.app_name);
+        }
+
+        Log.d("iitcm", "switch to pane " + id);
         iitcm.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                iitcm.handleMenuItemSelected(R.id.menu_info, true);
+                iitcm.getActionBar().setTitle(title);
+                iitcm.backStackUpdate(button_id);
             }
         });
     }
