@@ -52,6 +52,7 @@ public class IITC_Mobile extends Activity {
 
     // Used for custom back stack handling
     private ArrayList<Integer> backStack = new ArrayList<Integer>();
+    private boolean backStack_push = true;
     private int currentPane = android.R.id.home;
 
     @Override
@@ -306,20 +307,31 @@ public class IITC_Mobile extends Activity {
         }
         int index = backStack.size() - 1;
         int itemId = backStack.remove(index);
-        currentPane = itemId;
-        handleMenuItemSelected(itemId, false);
-        // if we popped our last item from stack...illustrate it on home button
-        if (backStack.isEmpty()) {
-            // Empty back stack means we should be at home (ie map) screen
-            setActionBarHomeEnabledWithUp(false);
-        }
+        backStack_push = false;
+        handleMenuItemSelected(itemId);
     }
 
     public void backStackUpdate(int itemId) {
+        // ensure no double adds
         if (itemId == currentPane) return;
-        backStack.add(currentPane);
+        if (itemId == android.R.id.home) {
+            backStack.clear();
+            backStack_push = true;
+        } else {
+            if (backStack_push)
+                backStack.add(currentPane);
+            else
+                backStack_push = true;
+        }
+
         currentPane = itemId;
-        if (backStack.size() == 1) setActionBarHomeEnabledWithUp(true);
+        if (backStack.size() >= 1) {
+            setActionBarHomeEnabledWithUp(true);
+        } else {
+            // if we popped our last item from stack...illustrate it on home button
+            // Empty back stack means we should be at home (ie map) screen
+            setActionBarHomeEnabledWithUp(false);
+        }
     }
 
     @Override
@@ -343,19 +355,15 @@ public class IITC_Mobile extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         final int itemId = item.getItemId();
-        boolean result = handleMenuItemSelected(itemId, true);
+        boolean result = handleMenuItemSelected(itemId);
         if (!result) return super.onOptionsItemSelected(item);
         return true;
     }
 
-    public boolean handleMenuItemSelected(int itemId, boolean addToBackStack) {
+    public boolean handleMenuItemSelected(int itemId) {
         switch (itemId) {
             case android.R.id.home:
                 iitc_view.loadUrl("javascript: window.show('map');");
-                actionBar.setTitle(getString(R.string.app_name));
-                this.backStack.clear();
-                setActionBarHomeEnabledWithUp(false);
-                currentPane = android.R.id.home;
                 return true;
             case R.id.reload_button:
                 actionBar.setTitle(getString(R.string.app_name));
@@ -372,8 +380,6 @@ public class IITC_Mobile extends Activity {
                     iitc_view.loadUrl("javascript: window.show('map');");
                 // the getLayers function calls the setLayers method of IITC_JSInterface
                 iitc_view.loadUrl("javascript: window.layerChooser.getLayers()");
-                actionBar.setTitle(getString(R.string.app_name));
-                backStackUpdate(android.R.id.home);
                 return true;
             // get the users current location and focus it on map
             case R.id.locate:
@@ -388,8 +394,6 @@ public class IITC_Mobile extends Activity {
                                 last_location.getLatitude() + "," +
                                 last_location.getLongitude() + "), 15);");
                 }
-                actionBar.setTitle(getString(R.string.app_name));
-                backStackUpdate(android.R.id.home);
                 return true;
             // start settings activity
             case R.id.action_settings:
@@ -400,33 +404,21 @@ public class IITC_Mobile extends Activity {
                 return true;
             case R.id.menu_info:
                 iitc_view.loadUrl("javascript: window.show('info');");
-                actionBar.setTitle(getString(R.string.menu_info));
-                if (addToBackStack) backStackUpdate(itemId);
                 return true;
             case R.id.menu_full:
                 iitc_view.loadUrl("javascript: window.show('full');");
-                actionBar.setTitle(getString(R.string.menu_full));
-                if (addToBackStack) backStackUpdate(itemId);
                 return true;
             case R.id.menu_compact:
                 iitc_view.loadUrl("javascript: window.show('compact');");
-                actionBar.setTitle(getString(R.string.menu_compact));
-                if (addToBackStack) backStackUpdate(itemId);
                 return true;
             case R.id.menu_public:
                 iitc_view.loadUrl("javascript: window.show('public');");
-                actionBar.setTitle(getString(R.string.menu_public));
-                if (addToBackStack) backStackUpdate(itemId);
                 return true;
             case R.id.menu_faction:
                 iitc_view.loadUrl("javascript: window.show('faction');");
-                actionBar.setTitle(getString(R.string.menu_faction));
-                if (addToBackStack) backStackUpdate(itemId);
                 return true;
             case R.id.menu_debug:
                 iitc_view.loadUrl("javascript: window.show('debug')");
-                actionBar.setTitle(getString(R.string.menu_debug));
-                if (addToBackStack) backStackUpdate(itemId);
                 return true;
             default:
                 return false;
