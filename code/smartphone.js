@@ -91,11 +91,7 @@ window.runOnSmartphonesAfterBoot = function() {
       // this is a hack, accessing Leaflet’s private _container is evil
       $(this._container).on('taphold', function() {
         window.renderPortalDetails(guid);
-        if (typeof android !== 'undefined' && android && android.portalLongPressed) {
-          android.portalLongPressed();
-        } else {
-            window.smartphone.sideButton.click();
-        }
+        window.show('info');
       });
     });
   });
