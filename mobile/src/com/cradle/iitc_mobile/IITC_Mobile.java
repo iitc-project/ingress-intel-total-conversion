@@ -293,7 +293,6 @@ public class IITC_Mobile extends Activity {
         actionBar.setDisplayHomeAsUpEnabled(enabled);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
             actionBar.setHomeButtonEnabled(enabled);
-        invalidateOptionsMenu();
     }
 
     public void backStackPop() {
