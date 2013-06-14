@@ -353,9 +353,9 @@ if(typeof window.plugin !== 'function') window.plugin = function(){};
 
 		//SWICTH VISIBILITY PROPERTY OF THE BOX
 		$('#bookmarksMin').click(function(){
-			$('#bookmarksBox').animate({marginTop:'-100%'}, {duration:400, queue:false}); $('#bookmarksShow').animate({marginTop:-36}, {duration:400, queue:false}); localStorage[window.plugin.bookmarks['LOCAL_STORAGE_status_box']] = 0;
+			$('#bookmarksBox').animate({marginTop:'-200%'}, {duration:600, queue:false}); $('#bookmarksShow').animate({marginTop:-36}, {duration:400, queue:false}); localStorage[window.plugin.bookmarks['LOCAL_STORAGE_status_box']] = 0;
 		});
-		$('#bookmarksShow').click(function(){ $('#bookmarksBox').animate({marginTop:0}, {duration:400, queue:false}); $('#bookmarksShow').animate({marginTop:-100}, {duration:400, queue:false}); localStorage[window.plugin.bookmarks['LOCAL_STORAGE_status_box']]= 1; });
+		$('#bookmarksShow').click(function(){ $('#bookmarksBox').animate({marginTop:0}, {duration:600, queue:false}); $('#bookmarksShow').animate({marginTop:-100}, {duration:400, queue:false}); localStorage[window.plugin.bookmarks['LOCAL_STORAGE_status_box']]= 1; });
 		if(localStorage[window.plugin.bookmarks['LOCAL_STORAGE_status_box']] == 1){ $('#bookmarksShow').trigger('click'); }else{ $('#bookmarksMin').trigger('click'); }
 
 		//SWITCH LIST (MAPS/PORTALS)
@@ -406,12 +406,6 @@ if(typeof window.plugin !== 'function') window.plugin = function(){};
 			}
 		});
 
-		if(window.isSmartphone()){
-			// The clone not working in mobile mode (to be corrected)---------------
-			$(".bookmarkList > ul").sortable("option", "helper", "original");
-			$(".bookmarkList ul li ul").sortable("option", "helper", "original");
-		};
-
 		//ADD BOOKMARK/FOLDER
 		$('#bookmarksBox .addForm a').click(function(e){
 			var typeList = $(this).parent().parent('div').attr('id');
@@ -453,15 +447,24 @@ if(typeof window.plugin !== 'function') window.plugin = function(){};
 			e.preventDefault();
 		});
 
-	
 		if(window.isSmartphone()){
 			//FOR MOBILE
+			// The clone not working in mobile mode (to be corrected)---------------
+			$(".bookmarkList > ul").sortable("option", "helper", "original");
+			$(".bookmarkList ul li ul").sortable("option", "helper", "original");
+
+			//Show/Hide the box
 			$('#bookmarksBox').hide();
 			$('#bookmarksShowMobile').click(function(){
-				$(this).toggleClass('open');
+			$(this).toggleClass('open');
 				$('#bookmarksBox').toggle();
 				if($(this).hasClass('open')){ $(this).text('[-] Bookmarks'); }
 				else{ $(this).text('[+] Bookmarks'); }
+			});
+
+			//Return to map when a bookmark is clicked
+			$('.bookmarkList').on('click', '.bkmrk .bookmarksLink', function(){
+				window.show("map");
 			});
 		}
 	});}
