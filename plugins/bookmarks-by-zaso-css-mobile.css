@@ -1,0 +1,136 @@
+#sidebar #bookmarksBox{
+	position:static !important;
+	width:auto !important;
+	margin:0 !important;
+	width:100%;
+}
+#sidebar #bookmarksBox .bookmarkList > ul > li, #sidebar #bookmarksBox .bookmarkList > ul > li > ul, #sidebar #bookmarksBox .bookmarkList > ul > li > ul > li{
+	width:100% !important;
+}
+#sidebar #bookmarksBox *{
+	box-shadow:none !important;
+	border-width:0 !important
+}
+#sidebar #bookmarksBox #topBar{
+	display:none !important;
+}
+#sidebar #bookmarksBox #bookmarksTypeBar h5{
+	cursor:pointer;
+	text-align:center;
+	float:left;
+	width:50%;
+	padding:7px 0;
+}
+#sidebar #bookmarksBox #bookmarksTypeBar h5.current{
+	cursor:default;
+	color:#fff;
+}
+#sidebar #bookmarksBox #bookmarksTypeBar, #sidebar #bookmarksBox .bookmarkList .addForm{
+	border-bottom:1px solid #20a8b1 !important;
+}
+#sidebar #bookmarksBox .bookmarkList ul li ul li.bkmrk{
+	height:36px !important;
+	clear:both;
+}
+#sidebar #bookmarksBox .bookmarkList li.bookmarkFolder .folderLabel{
+	height:36px;
+}
+#sidebar #bookmarksBox .bookmarkList li.bookmarkFolder .folderLabel a, #sidebar #bookmarksBox .bookmarkList ul li ul li.bkmrk a{
+	background:none;
+	padding:7px 0;
+	height:auto;
+	box-shadow:inset 0 1px 0 #20a8b1 !important;
+}
+#sidebar #bookmarksBox .bookmarkList li.bookmarkFolder a.bookmarksRemoveFrom, #sidebar #bookmarksBox .bookmarkList li.bkmrk a.bookmarksRemoveFrom{
+	box-shadow:inset 0 1px 0 #20a8b1, inset -1px 0 0 #20a8b1 !important;
+	width:15%;
+}
+#sidebar #bookmarksBox .bookmarkList li.bookmarkFolder a.bookmarksAnchor, #sidebar #bookmarksBox .bookmarkList li.bkmrk a.bookmarksLink{
+	text-indent:10px;
+	width:85%;
+	height:21px /*22*/;
+	overflow:hidden;
+}
+#sidebar #bookmarksBox .bookmarkList ul li.bookmarkFolder ul{
+	margin-left:0 !important;
+}
+#sidebar #bookmarksBox .bookmarkList ul, #bookmarksBox .bookmarkList ul li, #sidebar #bookmarksBox .bookmarkList ul li ul, #sidebar #bookmarksBox .bookmarkList ul li ul li{
+	display:block !important;
+}
+#sidebar #bookmarksBox .bookmarkList{
+	display:none !important;
+}
+#sidebar #bookmarksBox .bookmarkList > ul{
+	border-bottom:1px solid #20a8b1 !important;
+	border-right:1px solid #20a8b1 !important;
+}
+#sidebar #bookmarksBox .bookmarkList.current{
+	display:block !important;
+}
+#sidebar #bookmarksBox .bookmarkList .bookmarkFolder.othersBookmarks ul{
+	border-top:5px solid #20a8b1 !important;
+}
+#sidebar #bookmarksBox .bookmarkList li.bookmarkFolder, #sidebar #bookmarksBox .bookmarkList li.bkmrk{
+	box-shadow:inset 0 1px 0 #20a8b1, 1px 0 0 #20a8b1, -1px 1px 0 #20a8b1 !important;
+}
+#sidebar #bookmarksBox .bookmarkList li.bookmarkFolder .bkmrk.sortable-placeholder{
+	height:36px !important;
+}
+#sidebar #bookmarksBox .bookmarkList .sortable-placeholder{
+	box-shadow:inset 0 1px 0 #20a8b1 !important;
+}
+#sidebar #bookmarksBox .ui-sortable .ui-sortable-helper{
+	border-top:0;
+	width:85% !important;
+}
+#sidebar #bookmarksBox .bookmarkList > ul{
+	max-height:none;
+	width:85% !important;
+}
+#sidebar #bookmarksBox .bookmarkList li.bookmarkFolder .folderLabel{
+	box-shadow:0 1px 0 #20a8b1 !important;
+}
+#sidebar #bookmarksBox .bookmarkList ul li.bookmarkFolder ul{
+	width:85% !important;
+	margin-left:15% !important;
+}
+#sidebar #bookmarksBox .bookmarkList ul li.bookmarkFolder.othersBookmarks ul{
+	width:100% !important;
+	margin-left:0% !important;
+}
+#sidebar #bookmarksShowMobile{
+	text-decoration:none;
+	display:block !important;
+	padding:11px 0 9px;
+	text-align:center;
+}
+#sidebar #portaldetails{
+	margin-top:25px;
+}
+#sidebar #bookmarksBox #bookmarksTypeBar{
+	height:auto;
+}
+#sidebar #bookmarksBox .addForm, #sidebar #bookmarksBox .addForm *{
+	height:35px;
+	padding:0;
+}
+#sidebar #bookmarksBox .addForm a{
+	line-height:37px;
+}
+#sidebar #bookmarksBox .addForm a{
+	width:25% !important;
+}
+#sidebar #bookmarksBox .addForm input{
+	width:50% !important;
+	text-indent:10px;
+}
+#sidebar #bookmarksBox #bkmrk_portals .addForm input{
+	width:75% !important;
+}
+#sidebar #bookmarksBox #bookmarksTypeBar h5, #sidebar #bookmarksBox .bookmarkList .addForm a{
+	box-shadow:-1px 0 0 #20a8b1 !important;
+}
+#sidebar #bookmarksBox .bookmarkList li.bookmarkFolder ul{
+	display:block !important;
+	min-height:37px !important;
+}
