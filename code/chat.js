@@ -605,8 +605,6 @@ window.chat.setup = function() {
     if(scrollBottom(t) === 0) chat.requestPublic(false);
   });
 
-  chat.request();
-  window.addResumeFunction(chat.request);
   window.requests.addRefreshFunction(chat.request);
 
   var cls = PLAYER.team === 'ALIENS' ? 'enl' : 'res';
