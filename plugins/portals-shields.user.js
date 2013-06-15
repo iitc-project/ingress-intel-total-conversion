@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id                      portals-shields@fedepupo.it
 // @name                    IITC plugin: portal's mitigation
-// @version                 0.2.0.20130615.005000
+// @version                 0.2.2.20130615.121700
 // @description             The plugins show the portal's mitigation (link+shields) on map  
 // @updateURL               http://www.fedepupo.it/ingress/portals-shields.user.js
 // @downloadURL             http://www.fedepupo.it/ingress/portals-shields.user.js
@@ -14,6 +14,8 @@
 /*********************************************************************************************************
 * Changelog:
 *
+* 0.2.2 changed decimal from 2 to 1
+* 0.2.1 fix ~0.00% -> in 0%
 * 0.2.0 calculating total mitigation = shields + link
 * 0.1.2 fix error "Nan"
 * 0.1.1 fix label
@@ -22,6 +24,7 @@
 
 function wrapper() {
 if(typeof window.plugin !== 'function') window.plugin = function() {};
+
 
 // PLUGIN START ////////////////////////////////////////////////////////
 
@@ -69,8 +72,8 @@ window.plugin.portalShieldsMitigation.renderLevel = function(guid,latLng) {
     
       
     var text_mitigation = '';
-    if(cent_per_cent*mitigation_links > 0){
-        text_mitigation = '~'+(100-cent_per_cent*mitigation_links*100).toFixed(2)+'%'
+    if((100-cent_per_cent*mitigation_links*100) > 0){
+        text_mitigation = '~'+(100-cent_per_cent*mitigation_links*100).toFixed(1)+'%'
     }else{
         text_mitigation = '0%'    
     }
@@ -134,5 +137,3 @@ if(window.iitcLoaded && typeof setup === 'function') {
 var script = document.createElement('script');
 script.appendChild(document.createTextNode('('+ wrapper +')();'));
 (document.body || document.head || document.documentElement).appendChild(script);
-
-
