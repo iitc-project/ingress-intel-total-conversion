@@ -2,7 +2,7 @@
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           IITC plugin: guess player level
 // @category       Info
-// @version        0.4.5.@@DATETIMEVERSION@@
+// @version        0.4.6.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -154,6 +154,23 @@ window.plugin.guessPlayerLevels.guess = function() {
     title: 'Player levels: R' + averageR.toFixed(2) + ', E' + averageE.toFixed(2),
     id: 'guess-player-levels',
     width: 350,
+    buttons: {
+      'RESET GUESSES': function() {
+        // clear all guessed levels from local storage
+        $.each(Object.keys(localStorage), function(ind,key) {
+          if(key.lastIndexOf("level-",0)===0) {
+            localStorage.removeItem(key);
+          }
+        });
+        // now force all portals through the callback manually
+        $.each(window.portals, function(guid,p) {
+          window.plugin.guessPlayerLevels.extractPortalData({portal: p});
+        });
+        // and re-open the dialog (on a minimal timeout - so it's not closed while processing this callback)
+        setTimeout(window.plugin.guessPlayerLevels.guess,1);
+      },
+    },
+
   });
 
   //run the name resolving process
