@@ -245,18 +245,27 @@ window.renderLimitReached = function(ratio) {
 }
 
 window.getPortalDataZoom = function() {
-  var z = map.getZoom();
+  var mapZoom = map.getZoom();
+
+  // modify here if we want to force portal detail level zoom above the map zoom. this can increase the
+  // requests to the niantic servers so isn't done by default
+  var z = mapZoom;
 
   // limiting the mazimum zoom level for data retrieval reduces the number of requests at high zoom levels
   // (as all portal data is retrieved at z=17, why retrieve multiple z=18 tiles when fewer z=17 would do?)
-  // a potential downside - we end up requesting more data than we needed from the larger tiles that go off
-  // the window edge. 
+  // very effective along with the new cache code
   if (z > 17) z=17;
 
   // we could consider similar zoom-level consolidation, as, e.g. level 16 and 15 both return L1+, always
   // request zoom 15 tiles. however, there are quirks in the current data stream, where small fields aren't
   // returned by the server. using larger tiles always would amplify this issue.
 
+  // (this is not triggered by default, as both z and mapZoom are the same)
+  // if the data zoom is above the map zoom we can step back if the detail level is the same
+  // with the new cache code this works rather well
+  while (z > mapZoom && getMinPortalLevelForZoom(z) == getMinPortalLevelForZoom(z-1)) {
+    z = z-1;
+  }
 
   //sanity check - should never happen
   if (z < 0) z=0;
@@ -264,8 +273,7 @@ window.getPortalDataZoom = function() {
   return z;
 }
 
-window.getMinPortalLevel = function() {
-  var z = getPortalDataZoom();
+window.getMinPortalLevelForZoom = function(z) {
   if(z >= 17) return 0;
   if(z < 0) return 8;
   var conv = [8,8,8,8,7,7,6,6,5,4,4,3,3,2,2,1,1];
@@ -274,6 +282,12 @@ window.getMinPortalLevel = function() {
     ? minLevelByRenderLimit
     : conv[z];
   return result;
+}
+
+
+window.getMinPortalLevel = function() {
+  var z = getPortalDataZoom();
+  return getMinPortalLevelForZoom(z);
 }
 
 // returns number of pixels left to scroll down before reaching the
