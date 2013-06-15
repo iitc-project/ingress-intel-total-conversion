@@ -19,6 +19,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -54,6 +55,7 @@ public class IITC_Mobile extends Activity {
     private ArrayList<Integer> backStack = new ArrayList<Integer>();
     private boolean backStack_push = true;
     private int currentPane = android.R.id.home;
+    private boolean back_button_pressed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -285,7 +287,19 @@ public class IITC_Mobile extends Activity {
             // Pop last item from backStack and pretend the relevant menu item was clicked
             backStackPop();
         } else {
-            super.onBackPressed();
+            if (back_button_pressed)
+                super.onBackPressed();
+            else {
+                back_button_pressed = true;
+                Toast.makeText(this, "Press twice to exit", Toast.LENGTH_SHORT).show();
+                // reset back button after 2 seconds
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        back_button_pressed=false;
+                    }
+                }, 2000);
+            }
         }
     }
 
