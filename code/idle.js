@@ -1,12 +1,18 @@
 // IDLE HANDLING /////////////////////////////////////////////////////
 
 window.idleTime = 0; // in seconds
-window.isHidden = false;
+window._idleTimeLimit = MAX_IDLE_TIME;
 
 var IDLE_POLL_TIME = 10;
 
 var idlePoll = function() {
   window.idleTime += IDLE_POLL_TIME;
+
+  var hidden = (document.hidden || document.webkitHidden || document.mozHidden || document.msHidden || false);
+  if (hidden) {
+    // window hidden - use the refresh time as the idle limit, rather than the max time
+    window._idleTimeLimit = window.REFRESH;
+  }
 }
 
 setInterval(idlePoll, IDLE_POLL_TIME*1000);
@@ -20,6 +26,7 @@ var idleReset = function () {
     });
   }
   window.idleTime = 0;
+  window._idleTimeLimit = MAX_IDLE_TIME;
 };
 
 // only reset idle on mouse move where the coordinates are actually different.
@@ -41,19 +48,7 @@ $('body').keypress(idleReset);
 $('body').mousemove(idleMouseMove);
 
 window.isIdle = function() {
-  if (window.idleTime < window.REFRESH) {
-    // if idle for less than the refresh time ignore 'hidden' state - likely initial page load in the background
-    return false;
-  }
-
-  var hidden = (document.hidden || document.webkitHidden || document.mozHidden || document.msHidden);
-  if (hidden) {
-    // window hidden - force an idle state even if below the idle time limit
-    return true;
-  }
-
-  // otherwise use the idle time limit
-  return window.idleTime >= MAX_IDLE_TIME;
+  return window.idleTime >= window._idleTimeLimit;
 }
 
 window._onResumeFunctions = [];
