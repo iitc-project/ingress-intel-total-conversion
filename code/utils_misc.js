@@ -245,11 +245,7 @@ window.renderLimitReached = function(ratio) {
 }
 
 window.getPortalDataZoom = function() {
-  var mapZoom = map.getZoom();
-
-  // modify here if we want to force portal detail level zoom above the map zoom. this can increase the
-  // requests to the niantic servers so isn't done by default
-  var z = mapZoom;
+  var z = map.getZoom();
 
   // limiting the mazimum zoom level for data retrieval reduces the number of requests at high zoom levels
   // (as all portal data is retrieved at z=17, why retrieve multiple z=18 tiles when fewer z=17 would do?)
@@ -259,13 +255,6 @@ window.getPortalDataZoom = function() {
   // we could consider similar zoom-level consolidation, as, e.g. level 16 and 15 both return L1+, always
   // request zoom 15 tiles. however, there are quirks in the current data stream, where small fields aren't
   // returned by the server. using larger tiles always would amplify this issue.
-
-  // (this is not triggered by default, as both z and mapZoom are the same)
-  // if the data zoom is above the map zoom we can step back if the detail level is the same
-  // with the new cache code this works rather well
-  while (z > mapZoom && getMinPortalLevelForZoom(z) == getMinPortalLevelForZoom(z-1)) {
-    z = z-1;
-  }
 
   //sanity check - should never happen
   if (z < 0) z=0;
