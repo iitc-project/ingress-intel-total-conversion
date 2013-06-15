@@ -1,8 +1,15 @@
 // IDLE HANDLING /////////////////////////////////////////////////////
 
-window.idleTime = 0; // in minutes
+window.idleTime = 0; // in seconds
 
-setInterval('window.idleTime += 1', 60*1000);
+var IDLE_POLL_TIME = 10;
+
+var idlePoll = function() {
+  window.idleTime += IDLE_POLL_TIME;
+}
+
+setInterval(idlePoll, IDLE_POLL_TIME*1000);
+
 var idleReset = function () {
   // update immediately when the user comes back
   if(isIdle()) {
@@ -13,7 +20,24 @@ var idleReset = function () {
   }
   window.idleTime = 0;
 };
-$('body').mousemove(idleReset).keypress(idleReset);
+
+// only reset idle on mouse move where the coordinates are actually different.
+// some browsers send the event when not moving!
+var _lastMouseX=-1, _lastMouseY=-1;
+var idleMouseMove = function(e) {
+  var dX = _lastMouseX-e.clientX;
+  var dY = _lastMouseY-e.clientY;
+  var deltaSquared = dX*dX + dY*dY;
+  // only treat movements over 3 pixels as enough to reset us
+  if (deltaSquared > 3*3) {
+    _lastMouseX = e.clientX;
+    _lastMouseY = e.clientY;
+    idleReset();
+  }
+}
+
+$('body').keypress(idleReset);
+$('body').mousemove(idleMouseMove);
 
 window.isIdle = function() {
   return window.idleTime >= MAX_IDLE_TIME;
