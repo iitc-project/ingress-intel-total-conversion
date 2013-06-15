@@ -9,8 +9,8 @@
 window._requestCache = {}
 
 // cache entries older than the fresh age, and younger than the max age, are stale. they're used in the case of an error from the server
-window.REQUEST_CACHE_FRESH_AGE = window.REFRESH;  // if younger than this, use data in the cache rather than fetching from the server
-window.REQUEST_CACHE_MAX_AGE = 5*window.REFRESH;  // maximum cache age. entries are deleted from the cache after this time
+window.REQUEST_CACHE_FRESH_AGE = 2*60;  // if younger than this, use data in the cache rather than fetching from the server
+window.REQUEST_CACHE_MAX_AGE = 15*60;  // maximum cache age. entries are deleted from the cache after this time
 
 window.storeDataCache = function(qk,data) {
   var d = new Date();
