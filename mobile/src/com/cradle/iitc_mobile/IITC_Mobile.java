@@ -19,6 +19,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -49,11 +50,13 @@ public class IITC_Mobile extends Activity {
     private boolean desktop = false;
     private boolean reload_needed = false;
     private ArrayList<String> dialogStack = new ArrayList<String>();
+    private SharedPreferences sharedPref;
 
     // Used for custom back stack handling
     private ArrayList<Integer> backStack = new ArrayList<Integer>();
     private boolean backStack_push = true;
     private int currentPane = android.R.id.home;
+    private boolean back_button_pressed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +81,7 @@ public class IITC_Mobile extends Activity {
             actionBar.setHomeButtonEnabled(true);
 
         // do something if user changed something in the settings
-        SharedPreferences sharedPref = PreferenceManager
+        sharedPref = PreferenceManager
                 .getDefaultSharedPreferences(this);
         listener = new OnSharedPreferenceChangeListener() {
             @Override
@@ -104,6 +107,10 @@ public class IITC_Mobile extends Activity {
                     // no iitc reload needed here
                     return;
                 }
+                // no reload needed
+                if (key.equals("pref_press_twice_to_exit"))
+                    return;
+
                 reload_needed = true;
             }
         };
@@ -285,7 +292,19 @@ public class IITC_Mobile extends Activity {
             // Pop last item from backStack and pretend the relevant menu item was clicked
             backStackPop();
         } else {
-            super.onBackPressed();
+            if (back_button_pressed || !sharedPref.getBoolean("pref_press_twice_to_exit", false))
+                super.onBackPressed();
+            else {
+                back_button_pressed = true;
+                Toast.makeText(this, "Press twice to exit", Toast.LENGTH_SHORT).show();
+                // reset back button after 2 seconds
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        back_button_pressed=false;
+                    }
+                }, 2000);
+            }
         }
     }
 
@@ -369,6 +388,8 @@ public class IITC_Mobile extends Activity {
                 actionBar.setTitle(getString(R.string.app_name));
                 backStack.clear();
                 setActionBarHomeEnabledWithUp(false);
+                // iitc starts on map after reload
+                currentPane = android.R.id.home;
                 this.loadUrl(intel_url);
                 return true;
             case R.id.toggle_fullscreen:

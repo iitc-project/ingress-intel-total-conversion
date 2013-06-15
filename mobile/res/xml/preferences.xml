@@ -50,6 +50,11 @@
 	        android:title="@string/pref_force_https"
 	        android:summary="@string/pref_force_https_sum"
 	        android:defaultValue="true" />
+        <CheckBoxPreference
+                android:key="pref_press_twice_to_exit"
+                android:title="@string/pref_press_twice_to_exit"
+                android:summary="@string/pref_press_twice_to_exit_sum"
+                android:defaultValue="false" />
     </PreferenceCategory>
 
     <PreferenceCategory
