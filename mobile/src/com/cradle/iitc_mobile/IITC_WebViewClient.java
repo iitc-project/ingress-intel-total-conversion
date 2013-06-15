@@ -147,9 +147,9 @@ public class IITC_WebViewClient extends WebViewClient {
     @Override
     public void onPageFinished(WebView view, String url) {
         if (url.contains("accounts.google.com")) {
-            Log.d("iitcm", "reload after login");
+            Log.d("iitcm", "reload after login/logout");
             IITC_Mobile main_activity = ((IITC_Mobile) context);
-            main_activity.loadUrl(main_activity.intel_url);
+            main_activity.handleMenuItemSelected(R.id.reload_button);
             return;
         }
         super.onPageFinished(view, url);

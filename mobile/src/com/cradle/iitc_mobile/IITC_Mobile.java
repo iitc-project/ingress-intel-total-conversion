@@ -369,6 +369,8 @@ public class IITC_Mobile extends Activity {
                 actionBar.setTitle(getString(R.string.app_name));
                 backStack.clear();
                 setActionBarHomeEnabledWithUp(false);
+                // iitc starts on map after reload
+                currentPane = android.R.id.home;
                 this.loadUrl(intel_url);
                 return true;
             case R.id.toggle_fullscreen:
