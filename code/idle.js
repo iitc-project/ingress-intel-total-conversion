@@ -1,6 +1,7 @@
 // IDLE HANDLING /////////////////////////////////////////////////////
 
 window.idleTime = 0; // in seconds
+window.isHidden = false;
 
 var IDLE_POLL_TIME = 10;
 
@@ -40,6 +41,18 @@ $('body').keypress(idleReset);
 $('body').mousemove(idleMouseMove);
 
 window.isIdle = function() {
+  if (window.idleTime < window.REFRESH) {
+    // if idle for less than the refresh time ignore 'hidden' state - likely initial page load in the background
+    return false;
+  }
+
+  var hidden = (document.hidden || document.webkitHidden || document.mozHidden || document.msHidden);
+  if (hidden) {
+    // window hidden - force an idle state even if below the idle time limit
+    return true;
+  }
+
+  // otherwise use the idle time limit
   return window.idleTime >= MAX_IDLE_TIME;
 }
 
