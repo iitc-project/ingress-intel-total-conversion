@@ -18,7 +18,7 @@
   
         /* If the points of the triangle are collinear, then just find the
          * extremes and use the midpoint as the center of the circumcircle. */
-        if(Math.abs(G) < 0.000001) {
+        if(Math.abs(G) < 1e-12) {
           minx = Math.min(a.x, b.x, c.x)
           miny = Math.min(a.y, b.y, c.y)
           dx   = (Math.max(a.x, b.x, c.x) - minx) * 0.5
