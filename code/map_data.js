@@ -114,17 +114,18 @@ window.requestData = function() {
   // Reset previous result of Portal Render Limit handler
   portalRenderLimit.init();
 
-  // process the requests from the cache
-  console.log('got '+Object.keys(cachedData.result.map).length+' data tiles from cache');
-  handleDataResponse(cachedData, true);
-
-  // finally send ajax requests
+  // send ajax requests
   console.log('requesting '+requestTileCount+' tiles in '+Object.keys(tiles).length+' requests');
   $.each(tiles, function(ind, tls) {
     data = { zoom: z };
     data.boundsParamsList = tls;
     window.requests.add(window.postAjax('getThinnedEntitiesV2', data, function(data, textStatus, jqXHR) { window.handleDataResponse(data,false); }, window.handleFailedRequest));
   });
+
+  // process the requests from the cache
+  console.log('got '+Object.keys(cachedData.result.map).length+' data tiles from cache');
+  handleDataResponse(cachedData, true);
+
 }
 
 // Handle failed map data request
