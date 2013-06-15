@@ -50,6 +50,7 @@ public class IITC_Mobile extends Activity {
     private boolean desktop = false;
     private boolean reload_needed = false;
     private ArrayList<String> dialogStack = new ArrayList<String>();
+    private SharedPreferences sharedPref;
 
     // Used for custom back stack handling
     private ArrayList<Integer> backStack = new ArrayList<Integer>();
@@ -80,7 +81,7 @@ public class IITC_Mobile extends Activity {
             actionBar.setHomeButtonEnabled(true);
 
         // do something if user changed something in the settings
-        SharedPreferences sharedPref = PreferenceManager
+        sharedPref = PreferenceManager
                 .getDefaultSharedPreferences(this);
         listener = new OnSharedPreferenceChangeListener() {
             @Override
@@ -106,6 +107,10 @@ public class IITC_Mobile extends Activity {
                     // no iitc reload needed here
                     return;
                 }
+                // no reload needed
+                if (key.equals("pref_press_twice_to_exit"))
+                    return;
+
                 reload_needed = true;
             }
         };
@@ -287,7 +292,7 @@ public class IITC_Mobile extends Activity {
             // Pop last item from backStack and pretend the relevant menu item was clicked
             backStackPop();
         } else {
-            if (back_button_pressed)
+            if (back_button_pressed || !sharedPref.getBoolean("pref_press_twice_to_exit", false))
                 super.onBackPressed();
             else {
                 back_button_pressed = true;
