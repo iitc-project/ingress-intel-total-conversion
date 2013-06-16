@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 
 public class IITC_WebViewClient extends WebViewClient {
     private static final ByteArrayInputStream style = new ByteArrayInputStream(
@@ -77,7 +76,7 @@ public class IITC_WebViewClient extends WebViewClient {
             js = this.fileToString(iitc_path
                     + "dev/total-conversion-build.user.js", false);
             if (js.equals("false")) {
-                Toast.makeText( context, "File " + iitc_path +
+                Toast.makeText(context, "File " + iitc_path +
                         "dev/total-conversion-build.user.js not found. " +
                         "Disable developer mode or add iitc files to the dev folder.",
                         Toast.LENGTH_LONG).show();
@@ -131,7 +130,7 @@ public class IITC_WebViewClient extends WebViewClient {
     // enable https
     @Override
     public void onReceivedSslError(WebView view, SslErrorHandler handler,
-            SslError error) {
+                                   SslError error) {
         handler.proceed();
     }
 
@@ -167,7 +166,7 @@ public class IITC_WebViewClient extends WebViewClient {
         Map<String, ?> all_prefs = sharedPref.getAll();
 
         // iterate through all plugins
-        for(Map.Entry<String, ?> entry : all_prefs.entrySet()){
+        for (Map.Entry<String, ?> entry : all_prefs.entrySet()) {
             String plugin = entry.getKey();
             if (plugin.endsWith("user.js") && entry.getValue().toString().equals("true")) {
                 // load default iitc plugins
@@ -263,9 +262,9 @@ public class IITC_WebViewClient extends WebViewClient {
         String wrapper_start = "function wrapper() {";
         String wrapper_end = "} // wrapper end";
         String injection_code = "// inject code into site context\n" +
-                                "var script = document.createElement('script');\n" +
-                                "script.appendChild(document.createTextNode('('+ wrapper +')();'));\n" +
-                                "(document.body || document.head || document.documentElement).appendChild(script);";
+                "var script = document.createElement('script');\n" +
+                "script.appendChild(document.createTextNode('('+ wrapper +')();'));\n" +
+                "(document.body || document.head || document.documentElement).appendChild(script);";
         if (js.contains(wrapper_start) && js.contains(wrapper_end) && js.contains(injection_code)) {
             js = js.replace(wrapper_start, "");
             // remove the wrapper function
@@ -278,6 +277,7 @@ public class IITC_WebViewClient extends WebViewClient {
         }
         return js;
     }
+
     // Check every external resource if it’s okay to load it and maybe replace
     // it
     // with our own content. This is used to block loading Niantic resources
@@ -285,7 +285,7 @@ public class IITC_WebViewClient extends WebViewClient {
     // via http://stackoverflow.com/a/8274881/1684530
     @Override
     public WebResourceResponse shouldInterceptRequest(final WebView view,
-            String url) {
+                                                      String url) {
         if (url.contains("/css/common.css")) {
             return new WebResourceResponse("text/css", "UTF-8", style);
         } else if (url.contains("gen_dashboard.js")) {

@@ -29,7 +29,7 @@ public class IITC_Settings extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             // exit settings when home button (iitc icon) is pressed
-            case android.R.id.home :
+            case android.R.id.home:
                 onBackPressed();
                 return true;
             default:

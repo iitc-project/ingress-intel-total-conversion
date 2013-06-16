@@ -1,8 +1,5 @@
 package com.cradle.iitc_mobile;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.SearchManager;
@@ -30,6 +27,9 @@ import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.SearchView;
 import android.widget.Toast;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class IITC_Mobile extends Activity {
 
@@ -92,8 +92,7 @@ public class IITC_Mobile extends Activity {
                     if (desktop) {
                         setActionBarHomeEnabledWithUp(false);
                         actionBar.setTitle(getString(R.string.app_name));
-                    }
-                    else actionBar.setHomeButtonEnabled(true);
+                    } else actionBar.setHomeButtonEnabled(true);
                     invalidateOptionsMenu();
                 }
                 if (key.equals("pref_user_loc"))
@@ -301,7 +300,7 @@ public class IITC_Mobile extends Activity {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        back_button_pressed=false;
+                        back_button_pressed = false;
                     }
                 }, 2000);
             }
@@ -407,7 +406,7 @@ public class IITC_Mobile extends Activity {
                 // get location from network by default
                 if (!is_loc_enabled) {
                     iitc_view.loadUrl("javascript: window.map.locate({setView : true, maxZoom: 15});");
-                // if gps location is displayed we can use a better location without any costs
+                    // if gps location is displayed we can use a better location without any costs
                 } else {
                     if (last_location != null)
                         iitc_view.loadUrl("javascript: window.map.setView(new L.LatLng(" +

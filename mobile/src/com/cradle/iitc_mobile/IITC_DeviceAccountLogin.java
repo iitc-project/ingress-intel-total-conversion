@@ -112,7 +112,7 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
 
     /**
      * called to start authenticating using AccountManager.
-     * 
+     * <p/>
      * After a token is created, AccountManager will call the run() method.
      */
     private void startAuthentication() {
@@ -164,7 +164,7 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
 
     /**
      * start authentication
-     * 
+     * <p/>
      * if we already have a username (e.g. because the existing login has timed out), we can directly start
      * authentication if an account with that username is found.
      */

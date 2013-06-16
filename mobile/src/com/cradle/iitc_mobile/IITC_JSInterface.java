@@ -1,10 +1,5 @@
 package com.cradle.iitc_mobile;
 
-import java.util.HashMap;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -17,6 +12,11 @@ import android.net.Uri;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.HashMap;
 
 // provide communication between IITC script and android app
 public class IITC_JSInterface {
@@ -74,28 +74,22 @@ public class IITC_JSInterface {
         if (id.equals("map")) {
             button_id = android.R.id.home;
             title = iitcm.getString(R.string.app_name);
-        }
-        else if (id.equals("info")) {
+        } else if (id.equals("info")) {
             button_id = R.id.menu_info;
             title = "Info";
-        }
-        else if (id.equals("full")) {
+        } else if (id.equals("full")) {
             button_id = R.id.menu_full;
             title = "Full";
-        }
-        else if (id.equals("compact")) {
+        } else if (id.equals("compact")) {
             button_id = R.id.menu_compact;
             title = "Compact";
-        }
-        else if (id.equals("public")) {
+        } else if (id.equals("public")) {
             button_id = R.id.menu_public;
             title = "Public";
-        }
-        else if (id.equals("faction")) {
+        } else if (id.equals("faction")) {
             button_id = R.id.menu_faction;
             title = "Faction";
-        }
-        else if (id.equals("debug")) {
+        } else if (id.equals("debug")) {
             button_id = R.id.menu_debug;
             title = "Debug";
         }
@@ -215,7 +209,7 @@ public class IITC_JSInterface {
     // show all overlay layers in a multi selection list dialog
     private void show_multi_selection() {
         // build the layer chooser dialog
-        AlertDialog.Builder  d_m = new AlertDialog.Builder(context);
+        AlertDialog.Builder d_m = new AlertDialog.Builder(context);
         OnMultiChoiceClickListener m_listener = new OnMultiChoiceClickListener() {
 
             @Override
@@ -227,20 +221,20 @@ public class IITC_JSInterface {
             }
         };
 
-        d_m.setMultiChoiceItems(overlay_layers, overlay_is_active , m_listener);
+        d_m.setMultiChoiceItems(overlay_layers, overlay_is_active, m_listener);
         // switch to base layers
         d_m.setPositiveButton("Base Layers", new OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialog, int which) {
-                  show_single_selection();
-                  dialog.cancel();
-              }
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                show_single_selection();
+                dialog.cancel();
+            }
         });
         d_m.setNegativeButton("Close", new OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialog, int which) {
-                  dialog.cancel();
-              }
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
         });
         d_m.setTitle("Overlay Layers");
         d_m.show();
@@ -256,7 +250,7 @@ public class IITC_JSInterface {
                         + layer_ids.get(base_layers[which]) + ","
                         + true + ");");
                 active_base_layer = which;
-                }
+            }
         };
         AlertDialog.Builder d_s = new AlertDialog.Builder(context);
         d_s.setSingleChoiceItems(base_layers, active_base_layer, s_listener);
