@@ -11,10 +11,10 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.webkit.GeolocationPermissions;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.GeolocationPermissions;
 
 @SuppressLint("SetJavaScriptEnabled")
 public class IITC_WebView extends WebView {
@@ -26,7 +26,7 @@ public class IITC_WebView extends WebView {
 
     // init web view
     private void iitc_init(Context c) {
-        if ( this.isInEditMode() ) return;
+        if (this.isInEditMode()) return;
         settings = this.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
@@ -44,12 +44,12 @@ public class IITC_WebView extends WebView {
         this.setWebChromeClient(new WebChromeClient() {
             /**
              * our webchromeclient should share geolocation with the iitc script
-             * 
+             *
              * allow access by default
              */
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin,
-                    GeolocationPermissions.Callback callback) {
+                                                           GeolocationPermissions.Callback callback) {
                 callback.invoke(origin, true, false);
             }
 
@@ -95,8 +95,8 @@ public class IITC_WebView extends WebView {
     public void loadUrl(String url) {
         // if in edit text mode, don't load javascript otherwise the keyboard closes.
         HitTestResult testResult = this.getHitTestResult();
-        if (url.startsWith("javascript:") && testResult != null && testResult.getType() == HitTestResult.EDIT_TEXT_TYPE)
-        {
+        if (url.startsWith("javascript:") && testResult != null &&
+                testResult.getType() == HitTestResult.EDIT_TEXT_TYPE) {
             // let window.show(...) interupt input
             // window.show(...) is called if one of the action bar buttons
             // is clicked
@@ -106,7 +106,7 @@ public class IITC_WebView extends WebView {
             }
         }
         // do nothing if script is enabled;
-        if (this.disableJS == true) {
+        if (this.disableJS) {
             Log.d("iitcm", "javascript injection disabled...return");
             return;
         }
@@ -152,7 +152,8 @@ public class IITC_WebView extends WebView {
         // is ticked as mobile hotspot or not.
         // --> IITC_WebView.isConnectedToWifi should return 'false' if connected to mobile hotspot
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            return ((wifi.getState() == NetworkInfo.State.CONNECTED) && !conMan.isActiveNetworkMetered());
+            return ((wifi.getState() == NetworkInfo.State.CONNECTED) &&
+                    !conMan.isActiveNetworkMetered());
         }
         return (wifi.getState() == NetworkInfo.State.CONNECTED);
     }

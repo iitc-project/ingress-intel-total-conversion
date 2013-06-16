@@ -303,18 +303,12 @@
 				// If it's a map
 				if(typeList == 'bkmrk_maps'){
 					if(bkmrk['label']==''){ label = bkmrk['latlng']+' ['+bkmrk['z']+']'; }
-                    if (!window.isSmartphone())
-					    btn_link = '<a class="bookmarksLink" onclick="map.setView(['+latlng+'], '+bkmrk['z']+');return false;">'+label+'</a>';
-                    else
-					    btn_link = '<a class="bookmarksLink" onclick="map.setView(['+latlng+'], '+bkmrk['z']+'); window.show(\'map\'); return false;">'+label+'</a>';
+					btn_link = '<a class="bookmarksLink" onclick="map.setView(['+latlng+'], '+bkmrk['z']+');return false;">'+label+'</a>';
 				}
 				// If it's a portal
 				else if(typeList == 'bkmrk_portals'){
 					var guid = bkmrk['guid'];
-					if (!window.isSmartphone())
-						var btn_link = '<a class="bookmarksLink" onclick="window.zoomToAndShowPortal(\''+guid+'\', ['+latlng+']);return false;">'+label+'</a>';
-					else
-						var btn_link = '<a class="bookmarksLink" onclick="window.zoomToAndShowPortal(\''+guid+'\', ['+latlng+']); window.show(\'map\'); return false;">'+label+'</a>';
+					var btn_link = '<a class="bookmarksLink" onclick="window.zoomToAndShowPortal(\''+guid+'\', ['+latlng+']);return false;">'+label+'</a>';
 				}
 				// Create the bookmark
 				elementTemp += '<li class="bkmrk" id="'+idBkmrk+'">'+btn_remove+btn_link+'</li>';
