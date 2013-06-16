@@ -156,6 +156,7 @@ window.handleDataResponse = function(data, fromCache) {
   var ppp = {};
   var p2f = {};
   $.each(m, function(qk, val) {
+    var thisFromCache = fromCache;
     if('error' in val) {
       console.log('map data tile '+qk+' response error: '+val.error);
 
@@ -167,10 +168,11 @@ window.handleDataResponse = function(data, fromCache) {
         return true; // $.each 'continue'
       } else {
         console.log('(using stale cache entry for map tile)');
+        thisFromCache = true;
       }
     }
 
-    if (!fromCache) storeDataCache(qk,val);
+    if (!thisFromCache) storeDataCache(qk,val);
 
     $.each(val.deletedGameEntityGuids || [], function(ind, guid) {
       if(getTypeByGuid(guid) === TYPE_FIELD && window.fields[guid] !== undefined) {
