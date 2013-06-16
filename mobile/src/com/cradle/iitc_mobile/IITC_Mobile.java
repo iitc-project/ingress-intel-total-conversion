@@ -223,7 +223,8 @@ public class IITC_Mobile extends Activity {
 
     @Override
     protected void onStop() {
-        ConnectivityManager conMan = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager conMan =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo mobile = conMan
                 .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
@@ -284,7 +285,8 @@ public class IITC_Mobile extends Activity {
                     "selector.remove();");
             return;
         }
-        // exit fullscreen mode if it is enabled and action bar is disabled or the back stack is empty
+        // exit fullscreen mode if it is enabled and action bar is disabled
+        // or the back stack is empty
         if (fullscreen_mode && (backStack.isEmpty() || fullscreen_actionbar)) {
             this.toggleFullscreen();
         } else if (!backStack.isEmpty()) {
@@ -405,7 +407,8 @@ public class IITC_Mobile extends Activity {
                 iitc_view.loadUrl("javascript: window.show('map');");
                 // get location from network by default
                 if (!is_loc_enabled) {
-                    iitc_view.loadUrl("javascript: window.map.locate({setView : true, maxZoom: 15});");
+                    iitc_view.loadUrl("javascript: " +
+                            "window.map.locate({setView : true, maxZoom: 15});");
                     // if gps location is displayed we can use a better location without any costs
                 } else {
                     if (last_location != null)
@@ -508,8 +511,8 @@ public class IITC_Mobile extends Activity {
     }
 
     /**
-     * It can occur that in order to authenticate, an external activity has to be launched. (This could for example be a
-     * confirmation dialog.)
+     * It can occur that in order to authenticate, an external activity has to be launched.
+     * (This could for example be a confirmation dialog.)
      */
     public void startLoginActivity(Intent launch) {
         startActivityForResult(launch, REQUEST_LOGIN); // REQUEST_LOGIN is to recognize the result

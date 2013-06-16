@@ -95,7 +95,8 @@ public class IITC_WebView extends WebView {
     public void loadUrl(String url) {
         // if in edit text mode, don't load javascript otherwise the keyboard closes.
         HitTestResult testResult = this.getHitTestResult();
-        if (url.startsWith("javascript:") && testResult != null && testResult.getType() == HitTestResult.EDIT_TEXT_TYPE) {
+        if (url.startsWith("javascript:") && testResult != null &&
+                testResult.getType() == HitTestResult.EDIT_TEXT_TYPE) {
             // let window.show(...) interupt input
             // window.show(...) is called if one of the action bar buttons
             // is clicked
@@ -151,7 +152,8 @@ public class IITC_WebView extends WebView {
         // is ticked as mobile hotspot or not.
         // --> IITC_WebView.isConnectedToWifi should return 'false' if connected to mobile hotspot
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            return ((wifi.getState() == NetworkInfo.State.CONNECTED) && !conMan.isActiveNetworkMetered());
+            return ((wifi.getState() == NetworkInfo.State.CONNECTED) &&
+                    !conMan.isActiveNetworkMetered());
         }
         return (wifi.getState() == NetworkInfo.State.CONNECTED);
     }
