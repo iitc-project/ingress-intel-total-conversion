@@ -22,7 +22,7 @@ import java.util.Scanner;
 
 public class IITC_SettingsFragment extends PreferenceFragment {
 
-    String iitc_version;
+    private String iitc_version;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -60,7 +60,7 @@ public class IITC_SettingsFragment extends PreferenceFragment {
                     public boolean onPreferenceChange(Preference preference,
                             Object newValue) {
                         preference.setSummary(getString(R.string.pref_select_iitc_sum) +
-                                " " + (CharSequence) newValue);
+                                " " + newValue);
                         // TODO: update iitc_version when iitc source has
                         // changed
                         return true;
@@ -88,12 +88,12 @@ public class IITC_SettingsFragment extends PreferenceFragment {
             e.printStackTrace();
         }
 
-        for (int i = 0; i < asset_array.length; i++) {
+        for (String anAsset_array : asset_array) {
             // find user plugin name for user readable entries
             Scanner s = null;
             String src = "";
             try {
-                s = new Scanner(am.open("plugins/" + asset_array[i]))
+                s = new Scanner(am.open("plugins/" + anAsset_array))
                         .useDelimiter("\\A");
             } catch (IOException e2) {
                 // TODO Auto-generated catch block
@@ -102,7 +102,7 @@ public class IITC_SettingsFragment extends PreferenceFragment {
             if (s != null)
                 src = s.hasNext() ? s.next() : "";
             // now we have all stuff together and can build the pref screen
-            addPluginPreference(root, src, asset_array[i], false);
+            addPluginPreference(root, src, anAsset_array, false);
         }
 
         // load additional plugins from <storage-path>/IITC_Mobile/plugins/
@@ -113,18 +113,18 @@ public class IITC_SettingsFragment extends PreferenceFragment {
         if (files != null) {
             Scanner s = null;
             String src = "";
-            for (int i = 0; i < files.length; ++i) {
+            for (File file : files) {
                 try {
-                    s = new Scanner(files[i]).useDelimiter("\\A");
+                    s = new Scanner(file).useDelimiter("\\A");
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
-                    Log.d("iitcm", "failed to parse file " + files[i]);
+                    Log.d("iitcm", "failed to parse file " + file);
                 }
                 if (s != null)
                     src = s.hasNext() ? s.next() : "";
 
                 // now we have all stuff together and can build the pref screen
-                addPluginPreference(root, src, files[i].toString(), true);
+                addPluginPreference(root, src, file.toString(), true);
             }
         }
     }

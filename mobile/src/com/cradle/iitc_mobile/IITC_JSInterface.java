@@ -22,13 +22,13 @@ import android.widget.Toast;
 public class IITC_JSInterface {
 
     // context of main activity
-    Context context;
-    HashMap<String, String> layer_ids;
-    boolean[] overlay_is_active;
-    int active_base_layer;
-    String[] overlay_layers, base_layers;
-    int num_base_layers;
-    int num_overlay_layers;
+    private final Context context;
+    private final HashMap<String, String> layer_ids;
+    private boolean[] overlay_is_active;
+    private int active_base_layer;
+    private String[] overlay_layers, base_layers;
+    private int num_base_layers;
+    private int num_overlay_layers;
 
     IITC_JSInterface(Context c) {
         layer_ids = new HashMap<String, String>();
@@ -167,8 +167,8 @@ public class IITC_JSInterface {
                 String id = "";
                 String name = "";
                 boolean isActive = false;
-                for (int j = 0; j < layers.length; ++j) {
-                    String[] values = layers[j].split(":");
+                for (String b_layer : layers) {
+                    String[] values = b_layer.split(":");
                     if (values[0].contains("active")) isActive = values[1].equals("true");
                     if (values[0].contains("layerId")) id = values[1];
                     if (values[0].contains("name")) name = values[1];
@@ -193,8 +193,8 @@ public class IITC_JSInterface {
                 String id = "";
                 String name = "";
                 boolean isActive = false;
-                for (int j = 0; j < layers.length; ++j) {
-                    String[] values = layers[j].split(":");
+                for (String o_layer : layers) {
+                    String[] values = o_layer.split(":");
                     if (values[0].contains("active")) isActive = values[1].equals("true");
                     if (values[0].contains("layerId")) id = values[1];
                     if (values[0].contains("name")) name = values[1];
