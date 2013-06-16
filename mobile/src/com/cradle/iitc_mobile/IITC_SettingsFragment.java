@@ -6,7 +6,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -58,7 +57,7 @@ public class IITC_SettingsFragment extends PreferenceFragment {
                 .setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference,
-                            Object newValue) {
+                                                      Object newValue) {
                         preference.setSummary(getString(R.string.pref_select_iitc_sum) +
                                 " " + newValue);
                         // TODO: update iitc_version when iitc source has
