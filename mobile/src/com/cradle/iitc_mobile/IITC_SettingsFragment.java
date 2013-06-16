@@ -128,7 +128,8 @@ public class IITC_SettingsFragment extends PreferenceFragment {
         }
     }
 
-    void addPluginPreference(PreferenceScreen root, String src, String plugin_key, boolean additional) {
+    void addPluginPreference(PreferenceScreen root, String src, String plugin_key,
+                             boolean additional) {
 
         // now parse plugin name, description and category
         String header = src.substring(src.indexOf("==UserScript=="),

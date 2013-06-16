@@ -120,7 +120,8 @@ public class IITC_JSInterface {
 
         /*
          *  the layer strings have a form like:
-         *  [{"layerId":27,"name":"MapQuest OSM","active":true},{"layerId":28,"name":"Default Ingress Map","active":false}]
+         *  [{"layerId":27,"name":"MapQuest OSM","active":true},
+         *  {"layerId":28,"name":"Default Ingress Map","active":false}]
          *  Put it in a JSONArray and parse it
          */
         JSONArray base_layersJSON = null;
@@ -215,7 +216,8 @@ public class IITC_JSInterface {
             @Override
             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                 // activate clicked layer
-                ((IITC_Mobile) context).getWebView().loadUrl("javascript: window.layerChooser.showLayer("
+                ((IITC_Mobile) context).getWebView().loadUrl("javascript: " +
+                        "window.layerChooser.showLayer("
                         + layer_ids.get(overlay_layers[which]) + ","
                         + overlay_is_active[which] + ");");
             }
@@ -246,7 +248,8 @@ public class IITC_JSInterface {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // activate clicked layer
-                ((IITC_Mobile) context).getWebView().loadUrl("javascript: window.layerChooser.showLayer("
+                ((IITC_Mobile) context).getWebView().loadUrl("javascript: " +
+                        "window.layerChooser.showLayer("
                         + layer_ids.get(base_layers[which]) + ","
                         + true + ");");
                 active_base_layer = which;
