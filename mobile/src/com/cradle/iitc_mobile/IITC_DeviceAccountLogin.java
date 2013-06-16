@@ -54,19 +54,19 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
     }
 
     private Account mAccount;
-    private AccountAdapter mAccountAdapter;
-    private AccountManager mAccountManager;
+    private final AccountAdapter mAccountAdapter;
+    private final AccountManager mAccountManager;
     private Account[] mAccounts;
-    private IITC_Mobile mActivity;
+    private final IITC_Mobile mActivity;
     private String mAuthToken;
-    private AlertDialog mProgressbar;
-    private WebView mWebView;
+    private final AlertDialog mProgressbar;
+    private final WebView mWebView;
 
     /**
      * This listener is invoked when an item in the account list is selected. (It is also used when the 'cancel' button
      * is clicked, (in which case `index` is <0)
      */
-    private DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
+    private final DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int index) {
             if (index >= 0 && index < mAccounts.length) {

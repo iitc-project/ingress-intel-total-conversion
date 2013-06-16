@@ -37,7 +37,7 @@ public class IITC_Mobile extends Activity {
 
     private IITC_WebView iitc_view;
     private OnSharedPreferenceChangeListener listener;
-    String intel_url = "https://www.ingress.com/intel";
+    private final String intel_url = "https://www.ingress.com/intel";
     private boolean is_loc_enabled = false;
     private Location last_location = null;
     private LocationManager loc_mngr = null;
@@ -49,11 +49,11 @@ public class IITC_Mobile extends Activity {
     private MenuItem searchMenuItem;
     private boolean desktop = false;
     private boolean reload_needed = false;
-    private ArrayList<String> dialogStack = new ArrayList<String>();
+    private final ArrayList<String> dialogStack = new ArrayList<String>();
     private SharedPreferences sharedPref;
 
     // Used for custom back stack handling
-    private ArrayList<Integer> backStack = new ArrayList<Integer>();
+    private final ArrayList<Integer> backStack = new ArrayList<Integer>();
     private boolean backStack_push = true;
     private int currentPane = android.R.id.home;
     private boolean back_button_pressed = false;
@@ -144,7 +144,7 @@ public class IITC_Mobile extends Activity {
         };
 
         is_loc_enabled = sharedPref.getBoolean("pref_user_loc", false);
-        if (is_loc_enabled == true) {
+        if (is_loc_enabled) {
             // Register the listener with the Location Manager to receive
             // location updates
             loc_mngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
@@ -206,7 +206,7 @@ public class IITC_Mobile extends Activity {
         iitc_view.loadUrl("javascript: window.renderUpdateStatus()");
         iitc_view.updateCaching();
 
-        if (is_loc_enabled == true) {
+        if (is_loc_enabled) {
             // Register the listener with the Location Manager to receive
             // location updates
             loc_mngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
@@ -257,7 +257,7 @@ public class IITC_Mobile extends Activity {
         }
         Log.d("iitcm", "stopping iitcm");
 
-        if (is_loc_enabled == true)
+        if (is_loc_enabled)
             loc_mngr.removeUpdates(loc_listener);
 
         super.onStop();
@@ -375,8 +375,7 @@ public class IITC_Mobile extends Activity {
         // Handle item selection
         final int itemId = item.getItemId();
         boolean result = handleMenuItemSelected(itemId);
-        if (!result) return super.onOptionsItemSelected(item);
-        return true;
+        return result || super.onOptionsItemSelected(item);
     }
 
     public boolean handleMenuItemSelected(int itemId) {

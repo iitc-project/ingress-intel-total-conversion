@@ -35,7 +35,7 @@ public class IITC_WebViewClient extends WebViewClient {
     private WebResourceResponse iitcjs;
     private String js = null;
     private String iitc_path = null;
-    Context context;
+    private final Context context;
 
     public IITC_WebViewClient(Context c) {
         this.context = c;
@@ -126,14 +126,14 @@ public class IITC_WebViewClient extends WebViewClient {
 
         iitcjs = new WebResourceResponse("text/javascript", "UTF-8",
                 new ByteArrayInputStream(js.getBytes()));
-    };
+    }
 
     // enable https
     @Override
     public void onReceivedSslError(WebView view, SslErrorHandler handler,
             SslError error) {
         handler.proceed();
-    };
+    }
 
     /**
      * this method is called automatically when the Google login form is opened.
@@ -162,7 +162,6 @@ public class IITC_WebViewClient extends WebViewClient {
         // get the plugin preferences
         SharedPreferences sharedPref = PreferenceManager
                 .getDefaultSharedPreferences(context);
-        Set<String> plugin_list = sharedPref.getStringSet("pref_plugins", null);
         boolean dev_enabled = sharedPref.getBoolean("pref_dev_checkbox", false);
 
         Map<String, ?> all_prefs = sharedPref.getAll();
@@ -170,7 +169,7 @@ public class IITC_WebViewClient extends WebViewClient {
         // iterate through all plugins
         for(Map.Entry<String, ?> entry : all_prefs.entrySet()){
             String plugin = entry.getKey();
-            if (plugin.endsWith("user.js") && entry.getValue().toString() == "true") {
+            if (plugin.endsWith("user.js") && entry.getValue().toString().equals("true")) {
                 // load default iitc plugins
                 if (!plugin.startsWith(iitc_path)) {
                     Log.d("iitcm", "adding plugin " + plugin);
@@ -258,7 +257,7 @@ public class IITC_WebViewClient extends WebViewClient {
     public String removePluginWrapper(String file, boolean asset) {
         if (!file.endsWith("user.js")) return "";
         String js = fileToString(file, asset);
-        if (js == "false") return "";
+        if (js.equals("false")) return "";
         js = js.replaceAll("\r\n", "\n");  //convert CR-LF pairs to LF - windows format text files
         js = js.replaceAll("\r", "\n");    //convert remaining CR to LF - Mac format files(?)
         String wrapper_start = "function wrapper() {";

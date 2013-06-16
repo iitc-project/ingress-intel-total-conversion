@@ -106,7 +106,7 @@ public class IITC_WebView extends WebView {
             }
         }
         // do nothing if script is enabled;
-        if (this.disableJS == true) {
+        if (this.disableJS) {
             Log.d("iitcm", "javascript injection disabled...return");
             return;
         }
