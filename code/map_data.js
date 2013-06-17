@@ -10,7 +10,7 @@ window._debugDataTileStateLayer = undefined;
 window.debugDataTileReset = function() {
   if (!window._debugDataTileStateLayer) {
     window._debugDataTileStateLayer = L.layerGroup();
-    window.addLayerGroup("Debug Data Tiles", window._debugDataTileStateLayer, false);
+    window.addLayerGroup("DEBUG Data Tiles", window._debugDataTileStateLayer, false);
   }
 
   window._debugDataTileIdToRectangle = {};
