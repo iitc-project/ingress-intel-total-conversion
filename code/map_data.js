@@ -41,7 +41,7 @@ window.debugSetTileColour = function(qk,bordercol,fillcol) {
 window._requestCache = {}
 
 // cache entries older than the fresh age, and younger than the max age, are stale. they're used in the case of an error from the server
-window.REQUEST_CACHE_FRESH_AGE = 2*60;  // if younger than this, use data in the cache rather than fetching from the server
+window.REQUEST_CACHE_FRESH_AGE = 60;  // if younger than this, use data in the cache rather than fetching from the server
 window.REQUEST_CACHE_MAX_AGE = 15*60;  // maximum cache age. entries are deleted from the cache after this time
 
 window.storeDataCache = function(qk,data) {
@@ -118,20 +118,28 @@ window.requestData = function() {
   for (var x = x1; x <= x2; x++) {
     for (var y = y1; y <= y2; y++) {
       var tile_id = pointToTileId(z, x, y);
-      var latSouth = tileToLat(y,z);
-      var latNorth = tileToLat(y+1,z);
+      var latNorth = tileToLat(y,z);
+      var latSouth = tileToLat(y+1,z);
       var lngWest = tileToLng(x,z);
       var lngEast = tileToLng(x+1,z);
 
       debugCreateTile(tile_id,[[latSouth,lngWest],[latNorth,lngEast]]);
 
+      // TODO?: if the selected portal is in this tile, always fetch the data
       if (isDataCacheFresh(tile_id)) {
         // TODO: don't add tiles from the cache when 1. they were fully visible before, and 2. the zoom level is unchanged
         // TODO?: if a closer zoom level has all four tiles in the cache, use them instead?
         cachedData.result.map[tile_id] = getDataCache(tile_id);
         debugSetTileColour(tile_id,'#0f0','#ff0');
       } else {
-        var bucket = (Math.floor(x/2) % 2) + ":" + (Math.floor(y/2) % 2);
+        // group requests into buckets based on the tile coordinate.
+
+        var bucket = (Math.floor(x/2)%2)+":"+(Math.floor(y/2)%2);
+//some alternative/experimental bucket groupings, to see what can be done to reduce/eliminate the 'TIMEOUT' errors returned in some requests
+//        var bucket = Math.floor((x-x1)/8)+":"+Math.floor((y-y1)/8)+"/"+(Math.floor(x/2)%2)+":"+(Math.floor(y/2)%2);
+//        var bucket = Math.floor(x/4)+":"+Math.floor(y/4);
+//        var bucket = Math.floor(x/3)+":"+Math.floor(y/3);
+
         if (!tiles[bucket]) {
           //create empty bucket
           tiles[bucket] = [];
@@ -146,13 +154,13 @@ window.requestData = function() {
         requestTileCount++;
         tiles[bucket].push(generateBoundsParams(
           tile_id,
-          latNorth,
-          lngWest,
           latSouth,
+          lngWest,
+          latNorth,
           lngEast
         ));
 
-        debugSetTileColour(tile_id,'#00f','#0'+(bucket[0]*15).toString(16)+(bucket[2]*15).toString(16));
+        debugSetTileColour(tile_id,'#00f','#000');
       }
 
     }
