@@ -143,17 +143,6 @@ public class IITC_WebViewClient extends WebViewClient {
         ((IITC_Mobile) context).onReceivedLoginRequest(this, view, realm, account, args);
     }
 
-    @Override
-    public void onPageFinished(WebView view, String url) {
-        if (url.contains("accounts.google.com")) {
-            Log.d("iitcm", "reload after login/logout");
-            IITC_Mobile main_activity = ((IITC_Mobile) context);
-            main_activity.handleMenuItemSelected(R.id.reload_button);
-            return;
-        }
-        super.onPageFinished(view, url);
-    }
-
     // parse all enabled iitc plugins
     // returns a string containing all plugins without their wrappers
     public String parsePlugins() {
