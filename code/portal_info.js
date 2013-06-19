@@ -48,7 +48,8 @@ window.getEffectivePortalEnergy = function(d) {
   //Find the mitigation of each sheild.
   var shield_rate = 100;
   $.each(d.portalV2.linkedModArray, function(ind, mod) {
-    if(mod !== null) {
+    if(mod !== null && jQuery.isNumeric(mod.stats.MITIGATION))
+    {
       shield_rate *= 1 - mod.stats.MITIGATION/100;
     }
   });
