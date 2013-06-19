@@ -198,7 +198,7 @@ window.setupMap = function() {
   map.on('movestart zoomstart', function() { window.mapRunsUserAction = true; window.requests.abort(); window.startRefreshTimeout(-1); });
   map.on('moveend zoomend', function() { window.mapRunsUserAction = false; window.startRefreshTimeout(ON_MOVE_REFRESH*1000); });
 
-  window.addResumeFunction(window.requestData);
+  window.addResumeFunction(function() { window.startRefreshTimeout(ON_MOVE_REFRESH*1000); });
   window.requests.addRefreshFunction(window.requestData);
 
   // start the refresh process with a small timeout, so the first data request happens quickly

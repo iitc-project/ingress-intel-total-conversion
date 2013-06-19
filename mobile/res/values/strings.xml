@@ -44,6 +44,8 @@
     <string name="pref_force_desktop_sum">Nice for tablets, looks awful on smartphones</string>
     <string name="pref_force_https">Force https</string>
     <string name="pref_force_https_sum">Disabling may improve performance</string>
+    <string name="pref_press_twice_to_exit">Press back button twice to exit</string>
+    <string name="pref_press_twice_to_exit_sum">Avoids accidental exits</string>
     <string name="pref_developer_options">Developer options</string>
 	<string name="pref_enable_dev_mode">Enable developer mode</string>
 	<string name="pref_enable_dev_mode_sum">If enabled, all IITC sources will be loaded from external storage of the Android device.

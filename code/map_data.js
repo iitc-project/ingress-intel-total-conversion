@@ -4,6 +4,83 @@
 // map. They also keep them up to date, unless interrupted by user
 // action.
 
+// debug - display a set of rectangles on the map representing each data tile. the colour will represent it's state
+window._debugDataTileStateLayer = undefined;
+
+window.debugDataTileReset = function() {
+  if (!window._debugDataTileStateLayer) {
+    window._debugDataTileStateLayer = L.layerGroup();
+    window.addLayerGroup("DEBUG Data Tiles", window._debugDataTileStateLayer, false);
+  }
+
+  window._debugDataTileIdToRectangle = {};
+  window._debugDataTileStateLayer.clearLayers();
+}
+
+window.debugCreateTile = function(qk,bounds) {
+  var s = {color: '#888', weight: 3, opacity: 0.7, fillColor: '#888', fillOpacity: 0.4, clickable: false};
+
+  bounds = new L.LatLngBounds(bounds);
+  bounds = bounds.pad(-0.02);
+
+  var l = L.rectangle(bounds,s);
+  window._debugDataTileIdToRectangle[qk] = l;
+  window._debugDataTileStateLayer.addLayer(l);
+}
+
+window.debugSetTileColour = function(qk,bordercol,fillcol) {
+  var l = window._debugDataTileIdToRectangle[qk];
+  if (l) {
+    var s = {color: bordercol, weight: 3, opacity: 0.3, fillColor: fillcol, fillOpacity: 0.1, clickable: false};
+    l.setStyle(s);
+  }
+}
+
+
+// cache for data tiles. indexed by the query key (qk)
+window._requestCache = {}
+
+// cache entries older than the fresh age, and younger than the max age, are stale. they're used in the case of an error from the server
+window.REQUEST_CACHE_FRESH_AGE = 60;  // if younger than this, use data in the cache rather than fetching from the server
+window.REQUEST_CACHE_MAX_AGE = 15*60;  // maximum cache age. entries are deleted from the cache after this time
+
+window.storeDataCache = function(qk,data) {
+  var d = new Date();
+  window._requestCache[qk] = { time: d.getTime(), data: data };
+}
+
+window.getDataCache = function(qk) {
+  if (qk in window._requestCache) {
+    return window._requestCache[qk].data;
+  }
+  return undefined;
+}
+
+window.isDataCacheFresh = function(qk) {
+  if (qk in window._requestCache) {
+    var d = new Date();
+    var t = d.getTime()-REQUEST_CACHE_FRESH_AGE*1000;
+    if (window._requestCache[qk].time > t) {
+      return true;
+    }
+  }
+  return false;
+}
+
+window.expireDataCache = function() {
+  // TODO: add a limit on the maximum number of cache entries, and start expiring them sooner than the expiry time
+  // (might also make sense to approximate the size of cache entries, and have an overall size limit?)
+
+  var d = new Date();
+  var t = d.getTime()-window.REQUEST_CACHE_MAX_AGE*1000;
+
+  for(var qk in window._requestCache) {
+    if (window._requestCache[qk].time < t) {
+      delete window._requestCache[qk];
+    }
+  }
+}
+
 
 // requests map data for current viewport. For details on how this
 // works, refer to the description in “MAP DATA REQUEST CALCULATORS”
@@ -12,6 +89,10 @@ window.requestData = function() {
   requests.abort();
   cleanUp();
 
+  debugDataTileReset();
+
+  expireDataCache();
+
   //a limit on the number of map tiles to be pulled in a single request
   var MAX_TILES_PER_BUCKET = 20;
 
@@ -19,6 +100,7 @@ window.requestData = function() {
 
   //we query the server as if the zoom level was this. it may not match the actual map zoom level
   var z = getPortalDataZoom();
+  console.log('requesting data tiles at zoom '+z+' (L'+getMinPortalLevelForZoom(z)+'+ portals), map zoom is '+map.getZoom());
 
   var x1 = lngToTile(bounds.getWest(), z);
   var x2 = lngToTile(bounds.getEast(), z);
@@ -29,45 +111,104 @@ window.requestData = function() {
   tiles = {};
   fullBucketCount = 0;
 
+  var cachedData = { result: { map: {} } };
+  var requestTileCount = 0;
+
   // walk in x-direction, starts right goes left
   for (var x = x1; x <= x2; x++) {
     for (var y = y1; y <= y2; y++) {
       var tile_id = pointToTileId(z, x, y);
-      var bucket = (Math.floor(x/2) % 2) + ":" + (Math.floor(y/2) % 2);
-      if (!tiles[bucket]) {
-        //create empty bucket
-        tiles[bucket] = [];
-      }
-      else if(tiles[bucket].length >= MAX_TILES_PER_BUCKET) {
-        //too many items in bucket. rename it, and create a new empty one
-        tiles[bucket+'_'+fullBucketCount] = tiles[bucket];
-        fullBucketCount++;
-        tiles[bucket] = [];      
+      var latNorth = tileToLat(y,z);
+      var latSouth = tileToLat(y+1,z);
+      var lngWest = tileToLng(x,z);
+      var lngEast = tileToLng(x+1,z);
+
+      debugCreateTile(tile_id,[[latSouth,lngWest],[latNorth,lngEast]]);
+
+      // TODO?: if the selected portal is in this tile, always fetch the data
+      if (isDataCacheFresh(tile_id)) {
+        // TODO: don't add tiles from the cache when 1. they were fully visible before, and 2. the zoom level is unchanged
+        // TODO?: if a closer zoom level has all four tiles in the cache, use them instead?
+        cachedData.result.map[tile_id] = getDataCache(tile_id);
+        debugSetTileColour(tile_id,'#0f0','#ff0');
+      } else {
+        // group requests into buckets based on the tile coordinate.
+
+        var bucket = (Math.floor(x/2)%2)+":"+(Math.floor(y/2)%2);
+//some alternative/experimental bucket groupings, to see what can be done to reduce/eliminate the 'TIMEOUT' errors returned in some requests
+//        var bucket = Math.floor((x-x1)/8)+":"+Math.floor((y-y1)/8)+"/"+(Math.floor(x/2)%2)+":"+(Math.floor(y/2)%2);
+//        var bucket = Math.floor(x/4)+":"+Math.floor(y/4);
+//        var bucket = Math.floor(x/3)+":"+Math.floor(y/3);
+
+        if (!tiles[bucket]) {
+          //create empty bucket
+          tiles[bucket] = [];
+        }
+        else if(tiles[bucket].length >= MAX_TILES_PER_BUCKET) {
+          //too many items in bucket. rename it, and create a new empty one
+          tiles[bucket+'_'+fullBucketCount] = tiles[bucket];
+          fullBucketCount++;
+          tiles[bucket] = [];      
+        }
+
+        requestTileCount++;
+        tiles[bucket].push(generateBoundsParams(
+          tile_id,
+          latSouth,
+          lngWest,
+          latNorth,
+          lngEast
+        ));
+
+        debugSetTileColour(tile_id,'#00f','#000');
       }
 
-      tiles[bucket].push(generateBoundsParams(
-        tile_id,
-        tileToLat(y + 1, z),
-        tileToLng(x, z),
-        tileToLat(y, z),
-        tileToLng(x + 1, z)
-      ));
     }
   }
 
   // Reset previous result of Portal Render Limit handler
   portalRenderLimit.init();
 
-  // finally send ajax requests
+  // send ajax requests
+  console.log('requesting '+requestTileCount+' tiles in '+Object.keys(tiles).length+' requests');
   $.each(tiles, function(ind, tls) {
     data = { zoom: z };
     data.boundsParamsList = tls;
-    window.requests.add(window.postAjax('getThinnedEntitiesV2', data, window.handleDataResponse, window.handleFailedRequest));
+    // keep a list of tile_ids with each request. in the case of a server error, we can try and use cached tiles if available
+    var tile_ids = []
+    $.each(tls,function(i,req) { tile_ids.push(req.qk); });
+    window.requests.add(window.postAjax('getThinnedEntitiesV2', data, function(data, textStatus, jqXHR) { window.handleDataResponse(data,false,tile_ids); }, function() { window.handleFailedRequest(tile_ids); }));
   });
+
+  // process the requests from the cache
+  console.log('got '+Object.keys(cachedData.result.map).length+' data tiles from cache');
+  if(Object.keys(cachedData.result.map).length > 0) {
+    handleDataResponse(cachedData, true);
+  }
+
 }
 
 // Handle failed map data request
-window.handleFailedRequest = function() {
+window.handleFailedRequest = function(tile_ids) {
+  console.log('request failed: tiles '+tile_ids.join(','));
+
+  var cachedData = { result: { map: {} } };  
+  $.each(tile_ids, function(ind,tile_id) {
+    var cached = getDataCache(tile_id);
+    if (cached) {
+      // we have stale cached data - use it
+      cachedData.result.map[tile_id] = cached;
+      debugSetTileColour(tile_id,'#800','#ff0');
+      console.log('(using stale cache entry for map tile '+tile_id+')');
+    } else {
+      // no cached data
+      debugSetTileColour(tile_id,'#800','#f00');
+    }
+  });
+  if(Object.keys(cachedData.result.map).length > 0) {
+    handleDataResponse(cachedData, true);
+  }
+
   if(requests.isLastRequest('getThinnedEntitiesV2')) {
     var leftOverPortals = portalRenderLimit.mergeLowLevelPortals(null);
     handlePortalsRender(leftOverPortals);
@@ -76,12 +217,12 @@ window.handleFailedRequest = function() {
 }
 
 // works on map data response and ensures entities are drawn/updated.
-window.handleDataResponse = function(data, textStatus, jqXHR) {
+window.handleDataResponse = function(data, fromCache, tile_ids) {
   // remove from active ajax queries list
   if(!data || !data.result) {
     window.failedRequestCount++;
     console.warn(data);
-    handleFailedRequest();
+    handleFailedRequest(tile_ids);
     return;
   }
 
@@ -94,8 +235,31 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   var ppp = {};
   var p2f = {};
   $.each(m, function(qk, val) {
-    if('error' in val) {
-      console.log('map data tile '+qk+' response error: '+val.error);
+
+    // if this request wasn't from the cache, check it's status. store in the cache if good
+    // for debugging, we set the debug tile colours. cached tiles have colours set elsewhere so are not set here
+    if (!fromCache) {
+
+      if('error' in val) {
+        console.log('map data tile '+qk+' response error: '+val.error);
+
+        // try to use data in the cache, even if it's stale
+        var cacheVal = getDataCache(qk);
+
+        if (!cacheVal) {
+          debugSetTileColour(qk, '#f00','#f00');
+          // no data in cache for this tile. continue processing - it's possible it also has some valid data
+        } else {
+          val = cacheVal;
+          debugSetTileColour(qk, '#f00','#ff0');
+          console.log('(using stale cache entry for map tile '+qk+')');
+        }
+      } else {
+        // not an error - store this tile into the cache
+        storeDataCache(qk,val);
+        debugSetTileColour(qk, '#0f0','#0f0');
+      }
+
     }
 
     $.each(val.deletedGameEntityGuids || [], function(ind, guid) {

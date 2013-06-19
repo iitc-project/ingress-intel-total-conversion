@@ -120,7 +120,7 @@ window.requests._callOnRefreshFunctions = function() {
   startRefreshTimeout();
 
   if(isIdle()) {
-    console.log('user has been idle for ' + idleTime + ' minutes. Skipping refresh.');
+    console.log('user has been idle for ' + idleTime + ' seconds, or window hidden. Skipping refresh.');
     renderUpdateStatus();
     return;
   }

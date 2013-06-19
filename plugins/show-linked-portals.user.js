@@ -14,20 +14,15 @@
 // @grant          none
 // ==/UserScript==
 
+@@PLUGINSTART@@
+
+// PLUGIN START ////////////////////////////////////////////////////////
+
 /*
 * 0.0.1 initial release, show images, names and addresses of linked portal in portal detailview
 * - mouse click of the linked portal image selected the portal and adjust map
 * - click of "Linked Portal is out of range" zoom a step out
 */
-
-function wrapper() {
-// ensure plugin framework is there, even if iitc is not yet loaded
-if (typeof window.plugin !== 'function') {
-    window.plugin = function () {
-    };
-}
-
-// PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
 window.plugin.showLinkedPortal = function () {
@@ -121,16 +116,4 @@ var setup = function () {
 }
 // PLUGIN END //////////////////////////////////////////////////////////
 
-if (window.iitcLoaded && typeof setup === 'function') {
-    setup();
-} else {
-    if (window.bootPlugins)
-        window.bootPlugins.push(setup);
-    else
-        window.bootPlugins = [setup];
-}
-} // wrapper end
-// inject code into site context
-var script = document.createElement('script');
-script.appendChild(document.createTextNode('('+ wrapper +')();'));
-(document.body || document.head || document.documentElement).appendChild(script);
+@@PLUGINEND@@
