@@ -2,7 +2,7 @@
 // @id             iitc-plugin-show-portal-weakness@vita10gy
 // @name           IITC plugin: show portal weakness
 // @category       Highlighter
-// @version        0.7.0.@@DATETIMEVERSION@@
+// @version        0.7.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -33,7 +33,7 @@ window.plugin.portalWeakness.highlightWeakness = function(data) {
     }
     //Ding the portal for every missing sheild.
     $.each(d.portalV2.linkedModArray, function(ind, mod) {
-      if(mod === null) {
+      if(mod === null || mod.type != 'RES_SHIELD') {
         missing_shields++;
         portal_weakness += .03;
       }
