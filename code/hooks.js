@@ -54,7 +54,7 @@
 // requestFinished: called after each request finished. Argument is
 //              {success: boolean} indicated the request success or fail.
 // iitcLoaded: called after IITC and all plugins loaded
-// chatPreRender: called prior to rendering a chat line 
+// chatPreRender: called prior to rendering a chat line
 //              {message, highlight}
 //              message contains the message about to be rendered
 //              if highlight is set true the line will be highlighted
