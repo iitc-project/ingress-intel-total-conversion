@@ -54,13 +54,18 @@
 // requestFinished: called after each request finished. Argument is
 //              {success: boolean} indicated the request success or fail.
 // iitcLoaded: called after IITC and all plugins loaded
+// chatPreRender: called prior to rendering a chat line 
+//              {message, highlight}
+//              message contains the message about to be rendered
+//              if highlight is set true the line will be highlighted
+//
 
 
 window._hooks = {}
 window.VALID_HOOKS = ['portalAdded', 'portalDetailsUpdated',
   'publicChatDataAvailable', 'factionChatDataAvailable', 'portalDataLoaded',
   'beforePortalReRender', 'checkRenderLimit', 'requestFinished', 'nicknameClicked',
-  'geoSearch', 'iitcLoaded'];
+  'geoSearch', 'iitcLoaded', 'chatPreRender'];
 
 window.runHooks = function(event, data) {
   if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);
