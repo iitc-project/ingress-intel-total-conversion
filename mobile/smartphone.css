@@ -3,8 +3,32 @@ body {
   color: #fff;
 }
 
-#sidebar, #updatestatus, #chatcontrols, #chat, #chatinput {
-  background: #0B3351 !important
+#updatestatus {
+  background: #262c32;
+  width: 100%;
+  color: #d4d5d6;
+  border: 0;
+}
+
+#innerstatus {
+  float: right;
+  max-width: 50%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+#mobileinfo {
+  float: left;
+  margin-right: 1em;
+  max-width: 50%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+#sidebar, #chatcontrols, #chat, #chatinput {
+  background: #0B3351 !important;
 }
 
 .leaflet-top .leaflet-control {

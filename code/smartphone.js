@@ -68,11 +68,29 @@ window.runOnSmartphonesBeforeBoot = function() {
   });
 }
 
+window.smartphoneInfo = function(data) {
+  var d = data.portalDetails;
+  var t = 'L' + Math.floor(getPortalLevel(d));
+  var percentage = '0%';
+  var totalEnergy = getTotalPortalEnergy(d);
+  if(getTotalPortalEnergy(d) > 0) {
+    percentage = Math.floor((getCurrentPortalEnergy(d) / getTotalPortalEnergy(d) * 100)) + '%';
+  }
+  t += ' ' + percentage + ' ';
+  t += d.portalV2.descriptiveText.TITLE;
+
+  $('#mobileinfo').html(t);
+}
+
 window.runOnSmartphonesAfterBoot = function() {
   if(!isSmartphone()) return;
   console.warn('running smartphone post boot stuff');
 
   smartphone.mapButton.click();
+
+  // add a div/hook for updating mobile info
+  $('#updatestatus').prepend('<div id="mobileinfo"></div>');
+  window.addHook('portalDetailsUpdated', window.smartphoneInfo);
 
   // disable img full view
   $('#portaldetails').off('click', '**');

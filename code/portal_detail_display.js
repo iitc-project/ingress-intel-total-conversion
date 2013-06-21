@@ -129,5 +129,6 @@ window.unselectOldPortal = function() {
   if(oldPortal) portalResetColor(oldPortal);
   selectedPortal = null;
   $('#portaldetails').html('');
+  if(isSmartphone()) $('.fullimg').remove();
   clearPortalIndicators();
 }

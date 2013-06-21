@@ -39,7 +39,7 @@ window.requests.abort = function() {
 // to website. Updates info in layer chooser.
 window.renderUpdateStatus = function() {
 
-  var t = '<div><span class="help portallevel" title="Indicates portal levels displayed.  Zoom in to display lower level portals."><b>portals</b>: ';
+  var t = '<span class="help portallevel" title="Indicates portal levels displayed.  Zoom in to display lower level portals."><b>portals</b>: ';
   var minlvl = getMinPortalLevel();
   if(minlvl === 0)
     t += 'all';
@@ -66,8 +66,6 @@ window.renderUpdateStatus = function() {
   if(window.failedRequestCount > 0)
     t += ' <span style="color:#f66">' + window.failedRequestCount + ' failed</span>'
 
-  t += '</div>';
-
   var portalSelection = $('.leaflet-control-layers-overlays label');
   //it's an array - 0=unclaimed, 1=lvl 1, 2=lvl 2, ..., 8=lvl 8 - 9 relevant entries
   //mark all levels below (but not at) minlvl as disabled
@@ -76,7 +74,7 @@ window.renderUpdateStatus = function() {
   portalSelection.slice(minlvl, 8+1).removeClass('disabled').attr('title', '');
 
 
-  $('#updatestatus').html(t);
+  $('#innerstatus').html(t);
   //$('#updatestatus').click(function() { startRefreshTimeout(10); });
   //. <a style="cursor: pointer" onclick="startRefreshTimeout(10)" title="Refresh">⟳</a>';
 }
