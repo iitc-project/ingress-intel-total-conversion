@@ -162,6 +162,12 @@ window.COLORS_MOD = {VERY_RARE: '#F78AF6', RARE: '#AD8AFF', COMMON: '#84FBBD'};
 window.OPTIONS_RESONATOR_SELECTED = {color: '#fff', weight: 2, radius: 4, opacity: 1, clickable: false};
 window.OPTIONS_RESONATOR_NON_SELECTED = {color: '#aaa', weight: 1, radius: 3, opacity: 1, clickable: false};
 
+//Fill this in as we find them out.
+//Ideally there's an equation that will let us use mod.LINK_RANGE_MULTIPLIER directly
+window.LINK_AMP_RANGE_BOOST = {COMMON: {1: 0, 2: 0, 3: 0, 4: 0},
+                               RARE: {1: 2, 2: .5, 3: .25, 4: .125},
+                               VERY_RARE: {1: 0, 2: 0, 3: 0, 4: 0}};
+
 window.OPTIONS_RESONATOR_LINE_SELECTED = {
   opacity: 0.7,
   weight: 3,
