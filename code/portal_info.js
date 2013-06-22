@@ -54,7 +54,25 @@ window.getPortalRange = function(d) {
     lvl += parseInt(reso.level);
   });
   if(resoMissing) return 0;
-  return 160*Math.pow(getPortalLevel(d), 4);
+  
+  var range = 160*Math.pow(getPortalLevel(d), 4);
+  var boost = getLinkAmpRangeBoost(d);
+  if(boost>0) {
+    range *= boost;
+  }
+  return(range);
+}
+
+window.getLinkAmpRangeBoost = function(d) {
+  var countAmps = 0;
+  var rangeBoost = 0;
+  $.each(d.portalV2.linkedModArray, function(ind, mod) {
+    if(mod !== null && mod.type === 'LINK_AMPLIFIER') {
+       countAmps++;
+       rangeBoost += LINK_AMP_RANGE_BOOST[mod.rarity][countAmps];
+    }
+  });
+  return(rangeBoost);
 }
 
 window.getAvgResoDist = function(d) {
