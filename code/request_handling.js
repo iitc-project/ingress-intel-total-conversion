@@ -5,6 +5,12 @@
 
 window.activeRequests = [];
 window.failedRequestCount = 0;
+window.statusTotalMapTiles = 0;
+window.statusCachedMapTiles = 0;
+window.statusSuccessMapTiles = 0;
+window.statusStaleMapTiles = 0;
+window.statusErrorMapTiles = 0;
+
 
 window.requests = function() {}
 
@@ -52,12 +58,22 @@ window.renderUpdateStatus = function() {
     t += '<span class="help" title="Paused due to user interaction">paused</span';
   else if(isIdle())
     t += '<span style="color:#888">Idle</span>';
-  else if(window.activeRequests.length > 0)
-    t += window.activeRequests.length + ' requests';
   else if(window.requests._quickRefreshPending)
     t += 'refreshing';
-  else
-    t += 'Up to date';
+  else if(window.activeRequests.length > 0)
+    t += window.activeRequests.length + ' requests';
+  else {
+    // tooltip with detailed tile counts
+    t += '<span class="help" title="'+window.statusTotalMapTiles+' tiles: '+window.statusCachedMapTiles+' cached, '+window.statusSuccessMapTiles+' successful, '+window.statusStaleMapTiles+' stale, '+window.statusErrorMapTiles+' failed">';
+
+    // basic error/out of date/up to date message
+    if (window.statusErrorMapTiles) t += '<span style="color:#f66">Errors</span>';
+    else if (window.statusStaleMapTiles) t += '<span style="color:#fa6">Out of date</span>';
+    else t += 'Up to date';
+  
+    t += '</span>';
+
+  }
   t += '</span>';
 
   if(renderLimitReached())

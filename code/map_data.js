@@ -88,6 +88,12 @@ window.requestData = function() {
   console.log('refreshing data');
   requests.abort();
   cleanUp();
+  window.statusTotalMapTiles = 0;
+  window.statusCachedMapTiles = 0;
+  window.statusSuccessMapTiles = 0;
+  window.statusStaleMapTiles = 0;
+  window.statusErrorMapTiles = 0;
+
 
   debugDataTileReset();
 
@@ -124,6 +130,7 @@ window.requestData = function() {
       var lngEast = tileToLng(x+1,z);
 
       debugCreateTile(tile_id,[[latSouth,lngWest],[latNorth,lngEast]]);
+      window.statusTotalMapTiles++;
 
       // TODO?: if the selected portal is in this tile, always fetch the data
       if (isDataCacheFresh(tile_id)) {
@@ -131,6 +138,7 @@ window.requestData = function() {
         // TODO?: if a closer zoom level has all four tiles in the cache, use them instead?
         cachedData.result.map[tile_id] = getDataCache(tile_id);
         debugSetTileColour(tile_id,'#0f0','#ff0');
+        window.statusCachedMapTiles++;
       } else {
         // group requests into buckets based on the tile coordinate.
 
@@ -211,9 +219,11 @@ window.handleFailedRequest = function(tile_ids) {
       cachedData.result.map[tile_id] = cached;
       debugSetTileColour(tile_id,'#800','#ff0');
       console.log('(using stale cache entry for map tile '+tile_id+')');
+      window.statusStaleMapTiles++;
     } else {
       // no cached data
       debugSetTileColour(tile_id,'#800','#f00');
+      window.statusErrorMapTiles++;
     }
   });
   if(Object.keys(cachedData.result.map).length > 0) {
@@ -260,15 +270,19 @@ window.handleDataResponse = function(data, fromCache, tile_ids) {
         if (!cacheVal) {
           debugSetTileColour(qk, '#f00','#f00');
           // no data in cache for this tile. continue processing - it's possible it also has some valid data
+          window.statusErrorMapTiles++;
         } else {
+          // stale cache entry exists - use it
           val = cacheVal;
           debugSetTileColour(qk, '#f00','#ff0');
           console.log('(using stale cache entry for map tile '+qk+')');
+          window.statusStaleMapTiles++;
         }
       } else {
         // not an error - store this tile into the cache
         storeDataCache(qk,val);
         debugSetTileColour(qk, '#0f0','#0f0');
+        window.statusSuccessMapTiles++;
       }
 
     }
