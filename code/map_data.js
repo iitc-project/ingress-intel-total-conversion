@@ -152,13 +152,24 @@ window.requestData = function() {
         }
 
         requestTileCount++;
-        tiles[bucket].push(generateBoundsParams(
+
+        var boundsParam = generateBoundsParams(
           tile_id,
           latSouth,
           lngWest,
           latNorth,
           lngEast
-        ));
+        );
+
+        // when the server is returning 'timeout' errors for some tiles in the list, it's always the tiles
+        // at the end of the request. therefore, let's push tiles we don't have cache entries for to the front, and those we do to the back
+        if (getDataCache(tile_id)) {
+          // cache entry exists - push to back
+          tiles[bucket].push(boundsParam);
+        } else {
+          // no cache entry - unshift to front
+          tiles[bucket].unshift(boundsParam);
+        }
 
         debugSetTileColour(tile_id,'#00f','#000');
       }
