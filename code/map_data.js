@@ -42,9 +42,17 @@ window._requestCache = {}
 
 // cache entries older than the fresh age, and younger than the max age, are stale. they're used in the case of an error from the server
 window.REQUEST_CACHE_FRESH_AGE = 60;  // if younger than this, use data in the cache rather than fetching from the server
-window.REQUEST_CACHE_MAX_AGE = 15*60;  // maximum cache age. entries are deleted from the cache after this time
+window.REQUEST_CACHE_MAX_AGE = 60*60;  // maximum cache age. entries are deleted from the cache after this time
+window.REQUEST_CACHE_MIN_SIZE = 200;  // if fewer than this many entries, don't expire any
+window.REQUEST_CACHE_MAX_SIZE = 2000;  // if more than this many entries, expire early
 
 window.storeDataCache = function(qk,data) {
+  // fixme? common behaviour for objects is that properties are kept in the order they're added
+  // this is handy, as it allows easy retrieval of the oldest entries for expiring
+  // however, this is not guaranteed by the standards, but all our supported browsers work this way
+
+  delete window._requestCache[qk];
+
   var d = new Date();
   window._requestCache[qk] = { time: d.getTime(), data: data };
 }
@@ -68,17 +76,24 @@ window.isDataCacheFresh = function(qk) {
 }
 
 window.expireDataCache = function() {
-  // TODO: add a limit on the maximum number of cache entries, and start expiring them sooner than the expiry time
-  // (might also make sense to approximate the size of cache entries, and have an overall size limit?)
-
   var d = new Date();
   var t = d.getTime()-window.REQUEST_CACHE_MAX_AGE*1000;
 
+  var cacheSize = Object.keys(window._requestCache).length;
+
   for(var qk in window._requestCache) {
-    if (window._requestCache[qk].time < t) {
+    // stop processing once we hit the minimum size
+    if (cacheSize < window.REQUEST_CACHE_MIN_SIZE) break;
+
+    // fixme? our MAX_SIZE test here assumes we're processing the oldest first. this relies
+    // on looping over object properties in the order they were added. this is true in most browsers,
+    // but is not a requirement of the standards
+    if (cacheSize > window.REQUEST_CACHE_MAX_SIZE || window._requestCache[qk].time < t) {
       delete window._requestCache[qk];
+      cacheSize--;
     }
   }
+
 }
 
 
