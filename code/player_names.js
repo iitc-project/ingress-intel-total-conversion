@@ -81,6 +81,8 @@ window.resolvePlayerNames = function() {
 
 
 window.setPlayerName = function(guid, nick, uncertain) {
+  // the 'uncertain' flag is set when we're scrolling back through chat. it's possible in this case
+  // to come across a message from before a name change. these should be ignored if existing cache entries exist
   if(uncertain && guid in localStorage) return;
 
   if($.trim(('' + nick)).slice(0, 5) === '{"L":' && !window.alertFor37WasShown) {
