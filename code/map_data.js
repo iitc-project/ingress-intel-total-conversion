@@ -115,7 +115,9 @@ window.requestData = function() {
   expireDataCache();
 
   //a limit on the number of map tiles to be pulled in a single request
-  var MAX_TILES_PER_BUCKET = 20;
+  var MAX_TILES_PER_BUCKET = 11;
+  // the number of separate buckets. more can be created if the size exceeds MAX_TILES_PER_BUCKET
+  var BUCKET_COUNT = 4;
 
   var bounds = clampLatLngBounds(map.getBounds());
 
@@ -156,12 +158,7 @@ window.requestData = function() {
         window.statusCachedMapTiles++;
       } else {
         // group requests into buckets based on the tile coordinate.
-
-        var bucket = (Math.floor(x/2)%2)+":"+(Math.floor(y/2)%2);
-//some alternative/experimental bucket groupings, to see what can be done to reduce/eliminate the 'TIMEOUT' errors returned in some requests
-//        var bucket = Math.floor((x-x1)/8)+":"+Math.floor((y-y1)/8)+"/"+(Math.floor(x/2)%2)+":"+(Math.floor(y/2)%2);
-//        var bucket = Math.floor(x/4)+":"+Math.floor(y/4);
-//        var bucket = Math.floor(x/3)+":"+Math.floor(y/3);
+        var bucket = Math.floor(x+y*(BUCKET_COUNT/2))%BUCKET_COUNT;
 
         if (!tiles[bucket]) {
           //create empty bucket
