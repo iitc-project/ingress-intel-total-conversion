@@ -8,8 +8,8 @@ window.getRangeText = function(d) {
   return ['range',
       '<a onclick="window.rangeLinkClick()">'
     + (range > 1000
-      ? Math.round(range/1000) + ' km'
-      : Math.round(range)      + ' m')
+      ? Math.floor(range/1000) + ' km'
+      : Math.floor(range)      + ' m')
     + '</a>'];
 }
 

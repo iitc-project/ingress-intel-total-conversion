@@ -54,8 +54,35 @@ window.getPortalRange = function(d) {
     lvl += parseInt(reso.level);
   });
   if(resoMissing) return 0;
-  return 160*Math.pow(getPortalLevel(d), 4);
+
+  var range = 160*Math.pow(getPortalLevel(d), 4);
+
+  var boost = getLinkAmpRangeBoost(d);
+
+  return range*boost;
+
 }
+
+window.getLinkAmpRangeBoost = function(d) {
+  // additional range boost calculation
+  // (at the time of writing, only rare link amps have been seen in the wild, so there's a little guesswork at how
+  // the stats work and combine - jon 2013-06-26)
+
+  var boost = 1.0;  // initial boost is 1.0 (i.e. no boost over standard range)
+  var scale = 1.0;  // scale starts at 1 (full effect of boost) - will be halved after each link amp is processed
+
+  $.each(d.portalV2.linkedModArray, function(ind, mod) {
+    if(mod && mod.type === 'LINK_AMPLIFIER' && mod.stats && mod.stats.LINK_RANGE_MULTIPLIER) {
+      // link amp stat LINK_RANGE_MULTIPLIER is 2000 for rare, and gives 2x boost to the range
+      var baseMultiplier = mod.stats.LINK_RANGE_MULTIPLIER/1000;
+      boost += (baseMultiplier-1)*scale;
+      scale = scale / 2;  // each link amp has half the effect of the previous one
+    }
+  });
+
+  return boost;
+}
+
 
 window.getAvgResoDist = function(d) {
   var sum = 0, resos = 0;
