@@ -42,11 +42,6 @@ window._requestCache = {}
 
 // cache entries older than the fresh age, and younger than the max age, are stale. they're used in the case of an error from the server
 window.REQUEST_CACHE_FRESH_AGE = 60;  // if younger than this, use data in the cache rather than fetching from the server
-<<<<<<< HEAD
-window.REQUEST_CACHE_MAX_AGE = 15*60;  // maximum cache age. entries are deleted from the cache after this time
-
-window.storeDataCache = function(qk,data) {
-=======
 window.REQUEST_CACHE_MAX_AGE = 60*60;  // maximum cache age. entries are deleted from the cache after this time
 window.REQUEST_CACHE_MIN_SIZE = 200;  // if fewer than this many entries, don't expire any
 window.REQUEST_CACHE_MAX_SIZE = 2000;  // if more than this many entries, expire early
@@ -58,7 +53,6 @@ window.storeDataCache = function(qk,data) {
 
   delete window._requestCache[qk];
 
->>>>>>> iitc-zaso-201306270/master
   var d = new Date();
   window._requestCache[qk] = { time: d.getTime(), data: data };
 }
@@ -82,19 +76,6 @@ window.isDataCacheFresh = function(qk) {
 }
 
 window.expireDataCache = function() {
-<<<<<<< HEAD
-  // TODO: add a limit on the maximum number of cache entries, and start expiring them sooner than the expiry time
-  // (might also make sense to approximate the size of cache entries, and have an overall size limit?)
-
-  var d = new Date();
-  var t = d.getTime()-window.REQUEST_CACHE_MAX_AGE*1000;
-
-  for(var qk in window._requestCache) {
-    if (window._requestCache[qk].time < t) {
-      delete window._requestCache[qk];
-    }
-  }
-=======
   var d = new Date();
   var t = d.getTime()-window.REQUEST_CACHE_MAX_AGE*1000;
 
@@ -113,7 +94,6 @@ window.expireDataCache = function() {
     }
   }
 
->>>>>>> iitc-zaso-201306270/master
 }
 
 
@@ -178,16 +158,7 @@ window.requestData = function() {
         window.statusCachedMapTiles++;
       } else {
         // group requests into buckets based on the tile coordinate.
-<<<<<<< HEAD
-
-        var bucket = (Math.floor(x/2)%2)+":"+(Math.floor(y/2)%2);
-//some alternative/experimental bucket groupings, to see what can be done to reduce/eliminate the 'TIMEOUT' errors returned in some requests
-//        var bucket = Math.floor((x-x1)/8)+":"+Math.floor((y-y1)/8)+"/"+(Math.floor(x/2)%2)+":"+(Math.floor(y/2)%2);
-//        var bucket = Math.floor(x/4)+":"+Math.floor(y/4);
-//        var bucket = Math.floor(x/3)+":"+Math.floor(y/3);
-=======
         var bucket = Math.floor(x+y*(BUCKET_COUNT/2))%BUCKET_COUNT;
->>>>>>> iitc-zaso-201306270/master
 
         if (!tiles[bucket]) {
           //create empty bucket
