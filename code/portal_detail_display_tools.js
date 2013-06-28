@@ -59,7 +59,19 @@ window.getModDetails = function(d) {
         modTooltip += 'Stats:';
         for (var key in mod.stats) {
           if (!mod.stats.hasOwnProperty(key)) continue;
-          modTooltip += '\n+' +  mod.stats[key] + ' ' + key.capitalize().replace(/_/g,' ');
+          var val = mod.stats[key];
+
+          if (key === 'REMOVAL_STICKINESS' && val == 0) continue;  // stat on all mods recently - unknown meaning, not displayed in stock client
+
+          // special formatting for known mod stats, where the display of the raw value is less useful
+          if (mod.type === 'HEATSINK' && key === 'HACK_SPEED') val = (val/10000)+'%'; // 500000 = 50%
+          else if (mod.type === 'FORCE_AMP' && key === 'FORCE_AMPLIFIER') val = (val/1000)+'x';  // 2000 = 2x
+          else if (mod.type === 'LINK_AMPLIFIER' && key === 'LINK_RANGE_MULTIPLIER') val = (val/1000)+'x' // 2000 = 2x
+          else if (mod.type === 'TURRET' && key === 'HIT_BONUS') val = (val/10000)+'%'; // 2000 = 0.2% (although this seems pretty small to be useful?)
+          else if (mod.type === 'TURRET' && key === 'ATTACK_FREQUENCY') val = (val/1000)+'x' // 2000 = 2x
+          // else display unmodified. correct for shield mitigation and multihack - unknown for future/other mods
+
+          modTooltip += '\n+' +  val + ' ' + key.capitalize().replace(/_/g,' ');
         }
       }
 
