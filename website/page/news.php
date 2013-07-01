@@ -1,5 +1,26 @@
 <h2>News</h2>
 
+<h4>1st July 2013</h4>
+<p>
+IITC version 0.12.2 released, and IITC Mobile 0.4.8. 
+<ul>
+<li>Various internal improvements to reduce requests to the Niantic servers and improve performance;
+a data tile cache, and fixes to idle code when the user isn't interacting.</li>
+<li>Improved display of stats for the new mods.</li>
+<li>Portal range calculation now includes boots from link amps.</li>
+<li>Removed 'redeem code' input box - not sure when it's returning.</li>
+</ul>
+Plugin changes:
+<ul>
+<li>Guess player levels - option to reset guesses.</li>
+<li>New highlighter plugins for the new mods.</li>
+<li>Max-links plugin - fixed problems with very narrow triangles causing overlapping links sometimes.</li>
+<li>Portals-list plugin - support for the new mods.</li>
+<li>Show portal weakness plugin - tweaks to highlight portals with non-defensive mods.</li>
+<li>Plugin to show increased portal detail (intended for mobile and smaller screens. Can cause more errors on larger screens)</li>
+</ul>
+</p>
+
 <h4>12th June 2013</h4>
 <p>
 IITC version 0.12.1 released, and IITC Mobile 0.4.6. Changes include:
