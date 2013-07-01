@@ -20,7 +20,7 @@ IITC version 0.12.2 released, and IITC Mobile 0.4.8.
 <li>Various internal improvements to reduce requests to the Niantic servers and improve performance;
 a data tile cache, and fixes to idle code when the user isn't interacting.</li>
 <li>Improved display of stats for the new mods.</li>
-<li>Portal range calculation now includes boots from link amps.</li>
+<li>Portal range calculation now includes boost from link amps.</li>
 <li>Removed 'redeem code' input box - not sure when it's returning.</li>
 </ul>
 Plugin changes:
