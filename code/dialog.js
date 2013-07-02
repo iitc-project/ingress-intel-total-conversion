@@ -205,6 +205,10 @@ window.dialog = function(options) {
 
       // This dialog is now in focus
       window.DIALOG_FOCUS = this;
+      // hint for iitc mobile that a dialog was focused
+      if (typeof android !== 'undefined' && android && android.dialogFocused) {
+        android.dialogFocused($(window.DIALOG_FOCUS).data('id'));
+      }
       $(this).closest('.ui-dialog').find('.ui-dialog-title').removeClass('ui-dialog-title-inactive').addClass('ui-dialog-title-active');
     }
   }, options));

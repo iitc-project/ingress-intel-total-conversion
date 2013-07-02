@@ -559,6 +559,15 @@ public class IITC_Mobile extends Activity {
         item.setVisible(!desktop);
     }
 
+    // remove dialog and add it back again
+    // to ensure it is the last element of the list
+    // focused dialogs should be closed first
+    public void setFocusedDialog(String id) {
+        Log.d("iitcm", "Dialog " + id + " focused");
+        dialogStack.remove(id);
+        dialogStack.add(id);
+    }
+
     // called by the javascript interface
     public void dialogOpened(String id, boolean open) {
         if (open) {
@@ -566,8 +575,7 @@ public class IITC_Mobile extends Activity {
             dialogStack.add(id);
         } else {
             Log.d("iitcm", "Dialog " + id + " closed");
-            int index = dialogStack.indexOf(id);
-            dialogStack.remove(index);
+            dialogStack.remove(id);
         }
     }
 }
