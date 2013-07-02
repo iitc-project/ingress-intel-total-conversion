@@ -12,6 +12,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceResponse;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
@@ -306,6 +307,10 @@ public class IITC_WebViewClient extends WebViewClient {
                         "should be an internal clicked position link...reload script for: "
                                 + url);
                 ((IITC_Mobile) context).loadUrl(url);
+            }
+            if (url.contains("logout")) {
+                Log.d("iitcm", "logging out...set caching mode to default");
+                view.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
             }
             return false;
         } else {

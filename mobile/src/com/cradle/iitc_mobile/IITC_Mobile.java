@@ -24,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -536,6 +537,8 @@ public class IITC_Mobile extends Activity {
      */
     public void onReceivedLoginRequest(IITC_WebViewClient client, WebView view,
                                        String realm, String account, String args) {
+        Log.d("iitcm", "logging in...set caching mode to default");
+        iitc_view.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
         mLogin = new IITC_DeviceAccountLogin(this, view, client);
         mLogin.startLogin(realm, account, args);
     }
