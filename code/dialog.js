@@ -53,6 +53,7 @@ window.dialog = function(options) {
   options = options || {};
   if(isSmartphone()) {
     options.modal = true;
+    options.width = 'auto';
   }
 
   // Build an identifier for this dialog
