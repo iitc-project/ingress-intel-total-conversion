@@ -5,6 +5,12 @@
 
 window.activeRequests = [];
 window.failedRequestCount = 0;
+window.statusTotalMapTiles = 0;
+window.statusCachedMapTiles = 0;
+window.statusSuccessMapTiles = 0;
+window.statusStaleMapTiles = 0;
+window.statusErrorMapTiles = 0;
+
 
 window.requests = function() {}
 
@@ -39,7 +45,7 @@ window.requests.abort = function() {
 // to website. Updates info in layer chooser.
 window.renderUpdateStatus = function() {
 
-  var t = '<div><span class="help portallevel" title="Indicates portal levels displayed.  Zoom in to display lower level portals."><b>portals</b>: ';
+  var t = '<span class="help portallevel" title="Indicates portal levels displayed.  Zoom in to display lower level portals."><b>portals</b>: ';
   var minlvl = getMinPortalLevel();
   if(minlvl === 0)
     t += 'all';
@@ -52,12 +58,22 @@ window.renderUpdateStatus = function() {
     t += '<span class="help" title="Paused due to user interaction">paused</span';
   else if(isIdle())
     t += '<span style="color:#888">Idle</span>';
-  else if(window.activeRequests.length > 0)
-    t += window.activeRequests.length + ' requests';
   else if(window.requests._quickRefreshPending)
     t += 'refreshing';
-  else
-    t += 'Up to date';
+  else if(window.activeRequests.length > 0)
+    t += window.activeRequests.length + ' requests';
+  else {
+    // tooltip with detailed tile counts
+    t += '<span class="help" title="'+window.statusTotalMapTiles+' tiles: '+window.statusCachedMapTiles+' cached, '+window.statusSuccessMapTiles+' successful, '+window.statusStaleMapTiles+' stale, '+window.statusErrorMapTiles+' failed">';
+
+    // basic error/out of date/up to date message
+    if (window.statusErrorMapTiles) t += '<span style="color:#f66">Errors</span>';
+    else if (window.statusStaleMapTiles) t += '<span style="color:#fa6">Out of date</span>';
+    else t += 'Up to date';
+  
+    t += '</span>';
+
+  }
   t += '</span>';
 
   if(renderLimitReached())
@@ -65,8 +81,6 @@ window.renderUpdateStatus = function() {
 
   if(window.failedRequestCount > 0)
     t += ' <span style="color:#f66">' + window.failedRequestCount + ' failed</span>'
-
-  t += '</div>';
 
   var portalSelection = $('.leaflet-control-layers-overlays label');
   //it's an array - 0=unclaimed, 1=lvl 1, 2=lvl 2, ..., 8=lvl 8 - 9 relevant entries
@@ -76,7 +90,7 @@ window.renderUpdateStatus = function() {
   portalSelection.slice(minlvl, 8+1).removeClass('disabled').attr('title', '');
 
 
-  $('#updatestatus').html(t);
+  $('#innerstatus').html(t);
   //$('#updatestatus').click(function() { startRefreshTimeout(10); });
   //. <a style="cursor: pointer" onclick="startRefreshTimeout(10)" title="Refresh">⟳</a>';
 }
