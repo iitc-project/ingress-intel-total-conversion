@@ -255,7 +255,11 @@ if buildMobile:
     except:
         pass
     shutil.rmtree("mobile/assets/plugins")
-    shutil.copytree(os.path.join(outDir,"plugins"), "mobile/assets/plugins", ignore=shutil.ignore_patterns('*.meta.js', 'force-https*', 'privacy-view*', 'speech-search*', 'basemap-cloudmade*'))
+    shutil.copytree(os.path.join(outDir,"plugins"), "mobile/assets/plugins",
+            # do not include desktop-only plugins to mobile assets
+            ignore=shutil.ignore_patterns('*.meta.js',
+            'force-https*', 'privacy-view*', 'speech-search*',
+            'basemap-cloudmade*', 'scroll-wheel-zoom-disable*'))
 
 
     if buildMobile != 'copyonly':
