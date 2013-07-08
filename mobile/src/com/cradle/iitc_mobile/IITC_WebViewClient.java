@@ -95,9 +95,7 @@ public class IITC_WebViewClient extends WebViewClient {
             // load iitc script from web or asset folder
             if (iitc_source.contains("http")) {
                 URL url = new URL(iitc_source);
-                // if url.openStream() is parsed from a scanner
-                // the NetworkOnMainThread exception is thrown
-                // use a async task for this
+                // if parsing of the online iitc source timed out, use the script from assets
                 try {
                     js = new UrlContentToString().execute(url).get(5, TimeUnit.SECONDS);
                 } catch (InterruptedException e) {

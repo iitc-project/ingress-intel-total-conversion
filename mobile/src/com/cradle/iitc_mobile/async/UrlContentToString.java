@@ -9,9 +9,9 @@ import java.net.URL;
 import java.util.Scanner;
 
 /*
- * this class parses the content of an web page.
+ * this class parses the content of a web page.
  * since network operations shouldn't be done on main UI thread
- * we use an async task for this.
+ * (NetworkOnMainThread exception is thrown) we use an async task for this.
  */
 public class UrlContentToString extends AsyncTask<URL, Integer, String> {
 
