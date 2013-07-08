@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-user-location@cradle
 // @name           IITC plugin: User Location
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
