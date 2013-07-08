@@ -233,7 +233,7 @@ if buildMobile:
 
     # compile the user location script
     fn = "user-location.user.js"
-    script = readfile("mobile/" + fn)
+    script = readfile("mobile/plugins/" + fn)
     downloadUrl = distUrlBase and distUrlBase + '/' + fn.replace("\\","/") or 'none'
     updateUrl = distUrlBase and downloadUrl.replace('.user.js', '.meta.js') or 'none'
     script = doReplacements(script, downloadUrl=downloadUrl, updateUrl=updateUrl)
@@ -251,10 +251,9 @@ if buildMobile:
     shutil.copy(os.path.join(outDir,"user-location.user.js"), "mobile/assets/user-location.user.js")
     # also copy plugins
     try:
-        os.makedirs("mobile/assets/plugins")
+        shutil.rmtree("mobile/assets/plugins")
     except:
         pass
-    shutil.rmtree("mobile/assets/plugins")
     shutil.copytree(os.path.join(outDir,"plugins"), "mobile/assets/plugins",
             # do not include desktop-only plugins to mobile assets
             ignore=shutil.ignore_patterns('*.meta.js',
