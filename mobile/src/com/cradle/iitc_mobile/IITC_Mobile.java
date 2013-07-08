@@ -174,8 +174,6 @@ public class IITC_Mobile extends Activity {
         if (Intent.ACTION_VIEW.equals(action)) {
             Uri uri = intent.getData();
             String url = uri.toString();
-            if (intent.getScheme().equals("http"))
-                url = url.replace("http://", "https://");
             Log.d("iitcm", "intent received url: " + url);
             if (url.contains("ingress.com")) {
                 Log.d("iitcm", "loading url...");
