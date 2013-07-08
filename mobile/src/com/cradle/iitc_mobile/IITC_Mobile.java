@@ -66,10 +66,6 @@ public class IITC_Mobile extends Activity {
         // enable progress bar above action bar
         requestWindowFeature(Window.FEATURE_PROGRESS);
 
-        // TODO build an async task for url.openStream() in IITC_WebViewClient
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                .permitAll().build();
-        StrictMode.setThreadPolicy(policy);
         setContentView(R.layout.activity_main);
         iitc_view = (IITC_WebView) findViewById(R.id.iitc_webview);
 
