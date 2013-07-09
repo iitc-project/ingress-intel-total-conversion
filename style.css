@@ -514,6 +514,10 @@ h3 {
   display: none;
 }
 
+.imgpreview .portalDetails {
+  display: none;
+}
+
 #level {
   font-size: 40px;
   text-shadow: -1px -1px #000, 1px -1px #000, -1px 1px #000, 1px 1px #000, 0 0 5px #fff;
@@ -936,6 +940,17 @@ td + td {
   background-color:#0E3C46;
   color:#ffce00;
   
+}
+
+
+.portal_details tr {
+  padding-bottom: 1em;
+}
+
+
+.portal_details td:first-of-type {
+  min-width: 10em;
+  vertical-align: top;
 }
 
 
