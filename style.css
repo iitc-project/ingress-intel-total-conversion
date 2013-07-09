@@ -943,14 +943,17 @@ td + td {
 }
 
 
-.portal_details tr {
-  padding-bottom: 1em;
-}
 
-
-.portal_details td:first-of-type {
-  min-width: 10em;
+.portal_details th, .portal_details td {
   vertical-align: top;
+  text-align: left;
 }
 
+.portal_details th {
+  white-space: nowrap;
+  padding-right: 1em;
+}
 
+.portal_details tr.padding-top th, .portal_details tr.padding-top td {
+  padding-top: 0.7em;
+}
