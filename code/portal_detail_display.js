@@ -50,6 +50,39 @@ window.renderPortalDetails = function(guid) {
   var perma = '/intel?ll='+lat+','+lng+'&z=17&pll='+lat+','+lng;
   var imgTitle = 'title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."';
   var poslinks = 'window.showPortalPosLinks('+lat+','+lng+',\''+escapeJavascriptString(d.portalV2.descriptiveText.TITLE)+'\')';
+  var portalDetailObj = window.getPortalDescriptionFromDetailsExtended(d);
+
+
+  var portalDetailedDescription = '';
+
+  if(portalDetailObj) {
+    portalDetailedDescription = '<table description="Portal Photo Details" class="portal_details">';
+    if(portalDetailObj.submitter.name.length > 0) {
+      if(portalDetailObj.submitter.team) {
+        submitterSpan = '<span class="' + (portalDetailObj.submitter.team === 'RESISTANCE' ? 'res' : 'enl') + ' nickname">';
+      } else {
+        submitterSpan = '<span class="none">';
+      }
+      portalDetailedDescription += '<tr style="padding-bottom: 1em;"><td><b>Photo submitted by:</b></td><td>' + submitterSpan
+                                + portalDetailObj.submitter.name + '</span> (' + portalDetailObj.submitter.voteCount + ' votes)</td></tr>';
+    }
+
+    if(d.portalV2.descriptiveText.ADDRESS) {
+      portalDetailedDescription += '<tr style="padding-bottom: 1em;"><td><b>Address:</b></td><td>' + d.portalV2.descriptiveText.ADDRESS + '</td></tr>';
+    }
+
+    if(portalDetailObj.description) {
+      portalDetailedDescription += '<tr><td><b>Description:</b></td><td>' + portalDetailObj.description + '</td></tr>';
+    }
+
+    if(portalDetailObj.submitter.link.length > 0) {
+      portalDetailedDescription += '<tr><td><b>Link to original:</b></td><td><a href="'
+                                + portalDetailObj.submitter.link + '">' + portalDetailObj.submitter.link + '</a></td></tr>';
+    }
+
+    portalDetailedDescription += '</table>';
+  }
+
 
   $('#portaldetails')
     .attr('class', TEAM_TO_CSS[getTeam(d)])
@@ -58,7 +91,8 @@ window.renderPortalDetails = function(guid) {
       + '<span class="close" onclick="unselectOldPortal();" title="Close">X</span>'
       // help cursor via ".imgpreview img"
       + '<div class="imgpreview" '+imgTitle+' style="background-image: url('+img+')">'
-      + '<img class="hide" src="'+img+'"/>'
+      + '<div class="portalDetails">'+ portalDetailedDescription + '</div>'
+      + '<img class="hide" src="'+img+'"/></div>'
       + '<span id="level">'+Math.floor(getPortalLevel(d))+'</span>'
       + '</div>'
       + '<div class="mods">'+getModDetails(d)+'</div>'
