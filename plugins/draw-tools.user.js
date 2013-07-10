@@ -1,6 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-draw-tools@breunigs
 // @name           IITC plugin: draw tools
+// @category       Layer
 // @version        0.4.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
@@ -13,10 +14,7 @@
 // @grant          none
 // ==/UserScript==
 
-function wrapper() {
-// ensure plugin framework is there, even if iitc is not yet loaded
-if(typeof window.plugin !== 'function') window.plugin = function() {};
-
+@@PLUGINSTART@@
 
 // PLUGIN START ////////////////////////////////////////////////////////
 
@@ -158,16 +156,4 @@ var setup =  window.plugin.drawTools.loadExternals;
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
-if(window.iitcLoaded && typeof setup === 'function') {
-  setup();
-} else {
-  if(window.bootPlugins)
-    window.bootPlugins.push(setup);
-  else
-    window.bootPlugins = [setup];
-}
-} // wrapper end
-// inject code into site context
-var script = document.createElement('script');
-script.appendChild(document.createTextNode('('+ wrapper +')();'));
-(document.body || document.head || document.documentElement).appendChild(script);
+@@PLUGINEND@@

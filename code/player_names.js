@@ -80,7 +80,11 @@ window.resolvePlayerNames = function() {
 }
 
 
-window.setPlayerName = function(guid, nick) {
+window.setPlayerName = function(guid, nick, uncertain) {
+  // the 'uncertain' flag is set when we're scrolling back through chat. it's possible in this case
+  // to come across a message from before a name change. these should be ignored if existing cache entries exist
+  if(uncertain && guid in localStorage) return;
+
   if($.trim(('' + nick)).slice(0, 5) === '{"L":' && !window.alertFor37WasShown) {
     window.alertFor37WasShown = true;
     alert('You have run into bug #37. Please help me solve it!\nCopy and paste this text and post it here:\nhttps://github.com/breunigs/ingress-intel-total-conversion/issues/37\nIf copy & pasting doesn’t work, make a screenshot instead.\n\n\n' + window.debug.printStackTrace() + '\n\n\n' + JSON.stringify(nick));

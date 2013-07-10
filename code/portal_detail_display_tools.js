@@ -8,8 +8,8 @@ window.getRangeText = function(d) {
   return ['range',
       '<a onclick="window.rangeLinkClick()">'
     + (range > 1000
-      ? Math.round(range/1000) + ' km'
-      : Math.round(range)      + ' m')
+      ? Math.floor(range/1000) + ' km'
+      : Math.floor(range)      + ' m')
     + '</a>'];
 }
 
@@ -23,6 +23,43 @@ window.getPortalDescriptionFromDetails = function(details) {
   return desc;
 }
 
+// Grabs more info, including the submitter name for the current main
+// portal image
+window.getPortalDescriptionFromDetailsExtended = function(details) {
+  var descObj = details.portalV2.descriptiveText;
+  var photoStreamObj = details.photoStreamInfo;
+
+  var submitterObj = new Object();
+  submitterObj.type = "";
+  submitterObj.name = "Unknown";
+  submitterObj.team = "";
+  submitterObj.link = "";
+  submitterObj.voteCount = 0;
+
+  if(photoStreamObj && photoStreamObj.hasOwnProperty("coverPhoto") && photoStreamObj.coverPhoto.hasOwnProperty("attributionMarkup")) {
+    var attribution = photoStreamObj.coverPhoto.attributionMarkup;
+    submitterObj.type = attribution[0];
+    if(attribution[1].hasOwnProperty("plain"))
+      submitterObj.name = attribution[1].plain;
+    if(attribution[1].hasOwnProperty("team"))
+      submitterObj.team = attribution[1].team;
+    if(attribution[1].hasOwnProperty("attributionLink"))
+      submitterObj.link = attribution[1].attributionLink;
+    if(photoStreamObj.coverPhoto.hasOwnProperty("voteCount"))
+      submitterObj.voteCount = photoStreamObj.coverPhoto.voteCount;
+  }
+
+
+  var portalDetails = {
+    title: descObj.TITLE,
+    description: descObj.DESCRIPTION,
+    address: descObj.ADDRESS,
+    submitter: submitterObj
+  };
+
+  return portalDetails;
+}
+
 
 // given portal details, returns html code to display mod details.
 window.getModDetails = function(d) {
@@ -30,29 +67,61 @@ window.getModDetails = function(d) {
   var modsTitle = [];
   var modsColor = [];
   $.each(d.portalV2.linkedModArray, function(ind, mod) {
-    if(!mod) {
-      mods.push('');
-      modsTitle.push('');
-      modsColor.push('#000');
-    } else if(mod.type === 'RES_SHIELD') {
+    var modName = '';
+    var modTooltip = '';
+    var modColor = '#000';
 
-      var title = mod.rarity.capitalize() + ' ' + mod.displayName + '\n';
-      title += 'Installed by: '+ getPlayerName(mod.installingUser);
+    if (mod) {
+      // all mods seem to follow the same pattern for the data structure
+      // but let's try and make this robust enough to handle possible future differences
 
-      title += '\nStats:';
-      for (var key in mod.stats) {
-        if (!mod.stats.hasOwnProperty(key)) continue;
-        title += '\n+' +  mod.stats[key] + ' ' + key.capitalize();
+      if (mod.displayName) {
+        modName = mod.displayName;
+      } else if (mod.type) {
+        modName = mod.type;
+      } else {
+        modName = '(unknown mod)';
       }
 
-      mods.push(mod.rarity.capitalize().replace('_', ' ') + ' ' + mod.displayName);
-      modsTitle.push(title);
-      modsColor.push(COLORS_MOD[mod.rarity]);
-    } else {
-      mods.push(mod.type);
-      modsTitle.push('Unknown mod. No further details available.');
-      modsColor.push('#FFF');
+      if (mod.rarity) {
+        modName = mod.rarity.capitalize().replace(/_/g,' ') + ' ' + modName;
+      }
+
+      modTooltip = modName + '\n';
+      if (mod.installingUser) {
+        modTooltip += 'Installed by: '+ getPlayerName(mod.installingUser) + '\n';
+      }
+
+      if (mod.stats) {
+        modTooltip += 'Stats:';
+        for (var key in mod.stats) {
+          if (!mod.stats.hasOwnProperty(key)) continue;
+          var val = mod.stats[key];
+
+          if (key === 'REMOVAL_STICKINESS' && val == 0) continue;  // stat on all mods recently - unknown meaning, not displayed in stock client
+
+          // special formatting for known mod stats, where the display of the raw value is less useful
+          if (mod.type === 'HEATSINK' && key === 'HACK_SPEED') val = (val/10000)+'%'; // 500000 = 50%
+          else if (mod.type === 'FORCE_AMP' && key === 'FORCE_AMPLIFIER') val = (val/1000)+'x';  // 2000 = 2x
+          else if (mod.type === 'LINK_AMPLIFIER' && key === 'LINK_RANGE_MULTIPLIER') val = (val/1000)+'x' // 2000 = 2x
+          else if (mod.type === 'TURRET' && key === 'HIT_BONUS') val = (val/10000)+'%'; // 2000 = 0.2% (although this seems pretty small to be useful?)
+          else if (mod.type === 'TURRET' && key === 'ATTACK_FREQUENCY') val = (val/1000)+'x' // 2000 = 2x
+          // else display unmodified. correct for shield mitigation and multihack - unknown for future/other mods
+
+          modTooltip += '\n+' +  val + ' ' + key.capitalize().replace(/_/g,' ');
+        }
+      }
+
+      if (mod.rarity) {
+        modColor = COLORS_MOD[mod.rarity];
+      } else {
+        modColor = '#fff';
+      }
     }
+
+    mods.push(modName);
+    modsTitle.push(modTooltip);
+    modsColor.push(modColor);
   });
 
   var t = '<span'+(modsTitle[0].length ? ' title="'+modsTitle[0]+'"' : '')+' style="color:'+modsColor[0]+'">'+mods[0]+'</span>'

@@ -1,8 +1,99 @@
-
 // MAP DATA //////////////////////////////////////////////////////////
 // these functions handle how and which entities are displayed on the
 // map. They also keep them up to date, unless interrupted by user
 // action.
+
+// debug - display a set of rectangles on the map representing each data tile. the colour will represent it's state
+window._debugDataTileStateLayer = undefined;
+
+window.debugDataTileReset = function() {
+  if (!window._debugDataTileStateLayer) {
+    window._debugDataTileStateLayer = L.layerGroup();
+    window.addLayerGroup("DEBUG Data Tiles", window._debugDataTileStateLayer, false);
+  }
+
+  window._debugDataTileIdToRectangle = {};
+  window._debugDataTileStateLayer.clearLayers();
+}
+
+window.debugCreateTile = function(qk,bounds) {
+  var s = {color: '#888', weight: 3, opacity: 0.7, fillColor: '#888', fillOpacity: 0.4, clickable: false};
+
+  bounds = new L.LatLngBounds(bounds);
+  bounds = bounds.pad(-0.02);
+
+  var l = L.rectangle(bounds,s);
+  window._debugDataTileIdToRectangle[qk] = l;
+  window._debugDataTileStateLayer.addLayer(l);
+}
+
+window.debugSetTileColour = function(qk,bordercol,fillcol) {
+  var l = window._debugDataTileIdToRectangle[qk];
+  if (l) {
+    var s = {color: bordercol, weight: 3, opacity: 0.3, fillColor: fillcol, fillOpacity: 0.1, clickable: false};
+    l.setStyle(s);
+  }
+}
+
+
+// cache for data tiles. indexed by the query key (qk)
+window._requestCache = {}
+
+// cache entries older than the fresh age, and younger than the max age, are stale. they're used in the case of an error from the server
+window.REQUEST_CACHE_FRESH_AGE = 60;  // if younger than this, use data in the cache rather than fetching from the server
+window.REQUEST_CACHE_MAX_AGE = 60*60;  // maximum cache age. entries are deleted from the cache after this time
+window.REQUEST_CACHE_MIN_SIZE = 200;  // if fewer than this many entries, don't expire any
+window.REQUEST_CACHE_MAX_SIZE = 2000;  // if more than this many entries, expire early
+
+window.storeDataCache = function(qk,data) {
+  // fixme? common behaviour for objects is that properties are kept in the order they're added
+  // this is handy, as it allows easy retrieval of the oldest entries for expiring
+  // however, this is not guaranteed by the standards, but all our supported browsers work this way
+
+  delete window._requestCache[qk];
+
+  var d = new Date();
+  window._requestCache[qk] = { time: d.getTime(), data: data };
+}
+
+window.getDataCache = function(qk) {
+  if (qk in window._requestCache) {
+    return window._requestCache[qk].data;
+  }
+  return undefined;
+}
+
+window.isDataCacheFresh = function(qk) {
+  if (qk in window._requestCache) {
+    var d = new Date();
+    var t = d.getTime()-REQUEST_CACHE_FRESH_AGE*1000;
+    if (window._requestCache[qk].time > t) {
+      return true;
+    }
+  }
+  return false;
+}
+
+window.expireDataCache = function() {
+  var d = new Date();
+  var t = d.getTime()-window.REQUEST_CACHE_MAX_AGE*1000;
+
+  var cacheSize = Object.keys(window._requestCache).length;
+
+  for(var qk in window._requestCache) {
+    // stop processing once we hit the minimum size
+    if (cacheSize < window.REQUEST_CACHE_MIN_SIZE) break;
+
+    // fixme? our MAX_SIZE test here assumes we're processing the oldest first. this relies
+    // on looping over object properties in the order they were added. this is true in most browsers,
+    // but is not a requirement of the standards
+    if (cacheSize > window.REQUEST_CACHE_MAX_SIZE || window._requestCache[qk].time < t) {
+      delete window._requestCache[qk];
+      cacheSize--;
+    }
+  }
+
+}
 
 
 // requests map data for current viewport. For details on how this
@@ -11,14 +102,27 @@ window.requestData = function() {
   console.log('refreshing data');
   requests.abort();
   cleanUp();
+  window.statusTotalMapTiles = 0;
+  window.statusCachedMapTiles = 0;
+  window.statusSuccessMapTiles = 0;
+  window.statusStaleMapTiles = 0;
+  window.statusErrorMapTiles = 0;
+
+
+  debugDataTileReset();
+
+  expireDataCache();
 
   //a limit on the number of map tiles to be pulled in a single request
-  var MAX_TILES_PER_BUCKET = 20;
+  var MAX_TILES_PER_BUCKET = 11;
+  // the number of separate buckets. more can be created if the size exceeds MAX_TILES_PER_BUCKET
+  var BUCKET_COUNT = 4;
 
   var bounds = clampLatLngBounds(map.getBounds());
 
   //we query the server as if the zoom level was this. it may not match the actual map zoom level
   var z = getPortalDataZoom();
+  console.log('requesting data tiles at zoom '+z+' (L'+getMinPortalLevelForZoom(z)+'+ portals), map zoom is '+map.getZoom());
 
   var x1 = lngToTile(bounds.getWest(), z);
   var x2 = lngToTile(bounds.getEast(), z);
@@ -29,45 +133,114 @@ window.requestData = function() {
   tiles = {};
   fullBucketCount = 0;
 
+  var cachedData = { result: { map: {} } };
+  var requestTileCount = 0;
+
   // walk in x-direction, starts right goes left
   for (var x = x1; x <= x2; x++) {
     for (var y = y1; y <= y2; y++) {
       var tile_id = pointToTileId(z, x, y);
-      var bucket = (x % 2) + ":" + (y % 2);
-      if (!tiles[bucket]) {
-        //create empty bucket
-        tiles[bucket] = [];
-      }
-      else if(tiles[bucket].length >= MAX_TILES_PER_BUCKET) {
-        //too many items in bucket. rename it, and create a new empty one
-        tiles[bucket+'_'+fullBucketCount] = tiles[bucket];
-        fullBucketCount++;
-        tiles[bucket] = [];      
+      var latNorth = tileToLat(y,z);
+      var latSouth = tileToLat(y+1,z);
+      var lngWest = tileToLng(x,z);
+      var lngEast = tileToLng(x+1,z);
+
+      debugCreateTile(tile_id,[[latSouth,lngWest],[latNorth,lngEast]]);
+      window.statusTotalMapTiles++;
+
+      // TODO?: if the selected portal is in this tile, always fetch the data
+      if (isDataCacheFresh(tile_id)) {
+        // TODO: don't add tiles from the cache when 1. they were fully visible before, and 2. the zoom level is unchanged
+        // TODO?: if a closer zoom level has all four tiles in the cache, use them instead?
+        cachedData.result.map[tile_id] = getDataCache(tile_id);
+        debugSetTileColour(tile_id,'#0f0','#ff0');
+        window.statusCachedMapTiles++;
+      } else {
+        // group requests into buckets based on the tile coordinate.
+        var bucket = Math.floor(x+y*(BUCKET_COUNT/2))%BUCKET_COUNT;
+
+        if (!tiles[bucket]) {
+          //create empty bucket
+          tiles[bucket] = [];
+        }
+        else if(tiles[bucket].length >= MAX_TILES_PER_BUCKET) {
+          //too many items in bucket. rename it, and create a new empty one
+          tiles[bucket+'_'+fullBucketCount] = tiles[bucket];
+          fullBucketCount++;
+          tiles[bucket] = [];      
+        }
+
+        requestTileCount++;
+
+        var boundsParam = generateBoundsParams(
+          tile_id,
+          latSouth,
+          lngWest,
+          latNorth,
+          lngEast
+        );
+
+        // when the server is returning 'timeout' errors for some tiles in the list, it's always the tiles
+        // at the end of the request. therefore, let's push tiles we don't have cache entries for to the front, and those we do to the back
+        if (getDataCache(tile_id)) {
+          // cache entry exists - push to back
+          tiles[bucket].push(boundsParam);
+        } else {
+          // no cache entry - unshift to front
+          tiles[bucket].unshift(boundsParam);
+        }
+
+        debugSetTileColour(tile_id,'#00f','#000');
       }
 
-      tiles[bucket].push(generateBoundsParams(
-        tile_id,
-        tileToLat(y + 1, z),
-        tileToLng(x, z),
-        tileToLat(y, z),
-        tileToLng(x + 1, z)
-      ));
     }
   }
 
   // Reset previous result of Portal Render Limit handler
   portalRenderLimit.init();
 
-  // finally send ajax requests
+  // send ajax requests
+  console.log('requesting '+requestTileCount+' tiles in '+Object.keys(tiles).length+' requests');
   $.each(tiles, function(ind, tls) {
     data = { zoom: z };
     data.boundsParamsList = tls;
-    window.requests.add(window.postAjax('getThinnedEntitiesV2', data, window.handleDataResponse, window.handleFailedRequest));
+    // keep a list of tile_ids with each request. in the case of a server error, we can try and use cached tiles if available
+    var tile_ids = []
+    $.each(tls,function(i,req) { tile_ids.push(req.qk); });
+    window.requests.add(window.postAjax('getThinnedEntitiesV2', data, function(data, textStatus, jqXHR) { window.handleDataResponse(data,false,tile_ids); }, function() { window.handleFailedRequest(tile_ids); }));
   });
+
+  // process the requests from the cache
+  console.log('got '+Object.keys(cachedData.result.map).length+' data tiles from cache');
+  if(Object.keys(cachedData.result.map).length > 0) {
+    handleDataResponse(cachedData, true);
+  }
+
 }
 
 // Handle failed map data request
-window.handleFailedRequest = function() {
+window.handleFailedRequest = function(tile_ids) {
+  console.log('request failed: tiles '+tile_ids.join(','));
+
+  var cachedData = { result: { map: {} } };  
+  $.each(tile_ids, function(ind,tile_id) {
+    var cached = getDataCache(tile_id);
+    if (cached) {
+      // we have stale cached data - use it
+      cachedData.result.map[tile_id] = cached;
+      debugSetTileColour(tile_id,'#800','#ff0');
+      console.log('(using stale cache entry for map tile '+tile_id+')');
+      window.statusStaleMapTiles++;
+    } else {
+      // no cached data
+      debugSetTileColour(tile_id,'#800','#f00');
+      window.statusErrorMapTiles++;
+    }
+  });
+  if(Object.keys(cachedData.result.map).length > 0) {
+    handleDataResponse(cachedData, true);
+  }
+
   if(requests.isLastRequest('getThinnedEntitiesV2')) {
     var leftOverPortals = portalRenderLimit.mergeLowLevelPortals(null);
     handlePortalsRender(leftOverPortals);
@@ -76,12 +249,12 @@ window.handleFailedRequest = function() {
 }
 
 // works on map data response and ensures entities are drawn/updated.
-window.handleDataResponse = function(data, textStatus, jqXHR) {
+window.handleDataResponse = function(data, fromCache, tile_ids) {
   // remove from active ajax queries list
   if(!data || !data.result) {
     window.failedRequestCount++;
     console.warn(data);
-    handleFailedRequest();
+    handleFailedRequest(tile_ids);
     return;
   }
 
@@ -94,8 +267,35 @@ window.handleDataResponse = function(data, textStatus, jqXHR) {
   var ppp = {};
   var p2f = {};
   $.each(m, function(qk, val) {
-    if('error' in val) {
-      console.log('map data tile '+qk+' response error: '+val.error);
+
+    // if this request wasn't from the cache, check it's status. store in the cache if good
+    // for debugging, we set the debug tile colours. cached tiles have colours set elsewhere so are not set here
+    if (!fromCache) {
+
+      if('error' in val) {
+        console.log('map data tile '+qk+' response error: '+val.error);
+
+        // try to use data in the cache, even if it's stale
+        var cacheVal = getDataCache(qk);
+
+        if (!cacheVal) {
+          debugSetTileColour(qk, '#f00','#f00');
+          // no data in cache for this tile. continue processing - it's possible it also has some valid data
+          window.statusErrorMapTiles++;
+        } else {
+          // stale cache entry exists - use it
+          val = cacheVal;
+          debugSetTileColour(qk, '#f00','#ff0');
+          console.log('(using stale cache entry for map tile '+qk+')');
+          window.statusStaleMapTiles++;
+        }
+      } else {
+        // not an error - store this tile into the cache
+        storeDataCache(qk,val);
+        debugSetTileColour(qk, '#0f0','#0f0');
+        window.statusSuccessMapTiles++;
+      }
+
     }
 
     $.each(val.deletedGameEntityGuids || [], function(ind, guid) {
@@ -299,6 +499,32 @@ window.removeByGuid = function(guid) {
 }
 
 
+// Separation of marker style setting from the renderPortal method
+// Having this as a separate function allows subsituting alternate marker rendering (for plugins)
+window.getMarker = function(ent, portalLevel, latlng, team) {
+  var lvWeight = Math.max(2, Math.floor(portalLevel) / 1.5);
+  var lvRadius = Math.floor(portalLevel) + 4;
+  if(team === window.TEAM_NONE) {
+    lvRadius = 7;
+  }
+    
+  var p = L.circleMarker(latlng, {
+    radius: lvRadius + (L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE : 0),
+    color: ent[0] === selectedPortal ? COLOR_SELECTED_PORTAL : COLORS[team],
+    opacity: 1,
+    weight: lvWeight,
+    fillColor: COLORS[team],
+    fillOpacity: 0.5,
+    clickable: true,
+    level: portalLevel,
+    team: team,
+    ent: ent,
+    details: ent[2],
+    guid: ent[0]});
+    
+    return p;
+}
+
 
 // renders a portal on the map from the given entity
 window.renderPortal = function(ent) {
@@ -347,25 +573,7 @@ window.renderPortal = function(ent) {
   // pre-loads player names for high zoom levels
   loadPlayerNamesForPortal(ent[2]);
 
-  var lvWeight = Math.max(2, Math.floor(portalLevel) / 1.5);
-  var lvRadius = Math.floor(portalLevel) + 4;
-  if(team === window.TEAM_NONE) {
-    lvRadius = 7;
-  }
-
-  var p = L.circleMarker(latlng, {
-    radius: lvRadius + (L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE : 0),
-    color: ent[0] === selectedPortal ? COLOR_SELECTED_PORTAL : COLORS[team],
-    opacity: 1,
-    weight: lvWeight,
-    fillColor: COLORS[team],
-    fillOpacity: 0.5,
-    clickable: true,
-    level: portalLevel,
-    team: team,
-    ent: ent,
-    details: ent[2],
-    guid: ent[0]});
+  var p = getMarker(ent, portalLevel, latlng, team);
 
   p.on('remove', function() {
     var portalGuid = this.options.guid

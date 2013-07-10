@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.12.1.@@DATETIMEVERSION@@
+// @version        0.12.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -21,6 +21,7 @@ window.iitcBuildDate = '@@BUILDDATE@@';
 
 // disable vanilla JS
 window.onload = function() {};
+document.body.onload = function() {};
 
 
 // rescue user data from original page
@@ -92,14 +93,15 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '      <img src="@@INCLUDEIMAGE:images/current-location.png@@"/ title="Current Location">'
   + '    </div>'
   + '    <div id="portaldetails"></div>'
-  + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
+// redeeming removed from stock site, so commented out for now. it may return...
+//  + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
   + '    <div id="toolbox">'
   + '      <a onmouseover="setPermaLink(this)" onclick="setPermaLink(this);return androidCopy(this.href)" title="URL link to this map view">Permalink</a>'
   + '      <a onclick="window.aboutIITC()" style="cursor: help">About IITC</a>'
   + '    </div>'
   + '  </div>'
   + '</div>'
-  + '<div id="updatestatus"></div>';
+  + '<div id="updatestatus"><div id="innerstatus"></div></div>';
 
 // putting everything in a wrapper function that in turn is placed in a
 // script tag on the website allows us to execute in the site’s context
@@ -113,12 +115,12 @@ function wrapper() {
 L_PREFER_CANVAS = false;
 
 // CONFIG OPTIONS ////////////////////////////////////////////////////
-window.REFRESH = 60; // refresh view every 60s (base time)
+window.REFRESH = 30; // refresh view every 30s (base time)
 window.ZOOM_LEVEL_ADJ = 5; // add 5 seconds per zoom level
 window.ON_MOVE_REFRESH = 1.25;  //refresh time to use after a movement event
 window.MINIMUM_OVERRIDE_REFRESH = 5; //limit on refresh time since previous refresh, limiting repeated move refresh rate
 window.REFRESH_GAME_SCORE = 15*60; // refresh game score every 15 minutes
-window.MAX_IDLE_TIME = 4; // stop updating map after 4min idling
+window.MAX_IDLE_TIME = 4*60; // stop updating map after 4min idling
 window.PRECACHE_PLAYER_NAMES_ZOOM = 17; // zoom level to start pre-resolving player names
 window.HIDDEN_SCROLLBAR_ASSUMED_WIDTH = 20;
 window.SIDEBAR_WIDTH = 300;
@@ -160,6 +162,8 @@ window.COLORS_MOD = {VERY_RARE: '#F78AF6', RARE: '#AD8AFF', COMMON: '#84FBBD'};
 
 window.OPTIONS_RESONATOR_SELECTED = {color: '#fff', weight: 2, radius: 4, opacity: 1, clickable: false};
 window.OPTIONS_RESONATOR_NON_SELECTED = {color: '#aaa', weight: 1, radius: 3, opacity: 1, clickable: false};
+
+window.MOD_TYPE = {RES_SHIELD:'Shield', MULTIHACK:'Multi-hack', FORCE_AMP:'Force Amp', HEATSINK:'Heat Sink', TURRET:'Turret', LINK_AMPLIFIER: 'Link Amp'};
 
 window.OPTIONS_RESONATOR_LINE_SELECTED = {
   opacity: 0.7,

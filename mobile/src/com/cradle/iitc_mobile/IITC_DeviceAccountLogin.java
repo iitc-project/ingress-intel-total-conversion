@@ -54,30 +54,32 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
     }
 
     private Account mAccount;
-    private AccountAdapter mAccountAdapter;
-    private AccountManager mAccountManager;
+    private final AccountAdapter mAccountAdapter;
+    private final AccountManager mAccountManager;
     private Account[] mAccounts;
-    private IITC_Mobile mActivity;
+    private final IITC_Mobile mActivity;
     private String mAuthToken;
-    private AlertDialog mProgressbar;
-    private WebView mWebView;
+    private final AlertDialog mProgressbar;
+    private final WebView mWebView;
 
     /**
-     * This listener is invoked when an item in the account list is selected. (It is also used when the 'cancel' button
-     * is clicked, (in which case `index` is <0)
+     * This listener is invoked when an item in the account list is selected.
+     * (It is also used when the 'cancel' button is clicked, (in which case `index` is <0)
      */
-    private DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int index) {
-            if (index >= 0 && index < mAccounts.length) {
-                mAccount = mAccounts[index];
-                startAuthentication();
-            }
-            dialog.cancel();
-        }
-    };
+    private final DialogInterface.OnClickListener onClickListener =
+            new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int index) {
+                    if (index >= 0 && index < mAccounts.length) {
+                        mAccount = mAccounts[index];
+                        startAuthentication();
+                    }
+                    dialog.cancel();
+                }
+            };
 
-    public IITC_DeviceAccountLogin(IITC_Mobile activity, WebView webView, WebViewClient webViewClient) {
+    public IITC_DeviceAccountLogin(IITC_Mobile activity, WebView webView,
+                                   WebViewClient webViewClient) {
         mActivity = activity;
         mWebView = webView;
         mAccountManager = AccountManager.get(activity);
@@ -112,7 +114,7 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
 
     /**
      * called to start authenticating using AccountManager.
-     * 
+     * <p/>
      * After a token is created, AccountManager will call the run() method.
      */
     private void startAuthentication() {
@@ -142,16 +144,17 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
         try {
             Intent launch = (Intent) value.getResult().get(AccountManager.KEY_INTENT);
             if (launch != null) {
-                // There is a reason we need to start the given activity if we want an authentication token.
-                // (Could be user confirmation or something else. Whatever, we have to start it)
-                // IITC_Mobile will call it using startActivityForResult
+                // There is a reason we need to start the given activity if we want an
+                // authentication token. (Could be user confirmation or something else. Whatever,
+                // we have to start it) IITC_Mobile will call it using startActivityForResult
                 mActivity.startLoginActivity(launch);
                 return;
             }
 
             String result = value.getResult().getString(AccountManager.KEY_AUTHTOKEN);
             if (result != null) {
-                // authentication succeded, we can load the given url, which will redirect back to the intel map
+                // authentication succeded, we can load the given url, which will redirect
+                // back to the intel map
                 mWebView.loadUrl(result);
                 mActivity.loginSucceeded();
             } else {
@@ -164,9 +167,9 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
 
     /**
      * start authentication
-     * 
-     * if we already have a username (e.g. because the existing login has timed out), we can directly start
-     * authentication if an account with that username is found.
+     * <p/>
+     * if we already have a username (e.g. because the existing login has timed out),
+     * we can directly start authentication if an account with that username is found.
      */
     public void startLogin(String realm, String accountName, String args) {
         mAccounts = mAccountManager.getAccountsByType(realm);

@@ -1,6 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-portals-count@yenky
 // @name           IITC plugin: Show total counts of portals
+// @category       Info
 // @version        0.0.8.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
@@ -13,6 +14,10 @@
 // @grant          none
 // ==/UserScript==
 
+@@PLUGINSTART@@
+
+// PLUGIN START ////////////////////////////////////////////////////////
+
 /* whatsnew
 * 0.0.8 : use dialog() instead of alert()
 * 0.0.6 : ignoring outside bounds portals (even if close to)
@@ -23,12 +28,6 @@
 * 0.0.1 : initial release, show count of portals
 * todo : 
 */ 
-
-function wrapper() {
-// ensure plugin framework is there, even if iitc is not yet loaded
-if(typeof window.plugin !== 'function') window.plugin = function() {};
-
-// PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
 window.plugin.portalcounts = function() {};
@@ -131,16 +130,4 @@ var setup =  function() {
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
-if(window.iitcLoaded && typeof setup === 'function') {
-  setup();
-} else {
-  if(window.bootPlugins)
-    window.bootPlugins.push(setup);
-  else
-    window.bootPlugins = [setup];
-}
-} // wrapper end
-// inject code into site context
-var script = document.createElement('script');
-script.appendChild(document.createTextNode('('+ wrapper +')();'));
-(document.body || document.head || document.documentElement).appendChild(script);
+@@PLUGINEND@@

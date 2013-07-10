@@ -50,6 +50,41 @@ window.renderPortalDetails = function(guid) {
   var perma = '/intel?ll='+lat+','+lng+'&z=17&pll='+lat+','+lng;
   var imgTitle = 'title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."';
   var poslinks = 'window.showPortalPosLinks('+lat+','+lng+',\''+escapeJavascriptString(d.portalV2.descriptiveText.TITLE)+'\')';
+  var portalDetailObj = window.getPortalDescriptionFromDetailsExtended(d);
+
+
+  var portalDetailedDescription = '';
+
+  if(portalDetailObj) {
+    portalDetailedDescription = '<table description="Portal Photo Details" class="portal_details">';
+
+    // TODO (once the data supports it) - portals can have multiple photos. display all, with navigation between them
+    // (at this time the data isn't returned from the server - although a count of images IS returned!)
+
+    if(portalDetailObj.submitter.name.length > 0) {
+      if(portalDetailObj.submitter.team) {
+        submitterSpan = '<span class="' + (portalDetailObj.submitter.team === 'RESISTANCE' ? 'res' : 'enl') + ' nickname">';
+      } else {
+        submitterSpan = '<span class="none">';
+      }
+      portalDetailedDescription += '<tr><th>Photo by:</th><td>' + submitterSpan
+                                + escapeHtmlSpecialChars(portalDetailObj.submitter.name) + '</span> (' + portalDetailObj.submitter.voteCount + ' votes)</td></tr>';
+    }
+    if(portalDetailObj.submitter.link.length > 0) {
+      portalDetailedDescription += '<tr><th>Photo from:</th><td><a href="'
+                                + escapeHtmlSpecialChars(portalDetailObj.submitter.link) + '">' + escapeHtmlSpecialChars(portalDetailObj.submitter.link) + '</a></td></tr>';
+    }
+
+    if(portalDetailObj.description) {
+      portalDetailedDescription += '<tr class="padding-top"><th>Description:</th><td>' + escapeHtmlSpecialChars(portalDetailObj.description) + '</td></tr>';
+    }
+//    if(d.portalV2.descriptiveText.ADDRESS) {
+//      portalDetailedDescription += '<tr><th>Address:</th><td>' + escapeHtmlSpecialChars(d.portalV2.descriptiveText.ADDRESS) + '</td></tr>';
+//    }
+
+    portalDetailedDescription += '</table>';
+  }
+
 
   $('#portaldetails')
     .attr('class', TEAM_TO_CSS[getTeam(d)])
@@ -58,8 +93,9 @@ window.renderPortalDetails = function(guid) {
       + '<span class="close" onclick="unselectOldPortal();" title="Close">X</span>'
       // help cursor via ".imgpreview img"
       + '<div class="imgpreview" '+imgTitle+' style="background-image: url('+img+')">'
-      + '<img class="hide" src="'+img+'"/>'
       + '<span id="level">'+Math.floor(getPortalLevel(d))+'</span>'
+      + '<div class="portalDetails">'+ portalDetailedDescription + '</div>'
+      + '<img class="hide" src="'+img+'"/></div>'
       + '</div>'
       + '<div class="mods">'+getModDetails(d)+'</div>'
       + randDetails
@@ -129,5 +165,9 @@ window.unselectOldPortal = function() {
   if(oldPortal) portalResetColor(oldPortal);
   selectedPortal = null;
   $('#portaldetails').html('');
+  if(isSmartphone()) {
+    $('.fullimg').remove();
+    $('#mobileinfo').html('');
+  }
   clearPortalIndicators();
 }

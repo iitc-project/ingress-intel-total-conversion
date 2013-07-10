@@ -68,11 +68,29 @@ window.runOnSmartphonesBeforeBoot = function() {
   });
 }
 
+window.smartphoneInfo = function(data) {
+  var d = data.portalDetails;
+  var t = 'L' + Math.floor(getPortalLevel(d));
+  var percentage = '0%';
+  var totalEnergy = getTotalPortalEnergy(d);
+  if(getTotalPortalEnergy(d) > 0) {
+    percentage = Math.floor((getCurrentPortalEnergy(d) / getTotalPortalEnergy(d) * 100)) + '%';
+  }
+  t += ' ' + percentage + ' ';
+  t += d.portalV2.descriptiveText.TITLE;
+
+  $('#mobileinfo').html(t);
+}
+
 window.runOnSmartphonesAfterBoot = function() {
   if(!isSmartphone()) return;
   console.warn('running smartphone post boot stuff');
 
   smartphone.mapButton.click();
+
+  // add a div/hook for updating mobile info
+  $('#updatestatus').prepend('<div id="mobileinfo"></div>');
+  window.addHook('portalDetailsUpdated', window.smartphoneInfo);
 
   // disable img full view
   $('#portaldetails').off('click', '**');
@@ -90,12 +108,8 @@ window.runOnSmartphonesAfterBoot = function() {
 
       // this is a hack, accessing Leaflet’s private _container is evil
       $(this._container).on('taphold', function() {
-        if (typeof android !== 'undefined' && android && android.portalLongPressed) {
-          android.portalLongPressed();
-        } else {
-          window.renderPortalDetails(guid);
-          window.smartphone.sideButton.click();
-        }
+        window.renderPortalDetails(guid);
+        window.show('info');
       });
     });
   });

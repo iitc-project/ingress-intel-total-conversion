@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 public class IITC_AboutDialogPreference extends DialogPreference {
 
-    private Context context;
+    private final Context context;
 
     public IITC_AboutDialogPreference(Context context, AttributeSet attrs) {
         super(context, attrs);

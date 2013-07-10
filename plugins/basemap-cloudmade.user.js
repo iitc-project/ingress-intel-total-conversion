@@ -24,6 +24,7 @@
 // ==UserScript==
 // @id             iitc-plugin-cloudmade-maps
 // @name           IITC plugin: CloudMade.com maps
+// @category       Map Tiles
 // @version        0.0.1
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @description    TEMPLATE PLUGIN - add back the CloudMade.com map layers. YOU WILL NEED TO EDIT THIS PLUGIN BEFORE IT WILL RUN
@@ -33,10 +34,7 @@
 // @match          http://www.ingress.com/intel*
 // ==/UserScript==
 
-function wrapper() {
-// ensure plugin framework is there, even if iitc is not yet loaded
-if(typeof window.plugin !== 'function') window.plugin = function() {};
-
+@@PLUGINSTART@@
 
 // PLUGIN START ////////////////////////////////////////////////////////
 
@@ -87,16 +85,4 @@ var setup = window.plugin.mapTileCloudMade.setup;
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
-if(window.iitcLoaded && typeof setup === 'function') {
-  setup();
-} else {
-  if(window.bootPlugins)
-    window.bootPlugins.push(setup);
-  else
-    window.bootPlugins = [setup];
-}
-} // wrapper end
-// inject code into site context
-var script = document.createElement('script');
-script.appendChild(document.createTextNode('('+ wrapper +')();'));
-(document.body || document.head || document.documentElement).appendChild(script);
+@@PLUGINEND@@

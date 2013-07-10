@@ -13,21 +13,25 @@ offers many more features. It is available for
 
 <h3>Latest news</h3>
 
-
-<h4>22nd May 2013</h4>
+<h4>1st July 2013</h4>
 <p>
-IITC version 0.12.0 has been released. This contains quite a few changes and new features, including
+IITC version 0.12.2 released, and IITC Mobile 0.4.8. 
 <ul>
-<li>Portal highlighter system - and many portal highlighter plugins</li>
-<li>Dialogs - can be kept open and dragged while viewing the map</li>
-<li>Layers - the enabled layers are now remembered when you next load the intel site</li>
-<li>Improved request limits - more improvements have been made in this area</li>
-<li>Sync plugin - to sync data from the 'Keys' addon to multiple computers via Google Drive</li>
-<li>... and many other tweaks, bug fixes, etc</li>
+<li>Various internal improvements to reduce requests to the Niantic servers and improve performance;
+a data tile cache, and fixes to idle code when the user isn't interacting.</li>
+<li>Improved display of stats for the new mods.</li>
+<li>Portal range calculation now includes boost from link amps.</li>
+<li>Removed 'redeem code' input box - not sure when it's returning.</li>
 </ul>
-IITC Mobile 0.4.0 is also released. THis has also had major work. Along with the above, it includes a
-new in-app layer chooser and chat/map switcher, and authentication has been revamped to use the native
-Android authentication rather than entering your password.
+Plugin changes:
+<ul>
+<li>Guess player levels - option to reset guesses.</li>
+<li>New highlighter plugins for the new mods.</li>
+<li>Max-links plugin - fixed problems with very narrow triangles causing overlapping links sometimes.</li>
+<li>Portals-list plugin - support for the new mods.</li>
+<li>Show portal weakness plugin - tweaks to highlight portals with non-defensive mods.</li>
+<li>Plugin to show increased portal detail (intended for mobile and smaller screens. Can cause more errors on larger screens)</li>
+</ul>
 </p>
 
 <a class="btn btn-small" href="?page=news">Older news</a>

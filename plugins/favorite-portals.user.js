@@ -12,11 +12,11 @@
 // @match          http://www.ingress.com/intel*
 // @grant          none
 // ==/UserScript==
-function wrapper() {
 
-if(typeof window.plugin !== 'function') window.plugin = function() {};
+@@PLUGINSTART@@
 
 // PLUGIN START ////////////////////////////////////////////////////////
+
 window.plugin.favoritePortals = function() {};
 
 window.plugin.favoritePortals.portalList = {};
@@ -169,17 +169,4 @@ var setup  = window.plugin.favoritePortals.setup;
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
-if(window.iitcLoaded && typeof setup === 'function') {
-  setup();
-} else {
-  if(window.bootPlugins)
-    window.bootPlugins.push(setup);
-  else
-    window.bootPlugins = [setup];
-}
-} // wrapper end
-// inject code into site context
-var script = document.createElement('script');
-script.appendChild(document.createTextNode('('+ wrapper +')();'));
-
-(document.body || document.head || document.documentElement).appendChild(script);
+@@PLUGINEND@@

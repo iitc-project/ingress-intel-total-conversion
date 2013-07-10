@@ -1,7 +1,8 @@
 // ==UserScript==
 // @id             iitc-plugin-portals-list@teo96
 // @name           IITC plugin: show list of portals
-// @version        0.0.13.@@DATETIMEVERSION@@
+// @category       Info
+// @version        0.0.14.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -13,7 +14,12 @@
 // @grant          none
 // ==/UserScript==
 
+@@PLUGINSTART@@
+
+// PLUGIN START ////////////////////////////////////////////////////////
+
 /* whatsnew
+* 0.0.14: Add support to new mods (S:Shield - T:Turret - LA:Link Amp - H:Heat-sink - M:Multi-hack - FA:Force Amp)
 * 0.0.12: Use dialog() instead of alert so the user can drag the box around
 * 0.0.11: Add nominal energy column and # links, fix sort bug when opened even amounts of times, nits
 * 0.0.10: Fixed persistent css problem with alert
@@ -32,12 +38,6 @@
 *
 * todo : export as GPX, Open in Google Maps, more statistics in the header, what else ?
 */ 
-
-function wrapper() {
-// ensure plugin framework is there, even if iitc is not yet loaded
-if(typeof window.plugin !== 'function') window.plugin = function() {};
-
-// PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
 window.plugin.portalslist = function() {};
@@ -94,19 +94,44 @@ window.plugin.portalslist.getPortals = function() {
     // Sort resonators array by resonator level
     resonators.sort(function (a, b) {return b[0] - a[0]});
 
-    //get shield informations
-    var shields = [];
+    //get mods informations
+    var mods = [];
     $.each(d.portalV2.linkedModArray, function(ind, mod) {
-      if (mod) {
-        //shields[ind] = mod.rarity.capitalize().replace('_', ' ');
-        shields[ind] = [mod.rarity.substr(0,1).capitalize(), getPlayerName(mod.installingUser)] ;
-      } else {
-        shields[ind] = ['', ''];
-      }
+        var modShortName='';
+        if (mod) {
+            switch (mod.displayName) {
+                case 'Portal Shield':
+    				modShortName = 'S';		
+            		break;
+                case 'Force Amp':
+					modShortName = 'FA';		
+            		break;
+                case 'Link Amp':
+					modShortName = 'LA';		
+            		break;  
+                case 'Heat Sink':
+					modShortName = 'H';		
+            		break;
+                case 'Multi-hack':
+					modShortName = 'M';		
+            		break;  
+                case 'Turret':
+					modShortName = 'T';		
+            		break;  
+                default:
+                    modShortName = '';		
+            		break;  
+            }
+        if (modShortName === '') {
+            mods[ind] = ['', '', ''];
+            } else {
+			mods[ind] = [mod.rarity, getPlayerName(mod.installingUser), modShortName, mod.displayName];            
+        }
+      }else { mods[ind] = ['', '', '']; }
     });
-
+	console.log(mods);
     var APgain= getAttackApGain(d).enemyAp;
-    var thisPortal = {'portal': d, 'name': name, 'team': team, 'level': level, 'guid': guid, 'resonators': resonators, 'energyratio': maxenergy ? Math.floor(energy/maxenergy*100) : 0, 'shields': shields, 'APgain': APgain, 'EAP': (energy/APgain).toFixed(2), 'energy': energy, 'maxenergy': maxenergy, 'links': d.portalV2.linkedEdges.length, 'lat': portal._latlng.lat, 'lng': portal._latlng.lng, 'address': address, 'img': img};
+    var thisPortal = {'portal': d, 'name': name, 'team': team, 'level': level, 'guid': guid, 'resonators': resonators, 'energyratio': maxenergy ? Math.floor(energy/maxenergy*100) : 0, 'mods': mods, 'APgain': APgain, 'EAP': (energy/APgain).toFixed(2), 'energy': energy, 'maxenergy': maxenergy, 'links': d.portalV2.linkedEdges.length, 'lat': portal._latlng.lat, 'lng': portal._latlng.lng, 'address': address, 'img': img};
     window.plugin.portalslist.listPortals.push(thisPortal);
   });
 
@@ -199,16 +224,16 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
         retVal = b.resonators[7][0] - a.resonators[7][0];
         break;
       case 's1':
-        retVal = a.shields[0].toLowerCase() > b.shields[0].toLowerCase() ? -1 : 1;
+      	retVal = a.mods[0][2] > b.mods[0][2] ? -1 : 1;
         break;
       case 's2':
-        retVal = a.shields[1].toLowerCase() > b.shields[1].toLowerCase() ? -1 : 1;
+        retVal = a.mods[1][2] > b.mods[1][2] ? -1 : 1;
         break;
       case 's3':
-        retVal = a.shields[2].toLowerCase() > b.shields[2].toLowerCase() ? -1 : 1;
+        retVal = a.mods[2][2] > b.mods[2][2] ? -1 : 1;
         break;
       case 's4':
-        retVal = a.shields[3].toLowerCase() > b.shields[3].toLowerCase() ? -1 : 1;
+        retVal = a.mods[3][2] > b.mods[3][2] ? -1 : 1;
         break;
       default:
         retVal = b[sortBy] - a[sortBy];
@@ -235,10 +260,10 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   + '<th ' + sort('energy', sortBy, -1) + '>Energy</th>'
   + '<th ' + sort('energyratio', sortBy, -1) + '>%</th>'
   + '<th ' + sort('links', sortBy, -1) + '>Links</th>'
-  + '<th ' + sort('s1', sortBy, -1) + '>S1</th>'
-  + '<th ' + sort('s2', sortBy, -1) + '>S2</th>'
-  + '<th ' + sort('s3', sortBy, -1) + '>S3</th>'
-  + '<th ' + sort('s4', sortBy, -1) + '>S4</th>'
+  + '<th ' + sort('s1', sortBy, -1) + '>M1</th>'
+  + '<th ' + sort('s2', sortBy, -1) + '>M2</th>'
+  + '<th ' + sort('s3', sortBy, -1) + '>M3</th>'
+  + '<th ' + sort('s4', sortBy, -1) + '>M4</th>'
   + '<th ' + sort('APgain', sortBy, -1) + '>AP Gain</th>'
   + '<th title="Energy / AP Gain ratio" ' + sort('EAP', sortBy, -1) + '>E/AP</th></tr>';
 
@@ -263,13 +288,13 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
 
       });
 
-      html += '<td style="cursor:help" title="'+ portal.energy +'">' + prettyEnergy(portal.energy) + '</td>'
+	  html += '<td style="cursor:help" title="'+ portal.energy +'">' + prettyEnergy(portal.energy) + '</td>'
       + '<td style="cursor:help" title="' + portal.energy + ' / ' + portal.maxenergy +'">' + portal.energyratio + '%</td>'
       + '<td style="cursor:help" title="' + portal.links + '">' + portal.links + '</td>'
-      + '<td style="cursor:help" title="'+ portal.shields[0][1] +'">' + portal.shields[0][0] + '</td>'
-      + '<td style="cursor:help" title="'+ portal.shields[1][1] +'">' + portal.shields[1][0] + '</td>'
-      + '<td style="cursor:help" title="'+ portal.shields[2][1] +'">' + portal.shields[2][0] + '</td>'
-      + '<td style="cursor:help" title="'+ portal.shields[3][1] +'">' + portal.shields[3][0] + '</td>'
+      + '<td style="cursor:help; background-color: '+COLORS_MOD[portal.mods[0][0]]+';" title="Mod : ' + portal.mods[0][3] + '\nInstalled by : ' + portal.mods[0][1] + '\nRarity : ' + portal.mods[0][0] + '">' + portal.mods[0][2] + '</td>'
+      + '<td style="cursor:help; background-color: '+COLORS_MOD[portal.mods[1][0]]+';" title="Mod : ' + portal.mods[1][3] + '\nInstalled by : ' + portal.mods[1][1] + '\nRarity : ' + portal.mods[1][0] + '">' + portal.mods[1][2] + '</td>'
+      + '<td style="cursor:help; background-color: '+COLORS_MOD[portal.mods[2][0]]+';" title="Mod : ' + portal.mods[2][3] + '\nInstalled by : ' + portal.mods[2][1] + '\nRarity : ' + portal.mods[2][0] + '">' + portal.mods[2][2] + '</td>'
+      + '<td style="cursor:help; background-color: '+COLORS_MOD[portal.mods[3][0]]+';" title="Mod : ' + portal.mods[3][3] + '\nInstalled by : ' + portal.mods[3][1] + '\nRarity : ' + portal.mods[3][0] + '">' + portal.mods[3][2] + '</td>'
       + '<td>' + portal.APgain + '</td>'
       + '<td>' + portal.EAP + '</td>';
 
@@ -363,16 +388,4 @@ var setup =  function() {
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
-if(window.iitcLoaded && typeof setup === 'function') {
-  setup();
-} else {
-  if(window.bootPlugins)
-    window.bootPlugins.push(setup);
-  else
-    window.bootPlugins = [setup];
-}
-} // wrapper end
-// inject code into site context
-var script = document.createElement('script');
-script.appendChild(document.createTextNode('('+ wrapper +')();'));
-(document.body || document.head || document.documentElement).appendChild(script);
+@@PLUGINEND@@

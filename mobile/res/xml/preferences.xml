@@ -37,20 +37,24 @@
     <PreferenceCategory
         android:key="pref_mics"
         android:title="@string/pref_misc_cat">
+        <!-- summary is set in settings fragment -->
         <EditTextPreference
             android:key="pref_iitc_source"
             android:title="@string/pref_select_iitc"
-            android:summary="Load IITC main script from url or use local script. Currently used source: "
             android:defaultValue="local"/>
-	    <MultiSelectListPreference
-	        android:key="pref_plugins"
-	        android:title="@string/pref_plugins"
-	        android:dialogTitle="@string/pref_plugins_title"/>
+        <PreferenceScreen
+            android:key="pref_plugins"
+            android:title="@string/pref_plugins" />
 	    <CheckBoxPreference
 	        android:key="pref_force_https"
 	        android:title="@string/pref_force_https"
 	        android:summary="@string/pref_force_https_sum"
 	        android:defaultValue="true" />
+        <CheckBoxPreference
+                android:key="pref_press_twice_to_exit"
+                android:title="@string/pref_press_twice_to_exit"
+                android:summary="@string/pref_press_twice_to_exit_sum"
+                android:defaultValue="false" />
     </PreferenceCategory>
 
     <PreferenceCategory

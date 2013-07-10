@@ -61,6 +61,33 @@ distUrlBase = settings.get('distUrlBase')
 buildMobile = settings.get('buildMobile')
 
 
+# plugin wrapper code snippets. handled as macros, to ensure that
+# 1. indentation caused by the "function wrapper()" doesn't apply to the plugin code body
+# 2. the wrapper is formatted correctly for removal by the IITC Mobile android app
+pluginWrapperStart = """
+function wrapper() {
+// ensure plugin framework is there, even if iitc is not yet loaded
+if(typeof window.plugin !== 'function') window.plugin = function() {};
+
+"""
+pluginWrapperEnd = """
+if(window.iitcLoaded && typeof setup === 'function') {
+  setup();
+} else {
+  if(window.bootPlugins)
+    window.bootPlugins.push(setup);
+  else
+    window.bootPlugins = [setup];
+}
+} // wrapper end
+// inject code into site context
+var script = document.createElement('script');
+script.appendChild(document.createTextNode('('+ wrapper +')();'));
+(document.body || document.head || document.documentElement).appendChild(script);
+
+"""
+
+
 def readfile(fn):
     with io.open(fn, 'Ur', encoding='utf8') as f:
         return f.read()
@@ -137,6 +164,9 @@ def doReplacements(script,updateUrl,downloadUrl):
     script = script.replace('@@UPDATEURL@@', updateUrl)
     script = script.replace('@@DOWNLOADURL@@', downloadUrl)
 
+    script = script.replace('@@PLUGINSTART@@', pluginWrapperStart)
+    script = script.replace('@@PLUGINEND@@', pluginWrapperEnd)
+
     return script
 
 
@@ -203,7 +233,7 @@ if buildMobile:
 
     # compile the user location script
     fn = "user-location.user.js"
-    script = readfile("mobile/" + fn)
+    script = readfile("mobile/plugins/" + fn)
     downloadUrl = distUrlBase and distUrlBase + '/' + fn.replace("\\","/") or 'none'
     updateUrl = distUrlBase and downloadUrl.replace('.user.js', '.meta.js') or 'none'
     script = doReplacements(script, downloadUrl=downloadUrl, updateUrl=updateUrl)
@@ -221,11 +251,14 @@ if buildMobile:
     shutil.copy(os.path.join(outDir,"user-location.user.js"), "mobile/assets/user-location.user.js")
     # also copy plugins
     try:
-        os.makedirs("mobile/assets/plugins")
+        shutil.rmtree("mobile/assets/plugins")
     except:
         pass
-    shutil.rmtree("mobile/assets/plugins")
-    shutil.copytree(os.path.join(outDir,"plugins"), "mobile/assets/plugins", ignore=shutil.ignore_patterns('*.meta.js', 'force-https*', 'privacy-view*', 'speech-search*', 'basemap-cloudmade*'))
+    shutil.copytree(os.path.join(outDir,"plugins"), "mobile/assets/plugins",
+            # do not include desktop-only plugins to mobile assets
+            ignore=shutil.ignore_patterns('*.meta.js',
+            'force-https*', 'privacy-view*', 'speech-search*',
+            'basemap-cloudmade*', 'scroll-wheel-zoom-disable*'))
 
 
     if buildMobile != 'copyonly':

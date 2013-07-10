@@ -2,6 +2,9 @@
 //
 window.show = function(id) {
         window.hideall();
+        if (typeof android !== 'undefined' && android && android.switchToPane) {
+          android.switchToPane(id);
+        }
         switch(id) {
                 case 'full':
                         window.chat.show('full');
