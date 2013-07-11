@@ -60,6 +60,84 @@ window.getPortalDescriptionFromDetailsExtended = function(details) {
   return portalDetails;
 }
 
+// given portal details, returns time in seconds between hacks
+window.getTimeDetails = function(d) {
+  var hsmods = {VERY_RARE : 0, RARE : 0, COMMON : 0};
+  var hsvals = {COMMON : 200000, RARE : 500000, VERY_RARE : 700000}; //standard values
+  
+  $.each(d.portalV2.linkedModArray, function(ind, mod) {
+    if (mod) {
+      if (mod.type === 'HEATSINK') {
+    		hsmods[mod.rarity]=hsmods[mod.rarity]+1;
+	      if (mod.stats) {
+	        for (var key in mod.stats) {
+	          if (!mod.stats.hasOwnProperty(key)) continue;
+	          var val = mod.stats[key];
+	          if (mod.type === 'HEATSINK' && key === 'HACK_SPEED') {
+	          	val = (val/1000000); // 500000 = 50%
+	          	hsvals[mod.rarity]=val;
+	          }
+	        }
+	      }
+    		
+    	}
+    }
+  });
+  var theone=true;
+  var thetime=300;
+  var thecoef=1;
+  $.each(hsmods, function (ind, count) {
+  	for(var i=0; i<count; i++) {
+  		thetime=thetime*(1-hsvals[ind]*thecoef);
+	  	if (theone) {
+	  		thecoef=0.5;
+	  		theone=false;
+	  	}
+  	}
+  });
+  var t=thetime;
+  return t;
+}
+
+// given protal details, returns the total count of hack before burnout
+window.getBODetails = function(d) {
+  var mhmods = {VERY_RARE : 0, RARE : 0, COMMON : 0};
+  var mhvals = {COMMON : 4, RARE : 8, VERY_RARE : 12}; //standard values, overwritten by data from intel
+  
+  $.each(d.portalV2.linkedModArray, function(ind, mod) {
+    if (mod) {
+    	if (mod.type === 'MULTIHACK') {
+    		mhmods[mod.rarity]=mhmods[mod.rarity]+1; //add 1 to the mod count
+    		
+	      if (mod.stats) {
+	        for (var key in mod.stats) {
+	          if (!mod.stats.hasOwnProperty(key)) continue;
+	          var val = mod.stats[key];
+	          if (mod.type === 'MULTIHACK' && key === 'BURNOUT_INSULATION') {
+	          	mhvals[mod.rarity]=val; //overwrite values by actual from intel
+	          }
+	        }
+	      }
+    		
+    	}
+    }
+  });
+
+  var theone=true; // did we have the first that counts for 100%?
+  var insulation=4; // standard insulation
+  var thecoef=1; // coefficiant to count, the highest mod gets 100%, the others 50%
+  $.each(mhmods, function (ind, count) {
+  	for(var i=0; i<count; i++) {
+  		insulation=insulation+mhvals[ind]*thecoef;
+	  	if (theone) {
+	  		thecoef=0.5;
+	  		theone=false;
+	  	}
+  	}
+  });
+  var t=insulation;
+  return t;
+}
 
 // given portal details, returns html code to display mod details.
 window.getModDetails = function(d) {
