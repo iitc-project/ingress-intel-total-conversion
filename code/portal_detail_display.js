@@ -33,11 +33,21 @@ window.renderPortalDetails = function(guid) {
   var sinceText  = time ? ['since', time] : null;
 
   var linkedFields = ['fields', d.portalV2.linkedFields.length];
+  
+  var totaltime = (getBODetails(d)-1)*getTimeDetails(d); // time bewteen all possible hacks before burnout
+	totaltime = Math.floor(totaltime/60)+'m '+(totaltime % 60 >0 ? (totaltime % 60)+'s' : '');
+
+	var timedata = getTimeDetails(d);
+	timedata = Math.floor(timedata /60)+'m '+(timedata  % 60 >0 ? (timedata  % 60)+'s' : '');
+
+	var burnoutdata = ['burnout', '<span title="Total time to burnout: '+totaltime+'">'+getBODetails(d)+' hacks</span>'];
+	var timeoutdata = ['timeout', timedata];
+
 
   // collect and html-ify random data
   var randDetails = [
     playerText, sinceText, getRangeText(d), getEnergyText(d),
-    linksText, getAvgResoDistText(d), linkedFields, getAttackApGainText(d)
+    linksText, getAvgResoDistText(d), linkedFields, getAttackApGainText(d), burnoutdata, timeoutdata
   ];
   randDetails = '<table id="randdetails">' + genFourColumnTable(randDetails) + '</table>';
 
