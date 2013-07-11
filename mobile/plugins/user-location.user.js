@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-user-location@cradle
 // @name           IITC plugin: User Location
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -31,10 +31,21 @@ window.plugin.userLocation.setup = function() {
         iconRetinaUrl: iconRetImage
     }});
 
+    var cssClass = PLAYER.team === 'ALIENS' ? 'enl' : 'res';
+    var title = '<span class="nickname '+ cssClass+'" style="font-weight:bold;">' + PLAYER.nickname + '</span>\'s location';
+
     var marker = L.marker(window.map.getCenter(), {
-        title: "User Location",
+        title: title,
         icon: new plugin.userLocation.icon()
     });
+
+    // copy location to android clipboard on marker click
+    marker.on('click', function(e) {
+        window.console.log('marker location');
+        var ll = e.target.getLatLng();
+        window.androidCopy('https://maps.google.com/?q='+ll.lat+','+ll.lng+'%20('+PLAYER.nickname+')');
+    });
+
     plugin.userLocation.marker = marker;
     marker.addTo(window.map);
     // jQueryUI doesn’t automatically notice the new markers

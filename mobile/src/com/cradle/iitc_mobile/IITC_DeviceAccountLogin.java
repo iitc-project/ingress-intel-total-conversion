@@ -68,15 +68,15 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
      */
     private final DialogInterface.OnClickListener onClickListener =
             new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int index) {
-            if (index >= 0 && index < mAccounts.length) {
-                mAccount = mAccounts[index];
-                startAuthentication();
-            }
-            dialog.cancel();
-        }
-    };
+                @Override
+                public void onClick(DialogInterface dialog, int index) {
+                    if (index >= 0 && index < mAccounts.length) {
+                        mAccount = mAccounts[index];
+                        startAuthentication();
+                    }
+                    dialog.cancel();
+                }
+            };
 
     public IITC_DeviceAccountLogin(IITC_Mobile activity, WebView webView,
                                    WebViewClient webViewClient) {
