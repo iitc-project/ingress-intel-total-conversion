@@ -32,6 +32,11 @@ body {
   overflow: hidden;
 }
 
+#mobileinfo .portallevel {
+  padding: 0 0.2em;
+  color: #FFF;
+}
+
 #sidebar, #chatcontrols, #chat, #chatinput {
   background: #0B3351 !important;
 }

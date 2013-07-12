@@ -70,7 +70,11 @@ window.runOnSmartphonesBeforeBoot = function() {
 
 window.smartphoneInfo = function(data) {
   var d = data.portalDetails;
-  var t = 'L' + Math.floor(getPortalLevel(d));
+  var lvl = Math.floor(getPortalLevel(d));
+  if(lvl == 0)
+    var t = '<span class="portallevel">L' + lvl + '</span>';
+  else
+    var t = '<span class="portallevel" style="background: '+COLORS_LVL[lvl]+';">L' + lvl + '</span>';
   var percentage = '0%';
   var totalEnergy = getTotalPortalEnergy(d);
   if(getTotalPortalEnergy(d) > 0) {
