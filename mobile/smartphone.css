@@ -8,32 +8,46 @@ body {
   width: 100%;
   color: #d4d5d6;
   border: 0;
+  padding: 0;
 }
 
-#updatestatus .loadlevel {
+#updatestatus .map {
+  margin-left: 4px;
+}
+
+#innerstatus {
+  padding: 4px;
+  float: right;
+  width: 50%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+#loadlevel {
   border-width: 0;
   background: transparent;
   color: #FFF;
 }
 
-#innerstatus {
-  float: right;
-  max-width: 50%;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
 #mobileinfo {
   float: left;
-  max-width: 50%;
+  width: 50%;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  position:relative;
+  padding: 4px 0;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 #mobileinfo .portallevel {
-  padding: 0 0.2em;
+  padding: 0 0.25em;
   color: #FFF;
 }
 
