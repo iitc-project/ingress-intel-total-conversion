@@ -51,6 +51,31 @@ body {
   color: #FFF;
 }
 
+#mobileinfo .resonator {
+  position: absolute;
+  width: 12%; /* a little less that 1/8 to have a small distance */
+  height: 100%;
+  top: 0;
+  border-top: 3px solid red;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+
+#mobileinfo .filllevel {
+  position: absolute;
+  bottom: 0;
+  height: 3px;
+}
+
+#mobileinfo .enl .filllevel {
+  background-color: #03fe03 !important;
+}
+
+#mobileinfo .res .filllevel {
+  background-color: #00c5ff !important;
+}
+
 #sidebar, #chatcontrols, #chat, #chatinput {
   background: #0B3351 !important;
 }

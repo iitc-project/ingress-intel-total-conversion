@@ -83,6 +83,28 @@ window.smartphoneInfo = function(data) {
   t += ' ' + percentage + ' ';
   t += d.portalV2.descriptiveText.TITLE;
 
+  var l,v,max,perc;
+  for(var i=0;i<8;i++)
+  {
+    var reso = d.resonatorArray.resonators[i];
+    if(reso) {
+      l = parseInt(reso.level);
+      v = parseInt(reso.energyTotal);
+      max = RESO_NRG[l];
+      perc = v/max*100;
+    }
+    else {
+      l = 0;
+      v = 0;
+      max = 0;
+      perc = 0;
+    }
+
+    t += '<div class="resonator '+TEAM_TO_CSS[getTeam(d)]+'" style="border-top-color: '+COLORS_LVL[l]+';left: '+(100*i/8.0)+'%;">';
+    t += '<div class="filllevel" style="width:'+perc+'%;"></div>';
+    t += '</div>'
+  }
+  
   $('#mobileinfo').html(t);
 }
 
