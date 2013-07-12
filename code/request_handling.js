@@ -48,9 +48,9 @@ window.renderUpdateStatus = function() {
   var t = '<span class="help portallevel" title="Indicates portal levels displayed.  Zoom in to display lower level portals."><b>portals</b>: ';
   var minlvl = getMinPortalLevel();
   if(minlvl === 0)
-    t += 'all';
+    t+= '<span class="loadlevel">all</span>';
   else
-    t+= 'L'+minlvl+(minlvl<8?'+':'');
+    t+= '<span class="loadlevel" style="background:'+COLORS_LVL[minlvl]+'">L'+minlvl+(minlvl<8?'+':'') + '</span>';
   t +='</span>';
 
   t += ' <span class="map"><b>map</b>: ';
