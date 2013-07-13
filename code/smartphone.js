@@ -104,7 +104,7 @@ window.smartphoneInfo = function(data) {
     t += '<div class="filllevel" style="width:'+perc+'%;"></div>';
     t += '</div>'
   }
-  
+
   $('#mobileinfo').html(t);
 }
 
