@@ -721,6 +721,17 @@ h3 {
   margin-left: 8px;
 }
 
+#loadlevel {
+  background: #FFF;
+  color: #000000;
+  display: inline-block;
+  min-width: 1.8em;
+  border: 1px solid #20A8B1;
+  border-width: 0 1px;
+  margin: -4px 0;
+  padding: 4px 0.2em;
+}
+
 /* Dialogs
  */
 .ui-tooltip, .ui-dialog {
