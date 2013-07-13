@@ -121,7 +121,7 @@ function iitcDesktopPluginDownloadTable ( $build )
 			$name = preg_replace ( '/^IITC plugin: /i', '', $details['@name'] );
 
 			# format extended version info in less prominant font
-			$version = preg_replace ( '/^(\d+\.\d+\.\d+)\.(\d{8}\.\d{6})/', '\1<small class="muted">.\2</small>', $details['@version'] );
+			$version = preg_replace ( '/^(\d+\.\d+\.\d+)\.(\d{8}\.\d{6})/', '\1<br><small class="muted">.\2</small>', $details['@version'] );
 
 			# remove unneeded prefix from description
 			$description = preg_replace ( '/^\[[^]]*\] */', '', $details['@description'] );
@@ -136,11 +136,11 @@ function iitcDesktopPluginDownloadTable ( $build )
 			print "<td>$name</td>";
 			print "<td>$plugin_users</td>";
 			print "<td>$basename</td>";
-			print "<td>$version</td>";
+			print "<td rowspan=\"2\">$version</td>";
 //			print "<td>$description</td>";
 			print "<td><a onclick=\"if(track){track('desktop','iitc-plugin-$basename','$build');}\" href=\"$path\" class=\"btn btn-small btn-primary\" title=\"Download\"><i class=\"icon-download icon-white\"></i></a></td>";
 			print "</tr>\n";
-			print "<tr><td colspan=\"4\" style=\"border-top: none; padding-top: 0; padding-bottom: 0.5em\">$description</td></tr>\n";
+			print "<tr><td colspan=\"3\" style=\"border-top: none; padding-top: 0; padding-bottom: 0.5em\">$description</td></tr>\n";
 
 		}
 		if ( $empty )
