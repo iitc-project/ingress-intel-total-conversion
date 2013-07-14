@@ -758,7 +758,7 @@ window.renderLink = function(ent) {
     color: COLORS[team],
     opacity: 1,
     weight:2,
-    clickable: false,
+    clickable: (window.plugin.linksPlayerName !== undefined), // Workaround, clickable can not be updated afer constructor has been called
     guid: ent[0],
     data: ent[2],
     smoothFactor: 0 // doesn’t work for two points anyway, so disable
@@ -782,6 +782,7 @@ window.renderLink = function(ent) {
     window.links[this.options.guid] = this;
     this.bringToBack();
   });
+  window.runHooks('linkAdded', {link: poly});
   poly.addTo(linksLayer);
 }
 

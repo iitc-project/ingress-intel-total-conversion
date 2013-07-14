@@ -54,13 +54,15 @@
 // requestFinished: called after each request finished. Argument is
 //              {success: boolean} indicated the request success or fail.
 // iitcLoaded: called after IITC and all plugins loaded
+// linkAdded: called when a link has been received and is about to
+//              be added to its layer group.
 
 
 window._hooks = {}
 window.VALID_HOOKS = ['portalAdded', 'portalDetailsUpdated',
   'publicChatDataAvailable', 'factionChatDataAvailable', 'portalDataLoaded',
   'beforePortalReRender', 'checkRenderLimit', 'requestFinished', 'nicknameClicked',
-  'geoSearch', 'iitcLoaded'];
+  'geoSearch', 'iitcLoaded', 'linkAdded'];
 
 window.runHooks = function(event, data) {
   if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);
