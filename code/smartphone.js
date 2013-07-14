@@ -68,11 +68,55 @@ window.runOnSmartphonesBeforeBoot = function() {
   });
 }
 
+window.smartphoneInfo = function(data) {
+  var d = data.portalDetails;
+  var lvl = Math.floor(getPortalLevel(d));
+  if(lvl == 0)
+    var t = '<span class="portallevel">L' + lvl + '</span>';
+  else
+    var t = '<span class="portallevel" style="background: '+COLORS_LVL[lvl]+';">L' + lvl + '</span>';
+  var percentage = '0%';
+  var totalEnergy = getTotalPortalEnergy(d);
+  if(getTotalPortalEnergy(d) > 0) {
+    percentage = Math.floor((getCurrentPortalEnergy(d) / getTotalPortalEnergy(d) * 100)) + '%';
+  }
+  t += ' ' + percentage + ' ';
+  t += d.portalV2.descriptiveText.TITLE;
+
+  var l,v,max,perc;
+  for(var i=0;i<8;i++)
+  {
+    var reso = d.resonatorArray.resonators[i];
+    if(reso) {
+      l = parseInt(reso.level);
+      v = parseInt(reso.energyTotal);
+      max = RESO_NRG[l];
+      perc = v/max*100;
+    }
+    else {
+      l = 0;
+      v = 0;
+      max = 0;
+      perc = 0;
+    }
+
+    t += '<div class="resonator '+TEAM_TO_CSS[getTeam(d)]+'" style="border-top-color: '+COLORS_LVL[l]+';left: '+(100*i/8.0)+'%;">';
+    t += '<div class="filllevel" style="width:'+perc+'%;"></div>';
+    t += '</div>'
+  }
+
+  $('#mobileinfo').html(t);
+}
+
 window.runOnSmartphonesAfterBoot = function() {
   if(!isSmartphone()) return;
   console.warn('running smartphone post boot stuff');
 
   smartphone.mapButton.click();
+
+  // add a div/hook for updating mobile info
+  $('#updatestatus').prepend('<div id="mobileinfo"></div>');
+  window.addHook('portalDetailsUpdated', window.smartphoneInfo);
 
   // disable img full view
   $('#portaldetails').off('click', '**');

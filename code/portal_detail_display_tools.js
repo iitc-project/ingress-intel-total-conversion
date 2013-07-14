@@ -8,8 +8,8 @@ window.getRangeText = function(d) {
   return ['range',
       '<a onclick="window.rangeLinkClick()">'
     + (range > 1000
-      ? Math.round(range/1000) + ' km'
-      : Math.round(range)      + ' m')
+      ? Math.floor(range/1000) + ' km'
+      : Math.floor(range)      + ' m')
     + '</a>'];
 }
 
@@ -21,6 +21,43 @@ window.getPortalDescriptionFromDetails = function(details) {
   if(descObj.ATTRIBUTION)
     desc += '\nby '+descObj.ATTRIBUTION+' ('+descObj.ATTRIBUTION_LINK+')';
   return desc;
+}
+
+// Grabs more info, including the submitter name for the current main
+// portal image
+window.getPortalDescriptionFromDetailsExtended = function(details) {
+  var descObj = details.portalV2.descriptiveText;
+  var photoStreamObj = details.photoStreamInfo;
+
+  var submitterObj = new Object();
+  submitterObj.type = "";
+  submitterObj.name = "Unknown";
+  submitterObj.team = "";
+  submitterObj.link = "";
+  submitterObj.voteCount = 0;
+
+  if(photoStreamObj && photoStreamObj.hasOwnProperty("coverPhoto") && photoStreamObj.coverPhoto.hasOwnProperty("attributionMarkup")) {
+    var attribution = photoStreamObj.coverPhoto.attributionMarkup;
+    submitterObj.type = attribution[0];
+    if(attribution[1].hasOwnProperty("plain"))
+      submitterObj.name = attribution[1].plain;
+    if(attribution[1].hasOwnProperty("team"))
+      submitterObj.team = attribution[1].team;
+    if(attribution[1].hasOwnProperty("attributionLink"))
+      submitterObj.link = attribution[1].attributionLink;
+    if(photoStreamObj.coverPhoto.hasOwnProperty("voteCount"))
+      submitterObj.voteCount = photoStreamObj.coverPhoto.voteCount;
+  }
+
+
+  var portalDetails = {
+    title: descObj.TITLE,
+    description: descObj.DESCRIPTION,
+    address: descObj.ADDRESS,
+    submitter: submitterObj
+  };
+
+  return portalDetails;
 }
 
 
@@ -59,7 +96,19 @@ window.getModDetails = function(d) {
         modTooltip += 'Stats:';
         for (var key in mod.stats) {
           if (!mod.stats.hasOwnProperty(key)) continue;
-          modTooltip += '\n+' +  mod.stats[key] + ' ' + key.capitalize().replace(/_/g,' ');
+          var val = mod.stats[key];
+
+          if (key === 'REMOVAL_STICKINESS' && val == 0) continue;  // stat on all mods recently - unknown meaning, not displayed in stock client
+
+          // special formatting for known mod stats, where the display of the raw value is less useful
+          if (mod.type === 'HEATSINK' && key === 'HACK_SPEED') val = (val/10000)+'%'; // 500000 = 50%
+          else if (mod.type === 'FORCE_AMP' && key === 'FORCE_AMPLIFIER') val = (val/1000)+'x';  // 2000 = 2x
+          else if (mod.type === 'LINK_AMPLIFIER' && key === 'LINK_RANGE_MULTIPLIER') val = (val/1000)+'x' // 2000 = 2x
+          else if (mod.type === 'TURRET' && key === 'HIT_BONUS') val = (val/10000)+'%'; // 2000 = 0.2% (although this seems pretty small to be useful?)
+          else if (mod.type === 'TURRET' && key === 'ATTACK_FREQUENCY') val = (val/1000)+'x' // 2000 = 2x
+          // else display unmodified. correct for shield mitigation and multihack - unknown for future/other mods
+
+          modTooltip += '\n+' +  val + ' ' + key.capitalize().replace(/_/g,' ');
         }
       }
 

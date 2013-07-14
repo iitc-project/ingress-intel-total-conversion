@@ -3,8 +3,81 @@ body {
   color: #fff;
 }
 
-#sidebar, #updatestatus, #chatcontrols, #chat, #chatinput {
-  background: #0B3351 !important
+#updatestatus {
+  background: #262c32;
+  width: 100%;
+  color: #d4d5d6;
+  border: 0;
+  padding: 0;
+}
+
+#updatestatus .map {
+  margin-left: 4px;
+}
+
+#innerstatus {
+  padding: 4px;
+  float: right;
+  width: 50%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+#loadlevel {
+  border-width: 0;
+  background: transparent;
+  color: #FFF;
+}
+
+#mobileinfo {
+  float: left;
+  width: 50%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  position:relative;
+  padding: 4px 0;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+#mobileinfo .portallevel {
+  padding: 0 0.25em;
+  color: #FFF;
+}
+
+#mobileinfo .resonator {
+  position: absolute;
+  width: 12%; /* a little less that 1/8 to have a small distance */
+  height: 100%;
+  top: 0;
+  border-top: 3px solid red;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+
+#mobileinfo .filllevel {
+  position: absolute;
+  bottom: 0;
+  height: 3px;
+}
+
+#mobileinfo .enl .filllevel {
+  background-color: #03fe03 !important;
+}
+
+#mobileinfo .res .filllevel {
+  background-color: #00c5ff !important;
+}
+
+#sidebar, #chatcontrols, #chat, #chatinput {
+  background: #0B3351 !important;
 }
 
 .leaflet-top .leaflet-control {
