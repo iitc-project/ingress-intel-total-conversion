@@ -46,15 +46,27 @@ window.getEffectivePortalEnergy = function(d) {
   var return_val = current_nrg;
   
   //Find the mitigation of each sheild.
-  var shield_rate = 100;
+  //For now matchup with ipas and speculative evidence that says mitigation is additive
+  //rather than multiplacive, which makes more sense
+  //var shield_rate = 100;
+  //$.each(d.portalV2.linkedModArray, function(ind, mod) {
+  //  if(mod !== null && jQuery.isNumeric(mod.stats.MITIGATION))
+  //  {
+  //    shield_rate *= 1 - mod.stats.MITIGATION/100;
+  //  }
+  //});
+  ////Add shield's effect to energy
+  //var shield_mitigation = 100 - shield_rate;
+  
+  //Additive sheild mitigation
+  var shield_mitigation = 0;
   $.each(d.portalV2.linkedModArray, function(ind, mod) {
     if(mod !== null && jQuery.isNumeric(mod.stats.MITIGATION))
     {
-      shield_rate *= 1 - mod.stats.MITIGATION/100;
+      console.log( mod.stats.MITIGATION);
+      shield_mitigation += mod.stats.MITIGATION;
     }
   });
-  //Add shield's effect to energy
-  var shield_mitigation = 100 - shield_rate;
   
   //Find the link effect
   var links = 0;
@@ -64,7 +76,12 @@ window.getEffectivePortalEnergy = function(d) {
   
   var link_mitigation = 4/9 * Math.atan(links / Math.E) * 100;
   
-  var total_mitigation = 100 - ((1 - link_mitigation/100) * (1 - shield_mitigation/100) * 100);
+  //var total_mitigation = 100 - ((1 - link_mitigation/100) * (1 - shield_mitigation/100) * 100);
+  var total_mitigation = shield_mitigation + link_mitigation;
+  if(total_mitigation>95)
+  {
+    total_mitigation = 95;
+  }
   
   return_val += current_nrg * total_mitigation / 100;
   
@@ -73,6 +90,55 @@ window.getEffectivePortalEnergy = function(d) {
            total_mitigation: Math.round(total_mitigation), 
            link_mitigation: Math.round(link_mitigation),
            shield_mitigation: Math.round(shield_mitigation)});
+}
+
+
+window.getPortalDamage = function(d) {
+  var damage = [];
+  
+  for(var lvl = 1; lvl <= MIN_AP_FOR_LEVEL.length; lvl++) {
+    damage[lvl] = calculatePortalDamage(lvl, d);
+  }
+  
+  return(damage);
+}
+
+//Calculate damage standing on portal
+window.calculatePortalDamage = function(level, d) {
+  var resoDetails = getResonatorDetails(d);
+  var effective_energy = getEffectivePortalEnergy(d);
+  var damage = 0;
+  $.each(d.resonatorArray.resonators, function(ind, reso) {
+    if(reso !== null) {
+      damage += calculateResonatorDamage(level,reso.distanceToPortal);
+    }
+  });
+  damage = (100 - effective_energy.total_mitigation) / 100 * damage; 
+  return(Math.round(damage));
+}
+
+window.calculateResonatorDamage = function (level, distanceM) {
+    //Ssergni's reliable source from ipas
+    var retVal = 0;
+    var maxBursterRange = [42, 48, 58, 72, 90, 112, 138, 168];
+    
+    if (distanceM < maxBursterRange[level-1]) {
+        
+      var resoAvgDmg = [
+          226,
+          376,
+          676,
+          1070,
+          1500,
+          2100,
+          3000,
+          4500
+      ];
+      var damage = resoAvgDmg[level - 1] * Math.pow(.5, distanceM / (maxBursterRange[level-1] / 5));
+      damage = damage < 0 ? 0 : damage;
+      retVal = Math.round(damage);
+  }
+  return(retVal);
 }
 
 window.getPortalRange = function(d) {
