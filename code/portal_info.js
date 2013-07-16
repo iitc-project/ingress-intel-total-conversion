@@ -63,8 +63,7 @@ window.getEffectivePortalEnergy = function(d) {
   $.each(d.portalV2.linkedModArray, function(ind, mod) {
     if(mod !== null && jQuery.isNumeric(mod.stats.MITIGATION))
     {
-      console.log( mod.stats.MITIGATION);
-      shield_mitigation += mod.stats.MITIGATION;
+      shield_mitigation += parseInt(mod.stats.MITIGATION);
     }
   });
   

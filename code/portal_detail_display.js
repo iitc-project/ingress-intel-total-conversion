@@ -46,11 +46,19 @@ window.renderPortalDetails = function(guid) {
   var effectiveEnergyText = ['<span title="Effective Energy - The current energy this portal has, plus the energy absorbed by the portal\'s defenses">EfEn</span>',
                              digits(effectiveEnergy.effective_energy)];
   
+  var damage = getPortalDamage(d);
+  var lvl5DmgText = ['<span title="Level 5 Damage - Expected damage from a level 5 burster fired on portal (Experimental)">Lvl5Dmg</span>',
+                             digits(damage[5])];
+  var lvl5DmgPercentText = ['<span title="Level 5 Damage % - Expected damage percentage from a level 5 burster fired on portal (Experimental)">Lvl5D%</span>',
+                             Math.round(damage[5]/getCurrentPortalEnergy(d)*100) + '%'];
+
   // collect and html-ify random data
   var randDetails = [
-    playerText, sinceText, getRangeText(d), getEnergyText(d),
-    linksText, getAvgResoDistText(d), linkedFields, getAttackApGainText(d),
-    mitigation, effectiveEnergyText];
+     playerText, sinceText, getRangeText(d), getEnergyText(d),
+     linksText, getAvgResoDistText(d), linkedFields, getAttackApGainText(d),
+     mitigation, effectiveEnergyText, lvl5DmgText, lvl5DmgPercentText];
+
+  
   randDetails = '<table id="randdetails">' + genFourColumnTable(randDetails) + '</table>';
 
   var resoDetails = '<table id="resodetails">' + getResonatorDetails(d) + '</table>';
