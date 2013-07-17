@@ -513,6 +513,7 @@ try { console.log('Loading included JS now'); } catch(e) {}
 @@INCLUDERAW:external/leaflet.js@@
 // modified version of https://github.com/shramov/leaflet-plugins. Also
 // contains the default Ingress map style.
+@@INCLUDERAW:external/L.Geodesic.js@@
 @@INCLUDERAW:external/leaflet_google.js@@
 @@INCLUDERAW:external/autolink.js@@
 

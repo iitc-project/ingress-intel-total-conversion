@@ -754,7 +754,7 @@ window.renderLink = function(ent) {
     [edge.originPortalLocation.latE6/1E6, edge.originPortalLocation.lngE6/1E6],
     [edge.destinationPortalLocation.latE6/1E6, edge.destinationPortalLocation.lngE6/1E6]
   ];
-  var poly = L.polyline(latlngs, {
+  var poly = L.geodesicPolyline(latlngs, {
     color: COLORS[team],
     opacity: 1,
     weight:2,

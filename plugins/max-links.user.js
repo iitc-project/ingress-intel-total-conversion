@@ -5,7 +5,7 @@
 // @version        0.4.0.@@DATETIMEVERSION@@
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Calculates how to link the portals to create the maximum number of fields. Enable from the layer chooser.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Calculates how to link the portals to create a reasonably neat set of links/fields. Enable from the layer chooser. (Max Links is a poor name, but remains for historical reasons.)
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*

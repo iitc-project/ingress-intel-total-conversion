@@ -19,6 +19,7 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 /* whatsnew
+* 0.0.15: Add 'age' column to display how long each portal has been controlled by its current owner.
 * 0.0.14: Add support to new mods (S:Shield - T:Turret - LA:Link Amp - H:Heat-sink - M:Multi-hack - FA:Force Amp)
 * 0.0.12: Use dialog() instead of alert so the user can drag the box around
 * 0.0.11: Add nominal energy column and # links, fix sort bug when opened even amounts of times, nits
@@ -42,7 +43,7 @@
 // use own namespace for plugin
 window.plugin.portalslist = function() {};
     
-window.plugin.portalslist.listPortals = []; // structure : name, team, level, resonators = Array, Shields = Array, APgain
+window.plugin.portalslist.listPortals = []; // structure : name, team, level, resonators = Array, Shields = Array, APgain, Age
 window.plugin.portalslist.sortOrder=-1;    
 window.plugin.portalslist.enlP = 0;
 window.plugin.portalslist.resP = 0;
@@ -68,6 +69,17 @@ window.plugin.portalslist.getPortals = function() {
     var address = d.portalV2.descriptiveText.ADDRESS;
     var img = d.imageByUrl && d.imageByUrl.imageUrl ? d.imageByUrl.imageUrl : DEFAULT_PORTAL_IMG;
     var team = portal.options.team;
+    var now = new Date();
+    var now_ms = now.getTime();// + (now.getTimezoneOffset() * 60000);
+    var age_in_seconds = 0;
+    var age_string_long = 'This portal is not captured.';
+    var age_string_short = 'n/a';
+    if(portal.options.details.hasOwnProperty('captured') && portal.options.details.captured.hasOwnProperty('capturedTime')) {
+      var age_in_seconds = Math.floor((now_ms - portal.options.details.captured.capturedTime)/1000);
+      var age_string_long = window.plugin.portalslist.secondsToString(age_in_seconds, 'l');
+      var age_string_short = window.plugin.portalslist.secondsToString(age_in_seconds, 's');
+    }
+
     switch (team){
       case 1 :
         window.plugin.portalslist.resP++;
@@ -131,7 +143,26 @@ window.plugin.portalslist.getPortals = function() {
     });
 	console.log(mods);
     var APgain= getAttackApGain(d).enemyAp;
-    var thisPortal = {'portal': d, 'name': name, 'team': team, 'level': level, 'guid': guid, 'resonators': resonators, 'energyratio': maxenergy ? Math.floor(energy/maxenergy*100) : 0, 'mods': mods, 'APgain': APgain, 'EAP': (energy/APgain).toFixed(2), 'energy': energy, 'maxenergy': maxenergy, 'links': d.portalV2.linkedEdges.length, 'lat': portal._latlng.lat, 'lng': portal._latlng.lng, 'address': address, 'img': img};
+    var thisPortal = {'portal': d,
+          'name': name,
+          'team': team,
+          'level': level,
+          'guid': guid,
+          'resonators': resonators,
+          'energyratio': maxenergy ? Math.floor(energy/maxenergy*100) : 0,
+          'mods': mods,
+          'APgain': APgain,
+          'EAP': (energy/APgain).toFixed(2),
+          'energy': energy,
+          'maxenergy': maxenergy,
+          'links': d.portalV2.linkedEdges.length,
+          'lat': portal._latlng.lat,
+          'lng': portal._latlng.lng,
+          'address': address,
+          'img': img,
+          'age': age_in_seconds,
+          'age_string_long': age_string_long,
+          'age_string_short': age_string_short};
     window.plugin.portalslist.listPortals.push(thisPortal);
   });
 
@@ -266,7 +297,8 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   + '<th ' + sort('s3', sortBy, -1) + '>M3</th>'
   + '<th ' + sort('s4', sortBy, -1) + '>M4</th>'
   + '<th ' + sort('APgain', sortBy, -1) + '>AP Gain</th>'
-  + '<th title="Energy / AP Gain ratio" ' + sort('EAP', sortBy, -1) + '>E/AP</th></tr>';
+  + '<th title="Energy / AP Gain ratio" ' + sort('EAP', sortBy, -1) + '>E/AP</th>'
+  + '<th ' + sort('age', sortBy, -1) + '>Age</th></tr>';
 
 
   $.each(portals, function(ind, portal) {
@@ -297,7 +329,8 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
       + '<td style="cursor:help; background-color: '+COLORS_MOD[portal.mods[2][0]]+';" title="Mod : ' + portal.mods[2][3] + '\nInstalled by : ' + portal.mods[2][1] + '\nRarity : ' + portal.mods[2][0] + '">' + portal.mods[2][2] + '</td>'
       + '<td style="cursor:help; background-color: '+COLORS_MOD[portal.mods[3][0]]+';" title="Mod : ' + portal.mods[3][3] + '\nInstalled by : ' + portal.mods[3][1] + '\nRarity : ' + portal.mods[3][0] + '">' + portal.mods[3][2] + '</td>'
       + '<td>' + portal.APgain + '</td>'
-      + '<td>' + portal.EAP + '</td>';
+      + '<td>' + portal.EAP + '</td>'
+      + '<td style="cursor:help;" title="' + portal.age_string_long  + '">' + portal.age_string_short + '</td>';
 
       html+= '</tr>';
     }
@@ -354,6 +387,19 @@ window.plugin.portalslist.getPortalLink = function(portal,guid) {
   })[0].outerHTML;
   var div = '<div style="max-height: 15px !important; min-width:140px !important;max-width:180px !important; overflow: hidden; text-overflow:ellipsis;">'+a+'</div>';
   return div;
+}
+
+// length can be "s" or "l" for "short" or "long"
+window.plugin.portalslist.secondsToString = function(seconds, length) {
+  var numdays = Math.floor(seconds / 86400);
+  var numhours = Math.floor((seconds % 86400) / 3600);
+  var numminutes = Math.floor(((seconds % 86400) % 3600) / 60);
+  var numseconds = ((seconds % 86400) % 3600) % 60;
+  if(length === "l") {
+    return numdays + " days " + numhours + " hours " + numminutes + " minutes " + numseconds + " seconds";
+  } else {
+    return numdays + "d" + numhours + "h";
+  }
 }
 
 var setup =  function() {
