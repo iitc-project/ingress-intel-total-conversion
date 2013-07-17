@@ -71,7 +71,8 @@ window.plugin.portalslist.getPortals = function() {
     var team = portal.options.team;
     var now = new Date();
     var now_ms = now.getTime();// + (now.getTimezoneOffset() * 60000);
-    var age_string_long = 'This portal has never been captured.';
+    var age_in_seconds = 0;
+    var age_string_long = 'This portal is not captured.';
     var age_string_short = 'n/a';
     if(portal.options.details.hasOwnProperty('captured') && portal.options.details.captured.hasOwnProperty('capturedTime')) {
       var age_in_seconds = Math.floor((now_ms - portal.options.details.captured.capturedTime)/1000);
@@ -329,7 +330,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
       + '<td style="cursor:help; background-color: '+COLORS_MOD[portal.mods[3][0]]+';" title="Mod : ' + portal.mods[3][3] + '\nInstalled by : ' + portal.mods[3][1] + '\nRarity : ' + portal.mods[3][0] + '">' + portal.mods[3][2] + '</td>'
       + '<td>' + portal.APgain + '</td>'
       + '<td>' + portal.EAP + '</td>'
-      + '<td style="cursor:help; title="' + portal.age_string_long  + '>' + portal.age_string_short + '</td>';
+      + '<td style="cursor:help;" title="' + portal.age_string_long  + '">' + portal.age_string_short + '</td>';
 
       html+= '</tr>';
     }
