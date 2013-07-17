@@ -802,7 +802,7 @@ window.renderField = function(ent) {
     L.latLng(reg.vertexC.location.latE6/1E6, reg.vertexC.location.lngE6/1E6)
   ];
 
-  var poly = L.polygon(latlngs, {
+  var poly = L.geodesicPolygon(latlngs, {
     fillColor: COLORS[team],
     fillOpacity: 0.25,
     stroke: false,
