@@ -35,20 +35,17 @@ window.plugin.linksPlayerName.linkAdded = function(data) {
   
 }
 
-window.plugin.linksPlayerName.renderLink = function(guid) {
-  plugin.linksPlayerName.removeLink(guid);
-
-  var link = window.links[guid];
+window.plugin.linksPlayerName.generatePopupContent = function(link) {
   
   var player = '?';
+  var title = "";
   if(link.options.data.creator !== undefined) {
     player = window.getPlayerName(link.options.data.creator.creatorGuid);
-	var time = link.options.data.creator.creationTime;
+    var time = link.options.data.creator.creationTime;
     var cssClass = link.options.data.controllingTeam.team === 'ALIENS' ? 'enl' : 'res';
-    var title = '<span class="nickname '+ cssClass+'" style="font-weight:bold;">' + player + '</span>';
-          
-		
-	if(window.plugin.guessPlayerLevels !== undefined &&
+    title = '<span class="nickname '+ cssClass+'" style="font-weight:bold;">' + player + '</span>';
+    
+    if(window.plugin.guessPlayerLevels !== undefined &&
        window.plugin.guessPlayerLevels.fetchLevelByPlayer !== undefined) {
       var playerLevel = window.plugin.guessPlayerLevels.fetchLevelByPlayer(link.options.data.creator.creatorGuid);
       if(playerLevel !== undefined) {
@@ -60,26 +57,53 @@ window.plugin.linksPlayerName.renderLink = function(guid) {
         title += '<span style="font-weight:bold;margin-left:10px;">Level unknown</span>'
       }
     }
-	
-	title += '<br />' + unixTimeToDateTimeString(time);
-	
+    
+    title += '<br /><em>' + unixTimeToDateTimeString(time) + '</em>';
+    
+    if(portals[link.options.data.edge.originPortalGuid] !== undefined) {
+        title += '<br /> From: <em>' + portals[link.options.data.edge.originPortalGuid].options.details.portalV2.descriptiveText.TITLE + '</em>';
+    } else {
+        title += '<br /> From: <em>Zoom out</em>';
+    }
+    
+    if(portals[link.options.data.edge.destinationPortalGuid] !== undefined) {
+        title += '<br /> To: <em>' + portals[link.options.data.edge.destinationPortalGuid].options.details.portalV2.descriptiveText.TITLE + '</em>';
+    } else {
+        title += '<br /> To: <em>Zoom out</em>';
+    }
+    var latlngs = link.getLatLngs();
+    title += '<br /> Length: <em>' + Math.round(latlngs[0].distanceTo(latlngs[1])) / 1000 + ' km</em>';
+  }
+  return title;
+}
+
+window.plugin.linksPlayerName.updatePopupContent = function(link) {
+    var title = window.plugin.linksPlayerName.generatePopupContent(link);
+    link._popup.setContent(title);
+}
+
+window.plugin.linksPlayerName.renderLink = function(guid) {
+
+  var link = window.links[guid];
+    
+  if(link.options.data.creator !== undefined) {
+    var title = window.plugin.linksPlayerName.generatePopupContent(link);
     var popup = L.popup({className: 'plugin-players-link-popup', closeButton: false}).setContent(title);
     link.bindPopup(popup);
-    link.options.clickable = true; // Change NOT possible after consturctor L.polyline called? --> Workaround in window.renderLink
-    link.setStyle();
-
-    link.on('mouseover', function(e) {  this.openPopup(e.latlng); });
+    
+    link.on('mouseover', function(e) {  window.plugin.linksPlayerName.updatePopupContent(this); this.openPopup(e.latlng); });
     link.on('mouseout', function() { _self = this; setTimeout( function() { _self.closePopup(); }, 1000) });
   }
 }
 
-window.plugin.linksPlayerName.removeLink = function(guid) {
-	/* currently nothing todo */
-}
-
 var setup =  function() {
  
- $("<style>")
+  // Add init hook to override clickable option
+  L.Polyline.addInitHook(function () {
+    this.options.clickable = true;
+  });
+  
+  $("<style>")
     .prop("type", "text/css")
     .html(".plugin-players-link-popup .leaflet-popup-content-wrapper {\
              border-radius: 0px 0px 0px 0px;\
@@ -113,7 +137,7 @@ var setup =  function() {
              color: yellow;\
              border: 1px solid #20A8B1;\
            }\
-		")
+        ")
   .appendTo("head");
 
 
