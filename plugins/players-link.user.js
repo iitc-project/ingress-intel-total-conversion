@@ -22,15 +22,11 @@
 // use own namespace for plugin
 window.plugin.linksPlayerName = function() {};
 
-// Use portal add and remove event to control render of portal level numbers
+// Use link add and remove event to control render of link popup
 window.plugin.linksPlayerName.linkAdded = function(data) {
 
   data.link.on('add', function() {
     plugin.linksPlayerName.renderLink(this.options.guid);
-  });
-
-  data.link.on('remove', function() {
-    plugin.linksPlayerName.removeLink(this.options.guid);
   });
   
 }
