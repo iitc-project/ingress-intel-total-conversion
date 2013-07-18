@@ -114,6 +114,11 @@ public class IITC_JSInterface {
         ((IITC_Mobile) context).dialogOpened(id, open);
     }
 
+    @JavascriptInterface
+    public void dialogFocused(String id) {
+        ((IITC_Mobile) context).setFocusedDialog(id);
+    }
+
     // get layers and list them in a dialog
     @JavascriptInterface
     public void setLayers(String base_layer, String overlay_layer) {

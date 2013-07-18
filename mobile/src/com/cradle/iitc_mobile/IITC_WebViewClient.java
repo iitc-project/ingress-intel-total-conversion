@@ -12,9 +12,12 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceResponse;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+
+import com.cradle.iitc_mobile.async.UrlContentToString;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -23,6 +26,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class IITC_WebViewClient extends WebViewClient {
     private static final ByteArrayInputStream style = new ByteArrayInputStream(
@@ -89,8 +95,19 @@ public class IITC_WebViewClient extends WebViewClient {
             // load iitc script from web or asset folder
             if (iitc_source.contains("http")) {
                 URL url = new URL(iitc_source);
-                js = new Scanner(url.openStream(), "UTF-8").useDelimiter("\\A")
-                        .next();
+                // if parsing of the online iitc source timed out, use the script from assets
+                try {
+                    js = new UrlContentToString().execute(url).get(5, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    js = this.fileToString("total-conversion-build.user.js", true);
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                    js = this.fileToString("total-conversion-build.user.js", true);
+                } catch (TimeoutException e) {
+                    e.printStackTrace();
+                    js = this.fileToString("total-conversion-build.user.js", true);
+                }
             } else {
                 js = this.fileToString("total-conversion-build.user.js", true);
             }
@@ -306,6 +323,10 @@ public class IITC_WebViewClient extends WebViewClient {
                         "should be an internal clicked position link...reload script for: "
                                 + url);
                 ((IITC_Mobile) context).loadUrl(url);
+            }
+            if (url.contains("logout")) {
+                Log.d("iitcm", "logging out...set caching mode to default");
+                view.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
             }
             return false;
         } else {

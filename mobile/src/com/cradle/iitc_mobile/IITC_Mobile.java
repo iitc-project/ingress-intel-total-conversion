@@ -24,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -65,10 +66,6 @@ public class IITC_Mobile extends Activity {
         // enable progress bar above action bar
         requestWindowFeature(Window.FEATURE_PROGRESS);
 
-        // TODO build an async task for url.openStream() in IITC_WebViewClient
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                .permitAll().build();
-        StrictMode.setThreadPolicy(policy);
         setContentView(R.layout.activity_main);
         iitc_view = (IITC_WebView) findViewById(R.id.iitc_webview);
 
@@ -173,8 +170,6 @@ public class IITC_Mobile extends Activity {
         if (Intent.ACTION_VIEW.equals(action)) {
             Uri uri = intent.getData();
             String url = uri.toString();
-            if (intent.getScheme().equals("http"))
-                url = url.replace("http://", "https://");
             Log.d("iitcm", "intent received url: " + url);
             if (url.contains("ingress.com")) {
                 Log.d("iitcm", "loading url...");
@@ -536,6 +531,8 @@ public class IITC_Mobile extends Activity {
      */
     public void onReceivedLoginRequest(IITC_WebViewClient client, WebView view,
                                        String realm, String account, String args) {
+        Log.d("iitcm", "logging in...set caching mode to default");
+        iitc_view.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
         mLogin = new IITC_DeviceAccountLogin(this, view, client);
         mLogin.startLogin(realm, account, args);
     }
@@ -559,6 +556,15 @@ public class IITC_Mobile extends Activity {
         item.setVisible(!desktop);
     }
 
+    // remove dialog and add it back again
+    // to ensure it is the last element of the list
+    // focused dialogs should be closed first
+    public void setFocusedDialog(String id) {
+        Log.d("iitcm", "Dialog " + id + " focused");
+        dialogStack.remove(id);
+        dialogStack.add(id);
+    }
+
     // called by the javascript interface
     public void dialogOpened(String id, boolean open) {
         if (open) {
@@ -566,8 +572,7 @@ public class IITC_Mobile extends Activity {
             dialogStack.add(id);
         } else {
             Log.d("iitcm", "Dialog " + id + " closed");
-            int index = dialogStack.indexOf(id);
-            dialogStack.remove(index);
+            dialogStack.remove(id);
         }
     }
 }

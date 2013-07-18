@@ -37,7 +37,6 @@ public class IITC_WebView extends WebView {
                 + "/databases/");
         settings.setAppCachePath(this.getContext().getCacheDir()
                 .getAbsolutePath());
-        // use cache if on mobile network...saves traffic
         this.js_interface = new IITC_JSInterface(c);
         this.addJavascriptInterface(js_interface, "android");
 
@@ -132,6 +131,7 @@ public class IITC_WebView extends WebView {
     }
 
     public void updateCaching() {
+        // use cache if on mobile network...saves traffic
         if (!this.isConnectedToWifi()) {
             Log.d("iitcm", "not connected to wifi...load tiles from cache");
             settings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);

@@ -68,15 +68,18 @@ window.getLinkAmpRangeBoost = function(d) {
   // (at the time of writing, only rare link amps have been seen in the wild, so there's a little guesswork at how
   // the stats work and combine - jon 2013-06-26)
 
+  // link amps scale: first is full, second half, the last two a quarter
+  var scale = [1.0, 0.5, 0.25, 0.25];
+
   var boost = 1.0;  // initial boost is 1.0 (i.e. no boost over standard range)
-  var scale = 1.0;  // scale starts at 1 (full effect of boost) - will be halved after each link amp is processed
+  var count = 0;
 
   $.each(d.portalV2.linkedModArray, function(ind, mod) {
     if(mod && mod.type === 'LINK_AMPLIFIER' && mod.stats && mod.stats.LINK_RANGE_MULTIPLIER) {
       // link amp stat LINK_RANGE_MULTIPLIER is 2000 for rare, and gives 2x boost to the range
       var baseMultiplier = mod.stats.LINK_RANGE_MULTIPLIER/1000;
-      boost += (baseMultiplier-1)*scale;
-      scale = scale / 2;  // each link amp has half the effect of the previous one
+      boost += (baseMultiplier-1)*scale[count];
+      count++;
     }
   });
 

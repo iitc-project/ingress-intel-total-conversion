@@ -60,7 +60,7 @@ IITC Mobile version <?php print $apk_version; ?>, with IITC version <?php print 
 </p>
 
 <p>
-<a style="margin-right: 1em;" onclick="if(track)({track{'mobile','download','<?php print $apkfile; ?>');}" class="btn btn-large btn-primary" href="<?php print $apkfile; ?>">Download</a> or scan the QR Code
+<a style="margin-right: 1em;" onclick="if(track){track('mobile','download','<?php print $apkfile; ?>');}" class="btn btn-large btn-primary" href="<?php print $apkfile; ?>">Download</a> or scan the QR Code
 </p>
 
 </div>

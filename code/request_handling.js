@@ -45,12 +45,14 @@ window.requests.abort = function() {
 // to website. Updates info in layer chooser.
 window.renderUpdateStatus = function() {
 
-  var t = '<span class="help portallevel" title="Indicates portal levels displayed.  Zoom in to display lower level portals."><b>portals</b>: ';
+  var t = '<span class="help portallevel" title="Indicates portal levels displayed.  Zoom in to display lower level portals.">';
+  if(!window.isSmartphone()) // space is valueable
+    t += '<b>portals</b>: ';
   var minlvl = getMinPortalLevel();
   if(minlvl === 0)
-    t += 'all';
+    t+= '<span id="loadlevel">all</span>';
   else
-    t+= 'L'+minlvl+(minlvl<8?'+':'');
+    t+= '<span id="loadlevel" style="background:'+COLORS_LVL[minlvl]+'">L'+minlvl+(minlvl<8?'+':'') + '</span>';
   t +='</span>';
 
   t += ' <span class="map"><b>map</b>: ';

@@ -10,15 +10,23 @@ window.showLayerChooser = true;
 window.setupLargeImagePreview = function() {
   $('#portaldetails').on('click', '.imgpreview', function() {
     var img = $(this).find('img')[0];
+    var details = $(this).find('div.portalDetails')[0];
     //dialogs have 12px padding around the content
-    var dlgWidth = Math.max(img.naturalWidth+24,400);
-    dialog({
-      html: '<div style="text-align: center">' + img.outerHTML + '</div>',
-      title: $(this).parent().find('h3.title').text(),
-      width: dlgWidth,
-    });
-
-   });
+    var dlgWidth = Math.max(img.naturalWidth+24,500);
+    if (details) {
+      dialog({
+        html: '<div style="text-align: center">' + img.outerHTML + '</div>' + details.outerHTML,
+        title: $(this).parent().find('h3.title').text(),
+        width: dlgWidth,
+      });
+    } else {
+      dialog({
+        html: '<div style="text-align: center">' + img.outerHTML + '</div>',
+        title: $(this).parent().find('h3.title').text(),
+        width: dlgWidth,
+      });
+    }
+  });
 }
 
 // adds listeners to the layer chooser such that a long press hides
@@ -505,6 +513,7 @@ try { console.log('Loading included JS now'); } catch(e) {}
 @@INCLUDERAW:external/leaflet.js@@
 // modified version of https://github.com/shramov/leaflet-plugins. Also
 // contains the default Ingress map style.
+@@INCLUDERAW:external/L.Geodesic.js@@
 @@INCLUDERAW:external/leaflet_google.js@@
 @@INCLUDERAW:external/autolink.js@@
 

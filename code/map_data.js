@@ -1,4 +1,3 @@
-
 // MAP DATA //////////////////////////////////////////////////////////
 // these functions handle how and which entities are displayed on the
 // map. They also keep them up to date, unless interrupted by user
@@ -500,6 +499,32 @@ window.removeByGuid = function(guid) {
 }
 
 
+// Separation of marker style setting from the renderPortal method
+// Having this as a separate function allows subsituting alternate marker rendering (for plugins)
+window.getMarker = function(ent, portalLevel, latlng, team) {
+  var lvWeight = Math.max(2, Math.floor(portalLevel) / 1.5);
+  var lvRadius = Math.floor(portalLevel) + 4;
+  if(team === window.TEAM_NONE) {
+    lvRadius = 7;
+  }
+    
+  var p = L.circleMarker(latlng, {
+    radius: lvRadius + (L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE : 0),
+    color: ent[0] === selectedPortal ? COLOR_SELECTED_PORTAL : COLORS[team],
+    opacity: 1,
+    weight: lvWeight,
+    fillColor: COLORS[team],
+    fillOpacity: 0.5,
+    clickable: true,
+    level: portalLevel,
+    team: team,
+    ent: ent,
+    details: ent[2],
+    guid: ent[0]});
+    
+    return p;
+}
+
 
 // renders a portal on the map from the given entity
 window.renderPortal = function(ent) {
@@ -548,25 +573,7 @@ window.renderPortal = function(ent) {
   // pre-loads player names for high zoom levels
   loadPlayerNamesForPortal(ent[2]);
 
-  var lvWeight = Math.max(2, Math.floor(portalLevel) / 1.5);
-  var lvRadius = Math.floor(portalLevel) + 4;
-  if(team === window.TEAM_NONE) {
-    lvRadius = 7;
-  }
-
-  var p = L.circleMarker(latlng, {
-    radius: lvRadius + (L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE : 0),
-    color: ent[0] === selectedPortal ? COLOR_SELECTED_PORTAL : COLORS[team],
-    opacity: 1,
-    weight: lvWeight,
-    fillColor: COLORS[team],
-    fillOpacity: 0.5,
-    clickable: true,
-    level: portalLevel,
-    team: team,
-    ent: ent,
-    details: ent[2],
-    guid: ent[0]});
+  var p = getMarker(ent, portalLevel, latlng, team);
 
   p.on('remove', function() {
     var portalGuid = this.options.guid
@@ -747,7 +754,7 @@ window.renderLink = function(ent) {
     [edge.originPortalLocation.latE6/1E6, edge.originPortalLocation.lngE6/1E6],
     [edge.destinationPortalLocation.latE6/1E6, edge.destinationPortalLocation.lngE6/1E6]
   ];
-  var poly = L.polyline(latlngs, {
+  var poly = L.geodesicPolyline(latlngs, {
     color: COLORS[team],
     opacity: 1,
     weight:2,
@@ -795,7 +802,7 @@ window.renderField = function(ent) {
     L.latLng(reg.vertexC.location.latE6/1E6, reg.vertexC.location.lngE6/1E6)
   ];
 
-  var poly = L.polygon(latlngs, {
+  var poly = L.geodesicPolygon(latlngs, {
     fillColor: COLORS[team],
     fillOpacity: 0.25,
     stroke: false,
