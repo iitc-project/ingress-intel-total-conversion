@@ -26,7 +26,7 @@ window.plugin.ipasLink.setupCallback = function() {
 }
 
 window.plugin.ipasLink.addLink = function(d) {
-  $('.linkdetails').append('<aside><a href="http://ipas.graphracer.com/index.html#' + window.plugin.ipasLink.getHash(d.portalDetails) + '" target="ipaswindow" title="Use IAPS to simulate an attack on this portal">Simulate attack</a></aside>');
+  $('.linkdetails').append('<aside><a href="http://ipas.graphracer.com/index.html#' + window.plugin.ipasLink.getHash(d.portalDetails) + '" target="ipaswindow" title="Use IPAS to simulate an attack on this portal">Simulate attack</a></aside>');
 }
 
 window.plugin.ipasLink.getHash = function (d) {
