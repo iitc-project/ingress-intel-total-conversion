@@ -32,7 +32,7 @@ window.renderPortalDetails = function(guid) {
     : null;
   var sinceText  = time ? ['since', time] : null;
 
-  var linkedFields = ['fields', d.portalV2.linkedFields.length];
+  var linkedFields = ['fields', d.portalV2.linkedFields ? d.portalV2.linkedFields.length : 0];
 
   // collect and html-ify random data
   var randDetails = [
