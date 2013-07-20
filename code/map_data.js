@@ -353,8 +353,9 @@ window.handleDataResponse = function(data, fromCache, tile_ids) {
 
     // when both source and destination portal are in the same response, no explicit 'edge' is returned
     // instead, we need to reconstruct them from the data within the portal details
+    // (note that some portals - decayed? - retain these links when they return to neutral. skip these!)
 
-    if ('portalV2' in portal[2] && 'linkedEdges' in portal[2].portalV2) {
+    if ('portalV2' in portal[2] && 'linkedEdges' in portal[2].portalV2 && portal[2].controllingTeam.team != 'NEUTRAL') {
       $.each(portal[2].portalV2.linkedEdges, function (ind, edge) {
         if (!ppp[edge.otherPortalGuid])
           return;

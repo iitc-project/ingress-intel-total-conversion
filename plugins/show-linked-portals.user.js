@@ -2,7 +2,7 @@
 // @id             iitc-plugin-show-linked-portals@fstopienski
 // @name           IITC plugin: Show linked portals
 // @category       Portal Info
-// @version        0.0.4.@@DATETIMEVERSION@@
+// @version        0.0.5.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -35,6 +35,10 @@ window.plugin.showLinkedPortal.handleUpdate = function () {
 }
 
 window.plugin.showLinkedPortal.portalDetail = function (data) {
+    // don't render linked portal data if portal is neutral.
+    // (the data can remain sometimes - when a portal decays?)
+    if (data.portalDetails.controllingTeam.team == 'NEUTRAL')
+        return;
 
     var d = data.portalDetails.portalV2,
         c = 1;
