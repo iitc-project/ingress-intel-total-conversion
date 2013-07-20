@@ -2,7 +2,7 @@
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           IITC plugin: guess player level
 // @category       Info
-// @version        0.4.6.@@DATETIMEVERSION@@
+// @version        0.4.7.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -64,7 +64,8 @@ window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
 }
 
 window.plugin.guessPlayerLevels.setupChatNickHelper = function() {
-  $(window).delegate('.nickname', 'mouseenter', function() {
+  $(document).on('mouseenter', '.nickname', function() {
+    console.log('mouseenter .nickname');
     window.plugin.guessPlayerLevels.setLevelTitle(this);
   });
 }
