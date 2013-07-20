@@ -131,17 +131,16 @@ public class IITC_WebViewClient extends WebViewClient {
         }
         // add all plugins to the script...inject plugins + main script simultaneously
         js += parsePlugins();
-        this.js = js;
 
         // need to wrap the mobile iitc.js version in a document ready. IITC
         // expects to be injected after the DOM has been loaded completely.
         // Since the mobile client injects IITC by replacing the gen_dashboard
         // file, IITC runs to early. The document.ready delays IITC long enough
         // so it boots correctly.
-        js = "$(document).ready(function(){" + js + "});";
+        this.js = "$(document).ready(function(){" + js + "});";
 
         iitcjs = new WebResourceResponse("text/javascript", "UTF-8",
-                new ByteArrayInputStream(js.getBytes()));
+                new ByteArrayInputStream(this.js.getBytes()));
     }
 
     // enable https
@@ -149,6 +148,16 @@ public class IITC_WebViewClient extends WebViewClient {
     public void onReceivedSslError(WebView view, SslErrorHandler handler,
                                    SslError error) {
         handler.proceed();
+    }
+
+    @Override
+    public void onPageFinished(WebView view, String url) {
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        if(sharedPrefs.getBoolean("pref_force_desktop", false)) {
+            Log.d("iitcm", "injecting desktop iitc");
+            view.loadUrl("javascript: " + this.js);
+        }
+        super.onPageFinished(view, url);
     }
 
     /**
@@ -292,21 +301,26 @@ public class IITC_WebViewClient extends WebViewClient {
     @Override
     public WebResourceResponse shouldInterceptRequest(final WebView view,
                                                       String url) {
-        if (url.contains("/css/common.css")) {
-            return new WebResourceResponse("text/css", "UTF-8", style);
-        } else if (url.contains("gen_dashboard.js")) {
-            Log.d("iitcm", "replacing gen_dashboard.js with iitc script");
-            Log.d("iitcm", "injecting iitc...");
-            return this.iitcjs;
-        } else if (url.contains("/css/ap_icons.css")
-                || url.contains("/css/map_icons.css")
-                || url.contains("/css/misc_icons.css")
-                || url.contains("/css/style_full.css")
-                || url.contains("/css/style_mobile.css")
-                || url.contains("/css/portalrender.css")
-                || url.contains("js/analytics.js")
-                || url.contains("google-analytics.com/ga.js")) {
-            return new WebResourceResponse("text/plain", "UTF-8", empty);
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        if(!sharedPrefs.getBoolean("pref_force_desktop", false)) {
+            if (url.contains("/css/common.css")) {
+                return new WebResourceResponse("text/css", "UTF-8", style);
+            } else if (url.contains("gen_dashboard.js")) {
+                Log.d("iitcm", "replacing gen_dashboard.js with iitc script");
+                Log.d("iitcm", "injecting iitc...");
+                return this.iitcjs;
+            } else if (url.contains("/css/ap_icons.css")
+                    || url.contains("/css/map_icons.css")
+                    || url.contains("/css/misc_icons.css")
+                    || url.contains("/css/style_full.css")
+                    || url.contains("/css/style_mobile.css")
+                    || url.contains("/css/portalrender.css")
+                    || url.contains("js/analytics.js")
+                    || url.contains("google-analytics.com/ga.js")) {
+                return new WebResourceResponse("text/plain", "UTF-8", empty);
+            } else {
+                return super.shouldInterceptRequest(view, url);
+            }
         } else {
             return super.shouldInterceptRequest(view, url);
         }
