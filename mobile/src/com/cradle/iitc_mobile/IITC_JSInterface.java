@@ -10,6 +10,7 @@ import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
+import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
@@ -116,6 +117,20 @@ public class IITC_JSInterface {
     @JavascriptInterface
     public void dialogFocused(String id) {
         ((IITC_Mobile) context).setFocusedDialog(id);
+    }
+
+    @JavascriptInterface
+    public void iitcLoaded() {
+        Log.d("iitcm", "iitc loaded completely");
+        final IITC_Mobile iitc = ((IITC_Mobile) context);
+
+        iitc.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                iitc.findViewById(R.id.iitc_webview).setVisibility(View.VISIBLE);
+                iitc.findViewById(R.id.imageLoading).setVisibility(View.GONE);
+            }
+        });
     }
 
     // get layers and list them in a dialog

@@ -22,6 +22,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
@@ -463,6 +464,8 @@ public class IITC_Mobile extends Activity {
     // inject the iitc-script and load the intel url
     // plugins are injected onPageFinished
     public void loadUrl(String url) {
+        findViewById(R.id.imageLoading).setVisibility(View.VISIBLE);
+        findViewById(R.id.iitc_webview).setVisibility(View.GONE);
         url = addUrlParam(url);
         loadIITC();
         iitc_view.loadUrl(url);

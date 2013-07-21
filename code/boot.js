@@ -501,6 +501,11 @@ function boot() {
 
   window.iitcLoaded = true;
   window.runHooks('iitcLoaded');
+
+  if (typeof android !== 'undefined' && android && android.iitcLoaded) {
+    android.iitcLoaded();
+  }
+
 }
 
 // this is the minified load.js script that allows us to easily load

@@ -31,13 +31,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class IITC_WebViewClient extends WebViewClient {
-    private static final ByteArrayInputStream style = new ByteArrayInputStream(
+
+    private static final ByteArrayInputStream STYLE = new ByteArrayInputStream(
             "body, #dashboard_container, #map_canvas { background: #000 !important; }"
                     .getBytes());
-    private static final ByteArrayInputStream empty = new ByteArrayInputStream(
+    private static final ByteArrayInputStream EMPTY = new ByteArrayInputStream(
             "".getBytes());
 
-    private WebResourceResponse iitcjs;
     private String js = null;
     private String iitc_path = null;
     private final Context context;
@@ -139,8 +139,6 @@ public class IITC_WebViewClient extends WebViewClient {
         // so it boots correctly.
         this.js = "$(document).ready(function(){" + js + "});";
 
-        iitcjs = new WebResourceResponse("text/javascript", "UTF-8",
-                new ByteArrayInputStream(this.js.getBytes()));
     }
 
     // enable https
@@ -152,11 +150,8 @@ public class IITC_WebViewClient extends WebViewClient {
 
     @Override
     public void onPageFinished(WebView view, String url) {
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-        if(sharedPrefs.getBoolean("pref_force_desktop", false)) {
-            Log.d("iitcm", "injecting desktop iitc");
-            view.loadUrl("javascript: " + this.js);
-        }
+        Log.d("iitcm", "injecting iitc..");
+        view.loadUrl("javascript: " + this.js);
         super.onPageFinished(view, url);
     }
 
@@ -301,26 +296,21 @@ public class IITC_WebViewClient extends WebViewClient {
     @Override
     public WebResourceResponse shouldInterceptRequest(final WebView view,
                                                       String url) {
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-        if(!sharedPrefs.getBoolean("pref_force_desktop", false)) {
-            if (url.contains("/css/common.css")) {
-                return new WebResourceResponse("text/css", "UTF-8", style);
-            } else if (url.contains("gen_dashboard.js")) {
-                Log.d("iitcm", "replacing gen_dashboard.js with iitc script");
-                Log.d("iitcm", "injecting iitc...");
-                return this.iitcjs;
-            } else if (url.contains("/css/ap_icons.css")
-                    || url.contains("/css/map_icons.css")
-                    || url.contains("/css/misc_icons.css")
-                    || url.contains("/css/style_full.css")
-                    || url.contains("/css/style_mobile.css")
-                    || url.contains("/css/portalrender.css")
-                    || url.contains("js/analytics.js")
-                    || url.contains("google-analytics.com/ga.js")) {
-                return new WebResourceResponse("text/plain", "UTF-8", empty);
-            } else {
-                return super.shouldInterceptRequest(view, url);
-            }
+        if (url.contains("/css/common.css")) {
+            return new WebResourceResponse("text/css", "UTF-8", STYLE);
+        } else if (url.contains("gen_dashboard.js")) {
+            return new WebResourceResponse("text/javascript", "UTF-8", EMPTY);
+        } else if (url.contains("/css/ap_icons.css")
+                || url.contains("/css/map_icons.css")
+                || url.contains("/css/common.css")
+                || url.contains("/css/misc_icons.css")
+                || url.contains("/css/style_full.css")
+                || url.contains("/css/style_mobile.css")
+                || url.contains("/css/portalrender.css")
+                || url.contains("/css/portalrender_mobile.css")
+                || url.contains("js/analytics.js")
+                || url.contains("google-analytics.com/ga.js")) {
+            return new WebResourceResponse("text/plain", "UTF-8", EMPTY);
         } else {
             return super.shouldInterceptRequest(view, url);
         }
