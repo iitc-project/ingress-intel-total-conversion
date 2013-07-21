@@ -2,7 +2,7 @@
 // @id             iitc-plugin-player-tracker@breunigs
 // @name           IITC Plugin: Player tracker
 // @category       Layer
-// @version        0.9.4.@@DATETIMEVERSION@@
+// @version        0.9.5.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -275,7 +275,7 @@ window.plugin.playerTracker.drawData = function() {
       if(playerLevel !== undefined) {
         title += '<span style="font-weight:bold;margin-left:10px;">Level '
           + playerLevel
-          + (playerLevel < (window.MAX_XM_PER_LEVEL.length - 1) ? ' (guessed)' : '')
+          + ' (guessed)'
           + '</span>';
       } else {
         title += '<span style="font-weight:bold;margin-left:10px;">Level unknown</span>'
