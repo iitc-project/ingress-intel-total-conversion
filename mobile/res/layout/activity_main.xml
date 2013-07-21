@@ -10,6 +10,8 @@
     <ImageView android:id="@+id/imageLoading"
         android:layout_height="fill_parent"
         android:layout_width="fill_parent"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
         android:background="@android:color/darker_gray"
         android:src="@drawable/iitc" />
 
