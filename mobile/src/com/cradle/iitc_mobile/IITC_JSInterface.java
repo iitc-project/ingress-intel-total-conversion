@@ -1,5 +1,11 @@
 package com.cradle.iitc_mobile;
 
+import java.util.HashMap;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -7,17 +13,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
-import android.content.Intent;
-import android.net.Uri;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-
-import java.util.HashMap;
 
 // provide communication between IITC script and android app
 public class IITC_JSInterface {
@@ -36,13 +36,18 @@ public class IITC_JSInterface {
         context = c;
     }
 
-    // send geo intent for navigation apps like gmaps or waze etc...
+    // open dialog to send geo intent for navigation apps like gmaps or waze etc...
     @JavascriptInterface
-    public void intentPosLink(String lat, String lng, String portal_name) {
-        String uri = "geo:" + lat + "," + lng + "?q=" + lat + "," + lng;
-        Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
-                Uri.parse(uri));
-        context.startActivity(intent);
+    public void intentPosLink(double lat, double lng, int zoom, String portalName) {
+        Bundle args = new Bundle();
+        args.putDouble("lat", lat);
+        args.putDouble("lng", lng);
+        args.putInt("zoom", zoom);
+        args.putString("title", portalName);
+
+        IITC_ShareDialog dialog = new IITC_ShareDialog();
+        dialog.setArguments(args);
+        dialog.show(((Activity) context).getFragmentManager(), "ShareDialog");
     }
 
     // disable javascript injection while spinner is enabled
