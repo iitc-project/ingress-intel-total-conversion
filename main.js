@@ -81,7 +81,7 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '<form id="chatinput" style="display:none"><table><tr>'
   + '  <td><time></time></td>'
   + '  <td><mark>tell faction:</mark></td>'
-  + '  <td><input id="chattext" type="text"/></td>'
+  + '  <td><input id="chattext" type="text" maxlength="256" /></td>'
   + '</tr></table></form>'
   + '<a id="sidebartoggle"><span class="toggle close"></span></a>'
   + '<div id="scrollwrapper">' // enable scrolling for small screens
