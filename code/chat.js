@@ -613,7 +613,7 @@ window.chat.setup = function() {
   var cls = PLAYER.team === 'ALIENS' ? 'enl' : 'res';
   $('#chatinput mark').addClass(cls);
 
-  $(window).on('click', '.nickname', function(event) {
+  $(document).on('click', '.nickname', function(event) {
     window.chat.nicknameClicked(event, $(this).text());
   });
 }

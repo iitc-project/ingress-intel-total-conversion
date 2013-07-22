@@ -133,18 +133,17 @@ function iitcDesktopPluginDownloadTable ( $build )
 
 			}
 
-			print "<td>$name</td>";
-			print "<td>$plugin_users</td>";
-			print "<td>$basename</td>";
-			print "<td rowspan=\"2\">$version</td>";
-//			print "<td>$description</td>";
-			print "<td><a onclick=\"if(track){track('desktop','iitc-plugin-$basename','$build');}\" href=\"$path\" class=\"btn btn-small btn-primary\" title=\"Download\"><i class=\"icon-download icon-white\"></i></a></td>";
+			print "<td class=\"name\">$name</td>";
+			print "<td class=\"popularity\">$plugin_users</td>";
+			print "<td class=\"id\">$basename</td>";
+			print "<td class=\"version\" rowspan=\"2\">$version</td>";
+			print "<td class=\"download\" rowspan=\"2\"><a onclick=\"if(track){track('desktop','iitc-plugin-$basename','$build');}\" href=\"$path\" class=\"btn btn-small btn-primary\" title=\"Download\"><i class=\"icon-download icon-white\"></i></a></td>";
 			print "</tr>\n";
-			print "<tr><td colspan=\"3\" style=\"border-top: none; padding-top: 0; padding-bottom: 0.5em\">$description</td></tr>\n";
+			print "<tr><td class=\"description\" colspan=\"3\" style=\"border-top: none; padding-top: 0; padding-bottom: 0.5em\">$description</td></tr>\n";
 
 		}
 		if ( $empty )
-			print "<tr><td colspan=\"4\">(no plugins in this category)</td></tr>\n";
+			print "<tr><td class=\"empty\" colspan=\"4\">(no plugins in this category)</td></tr>\n";
 
 	}
 ?>

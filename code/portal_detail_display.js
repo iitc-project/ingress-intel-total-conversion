@@ -32,8 +32,6 @@ window.renderPortalDetails = function(guid) {
     : null;
   var sinceText  = time ? ['since', time] : null;
   
-  var linkedFields = ['fields', d.portalV2.linkedFields.length];
-  
   var effectiveEnergy = getEffectivePortalEnergy(d);
   var mitigation = ['mitigation',
                     '<span title="Link Mitigation: '
@@ -51,6 +49,7 @@ window.renderPortalDetails = function(guid) {
                              digits(damage[5])];
   var lvl5DmgPercentText = ['<span title="Level 5 Damage % - Expected damage percentage from a level 5 burster fired on portal (Experimental)">Lvl5D%</span>',
                              Math.round(damage[5]/getCurrentPortalEnergy(d)*100) + '%'];
+  var linkedFields = ['fields', d.portalV2.linkedFields ? d.portalV2.linkedFields.length : 0];
 
   // collect and html-ify random data
   var randDetails = [

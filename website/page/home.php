@@ -13,6 +13,12 @@ offers many more features. It is available for
 
 <h3>Latest news</h3>
 
+<h4>20th July 2013</h4>
+<p>
+IITC now has a <a href="https://plus.google.com/communities/105647403088015055797">Google+ Community</a>.
+This is a great place to ask questions and discuss IITC with other users.
+</p>
+
 <h4>1st July 2013</h4>
 <p>
 IITC version 0.12.2 released, and IITC Mobile 0.4.8. 

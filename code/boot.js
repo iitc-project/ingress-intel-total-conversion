@@ -501,6 +501,11 @@ function boot() {
 
   window.iitcLoaded = true;
   window.runHooks('iitcLoaded');
+
+  if (typeof android !== 'undefined' && android && android.iitcLoaded) {
+    android.iitcLoaded();
+  }
+
 }
 
 // this is the minified load.js script that allows us to easily load
@@ -511,17 +516,17 @@ function asyncLoadScript(a){return function(b,c){var d=document.createElement("s
 
 try { console.log('Loading included JS now'); } catch(e) {}
 @@INCLUDERAW:external/leaflet.js@@
+@@INCLUDERAW:external/L.Geodesic.js@@
 // modified version of https://github.com/shramov/leaflet-plugins. Also
 // contains the default Ingress map style.
-@@INCLUDERAW:external/L.Geodesic.js@@
 @@INCLUDERAW:external/leaflet_google.js@@
 @@INCLUDERAW:external/autolink.js@@
 
 try { console.log('done loading included JS'); } catch(e) {}
 
 //note: no protocol - so uses http or https as used on the current page
-var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js';
-var JQUERYUI = 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js';
+var JQUERY = '//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js';
+var JQUERYUI = '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js';
 
 // after all scripts have loaded, boot the actual app
 load(JQUERY).then(JQUERYUI).thenRun(boot);
