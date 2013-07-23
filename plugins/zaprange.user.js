@@ -61,16 +61,19 @@ window.plugin.zaprange.draw = function(guid) {
 }
 
 window.plugin.zaprange.showOrHide = function() {
+  var ctrl = $('.leaflet-control-layers-selector + span:contains("Portal Attack Range")').parent();
   if (map.getZoom() >= window.plugin.zaprange.MIN_MAP_ZOOM) {
     // show the layer
     if(!window.plugin.zaprange.zapLayerHolderGroup.hasLayer(window.plugin.zaprange.zapCircleHolderGroup)) {
       window.plugin.zaprange.zapLayerHolderGroup.addLayer(window.plugin.zaprange.zapCircleHolderGroup);
     }
+    ctrl.removeClass('disabled').attr('title', '');
   } else {
     // hide the layer
     if(window.plugin.zaprange.zapLayerHolderGroup.hasLayer(window.plugin.zaprange.zapCircleHolderGroup)) {
       window.plugin.zaprange.zapLayerHolderGroup.removeLayer(window.plugin.zaprange.zapCircleHolderGroup);
     }
+    ctrl.addClass('disabled').attr('title', 'Zoom in to show those.');
   }
 }
 
@@ -83,7 +86,7 @@ var setup =  function() {
 
   window.plugin.zaprange.zapLayerHolderGroup.addLayer(window.plugin.zaprange.zapCircleHolderGroup);
 
-  window.addLayerGroup('Zap range', window.plugin.zaprange.zapLayerHolderGroup, true);
+  window.addLayerGroup('Portal Attack Range', window.plugin.zaprange.zapLayerHolderGroup, true);
   window.addHook('portalAdded', window.plugin.zaprange.portalAdded);
 
   map.on('zoomend', window.plugin.zaprange.showOrHide);
