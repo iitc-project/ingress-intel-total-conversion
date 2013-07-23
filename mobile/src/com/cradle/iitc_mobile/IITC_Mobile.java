@@ -464,8 +464,7 @@ public class IITC_Mobile extends Activity {
     // inject the iitc-script and load the intel url
     // plugins are injected onPageFinished
     public void loadUrl(String url) {
-        findViewById(R.id.imageLoading).setVisibility(View.VISIBLE);
-        findViewById(R.id.iitc_webview).setVisibility(View.GONE);
+        showSplashScreen();
         url = addUrlParam(url);
         loadIITC();
         iitc_view.loadUrl(url);
@@ -483,8 +482,6 @@ public class IITC_Mobile extends Activity {
     }
 
     public void toggleFullscreen() {
-        // TODO: Figure out how to handle this with new back stack?
-
         if (fullscreen_mode) {
             if (fullscreen_actionbar)
                 this.getActionBar().show();
@@ -546,6 +543,7 @@ public class IITC_Mobile extends Activity {
     public void loginSucceeded() {
         // garbage collection
         mLogin = null;
+        showSplashScreen();
     }
 
     // disable/enable some menu buttons...
@@ -576,6 +574,13 @@ public class IITC_Mobile extends Activity {
         } else {
             Log.d("iitcm", "Dialog " + id + " closed");
             dialogStack.remove(id);
+        }
+    }
+
+    public void showSplashScreen() {
+        if (!sharedPref.getBoolean("pref_disable_splash", false)) {
+            findViewById(R.id.iitc_webview).setVisibility(View.GONE);
+            findViewById(R.id.imageLoading).setVisibility(View.VISIBLE);
         }
     }
 }

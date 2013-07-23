@@ -50,6 +50,7 @@
 	<string name="pref_enable_dev_mode">Enable developer mode</string>
 	<string name="pref_enable_dev_mode_sum">If enabled, all IITC sources will be loaded from external storage of the Android device.
 	    Please copy all sources from $IITC_folder/build/mobile/ to /sdcard/IITC_Mobile/dev/.</string>
+    <string name="pref_disable_splash">Disable Splash Screen</string>
     <string name="pref_select_iitc">IITC source</string>
     <string name="pref_select_iitc_sum">Load IITC main script from url or use local script. Currently used source:</string>
 
