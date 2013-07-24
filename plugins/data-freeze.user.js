@@ -21,7 +21,7 @@
   // use own namespace for plugin
   window.plugin.dataFreeze = function() {};
 
-  window.plugin.dataFreeze.storageKEY = 'plugin-data-freeze-stastu';
+  window.plugin.dataFreeze.storageKEY = 'plugin-data-freeze-status';
   window.plugin.dataFreeze.noMoreData = 1000000;
   window.plugin.dataFreeze.defaultVal = 1.25;
   window.plugin.dataFreeze.status;
