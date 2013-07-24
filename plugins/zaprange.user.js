@@ -2,7 +2,7 @@
 // @id             iitc-plugin-zaprange@zaso
 // @name           IITC plugin: Zaprange
 // @category       Layer
-// @version        0.1.2.@@DATETIMEVERSION@@
+// @version        0.1.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -16,7 +16,7 @@
 
 @@PLUGINSTART@@
 
-// PLUGIN START ////////////////////////////////////////////////////////
+// PLUGIN START ///////////////////////////////////////////////////////
 
   // use own namespace for plugin
   window.plugin.zaprange = function() {};
@@ -25,65 +25,86 @@
 
   window.plugin.zaprange.portalAdded = function(data) {
     data.portal.on('add', function() {
-      window.plugin.zaprange.draw(this.options.guid);
+      window.plugin.zaprange.draw(this.options.guid, this.options.details.controllingTeam.team);
     });
 
     data.portal.on('remove', function() {
-      window.plugin.zaprange.remove(this.options.guid);
+      window.plugin.zaprange.remove(this.options.guid, this.options.details.controllingTeam.team);
     });
   }
 
-  window.plugin.zaprange.remove = function(guid) {
+  window.plugin.zaprange.remove = function(guid, faction) {
     var previousLayer = window.plugin.zaprange.zapLayers[guid];
     if(previousLayer) {
-      window.plugin.zaprange.zapCircleHolderGroup.removeLayer(previousLayer);
+      if(faction === 'ALIENS') {
+        window.plugin.zaprange.zapCircleEnlHolderGroup.removeLayer(previousLayer);
+      } else {
+        window.plugin.zaprange.zapCircleResHolderGroup.removeLayer(previousLayer);
+      }
       delete window.plugin.zaprange.zapLayers[guid];
     }
   }
 
-  window.plugin.zaprange.draw = function(guid) {
+  window.plugin.zaprange.draw = function(guid, faction) {
     var d = window.portals[guid];
-    var dd = d.options.details;
 
-    if(dd.controllingTeam.team !== "NEUTRAL") {
+    if(faction !== "NEUTRAL") {
       var coo = d._latlng;
       var latlng = new L.LatLng(coo.lat,coo.lng);
-      var portalLevel = parseInt(getPortalLevel(dd));
+      var portalLevel = parseInt(getPortalLevel(d.options.details));
       var optCircle = {color:'red',opacity:0.7,fillColor:'red',fillOpacity:0.1,weight:1,clickable:false, dashArray: [10,6]};
       var range = (5*portalLevel)+35;
 
       var circle = new L.Circle(latlng, range, optCircle);
+
+      if(faction === 'ALIENS') {
+        circle.addTo(window.plugin.zaprange.zapCircleEnlHolderGroup);
+      } else {
+        circle.addTo(window.plugin.zaprange.zapCircleResHolderGroup);
+      }
       window.plugin.zaprange.zapLayers[guid] = circle;
-      circle.addTo(window.plugin.zaprange.zapCircleHolderGroup);
     }
   }
 
   window.plugin.zaprange.showOrHide = function() {
     if(map.getZoom() >= window.plugin.zaprange.MIN_MAP_ZOOM) {
       // show the layer
-      if(!window.plugin.zaprange.zapLayerHolderGroup.hasLayer(window.plugin.zaprange.zapCircleHolderGroup)) {
-        window.plugin.zaprange.zapLayerHolderGroup.addLayer(window.plugin.zaprange.zapCircleHolderGroup);
-        $('.leaflet-control-layers-list span:contains("Zaprange")').parent().removeClass('disabled').attr('title', '');
+      if(!window.plugin.zaprange.zapLayerEnlHolderGroup.hasLayer(window.plugin.zaprange.zapCircleEnlHolderGroup)) {
+        window.plugin.zaprange.zapLayerEnlHolderGroup.addLayer(window.plugin.zaprange.zapCircleEnlHolderGroup);
+        $('.leaflet-control-layers-list span:contains("Zaprange Enlightened")').parent('label').removeClass('disabled').attr('title', '');
+      }
+      if(!window.plugin.zaprange.zapLayerResHolderGroup.hasLayer(window.plugin.zaprange.zapCircleResHolderGroup)) {
+        window.plugin.zaprange.zapLayerResHolderGroup.addLayer(window.plugin.zaprange.zapCircleResHolderGroup);
+        $('.leaflet-control-layers-list span:contains("Zaprange Resistance")').parent('label').removeClass('disabled').attr('title', '');
       }
     } else {
       // hide the layer
-      if(window.plugin.zaprange.zapLayerHolderGroup.hasLayer(window.plugin.zaprange.zapCircleHolderGroup)) {
-        window.plugin.zaprange.zapLayerHolderGroup.removeLayer(window.plugin.zaprange.zapCircleHolderGroup);
-        $('.leaflet-control-layers-list span:contains("Zaprange")').parent().addClass('disabled').attr('title', 'Zoom in to show those.');
+      if(window.plugin.zaprange.zapLayerEnlHolderGroup.hasLayer(window.plugin.zaprange.zapCircleEnlHolderGroup)) {
+        window.plugin.zaprange.zapLayerEnlHolderGroup.removeLayer(window.plugin.zaprange.zapCircleEnlHolderGroup);
+        $('.leaflet-control-layers-list span:contains("Zaprange Enlightened")').parent('label').addClass('disabled').attr('title', 'Zoom in to show those.');
+      }
+      if(window.plugin.zaprange.zapLayerResHolderGroup.hasLayer(window.plugin.zaprange.zapCircleResHolderGroup)) {
+        window.plugin.zaprange.zapLayerResHolderGroup.removeLayer(window.plugin.zaprange.zapCircleResHolderGroup);
+        $('.leaflet-control-layers-list span:contains("Zaprange Resistance")').parent('label').addClass('disabled').attr('title', 'Zoom in to show those.');
       }
     }
   }
 
   var setup = function() {
     // this layer is added to the layer chooser, to be toggled on/off
-    window.plugin.zaprange.zapLayerHolderGroup = new L.LayerGroup();
+    window.plugin.zaprange.zapLayerEnlHolderGroup = new L.LayerGroup();
+    window.plugin.zaprange.zapLayerResHolderGroup = new L.LayerGroup();
 
     // this layer is added into the above layer, and removed from it when we zoom out too far
-    window.plugin.zaprange.zapCircleHolderGroup = new L.LayerGroup();
+    window.plugin.zaprange.zapCircleEnlHolderGroup = new L.LayerGroup();
+    window.plugin.zaprange.zapCircleResHolderGroup = new L.LayerGroup();
 
-    window.plugin.zaprange.zapLayerHolderGroup.addLayer(window.plugin.zaprange.zapCircleHolderGroup);
+    window.plugin.zaprange.zapLayerEnlHolderGroup.addLayer(window.plugin.zaprange.zapCircleEnlHolderGroup);
+    window.plugin.zaprange.zapLayerResHolderGroup.addLayer(window.plugin.zaprange.zapCircleResHolderGroup);
 
-    window.addLayerGroup('Zaprange', window.plugin.zaprange.zapLayerHolderGroup, true);
+    window.addLayerGroup('Zaprange Enlightened', window.plugin.zaprange.zapLayerEnlHolderGroup, true);
+    window.addLayerGroup('Zaprange Resistance', window.plugin.zaprange.zapLayerResHolderGroup, true);
+
     window.addHook('portalAdded', window.plugin.zaprange.portalAdded);
 
     map.on('zoomend', window.plugin.zaprange.showOrHide);
