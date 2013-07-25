@@ -247,6 +247,9 @@ window.renderLimitReached = function(ratio) {
 window.getPortalDataZoom = function() {
   var z = map.getZoom();
 
+  // on mobile (at least), the map zoom has been non-integer occasionally. fix it.
+  z = Math.floor(z);
+
   // limiting the mazimum zoom level for data retrieval reduces the number of requests at high zoom levels
   // (as all portal data is retrieved at z=17, why retrieve multiple z=18 tiles when fewer z=17 would do?)
   // very effective along with the new cache code
