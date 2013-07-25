@@ -114,7 +114,7 @@ window.requestData = function() {
   expireDataCache();
 
   //a limit on the number of map tiles to be pulled in a single request
-  var MAX_TILES_PER_BUCKET = 11;
+  var MAX_TILES_PER_BUCKET = 18;
   // the number of separate buckets. more can be created if the size exceeds MAX_TILES_PER_BUCKET
   var BUCKET_COUNT = 4;
 
@@ -136,9 +136,10 @@ window.requestData = function() {
   var cachedData = { result: { map: {} } };
   var requestTileCount = 0;
 
-  // walk in x-direction, starts right goes left
-  for (var x = x1; x <= x2; x++) {
-    for (var y = y1; y <= y2; y++) {
+  // y goes from left to right
+  for (var y = y1; y <= y2; y++) {
+    // x goes from bottom to top(?)
+    for (var x = x1; x <= x2; x++) {
       var tile_id = pointToTileId(z, x, y);
       var latNorth = tileToLat(y,z);
       var latSouth = tileToLat(y+1,z);
@@ -156,8 +157,8 @@ window.requestData = function() {
         debugSetTileColour(tile_id,'#0f0','#ff0');
         window.statusCachedMapTiles++;
       } else {
-        // group requests into buckets based on the tile coordinate.
-        var bucket = Math.floor(x+y*(BUCKET_COUNT/2))%BUCKET_COUNT;
+        // group requests into buckets based on the tile count retrieved via the network.
+        var bucket = requestTileCount % BUCKET_COUNT;
 
         if (!tiles[bucket]) {
           //create empty bucket
