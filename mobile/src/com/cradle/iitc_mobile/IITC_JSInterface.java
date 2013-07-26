@@ -38,12 +38,13 @@ public class IITC_JSInterface {
 
     // open dialog to send geo intent for navigation apps like gmaps or waze etc...
     @JavascriptInterface
-    public void intentPosLink(double lat, double lng, int zoom, String portalName) {
+    public void intentPosLink(double lat, double lng, int zoom, String title, boolean isPortal) {
         Intent intent = new Intent(context, ShareActivity.class);
         intent.putExtra("lat", lat);
         intent.putExtra("lng", lng);
         intent.putExtra("zoom", zoom);
-        intent.putExtra("title", portalName);
+        intent.putExtra("title", title);
+        intent.putExtra("isPortal", isPortal);
         context.startActivity(intent);
     }
 

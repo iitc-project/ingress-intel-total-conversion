@@ -176,7 +176,7 @@ window.showPortalPosLinks = function(lat, lng, name) {
   }
 
   if (typeof android !== 'undefined' && android && android.intentPosLink) {
-    android.intentPosLink(lat, lng, map.getZoom(), name);
+    android.intentPosLink(lat, lng, map.getZoom(), name, true);
   } else {
     var qrcode = '<div id="qrcode"></div>';
     var script = '<script>$(\'#qrcode\').qrcode({text:\'GEO:'+lat+','+lng+'\'});</script>';
@@ -205,7 +205,7 @@ window.androidPermalink = function() {
     return true; // i.e. execute other actions
   
   var center = map.getCenter();
-  android.intentPosLink(center.lat, center.lng, map.getZoom(), null);
+  android.intentPosLink(center.lat, center.lng, map.getZoom(), "Intel Map", false);
   return false;
 }
 

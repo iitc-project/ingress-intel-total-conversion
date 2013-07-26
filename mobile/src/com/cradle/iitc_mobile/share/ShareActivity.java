@@ -63,11 +63,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         mTitle = intent.getStringExtra("title");
         mLl = intent.getDoubleExtra("lat", 0) + "," + intent.getDoubleExtra("lng", 0);
         mZoom = intent.getIntExtra("zoom", 0);
-
-        if (mTitle == null) {
-            mTitle = "Intel Map";
-            mIsPortal = false;
-        }
+        mIsPortal = intent.getBooleanExtra("isPortal", false);
 
         final ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
