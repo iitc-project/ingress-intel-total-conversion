@@ -25,7 +25,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         IntentFragment fragment = new IntentFragment();
         Bundle args = new Bundle();
         args.putParcelable("intent", intent);
-        args.putInt("title", label);
+        args.putString("title", getString(label));
         args.putInt("icon", icon);
         fragment.setArguments(args);
         mFragmentAdapter.add(fragment);
