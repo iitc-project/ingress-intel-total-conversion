@@ -47,9 +47,9 @@
     <string name="pref_press_twice_to_exit">Press back button twice to exit</string>
     <string name="pref_press_twice_to_exit_sum">Avoids accidental exits</string>
     <string name="pref_developer_options">Developer options</string>
-	<string name="pref_enable_dev_mode">Enable developer mode</string>
-	<string name="pref_enable_dev_mode_sum">If enabled, all IITC sources will be loaded from external storage of the Android device.
-	    Please copy all sources from $IITC_folder/build/mobile/ to /sdcard/IITC_Mobile/dev/.</string>
+    <string name="pref_enable_dev_mode">Enable developer mode</string>
+    <string name="pref_enable_dev_mode_sum">If enabled, all IITC sources will be loaded from external storage of the Android device.
+        Please copy all sources from $IITC_folder/build/mobile/ to /sdcard/IITC_Mobile/dev/.</string>
     <string name="pref_select_iitc">IITC source</string>
     <string name="pref_select_iitc_sum">Load IITC main script from url or use local script. Currently used source:</string>
 
@@ -60,8 +60,14 @@
     <string name="menu_faction">Faction</string>
     <string name="menu_info">Info</string>
     <string name="menu_debug">Debug</string>
+    <string name="menu_search">Search</string>
     <string name="choose_account_to_login">Choose account to login</string>
     <string name="login_failed">Login failed.</string>
     <string name="search_hint">Search Locations</string>
-    <string name="menu_search">Search</string>
+    <string name="intent_error">Address could not be opened</string>
+    <string name="msg_copied">Copied to clipboard…</string>
+
+    <string name="tab_map">Map</string>
+    <string name="tab_share">Share</string>
+    <string name="tab_browser">Browser</string>
 </resources>

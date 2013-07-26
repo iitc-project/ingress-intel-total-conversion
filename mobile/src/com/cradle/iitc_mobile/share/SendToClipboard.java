@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
+import com.cradle.iitc_mobile.R;
 
 public class SendToClipboard extends Activity {
     @Override
@@ -20,7 +21,7 @@ public class SendToClipboard extends Activity {
         ClipData clip = ClipData.newPlainText("Copied Text ", text);
         clipboard.setPrimaryClip(clip);
         
-        Toast.makeText(this, "Copied to clipboard…", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.msg_copied, Toast.LENGTH_SHORT).show();
         
         finish();
         setResult(RESULT_OK);

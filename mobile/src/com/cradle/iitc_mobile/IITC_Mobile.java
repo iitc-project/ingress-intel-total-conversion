@@ -189,7 +189,7 @@ public class IITC_Mobile extends Activity {
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
                     new AlertDialog.Builder(this)
-                            .setTitle("Address could not be opened")
+                            .setTitle(R.string.intent_error)
                             .setMessage(e.getReason())
                             .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                 @Override

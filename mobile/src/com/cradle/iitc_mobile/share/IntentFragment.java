@@ -21,7 +21,7 @@ public class IntentFragment extends Fragment implements OnScrollListener, OnItem
     }
 
     public String getTitle() {
-        return getArguments().getString("title");
+        return getActivity().getString(getArguments().getInt("title"));
     }
 
     @Override
