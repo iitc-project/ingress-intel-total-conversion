@@ -82,8 +82,6 @@ public class IntentListView extends ListView {
         mAdapter.clear();
 
         String packageName = getContext().getPackageName();
-        // TODO find default, show on top
-        // TODO exclude IITCm
 
         List<ResolveInfo> activities = mPackageManager.queryIntentActivities(intent, 0);
         ResolveInfo defaultTarget = mPackageManager.resolveActivity(intent, 0);
