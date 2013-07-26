@@ -16,6 +16,10 @@ public class IntentFragment extends Fragment implements OnScrollListener, OnItem
     private IntentListView mListView;
     private int mScrollIndex, mScrollTop;
 
+    public int getIcon() {
+        return getArguments().getInt("icon");
+    }
+
     public String getTitle() {
         return getArguments().getString("title");
     }

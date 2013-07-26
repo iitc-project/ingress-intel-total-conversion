@@ -20,12 +20,13 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
     IntentFragmentAdapter mFragmentAdapter;
     ViewPager mViewPager;
 
-    private void addTab(Intent intent, String label)
+    private void addTab(Intent intent, String label, int icon)
     {
         IntentFragment fragment = new IntentFragment();
         Bundle args = new Bundle();
         args.putParcelable("intent", intent);
         args.putString("title", label);
+        args.putInt("icon", icon);
         fragment.setArguments(args);
         mFragmentAdapter.add(fragment);
     }
@@ -43,14 +44,14 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TEXT, getUrl());
         intent.putExtra(Intent.EXTRA_SUBJECT, mTitle);
-        addTab(intent, "Share");
+        addTab(intent, "Share", R.drawable.share);
 
         String geoUri = "geo:" + mLl;
         intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(geoUri));
-        addTab(intent, "Map");
+        addTab(intent, "Map", R.drawable.location_map);
 
         intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getUrl()));
-        addTab(intent, "Browser");
+        addTab(intent, "Browser", R.drawable.browser);
     }
 
     @Override
@@ -91,6 +92,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
             actionBar.addTab(actionBar
                     .newTab()
                     .setText(fragment.getTitle())
+                    .setIcon(fragment.getIcon())
                     .setTabListener(this));
         }
     }
