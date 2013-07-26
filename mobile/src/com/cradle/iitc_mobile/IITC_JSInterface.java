@@ -5,7 +5,6 @@ import java.util.HashMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -13,10 +12,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
-import android.os.Bundle;
+import android.content.Intent;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
+
+import com.cradle.iitc_mobile.share.ShareActivity;
 
 // provide communication between IITC script and android app
 public class IITC_JSInterface {
@@ -38,15 +39,12 @@ public class IITC_JSInterface {
     // open dialog to send geo intent for navigation apps like gmaps or waze etc...
     @JavascriptInterface
     public void intentPosLink(double lat, double lng, int zoom, String portalName) {
-        Bundle args = new Bundle();
-        args.putDouble("lat", lat);
-        args.putDouble("lng", lng);
-        args.putInt("zoom", zoom);
-        args.putString("title", portalName);
-
-        IITC_ShareDialog dialog = new IITC_ShareDialog();
-        dialog.setArguments(args);
-        dialog.show(((Activity) context).getFragmentManager(), "ShareDialog");
+        Intent intent = new Intent(context, ShareActivity.class);
+        intent.putExtra("lat", lat);
+        intent.putExtra("lng", lng);
+        intent.putExtra("zoom", zoom);
+        intent.putExtra("title", portalName);
+        context.startActivity(intent);
     }
 
     // disable javascript injection while spinner is enabled
