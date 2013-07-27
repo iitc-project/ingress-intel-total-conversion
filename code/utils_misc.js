@@ -203,7 +203,7 @@ window.androidCopy = function(text) {
 window.androidPermalink = function() {
   if(typeof android === 'undefined' || !android || !android.copy)
     return true; // i.e. execute other actions
-  
+
   var center = map.getCenter();
   android.intentPosLink(center.lat, center.lng, map.getZoom(), "Intel Map", false);
   return false;

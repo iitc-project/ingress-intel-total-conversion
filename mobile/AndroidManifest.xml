@@ -66,7 +66,6 @@
 
                 <data android:scheme="geo"/>
             </intent-filter>
-            
 
             <!-- Points to searchable meta data. -->
             <meta-data android:name="android.app.searchable"

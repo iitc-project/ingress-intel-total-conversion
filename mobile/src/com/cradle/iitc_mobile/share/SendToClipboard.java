@@ -20,9 +20,9 @@ public class SendToClipboard extends Activity {
 
         ClipData clip = ClipData.newPlainText("Copied Text ", text);
         clipboard.setPrimaryClip(clip);
-        
+
         Toast.makeText(this, R.string.msg_copied, Toast.LENGTH_SHORT).show();
-        
+
         finish();
         setResult(RESULT_OK);
     }
