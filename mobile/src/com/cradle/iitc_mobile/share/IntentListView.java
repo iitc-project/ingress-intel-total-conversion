@@ -1,8 +1,7 @@
 package com.cradle.iitc_mobile.share;
 
+import java.util.HashSet;
 import java.util.List;
-
-import com.cradle.iitc_mobile.R;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -13,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +20,19 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.cradle.iitc_mobile.R;
+
 public class IntentListView extends ListView {
+    private static class CopyHandler extends Pair<String, String> {
+        public CopyHandler(ResolveInfo resolveInfo) {
+            super(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
+        }
+
+        public CopyHandler(String packageName, String name) {
+            super(packageName, name);
+        }
+    }
+
     private class IntentAdapter extends ArrayAdapter<ResolveInfo>
     {
         private IntentAdapter()
@@ -45,9 +57,24 @@ public class IntentListView extends ListView {
         }
     }
 
+    private static final HashSet<CopyHandler> KNOWN_COPY_HANDLERS = new HashSet<CopyHandler>();
+
+    private static void setupKnownCopyHandlers() {
+        if (!KNOWN_COPY_HANDLERS.isEmpty())
+            return;
+
+        KNOWN_COPY_HANDLERS.add(new CopyHandler(
+                "com.google.android.apps.docs",
+                "com.google.android.apps.docs.app.SendTextToClipboardActivity"));
+
+        KNOWN_COPY_HANDLERS.add(new CopyHandler(
+                "com.aokp.romcontrol",
+                "com.aokp.romcontrol.ShareToClipboard"));
+    }
+
     private IntentAdapter mAdapter;
-    private PackageManager mPackageManager;
     private Intent mIntent = null;
+    private PackageManager mPackageManager;
 
     public IntentListView(Context context) {
         super(context);
@@ -65,6 +92,8 @@ public class IntentListView extends ListView {
     }
 
     private void init() {
+        setupKnownCopyHandlers();
+
         mPackageManager = getContext().getPackageManager();
         mAdapter = new IntentAdapter();
         setAdapter(mAdapter);
@@ -72,6 +101,16 @@ public class IntentListView extends ListView {
 
     public ResolveInfo getItem(int position) {
         return mAdapter.getItem(position);
+    }
+
+    public Intent getTargetIntent(int position) {
+        ActivityInfo activity = mAdapter.getItem(position).activityInfo;
+
+        Intent intent = new Intent(mIntent)
+                .setComponent(new ComponentName(activity.packageName, activity.name))
+                .setPackage(activity.packageName);
+
+        return intent;
     }
 
     public void setIntent(Intent intent)
@@ -86,13 +125,11 @@ public class IntentListView extends ListView {
         List<ResolveInfo> activities = mPackageManager.queryIntentActivities(intent, 0);
         ResolveInfo defaultTarget = mPackageManager.resolveActivity(intent, 0);
 
-        // search for "Copy to clipboard" target...provided by drive or AOKP
         boolean hasCopyIntent = false;
-        for (ResolveInfo resolveInfo : activities) {
-            if ((resolveInfo.activityInfo.name.equals("com.google.android.apps.docs.app.SendTextToClipboardActivity")
-                    && resolveInfo.activityInfo.packageName.equals("com.google.android.apps.docs")) ||
-                (resolveInfo.activityInfo.name.equals("com.aokp.romcontrol.ShareToClipboard")
-                    && resolveInfo.activityInfo.packageName.equals("com.aokp.romcontrol")))
+        for (ResolveInfo resolveInfo : activities) { // search for "Copy to clipboard" handler
+            CopyHandler handler = new CopyHandler(resolveInfo);
+
+            if (KNOWN_COPY_HANDLERS.contains(handler))
                 hasCopyIntent = true;
         }
 
@@ -123,15 +160,5 @@ public class IntentListView extends ListView {
         mAdapter.addAll(activities);
         mAdapter.setNotifyOnChange(true);
         mAdapter.notifyDataSetChanged();
-    }
-
-    public Intent getTargetIntent(int position) {
-        ActivityInfo activity = mAdapter.getItem(position).activityInfo;
-
-        Intent intent = new Intent(mIntent)
-                .setComponent(new ComponentName(activity.packageName, activity.name))
-                .setPackage(activity.packageName);
-
-        return intent;
     }
 }
