@@ -1,5 +1,10 @@
 package com.cradle.iitc_mobile;
 
+import java.util.HashMap;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -8,16 +13,12 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.Intent;
-import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
-import java.util.HashMap;
+import com.cradle.iitc_mobile.share.ShareActivity;
 
 // provide communication between IITC script and android app
 public class IITC_JSInterface {
@@ -36,12 +37,15 @@ public class IITC_JSInterface {
         context = c;
     }
 
-    // send geo intent for navigation apps like gmaps or waze etc...
+    // open dialog to send geo intent for navigation apps like gmaps or waze etc...
     @JavascriptInterface
-    public void intentPosLink(String lat, String lng, String portal_name) {
-        String uri = "geo:" + lat + "," + lng + "?q=" + lat + "," + lng;
-        Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
-                Uri.parse(uri));
+    public void intentPosLink(double lat, double lng, int zoom, String title, boolean isPortal) {
+        Intent intent = new Intent(context, ShareActivity.class);
+        intent.putExtra("lat", lat);
+        intent.putExtra("lng", lng);
+        intent.putExtra("zoom", zoom);
+        intent.putExtra("title", title);
+        intent.putExtra("isPortal", isPortal);
         context.startActivity(intent);
     }
 
