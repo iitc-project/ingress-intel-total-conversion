@@ -32,32 +32,13 @@ window.renderPortalDetails = function(guid) {
     : null;
   var sinceText  = time ? ['since', time] : null;
   
-  var effectiveEnergy = getEffectivePortalEnergy(d);
-  var mitigation = ['mitigation',
-                    '<span title="Link Mitigation: '
-                    + effectiveEnergy.link_mitigation
-                    + '% - Shield Mitigation: '
-                    + effectiveEnergy.shield_mitigation
-                    + '%">'
-                    + (effectiveEnergy.total_mitigation)
-                    + '%</span>']
-  var effectiveEnergyText = ['<span title="Effective Energy - The current energy this portal has, plus the energy absorbed by the portal\'s defenses">EfEn</span>',
-                             digits(effectiveEnergy.effective_energy)];
-  
-  var damage = getPortalDamage(d);
-  var lvl5DmgText = ['<span title="Level 5 Damage - Expected damage from a level 5 burster fired on portal (Experimental)">Lvl5Dmg</span>',
-                             digits(damage[5])];
-  var lvl5DmgPercentText = ['<span title="Level 5 Damage % - Expected damage percentage from a level 5 burster fired on portal (Experimental)">Lvl5D%</span>',
-                             Math.round(damage[5]/getCurrentPortalEnergy(d)*100) + '%'];
   var linkedFields = ['fields', d.portalV2.linkedFields ? d.portalV2.linkedFields.length : 0];
 
   // collect and html-ify random data
   var randDetails = [
      playerText, sinceText, getRangeText(d), getEnergyText(d),
-     linksText, getAvgResoDistText(d), linkedFields, getAttackApGainText(d),
-     mitigation, effectiveEnergyText, lvl5DmgText, lvl5DmgPercentText];
+     linksText, getAvgResoDistText(d), linkedFields, getAttackApGainText(d)];
 
-  
   randDetails = '<table id="randdetails">' + genFourColumnTable(randDetails) + '</table>';
 
   var resoDetails = '<table id="resodetails">' + getResonatorDetails(d) + '</table>';
