@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-user-location@cradle
 // @name           IITC plugin: User Location
-// @version        0.1.1.@@DATETIMEVERSION@@
+// @version        0.1.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -43,7 +43,7 @@ window.plugin.userLocation.setup = function() {
     marker.on('click', function(e) {
         window.console.log('marker location');
         var ll = e.target.getLatLng();
-        window.androidCopy('https://maps.google.com/?q='+ll.lat+','+ll.lng+'%20('+PLAYER.nickname+')');
+        window.androidCopy('https://maps.google.com/?q='+ll.lat+','+ll.lng);
     });
 
     plugin.userLocation.marker = marker;

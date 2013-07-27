@@ -10,6 +10,7 @@ import android.net.http.SslError;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.View;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
@@ -150,8 +151,11 @@ public class IITC_WebViewClient extends WebViewClient {
 
     @Override
     public void onPageFinished(WebView view, String url) {
-        Log.d("iitcm", "injecting iitc..");
-        view.loadUrl("javascript: " + this.js);
+        if (url.startsWith("http://www.ingress.com/intel")
+         || url.startsWith("https://www.ingress.com/intel")) {
+            Log.d("iitcm", "injecting iitc..");
+            view.loadUrl("javascript: " + this.js);
+        }
         super.onPageFinished(view, url);
     }
 
@@ -286,6 +290,18 @@ public class IITC_WebViewClient extends WebViewClient {
             return "";
         }
         return js;
+    }
+
+    @Override
+    public void onLoadResource(WebView view, String url) {
+        if(url.contains("css/basic.css")) {
+            Log.d("iitcm", "basic.css received...should be ingress intel login");
+            // get rid of loading screen to log in
+            IITC_Mobile iitc = (IITC_Mobile) context;
+            iitc.findViewById(R.id.iitc_webview).setVisibility(View.VISIBLE);
+            iitc.findViewById(R.id.imageLoading).setVisibility(View.GONE);
+        }
+        super.onLoadResource(view, url);
     }
 
     // Check every external resource if it’s okay to load it and maybe replace

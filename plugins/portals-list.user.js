@@ -137,6 +137,11 @@ window.plugin.portalslist.getPortals = function() {
         if (modShortName === '') {
             mods[ind] = ['', '', ''];
             } else {
+		if ((modShortName === 'S') &&
+		((mod.rarity=='COMMON' && mod.stats.MITIGATION == 6) || 
+		(mod.rarity=='RARE' && mod.stats.MITIGATION == 8) ||
+		(mod.rarity=='VERY_RARE' && mod.stats.MITIGATION == 10)))
+			modShortName=modShortName+'!';
 			mods[ind] = [mod.rarity, getPlayerName(mod.installingUser), modShortName, mod.displayName];            
         }
       }else { mods[ind] = ['', '', '']; }
