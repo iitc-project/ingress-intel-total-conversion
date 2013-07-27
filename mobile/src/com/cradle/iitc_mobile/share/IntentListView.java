@@ -86,10 +86,13 @@ public class IntentListView extends ListView {
         List<ResolveInfo> activities = mPackageManager.queryIntentActivities(intent, 0);
         ResolveInfo defaultTarget = mPackageManager.resolveActivity(intent, 0);
 
+        // search for "Copy to clipboard" target...provided by drive or AOKP
         boolean hasCopyIntent = false;
-        for (ResolveInfo resolveInfo : activities) { // search for "Copy to clipboard" target, provided by Drive
-            if (resolveInfo.activityInfo.name.equals("com.google.android.apps.docs.app.SendTextToClipboardActivity")
-                    && resolveInfo.activityInfo.packageName.equals("com.google.android.apps.docs"))
+        for (ResolveInfo resolveInfo : activities) {
+            if ((resolveInfo.activityInfo.name.equals("com.google.android.apps.docs.app.SendTextToClipboardActivity")
+                    && resolveInfo.activityInfo.packageName.equals("com.google.android.apps.docs")) ||
+                (resolveInfo.activityInfo.name.equals("com.aokp.romcontrol.ShareToClipboard")
+                    && resolveInfo.activityInfo.packageName.equals("com.aokp.romcontrol")))
                 hasCopyIntent = true;
         }
 
