@@ -3,7 +3,6 @@ package com.cradle.iitc_mobile.share;
 import java.util.HashSet;
 import java.util.List;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -12,7 +11,6 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -42,7 +40,6 @@ public class IntentListView extends ListView {
             super(IntentListView.this.getContext(), android.R.layout.simple_list_item_1);
         }
 
-        @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             LayoutInflater inflater = ((Activity) getContext()).getLayoutInflater();
@@ -54,9 +51,7 @@ public class IntentListView extends ListView {
 
             view.setText(label);
             view.setCompoundDrawablePadding((int) getResources().getDimension(R.dimen.icon_margin));
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                view.setCompoundDrawablesRelativeWithIntrinsicBounds(icon, null, null, null);
-            }
+            view.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
 
             return view;
         }
