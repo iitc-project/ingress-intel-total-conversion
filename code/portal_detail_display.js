@@ -75,7 +75,7 @@ window.renderPortalDetails = function(guid) {
     }
 
     if(portalDetailObj.description) {
-      portalDetailedDescription += '<tr class="padding-top"><th>Description:</th><td>' + escapeHtmlSpecialChars(portalDetailObj.description) + '</td></tr>';
+      portalDetailedDescription += '<tr class="padding-top"><th>Description:</th><td>' + portalDetailObj.description + '</td></tr>';
     }
 //    if(d.portalV2.descriptiveText.ADDRESS) {
 //      portalDetailedDescription += '<tr><th>Address:</th><td>' + escapeHtmlSpecialChars(d.portalV2.descriptiveText.ADDRESS) + '</td></tr>';
