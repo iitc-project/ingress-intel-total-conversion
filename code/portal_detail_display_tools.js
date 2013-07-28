@@ -17,7 +17,9 @@ window.getRangeText = function(d) {
 window.getPortalDescriptionFromDetails = function(details) {
   var descObj = details.portalV2.descriptiveText;
   // FIXME: also get real description?
-  var desc = descObj.TITLE + '\n' + descObj.ADDRESS;
+  var desc = descObj.TITLE;
+  if(descObj.ADDRESS)
+    desc += '\n' + descObj.ADDRESS;
   if(descObj.ATTRIBUTION)
     desc += '\nby '+descObj.ATTRIBUTION+' ('+descObj.ATTRIBUTION_LINK+')';
   return desc;
