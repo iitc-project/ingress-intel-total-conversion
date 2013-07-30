@@ -107,7 +107,7 @@ public class IITC_Mobile extends Activity {
                     return;
                 }
                 // no reload needed
-                if (key.equals("pref_press_twice_to_exit"))
+                if (key.equals("pref_press_twice_to_exit") || key.equals("pref_share_selected_tab"))
                     return;
 
                 reload_needed = true;
