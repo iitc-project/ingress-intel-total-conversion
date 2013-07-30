@@ -46,7 +46,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         intent.putExtra(Intent.EXTRA_SUBJECT, mTitle);
         addTab(intent, R.string.tab_share, R.drawable.share);
 
-        String geoUri = "geo:" + mLl;
+        String geoUri = "geo:" + mLl + "?q=" + mLl;
         intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(geoUri));
         addTab(intent, R.string.tab_map, R.drawable.location_map);
 
@@ -55,6 +55,8 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
     }
 
     @Override
+
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share);
