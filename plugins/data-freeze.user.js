@@ -65,6 +65,8 @@
           .addListener(butt, 'click', function(){
             window.plugin.dataFreeze.toggle();
           })
+          .addListener(butt, 'dblclick', L.DomEvent.stopPropagation)
+          .addListener(butt, 'dblclick', L.DomEvent.preventDefault)
         ;
         return controlDiv;
       }

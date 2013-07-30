@@ -21,7 +21,7 @@
   // use own namespace for plugin
   window.plugin.playerRange = function() {};
 
-  window.plugin.playerRange.locStore = 'pluginPlayerRange';
+  window.plugin.playerRange.locStore = 'plugin-playerRange';
   window.plugin.playerRange.rangeVal = [window.HACK_RANGE, 42, 48, 58, 72, 90, 112, 138, 168];
   window.plugin.playerRange.keyGroup = ['hack', 'L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'mark'];
 
@@ -87,7 +87,7 @@
       }
     });
 
-    // Remove the elements fron the layers
+    // Remove the elements from the layers
     pLayer_range[9].on('dblclick', function(e) {
       for(var i=0;i<=9;i++) {
         window.plugin.playerRange[window.plugin.playerRange.keyGroup[i]].removeLayer(pLayer_range[i]);
@@ -193,11 +193,15 @@
           .addListener(butt_1, 'click', function() {
             window.plugin.playerRange.drawMarker();
           })
+          .addListener(butt_1, 'dblclick', L.DomEvent.stopPropagation)
+          .addListener(butt_1, 'dblclick', L.DomEvent.preventDefault)
           .addListener(butt_2, 'click', L.DomEvent.stopPropagation)
           .addListener(butt_2, 'click', L.DomEvent.preventDefault)
           .addListener(butt_2, 'click', function() {
             $('.rangeList').toggle();
           })
+          .addListener(butt_2, 'dblclick', L.DomEvent.stopPropagation)
+          .addListener(butt_2, 'dblclick', L.DomEvent.preventDefault)
         ;
         return controlDiv;
       }
