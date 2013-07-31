@@ -24,9 +24,13 @@ window.plugin.portalHighligherMods = function() {};
 window.plugin.portalHighligherMods.highlight = function(data, mod_type) {
   var d = data.portal.options.details;
   
+  if(!jQuery.isArray(mod_type)) {
+    mod_type = [mod_type];
+  }
+  
   var mod_effect = 0;
   $.each(d.portalV2.linkedModArray, function(ind, mod) {
-    if(mod !== null && mod.type == mod_type) {
+    if(mod !== null && jQuery.inArray(mod.type, mod_type) > -1) {
       switch(mod.rarity){
         case 'COMMON':
           mod_effect++;
@@ -42,7 +46,7 @@ window.plugin.portalHighligherMods.highlight = function(data, mod_type) {
   });
   
   if(mod_effect > 0) {
-    var fill_opacity = mod_effect/12*.85 + .15;
+    var fill_opacity = mod_effect/12*.8 + .2;
     var color = 'red';
     fill_opacity = Math.round(fill_opacity*100)/100;
     var params = {fillColor: color, fillOpacity: fill_opacity};
@@ -52,6 +56,28 @@ window.plugin.portalHighligherMods.highlight = function(data, mod_type) {
   window.COLOR_SELECTED_PORTAL = '#f0f';
 }
 
+window.plugin.portalHighligherMods.highlightNoMods = function(data) {
+  var d = data.portal.options.details;
+  
+  var mods = false;
+  $.each(d.portalV2.linkedModArray, function(ind, mod) {
+    if(mod !== null) {
+      mods = true;
+      return;
+    }
+  });
+  
+  if(!mods) {
+    var fill_opacity = .6;
+    var color = 'red';
+    var params = {fillColor: color, fillOpacity: fill_opacity};
+    data.portal.setStyle(params);
+  }
+
+  window.COLOR_SELECTED_PORTAL = '#f0f';
+}
+
+
 window.plugin.portalHighligherMods.getHighlighter = function(type) {
   return(function(data){ 
     window.plugin.portalHighligherMods.highlight(data,type);
@@ -60,9 +86,16 @@ window.plugin.portalHighligherMods.getHighlighter = function(type) {
 
 
 var setup =  function() {
+  
   $.each(MOD_TYPE, function(ind, name){
     window.addPortalHighlighter('Mod: '+name, window.plugin.portalHighligherMods.getHighlighter(ind));  
   });
+  
+  window.addPortalHighlighter('Mod: Hackability', window.plugin.portalHighligherMods.getHighlighter(['MULTIHACK', 'HEATSINK']));
+  window.addPortalHighlighter('Mod: Attack', window.plugin.portalHighligherMods.getHighlighter(['FORCE_AMP', 'TURRET']));
+  window.addPortalHighlighter('Mod: Defense', window.plugin.portalHighligherMods.getHighlighter(['RES_SHIELD', 'FORCE_AMP', 'TURRET']));
+  window.addPortalHighlighter('Mod: None', window.plugin.portalHighligherMods.highlightNoMods);
+  
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

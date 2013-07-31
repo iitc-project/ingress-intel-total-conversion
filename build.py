@@ -258,7 +258,8 @@ if buildMobile:
             # do not include desktop-only plugins to mobile assets
             ignore=shutil.ignore_patterns('*.meta.js',
             'force-https*', 'privacy-view*', 'speech-search*',
-            'basemap-cloudmade*', 'scroll-wheel-zoom-disable*'))
+            'basemap-cloudmade*', 'scroll-wheel-zoom-disable*',
+            'sync*'))
 
 
     if buildMobile != 'copyonly':

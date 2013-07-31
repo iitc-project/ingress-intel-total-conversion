@@ -9,7 +9,7 @@
 // to. Uses TEAM_* enum values.
 window.getTeam = function(details) {
   var team = TEAM_NONE;
-  if(details.controllingTeam.team === 'ALIENS') team = TEAM_ENL;
+  if(details.controllingTeam.team === 'ALIENS' || details.controllingTeam.team === 'ENLIGHTENED') team = TEAM_ENL;
   if(details.controllingTeam.team === 'RESISTANCE') team = TEAM_RES;
   return team;
 }

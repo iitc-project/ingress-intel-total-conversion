@@ -64,7 +64,6 @@ window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
 
 window.plugin.guessPlayerLevels.setupChatNickHelper = function() {
   $(document).on('mouseenter', '.nickname', function() {
-    console.log('mouseenter .nickname');
     window.plugin.guessPlayerLevels.setLevelTitle(this);
   });
 }
