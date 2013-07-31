@@ -43,7 +43,7 @@ window.plugin.userLocation.setup = function() {
     marker.on('click', function(e) {
         window.console.log('marker location');
         var ll = e.target.getLatLng();
-        window.androidCopy('https://maps.google.com/?q='+ll.lat+','+ll.lng);
+        window.androidCopy('https://maps.google.com/?q=loc:'+ll.lat+','+ll.lng+'%20('+PLAYER.nickname+')');
     });
 
     plugin.userLocation.marker = marker;

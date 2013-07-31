@@ -72,7 +72,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         // we merge gmaps intents with geo intents since it is not possible
         // anymore to set a labeled marker on geo intents
         ArrayList<Intent> intents = new ArrayList<Intent>();
-        String gMapsUri = "http://maps.google.com/maps?q=loc:" + mLl + " (" + mTitle + ")";
+        String gMapsUri = "http://maps.google.com/maps?q=loc:" + mLl + "%20(" + mTitle + ")";
         Intent gMapsIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(gMapsUri));
         String geoUri = "geo:" + mLl;
         Intent geoIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(geoUri));
