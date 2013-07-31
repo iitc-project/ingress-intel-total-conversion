@@ -265,7 +265,7 @@ window.chat.writeDataToHash = function(newData, storageHash, isPublicChannel, is
     var msgToPlayer = false;
 
     var time = json[1];
-    var team = json[2].plext.team === 'ALIENS' ? TEAM_ENL : TEAM_RES;
+    var team = json[2].plext.team === 'RESISTANCE' ? TEAM_RES : TEAM_ENL;
     var auto = json[2].plext.plextType !== 'PLAYER_GENERATED';
     var systemNarrowcast = json[2].plext.plextType === 'SYSTEM_NARROWCAST';
 
@@ -287,7 +287,7 @@ window.chat.writeDataToHash = function(newData, storageHash, isPublicChannel, is
       case 'PLAYER': // automatically generated messages
         pguid = markup[1].guid;
         nick = markup[1].plain;
-        team = markup[1].team === 'ALIENS' ? TEAM_ENL : TEAM_RES;
+        team = markup[1].team === 'RESISTANCE' ? TEAM_RES : TEAM_ENL;
         if(ind > 0) msg += nick; // don’t repeat nick directly
         break;
 
@@ -610,7 +610,7 @@ window.chat.setup = function() {
 
   window.requests.addRefreshFunction(chat.request);
 
-  var cls = PLAYER.team === 'ALIENS' ? 'enl' : 'res';
+  var cls = PLAYER.team === 'RESISTANCE' ? 'res' : 'enl';
   $('#chatinput mark').addClass(cls);
 
   $(document).on('click', '.nickname', function(event) {

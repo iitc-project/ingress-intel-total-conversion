@@ -274,7 +274,7 @@ window.setupPlayerStat = function() {
   var xmMax = MAX_XM_PER_LEVEL[level];
   var xmRatio = Math.round(PLAYER.energy/xmMax*100);
 
-  var cls = PLAYER.team === 'ALIENS' ? 'enl' : 'res';
+  var cls = PLAYER.team === 'RESISTANCE' ? 'res' : 'enl';
 
 
   var t = 'Level:\t' + level + '\n'
