@@ -11,7 +11,9 @@ Important IITC release 0.13.0, to fix enlightened from showing up as the wrong c
 <li>Added photo attribution and portal description details to the large portal image dialog</li>
 <li>Limited the chat text input box so you can't enter more text than the server can handle</li>
 <li>Mobile<ul>
+ <li>New splash screen while IITC loads</li>
  <li>Fixed login issues on mobile data</li>
+ <li>Fixed desktop mode breaking</li>
  <li>New share activity, replaces separate map link/permalink options</li>
  <li>sync plugin disabled on mobile, as it currently is broken there</li>
  <li>IPAS plugin updated. This had been done earlier on desktop, but not mobile</li>
