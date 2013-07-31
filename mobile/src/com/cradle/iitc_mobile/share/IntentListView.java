@@ -1,5 +1,7 @@
 package com.cradle.iitc_mobile.share;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -73,8 +75,8 @@ public class IntentListView extends ListView {
     }
 
     private IntentAdapter mAdapter;
-    private Intent mIntent = null;
     private PackageManager mPackageManager;
+    HashMap<ComponentName, Intent> mActivities = new HashMap<ComponentName, Intent>();
 
     public IntentListView(Context context) {
         super(context);
@@ -106,60 +108,84 @@ public class IntentListView extends ListView {
     public Intent getTargetIntent(int position) {
         ActivityInfo activity = mAdapter.getItem(position).activityInfo;
 
-        Intent intent = new Intent(mIntent)
-                .setComponent(new ComponentName(activity.packageName, activity.name))
+        ComponentName activityId = new ComponentName(activity.packageName, activity.name);
+
+        Intent intentType = mActivities.get(activityId);
+
+        Intent intent = new Intent(intentType)
+                .setComponent(activityId)
                 .setPackage(activity.packageName);
 
         return intent;
     }
 
-    public void setIntent(Intent intent)
-    {
-        mIntent = intent;
+    // wrapper method for single intents
+    public void setIntent(Intent intent) {
+        ArrayList<Intent> intentList = new ArrayList<Intent>(1);
+        setIntents(intentList);
+    }
 
+    public void setIntents(ArrayList<Intent> intents)
+    {
         mAdapter.setNotifyOnChange(false);
         mAdapter.clear();
 
         String packageName = getContext().getPackageName();
 
-        List<ResolveInfo> activities = mPackageManager.queryIntentActivities(intent, 0);
-        ResolveInfo defaultTarget = mPackageManager.resolveActivity(intent, 0);
+        ArrayList<ResolveInfo> allActivities = new ArrayList<ResolveInfo>();
 
-        boolean hasCopyIntent = false;
-        for (ResolveInfo resolveInfo : activities) { // search for "Copy to clipboard" handler
-            CopyHandler handler = new CopyHandler(resolveInfo);
+        for (Intent intent : intents) {
+            List<ResolveInfo> activityList = mPackageManager.queryIntentActivities(intent, 0);
 
-            if (KNOWN_COPY_HANDLERS.contains(handler))
-                hasCopyIntent = true;
-        }
+            ResolveInfo defaultTarget = mPackageManager.resolveActivity(intent, 0);
 
-        // use traditional loop since list may change during iteration
-        for (int i = 0; i < activities.size(); i++) {
-            ResolveInfo info = activities.get(i);
-            ActivityInfo activity = info.activityInfo;
+            boolean hasCopyIntent = false;
+            for (ResolveInfo resolveInfo : activityList) { // search for "Copy to clipboard" handler
+                CopyHandler handler = new CopyHandler(resolveInfo);
 
-            // remove all IITCm intents, except for SendToClipboard in case Drive is not installed
-            if (activity.packageName.equals(packageName))
-            {
-                if (hasCopyIntent || !activity.name.equals(SendToClipboard.class.getCanonicalName()))
+                if (KNOWN_COPY_HANDLERS.contains(handler))
+                    hasCopyIntent = true;
+            }
+
+            // use traditional loop since list may change during iteration
+            for (int i = 0; i < activityList.size(); i++) {
+                ResolveInfo info = activityList.get(i);
+                ActivityInfo activity = info.activityInfo;
+
+                // remove all IITCm intents, except for SendToClipboard in case Drive is not installed
+                if (activity.packageName.equals(packageName))
                 {
-                    activities.remove(i);
-                    i--;
-                    continue;
+                    if (hasCopyIntent || !activity.name.equals(SendToClipboard.class.getCanonicalName()))
+                    {
+                        activityList.remove(i);
+                        i--;
+                        continue;
+                    }
+                }
+
+                // move default Intent to top
+                if (info.activityInfo.packageName.equals(defaultTarget.activityInfo.packageName)
+                        && info.activityInfo.name.equals(defaultTarget.activityInfo.name))
+                {
+                    activityList.remove(i);
+                    activityList.add(0, info);
                 }
             }
 
-            // move default Intent to top
-            if (info.activityInfo.packageName.equals(defaultTarget.activityInfo.packageName)
-                    && info.activityInfo.name.equals(defaultTarget.activityInfo.name))
-            {
-                activities.remove(i);
-                activities.add(0, info);
+            // add to activity hash map if they doesn't exist
+            for (ResolveInfo resolveInfo : activityList) {
+                ActivityInfo activity = resolveInfo.activityInfo;
+                ComponentName activityId = new ComponentName(activity.packageName, activity.name);
+                if (!mActivities.containsKey(activityId)) {
+                    mActivities.put(activityId, intent);
+                    allActivities.add(resolveInfo);
+                }
             }
         }
 
-        mAdapter.addAll(activities);
+        mAdapter.addAll(allActivities);
         mAdapter.setNotifyOnChange(true);
         mAdapter.notifyDataSetChanged();
     }
+
 }

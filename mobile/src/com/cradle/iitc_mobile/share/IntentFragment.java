@@ -11,8 +11,10 @@ import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
+import java.util.ArrayList;
+
 public class IntentFragment extends Fragment implements OnScrollListener, OnItemClickListener {
-    private Intent mIntent;
+    private ArrayList<Intent> mIntents;
     private IntentListView mListView;
     private int mScrollIndex, mScrollTop;
 
@@ -28,9 +30,9 @@ public class IntentFragment extends Fragment implements OnScrollListener, OnItem
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Bundle args = getArguments();
 
-        mIntent = args.getParcelable("intent");
+        mIntents = args.getParcelableArrayList("intents");
         mListView = new IntentListView(getActivity());
-        mListView.setIntent(mIntent);
+        mListView.setIntents(mIntents);
         if (mScrollIndex != -1 && mScrollTop != -1)
             mListView.setSelectionFromTop(mScrollIndex, mScrollTop);
         mListView.setOnScrollListener(this);
