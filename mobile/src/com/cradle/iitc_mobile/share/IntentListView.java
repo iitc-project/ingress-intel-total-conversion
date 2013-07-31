@@ -162,24 +162,26 @@ public class IntentListView extends ListView {
                         continue;
                     }
                 }
-
-                // move default Intent to top
-                if (info.activityInfo.packageName.equals(defaultTarget.activityInfo.packageName)
-                        && info.activityInfo.name.equals(defaultTarget.activityInfo.name))
-                {
-                    activityList.remove(i);
-                    activityList.add(0, info);
-                }
             }
 
             // add to activity hash map if they doesn't exist
             for (ResolveInfo resolveInfo : activityList) {
+
                 ActivityInfo activity = resolveInfo.activityInfo;
                 ComponentName activityId = new ComponentName(activity.packageName, activity.name);
+
                 if (!mActivities.containsKey(activityId)) {
                     mActivities.put(activityId, intent);
-                    allActivities.add(resolveInfo);
+                    // move default Intent to top
+                    if (resolveInfo.activityInfo.packageName.equals(defaultTarget.activityInfo.packageName)
+                            && resolveInfo.activityInfo.name.equals(defaultTarget.activityInfo.name)) {
+                        allActivities.add(0, resolveInfo);
+                    }
+                    else {
+                        allActivities.add(resolveInfo);
+                    }
                 }
+
             }
         }
 
