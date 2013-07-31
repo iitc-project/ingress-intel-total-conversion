@@ -122,6 +122,7 @@ public class IntentListView extends ListView {
     // wrapper method for single intents
     public void setIntent(Intent intent) {
         ArrayList<Intent> intentList = new ArrayList<Intent>(1);
+        intentList.add(intent);
         setIntents(intentList);
     }
 
