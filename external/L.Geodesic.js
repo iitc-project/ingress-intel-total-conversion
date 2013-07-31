@@ -108,6 +108,13 @@ Modified by qnstie 2013-07-17 to maintain compatibility with Leaflet.draw
     }
   });*/
 
+//TODO: finish this...
+  L.GeodesicCircle = L.Path.extend({
+    initialise: function (latlng, radius, options) {
+      L.Path.prototype.initialise.call(this, options);
+    }
+  });
+
 
   L.geodesicPolyline = function (latlngs, options) {
     return new L.GeodesicPolyline(latlngs, options);
