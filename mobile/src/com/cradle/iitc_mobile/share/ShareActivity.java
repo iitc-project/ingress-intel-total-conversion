@@ -14,6 +14,7 @@ import android.view.MenuItem;
 
 import com.cradle.iitc_mobile.R;
 
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 
 public class ShareActivity extends FragmentActivity implements ActionBar.TabListener {
@@ -72,11 +73,15 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         // we merge gmaps intents with geo intents since it is not possible
         // anymore to set a labeled marker on geo intents
         ArrayList<Intent> intents = new ArrayList<Intent>();
-        String gMapsUri = "http://maps.google.com/maps?q=loc:" + mLl + "%20(" + mTitle + ")";
-        Intent gMapsIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(gMapsUri));
+        DecimalFormatSymbols decFormat = new DecimalFormatSymbols();
+        // thx to gmaps, this only works for the decimal point separator
+        if (decFormat.getDecimalSeparator() == '.') {
+            String gMapsUri = "http://maps.google.com/maps?q=loc:" + mLl + "%20(" + mTitle + ")";
+            Intent gMapsIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(gMapsUri));
+            intents.add(gMapsIntent);
+        }
         String geoUri = "geo:" + mLl;
         Intent geoIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(geoUri));
-        intents.add(gMapsIntent);
         intents.add(geoIntent);
         addTab(intents, R.string.tab_map, R.drawable.location_map);
 

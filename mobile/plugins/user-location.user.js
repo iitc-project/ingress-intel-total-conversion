@@ -39,13 +39,6 @@ window.plugin.userLocation.setup = function() {
         icon: new plugin.userLocation.icon()
     });
 
-    // copy location to android clipboard on marker click
-    marker.on('click', function(e) {
-        window.console.log('marker location');
-        var ll = e.target.getLatLng();
-        window.androidCopy('https://maps.google.com/?q=loc:'+ll.lat+','+ll.lng+'%20('+PLAYER.nickname+')');
-    });
-
     plugin.userLocation.marker = marker;
     marker.addTo(window.map);
     // jQueryUI doesn’t automatically notice the new markers
