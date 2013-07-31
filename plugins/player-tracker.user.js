@@ -382,7 +382,7 @@ window.plugin.playerTracker.centerMapOnUser = function(nick) {
 }
 
 window.plugin.playerTracker.onNicknameClicked = function(info) {
-  if (info.event.ctrlKey) {
+  if (info.event.ctrlKey || info.event.metaKey) {
     plugin.playerTracker.centerMapOnUser(info.nickname);
     return false;
   }
