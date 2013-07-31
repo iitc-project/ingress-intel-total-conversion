@@ -14,6 +14,8 @@ import android.view.MenuItem;
 
 import com.cradle.iitc_mobile.R;
 
+import java.util.ArrayList;
+
 public class ShareActivity extends FragmentActivity implements ActionBar.TabListener {
     private boolean mIsPortal;
     private String mLl;
@@ -25,9 +27,16 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
 
     private void addTab(Intent intent, int label, int icon)
     {
+        ArrayList<Intent> intents = new ArrayList<Intent>(1);
+        intents.add(intent);
+        addTab(intents, label, icon);
+    }
+
+    private void addTab(ArrayList<Intent> intents, int label, int icon)
+    {
         IntentFragment fragment = new IntentFragment();
         Bundle args = new Bundle();
-        args.putParcelable("intent", intent);
+        args.putParcelableArrayList("intents", intents);
         args.putString("title", getString(label));
         args.putInt("icon", icon);
         fragment.setArguments(args);
@@ -60,9 +69,16 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         intent.putExtra(Intent.EXTRA_SUBJECT, mTitle);
         addTab(intent, R.string.tab_share, R.drawable.share);
 
-        String geoUri = "http://maps.google.com/maps?q=loc:" + mLl + " (" + mTitle + ")";
-        intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(geoUri));
-        addTab(intent, R.string.tab_map, R.drawable.location_map);
+        // we merge gmaps intents with geo intents since it is not possible
+        // anymore to set a labeled marker on geo intents
+        ArrayList<Intent> intents = new ArrayList<Intent>();
+        String gMapsUri = "http://maps.google.com/maps?q=loc:" + mLl + " (" + mTitle + ")";
+        Intent gMapsIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(gMapsUri));
+        String geoUri = "geo:" + mLl;
+        Intent geoIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(geoUri));
+        intents.add(gMapsIntent);
+        intents.add(geoIntent);
+        addTab(intents, R.string.tab_map, R.drawable.location_map);
 
         intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getUrl()));
         addTab(intent, R.string.tab_browser, R.drawable.browser);
