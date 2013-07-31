@@ -14,6 +14,8 @@ import android.view.MenuItem;
 
 import com.cradle.iitc_mobile.R;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 
@@ -77,7 +79,12 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         // thx to gmaps, this only works for the decimal point separator
         String gMapsUri;
         if (decFormat.getDecimalSeparator() == '.')
-            gMapsUri = "http://maps.google.com/maps?q=loc:" + mLl + "%20(" + mTitle + ")&z=" + mZoom;
+            try {
+                gMapsUri = "http://maps.google.com/maps?q=loc:" + mLl + "%20(" + URLEncoder.encode(mTitle, "UTF-8") + ")&z=" + mZoom;
+            } catch (UnsupportedEncodingException e) {
+                gMapsUri = "http://maps.google.com/maps?ll=" + mLl + "&z=" + mZoom;
+                e.printStackTrace();
+            }
         else
             gMapsUri = "http://maps.google.com/maps?ll=" + mLl + "&z=" + mZoom;
         Intent gMapsIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(gMapsUri));
