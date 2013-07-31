@@ -7,7 +7,7 @@ window.updateGameScore = function(data) {
     return;
   }
 
-  var r = parseInt(data.result.resistanceScore), e = parseInt(data.result.alienScore);
+  var r = parseInt(data.result.resistanceScore), e = parseInt(data.result.enlightenedScore);
   var s = r+e;
   var rp = r/s*100, ep = e/s*100;
   r = digits(r), e = digits(e);
