@@ -75,11 +75,13 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         ArrayList<Intent> intents = new ArrayList<Intent>();
         DecimalFormatSymbols decFormat = new DecimalFormatSymbols();
         // thx to gmaps, this only works for the decimal point separator
-        if (decFormat.getDecimalSeparator() == '.') {
-            String gMapsUri = "http://maps.google.com/maps?q=loc:" + mLl + "%20(" + mTitle + ")";
-            Intent gMapsIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(gMapsUri));
-            intents.add(gMapsIntent);
-        }
+        String gMapsUri;
+        if (decFormat.getDecimalSeparator() == '.')
+            gMapsUri = "http://maps.google.com/maps?q=loc:" + mLl + "%20(" + mTitle + ")&z=" + mZoom;
+        else
+            gMapsUri = "http://maps.google.com/maps?ll=" + mLl + "&z=" + mZoom;
+        Intent gMapsIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(gMapsUri));
+        intents.add(gMapsIntent);
         String geoUri = "geo:" + mLl;
         Intent geoIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(geoUri));
         intents.add(geoIntent);
