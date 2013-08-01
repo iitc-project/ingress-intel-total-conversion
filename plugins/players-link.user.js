@@ -38,7 +38,7 @@ window.plugin.linksPlayerName.generatePopupContent = function(link) {
   if(link.options.data.creator !== undefined) {
     player = window.getPlayerName(link.options.data.creator.creatorGuid);
     var time = link.options.data.creator.creationTime;
-    var cssClass = link.options.data.controllingTeam.team === 'ALIENS' ? 'enl' : 'res';
+    var cssClass = link.options.data.controllingTeam.team === 'RESISTANCE' ? 'res' : 'enl';
     title = '<span class="nickname '+ cssClass+'" style="font-weight:bold;">' + player + '</span>';
     
     if(window.plugin.guessPlayerLevels !== undefined &&
@@ -96,7 +96,13 @@ var setup =  function() {
  
   // Add init hook to override clickable option
   L.Polyline.addInitHook(function () {
-    this.options.clickable = true;
+    if(this.options !== undefined &&
+       this.options.data !== undefined &&
+       this.options.data.edge !== undefined &&
+       this.options.data.edge.originPortalGuid !== undefined &&
+       this.options.data.edge.destinationPortalGuid !== undefined) {
+       this.options.clickable = true;
+    }
   });
   
   $("<style>")
