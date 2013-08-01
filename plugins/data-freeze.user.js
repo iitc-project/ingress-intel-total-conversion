@@ -2,7 +2,7 @@
 // @id             iitc-plugin-data-freeze@zaso
 // @name           IITC plugin: Data Freeze
 // @category       Tweaks
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -43,9 +43,9 @@
 
   window.plugin.dataFreeze.setupCSS = function() {
     if(window.plugin.dataFreeze.status === true) {
-      $('a.dataFreeze').css('background','#f66');
+      $('a.dataFreeze').css({'background':'#f66','outline':'none'});
     } else {
-      $('a.dataFreeze').css('background','#03DC03');
+      $('a.dataFreeze').css({'background':'#03DC03','outline':'none'});
     }
   }
 
@@ -53,25 +53,25 @@
     L.Control.Command = L.Control.extend({
       options:{position: 'topleft'},
 
-      onAdd:function(map){
-        var controlDiv = L.DomUtil.create('div', 'leaflet-control');
+      onAdd:function(map) {
+        var controlDiv = L.DomUtil.create('div', 'leaflet-dataFreeze leaflet-control');
         var controlSubDIV = L.DomUtil.create('div', 'leaflet-bar', controlDiv);
         var butt = L.DomUtil.create('a', 'dataFreeze', controlSubDIV);
         butt.title = 'Enable/Disable data refresh';
 
         L.DomEvent
-          .addListener(butt, 'click', L.DomEvent.stopPropagation)
-          .addListener(butt, 'click', L.DomEvent.preventDefault)
-          .addListener(butt, 'click', function(){
+          .addListener(controlDiv, 'click', L.DomEvent.stopPropagation)
+          .addListener(controlDiv, 'click', L.DomEvent.preventDefault)
+          .addListener(controlDiv, 'dblclick', L.DomEvent.stopPropagation)
+          .addListener(controlDiv, 'dblclick', L.DomEvent.preventDefault)
+          .addListener(butt, 'click', function() {
             window.plugin.dataFreeze.toggle();
           })
-          .addListener(butt, 'dblclick', L.DomEvent.stopPropagation)
-          .addListener(butt, 'dblclick', L.DomEvent.preventDefault)
         ;
         return controlDiv;
       }
     });
-    L.control.command = function(options){ return new L.Control.Command(options); };
+    L.control.command = function(options) { return new L.Control.Command(options); };
 
     map.addControl(new L.control.command());
     window.plugin.dataFreeze.setupCSS();

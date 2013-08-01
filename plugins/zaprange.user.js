@@ -2,7 +2,7 @@
 // @id             iitc-plugin-zaprange@zaso
 // @name           IITC plugin: Zaprange
 // @category       Layer
-// @version        0.1.3.@@DATETIMEVERSION@@
+// @version        0.1.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -36,7 +36,7 @@
   window.plugin.zaprange.remove = function(guid, faction) {
     var previousLayer = window.plugin.zaprange.zapLayers[guid];
     if(previousLayer) {
-      if(faction === 'ALIENS') {
+      if(faction === 'ENLIGHTENED') {
         window.plugin.zaprange.zapCircleEnlHolderGroup.removeLayer(previousLayer);
       } else {
         window.plugin.zaprange.zapCircleResHolderGroup.removeLayer(previousLayer);
@@ -57,7 +57,7 @@
 
       var circle = new L.Circle(latlng, range, optCircle);
 
-      if(faction === 'ALIENS') {
+      if(faction === 'ENLIGHTENED') {
         circle.addTo(window.plugin.zaprange.zapCircleEnlHolderGroup);
       } else {
         circle.addTo(window.plugin.zaprange.zapCircleResHolderGroup);
@@ -90,7 +90,7 @@
     }
   }
 
-  var setup = function() {
+  var setup =  function() {
     // this layer is added to the layer chooser, to be toggled on/off
     window.plugin.zaprange.zapLayerEnlHolderGroup = new L.LayerGroup();
     window.plugin.zaprange.zapLayerResHolderGroup = new L.LayerGroup();

@@ -2,7 +2,7 @@
 // @id             iitc-plugin-player-range@zaso
 // @name           IITC plugin: Player Range (hack and XMP)
 // @category       Layer
-// @version        0.1.45.@@DATETIMEVERSION@@
+// @version        0.1.5.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -26,11 +26,11 @@
   window.plugin.playerRange.keyGroup = ['hack', 'L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'mark'];
 
   window.plugin.playerRange.setupCSS = function() {
-    var colorFaction;
+    var colorTeam;
     switch(window.PLAYER.team) {
-      case('ALIENS'): colorFaction = 'left top'; break;
-      case('RESISTANCE'): colorFaction = 'right top'; break;
-      default:colorFaction = 'left bottom'; break;
+      case('ENLIGHTENED'): colorTeam = 'left top'; break;
+      case('RESISTANCE'): colorTeam = 'right top'; break;
+      default:colorTeam = 'left bottom'; break;
     }
 
     var mobileStyle;
@@ -45,8 +45,9 @@
     $("<style>").prop("type", "text/css").html(''
       +'.playerIcon,.playerRangeButton,.setRangeButton{'
         +'background-image:url(@@INCLUDEIMAGE:plugins/player-range.png@@);'
-        +'background-position:'+colorFaction+';'
+        +'background-position:'+colorTeam+';'
         +'background-repeat:no-repeat;'
+        +'outline:none !important;'
       +'}'
       +'.playerRangeButton{background-position:6px -25px !important;}'
       +'.setRangeButton{background-position:-18px -25px !important;border-radius:0 0 4px 4px;}'
@@ -55,7 +56,7 @@
       +'.rangeList input{height:auto}'
       +mobileStyle
     ).appendTo("head");
-  };
+  }
 
   window.plugin.playerRange.drawMarker = function() {
     var latlng = map.getCenter();
@@ -116,7 +117,7 @@
   }
 
   window.plugin.playerRange.hideControls = function() {
-    // Hide the controls when the layer is off, show it when on
+    //hide the controls when the layer is off, show it when on
     map.on('layeradd', function(obj) {
       if(obj.layer === window.plugin.playerRange.pLayerGroup) {
         $('.leaflet-playerrange').show();
@@ -147,7 +148,6 @@
   }
 
   window.plugin.playerRange.setupHTML = ''
-    +'<div class="rangeList leaflet-bar">'
       +'<label class="check"><input type="checkbox" checked name="xmpRange" data-range="hack" /> Hack</label>'
       +'<label class="check"><input type="checkbox" checked name="xmpRange" data-range="L1" /> XMP L1</label>'
       +'<label class="check"><input type="checkbox" checked name="xmpRange" data-range="L2" /> XMP L2</label>'
@@ -156,8 +156,7 @@
       +'<label class="check"><input type="checkbox" checked name="xmpRange" data-range="L5" /> XMP L5</label>'
       +'<label class="check"><input type="checkbox" checked name="xmpRange" data-range="L6" /> XMP L6</label>'
       +'<label class="check"><input type="checkbox" checked name="xmpRange" data-range="L7" /> XMP L7</label>'
-      +'<label class="check"><input type="checkbox" checked name="xmpRange" data-range="L8" /> XMP L8</label>'
-    +'</div>';
+      +'<label class="check" style="border:0 !important;"><input type="checkbox" checked name="xmpRange" data-range="L8" /> XMP L8</label>';
 
   var setup = function() {
     window.plugin.playerRange.setupCSS();
@@ -187,29 +186,23 @@
         var butt_2 = L.DomUtil.create('a', 'setRangeButton', controlSubDIV);
         butt_2.title = 'Click to set the ranges.';
 
+        var checkList = L.DomUtil.create('div', 'rangeList leaflet-bar', controlSubDIV);
+        checkList.innerHTML = window.plugin.playerRange.setupHTML
+
         L.DomEvent
-          .addListener(butt_1, 'click', L.DomEvent.stopPropagation)
-          .addListener(butt_1, 'click', L.DomEvent.preventDefault)
+          .addListener(controlDiv, 'dblclick', L.DomEvent.stopPropagation)
+          .addListener(controlDiv, 'dblclick', L.DomEvent.preventDefault)
           .addListener(butt_1, 'click', function() {
             window.plugin.playerRange.drawMarker();
           })
-          .addListener(butt_1, 'dblclick', L.DomEvent.stopPropagation)
-          .addListener(butt_1, 'dblclick', L.DomEvent.preventDefault)
-          .addListener(butt_2, 'click', L.DomEvent.stopPropagation)
-          .addListener(butt_2, 'click', L.DomEvent.preventDefault)
           .addListener(butt_2, 'click', function() {
             $('.rangeList').toggle();
-          })
-          .addListener(butt_2, 'dblclick', L.DomEvent.stopPropagation)
-          .addListener(butt_2, 'dblclick', L.DomEvent.preventDefault)
-        ;
+          });
         return controlDiv;
       }
     });
     L.control.playerRangeControl = function(options) { return new L.Control.PlayerRangeControl(options); };
     map.addControl(new L.control.playerRangeControl());
-
-    $('.leaflet-playerrange').append(window.plugin.playerRange.setupHTML);
 
     $('.rangeList input[name=xmpRange]').change(function() {
       window.plugin.playerRange.setRange($(this));
@@ -218,6 +211,7 @@
     window.plugin.playerRange.manageStorage();
     window.plugin.playerRange.hideControls();
   }
+
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
