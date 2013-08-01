@@ -7,3 +7,7 @@ body {
 table tr.category_header {
 	background: #ddd;
 }
+
+table .description {
+	font-style: italic;
+}

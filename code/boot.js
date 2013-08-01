@@ -129,7 +129,7 @@ window.setupMap = function() {
 
 
   window.map = new L.Map('map', $.extend(getPosition(),
-    {zoomControl: window.showZoom}
+    {zoomControl: window.showZoom, minZoom: 1, maxZoom: 22}
   ));
 
   // add empty div to leaflet control areas - to force other leaflet controls to move around IITC UI elements
@@ -274,7 +274,7 @@ window.setupPlayerStat = function() {
   var xmMax = MAX_XM_PER_LEVEL[level];
   var xmRatio = Math.round(PLAYER.energy/xmMax*100);
 
-  var cls = PLAYER.team === 'ALIENS' ? 'enl' : 'res';
+  var cls = PLAYER.team === 'RESISTANCE' ? 'res' : 'enl';
 
 
   var t = 'Level:\t' + level + '\n'
@@ -501,6 +501,11 @@ function boot() {
 
   window.iitcLoaded = true;
   window.runHooks('iitcLoaded');
+
+  if (typeof android !== 'undefined' && android && android.iitcLoaded) {
+    android.iitcLoaded();
+  }
+
 }
 
 // this is the minified load.js script that allows us to easily load
@@ -511,6 +516,7 @@ function asyncLoadScript(a){return function(b,c){var d=document.createElement("s
 
 try { console.log('Loading included JS now'); } catch(e) {}
 @@INCLUDERAW:external/leaflet.js@@
+@@INCLUDERAW:external/L.Geodesic.js@@
 // modified version of https://github.com/shramov/leaflet-plugins. Also
 // contains the default Ingress map style.
 @@INCLUDERAW:external/leaflet_google.js@@
@@ -519,8 +525,8 @@ try { console.log('Loading included JS now'); } catch(e) {}
 try { console.log('done loading included JS'); } catch(e) {}
 
 //note: no protocol - so uses http or https as used on the current page
-var JQUERY = 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js';
-var JQUERYUI = 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js';
+var JQUERY = '//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js';
+var JQUERYUI = '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js';
 
 // after all scripts have loaded, boot the actual app
 load(JQUERY).then(JQUERYUI).thenRun(boot);

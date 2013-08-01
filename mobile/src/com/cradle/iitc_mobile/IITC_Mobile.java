@@ -2,8 +2,10 @@ package com.cradle.iitc_mobile;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -17,11 +19,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
@@ -30,6 +32,7 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 public class IITC_Mobile extends Activity {
@@ -104,7 +107,7 @@ public class IITC_Mobile extends Activity {
                     return;
                 }
                 // no reload needed
-                if (key.equals("pref_press_twice_to_exit"))
+                if (key.equals("pref_press_twice_to_exit") || key.equals("pref_share_selected_tab"))
                     return;
 
                 reload_needed = true;
@@ -169,13 +172,39 @@ public class IITC_Mobile extends Activity {
         String action = intent.getAction();
         if (Intent.ACTION_VIEW.equals(action)) {
             Uri uri = intent.getData();
-            String url = uri.toString();
-            Log.d("iitcm", "intent received url: " + url);
-            if (url.contains("ingress.com")) {
-                Log.d("iitcm", "loading url...");
-                this.loadUrl(url);
+            Log.d("iitcm", "intent received url: " + uri.toString());
+
+            if (uri.getScheme().equals("http") || uri.getScheme().equals("https")) {
+                if (uri.getHost() != null
+                        && (uri.getHost().equals("ingress.com") || uri.getHost().endsWith(".ingress.com"))) {
+                    Log.d("iitcm", "loading url...");
+                    this.loadUrl(uri.toString());
+                    return;
+                }
             }
-        } else if (Intent.ACTION_SEARCH.equals(action)) {
+
+            if (uri.getScheme().equals("geo")) {
+                try {
+                    handleGeoUri(uri);
+                    return;
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                    new AlertDialog.Builder(this)
+                            .setTitle(R.string.intent_error)
+                            .setMessage(e.getReason())
+                            .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            })
+                            .create()
+                            .show();
+                }
+            }
+        }
+
+        if (Intent.ACTION_SEARCH.equals(action)) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             query = query.replace("'", "''");
             final SearchView searchView =
@@ -185,9 +214,57 @@ public class IITC_Mobile extends Activity {
             actionBar.setTitle(getString(R.string.app_name));
             backStackUpdate(android.R.id.home);
             iitc_view.loadUrl("javascript:search('" + query + "');");
-        } else if (onCreate) {
+            return;
+        }
+
+        if (onCreate) {
             this.loadUrl(intel_url);
         }
+    }
+
+    private void handleGeoUri(Uri uri) throws URISyntaxException {
+        String[] parts = uri.getSchemeSpecificPart().split("\\?", 2);
+        Double lat, lon;
+        Integer z = null;
+
+        // parts[0] may contain an 'uncertainty' parameter, delimited by a semicolon
+        String[] pos = parts[0].split(";", 2)[0].split(",", 2);
+        if (pos.length != 2)
+            throw new URISyntaxException(uri.toString(), "URI does not contain a valid position");
+
+        try {
+            lat = Double.valueOf(pos[0]);
+            lon = Double.valueOf(pos[1]);
+        } catch (NumberFormatException e) {
+            URISyntaxException use = new URISyntaxException(uri.toString(), "position could not be parsed");
+            use.initCause(e);
+            throw use;
+        }
+
+        if (parts.length > 1) // query string present
+        {
+            // search for z=
+            for (String param : parts[1].split("&")) {
+                if (param.startsWith("z="))
+                {
+                    try
+                    {
+                        z = Integer.valueOf(param.substring(2));
+                    } catch (NumberFormatException e)
+                    {
+                        URISyntaxException use = new URISyntaxException(uri.toString(), "could not parse zoom level");
+                        use.initCause(e);
+                        throw use;
+                    }
+                    break;
+                }
+            }
+        }
+
+        String url = "http://www.ingress.com/intel?ll=" + lat + "," + lon;
+        if (z != null)
+            url += "&z=" + z;
+        this.loadUrl(url);
     }
 
     @Override
@@ -463,6 +540,7 @@ public class IITC_Mobile extends Activity {
     // inject the iitc-script and load the intel url
     // plugins are injected onPageFinished
     public void loadUrl(String url) {
+        showSplashScreen();
         url = addUrlParam(url);
         loadIITC();
         iitc_view.loadUrl(url);
@@ -480,8 +558,6 @@ public class IITC_Mobile extends Activity {
     }
 
     public void toggleFullscreen() {
-        // TODO: Figure out how to handle this with new back stack?
-
         if (fullscreen_mode) {
             if (fullscreen_actionbar)
                 this.getActionBar().show();
@@ -543,6 +619,7 @@ public class IITC_Mobile extends Activity {
     public void loginSucceeded() {
         // garbage collection
         mLogin = null;
+        showSplashScreen();
     }
 
     // disable/enable some menu buttons...
@@ -573,6 +650,13 @@ public class IITC_Mobile extends Activity {
         } else {
             Log.d("iitcm", "Dialog " + id + " closed");
             dialogStack.remove(id);
+        }
+    }
+
+    public void showSplashScreen() {
+        if (!sharedPref.getBoolean("pref_disable_splash", false)) {
+            findViewById(R.id.iitc_webview).setVisibility(View.GONE);
+            findViewById(R.id.imageLoading).setVisibility(View.VISIBLE);
         }
     }
 }

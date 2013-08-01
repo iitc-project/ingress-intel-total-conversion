@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.12.3.@@DATETIMEVERSION@@
+// @version        0.13.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -53,7 +53,7 @@ for(var i = 0; i < d.length; i++) {
   break;
 }
 // player information is now available in a hash like this:
-// window.PLAYER = {"ap": "123", "energy": 123, "available_invites": 123, "nickname": "somenick", "team": "ALIENS||RESISTANCE"};
+// window.PLAYER = {"ap": "123", "energy": 123, "available_invites": 123, "nickname": "somenick", "team": "ENLIGHTENED||RESISTANCE"};
 
 // remove complete page. We only wanted the user-data and the page’s
 // security context so we can access the API easily. Setup as much as
@@ -81,7 +81,7 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '<form id="chatinput" style="display:none"><table><tr>'
   + '  <td><time></time></td>'
   + '  <td><mark>tell faction:</mark></td>'
-  + '  <td><input id="chattext" type="text"/></td>'
+  + '  <td><input id="chattext" type="text" maxlength="256" /></td>'
   + '</tr></table></form>'
   + '<a id="sidebartoggle"><span class="toggle close"></span></a>'
   + '<div id="scrollwrapper">' // enable scrolling for small screens
@@ -96,7 +96,7 @@ document.getElementsByTagName('body')[0].innerHTML = ''
 // redeeming removed from stock site, so commented out for now. it may return...
 //  + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
   + '    <div id="toolbox">'
-  + '      <a onmouseover="setPermaLink(this)" onclick="setPermaLink(this);return androidCopy(this.href)" title="URL link to this map view">Permalink</a>'
+  + '      <a onmouseover="setPermaLink(this)" onclick="setPermaLink(this);return androidPermalink()" title="URL link to this map view">Permalink</a>'
   + '      <a onclick="window.aboutIITC()" style="cursor: help">About IITC</a>'
   + '    </div>'
   + '  </div>'

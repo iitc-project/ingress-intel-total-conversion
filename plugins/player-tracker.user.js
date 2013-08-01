@@ -2,11 +2,11 @@
 // @id             iitc-plugin-player-tracker@breunigs
 // @name           IITC Plugin: Player tracker
 // @category       Layer
-// @version        0.9.4.@@DATETIMEVERSION@@
+// @version        0.9.6.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Draws trails for the path a user went onto the map. Draws up to three hours. Does not request chat data on its own, even if that would be useful.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Draws trails for the path a user went onto the map based on status messages in COMMs. Draws up to three hours. Does not request chat data on its own, even if that would be useful.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -266,7 +266,7 @@ window.plugin.playerTracker.drawData = function() {
     var evtsLength = playerData.events.length;
     var last = playerData.events[evtsLength-1];
     var ago = plugin.playerTracker.ago;
-    var cssClass = playerData.team === 'ALIENS' ? 'enl' : 'res';
+    var cssClass = playerData.team === 'RESISTANCE' ? 'res' : 'enl';
     var title = '<span class="nickname '+ cssClass+'" style="font-weight:bold;">' + playerData.nick + '</span>';
     
     if(window.plugin.guessPlayerLevels !== undefined &&
@@ -275,7 +275,7 @@ window.plugin.playerTracker.drawData = function() {
       if(playerLevel !== undefined) {
         title += '<span style="font-weight:bold;margin-left:10px;">Level '
           + playerLevel
-          + (playerLevel < (window.MAX_XM_PER_LEVEL.length - 1) ? ' (guessed)' : '')
+          + ' (guessed)'
           + '</span>';
       } else {
         title += '<span style="font-weight:bold;margin-left:10px;">Level unknown</span>'
@@ -311,7 +311,7 @@ window.plugin.playerTracker.drawData = function() {
     });
 
     // marker itself
-    var icon = playerData.team === 'ALIENS' ?  new plugin.playerTracker.iconEnl() :  new plugin.playerTracker.iconRes();
+    var icon = playerData.team === 'RESISTANCE' ?  new plugin.playerTracker.iconRes() :  new plugin.playerTracker.iconEnl();
     var m = L.marker(gllfe(last), {title: title, icon: icon, referenceToPortal: closestPortal});
     // ensure tooltips are closed, sometimes they linger
     m.on('mouseout', function() { $(this._icon).tooltip('close'); });

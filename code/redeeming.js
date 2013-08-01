@@ -190,7 +190,7 @@ window.REDEEM_ENCOURAGEMENT = [
   "Power up!",
   "Asset transfer in progress.",
   "Well done, Agent.",
-  "Make the " + {'RESISTANCE' : 'Resistance', 'ALIENS' : 'Enlightened'}[PLAYER.team] + " proud!"
+  "Make the " + {'RESISTANCE' : 'Resistance', 'ENLIGHTENED' : 'Enlightened'}[PLAYER.team] + " proud!"
 ];
 
 window.handleRedeemResponse = function(data, textStatus, jqXHR) {

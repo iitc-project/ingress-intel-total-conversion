@@ -13,25 +13,29 @@ offers many more features. It is available for
 
 <h3>Latest news</h3>
 
-<h4>1st July 2013</h4>
+<h4>1st August 2013</h4>
 <p>
-IITC version 0.12.2 released, and IITC Mobile 0.4.8. 
+Important IITC release 0.13.0, to fix enlightened from showing up as the wrong colour
+(in some places as neutral - orange/white, in others the same colour as resistance). Also includes the following changes
 <ul>
-<li>Various internal improvements to reduce requests to the Niantic servers and improve performance;
-a data tile cache, and fixes to idle code when the user isn't interacting.</li>
-<li>Improved display of stats for the new mods.</li>
-<li>Portal range calculation now includes boost from link amps.</li>
-<li>Removed 'redeem code' input box - not sure when it's returning.</li>
+<li>Fix enlightened portals, etc showing up in the wrong colour</li>
+<li>Geodesic mode used for links/fields/draw tools - to allow accurate representation of long links</li>
+<li>Fixed ghost links being drawn in IITC that don't exist in stock intel map or the game</li>
+<li>Added photo attribution and portal description details to the large portal image dialog</li>
+<li>Limited the chat text input box so you can't enter more text than the server can handle</li>
+<li>Mobile<ul>
+ <li>New splash screen while IITC loads</li>
+ <li>Fixed login issues on mobile data</li>
+ <li>Fixed desktop mode breaking</li>
+ <li>New share activity, replaces separate map link/permalink options</li>
+ <li>sync plugin disabled on mobile, as it currently is broken there</li>
+ <li>IPAS plugin updated. This had been done earlier on desktop, but not mobile</li>
+ </ul>
+<li>Plugins<ul>
+ <li>Update mod highlither plugin</li>
+ <li>Portals list plugin updates</li>
+ </ul>
+<li>plus various other tweaks, bug fixes, etc</li>
 </ul>
-Plugin changes:
-<ul>
-<li>Guess player levels - option to reset guesses.</li>
-<li>New highlighter plugins for the new mods.</li>
-<li>Max-links plugin - fixed problems with very narrow triangles causing overlapping links sometimes.</li>
-<li>Portals-list plugin - support for the new mods.</li>
-<li>Show portal weakness plugin - tweaks to highlight portals with non-defensive mods.</li>
-<li>Plugin to show increased portal detail (intended for mobile and smaller screens. Can cause more errors on larger screens)</li>
-</ul>
-</p>
 
 <a class="btn btn-small" href="?page=news">Older news</a>
