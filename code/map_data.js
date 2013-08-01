@@ -96,6 +96,10 @@ window.expireDataCache = function() {
 }
 
 
+// due to the cache (and race conditions in the server) - and now also oddities in the returned data
+// we need to remember the deleted entities list across multiple requests
+window._deletedEntityGuid = {}
+
 // requests map data for current viewport. For details on how this
 // works, refer to the description in “MAP DATA REQUEST CALCULATORS”
 window.requestData = function() {
@@ -108,13 +112,15 @@ window.requestData = function() {
   window.statusStaleMapTiles = 0;
   window.statusErrorMapTiles = 0;
 
+  // clear the list of returned deleted entities
+  window._deletedEntityGuid = {}
 
   debugDataTileReset();
 
   expireDataCache();
 
   //a limit on the number of map tiles to be pulled in a single request
-  var MAX_TILES_PER_BUCKET = 11;
+  var MAX_TILES_PER_BUCKET = 18;
   // the number of separate buckets. more can be created if the size exceeds MAX_TILES_PER_BUCKET
   var BUCKET_COUNT = 4;
 
@@ -136,9 +142,10 @@ window.requestData = function() {
   var cachedData = { result: { map: {} } };
   var requestTileCount = 0;
 
-  // walk in x-direction, starts right goes left
-  for (var x = x1; x <= x2; x++) {
-    for (var y = y1; y <= y2; y++) {
+  // y goes from left to right
+  for (var y = y1; y <= y2; y++) {
+    // x goes from bottom to top(?)
+    for (var x = x1; x <= x2; x++) {
       var tile_id = pointToTileId(z, x, y);
       var latNorth = tileToLat(y,z);
       var latSouth = tileToLat(y+1,z);
@@ -156,8 +163,8 @@ window.requestData = function() {
         debugSetTileColour(tile_id,'#0f0','#ff0');
         window.statusCachedMapTiles++;
       } else {
-        // group requests into buckets based on the tile coordinate.
-        var bucket = Math.floor(x+y*(BUCKET_COUNT/2))%BUCKET_COUNT;
+        // group requests into buckets based on the tile count retrieved via the network.
+        var bucket = requestTileCount % BUCKET_COUNT;
 
         if (!tiles[bucket]) {
           //create empty bucket
@@ -299,6 +306,14 @@ window.handleDataResponse = function(data, fromCache, tile_ids) {
     }
 
     $.each(val.deletedGameEntityGuids || [], function(ind, guid) {
+      // avoid processing a delete we've already done
+      if (guid in window._deletedEntityGuid)
+        return;
+
+      // store that we've processed it
+      window._deletedEntityGuid[guid] = true;
+
+      // if the deleted entity is a field, remove this field from the linkedFields entries for any portals
       if(getTypeByGuid(guid) === TYPE_FIELD && window.fields[guid] !== undefined) {
         $.each(window.fields[guid].options.vertices, function(ind, vertex) {
           if(window.portals[vertex.guid] === undefined) return true;
@@ -306,6 +321,9 @@ window.handleDataResponse = function(data, fromCache, tile_ids) {
           fieldArray.splice($.inArray(guid, fieldArray), 1);
         });
       }
+
+      // TODO? if the deleted entity is a link, remove it from any portals linkedEdges
+
       window.removeByGuid(guid);
     });
 
@@ -314,7 +332,12 @@ window.handleDataResponse = function(data, fromCache, tile_ids) {
       // format for links: { controllingTeam, creator, edge }
       // format for portals: { controllingTeam, turret }
 
+      // skip entities in the deleted list
+      if(ent[0] in window._deletedEntityGuid) return true;
+
+
       if(ent[2].turret !== undefined) {
+        // TODO? remove any linkedEdges or linkedFields that have entries in window._deletedEntityGuid
 
         var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
         if(!window.getPaddedBounds().contains(latlng)
@@ -350,18 +373,38 @@ window.handleDataResponse = function(data, fromCache, tile_ids) {
   });
 
   $.each(ppp, function(ind, portal) {
-
     // when both source and destination portal are in the same response, no explicit 'edge' is returned
     // instead, we need to reconstruct them from the data within the portal details
 
     if ('portalV2' in portal[2] && 'linkedEdges' in portal[2].portalV2) {
       $.each(portal[2].portalV2.linkedEdges, function (ind, edge) {
+        // don't reconstruct deleted links
+        if (edge.edgeGuid in window._deletedEntityGuid)
+          return;
+
+        // no data for other portal - can't reconstruct
         if (!ppp[edge.otherPortalGuid])
+          return;
+
+        var otherportal = ppp[edge.otherPortalGuid];
+
+        // check other portal has matching data for the reverse direction
+        var hasOtherEdge = false;
+
+        if ('portalV2' in otherportal[2] && 'linkedEdges' in otherportal[2].portalV2) {
+          $.each(otherportal[2].portalV2.linkedEdges, function(otherind, otheredge) {
+            if (otheredge.edgeGuid == edge.edgeGuid) {
+              hasOtherEdge = true;
+            }
+          });
+        }
+
+        if (!hasOtherEdge)
           return;
 
         renderLink([
           edge.edgeGuid,
-          portal[1],
+          0,  // link data modified time - set to 0 as it's unknown
           {
             "controllingTeam": portal[2].controllingTeam,
             "edge": {
@@ -372,6 +415,7 @@ window.handleDataResponse = function(data, fromCache, tile_ids) {
             },
           }
         ]);
+
       });
     }
 
@@ -543,6 +587,10 @@ window.renderPortal = function(ent) {
   var old = findEntityInLeaflet(layerGroup, window.portals, ent[0]);
   if(!changing_highlighters && old) {
     var oo = old.options;
+
+    // if the data we have is older than the data already rendered, do nothing
+    if (oo.ent[1] > ent[1])
+      return;
 
     // Default checks to see if a portal needs to be re-rendered
     var u = oo.team !== team;

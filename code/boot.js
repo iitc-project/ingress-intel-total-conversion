@@ -129,7 +129,7 @@ window.setupMap = function() {
 
 
   window.map = new L.Map('map', $.extend(getPosition(),
-    {zoomControl: window.showZoom}
+    {zoomControl: window.showZoom, minZoom: 1, maxZoom: 22}
   ));
 
   // add empty div to leaflet control areas - to force other leaflet controls to move around IITC UI elements
@@ -274,7 +274,7 @@ window.setupPlayerStat = function() {
   var xmMax = MAX_XM_PER_LEVEL[level];
   var xmRatio = Math.round(PLAYER.energy/xmMax*100);
 
-  var cls = PLAYER.team === 'ALIENS' ? 'enl' : 'res';
+  var cls = PLAYER.team === 'RESISTANCE' ? 'res' : 'enl';
 
 
   var t = 'Level:\t' + level + '\n'
@@ -501,6 +501,11 @@ function boot() {
 
   window.iitcLoaded = true;
   window.runHooks('iitcLoaded');
+
+  if (typeof android !== 'undefined' && android && android.iitcLoaded) {
+    android.iitcLoaded();
+  }
+
 }
 
 // this is the minified load.js script that allows us to easily load

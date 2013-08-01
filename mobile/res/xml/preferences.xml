@@ -67,6 +67,11 @@
 	        android:summary="@string/pref_enable_dev_mode_sum"
 	        android:defaultValue="false" />
 
+        <CheckBoxPreference
+                android:key="pref_disable_splash"
+                android:title="@string/pref_disable_splash"
+                android:defaultValue="false" />
+
         <ListPreference
             android:key="pref_build_version"
             android:title="@string/build_version"

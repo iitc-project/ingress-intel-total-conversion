@@ -32,7 +32,7 @@ window.renderPortalDetails = function(guid) {
     : null;
   var sinceText  = time ? ['since', time] : null;
 
-  var linkedFields = ['fields', d.portalV2.linkedFields.length];
+  var linkedFields = ['fields', d.portalV2.linkedFields ? d.portalV2.linkedFields.length : 0];
 
   // collect and html-ify random data
   var randDetails = [
@@ -51,7 +51,6 @@ window.renderPortalDetails = function(guid) {
   var imgTitle = 'title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."';
   var poslinks = 'window.showPortalPosLinks('+lat+','+lng+',\''+escapeJavascriptString(d.portalV2.descriptiveText.TITLE)+'\')';
   var portalDetailObj = window.getPortalDescriptionFromDetailsExtended(d);
-
 
   var portalDetailedDescription = '';
 
@@ -101,8 +100,12 @@ window.renderPortalDetails = function(guid) {
       + randDetails
       + resoDetails
       + '<div class="linkdetails">'
-      + '<aside><a href="'+perma+'" onclick="return androidCopy(this.href)" title="Create a URL link to this portal" >Portal link</a></aside>'
-      + '<aside><a onclick="'+poslinks+'" title="Link to alternative maps (Google, etc)">Map links</a></aside>'
+      + (
+        typeof android !== 'undefined' && android && android.intentPosLink // Android handles both links via a dialog
+        ? '<aside><a onclick="'+poslinks+'" title="Create a URL link to this portal" >Portal link</a></aside>'
+        : '<aside><a href="'+perma+'" onclick="return androidCopy(this.href)" title="Create a URL link to this portal" >Portal link</a></aside>'
+        + '<aside><a onclick="'+poslinks+'" title="Link to alternative maps (Google, etc)">Map links</a></aside>'
+        )
       + '<aside><a onclick="window.reportPortalIssue()" title="Report issues with this portal to Niantic/Google">Report issue</a></aside>'
       + '</div>'
     );

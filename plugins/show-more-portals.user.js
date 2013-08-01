@@ -2,7 +2,7 @@
 // @id             iitc-plugin-show-more-portals@jonatkins
 // @name           IITC plugin: Show more portals
 // @category       Tweaks
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -28,6 +28,9 @@ window.plugin.showMorePortals.setup  = function() {
 
   window.getPortalDataZoom = function() {
     var mapZoom = map.getZoom();
+
+    // on mobile (at least), the map zoom has been non-integer occasionally. fix it.
+    z = Math.floor(z);
 
     // yes, it is possible to increase this beyond "+1" - however, that will end up producing a rediculous number
     // of requests to the Niantic servers, giving many request failed errors/tile timeouts

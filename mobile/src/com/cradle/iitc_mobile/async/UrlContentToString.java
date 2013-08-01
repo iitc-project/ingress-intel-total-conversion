@@ -2,8 +2,6 @@ package com.cradle.iitc_mobile.async;
 
 import android.os.AsyncTask;
 
-import com.cradle.iitc_mobile.IITC_Mobile;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.Scanner;

@@ -8,4 +8,6 @@
     <dimen name="app_minimumsize_w">400dip</dimen>
     <dimen name="app_minimumsize_h">200dip</dimen>
 
+    <dimen name="icon_margin">8dp</dimen>
+
 </resources>
