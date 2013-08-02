@@ -3,6 +3,76 @@
 <ul>
 
 <li>
+<h4 id="not-activated">I get a message saying my account isn't activated</h4>
+<p>
+Occasionally the Niantic servers give this misleading message - what it should usually say is
+"Failed to check account status - please reload to try again". IITC will, in most cases, retry for you.
+</p>
+<p>
+Sometimes this is caused by server issues, and no ammount of reloading will fix it. Come back later and try again.
+</p>
+<p>
+However, another reason for this message is your account being blocked/suspended by Niantic. There
+are no (known) cases of this happening due to IITC use, but any use of bots, unofficial (e.g. iPhone) clients,
+or other ingress mods could lead to this. In this case, the scanner app will also fail to work correctly.
+</p>
+</li>
+
+<li>
+<h4 id="broken">No portals are displayed on the map/some portals are missing</h4>
+Two common reasons.
+<ol>
+<li>You have some portal layers turned off in the layer chooser</li>
+<li>Some requests failed - check the status at the bottom-right of the screen</li>
+</ol>
+In the second case, wait 30 seconds for the next refresh, or drag the map a very small amount to perform an immediate
+refresh.
+</li>
+
+<li>
+<h4 id="curved-lines">Long lines are drawn curved on the map</h4>
+This is a good thing. IITC has been updated (as of 0.13.0) to draw long links/fields correctly. If you want to understand
+why they are drawn curved, see
+<a href="http://gis.stackexchange.com/questions/6822/why-is-the-straight-line-path-across-continent-so-curved">here</a>.
+</li>
+
+<li>
+<h4 id="uninstall">How do I uninstall/disable IITC or plugins?</h4>
+This depends on your browser.
+<ul>
+<li><b>Chrome + Tampermonkey</b>: Click on the Tampermonkey icon (a dark square with two circles at the bottom) and choose 'Dashboard'.</li>
+<li><b>Firefox + Greasemonkey</b>: Click on the arrow next to the monkey icon, and choose 'Manage user scripts'.</li>
+<li>For Opera, remove the scripts from the userscript folder. For Chrome without Tampermonkey, go to the Tools-&gt;Extensions menu.</li>
+</ul>
+From here you can remove/disable individual plugins or IITC itself.
+</li>
+
+<li>
+<h4 id="debug-data-tiles">What do the colours mean in 'DEBUG Data Tiles'</h4>
+The data from the Niantic server is download in square tiles. Sometimes requests fail. The colours show this status
+visually. The outline colour shows the state of the request:
+<ul>
+<li>Blue: data requested, waiting for response</li>
+<li>Green: successful request/cached data fresh</li>
+<li>Red: Dark red for a complete request failure, lighter red for an individual tile timeout</li>
+</ul>
+The colour within the square shows the state of the data:
+<ul>
+<li>Grey: data requested, waiting for response</li>
+<li>Green: successful request</li>
+<li>Yellow: data from cache</li>
+<li>Red: request failed - no data from cache</li>
+</ul>
+The status message at the bottom-right of the screen gives a summary.
+<ul>
+<li>If all requests were succesful/fresh from cache (i.e. all green borders) the status is 'Up to Date'.</li>
+<li>If some requests failed, but cached data was available (i.e. some red border/yellow fill) the status is 'Out of date'.</li>
+<li>If some requests failed, but no cached data was available (i.e. some red border/red fill) the status is 'Error'.</li>
+</ul>
+The tooltip for this message gives the counts of successful/cached/stale/failed map data tiles.
+</li>
+
+<li>
 <h4 id="no-penalty">Will Google/Niantic penalise me for using IITC?</h4>
 There have been rumours that Niantic/Google have been asking people to stop using IITC, and penalising users
 with a loss of points for doing so. This, as far as we can tell, is a hoax. Consider the following:
@@ -18,23 +88,26 @@ with further details.
 </li>
 
 <li>
-<h4 id="broken">No portals are displayed on the map!</h4>
-Please update to the latest IITC to fix the map. If you use Chrome+Tampermonkey, or Firefox+Greasemonkey,
-just triggering a manual update should do this. Alternatively, re-download and install from the
-<a href="?page=desktop">download page</a>.
-</li>
-
-<li>
-<h4 id="bluemap">What happened to the nice blue map?</h4>
-Unfortunately this is no longer available, as IITC far exceeds the free quota offered by Cloudmade, the map tile provider.
-You can use the layer selection menu to choose "Default Ingress Map", but this doesn't work as smoothly as we'd like.
-Options to allow users to register their own free accounts for this are being considered - watch this space.
+<h4 id="bluemap">What happened to the original blue map?</h4>
+If you're asking about the default ingress map, this is available in the layer chooser, as "Default Ingress Map".
+If you're wondering about the blue map available in the original IITC, this is no longer available by default, as we
+far exceeded the free quota offered by Cloudmade, the map tile provider. However, there is a template plugin you can
+use to add these back.
+<ol>
+<li>Install the <a href="?page=desktop#plugin-basemap-cloudmade">basemap-cloudmade plugin</a>.</li>
+<li>Find the plugin.
+In Chrome+Tampermonkey, choose 'Dashboard' from the Tampermonkey menu;
+in Firefox+Greasemonkey, choose 'Manage user scripts' from the Greasemonkey menu.</li>
+<li>Edit the plugin code, and follow the instructions within the file. You will need to register your own account
+at Cloudmade.com, and obtain your own API key.</li>
+</ol>
 </li>
 
 <li>
 <h4 id="cheating">Isn't using IITC cheating/an unfair advantage?</h4>
 IITC only uses data that is sent from the Ingress servers to the browser - it just displays it in an easy to use format.
-There were, and continue to be, other browser add-ons that display this data - just not widely available.
+With the right skills it is already possible to see this data using the browser debugging console, and
+there were, and continue to be, other browser add-ons that display this data - just not widely available.
 Having a good quality, feature rich add-on, available to all - Enlightened and Resistance - ensures one side does not
 have an unfair advantage.
 </li>

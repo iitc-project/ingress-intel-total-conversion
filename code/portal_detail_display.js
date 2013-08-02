@@ -124,7 +124,7 @@ window.setPortalIndicators = function(d) {
   var range = getPortalRange(d);
   var coord = [d.locationE6.latE6/1E6, d.locationE6.lngE6/1E6];
   portalRangeIndicator = (range > 0
-      ? L.circle(coord, range, { fill: false, color: RANGE_INDICATOR_COLOR, weight: 3, clickable: false })
+      ? L.geodesicCircle(coord, range, { fill: false, color: RANGE_INDICATOR_COLOR, weight: 3, clickable: false })
       : L.circle(coord, range, { fill: false, stroke: false, clickable: false })
     ).addTo(map);
   if(!portalAccessIndicator)

@@ -572,7 +572,7 @@ window.getMarker = function(ent, portalLevel, latlng, team) {
 
 // renders a portal on the map from the given entity
 window.renderPortal = function(ent) {
-  if(Object.keys(portals).length >= MAX_DRAWN_PORTALS && ent[0] !== selectedPortal)
+  if(window.portalsCount >= MAX_DRAWN_PORTALS && ent[0] !== selectedPortal)
     return removeByGuid(ent[0]);
 
   // hide low level portals on low zooms
@@ -633,6 +633,7 @@ window.renderPortal = function(ent) {
         removeByGuid(portalResonatorGuid(portalGuid, i));
     }
     delete window.portals[portalGuid];
+    window.portalsCount --;
     if(window.selectedPortal === portalGuid) {
       window.unselectOldPortal();
     }
@@ -642,6 +643,7 @@ window.renderPortal = function(ent) {
     // enable for debugging
     if(window.portals[this.options.guid]) throw('duplicate portal detected');
     window.portals[this.options.guid] = this;
+    window.portalsCount ++;
 
     window.renderResonators(this.options.guid, this.options.details, this);
     // handles the case where a selected portal gets removed from the
@@ -781,7 +783,7 @@ window.resonatorsSetStyle = function(portalGuid, resoStyle, lineStyle) {
 
 // renders a link on the map from the given entity
 window.renderLink = function(ent) {
-  if(Object.keys(links).length >= MAX_DRAWN_LINKS)
+  if(window.linksCount >= MAX_DRAWN_LINKS)
     return removeByGuid(ent[0]);
 
   // some links are constructed from portal linkedEdges data. These have no valid 'creator' data.
@@ -823,11 +825,15 @@ window.renderLink = function(ent) {
 
   if(!getPaddedBounds().intersects(poly.getBounds())) return;
 
-  poly.on('remove', function() { delete window.links[this.options.guid]; });
+  poly.on('remove', function() {
+    delete window.links[this.options.guid]; 
+    window.linksCount--;
+  });
   poly.on('add',    function() {
     // enable for debugging
     if(window.links[this.options.guid]) throw('duplicate link detected');
     window.links[this.options.guid] = this;
+    window.linksCount++;
     this.bringToBack();
   });
   poly.addTo(linksLayer);
@@ -835,7 +841,7 @@ window.renderLink = function(ent) {
 
 // renders a field on the map from a given entity
 window.renderField = function(ent) {
-  if(Object.keys(fields).length >= MAX_DRAWN_FIELDS)
+  if(window.fieldsCount >= MAX_DRAWN_FIELDS)
     return window.removeByGuid(ent[0]);
 
   var old = findEntityInLeaflet(fieldsLayer, window.fields, ent[0]);
@@ -921,11 +927,15 @@ window.renderField = function(ent) {
   // events, thus this listener will be attached to the field. It
   // doesn’t matter to which element these are bound since Leaflet
   // will add/remove all elements of the LayerGroup at once.
-  poly.on('remove', function() { delete window.fields[this.options.guid]; });
+  poly.on('remove', function() {
+    delete window.fields[this.options.guid];
+    window.fieldsCount--;
+  });
   poly.on('add',    function() {
     // enable for debugging
     if(window.fields[this.options.guid]) console.warn('duplicate field detected');
     window.fields[this.options.guid] = f;
+    window.fieldsCount++;
     this.bringToBack();
   });
   f.addTo(fieldsLayer);
