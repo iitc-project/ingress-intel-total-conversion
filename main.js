@@ -250,8 +250,11 @@ var portalsLayers, linksLayer, fieldsLayer;
 // automatically kept in sync with the items on *sLayer, so never ever
 // write to them.
 window.portals = {};
+window.portalsCount = 0;
 window.links = {};
+window.linksCount = 0;
 window.fields = {};
+window.fieldsCount = 0;
 window.resonators = {};
 
 // contain current status(on/off) of overlay layerGroups.
