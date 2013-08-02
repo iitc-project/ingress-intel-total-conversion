@@ -60,9 +60,12 @@ if ( file_exists ( 'tracking.php' ) )
 
  <!-- **** top alert box **** -->
  <div class="alert alert-block alert-info">
-  IITC now has a
-  <a href="https://plus.google.com/105383756361375410867"><img src="//ssl.gstatic.com/images/icons/gplus-16.png" alt="Google+" style="border:0;width:16px;height:16px;"/> Google+ page</a>.
-  Follow this to keep up to date on the latest news.
+  Follow the
+  <b><a href="https://plus.google.com/105383756361375410867">IITC <img src="//ssl.gstatic.com/images/icons/gplus-16.png" alt="Google+" style="border:0;width:16px;height:16px;"/> page</a></b>
+  for release announcements.
+  Join the
+  <b><a href="https://plus.google.com/communities/105647403088015055797">IITC <img src="//ssl.gstatic.com/images/icons/gplus-16.png" alt="Google+" style="border:0;width:16px;height:16px;"/> Community</a></b>
+  - a place to ask for help and discuss with other users.
  </div>
 
  <!-- **** two column body area **** -->
