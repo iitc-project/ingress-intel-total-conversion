@@ -152,7 +152,8 @@ Modified by qnstie 2013-07-17 to maintain compatibility with Leaflet.draw
 //console.log("geodesicCircle: radius = "+this._mRadius+"m, centre "+this._latlng.lat+","+this._latlng.lng);
 
       // circle radius as an angle from the centre of the earth
-      var radRadius = this._mRadius / R * Math.PI;
+      var radRadius = this._mRadius / R;
+
 //console.log(" (radius in radians "+radRadius);
 
       // pre-calculate various values used for every point on the circle
