@@ -108,11 +108,85 @@ Modified by qnstie 2013-07-17 to maintain compatibility with Leaflet.draw
     }
   });*/
 
-//TODO: finish this...
-  L.GeodesicCircle = L.Path.extend({
-    initialise: function (latlng, radius, options) {
-      L.Path.prototype.initialise.call(this, options);
-    }
+
+  L.GeodesicCircle = L.Polygon.extend({
+    initialize: function (latlng, radius, options) {
+      this._latlng = L.latLng(latlng);
+      this._mRadius = radius;
+
+      points = this._calcPoints();
+
+      L.Polygon.prototype.initialize.call(this, points, options);
+    },
+
+    options: {
+      fill: true
+    },
+
+    setLatLng: function (latlng) {
+      this._latlng = L.latLng(latlng);
+      points = this._calcPoints();
+      this.setLatLngs(points);
+    },
+
+    setRadius: function (radius) {
+      this._mRadius = radius;
+      points = this._calcPoints();
+      this.setLatLngs(points);
+
+    },
+
+    getLatLng: function () {
+      return this._latlng;
+    },
+
+    getRadius: function() {
+      return this._mRadius;
+    },
+
+
+    _calcPoints: function() {
+      var R = 6378137; //earth radius in meters (approx - taken from leaflet source code)
+      var d2r = L.LatLng.DEG_TO_RAD;
+      var r2d = L.LatLng.RAD_TO_DEG;
+//console.log("geodesicCircle: radius = "+this._mRadius+"m, centre "+this._latlng.lat+","+this._latlng.lng);
+
+      // circle radius as an angle from the centre of the earth
+      var radRadius = this._mRadius / R * Math.PI;
+//console.log(" (radius in radians "+radRadius);
+
+      // pre-calculate various values used for every point on the circle
+      var centreLat = this._latlng.lat * d2r;
+      var centreLng = this._latlng.lng * d2r;
+
+      var cosCentreLat = Math.cos(centreLat);
+      var sinCentreLat = Math.sin(centreLat);
+
+      var cosRadRadius = Math.cos(radRadius);
+      var sinRadRadius = Math.sin(radRadius);
+
+      var calcLatLngAtAngle = function(angle) {
+        var lat = Math.asin(sinCentreLat*cosRadRadius + cosCentreLat*sinRadRadius*Math.cos(angle));
+
+        var lon = centreLng + Math.asin( Math.sin(angle) * sinRadRadius / cosCentreLat )
+
+        return L.latLng(lat * r2d,lon * r2d);
+      }
+
+
+      var segments = Math.max(32,Math.floor(this._mRadius/1000));
+//console.log(" (drawing circle as "+segments+" lines)");
+      var points = [];
+      for (var i=0; i<segments; i++) {
+        var angle = Math.PI*2/segments*i;
+
+        var point = calcLatLngAtAngle(angle)
+        points.push ( point );
+      }
+
+      return points;
+    },
+
   });
 
 
@@ -134,4 +208,9 @@ Modified by qnstie 2013-07-17 to maintain compatibility with Leaflet.draw
   };
 
   */
+
+  L.geodesicCircle = function (latlng, radius, options) {
+    return new L.GeodesicCircle(latlng, radius, options);
+  }
+
 }());
