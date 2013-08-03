@@ -245,9 +245,9 @@ window.getPaddedBounds = function() {
 // cally detect if the render limit will be hit.
 window.renderLimitReached = function(ratio) {
   ratio = ratio || 1;
-  if(Object.keys(portals).length*ratio >= MAX_DRAWN_PORTALS) return true;
-  if(Object.keys(links).length*ratio >= MAX_DRAWN_LINKS) return true;
-  if(Object.keys(fields).length*ratio >= MAX_DRAWN_FIELDS) return true;
+  if(window.portalsCount*ratio >= MAX_DRAWN_PORTALS) return true;
+  if(window.linksCount*ratio >= MAX_DRAWN_LINKS) return true;
+  if(window.fieldsCount*ratio >= MAX_DRAWN_FIELDS) return true;
   var param = { 'reached': false };
   window.runHooks('checkRenderLimit', param);
   return param.reached;

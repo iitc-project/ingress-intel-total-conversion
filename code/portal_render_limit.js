@@ -41,6 +41,7 @@ window.portalRenderLimit.previousMinLevel = -1;
 window.portalRenderLimit.previousZoomLevel = null;
 window.portalRenderLimit.newPortalsPerLevel = new Array(MAX_PORTAL_LEVEL + 1);
 window.portalRenderLimit.portalsLowerThanPrevMinLv = new Array(MAX_PORTAL_LEVEL + 1);
+window.portalRenderLimit.portalsLowerThanPrevMinLvCnt = new Array(MAX_PORTAL_LEVEL + 1);
 
 window.portalRenderLimit.init = function () {
   var currentZoomLevel = map.getZoom();
@@ -72,6 +73,7 @@ window.portalRenderLimit.resetCounting = function() {
 window.portalRenderLimit.resetPortalsLowerThanPrevMinLv = function() {
   for(var i = 0; i <= MAX_PORTAL_LEVEL; i++) {
     portalRenderLimit.portalsLowerThanPrevMinLv[i] = {};
+    portalRenderLimit.portalsLowerThanPrevMinLvCnt[i] = 0;
   }
 }
 
@@ -125,6 +127,7 @@ window.portalRenderLimit.splitLowLevelPortals = function(portals) {
 
     if(!portalOnMap && portalLevel < portalRenderLimit.previousMinLevel) {
       portalRenderLimit.portalsLowerThanPrevMinLv[portalLevel][guid] = portal;
+      portalRenderLimit.portalsLowerThanPrevMinLvCnt[portalLevel]++;
     } else {
       resultPortals[guid] = portal;
     }
@@ -158,7 +161,7 @@ window.portalRenderLimit.setMinLevel = function() {
   // Find the min portal level under render limit
   while(newMinLevel > 0) {
     var oldPortalCount = layerGroupLength(portalsLayers[newMinLevel - 1]);
-    var storedPortalCount = Object.keys(portalRenderLimit.portalsLowerThanPrevMinLv[newMinLevel - 1]).length;
+    var storedPortalCount = portalRenderLimit.portalsLowerThanPrevMinLvCnt[newMinLevel - 1];
     var newPortalCount = Math.max(storedPortalCount, portalRenderLimit.newPortalsPerLevel[newMinLevel - 1]);
 
     totalPortalsCount += oldPortalCount + newPortalCount;
