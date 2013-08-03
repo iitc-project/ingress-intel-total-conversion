@@ -32,7 +32,7 @@ Important IITC release 0.13.0, to fix enlightened from showing up as the wrong c
  <li>IPAS plugin updated. This had been done earlier on desktop, but not mobile</li>
  </ul>
 <li>Plugins<ul>
- <li>Update mod highlither plugin</li>
+ <li>Update mod highlighter plugin</li>
  <li>Portals list plugin updates</li>
  </ul>
 <li>plus various other tweaks, bug fixes, etc</li>
