@@ -80,7 +80,8 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         String gMapsUri;
         if (decFormat.getDecimalSeparator() == '.')
             try {
-                gMapsUri = "http://maps.google.com/maps?q=loc:" + mLl + "%20(" + URLEncoder.encode(mTitle, "UTF-8") + ")&z=" + mZoom;
+                gMapsUri = "http://maps.google.com/maps?q=loc:" + mLl +
+                        "%20(" + URLEncoder.encode(mTitle, "UTF-8") + ")&z=" + mZoom;
             } catch (UnsupportedEncodingException e) {
                 gMapsUri = "http://maps.google.com/maps?ll=" + mLl + "&z=" + mZoom;
                 e.printStackTrace();
