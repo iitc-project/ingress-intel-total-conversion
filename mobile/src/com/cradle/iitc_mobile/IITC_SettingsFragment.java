@@ -21,13 +21,13 @@ import java.util.Scanner;
 
 public class IITC_SettingsFragment extends PreferenceFragment {
 
-    private String iitc_version;
+    private String mIitcVersion;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        iitc_version = getArguments().getString("iitc_version");
+        mIitcVersion = getArguments().getString("iitc_version");
 
         addPreferencesFromResource(R.xml.preferences);
 
@@ -49,7 +49,7 @@ public class IITC_SettingsFragment extends PreferenceFragment {
 
         // set iitc version
         ListPreference pref_iitc_version = (ListPreference) findPreference("pref_iitc_version");
-        pref_iitc_version.setSummary(iitc_version);
+        pref_iitc_version.setSummary(mIitcVersion);
 
         // set iitc source
         EditTextPreference pref_iitc_source = (EditTextPreference) findPreference("pref_iitc_source");
@@ -60,7 +60,7 @@ public class IITC_SettingsFragment extends PreferenceFragment {
                                                       Object newValue) {
                         preference.setSummary(getString(R.string.pref_select_iitc_sum) +
                                 " " + newValue);
-                        // TODO: update iitc_version when iitc source has
+                        // TODO: update mIitcVersion when iitc source has
                         // changed
                         return true;
                     }
