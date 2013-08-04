@@ -45,7 +45,6 @@ function iitcDesktopPluginDownloadTable ( $build )
 	$categories = Array (
 		'Portal Info' => "Enhanced information on the selected portal",
 		'Info' => "Display additional information",
-		'Inventory' => "Inventory sync and management",
 		'Keys' => "Manual key management",
 		'Controls' => "Map controls/widgets",
 		'Highlighter' => "Portal highlighters",
