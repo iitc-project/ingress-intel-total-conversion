@@ -18,13 +18,10 @@
 
 
 
-function wrapper() {
-	// ensure plugin framework is there, even if iitc is not yet imported
-	if(typeof window.plugin !== 'function') window.plugin = function() {};
+@@PLUGINSTART@@
+
+// PLUGIN START ////////////////////////////////////////////////////////
 	if(typeof window.plugin.inventory !== 'function') window.plugin.inventory = function() {};
-	
-	
-	// PLUGIN START ////////////////////////////////////////////////////////
 	
 	// use own namespace for plugin
 	window.plugin.inventory.import = function() {};
@@ -92,23 +89,9 @@ function wrapper() {
 		});
 	}
 	
-	// PLUGIN END //////////////////////////////////////////////////////////
-	
-	if(window.iitcimported && typeof setup === 'function') {
-		setup();
-		} else {
-		if(window.bootPlugins)
-		window.bootPlugins.push(setup);
-		else
-		window.bootPlugins = [setup];
-	}
-	
-	
-} // wrapper end
-// inject code into site context
-var script = document.createElement('script');
-script.appendChild(document.createTextNode('('+ wrapper +')();'));
-(document.body || document.head || document.documentElement).appendChild(script);
+// PLUGIN END //////////////////////////////////////////////////////////
+
+@@PLUGINEND@@
 
 // Niantic API access code follows.
 // Will be executed in GreaseMonkey/Tampermonkey sandbox when window.inventoryImportInventoryRequest in the IITC windows is set to true

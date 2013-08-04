@@ -13,18 +13,11 @@
 // @match          http://www.ingress.com/intel*
 // ==/UserScript==
 
-/**
- * Inventory plugin for IITC
- * 
- */
-
-function wrapper() {
-	// ensure plugin framework is there, even if iitc is not yet loaded
-	if(typeof window.plugin !== 'function') window.plugin = function() {};
-	if(typeof window.plugin.inventory !== 'function') window.plugin.inventory = function() {};
-	if(typeof window.plugin.inventory.import !== 'function') window.plugin.inventory.import = function() {};
+@@PLUGINSTART@@
 
 // PLUGIN START ////////////////////////////////////////////////////////
+	if(typeof window.plugin.inventory !== 'function') window.plugin.inventory = function() {};
+	if(typeof window.plugin.inventory.import !== 'function') window.plugin.inventory.import = function() {};
 
 	// create namespace for plugin
 	window.plugin.inventory.show = function() {
@@ -572,17 +565,4 @@ function wrapper() {
 	
 // PLUGIN END //////////////////////////////////////////////////////////
 
-	if (window.iitcLoaded && typeof setup === 'function') {
-		setup();
-	} else {
-		if (window.bootPlugins)
-			window.bootPlugins.push(setup);
-		else
-			window.bootPlugins = [ setup ];
-	}
-} // wrapper end
-// inject code into site context
-var script = document.createElement('script');
-script.appendChild(document.createTextNode('(' + wrapper + ')();'));
-(document.body || document.head || document.documentElement)
-		.appendChild(script);
+@@PLUGINEND@@
