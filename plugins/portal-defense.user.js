@@ -13,7 +13,7 @@
 // @match          http://www.ingress.com/intel*
 // ==/UserScript==
 
-@@PLUGIUNSTART@@
+@@PLUGINSTART@@
 
 // PLUGIN START ////////////////////////////////////////////////////////
 
