@@ -13,11 +13,7 @@
 // @match          http://www.ingress.com/intel*
 // ==/UserScript==
 
-
-function wrapper() {
-// ensure plugin framework is there, even if iitc is not yet loaded
-if(typeof window.plugin !== 'function') window.plugin = function() {};
-
+@@PLUGIUNSTART@@
 
 // PLUGIN START ////////////////////////////////////////////////////////
 
@@ -74,25 +70,25 @@ window.plugin.portalDefense.computeDef = function(portal) {
     ret.links = Math.round(400/9*Math.atan(link/Math.E));
   }
   ret.total = Math.min(95, ret.mod + ret.links);
-    
+
   return ret;
 }
 
 window.plugin.portalDefense.renderAttackRegion = function(portal) {
   plugin.portalDefense.removeAttackRegion(portal);
   if (window.plugin.portalDefense.currentDisplay == window.plugin.portalDefense.DisplayEnum.OFF) return;
-    
+
   plugin.portalDefense.regionLayers[portal.options.guid] = [];
   var defense = window.plugin.portalDefense.computeDef(portal);
   if (defense.total) {
     var display = defense.total;
     if (window.plugin.portalDefense.currentDisplay == window.plugin.portalDefense.DisplayEnum.DETAIL) {
-	  if(defense.mod) {
+      if (defense.mod) {
         display += "<br>"+"\u2297"+defense.mod;
       }
       if(defense.links) {
         display += "<br>"+"\u21b1"+defense.links;
-	  }
+      }
     }
     var region = L.marker(portal.getLatLng(), {
       icon: L.divIcon({
@@ -193,16 +189,4 @@ var setup =  function() {
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
-if(window.iitcLoaded && typeof setup === 'function') {
-  setup();
-} else {
-  if(window.bootPlugins)
-    window.bootPlugins.push(setup);
-  else
-    window.bootPlugins = [setup];
-}
-} // wrapper end
-// inject code into site context
-var script = document.createElement('script');
-script.appendChild(document.createTextNode('('+ wrapper +')();'));
-(document.body || document.head || document.documentElement).appendChild(script);
+@@PLUGINEND@@
