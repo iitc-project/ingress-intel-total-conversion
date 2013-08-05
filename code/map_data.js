@@ -589,8 +589,11 @@ window.renderPortal = function(ent) {
     var oo = old.options;
 
     // if the data we have is older than/the same as the data already rendered, do nothing
-    if (oo.ent[1] >= ent[1])
+    if (oo.ent[1] >= ent[1]) {
+      // let resos handle themselves if they need to be redrawn
+      renderResonators(ent[0], ent[2], old);
       return;
+    }
 
     // Default checks to see if a portal needs to be re-rendered
     var u = oo.team !== team;
