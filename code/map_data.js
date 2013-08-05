@@ -588,8 +588,8 @@ window.renderPortal = function(ent) {
   if(!changing_highlighters && old) {
     var oo = old.options;
 
-    // if the data we have is older than the data already rendered, do nothing
-    if (oo.ent[1] > ent[1])
+    // if the data we have is older than/the same as the data already rendered, do nothing
+    if (oo.ent[1] >= ent[1])
       return;
 
     // Default checks to see if a portal needs to be re-rendered
@@ -597,7 +597,7 @@ window.renderPortal = function(ent) {
     u = u || oo.level !== portalLevel;
 
     // Allow plugins to add additional conditions as to when a portal gets re-rendered
-    var hookData = {portal: ent[2], oldPortal: oo.details, portalGuid: ent[0], reRender: false};
+    var hookData = {portal: ent[2], oldPortal: oo.details, portalGuid: ent[0], mtime: ent[1], oldMtime: oo.ent[1], reRender: false};
     runHooks('beforePortalReRender', hookData);
     u = u || hookData.reRender;
 
