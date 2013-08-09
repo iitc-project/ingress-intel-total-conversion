@@ -9,7 +9,7 @@
     <string name="layer_chooser">Layer Chooser</string>
     <string name="locate">Get Location</string>
     <string name="local">local</string>
-    <string name="close">close</string>
+    <string name="close">Close</string>
     <string name="build_version">Build Version</string>
     <string name="iitc_version">IITC Version</string>
     <string name="about">About</string>
@@ -71,4 +71,8 @@
     <string name="tab_map">Map</string>
     <string name="tab_share">Share</string>
     <string name="tab_browser">Browser</string>
+
+    <string name="base_layers">Base Layers</string>
+    <string name="overlay_layers">Overlay Layers</string>
+    <string name="toggle_layer_selection">Deselect/Select all</string>
 </resources>

@@ -40,7 +40,7 @@ window.debugSetTileColour = function(qk,bordercol,fillcol) {
 window._requestCache = {}
 
 // cache entries older than the fresh age, and younger than the max age, are stale. they're used in the case of an error from the server
-window.REQUEST_CACHE_FRESH_AGE = 60;  // if younger than this, use data in the cache rather than fetching from the server
+window.REQUEST_CACHE_FRESH_AGE = 90;  // if younger than this, use data in the cache rather than fetching from the server
 window.REQUEST_CACHE_MAX_AGE = 60*60;  // maximum cache age. entries are deleted from the cache after this time
 window.REQUEST_CACHE_MIN_SIZE = 200;  // if fewer than this many entries, don't expire any
 window.REQUEST_CACHE_MAX_SIZE = 2000;  // if more than this many entries, expire early
@@ -61,6 +61,11 @@ window.getDataCache = function(qk) {
     return window._requestCache[qk].data;
   }
   return undefined;
+}
+
+window.getCacheItemTime = function(qk) {
+  if (qk in window._requestCache) return window._requestCache[qk].time;
+  else return 0;
 }
 
 window.isDataCacheFresh = function(qk) {
@@ -187,15 +192,7 @@ window.requestData = function() {
           lngEast
         );
 
-        // when the server is returning 'timeout' errors for some tiles in the list, it's always the tiles
-        // at the end of the request. therefore, let's push tiles we don't have cache entries for to the front, and those we do to the back
-        if (getDataCache(tile_id)) {
-          // cache entry exists - push to back
-          tiles[bucket].push(boundsParam);
-        } else {
-          // no cache entry - unshift to front
-          tiles[bucket].unshift(boundsParam);
-        }
+        tiles[bucket].push(boundsParam);
 
         debugSetTileColour(tile_id,'#00f','#000');
       }
@@ -209,6 +206,16 @@ window.requestData = function() {
   // send ajax requests
   console.log('requesting '+requestTileCount+' tiles in '+Object.keys(tiles).length+' requests');
   $.each(tiles, function(ind, tls) {
+    // sort the tiles by the cache age - oldest/missing first. the server often times out requests and the first listed
+    // are more likely to succeed. this will ensure we're more likely to have fresh data
+    tls.sort(function(a,b) {
+      var timea = getCacheItemTime(a.qk);
+      var timeb = getCacheItemTime(b.qk);
+      if (timea < timeb) return -1;
+      if (timea > timeb) return 1;
+      return 0;
+    });
+
     data = { zoom: z };
     data.boundsParamsList = tls;
     // keep a list of tile_ids with each request. in the case of a server error, we can try and use cached tiles if available
@@ -588,16 +595,19 @@ window.renderPortal = function(ent) {
   if(!changing_highlighters && old) {
     var oo = old.options;
 
-    // if the data we have is older than the data already rendered, do nothing
-    if (oo.ent[1] > ent[1])
+    // if the data we have is older than/the same as the data already rendered, do nothing
+    if (oo.ent[1] >= ent[1]) {
+      // let resos handle themselves if they need to be redrawn
+      renderResonators(ent[0], ent[2], old);
       return;
+    }
 
     // Default checks to see if a portal needs to be re-rendered
     var u = oo.team !== team;
     u = u || oo.level !== portalLevel;
 
     // Allow plugins to add additional conditions as to when a portal gets re-rendered
-    var hookData = {portal: ent[2], oldPortal: oo.details, portalGuid: ent[0], reRender: false};
+    var hookData = {portal: ent[2], oldPortal: oo.details, portalGuid: ent[0], mtime: ent[1], oldMtime: oo.ent[1], reRender: false};
     runHooks('beforePortalReRender', hookData);
     u = u || hookData.reRender;
 

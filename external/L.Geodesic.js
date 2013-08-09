@@ -54,7 +54,11 @@ Modified by qnstie 2013-07-17 to maintain compatibility with Leaflet.draw
     d = Math.atan2(Math.sqrt( Math.pow(Math.cos(lat2) * Math.sin(dLng), 2) + Math.pow(Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng), 2) ), Math.sin(lat1) * Math.sin(lat2) + Math.cos(lat1) * Math.cos(lat2) * Math.cos(dLng));
 
     segments = Math.ceil(d * R / maxlength);
-    for (i = 1; i <= segments; i++) {
+    // loop starts at 1 - we don't add the very first point
+    // loop ends before 'segments' is reached - we don't add the very last point here but outside the loop
+    // (this was to fix a bug - https://github.com/jonatkins/ingress-intel-total-conversion/issues/471
+    //  rounding errors? maths bug? not sure - but it solves the issue! and is a slight optimisation)
+    for (i = 1; i < segments; i++) {
       // http://williams.best.vwh.net/avform.htm#Intermediate
       f = i / segments;
       A = Math.sin((1-f)*d) / Math.sin(d);
@@ -67,6 +71,8 @@ Modified by qnstie 2013-07-17 to maintain compatibility with Leaflet.draw
 
       convertedPoints.push(L.latLng([fLat, fLng]));
     }
+    // push the final point unmodified
+    convertedPoints.push(L.latLng(endLatlng));
   }
 
   L.geodesicConvertLines = function (latlngs, fill) {
