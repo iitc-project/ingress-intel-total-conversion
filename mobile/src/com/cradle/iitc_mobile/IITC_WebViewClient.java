@@ -10,7 +10,6 @@ import android.net.http.SslError;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.View;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
@@ -292,18 +291,6 @@ public class IITC_WebViewClient extends WebViewClient {
         return js;
     }
 
-    @Override
-    public void onLoadResource(WebView view, String url) {
-        if(url.contains("css/basic.css")) {
-            Log.d("iitcm", "basic.css received...should be ingress intel login");
-            // get rid of loading screen to log in
-            IITC_Mobile iitc = (IITC_Mobile) mContext;
-            iitc.findViewById(R.id.iitc_webview).setVisibility(View.VISIBLE);
-            iitc.findViewById(R.id.imageLoading).setVisibility(View.GONE);
-        }
-        super.onLoadResource(view, url);
-    }
-
     // Check every external resource if it’s okay to load it and maybe replace
     // it
     // with our own content. This is used to block loading Niantic resources
@@ -315,7 +302,10 @@ public class IITC_WebViewClient extends WebViewClient {
         if (url.contains("/css/common.css")) {
             return new WebResourceResponse("text/css", "UTF-8", STYLE);
         } else if (url.contains("gen_dashboard.js")) {
-            return new WebResourceResponse("text/javascript", "UTF-8", EMPTY);
+            // define initialize function to get rid of JS ReferenceError on intel page's 'onLoad'
+            String gen_dashboad_replacement = "window.initialize = function() {}";
+            return new WebResourceResponse("text/javascript", "UTF-8",
+                    new ByteArrayInputStream(gen_dashboad_replacement.getBytes()));
         } else if (url.contains("/css/ap_icons.css")
                 || url.contains("/css/map_icons.css")
                 || url.contains("/css/common.css")

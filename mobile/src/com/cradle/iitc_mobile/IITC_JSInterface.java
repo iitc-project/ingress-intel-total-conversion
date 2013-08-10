@@ -126,8 +126,8 @@ public class IITC_JSInterface {
     }
 
     @JavascriptInterface
-    public void iitcLoaded() {
-        Log.d("iitcm", "iitc loaded completely");
+    public void removeSplashScreen() {
+        Log.d("iitcm", "removing splash screen");
         final IITC_Mobile iitc = ((IITC_Mobile) mContext);
 
         iitc.runOnUiThread(new Runnable() {
