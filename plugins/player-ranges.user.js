@@ -2,7 +2,7 @@
 // @id             iitc-plugin-player-ranges@zaso
 // @name           IITC plugin: Player Ranges
 // @category       Layer
-// @version        0.1.5.@@DATETIMEVERSION@@
+// @version        0.1.51.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -190,6 +190,10 @@
         checkList.innerHTML = window.plugin.playerRanges.setupHTML
 
         L.DomEvent
+          .addListener(butt_1, 'click', L.DomEvent.stopPropagation)
+          .addListener(butt_1, 'click', L.DomEvent.preventDefault)
+          .addListener(butt_1, 'dblclick', L.DomEvent.stopPropagation)
+          .addListener(butt_1, 'dblclick', L.DomEvent.preventDefault)
           .addListener(butt_2, 'click', L.DomEvent.stopPropagation)
           .addListener(butt_2, 'click', L.DomEvent.preventDefault)
           .addListener(butt_2, 'dblclick', L.DomEvent.stopPropagation)
