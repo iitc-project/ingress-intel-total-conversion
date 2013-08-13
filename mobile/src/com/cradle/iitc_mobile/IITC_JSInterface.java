@@ -51,6 +51,15 @@ public class IITC_JSInterface {
         mContext.startActivity(intent);
     }
 
+    // share a string to the IITC share activity. only uses the share tab.
+    @JavascriptInterface
+    public void shareString(String str) {
+        Intent intent = new Intent(mContext, ShareActivity.class);
+        intent.putExtra("shareString", str);
+        intent.putExtra("onlyShare", true);
+        mContext.startActivity(intent);
+    }
+
     // disable javascript injection while spinner is enabled
     // prevent the spinner from closing automatically
     @JavascriptInterface
