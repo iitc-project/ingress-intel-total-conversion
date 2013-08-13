@@ -24,9 +24,8 @@ window.plugin.portalHighlighterBadDeploymentDistance = function() {};
 window.plugin.portalHighlighterBadDeploymentDistance.highlight = function(data) {
   var d = data.portal.options.details;
   var portal_deployment = 0;
-  var acceptable_deployment_average = 36;
   if(getTeam(d) !== 0) {
-    if(window.getAvgResoDist(d) > 0 && window.getAvgResoDist(d) < acceptable_deployment_average) {
+    if(window.getAvgResoDist(d) > 0 && window.getAvgResoDist(d) < window.HACK_RANGE*0.9) {
       portal_deployment = (window.HACK_RANGE - window.getAvgResoDist(d))/window.HACK_RANGE;
     }
     if(portal_deployment > 0) {
