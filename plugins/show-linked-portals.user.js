@@ -29,7 +29,7 @@ window.plugin.showLinkedPortal = function () {
 };
 
 window.plugin.showLinkedPortal.handleUpdate = function () {
-    if (!requests.isLastRequest('getThinnedEntitiesV2')) {
+    if (!requests.isLastRequest('getThinnedEntitiesV3')) {
         return;
     }
 }
