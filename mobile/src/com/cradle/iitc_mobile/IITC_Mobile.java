@@ -274,7 +274,6 @@ public class IITC_Mobile extends Activity {
         // enough idle...let's do some work
         Log.d("iitcm", "resuming...setting reset idleTimer");
         mIitcWebView.loadUrl("javascript: window.idleTime = 0");
-        mIitcWebView.loadUrl("javascript: window.renderUpdateStatus()");
         mIitcWebView.updateCaching();
 
         if (mIsLocEnabled) {

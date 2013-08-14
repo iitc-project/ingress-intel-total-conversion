@@ -506,8 +506,8 @@ function boot() {
   window.iitcLoaded = true;
   window.runHooks('iitcLoaded');
 
-  if (typeof android !== 'undefined' && android && android.iitcLoaded) {
-    android.iitcLoaded();
+  if (typeof android !== 'undefined' && android && android.removeSplashScreen) {
+    android.removeSplashScreen();
   }
 
 }

@@ -132,7 +132,7 @@ def loaderImage(var):
     return 'data:image/png;base64,{0}'.format(base64.encodestring(open(fn, 'rb').read()).decode('utf8').replace('\n', ''))
 
 def loadCode(ignore):
-    return '\n\n'.join(map(readfile, glob.glob('code/*')))
+    return '\n\n'.join(map(readfile, glob.glob('code/*.js')))
 
 
 def extractUserScriptMeta(var):

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.13.1.@@DATETIMEVERSION@@
+// @version        0.13.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -115,7 +115,7 @@ function wrapper() {
 L_PREFER_CANVAS = false;
 
 // CONFIG OPTIONS ////////////////////////////////////////////////////
-window.REFRESH = 30; // refresh view every 30s (base time)
+window.REFRESH = 60; // refresh view every 30s (base time)
 window.ZOOM_LEVEL_ADJ = 5; // add 5 seconds per zoom level
 window.ON_MOVE_REFRESH = 1.25;  //refresh time to use after a movement event
 window.MINIMUM_OVERRIDE_REFRESH = 5; //limit on refresh time since previous refresh, limiting repeated move refresh rate
@@ -193,7 +193,7 @@ window.RANGE_INDICATOR_COLOR = 'red'
 window.PORTAL_RADIUS_ENLARGE_MOBILE = 5;
 
 
-window.DEFAULT_PORTAL_IMG = '//commondatastorage.googleapis.com/ingress/img/default-portal-image.png';
+window.DEFAULT_PORTAL_IMG = '//commondatastorage.googleapis.com/ingress.com/img/default-portal-image.png';
 window.NOMINATIM = 'http://nominatim.openstreetmap.org/search?format=json&limit=1&q=';
 
 // INGRESS CONSTANTS /////////////////////////////////////////////////

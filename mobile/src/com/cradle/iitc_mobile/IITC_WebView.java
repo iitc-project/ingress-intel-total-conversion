@@ -11,10 +11,13 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.webkit.ConsoleMessage;
 import android.webkit.GeolocationPermissions;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+
+import com.cradle.iitc_mobile.async.CheckHttpResponse;
 
 @SuppressLint("SetJavaScriptEnabled")
 public class IITC_WebView extends WebView {
@@ -62,6 +65,18 @@ public class IITC_WebView extends WebView {
                 // maximum for newProgress is 100
                 // maximum for setProgress is 10,000
                 ((Activity) getContext()).setProgress(newProgress * 100);
+            }
+
+            /**
+             * remove splash screen if any JS error occurs
+             */
+            @Override
+            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+                if (consoleMessage.messageLevel() == ConsoleMessage.MessageLevel.ERROR) {
+                    Log.d("iitcm", consoleMessage.message());
+                    mJsInterface.removeSplashScreen();
+                }
+                return super.onConsoleMessage(consoleMessage);
             }
         });
 
@@ -117,6 +132,9 @@ public class IITC_WebView extends WebView {
                 url = url.replace("http://", "https://");
             else
                 url = url.replace("https://", "http://");
+
+            // disable splash screen if a http error code is responded
+            new CheckHttpResponse(mJsInterface).execute(url);
             Log.d("iitcm", "loading url: " + url);
         }
         super.loadUrl(url);
