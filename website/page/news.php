@@ -1,5 +1,12 @@
 <h2>News</h2>
 
+<h4>14th August 2013</h4>
+<p>
+IITC 0.13.2 and IITC Mobile 0.5.4.1 have been released. This is a critical release required to work with
+changes Niantic have made to the standard intel site.
+The ap-list and show-linked-portals plugins also needed minor changes related to this.
+</p>
+
 <h4>12th August 2013</h4>
 <p>
 A bugfix IITC release 0.13.1, and IITC Mobile 0.5.4 has just been released.
