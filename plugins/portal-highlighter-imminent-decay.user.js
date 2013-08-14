@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Uses the fill color of the portals to show those with one (or more) resonators due to decay within the next day.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Uses the fill color of the portals to show resonators due to decay within the next day. Red = portal will decay completely, orange = portal will drop all links, yellow = one or more resonators will decay completely.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -23,23 +23,40 @@ window.plugin.portalHighlighterImminentDecay = function() {};
 
 window.plugin.portalHighlighterImminentDecay.highlight = function(data) {
   var d = data.portal.options.details;
-  var portal_deployment = 0;
   if(getTeam(d) !== 0) {
-    if(window.getAvgResoDist(d) > 0 && window.getAvgResoDist(d) < window.HACK_RANGE*0.9) {
-      portal_deployment = (window.HACK_RANGE - window.getAvgResoDist(d))/window.HACK_RANGE;
-    }
-    if(portal_deployment > 0) {
-      var fill_opacity = portal_deployment*.85 + .15;
-      color = 'red';
-      var params = {fillColor: color, fillOpacity: fill_opacity};
+    //Check the energy of every resonator.
+    var resImminentDecayCount = 0;
+    var resCount = 0;
+    $.each(d.resonatorArray.resonators, function(ind, reso) {
+      if(reso !== null) {
+        var level = parseInt(reso.level);
+        var maxResonatorEnergy = window.RESO_NRG[level];
+        var currentResonatorEnergy = parseInt(reso.energyTotal);
+        if((currentResonatorEnergy / maxResonatorEnergy) < 0.15) {
+          resImminentDecayCount++;
+        }
+        resCount++;
+      }
+    });
+
+    if(resImminentDecayCount > 0) {
+      if(resImminentDecayCount === resCount) {
+        var color = 'red';
+      } else if((resCount - resImminentDecayCount) < 3) {
+        color = 'orange';
+      } else {
+        color = 'yellow';
+      }
+      // Apply colour to portal.
+      var params = {fillColor: color, fillOpacity: 1};
       data.portal.setStyle(params);
-    } 
+    }
   }
   window.COLOR_SELECTED_PORTAL = '#f0f';
 }
 
 var setup =  function() {
-  window.addPortalHighlighter('ImminentDecay', window.plugin.portalHighlighterImminentDecay.highlight);
+  window.addPortalHighlighter('Imminent Decay', window.plugin.portalHighlighterImminentDecay.highlight);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////
