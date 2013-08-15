@@ -64,13 +64,17 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
                 .apply();
     }
 
-    private void setupIntents() {
+    private void setupShareIntent(String str) {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, getUrl());
+        intent.putExtra(Intent.EXTRA_TEXT, str);
         intent.putExtra(Intent.EXTRA_SUBJECT, mTitle);
         addTab(intent, R.string.tab_share, R.drawable.share);
+    }
+
+    private void setupIntents() {
+        setupShareIntent(getUrl());
 
         // we merge gmaps intents with geo intents since it is not possible
         // anymore to set a labeled marker on geo intents
@@ -80,7 +84,8 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         String gMapsUri;
         if (decFormat.getDecimalSeparator() == '.')
             try {
-                gMapsUri = "http://maps.google.com/maps?q=loc:" + mLl + "%20(" + URLEncoder.encode(mTitle, "UTF-8") + ")&z=" + mZoom;
+                gMapsUri = "http://maps.google.com/maps?q=loc:" + mLl +
+                        "%20(" + URLEncoder.encode(mTitle, "UTF-8") + ")&z=" + mZoom;
             } catch (UnsupportedEncodingException e) {
                 gMapsUri = "http://maps.google.com/maps?ll=" + mLl + "&z=" + mZoom;
                 e.printStackTrace();
@@ -94,7 +99,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         intents.add(geoIntent);
         addTab(intents, R.string.tab_map, R.drawable.location_map);
 
-        intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getUrl()));
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getUrl()));
         addTab(intent, R.string.tab_browser, R.drawable.browser);
     }
 
@@ -103,18 +108,25 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share);
 
-        Intent intent = getIntent();
-        mTitle = intent.getStringExtra("title");
-        mLl = intent.getDoubleExtra("lat", 0) + "," + intent.getDoubleExtra("lng", 0);
-        mZoom = intent.getIntExtra("zoom", 0);
-        mIsPortal = intent.getBooleanExtra("isPortal", false);
+        mFragmentAdapter = new IntentFragmentAdapter(getSupportFragmentManager());
 
         final ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        mFragmentAdapter = new IntentFragmentAdapter(getSupportFragmentManager());
-        setupIntents();
+        Intent intent = getIntent();
+        // from portallinks/permalinks we build 3 intents (share / geo / vanilla-intel-link)
+        if (intent.getBooleanExtra("onlyShare", false) == false) {
+            mTitle = intent.getStringExtra("title");
+            mLl = intent.getDoubleExtra("lat", 0) + "," + intent.getDoubleExtra("lng", 0);
+            mZoom = intent.getIntExtra("zoom", 0);
+            mIsPortal = intent.getBooleanExtra("isPortal", false);
+
+            setupIntents();
+        } else {
+            mTitle = getString(R.string.app_name);
+            setupShareIntent(intent.getStringExtra("shareString"));
+        }
 
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mFragmentAdapter);

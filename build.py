@@ -132,7 +132,7 @@ def loaderImage(var):
     return 'data:image/png;base64,{0}'.format(base64.encodestring(open(fn, 'rb').read()).decode('utf8').replace('\n', ''))
 
 def loadCode(ignore):
-    return '\n\n'.join(map(readfile, glob.glob('code/*')))
+    return '\n\n'.join(map(readfile, glob.glob('code/*.js')))
 
 
 def extractUserScriptMeta(var):
@@ -258,8 +258,7 @@ if buildMobile:
             # do not include desktop-only plugins to mobile assets
             ignore=shutil.ignore_patterns('*.meta.js',
             'force-https*', 'privacy-view*', 'speech-search*',
-            'basemap-cloudmade*', 'scroll-wheel-zoom-disable*',
-            'sync*'))
+            'basemap-cloudmade*', 'scroll-wheel-zoom-disable*'))
 
 
     if buildMobile != 'copyonly':

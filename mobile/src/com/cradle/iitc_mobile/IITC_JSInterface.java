@@ -16,6 +16,8 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.webkit.JavascriptInterface;
+import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.cradle.iitc_mobile.share.ShareActivity;
@@ -24,29 +26,38 @@ import com.cradle.iitc_mobile.share.ShareActivity;
 public class IITC_JSInterface {
 
     // context of main activity
-    private final Context context;
-    private final HashMap<String, String> layer_ids;
-    private boolean[] overlay_is_active;
-    private int active_base_layer;
-    private String[] overlay_layers, base_layers;
-    private int num_base_layers;
-    private int num_overlay_layers;
+    private final Context mContext;
+    private final HashMap<String, String> mLayerIds;
+    private boolean[] mOverlayIsActive;
+    private int mActiveBaseLayer;
+    private String[] mOverlayLayers, mBaseLayers;
+    private int mNumBaseLayers;
+    private int mNumOverlayLayers;
 
     IITC_JSInterface(Context c) {
-        layer_ids = new HashMap<String, String>();
-        context = c;
+        mLayerIds = new HashMap<String, String>();
+        mContext = c;
     }
 
     // open dialog to send geo intent for navigation apps like gmaps or waze etc...
     @JavascriptInterface
     public void intentPosLink(double lat, double lng, int zoom, String title, boolean isPortal) {
-        Intent intent = new Intent(context, ShareActivity.class);
+        Intent intent = new Intent(mContext, ShareActivity.class);
         intent.putExtra("lat", lat);
         intent.putExtra("lng", lng);
         intent.putExtra("zoom", zoom);
         intent.putExtra("title", title);
         intent.putExtra("isPortal", isPortal);
-        context.startActivity(intent);
+        mContext.startActivity(intent);
+    }
+
+    // share a string to the IITC share activity. only uses the share tab.
+    @JavascriptInterface
+    public void shareString(String str) {
+        Intent intent = new Intent(mContext, ShareActivity.class);
+        intent.putExtra("shareString", str);
+        intent.putExtra("onlyShare", true);
+        mContext.startActivity(intent);
     }
 
     // disable javascript injection while spinner is enabled
@@ -54,24 +65,24 @@ public class IITC_JSInterface {
     @JavascriptInterface
     public void spinnerEnabled(boolean en) {
         Log.d("iitcm", "disableJS? " + en);
-        ((IITC_Mobile) context).getWebView().disableJS(en);
+        ((IITC_Mobile) mContext).getWebView().disableJS(en);
     }
 
     // copy link to specific portal to android clipboard
     @JavascriptInterface
     public void copy(String s) {
-        ClipboardManager clipboard = (ClipboardManager) context
+        ClipboardManager clipboard = (ClipboardManager) mContext
                 .getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("Copied Text ", s);
         clipboard.setPrimaryClip(clip);
-        Toast.makeText(context, "copied to clipboard", Toast.LENGTH_SHORT)
+        Toast.makeText(mContext, "copied to clipboard", Toast.LENGTH_SHORT)
                 .show();
     }
 
     @JavascriptInterface
     public void switchToPane(String id) {
 
-        final IITC_Mobile iitcm = (IITC_Mobile) context;
+        final IITC_Mobile iitcm = (IITC_Mobile) mContext;
         final int button_id;
         final String title;
 
@@ -115,18 +126,18 @@ public class IITC_JSInterface {
 
     @JavascriptInterface
     public void dialogOpened(String id, boolean open) {
-        ((IITC_Mobile) context).dialogOpened(id, open);
+        ((IITC_Mobile) mContext).dialogOpened(id, open);
     }
 
     @JavascriptInterface
     public void dialogFocused(String id) {
-        ((IITC_Mobile) context).setFocusedDialog(id);
+        ((IITC_Mobile) mContext).setFocusedDialog(id);
     }
 
     @JavascriptInterface
-    public void iitcLoaded() {
-        Log.d("iitcm", "iitc loaded completely");
-        final IITC_Mobile iitc = ((IITC_Mobile) context);
+    public void removeSplashScreen() {
+        Log.d("iitcm", "removing splash screen");
+        final IITC_Mobile iitc = ((IITC_Mobile) mContext);
 
         iitc.runOnUiThread(new Runnable() {
             @Override
@@ -149,7 +160,6 @@ public class IITC_JSInterface {
          */
         JSONArray base_layersJSON = null;
         JSONArray overlay_layersJSON = null;
-        Log.d("iitcm", base_layer);
         try {
             base_layersJSON = new JSONArray(base_layer);
             overlay_layersJSON = new JSONArray(overlay_layer);
@@ -158,15 +168,15 @@ public class IITC_JSInterface {
         }
 
         // get length and initialize arrays
-        num_base_layers = base_layersJSON.length();
-        num_overlay_layers = overlay_layersJSON.length();
-        overlay_is_active = new boolean[num_overlay_layers];
-        overlay_layers = new String[num_overlay_layers];
-        base_layers = new String[num_base_layers];
-        layer_ids.clear();
+        mNumBaseLayers = base_layersJSON.length();
+        mNumOverlayLayers = overlay_layersJSON.length();
+        mOverlayIsActive = new boolean[mNumOverlayLayers];
+        mOverlayLayers = new String[mNumOverlayLayers];
+        mBaseLayers = new String[mNumBaseLayers];
+        mLayerIds.clear();
 
         // --------------- base layers ------------------------
-        for (int i = 0; i < num_base_layers; ++i) {
+        for (int i = 0; i < mNumBaseLayers; ++i) {
             try {
                 String layer = base_layersJSON.getString(i);
                 layer = layer.replace("{", "");
@@ -192,9 +202,9 @@ public class IITC_JSInterface {
                     if (values[0].contains("name")) name = values[1];
                 }
                 name = name.replace("\"", "");
-                layer_ids.put(name, id);
-                this.base_layers[i] = name;
-                if (isActive) active_base_layer = i;
+                mLayerIds.put(name, id);
+                this.mBaseLayers[i] = name;
+                if (isActive) mActiveBaseLayer = i;
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -202,7 +212,7 @@ public class IITC_JSInterface {
         }
 
         // --------------- overlay layers ------------------------
-        for (int i = 0; i < num_overlay_layers; ++i) {
+        for (int i = 0; i < mNumOverlayLayers; ++i) {
             try {
                 String layer = overlay_layersJSON.getString(i);
                 layer = layer.replace("{", "");
@@ -218,83 +228,105 @@ public class IITC_JSInterface {
                     if (values[0].contains("name")) name = values[1];
                 }
                 name = name.replace("\"", "");
-                layer_ids.put(name, id);
-                this.overlay_layers[i] = name;
-                this.overlay_is_active[i] = isActive;
+                mLayerIds.put(name, id);
+                this.mOverlayLayers[i] = name;
+                this.mOverlayIsActive[i] = isActive;
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
         // show overlay layers by default
-        show_multi_selection();
+        showMultiSelection();
     }
 
     // show all overlay layers in a multi selection list dialog
-    private void show_multi_selection() {
+    private void showMultiSelection() {
         // build the layer chooser dialog
-        AlertDialog.Builder d_m = new AlertDialog.Builder(context);
+        AlertDialog.Builder d_m = new AlertDialog.Builder(mContext);
         OnMultiChoiceClickListener m_listener = new OnMultiChoiceClickListener() {
-
             @Override
             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                 // activate clicked layer
-                ((IITC_Mobile) context).getWebView().loadUrl("javascript: " +
+                ((IITC_Mobile) mContext).getWebView().loadUrl("javascript: " +
                         "window.layerChooser.showLayer("
-                        + layer_ids.get(overlay_layers[which]) + ","
-                        + overlay_is_active[which] + ");");
+                        + mLayerIds.get(mOverlayLayers[which]) + ","
+                        + isChecked + ");");
             }
         };
-
-        d_m.setMultiChoiceItems(overlay_layers, overlay_is_active, m_listener);
+        d_m.setMultiChoiceItems(mOverlayLayers, mOverlayIsActive, m_listener);
         // switch to base layers
-        d_m.setPositiveButton("Base Layers", new OnClickListener() {
+        d_m.setPositiveButton(R.string.base_layers, new OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                show_single_selection();
-                dialog.cancel();
+                showSingleSelection();
+                dialog.dismiss();
             }
         });
-        d_m.setNegativeButton("Close", new OnClickListener() {
+        d_m.setNegativeButton(R.string.close, new OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
+                dialog.dismiss();
             }
         });
-        d_m.setTitle("Overlay Layers");
-        d_m.show();
+        d_m.setTitle(R.string.overlay_layers);
+        final AlertDialog dialog = d_m.create();
+        final ListView list = dialog.getListView();
+        list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            boolean disable = false;
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                int j = 0;
+                for (String layer : mOverlayLayers) {
+                    if (!mOverlayLayers[j].contains("DEBUG")) {
+                        // uncheck the item + set the boolean in the isActive array
+                        mOverlayIsActive[j] = disable;
+                        list.setItemChecked(j, disable);
+                        ((IITC_Mobile) mContext).getWebView().loadUrl("javascript: " +
+                                "window.layerChooser.showLayer("
+                                + mLayerIds.get(layer) + ","
+                                + disable + ");");
+                    }
+                    ++j;
+                }
+                disable = !disable;
+                return true;
+            }
+        });
+        dialog.show();
     }
 
     // show all base layers in a single selection list dialog
-    private void show_single_selection() {
+    private void showSingleSelection() {
         OnClickListener s_listener = new OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // activate clicked layer
-                ((IITC_Mobile) context).getWebView().loadUrl("javascript: " +
+                ((IITC_Mobile) mContext).getWebView().loadUrl("javascript: " +
                         "window.layerChooser.showLayer("
-                        + layer_ids.get(base_layers[which]) + ","
+                        + mLayerIds.get(mBaseLayers[which]) + ","
                         + true + ");");
-                active_base_layer = which;
+                mActiveBaseLayer = which;
             }
         };
-        AlertDialog.Builder d_s = new AlertDialog.Builder(context);
-        d_s.setSingleChoiceItems(base_layers, active_base_layer, s_listener);
+        AlertDialog.Builder d_s = new AlertDialog.Builder(mContext);
+        d_s.setSingleChoiceItems(mBaseLayers, mActiveBaseLayer, s_listener);
         // switch to overlay layers
-        d_s.setPositiveButton("Overlay Layers", new OnClickListener() {
+        d_s.setPositiveButton(R.string.overlay_layers, new OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                show_multi_selection();
-                dialog.cancel();
+                showMultiSelection();
+                dialog.dismiss();
             }
         });
-        d_s.setNegativeButton("Close", new OnClickListener() {
+        d_s.setNegativeButton(R.string.close, new OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
+                dialog.dismiss();
             }
         });
-        d_s.setTitle("Base Layers");
-        d_s.show();
+        d_s.setTitle(R.string.base_layers);
+        final AlertDialog dialog = d_s.create();
+        dialog.show();
     }
 }

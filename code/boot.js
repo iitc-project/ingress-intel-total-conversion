@@ -1,4 +1,4 @@
-// SETUP /////////////////////////////////////////////////////////////
+/// SETUP /////////////////////////////////////////////////////////////
 // these functions set up specific areas after the boot function
 // created a basic framework. All of these functions should only ever
 // be run once.
@@ -129,7 +129,7 @@ window.setupMap = function() {
 
 
   window.map = new L.Map('map', $.extend(getPosition(),
-    {zoomControl: window.showZoom, minZoom: 1, maxZoom: 22}
+    {zoomControl: window.showZoom, minZoom: 1}
   ));
 
   // add empty div to leaflet control areas - to force other leaflet controls to move around IITC UI elements
@@ -247,6 +247,10 @@ window.setMapBaseLayer = function() {
         break;
       }
     }
+
+    //also, leaflet no longer ensures the base layer zoom is suitable for the map (a bug? feature change?), so do so here
+    map.setZoom(map.getZoom());
+
 
   });
 
@@ -502,8 +506,8 @@ function boot() {
   window.iitcLoaded = true;
   window.runHooks('iitcLoaded');
 
-  if (typeof android !== 'undefined' && android && android.iitcLoaded) {
-    android.iitcLoaded();
+  if (typeof android !== 'undefined' && android && android.removeSplashScreen) {
+    android.removeSplashScreen();
   }
 
 }

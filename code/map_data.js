@@ -40,7 +40,7 @@ window.debugSetTileColour = function(qk,bordercol,fillcol) {
 window._requestCache = {}
 
 // cache entries older than the fresh age, and younger than the max age, are stale. they're used in the case of an error from the server
-window.REQUEST_CACHE_FRESH_AGE = 60;  // if younger than this, use data in the cache rather than fetching from the server
+window.REQUEST_CACHE_FRESH_AGE = 90;  // if younger than this, use data in the cache rather than fetching from the server
 window.REQUEST_CACHE_MAX_AGE = 60*60;  // maximum cache age. entries are deleted from the cache after this time
 window.REQUEST_CACHE_MIN_SIZE = 200;  // if fewer than this many entries, don't expire any
 window.REQUEST_CACHE_MAX_SIZE = 2000;  // if more than this many entries, expire early
@@ -61,6 +61,11 @@ window.getDataCache = function(qk) {
     return window._requestCache[qk].data;
   }
   return undefined;
+}
+
+window.getCacheItemTime = function(qk) {
+  if (qk in window._requestCache) return window._requestCache[qk].time;
+  else return 0;
 }
 
 window.isDataCacheFresh = function(qk) {
@@ -187,15 +192,7 @@ window.requestData = function() {
           lngEast
         );
 
-        // when the server is returning 'timeout' errors for some tiles in the list, it's always the tiles
-        // at the end of the request. therefore, let's push tiles we don't have cache entries for to the front, and those we do to the back
-        if (getDataCache(tile_id)) {
-          // cache entry exists - push to back
-          tiles[bucket].push(boundsParam);
-        } else {
-          // no cache entry - unshift to front
-          tiles[bucket].unshift(boundsParam);
-        }
+        tiles[bucket].push(boundsParam);
 
         debugSetTileColour(tile_id,'#00f','#000');
       }
@@ -209,12 +206,22 @@ window.requestData = function() {
   // send ajax requests
   console.log('requesting '+requestTileCount+' tiles in '+Object.keys(tiles).length+' requests');
   $.each(tiles, function(ind, tls) {
+    // sort the tiles by the cache age - oldest/missing first. the server often times out requests and the first listed
+    // are more likely to succeed. this will ensure we're more likely to have fresh data
+    tls.sort(function(a,b) {
+      var timea = getCacheItemTime(a.qk);
+      var timeb = getCacheItemTime(b.qk);
+      if (timea < timeb) return -1;
+      if (timea > timeb) return 1;
+      return 0;
+    });
+
     data = { zoom: z };
     data.boundsParamsList = tls;
     // keep a list of tile_ids with each request. in the case of a server error, we can try and use cached tiles if available
     var tile_ids = []
     $.each(tls,function(i,req) { tile_ids.push(req.qk); });
-    window.requests.add(window.postAjax('getThinnedEntitiesV2', data, function(data, textStatus, jqXHR) { window.handleDataResponse(data,false,tile_ids); }, function() { window.handleFailedRequest(tile_ids); }));
+    window.requests.add(window.postAjax('getThinnedEntitiesV3', data, function(data, textStatus, jqXHR) { window.handleDataResponse(data,false,tile_ids); }, function() { window.handleFailedRequest(tile_ids); }));
   });
 
   // process the requests from the cache
@@ -248,7 +255,7 @@ window.handleFailedRequest = function(tile_ids) {
     handleDataResponse(cachedData, true);
   }
 
-  if(requests.isLastRequest('getThinnedEntitiesV2')) {
+  if(requests.isLastRequest('getThinnedEntitiesV3')) {
     var leftOverPortals = portalRenderLimit.mergeLowLevelPortals(null);
     handlePortalsRender(leftOverPortals);
   }
@@ -572,7 +579,7 @@ window.getMarker = function(ent, portalLevel, latlng, team) {
 
 // renders a portal on the map from the given entity
 window.renderPortal = function(ent) {
-  if(Object.keys(portals).length >= MAX_DRAWN_PORTALS && ent[0] !== selectedPortal)
+  if(window.portalsCount >= MAX_DRAWN_PORTALS && ent[0] !== selectedPortal)
     return removeByGuid(ent[0]);
 
   // hide low level portals on low zooms
@@ -588,16 +595,19 @@ window.renderPortal = function(ent) {
   if(!changing_highlighters && old) {
     var oo = old.options;
 
-    // if the data we have is older than the data already rendered, do nothing
-    if (oo.ent[1] > ent[1])
+    // if the data we have is older than/the same as the data already rendered, do nothing
+    if (oo.ent[1] >= ent[1]) {
+      // let resos handle themselves if they need to be redrawn
+      renderResonators(ent[0], ent[2], old);
       return;
+    }
 
     // Default checks to see if a portal needs to be re-rendered
     var u = oo.team !== team;
     u = u || oo.level !== portalLevel;
 
     // Allow plugins to add additional conditions as to when a portal gets re-rendered
-    var hookData = {portal: ent[2], oldPortal: oo.details, portalGuid: ent[0], reRender: false};
+    var hookData = {portal: ent[2], oldPortal: oo.details, portalGuid: ent[0], mtime: ent[1], oldMtime: oo.ent[1], reRender: false};
     runHooks('beforePortalReRender', hookData);
     u = u || hookData.reRender;
 
@@ -633,6 +643,7 @@ window.renderPortal = function(ent) {
         removeByGuid(portalResonatorGuid(portalGuid, i));
     }
     delete window.portals[portalGuid];
+    window.portalsCount --;
     if(window.selectedPortal === portalGuid) {
       window.unselectOldPortal();
     }
@@ -642,6 +653,7 @@ window.renderPortal = function(ent) {
     // enable for debugging
     if(window.portals[this.options.guid]) throw('duplicate portal detected');
     window.portals[this.options.guid] = this;
+    window.portalsCount ++;
 
     window.renderResonators(this.options.guid, this.options.details, this);
     // handles the case where a selected portal gets removed from the
@@ -781,7 +793,7 @@ window.resonatorsSetStyle = function(portalGuid, resoStyle, lineStyle) {
 
 // renders a link on the map from the given entity
 window.renderLink = function(ent) {
-  if(Object.keys(links).length >= MAX_DRAWN_LINKS)
+  if(window.linksCount >= MAX_DRAWN_LINKS)
     return removeByGuid(ent[0]);
 
   // some links are constructed from portal linkedEdges data. These have no valid 'creator' data.
@@ -823,11 +835,15 @@ window.renderLink = function(ent) {
 
   if(!getPaddedBounds().intersects(poly.getBounds())) return;
 
-  poly.on('remove', function() { delete window.links[this.options.guid]; });
+  poly.on('remove', function() {
+    delete window.links[this.options.guid]; 
+    window.linksCount--;
+  });
   poly.on('add',    function() {
     // enable for debugging
     if(window.links[this.options.guid]) throw('duplicate link detected');
     window.links[this.options.guid] = this;
+    window.linksCount++;
     this.bringToBack();
   });
   poly.addTo(linksLayer);
@@ -835,7 +851,7 @@ window.renderLink = function(ent) {
 
 // renders a field on the map from a given entity
 window.renderField = function(ent) {
-  if(Object.keys(fields).length >= MAX_DRAWN_FIELDS)
+  if(window.fieldsCount >= MAX_DRAWN_FIELDS)
     return window.removeByGuid(ent[0]);
 
   var old = findEntityInLeaflet(fieldsLayer, window.fields, ent[0]);
@@ -921,11 +937,15 @@ window.renderField = function(ent) {
   // events, thus this listener will be attached to the field. It
   // doesn’t matter to which element these are bound since Leaflet
   // will add/remove all elements of the LayerGroup at once.
-  poly.on('remove', function() { delete window.fields[this.options.guid]; });
+  poly.on('remove', function() {
+    delete window.fields[this.options.guid];
+    window.fieldsCount--;
+  });
   poly.on('add',    function() {
     // enable for debugging
     if(window.fields[this.options.guid]) console.warn('duplicate field detected');
     window.fields[this.options.guid] = f;
+    window.fieldsCount++;
     this.bringToBack();
   });
   f.addTo(fieldsLayer);

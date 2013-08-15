@@ -11,34 +11,37 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.webkit.ConsoleMessage;
 import android.webkit.GeolocationPermissions;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import com.cradle.iitc_mobile.async.CheckHttpResponse;
+
 @SuppressLint("SetJavaScriptEnabled")
 public class IITC_WebView extends WebView {
 
-    private WebSettings settings;
-    private IITC_WebViewClient webclient;
-    private IITC_JSInterface js_interface;
-    private boolean disableJS = false;
+    private WebSettings mSettings;
+    private IITC_WebViewClient mIitcWebViewClient;
+    private IITC_JSInterface mJsInterface;
+    private boolean mDisableJs = false;
 
     // init web view
     private void iitc_init(Context c) {
         if (this.isInEditMode()) return;
-        settings = this.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setDomStorageEnabled(true);
-        settings.setAllowFileAccess(true);
-        settings.setGeolocationEnabled(true);
-        settings.setAppCacheEnabled(true);
-        settings.setDatabasePath(this.getContext().getApplicationInfo().dataDir
+        mSettings = this.getSettings();
+        mSettings.setJavaScriptEnabled(true);
+        mSettings.setDomStorageEnabled(true);
+        mSettings.setAllowFileAccess(true);
+        mSettings.setGeolocationEnabled(true);
+        mSettings.setAppCacheEnabled(true);
+        mSettings.setDatabasePath(this.getContext().getApplicationInfo().dataDir
                 + "/databases/");
-        settings.setAppCachePath(this.getContext().getCacheDir()
+        mSettings.setAppCachePath(this.getContext().getCacheDir()
                 .getAbsolutePath());
-        this.js_interface = new IITC_JSInterface(c);
-        this.addJavascriptInterface(js_interface, "android");
+        this.mJsInterface = new IITC_JSInterface(c);
+        this.addJavascriptInterface(mJsInterface, "android");
 
         this.setWebChromeClient(new WebChromeClient() {
             /**
@@ -63,10 +66,22 @@ public class IITC_WebView extends WebView {
                 // maximum for setProgress is 10,000
                 ((Activity) getContext()).setProgress(newProgress * 100);
             }
+
+            /**
+             * remove splash screen if any JS error occurs
+             */
+            @Override
+            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+                if (consoleMessage.messageLevel() == ConsoleMessage.MessageLevel.ERROR) {
+                    Log.d("iitcm", consoleMessage.message());
+                    mJsInterface.removeSplashScreen();
+                }
+                return super.onConsoleMessage(consoleMessage);
+            }
         });
 
-        webclient = new IITC_WebViewClient(c);
-        this.setWebViewClient(webclient);
+        mIitcWebViewClient = new IITC_WebViewClient(c);
+        this.setWebViewClient(mIitcWebViewClient);
     }
 
     // constructors -------------------------------------------------
@@ -105,7 +120,7 @@ public class IITC_WebView extends WebView {
             }
         }
         // do nothing if script is enabled;
-        if (this.disableJS) {
+        if (this.mDisableJs) {
             Log.d("iitcm", "javascript injection disabled...return");
             return;
         }
@@ -117,27 +132,30 @@ public class IITC_WebView extends WebView {
                 url = url.replace("http://", "https://");
             else
                 url = url.replace("https://", "http://");
+
+            // disable splash screen if a http error code is responded
+            new CheckHttpResponse(mJsInterface).execute(url);
             Log.d("iitcm", "loading url: " + url);
         }
         super.loadUrl(url);
     }
 
     public IITC_WebViewClient getWebViewClient() {
-        return this.webclient;
+        return this.mIitcWebViewClient;
     }
 
     public IITC_JSInterface getJSInterface() {
-        return this.js_interface;
+        return this.mJsInterface;
     }
 
     public void updateCaching() {
         // use cache if on mobile network...saves traffic
         if (!this.isConnectedToWifi()) {
             Log.d("iitcm", "not connected to wifi...load tiles from cache");
-            settings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+            mSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         } else {
             Log.d("iitcm", "connected to wifi...load tiles from network");
-            settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+            mSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
         }
     }
 
@@ -159,7 +177,7 @@ public class IITC_WebView extends WebView {
     }
 
     public void disableJS(boolean val) {
-        this.disableJS = val;
+        this.mDisableJs = val;
     }
 
 }

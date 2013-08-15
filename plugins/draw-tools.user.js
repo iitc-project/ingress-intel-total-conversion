@@ -2,7 +2,7 @@
 // @id             iitc-plugin-draw-tools@breunigs
 // @name           IITC plugin: draw tools
 // @category       Layer
-// @version        0.4.1.@@DATETIMEVERSION@@
+// @version        0.5.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -32,6 +32,33 @@ window.plugin.drawTools.loadExternals = function() {
   $('head').append('<style>@@INCLUDESTRING:external/leaflet.draw.css@@</style>');
 }
 
+window.plugin.drawTools.setOptions = function() {
+  window.plugin.drawTools.lineOptions = {
+    stroke: true,
+    color: '#f06eaa',
+    weight: 4,
+    opacity: 0.5,
+    fill: false,
+    clickable: true
+  };
+
+  window.plugin.drawTools.polygonOptions = {
+    stroke: true,
+    color: '#f06eaa',
+    weight: 4,
+    opacity: 0.5,
+    fill: true,
+    fillColor: null,
+    fillOpacity: 0.2,
+    clickable: true
+  };
+
+  window.plugin.drawTools.markerOptions = {
+    icon: new L.Icon.Default(),
+    zIndexOffset: 2000
+  };
+
+}
 
 
 // renders the draw control buttons in the top left corner
@@ -45,7 +72,8 @@ window.plugin.drawTools.addDrawControl = function() {
           + 'define the start of the polygon. Continue clicking\n'
           + 'to draw the line you want. Click the first or last\n'
           + 'point of the line (a small white rectangle) to\n'
-          + 'finish. Double clicking also works.'
+          + 'finish. Double clicking also works.',
+        shapeOptions: window.plugin.drawTools.polygonOptions,
       },
 
       polyline: {
@@ -54,7 +82,8 @@ window.plugin.drawTools.addDrawControl = function() {
           + 'define the start of the line. Continue clicking\n'
           + 'to draw the line you want. Click the <b>last</b>\n'
           + 'point of the line (a small white rectangle) to\n'
-          + 'finish. Double clicking also works.'
+          + 'finish. Double clicking also works.',
+        shapeOptions: window.plugin.drawTools.lineOptions,
       },
 
       circle: {
@@ -62,13 +91,15 @@ window.plugin.drawTools.addDrawControl = function() {
           + 'Click on the button, then click-AND-HOLD on the\n'
           + 'map where the circle’s center should be. Move\n'
           + 'the mouse to control the radius. Release the mouse\n'
-          + 'to finish.'
+          + 'to finish.',
+        shapeOptions: window.plugin.drawTools.polygonOptions,
       },
 
       marker: {
         title: 'Add a marker.\n\n'
           + 'Click on the button, then click on the map where\n'
-          + 'you want the marker to appear.'
+          + 'you want the marker to appear.',
+        shapeOptions: window.plugin.drawTools.markerOptions,
       },
 
     },
@@ -114,10 +145,78 @@ window.plugin.drawTools.getSnapLatLng = function(containerPoint) {
 }
 
 
-window.plugin.drawTools.boot = function() {
-  //create a leaflet FeatureGroup to hold drawn items
+window.plugin.drawTools.save = function() {
+  var data = [];
 
+  window.plugin.drawTools.drawnItems.eachLayer( function(layer) {
+    var item = {};
+    if (layer instanceof L.GeodesicCircle || layer instanceof L.Circle) {
+      item.type = 'circle';
+      item.latLng = layer.getLatLng();
+      item.radius = layer.getRadius();
+    } else if (layer instanceof L.GeodesicPolygon || layer instanceof L.Polygon) {
+      item.type = 'polygon';
+      item.latLngs = layer.getLatLngs();
+    } else if (layer instanceof L.GeodesicPolyline || layer instanceof L.Polyline) {
+      item.type = 'polyline';
+      item.latLngs = layer.getLatLngs();
+    } else if (layer instanceof L.Marker) {
+      item.type = 'marker';
+      item.latLng = layer.getLatLng();
+    } else {
+      console.warn('Unknown layer type when saving draw tools layer');
+      return; //.eachLayer 'continue'
+    }
+
+    data.push(item);
+  });
+
+  localStorage['plugin-draw-tools-layer'] = JSON.stringify(data);
+
+  console.log('draw-tools: saved to localStorage');
+}
+
+window.plugin.drawTools.load = function() {
+  var dataStr = localStorage['plugin-draw-tools-layer'];
+  if (dataStr === undefined) return;
+
+  var data = JSON.parse(dataStr);
+  $.each(data, function(index,item) {
+    var layer = null;
+    switch(item.type) {
+      case 'polyline':
+        layer = L.geodesicPolyline(item.latLngs,window.plugin.drawTools.lineOptions);
+        break;
+      case 'polygon':
+        layer = L.geodesicPolygon(item.latLngs,window.plugin.drawTools.polygonOptions);
+        break;
+      case 'circle':
+        layer = L.circle(item.latLng,item.radius,window.plugin.drawTools.polygonOptions);
+        break;
+      case 'marker':
+        layer = L.marker(item.latLng,window.plugin.drawTools.markerOptions)
+        break;
+      default:
+        console.warn('unknown layer type "'+item.type+'" when loading draw tools layer');
+        break;
+    }
+    if (layer) {
+      window.plugin.drawTools.drawnItems.addLayer(layer);
+    }
+
+  });
+
+}
+
+
+window.plugin.drawTools.boot = function() {
+  window.plugin.drawTools.setOptions();
+
+  //create a leaflet FeatureGroup to hold drawn items
   window.plugin.drawTools.drawnItems = new L.FeatureGroup();
+
+  //load any previously saved items
+  plugin.drawTools.load();
 
   //add the draw control - this references the above FeatureGroup for editing purposes
   plugin.drawTools.addDrawControl();
@@ -147,7 +246,17 @@ window.plugin.drawTools.boot = function() {
     var type=e.layerType;
     var layer=e.layer;
     window.plugin.drawTools.drawnItems.addLayer(layer);
+    window.plugin.drawTools.save();
   });
+
+  map.on('draw:deleted', function(e) {
+    window.plugin.drawTools.save();
+  });
+
+  map.on('draw:edited', function(e) {
+    window.plugin.drawTools.save();
+  });
+
 
 }
 

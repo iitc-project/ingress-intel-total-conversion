@@ -13,6 +13,25 @@ offers many more features. It is available for
 
 <h3>Latest news</h3>
 
+<h4>14th August 2013</h4>
+<p>
+IITC 0.13.2 and IITC Mobile 0.5.4.1 have been released. This is a critical release required to work with
+changes Niantic have made to the standard intel site.
+The ap-list and show-linked-portals plugins also needed minor changes related to this.
+</p>
+
+<h4>12th August 2013</h4>
+<p>
+A bugfix IITC release 0.13.1, and IITC Mobile 0.5.4 has just been released.
+<ul>
+<li>Fix short links occasionally being drawn to the opposite side of the world on mobile</li>
+<li>Fix mobile splash screen not being removed when certain errors occur</li>
+<li>Portal link range circles are now drawn using geodesic mode, to match the previous changes to links and fields</li>
+<li>Draw tools plugin: now saves the drawn items in localStorage, so they are not lost on a page reload</li>
+<li>Some performance improvements and other bug fixes</li>
+</ul>
+</p>
+
 <h4>1st August 2013</h4>
 <p>
 Important IITC release 0.13.0, to fix enlightened from showing up as the wrong colour
@@ -32,7 +51,7 @@ Important IITC release 0.13.0, to fix enlightened from showing up as the wrong c
  <li>IPAS plugin updated. This had been done earlier on desktop, but not mobile</li>
  </ul>
 <li>Plugins<ul>
- <li>Update mod highlither plugin</li>
+ <li>Update mod highlighter plugin</li>
  <li>Portals list plugin updates</li>
  </ul>
 <li>plus various other tweaks, bug fixes, etc</li>
