@@ -98,7 +98,7 @@ window.portalRenderLimit.splitOrMergeLowLevelPortals = function(originPortals) {
   portalRenderLimit.resetCounting();
   portalRenderLimit.countingPortals(originPortals);
 
-  var resultPortals = requests.isLastRequest('getThinnedEntitiesV3')
+  var resultPortals = requests.isLastRequest('getThinnedEntitiesV4')
     ? portalRenderLimit.mergeLowLevelPortals(originPortals)
     : portalRenderLimit.splitLowLevelPortals(originPortals);
 
