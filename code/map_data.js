@@ -37,68 +37,8 @@ window.debugSetTileColour = function(qk,bordercol,fillcol) {
 
 
 // cache for data tiles. indexed by the query key (qk)
-window._requestCache = {}
+window.cache = undefined;
 
-// cache entries older than the fresh age, and younger than the max age, are stale. they're used in the case of an error from the server
-window.REQUEST_CACHE_FRESH_AGE = 90;  // if younger than this, use data in the cache rather than fetching from the server
-window.REQUEST_CACHE_MAX_AGE = 60*60;  // maximum cache age. entries are deleted from the cache after this time
-window.REQUEST_CACHE_MIN_SIZE = 200;  // if fewer than this many entries, don't expire any
-window.REQUEST_CACHE_MAX_SIZE = 2000;  // if more than this many entries, expire early
-
-window.storeDataCache = function(qk,data) {
-  // fixme? common behaviour for objects is that properties are kept in the order they're added
-  // this is handy, as it allows easy retrieval of the oldest entries for expiring
-  // however, this is not guaranteed by the standards, but all our supported browsers work this way
-
-  delete window._requestCache[qk];
-
-  var d = new Date();
-  window._requestCache[qk] = { time: d.getTime(), data: data };
-}
-
-window.getDataCache = function(qk) {
-  if (qk in window._requestCache) {
-    return window._requestCache[qk].data;
-  }
-  return undefined;
-}
-
-window.getCacheItemTime = function(qk) {
-  if (qk in window._requestCache) return window._requestCache[qk].time;
-  else return 0;
-}
-
-window.isDataCacheFresh = function(qk) {
-  if (qk in window._requestCache) {
-    var d = new Date();
-    var t = d.getTime()-REQUEST_CACHE_FRESH_AGE*1000;
-    if (window._requestCache[qk].time > t) {
-      return true;
-    }
-  }
-  return false;
-}
-
-window.expireDataCache = function() {
-  var d = new Date();
-  var t = d.getTime()-window.REQUEST_CACHE_MAX_AGE*1000;
-
-  var cacheSize = Object.keys(window._requestCache).length;
-
-  for(var qk in window._requestCache) {
-    // stop processing once we hit the minimum size
-    if (cacheSize < window.REQUEST_CACHE_MIN_SIZE) break;
-
-    // fixme? our MAX_SIZE test here assumes we're processing the oldest first. this relies
-    // on looping over object properties in the order they were added. this is true in most browsers,
-    // but is not a requirement of the standards
-    if (cacheSize > window.REQUEST_CACHE_MAX_SIZE || window._requestCache[qk].time < t) {
-      delete window._requestCache[qk];
-      cacheSize--;
-    }
-  }
-
-}
 
 
 // due to the cache (and race conditions in the server) - and now also oddities in the returned data
@@ -108,6 +48,9 @@ window._deletedEntityGuid = {}
 // requests map data for current viewport. For details on how this
 // works, refer to the description in “MAP DATA REQUEST CALCULATORS”
 window.requestData = function() {
+  if (window.cache === undefined) window.cache = new DataCache();
+
+
   console.log('refreshing data');
   requests.abort();
   cleanUp();
@@ -122,7 +65,7 @@ window.requestData = function() {
 
   debugDataTileReset();
 
-  expireDataCache();
+  cache.expire();
 
   //a limit on the number of map tiles to be pulled in a single request
   var MAX_TILES_PER_BUCKET = 18;
@@ -161,10 +104,10 @@ window.requestData = function() {
       window.statusTotalMapTiles++;
 
       // TODO?: if the selected portal is in this tile, always fetch the data
-      if (isDataCacheFresh(tile_id)) {
+      if (cache.isFresh(tile_id)) {
         // TODO: don't add tiles from the cache when 1. they were fully visible before, and 2. the zoom level is unchanged
         // TODO?: if a closer zoom level has all four tiles in the cache, use them instead?
-        cachedData.result.map[tile_id] = getDataCache(tile_id);
+        cachedData.result.map[tile_id] = cache.get(tile_id);
         debugSetTileColour(tile_id,'#0f0','#ff0');
         window.statusCachedMapTiles++;
       } else {
@@ -209,8 +152,8 @@ window.requestData = function() {
     // sort the tiles by the cache age - oldest/missing first. the server often times out requests and the first listed
     // are more likely to succeed. this will ensure we're more likely to have fresh data
     tls.sort(function(a,b) {
-      var timea = getCacheItemTime(a.qk);
-      var timeb = getCacheItemTime(b.qk);
+      var timea = cache.getTime(a.qk);
+      var timeb = cache.getTime(b.qk);
       if (timea < timeb) return -1;
       if (timea > timeb) return 1;
       return 0;
@@ -238,7 +181,7 @@ window.handleFailedRequest = function(tile_ids) {
 
   var cachedData = { result: { map: {} } };  
   $.each(tile_ids, function(ind,tile_id) {
-    var cached = getDataCache(tile_id);
+    var cached = cache.get(tile_id);
     if (cached) {
       // we have stale cached data - use it
       cachedData.result.map[tile_id] = cached;
@@ -290,7 +233,7 @@ window.handleDataResponse = function(data, fromCache, tile_ids) {
         console.log('map data tile '+qk+' response error: '+val.error);
 
         // try to use data in the cache, even if it's stale
-        var cacheVal = getDataCache(qk);
+        var cacheVal = cache.get(qk);
 
         if (!cacheVal) {
           debugSetTileColour(qk, '#f00','#f00');
@@ -305,7 +248,7 @@ window.handleDataResponse = function(data, fromCache, tile_ids) {
         }
       } else {
         // not an error - store this tile into the cache
-        storeDataCache(qk,val);
+        cache.store(qk,val);
         debugSetTileColour(qk, '#0f0','#0f0');
         window.statusSuccessMapTiles++;
       }
