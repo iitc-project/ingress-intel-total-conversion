@@ -121,7 +121,14 @@ window.startRefreshTimeout = function(override) {
   } else {
     window.requests._quickRefreshPending = false;
     t = REFRESH*1000;
-    var adj = ZOOM_LEVEL_ADJ * (18 - window.map.getZoom());
+
+    // new getThinnedEntitiesV4 involves a LOT more requests when zoomed out above a data level of 13
+    // so, to give the refresh a chance to complete (and also reduce load on niantic servers), boost the refresh interval
+    // in this case
+    // (TODO: complete rewrite of refresh+request handling. don't start timer until complete, and retry error=TIMEOUT requests)
+    if (getPortalDataZoom() <=12 ) t = t*4;
+
+    var adj = ZOOM_LEVEL_ADJ * (18 - getPortalDataZoom());
     if(adj > 0) t += adj*1000;
   }
   var next = new Date(new Date().getTime() + t).toLocaleTimeString();
