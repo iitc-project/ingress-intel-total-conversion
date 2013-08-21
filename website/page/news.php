@@ -1,5 +1,11 @@
 <h2>News</h2>
 
+<h4>16th August 2013</h4>
+<p>
+IITC 0.13.3 and IITC Mobile 0.5.4.2 have been released. This is another critical update required to work
+with another change Niantic have made to the standard intel site.
+</p>
+
 <h4>14th August 2013</h4>
 <p>
 IITC 0.13.2 and IITC Mobile 0.5.4.1 have been released. This is a critical release required to work with

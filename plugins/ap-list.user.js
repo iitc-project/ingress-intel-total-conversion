@@ -2,7 +2,7 @@
 // @id             iitc-plugin-ap-list@xelio
 // @name           IITC plugin: AP List
 // @category       Info
-// @version        0.5.4.@@DATETIMEVERSION@@
+// @version        0.5.5.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -54,7 +54,7 @@ window.plugin.apList.animTimeout;
 
 // ENTRY POINT ///////////////////////////////////////////////////////////////////
 window.plugin.apList.handleUpdate = function() {
-  if(!requests.isLastRequest('getThinnedEntitiesV3')) return;
+  if(!requests.isLastRequest('getThinnedEntitiesV4')) return;
   plugin.apList.updateSortedPortals();
   plugin.apList.updatePortalTable(plugin.apList.displaySide);
 }

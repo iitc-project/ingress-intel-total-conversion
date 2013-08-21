@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.13.2.@@DATETIMEVERSION@@
+// @version        0.13.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -117,8 +117,8 @@ L_PREFER_CANVAS = false;
 // CONFIG OPTIONS ////////////////////////////////////////////////////
 window.REFRESH = 60; // refresh view every 30s (base time)
 window.ZOOM_LEVEL_ADJ = 5; // add 5 seconds per zoom level
-window.ON_MOVE_REFRESH = 1.25;  //refresh time to use after a movement event
-window.MINIMUM_OVERRIDE_REFRESH = 5; //limit on refresh time since previous refresh, limiting repeated move refresh rate
+window.ON_MOVE_REFRESH = 2.5;  //refresh time to use after a movement event
+window.MINIMUM_OVERRIDE_REFRESH = 10; //limit on refresh time since previous refresh, limiting repeated move refresh rate
 window.REFRESH_GAME_SCORE = 15*60; // refresh game score every 15 minutes
 window.MAX_IDLE_TIME = 4*60; // stop updating map after 4min idling
 window.PRECACHE_PLAYER_NAMES_ZOOM = 17; // zoom level to start pre-resolving player names

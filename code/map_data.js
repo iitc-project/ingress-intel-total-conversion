@@ -216,12 +216,12 @@ window.requestData = function() {
       return 0;
     });
 
-    data = { zoom: z };
+    data = { };
     data.boundsParamsList = tls;
     // keep a list of tile_ids with each request. in the case of a server error, we can try and use cached tiles if available
     var tile_ids = []
     $.each(tls,function(i,req) { tile_ids.push(req.qk); });
-    window.requests.add(window.postAjax('getThinnedEntitiesV3', data, function(data, textStatus, jqXHR) { window.handleDataResponse(data,false,tile_ids); }, function() { window.handleFailedRequest(tile_ids); }));
+    window.requests.add(window.postAjax('getThinnedEntitiesV4', data, function(data, textStatus, jqXHR) { window.handleDataResponse(data,false,tile_ids); }, function() { window.handleFailedRequest(tile_ids); }));
   });
 
   // process the requests from the cache
@@ -255,7 +255,7 @@ window.handleFailedRequest = function(tile_ids) {
     handleDataResponse(cachedData, true);
   }
 
-  if(requests.isLastRequest('getThinnedEntitiesV3')) {
+  if(requests.isLastRequest('getThinnedEntitiesV4')) {
     var leftOverPortals = portalRenderLimit.mergeLowLevelPortals(null);
     handlePortalsRender(leftOverPortals);
   }
