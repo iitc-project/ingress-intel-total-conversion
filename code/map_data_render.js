@@ -13,16 +13,20 @@ window.Render.prototype.startRenderPass = function() {
   this.isRendering = true;
 
   this.deletedGuid = {};  // object - represents the set of all deleted game entity GUIDs seen in a render pass
+
+  this.seenPortalsGuid = {};
+  this.seenLinksGuid = {};
+  this.seenFieldsGuid = {};
 }
 
 // process deleted entity list and entity data
-window.Render.prototype.processTileData = function(deleted, entities) {
-  this.processDeletedGameEntityGuids(deleted);
-  this.processGameEntities(entities);
+window.Render.prototype.processTileData = function(tiledata) {
+  this.processDeletedGameEntityGuids(tiledata.deletedGameEntityGuids||[]);
+  this.processGameEntities(tiledata.gameEntities||[]);
 }
 
 
-window.Render.prototype.processDeletedGamEntityGuids = function(deleted) {
+window.Render.prototype.processDeletedGameEntityGuids = function(deleted) {
   for(var i in deleted) {
     var guid = deleted[i];
 
@@ -49,8 +53,7 @@ window.Render.prototype.processGameEntities = function(entities) {
     }
   }
 
-  // TODO: reconstruct links 'optimised' out of the data from the portal link data
-
+  // now reconstruct links 'optimised' out of the data from the portal link data
 
 }
 
@@ -58,29 +61,58 @@ window.Render.prototype.processGameEntities = function(entities) {
 // is considered complete
 window.Render.prototype.endRenderPass = function() {
 
+  // check to see if there's eny entities we haven't seen. if so, delete them
+  for (var guid in window.portals) {
+    if (!(guid in this.seenPortalsGuid)) {
+      this.deletePortalEntity(guid);
+    }
+  }
+  for (var guid in window.links) {
+    if (!(guid in this.seenLinksGuid)) {
+      this.deleteLinkEntity(guid);
+    }
+  }
+  for (var guid in window.fields) {
+    if (!(guid in this.seenFieldsGuid)) {
+      this.deleteFieldEntity(guid);
+    }
+  }
+
   this.isRendering = false;
 }
 
 
 
 window.Render.prototype.deleteEntity = function(guid) {
+  this.deletePortalEntity(guid);
+  this.deleteLinkEntity(guid);
+  this.deleteFieldEntity(guid);
+}
 
+window.Render.prototype.deletePortalEntity = function(guid) {
   if (guid in window.portals) {
     var p = window.portals[guid];
     for(var i in portalsLayers) {
       portalsLayers[i].removeLayer(p);
     }
     delete window.portals[guid];
-  } else if (guid in window.links) {
+  }
+}
+
+window.Render.prototype.deleteLinkEntity = function(guid) {
+  if (guid in window.links) {
     var l = window.links[guid];
     linksLayer.removeLayer(l);
     delete window.links[guid];
-  } else if (guid in window.fields) {
+  }
+}
+
+window.Render.prototype.deleteFieldEntity = function(guid) {
+  if (guid in window.fields) {
     var f = window.fields[guid];
-    fieldsLayer.removeLayer[guid];
+    fieldsLayer.removeLayer(f);
     delete window.fields[f];
   }
-
 }
 
 
@@ -106,6 +138,8 @@ window.Render.prototype.createEntity = function(ent) {
 
 
 window.Render.prototype.createPortalEntity = function(ent) {
+  this.seenPortalsGuid[ent[0]] = true;  // flag we've seen it
+
   // check if entity already exists
   if (ent[0] in window.portals) {
     // yes. now check to see if the entity data we have is newer than that in place
@@ -117,13 +151,13 @@ window.Render.prototype.createPortalEntity = function(ent) {
     // (e.g. level changed, so size is different, or stats changed so highlighter is different)
     // so to keep things simple we'll always re-create the entity in this case
 
-    deleteEntity(ent[0]);
+    this.deletePortalEntity(ent[0]);
   }
 
   var portalLevel = getPortalLevel(ent[2]);
   var team = getTeam(ent[2]);
 
-  var latlng = L.latlng(ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6);
+  var latlng = L.latLng(ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6);
 
   var marker = this.createMarker(ent, portalLevel, latlng, team);
 
@@ -172,6 +206,8 @@ window.Render.prototype.portalPolyOptions = function(ent, portalLevel, team) {
 
 
 window.Render.prototype.createFieldEntity = function(ent) {
+  this.seenFieldsGuid[ent[0]] = true;  // flag we've seen it
+
   // check if entity already exists
   if(ent[0] in window.fields) {
     // yes. in theory, we should never get updated data for an existing field. they're created, and they're destroyed - never changed
@@ -183,7 +219,7 @@ window.Render.prototype.createFieldEntity = function(ent) {
     // the data we have is newer - two options
     // 1. just update the data, assume the field render appearance is unmodified
     // 2. delete the entity, then re-create with the new data
-    deleteEntity(ent[0]); // option 2, for now
+    this.deleteFieldEntity(ent[0]); // option 2, for now
   }
 
   var team = getTeam(ent[2]);
@@ -212,6 +248,8 @@ window.Render.prototype.createFieldEntity = function(ent) {
 }
 
 window.Render.prototype.createLinkEntity = function(ent) {
+  this.seenLinksGuid[ent[0]] = true;  // flag we've seen it
+
   // check if entity already exists
   if (ent[0] in window.links) {
     // yes. now, as sometimes links are 'faked', they have incomplete data. if the data we have is better, replace the data
@@ -223,14 +261,14 @@ window.Render.prototype.createLinkEntity = function(ent) {
     // the data is newer/better - two options
     // 1. just update the data. assume the link render appearance is unmodified
     // 2. delete the entity, then re-create it with the new data
-    deleteEntity(ent[0]); // option 2 - for now
+    this.deleteLinkEntity(ent[0]); // option 2 - for now
   }
 
   var team = getTeam(ent[2]);
   var edge = ent[2].edge;
   var latlngs = [
-    L.latlng(edge.originPortalLocation.latE6/1E6, edge.originPortalLocation.lngE6/1E6),
-    L.latlng(edge.destinationPortalLocation.latE6/1E6, edge.destinationPortalLocation.lngE6/1E6)
+    L.latLng(edge.originPortalLocation.latE6/1E6, edge.originPortalLocation.lngE6/1E6),
+    L.latLng(edge.destinationPortalLocation.latE6/1E6, edge.destinationPortalLocation.lngE6/1E6)
   ];
   var poly = L.geodesicPolyline(latlngs, {
     color: COLORS[team],
