@@ -67,5 +67,5 @@ window.resetHighlightedPortals = function() {
       renderPortal(portal.options.ent);
     }
     catch(e) {}
-  }); 
+  });
 }

@@ -159,13 +159,37 @@ window.Render.prototype.createPortalEntity = function(ent) {
 
   var latlng = L.latLng(ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6);
 
-  var marker = this.createMarker(ent, portalLevel, latlng, team);
+//TODO: move marker creation, style setting, etc into a separate class
+//(as it's called from elsewhere - e.g. selecting/deselecting portals)
+
+//ALSO: change API for highlighters - make them return the updated style rather than directly calling setStyle on the portal marker
+//(can this be done in a backwardly-compatable way??)
+
+  var marker = this.createMarker(portalLevel, latlng, team);
 
   marker.on('click', function() { window.renderPortalDetails(ent[0]); });
   marker.on('dblclick', function() { window.renderPortalDetails(ent[0]); window.map.setView(latlng, 17); });
 
+  // we store various portal data within the portal options (style) data for use by IITC
+  // this data is constant throughout the life of the marker (as we destroy and re-create it if the ent data changes)
+  marker.setStyle ({
+    level: portalLevel,
+    team: team,
+    ent: ent,  // LEGACY - TO BE REMOVED AT SOME POINT! use .guid, .timestamp and .details instead
+    guid: ent[0],
+    timestamp: ent[1],
+    details: ent[2]
+  });
+
+
   // portal highlighters
   highlightPortal(marker);
+
+  // handle re-rendering of the selected portal
+  if (ent[0] === selectedPortal) {
+    marker.setStyle({color: COLOR_SELECTED_PORTAL});
+  }
+
 
   window.runHooks('portalAdded', {portal: marker});
 
@@ -176,34 +200,27 @@ window.Render.prototype.createPortalEntity = function(ent) {
 
 }
 
-window.Render.prototype.createMarker = function(ent, portalLevel, latlng, team) {
+window.Render.prototype.createMarker = function(portalLevel, latlng, team) {
 
-  var options = this.portalPolyOptions (ent, portalLevel, team);
+  var options = this.portalPolyOptions (portalLevel, team);
 
   var marker = L.circleMarker (latlng, options);
 
   return marker;
 }
 
-window.Render.prototype.portalPolyOptions = function(ent, portalLevel, team) {
+window.Render.prototype.portalPolyOptions = function(portalLevel, team) {
   var lvWeight = Math.max(2, Math.floor(portalLevel) / 1.5);
   var lvRadius = team === window.TEAM_NONE ? 7 : Math.floor(portalLevel) + 4;
 
   var options = {
     radius: lvRadius + (L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE : 0),
-    color: ent[0] === selectedPortal ? COLOR_SELECTED_PORTAL : COLORS[team],
+    color: COLORS[team],
     opacity: 1,
     weight: lvWeight,
     fillColor: COLORS[team],
     fillOpacity: 0.5,
-    clickable: true,
-    level: portalLevel,
-    team: team,
-    ent: ent,
-    guid: ent[0],
-    timestamp: ent[1],
-    details: ent[2],
-    ent: ent // LEGACY - TO BE REMOVED AT SOME POINT! use .guid, .timestamp and .details instead
+    clickable: true
   };
 
   return options;
