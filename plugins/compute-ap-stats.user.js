@@ -85,12 +85,12 @@ window.plugin.compAPStats.compAPStats = function() {
     if (getTeam(d) === TEAM_ENL) {
       totalAP_RES += portalSum;
 
-      $.each(d.portalV2.linkedEdges, function(ind, edge) {
+      $.each(d.portalV2.linkedEdges||[], function(ind, edge) {
         if(!edge) return true;
         allEnlEdges.push(edge.edgeGuid);
       });
 
-      $.each(d.portalV2.linkedFields, function(ind, field) {
+      $.each(d.portalV2.linkedFields||[], function(ind, field) {
         if(!field) return true;
         allEnlFields.push(field);
       });
@@ -101,12 +101,12 @@ window.plugin.compAPStats.compAPStats = function() {
     else if (getTeam(d) === TEAM_RES) {
       totalAP_ENL += portalSum;
 
-      $.each(d.portalV2.linkedEdges, function(ind, edge) {
+      $.each(d.portalV2.linkedEdges||[], function(ind, edge) {
         if(!edge) return true;
         allResEdges.push(edge.edgeGuid);
       });
 
-      $.each(d.portalV2.linkedFields, function(ind, field) {
+      $.each(d.portalV2.linkedFields||[], function(ind, field) {
         if(!field) return true;
         allResFields.push(field);
       });
