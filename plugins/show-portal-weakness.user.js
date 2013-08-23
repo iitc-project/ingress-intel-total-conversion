@@ -82,7 +82,6 @@ window.plugin.portalWeakness.highlightWeakness = function(data) {
                             dashArray: null});
     }
   }
-  window.COLOR_SELECTED_PORTAL = '#f0f';
 }
 
 var setup =  function() {

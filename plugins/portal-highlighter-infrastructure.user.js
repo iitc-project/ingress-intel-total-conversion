@@ -47,7 +47,6 @@ window.plugin.portalInfrastructure.highlight = function(data) {
   if(color !== '') {
     var params = {fillColor: color, fillOpacity: opa};
     data.portal.setStyle(params);  
-    window.COLOR_SELECTED_PORTAL = '#f0f';   
   }
  
 }

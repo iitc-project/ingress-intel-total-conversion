@@ -52,8 +52,6 @@ window.plugin.portalHighligherMods.highlight = function(data, mod_type) {
     var params = {fillColor: color, fillOpacity: fill_opacity};
     data.portal.setStyle(params);
   }
-
-  window.COLOR_SELECTED_PORTAL = '#f0f';
 }
 
 window.plugin.portalHighligherMods.highlightNoMods = function(data) {
@@ -73,8 +71,6 @@ window.plugin.portalHighligherMods.highlightNoMods = function(data) {
     var params = {fillColor: color, fillOpacity: fill_opacity};
     data.portal.setStyle(params);
   }
-
-  window.COLOR_SELECTED_PORTAL = '#f0f';
 }
 
 
