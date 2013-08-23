@@ -111,7 +111,7 @@ window.Render.prototype.deleteFieldEntity = function(guid) {
   if (guid in window.fields) {
     var f = window.fields[guid];
     fieldsLayer.removeLayer(f);
-    delete window.fields[f];
+    delete window.fields[guid];
   }
 }
 
@@ -161,6 +161,11 @@ window.Render.prototype.createPortalEntity = function(ent) {
 
   var marker = this.createMarker(ent, portalLevel, latlng, team);
 
+  marker.on('click', function() { window.renderPortalDetails(ent[0]); });
+  marker.on('dblclick', function() { window.renderPortalDetails(ent[0]); window.map.setView(latlng, 17); });
+
+  // portal highlighters
+  highlightPortal(marker);
 
   window.runHooks('portalAdded', {portal: marker});
 
