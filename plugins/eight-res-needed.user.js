@@ -28,7 +28,12 @@ window.plugin.eightResNeeded = function() {};
 
 window.plugin.eightResNeeded.neededLayers = {};
 window.plugin.eightResNeeded.neededLayerGroup = null;
-
+window.plugin.eightResNeeded.DETAIL_MAP_ZOOM = 14;
+window.plugin.eightResNeeded.DisplayEnum = {
+  OFF : 0,
+  ON : 1
+};
+    
 // Use portal add and remove event to control render of needed resonators numbers
 window.plugin.eightResNeeded.portalAdded = function(data) {
   data.portal.on('add', function() {
@@ -39,13 +44,23 @@ window.plugin.eightResNeeded.portalAdded = function(data) {
     plugin.eightResNeeded.removeNeeded(this.options.guid);
   });
 }
+
+window.plugin.eightResNeeded.getDisplay = function() {
+  if (map.getZoom() >= window.plugin.eightResNeeded.DETAIL_MAP_ZOOM) {
+    return window.plugin.eightResNeeded.DisplayEnum.OFF;
+  }
+  return window.plugin.eightResNeeded.DisplayEnum.ON;
+}
+
 window.plugin.eightResNeeded.renderNeeded = function(guid,latLng) {
     plugin.eightResNeeded.removeNeeded(guid);
     var d = window.portals[guid].options.details;
     var has_L8 = 0;
 	var owner_res = "";
+    var team = "";
 	// only of the same team: && d.controllingTeam.team == PLAYER.team
 	if(getTeam(d) !== 0) {
+        team = d.controllingTeam.team ;
 		$.each(d.resonatorArray.resonators, function(ind, reso) {
 			  if(reso) {       
 					var level = parseInt(reso.level);
@@ -63,10 +78,9 @@ window.plugin.eightResNeeded.renderNeeded = function(guid,latLng) {
 		if( resNeeded > 0) {
 			var level = L.marker(latLng, {
 			  icon: L.divIcon({
-				className: 'plugin-eight-res-needed'+owner_res,
-				iconAnchor: [6,7],
-				iconSize: [12,10],
-				html: resNeeded
+				className: 'plugin-eight-res-needed-'+team+owner_res,
+				iconAnchor: [30,10],
+				html:  "<div class='plugin-eight-res-label-"+team+owner_res+"'>-"+resNeeded+"</div>"
 				}),
 			  guid: guid
 			  });
@@ -75,6 +89,7 @@ window.plugin.eightResNeeded.renderNeeded = function(guid,latLng) {
         }
    }   
 }
+
 window.plugin.eightResNeeded.removeNeeded = function(guid) {
     var previousLayer = plugin.eightResNeeded.neededLayers[guid];
     if(previousLayer) {
@@ -87,7 +102,7 @@ var setup =  function() {
   $("<style>")
     .prop("type", "text/css")
     .html(".plugin-eight-res-needed {\
-            font-size: 11px;\
+            font-size: 12px;\
             color: #FFFFFF;\
             font-family: monospace;\
             text-align: center;\
@@ -96,16 +111,62 @@ var setup =  function() {
             -webkit-text-size-adjust:none;\
           }\
           .plugin-eight-res-needed-own {\
-            font-size: 10px;\
-            color: #777777;\
+            font-size: 12px;\
+            color: #FFD700;\
             font-family: monospace;\
             text-align: center;\
             text-shadow: 2px 2px 1px rgba(0, 0, 0, 1), -2px -2px 1px rgba(0, 0, 0, 1) , -2px 2px 1px rgba(0, 0, 0, 1), 2px -2px 1px rgba(0, 0, 0, 1);\
             pointer-events: none;\
             -webkit-text-size-adjust:none;\
-          }")
+          }\
+		  .plugin-eight-res-label-ENLIGHTENED {\
+            position:relative;\
+            background-color:#014201;\
+            opacity:.8;\
+            border:0.5px solid #FFCE00;\
+            width:22px;\
+            text-align:center;\
+            color:#FFFFFF;\
+            text-align:center;\
+            border-radius:6px;\
+           }\
+		  .plugin-eight-res-label-ENLIGHTENED-own {\
+            position:relative;\
+            background-color:#014201;\
+            opacity:.8;\
+            border:0.5px solid #FFCE00;\
+            width:22px;\
+            text-align:center;\
+            color:#FFD700;\
+            text-align:center;\
+            border-radius:6px;\
+           }\
+		  .plugin-eight-res-label-RESISTANCE {\
+            position:relative;\
+            background-color:#003666;\
+            opacity:.8;\
+            border:0.5px solid #FFCE00;\
+            width:22px;\
+            text-align:center;\
+            color:#FFFFFF;\
+            text-align:center;\
+            border-radius:6px;\
+           }\
+		  .plugin-eight-res-label-RESISTANCE-own {\
+            position:relative;\
+            background-color:#003666;\
+            opacity:.8;\
+            border:0.5px solid #FFCE00;\
+            width:22px;\
+            text-align:center;\
+            color:#FFD700;\
+            text-align:center;\
+            border-radius:6px;\
+           }")
   .appendTo("head");
 
+  window.plugin.eightResNeeded.currentDisplay = window.plugin.eightResNeeded.getDisplay();
+    
   window.plugin.eightResNeeded.neededLayerGroup = new L.LayerGroup();
 
   window.addLayerGroup('Still needed L8', window.plugin.eightResNeeded.neededLayerGroup, true);
