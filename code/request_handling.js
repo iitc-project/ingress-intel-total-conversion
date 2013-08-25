@@ -78,9 +78,6 @@ window.renderUpdateStatus = function() {
   }
   t += '</span>';
 
-  if(renderLimitReached())
-    t += ' <span style="color:#f66" class="help" title="Can only render so much before it gets unbearably slow. Not all entities are shown. Zoom in or increase the limit (search for MAX_DRAWN_*).">RENDER LIMIT</span>'
-
   if(window.failedRequestCount > 0)
     t += ' <span style="color:#f66">' + window.failedRequestCount + ' failed</span>'
 

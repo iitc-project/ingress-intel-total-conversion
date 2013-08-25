@@ -230,7 +230,6 @@ window.getPaddedBounds = function() {
       window._storedPaddedBounds = null;
     });
   }
-  if(renderLimitReached(0.7)) return window.map.getBounds();
   if(window._storedPaddedBounds) return window._storedPaddedBounds;
 
   var p = window.map.getBounds().pad(VIEWPORT_PAD_RATIO);
@@ -238,20 +237,6 @@ window.getPaddedBounds = function() {
   return p;
 }
 
-// returns true if the render limit has been reached. The default ratio
-// is 1, which means it will tell you if there are more items drawn than
-// acceptable. A value of 0.9 will tell you if 90% of the amount of
-// acceptable entities have been drawn. You can use this to heuristi-
-// cally detect if the render limit will be hit.
-window.renderLimitReached = function(ratio) {
-  ratio = ratio || 1;
-  if(window.portalsCount*ratio >= MAX_DRAWN_PORTALS) return true;
-  if(window.linksCount*ratio >= MAX_DRAWN_LINKS) return true;
-  if(window.fieldsCount*ratio >= MAX_DRAWN_FIELDS) return true;
-  var param = { 'reached': false };
-  window.runHooks('checkRenderLimit', param);
-  return param.reached;
-}
 
 window.getPortalDataZoom = function() {
   var z = map.getZoom();
@@ -275,14 +260,36 @@ window.getPortalDataZoom = function() {
 }
 
 window.getMinPortalLevelForZoom = function(z) {
-  if(z >= 17) return 0;
-  if(z < 0) return 8;
-  var conv = [8,8,8,8,7,7,6,6,5,4,4,3,3,2,2,1,1];
-  var minLevelByRenderLimit = portalRenderLimit.getMinLevel();
-  var result = minLevelByRenderLimit > conv[z]
-    ? minLevelByRenderLimit
-    : conv[z];
-  return result;
+//based on code from stock gen_dashboard.js
+  switch(z) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+      return 8;
+    case 4:
+    case 5:
+      return 7;
+    case 6:
+    case 7:
+      return 6;
+    case 8:
+      return 5;
+    case 9:
+    case 10:
+      return 4;
+    case 11:
+    case 12:
+      return 3;
+    case 13:
+    case 14:
+      return 2;
+    case 15:
+    case 16:
+      return 1;
+    default:
+      return 0
+  }
 }
 
 

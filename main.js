@@ -143,15 +143,12 @@ window.CHAT_FACTION_ITEMS = 100;
 window.CHAT_REQUEST_SCROLL_TOP = 200;
 window.CHAT_SHRINKED = 60;
 
-// Leaflet will get very slow for MANY items. It’s better to display
-// only some instead of crashing the browser.
-window.MAX_DRAWN_PORTALS = 1000;
-window.MAX_DRAWN_LINKS = 400;
-window.MAX_DRAWN_FIELDS = 200;
 // Minimum zoom level resonator will display
 window.RESONATOR_DISPLAY_ZOOM_LEVEL = 17;
+
 // Minimum area to zoom ratio that field MU's will display
 window.FIELD_MU_DISPLAY_AREA_ZOOM_RATIO = 0.001;
+
 // Point tolerance for displaying MU's
 window.FIELD_MU_DISPLAY_POINT_TOLERANCE = 60
 
@@ -246,15 +243,12 @@ window.portalAccessIndicator = null;
 window.mapRunsUserAction = false;
 var portalsLayers, linksLayer, fieldsLayer;
 
-// contain references to all entities shown on the map. These are
-// automatically kept in sync with the items on *sLayer, so never ever
-// write to them.
+// contain references to all entities loaded from the server. If render limits are hit,
+// not all may be added to the leaflet layers
 window.portals = {};
-window.portalsCount = 0;
 window.links = {};
-window.linksCount = 0;
 window.fields = {};
-window.fieldsCount = 0;
+
 window.resonators = {};
 
 // contain current status(on/off) of overlay layerGroups.

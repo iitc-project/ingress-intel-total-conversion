@@ -147,9 +147,6 @@ window.requestData = function() {
     }
   }
 
-  // Reset previous result of Portal Render Limit handler
-  portalRenderLimit.init();
-
 
   // send ajax requests
   console.log('requesting '+requestTileCount+' tiles in '+Object.keys(tiles).length+' requests');

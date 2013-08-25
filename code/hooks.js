@@ -41,16 +41,6 @@
 //              array [GUID, time, details]. Plugin can manipulate the
 //              array to change order or add additional values to the
 //              details of a portal.
-// beforePortalReRender: the callback argument is
-//              {portal: ent[2], oldPortal : d, portalGuid: ent[0], reRender : false}.
-//              The callback needs to update the value of reRender to
-//              true if the plugin has a reason to have the portal
-//              redrawn. It is called early on in the
-//              code/map_data.js#renderPortal as long as there was an
-//              old portal for the guid.
-// checkRenderLimit: callback is passed the argument of
-//              {reached : false} to indicate that the renderlimit is reached
-//              set reached to true.
 // requestFinished: called after each request finished. Argument is
 //              {success: boolean} indicated the request success or fail.
 // iitcLoaded: called after IITC and all plugins loaded
@@ -59,7 +49,7 @@
 window._hooks = {}
 window.VALID_HOOKS = ['portalAdded', 'portalDetailsUpdated',
   'publicChatDataAvailable', 'factionChatDataAvailable', 'portalDataLoaded',
-  'beforePortalReRender', 'checkRenderLimit', 'requestFinished', 'nicknameClicked',
+  'requestFinished', 'nicknameClicked',
   'geoSearch', 'iitcLoaded'];
 
 window.runHooks = function(event, data) {

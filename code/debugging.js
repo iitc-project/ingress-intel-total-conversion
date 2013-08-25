@@ -5,9 +5,9 @@
 window.debug = function() {}
 
 window.debug.renderDetails = function() {
-  console.log('portals: ' + window.portalsCount);
-  console.log('links:   ' + window.linksCount);
-  console.log('fields:  ' + window.fieldsCount);
+  console.log('portals: ' + Object.keys(window.portals).length);
+  console.log('links:   ' + Object.keys(window.links).length);
+  console.log('fields:  ' + Object.keys(window.fields).length);
 }
 
 window.debug.printStackTrace = function() {
