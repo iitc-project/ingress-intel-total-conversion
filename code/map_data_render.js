@@ -9,7 +9,7 @@ window.Render = function() {
 
 
 // start a render pass. called as we start to make the batch of data requests to the servers
-window.Render.prototype.startRenderPass = function() {
+window.Render.prototype.startRenderPass = function(bounds) {
   this.isRendering = true;
 
   this.deletedGuid = {};  // object - represents the set of all deleted game entity GUIDs seen in a render pass
@@ -17,7 +17,23 @@ window.Render.prototype.startRenderPass = function() {
   this.seenPortalsGuid = {};
   this.seenLinksGuid = {};
   this.seenFieldsGuid = {};
+
+  this.minPortalLevel = undefined;
+  // clear all entities outside of the bounds
 }
+
+window.Render.prototype.clearPortalsBelowLevel = function(level) {
+  if (this.minPortalLevel === undefined) {
+    this.minPortalLevel = level;
+    for (var guid in window.portals) {
+      var p = portals[guid];
+      if (parseInt(p.options.level) < level) {
+        this.deletePortalEntity(guid);
+      }
+    }
+  }
+}
+
 
 // process deleted entity list and entity data
 window.Render.prototype.processTileData = function(tiledata) {
@@ -165,29 +181,23 @@ window.Render.prototype.createPortalEntity = function(ent) {
 //ALSO: change API for highlighters - make them return the updated style rather than directly calling setStyle on the portal marker
 //(can this be done in a backwardly-compatable way??)
 
-  var marker = this.createMarker(portalLevel, latlng, team);
-
-  marker.on('click', function() { window.renderPortalDetails(ent[0]); });
-  marker.on('dblclick', function() { window.renderPortalDetails(ent[0]); window.map.setView(latlng, 17); });
-
-  // we store various portal data within the portal options (style) data for use by IITC
-  // this data is constant throughout the life of the marker (as we destroy and re-create it if the ent data changes)
-  marker.setStyle ({
+  var dataOptions = {
     level: portalLevel,
     team: team,
     ent: ent,  // LEGACY - TO BE REMOVED AT SOME POINT! use .guid, .timestamp and .details instead
     guid: ent[0],
     timestamp: ent[1],
     details: ent[2]
-  });
+  };
 
+  var marker = createMarker(latlng, dataOptions);
 
-  // portal highlighters
-  highlightPortal(marker);
+  marker.on('click', function() { window.renderPortalDetails(ent[0]); });
+  marker.on('dblclick', function() { window.renderPortalDetails(ent[0]); window.map.setView(latlng, 17); });
 
-  // handle re-rendering of the selected portal
+  // handle highlighting of the selected portal
   if (ent[0] === selectedPortal) {
-    marker.setStyle({color: COLOR_SELECTED_PORTAL});
+    setMarkerStyle (marker, true);
   }
 
 
@@ -198,32 +208,6 @@ window.Render.prototype.createPortalEntity = function(ent) {
   //TODO? postpone adding to the map layer
   portalsLayers[parseInt(portalLevel)].addLayer(marker);
 
-}
-
-window.Render.prototype.createMarker = function(portalLevel, latlng, team) {
-
-  var options = this.portalPolyOptions (portalLevel, team);
-
-  var marker = L.circleMarker (latlng, options);
-
-  return marker;
-}
-
-window.Render.prototype.portalPolyOptions = function(portalLevel, team) {
-  var lvWeight = Math.max(2, Math.floor(portalLevel) / 1.5);
-  var lvRadius = team === window.TEAM_NONE ? 7 : Math.floor(portalLevel) + 4;
-
-  var options = {
-    radius: lvRadius + (L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE : 0),
-    color: COLORS[team],
-    opacity: 1,
-    weight: lvWeight,
-    fillColor: COLORS[team],
-    fillOpacity: 0.5,
-    clickable: true
-  };
-
-  return options;
 }
 
 

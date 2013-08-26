@@ -233,15 +233,17 @@ window.DEG2RAD = Math.PI / 180;
 // global variables used for storage. Most likely READ ONLY. Proper
 // way would be to encapsulate them in an anonymous function and write
 // getters/setters, but if you are careful enough, this works.
-var refreshTimeout;
-var urlPortal = null;
+window.refreshTimeout = undefined;
+window.urlPortal = null;
 window.playersToResolve = [];
 window.playersInResolving = [];
 window.selectedPortal = null;
 window.portalRangeIndicator = null;
 window.portalAccessIndicator = null;
 window.mapRunsUserAction = false;
-var portalsLayers, linksLayer, fieldsLayer;
+window.portalsLayers = undefined;
+window.linksLayer = undefined;
+window.fieldsLayer = undefined;
 
 // contain references to all entities loaded from the server. If render limits are hit,
 // not all may be added to the leaflet layers

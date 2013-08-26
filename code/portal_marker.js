@@ -1,26 +1,50 @@
 // PORTAL MARKER //////////////////////////////////////////////
 // code to create and update a portal marker
 
-// sequence of calls:
-// 1. var marker = createMarker();
-// 2. // IITC (elsewhere) sets up options.details, options.guid, etc
-// 3. // IITC (elsewhere) calls marker.setLatLng()
-// 3. setMarkerStyle(selected);
 
 
-// create a blank marker. no data specified at this point
-window.createMarker = function() {
-  return new L.CircleMarker();
+
+// create a new marker. 'data' contain the IITC-specific entity data to be stored in the object options
+window.createMarker = function(latlng, data) {
+
+  // we assume non-selected - a selected portal will have an additional call to setMarkerStyle.
+  // inefficient - but it's only for a single portal
+  var styleOptions = window.getMarkerStyleOptions(data, false);
+
+  var options = L.extend({}, data, styleOptions, { clickable: true });
+
+  var marker = L.circleMarker(latlng, options);
+
+  highlightPortal(marker);
+
+  return marker;
 }
 
 
-window.setMarkerStyle = function(selected) {
+window.setMarkerStyle = function(marker, selected) {
+
+  var styleOptions = window.getMarkerStyleOptions(marker.options, selected);
+
+  marker.setStyle(styleOptions);
+
+  // FIXME? it's inefficient to set the marker style (above), then do it again inside the highlighter
+  // the highlighter API would need to be changed for this to be improved though. will it be too slow?
+  highlightPortal(marker);
+}
+
+
+window.getMarkerStyleOptions = function(details, selected) {
+  var lvlWeight = Math.max(2, Math.floor(details.level) / 1.5);
+  var lvlRadius = details.team === window.TEAM_NONE ? 7 : Math.floor(details.level) + 4;
 
   var options = {
+    radius: lvlRadius + (L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE : 0),
+    color: selected ? COLOR_SELECTED_PORTAL : COLORS[details.team],
+    opacity: 1,
+    weight: lvlWeight,
+    fillColor: COLORS[details.team],
+    fillOpacity: 0.5
   };
 
-  // call highlighter
-
-
-
+  return options;
 }

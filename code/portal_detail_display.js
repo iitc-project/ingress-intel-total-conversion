@@ -150,13 +150,14 @@ window.clearPortalIndicators = function() {
 window.selectPortal = function(guid) {
   var update = selectedPortal === guid;
   var oldPortal = portals[selectedPortal];
-//  if(!update && oldPortal) portalResetColor(oldPortal);
+  if(!update && oldPortal) setMarkerStyle(oldPortal,false);
 
   selectedPortal = guid;
 
   if(portals[guid]) {
 //    resonatorsSetSelectStyle(guid);
-    portals[guid].bringToFront().setStyle({color: COLOR_SELECTED_PORTAL});
+    portals[guid].bringToFront();
+   setMarkerStyle(portals[guid], true);
   }
 
   return update;
@@ -165,7 +166,7 @@ window.selectPortal = function(guid) {
 
 window.unselectOldPortal = function() {
   var oldPortal = portals[selectedPortal];
-//  if(oldPortal) portalResetColor(oldPortal);
+  if(oldPortal) setMarkerStyle(oldPortal,false);
   selectedPortal = null;
   $('#portaldetails').html('');
   if(isSmartphone()) {

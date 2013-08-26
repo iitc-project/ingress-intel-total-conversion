@@ -223,41 +223,34 @@ window.reportPortalIssue = function(info) {
     location.href = 'https://support.google.com/ingress?hl=en&contact=1';
 }
 
-window._storedPaddedBounds = undefined;
-window.getPaddedBounds = function() {
-  if(_storedPaddedBounds === undefined) {
-    map.on('zoomstart zoomend movestart moveend', function() {
-      window._storedPaddedBounds = null;
-    });
-  }
-  if(window._storedPaddedBounds) return window._storedPaddedBounds;
-
-  var p = window.map.getBounds().pad(VIEWPORT_PAD_RATIO);
-  window._storedPaddedBounds = p;
-  return p;
-}
-
 
 window.getPortalDataZoom = function() {
-  var z = map.getZoom();
+  var mapZoom = map.getZoom();
 
-  // on mobile (at least), the map zoom has been non-integer occasionally. fix it.
-  z = Math.floor(z);
+  var z = mapZoom;
 
   // limiting the mazimum zoom level for data retrieval reduces the number of requests at high zoom levels
   // (as all portal data is retrieved at z=17, why retrieve multiple z=18 tiles when fewer z=17 would do?)
   // very effective along with the new cache code
   if (z > 17) z=17;
 
-  // we could consider similar zoom-level consolidation, as, e.g. level 16 and 15 both return L1+, always
-  // request zoom 15 tiles. however, there are quirks in the current data stream, where small fields aren't
-  // returned by the server. using larger tiles always would amplify this issue.
+  // if the data zoom is above the map zoom we can step back if the detail level is the same
+  // with the new cache code this works rather well
+  var minZoom = mapZoom;
+  // due to the new smaller tiles used for zoom <= 12, we can get away with using further out tiles
+  // this can mean better use of the cache, and less load on the niantic servers
+  if (mapZoom <= 12 && mapZoom > 0) minZoom -= 2;
+
+  while (z > minZoom && getMinPortalLevelForZoom(z) == getMinPortalLevelForZoom(z-1)) {
+    z = z-1;
+  }
 
   //sanity check - should never happen
   if (z < 0) z=0;
 
   return z;
 }
+
 
 window.getMinPortalLevelForZoom = function(z) {
 //based on code from stock gen_dashboard.js
