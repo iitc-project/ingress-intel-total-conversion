@@ -4,7 +4,6 @@
 
 
 window.Render = function() {
-
 }
 
 

@@ -15,7 +15,7 @@ window.RenderDebugTiles.prototype.reset = function() {
 }
 
 window.RenderDebugTiles.prototype.create = function(id,bounds) {
-  var s = {color: '#888', weight: 3, opacity: 0.7, fillColor: '#888', fillOpacity: 0.4, clickable: false};
+  var s = {color: '#000', weight: 3, opacity: 0.7, fillColor: '#000', fillOpacity: 0.5, clickable: false};
 
   var bounds = new L.LatLngBounds(bounds);
   bounds = bounds.pad(-0.02);
