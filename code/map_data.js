@@ -3,42 +3,10 @@
 // map. They also keep them up to date, unless interrupted by user
 // action.
 
-// debug - display a set of rectangles on the map representing each data tile. the colour will represent it's state
-window._debugDataTileStateLayer = undefined;
-
-window.debugDataTileReset = function() {
-  if (!window._debugDataTileStateLayer) {
-    window._debugDataTileStateLayer = L.layerGroup();
-    window.addLayerGroup("DEBUG Data Tiles", window._debugDataTileStateLayer, false);
-  }
-
-  window._debugDataTileIdToRectangle = {};
-  window._debugDataTileStateLayer.clearLayers();
-}
-
-window.debugCreateTile = function(qk,bounds) {
-  var s = {color: '#888', weight: 3, opacity: 0.7, fillColor: '#888', fillOpacity: 0.4, clickable: false};
-
-  bounds = new L.LatLngBounds(bounds);
-  bounds = bounds.pad(-0.02);
-
-  var l = L.rectangle(bounds,s);
-  window._debugDataTileIdToRectangle[qk] = l;
-  window._debugDataTileStateLayer.addLayer(l);
-}
-
-window.debugSetTileColour = function(qk,bordercol,fillcol) {
-  var l = window._debugDataTileIdToRectangle[qk];
-  if (l) {
-    var s = {color: bordercol, weight: 3, opacity: 0.3, fillColor: fillcol, fillOpacity: 0.1, clickable: false};
-    l.setStyle(s);
-  }
-}
-
-
 // cache for data tiles. indexed by the query key (qk)
 window.cache = undefined;
 window.render = undefined;
+window.debugTiles = undefined;
 
 
 // due to the cache (and race conditions in the server) - and now also oddities in the returned data
@@ -63,7 +31,8 @@ window.requestData = function() {
   // clear the list of returned deleted entities
   window._deletedEntityGuid = {}
 
-  debugDataTileReset();
+  if (!debugTiles) debugTiles = new RenderDebugTiles();
+  debugTiles.reset();
 
   cache.expire();
 
@@ -103,7 +72,7 @@ window.requestData = function() {
       var lngWest = tileToLng(x,z);
       var lngEast = tileToLng(x+1,z);
 
-      debugCreateTile(tile_id,[[latSouth,lngWest],[latNorth,lngEast]]);
+      debugTiles.create(tile_id,[[latSouth,lngWest],[latNorth,lngEast]]);
       window.statusTotalMapTiles++;
 
       // TODO?: if the selected portal is in this tile, always fetch the data
@@ -112,7 +81,7 @@ window.requestData = function() {
 
         render.processTileData (tiledata);
 
-        debugSetTileColour(tile_id,'#0f0','#ff0');
+        debugTiles.setColour(tile_id,'#0f0','#ff0');
         window.statusCachedMapTiles++;
       } else {
         // group requests into buckets based on the tile count retrieved via the network.
@@ -141,7 +110,7 @@ window.requestData = function() {
 
         tiles[bucket].push(boundsParam);
 
-        debugSetTileColour(tile_id,'#00f','#000');
+        debugTiles.setColour(tile_id,'#00f','#000');
       }
 
     }
@@ -186,12 +155,12 @@ window.handleFailedRequest = function(tile_ids) {
     if (cached) {
       // we have stale cached data - use it
       cachedData.result.map[tile_id] = cached;
-      debugSetTileColour(tile_id,'#800','#ff0');
+      debugTiles.setColour(tile_id,'#800','#ff0');
       console.log('(using stale cache entry for map tile '+tile_id+')');
       window.statusStaleMapTiles++;
     } else {
       // no cached data
-      debugSetTileColour(tile_id,'#800','#f00');
+      debugTiles.setColour(tile_id,'#800','#f00');
       window.statusErrorMapTiles++;
     }
   });
@@ -238,20 +207,20 @@ window.handleDataResponse = function(data, fromCache, tile_ids) {
         var cacheVal = cache.get(qk);
 
         if (!cacheVal) {
-          debugSetTileColour(qk, '#f00','#f00');
+          debugTiles.setColour(qk, '#f00','#f00');
           // no data in cache for this tile. continue processing - it's possible it also has some valid data
           window.statusErrorMapTiles++;
         } else {
           // stale cache entry exists - use it
           val = cacheVal;
-          debugSetTileColour(qk, '#f00','#ff0');
+          debugTiles.setColour(qk, '#f00','#ff0');
           console.log('(using stale cache entry for map tile '+qk+')');
           window.statusStaleMapTiles++;
         }
       } else {
         // not an error - store this tile into the cache
         cache.store(qk,val);
-        debugSetTileColour(qk, '#0f0','#0f0');
+        debugTiles.setColour(qk, '#0f0','#0f0');
         window.statusSuccessMapTiles++;
       }
 
