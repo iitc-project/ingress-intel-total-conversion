@@ -2,7 +2,7 @@
 // @id             iitc-plugin-show-more-portals@jonatkins
 // @name           IITC plugin: Show more portals
 // @category       Tweaks
-// @version        0.1.2.@@DATETIMEVERSION@@
+// @version        0.1.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -29,14 +29,15 @@ window.plugin.showMorePortals.setup  = function() {
   window.getPortalDataZoom = function() {
     var mapZoom = map.getZoom();
 
-    // yes, it is possible to increase this beyond "+1" - however, that will end up producing a rediculous number
-    // of requests to the Niantic servers, giving many request failed errors/tile timeouts
-    // (every increase by one requests four times as many data tiles)
-    var z = mapZoom + 1;
+    var z = mapZoom;
 
-    // UPDATE: due to the new smaller tiles used when zoomed out further (getThinnedEntitiesV4), it gets silly
-    // doing this when zoomed out. so only boost when zoomed in
-    if (z <= 12) z = mapZoom;
+    // boost data zoom level by one when reasonably close (past the zoom<=12 point of the smaller
+    // getThinnedEntitiesV4 tiles, to avoid excessive requests further out)
+    if (mapZoom >= 13) z += 1;
+
+    // not recommended on anything other than the very smallest of screens
+//    // show unclaimed portals at an additional zoom level further than by default
+//    if (mapZoom >= 15) z += 1;
 
 
     // limiting the mazimum zoom level for data retrieval reduces the number of requests at high zoom levels
@@ -46,7 +47,12 @@ window.plugin.showMorePortals.setup  = function() {
 
     // if the data zoom is above the map zoom we can step back if the detail level is the same
     // with the new cache code this works rather well
-    while (z > mapZoom && getMinPortalLevelForZoom(z) == getMinPortalLevelForZoom(z-1)) {
+    var minZoom = mapZoom;
+    // due to the new smaller tiles used for zoom <= 12, we can get away with using slightly further out tiles
+    // this can mean better use of the cache, and less load on the niantic servers
+    if (mapZoom <= 12 && mapZoom > 0) minZoom -= 2;
+
+    while (z > minZoom && getMinPortalLevelForZoom(z) == getMinPortalLevelForZoom(z-1)) {
       z = z-1;
     }
 
