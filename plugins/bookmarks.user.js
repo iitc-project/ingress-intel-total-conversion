@@ -35,6 +35,7 @@
   + code rewritten from scratch:
   ++ more optimization;
   ++ less animated effects;
+  + Sync;
   + Hooks (for developer);
   + Option panel:
   ++ manual import/export/reset of the data;
@@ -43,7 +44,6 @@
   + Auto-drawer feature: select two o three portals boomark to auto-draw a link or field (draw-tools required);
   + IITCm: you can open/close the folders;
   + IITCm: bookmarks/folders not sortable (the 'sortable' jquery function not work);
-  + Sync: to use this feature you must disable 'key' plugin or put it below in tampermonkey list (https://github.com/jonatkins/ingress-intel-total-conversion/issues/501);
 
 ***********************************************************************/
 
