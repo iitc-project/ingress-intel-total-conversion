@@ -494,8 +494,8 @@ window.clampLat = function(lat) {
 }
 
 window.clampLng = function(lng) {
-  if (lng > 180.0)
-    lng = 180.0
+  if (lng > 179.999999)
+    lng = 179.999999;
   else if (lng < -180.0)
     lng = -180.0;
   return lng;
