@@ -15,6 +15,8 @@
 //            required to successfully boot the plugin.
 //
 // Here’s more specific information about each event:
+// mapDataRefreshStart: called when we start refreshing map data
+// mapDataRefreshEnd: called when we complete the map data load
 // portalAdded: called when a portal has been received and is about to
 //              be added to its layer group. Note that this does NOT
 //              mean it is already visible or will be, shortly after.
@@ -47,8 +49,10 @@
 
 
 window._hooks = {}
-window.VALID_HOOKS = ['portalAdded', 'portalDetailsUpdated',
-  'publicChatDataAvailable', 'factionChatDataAvailable', 'portalDataLoaded',
+window.VALID_HOOKS = [
+  'mapDataRefreshStart', 'mapDataRefreshEnd',
+  'portalAdded', 'portalDetailsUpdated',
+  'publicChatDataAvailable', 'factionChatDataAvailable',
   'requestFinished', 'nicknameClicked',
   'geoSearch', 'iitcLoaded'];
 

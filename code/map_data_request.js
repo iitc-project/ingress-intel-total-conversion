@@ -69,6 +69,12 @@ window.MapDataRequest.prototype.clearQueue = function() {
 }
 
 
+window.MapDataRequest.prototype.getStatus = function() {
+  return { short: 'blah', long: 'blah blah blah' };
+
+};
+
+
 window.MapDataRequest.prototype.refresh = function() {
 
   this.cache.expire();
@@ -78,19 +84,21 @@ window.MapDataRequest.prototype.refresh = function() {
   // a 'set' to keep track of hard failures for tiles
   this.tileErrorCount = {};
 
+  // fill tileBounds with the data needed to request each tile
+  this.tileBounds = {};
+
 
   var bounds = clampLatLngBounds(map.getBounds());
   var zoom = getPortalDataZoom();
   var minPortalLevel = getMinPortalLevelForZoom(zoom);
 
+  window.runHooks ('mapDataRefreshStart', {bounds: bounds, zoom: zoom});
 
   this.render.startRenderPass(bounds);
   this.render.clearPortalsBelowLevel(minPortalLevel);
 
   console.log('requesting data tiles at zoom '+zoom+' (L'+minPortalLevel+'+ portals), map zoom is '+map.getZoom());
 
-  // fill tileBounds with the data needed to request each tile
-  this.tileBounds = {};
 
   var x1 = lngToTile(bounds.getWest(), zoom);
   var x2 = lngToTile(bounds.getEast(), zoom);
@@ -142,6 +150,8 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
     this.render.endRenderPass();
 
     console.log("finished requesting data!");
+
+    window.runHooks ('mapDataRefreshEnd', {});
 
     if (!window.isIdle()) {
       this.refreshOnTimeout(this.REFRESH);

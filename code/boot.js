@@ -193,14 +193,15 @@ window.setupMap = function() {
 
   window.addResumeFunction(function() { window.startRefreshTimeout(ON_MOVE_REFRESH*1000); });
 
+  // create the map data requester
+  window.mapDataRequest = new MapDataRequest();
+  window.mapDataRequest.start();
+
   // start the refresh process with a small timeout, so the first data request happens quickly
   // (the code originally called the request function directly, and triggered a normal delay for the nxt refresh.
   //  however, the moveend/zoomend gets triggered on map load, causing a duplicate refresh. this helps prevent that
   window.startRefreshTimeout(ON_MOVE_REFRESH*1000);
 
-  // create the map data requester
-  window.mapDataRequest = new MapDataRequest();
-  window.mapDataRequest.start();
 };
 
 //adds a base layer to the map. done separately from the above, so that plugins that add base layers can be the default
@@ -478,7 +479,7 @@ function boot() {
       try {
         ref();
       } catch(err) {
-        console.log("error starting plugin: index "+ind+", error: "+err);
+        console.error("error starting plugin: index "+ind+", error: "+err);
       }
     });
 
@@ -488,7 +489,7 @@ function boot() {
   window.runOnSmartphonesAfterBoot();
 
   // workaround for #129. Not sure why this is required.
-  setTimeout('window.map.invalidateSize(false);', 500);
+//  setTimeout('window.map.invalidateSize(false);', 500);
 
   window.iitcLoaded = true;
   window.runHooks('iitcLoaded');

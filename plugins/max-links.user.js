@@ -22,7 +22,6 @@ window.plugin.maxLinks = function() {};
 
 // const values
 window.plugin.maxLinks.MAX_DRAWN_LINKS = 400;
-window.plugin.maxLinks.MAX_DRAWN_LINKS_INCREASED_LIMIT = 1000;
 window.plugin.maxLinks.STROKE_STYLE = {
   color: '#FF0000',
   opacity: 1,
@@ -34,7 +33,6 @@ window.plugin.maxLinks.STROKE_STYLE = {
 window.plugin.maxLinks.layer = null;
 
 window.plugin.maxLinks._updating = false;
-window.plugin.maxLinks._renderLimitReached = false;
 
 window.plugin.maxLinks.Point = function(x,y) {
   this.x=x;
@@ -64,9 +62,6 @@ window.plugin.maxLinks.updateLayer = function() {
 
   var drawnLinkCount = 0;
   window.plugin.maxLinks._renderLimitReached = false;
-  var renderLimit = window.USE_INCREASED_RENDER_LIMIT ?
-    window.plugin.maxLinks.MAX_DRAWN_LINKS_INCREASED_LIMIT :
-    window.plugin.maxLinks.MAX_DRAWN_LINKS;
 
   var orderedPoints = function(a,b) {
     if(a.x<b.x) return [a,b];
@@ -106,7 +101,7 @@ window.plugin.maxLinks.updateLayer = function() {
     drawLink(triangle.c,triangle.a);
 
     // we only check the render limit after drawing all three edges of a triangle, for efficency
-    if (drawnLinkCount > renderLimit ) {
+    if (drawnLinkCount > window.pligin.maxLinks.MAX_DRAWN_LINKS ) {
       window.plugin.maxLinks._renderLimitReached = true;
       return false;  //$.each break
     }
@@ -122,13 +117,7 @@ window.plugin.maxLinks.setup = function() {
 
   window.plugin.maxLinks.layer = L.layerGroup([]);
 
-  window.addHook('checkRenderLimit', function(e) {
-    if (window.map.hasLayer(window.plugin.maxLinks.layer) &&
-        window.plugin.maxLinks._renderLimitReached)
-      e.reached = true;
-  });
-
-  window.addHook('requestFinished', function(e) {
+  window.addHook('mapDataRefreshEnd', function(e) {
     window.plugin.maxLinks.updateLayer();
   });
 
