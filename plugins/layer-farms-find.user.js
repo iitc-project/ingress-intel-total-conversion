@@ -1,12 +1,10 @@
 // ==UserScript==
-// @id             iitc-plugin-farms@parabola949
+// @id             iitc-plugin-farms@949
 // @name           IITC plugin: Show farms by level
-// @category       Layer
-// @version        1.1.1.20130826.142308
+// @category       Info
+// @version        1.1.2.20130827.122608
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
-// @updateURL      http://userscripts.org/scripts/source/175900.meta.js
-// @downloadURL    http://userscripts.org/scripts/source/175900.user.js
-// @description    [parabola949-2013-08-26] Finds farms by minimum level
+// @description    [parabola949-2013-08-27] Find farms by minimum level
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -17,6 +15,9 @@
 //CHANGELOG
 /*
  * 
+v1.1.2
+Fixed the portal counts (shown in console)
+
 v1.1.1
 Changed circle stroke weight and opacity, making it easier to see when zoomed out.
 
@@ -156,7 +157,12 @@ window.plugin.farmFind.checkPortals = function(){
     
     //console.log(farms.length);
     for (i = 0; i < farms.length; i++)
+    {
+        farms[i] = findUnique(farms[i]);
         console.log("Farm " + (i+1) + ": " + farms[i].length + " portals");
+        
+    }
+    //console.log(farms);
     
     
     
@@ -170,6 +176,25 @@ window.plugin.farmFind.checkPortals = function(){
     
     
 };
+    
+    findUnique = function(farm) {
+        var unique = [];
+        for(p = 0; p < farm.length; p++)
+        {
+            //console.log(farm[p].options.guid);
+        	var found = false;
+            for (u = 0; u < unique.length; u++)
+            {
+                //console.log(unique[u].options.guid);
+             	if (farm[p].options.guid == unique[u].options.guid)
+                    found = true;
+            }
+            if (!found)
+                unique.push(farm[p]);
+        }
+        
+        return unique;
+}
     
 window.plugin.farmFind.drawCircle = function(farm)
 {
