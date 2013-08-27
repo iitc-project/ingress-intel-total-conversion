@@ -44,7 +44,7 @@ window.renderPortalDetails = function(guid) {
   var resoDetails = '<table id="resodetails">' + getResonatorDetails(d) + '</table>';
 
   setPortalIndicators(d);
-  var img = d.imageByUrl.imageUrl;
+  var img = getPortalImageUrl(d);
   var lat = d.locationE6.latE6/1E6;
   var lng = d.locationE6.lngE6/1E6;
   var perma = '/intel?ll='+lat+','+lng+'&z=17&pll='+lat+','+lng;
