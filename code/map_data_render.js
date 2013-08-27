@@ -4,6 +4,10 @@
 
 
 window.Render = function() {
+  // below this many portals displayed, we reorder the SVG at the end of the render pass to put portals above fields/links
+  this.LOW_PORTAL_COUNT = 350;
+
+
 }
 
 
@@ -91,6 +95,19 @@ window.Render.prototype.endRenderPass = function() {
     if (!(guid in this.seenFieldsGuid)) {
       this.deleteFieldEntity(guid);
     }
+  }
+
+  // reorder portals to be after links/fields, but only if the number is low
+  if (Object.keys(window.portals).length <= this.LOW_PORTAL_COUNT) {
+    for (var i in window.portalsLayers) {
+      var layer = window.portalsLayers[i];
+      if (window.map.hasLayer(layer)) {
+        layer.eachLayer (function(p) {
+          p.bringToFront();
+        });
+      }
+    }
+
   }
 
   this.isRendering = false;
