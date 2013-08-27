@@ -1,5 +1,15 @@
 <h2>News</h2>
 
+<h4>27th August 2013</h4>
+<p>
+Yet another critical IITC update, 0.13.4 (and mobile 0.5.4.3) have been released. A few things in this build
+<ul>
+<li>Scoreboard plugin is broken - fix coming later</li>
+<li>No MU numbers shown in fields - the server no longer returns the data</li>
+<li>Other plugins may be broken too - limited testing has been done</li>
+</ul>
+</p>
+
 <h4>16th August 2013</h4>
 <p>
 IITC 0.13.3 and IITC Mobile 0.5.4.2 have been released. This is another critical update required to work
