@@ -225,7 +225,7 @@ window.MapDataRequest.prototype.requeueTile = function(id, error) {
     // first, see if the error can be ignored due to retry counts
     if (error) {
       this.tileErrorCount[id] = (this.tileErrorCount[id]||0)+1;
-      if (tileErrorCount < this.MAX_TILE_RETRIES) {
+      if (this.tileErrorCount[id] < this.MAX_TILE_RETRIES) {
         // retry limit low enough - clear the error flag
         error = false;
       }
