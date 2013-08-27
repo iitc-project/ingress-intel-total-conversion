@@ -26,6 +26,7 @@ install from the link below.
 <p>
 IITC Mobile is still in the early stages of development. Many things do not yet work right. Major known issues are:
 <ol>
+<li>Some users get <b>Error: Server Error</b> when logging in. See the FAQ for possible workarounds.</li>
 <li>Some plugins do not work well, or at all, at this time.</li>
 <li>Serious issues exist on Android 4.0 devices.
 <a href="https://github.com/jonatkins/ingress-intel-total-conversion/issues/90">details</a>.</li>
