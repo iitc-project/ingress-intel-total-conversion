@@ -129,23 +129,23 @@ window.startRefreshTimeout = function(override) {
     if(adj > 0) t += adj*1000;
   }
   var next = new Date(new Date().getTime() + t).toLocaleTimeString();
-  console.log('planned refresh in ' + (t/1000) + ' seconds, at ' + next);
+//  console.log('planned refresh in ' + (t/1000) + ' seconds, at ' + next);
   refreshTimeout = setTimeout(window.requests._callOnRefreshFunctions, t);
   renderUpdateStatus();
 }
 
 window.requests._onRefreshFunctions = [];
 window.requests._callOnRefreshFunctions = function() {
-  console.log('running refresh at ' + new Date().toLocaleTimeString());
+//  console.log('running refresh at ' + new Date().toLocaleTimeString());
   startRefreshTimeout();
 
   if(isIdle()) {
-    console.log('user has been idle for ' + idleTime + ' seconds, or window hidden. Skipping refresh.');
+//    console.log('user has been idle for ' + idleTime + ' seconds, or window hidden. Skipping refresh.');
     renderUpdateStatus();
     return;
   }
 
-  console.log('refreshing');
+//  console.log('refreshing');
 
   //store the timestamp of this refresh
   window.requests._lastRefreshTime = new Date().getTime();

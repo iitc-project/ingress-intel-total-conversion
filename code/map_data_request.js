@@ -4,7 +4,7 @@
 // Uses the map data cache class to reduce network requests
 
 
-window.Request = function() {
+window.MapDataRequest = function() {
   this.cache = new DataCache();
   this.render = new Render();
   this.debugTiles = new RenderDebugTiles();
@@ -12,17 +12,71 @@ window.Request = function() {
   this.activeRequestCount = 0;
   this.requestedTiles = {};
 
+  // no more than this many requests in parallel
   this.MAX_REQUESTS = 4;
-  this.MAX_TILES_PER_REQUEST = 12;
+  // no more than this many tiles in one request
+  this.MAX_TILES_PER_REQUEST = 16;
+  // but don't create more requests if it would make less than this per request
+  this.MIN_TILES_PER_REQUEST = 4;
 
+  // number of times to retty a tile after a 'bad' error (i.e. not a timeout)
+  this.MAX_TILE_RETRIES = 3;
+
+  // refresh timers
+  this.MOVE_REFRESH = 2.5; //refresh time to use after a move
+  this.STARTUP_REFRESH = 1; //refresh time used on first load of IITC
+  this.IDLE_RESUME_REFRESH = 5; //refresh time used after resuming from idle
+  this.REFRESH = 60;  //refresh time to use when not idle and not moving
 }
 
 
-window.Request.prototype.start = function() {
+window.MapDataRequest.prototype.start = function() {
+  var savedContext = this;
+
+  // setup idle resume function
+  window.addResumeFunction ( function() { savedContext.refreshOnTimeout(savedContext.IDLE_RESUME_REFRESH); } );
+
+  // and map move callback
+  window.map.on('moveend', function() { savedContext.refreshOnTimeout(savedContext.MOVE_REFRESH); } );
+
+  // and on movestart, we clear the request queue
+  window.map.on('movestart', function() { savedContext.clearQueue(); } );
+
+  // then set a timeout to start the first refresh
+  this.refreshOnTimeout (this.MOVE_REFRESH);
+
+}
+
+window.MapDataRequest.prototype.refreshOnTimeout = function(seconds) {
+
+  if (this.timer) {
+    console.log("cancelling existing map refresh timer");
+    clearTimeout(this.timer);
+    this.timer = undefined;
+  }
+
+
+  console.log("starting map refresh in "+seconds+" seconds");
+
+  // 'this' won't be right inside the callback, so save it
+  var savedContext = this;
+  this.timer = setTimeout ( function() { savedContext.timer = undefined; savedContext.refresh(); }, seconds*1000);
+}
+
+
+window.MapDataRequest.prototype.clearQueue = function() {
+  this.tileBounds = {};
+}
+
+
+window.MapDataRequest.prototype.refresh = function() {
 
   this.cache.expire();
 
   this.debugTiles.reset();
+
+  // a 'set' to keep track of hard failures for tiles
+  this.tileErrorCount = {};
 
 
   var bounds = clampLatLngBounds(map.getBounds());
@@ -55,60 +109,47 @@ window.Request.prototype.start = function() {
 
       this.debugTiles.create(tile_id,[[latSouth,lngWest],[latNorth,lngEast]]);
 
-      var boundsParams = generateBoundsParams(
-        tile_id,
-        latSouth,
-        lngWest,
-        latNorth,
-        lngEast
-      );
+      if (this.cache.isFresh(tile_id) ) {
+        // data is fresh in the cache - just render it
+        this.debugTiles.setState(tile_id, 'cache-fresh');
+        this.render.processTileData (this.cache.get(tile_id));
+      } else {
+        // no fresh data - queue a request
+        var boundsParams = generateBoundsParams(
+          tile_id,
+          latSouth,
+          lngWest,
+          latNorth,
+          lngEast
+        );
 
-      this.tileBounds[tile_id] = boundsParams;
-
+        this.tileBounds[tile_id] = boundsParams;
+      }
     }
   }
 
 
-  this.renderCachedTiles();
-
-
-  this.processRequestQueue();
+  this.processRequestQueue(true);
 }
 
 
-window.Request.prototype.renderCachedTiles = function() {
-
-  for (var tile_id in this.tileBounds) {
-    if (this.cache.isFresh(tile_id)) {
-      // fresh cache data
-
-      this.debugTiles.setState(tile_id, 'cache-fresh');
-
-      var data = this.cache.get(tile_id);
-      // render it...
-      // TODO?? make rendering sort-of asynchronous? rendering a large number of dense tiles is slow - so perhaps use a timer and render one/a few at a time??
-      // (could even consider splitting these larger tiles into multiple render calls, perhaps?)
-      this.render.processTileData(data);
-      // .. and delete from the pending requests
-      delete this.tileBounds[tile_id];
-    }
-  }
-
-}
 
 
-window.Request.prototype.processRequestQueue = function() {
-  console.log("Request.processRequestQueue...");
+window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
 
   // if nothing left in the queue, end the render. otherwise, send network requests
   if (Object.keys(this.tileBounds).length == 0) {
     this.render.endRenderPass();
-    // TODO: start timer for next refresh cycle here
-    console.log("Request.processRequestQueue: ended");
 
+    console.log("finished requesting data!");
+
+    if (!window.isIdle()) {
+      this.refreshOnTimeout(this.REFRESH);
+    } else {
+      console.log("suspending map refresh - is idle");
+    }
     return;
   }
-
 
   // create a list of tiles that aren't requested over the network
   var pendingTiles = {};
@@ -118,15 +159,17 @@ window.Request.prototype.processRequestQueue = function() {
     }
   }
 
-  console.log("Request.processRequestQueue: "+Object.keys(pendingTiles).length+" tiles waiting");
+  console.log("- request state: "+Object.keys(this.requestedTiles).length+" tiles in "+this.activeRequestCount+" active requests, "+Object.keys(pendingTiles).length+" tiles queued");
 
+
+  var requestTileCount = Math.min(this.MAX_TILES_PER_REQUEST,Math.max(this.MIN_TILES_PER_REQUEST, Object.keys(pendingTiles).length/this.MAX_REQUESTS));
 
   while (this.activeRequestCount < this.MAX_REQUESTS && Object.keys(pendingTiles).length > 0) {
     // let's distribute the requests evenly throughout the pending list.
 
     var pendingTilesArray = Object.keys(pendingTiles);
 
-    var mod = Math.ceil(Object.keys(pendingTiles).length / this.MAX_TILES_PER_REQUEST);
+    var mod = Math.ceil(pendingTilesArray.length / requestTileCount);
 
     var tiles = [];
     for (var i in pendingTilesArray) {
@@ -134,20 +177,17 @@ window.Request.prototype.processRequestQueue = function() {
         id = pendingTilesArray[i];
         tiles.push(id);
         delete pendingTiles[id];
-//        if (tiles.length >= this.MAX_TILES_PER_REQUEST) {
-//          break;
-//        }
       }
     }
 
-    console.log("Request.processRequestQueue: asking for "+tiles.length+" tiles in one request");
+    console.log("-- asking for "+tiles.length+" tiles in one request");
     this.sendTileRequest(tiles);
   }
 
 }
 
 
-window.Request.prototype.sendTileRequest = function(tiles) {
+window.MapDataRequest.prototype.sendTileRequest = function(tiles) {
 
   var boundsParamsList = [];
 
@@ -178,12 +218,21 @@ window.Request.prototype.sendTileRequest = function(tiles) {
   ));
 }
 
-window.Request.prototype.requeueTile = function(id, error) {
+window.MapDataRequest.prototype.requeueTile = function(id, error) {
   if (id in this.tileBounds) {
     // tile is currently wanted...
 
+    // first, see if the error can be ignored due to retry counts
     if (error) {
-      // if error is true, it was a 'bad' error - in this case we limit the number of retries (or prefer stale cached data?)
+      this.tileErrorCount[id] = (this.tileErrorCount[id]||0)+1;
+      if (tileErrorCount < this.MAX_TILE_RETRIES) {
+        // retry limit low enough - clear the error flag
+        error = false;
+      }
+    }
+
+    if (error) {
+      // if error is still true, retry limit hit. use stale data from cache if available
       var data = this.cache.get(id);
       if (data) {
         // we have cached data - use it, even though it's stale
@@ -205,7 +254,7 @@ window.Request.prototype.requeueTile = function(id, error) {
 }
 
 
-window.Request.prototype.handleResponse = function (data, tiles, success) {
+window.MapDataRequest.prototype.handleResponse = function (data, tiles, success) {
 
   this.activeRequestCount -= 1;
 
@@ -236,7 +285,6 @@ window.Request.prototype.handleResponse = function (data, tiles, success) {
         // server returned an error for this individual data tile
 
         if (val.error == "TIMEOUT") {
-          console.log('map data tile '+id+' returned TIMEOUT');
           // TIMEOUT errors for individual tiles are 'expected'(!) - and result in a silent unlimited retries
           this.requeueTile(id, false);
         } else {
@@ -245,7 +293,6 @@ window.Request.prototype.handleResponse = function (data, tiles, success) {
         }
       } else {
         // no error for this data tile - process it
-        console.log('map data tile '+id+' is good...');
 
         // store the result in the cache
         this.cache.store (id, val);

@@ -115,7 +115,7 @@ function wrapper() {
 L_PREFER_CANVAS = false;
 
 // CONFIG OPTIONS ////////////////////////////////////////////////////
-window.REFRESH = 60; // refresh view every 30s (base time)
+window.REFRESH = 30; // refresh view every 30s (base time)
 window.ZOOM_LEVEL_ADJ = 5; // add 5 seconds per zoom level
 window.ON_MOVE_REFRESH = 2.5;  //refresh time to use after a movement event
 window.MINIMUM_OVERRIDE_REFRESH = 10; //limit on refresh time since previous refresh, limiting repeated move refresh rate

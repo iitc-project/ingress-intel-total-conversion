@@ -192,13 +192,15 @@ window.setupMap = function() {
   map.on('moveend zoomend', function() { window.mapRunsUserAction = false; window.startRefreshTimeout(ON_MOVE_REFRESH*1000); });
 
   window.addResumeFunction(function() { window.startRefreshTimeout(ON_MOVE_REFRESH*1000); });
-  window.requests.addRefreshFunction(window.requestData);
 
   // start the refresh process with a small timeout, so the first data request happens quickly
   // (the code originally called the request function directly, and triggered a normal delay for the nxt refresh.
   //  however, the moveend/zoomend gets triggered on map load, causing a duplicate refresh. this helps prevent that
   window.startRefreshTimeout(ON_MOVE_REFRESH*1000);
 
+  // create the map data requester
+  window.mapDataRequest = new MapDataRequest();
+  window.mapDataRequest.start();
 };
 
 //adds a base layer to the map. done separately from the above, so that plugins that add base layers can be the default
