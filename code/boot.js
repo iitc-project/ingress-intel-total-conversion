@@ -444,6 +444,7 @@ function boot() {
     shadowSize: new L.Point(41, 41)
   }});
 
+  window.setupIdle();
   window.setupTaphold();
   window.setupStyles();
   window.setupDialogs();
