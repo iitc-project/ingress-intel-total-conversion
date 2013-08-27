@@ -227,23 +227,14 @@ window.reportPortalIssue = function(info) {
 window.getPortalDataZoom = function() {
   var mapZoom = map.getZoom();
 
-  var z = mapZoom;
+  // make sure we're dealing with an integer here
+  // (mobile: a float somehow gets through in some cases!)
+  var z = parseInt(mapZoom);
 
   // limiting the mazimum zoom level for data retrieval reduces the number of requests at high zoom levels
   // (as all portal data is retrieved at z=17, why retrieve multiple z=18 tiles when fewer z=17 would do?)
   // very effective along with the new cache code
   if (z > 17) z=17;
-
-  // if the data zoom is above the map zoom we can step back if the detail level is the same
-  // with the new cache code this works rather well
-  var minZoom = mapZoom;
-  // due to the new smaller tiles used for zoom <= 12, we can get away with using further out tiles
-  // this can mean better use of the cache, and less load on the niantic servers
-  if (mapZoom <= 12 && mapZoom > 0) minZoom -= 2;
-
-  while (z > minZoom && getMinPortalLevelForZoom(z) == getMinPortalLevelForZoom(z-1)) {
-    z = z-1;
-  }
 
   //sanity check - should never happen
   if (z < 0) z=0;

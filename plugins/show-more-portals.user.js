@@ -29,7 +29,9 @@ window.plugin.showMorePortals.setup  = function() {
   window.getPortalDataZoom = function() {
     var mapZoom = map.getZoom();
 
-    var z = mapZoom;
+    // make sure we're dealing with an integer here
+    // (mobile: a float somehow gets through in some cases!)
+    var z = parseInt(mapZoom);
 
     // boost data zoom level by one when reasonably close (past the zoom<=12 point of the smaller
     // getThinnedEntitiesV4 tiles, to avoid excessive requests further out)
@@ -47,12 +49,7 @@ window.plugin.showMorePortals.setup  = function() {
 
     // if the data zoom is above the map zoom we can step back if the detail level is the same
     // with the new cache code this works rather well
-    var minZoom = mapZoom;
-    // due to the new smaller tiles used for zoom <= 12, we can get away with using slightly further out tiles
-    // this can mean better use of the cache, and less load on the niantic servers
-    if (mapZoom <= 12 && mapZoom > 0) minZoom -= 2;
-
-    while (z > minZoom && getMinPortalLevelForZoom(z) == getMinPortalLevelForZoom(z-1)) {
+    while (z > mapZoom && getMinPortalLevelForZoom(z) == getMinPortalLevelForZoom(z-1)) {
       z = z-1;
     }
 
