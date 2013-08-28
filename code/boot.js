@@ -188,8 +188,8 @@ window.setupMap = function() {
 
   // map update status handling & update map hooks
   // ensures order of calls
-  map.on('movestart zoomstart', function() { window.mapRunsUserAction = true; window.requests.abort(); window.startRefreshTimeout(-1); });
-  map.on('moveend zoomend', function() { window.mapRunsUserAction = false; window.startRefreshTimeout(ON_MOVE_REFRESH*1000); });
+  map.on('movestart', function() { window.mapRunsUserAction = true; window.requests.abort(); window.startRefreshTimeout(-1); });
+  map.on('moveend', function() { window.mapRunsUserAction = false; window.startRefreshTimeout(ON_MOVE_REFRESH*1000); });
 
   window.addResumeFunction(function() { window.startRefreshTimeout(ON_MOVE_REFRESH*1000); });
 

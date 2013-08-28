@@ -32,7 +32,7 @@ window.renderUpdateStatus = function() {
       t += '<span>'+status.short+'</span>';
 
     if (status.progress !== undefined)
-      t += ' '+Math.round(status.progress*100)+'%';
+      t += ' '+Math.floor(status.progress*100)+'%';
   } else {
     // no mapDataRequest object - no status known
     t += '...unknown...';

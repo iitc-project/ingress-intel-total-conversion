@@ -12,12 +12,13 @@ window.MapDataRequest = function() {
   this.activeRequestCount = 0;
   this.requestedTiles = {};
 
+  this.moving = false;
+
   // no more than this many requests in parallel
   this.MAX_REQUESTS = 4;
   // no more than this many tiles in one request
-  this.MAX_TILES_PER_REQUEST = 16;
-  // but don't create more requests if it would make less than this per request
-  this.MIN_TILES_PER_REQUEST = 4;
+  // (the stock site seems to have no limit - i've seen ~100 for L3+ portals and a maximised browser window)
+  this.MAX_TILES_PER_REQUEST = 32;
 
   // number of times to retty a tile after a 'bad' error (i.e. not a timeout)
   this.MAX_TILE_RETRIES = 3;
@@ -38,13 +39,12 @@ window.MapDataRequest.prototype.start = function() {
   var savedContext = this;
 
   // setup idle resume function
-  window.addResumeFunction ( function() { savedContext.setStatus('refreshing'); savedContext.refreshOnTimeout(savedContext.IDLE_RESUME_REFRESH); } );
+  window.addResumeFunction ( function() { console.log('refresh map idle resume'); savedContext.setStatus('refreshing'); savedContext.refreshOnTimeout(savedContext.IDLE_RESUME_REFRESH); } );
 
-  // and map move callback
-  window.map.on('moveend', function() { savedContext.setStatus('refreshing'); savedContext.refreshOnTimeout(savedContext.MOVE_REFRESH); } );
+  // and map move start/end callbacks
+  window.map.on('movestart', this.mapMoveStart, this);
+  window.map.on('moveend', this.mapMoveEnd, this);
 
-  // and on movestart, we clear the request queue
-  window.map.on('movestart', function() { savedContext.setStatus('paused'); savedContext.clearQueue(); } );
 
   // then set a timeout to start the first refresh
   this.refreshOnTimeout (this.STARTUP_REFRESH);
@@ -52,14 +52,40 @@ window.MapDataRequest.prototype.start = function() {
 
 }
 
-window.MapDataRequest.prototype.refreshOnTimeout = function(seconds) {
+
+window.MapDataRequest.prototype.mapMoveStart = function() {
+  console.log('refresh map movestart');
+
+  this.moving=true;
+
+  this.clearQueue();
+
+  this.setStatus('paused');
+  this.clearTimeout();
+
+}
+
+window.MapDataRequest.prototype.mapMoveEnd = function() {
+  console.log('refresh map moveend');
+
+  this.moving=false;
+
+  this.setStatus('refreshing');
+  this.refreshOnTimeout(this.MOVE_REFRESH);
+}
+
+
+window.MapDataRequest.prototype.clearTimeout = function() {
 
   if (this.timer) {
     console.log("cancelling existing map refresh timer");
     clearTimeout(this.timer);
     this.timer = undefined;
   }
+}
 
+window.MapDataRequest.prototype.refreshOnTimeout = function(seconds) {
+  this.clearTimeout();
 
   console.log("starting map refresh in "+seconds+" seconds");
 
@@ -169,6 +195,11 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
 
   // if nothing left in the queue, end the render. otherwise, send network requests
   if (Object.keys(this.tileBounds).length == 0) {
+
+    // if map is being dragged, just return without any end of map processing
+    if (this.moving)
+      return;
+
     this.render.endRenderPass();
 
     var endTime = new Date().getTime();
@@ -177,7 +208,6 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
     console.log("finished requesting data! (took "+duration+" seconds to complete)");
 
     window.runHooks ('mapDataRefreshEnd', {});
-
 
     if (!window.isIdle()) {
       // refresh timer based on time to run this pass, with a minimum of REFRESH seconds
@@ -192,37 +222,36 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
   }
 
   // create a list of tiles that aren't requested over the network
-  var pendingTiles = {};
+  var pendingTiles = [];
   for (var id in this.tileBounds) {
     if (!(id in this.requestedTiles) ) {
-      pendingTiles[id] = true;
+      pendingTiles.push(id);
     }
   }
 
-  console.log("- request state: "+Object.keys(this.requestedTiles).length+" tiles in "+this.activeRequestCount+" active requests, "+Object.keys(pendingTiles).length+" tiles queued");
+  console.log("- request state: "+Object.keys(this.requestedTiles).length+" tiles in "+this.activeRequestCount+" active requests, "+pendingTiles.length+" tiles queued");
 
 
-  var requestTileCount = Math.min(this.MAX_TILES_PER_REQUEST,Math.max(this.MIN_TILES_PER_REQUEST, Object.keys(pendingTiles).length/this.MAX_REQUESTS));
+  var requestBuckets = this.MAX_REQUESTS - this.activeRequestCount;
+  if (pendingTiles.length > 0 && requestBuckets > 0) {
 
-  while (this.activeRequestCount < this.MAX_REQUESTS && Object.keys(pendingTiles).length > 0) {
-    // let's distribute the requests evenly throughout the pending list.
+    var lastTileIndex = Math.min(requestBuckets*this.MAX_TILES_PER_REQUEST, pendingTiles.length);
 
-    var pendingTilesArray = Object.keys(pendingTiles);
+    for (var bucket=0; bucket<requestBuckets; bucket++) {
+      // create each request by taking tiles interleaved from the request
 
-    var mod = Math.ceil(pendingTilesArray.length / requestTileCount);
+      var tiles = [];
+      for (var i=bucket; i<lastTileIndex; i+=requestBuckets) {
+        tiles.push (pendingTiles[i]);
+      }
 
-    var tiles = [];
-    for (var i in pendingTilesArray) {
-      if ((i % mod) == 0) {
-        id = pendingTilesArray[i];
-        tiles.push(id);
-        delete pendingTiles[id];
+      if (tiles.length > 0) {
+        console.log("-- new request: "+tiles.length+" tiles");
+        this.sendTileRequest(tiles);
       }
     }
-
-    console.log("-- asking for "+tiles.length+" tiles in one request");
-    this.sendTileRequest(tiles);
   }
+
 
   // update status
   var pendingTileCount = this.requestedTileCount - (this.successTileCount+this.failedTileCount+this.staleTileCount);
@@ -262,10 +291,11 @@ window.MapDataRequest.prototype.sendTileRequest = function(tiles) {
 
   var savedThis = this;
 
-  window.requests.add (window.postAjax('getThinnedEntitiesV4', data, 
+  // NOTE: don't add the request with window.request.add, as we don't want the abort handling to apply to map data any more
+  window.postAjax('getThinnedEntitiesV4', data, 
     function(data, textStatus, jqXHR) { savedThis.handleResponse (data, tiles, true); },  // request successful callback
     function() { savedThis.handleResponse (undefined, tiles, false); }  // request failed callback
-  ));
+  );
 }
 
 window.MapDataRequest.prototype.requeueTile = function(id, error) {
@@ -300,6 +330,15 @@ window.MapDataRequest.prototype.requeueTile = function(id, error) {
     } else {
       // if false, was a 'timeout', so unlimited retries (as the stock site does)
       this.debugTiles.setState (id, 'retrying');
+
+      // FIXME? it's nice to move retried tiles to the end of the request queue. however, we don't actually have a
+      // proper queue, just an object with guid as properties. Javascript standards don't guarantee the order of properties
+      // within an object. however, all current browsers do keep property order, and new properties are added at the end.
+      // therefore, delete and re-add the requeued tile and it will be added to the end of the queue
+      var boundsData = this.tileBounds[id];
+      delete this.tileBounds[id];
+      this.tileBounds[id] = boundsData;
+
     }
   } // else the tile wasn't currently wanted (an old non-cancelled request) - ignore
 }
