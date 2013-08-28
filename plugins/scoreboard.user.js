@@ -269,7 +269,7 @@ window.plugin.scoreboard.display = function() {
     scoreHtml += '</td></tr>'
       + '</table>'
       + '<div id="players">'
-      + window.plugin.scoreboard.playerTable('portals')
+      + window.plugin.scoreboard.playerTable('count_portals')
       + '</div>';
     
     scoreHtml += '<div class="disclaimer">Click on player table headers to sort by that column. '
