@@ -167,7 +167,7 @@ window.MapDataRequest.prototype.refresh = function() {
         // data is fresh in the cache - just render it
         this.debugTiles.setState(tile_id, 'cache-fresh');
         this.render.processTileData (this.cache.get(tile_id));
-        this.cachedTileCOunt += 1;
+        this.cachedTileCount += 1;
       } else {
         // no fresh data - queue a request
         var boundsParams = generateBoundsParams(
@@ -209,14 +209,20 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
 
     window.runHooks ('mapDataRefreshEnd', {});
 
+    var longStatus = 'Tiles: ' + this.cachedTileCount + ' cached, ' +
+                 this.successTileCount + ' loaded, ' +
+                 (this.staleTileCount ? this.staleTileCount + ' stale, ' : '') +
+                 (this.failedTileCount ? this.failedTileCount + ' failed, ' : '') +
+                 'in ' + duration + ' seconds';
+
     if (!window.isIdle()) {
       // refresh timer based on time to run this pass, with a minimum of REFRESH seconds
       var refreshTimer = Math.max(this.REFRESH, duration*this.FETCH_TO_REFRESH_FACTOR);
       this.refreshOnTimeout(refreshTimer);
-      this.setStatus ('done');
+      this.setStatus (this.failedTileCount ? 'errors' : this.staleTileCount ? 'out of date' : 'done', longStatus);
     } else {
       console.log("suspending map refresh - is idle");
-      this.setStatus ('idle');
+      this.setStatus (this.failedTileCount ? 'errors' : this.staleTileCount ? 'out of date' : 'idle', longStatus);
     }
     return;
   }
@@ -257,8 +263,8 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
   var pendingTileCount = this.requestedTileCount - (this.successTileCount+this.failedTileCount+this.staleTileCount);
   var longText = 'Tiles: ' + this.cachedTileCount + ' cached, ' +
                  this.successTileCount + ' loaded, ' +
-                 (this.staleTileCount ? this.staleTileCount + 'stale, ' : '') +
-                 (this.failedTileCount ? this.failedTileCount + 'failed, ' : '') +
+                 (this.staleTileCount ? this.staleTileCount + ' stale, ' : '') +
+                 (this.failedTileCount ? this.failedTileCount + ' failed, ' : '') +
                  pendingTileCount + ' remaining';
 
   progress = this.requestedTileCount > 0 ? (this.requestedTileCount-pendingTileCount) / this.requestedTileCount : undefined;
