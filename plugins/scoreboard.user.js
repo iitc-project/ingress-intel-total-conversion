@@ -32,6 +32,7 @@ window.plugin.scoreboard.resetTeam = function(team) {
   scores[team]['count_links'] = 0;
   scores[team]['count_portals'] = 0;
   scores[team]['count_resonators'] = 0;
+  scores[team]['count_mods'] = 0;
   scores[team]['link_length'] = 0;
   scores[team]['field_area'] = 0;
   scores[team]['largest'] = {};   
@@ -50,7 +51,7 @@ window.plugin.scoreboard.initPlayer = function(player, team) {
     scores[player]['link_length'] = 0;
     scores[player]['field_area'] = 0;
     
-    //  scores[player]['count_shields'] = 0;
+    scores[player]['count_mods'] = 0;
     scores[player]['largest'] = {};
     window.plugin.scoreboard.playerGuids.push(player);
   }
@@ -67,8 +68,6 @@ window.plugin.scoreboard.compileStats = function() {
   $.each(window.fields, function(qk, val) {
     
     var team = getTeam(val.options.data);
-    var player = val.options.data.creator.creatorGuid;
-    window.plugin.scoreboard.initPlayer(player,team);    
     
     // Google sends fields long since dead in the data. This makes sure it's still actually up.
     if(window.portals[val.options.vertices.vertexA.guid] !== undefined ||
@@ -77,25 +76,9 @@ window.plugin.scoreboard.compileStats = function() {
       
       var fieldArea = window.plugin.scoreboard.fieldArea(val);
       somethingInView = true;
-      scores['team'][team]['mu'] += parseInt(val.options.data.entityScore.entityScore);
-      scores['player'][player]['mu'] += parseInt(val.options.data.entityScore.entityScore);
       scores['team'][team]['count_fields']++;
-      scores['player'][player]['count_fields']++;
       scores['team'][team]['field_area'] += fieldArea;
-      scores['player'][player]['field_area'] += fieldArea;
       val.options.data.fieldArea = fieldArea;
-      var largestMu = scores['team'][team]['largest']['mu'];
-      if(largestMu === undefined || parseInt(largestMu.options.data.entityScore.entityScore) < parseInt(val.options.data.entityScore.entityScore)) {
-        largestMu = val;
-      }
-      scores['team'][team]['largest']['mu'] = largestMu;
-      
-      //var largestMu = scores['player'][player]['largest']['mu'];
-      //if(largestMu === undefined || parseInt(largestMu.options.data.entityScore.entityScore) < parseInt(val.options.data.entityScore.entityScore)) {
-      //  largestMu = val;
-      //}
-      //scores['player'][player]['largest']['mu'] = largestMu;
-      
       var largestArea = scores['team'][team]['largest']['field_area'];
       if(largestArea === undefined || largestArea.options.data.fieldArea < val.options.data.fieldArea) {
         largestArea = val;
@@ -107,30 +90,19 @@ window.plugin.scoreboard.compileStats = function() {
   $.each(window.links, function(qk, link) {
     somethingInView = true;
     var team = getTeam(link.options.data);
-    if(link.options.data.creator !== undefined) {
-      var player = link.options.data.creator.creatorGuid;
-      window.plugin.scoreboard.initPlayer(player, team);
-      scores['team'][team]['count_links']++;
-      scores['player'][player]['count_links']++;
-      
-      var linkLength = window.plugin.scoreboard.portalDistance(link.options.data.edge.destinationPortalLocation,link.options.data.edge.originPortalLocation);
-      scores['team'][team]['link_length'] += linkLength;
-      scores['player'][player]['link_length'] += linkLength;
-      
-      var largestLink = scores['team'][team]['largest']['link'];
-      if(largestLink === undefined || largestLink.distance < linkLength) {
-        largestLink = {};
-        largestLink.distance = linkLength;
-        largestLink.player = player;
-      }
-      scores['team'][team]['largest']['link'] = largestLink;
-      
-      //var largestLink = scores['player'][player]['largest']['link'];
-      //if(largestLink === undefined || largestLink < linkLength) {
-      //  largestLink = linkLength;
-      //}
-      //scores['player'][player]['largest']['link'] = largestLink;
+    
+    scores['team'][team]['count_links']++;
+    
+    var linkLength = window.plugin.scoreboard.portalDistance(link.options.data.edge.destinationPortalLocation,link.options.data.edge.originPortalLocation);
+    scores['team'][team]['link_length'] += linkLength;
+    
+    var largestLink = scores['team'][team]['largest']['link'];
+    if(largestLink === undefined || largestLink.distance < linkLength) {
+      largestLink = {};
+      largestLink.distance = linkLength;
     }
+    scores['team'][team]['largest']['link'] = largestLink;
+  
   });
   $.each(window.portals, function(qk, portal) {
     somethingInView = true;
@@ -142,13 +114,14 @@ window.plugin.scoreboard.compileStats = function() {
       scores['team'][team]['count_portals']++;
       scores['player'][player]['count_portals']++;
       
-      //$.each(portal.options.details.portalV2.linkedModArray, function(ind, mod) {
-      //  if(mod !== null) {
-      //    somethingInView = true;
-      //    scores['team'][team]['count_shields']++;
-      //    scores['player'][mod.installingUser]['count_shields']++;
-      //  }
-      //});
+      $.each(portal.options.details.portalV2.linkedModArray, function(ind, mod) {
+        if(mod !== null) {
+          window.plugin.scoreboard.initPlayer(mod.installingUser, team);
+          somethingInView = true;
+          scores['team'][team]['count_mods']++;
+          scores['player'][mod.installingUser]['count_mods']++;
+        }
+      });
       
       $.each(portal.options.details.resonatorArray.resonators, function(ind, reso) {
         if(reso !== null) {  
@@ -161,18 +134,6 @@ window.plugin.scoreboard.compileStats = function() {
     }
   });
   return somethingInView;
-};
-
-window.plugin.scoreboard.percentSpan = function(percent, cssClass) {
-   var retVal = '';
-   if(percent > 0) {
-      retVal += '<span class="' + cssClass + ' mu_score" style="width:' + percent +'%;">' + percent;
-      if(percent >= 7) { // anything less than this and the text doesnt fit in the span.
-        retVal += '%';
-      }
-      retVal += '</span>';   
-   }
-   return retVal;
 };
 
 window.plugin.scoreboard.teamTableRow = function(field,title) {
@@ -189,27 +150,6 @@ window.plugin.scoreboard.teamTableRow = function(field,title) {
   return retVal;
 };
 
-window.plugin.scoreboard.fieldInfo = function(field) {
-  var title = '';
-  var retVal = '';
-  
-  if(field !== undefined) {
-    var portal = window.portals[field.options.vertices.vertexA.guid];
-    if(portal !== undefined) {
-      title = ' @' + portal.options.details.portalV2.descriptiveText.TITLE;
-    }
-    
-    retVal = '<div title="' + title + '">'
-      + window.digits(field.options.data.entityScore.entityScore)
-      + ' - ' + window.getPlayerName(field.options.data.creator.creatorGuid)
-      + '</div>';
-    
-  }  else {
-    retVal = 'N/A';
-  }
-  return retVal;
-};
-
 window.plugin.scoreboard.fieldInfoArea = function(field) {
   var title = '';
   var retVal = '';
@@ -222,7 +162,6 @@ window.plugin.scoreboard.fieldInfoArea = function(field) {
     
     retVal = '<div title="' + title + '">'
       + window.digits(Math.round(field.options.data.fieldArea))
-      + ' - ' + window.getPlayerName(field.options.data.creator.creatorGuid)
       + '</div>';
       
   }  else {
@@ -239,7 +178,7 @@ window.plugin.scoreboard.playerTableRow = function(playerGuid) {
     + window.getPlayerName(playerGuid);
     + '</td>';
               
-  $.each(['mu','count_fields','field_area','count_links','link_length','count_portals','count_resonators'], function(i, field) {
+  $.each(['count_portals','count_resonators','count_mods'], function(i, field) {
     retVal += '<td class="number">'
       + window.digits(Math.round(scores[playerGuid][field]))
       + '</td>';
@@ -266,13 +205,9 @@ window.plugin.scoreboard.playerTable = function(sortBy) {
   var sort = window.plugin.scoreboard.playerTableSort;
   var scoreHtml = '<table>'
     + '<tr><th ' + sort('names', sortBy) + '>Player</th>' 
-    + '<th ' + sort('mu', sortBy) + '>Mu</th>'
-    + '<th ' + sort('count_fields', sortBy) + '>Field #</th>'
-    + '<th ' + sort('field_area', sortBy) + '>Field (km&sup2;)</th>'
-    + '<th ' + sort('count_links', sortBy) + '>Link #</th>'
-    + '<th ' + sort('link_length', sortBy) + '>Link (m)</th>'
     + '<th ' + sort('count_portals', sortBy) + '>Portals</th>'
-    + '<th ' + sort('count_resonators', sortBy) + '>Resonators</th></tr>';
+    + '<th ' + sort('count_resonators', sortBy) + '>Resonators</th>'
+    + '<th ' + sort('count_mods', sortBy) + '>Mods</th></tr>';
   $.each(window.plugin.scoreboard.playerGuids, function(index, guid) {
     scoreHtml += window.plugin.scoreboard.playerTableRow(guid);
   });
@@ -294,43 +229,23 @@ window.plugin.scoreboard.display = function() {
   
   var somethingInView = window.plugin.scoreboard.compileStats();
   var scores = window.plugin.scoreboard.scores;
-  var resMu = scores['team'][TEAM_RES]['mu'];
-  var enlMu = scores['team'][TEAM_ENL]['mu'];
   var scoreHtml = '';
   var title = '';
   
   if(somethingInView) {
-  
-    if(resMu + enlMu > 0) {
-      var resMuPercent = Math.round((resMu / (resMu + enlMu)) * 100);
-      scoreHtml += '<div class="mu_score" title="Resistance:	' + resMu + ' MU Enlightenment:	' + enlMu + ' MU">'
-        + window.plugin.scoreboard.percentSpan(resMuPercent, 'res')
-        + window.plugin.scoreboard.percentSpan(100-resMuPercent, 'enl')
-        + '</div>';
-      title = window.digits(resMu) + ' R (' + resMuPercent + '%), ' + window.digits(enlMu) + ' E (' + (100-resMuPercent) + '%)';
-    }
-    else {
-      title = 'no MU in view';
-    }
-    
-    scoreHtml += '<table>'
+   scoreHtml += '<table>'
       + '<tr><th></th><th class="number">Resistance</th><th class="number">Enlightened</th><th class="number">Total</th></tr>'
-      + window.plugin.scoreboard.teamTableRow('mu','Mu')
       + window.plugin.scoreboard.teamTableRow('count_fields','Field #')
       + window.plugin.scoreboard.teamTableRow('field_area','Field (km&sup2;)')
       + window.plugin.scoreboard.teamTableRow('count_links','Link #')
       + window.plugin.scoreboard.teamTableRow('link_length','Link (m)')
       + window.plugin.scoreboard.teamTableRow('count_portals','Portals')
       + window.plugin.scoreboard.teamTableRow('count_resonators','Resonators')
+      + window.plugin.scoreboard.teamTableRow('count_mods','Mods')
       + '</table>';
       
     scoreHtml += '<table>'
       + '<tr><th></th><th>Resistance</th><th>Enlightened</th></tr>'
-      + '<tr><td>Largest Field (Mu)</td><td>'
-      + window.plugin.scoreboard.fieldInfo(scores['team'][TEAM_RES]['largest']['mu'])
-      + '</td><td>'
-      + window.plugin.scoreboard.fieldInfo(scores['team'][TEAM_ENL]['largest']['mu'])
-      + '</td></tr>'
       + '<tr><td>Largest Field (km&sup2;)</td><td>'
       + window.plugin.scoreboard.fieldInfoArea(scores['team'][TEAM_RES]['largest']['field_area'])
       + '</td><td>'
@@ -341,9 +256,7 @@ window.plugin.scoreboard.display = function() {
       scoreHtml += 'N/A';
     }
     else {
-      scoreHtml += window.digits(Math.round(scores['team'][TEAM_RES]['largest']['link']['distance']))
-      + ' - '
-      + window.getPlayerName(scores['team'][TEAM_RES]['largest']['link']['player']);
+      scoreHtml += window.digits(Math.round(scores['team'][TEAM_RES]['largest']['link']['distance']));
     }
     scoreHtml += '</td><td>';
     
@@ -351,14 +264,12 @@ window.plugin.scoreboard.display = function() {
       scoreHtml += 'N/A';
     }
     else {
-      scoreHtml += window.digits(Math.round(scores['team'][TEAM_ENL]['largest']['link']['distance']))
-      + ' - '
-      + window.getPlayerName(scores['team'][TEAM_ENL]['largest']['link']['player']);
+      scoreHtml += window.digits(Math.round(scores['team'][TEAM_ENL]['largest']['link']['distance']));
     }
     scoreHtml += '</td></tr>'
       + '</table>'
       + '<div id="players">'
-      + window.plugin.scoreboard.playerTable('mu')
+      + window.plugin.scoreboard.playerTable('portals')
       + '</div>';
     
     scoreHtml += '<div class="disclaimer">Click on player table headers to sort by that column. '
