@@ -846,6 +846,7 @@ window.renderLink = function(ent) {
     window.linksCount++;
     this.bringToBack();
   });
+  window.runHooks('linkAdded', {link: poly});
   poly.addTo(linksLayer);
 }
 
