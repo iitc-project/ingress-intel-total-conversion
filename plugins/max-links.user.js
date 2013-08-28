@@ -21,7 +21,7 @@
 window.plugin.maxLinks = function() {};
 
 // const values
-window.plugin.maxLinks.MAX_PORTALS_TO_LINK = 400;
+window.plugin.maxLinks.MAX_PORTALS_TO_LINK = 200;
 
 window.plugin.maxLinks.STROKE_STYLE = {
   color: '#FF0000',
