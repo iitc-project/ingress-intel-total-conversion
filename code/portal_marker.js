@@ -39,11 +39,14 @@ window.getMarkerStyleOptions = function(details, selected) {
 
   var options = {
     radius: lvlRadius + (L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE : 0),
+    stroke: true,
     color: selected ? COLOR_SELECTED_PORTAL : COLORS[details.team],
-    opacity: 1,
     weight: lvlWeight,
+    opacity: 1,
+    fill: true,
     fillColor: COLORS[details.team],
-    fillOpacity: 0.5
+    fillOpacity: 0.5,
+    dashArray: null
   };
 
   return options;
