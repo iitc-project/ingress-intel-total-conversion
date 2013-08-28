@@ -260,7 +260,9 @@ window.Render.prototype.createFieldEntity = function(ent) {
     guid: ent[0],
     timestamp: ent[1],
     details: ent[2],
-    data: ent[2]	// LEGACY: we used to be inconsistant - portals used .details, fields .data
+    // LEGACY FIELDS: these duplicate data available via .details, as IITC previously stored it in data and vertices
+    data: ent[2],
+    vertices: ent[2].capturedRegion
   });
 
 
@@ -300,7 +302,9 @@ window.Render.prototype.createLinkEntity = function(ent) {
     clickable: false,
     guid: ent[0],
     timestamp: ent[1],
-    details: ent[2]
+    details: ent[2],
+    // LEGACY FIELDS: these duplicate data available via .details, as IITC previously stored it in data and vertices
+    data: ent[2]
   });
 
   window.links[ent[0]] = poly;
