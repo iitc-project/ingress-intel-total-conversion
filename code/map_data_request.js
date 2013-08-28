@@ -38,7 +38,7 @@ window.MapDataRequest.prototype.start = function() {
   var savedContext = this;
 
   // setup idle resume function
-  window.addResumeFunction ( function() { savedContext.refreshOnTimeout(savedContext.IDLE_RESUME_REFRESH); } );
+  window.addResumeFunction ( function() { savedContext.setStatus('refreshing'); savedContext.refreshOnTimeout(savedContext.IDLE_RESUME_REFRESH); } );
 
   // and map move callback
   window.map.on('moveend', function() { savedContext.setStatus('refreshing'); savedContext.refreshOnTimeout(savedContext.MOVE_REFRESH); } );
