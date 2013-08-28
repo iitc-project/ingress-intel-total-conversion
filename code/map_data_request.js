@@ -26,7 +26,8 @@ window.MapDataRequest = function() {
   this.MOVE_REFRESH = 2.5; //refresh time to use after a move
   this.STARTUP_REFRESH = 1; //refresh time used on first load of IITC
   this.IDLE_RESUME_REFRESH = 5; //refresh time used after resuming from idle
-  this.REFRESH = 60;  //refresh time to use when not idle and not moving
+  this.REFRESH = 60;  //minimum refresh time to use when not idle and not moving
+  this.FETCH_TO_REFRESH_FACTOR = 2;  //refresh time is based on the time to complete a data fetch, times this value
 }
 
 
@@ -76,6 +77,10 @@ window.MapDataRequest.prototype.getStatus = function() {
 
 
 window.MapDataRequest.prototype.refresh = function() {
+
+  //time the refresh cycle
+  this.refreshStartTime = new Date().getTime();
+
 
   this.cache.expire();
 
@@ -149,12 +154,17 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
   if (Object.keys(this.tileBounds).length == 0) {
     this.render.endRenderPass();
 
-    console.log("finished requesting data!");
+    var endTime = new Date().getTime();
+    var duration = (endTime - this.refreshStartTime)/1000;
+
+    console.log("finished requesting data! (took "+duration+" seconds to complete)");
 
     window.runHooks ('mapDataRefreshEnd', {});
 
     if (!window.isIdle()) {
-      this.refreshOnTimeout(this.REFRESH);
+      // refresh timer based on time to run this pass, with a minimum of REFRESH seconds
+      var refreshTimer = Math.max(this.REFRESH, duration*this.FETCH_TO_REFRESH_FACTOR);
+      this.refreshOnTimeout(refreshTimer);
     } else {
       console.log("suspending map refresh - is idle");
     }
