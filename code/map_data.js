@@ -343,7 +343,7 @@ window.handleDataResponse = function(data, fromCache, tile_ids) {
       if(ent[0] in window._deletedEntityGuid) return true;
 
 
-      if(ent[2].turret !== undefined) {
+      if(ent[2].portalV2 !== undefined) {
         // TODO? remove any linkedEdges or linkedFields that have entries in window._deletedEntityGuid
 
         var latlng = [ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6];
@@ -374,7 +374,7 @@ window.handleDataResponse = function(data, fromCache, tile_ids) {
         });
         renderField(ent);
       } else {
-        throw('Unknown entity: ' + JSON.stringify(ent));
+        console.warn('Unknown entity: ' + JSON.stringify(ent));
       }
     });
   });
@@ -906,7 +906,7 @@ window.renderField = function(ent) {
   }
 
   // put both in one group, so they can be handled by the same logic.
-  if (areaZoomRatio > FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && countForMUDisplay > 2) {
+  if ('entityScore' in ent[2] && areaZoomRatio > FIELD_MU_DISPLAY_AREA_ZOOM_RATIO && countForMUDisplay > 2) {
     // centroid of field for placing MU count at
     var centroid = [
       (latlngs[0].lat + latlngs[1].lat + latlngs[2].lat)/3,

@@ -137,7 +137,7 @@ public class IITC_WebViewClient extends WebViewClient {
         // Since the mobile client injects IITC by replacing the gen_dashboard
         // file, IITC runs to early. The document.ready delays IITC long enough
         // so it boots correctly.
-        this.mIitcScript = "$(document).ready(function(){" + js + "});";
+        this.mIitcScript = "setTimeout(function(){" + js + "},1);";
 
     }
 

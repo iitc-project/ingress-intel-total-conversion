@@ -2,7 +2,7 @@
 // @id             iitc-plugin-sync@xelio
 // @name           IITC plugin: Sync
 // @category       Keys
-// @version        0.2.1.@@DATETIMEVERSION@@
+// @version        0.2.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -135,7 +135,8 @@ window.plugin.sync.RegisteredMap.prototype.updateMap = function(keyArray) {
 }
 
 window.plugin.sync.RegisteredMap.prototype.isUpdatedByOthers = function() {
-  return this.lastUpdateUUID.toString() !== this.uuid;
+  var remoteUUID = this.lastUpdateUUID.toString();
+  return (remoteUUID !== '') && (remoteUUID !== this.uuid);
 }
 
 window.plugin.sync.RegisteredMap.prototype.getFileName = function() {
@@ -159,10 +160,8 @@ window.plugin.sync.RegisteredMap.prototype.initFile = function(callback) {
   }
 
   this.fileSearcher = new plugin.sync.FileSearcher({'fileName': this.getFileName(),
-                                                    'description': 'IITC plugin data for ' + this.getFileName(),
-                                                    'assignIdCallback': assignIdCallback,
-                                                    'failedCallback': failedCallback});
-  this.fileSearcher.initialize(this.forceFileSearch);
+                                                    'description': 'IITC plugin data for ' + this.getFileName()});
+  this.fileSearcher.initialize(this.forceFileSearch, assignIdCallback, failedCallback);
 }
 
 window.plugin.sync.RegisteredMap.prototype.updateListener = function(e) {
@@ -191,14 +190,18 @@ window.plugin.sync.RegisteredMap.prototype.loadRealtimeDocument = function(callb
   // this function called when the document is created first time
   // and the CollaborativeMap is populated with data in plugin field
   initializeModel = function(model) {
+    var empty = true;
     var map = model.createMap();
     var lastUpdateUUID = model.createString();
 
     // Init the map values if this map is first created
     $.each(window.plugin[_this.pluginName][_this.fieldName], function(key, val) {
       map.set(key, val);
+      empty = false;
     });
-    lastUpdateUUID.setText(_this.uuid);
+
+    // Only set the update client if the map is not empty, avoid clearing data of other clients
+    lastUpdateUUID.setText(empty ? '' : _this.uuid);
 
     model.getRoot().set('map', map);
     model.getRoot().set('last-udpate-uuid', lastUpdateUUID);
@@ -211,8 +214,8 @@ window.plugin.sync.RegisteredMap.prototype.loadRealtimeDocument = function(callb
   onFileLoaded = function(doc) {
     _this.doc = doc;
     _this.model = doc.getModel();
-    _this.map = doc.getModel().getRoot().get("map");
-    _this.lastUpdateUUID = doc.getModel().getRoot().get("last-udpate-uuid");
+    _this.map = doc.getModel().getRoot().get('map');
+    _this.lastUpdateUUID = doc.getModel().getRoot().get('last-udpate-uuid');
     _this.map.addEventListener(gapi.drive.realtime.EventType.VALUE_CHANGED, _this.updateListener);
 
     // Replace local value if data is changed by others
@@ -239,6 +242,10 @@ window.plugin.sync.RegisteredMap.prototype.loadRealtimeDocument = function(callb
     if(e.type === gapi.drive.realtime.ErrorType.TOKEN_REFRESH_REQUIRED) {
       _this.authorizer.authorize();
     } else if(e.type === gapi.drive.realtime.ErrorType.NOT_FOUND) {
+      _this.forceFileSearch = true;
+    } else if(e.type === gapi.drive.realtime.ErrorType.CLIENT_ERROR) {
+      // Workaround: if Realtime API open a second docuemnt and the file do not exist, 
+      // it will rasie 'CLIENT_ERROR' instead of 'NOT_FOUND'. So we do a force file search here.
       _this.forceFileSearch = true;
     } else {
       alert('Plugin Sync error: ' + e.type + ', ' + e.message);
@@ -367,8 +374,6 @@ window.plugin.sync.FileSearcher = function(options) {
   this.fileName = options['fileName'];
   this.description = options['description'];
   this.isFolder = options['isFolder'];
-  this.assignIdCallback = options['assignIdCallback'];
-  this.failedCallback = options['failedCallback'];
 
   this.force = false;
   this.parent = null;
@@ -386,27 +391,27 @@ window.plugin.sync.FileSearcher.prototype.MIMETYPE_FOLDER = 'application/vnd.goo
 window.plugin.sync.FileSearcher.prototype.parentName = 'IITC-SYNC-DATA-V2';
 window.plugin.sync.FileSearcher.prototype.parentDescription = 'Store IITC sync data';
 
-window.plugin.sync.FileSearcher.prototype.initialize = function(force) {
+window.plugin.sync.FileSearcher.prototype.initialize = function(force, assignIdCallback, failedCallback) {
   this.force = force;
   // throw error if too many retry
   if(this.retryCount >= this.RETRY_LIMIT) {
     plugin.sync.logger.log('Too many file operation: ' + this.fileName);
-    this.failedCallback();
+    failedCallback();
     return;
   }
   if(this.force) this.retryCount++;
 
   if(this.isFolder) {
-    this.initFile();
+    this.initFile(assignIdCallback, failedCallback);
   } else {
-    this.initParent();
+    this.initParent(assignIdCallback, failedCallback);
   }
 }
 
-window.plugin.sync.FileSearcher.prototype.initFile = function() {
+window.plugin.sync.FileSearcher.prototype.initFile = function(assignIdCallback, failedCallback) {
   // If not force search and have cached fileId, return the fileId
   if(!this.force && this.fileId) {
-    this.assignIdCallback(this.fileId);
+    assignIdCallback(this.fileId);
     return;
   }
 
@@ -416,14 +421,14 @@ window.plugin.sync.FileSearcher.prototype.initFile = function() {
   handleFileId = function(id) {
     _this.fileId = id;
     _this.saveFileId();
-    _this.assignIdCallback(id);
+    assignIdCallback(id);
   };
 
   handleFailed = function(resp) {
     _this.fileId = null;
     _this.saveFileId();
     plugin.sync.logger.log('File operation failed: ' + (resp.error || 'unknown error'));
-    _this.failedCallback(resp);
+    failedCallback(resp);
   }
 
   createCallback = function(resp) {
@@ -447,27 +452,25 @@ window.plugin.sync.FileSearcher.prototype.initFile = function() {
   this.searchFileOrFolder(searchCallback);
 }
 
-window.plugin.sync.FileSearcher.prototype.initParent = function() {
-  var assignIdCallback, failedCallback, _this;
+window.plugin.sync.FileSearcher.prototype.initParent = function(assignIdCallback, failedCallback) {
+  var parentAssignIdCallback, parentFailedCallback, _this;
   _this = this;
 
-  assignIdCallback = function(id) {
-    _this.initFile();
+  parentAssignIdCallback = function(id) {
+    _this.initFile(assignIdCallback, failedCallback);
   }
 
-  failedCallback = function(resp) {
+  parentFailedCallback = function(resp) {
     _this.fileId = null;
     _this.saveFileId();
     plugin.sync.logger.log('File operation failed: ' + (resp.error || 'unknown error'));
-    _this.failedCallback(resp);
+    failedCallback(resp);
   }
 
   this.parent = new plugin.sync.FileSearcher({'fileName': this.parentName,
                                   'description': this.parentDescription,
-                                  'isFolder': true,
-                                  'assignIdCallback': assignIdCallback,
-                                  'failedCallback': failedCallback});
-  this.parent.initialize(this.force);
+                                  'isFolder': true});
+  this.parent.initialize(this.force, parentAssignIdCallback, parentFailedCallback);
 }
 
 window.plugin.sync.FileSearcher.prototype.createFileOrFolder = function(callback) {
@@ -629,12 +632,12 @@ window.plugin.sync.generateUUID = function() {
     window.crypto.getRandomValues(buf);
     var S4 = function(num) {
       var ret = num.toString(16);
-      return "000".substring(0, 4-ret.length) + ret;
+      return '000'.substring(0, 4-ret.length) + ret;
     };
     var yxxx = function(num) {
       return num&0x3fff|0x8000;
     }
-    return (S4(buf[0])+S4(buf[1])+"-"+S4(buf[2])+"-4"+S4(buf[3]).substring(1)+"-"+S4(yxxx(buf[4]))+"-"+S4(buf[5])+S4(buf[6])+S4(buf[7]));
+    return (S4(buf[0])+S4(buf[1])+'-'+S4(buf[2])+'-4'+S4(buf[3]).substring(1)+'-'+S4(yxxx(buf[4]))+'-'+S4(buf[5])+S4(buf[6])+S4(buf[7]));
   } else {
     var d = new Date().getTime();
     var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
