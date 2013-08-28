@@ -1,8 +1,9 @@
 // ==UserScript==
 // @id             iitc-plugin-favorite-portals@soulBit
 // @name           IITC plugin: Favorite Portals
+// @category       Obsolete
 // @version        0.2.0.@@DATETIMEVERSION@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] DEPRECATED. Please use "Bookmarks for maps and portals" instead. This plugin will be removed in future.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] DEPRECATED. Please use "Bookmarks for maps and portals" instead.
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
