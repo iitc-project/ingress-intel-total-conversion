@@ -101,7 +101,7 @@ window.plugin.maxLinks.updateLayer = function() {
     drawLink(triangle.c,triangle.a);
 
     // we only check the render limit after drawing all three edges of a triangle, for efficency
-    if (drawnLinkCount > window.pligin.maxLinks.MAX_DRAWN_LINKS ) {
+    if (drawnLinkCount > window.plugin.maxLinks.MAX_DRAWN_LINKS ) {
       window.plugin.maxLinks._renderLimitReached = true;
       return false;  //$.each break
     }
