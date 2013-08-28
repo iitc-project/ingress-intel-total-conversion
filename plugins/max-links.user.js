@@ -149,7 +149,11 @@ window.plugin.maxLinks.setup = function() {
     if (e.layer === window.plugin.maxLinks.layer)
       window.plugin.maxLinks.updateLayer();
   });
-  window.map.on('zoomend moveend', window.plugin.maxLinks.updateLayer);
+  window.map.on('layerremove', function(e) {
+    if (e.layer === window.plugin.maxLinks.layer)
+      window.plugin.maxLinks.clearErrorMarker();
+  });
+
   window.addLayerGroup('Maximum Links', window.plugin.maxLinks.layer, false);
 
   $('head').append('<style>'+
