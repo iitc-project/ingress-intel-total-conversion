@@ -2,7 +2,7 @@
 // @id             iitc-plugin-farms@949
 // @name           IITC plugin: Show farms by level
 // @category       Info
-// @version        1.2.0.20130828.143908
+// @version        1.2.1.20130828.144608
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @description    [parabola949-2013-08-27] Find farms by minimum level
 // @include        https://www.ingress.com/intel*
@@ -15,6 +15,9 @@
 //CHANGELOG
 /*
  * 
+v1.2.1
+Fixed dropdown location overlap
+
 v1.2.0
 Circle is sent to back on mouseover
 Clicking on circle displays portal counts for farm (including portals of level lower than farm)
@@ -301,7 +304,7 @@ window.plugin.farmFind.drawCircle = function(farm)
 					 + "#farm_level_select {"
             + " position: absolute;"
             + "	top: 5px;"
-            + " left:110px;"
+            + " left:180px;"
             + " z-index: 2500;"
             + " font-size:11px;"
 					 + ' font-family: "coda",arial,helvetica,sans-serif;'
