@@ -19,14 +19,24 @@ window.renderUpdateStatus = function() {
   // map status display
   t += ' <span class="map"><b>map</b>: ';
 
-  var status = window.mapDataRequest.getStatus();
+  if (window.mapDataRequest) {
 
-  // status.short - short description of status
-  // status.long - longer description, for tooltip (optional)
-  // status.progress - fractional progress (from 0 to 1) of current state (optional)
-  t += '<span class="help" title="'+status.long+'">'+status.short+'</span>';
-  if (status.progress !== undefined)
-    t += ' '+Math.round(status.progress*100)+'%';
+    var status = window.mapDataRequest.getStatus();
+
+    // status.short - short description of status
+    // status.long - longer description, for tooltip (optional)
+    // status.progress - fractional progress (from 0 to 1) of current state (optional)
+    if (status.long)
+      t += '<span class="help" title="'+status.long+'">'+status.short+'</span>';
+    else
+      t += '<span>'+status.short+'</span>';
+
+    if (status.progress !== undefined)
+      t += ' '+Math.round(status.progress*100)+'%';
+  } else {
+    // no mapDataRequest object - no status known
+    t += '...unknown...';
+  }
 
 /*
   if(mapRunsUserAction)

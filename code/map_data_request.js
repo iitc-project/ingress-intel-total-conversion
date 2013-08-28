@@ -28,6 +28,9 @@ window.MapDataRequest = function() {
   this.IDLE_RESUME_REFRESH = 5; //refresh time used after resuming from idle
   this.REFRESH = 60;  //minimum refresh time to use when not idle and not moving
   this.FETCH_TO_REFRESH_FACTOR = 2;  //refresh time is based on the time to complete a data fetch, times this value
+
+  // ensure we have some initial map status
+  this.setStatus ('startup');
 }
 
 
@@ -38,13 +41,14 @@ window.MapDataRequest.prototype.start = function() {
   window.addResumeFunction ( function() { savedContext.refreshOnTimeout(savedContext.IDLE_RESUME_REFRESH); } );
 
   // and map move callback
-  window.map.on('moveend', function() { savedContext.refreshOnTimeout(savedContext.MOVE_REFRESH); } );
+  window.map.on('moveend', function() { savedContext.setStatus('refreshing'); savedContext.refreshOnTimeout(savedContext.MOVE_REFRESH); } );
 
   // and on movestart, we clear the request queue
-  window.map.on('movestart', function() { savedContext.clearQueue(); } );
+  window.map.on('movestart', function() { savedContext.setStatus('paused'); savedContext.clearQueue(); } );
 
   // then set a timeout to start the first refresh
-  this.refreshOnTimeout (this.MOVE_REFRESH);
+  this.refreshOnTimeout (this.STARTUP_REFRESH);
+  this.setStatus ('refreshing');
 
 }
 
@@ -70,9 +74,14 @@ window.MapDataRequest.prototype.clearQueue = function() {
 }
 
 
-window.MapDataRequest.prototype.getStatus = function() {
-  return { short: 'blah', long: 'blah blah blah' };
+window.MapDataRequest.prototype.setStatus = function(short,long,progress) {
+  this.status = { short: short, long: long, progress: progress };
+  window.renderUpdateStatus();
+}
 
+
+window.MapDataRequest.prototype.getStatus = function() {
+  return this.status;
 };
 
 
@@ -110,6 +119,12 @@ window.MapDataRequest.prototype.refresh = function() {
   var y1 = latToTile(bounds.getNorth(), zoom);
   var y2 = latToTile(bounds.getSouth(), zoom);
 
+  this.cachedTileCount = 0;
+  this.requestedTileCount = 0;
+  this.successTileCount = 0;
+  this.failedTileCount = 0;
+  this.staleTileCount = 0;
+
   // y goes from left to right
   for (var y = y1; y <= y2; y++) {
     // x goes from bottom to top(?)
@@ -126,6 +141,7 @@ window.MapDataRequest.prototype.refresh = function() {
         // data is fresh in the cache - just render it
         this.debugTiles.setState(tile_id, 'cache-fresh');
         this.render.processTileData (this.cache.get(tile_id));
+        this.cachedTileCOunt += 1;
       } else {
         // no fresh data - queue a request
         var boundsParams = generateBoundsParams(
@@ -137,6 +153,7 @@ window.MapDataRequest.prototype.refresh = function() {
         );
 
         this.tileBounds[tile_id] = boundsParams;
+        this.requestedTileCount += 1;
       }
     }
   }
@@ -161,12 +178,15 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
 
     window.runHooks ('mapDataRefreshEnd', {});
 
+
     if (!window.isIdle()) {
       // refresh timer based on time to run this pass, with a minimum of REFRESH seconds
       var refreshTimer = Math.max(this.REFRESH, duration*this.FETCH_TO_REFRESH_FACTOR);
       this.refreshOnTimeout(refreshTimer);
+      this.setStatus ('done');
     } else {
       console.log("suspending map refresh - is idle");
+      this.setStatus ('idle');
     }
     return;
   }
@@ -204,6 +224,16 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
     this.sendTileRequest(tiles);
   }
 
+  // update status
+  var pendingTileCount = this.requestedTileCount - (this.successTileCount+this.failedTileCount+this.staleTileCount);
+  var longText = 'Tiles: ' + this.cachedTileCount + ' cached, ' +
+                 this.successTileCount + ' loaded, ' +
+                 (this.staleTileCount ? this.staleTileCount + 'stale, ' : '') +
+                 (this.failedTileCount ? this.failedTileCount + 'failed, ' : '') +
+                 pendingTileCount + ' remaining';
+
+  progress = this.requestedTileCount > 0 ? (this.requestedTileCount-pendingTileCount) / this.requestedTileCount : undefined;
+  this.setStatus ('loading', longText, progress);
 }
 
 
@@ -258,10 +288,11 @@ window.MapDataRequest.prototype.requeueTile = function(id, error) {
         // we have cached data - use it, even though it's stale
         this.debugTiles.setState (id, 'cache-stale');
         this.render.processTileData (data);
-        delete this.tileBounds[id];
+        this.staleTileCount += 1;
       } else {
         // no cached data
         this.debugTiles.setState (id, 'error');
+        this.failedTileCount += 1;
       }
       // and delete from the pending requests...
       delete this.tileBounds[id];
@@ -270,7 +301,7 @@ window.MapDataRequest.prototype.requeueTile = function(id, error) {
       // if false, was a 'timeout', so unlimited retries (as the stock site does)
       this.debugTiles.setState (id, 'retrying');
     }
-  }
+  } // else the tile wasn't currently wanted (an old non-cancelled request) - ignore
 }
 
 
@@ -325,7 +356,9 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
           this.render.processTileData (val);
 
           delete this.tileBounds[id];
-        }
+          this.successTileCount += 1;
+
+        } // else we don't want this tile (from an old non-cancelled request) - ignore
       }
 
     }
