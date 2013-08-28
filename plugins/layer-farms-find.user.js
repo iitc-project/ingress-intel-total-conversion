@@ -2,7 +2,7 @@
 // @id             iitc-plugin-farms@949
 // @name           IITC plugin: Show farms by level
 // @category       Info
-// @version        1.1.2.20130827.122608
+// @version        1.2.0.20130828.143908
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @description    [parabola949-2013-08-27] Find farms by minimum level
 // @include        https://www.ingress.com/intel*
@@ -15,6 +15,10 @@
 //CHANGELOG
 /*
  * 
+v1.2.0
+Circle is sent to back on mouseover
+Clicking on circle displays portal counts for farm (including portals of level lower than farm)
+
 v1.1.2
 Fixed the portal counts (shown in console)
 
@@ -200,11 +204,24 @@ window.plugin.farmFind.drawCircle = function(farm)
 {
 	var latArray = [];
 	var lngArray = [];
+    var countArray = [];
 	//console.log("Find Center");
 	for (p = 0; p < farm.length; p++)
     {
 		latArray.push(farm[p].getLatLng().lat);
 		lngArray.push(farm[p].getLatLng().lng);
+	    var level = Math.floor(farm[p].options.level);
+        if (countArray[level] == null)
+            countArray[level] = 0;
+        countArray[level]++;
+    }
+    
+    console.log(countArray);
+    var popupMsg = "Portal Count<br>";
+    for (i = 1; i < 9; i++)
+    {
+     	if (countArray[i] != null)
+            popupMsg += "Level " + i + ": " + countArray[i] + "<br>";
     }
 	
 	var north = Math.max.apply(null, lngArray);
@@ -228,8 +245,17 @@ window.plugin.farmFind.drawCircle = function(farm)
     
 	var latlng = new L.LatLng(center.lat(), center.lng());
     //console.log("latlng: " + latlng);
-    var optCircle = {color:'red',opacity:0.7,fill:true,fillColor:'red',fillOpacity:0.7,weight:15,clickable:false};
+    var optCircle = {color:'red',opacity:0.7,fill:true,fillColor:'red',fillOpacity:0.7,weight:15,clickable:true};
     var circle = new L.Circle(latlng, radius, optCircle);
+    circle.bindPopup(popupMsg);
+    
+    
+    circle.on('mouseover', function(e) {
+   		circle.bringToBack();
+	});
+    circle.on('click', function(e) {
+    	circle.bringToBack();
+	});
     //console.log("circle: " + circle);
     circle.addTo(window.plugin.farmFind.levelLayerGroup);
 };
