@@ -259,7 +259,8 @@ window.Render.prototype.createFieldEntity = function(ent) {
     clickable: false,
     guid: ent[0],
     timestamp: ent[1],
-    details: ent[2]
+    details: ent[2],
+    data: ent[2]	// LEGACY: we used to be inconsistant - portals used .details, fields .data
   });
 
 
