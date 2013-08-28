@@ -25,7 +25,7 @@ window.renderUpdateStatus = function() {
   // status.long - longer description, for tooltip (optional)
   // status.progress - fractional progress (from 0 to 1) of current state (optional)
   t += '<span class="help" title="'+status.long+'">'+status.short+'</span>';
-  if (Status.progress !== undefined)
+  if (status.progress !== undefined)
     t += ' '+Math.round(status.progress*100)+'%';
 
 /*
