@@ -57,17 +57,21 @@ window.plugin.portalHighligherMods.highlight = function(data, mod_type) {
 window.plugin.portalHighligherMods.highlightNoMods = function(data) {
   var d = data.portal.options.details;
   
-  var mods = false;
+  var mods = 0;
   $.each(d.portalV2.linkedModArray, function(ind, mod) {
     if(mod !== null) {
-      mods = true;
-      return;
+      mods += 1;
     }
   });
   
-  if(!mods) {
+  if(mods == 0) {
     var fill_opacity = .6;
     var color = 'red';
+    var params = {fillColor: color, fillOpacity: fill_opacity};
+    data.portal.setStyle(params);
+  } else if(mods <4) {
+    var fill_opacity = .6;
+    var color = 'yellow';
     var params = {fillColor: color, fillOpacity: fill_opacity};
     data.portal.setStyle(params);
   }
