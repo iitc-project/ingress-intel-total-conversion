@@ -21,7 +21,8 @@
 window.plugin.maxLinks = function() {};
 
 // const values
-window.plugin.maxLinks.MAX_DRAWN_LINKS = 400;
+window.plugin.maxLinks.MAX_PORTALS_TO_LINK = 400;
+
 window.plugin.maxLinks.STROKE_STYLE = {
   color: '#FF0000',
   opacity: 1,
@@ -31,8 +32,8 @@ window.plugin.maxLinks.STROKE_STYLE = {
   smoothFactor: 10,
 };
 window.plugin.maxLinks.layer = null;
+window.plugin.maxLinks.errorMarker = null;
 
-window.plugin.maxLinks._updating = false;
 
 window.plugin.maxLinks.Point = function(x,y) {
   this.x=x;
@@ -42,13 +43,41 @@ window.plugin.maxLinks.Point.prototype.toString = function() {
   return this.x+","+this.y;
 }
 
+
+window.plugin.maxLinks.addErrorMarker = function() {
+  if (window.plugin.maxLinks.errorMarker == null) {
+    window.plugin.maxLinks.errorMarker = L.marker (window.map.getCenter(), {
+      icon: L.divIcon({
+        className: 'max-links-error',
+        iconSize: [300,30],
+        html: 'Max Links: too many portals!'
+      }),
+      clickable: false
+    });
+
+    window.map.addLayer(window.plugin.maxLinks.errorMarker);
+  }
+
+}
+
+window.plugin.maxLinks.clearErrorMarker = function() {
+  if (window.plugin.maxLinks.errorMarker != null) {
+    window.map.removeLayer(window.plugin.maxLinks.errorMarker);
+    window.plugin.maxLinks.errorMarker = null;
+  }
+}
+
+
 window.plugin.maxLinks.updateLayer = function() {
-  if (window.plugin.maxLinks._updating ||
-      window.plugin.maxLinks.layer === null ||
-      !window.map.hasLayer(window.plugin.maxLinks.layer))
+  if (!window.map.hasLayer(window.plugin.maxLinks.layer))
     return;
-  window.plugin.maxLinks._updating = true;
+
   window.plugin.maxLinks.layer.clearLayers();
+
+  if (Object.keys(window.portals).length > window.plugin.maxLinks.MAX_PORTALS_TO_LINK) {
+    window.plugin.maxLinks.addErrorMarker();
+    return;
+  }
 
   var locations = [];
 
@@ -61,7 +90,6 @@ window.plugin.maxLinks.updateLayer = function() {
   var triangles = window.delaunay.triangulate(locations);
 
   var drawnLinkCount = 0;
-  window.plugin.maxLinks._renderLimitReached = false;
 
   var orderedPoints = function(a,b) {
     if(a.x<b.x) return [a,b];
@@ -99,15 +127,7 @@ window.plugin.maxLinks.updateLayer = function() {
     drawLink(triangle.a,triangle.b);
     drawLink(triangle.b,triangle.c);
     drawLink(triangle.c,triangle.a);
-
-    // we only check the render limit after drawing all three edges of a triangle, for efficency
-    if (drawnLinkCount > window.plugin.maxLinks.MAX_DRAWN_LINKS ) {
-      window.plugin.maxLinks._renderLimitReached = true;
-      return false;  //$.each break
-    }
   });
-  window.plugin.maxLinks._updating = false;
-  window.renderUpdateStatus();
 }
 
 window.plugin.maxLinks.setup = function() {
@@ -121,12 +141,22 @@ window.plugin.maxLinks.setup = function() {
     window.plugin.maxLinks.updateLayer();
   });
 
+  window.addHook('mapDataRefreshStart', function(e) {
+    window.plugin.maxLinks.clearErrorMarker();
+  });
+
   window.map.on('layeradd', function(e) {
     if (e.layer === window.plugin.maxLinks.layer)
       window.plugin.maxLinks.updateLayer();
   });
   window.map.on('zoomend moveend', window.plugin.maxLinks.updateLayer);
   window.addLayerGroup('Maximum Links', window.plugin.maxLinks.layer, false);
+
+  $('head').append('<style>'+
+    '.max-links-error { color: #F88; font-size: 20px; font-weight: bold; text-align: center; text-shadow: -1px -1px #000, 1px -1px #000, -1px 1px #000, 1px 1px #000; background-color: rgba(0,0,0,0.6); border-radius: 5px; }'+
+    '</style>');
+
+
 }
 var setup = window.plugin.maxLinks.setup;
 
