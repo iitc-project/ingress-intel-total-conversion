@@ -1,9 +1,14 @@
 package com.cradle.iitc_mobile.async;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.cradle.iitc_mobile.IITC_JSInterface;
+import com.cradle.iitc_mobile.IITC_Mobile;
+import com.cradle.iitc_mobile.IITC_WebView;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -18,16 +23,18 @@ import java.io.IOException;
  * since network operations shouldn't be done on main UI thread
  * (NetworkOnMainThread exception is thrown) we use an async task for this.
  */
-public class CheckHttpResponse extends AsyncTask<String, Void, Void> {
+public class CheckHttpResponse extends AsyncTask<String, Void, Boolean> {
 
     private IITC_JSInterface mJsInterface;
+    private Context mContext;
 
-    public CheckHttpResponse(IITC_JSInterface jsInterface) {
+    public CheckHttpResponse(IITC_JSInterface jsInterface, Context c) {
+        mContext = c;
         mJsInterface = jsInterface;
     };
 
     @Override
-    protected Void doInBackground(String... urls) {
+    protected Boolean doInBackground(String... urls) {
         // check http responses and disable splash screen on error
         HttpGet httpRequest = new HttpGet(urls[0]);
         HttpClient httpclient = new DefaultHttpClient();
@@ -38,11 +45,52 @@ public class CheckHttpResponse extends AsyncTask<String, Void, Void> {
             if (code != HttpStatus.SC_OK) {
                 Log.d("iitcm", "received error code: " + code);
                 mJsInterface.removeSplashScreen();
+                // TODO: remove when google login issue is fixed
+                if (urls[0].contains("uberauth=WILL_NOT_SIGN_IN")) {
+                    return true;
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return false;
     }
 
+    /*
+     * TEMPORARY WORKAROUND for Google login fail
+     */
+    @Override
+    protected void onPostExecute(Boolean aBoolean) {
+        if (aBoolean) {
+            Log.d("iitcm", "google auth error, redirecting to work-around page");
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
+
+            // set title
+            alertDialogBuilder.setTitle("LOGIN FAILED!");
+
+            // set dialog message
+            alertDialogBuilder
+                    .setMessage("This is caused by Google and hopefully fixed soon. " +
+                            "To workaround this issue:\n" +
+                            "• Choose 'Cancel' when asked to choose an account " +
+                            "and manually enter your email address and password into the web page\n" +
+                            "• If you don't see the account chooser, delete apps cache/data " +
+                            "to force a new login session and handle it as described above")
+                    .setCancelable(true)
+                    .setNeutralButton("Reload now", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                            IITC_Mobile iitc_mobile = (IITC_Mobile) mContext;
+                            iitc_mobile.reloadIITC();
+                        }
+                    });
+
+            // create alert dialog
+            AlertDialog alertDialog = alertDialogBuilder.create();
+
+            // show it
+            alertDialog.show();
+        }
+    }
 }
