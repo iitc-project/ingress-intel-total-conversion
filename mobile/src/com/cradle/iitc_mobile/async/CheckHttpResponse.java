@@ -57,8 +57,7 @@ public class CheckHttpResponse extends AsyncTask<String, Void, Boolean> {
     }
 
     /*
-     * TEMPORARY WORKAROUND
-     * redirect to FAQ on google login fail
+     * TEMPORARY WORKAROUND for Google login fail
      */
     @Override
     protected void onPostExecute(Boolean aBoolean) {
