@@ -43,7 +43,8 @@
 //              array [GUID, time, details]. Plugin can manipulate the
 //              array to change order or add additional values to the
 //              details of a portal.
-// requestFinished: called after each request finished. Argument is
+// requestFinished: DEPRECATED: best to use mapDataRefreshEnd instead
+//              called after each map data request finished. Argument is
 //              {success: boolean} indicated the request success or fail.
 // iitcLoaded: called after IITC and all plugins loaded
 
@@ -72,7 +73,11 @@ window.runHooks = function(event, data) {
 
 
 window.addHook = function(event, callback) {
-  if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);
+  if(VALID_HOOKS.indexOf(event) === -1) {
+    console.error('addHook: Unknown event type: ' + event + ' - ignoring');
+    return;
+  }
+
   if(typeof callback !== 'function') throw('Callback must be a function.');
 
   if(!_hooks[event])

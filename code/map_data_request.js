@@ -368,6 +368,9 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
       var id = tiles[i];
       this.requeueTile(id, true);
     }
+
+    window.runHooks('requestFinished', {success: false});
+
   } else {
 
     // TODO: use result.minLevelOfDetail ??? stock site doesn't use it yet...
@@ -407,6 +410,8 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
       }
 
     }
+
+    window.runHooks('requestFinished', {success: true});
   }
 
   this.processRequestQueue();
