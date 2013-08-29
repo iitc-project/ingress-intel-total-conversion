@@ -24,6 +24,8 @@ window.plugin.portalInfrastructure = function() {};
 window.plugin.portalInfrastructure.badTitles = ['^statue$',
                                                 '^fountain$',
                                                 '^sculpture$',
+                                                '^post office$',
+                                                '^us post office$',
                                                 '^church$',
                                                 'untitled',
                                                 'no title'];
