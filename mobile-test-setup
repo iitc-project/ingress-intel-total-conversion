@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# quick-n-dirty script to rename the mobile build for tests
+
+
+# rename the package, so it can be installed alongside the regular build
+test -f mobile/AndroidManifest.xml~ || cp mobile/AndroidManifest.xml mobile/AndroidManifest.xml~
+sed -e 's/package="com.cradle.iitc_mobile"/package="com.cradle.iitc_mobile.test"/' mobile/AndroidManifest.xml~ > mobile/AndroidManifest.xml
+
+
+# rename the app title
+test -f mobile/res/values/strings.xml~ || cp mobile/res/values/strings.xml mobile/res/values/strings.xml~
+sed -e 's/IITC Mobile/IITCm Test/' mobile/res/values/strings.xml~ > mobile/res/values/strings.xml
+
+
