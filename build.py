@@ -59,7 +59,7 @@ dateTimeVersion = time.strftime('%Y%m%d.',utcTime) + time.strftime('%H%M%S',utcT
 resourceUrlBase = settings.get('resourceUrlBase')
 distUrlBase = settings.get('distUrlBase')
 buildMobile = settings.get('buildMobile')
-
+antOptions = settings.get('antOptions','')
 
 # plugin wrapper code snippets. handled as macros, to ensure that
 # 1. indentation caused by the "function wrapper()" doesn't apply to the plugin code body
@@ -132,7 +132,7 @@ def loaderImage(var):
     return 'data:image/png;base64,{0}'.format(base64.encodestring(open(fn, 'rb').read()).decode('utf8').replace('\n', ''))
 
 def loadCode(ignore):
-    return '\n\n'.join(map(readfile, glob.glob('code/*.js')))
+    return '\n\n'.join(map(readfile, sorted(glob.glob('code/*.js'))))
 
 
 def extractUserScriptMeta(var):
@@ -263,7 +263,7 @@ if buildMobile:
 
     if buildMobile != 'copyonly':
         # now launch 'ant' to build the mobile project
-        retcode = os.system("ant -buildfile mobile/build.xml %s" % buildMobile)
+        retcode = os.system("ant %s -buildfile mobile/build.xml %s" % (antOptions, buildMobile))
 
         if retcode != 0:
             print ("Error: mobile app failed to build. ant returned %d" % retcode)
