@@ -2,7 +2,7 @@
 // @id             iitc-plugin-compute-ap-stats@Hollow011
 // @name           IITC plugin: Compute AP statistics
 // @category       Info
-// @version        0.3.0.@@DATETIMEVERSION@@
+// @version        0.3.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -30,11 +30,8 @@ window.plugin.compAPStats.setupCallback = function() {
   window.plugin.compAPStats.onPositionMove();
 
   // make the value update when the map data updates
-  var handleDataResponseOrig = window.handleDataResponse;
-  window.handleDataResponse = function(data, textStatus, jqXHR) {
-    handleDataResponseOrig(data, textStatus, jqXHR);
-    window.plugin.compAPStats.onPositionMove();
-  }
+  window.addHook('mapDataRefreshEnd', window.plugin.compAPStats.onPositionMove);
+
 }
 
 window.plugin.compAPStats.onPositionMove = function() {
