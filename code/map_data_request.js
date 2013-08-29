@@ -132,18 +132,25 @@ window.MapDataRequest.prototype.refresh = function() {
   var zoom = getPortalDataZoom();
   var minPortalLevel = getMinPortalLevelForZoom(zoom);
 
-  window.runHooks ('mapDataRefreshStart', {bounds: bounds, zoom: zoom});
-
-  this.render.startRenderPass(bounds);
-  this.render.clearPortalsBelowLevel(minPortalLevel);
-
-  console.log('requesting data tiles at zoom '+zoom+' (L'+minPortalLevel+'+ portals), map zoom is '+map.getZoom());
-
-
   var x1 = lngToTile(bounds.getWest(), zoom);
   var x2 = lngToTile(bounds.getEast(), zoom);
   var y1 = latToTile(bounds.getNorth(), zoom);
   var y2 = latToTile(bounds.getSouth(), zoom);
+
+  window.runHooks ('mapDataRefreshStart', {bounds: bounds, zoom: zoom});
+
+  this.render.startRenderPass();
+  this.render.clearPortalsBelowLevel(minPortalLevel);
+
+  // calculate the full bounds for the data - including the part of the tiles off the screen edge
+  var dataBounds = L.latLngBounds([
+    [tileToLat(y2+1,zoom), tileToLng(x1,zoom)],
+    [tileToLat(y1,zoom), tileToLng(x2+1,zoom)]
+  ]);
+  this.render.clearEntitiesOutsideBounds(dataBounds);
+
+  console.log('requesting data tiles at zoom '+zoom+' (L'+minPortalLevel+'+ portals), map zoom is '+map.getZoom());
+
 
   this.cachedTileCount = 0;
   this.requestedTileCount = 0;

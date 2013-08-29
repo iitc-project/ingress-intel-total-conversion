@@ -12,7 +12,7 @@ window.Render = function() {
 
 
 // start a render pass. called as we start to make the batch of data requests to the servers
-window.Render.prototype.startRenderPass = function(bounds) {
+window.Render.prototype.startRenderPass = function() {
   this.isRendering = true;
 
   this.deletedGuid = {};  // object - represents the set of all deleted game entity GUIDs seen in a render pass
@@ -20,23 +20,48 @@ window.Render.prototype.startRenderPass = function(bounds) {
   this.seenPortalsGuid = {};
   this.seenLinksGuid = {};
   this.seenFieldsGuid = {};
-
-  this.minPortalLevel = undefined;
-  // clear all entities outside of the bounds
 }
 
 window.Render.prototype.clearPortalsBelowLevel = function(level) {
-  if (this.minPortalLevel === undefined) {
-    this.minPortalLevel = level;
-    for (var guid in window.portals) {
-      var p = portals[guid];
-      if (parseInt(p.options.level) < level) {
-        this.deletePortalEntity(guid);
-      }
+  var count = 0;
+  for (var guid in window.portals) {
+    var p = portals[guid];
+    if (parseInt(p.options.level) < level && guid !== selectedPortal) {
+      this.deletePortalEntity(guid);
+      count++;
     }
   }
+  console.log('Render: deleted '+count+' portals by level');
 }
 
+window.Render.prototype.clearEntitiesOutsideBounds = function(bounds) {
+  var pcount=0, lcount=0, fcount=0;
+
+  for (var guid in window.portals) {
+    var p = portals[guid];
+    if (!bounds.contains (p.getLatLng()) && guid !== selectedPortal) {
+      this.deletePortalEntity(guid);
+      pcount++;
+    }
+  }
+
+  for (var guid in window.links) {
+    var l = links[guid];
+    if (!bounds.intersects (l.getBounds())) {
+      this.deleteLinkEntity(guid);
+      lcount++;
+    }
+  }
+
+  for (var guid in window.fields) {
+    var f = fields[guid];
+    if (!bounds.intersects (f.getBounds())) {
+      this.deleteFieldEntity(guid);
+      fcount++;
+    }
+  }
+  console.log('Render: deleted '+pcount+' portals, '+lcount+' links, '+fcount+' fields by bounds check');
+}
 
 // process deleted entity list and entity data
 window.Render.prototype.processTileData = function(tiledata) {
@@ -211,15 +236,16 @@ window.Render.prototype.createPortalEntity = function(ent) {
   marker.on('click', function() { window.renderPortalDetails(ent[0]); });
   marker.on('dblclick', function() { window.renderPortalDetails(ent[0]); window.map.setView(latlng, 17); });
 
-  // handle highlighting of the selected portal
-  if (ent[0] === selectedPortal) {
-    setMarkerStyle (marker, true);
-  }
-
 
   window.runHooks('portalAdded', {portal: marker});
 
   window.portals[ent[0]] = marker;
+
+  // re-select the portal, to refresh the sidebar on any changes
+  if (ent[0] === selectedPortal) {
+    selectPortal (ent[0]);
+  }
+
 
   //TODO? postpone adding to the map layer
   portalsLayers[parseInt(portalLevel)].addLayer(marker);
