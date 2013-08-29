@@ -16,7 +16,6 @@
 
 //CHANGELOG
 /*
- * 
 v1.2.1
 Fixed dropdown location overlap
 
@@ -35,27 +34,13 @@ Changed radius function and center function -
 Center is now the midpoint of the max and min long and lat coords
 Radius is distance from center to furthest portal (i.e., now the circle will be limited to portals in the farm)
 
-v1.0.2
-Bugfix - Didn't work without Barcode Name Decoder plugin due to namespaces.....  oops
-
-v1.0.1
-Bugfix - minimum level was actually off by one, due to using > instead of >=
-
-v1.0.0
-Initial release
-
 */
 
 
 
-
-function wrapper() {
-// ensure plugin framework is there, even if iitc is not yet loaded
-if(typeof window.plugin !== 'function') window.plugin = function() {};
-
 @@PLUGINSTART@@
 
-// PLUGIN START ////////////////////////////////////////////////////////
+
 // use own namespace for plugin
 window.plugin.farmFind = function() {};
 
@@ -340,21 +325,5 @@ var setup =  function() {window.plugin.farmFind.minLevel = 7;
     myselect.options.selectedIndex = 6;
     window.addLayerGroup('Farms', window.plugin.farmFind.levelLayerGroup, true);
 };
-// PLUGIN END //////////////////////////////////////////////////////////
-
-
-if(window.iitcLoaded && typeof setup === 'function') {
-  setup();
-} else {
-  if(window.bootPlugins)
-    window.bootPlugins.push(setup);
-  else
-    window.bootPlugins = [setup];
-}
-} // wrapper end
-// inject code into site context
-var script = document.createElement('script');
-script.appendChild(document.createTextNode('('+ wrapper +')();'));
-(document.body || document.head || document.documentElement).appendChild(script);
 
 @@PLUGINEND@@
