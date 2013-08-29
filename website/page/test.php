@@ -67,7 +67,7 @@ iitcDesktopPluginDownloadTable ( $path );
 
 include_once ( "code/mobile-download.php" );
 
-$apkfile = "$path/IITC_Mobile-test.apk";
+$apkfile = "$path/IITC_Mobile-$path.apk";
 
 
 if ( file_exists($apkfile) )
