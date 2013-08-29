@@ -67,7 +67,7 @@ window.renderPortalDetails = function(guid) {
         submitterSpan = '<span class="none">';
       }
       portalDetailedDescription += '<tr><th>Photo by:</th><td>' + submitterSpan
-                                + escapeHtmlSpecialChars(portalDetailObj.submitter.name) + '</span> (' + portalDetailObj.submitter.voteCount + ' votes)</td></tr>';
+                                + escapeHtmlSpecialChars(portalDetailObj.submitter.name) + '</span>'+(portalDetailObj.submitter.voteCount !== undefined ? ' (' + portalDetailObj.submitter.voteCount + ' votes)' : '')+'</td></tr>';
     }
     if(portalDetailObj.submitter.link.length > 0) {
       portalDetailedDescription += '<tr><th>Photo from:</th><td><a href="'
