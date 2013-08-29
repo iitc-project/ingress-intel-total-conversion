@@ -456,12 +456,7 @@ public class IITC_Mobile extends Activity {
                 mIitcWebView.loadUrl("javascript: window.show('map');");
                 return true;
             case R.id.reload_button:
-                mActionBar.setTitle(getString(R.string.app_name));
-                mBackStack.clear();
-                setActionBarHomeEnabledWithUp(false);
-                // iitc starts on map after reload
-                mCurrentPane = android.R.id.home;
-                this.loadUrl(mIntelUrl);
+                reloadIITC();
                 return true;
             case R.id.toggle_fullscreen:
                 toggleFullscreen();
@@ -516,6 +511,15 @@ public class IITC_Mobile extends Activity {
             default:
                 return false;
         }
+    }
+
+    public void reloadIITC() {
+        mActionBar.setTitle(getString(R.string.app_name));
+        mBackStack.clear();
+        setActionBarHomeEnabledWithUp(false);
+        // iitc starts on map after reload
+        mCurrentPane = android.R.id.home;
+        this.loadUrl(mIntelUrl);
     }
 
     private void loadIITC() {
