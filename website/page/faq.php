@@ -3,7 +3,7 @@
 <ul>
 
 <li>
-<h4 id="moblie-login">Login on mobile doesn't work!</h4>
+<h4 id="mobile-login">Login on mobile doesn't work!</h4>
 <p>
 Many users are seeing the error message <b>Error: Server Error</b> when attempting to log in on mobile.
 To get past this and log in successfully, you can try to
