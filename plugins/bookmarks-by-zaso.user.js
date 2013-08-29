@@ -2,7 +2,7 @@
 // @id             iitc-plugin-bookmarks@zaso
 // @name           IITC plugin: Bookmarks for maps and portals
 // @category       Controls
-// @version        0.2.1.@@DATETIMEVERSION@@
+// @version        0.2.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -26,7 +26,8 @@
   + pluginBkmrksOpenOpt: fired when the "Bookmarks Options" panel is opened (you can add new options);
 
   CHANGELOG:
-  v 0.2.1:
+  v 0.2.1-0.2.2:
+  + auto-drawer minor bug fix;
   + auto-drawer improved UI;
   + auto-drawer improved UI on mobile;
   + fixed hidden box problem (I hope): sometimes the box and the ribbon hidden;
@@ -589,6 +590,7 @@
       title:'Bookmarks - Auto Drawer',
       buttons:{
         'DRAW': function() {
+          $(this).dialog('destroy');
           window.plugin.bookmarks.draw();
         },
         'REFRESH LIST': function() {
@@ -618,10 +620,10 @@
       // Save in localStorage
       window.plugin.drawTools.save();
 
-      map.fitBounds(newItem.getBounds());
       if(window.plugin.bookmarks.isSmart) {
         window.show('map');
       }
+      map.fitBounds(newItem.getBounds());
     }
     else{
       $('#bkmrksAutoDrawer p').toggle().delay('2500').fadeOut('500');
