@@ -63,10 +63,12 @@ iitcDesktopPluginDownloadTable ( $path );
 
 <h3 id="test-mobile">Mobile test build</h3>
 
+<!--
 <div class="alert alert-block alert-info">
 <b>Note</b>: Test builds have recently been changed so they can be installed alongside the standard IITC builds.
 Test builds will be called "IITCm Test" - while the regular release builds remain named "IITC Mobile"
 </div>
+-->
 
 <?php
 
