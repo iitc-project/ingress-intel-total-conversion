@@ -12,7 +12,7 @@ window.MapDataRequest = function() {
   this.activeRequestCount = 0;
   this.requestedTiles = {};
 
-  this.moving = false;
+//  this.moving = false;
 
   // no more than this many requests in parallel
   this.MAX_REQUESTS = 4;
@@ -24,8 +24,8 @@ window.MapDataRequest = function() {
   this.MAX_TILE_RETRIES = 3;
 
   // refresh timers
-  this.MOVE_REFRESH = 2.5; //refresh time to use after a move
-  this.STARTUP_REFRESH = 1; //refresh time used on first load of IITC
+  this.MOVE_REFRESH = 1; //refresh time to use after a move
+  this.STARTUP_REFRESH = 0.2; //refresh time used on first load of IITC
   this.IDLE_RESUME_REFRESH = 5; //refresh time used after resuming from idle
   this.REFRESH = 60;  //minimum refresh time to use when not idle and not moving
   this.FETCH_TO_REFRESH_FACTOR = 2;  //refresh time is based on the time to complete a data fetch, times this value
@@ -56,11 +56,11 @@ window.MapDataRequest.prototype.start = function() {
 window.MapDataRequest.prototype.mapMoveStart = function() {
   console.log('refresh map movestart');
 
-  this.moving=true;
+//  this.moving=true;
 
-  this.clearQueue();
+//  this.clearQueue();
 
-  this.setStatus('paused');
+//  this.setStatus('paused');
   this.clearTimeout();
 
 }
@@ -68,7 +68,7 @@ window.MapDataRequest.prototype.mapMoveStart = function() {
 window.MapDataRequest.prototype.mapMoveEnd = function() {
   console.log('refresh map moveend');
 
-  this.moving=false;
+//  this.moving=false;
 
   this.setStatus('refreshing');
   this.refreshOnTimeout(this.MOVE_REFRESH);
@@ -95,9 +95,9 @@ window.MapDataRequest.prototype.refreshOnTimeout = function(seconds) {
 }
 
 
-window.MapDataRequest.prototype.clearQueue = function() {
-  this.tileBounds = {};
-}
+//window.MapDataRequest.prototype.clearQueue = function() {
+//  this.tileBounds = {};
+//}
 
 
 window.MapDataRequest.prototype.setStatus = function(short,long,progress) {
@@ -132,6 +132,11 @@ window.MapDataRequest.prototype.refresh = function() {
   var zoom = getPortalDataZoom();
   var minPortalLevel = getMinPortalLevelForZoom(zoom);
 
+//DEBUG: resize the bounds so we only retrieve some data
+//bounds = bounds.pad(-0.4);
+//var debugrect = L.rectangle(bounds,{color: 'red', fill: false, weight: 4, opacity: 0.8}).addTo(map);
+//setTimeout (function(){ map.removeLayer(debugrect); }, 10*1000);
+
   var x1 = lngToTile(bounds.getWest(), zoom);
   var x2 = lngToTile(bounds.getEast(), zoom);
   var y1 = latToTile(bounds.getNorth(), zoom);
@@ -147,6 +152,8 @@ window.MapDataRequest.prototype.refresh = function() {
     [tileToLat(y2+1,zoom), tileToLng(x1,zoom)],
     [tileToLat(y1,zoom), tileToLng(x2+1,zoom)]
   ]);
+//var debugrect2 = L.rectangle(dataBounds,{color: 'magenta', fill: false, weight: 4, opacity: 0.8}).addTo(map);
+//setTimeout (function(){ map.removeLayer(debugrect2); }, 10*1000);
   this.render.clearEntitiesOutsideBounds(dataBounds);
 
   console.log('requesting data tiles at zoom '+zoom+' (L'+minPortalLevel+'+ portals), map zoom is '+map.getZoom());
@@ -203,9 +210,9 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
   // if nothing left in the queue, end the render. otherwise, send network requests
   if (Object.keys(this.tileBounds).length == 0) {
 
-    // if map is being dragged, just return without any end of map processing
-    if (this.moving)
-      return;
+//    // if map is being dragged, just return without any end of map processing
+//    if (this.moving)
+//      return;
 
     this.render.endRenderPass();
 
