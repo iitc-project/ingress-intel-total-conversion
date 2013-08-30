@@ -209,20 +209,6 @@ window.androidPermalink = function() {
   return false;
 }
 
-window.reportPortalIssue = function(info) {
-  var t = 'Redirecting you to a Google Help Page.\n\nThe text box contains all necessary information. Press CTRL+C to copy it.';
-  var d = window.portals[window.selectedPortal].options.details;
-
-  var info = 'Your Nick: ' + PLAYER.nickname + '        '
-    + 'Portal: ' + d.portalV2.descriptiveText.TITLE + '        '
-    + 'Location: ' + d.portalV2.descriptiveText.ADDRESS
-    +' (lat ' + (d.locationE6.latE6/1E6) + '; lng ' + (d.locationE6.lngE6/1E6) + ')';
-
-  //codename, approx addr, portalname
-  if(prompt(t, info) !== null)
-    location.href = 'https://support.google.com/ingress?hl=en&contact=1';
-}
-
 
 window.getPortalDataZoom = function() {
   var mapZoom = map.getZoom();
