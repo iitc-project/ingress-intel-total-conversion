@@ -2,7 +2,5 @@
 
 # reverse of mobile-test-setup - reverts the changes made to AndroidManifest.xml and any resource files
 
-mv mobile/AndroidManifest.xml~ mobile/AndroidManifest.xml
-
 mv mobile/res/values/strings.xml~ mobile/res/values/strings.xml
 
