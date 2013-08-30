@@ -40,6 +40,8 @@ Radius is distance from center to furthest portal (i.e., now the circle will be 
 
 @@PLUGINSTART@@
 
+// PLUGIN START ////////////////////////////////////////////////////////
+
 
 // use own namespace for plugin
 window.plugin.farmFind = function() {};
@@ -325,5 +327,7 @@ var setup =  function() {window.plugin.farmFind.minLevel = 7;
     myselect.options.selectedIndex = 6;
     window.addLayerGroup('Farms', window.plugin.farmFind.levelLayerGroup, true);
 };
+
+// PLUGIN END //////////////////////////////////////////////////////////
 
 @@PLUGINEND@@
