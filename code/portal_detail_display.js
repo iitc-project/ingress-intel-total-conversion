@@ -156,8 +156,12 @@ window.selectPortal = function(guid) {
 
   if(portals[guid]) {
 //    resonatorsSetSelectStyle(guid);
-    portals[guid].bringToFront();
+
    setMarkerStyle(portals[guid], true);
+
+    if (map.hasLayer(portals[guid])) {
+      portals[guid].bringToFront();
+    }
   }
 
   return update;
