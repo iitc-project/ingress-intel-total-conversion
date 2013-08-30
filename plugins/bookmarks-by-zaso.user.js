@@ -1,5 +1,5 @@
 // ==UserScript==
-// @id             iitc-plugin-bookmarks@zaso
+// @id             iitc-plugin-bookmarks@ZasoGD
 // @name           IITC plugin: Bookmarks for maps and portals
 // @category       Controls
 // @version        0.2.2.@@DATETIMEVERSION@@
@@ -590,11 +590,10 @@
       title:'Bookmarks - Auto Drawer',
       buttons:{
         'DRAW': function() {
-          $(this).dialog('destroy');
           window.plugin.bookmarks.draw();
         },
         'REFRESH LIST': function() {
-          $(this).dialog('destroy');
+          $(this).dialog('close');
           window.plugin.bookmarks.dialogDrawer();
         }
       }
