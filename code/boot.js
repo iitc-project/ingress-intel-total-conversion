@@ -127,10 +127,8 @@ window.setupMap = function() {
     /*5*/ new L.Google('TERRAIN',{maxZoom:15})
   ];
 
-
-  window.map = new L.Map('map', $.extend(getPosition(),
-    {zoomControl: window.showZoom, minZoom: 1}
-  ));
+  // proper initial position is now delayed until all plugins are loaded and the base layer is set
+  window.map = new L.Map('map', {center: [0,0], zoom: 1, zoomControl: window.showZoom, minZoom: 1});
 
   // add empty div to leaflet control areas - to force other leaflet controls to move around IITC UI elements
   // TODO? move the actual IITC DOM into the leaflet control areas, so dummy <div>s aren't needed
@@ -221,9 +219,10 @@ window.setMapBaseLayer = function() {
   var baseLayer = nameToLayer[localStorage['iitc-base-map']] || firstLayer;
   map.addLayer(baseLayer);
 
-  //after choosing a base layer, ensure the zoom is valid for this layer
-  //(needs to be done here - as we don't know the base layer zoom limit before this)
-  map.setZoom(map.getZoom());
+  // now we have a base layer we can set the map position
+  // (setting an initial position, before a base layer is added, causes issues with leaflet)
+  var pos = getPosition();
+  map.setView (pos.center, pos.zoom, {reset:true});
 
 
   //event to track layer changes and store the name
