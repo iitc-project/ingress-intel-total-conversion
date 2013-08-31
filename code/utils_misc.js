@@ -94,6 +94,88 @@ window.digits = function(d) {
   return (d+"").replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1 ");
 }
 
+// niantic now add some munging to the request parameters. so far, only two sets of this munging have been seen
+window.requestDataMunge = function(data) {
+  var requestMunges = [
+    // set 0
+    {
+      method: '4kr3ofeptwgary2j',
+      boundsParamsList: 'n27qzc8389kgakyv',
+      id: '39031qie1i4aq563',
+      minLatE6: 'pg98bwox95ly0ouu',
+      minLngE6: 'eib1bkq8znpwr0g7',
+      maxLatE6: 'ilfap961rwdybv63',
+      maxLngE6: 'lpf7m1ifx0ieouzq',
+      timestampMs: '2ewujgywmum1yp49',
+      qk: 'bgxibcomzoto63sn',
+      desiredNumItems: 'tmb0vgxgp5grsnhp',
+      minTimestampMs: 'hljqffkpwlx0vtjt',
+      maxTimestampMs: 'sw317giy6x2xj9zm',
+      guids: 'pusjrhxxtyp5nois',
+      inviteeEmailAddress: 'cltkepgqkepfsyaq',
+      message: 'q0d6n7t1801bb6xu',
+      latE6: '5ygbhpxfnt1u9e4t',
+      lngE6: 'ak6twnljwwcgd7cj',
+      factionOnly: '0dvtbatgzcfccchh'
+    },
+
+    // set 1
+    {
+      method: 'uuo2zqhhy5bw80fu',
+      boundsParamsList: '5rc0561uauf6x13u',
+      id: 'bzeizowtguoyrrtt',
+      minLatE6: '7qej3eqg4sefuaac',
+      minLngE6: 'yqegc976egk5q9vo',
+      maxLatE6: '2odsgh99ix9bbtsb',
+      maxLngE6: 'g9jess8dwa2j8pwi',
+      timestampMs: '604f34zcu9zna0a5',
+      qk: 'y853tux9h7cb6xp3',
+      desiredNumItems: 'sfv5i7l6ouljz8vf',
+      minTimestampMs: 'y3g07dbnw6sklloj',
+      maxTimestampMs: '3pdl28aa27xvyhke',
+      guids: 'xp1pl2jm5hrh3bna',
+      inviteeEmailAddress: '2pyrttrp3gh38mmu',
+      message: 'zz54435vfc57nlg9',
+      latE6: 'cyltxjod3jhxgj8q',
+      lngE6: 'h9whcgcz6kpqkz80',
+      factionOnly: '37okcr7gvd5yn2lj'
+    },
+  ];
+
+  var activeMunge = requestMunges[1];
+
+  function munge(obj) {
+    if (Object.prototype.toString.call(obj) === '[object Array]') {
+      // an array - munge each element of it
+      var newobj = [];
+      for (var i in obj) {
+        newobj[i] = munge(obj[i]);
+      }
+      return newobj;
+    } else if (typeof obj === 'object') {
+      // an object: munge each property name, and pass the value through the munge process
+      var newobj = Object();
+      for (var p in obj) {
+        var m = activeMunge[p];
+        if (m === undefined) {
+          console.error('Error: failed to find munge for object property '+p);
+          newobj[p] = obj[p];
+        } else {
+          // rename the property
+          newobj[m] = munge(obj[p]);
+        }
+      }
+      return newobj;
+    } else {
+      // neither an array or an object - so must be a simple value. return it unmodified
+      return obj;
+    }
+  };
+
+  var newdata = munge(data);
+  return newdata;
+}
+
 // posts AJAX request to Ingress API.
 // action: last part of the actual URL, the rpc/dashboard. is
 //         added automatically
@@ -104,11 +186,11 @@ window.digits = function(d) {
 //          able arguments: http://api.jquery.com/jQuery.ajax/
 // error: see above. Additionally it is logged if the request failed.
 window.postAjax = function(action, data, success, error) {
-  var post_data = JSON.stringify($.extend({method: 'dashboard.'+action}, data));
+  var post_data = JSON.stringify(window.requestDataMunge($.extend({method: 'dashboard.'+action}, data)));
   var remove = function(data, textStatus, jqXHR) { window.requests.remove(jqXHR); };
   var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
   var result = $.ajax({
-    url: '/rpc/dashboard.'+action,
+    url: '/r/dashboard.'+action,
     type: 'POST',
     data: post_data,
     context: data,
