@@ -88,18 +88,22 @@ window.Render.prototype.processDeletedGameEntityGuids = function(deleted) {
 }
 
 window.Render.prototype.processGameEntities = function(entities) {
+  var portalGuids = [];
+
   for (var i in entities) {
     var ent = entities[i];
 
     // don't create entities in the 'deleted' list
     if (!(ent[0] in this.deletedGuid)) {
       this.createEntity(ent);
+      if ('portalV2' in ent[2]) portalGuids.push(ent[0]);
     }
   }
 
   // now reconstruct links 'optimised' out of the data from the portal link data
-
+  this.createLinksFromPortalData(portalGuids);
 }
+
 
 // end a render pass. does any cleaning up required, postponed processing of data, etc. called when the render
 // is considered complete
@@ -354,4 +358,59 @@ window.Render.prototype.createLinkEntity = function(ent) {
 
   // TODO? postpone adding to the layer??
   linksLayer.addLayer(poly);
+}
+
+
+window.Render.prototype.createLinksFromPortalData = function(portalGuids) {
+
+  for (var portalGuidIndex in portalGuids) {
+    var portalGuid = portalGuids[portalGuidIndex];
+    var sourcePortal = portals[portalGuid];
+
+    for (var sourceLinkIndex in sourcePortal.options.details.portalV2.linkedEdges||[]) {
+      var sourcePortalLinkInfo = sourcePortal.options.details.portalV2.linkedEdges[sourceLinkIndex];
+
+      // portals often contain details for edges that don't exist. so only consider faking an edge if this
+      // is the origin portal, the link doesn't already exist...
+      if (sourcePortalLinkInfo.isOrigin && !(sourcePortalLinkInfo.edgeGuid in links)) {
+
+        // ... and the other porta has matching link information. 
+        if (portalGuids.indexOf(sourcePortalLinkInfo.otherPortalGuid) != -1 &&
+            sourcePortalLinkInfo.otherPortalGuid in portals) {
+
+          var targetPortal = portals[sourcePortalLinkInfo.otherPortalGuid];
+
+          for (var targetLinkIndex in targetPortal.options.details.portalV2.linkedEdges||[]) {
+            var targetPortalLinkInfo = targetPortal.options.details.portalV2.linkedEdges[targetLinkIndex];
+
+            if (targetPortalLinkInfo.edgeGuid == sourcePortalLinkInfo.edgeGuid) {
+              // yes - edge in both portals. create it
+
+              var fakeEnt = [
+                sourcePortalLinkInfo.edgeGuid,
+                0,  // mtime for entity data - unknown when faking it, so zero will be the oldest possible
+                {
+                  controllingTeam: sourcePortal.options.details.controllingTeam,
+                  edge: {
+                    originPortalGuid: portalGuid,
+                    originPortalLocation: sourcePortal.options.details.locationE6,
+                    destinationPortalGuid: sourcePortalLinkInfo.otherPortalGuid,
+                    destinationPortalLocation: targetPortal.options.details.locationE6
+                  }
+                }
+              ];
+
+              this.createLinkEntity(fakeEnt);
+
+
+            }
+
+          }
+
+        }
+        
+      }
+
+    }
+  }
 }
