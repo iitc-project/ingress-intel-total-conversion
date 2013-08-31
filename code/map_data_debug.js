@@ -15,7 +15,7 @@ window.RenderDebugTiles.prototype.reset = function() {
 }
 
 window.RenderDebugTiles.prototype.create = function(id,bounds) {
-  var s = {color: '#666', weight: 3, opacity: 0.4, fillColor: '#666', fillOpacity: 0.2, clickable: false};
+  var s = {color: '#666', weight: 2, opacity: 0.4, fillColor: '#666', fillOpacity: 0.1, clickable: false};
 
   var bounds = new L.LatLngBounds(bounds);
   bounds = bounds.pad(-0.02);
@@ -28,7 +28,7 @@ window.RenderDebugTiles.prototype.create = function(id,bounds) {
 window.RenderDebugTiles.prototype.setColour = function(id,bordercol,fillcol) {
   var l = this.debugTileToRectangle[id];
   if (l) {
-    var s = {color: bordercol, weight: 3, opacity: 0.4, fillColor: fillcol, fillOpacity: 0.2, clickable: false};
+    var s = {color: bordercol, fillColor: fillcol};
     l.setStyle(s);
   }
 }
@@ -41,7 +41,7 @@ window.RenderDebugTiles.prototype.setState = function(id,state) {
     case 'error': col='#f00'; fill='#f00'; break;
     case 'cache-fresh': col='#0f0'; fill='#ff0'; break;
     case 'cache-stale': col='#f00'; fill='#ff0'; break;
-    case 'requested': col='#00f'; fill='#00f'; break;
+    case 'requested': col='#66f'; fill='#66f'; break;
     case 'retrying': col='#666'; fill='#666'; break;
   }
   this.setColour (id, col, fill);
