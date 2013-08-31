@@ -25,7 +25,7 @@ window.MapDataRequest = function() {
 
   // refresh timers
   this.MOVE_REFRESH = 1; //refresh time to use after a move
-  this.STARTUP_REFRESH = 0.2; //refresh time used on first load of IITC
+  this.STARTUP_REFRESH = 2; //refresh time used on first load of IITC
   this.IDLE_RESUME_REFRESH = 5; //refresh time used after resuming from idle
   this.REFRESH = 60;  //minimum refresh time to use when not idle and not moving
   this.FETCH_TO_REFRESH_FACTOR = 2;  //refresh time is based on the time to complete a data fetch, times this value
