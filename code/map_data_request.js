@@ -21,7 +21,7 @@ window.MapDataRequest = function() {
   this.MAX_TILES_PER_REQUEST = 32;
 
   // number of times to retty a tile after a 'bad' error (i.e. not a timeout)
-  this.MAX_TILE_RETRIES = 3;
+  this.MAX_TILE_RETRIES = 1;
 
   // refresh timers
   this.MOVE_REFRESH = 1; //refresh time to use after a move
@@ -325,7 +325,7 @@ window.MapDataRequest.prototype.requeueTile = function(id, error) {
     // first, see if the error can be ignored due to retry counts
     if (error) {
       this.tileErrorCount[id] = (this.tileErrorCount[id]||0)+1;
-      if (this.tileErrorCount[id] < this.MAX_TILE_RETRIES) {
+      if (this.tileErrorCount[id] <= this.MAX_TILE_RETRIES) {
         // retry limit low enough - clear the error flag
         error = false;
       }
