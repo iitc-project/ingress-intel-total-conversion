@@ -298,11 +298,11 @@ public class IITC_WebViewClient extends WebViewClient {
                                                       String url) {
         if (url.contains("/css/common.css")) {
             return new WebResourceResponse("text/css", "UTF-8", STYLE);
-        } else if (url.contains("gen_dashboard.js")) {
-            // define initialize function to get rid of JS ReferenceError on intel page's 'onLoad'
-            String gen_dashboad_replacement = "window.initialize = function() {}";
-            return new WebResourceResponse("text/javascript", "UTF-8",
-                    new ByteArrayInputStream(gen_dashboad_replacement.getBytes()));
+//        } else if (url.contains("gen_dashboard.js")) {
+//            // define initialize function to get rid of JS ReferenceError on intel page's 'onLoad'
+//            String gen_dashboad_replacement = "window.initialize = function() {}";
+//            return new WebResourceResponse("text/javascript", "UTF-8",
+//                    new ByteArrayInputStream(gen_dashboad_replacement.getBytes()));
         } else if (url.contains("/css/ap_icons.css")
                 || url.contains("/css/map_icons.css")
                 || url.contains("/css/common.css")
