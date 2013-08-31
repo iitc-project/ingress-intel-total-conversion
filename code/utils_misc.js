@@ -94,55 +94,82 @@ window.digits = function(d) {
   return (d+"").replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1 ");
 }
 
+
+window.requestParameterMunges = [
+  // set 0
+  {
+    method: '4kr3ofeptwgary2j',
+    boundsParamsList: 'n27qzc8389kgakyv',
+    id: '39031qie1i4aq563',
+    minLatE6: 'pg98bwox95ly0ouu',
+    minLngE6: 'eib1bkq8znpwr0g7',
+    maxLatE6: 'ilfap961rwdybv63',
+    maxLngE6: 'lpf7m1ifx0ieouzq',
+    timestampMs: '2ewujgywmum1yp49',
+    qk: 'bgxibcomzoto63sn',
+    desiredNumItems: 'tmb0vgxgp5grsnhp',
+    minTimestampMs: 'hljqffkpwlx0vtjt',
+    maxTimestampMs: 'sw317giy6x2xj9zm',
+    guids: 'pusjrhxxtyp5nois',
+    inviteeEmailAddress: 'cltkepgqkepfsyaq',
+    message: 'q0d6n7t1801bb6xu',
+    latE6: '5ygbhpxfnt1u9e4t',
+    lngE6: 'ak6twnljwwcgd7cj',
+    factionOnly: '0dvtbatgzcfccchh'
+  },
+
+  // set 1
+  {
+    method: 'uuo2zqhhy5bw80fu',
+    boundsParamsList: '5rc0561uauf6x13u',
+    id: 'bzeizowtguoyrrtt',
+    minLatE6: '7qej3eqg4sefuaac',
+    minLngE6: 'yqegc976egk5q9vo',
+    maxLatE6: '2odsgh99ix9bbtsb',
+    maxLngE6: 'g9jess8dwa2j8pwi',
+    timestampMs: '604f34zcu9zna0a5',
+    qk: 'y853tux9h7cb6xp3',
+    desiredNumItems: 'sfv5i7l6ouljz8vf',
+    minTimestampMs: 'y3g07dbnw6sklloj',
+    maxTimestampMs: '3pdl28aa27xvyhke',
+    guids: 'xp1pl2jm5hrh3bna',
+    inviteeEmailAddress: '2pyrttrp3gh38mmu',
+    message: 'zz54435vfc57nlg9',
+    latE6: 'cyltxjod3jhxgj8q',
+    lngE6: 'h9whcgcz6kpqkz80',
+    factionOnly: '37okcr7gvd5yn2lj'
+  },
+];
+window.activeRequestMungeSet = undefined;
+
+// attempt to guess the munge set in use, by looking therough the functions of the stock intel page for one of the munged params
+window.detectActiveMungeSet = function() {
+  for (var m in window) {
+    // try and find the stock page functions
+    if (typeof window[m] == 'function' && m.length <= 3) {
+      var stockFunc = window[m].toString();
+      for (var i in window.requestParameterMunges) {
+        if (stockFunc.indexOf (window.requestParameterMunges[i]['id']) >= 0) {
+          console.log('IITC: found request munge set '+i+' in stock intel function "window.'+m+'()"');
+          window.activeRequestMungeSet = i;
+        }
+      }
+    }
+  }
+
+  if (window.activeRequestMungeSet===undefined) {
+    console.error('IITC: failed to find request munge set - IITC will likely fail');
+    window.activeRequestMungeSet = 0;
+  }
+}
+
 // niantic now add some munging to the request parameters. so far, only two sets of this munging have been seen
 window.requestDataMunge = function(data) {
-  var requestMunges = [
-    // set 0
-    {
-      method: '4kr3ofeptwgary2j',
-      boundsParamsList: 'n27qzc8389kgakyv',
-      id: '39031qie1i4aq563',
-      minLatE6: 'pg98bwox95ly0ouu',
-      minLngE6: 'eib1bkq8znpwr0g7',
-      maxLatE6: 'ilfap961rwdybv63',
-      maxLngE6: 'lpf7m1ifx0ieouzq',
-      timestampMs: '2ewujgywmum1yp49',
-      qk: 'bgxibcomzoto63sn',
-      desiredNumItems: 'tmb0vgxgp5grsnhp',
-      minTimestampMs: 'hljqffkpwlx0vtjt',
-      maxTimestampMs: 'sw317giy6x2xj9zm',
-      guids: 'pusjrhxxtyp5nois',
-      inviteeEmailAddress: 'cltkepgqkepfsyaq',
-      message: 'q0d6n7t1801bb6xu',
-      latE6: '5ygbhpxfnt1u9e4t',
-      lngE6: 'ak6twnljwwcgd7cj',
-      factionOnly: '0dvtbatgzcfccchh'
-    },
+  if (window.activeRequestMungeSet===undefined) {
+    window.detectActiveMungeSet();
+  }
 
-    // set 1
-    {
-      method: 'uuo2zqhhy5bw80fu',
-      boundsParamsList: '5rc0561uauf6x13u',
-      id: 'bzeizowtguoyrrtt',
-      minLatE6: '7qej3eqg4sefuaac',
-      minLngE6: 'yqegc976egk5q9vo',
-      maxLatE6: '2odsgh99ix9bbtsb',
-      maxLngE6: 'g9jess8dwa2j8pwi',
-      timestampMs: '604f34zcu9zna0a5',
-      qk: 'y853tux9h7cb6xp3',
-      desiredNumItems: 'sfv5i7l6ouljz8vf',
-      minTimestampMs: 'y3g07dbnw6sklloj',
-      maxTimestampMs: '3pdl28aa27xvyhke',
-      guids: 'xp1pl2jm5hrh3bna',
-      inviteeEmailAddress: '2pyrttrp3gh38mmu',
-      message: 'zz54435vfc57nlg9',
-      latE6: 'cyltxjod3jhxgj8q',
-      lngE6: 'h9whcgcz6kpqkz80',
-      factionOnly: '37okcr7gvd5yn2lj'
-    },
-  ];
-
-  var activeMunge = requestMunges[1];
+  var activeMunge = window.requestParameterMunges[window.activeRequestMungeSet];
 
   function munge(obj) {
     if (Object.prototype.toString.call(obj) === '[object Array]') {
