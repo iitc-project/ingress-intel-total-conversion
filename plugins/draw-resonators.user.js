@@ -29,6 +29,9 @@ window.plugin.drawResonators.render;
 
 //////// Render for handling render of resonators ////////
 
+// As long as 'window.Render.prototype.createPortalEntity' delete and recreate portal
+// on any change of data, this resonator render should make resonator create and remove
+// with portal correctly.
 
 
 window.plugin.drawResonators.Render = function(options) {
@@ -64,8 +67,69 @@ window.plugin.drawResonators.Render.prototype.portalAdded = function(data) {
 }
 
 window.plugin.drawResonators.Render.prototype.createResonatorEntities = function(portal) {
-  // TODO: create all resonators and connectors, add them to a layergroup with portal guid, 
-  //       and add to this.resonatorLayerGroup
+  // No need to check for existing resonators, as old resonators should be removed with the portal marker.
+
+  // No need to check for display status of portalLayer, as this function is only called by 
+  // 'added' event of portal marker.
+
+  if(!isResonatorsShow()) return;
+  var resonatorsWithConnector = new L.LayerGroup()
+  var portalLatLng = [portal.details.locationE6.latE6/1E6, portal.details.locationE6.lngE6/1E6];
+  var portalSelected = selectedPortal === portal.guid;
+   
+  for(var i in portalDetails.resonatorArray.resonators) {
+    resoData = portalDetails.resonatorArray.resonators[i];
+    if(resoData === null) continue;
+
+    var resoLatLng = this.getResonatorLatLng(resoData.distanceToPortal, resoData.slot, portalLatLng);
+
+    var resoMarker = this.createResoMarker(resoData, resoLatLng, portalSelected);
+    var connMarker = this.createConnMarker(resoData, resoLatLng, portalLatLng, portalSelected);
+
+    resonatorsWithConnector.add(resoMarker);
+    resonatorsWithConnector.add(connMarker);
+  }
+
+  resonatorsWithConnector.options = {
+    details: portalDetails.resonatorArray.resonators,
+    guid: portal.guid
+  };
+
+  this.resonators[portal.guid] = resonatorsWithConnector;
+  this.resonatorLayerGroup.addLayer(resonatorsWithConnector);
+  resonatorsWithConnector.bringToBack();
+}
+
+window.plugin.drawResonators.Render.prototype.createResoMarker = function(resoData, resoLatLng, portalSelected) {
+  var resoProperty = this.getStyler().getResonatorStyle(resoData, portalSelected);
+  resoProperty.type = 'resonator';
+  resoProperty.slot = resoData.slot;
+  var reso =  L.circleMarker(resoLatLng, resoProperty);
+  return reso;
+}
+
+window.plugin.drawResonators.Render.prototype.createConnMarker = function(resoData, resoLatLng, portalLatLng, portalSelected) {
+  var connProperty = this.getStyler().getConnectorStyle(resoData, portalSelected);
+  connProperty.type = 'connector';
+  connProperty.slot = resoData.slot;
+  var conn = L.polyline([portalLatLng, resoLatLng], connProperty);
+  return conn;
+}
+
+window.plugin.drawResonators.Render.prototype.getResonatorLatLng = function(dist, slot, portalLatLng) {
+  // offset in meters
+  var dn = dist*SLOT_TO_LAT[slot];
+  var de = dist*SLOT_TO_LNG[slot];
+
+  // Coordinate offset in radians
+  var dLat = dn/EARTH_RADIUS;
+  var dLon = de/(EARTH_RADIUS*Math.cos(Math.PI/180*portalLatLng[0]));
+
+  // OffsetPosition, decimal degrees
+  var lat0 = portalLatLng[0] + dLat * 180/Math.PI;
+  var lon0 = portalLatLng[1] + dLon * 180/Math.PI;
+
+  return [lat0, lon0];
 }
 
 window.plugin.drawResonators.Render.prototype.deleteResonatorEntities = function(portalGuid) {
@@ -83,12 +147,36 @@ window.plugin.drawResonators.Render.prototype.clearResonatorEntitiesAfterZoom = 
   }
 }
 
+window.plugin.drawResonators.Render.prototype.changeStyle = function(portalGuid) {
+  if (portalGuid in this.resonators) {
+    var render = this;
+    var portalSelected = selectedPortal === portalGuid;
+    var r = this.resonators[portalGuid];
+
+    r.eachLayer(function(entity) {
+      var style
+      if(entity.type === 'resonator') {
+        style = render.getStyler().getResonatorStyle(r.details, portalSelected);
+      } else {
+        style = render.getStyler().getConnectorStyle(r.details, portalSelected);
+      }
+
+      entity.setStyle(style);
+    });
+  }
+}
+
 window.plugin.drawResonators.Render.prototype.addStyler = function(styler) {
   this.stylers[styler.name] = styler;
 }
 
 window.plugin.drawResonators.Render.prototype.getStylersList = function() {
   return Object.keys(this.stylers);
+}
+
+window.plugin.drawResonators.Render.prototype.getStyler = function() {
+  var stylerName = this.useStyler in this.stylers ? this.useStyler : 'default';
+  return this.stylers[stylerName];
 }
 
 window.plugin.drawResonators.Render.prototype.changeStyler = function(name) {
@@ -166,6 +254,8 @@ window.plugin.drawResonators.Styler.prototype.defaultConnectorStyle = function(r
 
 //////// Options for storing and loading options ////////
 
+// TODO: add callback to notify option changes
+
 window.plugin.drawResonators.Options = function() {
   this.enableZoomLevel = this.loadLocal(this.STORAGE_ENABLE_ZOOM_LEVEL);
   this.useStyler = this.loadLocal(this.STORAGE_USE_STYLER);
@@ -219,7 +309,8 @@ var setup =  function() {
   window.addLayerGroup('Resonators', window.plugin.drawResonators.render.resonatorLayerGroup, true);
   
   // TODO: add runHooks('portalSelected', {oldSelectedPortalGuid, newSelectedPortalGuid});
-  //       to window.selectPortal, and update style of resonators
+  //       to window.selectPortal, call render.changeStyle to change style of selected and unselected 
+  //       resonators.
 
   // TODO: add options dialog to change options
 }
