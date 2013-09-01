@@ -223,7 +223,7 @@ window.parseDataMunge = function(callback){
             }             
         }  ;
           
-        xhr.open('GET', url, true);  
+        xhr.open('GET', url, false);  
         xhr.send('');  
     }  
   ajax("/jsc/gen_dashboard.js",function(text){
@@ -237,13 +237,6 @@ window.parseDataMunge = function(callback){
         throw "wrong entities index";
       }
       var fnIndex = text.lastIndexOf("function ",entitiesIndex);
-      while(fnIndex != -1){
-        var newindex = text.indexOf("function ",fnIndex+1);
-        if( newindex > entitiesIndex){
-          break;
-        }
-        fnIndex = newindex;
-      }
       if(fnIndex == -1){
         throw "wrong function index"; 
       }
