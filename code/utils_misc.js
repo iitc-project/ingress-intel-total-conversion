@@ -96,7 +96,7 @@ window.digits = function(d) {
 
 
 window.requestParameterMunges = [
-/*
+
   // set 0
   {
     method: '4kr3ofeptwgary2j',
@@ -139,7 +139,7 @@ window.requestParameterMunges = [
     latE6: 'cyltxjod3jhxgj8q',
     lngE6: 'h9whcgcz6kpqkz80',
     factionOnly: '37okcr7gvd5yn2lj'
-  },*/
+  },
 ];
 window.activeRequestMungeSet = undefined;
 
@@ -190,15 +190,13 @@ window.parseDataMunge = function(callback){
 
   var ajax = function load(url, callback) {  
         var xhr;  
-          
         if(typeof XMLHttpRequest !== 'undefined') xhr = new XMLHttpRequest();  
         else {  
             var versions = ["MSXML2.XmlHttp.5.0",   
                             "MSXML2.XmlHttp.4.0",  
                             "MSXML2.XmlHttp.3.0",   
                             "MSXML2.XmlHttp.2.0",  
-                            "Microsoft.XmlHttp"]  
-  
+                            "Microsoft.XmlHttp"]    
              for(var i = 0, len = versions.length; i < len; i++) {  
                 try {  
                     xhr = new ActiveXObject(versions[i]);  
@@ -207,7 +205,6 @@ window.parseDataMunge = function(callback){
                 catch(e){}  
              } // end for  
         }  
-          
         xhr.onreadystatechange = function () {  
             if(xhr.readyState < 4) {  
                 return;  
@@ -221,8 +218,7 @@ window.parseDataMunge = function(callback){
             if(xhr.readyState === 4) {  
                 callback(xhr.responseText);  
             }             
-        }  ;
-          
+        }  ;          
         xhr.open('GET', url, false);  
         xhr.send('');  
     }  
@@ -232,6 +228,12 @@ window.parseDataMunge = function(callback){
     
     function parse(text){
       var mungs = {};
+
+      /* finding boundsParamsList,id,minLatE6 ,minLngE6,
+        maxLatE6,maxLngE6,
+        mungs.timestampMs,mungs.qk
+      */
+
       var entitiesIndex = text.indexOf("dashboard.getThinnedEntitiesV");
       if(entitiesIndex == -1){
         throw "wrong entities index";
@@ -241,22 +243,30 @@ window.parseDataMunge = function(callback){
         throw "wrong function index"; 
       }
       var fnEnd = text.indexOf("}",text.indexOf("}",entitiesIndex));
-
       var functionText = text.substring(fnIndex,fnEnd);
-      var boundsParamsList = functionText.match(/\{([a-zA-Z0-9]*?):\[\]\}/)[1];
+
+      var matched = functionText.match(/\{"?([a-zA-Z0-9]*?"?):\[\]\}/);
+      if(matched == null){
+        throw "parse bounds params fail";
+      }
+      console.log("parsed bounds param success");
+      var boundsParamsList = matched[1].replace(/"/gi,"");
       //
       mungs.boundsParamsList = boundsParamsList;
 
-      //console.log(boundsParamsList);
-      //console.log(fnIndex,fnEnd,text.substring(fnIndex,fnEnd));
-
       var pushIndex = functionText.indexOf(boundsParamsList+".push({");
+      if(pushIndex == -1){
+        pushIndex = functionText.indexOf(boundsParamsList+"\"].push({");
+      }
       var boundsParamsText = functionText.substring(
         pushIndex +  (boundsParamsList+".push({").length,
         functionText.indexOf("}",pushIndex+1)
       );
 
       var tokens = boundsParamsText.match(/["a-z0-9A-Z]*?:/gi);
+      if(tokens.length < 5){
+        throw "bounds params parse error";
+      }
       mungs.id = tokens[0].replace(/[":]/gi,"");
       mungs.minLatE6 = tokens[1].replace(/[":]/gi,"");
       mungs.minLngE6 = tokens[2].replace(/[":]/gi,"");
@@ -265,26 +275,47 @@ window.parseDataMunge = function(callback){
       
       mungs.timestampMs = tokens[5].replace(/[":]/gi,"");
       mungs.qk = tokens[6].replace(/[":]/gi,"");
+      console.log("parsed bounds param success");
 
       /* finding method */
 
-       end = text.indexOf('_gaq.push(["_trackEvent", "RPC", a]);')
-       start = text.lastIndexOf("{",end);
+      end = text.indexOf('_gaq.push(["_trackEvent", "RPC", a]);');
+      start = text.lastIndexOf("{",end);
 
-      mungs.method = text.substring(start,end).match(/\["(.*?)"\]/gi)[0].replace(/["\[\]]/gi,"");
+      //for b["uuo2zqhhy5bw80fu"] case
+      matched = text.substring(start,end).match(/\["?(.*?)"?\]/gi); 
+      if(matched == null){  
+        //for b.uuo2zqhhy5bw80fu
+        matched = text.substring(start,end).match(/\.(.*?) /gi);
+      }
+      if(matched == null){
+        throw "parse method fail";
+      }
+
+      mungs.method = matched[0].replace(/["\[\] .]/gi,"");
 
       /* find guid */
 
-       start = text.indexOf("dashboard.getPlayersByGuids");
-       end = text.indexOf("}",start);
+      var start = text.indexOf("dashboard.getPlayersByGuids");
+      var end = text.indexOf("}",start);
 
-      mungs.guids = text.substring(start,end).match(/\{(.*?):/)[1];
+      matched = text.substring(start,end).match(/\{(.*?):/);
+      if(matched == null){
+        throw "parse guid fail";
+      }
+      mungs.guids = matched[1];
       
       /* find inviteeEmailAddress */
-       start = text.indexOf("dashboard.sendInviteEmail");
-       end = text.indexOf("}",start);
+      start = text.indexOf("dashboard.sendInviteEmail");
+      end = text.indexOf("}",start);
 
-      mungs.inviteeEmailAddress = text.substring(start,end).match(/\{(.*?):/)[1];
+
+      matched = text.substring(start,end).match(/\{(.*?):/);
+      if(matched == null){
+        throw "parse inviteeEmailAddress fail";
+      }
+
+      mungs.inviteeEmailAddress = matched[1];
 
       /* find message,latE6,lngE6,factionOnly */
   
@@ -292,21 +323,32 @@ window.parseDataMunge = function(callback){
       end = text.lastIndexOf("function(",start);
       content = text.substring(start,end);
 
-       tokens = content.match(/["a-z0-9A-Z]*?:/gi);
+      tokens = content.match(/["a-z0-9A-Z]*?:/gi);
+      if(tokens.length < 3){
+        throw "message error ";
+      } 
       mungs.message = tokens[0].replace(/:/gi,"");
       mungs.latE6 = tokens[1].replace(/:/gi,"");
       mungs.lngE6 = tokens[2].replace(/:/gi,"");
 
-      mungs.factionOnly = content.match(/\["[a-zA-Z0-9]*?\"\]/)[0].replace(/[\]\["]/gi,"");
+      matched = content.match(/\["[a-zA-Z0-9]*?\"\]/);
+      if(matched == null){
+        throw "parse message fail";
+      }
+
+      mungs.factionOnly = matched[0].replace(/[\]\["]/gi,"");
 
 
       /* find desiredNumItems,minTimestampMs,maxTimestampMs */
 
-       start = text.indexOf("dashboard.getPaginatedPlextsV2");
-       end = text.lastIndexOf("function(",start);
-       content = text.substring(start,end);
+      start = text.indexOf("dashboard.getPaginatedPlextsV2");
+      end = text.lastIndexOf("function(",start);
+      content = text.substring(start,end);
 
-       tokens = content.match(/["a-z0-9A-Z]*?:/gi);
+      tokens = content.match(/["a-z0-9A-Z]*?:/gi);
+      if(tokens.length < 7){
+        throw "message error";
+      }
 
       mungs.desiredNumItems = tokens[0].replace(/:/gi,"");
       mungs.minTimestampMs = tokens[5].replace(/:/gi,"");
