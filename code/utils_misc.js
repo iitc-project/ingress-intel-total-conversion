@@ -315,10 +315,10 @@ window.parseDataMunge = function(callback){
         throw "parse inviteeEmailAddress fail";
       }
 
-      mungs.inviteeEmailAddress = matched[1];
+      mungs.inviteeEmailAddress = matched[1].replace(/"/gi,"");
 
       /* find message,latE6,lngE6,factionOnly */
-  
+
       start = text.indexOf("dashboard.sendPlext");
       end = text.lastIndexOf("function(",start);
       content = text.substring(start,end);
@@ -350,9 +350,9 @@ window.parseDataMunge = function(callback){
         throw "message error";
       }
 
-      mungs.desiredNumItems = tokens[0].replace(/:/gi,"");
-      mungs.minTimestampMs = tokens[5].replace(/:/gi,"");
-      mungs.maxTimestampMs = tokens[6].replace(/:/gi,"");
+      mungs.desiredNumItems = tokens[0].replace(/[:"]/gi,"");
+      mungs.minTimestampMs = tokens[5].replace(/[:"]/gi,"");
+      mungs.maxTimestampMs = tokens[6].replace(/[:"]/gi,"");
       return mungs;
     }
     var mungs = parse(text);
@@ -369,7 +369,6 @@ window.parseDataMunge(function(result){
 
 // niantic now add some munging to the request parameters. so far, only two sets of this munging have been seen
 window.requestDataMunge = function(data) {
-
   
   if (window.activeRequestMungeSet===undefined) {
     window.detectActiveMungeSet();
