@@ -181,7 +181,10 @@ window.setupMap = function() {
   map.attributionControl.setPrefix('');
   // listen for changes and store them in cookies
   map.on('moveend', window.storeMapPosition);
-  map.on('zoomend', window.storeMapPosition);
+  map.on('zoomend', function(){
+      window.storeMapPosition();
+      window.runHooks('zoomend');
+  });
 
 
   // map update status handling & update map hooks

@@ -96,6 +96,7 @@ window.digits = function(d) {
 
 
 window.requestParameterMunges = [
+
   // set 0
   {
     method: '4kr3ofeptwgary2j',
@@ -163,8 +164,212 @@ window.detectActiveMungeSet = function() {
   }
 }
 
+window.parseDataMunge = function(callback){
+/*
+  var mungs = {
+      method: '4kr3ofeptwgary2j', //done
+      boundsParamsList: 'n27qzc8389kgakyv', //done
+      id: '39031qie1i4aq563', //done
+      minLatE6: 'pg98bwox95ly0ouu', //done
+      minLngE6: 'eib1bkq8znpwr0g7', //done
+      maxLatE6: 'ilfap961rwdybv63', //done
+      maxLngE6: 'lpf7m1ifx0ieouzq', //done
+      timestampMs: '2ewujgywmum1yp49', //done
+      qk: 'bgxibcomzoto63sn', //done
+      desiredNumItems: 'tmb0vgxgp5grsnhp', //done
+      minTimestampMs: 'hljqffkpwlx0vtjt', //done
+      maxTimestampMs: 'sw317giy6x2xj9zm', //done
+      guids: 'pusjrhxxtyp5nois', //done
+      inviteeEmailAddress: 'cltkepgqkepfsyaq', //done
+      message: 'q0d6n7t1801bb6xu', //done
+      latE6: '5ygbhpxfnt1u9e4t', //done
+      lngE6: 'ak6twnljwwcgd7cj', //done
+      factionOnly: '0dvtbatgzcfccchh' //done
+  };
+*/  
+
+  var ajax = function load(url, callback) {  
+        var xhr;  
+        if(typeof XMLHttpRequest !== 'undefined') xhr = new XMLHttpRequest();  
+        else {  
+            var versions = ["MSXML2.XmlHttp.5.0",   
+                            "MSXML2.XmlHttp.4.0",  
+                            "MSXML2.XmlHttp.3.0",   
+                            "MSXML2.XmlHttp.2.0",  
+                            "Microsoft.XmlHttp"]    
+             for(var i = 0, len = versions.length; i < len; i++) {  
+                try {  
+                    xhr = new ActiveXObject(versions[i]);  
+                    break;  
+                }  
+                catch(e){}  
+             } // end for  
+        }  
+        xhr.onreadystatechange = function () {  
+            if(xhr.readyState < 4) {  
+                return;  
+            }  
+              
+            if(xhr.status !== 200) {  
+                return;  
+            }  
+  
+            // all is well    
+            if(xhr.readyState === 4) {  
+                callback(xhr.responseText);  
+            }             
+        }  ;          
+        xhr.open('GET', url, false);  
+        xhr.send('');  
+    }  
+  ajax("/jsc/gen_dashboard.js",function(text){
+
+    text = text.replace(/[\n\r]/gi,"");
+    
+    function parse(text){
+      var mungs = {};
+
+      /* finding boundsParamsList,id,minLatE6 ,minLngE6,
+        maxLatE6,maxLngE6,
+        mungs.timestampMs,mungs.qk
+      */
+
+      var entitiesIndex = text.indexOf("dashboard.getThinnedEntitiesV");
+      if(entitiesIndex == -1){
+        throw "wrong entities index";
+      }
+      var fnIndex = text.lastIndexOf("function ",entitiesIndex);
+      if(fnIndex == -1){
+        throw "wrong function index"; 
+      }
+      var fnEnd = text.indexOf("}",text.indexOf("}",entitiesIndex));
+      var functionText = text.substring(fnIndex,fnEnd);
+
+      var matched = functionText.match(/\{"?([a-zA-Z0-9]*?"?):\[\]\}/);
+      if(matched == null){
+        throw "parse bounds params fail";
+      }
+      console.log("parsed bounds param success");
+      var boundsParamsList = matched[1].replace(/"/gi,"");
+      //
+      mungs.boundsParamsList = boundsParamsList;
+
+      var pushIndex = functionText.indexOf(boundsParamsList+".push({");
+      if(pushIndex == -1){
+        pushIndex = functionText.indexOf(boundsParamsList+"\"].push({");
+      }
+      var boundsParamsText = functionText.substring(
+        pushIndex +  (boundsParamsList+".push({").length,
+        functionText.indexOf("}",pushIndex+1)
+      );
+
+      var tokens = boundsParamsText.match(/["a-z0-9A-Z]*?:/gi);
+      if(tokens.length < 5){
+        throw "bounds params parse error";
+      }
+      mungs.id = tokens[0].replace(/[":]/gi,"");
+      mungs.minLatE6 = tokens[1].replace(/[":]/gi,"");
+      mungs.minLngE6 = tokens[2].replace(/[":]/gi,"");
+      mungs.maxLatE6 = tokens[3].replace(/[":]/gi,"");
+      mungs.maxLngE6 = tokens[4].replace(/[":]/gi,"");
+      
+      mungs.timestampMs = tokens[5].replace(/[":]/gi,"");
+      mungs.qk = tokens[6].replace(/[":]/gi,"");
+      console.log("parsed bounds param success");
+
+      /* finding method */
+
+      end = text.indexOf('_gaq.push(["_trackEvent", "RPC", a]);');
+      start = text.lastIndexOf("{",end);
+
+      //for b["uuo2zqhhy5bw80fu"] case
+      matched = text.substring(start,end).match(/\["?(.*?)"?\]/gi); 
+      if(matched == null){  
+        //for b.uuo2zqhhy5bw80fu
+        matched = text.substring(start,end).match(/\.(.*?) /gi);
+      }
+      if(matched == null){
+        throw "parse method fail";
+      }
+
+      mungs.method = matched[0].replace(/["\[\] .]/gi,"");
+
+      /* find guid */
+
+      var start = text.indexOf("dashboard.getPlayersByGuids");
+      var end = text.indexOf("}",start);
+
+      matched = text.substring(start,end).match(/\{(.*?):/);
+      if(matched == null){
+        throw "parse guid fail";
+      }
+      mungs.guids = matched[1];
+      
+      /* find inviteeEmailAddress */
+      start = text.indexOf("dashboard.sendInviteEmail");
+      end = text.indexOf("}",start);
+
+
+      matched = text.substring(start,end).match(/\{(.*?):/);
+      if(matched == null){
+        throw "parse inviteeEmailAddress fail";
+      }
+
+      mungs.inviteeEmailAddress = matched[1].replace(/"/gi,"");
+
+      /* find message,latE6,lngE6,factionOnly */
+
+      start = text.indexOf("dashboard.sendPlext");
+      end = text.lastIndexOf("function(",start);
+      content = text.substring(start,end);
+
+      tokens = content.match(/["a-z0-9A-Z]*?:/gi);
+      if(tokens.length < 3){
+        throw "message error ";
+      } 
+      mungs.message = tokens[0].replace(/:/gi,"");
+      mungs.latE6 = tokens[1].replace(/:/gi,"");
+      mungs.lngE6 = tokens[2].replace(/:/gi,"");
+
+      matched = content.match(/\["[a-zA-Z0-9]*?\"\]/);
+      if(matched == null){
+        throw "parse message fail";
+      }
+
+      mungs.factionOnly = matched[0].replace(/[\]\["]/gi,"");
+
+
+      /* find desiredNumItems,minTimestampMs,maxTimestampMs */
+
+      start = text.indexOf("dashboard.getPaginatedPlextsV2");
+      end = text.lastIndexOf("function(",start);
+      content = text.substring(start,end);
+
+      tokens = content.match(/["a-z0-9A-Z]*?:/gi);
+      if(tokens.length < 7){
+        throw "message error";
+      }
+
+      mungs.desiredNumItems = tokens[0].replace(/[:"]/gi,"");
+      mungs.minTimestampMs = tokens[5].replace(/[:"]/gi,"");
+      mungs.maxTimestampMs = tokens[6].replace(/[:"]/gi,"");
+      return mungs;
+    }
+    var mungs = parse(text);
+    callback(mungs);
+  });
+  
+}
+
+window.parseDataMunge(function(result){
+  window.requestParameterMunges.push(result);
+  window.activeRequestMungeSet = window.requestParameterMunges.length -1;
+});
+
+
 // niantic now add some munging to the request parameters. so far, only two sets of this munging have been seen
 window.requestDataMunge = function(data) {
+  
   if (window.activeRequestMungeSet===undefined) {
     window.detectActiveMungeSet();
   }

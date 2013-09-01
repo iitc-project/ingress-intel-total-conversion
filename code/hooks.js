@@ -49,7 +49,7 @@ window.VALID_HOOKS = [
   'portalAdded', 'portalDetailsUpdated',
   'publicChatDataAvailable', 'factionChatDataAvailable',
   'requestFinished', 'nicknameClicked',
-  'geoSearch', 'iitcLoaded'];
+  'geoSearch', 'iitcLoaded','zoomend'];
 
 window.runHooks = function(event, data) {
   if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);

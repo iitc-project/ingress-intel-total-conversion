@@ -149,14 +149,18 @@ window.clearPortalIndicators = function() {
 window.selectPortal = function(guid) {
   var update = selectedPortal === guid;
   var oldPortal = portals[selectedPortal];
-  if(!update && oldPortal) setMarkerStyle(oldPortal,false);
+  if(!update && oldPortal) {
+    setMarkerStyle(oldPortal,false);
+    window.resonatorsResetStyle(selectedPortal);
+
+  }
 
   selectedPortal = guid;
 
   if(portals[guid]) {
-//    resonatorsSetSelectStyle(guid);
+    resonatorsSetSelectStyle(guid);
 
-   setMarkerStyle(portals[guid], true);
+     setMarkerStyle(portals[guid], true);
 
     if (map.hasLayer(portals[guid])) {
       portals[guid].bringToFront();

@@ -269,9 +269,8 @@ window.Render.prototype.createPortalEntity = function(ent) {
   //TODO? postpone adding to the map layer
   portalsLayers[parseInt(portalLevel)].addLayer(marker);
 
-
-
 }
+
 
 
 window.Render.prototype.createFieldEntity = function(ent) {
@@ -414,3 +413,183 @@ window.Render.prototype.createLinksFromPortalData = function(portalGuids) {
     }
   }
 }
+
+
+
+/*-------------for res desplay-----------------------------*/
+
+// removes given entity from map
+window.removeByGuid = function(guid) {
+  switch(getTypeByGuid(guid)) {
+    case TYPE_PORTAL:
+      if(!window.portals[guid]) return;
+      var p = window.portals[guid];
+      for(var i = 0; i < portalsLayers.length; i++)
+        portalsLayers[i].removeLayer(p);
+      break;
+    case TYPE_LINK:
+      if(!window.links[guid]) return;
+      linksLayer.removeLayer(window.links[guid]);
+      break;
+    case TYPE_FIELD:
+      if(!window.fields[guid]) return;
+      fieldsLayer.removeLayer(window.fields[guid]);
+      break;
+    case TYPE_RESONATOR:
+      if(!window.resonators[guid]) return;
+      var r = window.resonators[guid];
+      for(var i = 1; i < portalsLayers.length; i++)
+        portalsLayers[i].removeLayer(r);
+      break;
+    default:
+      console.warn('unknown GUID type: ' + guid);
+      //window.debug.printStackTrace();
+  }
+}
+
+window.renderResonators = function(portalGuid, portalDetails, portalLayer) {
+  if(!isResonatorsShow()) return;
+
+  // only draw when the portal is not hidden
+  if(portalLayer && !window.map.hasLayer(portalLayer)) return;
+
+  var portalLevel = getPortalLevel(portalDetails);
+  var portalLatLng = [portalDetails.locationE6.latE6/1E6, portalDetails.locationE6.lngE6/1E6];
+
+  var reRendered = false;
+  $.each(portalDetails.resonatorArray.resonators, function(i, rdata) {
+    // skip if resonator didn't change
+    var oldRes = window.resonators[portalResonatorGuid(portalGuid, i)];
+    if(oldRes) {
+      if(isSameResonator(oldRes.options.details, rdata)) return true;
+      // remove old resonator if exist
+      removeByGuid(oldRes.options.guid);
+    }
+
+    // skip and remove old resonator if no new resonator
+    if(rdata === null) return true;
+
+    var resoLatLng = getResonatorLatLng(rdata.distanceToPortal, rdata.slot, portalLatLng);
+    var resoGuid = portalResonatorGuid(portalGuid, i);
+
+    // the resonator
+    var resoStyle =
+      portalGuid === selectedPortal ? OPTIONS_RESONATOR_SELECTED : OPTIONS_RESONATOR_NON_SELECTED;
+    var resoProperty = $.extend({
+        fillColor: COLORS_LVL[rdata.level],
+        fillOpacity: rdata.energyTotal/RESO_NRG[rdata.level],
+        guid: resoGuid
+      }, resoStyle);
+
+    var reso =  L.circleMarker(resoLatLng, resoProperty);
+
+    // line connecting reso to portal
+    var connProperty =
+      portalGuid === selectedPortal ? OPTIONS_RESONATOR_LINE_SELECTED : OPTIONS_RESONATOR_LINE_NON_SELECTED;
+
+    var conn = L.polyline([portalLatLng, resoLatLng], connProperty);
+
+    // put both in one group, so they can be handled by the same logic.
+    var r = L.layerGroup([reso, conn]);
+    r.options = {
+      level: rdata.level,
+      details: rdata,
+      pDetails: portalDetails,
+      guid: resoGuid
+    };
+
+    // However, LayerGroups (and FeatureGroups) don’t fire add/remove
+    // events, thus this listener will be attached to the resonator. It
+    // doesn’t matter to which element these are bound since Leaflet
+    // will add/remove all elements of the LayerGroup at once.
+    reso.on('remove', function() { delete window.resonators[this.options.guid]; });
+    reso.on('add',    function() {
+      if(window.resonators[this.options.guid]) throw('duplicate resonator detected');
+      window.resonators[this.options.guid] = r;
+    });
+
+    r.addTo(portalsLayers[parseInt(portalLevel)]);
+    reRendered = true;
+  });
+  // if there is any resonator re-rendered, bring portal to front
+  if(reRendered && portalLayer) portalLayer.bringToFront();
+}
+
+
+window.isSameResonator = function(oldRes, newRes) {
+  if(!oldRes && !newRes) return true;
+  if(!oldRes || !newRes) return false;
+  if(typeof oldRes !== typeof newRes) return false;
+  if(oldRes.level !== newRes.level) return false;
+  if(oldRes.energyTotal !== newRes.energyTotal) return false;
+  if(oldRes.distanceToPortal !== newRes.distanceToPortal) return false;
+  return true;
+}
+// append portal guid with -resonator-[slot] to get guid for resonators
+window.portalResonatorGuid = function(portalGuid, slot) {
+  return portalGuid + '-resonator-' + slot;
+}
+window.isResonatorsShow = function() {
+  return map.getZoom() >= RESONATOR_DISPLAY_ZOOM_LEVEL;
+}
+window.resonatorsResetStyle = function(portalGuid) {
+  window.resonatorsSetStyle(portalGuid, OPTIONS_RESONATOR_NON_SELECTED, OPTIONS_RESONATOR_LINE_NON_SELECTED);
+}
+
+window.resonatorsSetSelectStyle = function(portalGuid) {
+  window.resonatorsSetStyle(portalGuid, OPTIONS_RESONATOR_SELECTED, OPTIONS_RESONATOR_LINE_SELECTED);
+}
+
+window.resonatorsSetStyle = function(portalGuid, resoStyle, lineStyle) {
+  for(var i = 0; i < 8; i++) {
+    resonatorLayerGroup = resonators[portalResonatorGuid(portalGuid, i)];
+    if(!resonatorLayerGroup) continue;
+    // bring resonators and their connection lines to front separately.
+    // this way the resonators are drawn on top of the lines.
+    resonatorLayerGroup.eachLayer(function(layer) {
+      if (!layer.options.guid)  // Resonator line
+        layer.bringToFront().setStyle(lineStyle);
+    });
+    resonatorLayerGroup.eachLayer(function(layer) {
+      if (layer.options.guid) // Resonator
+        layer.bringToFront().setStyle(resoStyle);
+    });
+  }
+  portals[portalGuid].bringToFront();
+}
+
+
+var isResShow = false;
+window.addHook("iitcLoaded",function(){
+  isResShow = isResonatorsShow();
+});
+window.addHook("portalAdded",function(data){
+  var dataOptions = data.portal.options;
+  window.renderResonators(dataOptions.guid, dataOptions.details, portalsLayers[dataOptions.level]);
+});
+window.addHook("zoomend",function(){
+  // remove all resonators if zoom out to < RESONATOR_DISPLAY_ZOOM_LEVEL
+  if(isResonatorsShow()) {
+      
+    if(!isResShow){
+      for(var guid in window.portals){
+        var dataOptions = window.portals[guid].options;
+        window.renderResonators(dataOptions.guid, dataOptions.details, portalsLayers[dataOptions.level]);
+      }
+      isResShow = true;
+    }
+    return;
+  }
+
+  for(var i = 1; i < portalsLayers.length; i++) {
+    portalsLayers[i].eachLayer(function(item) {
+      var itemGuid = item.options.guid;
+      // check if 'item' is a resonator
+      if(getTypeByGuid(itemGuid) != TYPE_RESONATOR) return true;
+      portalsLayers[i].removeLayer(item);
+    });
+  }
+  isResShow = false;
+
+  console.log('Remove all resonators');
+});
