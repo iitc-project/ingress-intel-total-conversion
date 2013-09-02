@@ -41,7 +41,8 @@ window.plugin.drawResonators.Render = function(options) {
   this.stylers = {};
   this.resonators = {};
   this.resonatorLayerGroup = new L.LayerGroup();
-  
+  this.addStyler(new window.plugin.drawResonators.Styler());
+
   this.portalAdded = this.portalAdded.bind(this);
   this.createResonatorEntities = this.createResonatorEntities.bind(this);
   this.deleteResonatorEntities = this.deleteResonatorEntities.bind(this);
@@ -51,6 +52,7 @@ window.plugin.drawResonators.Render = function(options) {
 window.plugin.drawResonators.Render.prototype.registerHook = function() {
   window.addHook('portalAdded', this.portalAdded);
   window.map.on('zoomend', this.clearResonatorEntitiesAfterZoom);
+  //TODO: zoom in should redraw resonators if needed
 }
 
 window.plugin.drawResonators.Render.prototype.portalAdded = function(data) {
@@ -70,12 +72,14 @@ window.plugin.drawResonators.Render.prototype.createResonatorEntities = function
   // No need to check for existing resonators, as old resonators should be removed with the portal marker.
 
   // No need to check for display status of portalLayer, as this function is only called by 
-  // 'added' event of portal marker.
+  // 'add' event of portal marker.
 
-  if(!isResonatorsShow()) return;
+  if(!this.isResonatorsShow()) return;
+  var portalDetails = portal.options.details;
   var resonatorsWithConnector = new L.LayerGroup()
-  var portalLatLng = [portal.details.locationE6.latE6/1E6, portal.details.locationE6.lngE6/1E6];
-  var portalSelected = selectedPortal === portal.guid;
+
+  var portalLatLng = [portalDetails.locationE6.latE6/1E6, portalDetails.locationE6.lngE6/1E6];
+  var portalSelected = selectedPortal === portal.options.guid;
    
   for(var i in portalDetails.resonatorArray.resonators) {
     resoData = portalDetails.resonatorArray.resonators[i];
@@ -86,18 +90,22 @@ window.plugin.drawResonators.Render.prototype.createResonatorEntities = function
     var resoMarker = this.createResoMarker(resoData, resoLatLng, portalSelected);
     var connMarker = this.createConnMarker(resoData, resoLatLng, portalLatLng, portalSelected);
 
-    resonatorsWithConnector.add(resoMarker);
-    resonatorsWithConnector.add(connMarker);
+    resonatorsWithConnector.addLayer(resoMarker);
+    resonatorsWithConnector.addLayer(connMarker);
   }
 
   resonatorsWithConnector.options = {
     details: portalDetails.resonatorArray.resonators,
-    guid: portal.guid
+    guid: portal.options.guid
   };
 
-  this.resonators[portal.guid] = resonatorsWithConnector;
+  this.resonators[portal.options.guid] = resonatorsWithConnector;
   this.resonatorLayerGroup.addLayer(resonatorsWithConnector);
-  resonatorsWithConnector.bringToBack();
+  
+  // bring portal in front of resonator connector
+  if(portal.options.guid in window.portals) {
+    window.portals[portal.options.guid].bringToFront();
+  }
 }
 
 window.plugin.drawResonators.Render.prototype.createResoMarker = function(resoData, resoLatLng, portalSelected) {
@@ -194,6 +202,7 @@ window.plugin.drawResonators.Render.prototype.isResonatorsShow = function() {
 
 
 window.plugin.drawResonators.Styler = function(options) {
+  options = options || {};
   this.name = options['name'] || 'default';
   this.getResonatorStyle = options['resonatorStyleFunc'] || this.defaultResonatorStyle;
   this.getConnectorStyle = options['connectorStyleFunc'] || this.defaultConnectorStyle;
@@ -236,7 +245,7 @@ window.plugin.drawResonators.Styler.prototype.defaultResonatorStyle = function(r
 
   var resoStyle = $.extend({
         fillColor: COLORS_LVL[resoDetail.level],
-        fillOpacity: rdata.energyTotal/RESO_NRG[resoDetail.level],
+        fillOpacity: resoDetail.energyTotal/RESO_NRG[resoDetail.level],
       }, resoSharedStyle);
 
   return resoStyle;
@@ -257,41 +266,42 @@ window.plugin.drawResonators.Styler.prototype.defaultConnectorStyle = function(r
 // TODO: add callback to notify option changes
 
 window.plugin.drawResonators.Options = function() {
-  this.enableZoomLevel = this.loadLocal(this.STORAGE_ENABLE_ZOOM_LEVEL);
-  this.useStyler = this.loadLocal(this.STORAGE_USE_STYLER);
+  this._options = {};
 }
 
-window.plugin.drawResonators.Options.prototype.options = {};
+window.plugin.drawResonators.Options.prototype.newOption = function(name, defaultValue) {
+  this._options[name] = this.loadLocal(this.getStorageKey, defaultValue)
+}
 
-window.plugin.drawResonators.Options.prototype.options['enableZoomLevel'] = {
-  key: 'plugin-drawResonators-enableZoomLevel',
-  defaultValue: 17};
-
-window.plugin.drawResonators.Options.prototype.options['useStyler'] = {
-  key: 'plugin-drawResonators-useStyler',
-  defaultValue: 'default'};
+window.plugin.drawResonators.Options.prototype.getOption = function(name) {
+  return this._options[name];
+}
 
 window.plugin.drawResonators.Options.prototype.changeOption = function(name, value) {
-  if(!name in options) return false;
+  if(!name in this._options) return false;
 
-  this[name] = value;
-  this.storeLocal(options[name], this[name]);
+  this._options[name] = value;
+  this.storeLocal(name, this._options[name]);
 }
 
-window.plugin.drawResonators.Options.prototype.loadLocal = function(mapping) {
-  var objectJSON = localStorage[mapping.key];
+window.plugin.drawResonators.Options.prototype.getStorageKey = function(name) {
+  return 'plugin-drawResonators-option-' + name;
+}
+
+window.plugin.drawResonators.Options.prototype.loadLocal = function(key, defaultValue) {
+  var objectJSON = localStorage[key];
   if(!objectJSON) {
-    return mapping.defaultValue;
+    return defaultValue;
   } else {
     return JSON.parse(objectJSON);
   }
 }
 
-window.plugin.drawResonators.Options.prototype.storeLocal = function(mapping, value) {
+window.plugin.drawResonators.Options.prototype.storeLocal = function(key, value) {
   if(typeof(value) !== 'undefined' && value !== null) {
-    localStorage[mapping.key] = JSON.stringify(value);
+    localStorage[key] = JSON.stringify(value);
   } else {
-    localStorage.removeItem(mapping.key);
+    localStorage.removeItem(key);
   }
 }
 
@@ -299,15 +309,18 @@ window.plugin.drawResonators.Options.prototype.storeLocal = function(mapping, va
 
 
 var setup =  function() {
-  window.plugin.drawResonators.options = new Options();
-  var renderOptions = {
-    'enableZoomLevel': options.enableZoomLevel,
-    'useStyler': options.useStyler};
+  window.plugin.drawResonators.options = new window.plugin.drawResonators.Options();
+  window.plugin.drawResonators.options.newOption('enableZoomLevel', 17);
+  window.plugin.drawResonators.options.newOption('useStyler', 'default');
 
-  window.plugin.drawResonators.render = new Render(renderOptions);
+  var renderOptions = {
+    'enableZoomLevel': window.plugin.drawResonators.options.getOption('enableZoomLevel'),
+    'useStyler': window.plugin.drawResonators.options.getOption('useStyler')};
+
+  window.plugin.drawResonators.render = new window.plugin.drawResonators.Render(renderOptions);
   window.plugin.drawResonators.render.registerHook();
   window.addLayerGroup('Resonators', window.plugin.drawResonators.render.resonatorLayerGroup, true);
-  
+
   // TODO: add runHooks('portalSelected', {oldSelectedPortalGuid, newSelectedPortalGuid});
   //       to window.selectPortal, call render.changeStyle to change style of selected and unselected 
   //       resonators.
