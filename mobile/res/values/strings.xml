@@ -24,10 +24,30 @@
         Ingress Intel Total Conversion (IITC) userscript by <a href="https://github.com/breunigs"><b>breunigs</b></a>.
         After Niantic asked the main developer to shut down his github project, development
         is continued on a fork of <a href="https://github.com/jonatkins"><b>jonatkins</b></a>.<br><br>
-        <b>Website:</b><br>
-        <a href="http://iitc.jonatkins.com/">http://iitc.jonatkins.com/</a><br><br>
-        <b>IITC on Github:</b><br>
-        <a href="https://github.com/jonatkins/ingress-intel-total-conversion">https://github.com/jonatkins/ingress-intel-total-conversion</a>]]>
+        <b>Community:</b><br>
+        • Visit the <a href="http://iitc.jonatkins.com/">IITC website</a> for new releases and the desktop version.<br>
+        • Follow the <a href="https://plus.google.com/105383756361375410867">IITC Google+ page</a>
+         for release announcements.<br>
+        • Join the <a href="https://plus.google.com/communities/105647403088015055797">IITC Google+ community</a>
+         - a place to ask for help and discuss with other users.<br><br>
+        <b>Developers:</b><br>
+        <a href="https://github.com/jonatkins/ingress-intel-total-conversion">IITC on Github</a><br><br>
+        <b>Licence:</b><br>
+        Copyright © 2013 Stefan Breunig, Philipp Schäfer, Jon Atkins and others<br><br>
+
+        Permission to use, copy, modify, and/or distribute this software for
+        any purpose with or without fee is hereby granted, provided that the
+        above copyright notice and this permission notice appear in all
+        copies.<br><br>
+
+        THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHORS DISCLAIM ALL
+        WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
+        WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE
+        AUTHORS BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
+        DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA
+        OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+        TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+        PERFORMANCE OF THIS SOFTWARE.]]>
     </string>
 
     <string name="pref_ui_cat">UI</string>
