@@ -23,7 +23,6 @@ window.plugin.portalHighlighterOutboundLinkCounter = function() {};
 
 window.plugin.portalHighlighterOutboundLinkCounter.highlight = function(data) {
   var d = data.portal.options.details;
-  // var links = {incoming: 0, outgoing: 0};
   var outgoing = 0;
   var playerFaction = 0;
 
@@ -36,18 +35,14 @@ window.plugin.portalHighlighterOutboundLinkCounter.highlight = function(data) {
   // Only interested in portals of player's faction
   if(getTeam(d) === playerFaction) {
     if(d.portalV2.linkedEdges) $.each(d.portalV2.linkedEdges, function(ind, link) {
-      // links[link.isOrigin ? 'outgoing' : 'incoming']++;
       if (link.isOrigin) {
         outgoing++;
       }
     });
 
-    // if(links.outgoing > 3) {
     if(outgoing > 3) {
-      // if(links.outgoing < 6) {
       if(outgoing < 6) {
         color = 'yellow';
-      // } else if(links.outgoing < 8) {
       } else if(outgoing < 8) {
         color = 'orange';
       } else {
