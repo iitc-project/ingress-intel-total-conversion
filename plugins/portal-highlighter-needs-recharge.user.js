@@ -35,7 +35,6 @@ window.plugin.portalHighligherNeedsRecharge.highlight = function(data) {
       data.portal.setStyle(params);
     } 
   }
-  window.COLOR_SELECTED_PORTAL = '#f0f';
 }
 
 var setup =  function() {

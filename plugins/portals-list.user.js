@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portals-list@teo96
 // @name           IITC plugin: show list of portals
 // @category       Info
-// @version        0.0.15.@@DATETIMEVERSION@@
+// @version        0.0.16.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -67,7 +67,7 @@ window.plugin.portalslist.getPortals = function() {
     var d = portal.options.details;
     var name =  d.portalV2.descriptiveText.TITLE;
     var address = d.portalV2.descriptiveText.ADDRESS;
-    var img = d.imageByUrl && d.imageByUrl.imageUrl ? d.imageByUrl.imageUrl : DEFAULT_PORTAL_IMG;
+    var img = getPortalImageUrl(d);
     var team = portal.options.team;
     var now = new Date();
     var now_ms = now.getTime();// + (now.getTimezoneOffset() * 60000);

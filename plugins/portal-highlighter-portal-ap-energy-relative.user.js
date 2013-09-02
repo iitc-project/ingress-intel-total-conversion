@@ -58,7 +58,6 @@ window.plugin.portalHighligherPortalAPPerEnergyRelative.highlight = function(dat
       opacity = 1;
     }
     data.portal.setStyle({fillColor: color, fillOpacity: opacity});
-    window.COLOR_SELECTED_PORTAL = '#f0f';
   }
 }
 

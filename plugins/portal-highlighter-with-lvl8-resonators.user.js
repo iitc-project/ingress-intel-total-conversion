@@ -42,8 +42,7 @@ window.plugin.portalsWithL8Resonators.highlight = function(data) {
     var opa = has_L8 * 0.125;
     var params = {fillColor: color, fillOpacity: opa};
     data.portal.setStyle(params);  
-   }
-  window.COLOR_SELECTED_PORTAL = '#f0f';
+  }
 }
 
 var setup =  function() {

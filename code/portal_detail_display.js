@@ -44,7 +44,7 @@ window.renderPortalDetails = function(guid) {
   var resoDetails = '<table id="resodetails">' + getResonatorDetails(d) + '</table>';
 
   setPortalIndicators(d);
-  var img = d.imageByUrl.imageUrl;
+  var img = getPortalImageUrl(d);
   var lat = d.locationE6.latE6/1E6;
   var lng = d.locationE6.lngE6/1E6;
   var perma = '/intel?ll='+lat+','+lng+'&z=17&pll='+lat+','+lng;
@@ -67,7 +67,7 @@ window.renderPortalDetails = function(guid) {
         submitterSpan = '<span class="none">';
       }
       portalDetailedDescription += '<tr><th>Photo by:</th><td>' + submitterSpan
-                                + escapeHtmlSpecialChars(portalDetailObj.submitter.name) + '</span> (' + portalDetailObj.submitter.voteCount + ' votes)</td></tr>';
+                                + escapeHtmlSpecialChars(portalDetailObj.submitter.name) + '</span>'+(portalDetailObj.submitter.voteCount !== undefined ? ' (' + portalDetailObj.submitter.voteCount + ' votes)' : '')+'</td></tr>';
     }
     if(portalDetailObj.submitter.link.length > 0) {
       portalDetailedDescription += '<tr><th>Photo from:</th><td><a href="'
@@ -106,7 +106,6 @@ window.renderPortalDetails = function(guid) {
         : '<aside><a href="'+perma+'" onclick="return androidCopy(this.href)" title="Create a URL link to this portal" >Portal link</a></aside>'
         + '<aside><a onclick="'+poslinks+'" title="Link to alternative maps (Google, etc)">Map links</a></aside>'
         )
-      + '<aside><a onclick="window.reportPortalIssue()" title="Report issues with this portal to Niantic/Google">Report issue</a></aside>'
       + '</div>'
     );
 
@@ -150,13 +149,18 @@ window.clearPortalIndicators = function() {
 window.selectPortal = function(guid) {
   var update = selectedPortal === guid;
   var oldPortal = portals[selectedPortal];
-  if(!update && oldPortal) portalResetColor(oldPortal);
+  if(!update && oldPortal) setMarkerStyle(oldPortal,false);
 
   selectedPortal = guid;
 
   if(portals[guid]) {
-    resonatorsSetSelectStyle(guid);
-    portals[guid].bringToFront().setStyle({color: COLOR_SELECTED_PORTAL});
+//    resonatorsSetSelectStyle(guid);
+
+   setMarkerStyle(portals[guid], true);
+
+    if (map.hasLayer(portals[guid])) {
+      portals[guid].bringToFront();
+    }
   }
 
   return update;
@@ -165,7 +169,7 @@ window.selectPortal = function(guid) {
 
 window.unselectOldPortal = function() {
   var oldPortal = portals[selectedPortal];
-  if(oldPortal) portalResetColor(oldPortal);
+  if(oldPortal) setMarkerStyle(oldPortal,false);
   selectedPortal = null;
   $('#portaldetails').html('');
   if(isSmartphone()) {

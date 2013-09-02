@@ -132,12 +132,9 @@ public class IITC_WebViewClient extends WebViewClient {
         // add all plugins to the script...inject plugins + main script simultaneously
         js += parsePlugins();
 
-        // need to wrap the mobile iitc.js version in a document ready. IITC
-        // expects to be injected after the DOM has been loaded completely.
-        // Since the mobile client injects IITC by replacing the gen_dashboard
-        // file, IITC runs to early. The document.ready delays IITC long enough
-        // so it boots correctly.
-        this.mIitcScript = "setTimeout(function(){" + js + "},1);";
+        // IITC expects to be injected after the DOM has been loaded completely.
+        // since it is injected with the onPageFinished() event, no further delay is necessary.
+        this.mIitcScript = js;
 
     }
 
@@ -301,11 +298,11 @@ public class IITC_WebViewClient extends WebViewClient {
                                                       String url) {
         if (url.contains("/css/common.css")) {
             return new WebResourceResponse("text/css", "UTF-8", STYLE);
-        } else if (url.contains("gen_dashboard.js")) {
-            // define initialize function to get rid of JS ReferenceError on intel page's 'onLoad'
-            String gen_dashboad_replacement = "window.initialize = function() {}";
-            return new WebResourceResponse("text/javascript", "UTF-8",
-                    new ByteArrayInputStream(gen_dashboad_replacement.getBytes()));
+//        } else if (url.contains("gen_dashboard.js")) {
+//            // define initialize function to get rid of JS ReferenceError on intel page's 'onLoad'
+//            String gen_dashboad_replacement = "window.initialize = function() {}";
+//            return new WebResourceResponse("text/javascript", "UTF-8",
+//                    new ByteArrayInputStream(gen_dashboad_replacement.getBytes()));
         } else if (url.contains("/css/ap_icons.css")
                 || url.contains("/css/map_icons.css")
                 || url.contains("/css/common.css")

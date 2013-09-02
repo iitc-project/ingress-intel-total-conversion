@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.13.4.@@DATETIMEVERSION@@
+// @version        0.14.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -115,7 +115,7 @@ function wrapper() {
 L_PREFER_CANVAS = false;
 
 // CONFIG OPTIONS ////////////////////////////////////////////////////
-window.REFRESH = 60; // refresh view every 30s (base time)
+window.REFRESH = 30; // refresh view every 30s (base time)
 window.ZOOM_LEVEL_ADJ = 5; // add 5 seconds per zoom level
 window.ON_MOVE_REFRESH = 2.5;  //refresh time to use after a movement event
 window.MINIMUM_OVERRIDE_REFRESH = 10; //limit on refresh time since previous refresh, limiting repeated move refresh rate
@@ -143,19 +143,16 @@ window.CHAT_FACTION_ITEMS = 100;
 window.CHAT_REQUEST_SCROLL_TOP = 200;
 window.CHAT_SHRINKED = 60;
 
-// Leaflet will get very slow for MANY items. It’s better to display
-// only some instead of crashing the browser.
-window.MAX_DRAWN_PORTALS = 1000;
-window.MAX_DRAWN_LINKS = 400;
-window.MAX_DRAWN_FIELDS = 200;
 // Minimum zoom level resonator will display
 window.RESONATOR_DISPLAY_ZOOM_LEVEL = 17;
+
 // Minimum area to zoom ratio that field MU's will display
 window.FIELD_MU_DISPLAY_AREA_ZOOM_RATIO = 0.001;
+
 // Point tolerance for displaying MU's
 window.FIELD_MU_DISPLAY_POINT_TOLERANCE = 60
 
-window.COLOR_SELECTED_PORTAL = '#f00';
+window.COLOR_SELECTED_PORTAL = '#f0f';
 window.COLORS = ['#FF9900', '#0088FF', '#03DC03']; // none, res, enl
 window.COLORS_LVL = ['#000', '#FECE5A', '#FFA630', '#FF7315', '#E40000', '#FD2992', '#EB26CD', '#C124E0', '#9627F4'];
 window.COLORS_MOD = {VERY_RARE: '#F78AF6', RARE: '#AD8AFF', COMMON: '#84FBBD'};
@@ -236,25 +233,24 @@ window.DEG2RAD = Math.PI / 180;
 // global variables used for storage. Most likely READ ONLY. Proper
 // way would be to encapsulate them in an anonymous function and write
 // getters/setters, but if you are careful enough, this works.
-var refreshTimeout;
-var urlPortal = null;
+window.refreshTimeout = undefined;
+window.urlPortal = null;
 window.playersToResolve = [];
 window.playersInResolving = [];
 window.selectedPortal = null;
 window.portalRangeIndicator = null;
 window.portalAccessIndicator = null;
 window.mapRunsUserAction = false;
-var portalsLayers, linksLayer, fieldsLayer;
+window.portalsLayers = undefined;
+window.linksLayer = undefined;
+window.fieldsLayer = undefined;
 
-// contain references to all entities shown on the map. These are
-// automatically kept in sync with the items on *sLayer, so never ever
-// write to them.
+// contain references to all entities loaded from the server. If render limits are hit,
+// not all may be added to the leaflet layers
 window.portals = {};
-window.portalsCount = 0;
 window.links = {};
-window.linksCount = 0;
 window.fields = {};
-window.fieldsCount = 0;
+
 window.resonators = {};
 
 // contain current status(on/off) of overlay layerGroups.
