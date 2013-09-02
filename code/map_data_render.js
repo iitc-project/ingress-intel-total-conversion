@@ -77,9 +77,6 @@ window.Render.prototype.processDeletedGameEntityGuids = function(deleted) {
     if ( !(guid in this.deletedGuid) ) {
       this.deletedGuid[guid] = true;  // flag this guid as having being processed
 
-      // the original code this is based on checked to see if the guid was for a field - and if so, removed it from the linkedFields of the relevant portals
-      // given that the server will also return updated portals - and the linkedFields data is not actively used in IITC, this seems pointless.
-
       this.deleteEntity(guid);
 
     }
@@ -168,9 +165,28 @@ window.Render.prototype.deleteLinkEntity = function(guid) {
   }
 }
 
+
 window.Render.prototype.deleteFieldEntity = function(guid) {
   if (guid in window.fields) {
     var f = window.fields[guid];
+    var fd = f.options.details;
+
+    var deletePortalLinkedField = function(pguid) {
+      if (pguid in window.portals) {
+        var pd = window.portals[pguid].options.details;
+        if (pd.portalV2.linkedFields) {
+          var i = pd.portalV2.linkedFields.indexOf(guid);
+          if (i >= 0) {
+            pd.portalV2.linkedFields.splice(i,1);
+          }
+        }
+      }
+    }
+
+    deletePortalLinkedField (fd.capturedRegion.vertexA.guid);
+    deletePortalLinkedField (fd.capturedRegion.vertexB.guid);
+    deletePortalLinkedField (fd.capturedRegion.vertexC.guid);
+
     fieldsLayer.removeLayer(f);
     delete window.fields[guid];
   }
@@ -234,6 +250,22 @@ window.Render.prototype.createPortalEntity = function(ent) {
     timestamp: ent[1],
     details: ent[2]
   };
+
+  // Javascript uses references for objects. For now, at least, we need to modify the data within
+  // the options.details.portalV2 (to add in linkedFields). To avoid tainting the original data (which may be cached)
+  // we'll shallow-copy these items
+  dataOptions.details = $.extend({}, dataOptions.details);
+  dataOptions.details.portalV2 = $.extend({}, dataOptions.details.portalV2);
+
+
+  // create a linkedFields entry and add it to details - various bits of code assumes it will exist
+  for (var fguid in window.fields) {
+    var fd = window.fields[fguid].options.details;
+    if ( fd.capturedRegion.vertexA.guid == ent[0] || fd.capturedRegion.vertexB.guid == ent[0] || fd.capturedRegion.vertexC.guid == ent[0]) {
+      if (!dataOptions.details.portalV2.linkedFields) dataOptions.details.portalV2.linkedFields = [];
+      dataOptions.details.portalV2.linkedFields.push(fguid);
+    }
+  }
 
   var marker = createMarker(latlng, dataOptions);
 
@@ -312,6 +344,20 @@ window.Render.prototype.createFieldEntity = function(ent) {
     vertices: ent[2].capturedRegion
   });
 
+
+  // now fill in any references portals linkedFields data
+  var addPortalLinkedField = function(pguid) {
+    if (pguid in window.portals) {
+      var pd = window.portals[pguid].options.details;
+      if (!pd.portalV2.linkedFields) pd.portalV2.linkedFields = [];
+      if (pd.portalV2.linkedFields.indexOf(pguid) <0 ) {
+        pd.portalV2.linkedFields.push (ent[0]);
+      }
+    }
+  }
+  addPortalLinkedField(ent[2].capturedRegion.vertexA.guid);
+  addPortalLinkedField(ent[2].capturedRegion.vertexB.guid);
+  addPortalLinkedField(ent[2].capturedRegion.vertexC.guid);
 
   window.fields[ent[0]] = poly;
 
