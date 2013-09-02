@@ -79,19 +79,13 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         // we merge gmaps intents with geo intents since it is not possible
         // anymore to set a labeled marker on geo intents
         ArrayList<Intent> intents = new ArrayList<Intent>();
-        DecimalFormatSymbols decFormat = new DecimalFormatSymbols();
-        // thx to gmaps, this only works for the decimal point separator
         String gMapsUri;
-        if (decFormat.getDecimalSeparator() == '.')
-            try {
-                gMapsUri = "http://maps.google.com/maps?q=loc:" + mLl +
-                        "%20(" + URLEncoder.encode(mTitle, "UTF-8") + ")&z=" + mZoom;
-            } catch (UnsupportedEncodingException e) {
-                gMapsUri = "http://maps.google.com/maps?ll=" + mLl + "&z=" + mZoom;
-                e.printStackTrace();
-            }
-        else
-            gMapsUri = "http://maps.google.com/maps?ll=" + mLl + "&z=" + mZoom;
+        try {
+            gMapsUri = "http://maps.google.com/?daddr=" + mLl + "%20(" + URLEncoder.encode(mTitle, "UTF-8") + ")";
+        } catch (UnsupportedEncodingException e) {
+            gMapsUri = "http://maps.google.com/?daddr=" + mLl;
+            e.printStackTrace();
+        }
         Intent gMapsIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(gMapsUri));
         intents.add(gMapsIntent);
         String geoUri = "geo:" + mLl;
