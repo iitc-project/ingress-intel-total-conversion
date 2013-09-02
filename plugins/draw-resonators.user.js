@@ -32,7 +32,14 @@ window.plugin.drawResonators.render;
 // As long as 'window.Render.prototype.createPortalEntity' delete and recreate portal
 // on any change of data, this resonator render should make resonator create and remove
 // with portal correctly.
-
+//
+// Resonators will create when
+// 1.Portal added to map
+// 2.Zooming in to enable zoom level
+//
+// Resonators will remove when
+// 1.Portal removed from map
+// 2.Zooming out beyond enable zoom level
 
 window.plugin.drawResonators.Render = function(options) {
   this.enableZoomLevel = options['enableZoomLevel'];
@@ -160,16 +167,13 @@ window.plugin.drawResonators.Render.prototype.handleResonatorEntitiesAfterZoom =
     // Redraw all resonators if they were deleted
     if(!this.isResonatorsShowBeforeZoom()) {
       for(var guid in window.portals) {
-        // Need this checking?
-        if(! guid in this.resonators) {
-          this.createResonatorEntities(window.portals[guid]);
-        }
+        this.createResonatorEntities(window.portals[guid]);
       }
     }
   }
 }
 
-window.plugin.drawResonators.Render.prototype.changeStyle = function(portalGuid) {
+window.plugin.drawResonators.Render.prototype.toggleSelectedStyle = function(portalGuid) {
   if (portalGuid in this.resonators) {
     var render = this;
     var portalSelected = selectedPortal === portalGuid;
@@ -340,7 +344,7 @@ var setup =  function() {
   window.addLayerGroup('Resonators', window.plugin.drawResonators.render.resonatorLayerGroup, true);
 
   // TODO: add runHooks('portalSelected', {oldSelectedPortalGuid, newSelectedPortalGuid});
-  //       to window.selectPortal, call render.changeStyle to change style of selected and unselected 
+  //       to window.selectPortal, call render.toggleSelectedStyle to change style of selected and unselected 
   //       resonators.
 
   // TODO: add options dialog to change options
