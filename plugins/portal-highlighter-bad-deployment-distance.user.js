@@ -2,11 +2,11 @@
 // @id             iitc-plugin-highlight-bad-deployment-distance@cathesaurus
 // @name           IITC plugin: highlight badly-deployed portals
 // @category       Highlighter
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Uses the fill color of the portals to show the effective resonator deployment range, where that average is less than 36 metres
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Uses the fill color of the portals to show the effective resonator deployment range: yellow for less that 36 metres, orange for less than 24 metres, red for less than 12 metres.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -23,17 +23,19 @@ window.plugin.portalHighlighterBadDeploymentDistance = function() {};
 
 window.plugin.portalHighlighterBadDeploymentDistance.highlight = function(data) {
   var d = data.portal.options.details;
-  var portal_deployment = 0;
-  if(getTeam(d) !== 0) {
-    if(window.getAvgResoDist(d) > 0 && window.getAvgResoDist(d) < window.HACK_RANGE*0.9) {
-      portal_deployment = (window.HACK_RANGE - window.getAvgResoDist(d))/window.HACK_RANGE;
-    }
-    if(portal_deployment > 0) {
-      var fill_opacity = portal_deployment*.85 + .15;
-      color = 'red';
-      var params = {fillColor: color, fillOpacity: fill_opacity};
+  var avgDeployment = window.getAvgResoDist(d);
+  if(getTeam(d) !==0) {
+    if(avgDeployment > 0 && avgDeployment < window.HACK_RANGE*0.9) {
+      if(avgDeployment < window.HACK_RANGE*0.3) {
+        color = 'red';
+      } else if(avgDeployment < window.HACK_RANGE*0.6) {
+        color = 'orange';
+      } else {
+        color = 'yellow';
+      }
+      var params = {fillColor: color, fillOpacity: 1};
       data.portal.setStyle(params);
-    } 
+    }
   }
 }
 
