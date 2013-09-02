@@ -42,17 +42,19 @@ window.plugin.drawResonators.Render = function(options) {
   this.resonators = {};
   this.resonatorLayerGroup = new L.LayerGroup();
   this.addStyler(new window.plugin.drawResonators.Styler());
+  this.beforeZoomLevel = map.getZoom();
 
   this.portalAdded = this.portalAdded.bind(this);
   this.createResonatorEntities = this.createResonatorEntities.bind(this);
   this.deleteResonatorEntities = this.deleteResonatorEntities.bind(this);
-  this.clearResonatorEntitiesAfterZoom = this.clearResonatorEntitiesAfterZoom.bind(this);
+  this.handleResonatorEntitiesBeforeZoom = this.handleResonatorEntitiesBeforeZoom.bind(this);
+  this.handleResonatorEntitiesAfterZoom = this.handleResonatorEntitiesAfterZoom.bind(this);
 };
 
 window.plugin.drawResonators.Render.prototype.registerHook = function() {
   window.addHook('portalAdded', this.portalAdded);
-  window.map.on('zoomend', this.clearResonatorEntitiesAfterZoom);
-  //TODO: zoom in should redraw resonators if needed
+  window.map.on('zoomstart', this.handleResonatorEntitiesBeforeZoom);
+  window.map.on('zoomend', this.handleResonatorEntitiesAfterZoom);
 }
 
 window.plugin.drawResonators.Render.prototype.portalAdded = function(data) {
@@ -71,16 +73,13 @@ window.plugin.drawResonators.Render.prototype.portalAdded = function(data) {
 window.plugin.drawResonators.Render.prototype.createResonatorEntities = function(portal) {
   // No need to check for existing resonators, as old resonators should be removed with the portal marker.
 
-  // No need to check for display status of portalLayer, as this function is only called by 
-  // 'add' event of portal marker.
-
   if(!this.isResonatorsShow()) return;
   var portalDetails = portal.options.details;
   var resonatorsWithConnector = new L.LayerGroup()
 
   var portalLatLng = [portalDetails.locationE6.latE6/1E6, portalDetails.locationE6.lngE6/1E6];
   var portalSelected = selectedPortal === portal.options.guid;
-   
+
   for(var i in portalDetails.resonatorArray.resonators) {
     resoData = portalDetails.resonatorArray.resonators[i];
     if(resoData === null) continue;
@@ -148,10 +147,25 @@ window.plugin.drawResonators.Render.prototype.deleteResonatorEntities = function
   }
 }
 
-window.plugin.drawResonators.Render.prototype.clearResonatorEntitiesAfterZoom = function() {
+// Save zoom level before zoom, use to determine redraw of resonator
+window.plugin.drawResonators.Render.prototype.handleResonatorEntitiesBeforeZoom = function() {
+  this.beforeZoomLevel = map.getZoom();
+}
+
+window.plugin.drawResonators.Render.prototype.handleResonatorEntitiesAfterZoom = function() {
   if(!this.isResonatorsShow()) {
     this.resonatorLayerGroup.clearLayers();
     this.resonators = {};
+  } else {
+    // Redraw all resonators if they were deleted
+    if(!this.isResonatorsShowBeforeZoom()) {
+      for(var guid in window.portals) {
+        // Need this checking?
+        if(! guid in this.resonators) {
+          this.createResonatorEntities(window.portals[guid]);
+        }
+      }
+    }
   }
 }
 
@@ -193,6 +207,10 @@ window.plugin.drawResonators.Render.prototype.changeStyler = function(name) {
 
 window.plugin.drawResonators.Render.prototype.isResonatorsShow = function() {
   return map.getZoom() >= this.enableZoomLevel;
+}
+
+window.plugin.drawResonators.Render.prototype.isResonatorsShowBeforeZoom = function() {
+  return this.beforeZoomLevel >= this.enableZoomLevel;
 }
 
 
