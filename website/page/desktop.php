@@ -16,7 +16,7 @@ userscripts, but these are far less tested. For Android phones, please see the <
 <p>
 Although it is possible to install userscripts directly as extensions, the recommended method is to use
 <a href="https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo">Tampermonkey</a>.
-Once Tampermonkey is installed, click on the "Download" button below and click "OK" on the two dialogs to install.
+Once Tampermonkey is installed, click on the "Download" button below and follow the instructions.
 </p>
 
 <h4>Firefox</h4>
