@@ -4,19 +4,6 @@
 include_once ( "code/desktop-download.php" );
 ?>
 
-<div class="alert alert-block">
-<p>
-<b>IMPORTANT!</b>: You <b>must</b> uninstall the original IITC before installing this version. Failure to do this
-will result in multiple copes installed which I expect will cause a LOT of issues.
-</p>
-<p>
-<b>NOTE</b>: The first release available on this web site was not configured correctly for auto updates.
-If you installed before this note appeared <span class="nowrap">(22nd March 2013)</span> you will need to
-manually uninstall IITC and all plugins, then reinstall from below. Going forward, updates will work correctly
-(for Chrome + Tampermoneky and Firefox + Greasemonkey users).
-</p>
-</div>
-
 <h3>Requirements</h3>
 
 <p>
@@ -43,6 +30,29 @@ Once installed, click the "Download" then "Install" on the dialog.
 
 <p>
 Check your browser documentation for details on installing userscripts.
+</p>
+
+<h3>Updating</h3>
+
+<p>
+If IITC is already installed, it's easy to update in most cases:
+</p>
+
+<h4>Chrome and Tampermonkey</h4>
+
+<p>
+Open the Tampermonkey menu and choose "Check for userscript updates". If you have a lot of plugins, or other scripts
+installed, this can be a little slow. Wait 30 seconds, then try clicking the Tampermonkey icon again; if the menu opens,
+it's finished updating. Once complete, reload the Ingress intel map to use the new version.
+</p>
+
+<h4>Firefox and Greasemonkey</h4>
+
+<p>
+Open the Greasemonkey menu and choose "Manage user scripts". Now click the cog icon and choose "Check for updates".
+However, sometimes Greasemonkey fails to update all scripts. Check the date+time listed at the start of the description
+(e.g. "[jonatkins-2013-08-23-042102]") and if any have failed to update then manually download from the list below.
+Once updated, reload the Intel map and the new version will be active.
 </p>
 
 
