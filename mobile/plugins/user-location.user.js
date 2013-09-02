@@ -47,8 +47,6 @@ window.plugin.userLocation.setup = function() {
 
 window.plugin.userLocation.updateLocation = function(lat, lng) {
     var latlng = new L.LatLng(lat, lng);
-    var foo = android.getVersionCode();
-    window.console.log('version code: ' + foo);
     window.plugin.userLocation.marker.setLatLng(latlng);
 }
 
