@@ -261,9 +261,6 @@ window.plugin.apList.updateSortedPortals = function() {
     plugin.apList.cachedPortals = {};
 
   $.each(window.portals, function(key, value) {
-    if(getTypeByGuid(key) !== TYPE_PORTAL)
-      return true;
-
     var portal = value.options.details;
     var cachedPortal = oldcachedPortal[key];
     // If portal is changed, update playerApGain with latest
