@@ -2,7 +2,7 @@
 // @id             iitc-plugin-bookmarks@ZasoGD
 // @name           IITC plugin: Bookmarks for maps and portals
 // @category       Controls
-// @version        0.2.2.@@DATETIMEVERSION@@
+// @version        0.2.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -587,7 +587,7 @@
     dialog({
       html:window.plugin.bookmarks.dialogLoadList,
       dialogClass:'ui-dialog-autodrawer',
-      title:'Bookmarks - Auto Drawer',
+      title:'Bookmarks - Auto Draw',
       buttons:{
         'DRAW': function() {
           window.plugin.bookmarks.draw();
@@ -630,7 +630,7 @@
   }
 
   window.plugin.bookmarks.dialogLoadList = function() {
-    var r = '<span>Is required "<a href="http://iitc.jonatkins.com/?page=desktop#plugin-draw-tools" target="_BLANK"><strong>Draw Tools</strong></a>".</span>';
+    var r = '<span>The"<a href="http://iitc.jonatkins.com/?page=desktop#plugin-draw-tools" target="_BLANK"><strong>Draw Tools</strong></a>" plugin is required.</span>';
 
     if(!window.plugin.bookmarks || !window.plugin.drawTools) {
       $('.ui-dialog-autodrawer .ui-dialog-buttonset .ui-button:not(:first)').hide();
@@ -802,7 +802,7 @@
 
     plugin.bookmarks.htmlDisabledMessage = '<div title="Your browser do not support localStorage">Plugin Bookmarks disabled*.</div>';
     plugin.bookmarks.htmlStar = '<a class="bkmrksStar" onclick="window.plugin.bookmarks.switchStarPortal();return false;" title="Save this portal in your bookmarks"><span></span></a>';
-    plugin.bookmarks.htmlCalldrawBox = '<a onclick="window.plugin.bookmarks.dialogDrawer();return false;">Auto drawer</a>';
+    plugin.bookmarks.htmlCalldrawBox = '<a onclick="window.plugin.bookmarks.dialogDrawer();return false;" title="Draw lines/triangles between bookmarked portals">Auto draw</a>';
     plugin.bookmarks.htmlCallSetBox = '<a onclick="window.plugin.bookmarks.manualOpt();return false;">Bookmarks Opt</a>';
     plugin.bookmarks.htmlSetbox = '<div id="bkmrksSetbox">'
                                     +'<a onclick="window.plugin.bookmarks.optCopy();">Copy</a>'
