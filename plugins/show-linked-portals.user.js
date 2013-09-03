@@ -2,7 +2,7 @@
 // @id             iitc-plugin-show-linked-portals@fstopienski
 // @name           IITC plugin: Show linked portals
 // @category       Portal Info
-// @version        0.0.7.@@DATETIMEVERSION@@
+// @version        0.0.8.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -78,7 +78,7 @@ window.plugin.showLinkedPortal.getPortalByGuid = function (guid) {
                                                .append($('<br/>'))
                                                .append($('<em/>').text('(' + portalDetails.portalV2.descriptiveText.ADDRESS + ')'))
                                                .html();
-        var imageUrl = (portalDetails.imageByUrl ? portalDetails.imageByUrl.imageUrl : window.DEFAULT_PORTAL_IMG);
+        var imageUrl = getPortalImageUrl(portalDetails);
         portalInfoString = $('<div/>').html($('<img/>').attr('src', imageUrl)
                                                        .attr('class', 'minImg')
                                                        .attr('alt', portalNameAdressAlt)

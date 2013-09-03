@@ -4,7 +4,6 @@
 
 window._highlighters = null;
 window._current_highlighter = localStorage.portal_highlighter;
-window.changing_highlighters = false;
 window._no_highlighter = 'No Highlights';
 
 window.addPortalHighlighter = function(name, callback) {
@@ -46,10 +45,8 @@ window.portalHighlighterControl = function() {
 }
 
 window.changePortalHighlights = function(name) {
-  changing_highlighters = true;
   _current_highlighter = name;
   resetHighlightedPortals();
-  changing_highlighters = false;
   localStorage.portal_highlighter = name;
 }
 
@@ -62,10 +59,7 @@ window.highlightPortal = function(p) {
 }
 
 window.resetHighlightedPortals = function() {
-  $.each(portals, function(ind, portal) {
-    try {
-      renderPortal(portal.options.ent);
-    }
-    catch(e) {}
-  }); 
+  $.each(portals, function(guid, portal) {
+    setMarkerStyle(portal, guid === selectedPortal);
+  });
 }

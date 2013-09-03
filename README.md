@@ -8,17 +8,41 @@ I've created this one to continue some development.
 
 Just want to download/install IITC? Go to http://iitc.jonatkins.com/
 
+For keeping up with the latest news, release announcements, etc, Follow IITC on G+
+https://plus.google.com/105383756361375410867/posts
+
+If you have questions, need help or advice with IITC, the Google+ community is a good place to start.
+https://plus.google.com/communities/105647403088015055797
+
+Want to report a bug? Post it to the issues page
+https://github.com/jonatkins/ingress-intel-total-conversion/issues
+
 ## Developers
 
 This Github page is for those interested in developing IITC further.
 
-### Roadmap
+### Quickstart
 
-Assuming I don't get a takedown notice any time soon, the initial plans are:
+To build the browser scripts from source you will need Python (either a late version 2.x, or 3.0+). It should
+build correctly on Linux and Windows (and, probably, Macs, FreeBSD, etc)
 
-1. **DONE** Make it easy to rebuild IITC for a new server - will make it easier for development, plus allow others to fork the project for their own use
-2. **DONE** Clean up version number handling. Add fork/build info to both IITC and the plugins
-3. **DONE** Add separate meta.js files for update checking - reduces load on the web server
-4. Get IITC Mobile working, and easily rebuilt for custom development builds/forks
+Fork this project, clone to your local machine.
 
-Plus, of course, pulling in any patches/bugfixes.
+Run the ```build.py local``` script to build the code.
+
+If all goes well, output of the build will end up in ```build/local``` subfolder.
+
+You can create a custom build settings file, ```localbuildsettings.py``` - look in the supplied
+```buildsettings.py``` for details.
+
+#### Mobile
+
+To build the mobile app, along with python, you will need
+
+- The Java JDK (development kit - the runtime JRE is not enough)
+- The Android SDK
+
+Run ``build.py mobile``` to build IITC Mobile in debug mode.
+
+Note that part of the build.py process includes copying the IITC script files into the ```mobile/res``` subfolder.
+If this isn't done (e.g. you build IITC Mobile directly from Eclipse) you will end up with a broken build.

@@ -68,6 +68,13 @@ if ( file_exists ( 'tracking.php' ) )
   - a place to ask for help and discuss with other users.
  </div>
 
+<!--
+ <div class="alert alert-block alert-error">
+  <b>IITC has yet again been broken by changes Niantic have made.</b> Further information/discussion on
+  <a href="https://plus.google.com/105383756361375410867/posts/4CzHCHGcNV3">this Google+ post</a>.
+ </div>
+-->
+
  <!-- **** two column body area **** -->
 
  <div class="row-fluid">

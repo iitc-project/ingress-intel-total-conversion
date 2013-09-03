@@ -39,7 +39,6 @@ window.plugin.portalHighligherMy8sOnPortals.highlight = function(data) {
       data.portal.setStyle({fillColor: color, fillOpacity: opacity});
     } 
   }
-  window.COLOR_SELECTED_PORTAL = '#f0f';
 }
 
 var setup =  function() {

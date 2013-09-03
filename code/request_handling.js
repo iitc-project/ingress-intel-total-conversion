@@ -41,61 +41,6 @@ window.requests.abort = function() {
   renderUpdateStatus();
 }
 
-// gives user feedback about pending operations. Draws current status
-// to website. Updates info in layer chooser.
-window.renderUpdateStatus = function() {
-
-  var t = '<span class="help portallevel" title="Indicates portal levels displayed.  Zoom in to display lower level portals.">';
-  if(!window.isSmartphone()) // space is valueable
-    t += '<b>portals</b>: ';
-  var minlvl = getMinPortalLevel();
-  if(minlvl === 0)
-    t+= '<span id="loadlevel">all</span>';
-  else
-    t+= '<span id="loadlevel" style="background:'+COLORS_LVL[minlvl]+'">L'+minlvl+(minlvl<8?'+':'') + '</span>';
-  t +='</span>';
-
-  t += ' <span class="map"><b>map</b>: ';
-  if(mapRunsUserAction)
-    t += '<span class="help" title="Paused due to user interaction">paused</span';
-  else if(isIdle())
-    t += '<span style="color:#888">Idle</span>';
-  else if(window.requests._quickRefreshPending)
-    t += 'refreshing';
-  else if(window.activeRequests.length > 0)
-    t += window.activeRequests.length + ' requests';
-  else {
-    // tooltip with detailed tile counts
-    t += '<span class="help" title="'+window.statusTotalMapTiles+' tiles: '+window.statusCachedMapTiles+' cached, '+window.statusSuccessMapTiles+' successful, '+window.statusStaleMapTiles+' stale, '+window.statusErrorMapTiles+' failed">';
-
-    // basic error/out of date/up to date message
-    if (window.statusErrorMapTiles) t += '<span style="color:#f66">Errors</span>';
-    else if (window.statusStaleMapTiles) t += '<span style="color:#fa6">Out of date</span>';
-    else t += 'Up to date';
-  
-    t += '</span>';
-
-  }
-  t += '</span>';
-
-  if(renderLimitReached())
-    t += ' <span style="color:#f66" class="help" title="Can only render so much before it gets unbearably slow. Not all entities are shown. Zoom in or increase the limit (search for MAX_DRAWN_*).">RENDER LIMIT</span>'
-
-  if(window.failedRequestCount > 0)
-    t += ' <span style="color:#f66">' + window.failedRequestCount + ' failed</span>'
-
-  var portalSelection = $('.leaflet-control-layers-overlays label');
-  //it's an array - 0=unclaimed, 1=lvl 1, 2=lvl 2, ..., 8=lvl 8 - 9 relevant entries
-  //mark all levels below (but not at) minlvl as disabled
-  portalSelection.slice(0, minlvl).addClass('disabled').attr('title', 'Zoom in to show those.');
-  //and all from minlvl to 8 as enabled
-  portalSelection.slice(minlvl, 8+1).removeClass('disabled').attr('title', '');
-
-
-  $('#innerstatus').html(t);
-  //$('#updatestatus').click(function() { startRefreshTimeout(10); });
-  //. <a style="cursor: pointer" onclick="startRefreshTimeout(10)" title="Refresh">⟳</a>';
-}
 
 
 // sets the timer for the next auto refresh. Ensures only one timeout
@@ -132,23 +77,23 @@ window.startRefreshTimeout = function(override) {
     if(adj > 0) t += adj*1000;
   }
   var next = new Date(new Date().getTime() + t).toLocaleTimeString();
-  console.log('planned refresh in ' + (t/1000) + ' seconds, at ' + next);
+//  console.log('planned refresh in ' + (t/1000) + ' seconds, at ' + next);
   refreshTimeout = setTimeout(window.requests._callOnRefreshFunctions, t);
   renderUpdateStatus();
 }
 
 window.requests._onRefreshFunctions = [];
 window.requests._callOnRefreshFunctions = function() {
-  console.log('running refresh at ' + new Date().toLocaleTimeString());
+//  console.log('running refresh at ' + new Date().toLocaleTimeString());
   startRefreshTimeout();
 
   if(isIdle()) {
-    console.log('user has been idle for ' + idleTime + ' seconds, or window hidden. Skipping refresh.');
+//    console.log('user has been idle for ' + idleTime + ' seconds, or window hidden. Skipping refresh.');
     renderUpdateStatus();
     return;
   }
 
-  console.log('refreshing');
+//  console.log('refreshing');
 
   //store the timestamp of this refresh
   window.requests._lastRefreshTime = new Date().getTime();

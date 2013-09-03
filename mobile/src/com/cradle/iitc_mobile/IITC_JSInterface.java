@@ -13,6 +13,8 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.util.Log;
 import android.view.View;
 import android.webkit.JavascriptInterface;
@@ -77,6 +79,19 @@ public class IITC_JSInterface {
         clipboard.setPrimaryClip(clip);
         Toast.makeText(mContext, "copied to clipboard", Toast.LENGTH_SHORT)
                 .show();
+    }
+
+    @JavascriptInterface
+    public int getVersionCode() {
+        int versionCode = 0;
+        try {
+            PackageInfo pInfo = mContext.getPackageManager()
+                    .getPackageInfo(mContext.getPackageName(), 0);
+            versionCode = pInfo.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return versionCode;
     }
 
     @JavascriptInterface

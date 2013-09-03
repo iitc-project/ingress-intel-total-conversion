@@ -1,5 +1,3 @@
-
-
 // PORTAL DETAILS TOOLS //////////////////////////////////////////////
 // hand any of these functions the details-hash of a portal, and they
 // will return useful, but raw data.
@@ -289,4 +287,21 @@ window.potentialPortalLevel = function(d) {
     potential_level = resonator_levels.reduce(function(a, b) {return a + b;}) / 8;
   }
   return(potential_level);
+}
+
+
+window.getPortalImageUrl = function(d) {
+  if (d.imageByUrl && d.imageByUrl.imageUrl) {
+    url = d.imageByUrl.imageUrl;
+
+    if (window.location.protocol === 'https:') {
+      url = url.indexOf('www.panoramio.com') !== -1
+            ? url.replace(/^http:\/\/www/, 'https://ssl').replace('small', 'medium')
+            : url.replace(/^http:\/\//, '//');
+    }
+    return url;
+  } else {
+    return DEFAULT_PORTAL_IMG;
+  }
+
 }

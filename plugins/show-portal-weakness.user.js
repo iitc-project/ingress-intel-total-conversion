@@ -77,12 +77,11 @@ window.plugin.portalWeakness.highlightWeakness = function(data) {
       }
       data.portal.setStyle(params);
     } else {
-      data.portal.setStyle({color:  COLORS[getTeam(data.portal.options.details)],
+      data.portal.setStyle({fillColor:  COLORS[getTeam(data.portal.options.details)],
                             fillOpacity: 0.5,
                             dashArray: null});
     }
   }
-  window.COLOR_SELECTED_PORTAL = '#f0f';
 }
 
 var setup =  function() {

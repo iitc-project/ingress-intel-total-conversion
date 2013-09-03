@@ -456,12 +456,7 @@ public class IITC_Mobile extends Activity {
                 mIitcWebView.loadUrl("javascript: window.show('map');");
                 return true;
             case R.id.reload_button:
-                mActionBar.setTitle(getString(R.string.app_name));
-                mBackStack.clear();
-                setActionBarHomeEnabledWithUp(false);
-                // iitc starts on map after reload
-                mCurrentPane = android.R.id.home;
-                this.loadUrl(mIntelUrl);
+                reloadIITC();
                 return true;
             case R.id.toggle_fullscreen:
                 toggleFullscreen();
@@ -480,7 +475,7 @@ public class IITC_Mobile extends Activity {
                 if (!mIsLocEnabled) {
                     mIitcWebView.loadUrl("javascript: " +
                             "window.map.locate({setView : true, maxZoom: 15});");
-                    // if gps location is displayed we can use a better location without any costs
+                // if gps location is displayed we can use a better location without any costs
                 } else {
                     if (mLastLocation != null)
                         mIitcWebView.loadUrl("javascript: window.map.setView(new L.LatLng(" +
@@ -518,6 +513,15 @@ public class IITC_Mobile extends Activity {
         }
     }
 
+    public void reloadIITC() {
+        mActionBar.setTitle(getString(R.string.app_name));
+        mBackStack.clear();
+        setActionBarHomeEnabledWithUp(false);
+        // iitc starts on map after reload
+        mCurrentPane = android.R.id.home;
+        this.loadUrl(mIntelUrl);
+    }
+
     private void loadIITC() {
         try {
             mIitcWebView.getWebViewClient().loadIITC_JS(this);
@@ -550,9 +554,12 @@ public class IITC_Mobile extends Activity {
         // throw away all positions with accuracy > 100 meters
         // should avoid gps glitches
         if (loc.getAccuracy() < 100) {
-            mIitcWebView.loadUrl("javascript: "
-                    + "window.plugin.userLocation.updateLocation( "
-                    + loc.getLatitude() + ", " + loc.getLongitude() + ");");
+            // do not touch the javascript while iitc boots
+            if (findViewById(R.id.imageLoading).getVisibility() == View.GONE) {
+                mIitcWebView.loadUrl("javascript: "
+                        + "window.plugin.userLocation.updateLocation( "
+                        + loc.getLatitude() + ", " + loc.getLongitude() + ");");
+            }
         }
     }
 

@@ -26,7 +26,6 @@ window.plugin.portalHighligherPortalsLevelColor.colorLevel = function(data) {
   var portal_level = Math.floor(getPortalLevel(d));
   var opacity = .6;
   data.portal.setStyle({fillColor: COLORS_LVL[portal_level], fillOpacity: opacity});
-  window.COLOR_SELECTED_PORTAL = '#f0f';
 }
 
 var setup =  function() {
