@@ -4,8 +4,16 @@
 window.DataCache = function() {
   this.REQUEST_CACHE_FRESH_AGE = 90;  // if younger than this, use data in the cache rather than fetching from the server
   this.REQUEST_CACHE_MAX_AGE = 60*60;  // maximum cache age. entries are deleted from the cache after this time
-  this.REQUEST_CACHE_MIN_SIZE = 200;  // if fewer than this many entries, don't expire any
-  this.REQUEST_CACHE_MAX_SIZE = 2000;  // if more than this many entries, expire early
+
+  if (L.Browser.mobile) {
+    // on mobile devices, smaller cache size
+    this.REQUEST_CACHE_MIN_SIZE = 200;  // if fewer than this many entries, don't expire any
+    this.REQUEST_CACHE_MAX_SIZE = 1000;  // if more than this many entries, expire early
+  } else {
+    // but on desktop, allow more
+    this.REQUEST_CACHE_MIN_SIZE = 500;  // if fewer than this many entries, don't expire any
+    this.REQUEST_CACHE_MAX_SIZE = 4000;  // if more than this many entries, expire early
+  }
 
   this._cache = {};
 
