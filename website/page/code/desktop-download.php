@@ -6,7 +6,7 @@ include_once ( "userscript.php" );
 function iitcDesktopDownload ( $build )
 {
 	$iitc_details = loadUserScriptHeader ( "$build/total-conversion-build.user.js" );
-	$iitc_version = preg_replace ( '/^(\d+\.\d+\.\d+)\.(\d{8}\.\d{6})/', '\1<small class="muted">.\2</small>', $iitc_details['@version'] );
+	$iitc_version = preg_replace ( '/^(\d+\.\d+\.\d+)\.(\d{8}\.\d{1,6})/', '\1<small class="muted">.\2</small>', $iitc_details['@version'] );
 
 	print "<p>IITC version $iitc_version</p>\n";
 
@@ -123,7 +123,7 @@ function iitcDesktopPluginDownloadTable ( $build )
 			$name = preg_replace ( '/^IITC plugin: /i', '', $details['@name'] );
 
 			# format extended version info in less prominant font
-			$version = preg_replace ( '/^(\d+\.\d+\.\d+)\.(\d{8}\.\d{6})/', '\1<br><small class="muted">.\2</small>', $details['@version'] );
+			$version = preg_replace ( '/^(\d+\.\d+\.\d+)\.(\d{8}\.\d{1,6})/', '\1<br><small class="muted">.\2</small>', $details['@version'] );
 
 			# remove unneeded prefix from description
 			$description = preg_replace ( '/^\[[^]]*\] */', '', $details['@description'] );
