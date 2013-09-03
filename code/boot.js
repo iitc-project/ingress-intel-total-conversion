@@ -164,7 +164,7 @@ window.setupMap = function() {
 
   window.layerChooser = new L.Control.Layers({
     'MapQuest OSM': views[0],
-    'Default Ingress Map': views[1],
+    'Google Default Ingress Map': views[1],
     'Google Roads':  views[2],
     'Google Satellite':  views[3],
     'Google Hybrid':  views[4],
