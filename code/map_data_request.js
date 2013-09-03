@@ -5,7 +5,7 @@
 
 
 window.MapDataRequest = function() {
-  this.cache = new DataCache();
+//  this.cache = new DataCache();
   this.render = new Render();
   this.debugTiles = new RenderDebugTiles();
 
@@ -129,7 +129,7 @@ window.MapDataRequest.prototype.refresh = function() {
   this.refreshStartTime = new Date().getTime();
 
 
-  this.cache.expire();
+  if (this.cache) this.cache.expire();
 
   this.debugTiles.reset();
 
@@ -199,7 +199,7 @@ window.MapDataRequest.prototype.refresh = function() {
 
       this.debugTiles.create(tile_id,[[latSouth,lngWest],[latNorth,lngEast]]);
 
-      if (this.cache.isFresh(tile_id) ) {
+      if (this.cache && this.cache.isFresh(tile_id) ) {
         // data is fresh in the cache - just render it
         this.debugTiles.setState(tile_id, 'cache-fresh');
         this.render.processTileData (this.cache.get(tile_id));
@@ -355,7 +355,7 @@ window.MapDataRequest.prototype.requeueTile = function(id, error) {
 
     if (error) {
       // if error is still true, retry limit hit. use stale data from cache if available
-      var data = this.cache.get(id);
+      var data = this.cache ? this.cache.get(id) : undefined;
       if (data) {
         // we have cached data - use it, even though it's stale
         this.debugTiles.setState (id, 'cache-stale');
@@ -430,7 +430,7 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
         // no error for this data tile - process it
 
         // store the result in the cache
-        this.cache.store (id, val);
+        this.cache && this.cache.store (id, val);
 
         // if this tile was in the render list, render it
         // (requests aren't aborted when new requests are started, so it's entirely possible we don't want to render it!)
