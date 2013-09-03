@@ -56,19 +56,30 @@ window.MapDataRequest.prototype.start = function() {
 window.MapDataRequest.prototype.mapMoveStart = function() {
   console.log('refresh map movestart');
 
-//  this.moving=true;
-
-//  this.clearQueue();
-
-//  this.setStatus('paused');
+  this.setStatus('paused');
   this.clearTimeout();
 
 }
 
 window.MapDataRequest.prototype.mapMoveEnd = function() {
-  console.log('refresh map moveend');
+  var bounds = clampLatLngBounds(map.getBounds());
+  var zoom = getPortalDataZoom();
 
-//  this.moving=false;
+  if (this.fetchedDataParams) {
+    // we have fetched (or are fetching) data...
+    if (this.fetchedDataParams.zoom == zoom && this.fetchedDataParams.bounds.contains(bounds)) {
+      // ... and the data zoom levels are the same, and the current bounds is inside the fetched bounds
+      // so, no need to fetch data. if there's time left, restore the original timeout
+
+      var remainingTime = (this.timerExpectedTimeoutTime - new Date().getTime())/1000;
+
+      if (remainingTime > this.MOVE_REFRESH) {
+        this.setStatus('done','Map moved, but no data updates needed');
+        this.refreshOnTimeout(remainingTime);
+        return;
+      }
+    }
+  }
 
   this.setStatus('refreshing');
   this.refreshOnTimeout(this.MOVE_REFRESH);
@@ -92,6 +103,7 @@ window.MapDataRequest.prototype.refreshOnTimeout = function(seconds) {
   // 'this' won't be right inside the callback, so save it
   var savedContext = this;
   this.timer = setTimeout ( function() { savedContext.timer = undefined; savedContext.refresh(); }, seconds*1000);
+  this.timerExpectedTimeoutTime = new Date().getTime() + seconds*1000;
 }
 
 
@@ -134,6 +146,7 @@ window.MapDataRequest.prototype.refresh = function() {
 
 //DEBUG: resize the bounds so we only retrieve some data
 //bounds = bounds.pad(-0.4);
+
 //var debugrect = L.rectangle(bounds,{color: 'red', fill: false, weight: 4, opacity: 0.8}).addTo(map);
 //setTimeout (function(){ map.removeLayer(debugrect); }, 10*1000);
 
@@ -142,12 +155,6 @@ window.MapDataRequest.prototype.refresh = function() {
   var y1 = latToTile(bounds.getNorth(), zoom);
   var y2 = latToTile(bounds.getSouth(), zoom);
 
-  window.runHooks ('mapDataRefreshStart', {bounds: bounds, zoom: zoom});
-
-  this.render.startRenderPass();
-  this.render.clearPortalsBelowLevel(minPortalLevel);
-
-
   // calculate the full bounds for the data - including the part of the tiles off the screen edge
   var dataBounds = L.latLngBounds([
     [tileToLat(y2+1,zoom), tileToLng(x1,zoom)],
@@ -155,6 +162,17 @@ window.MapDataRequest.prototype.refresh = function() {
   ]);
 //var debugrect2 = L.rectangle(dataBounds,{color: 'magenta', fill: false, weight: 4, opacity: 0.8}).addTo(map);
 //setTimeout (function(){ map.removeLayer(debugrect2); }, 10*1000);
+
+  // store the parameters used for fetching the data. used to prevent unneeded refreshes after move/zoom
+  this.fetchedDataParams = { bounds: dataBounds, zoom: zoom };
+
+
+  window.runHooks ('mapDataRefreshStart', {bounds: bounds, zoom: zoom, tileBounds: dataBounds});
+
+  this.render.startRenderPass();
+  this.render.clearPortalsBelowLevel(minPortalLevel);
+
+
   this.render.clearEntitiesOutsideBounds(dataBounds);
 
   this.render.resetPortalClusters();
