@@ -2,7 +2,7 @@
 // @id             iitc-plugin-ap-list@xelio
 // @name           IITC plugin: AP List
 // @category       Info
-// @version        0.5.5.@@DATETIMEVERSION@@
+// @version        0.5.6.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -373,12 +373,24 @@ window.plugin.apList.updateTotalPages = function() {
   });
 }
 
+window.plugin.apList.isSameResonator = function(oldRes, newRes) {
+  if(!oldRes && !newRes) return true;
+  if(!oldRes || !newRes) return false;
+  if(typeof oldRes !== typeof newRes) return false;
+  if(oldRes.level !== newRes.level) return false;
+  if(oldRes.energyTotal !== newRes.energyTotal) return false;
+  if(oldRes.distanceToPortal !== newRes.distanceToPortal) return false;
+  return true;
+}
+
+
 window.plugin.apList.isSamePortal = function(a,b) {
+
   if(!a || !b) return false;
   if(a.team !== b.team) return false;
   if(a.level !== b.level) return false;
   for(var i = 0; i < 8; i++) {
-    if(!isSameResonator(a.resonatorArray.resonators[i],b.resonatorArray.resonators[i]))
+    if(!plugin.apList.isSameResonator(a.resonatorArray.resonators[i],b.resonatorArray.resonators[i]))
       return false;
   }
   return true;
