@@ -147,6 +147,7 @@ window.MapDataRequest.prototype.refresh = function() {
   this.render.startRenderPass();
   this.render.clearPortalsBelowLevel(minPortalLevel);
 
+
   // calculate the full bounds for the data - including the part of the tiles off the screen edge
   var dataBounds = L.latLngBounds([
     [tileToLat(y2+1,zoom), tileToLng(x1,zoom)],
@@ -155,6 +156,9 @@ window.MapDataRequest.prototype.refresh = function() {
 //var debugrect2 = L.rectangle(dataBounds,{color: 'magenta', fill: false, weight: 4, opacity: 0.8}).addTo(map);
 //setTimeout (function(){ map.removeLayer(debugrect2); }, 10*1000);
   this.render.clearEntitiesOutsideBounds(dataBounds);
+
+  this.render.resetPortalClusters();
+
 
   console.log('requesting data tiles at zoom '+zoom+' (L'+minPortalLevel+'+ portals), map zoom is '+map.getZoom());
 
