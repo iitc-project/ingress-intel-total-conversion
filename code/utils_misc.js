@@ -115,7 +115,8 @@ window.requestParameterMunges = [
     message: 'q0d6n7t1801bb6xu',
     latE6: '5ygbhpxfnt1u9e4t',
     lngE6: 'ak6twnljwwcgd7cj',
-    factionOnly: '0dvtbatgzcfccchh'
+    factionOnly: '0dvtbatgzcfccchh',
+    ascendingTimestampOrder: 'f6u1iqep9s2lc5y5'
   },
 
   // set 1
@@ -137,7 +138,8 @@ window.requestParameterMunges = [
     message: 'zz54435vfc57nlg9',
     latE6: 'cyltxjod3jhxgj8q',
     lngE6: 'h9whcgcz6kpqkz80',
-    factionOnly: '37okcr7gvd5yn2lj'
+    factionOnly: '37okcr7gvd5yn2lj',
+    ascendingTimestampOrder: 'iimftkq7flskwrx9'
   },
 ];
 window.activeRequestMungeSet = undefined;
