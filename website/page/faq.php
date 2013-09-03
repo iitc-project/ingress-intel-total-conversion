@@ -70,23 +70,25 @@ The data from the Niantic server is download in square tiles. Sometimes requests
 visually. The outline colour shows the state of the request:
 <ul>
 <li>Blue: data requested, waiting for response</li>
+<li>Grey: queued, waiting for other requests to finish</li>
 <li>Green: successful request/cached data fresh</li>
 <li>Red: Dark red for a complete request failure, lighter red for an individual tile timeout</li>
 </ul>
 The colour within the square shows the state of the data:
 <ul>
-<li>Grey: data requested, waiting for response</li>
+<li>Blue: data requested, waiting for response</li>
+<li>Grey: queued, waiting for other requests to complete</li>
 <li>Green: successful request</li>
 <li>Yellow: data from cache</li>
 <li>Red: request failed - no data from cache</li>
 </ul>
 The status message at the bottom-right of the screen gives a summary.
 <ul>
-<li>If all requests were succesful/fresh from cache (i.e. all green borders) the status is 'Up to Date'.</li>
+<li>If all requests were succesful/fresh from cache (i.e. all green borders) the status is 'Done'.</li>
 <li>If some requests failed, but cached data was available (i.e. some red border/yellow fill) the status is 'Out of date'.</li>
 <li>If some requests failed, but no cached data was available (i.e. some red border/red fill) the status is 'Error'.</li>
 </ul>
-The tooltip for this message gives the counts of successful/cached/stale/failed map data tiles.
+The tooltip for this message gives more details.
 </li>
 
 <li>
