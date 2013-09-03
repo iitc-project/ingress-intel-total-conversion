@@ -217,6 +217,8 @@ window.Render.prototype.createEntity = function(ent) {
 window.Render.prototype.createPortalEntity = function(ent) {
   this.seenPortalsGuid[ent[0]] = true;  // flag we've seen it
 
+  var previousDetails = undefined;
+
   // check if entity already exists
   if (ent[0] in window.portals) {
     // yes. now check to see if the entity data we have is newer than that in place
@@ -227,6 +229,10 @@ window.Render.prototype.createPortalEntity = function(ent) {
     // the data we have is newer. many data changes require re-rendering of the portal
     // (e.g. level changed, so size is different, or stats changed so highlighter is different)
     // so to keep things simple we'll always re-create the entity in this case
+
+    // remember the old details, for the callback
+
+    previousDetails = p.options.details;
 
     this.deletePortalEntity(ent[0]);
   }
@@ -273,7 +279,7 @@ window.Render.prototype.createPortalEntity = function(ent) {
   marker.on('dblclick', function() { window.renderPortalDetails(ent[0]); window.map.setView(latlng, 17); });
 
 
-  window.runHooks('portalAdded', {portal: marker});
+  window.runHooks('portalAdded', {portal: marker, previousDetails: previousDetails});
 
   window.portals[ent[0]] = marker;
 
