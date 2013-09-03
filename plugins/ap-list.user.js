@@ -268,7 +268,9 @@ window.plugin.apList.updateSortedPortals = function() {
     var cachedPortal = oldcachedPortal[key];
     // If portal is changed, update playerApGain with latest
     // information
-    if(!cachedPortal || value.timestamp !== cachedPortal.timestamp) {
+    if(!cachedPortal
+        || value.timestamp !== cachedPortal.timestamp
+        || plugin.apList.isFieldsChanged(portal.portalV2.linkedFields, cachedPortal.portalV2.linkedFields)) {
       // Shallow copy portal detail to cachedPortal
       cachedPortal = $.extend({}, portal);
       var side = plugin.apList.portalSide(portal);
@@ -372,6 +374,11 @@ window.plugin.apList.updateTotalPages = function() {
     plugin.apList.totalPage[side] = Math.max(Math.ceil(portals.length / plugin.apList.portalPerPage), 1);
     plugin.apList.currentPage[side] = Math.min(plugin.apList.totalPage[side], plugin.apList.currentPage[side]);
   });
+}
+
+window.plugin.apList.isFieldsChanged = function(a,b) {
+  // http://stackoverflow.com/questions/1773069/using-jquery-to-compare-two-arrays
+  return $(a).not(b).get().length === 0 && $(b).not(a).get().length === 0;;
 }
 
 window.plugin.apList.portalSide = function(portal) {
