@@ -931,7 +931,7 @@ var setup = function() {
   window.plugin.apList.setupList();
   window.plugin.apList.setupPagination();
   window.plugin.apList.setupMapEvent();
-  window.addHook('requestFinished', window.plugin.apList.handleUpdate);
+  window.addHook('mapDataRefreshEnd', window.plugin.apList.handleUpdate);
 }
 // PLUGIN END //////////////////////////////////////////////////////////
 
