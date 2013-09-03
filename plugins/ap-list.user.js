@@ -2,7 +2,7 @@
 // @id             iitc-plugin-ap-list@xelio
 // @name           IITC plugin: AP List
 // @category       Info
-// @version        0.5.6.@@DATETIMEVERSION@@
+// @version        0.5.7.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -268,12 +268,13 @@ window.plugin.apList.updateSortedPortals = function() {
     var cachedPortal = oldcachedPortal[key];
     // If portal is changed, update playerApGain with latest
     // information
-    if(!plugin.apList.isSamePortal(portal,cachedPortal)) {
+    if(!cachedPortal || value.timestamp !== cachedPortal.timestamp) {
       // Copy portal detail to cachedPortal
       cachedPortal = $.extend({}, portal);
       var side = plugin.apList.portalSide(portal);
       var getApGainFunc = plugin.apList.playerApGainFunc[side];
       // Assign playerApGain and guid to cachedPortal
+      cachedPortal.timestamp = value.timestamp
       cachedPortal.playerApGain = getApGainFunc(portal);
       cachedPortal.effectiveLevel = plugin.apList.getEffectiveLevel(portal);
       cachedPortal.guid = value.options.guid;
@@ -371,29 +372,6 @@ window.plugin.apList.updateTotalPages = function() {
     plugin.apList.totalPage[side] = Math.max(Math.ceil(portals.length / plugin.apList.portalPerPage), 1);
     plugin.apList.currentPage[side] = Math.min(plugin.apList.totalPage[side], plugin.apList.currentPage[side]);
   });
-}
-
-window.plugin.apList.isSameResonator = function(oldRes, newRes) {
-  if(!oldRes && !newRes) return true;
-  if(!oldRes || !newRes) return false;
-  if(typeof oldRes !== typeof newRes) return false;
-  if(oldRes.level !== newRes.level) return false;
-  if(oldRes.energyTotal !== newRes.energyTotal) return false;
-  if(oldRes.distanceToPortal !== newRes.distanceToPortal) return false;
-  return true;
-}
-
-
-window.plugin.apList.isSamePortal = function(a,b) {
-
-  if(!a || !b) return false;
-  if(a.team !== b.team) return false;
-  if(a.level !== b.level) return false;
-  for(var i = 0; i < 8; i++) {
-    if(!plugin.apList.isSameResonator(a.resonatorArray.resonators[i],b.resonatorArray.resonators[i]))
-      return false;
-  }
-  return true;
 }
 
 window.plugin.apList.portalSide = function(portal) {
