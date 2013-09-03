@@ -396,60 +396,6 @@ window.zoomToAndShowPortal = function(guid, latlng) {
     urlPortal = guid;
 }
 
-// translates guids to entity types
-window.getTypeByGuid = function(guid) {
-  // All GUID type values, extracted from the ingress app .apk
-  // some are almost certainly Niantic internal use only - never seen on the network
-  // .1  == Panoramio portal [deprecated]
-  // .2  == Random portal
-  // .3  == Beacon
-  // .4  == Resource (dropped media - other dropped items?)
-  // .5  == Inventory item
-  // .6  == Energy glob (XM)
-  // .7  == Energy spawn location
-  // .8  == HMDB portal [deprecated]
-  // .9  == Link (internally "edge")                     ** TYPE_LINK
-  // .a  == LocalStore portal [deprecated]
-  // .b  == Control field (internally "captured region") ** TYPE_FIELD
-  // .c  == Player                                       ** TYPE_PLAYER
-  // .d  == COMM message (internally "plext")            ** TYPE_CHAT
-  // .e  == Tracking record
-  // .f  == Tracking group
-  // .10 == Passcode reward [deprecated]
-  // .11 == SuperOps portal                              ** TYPE_PORTAL - the batch loaded from panorimo, etc?
-  // .12 == Anon portal                                  ** TYPE_PORTAL - user submitted by email?
-  // .13 == Account info
-  // .14 == GeoStore POI [deprecated]
-  // .15 == GeoStore mod
-  // .16 == GeoStore portal                              ** TYPE_PORTAL - new in-app submissions?
-  // .17 == Portal image
-  // .18 == PMRR change
-  
-  // resonator guid is [portal guid]-resonator-[slot]
-  switch(guid.slice(33)) {
-    case '2':
-    case '11':
-    case '12':
-    case '16':
-      return TYPE_PORTAL;
-
-    case '9':
-      return TYPE_LINK;
-
-    case 'b':
-      return TYPE_FIELD;
-
-    case 'c':
-      return TYPE_PLAYER;
-
-    case 'd':
-      return TYPE_CHAT;
-
-    default:
-      if(guid.slice(-11,-2) == 'resonator') return TYPE_RESONATOR;
-      return TYPE_UNKNOWN;
-  }
-}
 
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
