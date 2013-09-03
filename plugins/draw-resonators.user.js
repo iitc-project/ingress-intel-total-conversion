@@ -2,7 +2,7 @@
 // @id             iitc-plugin-draw-resonators@xelio
 // @name           IITC plugin: Draw resonators
 // @category       Layer
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -109,9 +109,7 @@ window.plugin.drawResonators.Render.prototype.createResonatorEntities = function
   this.resonatorLayerGroup.addLayer(resonatorsWithConnector);
   
   // bring portal in front of resonator connector
-  if(portal.options.guid in window.portals) {
-    window.portals[portal.options.guid].bringToFront();
-  }
+  portal.bringToFront();
 }
 
 window.plugin.drawResonators.Render.prototype.createResoMarker = function(resoData, resoLatLng, portalSelected) {
@@ -147,11 +145,11 @@ window.plugin.drawResonators.Render.prototype.getResonatorLatLng = function(dist
 }
 
 window.plugin.drawResonators.Render.prototype.deleteResonatorEntities = function(portalGuid) {
-  if (portalGuid in this.resonators) {
-    var r = this.resonators[portalGuid];
-    this.resonatorLayerGroup.removeLayer(r);
-    delete this.resonators[portalGuid];
-  }
+  if (!(portalGuid in this.resonators)) return;
+
+  var r = this.resonators[portalGuid];
+  this.resonatorLayerGroup.removeLayer(r);
+  delete this.resonators[portalGuid];
 }
 
 // Save zoom level before zoom, use to determine redraw of resonator
@@ -165,31 +163,39 @@ window.plugin.drawResonators.Render.prototype.handleResonatorEntitiesAfterZoom =
     this.resonators = {};
   } else {
     // Redraw all resonators if they were deleted
-    if(!this.isResonatorsShowBeforeZoom()) {
-      for(var guid in window.portals) {
-        this.createResonatorEntities(window.portals[guid]);
-      }
+    if(this.isResonatorsShowBeforeZoom()) return;
+
+    var render = this;
+
+    // loop through level of portals, only redraw if the level is shown on map
+    for(var level in window.portalsLayers) {
+      var portalsLayer = window.portalsLayers[level];
+
+      if(!map.hasLayer(portalsLayer)) continue;
+      portalsLayer.eachLayer(function(portal) {
+        render.createResonatorEntities(portal);
+      });
     }
   }
 }
 
 window.plugin.drawResonators.Render.prototype.toggleSelectedStyle = function(portalGuid) {
-  if (portalGuid in this.resonators) {
-    var render = this;
-    var portalSelected = selectedPortal === portalGuid;
-    var r = this.resonators[portalGuid];
+  if (!(portalGuid in this.resonators)) return;
 
-    r.eachLayer(function(entity) {
-      var style
-      if(entity.type === 'resonator') {
-        style = render.getStyler().getResonatorStyle(r.details, portalSelected);
-      } else {
-        style = render.getStyler().getConnectorStyle(r.details, portalSelected);
-      }
+  var render = this;
+  var portalSelected = selectedPortal === portalGuid;
+  var r = this.resonators[portalGuid];
 
-      entity.setStyle(style);
-    });
-  }
+  r.eachLayer(function(entity) {
+    var style
+    if(entity.type === 'resonator') {
+      style = render.getStyler().getResonatorStyle(r.details, portalSelected);
+    } else {
+      style = render.getStyler().getConnectorStyle(r.details, portalSelected);
+    }
+
+    entity.setStyle(style);
+  });
 }
 
 window.plugin.drawResonators.Render.prototype.addStyler = function(styler) {
@@ -300,7 +306,7 @@ window.plugin.drawResonators.Options.prototype.getOption = function(name) {
 }
 
 window.plugin.drawResonators.Options.prototype.changeOption = function(name, value) {
-  if(!name in this._options) return false;
+  if(!(name in this._options)) return false;
 
   this._options[name] = value;
   this.storeLocal(name, this._options[name]);
@@ -312,10 +318,10 @@ window.plugin.drawResonators.Options.prototype.getStorageKey = function(name) {
 
 window.plugin.drawResonators.Options.prototype.loadLocal = function(key, defaultValue) {
   var objectJSON = localStorage[key];
-  if(!objectJSON) {
-    return defaultValue;
-  } else {
+  if(objectJSON) {
     return JSON.parse(objectJSON);
+  } else {
+    return defaultValue;
   }
 }
 
