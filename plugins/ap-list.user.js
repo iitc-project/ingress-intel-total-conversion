@@ -252,7 +252,7 @@ window.plugin.apList.updateSortedPortals = function() {
   plugin.apList.sortedPortals[plugin.apList.SIDE_FRIENDLY] = new Array();
   plugin.apList.sortedPortals[plugin.apList.SIDE_ENEMY] = new Array();
 
-  // Make a backup of cachedPortals
+  // Make a backup of cachedPortals with shallow copy
   // If cache is not enabled, empty cachedPortals. In following
   // "$.each" loop, the backup portal will copy back into 
   // cachedPortals if it exist in "window.portals"" and didn't change.'
@@ -269,7 +269,7 @@ window.plugin.apList.updateSortedPortals = function() {
     // If portal is changed, update playerApGain with latest
     // information
     if(!cachedPortal || value.timestamp !== cachedPortal.timestamp) {
-      // Copy portal detail to cachedPortal
+      // Shallow copy portal detail to cachedPortal
       cachedPortal = $.extend({}, portal);
       var side = plugin.apList.portalSide(portal);
       var getApGainFunc = plugin.apList.playerApGainFunc[side];
@@ -353,7 +353,7 @@ window.plugin.apList.handleDestroyPortal = function() {
         && newLinkedFields.length === (portal.portalV2.linkedFields || []).length)
       return true;
 
-    // Clone the portal to avoid modifying original data in cachedPortal
+    // Clone the portal with deep copy to avoid modifying original data in cachedPortal
     var newPortal = $.extend(true, {}, portal);
     // Assign new links and fields and calculate new playerApGain
     if(portal.portalV2.linkedEdges) newPortal.portalV2.linkedEdges = newLinkedEdges;
