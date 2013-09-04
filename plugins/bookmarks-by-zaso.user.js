@@ -2,7 +2,7 @@
 // @id             iitc-plugin-bookmarks@ZasoGD
 // @name           IITC plugin: Bookmarks for maps and portals
 // @category       Controls
-// @version        0.2.3.@@DATETIMEVERSION@@
+// @version        0.2.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -841,7 +841,14 @@
       $('#portaldetails').before(window.plugin.bookmarks.htmlBoxTrigger + window.plugin.bookmarks.htmlBkmrksBox);
 
       // Remove the star
+      window.addHook('portalSelected', function(data) {
+        if(data.selectedPortalGuid === null) {
+          $('.bkmrksStar').remove();
+        }
+      });
+
       // in the future i hope in a 'portalClosed' hook
+      /* hook done
       window.unselectOldPortal = function() {
         var oldPortal = portals[selectedPortal];
         if(oldPortal) portalResetColor(oldPortal);
@@ -854,6 +861,7 @@
         clearPortalIndicators();
         $('.bkmrksStar').remove();
       }
+      */
 
     }
     $('#toolbox').append(window.plugin.bookmarks.htmlCallSetBox+window.plugin.bookmarks.htmlCalldrawBox);
