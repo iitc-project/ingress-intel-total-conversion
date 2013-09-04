@@ -120,7 +120,7 @@ window.renderPortalDetails = function(guid) {
 }
 
 // draws link-range and hack-range circles around the portal with the
-// given details. Clear them if parameter 'd' is null
+// given details. Clear them if parameter 'd' is null.
 window.setPortalIndicators = function(d) {
   if(portalRangeIndicator) map.removeLayer(portalRangeIndicator);
   portalRangeIndicator = null;
@@ -156,7 +156,7 @@ window.selectPortal = function(guid) {
   // Restore style of unselected portal
   if(!update && oldPortal) setMarkerStyle(oldPortal,false);
 
-  // Change style of unselected portal
+  // Change style of selected portal
   if(newPortal) {
     setMarkerStyle(newPortal, true);
 
