@@ -5,7 +5,7 @@
 
 
 window.MapDataRequest = function() {
-//  this.cache = new DataCache();
+  this.cache = new DataCache();
   this.render = new Render();
   this.debugTiles = new RenderDebugTiles();
 
@@ -24,10 +24,13 @@ window.MapDataRequest = function() {
   this.MAX_TILE_RETRIES = 1;
 
   // refresh timers
-  this.MOVE_REFRESH = 2.5; //refresh time to use after a move
+  this.DOWNLOAD_DELAY = 2;  //delay after preparing the data download before tile requests are sent
+  this.MOVE_REFRESH = 1; //refresh time to use after a move
   this.STARTUP_REFRESH = 5; //refresh time used on first load of IITC
-  this.IDLE_RESUME_REFRESH = 10; //refresh time used after resuming from idle
-  this.REFRESH = 60;  //minimum refresh time to use when not idle and not moving
+  this.IDLE_RESUME_REFRESH = 5; //refresh time used after resuming from idle
+
+  this.REFRESH_CLOSE = 120;  // refresh time to use for close views z>12 when not idle and not moving
+  this.REFRESH_FAR = 600;  // refresh time for far views z <= 12
   this.FETCH_TO_REFRESH_FACTOR = 2;  //refresh time is based on the time to complete a data fetch, times this value
 
   // ensure we have some initial map status
@@ -39,7 +42,7 @@ window.MapDataRequest.prototype.start = function() {
   var savedContext = this;
 
   // setup idle resume function
-  window.addResumeFunction ( function() { console.log('refresh map idle resume'); savedContext.setStatus('refreshing'); savedContext.refreshOnTimeout(savedContext.IDLE_RESUME_REFRESH); } );
+  window.addResumeFunction ( function() { savedContext.idleResume(); } );
 
   // and map move start/end callbacks
   window.map.on('movestart', this.mapMoveStart, this);
@@ -50,6 +53,7 @@ window.MapDataRequest.prototype.start = function() {
   this.refreshOnTimeout (this.STARTUP_REFRESH);
   this.setStatus ('refreshing');
 
+  this.cache && this.cache.startExpireInterval (15);
 }
 
 
@@ -83,6 +87,16 @@ window.MapDataRequest.prototype.mapMoveEnd = function() {
 
   this.setStatus('refreshing');
   this.refreshOnTimeout(this.MOVE_REFRESH);
+}
+
+window.MapDataRequest.prototype.idleResume = function() {
+  // if we have no timer set, refresh has gone idle and the timer needs restarting
+
+  if (this.timer === undefined) {
+    console.log('refresh map idle resume');
+    this.setStatus('idle restart');
+    this.refreshOnTimeout(this.IDLE_RESUME_REFRESH);
+  }
 }
 
 
@@ -127,9 +141,6 @@ window.MapDataRequest.prototype.refresh = function() {
 
   //time the refresh cycle
   this.refreshStartTime = new Date().getTime();
-
-
-  if (this.cache) this.cache.expire();
 
   this.debugTiles.reset();
 
@@ -220,8 +231,11 @@ window.MapDataRequest.prototype.refresh = function() {
     }
   }
 
+  this.setStatus ('loading');
 
-  this.processRequestQueue(true);
+  // don't start processing the download queue immediately - start it after a short delay
+  var savedContext = this;
+  this.timer = setTimeout ( function() { savedContext.timer = undefined; savedContext.processRequestQueue(true); }, this.DOWNLOAD_DELAY*1000 );
 }
 
 
@@ -253,7 +267,8 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
 
     if (!window.isIdle()) {
       // refresh timer based on time to run this pass, with a minimum of REFRESH seconds
-      var refreshTimer = Math.max(this.REFRESH, duration*this.FETCH_TO_REFRESH_FACTOR);
+      var minRefresh = map.getZoom()>12 ? this.REFRESH_CLOSE : this.REFRESH_FAR;
+      var refreshTimer = Math.max(minRefresh, duration*this.FETCH_TO_REFRESH_FACTOR);
       this.refreshOnTimeout(refreshTimer);
       this.setStatus (this.failedTileCount ? 'errors' : this.staleTileCount ? 'out of date' : 'done', longStatus);
     } else {
