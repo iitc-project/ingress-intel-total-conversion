@@ -15,6 +15,8 @@
 //            required to successfully boot the plugin.
 //
 // Here’s more specific information about each event:
+// portalSelected: called when portal on map is selected/unselected.
+//              Provide guid of selected and unselected portal.
 // mapDataRefreshStart: called when we start refreshing map data
 // mapDataRefreshEnd: called when we complete the map data load
 // portalAdded: called when a portal has been received and is about to
@@ -45,6 +47,7 @@
 
 window._hooks = {}
 window.VALID_HOOKS = [
+  'portalSelected',
   'mapDataRefreshStart', 'mapDataRefreshEnd',
   'portalAdded', 'portalDetailsUpdated',
   'publicChatDataAvailable', 'factionChatDataAvailable',
