@@ -27,9 +27,9 @@ window.plugin.portalHighlighterOutboundLinkCounter.highlight = function(data) {
   var playerFaction = 0;
 
   if (window.PLAYER.team === 'RESISTANCE') {
-    playerFaction = 1;
+    playerFaction = window.TEAM_RES;
   } else {
-    playerFaction = 2;
+    playerFaction = window.TEAM_ENL;
   }
 
   // Only interested in portals of player's faction
