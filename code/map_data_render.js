@@ -83,6 +83,11 @@ window.Render.prototype.processDeletedGameEntityGuids = function(deleted) {
     if ( !(guid in this.deletedGuid) ) {
       this.deletedGuid[guid] = true;  // flag this guid as having being processed
 
+      if (guid == selectedPortal) {
+        // the rare case of the selected portal being deleted. clear the details tab and deselect it
+        renderPortalDetails(null);
+      }
+
       this.deleteEntity(guid);
 
     }
@@ -114,7 +119,7 @@ window.Render.prototype.endRenderPass = function() {
 
   // check to see if there's eny entities we haven't seen. if so, delete them
   for (var guid in window.portals) {
-    if (!(guid in this.seenPortalsGuid)) {
+    if (!(guid in this.seenPortalsGuid) && guid !== selectedPortal) {
       this.deletePortalEntity(guid);
     }
   }
@@ -501,12 +506,13 @@ window.Render.prototype.resetPortalClusters = function() {
       for (var i=0; i<c.length; i++) {
         var guid = c[i];
         var p = window.portals[guid];
-        if (i<this.CLUSTER_PORTAL_LIMIT) {
-          if (!map.hasLayer(p) ) {
+        var layerGroup = portalsLayers[parseInt(p.options.level)];
+        if (i<this.CLUSTER_PORTAL_LIMIT || p.options.guid == selectedPortal) {
+          if (!layerGroup.hasLayer(p)) {
             portalsLayers[parseInt(p.options.level)].addLayer(p);
           }
         } else {
-          if (map.hasLayer(p) ) {
+          if (layerGroup.hasLayer(p)) {
             portalsLayers[parseInt(p.options.level)].removeLayer(p);
           }
         }
@@ -528,7 +534,7 @@ window.Render.prototype.addPortalToMapLayer = function(portal) {
   // now, at this point, we could match the above re-clustr code - sorting, and adding/removing as necessary
   // however, it won't make a lot of visible difference compared to just pushing to the end of the list, then
   // adding to the visible layer if the list is below the limit
-  if (this.portalClusters[cid].length < this.CLUSTER_PORTAL_LIMIT) {
+  if (this.portalClusters[cid].length < this.CLUSTER_PORTAL_LIMIT || portal.options.guid == selectedPortal) {
     portalsLayers[parseInt(portal.options.level)].addLayer(portal);
   }
 }
