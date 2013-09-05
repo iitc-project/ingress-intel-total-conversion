@@ -2,7 +2,7 @@
 // @id             iitc-plugin-draw-resonators@xelio
 // @name           IITC plugin: Draw resonators
 // @category       Layer
-// @version        0.1.1.@@DATETIMEVERSION@@
+// @version        0.2.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -56,10 +56,12 @@ window.plugin.drawResonators.Render = function(options) {
   this.deleteResonatorEntities = this.deleteResonatorEntities.bind(this);
   this.handleResonatorEntitiesBeforeZoom = this.handleResonatorEntitiesBeforeZoom.bind(this);
   this.handleResonatorEntitiesAfterZoom = this.handleResonatorEntitiesAfterZoom.bind(this);
+  this.portalSelectionChange = this.portalSelectionChange.bind(this);
 };
 
 window.plugin.drawResonators.Render.prototype.registerHook = function() {
   window.addHook('portalAdded', this.portalAdded);
+  window.addHook('portalSelected', this.portalSelectionChange);
   window.map.on('zoomstart', this.handleResonatorEntitiesBeforeZoom);
   window.map.on('zoomend', this.handleResonatorEntitiesAfterZoom);
 }
@@ -115,7 +117,7 @@ window.plugin.drawResonators.Render.prototype.createResonatorEntities = function
 window.plugin.drawResonators.Render.prototype.createResoMarker = function(resoData, resoLatLng, portalSelected) {
   var resoProperty = this.getStyler().getResonatorStyle(resoData, portalSelected);
   resoProperty.type = 'resonator';
-  resoProperty.slot = resoData.slot;
+  resoProperty.details = resoData;
   var reso =  L.circleMarker(resoLatLng, resoProperty);
   return reso;
 }
@@ -123,7 +125,7 @@ window.plugin.drawResonators.Render.prototype.createResoMarker = function(resoDa
 window.plugin.drawResonators.Render.prototype.createConnMarker = function(resoData, resoLatLng, portalLatLng, portalSelected) {
   var connProperty = this.getStyler().getConnectorStyle(resoData, portalSelected);
   connProperty.type = 'connector';
-  connProperty.slot = resoData.slot;
+  connProperty.details = resoData;
   var conn = L.polyline([portalLatLng, resoLatLng], connProperty);
   return conn;
 }
@@ -179,6 +181,11 @@ window.plugin.drawResonators.Render.prototype.handleResonatorEntitiesAfterZoom =
   }
 }
 
+window.plugin.drawResonators.Render.prototype.portalSelectionChange = function(data) {
+  this.toggleSelectedStyle(data.selectedPortalGuid);
+  this.toggleSelectedStyle(data.unselectedPortalGuid);
+}
+
 window.plugin.drawResonators.Render.prototype.toggleSelectedStyle = function(portalGuid) {
   if (!(portalGuid in this.resonators)) return;
 
@@ -187,11 +194,11 @@ window.plugin.drawResonators.Render.prototype.toggleSelectedStyle = function(por
   var r = this.resonators[portalGuid];
 
   r.eachLayer(function(entity) {
-    var style
-    if(entity.type === 'resonator') {
-      style = render.getStyler().getResonatorStyle(r.details, portalSelected);
+    var style;
+    if(entity.options.type === 'resonator') {
+      style = render.getStyler().getResonatorStyle(entity.options.details, portalSelected);
     } else {
-      style = render.getStyler().getConnectorStyle(r.details, portalSelected);
+      style = render.getStyler().getConnectorStyle(entity.options.details, portalSelected);
     }
 
     entity.setStyle(style);
@@ -238,7 +245,7 @@ window.plugin.drawResonators.Styler = function(options) {
 
 window.plugin.drawResonators.Styler.prototype.DEFAULT_OPTIONS_RESONATOR_SELECTED = {
   color: '#fff',
-  weight: 2,
+  weight: 1.1,
   radius: 4,
   opacity: 1,
   clickable: false};
@@ -348,10 +355,6 @@ var setup =  function() {
   window.plugin.drawResonators.render = new window.plugin.drawResonators.Render(renderOptions);
   window.plugin.drawResonators.render.registerHook();
   window.addLayerGroup('Resonators', window.plugin.drawResonators.render.resonatorLayerGroup, true);
-
-  // TODO: add runHooks('portalSelected', {oldSelectedPortalGuid, newSelectedPortalGuid});
-  //       to window.selectPortal, call render.toggleSelectedStyle to change style of selected and unselected 
-  //       resonators.
 
   // TODO: add options dialog to change options
 }
