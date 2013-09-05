@@ -68,7 +68,7 @@
 
   window.plugin.bookmarks.enableSync = false;
 
-  window.plugin.bookmarks.isSmart = window.isSmartphone();
+  window.plugin.bookmarks.isSmart = undefined;
   window.plugin.bookmarks.isAndroid = function() { if(typeof android !== 'undefined' && android) { return true; } return false; }
 
 /*********************************************************************************************************************/
@@ -817,6 +817,9 @@
 /***************************************************************************************************************************************************************/
 
   var setup = function() {
+
+    window.plugin.bookmarks.isSmart = window.isSmartphone();
+
     // Fired when a bookmarks/folder is removed, added or sorted, also when a folder is opened/closed.
     if($.inArray('pluginBkmrksEdit', window.VALID_HOOKS) < 0) { window.VALID_HOOKS.push('pluginBkmrksEdit'); }
     // Fired when the "Bookmarks Options" panell is opened (you can add new options);
