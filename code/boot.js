@@ -181,8 +181,16 @@ window.setupMap = function() {
   map.attributionControl.setPrefix('');
   // listen for changes and store them in cookies
   map.on('moveend', window.storeMapPosition);
-  map.on('zoomend', window.storeMapPosition);
 
+  map.on('moveend', function(e) {
+    // two limits on map position
+    // we wrap longitude (the L.LatLng 'wrap' method) - so we don't find outselves looking beyond +-180 degrees
+    // then latitude is clamped with the clampLatLng function (to the 85 deg north/south limits)
+    var newPos = clampLatLng(map.getCenter().wrap());
+    if (!map.getCenter().equals(newPos)) {
+      map.panTo(newPos,{animate:false})
+    }
+  });
 
   // map update status handling & update map hooks
   // ensures order of calls
