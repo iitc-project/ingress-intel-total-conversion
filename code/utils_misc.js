@@ -520,10 +520,11 @@ window.addLayerGroup = function(name, layerGroup, defaultDisplay) {
 }
 
 window.clampLat = function(lat) {
-  if (lat > 90.0)
-    lat = 90.0;
-  else if (lat < -90.0)
-    lat = -90.0;
+  // the map projection used does not handle above approx +- 85 degrees north/south of the equator
+  if (lat > 85.051128)
+    lat = 85.051128;
+  else if (lat < -85.051128)
+    lat = -85.051128;
   return lat;
 }
 
