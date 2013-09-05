@@ -24,10 +24,14 @@ window.MapDataRequest = function() {
   this.MAX_TILE_RETRIES = 1;
 
   // refresh timers
-  this.DOWNLOAD_DELAY = 2;  //delay after preparing the data download before tile requests are sent
-  this.MOVE_REFRESH = 1; //refresh time to use after a move
+  this.MOVE_REFRESH = 0.5; //refresh time to use after a move
   this.STARTUP_REFRESH = 5; //refresh time used on first load of IITC
   this.IDLE_RESUME_REFRESH = 5; //refresh time used after resuming from idle
+
+  // after one of the above, there's an additional delay between preparing the refresh (clearing out of bounds,
+  // processing cache, etc) and actually sending the first network requests
+  this.DOWNLOAD_DELAY = 3;  //delay after preparing the data download before tile requests are sent
+
 
   this.REFRESH_CLOSE = 120;  // refresh time to use for close views z>12 when not idle and not moving
   this.REFRESH_FAR = 600;  // refresh time for far views z <= 12
@@ -103,7 +107,7 @@ window.MapDataRequest.prototype.idleResume = function() {
 window.MapDataRequest.prototype.clearTimeout = function() {
 
   if (this.timer) {
-    console.log("cancelling existing map refresh timer");
+    console.log('cancelling existing map refresh timer');
     clearTimeout(this.timer);
     this.timer = undefined;
   }
@@ -112,7 +116,7 @@ window.MapDataRequest.prototype.clearTimeout = function() {
 window.MapDataRequest.prototype.refreshOnTimeout = function(seconds) {
   this.clearTimeout();
 
-  console.log("starting map refresh in "+seconds+" seconds");
+  console.log('starting map refresh in '+seconds+' seconds');
 
   // 'this' won't be right inside the callback, so save it
   var savedContext = this;
@@ -138,6 +142,13 @@ window.MapDataRequest.prototype.getStatus = function() {
 
 
 window.MapDataRequest.prototype.refresh = function() {
+
+  // if we're idle, don't refresh
+  if (window.isIdle()) {
+    console.log('suspending map refresh - is idle');
+    this.setStatus ('idle');
+    return;
+  }
 
   //time the refresh cycle
   this.refreshStartTime = new Date().getTime();
@@ -233,6 +244,8 @@ window.MapDataRequest.prototype.refresh = function() {
 
   this.setStatus ('loading');
 
+  console.log ('done request preperation (cleared out-of-bounds and invalid for zoom, and rendered cached data)');
+
   // don't start processing the download queue immediately - start it after a short delay
   var savedContext = this;
   this.timer = setTimeout ( function() { savedContext.timer = undefined; savedContext.processRequestQueue(true); }, this.DOWNLOAD_DELAY*1000 );
@@ -255,7 +268,7 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
     var endTime = new Date().getTime();
     var duration = (endTime - this.refreshStartTime)/1000;
 
-    console.log("finished requesting data! (took "+duration+" seconds to complete)");
+    console.log('finished requesting data! (took '+duration+' seconds to complete)');
 
     window.runHooks ('mapDataRefreshEnd', {});
 
@@ -265,16 +278,11 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
                  (this.failedTileCount ? this.failedTileCount + ' failed, ' : '') +
                  'in ' + duration + ' seconds';
 
-    if (!window.isIdle()) {
-      // refresh timer based on time to run this pass, with a minimum of REFRESH seconds
-      var minRefresh = map.getZoom()>12 ? this.REFRESH_CLOSE : this.REFRESH_FAR;
-      var refreshTimer = Math.max(minRefresh, duration*this.FETCH_TO_REFRESH_FACTOR);
-      this.refreshOnTimeout(refreshTimer);
-      this.setStatus (this.failedTileCount ? 'errors' : this.staleTileCount ? 'out of date' : 'done', longStatus);
-    } else {
-      console.log("suspending map refresh - is idle");
-      this.setStatus (this.failedTileCount ? 'errors' : this.staleTileCount ? 'out of date' : 'idle', longStatus);
-    }
+    // refresh timer based on time to run this pass, with a minimum of REFRESH seconds
+    var minRefresh = map.getZoom()>12 ? this.REFRESH_CLOSE : this.REFRESH_FAR;
+    var refreshTimer = Math.max(minRefresh, duration*this.FETCH_TO_REFRESH_FACTOR);
+    this.refreshOnTimeout(refreshTimer);
+    this.setStatus (this.failedTileCount ? 'errors' : this.staleTileCount ? 'out of date' : 'done', longStatus);
     return;
   }
 
@@ -286,7 +294,7 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
     }
   }
 
-  console.log("- request state: "+Object.keys(this.requestedTiles).length+" tiles in "+this.activeRequestCount+" active requests, "+pendingTiles.length+" tiles queued");
+//  console.log('- request state: '+Object.keys(this.requestedTiles).length+' tiles in '+this.activeRequestCount+' active requests, '+pendingTiles.length+' tiles queued');
 
 
   var requestBuckets = this.MAX_REQUESTS - this.activeRequestCount;
@@ -303,7 +311,7 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
       }
 
       if (tiles.length > 0) {
-        console.log("-- new request: "+tiles.length+" tiles");
+//        console.log('-- new request: '+tiles.length+' tiles');
         this.sendTileRequest(tiles);
       }
     }
@@ -385,7 +393,7 @@ window.MapDataRequest.prototype.requeueTile = function(id, error) {
       delete this.tileBounds[id];
 
     } else {
-      // if false, was a 'timeout', so unlimited retries (as the stock site does)
+      // if false, was a 'timeout' or we're retrying, so unlimited retries (as the stock site does)
       this.debugTiles.setState (id, 'retrying');
 
       // FIXME? it's nice to move retried tiles to the end of the request queue. however, we don't actually have a
