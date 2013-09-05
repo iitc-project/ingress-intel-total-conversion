@@ -60,9 +60,13 @@ window.runHooks = function(event, data) {
   if(!_hooks[event]) return true;
   var interupted = false;
   $.each(_hooks[event], function(ind, callback) {
-    if (callback(data) === false) {
-      interupted = true;
-      return false;  //break from $.each
+    try {
+      if (callback(data) === false) {
+        interupted = true;
+        return false;  //break from $.each
+      }
+    } catch(err) {
+      console.error('error running hook '+event+', error: '+err);
     }
   });
   return !interupted;
