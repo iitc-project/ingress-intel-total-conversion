@@ -303,6 +303,14 @@ window.plugin.drawResonators.Styler.prototype.defaultConnectorStyle = function(r
 
 window.plugin.drawResonators.Options = function() {
   this._options = {};
+  this._callbacks = {};
+}
+
+window.plugin.drawResonators.Options.prototype.addCallback = function(name, callback) {
+  if (!this._callbacks[name]) {
+    this._callbacks[name] = [];
+  }
+  this._callbacks[name].push(callback);
 }
 
 window.plugin.drawResonators.Options.prototype.newOption = function(name, defaultValue) {
@@ -315,9 +323,16 @@ window.plugin.drawResonators.Options.prototype.getOption = function(name) {
 
 window.plugin.drawResonators.Options.prototype.changeOption = function(name, value) {
   if(!(name in this._options)) return false;
+  if(value === this._options[name]) return false;
 
   this._options[name] = value;
   this.storeLocal(name, this._options[name]);
+
+  if (!this._callbacks[name]) {
+    for(var i in this._callbacks[name]) {
+      this._callbacks[name][i](value);
+    }
+  }
 }
 
 window.plugin.drawResonators.Options.prototype.getStorageKey = function(name) {
