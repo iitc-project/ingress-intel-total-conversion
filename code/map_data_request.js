@@ -20,8 +20,11 @@ window.MapDataRequest = function() {
   // (the stock site seems to have no limit - i've seen ~100 for L3+ portals and a maximised browser window)
   this.MAX_TILES_PER_REQUEST = 32;
 
+  // try to maintain at least this may tiles in each request, by reducing the number of requests as needed
+  this.MIN_TILES_PER_REQUEST = 4;
+
   // number of times to retty a tile after a 'bad' error (i.e. not a timeout)
-  this.MAX_TILE_RETRIES = 1;
+  this.MAX_TILE_RETRIES = 3;
 
   // refresh timers
   this.MOVE_REFRESH = 0.5; //refresh time to use after a move
@@ -32,6 +35,16 @@ window.MapDataRequest = function() {
   // processing cache, etc) and actually sending the first network requests
   this.DOWNLOAD_DELAY = 3;  //delay after preparing the data download before tile requests are sent
 
+  // a short delay between one request finishing and the queue being run for the next request
+  this.RUN_QUEUE_DELAY = 0.5;
+
+  // delay before re-queueing tiles
+  this.TILE_TIMEOUT_REQUEUE_DELAY = 0.5;  // short delay before retrying a 'error==TIMEOUT' tile - as this is very common
+  this.BAD_REQUEST_REQUEUE_DELAY = 4; // longer delay before retrying a completely failed request - as in this case the servers are struggling
+
+  // additionally, a delay before processing the queue after requeueing tiles
+  // (this way, if multiple requeue delays finish within a short time of each other, they're all processed in one queue run)
+  this.RERUN_QUEUE_DELAY = 2;
 
   this.REFRESH_CLOSE = 120;  // refresh time to use for close views z>12 when not idle and not moving
   this.REFRESH_FAR = 600;  // refresh time for far views z <= 12
@@ -123,11 +136,6 @@ window.MapDataRequest.prototype.refreshOnTimeout = function(seconds) {
   this.timer = setTimeout ( function() { savedContext.timer = undefined; savedContext.refresh(); }, seconds*1000);
   this.timerExpectedTimeoutTime = new Date().getTime() + seconds*1000;
 }
-
-
-//window.MapDataRequest.prototype.clearQueue = function() {
-//  this.tileBounds = {};
-//}
 
 
 window.MapDataRequest.prototype.setStatus = function(short,long,progress) {
@@ -247,21 +255,22 @@ window.MapDataRequest.prototype.refresh = function() {
   console.log ('done request preperation (cleared out-of-bounds and invalid for zoom, and rendered cached data)');
 
   // don't start processing the download queue immediately - start it after a short delay
-  var savedContext = this;
-  this.timer = setTimeout ( function() { savedContext.timer = undefined; savedContext.processRequestQueue(true); }, this.DOWNLOAD_DELAY*1000 );
+  this.delayProcessRequestQueue (this.DOWNLOAD_DELAY,true);
 }
 
 
+window.MapDataRequest.prototype.delayProcessRequestQueue = function(seconds,isFirst) {
+  if (this.timer === undefined) {
+    var savedContext = this;
+    this.timer = setTimeout ( function() { savedContext.timer = undefined; savedContext.processRequestQueue(isFirst); }, seconds*1000 );
+  }
+}
 
 
 window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
 
   // if nothing left in the queue, end the render. otherwise, send network requests
   if (Object.keys(this.tileBounds).length == 0) {
-
-//    // if map is being dragged, just return without any end of map processing
-//    if (this.moving)
-//      return;
 
     this.render.endRenderPass();
 
@@ -286,6 +295,7 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
     return;
   }
 
+
   // create a list of tiles that aren't requested over the network
   var pendingTiles = [];
   for (var id in this.tileBounds) {
@@ -299,6 +309,11 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
 
   var requestBuckets = this.MAX_REQUESTS - this.activeRequestCount;
   if (pendingTiles.length > 0 && requestBuckets > 0) {
+
+    // the stock site calculates bucket grouping with the simplistic <8 tiles: 1 bucket, otherwise 4 buckets
+    var maxBuckets = Math.ceil(pendingTiles.length/this.MIN_TILES_PER_REQUEST);
+
+    requestBuckets = Math.min (maxBuckets, requestBuckets);
 
     var lastTileIndex = Math.min(requestBuckets*this.MAX_TILES_PER_REQUEST, pendingTiles.length);
 
@@ -413,19 +428,19 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
 
   this.activeRequestCount -= 1;
 
-  for (var i in tiles) {
-    var id = tiles[i];
-    delete this.requestedTiles[id];
-  }
-
+  var successTiles = [];
+  var errorTiles = [];
+  var timeoutTiles = [];
 
   if (!success || !data || !data.result) {
     console.warn("Request.handleResponse: request failed - requeing...");
 
     //request failed - requeue all the tiles(?)
+
     for (var i in tiles) {
       var id = tiles[i];
-      this.requeueTile(id, true);
+      errorTiles.push(id);
+      this.debugTiles.setState (id, 'request-fail');
     }
 
     window.runHooks('requestFinished', {success: false});
@@ -444,13 +459,16 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
 
         if (val.error == "TIMEOUT") {
           // TIMEOUT errors for individual tiles are 'expected'(!) - and result in a silent unlimited retries
-          this.requeueTile(id, false);
+          timeoutTiles.push (id);
+          this.debugTiles.setState (id, 'tile-timeout');
         } else {
           console.warn('map data tile '+id+' failed: error=='+val.error);
-          this.requeueTile(id, true);
+          errorTiles.push (id);
+          this.debugTiles.setState (id, 'tile-fail');
         }
       } else {
         // no error for this data tile - process it
+        successTiles.push (id);
 
         // store the result in the cache
         this.cache && this.cache.store (id, val);
@@ -473,5 +491,41 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
     window.runHooks('requestFinished', {success: true});
   }
 
-  this.processRequestQueue();
+
+  console.log ('getThinnedEntities status: '+tiles.length+' tiles: '+successTiles.length+' successful, '+timeoutTiles.length+' timed out, '+errorTiles.length+' failed');
+
+
+  //setTimeout has no way of passing the 'context' (aka 'this') to it's function
+  var savedContext = this;
+
+  if (timeoutTiles.length > 0) {
+    setTimeout (function() {
+      for (var i in timeoutTiles) {
+        var id = timeoutTiles[i];
+        delete savedContext.requestedTiles[id];
+        savedContext.requeueTile(id, false);
+      }
+      savedContext.delayProcessRequestQueue(this.RERUN_QUEUE_DELAY);
+    }, this.TILE_TIMEOUT_REQUEUE_DELAY*1000);
+  }
+
+  if (errorTiles.length > 0) {
+    setTimeout (function() {
+      for (var i in errorTiles) {
+        var id = errorTiles[i];
+        delete savedContext.requestedTiles[id];
+        savedContext.requeueTile(id, true);
+      }
+      savedContext.delayProcessRequestQueue(this.RERUN_QUEUE_DELAY);
+    }, this.BAD_REQUEST_REQUEUE_DELAY*1000);
+  }
+
+
+  for (var i in successTiles) {
+    var id = successTiles[i];
+    delete this.requestedTiles[id];
+  }
+
+  //.. should this also be delayed a small amount?
+  this.delayProcessRequestQueue(this.RUN_QUEUE_DELAY);
 }
