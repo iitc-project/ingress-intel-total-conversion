@@ -2,7 +2,7 @@
 // @id             iitc-plugin-draw-resonators@xelio
 // @name           IITC plugin: Draw resonators
 // @category       Layer
-// @version        0.2.0.@@DATETIMEVERSION@@
+// @version        0.2.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -56,6 +56,7 @@ window.plugin.drawResonators.Render = function(options) {
   this.deleteResonatorEntities = this.deleteResonatorEntities.bind(this);
   this.handleResonatorEntitiesBeforeZoom = this.handleResonatorEntitiesBeforeZoom.bind(this);
   this.handleResonatorEntitiesAfterZoom = this.handleResonatorEntitiesAfterZoom.bind(this);
+  this.handleEnableZoomLevelChange = this.handleEnableZoomLevelChange.bind(this);
   this.portalSelectionChange = this.portalSelectionChange.bind(this);
 };
 
@@ -161,24 +162,46 @@ window.plugin.drawResonators.Render.prototype.handleResonatorEntitiesBeforeZoom 
 
 window.plugin.drawResonators.Render.prototype.handleResonatorEntitiesAfterZoom = function() {
   if(!this.isResonatorsShow()) {
-    this.resonatorLayerGroup.clearLayers();
-    this.resonators = {};
-  } else {
-    // Redraw all resonators if they were deleted
-    if(this.isResonatorsShowBeforeZoom()) return;
+    this.clearAllResonators();
+    return;
+  }
 
-    var render = this;
+  // Draw all resonators if they were not drawn
+  if(!this.isResonatorsShowBeforeZoom()) {
+    this.drawAllResonators();
+  }
+}
 
-    // loop through level of portals, only draw if the portal is shown on map
-    for (var guid in window.portals) {
-      var portal = window.portals[guid];
-      // FIXME: need to find a proper way to check if a portal is added to the map without depending on leaflet internals
-      // (and without depending on portalsLayers either - that's IITC internal)
-      if (portal._map) {
-        render.createResonatorEntities(portal);
-      }
+window.plugin.drawResonators.Render.prototype.handleEnableZoomLevelChange = function(zoomLevel) {
+  this.enableZoomLevel = zoomLevel;
+
+  if(!this.isResonatorsShow()) {
+    this.clearAllResonators();
+    return;
+  }
+
+  // Draw all resonators if they were not drawn
+  if(!Object.keys(this.resonators).length > 0) {
+    this.drawAllResonators();
+  }
+}
+
+window.plugin.drawResonators.Render.prototype.clearAllResonators = function() {
+  this.resonatorLayerGroup.clearLayers();
+  this.resonators = {};
+}
+
+window.plugin.drawResonators.Render.prototype.drawAllResonators = function() {
+  var render = this;
+
+  // loop through level of portals, only draw if the portal is shown on map
+  for (var guid in window.portals) {
+    var portal = window.portals[guid];
+    // FIXME: need to find a proper way to check if a portal is added to the map without depending on leaflet internals
+    // (and without depending on portalsLayers either - that's IITC internal)
+    if (portal._map) {
+      render.createResonatorEntities(portal);
     }
-
   }
 }
 
@@ -299,8 +322,6 @@ window.plugin.drawResonators.Styler.prototype.defaultConnectorStyle = function(r
 
 //////// Options for storing and loading options ////////
 
-// TODO: add callback to notify option changes
-
 window.plugin.drawResonators.Options = function() {
   this._options = {};
   this._callbacks = {};
@@ -328,7 +349,7 @@ window.plugin.drawResonators.Options.prototype.changeOption = function(name, val
   this._options[name] = value;
   this.storeLocal(name, this._options[name]);
 
-  if (!this._callbacks[name]) {
+  if (this._callbacks[name] !== null) {
     for(var i in this._callbacks[name]) {
       this._callbacks[name][i](value);
     }
@@ -371,6 +392,8 @@ var setup =  function() {
   window.plugin.drawResonators.render = new window.plugin.drawResonators.Render(renderOptions);
   window.plugin.drawResonators.render.registerHook();
   window.addLayerGroup('Resonators', window.plugin.drawResonators.render.resonatorLayerGroup, true);
+
+  window.plugin.drawResonators.options.addCallback('enableZoomLevel', window.plugin.drawResonators.render.handleEnableZoomLevelChange);
 
   // TODO: add options dialog to change options
 }
