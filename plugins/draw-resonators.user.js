@@ -169,15 +169,16 @@ window.plugin.drawResonators.Render.prototype.handleResonatorEntitiesAfterZoom =
 
     var render = this;
 
-    // loop through level of portals, only redraw if the level is shown on map
-    for(var level in window.portalsLayers) {
-      var portalsLayer = window.portalsLayers[level];
-
-      if(!map.hasLayer(portalsLayer)) continue;
-      portalsLayer.eachLayer(function(portal) {
+    // loop through level of portals, only draw if the portal is shown on map
+    for (var guid in window.portals) {
+      var portal = window.portals[guid];
+      // FIXME: need to find a proper way to check if a portal is added to the map without depending on leaflet internals
+      // (and without depending on portalsLayers either - that's IITC internal)
+      if (portal._map) {
         render.createResonatorEntities(portal);
-      });
+      }
     }
+
   }
 }
 
