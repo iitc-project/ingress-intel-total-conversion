@@ -4,12 +4,10 @@
 
 
 window.Render = function() {
-  // below this many portals displayed, we reorder the SVG at the end of the render pass to put portals above fields/links
-  this.LOW_PORTAL_COUNT = 350;
 
   // when there are lots of portals close together, we only add some of them to the map
   // the idea is to keep the impression of the dense set of portals, without rendering them all
-  this.CLUSTER_SIZE = 8;  // the map is divited into squares of this size in pixels for clustering purposes
+  this.CLUSTER_SIZE = L.Browser.mobile ? 16 : 8;  // the map is divited into squares of this size in pixels for clustering purposes. mobile uses larger markers, so therefore larger clustering areas
   this.CLUSTER_PORTAL_LIMIT = 4; // no more than this many portals are drawn in each cluster square
 
 
@@ -134,23 +132,22 @@ window.Render.prototype.endRenderPass = function() {
     }
   }
 
-  // reorder portals to be after links/fields, but only if the number is low
-  if (Object.keys(window.portals).length <= this.LOW_PORTAL_COUNT) {
-    for (var i in window.portalsLayers) {
-      var layer = window.portalsLayers[i];
-      if (window.map.hasLayer(layer)) {
-        layer.eachLayer (function(p) {
-          p.bringToFront();
-        });
-      }
-    }
-
-  }
+  // reorder portals to be after links/fields
+  this.bringPortalsToFront();
 
   this.isRendering = false;
-
 }
 
+window.Render.prototype.bringPortalsToFront = function() {
+  for (var i in portalsLayers) {
+    var layer = portalsLayers[i];
+    if (window.map.hasLayer(layer)) {
+      layer.eachLayer (function(p) {
+        p.bringToFront();
+      });
+    }
+  }
+}
 
 
 window.Render.prototype.deleteEntity = function(guid) {

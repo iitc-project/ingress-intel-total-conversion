@@ -212,9 +212,7 @@ window.selectedPortal = null;
 window.portalRangeIndicator = null;
 window.portalAccessIndicator = null;
 window.mapRunsUserAction = false;
-window.portalsLayers = undefined;
-window.linksLayer = undefined;
-window.fieldsLayer = undefined;
+var portalsLayers, linksLayer, fieldsLayer;
 
 // contain references to all entities loaded from the server. If render limits are hit,
 // not all may be added to the leaflet layers
