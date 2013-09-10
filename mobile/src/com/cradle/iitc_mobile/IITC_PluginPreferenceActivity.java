@@ -20,8 +20,8 @@ import java.util.TreeMap;
 public class IITC_PluginPreferenceActivity extends PreferenceActivity {
 
     private List<Header> mHeaders;
-    private TreeMap<String, ArrayList<IITC_PluginPreference>> mPlugins =
-            new TreeMap<String, ArrayList<IITC_PluginPreference>>();
+    // we use a tree map to have a map with alphabetical order
+    private static TreeMap<String, ArrayList<IITC_PluginPreference>> sPlugins = null;
 
     @Override
     public void onBuildHeaders(List<Header> target) {
@@ -29,7 +29,14 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         bar.setTitle("IITC Plugins");
         bar.setDisplayHomeAsUpEnabled(true);
         mHeaders = target;
-        setUpPluginPreferenceScreen();
+        // since the plugins container is static,
+        // it is enough to parse the plugin only on first start.
+        if (sPlugins == null) {
+            Log.d("iitcm", "opened plugin prefs the first time since app start -> parse plugins");
+            sPlugins = new TreeMap<String, ArrayList<IITC_PluginPreference>>();
+            setUpPluginPreferenceScreen();
+        }
+        addHeaders();
     }
 
     @Override
@@ -42,6 +49,11 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    // called by Plugins Fragment
+    public static ArrayList<IITC_PluginPreference> getPluginPreference(String key) {
+        return sPlugins.get(key);
     }
 
     void setUpPluginPreferenceScreen() {
@@ -95,9 +107,6 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
                 addPluginPreference(src, file.toString(), true);
             }
         }
-
-        // now finally add the headers
-        addHeaders();
     }
 
     void addPluginPreference(String src, String plugin_key,
@@ -131,9 +140,11 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         // add [User] tag to additional plugins
         if (additional)
             plugin_cat = "[User] " + plugin_cat;
-        // now we have all stuff together and can build the pref screen
-        if (mPlugins.containsKey(plugin_cat) == false) {
-            mPlugins.put(plugin_cat, new ArrayList<IITC_PluginPreference>());
+
+        // now we have all stuff together and can build the preference
+        // first check if we need a new category
+        if (sPlugins.containsKey(plugin_cat) == false) {
+            sPlugins.put(plugin_cat, new ArrayList<IITC_PluginPreference>());
             Log.d("iitcm", "create " + plugin_cat + " and add " + plugin_name);
         }
 
@@ -144,24 +155,17 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         plugin_pref.setSummary(plugin_desc);
         plugin_pref.setDefaultValue(false);
         plugin_pref.setPersistent(true);
-        ArrayList<IITC_PluginPreference> list = mPlugins.get(plugin_cat);
+        ArrayList<IITC_PluginPreference> list = sPlugins.get(plugin_cat);
         list.add(plugin_pref);
     }
 
     void addHeaders() {
-        for (Map.Entry<String, ArrayList<IITC_PluginPreference>> entry : mPlugins.entrySet()) {
+        // every fragment handles 1 plugin category
+        // push the category to the fragment and add the header to the list
+        for (Map.Entry<String, ArrayList<IITC_PluginPreference>> entry : sPlugins.entrySet()) {
             Bundle bundle = new Bundle();
             String plugin_cat = entry.getKey();
-            bundle.putString("title", plugin_cat);
-            ArrayList<String> pluginIds = new ArrayList<String>();
-            for (IITC_PluginPreference pref : entry.getValue()) {
-                pluginIds.add(pref.getKey());
-                ArrayList<String> plugin_vals = new ArrayList<String>();
-                plugin_vals.add(pref.getTitle().toString());
-                plugin_vals.add(pref.getSummary().toString());
-                bundle.putStringArrayList(pref.getKey(), plugin_vals);
-            }
-            bundle.putStringArrayList("ids", pluginIds);
+            bundle.putString("category", plugin_cat);
             Header newHeader = new Header();
             newHeader.title = plugin_cat;
             newHeader.fragmentArguments = bundle;
