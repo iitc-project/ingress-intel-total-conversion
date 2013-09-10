@@ -295,12 +295,6 @@ window.setupPlayerStat = function() {
     + '</div>'
     + '</h2>'
   );
-
-  $('#name').mouseenter(function() {
-    $('#signout').show();
-  }).mouseleave(function() {
-    $('#signout').hide();
-  });
 }
 
 window.setupSidebarToggle = function() {

@@ -399,7 +399,7 @@ h2 #stats {
   overflow: hidden;
 }
 
-h2 #signout {
+#signout {
   font-size: 12px;
   font-weight: normal;
   line-height: 29px;
@@ -409,6 +409,9 @@ h2 #signout {
   right: 0;
   background-color: rgba(8, 48, 78, 0.5);
   display: none; /* starts hidden */
+}
+#name:hover #signout {
+  display: block;
 }
 
 h2 sup, h2 sub {
