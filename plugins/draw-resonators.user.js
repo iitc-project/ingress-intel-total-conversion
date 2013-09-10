@@ -58,6 +58,8 @@ window.plugin.drawResonators.Render = function(options) {
   this.handleResonatorEntitiesAfterZoom = this.handleResonatorEntitiesAfterZoom.bind(this);
   this.handleEnableZoomLevelChange = this.handleEnableZoomLevelChange.bind(this);
   this.portalSelectionChange = this.portalSelectionChange.bind(this);
+  this.changeStyler = this.changeStyler.bind(this);
+  this.getStylersList = this.getStylersList.bind(this);
 };
 
 window.plugin.drawResonators.Render.prototype.registerHook = function() {
@@ -238,7 +240,7 @@ window.plugin.drawResonators.Render.prototype.getStylersList = function() {
 }
 
 window.plugin.drawResonators.Render.prototype.getStyler = function() {
-  var stylerName = this.useStyler in this.stylers ? this.useStyler : 'default';
+  var stylerName = this.useStyler in this.stylers ? this.useStyler : 'Default';
   return this.stylers[stylerName];
 }
 
@@ -271,7 +273,7 @@ window.plugin.drawResonators.Render.prototype.isResonatorsShowBeforeZoom = funct
 
 window.plugin.drawResonators.Styler = function(options) {
   options = options || {};
-  this.name = options['name'] || 'default';
+  this.name = options['name'] || 'Default';
   this.otherOptions = options['otherOptions'];
   this.getResonatorStyle = options['resonatorStyleFunc'] || this.defaultResonatorStyle;
   this.getConnectorStyle = options['connectorStyleFunc'] || this.defaultConnectorStyle;
@@ -401,8 +403,8 @@ window.plugin.drawResonators.Dialog.prototype.addLink = function() {
   $('#toolbox').append('<a id="draw-reso-show-dialog" onclick="window.plugin.drawResonators.dialog.show();">Resonators</a> ');
 }
 
-window.plugin.drawResonators.Dialog.prototype.addEntry = function(dialogEntry) {
-  this._dialogEntries[dialogEntry.name] = dialogEntry;
+window.plugin.drawResonators.Dialog.prototype.addEntry = function(name, dialogEntry) {
+  this._dialogEntries[name] = dialogEntry;
 }
 
 
@@ -422,7 +424,9 @@ window.plugin.drawResonators.Dialog.prototype.show = function() {
 window.plugin.drawResonators.Dialog.prototype.getDialogHTML = function() {
   var html = '<div id="draw-reso-dialog">'
   for(var name in this._dialogEntries) {
-    html += this._dialogEntries[name].getHTML();
+    html += '<div>'
+          + this._dialogEntries[name].getHTML()
+          + '</div>';
   }
   html += '</div>';
   return html;
@@ -451,12 +455,13 @@ window.plugin.drawResonators.ListDialogEntry.prototype.getHTML = function() {
            + '</label>'
            + '<select id="' + this.getSelectId() + '">';
 
+  var noLabel = valuesList instanceof Array;
   for(var label in valuesList) {
     var selected = valuesList[label] === curValue;
     html += '<option value="' + valuesList[label] + '" '
           + (selected ? 'selected="selected"' : '')
           +'>'
-          + label
+          + (noLabel ? valuesList[label] : label)
           + '</option>';
   }
 
@@ -522,7 +527,7 @@ var setup =  function() {
   // Initialize options
   thisPlugin.options = new thisPlugin.Options();
   thisPlugin.options.newOption('enableZoomLevel', 17);
-  thisPlugin.options.newOption('useStyler', 'default');
+  thisPlugin.options.newOption('useStyler', 'Default');
 
   // Initialize render
   var renderOptions = {
@@ -533,7 +538,9 @@ var setup =  function() {
   thisPlugin.render.registerHook();
   window.addLayerGroup('Resonators', thisPlugin.render.resonatorLayerGroup, true);
 
+  // callback run at option change
   thisPlugin.options.addCallback('enableZoomLevel', thisPlugin.render.handleEnableZoomLevelChange);
+  thisPlugin.options.addCallback('useStyler', thisPlugin.render.changeStyler);
 
   // Initialize styler
   thisPlugin.setupStyler();
@@ -545,11 +552,21 @@ var setup =  function() {
     name: 'enable-zoom-level',
     label: 'Enable zoom level',
     valueFunc: function() {return thisPlugin.options.getOption('enableZoomLevel')},
-    valuesList: {'15':15, '16':16, '17':17, '18':18, '19':19, '20':20, 'none':99},
+    valuesList: {'15':15, '16':16, '17':17, '18':18, '19':19, '20':20, 'None':99},
     onChangeCallback: function(event) {thisPlugin.options.changeOption('enableZoomLevel', parseInt(event.target.value));}
   };
   var enableZoomLevelDialogEntry = new thisPlugin.ListDialogEntry(enableZoomLevelDialogEntryOptions);
-  thisPlugin.dialog.addEntry(enableZoomLevelDialogEntry);
+  thisPlugin.dialog.addEntry('enable-zoom-level', enableZoomLevelDialogEntry);
+
+  var stylerDialogEntryOptions = {
+    name: 'use-styler',
+    label: 'Styler',
+    valueFunc: function() {return thisPlugin.options.getOption('useStyler')},
+    valuesListFunc: thisPlugin.render.getStylersList,
+    onChangeCallback: function(event) {thisPlugin.options.changeOption('useStyler', event.target.value);}
+  };
+  var stylerDialogEntry = new thisPlugin.ListDialogEntry(stylerDialogEntryOptions);
+  thisPlugin.dialog.addEntry('use-styler', stylerDialogEntry);
 
   thisPlugin.dialog.addLink();
 
