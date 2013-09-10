@@ -2,7 +2,7 @@
 // @id             iitc-plugin-draw-resonators@xelio
 // @name           IITC plugin: Draw resonators
 // @category       Layer
-// @version        0.2.1.@@DATETIMEVERSION@@
+// @version        0.3.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -242,8 +242,17 @@ window.plugin.drawResonators.Render.prototype.getStyler = function() {
   return this.stylers[stylerName];
 }
 
+// Change if styler need change, and redraw all resonators using new styler
 window.plugin.drawResonators.Render.prototype.changeStyler = function(name) {
-  // TODO: check whether styler has change, and update style of all resonators
+  if (name === this.useStyler) return;
+  for(stylerName in this.stylers) {
+    if(stylerName === name) {
+      this.useStyler = stylerName;
+      this.clearAllResonators();
+      this.drawAllResonators();
+      return;
+    }
+  }
 }
 
 window.plugin.drawResonators.Render.prototype.isResonatorsShow = function() {
@@ -263,6 +272,7 @@ window.plugin.drawResonators.Render.prototype.isResonatorsShowBeforeZoom = funct
 window.plugin.drawResonators.Styler = function(options) {
   options = options || {};
   this.name = options['name'] || 'default';
+  this.otherOptions = options['otherOptions'];
   this.getResonatorStyle = options['resonatorStyleFunc'] || this.defaultResonatorStyle;
   this.getConnectorStyle = options['connectorStyleFunc'] || this.defaultConnectorStyle;
 }
@@ -467,6 +477,44 @@ window.plugin.drawResonators.ListDialogEntry.prototype.getSelectId = function() 
 
 
 
+window.plugin.drawResonators.setupStyler = function() {
+  var thisPlugin = window.plugin.drawResonators;
+
+  var myReso = {
+    name: 'Highlight my resonators',
+    otherOptions: {
+      highlightedReso : {color: '#fff', weight: 2, radius: 4, opacity: 1, clickable: false},
+      normalReso : {color: '#aaa', weight: 1, radius: 3, opacity: 1, clickable: false},
+      selectedReso : {color: '#eee', weight: 1.1, radius: 4, opacity: 1, clickable: false},
+      highlightedConn : {opacity: 0.7, weight: 3, color: '#FFA000', dashArray: '0,10,999', color: '#FFA000', fill: false, clickable: false},
+      normalConn : {opacity: 0.25, weight: 2, color: '#FFA000', dashArray: '0,10' + (new Array(25).join(',8,4')), fill: false, clickable: false},
+      selectedConn : {opacity: 0.7, weight: 3, color: '#FFA000', dashArray: '0,10' + (new Array(25).join(',8,4')), fill: false, clickable: false}
+    },
+    resonatorStyleFunc: function(resoDetail, selected) {
+      var mine = resoDetail.ownerGuid === PLAYER.guid;
+      var resoSharedStyle = mine
+                        ? this.otherOptions.highlightedReso
+                        : (selected ? this.otherOptions.selectedReso : this.otherOptions.normalReso);
+
+      var resoStyle = $.extend({
+            fillColor: COLORS_LVL[resoDetail.level],
+            fillOpacity: resoDetail.energyTotal/RESO_NRG[resoDetail.level] * (mine ? 1 : 0.75)
+          }, resoSharedStyle);
+      return resoStyle;
+    },
+    connectorStyleFunc: function(resoDetail, selected) {
+      var mine = resoDetail.ownerGuid === PLAYER.guid;
+      var connStyle  = mine
+                     ? this.otherOptions.highlightedConn
+                     : (selected ? this.otherOptions.selectedConn : this.otherOptions.normalConn);
+      return connStyle;
+    }
+  };
+
+  thisPlugin.render.addStyler(new thisPlugin.Styler(myReso));
+}
+
+
 
 var setup =  function() {
   var thisPlugin = window.plugin.drawResonators;
@@ -486,6 +534,9 @@ var setup =  function() {
   window.addLayerGroup('Resonators', thisPlugin.render.resonatorLayerGroup, true);
 
   thisPlugin.options.addCallback('enableZoomLevel', thisPlugin.render.handleEnableZoomLevelChange);
+
+  // Initialize styler
+  thisPlugin.setupStyler();
 
   // Initialize dialog
   thisPlugin.dialog = new thisPlugin.Dialog();
