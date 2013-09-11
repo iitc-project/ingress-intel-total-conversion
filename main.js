@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.14.0.@@DATETIMEVERSION@@
+// @version        0.14.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -63,8 +63,7 @@ document.getElementsByTagName('head')[0].innerHTML = ''
   + '<style>@@INCLUDESTRING:style.css@@</style>'
   + '<style>@@INCLUDESTRING:external/leaflet.css@@</style>'
 //note: smartphone.css injection moved into code/smartphone.js
-  + '<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Coda"/>'
-  + '<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto"/>';
+  + '<link href="http://fonts.googleapis.com/css?family=Roboto:normal,bold&subset=latin,cyrillic-ext,greek-ext,greek,cyrillic,latin-ext,vietnamese" rel="stylesheet" type="text/css">';
 
 document.getElementsByTagName('body')[0].innerHTML = ''
   + '<div id="map">Loading, please wait</div>'
@@ -143,9 +142,6 @@ window.CHAT_FACTION_ITEMS = 100;
 window.CHAT_REQUEST_SCROLL_TOP = 200;
 window.CHAT_SHRINKED = 60;
 
-// Minimum zoom level resonator will display
-window.RESONATOR_DISPLAY_ZOOM_LEVEL = 17;
-
 // Minimum area to zoom ratio that field MU's will display
 window.FIELD_MU_DISPLAY_AREA_ZOOM_RATIO = 0.001;
 
@@ -157,27 +153,8 @@ window.COLORS = ['#FF9900', '#0088FF', '#03DC03']; // none, res, enl
 window.COLORS_LVL = ['#000', '#FECE5A', '#FFA630', '#FF7315', '#E40000', '#FD2992', '#EB26CD', '#C124E0', '#9627F4'];
 window.COLORS_MOD = {VERY_RARE: '#F78AF6', RARE: '#AD8AFF', COMMON: '#84FBBD'};
 
-window.OPTIONS_RESONATOR_SELECTED = {color: '#fff', weight: 2, radius: 4, opacity: 1, clickable: false};
-window.OPTIONS_RESONATOR_NON_SELECTED = {color: '#aaa', weight: 1, radius: 3, opacity: 1, clickable: false};
 
 window.MOD_TYPE = {RES_SHIELD:'Shield', MULTIHACK:'Multi-hack', FORCE_AMP:'Force Amp', HEATSINK:'Heat Sink', TURRET:'Turret', LINK_AMPLIFIER: 'Link Amp'};
-
-window.OPTIONS_RESONATOR_LINE_SELECTED = {
-  opacity: 0.7,
-  weight: 3,
-  color: '#FFA000',
-  dashArray: '0,10' + (new Array(25).join(',8,4')),
-  fill: false,
-  clickable: false
-};
-window.OPTIONS_RESONATOR_LINE_NON_SELECTED = {
-  opacity: 0.25,
-  weight: 2,
-  color: '#FFA000',
-  dashArray: '0,10' + (new Array(25).join(',8,4')),
-  fill: false,
-  clickable: false
-};
 
 // circles around a selected portal that show from where you can hack
 // it and how far the portal reaches (i.e. how far links may be made
@@ -216,13 +193,6 @@ window.TEAM_NONE = 0;
 window.TEAM_RES = 1;
 window.TEAM_ENL = 2;
 window.TEAM_TO_CSS = ['none', 'res', 'enl'];
-window.TYPE_UNKNOWN = 0;
-window.TYPE_PORTAL = 1;
-window.TYPE_LINK = 2;
-window.TYPE_FIELD = 3;
-window.TYPE_PLAYER = 4;
-window.TYPE_CHAT = 5;
-window.TYPE_RESONATOR = 6;
 
 window.SLOT_TO_LAT = [0, Math.sqrt(2)/2, 1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2];
 window.SLOT_TO_LNG = [1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2, 0, Math.sqrt(2)/2];
@@ -241,9 +211,7 @@ window.selectedPortal = null;
 window.portalRangeIndicator = null;
 window.portalAccessIndicator = null;
 window.mapRunsUserAction = false;
-window.portalsLayers = undefined;
-window.linksLayer = undefined;
-window.fieldsLayer = undefined;
+var portalsLayers, linksLayer, fieldsLayer;
 
 // contain references to all entities loaded from the server. If render limits are hit,
 // not all may be added to the leaflet layers

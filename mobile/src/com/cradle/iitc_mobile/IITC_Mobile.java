@@ -485,7 +485,7 @@ public class IITC_Mobile extends Activity {
                 return true;
             // start settings activity
             case R.id.action_settings:
-                Intent intent = new Intent(this, IITC_Settings.class);
+                Intent intent = new Intent(this, IITC_PreferenceActivity.class);
                 intent.putExtra("iitc_version", mIitcWebView.getWebViewClient()
                         .getIITCVersion());
                 startActivity(intent);

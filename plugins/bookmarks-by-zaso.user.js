@@ -2,7 +2,7 @@
 // @id             iitc-plugin-bookmarks@ZasoGD
 // @name           IITC plugin: Bookmarks for maps and portals
 // @category       Controls
-// @version        0.2.3.@@DATETIMEVERSION@@
+// @version        0.2.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -68,7 +68,7 @@
 
   window.plugin.bookmarks.enableSync = false;
 
-  window.plugin.bookmarks.isSmart = window.isSmartphone();
+  window.plugin.bookmarks.isSmart = undefined;
   window.plugin.bookmarks.isAndroid = function() { if(typeof android !== 'undefined' && android) { return true; } return false; }
 
 /*********************************************************************************************************************/
@@ -817,6 +817,9 @@
 /***************************************************************************************************************************************************************/
 
   var setup = function() {
+
+    window.plugin.bookmarks.isSmart = window.isSmartphone();
+
     // Fired when a bookmarks/folder is removed, added or sorted, also when a folder is opened/closed.
     if($.inArray('pluginBkmrksEdit', window.VALID_HOOKS) < 0) { window.VALID_HOOKS.push('pluginBkmrksEdit'); }
     // Fired when the "Bookmarks Options" panell is opened (you can add new options);
@@ -841,7 +844,14 @@
       $('#portaldetails').before(window.plugin.bookmarks.htmlBoxTrigger + window.plugin.bookmarks.htmlBkmrksBox);
 
       // Remove the star
+      window.addHook('portalSelected', function(data) {
+        if(data.selectedPortalGuid === null) {
+          $('.bkmrksStar').remove();
+        }
+      });
+
       // in the future i hope in a 'portalClosed' hook
+      /* hook done
       window.unselectOldPortal = function() {
         var oldPortal = portals[selectedPortal];
         if(oldPortal) portalResetColor(oldPortal);
@@ -854,6 +864,7 @@
         clearPortalIndicators();
         $('.bkmrksStar').remove();
       }
+      */
 
     }
     $('#toolbox').append(window.plugin.bookmarks.htmlCallSetBox+window.plugin.bookmarks.htmlCalldrawBox);

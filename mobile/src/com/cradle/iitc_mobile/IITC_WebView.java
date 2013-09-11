@@ -151,12 +151,17 @@ public class IITC_WebView extends WebView {
     }
 
     public void updateCaching() {
+        boolean login = false;
+        if (getUrl() != null) {
+            login = getUrl().contains("accounts.google.com");
+        }
         // use cache if on mobile network...saves traffic
-        if (!this.isConnectedToWifi()) {
+        if (!this.isConnectedToWifi() && !login) {
             Log.d("iitcm", "not connected to wifi...load tiles from cache");
             mSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         } else {
-            Log.d("iitcm", "connected to wifi...load tiles from network");
+            if (login) Log.d("iitcm", "login...load tiles from network");
+            else Log.d("iitcm", "connected to wifi...load tiles from network");
             mSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
         }
     }

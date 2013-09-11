@@ -76,6 +76,10 @@ body {
   background-color: #00c5ff !important;
 }
 
+#name #signout { /* no hover, always show signout button */
+  display: block;
+}
+
 #sidebar, #chatcontrols, #chat, #chatinput {
   background: #0B3351 !important;
 }

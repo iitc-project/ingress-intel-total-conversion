@@ -4,10 +4,14 @@
 
 
 window.Render = function() {
-  // below this many portals displayed, we reorder the SVG at the end of the render pass to put portals above fields/links
-  this.LOW_PORTAL_COUNT = 350;
+
+  // when there are lots of portals close together, we only add some of them to the map
+  // the idea is to keep the impression of the dense set of portals, without rendering them all
+  this.CLUSTER_SIZE = L.Browser.mobile ? 16 : 8;  // the map is divited into squares of this size in pixels for clustering purposes. mobile uses larger markers, so therefore larger clustering areas
+  this.CLUSTER_PORTAL_LIMIT = 4; // no more than this many portals are drawn in each cluster square
 
 
+  this.currentPortalClusterZoom = undefined;
 }
 
 
@@ -77,6 +81,11 @@ window.Render.prototype.processDeletedGameEntityGuids = function(deleted) {
     if ( !(guid in this.deletedGuid) ) {
       this.deletedGuid[guid] = true;  // flag this guid as having being processed
 
+      if (guid == selectedPortal) {
+        // the rare case of the selected portal being deleted. clear the details tab and deselect it
+        renderPortalDetails(null);
+      }
+
       this.deleteEntity(guid);
 
     }
@@ -85,7 +94,7 @@ window.Render.prototype.processDeletedGameEntityGuids = function(deleted) {
 }
 
 window.Render.prototype.processGameEntities = function(entities) {
-  var portalGuids = [];
+//  var portalGuids = [];
 
   for (var i in entities) {
     var ent = entities[i];
@@ -93,12 +102,12 @@ window.Render.prototype.processGameEntities = function(entities) {
     // don't create entities in the 'deleted' list
     if (!(ent[0] in this.deletedGuid)) {
       this.createEntity(ent);
-      if ('portalV2' in ent[2]) portalGuids.push(ent[0]);
+//      if ('portalV2' in ent[2]) portalGuids.push(ent[0]);
     }
   }
 
-  // now reconstruct links 'optimised' out of the data from the portal link data
-  this.createLinksFromPortalData(portalGuids);
+//  // now reconstruct links 'optimised' out of the data from the portal link data
+//  this.createLinksFromPortalData(portalGuids);
 }
 
 
@@ -108,7 +117,7 @@ window.Render.prototype.endRenderPass = function() {
 
   // check to see if there's eny entities we haven't seen. if so, delete them
   for (var guid in window.portals) {
-    if (!(guid in this.seenPortalsGuid)) {
+    if (!(guid in this.seenPortalsGuid) && guid !== selectedPortal) {
       this.deletePortalEntity(guid);
     }
   }
@@ -123,22 +132,22 @@ window.Render.prototype.endRenderPass = function() {
     }
   }
 
-  // reorder portals to be after links/fields, but only if the number is low
-  if (Object.keys(window.portals).length <= this.LOW_PORTAL_COUNT) {
-    for (var i in window.portalsLayers) {
-      var layer = window.portalsLayers[i];
-      if (window.map.hasLayer(layer)) {
-        layer.eachLayer (function(p) {
-          p.bringToFront();
-        });
-      }
-    }
-
-  }
+  // reorder portals to be after links/fields
+  this.bringPortalsToFront();
 
   this.isRendering = false;
 }
 
+window.Render.prototype.bringPortalsToFront = function() {
+  for (var i in portalsLayers) {
+    var layer = portalsLayers[i];
+    if (window.map.hasLayer(layer)) {
+      layer.eachLayer (function(p) {
+        p.bringToFront();
+      });
+    }
+  }
+}
 
 
 window.Render.prototype.deleteEntity = function(guid) {
@@ -150,9 +159,7 @@ window.Render.prototype.deleteEntity = function(guid) {
 window.Render.prototype.deletePortalEntity = function(guid) {
   if (guid in window.portals) {
     var p = window.portals[guid];
-    for(var i in portalsLayers) {
-      portalsLayers[i].removeLayer(p);
-    }
+    this.removePortalFromMapLayer(p);
     delete window.portals[guid];
   }
 }
@@ -304,10 +311,10 @@ window.Render.prototype.createPortalEntity = function(ent) {
     renderPortalDetails (selectedPortal);
   }
 
-  //TODO? postpone adding to the map layer
-  portalsLayers[parseInt(portalLevel)].addLayer(marker);
+//  //TODO? postpone adding to the map layer
+//  portalsLayers[parseInt(portalLevel)].addLayer(marker);
 
-
+  this.addPortalToMapLayer(marker);
 
 }
 
@@ -465,4 +472,94 @@ window.Render.prototype.createLinksFromPortalData = function(portalGuids) {
 
     }
   }
+}
+
+
+
+// portal clustering functionality
+
+window.Render.prototype.resetPortalClusters = function() {
+  if (this.currentPortalClusterZoom === undefined || this.currentPortalClusterZoom != map.getZoom()) {
+
+    this.portalClusters = {};
+    this.currentPortalClusterZoom = map.getZoom();
+
+    // first, place the portals into the clusters
+    for (var pguid in window.portals) {
+      var p = window.portals[pguid];
+      var cid = this.getPortalClusterID(p);
+
+      if (!(cid in this.portalClusters)) this.portalClusters[cid] = [];
+
+      this.portalClusters[cid].push(p.options.guid);
+    }
+
+    // now, for each cluster, sort by some arbitary data (the guid will do), and display the first CLUSTER_PORTAL_LIMIT
+    for (var cid in this.portalClusters) {
+      var c = this.portalClusters[cid];
+
+      c.sort();
+
+      for (var i=0; i<c.length; i++) {
+        var guid = c[i];
+        var p = window.portals[guid];
+        var layerGroup = portalsLayers[parseInt(p.options.level)];
+        if (i<this.CLUSTER_PORTAL_LIMIT || p.options.guid == selectedPortal) {
+          if (!layerGroup.hasLayer(p)) {
+            portalsLayers[parseInt(p.options.level)].addLayer(p);
+          }
+        } else {
+          if (layerGroup.hasLayer(p)) {
+            portalsLayers[parseInt(p.options.level)].removeLayer(p);
+          }
+        }
+      }
+    }
+
+  } //else zoom unchanged, no need to update
+}
+
+// add the portal to the visiable map layer unless we pass the cluster limits
+window.Render.prototype.addPortalToMapLayer = function(portal) {
+
+  var cid = this.getPortalClusterID(portal);
+
+  if (!(cid in this.portalClusters)) this.portalClusters[cid] = [];
+
+  this.portalClusters[cid].push(portal.options.guid);
+
+  // now, at this point, we could match the above re-clustr code - sorting, and adding/removing as necessary
+  // however, it won't make a lot of visible difference compared to just pushing to the end of the list, then
+  // adding to the visible layer if the list is below the limit
+  if (this.portalClusters[cid].length < this.CLUSTER_PORTAL_LIMIT || portal.options.guid == selectedPortal) {
+    portalsLayers[parseInt(portal.options.level)].addLayer(portal);
+  }
+}
+
+window.Render.prototype.removePortalFromMapLayer = function(portal) {
+
+  //remove it from the portalsLevels layer
+  portalsLayers[parseInt(portal.options.level)].removeLayer(portal);
+
+  // and ensure there's no mention of the portal in the cluster list
+  var cid = this.getPortalClusterID(portal);
+
+  if (cid in this.portalClusters) {
+    var index = this.portalClusters[cid].indexOf(portal.options.guid);
+    if (index >= 0) {
+      this.portalClusters[cid].splice(index,1);
+      // FIXME? if this portal was in on the screen (in the first 10), and we still have 10+ portals, add the new 10to to the screen?
+    }
+  }
+}
+
+window.Render.prototype.getPortalClusterID = function(portal) {
+  // project the lat/lng into absolute map pixels
+  var z = map.getZoom();
+
+  var point = map.project(portal.getLatLng(), z);
+
+  var clusterpoint = point.divideBy(this.CLUSTER_SIZE).round();
+
+  return z+":"+clusterpoint.x+":"+clusterpoint.y;
 }

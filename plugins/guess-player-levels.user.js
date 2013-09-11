@@ -77,6 +77,10 @@ window.plugin.guessPlayerLevels.extractPortalData = function(data) {
   //(over 1 L8/7 res, over 2 L6/5 res, etc). if we detect this case, ignore all resonators owned
   //by that player on the portal
 
+// TODO? go further, and just ignore all resonators owned by the portal owner?
+// or; have a 'guessed' level and a 'certain' level. 'certain' comes from res from non-owner, and COMM deploy
+// while 'guessed' comes from resonators of the portal owner
+
   var perPlayerResMaxLevel = {};
   var perPlayerResMaxLevelCount = {};
 
@@ -95,8 +99,6 @@ window.plugin.guessPlayerLevels.extractPortalData = function(data) {
       var p = 'level-'+guid;
       if(!window.localStorage[p] || window.localStorage[p] < level)
         window.localStorage[p] = level;
-    } else {
-      console.log('player guid '+guid+' has '+perPlayerResMaxLevelCount[guid]+' level '+level+' res on one portal - ignoring (ada refactor/jarvis virus)');
     }
   });
 }

@@ -2,7 +2,7 @@
 // @id             iitc-plugin-ap-list@xelio
 // @name           IITC plugin: AP List
 // @category       Info
-// @version        0.5.6.@@DATETIMEVERSION@@
+// @version        0.5.7.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -252,7 +252,7 @@ window.plugin.apList.updateSortedPortals = function() {
   plugin.apList.sortedPortals[plugin.apList.SIDE_FRIENDLY] = new Array();
   plugin.apList.sortedPortals[plugin.apList.SIDE_ENEMY] = new Array();
 
-  // Make a backup of cachedPortals
+  // Make a backup of cachedPortals with shallow copy
   // If cache is not enabled, empty cachedPortals. In following
   // "$.each" loop, the backup portal will copy back into 
   // cachedPortals if it exist in "window.portals"" and didn't change.'
@@ -261,19 +261,19 @@ window.plugin.apList.updateSortedPortals = function() {
     plugin.apList.cachedPortals = {};
 
   $.each(window.portals, function(key, value) {
-    if(getTypeByGuid(key) !== TYPE_PORTAL)
-      return true;
-
     var portal = value.options.details;
     var cachedPortal = oldcachedPortal[key];
     // If portal is changed, update playerApGain with latest
     // information
-    if(!plugin.apList.isSamePortal(portal,cachedPortal)) {
-      // Copy portal detail to cachedPortal
+    if(!cachedPortal
+        || value.timestamp !== cachedPortal.timestamp
+        || plugin.apList.isFieldsChanged(portal.portalV2.linkedFields, cachedPortal.portalV2.linkedFields)) {
+      // Shallow copy portal detail to cachedPortal
       cachedPortal = $.extend({}, portal);
       var side = plugin.apList.portalSide(portal);
       var getApGainFunc = plugin.apList.playerApGainFunc[side];
       // Assign playerApGain and guid to cachedPortal
+      cachedPortal.timestamp = value.timestamp
       cachedPortal.playerApGain = getApGainFunc(portal);
       cachedPortal.effectiveLevel = plugin.apList.getEffectiveLevel(portal);
       cachedPortal.guid = value.options.guid;
@@ -352,7 +352,7 @@ window.plugin.apList.handleDestroyPortal = function() {
         && newLinkedFields.length === (portal.portalV2.linkedFields || []).length)
       return true;
 
-    // Clone the portal to avoid modifying original data in cachedPortal
+    // Clone the portal with deep copy to avoid modifying original data in cachedPortal
     var newPortal = $.extend(true, {}, portal);
     // Assign new links and fields and calculate new playerApGain
     if(portal.portalV2.linkedEdges) newPortal.portalV2.linkedEdges = newLinkedEdges;
@@ -373,27 +373,9 @@ window.plugin.apList.updateTotalPages = function() {
   });
 }
 
-window.plugin.apList.isSameResonator = function(oldRes, newRes) {
-  if(!oldRes && !newRes) return true;
-  if(!oldRes || !newRes) return false;
-  if(typeof oldRes !== typeof newRes) return false;
-  if(oldRes.level !== newRes.level) return false;
-  if(oldRes.energyTotal !== newRes.energyTotal) return false;
-  if(oldRes.distanceToPortal !== newRes.distanceToPortal) return false;
-  return true;
-}
-
-
-window.plugin.apList.isSamePortal = function(a,b) {
-
-  if(!a || !b) return false;
-  if(a.team !== b.team) return false;
-  if(a.level !== b.level) return false;
-  for(var i = 0; i < 8; i++) {
-    if(!plugin.apList.isSameResonator(a.resonatorArray.resonators[i],b.resonatorArray.resonators[i]))
-      return false;
-  }
-  return true;
+window.plugin.apList.isFieldsChanged = function(a,b) {
+  // http://stackoverflow.com/questions/1773069/using-jquery-to-compare-two-arrays
+  return $(a).not(b).get().length === 0 && $(b).not(a).get().length === 0;;
 }
 
 window.plugin.apList.portalSide = function(portal) {
@@ -953,7 +935,7 @@ var setup = function() {
   window.plugin.apList.setupList();
   window.plugin.apList.setupPagination();
   window.plugin.apList.setupMapEvent();
-  window.addHook('requestFinished', window.plugin.apList.handleUpdate);
+  window.addHook('mapDataRefreshEnd', window.plugin.apList.handleUpdate);
 }
 // PLUGIN END //////////////////////////////////////////////////////////
 

@@ -4,13 +4,15 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-public class IITC_Settings extends Activity {
+import com.cradle.iitc_mobile.fragments.MainSettings;
+
+public class IITC_PreferenceActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        IITC_SettingsFragment settings = new IITC_SettingsFragment();
+        MainSettings settings = new MainSettings();
 
         // set action bar title
         getActionBar().setTitle("IITC Mobile Settings");

@@ -4,7 +4,9 @@
 
 # rename the app title
 test -f mobile/res/values/strings.xml~ || cp mobile/res/values/strings.xml mobile/res/values/strings.xml~
+test -f mobile/res/xml/preferences.xml~ || cp mobile/res/xml/preferences.xml mobile/res/xml/preferences.xml~
 sed -e 's/IITC Mobile/IITCm Test/' mobile/res/values/strings.xml~ > mobile/res/values/strings.xml
+sed -e 's/targetPackage="com.cradle.iitc_mobile/targetPackage="com.cradle.iitc_mobile.test/' mobile/res/xml/preferences.xml~ > mobile/res/xml/preferences.xml
 
 
 # also, you'll need to build with
