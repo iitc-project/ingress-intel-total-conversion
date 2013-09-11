@@ -45,8 +45,6 @@ window.plugin.portalHighligherPortalsUpgrade.highlight = function(data) {
     data.portal.setStyle({color:  COLORS[getTeam(data.portal.options.details)],
                           fillOpacity: 0.5});
   }
-  
-  window.COLOR_SELECTED_PORTAL = '#f0f';
 }
 
 var setup =  function() {

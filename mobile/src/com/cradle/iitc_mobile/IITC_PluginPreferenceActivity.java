@@ -1,84 +1,65 @@
 package com.cradle.iitc_mobile;
 
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
+import android.app.ActionBar;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.EditTextPreference;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.Preference.OnPreferenceChangeListener;
-import android.preference.PreferenceFragment;
-import android.preference.PreferenceScreen;
+import android.preference.PreferenceActivity;
 import android.util.Log;
+import android.view.MenuItem;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.TreeMap;
 
-public class IITC_SettingsFragment extends PreferenceFragment {
+public class IITC_PluginPreferenceActivity extends PreferenceActivity {
 
-    private String mIitcVersion;
+    private List<Header> mHeaders;
+    // we use a tree map to have a map with alphabetical order
+    private static TreeMap<String, ArrayList<IITC_PluginPreference>> sPlugins = null;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        mIitcVersion = getArguments().getString("iitc_version");
-
-        addPreferencesFromResource(R.xml.preferences);
-
-        // plugins
-        setUpPluginPreferenceScreen();
-
-        // set build version
-        ListPreference pref_build_version = (ListPreference) findPreference("pref_build_version");
-        PackageManager pm = getActivity().getPackageManager();
-        String version = "unknown";
-        try {
-            PackageInfo info = pm.getPackageInfo(
-                    getActivity().getPackageName(), 0);
-            version = info.versionName;
-        } catch (NameNotFoundException e) {
-            e.printStackTrace();
+    public void onBuildHeaders(List<Header> target) {
+        ActionBar bar = getActionBar();
+        bar.setTitle("IITC Plugins");
+        bar.setDisplayHomeAsUpEnabled(true);
+        mHeaders = target;
+        // since the plugins container is static,
+        // it is enough to parse the plugin only on first start.
+        if (sPlugins == null) {
+            Log.d("iitcm", "opened plugin prefs the first time since app start -> parse plugins");
+            sPlugins = new TreeMap<String, ArrayList<IITC_PluginPreference>>();
+            setUpPluginPreferenceScreen();
         }
-        pref_build_version.setSummary(version);
+        addHeaders();
+    }
 
-        // set iitc version
-        ListPreference pref_iitc_version = (ListPreference) findPreference("pref_iitc_version");
-        pref_iitc_version.setSummary(mIitcVersion);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // exit settings when home button (iitc icon) is pressed
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
-        // set iitc source
-        EditTextPreference pref_iitc_source = (EditTextPreference) findPreference("pref_iitc_source");
-        pref_iitc_source
-                .setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference,
-                                                      Object newValue) {
-                        preference.setSummary(getString(R.string.pref_select_iitc_sum) +
-                                " " + newValue);
-                        // TODO: update mIitcVersion when iitc source has
-                        // changed
-                        return true;
-                    }
-                });
-        // first init of summary
-        String pref_iitc_source_sum = getString(R.string.pref_select_iitc_sum)
-                + " " + pref_iitc_source.getText();
-        pref_iitc_source.setSummary(pref_iitc_source_sum);
+    // called by Plugins Fragment
+    public static ArrayList<IITC_PluginPreference> getPluginPreference(String key) {
+        return sPlugins.get(key);
     }
 
     void setUpPluginPreferenceScreen() {
-        PreferenceScreen root = (PreferenceScreen) findPreference("pref_plugins");
-        // alphabetical order
-        root.setOrderingAsAdded(false);
-        root.setPersistent(true);
 
         // get all plugins from asset manager
-        AssetManager am = this.getActivity().getAssets();
+        AssetManager am = getAssets();
         String[] asset_array = null;
         try {
             asset_array = am.list("plugins");
@@ -101,7 +82,7 @@ public class IITC_SettingsFragment extends PreferenceFragment {
             if (s != null)
                 src = s.hasNext() ? s.next() : "";
             // now we have all stuff together and can build the pref screen
-            addPluginPreference(root, src, anAsset_array, false);
+            addPluginPreference(src, anAsset_array, false);
         }
 
         // load additional plugins from <storage-path>/IITC_Mobile/plugins/
@@ -123,12 +104,12 @@ public class IITC_SettingsFragment extends PreferenceFragment {
                     src = s.hasNext() ? s.next() : "";
 
                 // now we have all stuff together and can build the pref screen
-                addPluginPreference(root, src, file.toString(), true);
+                addPluginPreference(src, file.toString(), true);
             }
         }
     }
 
-    void addPluginPreference(PreferenceScreen root, String src, String plugin_key,
+    void addPluginPreference(String src, String plugin_key,
                              boolean additional) {
 
         // now parse plugin name, description and category
@@ -159,29 +140,37 @@ public class IITC_SettingsFragment extends PreferenceFragment {
         // add [User] tag to additional plugins
         if (additional)
             plugin_cat = "[User] " + plugin_cat;
-        // now we have all stuff together and can build the pref screen
-        PreferenceScreen pref_screen;
-        if (root.findPreference(plugin_cat) == null) {
+
+        // now we have all stuff together and can build the preference
+        // first check if we need a new category
+        if (sPlugins.containsKey(plugin_cat) == false) {
+            sPlugins.put(plugin_cat, new ArrayList<IITC_PluginPreference>());
             Log.d("iitcm", "create " + plugin_cat + " and add " + plugin_name);
-            pref_screen = getPreferenceManager().createPreferenceScreen(root.getContext());
-            pref_screen.setTitle(plugin_cat);
-            pref_screen.setKey(plugin_cat);
-            // alphabetical order
-            pref_screen.setOrderingAsAdded(false);
-            pref_screen.setPersistent(true);
-            root.addPreference(pref_screen);
-        } else {
-            Log.d("iitcm", "add " + plugin_name + " to " + plugin_cat);
-            pref_screen = (PreferenceScreen) findPreference(plugin_cat);
         }
 
         // now build a new checkable preference for the plugin
-        IITC_PluginPreference plugin_pref = new IITC_PluginPreference(pref_screen.getContext());
+        IITC_PluginPreference plugin_pref = new IITC_PluginPreference(this);
         plugin_pref.setKey(plugin_key);
         plugin_pref.setTitle(plugin_name);
         plugin_pref.setSummary(plugin_desc);
         plugin_pref.setDefaultValue(false);
         plugin_pref.setPersistent(true);
-        pref_screen.addPreference(plugin_pref);
+        ArrayList<IITC_PluginPreference> list = sPlugins.get(plugin_cat);
+        list.add(plugin_pref);
+    }
+
+    void addHeaders() {
+        // every fragment handles 1 plugin category
+        // push the category to the fragment and add the header to the list
+        for (Map.Entry<String, ArrayList<IITC_PluginPreference>> entry : sPlugins.entrySet()) {
+            Bundle bundle = new Bundle();
+            String plugin_cat = entry.getKey();
+            bundle.putString("category", plugin_cat);
+            Header newHeader = new Header();
+            newHeader.title = plugin_cat;
+            newHeader.fragmentArguments = bundle;
+            newHeader.fragment = "com.cradle.iitc_mobile.fragments.PluginsFragment";
+            mHeaders.add(newHeader);
+        }
     }
 }

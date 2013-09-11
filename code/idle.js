@@ -44,8 +44,11 @@ var idleMouseMove = function(e) {
   }
 }
 
-$('body').keypress(idleReset);
-$('body').mousemove(idleMouseMove);
+window.setupIdle = function() {
+  $('body').keypress(idleReset);
+  $('body').mousemove(idleMouseMove);
+}
+
 
 window.isIdle = function() {
   return window.idleTime >= window._idleTimeLimit;

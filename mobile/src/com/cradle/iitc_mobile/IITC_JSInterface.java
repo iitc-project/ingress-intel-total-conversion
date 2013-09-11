@@ -5,6 +5,7 @@ import java.util.HashMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -13,6 +14,8 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.util.Log;
 import android.view.View;
 import android.webkit.JavascriptInterface;
@@ -77,6 +80,19 @@ public class IITC_JSInterface {
         clipboard.setPrimaryClip(clip);
         Toast.makeText(mContext, "copied to clipboard", Toast.LENGTH_SHORT)
                 .show();
+    }
+
+    @JavascriptInterface
+    public int getVersionCode() {
+        int versionCode = 0;
+        try {
+            PackageInfo pInfo = mContext.getPackageManager()
+                    .getPackageInfo(mContext.getPackageName(), 0);
+            versionCode = pInfo.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return versionCode;
     }
 
     @JavascriptInterface
@@ -248,10 +264,7 @@ public class IITC_JSInterface {
             @Override
             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                 // activate clicked layer
-                ((IITC_Mobile) mContext).getWebView().loadUrl("javascript: " +
-                        "window.layerChooser.showLayer("
-                        + mLayerIds.get(mOverlayLayers[which]) + ","
-                        + isChecked + ");");
+                showLayer(mLayerIds.get(mOverlayLayers[which]), isChecked);
             }
         };
         d_m.setMultiChoiceItems(mOverlayLayers, mOverlayIsActive, m_listener);
@@ -282,10 +295,7 @@ public class IITC_JSInterface {
                         // uncheck the item + set the boolean in the isActive array
                         mOverlayIsActive[j] = disable;
                         list.setItemChecked(j, disable);
-                        ((IITC_Mobile) mContext).getWebView().loadUrl("javascript: " +
-                                "window.layerChooser.showLayer("
-                                + mLayerIds.get(layer) + ","
-                                + disable + ");");
+                        showLayer(mLayerIds.get(layer), disable);
                     }
                     ++j;
                 }
@@ -302,10 +312,7 @@ public class IITC_JSInterface {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // activate clicked layer
-                ((IITC_Mobile) mContext).getWebView().loadUrl("javascript: " +
-                        "window.layerChooser.showLayer("
-                        + mLayerIds.get(mBaseLayers[which]) + ","
-                        + true + ");");
+                showLayer(mLayerIds.get(mBaseLayers[which]), true);
                 mActiveBaseLayer = which;
             }
         };
@@ -328,5 +335,16 @@ public class IITC_JSInterface {
         d_s.setTitle(R.string.base_layers);
         final AlertDialog dialog = d_s.create();
         dialog.show();
+    }
+
+    private void showLayer(final String id, final boolean enable) {
+        ((Activity) mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ((IITC_Mobile) mContext).getWebView().loadUrl("javascript: " +
+                        "window.layerChooser.showLayer("
+                        + id + "," + enable + ");");
+            }
+        });
     }
 }

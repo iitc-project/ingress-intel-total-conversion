@@ -1,5 +1,39 @@
 <h2>News</h2>
 
+<h4>2nd September 2013</h4>
+<p>
+IITC 0.14.0, and IITC Mobile 0.5.6, have just been released. This is (yet another) change required to work with
+the latest changes to the standard intel website.
+</p>
+<p>
+Also, as part of some long-term improvements, the data loading and portal rendering code has been completely rewritten.
+This should ensure much more reliable loading of portal data, and faster rendering when lots of portals are shown.
+However, this code is new, and may have bugs. Some known issues are:
+<ul>
+<li>Resonators are not displayed when zoomed in.</li>
+<li>Some smaller links/fields are not displayed. Often this is due to changes in the stock map (it doesn't show these
+links/fields either), but I think there are cases where IITC is getting it wrong.</li>
+</ul>
+However, as the current IITC release was broken I think it's better to release this build now rather than wait longer.
+</p>
+
+<h4>27th August 2013</h4>
+<p>
+Yet another critical IITC update, 0.13.4, and IITC Mobile 0.5.5, have been released. A few things in this build
+<ul>
+<li>Scoreboard plugin is broken - fix coming later</li>
+<li>No MU numbers shown in fields - the server no longer returns the data</li>
+<li>Other plugins may be broken too - limited testing has been done</li>
+</ul>
+Note: Briefly IITC Mobile 0.5.4.3 was available, but broken.
+</p>
+
+<h4>16th August 2013</h4>
+<p>
+IITC 0.13.3 and IITC Mobile 0.5.4.2 have been released. This is another critical update required to work
+with another change Niantic have made to the standard intel site.
+</p>
+
 <h4>14th August 2013</h4>
 <p>
 IITC 0.13.2 and IITC Mobile 0.5.4.1 have been released. This is a critical release required to work with

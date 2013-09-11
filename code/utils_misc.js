@@ -94,6 +94,117 @@ window.digits = function(d) {
   return (d+"").replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1 ");
 }
 
+
+window.requestParameterMunges = [
+  // set 0
+  {
+    method: '4kr3ofeptwgary2j',
+    boundsParamsList: 'n27qzc8389kgakyv',
+    id: '39031qie1i4aq563',
+    minLatE6: 'pg98bwox95ly0ouu',
+    minLngE6: 'eib1bkq8znpwr0g7',
+    maxLatE6: 'ilfap961rwdybv63',
+    maxLngE6: 'lpf7m1ifx0ieouzq',
+    timestampMs: '2ewujgywmum1yp49',
+    qk: 'bgxibcomzoto63sn',
+    desiredNumItems: 'tmb0vgxgp5grsnhp',
+    minTimestampMs: 'hljqffkpwlx0vtjt',
+    maxTimestampMs: 'sw317giy6x2xj9zm',
+    guids: 'pusjrhxxtyp5nois',
+    inviteeEmailAddress: 'cltkepgqkepfsyaq',
+    message: 'q0d6n7t1801bb6xu',
+    latE6: '5ygbhpxfnt1u9e4t',
+    lngE6: 'ak6twnljwwcgd7cj',
+    factionOnly: '0dvtbatgzcfccchh',
+    ascendingTimestampOrder: 'f6u1iqep9s2lc5y5'
+  },
+
+  // set 1
+  {
+    method: 'uuo2zqhhy5bw80fu',
+    boundsParamsList: '5rc0561uauf6x13u',
+    id: 'bzeizowtguoyrrtt',
+    minLatE6: '7qej3eqg4sefuaac',
+    minLngE6: 'yqegc976egk5q9vo',
+    maxLatE6: '2odsgh99ix9bbtsb',
+    maxLngE6: 'g9jess8dwa2j8pwi',
+    timestampMs: '604f34zcu9zna0a5',
+    qk: 'y853tux9h7cb6xp3',
+    desiredNumItems: 'sfv5i7l6ouljz8vf',
+    minTimestampMs: 'y3g07dbnw6sklloj',
+    maxTimestampMs: '3pdl28aa27xvyhke',
+    guids: 'xp1pl2jm5hrh3bna',
+    inviteeEmailAddress: '2pyrttrp3gh38mmu',
+    message: 'zz54435vfc57nlg9',
+    latE6: 'cyltxjod3jhxgj8q',
+    lngE6: 'h9whcgcz6kpqkz80',
+    factionOnly: '37okcr7gvd5yn2lj',
+    ascendingTimestampOrder: 'iimftkq7flskwrx9'
+  },
+];
+window.activeRequestMungeSet = undefined;
+
+// attempt to guess the munge set in use, by looking therough the functions of the stock intel page for one of the munged params
+window.detectActiveMungeSet = function() {
+  for (var m in window) {
+    // try and find the stock page functions
+    if (typeof window[m] == 'function' && m.length <= 3) {
+      var stockFunc = window[m].toString();
+      for (var i in window.requestParameterMunges) {
+        if (stockFunc.indexOf (window.requestParameterMunges[i]['id']) >= 0) {
+          console.log('IITC: found request munge set '+i+' in stock intel function "window.'+m+'()"');
+          window.activeRequestMungeSet = i;
+        }
+      }
+    }
+  }
+
+  if (window.activeRequestMungeSet===undefined) {
+    console.error('IITC: failed to find request munge set - IITC will likely fail');
+    window.activeRequestMungeSet = 0;
+  }
+}
+
+// niantic now add some munging to the request parameters. so far, only two sets of this munging have been seen
+window.requestDataMunge = function(data) {
+  if (window.activeRequestMungeSet===undefined) {
+    window.detectActiveMungeSet();
+  }
+
+  var activeMunge = window.requestParameterMunges[window.activeRequestMungeSet];
+
+  function munge(obj) {
+    if (Object.prototype.toString.call(obj) === '[object Array]') {
+      // an array - munge each element of it
+      var newobj = [];
+      for (var i in obj) {
+        newobj[i] = munge(obj[i]);
+      }
+      return newobj;
+    } else if (typeof obj === 'object') {
+      // an object: munge each property name, and pass the value through the munge process
+      var newobj = Object();
+      for (var p in obj) {
+        var m = activeMunge[p];
+        if (m === undefined) {
+          console.error('Error: failed to find munge for object property '+p);
+          newobj[p] = obj[p];
+        } else {
+          // rename the property
+          newobj[m] = munge(obj[p]);
+        }
+      }
+      return newobj;
+    } else {
+      // neither an array or an object - so must be a simple value. return it unmodified
+      return obj;
+    }
+  };
+
+  var newdata = munge(data);
+  return newdata;
+}
+
 // posts AJAX request to Ingress API.
 // action: last part of the actual URL, the rpc/dashboard. is
 //         added automatically
@@ -104,11 +215,11 @@ window.digits = function(d) {
 //          able arguments: http://api.jquery.com/jQuery.ajax/
 // error: see above. Additionally it is logged if the request failed.
 window.postAjax = function(action, data, success, error) {
-  var post_data = JSON.stringify($.extend({method: 'dashboard.'+action}, data));
+  var post_data = JSON.stringify(window.requestDataMunge($.extend({method: 'dashboard.'+action}, data)));
   var remove = function(data, textStatus, jqXHR) { window.requests.remove(jqXHR); };
   var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
   var result = $.ajax({
-    url: '/rpc/dashboard.'+action,
+    url: '/r/dashboard.'+action,
     type: 'POST',
     data: post_data,
     context: data,
@@ -209,64 +320,18 @@ window.androidPermalink = function() {
   return false;
 }
 
-window.reportPortalIssue = function(info) {
-  var t = 'Redirecting you to a Google Help Page.\n\nThe text box contains all necessary information. Press CTRL+C to copy it.';
-  var d = window.portals[window.selectedPortal].options.details;
-
-  var info = 'Your Nick: ' + PLAYER.nickname + '        '
-    + 'Portal: ' + d.portalV2.descriptiveText.TITLE + '        '
-    + 'Location: ' + d.portalV2.descriptiveText.ADDRESS
-    +' (lat ' + (d.locationE6.latE6/1E6) + '; lng ' + (d.locationE6.lngE6/1E6) + ')';
-
-  //codename, approx addr, portalname
-  if(prompt(t, info) !== null)
-    location.href = 'https://support.google.com/ingress?hl=en&contact=1';
-}
-
-window._storedPaddedBounds = undefined;
-window.getPaddedBounds = function() {
-  if(_storedPaddedBounds === undefined) {
-    map.on('zoomstart zoomend movestart moveend', function() {
-      window._storedPaddedBounds = null;
-    });
-  }
-  if(renderLimitReached(0.7)) return window.map.getBounds();
-  if(window._storedPaddedBounds) return window._storedPaddedBounds;
-
-  var p = window.map.getBounds().pad(VIEWPORT_PAD_RATIO);
-  window._storedPaddedBounds = p;
-  return p;
-}
-
-// returns true if the render limit has been reached. The default ratio
-// is 1, which means it will tell you if there are more items drawn than
-// acceptable. A value of 0.9 will tell you if 90% of the amount of
-// acceptable entities have been drawn. You can use this to heuristi-
-// cally detect if the render limit will be hit.
-window.renderLimitReached = function(ratio) {
-  ratio = ratio || 1;
-  if(window.portalsCount*ratio >= MAX_DRAWN_PORTALS) return true;
-  if(window.linksCount*ratio >= MAX_DRAWN_LINKS) return true;
-  if(window.fieldsCount*ratio >= MAX_DRAWN_FIELDS) return true;
-  var param = { 'reached': false };
-  window.runHooks('checkRenderLimit', param);
-  return param.reached;
-}
 
 window.getPortalDataZoom = function() {
-  var z = map.getZoom();
+  var mapZoom = map.getZoom();
 
-  // on mobile (at least), the map zoom has been non-integer occasionally. fix it.
-  z = Math.floor(z);
+  // make sure we're dealing with an integer here
+  // (mobile: a float somehow gets through in some cases!)
+  var z = parseInt(mapZoom);
 
   // limiting the mazimum zoom level for data retrieval reduces the number of requests at high zoom levels
   // (as all portal data is retrieved at z=17, why retrieve multiple z=18 tiles when fewer z=17 would do?)
   // very effective along with the new cache code
   if (z > 17) z=17;
-
-  // we could consider similar zoom-level consolidation, as, e.g. level 16 and 15 both return L1+, always
-  // request zoom 15 tiles. however, there are quirks in the current data stream, where small fields aren't
-  // returned by the server. using larger tiles always would amplify this issue.
 
   //sanity check - should never happen
   if (z < 0) z=0;
@@ -274,15 +339,38 @@ window.getPortalDataZoom = function() {
   return z;
 }
 
+
 window.getMinPortalLevelForZoom = function(z) {
-  if(z >= 17) return 0;
-  if(z < 0) return 8;
-  var conv = [8,8,8,8,7,7,6,6,5,4,4,3,3,2,2,1,1];
-  var minLevelByRenderLimit = portalRenderLimit.getMinLevel();
-  var result = minLevelByRenderLimit > conv[z]
-    ? minLevelByRenderLimit
-    : conv[z];
-  return result;
+//based on code from stock gen_dashboard.js
+  switch(z) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+      return 8;
+    case 4:
+    case 5:
+      return 7;
+    case 6:
+    case 7:
+      return 6;
+    case 8:
+      return 5;
+    case 9:
+    case 10:
+      return 4;
+    case 11:
+    case 12:
+      return 3;
+    case 13:
+    case 14:
+      return 2;
+    case 15:
+    case 16:
+      return 1;
+    default:
+      return 0
+  }
 }
 
 
@@ -308,60 +396,6 @@ window.zoomToAndShowPortal = function(guid, latlng) {
     urlPortal = guid;
 }
 
-// translates guids to entity types
-window.getTypeByGuid = function(guid) {
-  // All GUID type values, extracted from the ingress app .apk
-  // some are almost certainly Niantic internal use only - never seen on the network
-  // .1  == Panoramio portal [deprecated]
-  // .2  == Random portal
-  // .3  == Beacon
-  // .4  == Resource (dropped media - other dropped items?)
-  // .5  == Inventory item
-  // .6  == Energy glob (XM)
-  // .7  == Energy spawn location
-  // .8  == HMDB portal [deprecated]
-  // .9  == Link (internally "edge")                     ** TYPE_LINK
-  // .a  == LocalStore portal [deprecated]
-  // .b  == Control field (internally "captured region") ** TYPE_FIELD
-  // .c  == Player                                       ** TYPE_PLAYER
-  // .d  == COMM message (internally "plext")            ** TYPE_CHAT
-  // .e  == Tracking record
-  // .f  == Tracking group
-  // .10 == Passcode reward [deprecated]
-  // .11 == SuperOps portal                              ** TYPE_PORTAL - the batch loaded from panorimo, etc?
-  // .12 == Anon portal                                  ** TYPE_PORTAL - user submitted by email?
-  // .13 == Account info
-  // .14 == GeoStore POI [deprecated]
-  // .15 == GeoStore mod
-  // .16 == GeoStore portal                              ** TYPE_PORTAL - new in-app submissions?
-  // .17 == Portal image
-  // .18 == PMRR change
-  
-  // resonator guid is [portal guid]-resonator-[slot]
-  switch(guid.slice(33)) {
-    case '2':
-    case '11':
-    case '12':
-    case '16':
-      return TYPE_PORTAL;
-
-    case '9':
-      return TYPE_LINK;
-
-    case 'b':
-      return TYPE_FIELD;
-
-    case 'c':
-      return TYPE_PLAYER;
-
-    case 'd':
-      return TYPE_CHAT;
-
-    default:
-      if(guid.slice(-11,-2) == 'resonator') return TYPE_RESONATOR;
-      return TYPE_UNKNOWN;
-  }
-}
 
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
@@ -486,16 +520,17 @@ window.addLayerGroup = function(name, layerGroup, defaultDisplay) {
 }
 
 window.clampLat = function(lat) {
-  if (lat > 90.0)
-    lat = 90.0;
-  else if (lat < -90.0)
-    lat = -90.0;
+  // the map projection used does not handle above approx +- 85 degrees north/south of the equator
+  if (lat > 85.051128)
+    lat = 85.051128;
+  else if (lat < -85.051128)
+    lat = -85.051128;
   return lat;
 }
 
 window.clampLng = function(lng) {
-  if (lng > 180.0)
-    lng = 180.0
+  if (lng > 179.999999)
+    lng = 179.999999;
   else if (lng < -180.0)
     lng = -180.0;
   return lng;

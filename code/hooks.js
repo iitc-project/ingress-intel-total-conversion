@@ -15,6 +15,10 @@
 //            required to successfully boot the plugin.
 //
 // Here’s more specific information about each event:
+// portalSelected: called when portal on map is selected/unselected.
+//              Provide guid of selected and unselected portal.
+// mapDataRefreshStart: called when we start refreshing map data
+// mapDataRefreshEnd: called when we complete the map data load
 // portalAdded: called when a portal has been received and is about to
 //              be added to its layer group. Note that this does NOT
 //              mean it is already visible or will be, shortly after.
@@ -35,23 +39,8 @@
 //              displayed. The data hash contains both the unprocessed
 //              raw ajax response as well as the processed chat data
 //              that is going to be used for display.
-// portalDataLoaded: callback is passed the argument of
-//              {portals : [portal, portal, ...]} where "portal" is the
-//              data element and not the leaflet object. "portal" is an
-//              array [GUID, time, details]. Plugin can manipulate the
-//              array to change order or add additional values to the
-//              details of a portal.
-// beforePortalReRender: the callback argument is
-//              {portal: ent[2], oldPortal : d, portalGuid: ent[0], reRender : false}.
-//              The callback needs to update the value of reRender to
-//              true if the plugin has a reason to have the portal
-//              redrawn. It is called early on in the
-//              code/map_data.js#renderPortal as long as there was an
-//              old portal for the guid.
-// checkRenderLimit: callback is passed the argument of
-//              {reached : false} to indicate that the renderlimit is reached
-//              set reached to true.
-// requestFinished: called after each request finished. Argument is
+// requestFinished: DEPRECATED: best to use mapDataRefreshEnd instead
+//              called after each map data request finished. Argument is
 //              {success: boolean} indicated the request success or fail.
 // iitcLoaded: called after IITC and all plugins loaded
 // chatPreRender: called prior to rendering a chat line
@@ -62,9 +51,12 @@
 
 
 window._hooks = {}
-window.VALID_HOOKS = ['portalAdded', 'portalDetailsUpdated',
-  'publicChatDataAvailable', 'factionChatDataAvailable', 'portalDataLoaded',
-  'beforePortalReRender', 'checkRenderLimit', 'requestFinished', 'nicknameClicked',
+window.VALID_HOOKS = [
+  'portalSelected',
+  'mapDataRefreshStart', 'mapDataRefreshEnd',
+  'portalAdded', 'portalDetailsUpdated',
+  'publicChatDataAvailable', 'factionChatDataAvailable',
+  'requestFinished', 'nicknameClicked',
   'geoSearch', 'iitcLoaded', 'chatPreRender'];
 
 window.runHooks = function(event, data) {
@@ -73,9 +65,13 @@ window.runHooks = function(event, data) {
   if(!_hooks[event]) return true;
   var interupted = false;
   $.each(_hooks[event], function(ind, callback) {
-    if (callback(data) === false) {
-      interupted = true;
-      return false;  //break from $.each
+    try {
+      if (callback(data) === false) {
+        interupted = true;
+        return false;  //break from $.each
+      }
+    } catch(err) {
+      console.error('error running hook '+event+', error: '+err);
     }
   });
   return !interupted;
@@ -83,7 +79,11 @@ window.runHooks = function(event, data) {
 
 
 window.addHook = function(event, callback) {
-  if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);
+  if(VALID_HOOKS.indexOf(event) === -1) {
+    console.error('addHook: Unknown event type: ' + event + ' - ignoring');
+    return;
+  }
+
   if(typeof callback !== 'function') throw('Callback must be a function.');
 
   if(!_hooks[event])

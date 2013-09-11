@@ -3,6 +3,23 @@
 <ul>
 
 <li>
+<h4 id="mobile-login">Login on mobile doesn't work!</h4>
+<p>
+Many users are seeing the error message <b>Error: Server Error</b> when attempting to log in on mobile.
+To get past this and log in successfully, you can try to
+<ol>
+<li>Exit IITC and try again. Some people have success after a number of tries, <i>or</i></li>
+<li>Cancel when asked to choose an account, and manually enter your email address and password into the web page</li>
+</ol>
+</p>
+<p>
+As far as we can tell this isn't an IITC Mobile issue - using the Chrome browser on android, which also supports
+Google login, can give similar issues. Further discussion on this is happening in
+<a href="https://github.com/jonatkins/ingress-intel-total-conversion/issues/497">github issue #497</a>.
+</p>
+</li>
+
+<li>
 <h4 id="not-activated">I get a message saying my account isn't activated</h4>
 <p>
 Occasionally the Niantic servers give this misleading message - what it should usually say is
@@ -53,23 +70,25 @@ The data from the Niantic server is download in square tiles. Sometimes requests
 visually. The outline colour shows the state of the request:
 <ul>
 <li>Blue: data requested, waiting for response</li>
+<li>Grey: queued, waiting for other requests to finish</li>
 <li>Green: successful request/cached data fresh</li>
 <li>Red: Dark red for a complete request failure, lighter red for an individual tile timeout</li>
 </ul>
 The colour within the square shows the state of the data:
 <ul>
-<li>Grey: data requested, waiting for response</li>
+<li>Blue: data requested, waiting for response</li>
+<li>Grey: queued, waiting for other requests to complete</li>
 <li>Green: successful request</li>
 <li>Yellow: data from cache</li>
 <li>Red: request failed - no data from cache</li>
 </ul>
 The status message at the bottom-right of the screen gives a summary.
 <ul>
-<li>If all requests were succesful/fresh from cache (i.e. all green borders) the status is 'Up to Date'.</li>
+<li>If all requests were succesful/fresh from cache (i.e. all green borders) the status is 'Done'.</li>
 <li>If some requests failed, but cached data was available (i.e. some red border/yellow fill) the status is 'Out of date'.</li>
 <li>If some requests failed, but no cached data was available (i.e. some red border/red fill) the status is 'Error'.</li>
 </ul>
-The tooltip for this message gives the counts of successful/cached/stale/failed map data tiles.
+The tooltip for this message gives more details.
 </li>
 
 <li>

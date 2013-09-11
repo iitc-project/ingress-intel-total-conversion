@@ -3,15 +3,19 @@
 // methods that highlight the portal in the map view.
 
 window.renderPortalDetails = function(guid) {
+  selectPortal(window.portals[guid] ? guid : null);
+
   if(!window.portals[guid]) {
-    unselectOldPortal();
     urlPortal = guid;
+    $('#portaldetails').html('');
+    if(isSmartphone()) {
+      $('.fullimg').remove();
+      $('#mobileinfo').html('');
+    }
     return;
   }
 
   var d = window.portals[guid].options.details;
-
-  selectPortal(guid);
 
   // collect some random data that’s not worth to put in an own method
   var links = {incoming: 0, outgoing: 0};
@@ -43,8 +47,7 @@ window.renderPortalDetails = function(guid) {
 
   var resoDetails = '<table id="resodetails">' + getResonatorDetails(d) + '</table>';
 
-  setPortalIndicators(d);
-  var img = d.imageByUrl.imageUrl;
+  var img = getPortalImageUrl(d);
   var lat = d.locationE6.latE6/1E6;
   var lng = d.locationE6.lngE6/1E6;
   var perma = '/intel?ll='+lat+','+lng+'&z=17&pll='+lat+','+lng;
@@ -67,7 +70,7 @@ window.renderPortalDetails = function(guid) {
         submitterSpan = '<span class="none">';
       }
       portalDetailedDescription += '<tr><th>Photo by:</th><td>' + submitterSpan
-                                + escapeHtmlSpecialChars(portalDetailObj.submitter.name) + '</span> (' + portalDetailObj.submitter.voteCount + ' votes)</td></tr>';
+                                + escapeHtmlSpecialChars(portalDetailObj.submitter.name) + '</span>'+(portalDetailObj.submitter.voteCount !== undefined ? ' (' + portalDetailObj.submitter.voteCount + ' votes)' : '')+'</td></tr>';
     }
     if(portalDetailObj.submitter.link.length > 0) {
       portalDetailedDescription += '<tr><th>Photo from:</th><td><a href="'
@@ -89,7 +92,7 @@ window.renderPortalDetails = function(guid) {
     .attr('class', TEAM_TO_CSS[getTeam(d)])
     .html(''
       + '<h3 class="title">'+escapeHtmlSpecialChars(d.portalV2.descriptiveText.TITLE)+'</h3>'
-      + '<span class="close" onclick="unselectOldPortal();" title="Close">X</span>'
+      + '<span class="close" onclick="renderPortalDetails(null);" title="Close">X</span>'
       // help cursor via ".imgpreview img"
       + '<div class="imgpreview" '+imgTitle+' style="background-image: url('+img+')">'
       + '<span id="level">'+Math.floor(getPortalLevel(d))+'</span>'
@@ -106,7 +109,6 @@ window.renderPortalDetails = function(guid) {
         : '<aside><a href="'+perma+'" onclick="return androidCopy(this.href)" title="Create a URL link to this portal" >Portal link</a></aside>'
         + '<aside><a onclick="'+poslinks+'" title="Link to alternative maps (Google, etc)">Map links</a></aside>'
         )
-      + '<aside><a onclick="window.reportPortalIssue()" title="Report issues with this portal to Niantic/Google">Report issue</a></aside>'
       + '</div>'
     );
 
@@ -118,30 +120,26 @@ window.renderPortalDetails = function(guid) {
 }
 
 // draws link-range and hack-range circles around the portal with the
-// given details.
+// given details. Clear them if parameter 'd' is null.
 window.setPortalIndicators = function(d) {
   if(portalRangeIndicator) map.removeLayer(portalRangeIndicator);
+  portalRangeIndicator = null;
+  if(portalAccessIndicator) map.removeLayer(portalAccessIndicator);
+  portalAccessIndicator = null;
+
+  if(d === null) return;
+
   var range = getPortalRange(d);
   var coord = [d.locationE6.latE6/1E6, d.locationE6.lngE6/1E6];
   portalRangeIndicator = (range > 0
       ? L.geodesicCircle(coord, range, { fill: false, color: RANGE_INDICATOR_COLOR, weight: 3, clickable: false })
       : L.circle(coord, range, { fill: false, stroke: false, clickable: false })
     ).addTo(map);
-  if(!portalAccessIndicator)
-    portalAccessIndicator = L.circle(coord, HACK_RANGE,
-      { fill: false, color: ACCESS_INDICATOR_COLOR, weight: 2, clickable: false }
-    ).addTo(map);
-  else
-    portalAccessIndicator.setLatLng(coord);
-}
 
-window.clearPortalIndicators = function() {
-  if(portalRangeIndicator) map.removeLayer(portalRangeIndicator);
-  portalRangeIndicator = null;
-  if(portalAccessIndicator) map.removeLayer(portalAccessIndicator);
-  portalAccessIndicator = null;
+  portalAccessIndicator = L.circle(coord, HACK_RANGE,
+    { fill: false, color: ACCESS_INDICATOR_COLOR, weight: 2, clickable: false }
+  ).addTo(map);
 }
-
 
 // highlights portal with given GUID. Automatically clears highlights
 // on old selection. Returns false if the selected portal changed.
@@ -149,28 +147,26 @@ window.clearPortalIndicators = function() {
 // update.
 window.selectPortal = function(guid) {
   var update = selectedPortal === guid;
-  var oldPortal = portals[selectedPortal];
-  if(!update && oldPortal) portalResetColor(oldPortal);
-
+  var oldPortalGuid = selectedPortal;
   selectedPortal = guid;
 
-  if(portals[guid]) {
-    resonatorsSetSelectStyle(guid);
-    portals[guid].bringToFront().setStyle({color: COLOR_SELECTED_PORTAL});
+  var oldPortal = portals[oldPortalGuid];
+  var newPortal = portals[guid];
+
+  // Restore style of unselected portal
+  if(!update && oldPortal) setMarkerStyle(oldPortal,false);
+
+  // Change style of selected portal
+  if(newPortal) {
+    setMarkerStyle(newPortal, true);
+
+    if (map.hasLayer(newPortal)) {
+      newPortal.bringToFront();
+    }
   }
 
+  setPortalIndicators(newPortal ? newPortal.options.details : null);
+
+  runHooks('portalSelected', {selectedPortalGuid: guid, unselectedPortalGuid: oldPortalGuid});
   return update;
-}
-
-
-window.unselectOldPortal = function() {
-  var oldPortal = portals[selectedPortal];
-  if(oldPortal) portalResetColor(oldPortal);
-  selectedPortal = null;
-  $('#portaldetails').html('');
-  if(isSmartphone()) {
-    $('.fullimg').remove();
-    $('#mobileinfo').html('');
-  }
-  clearPortalIndicators();
 }

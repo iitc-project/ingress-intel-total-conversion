@@ -127,10 +127,8 @@ window.setupMap = function() {
     /*5*/ new L.Google('TERRAIN',{maxZoom:15})
   ];
 
-
-  window.map = new L.Map('map', $.extend(getPosition(),
-    {zoomControl: window.showZoom, minZoom: 1}
-  ));
+  // proper initial position is now delayed until all plugins are loaded and the base layer is set
+  window.map = new L.Map('map', {center: [0,0], zoom: 1, zoomControl: window.showZoom, minZoom: 1});
 
   // add empty div to leaflet control areas - to force other leaflet controls to move around IITC UI elements
   // TODO? move the actual IITC DOM into the leaflet control areas, so dummy <div>s aren't needed
@@ -166,7 +164,7 @@ window.setupMap = function() {
 
   window.layerChooser = new L.Control.Layers({
     'MapQuest OSM': views[0],
-    'Default Ingress Map': views[1],
+    'Google Default Ingress Map': views[1],
     'Google Roads':  views[2],
     'Google Satellite':  views[3],
     'Google Hybrid':  views[4],
@@ -183,31 +181,27 @@ window.setupMap = function() {
   map.attributionControl.setPrefix('');
   // listen for changes and store them in cookies
   map.on('moveend', window.storeMapPosition);
-  map.on('zoomend', function() {
-    window.storeMapPosition();
 
-    // remove all resonators if zoom out to < RESONATOR_DISPLAY_ZOOM_LEVEL
-    if(isResonatorsShow()) return;
-    for(var i = 1; i < portalsLayers.length; i++) {
-      portalsLayers[i].eachLayer(function(item) {
-        var itemGuid = item.options.guid;
-        // check if 'item' is a resonator
-        if(getTypeByGuid(itemGuid) != TYPE_RESONATOR) return true;
-        portalsLayers[i].removeLayer(item);
-      });
+  map.on('moveend', function(e) {
+    // two limits on map position
+    // we wrap longitude (the L.LatLng 'wrap' method) - so we don't find outselves looking beyond +-180 degrees
+    // then latitude is clamped with the clampLatLng function (to the 85 deg north/south limits)
+    var newPos = clampLatLng(map.getCenter().wrap());
+    if (!map.getCenter().equals(newPos)) {
+      map.panTo(newPos,{animate:false})
     }
-
-    console.log('Remove all resonators');
   });
-
 
   // map update status handling & update map hooks
   // ensures order of calls
-  map.on('movestart zoomstart', function() { window.mapRunsUserAction = true; window.requests.abort(); window.startRefreshTimeout(-1); });
-  map.on('moveend zoomend', function() { window.mapRunsUserAction = false; window.startRefreshTimeout(ON_MOVE_REFRESH*1000); });
+  map.on('movestart', function() { window.mapRunsUserAction = true; window.requests.abort(); window.startRefreshTimeout(-1); });
+  map.on('moveend', function() { window.mapRunsUserAction = false; window.startRefreshTimeout(ON_MOVE_REFRESH*1000); });
 
   window.addResumeFunction(function() { window.startRefreshTimeout(ON_MOVE_REFRESH*1000); });
-  window.requests.addRefreshFunction(window.requestData);
+
+  // create the map data requester
+  window.mapDataRequest = new MapDataRequest();
+  window.mapDataRequest.start();
 
   // start the refresh process with a small timeout, so the first data request happens quickly
   // (the code originally called the request function directly, and triggered a normal delay for the nxt refresh.
@@ -233,9 +227,10 @@ window.setMapBaseLayer = function() {
   var baseLayer = nameToLayer[localStorage['iitc-base-map']] || firstLayer;
   map.addLayer(baseLayer);
 
-  //after choosing a base layer, ensure the zoom is valid for this layer
-  //(needs to be done here - as we don't know the base layer zoom limit before this)
-  map.setZoom(map.getZoom());
+  // now we have a base layer we can set the map position
+  // (setting an initial position, before a base layer is added, causes issues with leaflet)
+  var pos = getPosition();
+  map.setView (pos.center, pos.zoom, {reset:true});
 
 
   //event to track layer changes and store the name
@@ -300,12 +295,6 @@ window.setupPlayerStat = function() {
     + '</div>'
     + '</h2>'
   );
-
-  $('#name').mouseenter(function() {
-    $('#signout').show();
-  }).mouseleave(function() {
-    $('#signout').hide();
-  });
 }
 
 window.setupSidebarToggle = function() {
@@ -456,6 +445,7 @@ function boot() {
     shadowSize: new L.Point(41, 41)
   }});
 
+  window.setupIdle();
   window.setupTaphold();
   window.setupStyles();
   window.setupDialogs();
@@ -491,7 +481,7 @@ function boot() {
       try {
         ref();
       } catch(err) {
-        console.log("error starting plugin: index "+ind+", error: "+err);
+        console.error("error starting plugin: index "+ind+", error: "+err);
       }
     });
 
@@ -501,7 +491,7 @@ function boot() {
   window.runOnSmartphonesAfterBoot();
 
   // workaround for #129. Not sure why this is required.
-  setTimeout('window.map.invalidateSize(false);', 500);
+//  setTimeout('window.map.invalidateSize(false);', 500);
 
   window.iitcLoaded = true;
   window.runHooks('iitcLoaded');

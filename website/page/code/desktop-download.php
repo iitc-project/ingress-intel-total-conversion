@@ -6,11 +6,11 @@ include_once ( "userscript.php" );
 function iitcDesktopDownload ( $build )
 {
 	$iitc_details = loadUserScriptHeader ( "$build/total-conversion-build.user.js" );
-	$iitc_version = preg_replace ( '/^(\d+\.\d+\.\d+)\.(\d{8}\.\d{6})/', '\1<small class="muted">.\2</small>', $iitc_details['@version'] );
+	$iitc_version = preg_replace ( '/^(\d+\.\d+\.\d+)\.(\d{8}\.\d{1,6})/', '\1<small class="muted">.\2</small>', $iitc_details['@version'] );
 
 	print "<p>IITC version $iitc_version</p>\n";
 
-	print "<a class=\"btn btn-large btn-primary\" onclick=\"if(track){track('desktop','iitc','$build');}\" href=\"$build/total-conversion-build.user.js\">Download</a>\n";
+	print "<a class=\"btn btn-large btn-primary\" onclick=\"if(track){track('desktop','iitc','$build');}\" href=\"$build/total-conversion-build.user.js\" target=\"_blank\">Download</a>\n";
 }
 
 function loadPopularity()
@@ -52,6 +52,8 @@ function iitcDesktopPluginDownloadTable ( $build )
 		'Map Tiles' => "Alternative map layers",
 		'Tweaks' => "Adjust IITC settings",
 		'Misc' => "Unclassified plugins",
+		'Obsolete' => "Plugins that are no longer recommended, due to being superceeded by others or similar",
+		'Deleted' => "Deleted plugins - listed here for reference only. No download available"
 	);
 
 	$popularity = loadPopularity();
@@ -121,7 +123,7 @@ function iitcDesktopPluginDownloadTable ( $build )
 			$name = preg_replace ( '/^IITC plugin: /i', '', $details['@name'] );
 
 			# format extended version info in less prominant font
-			$version = preg_replace ( '/^(\d+\.\d+\.\d+)\.(\d{8}\.\d{6})/', '\1<br><small class="muted">.\2</small>', $details['@version'] );
+			$version = preg_replace ( '/^(\d+\.\d+\.\d+)\.(\d{8}\.\d{1,6})/', '\1<br><small class="muted">.\2</small>', $details['@version'] );
 
 			# remove unneeded prefix from description
 			$description = preg_replace ( '/^\[[^]]*\] */', '', $details['@description'] );
@@ -137,7 +139,12 @@ function iitcDesktopPluginDownloadTable ( $build )
 			print "<td class=\"popularity\">$plugin_users</td>";
 			print "<td class=\"id\">$basename</td>";
 			print "<td class=\"version\" rowspan=\"2\">$version</td>";
-			print "<td class=\"download\" rowspan=\"2\"><a onclick=\"if(track){track('desktop','iitc-plugin-$basename','$build');}\" href=\"$path\" class=\"btn btn-small btn-primary\" title=\"Download\"><i class=\"icon-download icon-white\"></i></a></td>";
+
+			if ( $category != "Deleted" )
+			{
+				print "<td class=\"download\" rowspan=\"2\"><a onclick=\"if(track){track('desktop','iitc-plugin-$basename','$build');}\" href=\"$path\" target=\"_blank\" class=\"btn btn-small btn-primary\" title=\"Download\"><i class=\"icon-download icon-white\"></i></a></td>";
+			}
+
 			print "</tr>\n";
 			print "<tr><td class=\"description\" colspan=\"3\" style=\"border-top: none; padding-top: 0; padding-bottom: 0.5em\">$description</td></tr>\n";
 

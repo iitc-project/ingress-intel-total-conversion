@@ -52,7 +52,6 @@ window.plugin.portalsMissingResonators.highlight = function(data) {
                             dashArray: null});
     }
   }
-  window.COLOR_SELECTED_PORTAL = '#f0f';
 }
 
 var setup =  function() {

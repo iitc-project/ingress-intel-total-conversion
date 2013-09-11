@@ -25,11 +25,13 @@ public class IITC_WebView extends WebView {
     private WebSettings mSettings;
     private IITC_WebViewClient mIitcWebViewClient;
     private IITC_JSInterface mJsInterface;
+    private Context mContext;
     private boolean mDisableJs = false;
 
     // init web view
     private void iitc_init(Context c) {
         if (this.isInEditMode()) return;
+        mContext = c;
         mSettings = this.getSettings();
         mSettings.setJavaScriptEnabled(true);
         mSettings.setDomStorageEnabled(true);
@@ -40,7 +42,7 @@ public class IITC_WebView extends WebView {
                 + "/databases/");
         mSettings.setAppCachePath(this.getContext().getCacheDir()
                 .getAbsolutePath());
-        this.mJsInterface = new IITC_JSInterface(c);
+        this.mJsInterface = new IITC_JSInterface(mContext);
         this.addJavascriptInterface(mJsInterface, "android");
 
         this.setWebChromeClient(new WebChromeClient() {
@@ -134,7 +136,7 @@ public class IITC_WebView extends WebView {
                 url = url.replace("https://", "http://");
 
             // disable splash screen if a http error code is responded
-            new CheckHttpResponse(mJsInterface).execute(url);
+            new CheckHttpResponse(mJsInterface, mContext).execute(url);
             Log.d("iitcm", "loading url: " + url);
         }
         super.loadUrl(url);
@@ -149,12 +151,17 @@ public class IITC_WebView extends WebView {
     }
 
     public void updateCaching() {
+        boolean login = false;
+        if (getUrl() != null) {
+            login = getUrl().contains("accounts.google.com");
+        }
         // use cache if on mobile network...saves traffic
-        if (!this.isConnectedToWifi()) {
+        if (!this.isConnectedToWifi() && !login) {
             Log.d("iitcm", "not connected to wifi...load tiles from cache");
             mSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         } else {
-            Log.d("iitcm", "connected to wifi...load tiles from network");
+            if (login) Log.d("iitcm", "login...load tiles from network");
+            else Log.d("iitcm", "connected to wifi...load tiles from network");
             mSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
         }
     }

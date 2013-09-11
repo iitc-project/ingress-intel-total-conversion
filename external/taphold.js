@@ -1,14 +1,23 @@
 // @author Rich Adams <rich@richadams.me>
 
 // Implements a tap and hold functionality. If you click/tap and release, it will trigger a normal
-// click event. But if you click/tap and hold for 1s, it will trigger a taphold event instead.
+// click event. But if you click/tap and hold for 1s (default), it will trigger a taphold event instead.
 
 ;(function($)
 {
+    // Default options
+    var defaults = {
+        duration: 1000, // ms
+        clickHandler: null
+    }
+
     // When start of a taphold event is triggered.
     function startHandler(event)
     {
         var $elem = jQuery(this);
+
+        // Merge the defaults and any user defined settings.
+        settings = jQuery.extend({}, defaults, event.data);
 
         // If object also has click handler, store it and unbind. Taphold will trigger the
         // click itself, rather than normal propagation.
@@ -28,11 +37,9 @@
             }
         }
         // Otherwise, if a custom click handler was explicitly defined, then store it instead.
-        else if (typeof event.data != "undefined"
-                 && event.data != null
-                 && typeof event.data.clickHandler == "function")
+        else if (typeof settings.clickHandler == "function")
         {
-            $elem.data("taphold_click_handler", event.data.clickHandler);
+            $elem.data("taphold_click_handler", settings.clickHandler);
         }
 
         // Reset the flags
@@ -52,7 +59,7 @@
                     $elem.trigger(jQuery.extend(event, jQuery.Event("taphold")));
                     $elem.data("taphold_triggered", true);
                 }
-            }, 1000));
+            }, settings.duration));
     }
 
     // When user ends a tap or click, decide what we should do.
@@ -88,19 +95,23 @@
         $(this).data("taphold_cancelled", true);
     }
 
+    // Determine if touch events are supported.
+    var touchSupported = ("ontouchstart" in window) // Most browsers
+                         || ("onmsgesturechange" in window); // Mircosoft
+
     var taphold = $.event.special.taphold =
     {
         setup: function(data)
         {
-            $(this).bind("touchstart mousedown",  data, startHandler)
-                   .bind("touchend mouseup",    stopHandler)
-                   .bind("touchmove mouseleave", leaveHandler);
+            $(this).bind((touchSupported ? "touchstart" : "mousedown"),  data, startHandler)
+                   .bind((touchSupported ? "touchend"   : "mouseup"),    stopHandler)
+                   .bind((touchSupported ? "touchmove"  : "mouseleave"), leaveHandler);
         },
         teardown: function(namespaces)
         {
-            $(this).unbind("touchstart mousedown",  startHandler)
-                   .unbind("touchend mouseup",    stopHandler)
-                   .unbind("touchmove mouseleave", leaveHandler);
+            $(this).unbind((touchSupported ? "touchstart" : "mousedown"),  startHandler)
+                   .unbind((touchSupported ? "touchend"   : "mouseup"),    stopHandler)
+                   .unbind((touchSupported ? "touchmove"  : "mouseleave"), leaveHandler);
         }
     };
 })(jQuery);

@@ -33,12 +33,14 @@ window.getPortalDescriptionFromDetailsExtended = function(details) {
 
   var submitterObj = new Object();
   submitterObj.type = "";
-  submitterObj.name = "Unknown";
+  submitterObj.name = "";
   submitterObj.team = "";
   submitterObj.link = "";
-  submitterObj.voteCount = 0;
+  submitterObj.voteCount = undefined;
 
   if(photoStreamObj && photoStreamObj.hasOwnProperty("coverPhoto") && photoStreamObj.coverPhoto.hasOwnProperty("attributionMarkup")) {
+    submitterObj.name = "Unknown";
+
     var attribution = photoStreamObj.coverPhoto.attributionMarkup;
     submitterObj.type = attribution[0];
     if(attribution[1].hasOwnProperty("plain"))

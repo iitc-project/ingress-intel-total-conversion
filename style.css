@@ -9,7 +9,7 @@ html, body, #map {
 
 body {
   font-size: 14px;
-  font-family: "coda",arial,helvetica,sans-serif;
+  font-family: "roboto",arial,helvetica,sans-serif;
   margin: 0;
 }
 
@@ -136,7 +136,7 @@ a:hover {
 .fieldmu {
   color: #FFCE00;
   font-size: 13px;
-  font-family: "coda",arial,helvetica,sans-serif; /*override leaflet-container */
+  font-family: "roboto",arial,helvetica,sans-serif; /*override leaflet-container */
   text-align: center;
   text-shadow: 0 0 0.2em black, 0 0 0.2em black, 0 0 0.2em black;
   pointer-events: none;
@@ -399,7 +399,7 @@ h2 #stats {
   overflow: hidden;
 }
 
-h2 #signout {
+#signout {
   font-size: 12px;
   font-weight: normal;
   line-height: 29px;
@@ -409,6 +409,9 @@ h2 #signout {
   right: 0;
   background-color: rgba(8, 48, 78, 0.5);
   display: none; /* starts hidden */
+}
+#name:hover #signout {
+  display: block;
 }
 
 h2 sup, h2 sub {
@@ -947,7 +950,7 @@ td + td {
   left:10px;
   z-index: 2500;
   font-size:11px;
-  font-family: "coda",arial,helvetica,sans-serif;
+  font-family: "roboto",arial,helvetica,sans-serif;
   background-color:#0E3C46;
   color:#ffce00;
   

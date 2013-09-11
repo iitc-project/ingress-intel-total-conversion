@@ -60,7 +60,6 @@ window.plugin.portalHighligherPortalAPRelative.highlight = function(data) {
     opacity = 1;
   }
   data.portal.setStyle({fillColor: color, fillOpacity: opacity});
-  window.COLOR_SELECTED_PORTAL = '#f0f';
 }
 
 window.plugin.portalHighligherPortalAPRelative.resetAPLevels = function() {
