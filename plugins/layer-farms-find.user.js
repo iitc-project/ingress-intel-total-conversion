@@ -308,6 +308,9 @@ window.plugin.farmFind.drawCircle = function(farm)
         $('<style>').prop('type', 'text/css').html(''
             + '#farm_level_select {'
             + ' top: 0px !important;'
+            + ' right: 0px;'
+            + ' left: auto !important;'
+            + ' margin-right: 0;'
             + '}\n').appendTo('head');
     };
 
