@@ -144,7 +144,7 @@ window.setupMap = function() {
   var portalsLayers = [];
   for(var i = 0; i <= 8; i++) {
     portalsFactionLayers[i] = [L.layerGroup(), L.layerGroup(), L.layerGroup()];
-    portalsLayers[i] = L.layerGroup(portalsFactionLayers[i]);
+    portalsLayers[i] = L.layerGroup();
     map.addLayer(portalsLayers[i]);
     var t = (i === 0 ? 'Unclaimed' : 'Level ' + i) + ' Portals';
     addLayers[t] = portalsLayers[i];
@@ -153,18 +153,58 @@ window.setupMap = function() {
   }
 
   fieldsFactionLayers = [L.layerGroup(), L.layerGroup(), L.layerGroup()];
-  var fieldsLayer = L.layerGroup(fieldsFactionLayers);
+  var fieldsLayer = L.layerGroup();
   map.addLayer(fieldsLayer, true);
   addLayers['Fields'] = fieldsLayer;
   // Store it in hiddenLayer to remove later
   if(!isLayerGroupDisplayed('Fields', true)) hiddenLayer.push(fieldsLayer);
 
   linksFactionLayers = [L.layerGroup(), L.layerGroup(), L.layerGroup()];
-  var linksLayer = L.layerGroup(linksFactionLayers);
+  var linksLayer = L.layerGroup();
   map.addLayer(linksLayer, true);
   addLayers['Links'] = linksLayer;
   // Store it in hiddenLayer to remove later
   if(!isLayerGroupDisplayed('Links', true)) hiddenLayer.push(linksLayer);
+
+  // faction-specific layers
+  // these layers don't actually contain any data. instead, everytime they're added/removed from the map,
+  // the matching sub-layers within the above portals/fields/links are added/removed from their parent
+  var factionLayers = [L.layerGroup(), L.layerGroup(), L.layerGroup()];
+
+  window.map.on('layeradd layerremove', function(e) {
+    for (var fac in factionLayers) {
+      if (e.layer === factionLayers[fac]) {
+        if (e.type == 'layeradd') {
+          for (var lvl in portalsLayers) {
+            if (!portalsLayers[lvl].hasLayer(portalsFactionLayers[lvl][fac])) portalsLayers[lvl].addLayer (portalsFactionLayers[lvl][fac]);
+          }
+          if (!fieldsLayer.hasLayer(fieldsFactionLayers[fac])) fieldsLayer.addLayer (fieldsFactionLayers[fac]);
+          if (!linksLayer.hasLayer(linksFactionLayers[fac])) linksLayer.addLayer (linksFactionLayers[fac]);
+        } else {
+          for (var lvl in portalsLayers) {
+            if (portalsLayers[lvl].hasLayer(portalsFactionLayers[lvl][fac])) portalsLayers[lvl].removeLayer (portalsFactionLayers[lvl][fac]);
+          }
+          if (fieldsLayer.hasLayer(fieldsFactionLayers[fac])) fieldsLayer.removeLayer (fieldsFactionLayers[fac]);
+          if (linksLayer.hasLayer(linksFactionLayers[fac])) linksLayer.removeLayer (linksFactionLayers[fac]);
+        }
+      }
+    }
+  });
+  for (var fac in factionLayers) {
+    map.addLayer (factionLayers[fac]);
+  }
+
+  // to avoid any favouritism, we'll put the player's own faction layer first
+  if (PLAYER.team == 'RESISTANCE') {
+    addLayers['Resistance'] = factionLayers[TEAM_RES];
+    addLayers['Enlightened'] = factionLayers[TEAM_ENL];
+  } else {
+    addLayers['Enlightened'] = factionLayers[TEAM_ENL];
+    addLayers['Resistance'] = factionLayers[TEAM_RES];
+  }
+  if (!isLayerGroupDisplayed('Resistance', true)) hiddenLayer.push (factionLayers[TEAM_RES]);
+  if (!isLayerGroupDisplayed('Enlightened', true)) hiddenLayer.push (factionLayers[TEAM_ENL]);
+
 
   window.layerChooser = new L.Control.Layers({
     'MapQuest OSM': views[0],
