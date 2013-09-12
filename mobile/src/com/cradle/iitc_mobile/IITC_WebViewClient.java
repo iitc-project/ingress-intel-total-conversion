@@ -187,9 +187,9 @@ public class IITC_WebViewClient extends WebViewClient {
                                 + plugin, false);
                     else
                         js += this.removePluginWrapper("plugins/" + plugin, true);
-                    // load additional iitc plugins
+                    // load user iitc plugins
                 } else {
-                    Log.d("iitcm", "adding additional plugin " + plugin);
+                    Log.d("iitcm", "adding user plugin " + plugin);
                     js += this.removePluginWrapper(plugin, false);
                 }
             }
