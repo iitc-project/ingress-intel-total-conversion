@@ -190,3 +190,11 @@ body {
   top:0px !important;
   left:0px !important;
 }
+
+/*
+ * for some reason leaflet popups on mobile are colored white on white
+ * so force the popup msg color to black
+ */
+.leaflet-popup-content{
+    color:black;
+}
