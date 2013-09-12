@@ -2,10 +2,10 @@
 // @id             max-links@boombuler
 // @name           IITC plugin: Max Links
 // @category       Layer
-// @version        0.4.0.@@DATETIMEVERSION@@
+// @version        0.4.1.@@DATETIMEVERSION@@
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Calculates how to link the portals to create a reasonably neat set of links/fields. Enable from the layer chooser. (Max Links is a poor name, but remains for historical reasons.)
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Calculates how to link the portals to create a reasonably tidy set of links/fields. Enable from the layer chooser. (Max Links is a poor name, but remains for historical reasons.)
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -50,7 +50,7 @@ window.plugin.maxLinks.addErrorMarker = function() {
       icon: L.divIcon({
         className: 'max-links-error',
         iconSize: [300,30],
-        html: 'Max Links: too many portals!'
+        html: 'Tidy Links: too many portals!'
       }),
       clickable: false
     });
@@ -154,7 +154,7 @@ window.plugin.maxLinks.setup = function() {
       window.plugin.maxLinks.clearErrorMarker();
   });
 
-  window.addLayerGroup('Maximum Links', window.plugin.maxLinks.layer, false);
+  window.addLayerGroup('Tidy Links (was Max Links)', window.plugin.maxLinks.layer, false);
 
   $('head').append('<style>'+
     '.max-links-error { color: #F88; font-size: 20px; font-weight: bold; text-align: center; text-shadow: -1px -1px #000, 1px -1px #000, -1px 1px #000, 1px 1px #000; background-color: rgba(0,0,0,0.6); border-radius: 5px; }'+
