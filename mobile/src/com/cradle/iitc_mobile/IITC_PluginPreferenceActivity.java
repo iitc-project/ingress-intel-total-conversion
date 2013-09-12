@@ -105,7 +105,11 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
     void checkForNewPlugins() {
         File[] user = getUserPlugins();
         String[] official = getAssetPlugins();
-        if ((user.length + official.length) != sPlugins.size()) {
+        int numPlugins = 0;
+        for (Map.Entry<String, ArrayList<IITC_PluginPreference>> entry : sPlugins.entrySet()) {
+            numPlugins += entry.getValue().size();
+        }
+        if ((user.length + official.length) != numPlugins) {
             Log.d("iitcm", "new or less plugins found since last start, rebuild preferences");
             sPlugins.clear();
             setUpPluginPreferenceScreen();
