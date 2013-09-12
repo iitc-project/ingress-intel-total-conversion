@@ -2,7 +2,7 @@
 // @id             iitc-plugin-draw-resonators@xelio
 // @name           IITC plugin: Draw resonators
 // @category       Layer
-// @version        0.2.0.@@DATETIMEVERSION@@
+// @version        0.2.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -56,6 +56,7 @@ window.plugin.drawResonators.Render = function(options) {
   this.deleteResonatorEntities = this.deleteResonatorEntities.bind(this);
   this.handleResonatorEntitiesBeforeZoom = this.handleResonatorEntitiesBeforeZoom.bind(this);
   this.handleResonatorEntitiesAfterZoom = this.handleResonatorEntitiesAfterZoom.bind(this);
+  this.handleEnableZoomLevelChange = this.handleEnableZoomLevelChange.bind(this);
   this.portalSelectionChange = this.portalSelectionChange.bind(this);
 };
 
@@ -161,24 +162,46 @@ window.plugin.drawResonators.Render.prototype.handleResonatorEntitiesBeforeZoom 
 
 window.plugin.drawResonators.Render.prototype.handleResonatorEntitiesAfterZoom = function() {
   if(!this.isResonatorsShow()) {
-    this.resonatorLayerGroup.clearLayers();
-    this.resonators = {};
-  } else {
-    // Redraw all resonators if they were deleted
-    if(this.isResonatorsShowBeforeZoom()) return;
+    this.clearAllResonators();
+    return;
+  }
 
-    var render = this;
+  // Draw all resonators if they were not drawn
+  if(!this.isResonatorsShowBeforeZoom()) {
+    this.drawAllResonators();
+  }
+}
 
-    // loop through level of portals, only draw if the portal is shown on map
-    for (var guid in window.portals) {
-      var portal = window.portals[guid];
-      // FIXME: need to find a proper way to check if a portal is added to the map without depending on leaflet internals
-      // (and without depending on portalsLayers either - that's IITC internal)
-      if (portal._map) {
-        render.createResonatorEntities(portal);
-      }
+window.plugin.drawResonators.Render.prototype.handleEnableZoomLevelChange = function(zoomLevel) {
+  this.enableZoomLevel = zoomLevel;
+
+  if(!this.isResonatorsShow()) {
+    this.clearAllResonators();
+    return;
+  }
+
+  // Draw all resonators if they were not drawn
+  if(!Object.keys(this.resonators).length > 0) {
+    this.drawAllResonators();
+  }
+}
+
+window.plugin.drawResonators.Render.prototype.clearAllResonators = function() {
+  this.resonatorLayerGroup.clearLayers();
+  this.resonators = {};
+}
+
+window.plugin.drawResonators.Render.prototype.drawAllResonators = function() {
+  var render = this;
+
+  // loop through level of portals, only draw if the portal is shown on map
+  for (var guid in window.portals) {
+    var portal = window.portals[guid];
+    // FIXME: need to find a proper way to check if a portal is added to the map without depending on leaflet internals
+    // (and without depending on portalsLayers either - that's IITC internal)
+    if (portal._map) {
+      render.createResonatorEntities(portal);
     }
-
   }
 }
 
@@ -299,14 +322,22 @@ window.plugin.drawResonators.Styler.prototype.defaultConnectorStyle = function(r
 
 //////// Options for storing and loading options ////////
 
-// TODO: add callback to notify option changes
+
 
 window.plugin.drawResonators.Options = function() {
   this._options = {};
+  this._callbacks = {};
+}
+
+window.plugin.drawResonators.Options.prototype.addCallback = function(name, callback) {
+  if (!this._callbacks[name]) {
+    this._callbacks[name] = [];
+  }
+  this._callbacks[name].push(callback);
 }
 
 window.plugin.drawResonators.Options.prototype.newOption = function(name, defaultValue) {
-  this._options[name] = this.loadLocal(this.getStorageKey, defaultValue)
+  this._options[name] = this.loadLocal(this.getStorageKey(name), defaultValue)
 }
 
 window.plugin.drawResonators.Options.prototype.getOption = function(name) {
@@ -315,9 +346,16 @@ window.plugin.drawResonators.Options.prototype.getOption = function(name) {
 
 window.plugin.drawResonators.Options.prototype.changeOption = function(name, value) {
   if(!(name in this._options)) return false;
+  if(value === this._options[name]) return false;
 
   this._options[name] = value;
-  this.storeLocal(name, this._options[name]);
+  this.storeLocal(this.getStorageKey(name), this._options[name]);
+
+  if (this._callbacks[name] !== null) {
+    for(var i in this._callbacks[name]) {
+      this._callbacks[name][i](value);
+    }
+  }
 }
 
 window.plugin.drawResonators.Options.prototype.getStorageKey = function(name) {
@@ -343,21 +381,128 @@ window.plugin.drawResonators.Options.prototype.storeLocal = function(key, value)
 
 
 
+//////// Dialog
+
+window.plugin.drawResonators.Dialog = function() {
+  this._dialogEntries = {};
+}
+
+window.plugin.drawResonators.Dialog.prototype.addLink = function() {
+  $('#toolbox').append('<a id="draw-reso-show-dialog" onclick="window.plugin.drawResonators.dialog.show();">Resonators</a> ');
+}
+
+window.plugin.drawResonators.Dialog.prototype.addEntry = function(dialogEntry) {
+  this._dialogEntries[dialogEntry.name] = dialogEntry;
+}
+
+
+window.plugin.drawResonators.Dialog.prototype.show = function() {
+  window.dialog({html: this.getDialogHTML(), title: 'Resonators', modal: true, id: 'draw-reso-setting'});
+
+  // Attach entries event
+  for(var name in this._dialogEntries) {
+    var events = this._dialogEntries[name].getOnEvents();
+    for(var i in events) {
+      var event = events[i];
+      $('#draw-reso-dialog').on(event.event, '#' + event.id, event.callback);
+    }
+  }
+}
+
+window.plugin.drawResonators.Dialog.prototype.getDialogHTML = function() {
+  var html = '<div id="draw-reso-dialog">'
+  for(var name in this._dialogEntries) {
+    html += this._dialogEntries[name].getHTML();
+  }
+  html += '</div>';
+  return html;
+}
+
+
+
+//////// ListDialogEntry
+
+
+
+window.plugin.drawResonators.ListDialogEntry = function(options) {
+  this._name = options['name'];
+  this._label = options['label'];
+  this._valueFunc = options['valueFunc'];
+  this._valuesList = options['valuesList'];
+  this._valuesListFunc = options['valuesListFunc'];
+  this._onChangeCallback = options['onChangeCallback'];
+}
+
+window.plugin.drawResonators.ListDialogEntry.prototype.getHTML = function() {
+  var curValue = this._valueFunc();
+  var valuesList = this._valuesList ? this._valuesList : this._valuesListFunc();
+  var html = '<label for="' + this.getSelectId() + '">'
+           + this._label + ': '
+           + '</label>'
+           + '<select id="' + this.getSelectId() + '">';
+
+  for(var label in valuesList) {
+    var selected = valuesList[label] === curValue;
+    html += '<option value="' + valuesList[label] + '" '
+          + (selected ? 'selected="selected"' : '')
+          +'>'
+          + label
+          + '</option>';
+  }
+
+  html += '</select>';
+  return html;
+}
+
+window.plugin.drawResonators.ListDialogEntry.prototype.getOnEvents = function() {
+  return [{'event': 'change',
+           'id': this.getSelectId(),
+           'callback': this._onChangeCallback
+  }];
+}
+
+window.plugin.drawResonators.ListDialogEntry.prototype.getSelectId = function() {
+  return 'draw-reso-option-' + this._name;
+}
+
+
+
 
 var setup =  function() {
-  window.plugin.drawResonators.options = new window.plugin.drawResonators.Options();
-  window.plugin.drawResonators.options.newOption('enableZoomLevel', 17);
-  window.plugin.drawResonators.options.newOption('useStyler', 'default');
+  var thisPlugin = window.plugin.drawResonators;
 
+  // Initialize options
+  thisPlugin.options = new thisPlugin.Options();
+  thisPlugin.options.newOption('enableZoomLevel', 17);
+  thisPlugin.options.newOption('useStyler', 'default');
+
+  // Initialize render
   var renderOptions = {
-    'enableZoomLevel': window.plugin.drawResonators.options.getOption('enableZoomLevel'),
-    'useStyler': window.plugin.drawResonators.options.getOption('useStyler')};
+    'enableZoomLevel': thisPlugin.options.getOption('enableZoomLevel'),
+    'useStyler': thisPlugin.options.getOption('useStyler')};
 
-  window.plugin.drawResonators.render = new window.plugin.drawResonators.Render(renderOptions);
-  window.plugin.drawResonators.render.registerHook();
-  window.addLayerGroup('Resonators', window.plugin.drawResonators.render.resonatorLayerGroup, true);
+  thisPlugin.render = new thisPlugin.Render(renderOptions);
+  thisPlugin.render.registerHook();
+  window.addLayerGroup('Resonators', thisPlugin.render.resonatorLayerGroup, true);
 
-  // TODO: add options dialog to change options
+  thisPlugin.options.addCallback('enableZoomLevel', thisPlugin.render.handleEnableZoomLevelChange);
+
+  // Initialize dialog
+  thisPlugin.dialog = new thisPlugin.Dialog();
+
+  var enableZoomLevelDialogEntryOptions = {
+    name: 'enable-zoom-level',
+    label: 'Enable zoom level',
+    valueFunc: function() {return thisPlugin.options.getOption('enableZoomLevel')},
+    valuesList: {'15':15, '16':16, '17':17, '18':18, '19':19, '20':20, 'none':99},
+    onChangeCallback: function(event) {thisPlugin.options.changeOption('enableZoomLevel', parseInt(event.target.value));}
+  };
+  var enableZoomLevelDialogEntry = new thisPlugin.ListDialogEntry(enableZoomLevelDialogEntryOptions);
+  thisPlugin.dialog.addEntry(enableZoomLevelDialogEntry);
+
+  thisPlugin.dialog.addLink();
+
+  // TODO: Add dialog entry for styler
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////
