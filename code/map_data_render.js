@@ -139,13 +139,27 @@ window.Render.prototype.endRenderPass = function() {
 }
 
 window.Render.prototype.bringPortalsToFront = function() {
-  for (var i in portalsLayers) {
-    var layer = portalsLayers[i];
-    if (window.map.hasLayer(layer)) {
-      layer.eachLayer (function(p) {
-        p.bringToFront();
-      });
+  for (var lvl in portalsFactionLayers) {
+    // portals are stored in separate layers per faction
+    // to avoid giving weight to one faction or another, we'll push portals to front based on GUID order
+    var portals = {};
+    for (var fac in portalsFactionLayers[lvl]) {
+      var layer = portalsFactionLayers[lvl][fac];
+      if (layer._map) {
+        layer.eachLayer (function(p) {
+          portals[p.options.guid] = p;
+        });
+      }
     }
+
+    var guids = Object.keys(portals);
+    guids.sort();
+
+    for (var j in guids) {
+      var guid = guids[j];
+      portals[guid].bringToFront();
+    }
+
   }
 }
 
@@ -167,7 +181,7 @@ window.Render.prototype.deletePortalEntity = function(guid) {
 window.Render.prototype.deleteLinkEntity = function(guid) {
   if (guid in window.links) {
     var l = window.links[guid];
-    linksLayer.removeLayer(l);
+    linksFactionLayers[l.options.team].removeLayer(l);
     delete window.links[guid];
   }
 }
@@ -194,7 +208,7 @@ window.Render.prototype.deleteFieldEntity = function(guid) {
     deletePortalLinkedField (fd.capturedRegion.vertexB.guid);
     deletePortalLinkedField (fd.capturedRegion.vertexC.guid);
 
-    fieldsLayer.removeLayer(f);
+    fieldsFactionLayers[f.options.team].removeLayer(f);
     delete window.fields[guid];
   }
 }
@@ -311,9 +325,7 @@ window.Render.prototype.createPortalEntity = function(ent) {
     renderPortalDetails (selectedPortal);
   }
 
-//  //TODO? postpone adding to the map layer
-//  portalsLayers[parseInt(portalLevel)].addLayer(marker);
-
+  //TODO? postpone adding to the map layer
   this.addPortalToMapLayer(marker);
 
 }
@@ -349,6 +361,8 @@ window.Render.prototype.createFieldEntity = function(ent) {
     fillOpacity: 0.25,
     stroke: false,
     clickable: false,
+
+    team: team,
     guid: ent[0],
     timestamp: ent[1],
     details: ent[2],
@@ -375,7 +389,7 @@ window.Render.prototype.createFieldEntity = function(ent) {
   window.fields[ent[0]] = poly;
 
   // TODO? postpone adding to the layer??
-  fieldsLayer.addLayer(poly);
+  fieldsFactionLayers[poly.options.team].addLayer(poly);
 }
 
 window.Render.prototype.createLinkEntity = function(ent) {
@@ -406,6 +420,8 @@ window.Render.prototype.createLinkEntity = function(ent) {
     opacity: 1,
     weight: 2,
     clickable: false,
+
+    team: team,
     guid: ent[0],
     timestamp: ent[1],
     details: ent[2],
@@ -416,7 +432,7 @@ window.Render.prototype.createLinkEntity = function(ent) {
   window.links[ent[0]] = poly;
 
   // TODO? postpone adding to the layer??
-  linksLayer.addLayer(poly);
+  linksFactionLayers[poly.options.team].addLayer(poly);
 }
 
 
@@ -503,14 +519,14 @@ window.Render.prototype.resetPortalClusters = function() {
       for (var i=0; i<c.length; i++) {
         var guid = c[i];
         var p = window.portals[guid];
-        var layerGroup = portalsLayers[parseInt(p.options.level)];
+        var layerGroup = portalsFactionLayers[parseInt(p.options.level)][p.options.team];
         if (i<this.CLUSTER_PORTAL_LIMIT || p.options.guid == selectedPortal) {
           if (!layerGroup.hasLayer(p)) {
-            portalsLayers[parseInt(p.options.level)].addLayer(p);
+            layerGroup.addLayer(p);
           }
         } else {
           if (layerGroup.hasLayer(p)) {
-            portalsLayers[parseInt(p.options.level)].removeLayer(p);
+            layerGroup.removeLayer(p);
           }
         }
       }
@@ -532,14 +548,14 @@ window.Render.prototype.addPortalToMapLayer = function(portal) {
   // however, it won't make a lot of visible difference compared to just pushing to the end of the list, then
   // adding to the visible layer if the list is below the limit
   if (this.portalClusters[cid].length < this.CLUSTER_PORTAL_LIMIT || portal.options.guid == selectedPortal) {
-    portalsLayers[parseInt(portal.options.level)].addLayer(portal);
+    portalsFactionLayers[parseInt(portal.options.level)][portal.options.team].addLayer(portal);
   }
 }
 
 window.Render.prototype.removePortalFromMapLayer = function(portal) {
 
   //remove it from the portalsLevels layer
-  portalsLayers[parseInt(portal.options.level)].removeLayer(portal);
+  portalsFactionLayers[parseInt(portal.options.level)][portal.options.team].removeLayer(portal);
 
   // and ensure there's no mention of the portal in the cluster list
   var cid = this.getPortalClusterID(portal);
