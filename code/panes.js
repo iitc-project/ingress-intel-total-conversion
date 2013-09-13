@@ -24,6 +24,7 @@ window.show = function(id) {
                 case 'map':
                         window.smartphone.mapButton.click();
                         $('#portal_highlight_select').show();
+                        $('#farm_level_select').show();
                         break;
                 case 'info':
                         window.smartphone.sideButton.click();
@@ -36,5 +37,6 @@ window.show = function(id) {
 
 window.hideall = function() {
     $('#chatcontrols, #chat, #chatinput, #sidebartoggle, #scrollwrapper, #updatestatus, #portal_highlight_select').hide();
+    $('#farm_level_select').hide();
     $('#map').css('visibility', 'hidden');
 }

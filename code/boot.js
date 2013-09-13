@@ -140,9 +140,11 @@ window.setupMap = function() {
   var addLayers = {};
   var hiddenLayer = [];
 
-  portalsLayers = [];
+  portalsFactionLayers = [];
+  var portalsLayers = [];
   for(var i = 0; i <= 8; i++) {
-    portalsLayers[i] = L.layerGroup([]);
+    portalsFactionLayers[i] = [L.layerGroup(), L.layerGroup(), L.layerGroup()];
+    portalsLayers[i] = L.layerGroup();
     map.addLayer(portalsLayers[i]);
     var t = (i === 0 ? 'Unclaimed' : 'Level ' + i) + ' Portals';
     addLayers[t] = portalsLayers[i];
@@ -150,17 +152,59 @@ window.setupMap = function() {
     if(!isLayerGroupDisplayed(t, true)) hiddenLayer.push(portalsLayers[i]);
   }
 
-  fieldsLayer = L.layerGroup([]);
+  fieldsFactionLayers = [L.layerGroup(), L.layerGroup(), L.layerGroup()];
+  var fieldsLayer = L.layerGroup();
   map.addLayer(fieldsLayer, true);
   addLayers['Fields'] = fieldsLayer;
   // Store it in hiddenLayer to remove later
   if(!isLayerGroupDisplayed('Fields', true)) hiddenLayer.push(fieldsLayer);
 
-  linksLayer = L.layerGroup([]);
+  linksFactionLayers = [L.layerGroup(), L.layerGroup(), L.layerGroup()];
+  var linksLayer = L.layerGroup();
   map.addLayer(linksLayer, true);
   addLayers['Links'] = linksLayer;
   // Store it in hiddenLayer to remove later
   if(!isLayerGroupDisplayed('Links', true)) hiddenLayer.push(linksLayer);
+
+  // faction-specific layers
+  // these layers don't actually contain any data. instead, everytime they're added/removed from the map,
+  // the matching sub-layers within the above portals/fields/links are added/removed from their parent
+  var factionLayers = [L.layerGroup(), L.layerGroup(), L.layerGroup()];
+
+  window.map.on('layeradd layerremove', function(e) {
+    for (var fac in factionLayers) {
+      if (e.layer === factionLayers[fac]) {
+        if (e.type == 'layeradd') {
+          if (!fieldsLayer.hasLayer(fieldsFactionLayers[fac])) fieldsLayer.addLayer (fieldsFactionLayers[fac]);
+          if (!linksLayer.hasLayer(linksFactionLayers[fac])) linksLayer.addLayer (linksFactionLayers[fac]);
+          for (var lvl in portalsLayers) {
+            if (!portalsLayers[lvl].hasLayer(portalsFactionLayers[lvl][fac])) portalsLayers[lvl].addLayer (portalsFactionLayers[lvl][fac]);
+          }
+        } else {
+          if (fieldsLayer.hasLayer(fieldsFactionLayers[fac])) fieldsLayer.removeLayer (fieldsFactionLayers[fac]);
+          if (linksLayer.hasLayer(linksFactionLayers[fac])) linksLayer.removeLayer (linksFactionLayers[fac]);
+          for (var lvl in portalsLayers) {
+            if (portalsLayers[lvl].hasLayer(portalsFactionLayers[lvl][fac])) portalsLayers[lvl].removeLayer (portalsFactionLayers[lvl][fac]);
+          }
+        }
+      }
+    }
+  });
+  for (var fac in factionLayers) {
+    map.addLayer (factionLayers[fac]);
+  }
+
+  // to avoid any favouritism, we'll put the player's own faction layer first
+  if (PLAYER.team == 'RESISTANCE') {
+    addLayers['Resistance'] = factionLayers[TEAM_RES];
+    addLayers['Enlightened'] = factionLayers[TEAM_ENL];
+  } else {
+    addLayers['Enlightened'] = factionLayers[TEAM_ENL];
+    addLayers['Resistance'] = factionLayers[TEAM_RES];
+  }
+  if (!isLayerGroupDisplayed('Resistance', true)) hiddenLayer.push (factionLayers[TEAM_RES]);
+  if (!isLayerGroupDisplayed('Enlightened', true)) hiddenLayer.push (factionLayers[TEAM_ENL]);
+
 
   window.layerChooser = new L.Control.Layers({
     'MapQuest OSM': views[0],
@@ -502,11 +546,10 @@ function boot() {
 
 }
 
-// this is the minified load.js script that allows us to easily load
-// further javascript files async as well as in order.
-// https://github.com/chriso/load.js
-// Copyright (c) 2010 Chris O'Hara <cohara87@gmail.com>. MIT Licensed
-function asyncLoadScript(a){return function(b,c){var d=document.createElement("script");d.type="text/javascript",d.src=a,d.onload=b,d.onerror=c,d.onreadystatechange=function(){var a=this.readyState;if(a==="loaded"||a==="complete")d.onreadystatechange=null,b()},head.insertBefore(d,head.firstChild)}}(function(a){a=a||{};var b={},c,d;c=function(a,d,e){var f=a.halt=!1;a.error=function(a){throw a},a.next=function(c){c&&(f=!1);if(!a.halt&&d&&d.length){var e=d.shift(),g=e.shift();f=!0;try{b[g].apply(a,[e,e.length,g])}catch(h){a.error(h)}}return a};for(var g in b){if(typeof a[g]=="function")continue;(function(e){a[e]=function(){var g=Array.prototype.slice.call(arguments);if(e==="onError"){if(d)return b.onError.apply(a,[g,g.length]),a;var h={};return b.onError.apply(h,[g,g.length]),c(h,null,"onError")}return g.unshift(e),d?(a.then=a[e],d.push(g),f?a:a.next()):c({},[g],e)}})(g)}return e&&(a.then=a[e]),a.call=function(b,c){c.unshift(b),d.unshift(c),a.next(!0)},a.next()},d=a.addMethod=function(d){var e=Array.prototype.slice.call(arguments),f=e.pop();for(var g=0,h=e.length;g<h;g++)typeof e[g]=="string"&&(b[e[g]]=f);--h||(b["then"+d.substr(0,1).toUpperCase()+d.substr(1)]=f),c(a)},d("chain",function(a){var b=this,c=function(){if(!b.halt){if(!a.length)return b.next(!0);try{null!=a.shift().call(b,c,b.error)&&c()}catch(d){b.error(d)}}};c()}),d("run",function(a,b){var c=this,d=function(){c.halt||--b||c.next(!0)},e=function(a){c.error(a)};for(var f=0,g=b;!c.halt&&f<g;f++)null!=a[f].call(c,d,e)&&d()}),d("defer",function(a){var b=this;setTimeout(function(){b.next(!0)},a.shift())}),d("onError",function(a,b){var c=this;this.error=function(d){c.halt=!0;for(var e=0;e<b;e++)a[e].call(c,d)}})})(this);var head=document.getElementsByTagName("head")[0]||document.documentElement;addMethod("load",function(a,b){for(var c=[],d=0;d<b;d++)(function(b){c.push(asyncLoadScript(a[b]))})(d);this.call("run",c)})
+console.log('...?');
+
+
+@@INCLUDERAW:external/load.js@@
 
 try { console.log('Loading included JS now'); } catch(e) {}
 @@INCLUDERAW:external/leaflet.js@@
