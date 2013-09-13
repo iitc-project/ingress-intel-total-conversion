@@ -29,10 +29,7 @@ window.plugin.portalHighligherPortalsCanMakeLevel.highlight = function(data,high
   if( potential_level > current_level && potential_level === highlight_level) {
     color = 'red';
     data.portal.setStyle({fillColor: color, fillOpacity: opacity});
-  } else {
-    data.portal.setStyle({color:  COLORS[getTeam(data.portal.options.details)],
-                          fillOpacity: 0.5});
-  }
+  } 
 }
 
 //determines the level of poral a user can make all on their own
