@@ -254,7 +254,7 @@ window.postAjax = function(action, data, success, error) {
   var remove = function(data, textStatus, jqXHR) { window.requests.remove(jqXHR); };
   var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
   var result = $.ajax({
-    url: '/r/dashboard.'+action,
+    url: '/r/'+methodName,
     type: 'POST',
     data: post_data,
     context: data,
