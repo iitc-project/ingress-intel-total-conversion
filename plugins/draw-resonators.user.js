@@ -485,16 +485,23 @@ window.plugin.drawResonators.ListDialogEntry.prototype.getSelectId = function() 
 window.plugin.drawResonators.setupStyler = function() {
   var thisPlugin = window.plugin.drawResonators;
 
+  var highlightedReso = {color: '#fff', weight: 2, radius: 4, opacity: 1, clickable: false};
+  var normalReso = {color: '#aaa', weight: 1, radius: 3, opacity: 1, clickable: false};
+  var selectedReso = {color: '#eee', weight: 1.1, radius: 4, opacity: 1, clickable: false};
+  var highlightedConn = {opacity: 0.7, weight: 3, color: '#FFA000', dashArray: '0,10,999', color: '#FFA000', fill: false, clickable: false};
+  var normalConn = {opacity: 0.25, weight: 2, color: '#FFA000', dashArray: '0,10' + (new Array(25).join(',8,4')), fill: false, clickable: false};
+  var selectedConn = {opacity: 0.7, weight: 3, color: '#FFA000', dashArray: '0,10' + (new Array(25).join(',8,4')), fill: false, clickable: false};
+
   // Styler for highlighting resonators deployed by me
   var myReso = {
     name: 'Highlight my resonators',
     otherOptions: {
-      highlightedReso : {color: '#fff', weight: 2, radius: 4, opacity: 1, clickable: false},
-      normalReso : {color: '#aaa', weight: 1, radius: 3, opacity: 1, clickable: false},
-      selectedReso : {color: '#eee', weight: 1.1, radius: 4, opacity: 1, clickable: false},
-      highlightedConn : {opacity: 0.7, weight: 3, color: '#FFA000', dashArray: '0,10,999', color: '#FFA000', fill: false, clickable: false},
-      normalConn : {opacity: 0.25, weight: 2, color: '#FFA000', dashArray: '0,10' + (new Array(25).join(',8,4')), fill: false, clickable: false},
-      selectedConn : {opacity: 0.7, weight: 3, color: '#FFA000', dashArray: '0,10' + (new Array(25).join(',8,4')), fill: false, clickable: false}
+      'highlightedReso' : highlightedReso,
+      'normalReso' : normalReso,
+      'selectedReso' : selectedReso,
+      'highlightedConn' : highlightedConn,
+      'normalConn' : normalConn,
+      'selectedConn' : selectedConn
     },
     resonatorStyleFunc: function(resoDetail, selected) {
       var mine = resoDetail.ownerGuid === PLAYER.guid;
@@ -523,12 +530,12 @@ window.plugin.drawResonators.setupStyler = function() {
   var l8Reso = {
     name: 'Highlight L8 resonators',
     otherOptions: {
-      highlightedReso : {color: '#fff', weight: 2, radius: 4, opacity: 1, clickable: false},
-      normalReso : {color: '#aaa', weight: 1, radius: 3, opacity: 1, clickable: false},
-      selectedReso : {color: '#eee', weight: 1.1, radius: 4, opacity: 1, clickable: false},
-      highlightedConn : {opacity: 0.7, weight: 3, color: '#FFA000', dashArray: '0,10,999', color: '#FFA000', fill: false, clickable: false},
-      normalConn : {opacity: 0.25, weight: 2, color: '#FFA000', dashArray: '0,10' + (new Array(25).join(',8,4')), fill: false, clickable: false},
-      selectedConn : {opacity: 0.7, weight: 3, color: '#FFA000', dashArray: '0,10' + (new Array(25).join(',8,4')), fill: false, clickable: false}
+      'highlightedReso' : highlightedReso,
+      'normalReso' : normalReso,
+      'selectedReso' : selectedReso,
+      'highlightedConn' : highlightedConn,
+      'normalConn' : normalConn,
+      'selectedConn' : selectedConn
     },
     resonatorStyleFunc: function(resoDetail, selected) {
       var l8 = resoDetail.level === 8;
@@ -552,6 +559,40 @@ window.plugin.drawResonators.setupStyler = function() {
   };
 
   thisPlugin.render.addStyler(new thisPlugin.Styler(l8Reso));
+
+  // Styler for highlighting resonators with less than 10% energy
+  var lessThanTenPctReso = {
+    name: 'Highlight <10% resonators',
+    otherOptions: {
+      'highlightedReso' : highlightedReso,
+      'normalReso' : normalReso,
+      'selectedReso' : selectedReso,
+      'highlightedConn' : highlightedConn,
+      'normalConn' : normalConn,
+      'selectedConn' : selectedConn
+    },
+    resonatorStyleFunc: function(resoDetail, selected) {
+      var highlight = (resoDetail.energyTotal * 10) < RESO_NRG[resoDetail.level];
+      var resoSharedStyle = highlight
+                        ? this.otherOptions.highlightedReso
+                        : (selected ? this.otherOptions.selectedReso : this.otherOptions.normalReso);
+
+      var resoStyle = $.extend({
+            fillColor: COLORS_LVL[resoDetail.level],
+            fillOpacity: resoDetail.energyTotal/RESO_NRG[resoDetail.level]
+          }, resoSharedStyle);
+      return resoStyle;
+    },
+    connectorStyleFunc: function(resoDetail, selected) {
+      var highlight = (resoDetail.energyTotal * 10) < RESO_NRG[resoDetail.level];
+      var connStyle  = highlight
+                     ? this.otherOptions.highlightedConn
+                     : (selected ? this.otherOptions.selectedConn : this.otherOptions.normalConn);
+      return connStyle;
+    }
+  };
+
+  thisPlugin.render.addStyler(new thisPlugin.Styler(lessThanTenPctReso));
 
 }
 
