@@ -94,7 +94,7 @@ window.Render.prototype.processDeletedGameEntityGuids = function(deleted) {
 }
 
 window.Render.prototype.processGameEntities = function(entities) {
-//  var portalGuids = [];
+  var portalGuids = [];
 
   for (var i in entities) {
     var ent = entities[i];
@@ -102,12 +102,14 @@ window.Render.prototype.processGameEntities = function(entities) {
     // don't create entities in the 'deleted' list
     if (!(ent[0] in this.deletedGuid)) {
       this.createEntity(ent);
-//      if ('portalV2' in ent[2]) portalGuids.push(ent[0]);
+      if ('portalV2' in ent[2]) portalGuids.push(ent[0]);
     }
   }
 
-//  // now reconstruct links 'optimised' out of the data from the portal link data
-//  this.createLinksFromPortalData(portalGuids);
+  // now reconstruct links 'optimised' out of the data from the portal link data
+  for (var i in portalGuids) {
+    this.createLinksFromPortalData(portalGuids[i]);
+  }
 }
 
 
@@ -392,7 +394,7 @@ window.Render.prototype.createFieldEntity = function(ent) {
   fieldsFactionLayers[poly.options.team].addLayer(poly);
 }
 
-window.Render.prototype.createLinkEntity = function(ent) {
+window.Render.prototype.createLinkEntity = function(ent,faked) {
   this.seenLinksGuid[ent[0]] = true;  // flag we've seen it
 
   // check if entity already exists
@@ -418,7 +420,7 @@ window.Render.prototype.createLinkEntity = function(ent) {
   var poly = L.geodesicPolyline(latlngs, {
     color: COLORS[team],
     opacity: 1,
-    weight: 2,
+    weight: faked ? 1 : 2,
     clickable: false,
 
     team: team,
@@ -431,62 +433,59 @@ window.Render.prototype.createLinkEntity = function(ent) {
 
   window.links[ent[0]] = poly;
 
-  // TODO? postpone adding to the layer??
+  // only add the link to the layer if it's long enough to be seen
+
   linksFactionLayers[poly.options.team].addLayer(poly);
 }
 
 
-window.Render.prototype.createLinksFromPortalData = function(portalGuids) {
+window.Render.prototype.createLinksFromPortalData = function(portalGuid) {
 
-  for (var portalGuidIndex in portalGuids) {
-    var portalGuid = portalGuids[portalGuidIndex];
-    var sourcePortal = portals[portalGuid];
+  var sourcePortal = portals[portalGuid];
 
-    for (var sourceLinkIndex in sourcePortal.options.details.portalV2.linkedEdges||[]) {
-      var sourcePortalLinkInfo = sourcePortal.options.details.portalV2.linkedEdges[sourceLinkIndex];
+  for (var sourceLinkIndex in sourcePortal.options.details.portalV2.linkedEdges||[]) {
+    var sourcePortalLinkInfo = sourcePortal.options.details.portalV2.linkedEdges[sourceLinkIndex];
 
-      // portals often contain details for edges that don't exist. so only consider faking an edge if this
-      // is the origin portal, the link doesn't already exist...
-      if (sourcePortalLinkInfo.isOrigin && !(sourcePortalLinkInfo.edgeGuid in links)) {
+    // portals often contain details for edges that don't exist. so only consider faking an edge if this
+    // is the origin portal
+    if (sourcePortalLinkInfo.isOrigin) {
 
-        // ... and the other porta has matching link information. 
-        if (portalGuids.indexOf(sourcePortalLinkInfo.otherPortalGuid) != -1 &&
-            sourcePortalLinkInfo.otherPortalGuid in portals) {
+      // ... and the other porta has matching link information. 
+      if (sourcePortalLinkInfo.otherPortalGuid in portals) {
 
-          var targetPortal = portals[sourcePortalLinkInfo.otherPortalGuid];
+        var targetPortal = portals[sourcePortalLinkInfo.otherPortalGuid];
 
-          for (var targetLinkIndex in targetPortal.options.details.portalV2.linkedEdges||[]) {
-            var targetPortalLinkInfo = targetPortal.options.details.portalV2.linkedEdges[targetLinkIndex];
+        for (var targetLinkIndex in targetPortal.options.details.portalV2.linkedEdges||[]) {
+          var targetPortalLinkInfo = targetPortal.options.details.portalV2.linkedEdges[targetLinkIndex];
 
-            if (targetPortalLinkInfo.edgeGuid == sourcePortalLinkInfo.edgeGuid) {
-              // yes - edge in both portals. create it
+          if (targetPortalLinkInfo.edgeGuid == sourcePortalLinkInfo.edgeGuid) {
+            // yes - edge in both portals. create it
 
-              var fakeEnt = [
-                sourcePortalLinkInfo.edgeGuid,
-                0,  // mtime for entity data - unknown when faking it, so zero will be the oldest possible
-                {
-                  controllingTeam: sourcePortal.options.details.controllingTeam,
-                  edge: {
-                    originPortalGuid: portalGuid,
-                    originPortalLocation: sourcePortal.options.details.locationE6,
-                    destinationPortalGuid: sourcePortalLinkInfo.otherPortalGuid,
-                    destinationPortalLocation: targetPortal.options.details.locationE6
-                  }
+            var fakeEnt = [
+              sourcePortalLinkInfo.edgeGuid,
+              0,  // mtime for entity data - unknown when faking it, so zero will be the oldest possible
+              {
+                controllingTeam: sourcePortal.options.details.controllingTeam,
+                edge: {
+                  originPortalGuid: portalGuid,
+                  originPortalLocation: sourcePortal.options.details.locationE6,
+                  destinationPortalGuid: sourcePortalLinkInfo.otherPortalGuid,
+                  destinationPortalLocation: targetPortal.options.details.locationE6
                 }
-              ];
+              }
+            ];
 
-              this.createLinkEntity(fakeEnt);
+            this.createLinkEntity(fakeEnt,true);
 
-
-            }
 
           }
 
         }
-        
-      }
 
+      }
+      
     }
+
   }
 }
 
