@@ -2,7 +2,7 @@
 // @id             iitc-plugin-highlight-portals-missing-resonators@vita10gy
 // @name           IITC plugin: highlight portals missing resonators
 // @category       Highlighter
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -46,11 +46,7 @@ window.plugin.portalsMissingResonators.highlight = function(data) {
         params["dashArray"] = dash;
       }
       data.portal.setStyle(params);
-    } else {
-      data.portal.setStyle({color:  COLORS[getTeam(data.portal.options.details)],
-                            fillOpacity: 0.5,
-                            dashArray: null});
-    }
+    } 
   }
 }
 
