@@ -76,14 +76,10 @@ window.setupLayerChooserStatusRecorder = function() {
   });
 
   // Record layerGroups change
-  window.map.on('layeradd layerremove', function(e) {
-    var id = L.stamp(e.layer);
-    var layerGroup = this._layers[id];
-    if (layerGroup && layerGroup.overlay) {
-      var display = (e.type === 'layeradd');
-      window.updateDisplayedLayerGroup(layerGroup.name, display);
-    }
-  }, window.layerChooser);
+  window.map.on('overlayadd overlayremove', function(e) {
+    var display = (e.type === 'overlayadd');
+    window.updateDisplayedLayerGroup(e.name, display);
+  });
 }
 
 window.setupStyles = function() {
