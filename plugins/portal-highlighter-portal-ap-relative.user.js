@@ -65,6 +65,7 @@ window.plugin.portalHighligherPortalAPRelative.highlight = function(data) {
 window.plugin.portalHighligherPortalAPRelative.resetAPLevels = function() {
   window.plugin.portalHighligherPortalAPRelative.minAP = null;
   window.plugin.portalHighligherPortalAPRelative.maxAP = null;
+  
 }
 
 window.plugin.portalHighligherPortalAPRelative.calculateAPLevels = function() {
@@ -89,8 +90,8 @@ window.plugin.portalHighligherPortalAPRelative.calculateAPLevels = function() {
 }
 
 var setup =  function() {
-  window.addPortalHighlighter('AP (Relative)', window.plugin.portalHighligherPortalAPRelative.highlight);
-  window.addHook('requestFinished', window.plugin.portalHighligherPortalAPRelative.resetAPLevels);
+  window.addPortalHighlighter('AP (Relative)', window.plugin.portalHighligherPortalAPRelative.highlight,
+                              window.plugin.portalHighligherPortalAPRelative.resetAPLevels);
   
 }
 
