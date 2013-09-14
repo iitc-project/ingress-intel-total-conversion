@@ -38,6 +38,106 @@ window.getCurrentPortalEnergy = function(d) {
   return nrg;
 }
 
+
+window.getEffectivePortalEnergy = function(d) {
+  var current_nrg = getCurrentPortalEnergy(d);
+  var return_val = current_nrg;
+  
+  //Find the mitigation of each sheild.
+  //For now matchup with ipas and speculative evidence that says mitigation is additive
+  //rather than multiplacive, which makes more sense
+  //var shield_rate = 100;
+  //$.each(d.portalV2.linkedModArray, function(ind, mod) {
+  //  if(mod !== null && jQuery.isNumeric(mod.stats.MITIGATION))
+  //  {
+  //    shield_rate *= 1 - mod.stats.MITIGATION/100;
+  //  }
+  //});
+  ////Add shield's effect to energy
+  //var shield_mitigation = 100 - shield_rate;
+  
+  //Additive sheild mitigation
+  var shield_mitigation = 0;
+  $.each(d.portalV2.linkedModArray, function(ind, mod) {
+    if(mod !== null && jQuery.isNumeric(mod.stats.MITIGATION))
+    {
+      shield_mitigation += parseInt(mod.stats.MITIGATION);
+    }
+  });
+  
+  //Find the link effect
+  var links = 0;
+  if(d.portalV2.linkedEdges) $.each(d.portalV2.linkedEdges, function(ind, link) {
+    links++;
+  });
+  
+  var link_mitigation = 4/9 * Math.atan(links / Math.E) * 100;
+  
+  //var total_mitigation = 100 - ((1 - link_mitigation/100) * (1 - shield_mitigation/100) * 100);
+  var total_mitigation = shield_mitigation + link_mitigation;
+  if(total_mitigation>95)
+  {
+    total_mitigation = 95;
+  }
+  
+  return_val += current_nrg * total_mitigation / 100;
+  
+  //Keep everything in whole numbers to mimic the shield mitigation we're all used to.
+  return({ effective_energy: Math.round(return_val),
+           total_mitigation: Math.round(total_mitigation), 
+           link_mitigation: Math.round(link_mitigation),
+           shield_mitigation: Math.round(shield_mitigation)});
+}
+
+
+window.getPortalDamage = function(d) {
+  var damage = [];
+  
+  for(var lvl = 1; lvl <= MIN_AP_FOR_LEVEL.length; lvl++) {
+    damage[lvl] = calculatePortalDamage(lvl, d);
+  }
+  
+  return(damage);
+}
+
+//Calculate damage standing on portal
+window.calculatePortalDamage = function(level, d) {
+  var resoDetails = getResonatorDetails(d);
+  var effective_energy = getEffectivePortalEnergy(d);
+  var damage = 0;
+  $.each(d.resonatorArray.resonators, function(ind, reso) {
+    if(reso !== null) {
+      damage += calculateResonatorDamage(level,reso.distanceToPortal);
+    }
+  });
+  damage = (100 - effective_energy.total_mitigation) / 100 * damage; 
+  return(Math.round(damage));
+}
+
+window.calculateResonatorDamage = function (level, distanceM) {
+    //Ssergni's reliable source from ipas
+    var retVal = 0;
+    var maxBursterRange = [42, 48, 58, 72, 90, 112, 138, 168];
+    
+    if (distanceM < maxBursterRange[level-1]) {
+        
+      var resoAvgDmg = [
+          226,
+          376,
+          676,
+          1070,
+          1500,
+          2100,
+          3000,
+          4500
+      ];
+      var damage = resoAvgDmg[level - 1] * Math.pow(.5, distanceM / (maxBursterRange[level-1] / 5));
+      damage = damage < 0 ? 0 : damage;
+      retVal = Math.round(damage);
+  }
+  return(retVal);
+}
+
 window.getPortalRange = function(d) {
   // formula by the great gals and guys at
   // http://decodeingress.me/2012/11/18/ingress-portal-levels-and-link-range/

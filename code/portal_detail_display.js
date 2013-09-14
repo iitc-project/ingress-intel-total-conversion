@@ -35,14 +35,14 @@ window.renderPortalDetails = function(guid) {
       +  unixTimeToString(d.captured.capturedTime) + '</span>'
     : null;
   var sinceText  = time ? ['since', time] : null;
-
+  
   var linkedFields = ['fields', d.portalV2.linkedFields ? d.portalV2.linkedFields.length : 0];
 
   // collect and html-ify random data
   var randDetails = [
-    playerText, sinceText, getRangeText(d), getEnergyText(d),
-    linksText, getAvgResoDistText(d), linkedFields, getAttackApGainText(d)
-  ];
+     playerText, sinceText, getRangeText(d), getEnergyText(d),
+     linksText, getAvgResoDistText(d), linkedFields, getAttackApGainText(d)];
+
   randDetails = '<table id="randdetails">' + genFourColumnTable(randDetails) + '</table>';
 
   var resoDetails = '<table id="resodetails">' + getResonatorDetails(d) + '</table>';
