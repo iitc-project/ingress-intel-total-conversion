@@ -101,10 +101,10 @@ window.plugin.portalHighligherPortalDamageRelative.getHighlighter = function(per
 }
 
 var setup =  function() {
-  window.addPortalHighlighter('Level 5 Damage', window.plugin.portalHighligherPortalDamageRelative.getHighlighter(false));
-  window.addPortalHighlighter('Level 5 Damage %', window.plugin.portalHighligherPortalDamageRelative.getHighlighter(true));
-  window.addHook('requestFinished', window.plugin.portalHighligherPortalDamageRelative.resetDamageLevels);
-  
+  window.addPortalHighlighter('Level 5 Damage', window.plugin.portalHighligherPortalDamageRelative.getHighlighter(false),
+                              window.plugin.portalHighligherPortalDamageRelative.resetDamageLevels);
+  window.addPortalHighlighter('Level 5 Damage %', window.plugin.portalHighligherPortalDamageRelative.getHighlighter(true),
+                              window.plugin.portalHighligherPortalDamageRelative.resetDamageLevels);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

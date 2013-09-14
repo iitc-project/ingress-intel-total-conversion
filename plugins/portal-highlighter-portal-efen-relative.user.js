@@ -76,8 +76,8 @@ window.plugin.portalHighligherPortalEfenRelative.calculateEfEnLevels = function(
 }
 
 var setup =  function() {
-  window.addPortalHighlighter('Effective Energy (Relative)', window.plugin.portalHighligherPortalEfenRelative.highlight);
-  window.addHook('requestFinished', window.plugin.portalHighligherPortalEfenRelative.resetEfEnLevels);
+  window.addPortalHighlighter('Effective Energy (Relative)', window.plugin.portalHighligherPortalEfenRelative.highlight,
+                              window.plugin.portalHighligherPortalEfenRelative.resetEfEnLevels);
   
 }
 
