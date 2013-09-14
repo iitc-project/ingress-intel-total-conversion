@@ -70,6 +70,12 @@ window.Render.prototype.clearEntitiesOutsideBounds = function(bounds) {
   console.log('Render: deleted '+pcount+' portals, '+lcount+' links, '+fcount+' fields by bounds check');
 }
 
+// TODO? as well as clearing portals by level, and clearing entities outside the bounds...
+// can we clear unneeded 'fake' links after zooming out? based on the portals no longer being available to construct
+// the data? (not *required* - as they'll be removed in the endRenderPass code - but clearing things earlier rather than
+// later is preferred, if possible)
+
+
 // process deleted entity list and entity data
 window.Render.prototype.processTileData = function(tiledata) {
   this.processDeletedGameEntityGuids(tiledata.deletedGameEntityGuids||[]);
