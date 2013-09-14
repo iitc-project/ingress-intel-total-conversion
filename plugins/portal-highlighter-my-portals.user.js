@@ -2,7 +2,7 @@
 // @id             iitc-plugin-highlight-portals-my-portals@vita10gy
 // @name           IITC plugin: highlight my portals
 // @category       Highlighter
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -57,10 +57,7 @@ window.plugin.portalHighligherMyPortals.highlight = function(data) {
     
     if(color !== '') {
       data.portal.setStyle({fillColor: color, fillOpacity: opacity});
-    } else {
-      data.portal.setStyle({color:  COLORS[getTeam(data.portal.options.details)],
-                            fillOpacity: 0.5});
-    }
+    } 
   }
 }
 

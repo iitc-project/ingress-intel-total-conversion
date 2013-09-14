@@ -73,6 +73,12 @@
 	        android:defaultValue="false" />
 
         <CheckBoxPreference
+            android:key="pref_advanced_menu"
+            android:title="@string/pref_advanced_menu"
+            android:summary="@string/pref_advanced_menu_sum"
+            android:defaultValue="false" />
+
+        <CheckBoxPreference
                 android:key="pref_disable_splash"
                 android:title="@string/pref_disable_splash"
                 android:defaultValue="false" />

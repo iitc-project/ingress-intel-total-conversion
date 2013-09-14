@@ -26,6 +26,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.CookieManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.SearchView;
@@ -52,6 +53,7 @@ public class IITC_Mobile extends Activity {
     private IITC_DeviceAccountLogin mLogin;
     private MenuItem mSearchMenuItem;
     private boolean mDesktopMode = false;
+    private boolean mAdvancedMenu = false;
     private boolean mReloadNeeded = false;
     private final ArrayList<String> mDialogStack = new ArrayList<String>();
     private SharedPreferences mSharedPrefs;
@@ -106,6 +108,12 @@ public class IITC_Mobile extends Activity {
                     // no iitc reload needed here
                     return;
                 }
+                if (key.equals("pref_advanced_menu")) {
+                    mAdvancedMenu = sharedPreferences.getBoolean("pref_advanced_menu", false);
+                    invalidateOptionsMenu();
+                    // no reload needed
+                    return;
+                }
                 // no reload needed
                 if (key.equals("pref_press_twice_to_exit") || key.equals("pref_share_selected_tab"))
                     return;
@@ -117,6 +125,9 @@ public class IITC_Mobile extends Activity {
 
         // enable/disable mDesktopMode mode on menu create and url load
         mDesktopMode = mSharedPrefs.getBoolean("pref_force_desktop", false);
+
+        // enable/disable advance menu
+        mAdvancedMenu = mSharedPrefs.getBoolean("pref_advanced_menu", false);
 
         // Acquire a reference to the system Location Manager
         mLocMngr = (LocationManager) this
@@ -438,7 +449,8 @@ public class IITC_Mobile extends Activity {
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
         // enable/disable mDesktopMode menu
-        enableDesktopUI(menu, mDesktopMode);
+        enableDesktopUI(menu);
+        enableAdvancedMenu(menu);
         return true;
     }
 
@@ -507,6 +519,10 @@ public class IITC_Mobile extends Activity {
                 return true;
             case R.id.menu_debug:
                 mIitcWebView.loadUrl("javascript: window.show('debug')");
+                return true;
+            case R.id.menu_clear_cookies:
+                CookieManager cm = CookieManager.getInstance();
+                cm.removeAllCookie();
                 return true;
             default:
                 return false;
@@ -629,14 +645,14 @@ public class IITC_Mobile extends Activity {
     }
 
     // disable/enable some menu buttons...
-    public void enableDesktopUI(Menu menu, boolean desktop) {
+    public void enableDesktopUI(Menu menu) {
         MenuItem item;
         item = menu.findItem(R.id.menu_chat);
-        item.setVisible(!desktop);
+        item.setVisible(!mDesktopMode);
         item = menu.findItem(R.id.menu_info);
-        item.setVisible(!desktop);
+        item.setVisible(!mDesktopMode);
         item = menu.findItem(R.id.menu_debug);
-        item.setVisible(!desktop);
+        item.setVisible(!mDesktopMode);
     }
 
     // remove dialog and add it back again
@@ -664,5 +680,13 @@ public class IITC_Mobile extends Activity {
             findViewById(R.id.iitc_webview).setVisibility(View.GONE);
             findViewById(R.id.imageLoading).setVisibility(View.VISIBLE);
         }
+    }
+
+    public void enableAdvancedMenu(Menu menu) {
+        MenuItem item;
+        item = menu.findItem(R.id.menu_debug);
+        item.setVisible(mAdvancedMenu);
+        item = menu.findItem(R.id.menu_clear_cookies);
+        item.setVisible(mAdvancedMenu);
     }
 }

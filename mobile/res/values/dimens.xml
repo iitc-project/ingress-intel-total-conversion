@@ -10,7 +10,5 @@
 
     <dimen name="icon_margin">8dp</dimen>
 
-    <dimen name="header_icon_width">28dp</dimen>
-
 
 </resources>
