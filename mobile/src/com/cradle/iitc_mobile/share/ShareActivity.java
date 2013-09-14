@@ -81,9 +81,10 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         ArrayList<Intent> intents = new ArrayList<Intent>();
         String gMapsUri;
         try {
-            gMapsUri = "http://maps.google.com/?daddr=" + mLl + "%20(" + URLEncoder.encode(mTitle, "UTF-8") + ")";
+            gMapsUri = "http://maps.google.com/?q=loc:" + mLl
+                    + "%20(" + URLEncoder.encode(mTitle, "UTF-8") + ")&z=" + mZoom;
         } catch (UnsupportedEncodingException e) {
-            gMapsUri = "http://maps.google.com/?daddr=" + mLl;
+            gMapsUri = "http://maps.google.com/?ll=" + mLl + "&z=" + mZoom;
             e.printStackTrace();
         }
         Intent gMapsIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(gMapsUri));
