@@ -12,7 +12,8 @@ window.MapDataRequest = function() {
   this.activeRequestCount = 0;
   this.requestedTiles = {};
 
-//  this.moving = false;
+  this.idle = false;
+
 
   // no more than this many requests in parallel
   this.MAX_REQUESTS = 4;
@@ -107,10 +108,11 @@ window.MapDataRequest.prototype.mapMoveEnd = function() {
 }
 
 window.MapDataRequest.prototype.idleResume = function() {
-  // if we have no timer set, refresh has gone idle and the timer needs restarting
+  // if we have no timer set and there are no active requests, refresh has gone idle and the timer needs restarting
 
-  if (this.timer === undefined) {
+  if (this.idle) {
     console.log('refresh map idle resume');
+    this.idle = false;
     this.setStatus('idle restart');
     this.refreshOnTimeout(this.IDLE_RESUME_REFRESH);
   }
@@ -155,6 +157,7 @@ window.MapDataRequest.prototype.refresh = function() {
   if (window.isIdle()) {
     console.log('suspending map refresh - is idle');
     this.setStatus ('idle');
+    this.idle = true;
     return;
   }
 
