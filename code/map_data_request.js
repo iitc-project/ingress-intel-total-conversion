@@ -205,7 +205,7 @@ window.MapDataRequest.prototype.refresh = function() {
 
   this.render.clearEntitiesOutsideBounds(dataBounds);
 
-  this.render.resetPortalClusters();
+  this.render.updateEntityVisibility();
 
 
   console.log('requesting data tiles at zoom '+zoom+' (L'+minPortalLevel+'+ portals), map zoom is '+map.getZoom());

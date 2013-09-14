@@ -10,8 +10,11 @@ window.Render = function() {
   this.CLUSTER_SIZE = L.Browser.mobile ? 16 : 8;  // the map is divited into squares of this size in pixels for clustering purposes. mobile uses larger markers, so therefore larger clustering areas
   this.CLUSTER_PORTAL_LIMIT = 4; // no more than this many portals are drawn in each cluster square
 
+  // link length, in pixels, to be visible. use the portal cluster size, as shorter than this is likely hidden
+  // under the portals
+  this.LINK_VISIBLE_PIXEL_LENGTH = this.CLUSTER_SIZE;
 
-  this.currentPortalClusterZoom = undefined;
+  this.entityVisibilityZoom = undefined;
 }
 
 
@@ -435,7 +438,9 @@ window.Render.prototype.createLinkEntity = function(ent,faked) {
 
   // only add the link to the layer if it's long enough to be seen
 
-  linksFactionLayers[poly.options.team].addLayer(poly);
+  if (this.linkVisible(poly)) {
+    linksFactionLayers[poly.options.team].addLayer(poly);
+  }
 }
 
 
@@ -490,48 +495,55 @@ window.Render.prototype.createLinksFromPortalData = function(portalGuid) {
 }
 
 
+window.Render.prototype.updateEntityVisibility = function() {
+  if (this.entityVisibilityZoom === undefined || this.entityVisibilityZoom != map.getZoom()) {
+    this.entityVisibilityZoom = map.getZoom();
+
+    this.resetPortalClusters();
+    this.resetLinkVisibility();
+  }
+}
+
+
 
 // portal clustering functionality
 
 window.Render.prototype.resetPortalClusters = function() {
-  if (this.currentPortalClusterZoom === undefined || this.currentPortalClusterZoom != map.getZoom()) {
 
-    this.portalClusters = {};
-    this.currentPortalClusterZoom = map.getZoom();
+  this.portalClusters = {};
 
-    // first, place the portals into the clusters
-    for (var pguid in window.portals) {
-      var p = window.portals[pguid];
-      var cid = this.getPortalClusterID(p);
+  // first, place the portals into the clusters
+  for (var pguid in window.portals) {
+    var p = window.portals[pguid];
+    var cid = this.getPortalClusterID(p);
 
-      if (!(cid in this.portalClusters)) this.portalClusters[cid] = [];
+    if (!(cid in this.portalClusters)) this.portalClusters[cid] = [];
 
-      this.portalClusters[cid].push(p.options.guid);
-    }
+    this.portalClusters[cid].push(p.options.guid);
+  }
 
-    // now, for each cluster, sort by some arbitary data (the guid will do), and display the first CLUSTER_PORTAL_LIMIT
-    for (var cid in this.portalClusters) {
-      var c = this.portalClusters[cid];
+  // now, for each cluster, sort by some arbitary data (the guid will do), and display the first CLUSTER_PORTAL_LIMIT
+  for (var cid in this.portalClusters) {
+    var c = this.portalClusters[cid];
 
-      c.sort();
+    c.sort();
 
-      for (var i=0; i<c.length; i++) {
-        var guid = c[i];
-        var p = window.portals[guid];
-        var layerGroup = portalsFactionLayers[parseInt(p.options.level)][p.options.team];
-        if (i<this.CLUSTER_PORTAL_LIMIT || p.options.guid == selectedPortal) {
-          if (!layerGroup.hasLayer(p)) {
-            layerGroup.addLayer(p);
-          }
-        } else {
-          if (layerGroup.hasLayer(p)) {
-            layerGroup.removeLayer(p);
-          }
+    for (var i=0; i<c.length; i++) {
+      var guid = c[i];
+      var p = window.portals[guid];
+      var layerGroup = portalsFactionLayers[parseInt(p.options.level)][p.options.team];
+      if (i<this.CLUSTER_PORTAL_LIMIT || p.options.guid == selectedPortal) {
+        if (!layerGroup.hasLayer(p)) {
+          layerGroup.addLayer(p);
+        }
+      } else {
+        if (layerGroup.hasLayer(p)) {
+          layerGroup.removeLayer(p);
         }
       }
     }
+  }
 
-  } //else zoom unchanged, no need to update
 }
 
 // add the portal to the visiable map layer unless we pass the cluster limits
@@ -577,4 +589,52 @@ window.Render.prototype.getPortalClusterID = function(portal) {
   var clusterpoint = point.divideBy(this.CLUSTER_SIZE).round();
 
   return z+":"+clusterpoint.x+":"+clusterpoint.y;
+}
+
+
+// link length
+
+window.Render.prototype.getLinkPixelLength = function(link) {
+  var z = map.getZoom();
+
+  var latLngs = link.getLatLngs();
+  if (latLngs.length != 2) {
+    console.warn ('Link had '+latLngs.length+' points - expected 2!');
+    return undefined;
+  }
+
+  var point0 = map.project(latLngs[0]);
+  var point1 = map.project(latLngs[1]);
+
+  var dx = point0.x - point1.x;
+  var dy = point0.y - point1.y;
+
+  var lengthSquared = (dx*dx)+(dy*dy);
+
+  var length = Math.sqrt (lengthSquared);
+
+  return length;
+}
+
+
+window.Render.prototype.linkVisible = function(link) {
+  var length = this.getLinkPixelLength (link);
+
+  return length >= this.LINK_VISIBLE_PIXEL_LENGTH;
+}
+
+
+window.Render.prototype.resetLinkVisibility = function() {
+
+  for (var guid in window.links) {
+    var link = window.links[guid];
+
+    var visible = this.linkVisible(link);
+
+    if (visible) {
+      if (!linksFactionLayers[link.options.team].hasLayer(link)) linksFactionLayers[link.options.team].addLayer(link);
+    } else {
+      if (linksFactionLayers[link.options.team].hasLayer(link)) linksFactionLayers[link.options.team].removeLayer(link);
+    }
+  }
 }
