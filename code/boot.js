@@ -251,6 +251,22 @@ window.setupMap = function() {
   map.on('movestart', function() { window.mapRunsUserAction = true; window.requests.abort(); window.startRefreshTimeout(-1); });
   map.on('moveend', function() { window.mapRunsUserAction = false; window.startRefreshTimeout(ON_MOVE_REFRESH*1000); });
 
+  // on zoomend, check to see the zoom level is an int, and reset the view if not
+  // (there's a bug on mobile where zoom levels sometimes end up as fractional levels. this causes the base map to be invisible)
+  map.on('zoomend', function() {
+    var z = map.getZoom();
+    if (z != parseInt(z))
+    {
+      console.warn('Non-integer zoom level at zoomend: '+z+' - trying to fix...');
+      map.setZoom(parseInt(z), {animate:false});
+    }
+  });
+
+
+  // set a 'moveend' handler for the map to clear idle state. e.g. after mobile 'my location' is used.
+  // possibly some cases when resizing desktop browser too
+  map.on('moveend', idleReset);
+
   window.addResumeFunction(function() { window.startRefreshTimeout(ON_MOVE_REFRESH*1000); });
 
   // create the map data requester
@@ -261,7 +277,6 @@ window.setupMap = function() {
   // (the code originally called the request function directly, and triggered a normal delay for the nxt refresh.
   //  however, the moveend/zoomend gets triggered on map load, causing a duplicate refresh. this helps prevent that
   window.startRefreshTimeout(ON_MOVE_REFRESH*1000);
-
 };
 
 //adds a base layer to the map. done separately from the above, so that plugins that add base layers can be the default
@@ -555,8 +570,6 @@ function boot() {
   }
 
 }
-
-console.log('...?');
 
 
 @@INCLUDERAW:external/load.js@@

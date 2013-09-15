@@ -10,8 +10,7 @@ var idlePoll = function() {
 
   var hidden = (document.hidden || document.webkitHidden || document.mozHidden || document.msHidden || false);
   if (hidden) {
-    // window hidden - use the refresh time as the idle limit, rather than the max time
-    window._idleTimeLimit = window.REFRESH;
+    window.idleSet();
   }
 }
 
@@ -28,6 +27,14 @@ var idleReset = function () {
   window.idleTime = 0;
   window._idleTimeLimit = MAX_IDLE_TIME;
 };
+
+var idleSet = function() {
+  // force IITC to idle. used by the mobile app when switching to something else
+  if (!isIdle()) {
+    window._idleTImeLimit = 0;
+  }
+}
+
 
 // only reset idle on mouse move where the coordinates are actually different.
 // some browsers send the event when not moving!
