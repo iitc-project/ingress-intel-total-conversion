@@ -249,7 +249,9 @@ window.plugin.drawResonators.Render.prototype.changeStyler = function(name) {
   if (name === this.useStyler) return;
   for(stylerName in this.stylers) {
     if(stylerName === name) {
+      this.stylers[this.useStyler].onDisableFunc();
       this.useStyler = stylerName;
+      this.stylers[this.useStyler].onEnableFunc();
       this.clearAllResonators();
       this.drawAllResonators();
       return;
@@ -277,6 +279,8 @@ window.plugin.drawResonators.Styler = function(options) {
   this.otherOptions = options['otherOptions'];
   this.getResonatorStyle = options['resonatorStyleFunc'] || this.defaultResonatorStyle;
   this.getConnectorStyle = options['connectorStyleFunc'] || this.defaultConnectorStyle;
+  this.onEnableFunc = options['onEnableFunc'] || function() {};
+  this.onDisableFunc = options['onDisableFunc'] || function() {};
 }
 
 window.plugin.drawResonators.Styler.prototype.DEFAULT_OPTIONS_RESONATOR_SELECTED = {
@@ -356,6 +360,11 @@ window.plugin.drawResonators.Options.prototype.getOption = function(name) {
   return this._options[name];
 }
 
+window.plugin.drawResonators.Options.prototype.removeOption = function(name) {
+  delete this._options[name];
+  delete this._callbacks[name];
+}
+
 window.plugin.drawResonators.Options.prototype.changeOption = function(name, value) {
   if(!(name in this._options)) return false;
   if(value === this._options[name]) return false;
@@ -405,8 +414,14 @@ window.plugin.drawResonators.Dialog.prototype.addLink = function() {
 
 window.plugin.drawResonators.Dialog.prototype.addEntry = function(name, dialogEntry) {
   this._dialogEntries[name] = dialogEntry;
+  this.change();
 }
 
+// TODO: add removeEntry Function
+window.plugin.drawResonators.Dialog.prototype.removeEntry = function(name) {
+  delete this._dialogEntries[name];
+  this.change();
+}
 
 window.plugin.drawResonators.Dialog.prototype.show = function() {
   window.dialog({html: this.getDialogHTML(), title: 'Resonators', modal: true, id: 'draw-reso-setting'});
@@ -419,6 +434,10 @@ window.plugin.drawResonators.Dialog.prototype.show = function() {
       $('#draw-reso-dialog').on(event.event, '#' + event.id, event.callback);
     }
   }
+}
+
+window.plugin.drawResonators.Dialog.prototype.change = function() {
+  if($('#draw-reso-dialog').length > 0) this.show();
 }
 
 window.plugin.drawResonators.Dialog.prototype.getDialogHTML = function() {
@@ -477,6 +496,41 @@ window.plugin.drawResonators.ListDialogEntry.prototype.getOnEvents = function() 
 }
 
 window.plugin.drawResonators.ListDialogEntry.prototype.getSelectId = function() {
+  return 'draw-reso-option-' + this._name;
+}
+
+
+
+//////// TextboxDialogEntry
+
+
+window.plugin.drawResonators.TextboxDialogEntry = function(options) {
+  this._name = options['name'];
+  this._label = options['label'];
+  this._valueFunc = options['valueFunc'];
+  this._validatorFunc = options['validatorFunc'];
+  this._onChangeCallback = options['onChangeCallback'];
+}
+
+window.plugin.drawResonators.TextboxDialogEntry.prototype.getHTML = function() {
+  var curValue = this._valueFunc();
+  var html = '<label for="' + this.getInputId() + '">'
+           + this._label + ': '
+           + '</label>'
+           + '<input type="text" size="20" id="' + this.getInputId() + '" '
+           + 'value="' + curValue + '" />';
+  return html;
+}
+
+
+window.plugin.drawResonators.TextboxDialogEntry.prototype.getOnEvents = function() {
+  return [{'event': 'change',
+           'id': this.getInputId(),
+           'callback': this._onChangeCallback
+  }];
+}
+
+window.plugin.drawResonators.TextboxDialogEntry.prototype.getInputId = function() {
   return 'draw-reso-option-' + this._name;
 }
 
