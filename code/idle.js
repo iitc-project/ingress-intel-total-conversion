@@ -16,7 +16,7 @@ var idlePoll = function() {
 
 setInterval(idlePoll, IDLE_POLL_TIME*1000);
 
-var idleReset = function () {
+window.idleReset = function () {
   // update immediately when the user comes back
   if(isIdle()) {
     window.idleTime = 0;
@@ -28,7 +28,7 @@ var idleReset = function () {
   window._idleTimeLimit = MAX_IDLE_TIME;
 };
 
-var idleSet = function() {
+window.idleSet = function() {
   // force IITC to idle. used by the mobile app when switching to something else
   if (!isIdle()) {
     window._idleTImeLimit = 0;

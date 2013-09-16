@@ -106,3 +106,18 @@ window.loadPlayerNamesForPortal = function(portal_details) {
     if(reso) getPlayerName(reso.ownerGuid);
   });
 }
+
+
+// test to see if a specific player GUID is a special system account (e.g. __JARVIS__, __ADA__) that shouldn't
+// be listed as a player
+window.isSystemPlayer = function(guid) {
+
+  switch (guid) {
+    case '00000000000000000000000000000001.c':
+    case '00000000000000000000000000000002.c':
+      return true;
+
+    default:
+      return false;
+  }
+}
