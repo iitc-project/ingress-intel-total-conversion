@@ -518,6 +518,7 @@ function boot() {
   window.setupTaphold();
   window.setupStyles();
   window.setupDialogs();
+  window.setupPlayerNameCache();
   window.setupMap();
   window.setupGeosearch();
   window.setupRedeem();

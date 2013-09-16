@@ -1,14 +1,31 @@
 // PLAYER NAMES //////////////////////////////////////////////////////
-// Player names are cached in local storage forever. There is no GUI
+// Player names are cached in sessionStorage. There is no GUI
 // element from within the total conversion to clean them, but you
-// can run localStorage.clean() to reset it.
+// can run sessionStorage.clean() to reset it.
+
+
+window.setupPlayerNameCache = function() {
+  // IITC used to store player names in localStorage rather than sessionStorage. lets clear out any cached
+  // names from session storage
+  var matchPlayerGuid = new RegExp ('^[0-9a-f]{32}\\.c$');
+
+  $.each(Object.keys(localStorage), function(ind,key) {
+    if ( matchPlayerGuid.test(key) ) {
+      // copy from localStorage to sessionStorage if not already there
+      if (!sessionStorage[key]) sessionStorage[key] = localStorage[key];
+      // then clear from localStorage
+      localStorage.removeItem(key);
+    }
+  });
+
+}
 
 
 // retrieves player name by GUID. If the name is not yet available, it
 // will be added to a global list of GUIDs that need to be resolved.
 // The resolve method is not called automatically.
 window.getPlayerName = function(guid) {
-  if(localStorage[guid]) return localStorage[guid];
+  if(sessionStorage[guid]) return sessionStorage[guid];
   // only add to queue if it isn’t already
   if(playersToResolve.indexOf(guid) === -1 && playersInResolving.indexOf(guid) === -1) {
     playersToResolve.push(guid);
@@ -23,8 +40,8 @@ window.playerNameToGuid = function(playerName) {
   if (cachedGuid !== undefined) return cachedGuid;
 
   var guid = null;
-  $.each(Object.keys(localStorage), function(ind,key) {
-    if(playerName === localStorage[key]) {
+  $.each(Object.keys(sessionStorage), function(ind,key) {
+    if(playerName === sessionStorage[key]) {
       guid = key;
       return false;  //break from $.each
     }
@@ -83,13 +100,13 @@ window.resolvePlayerNames = function() {
 window.setPlayerName = function(guid, nick, uncertain) {
   // the 'uncertain' flag is set when we're scrolling back through chat. it's possible in this case
   // to come across a message from before a name change. these should be ignored if existing cache entries exist
-  if(uncertain && guid in localStorage) return;
+  if(uncertain && guid in sessionStorage) return;
 
   if($.trim(('' + nick)).slice(0, 5) === '{"L":' && !window.alertFor37WasShown) {
     window.alertFor37WasShown = true;
     alert('You have run into bug #37. Please help me solve it!\nCopy and paste this text and post it here:\nhttps://github.com/breunigs/ingress-intel-total-conversion/issues/37\nIf copy & pasting doesn’t work, make a screenshot instead.\n\n\n' + window.debug.printStackTrace() + '\n\n\n' + JSON.stringify(nick));
   }
-  localStorage[guid] = nick;
+  sessionStorage[guid] = nick;
 }
 
 
