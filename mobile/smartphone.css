@@ -198,3 +198,19 @@ body {
 .leaflet-popup-content{
     color:black;
 }
+
+
+/* add extra padding, and a button effect, to sidebar link areas */
+.linkdetails aside  {
+  padding: 5px !important;
+  margin-top: 3px;
+  margin-botton: 3px;
+  border: 2px outset #0e3d4e;
+}
+
+#toolbox > a {
+  padding: 5px;
+  margin-top: 3px;
+  margin-botton: 3px;
+  border: 2px outset #0e3d4e;
+}

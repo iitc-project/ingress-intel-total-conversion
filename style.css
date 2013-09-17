@@ -671,8 +671,6 @@ h3 {
   margin-right: 5px;
 }
 
-
-
 #toolbox {
   font-size: 12px;
   text-align: left;    /* centre didn't look as nice here as it did above in .linkdetails */
@@ -682,6 +680,7 @@ h3 {
   margin-left: 5px;
   margin-right: 5px;
   white-space: nowrap;
+  display: inline-block;
 }
 
 /* a common portal display takes this much space (prevents moving
