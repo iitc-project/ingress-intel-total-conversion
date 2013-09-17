@@ -6,11 +6,15 @@ window._idleTimeLimit = MAX_IDLE_TIME;
 var IDLE_POLL_TIME = 10;
 
 var idlePoll = function() {
+  var wasIdle = isIdle();
   window.idleTime += IDLE_POLL_TIME;
 
   var hidden = (document.hidden || document.webkitHidden || document.mozHidden || document.msHidden || false);
   if (hidden) {
-    window.idleSet();
+    window._idleTimeLimit = window.REFRESH; // set a small time limit before entering idle mode
+  }
+  if (!wasIdle && isIdle()) {
+    console.log('idlePoll: entering idle mode');
   }
 }
 
@@ -19,6 +23,7 @@ setInterval(idlePoll, IDLE_POLL_TIME*1000);
 window.idleReset = function () {
   // update immediately when the user comes back
   if(isIdle()) {
+    console.log ('idleReset: leaving idle mode');
     window.idleTime = 0;
     $.each(window._onResumeFunctions, function(ind, f) {
       f();
@@ -29,9 +34,12 @@ window.idleReset = function () {
 };
 
 window.idleSet = function() {
-  // force IITC to idle. used by the mobile app when switching to something else
-  if (!isIdle()) {
-    window._idleTImeLimit = 0;
+  var wasIdle = isIdle();
+
+  window._idleTimeLimit = 0; // a zero time here will cause idle to start immediately
+
+  if (!wasIdle && isIdle()) {
+    console.log ('idleSet: entering idle mode');
   }
 }
 
