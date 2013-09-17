@@ -202,7 +202,7 @@ body {
 
 /* add extra padding, and a button effect, to sidebar link areas */
 .linkdetails aside  {
-  padding: 5px !important;
+  padding: 5px;
   margin-top: 3px;
   margin-botton: 3px;
   border: 2px outset #0e3d4e;
@@ -213,4 +213,11 @@ body {
   margin-top: 3px;
   margin-botton: 3px;
   border: 2px outset #0e3d4e;
+}
+
+#portaldetails .close {
+  padding: 4px;
+  border: 1px outset #0e3d4e;
+  margin-top: 2px;
+  background: #0e3d4e;
 }
