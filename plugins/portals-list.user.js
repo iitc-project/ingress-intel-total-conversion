@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portals-list@teo96
 // @name           IITC plugin: show list of portals
 // @category       Info
-// @version        0.0.16.@@DATETIMEVERSION@@
+// @version        0.0.17.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -19,6 +19,7 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 /* whatsnew
+* 0.0.17: Add Defence/Mitigation column to display defence given from links, mods, and total
 * 0.0.15: Add 'age' column to display how long each portal has been controlled by its current owner.
 * 0.0.14: Add support to new mods (S:Shield - T:Turret - LA:Link Amp - H:Heat-sink - M:Multi-hack - FA:Force Amp)
 * 0.0.12: Use dialog() instead of alert so the user can drag the box around
@@ -49,7 +50,7 @@ window.plugin.portalslist.enlP = 0;
 window.plugin.portalslist.resP = 0;
 window.plugin.portalslist.filter=0;
 
-//fill the listPortals array with portals avalaible on the map (level filtered portals will not appear in the table)
+//fill the listPortals array with portals available on the map (level filtered portals will not appear in the table)
 window.plugin.portalslist.getPortals = function() {
   //filter : 0 = All, 1 = Res, 2 = Enl
   //console.log('** getPortals');
@@ -147,6 +148,23 @@ window.plugin.portalslist.getPortals = function() {
       }else { mods[ind] = ['', '', '']; }
     });
 	console.log(mods);
+	
+	//get mitigation information
+   	var mit = {};
+  	mit.mod = 0;
+  	mit.links = 0;
+  	$.each(d.portalV2.linkedModArray, function(ind, mod) {
+    	if (!mod) return true;
+    	if(!mod.stats.MITIGATION)
+      	return true;
+    	mit.mod += parseInt(mod.stats.MITIGATION);
+  		});
+  	
+  	if (d.portalV2.linkedEdges.length > 0) {
+    	mit.links = Math.round(400/9*Math.atan(d.portalV2.linkedEdges.length/Math.E));
+ 		 }
+  	mit.total = Math.min(95, mit.mod + mit.links);
+	
     var APgain= getAttackApGain(d).enemyAp;
     var thisPortal = {'portal': d,
           'name': name,
@@ -167,7 +185,10 @@ window.plugin.portalslist.getPortals = function() {
           'img': img,
           'age': age_in_seconds,
           'age_string_long': age_string_long,
-          'age_string_short': age_string_short};
+          'age_string_short': age_string_short,
+		  'mit_mods': mit.mod,
+          'mit_links': mit.links,
+          'mit_total': mit.total};
     window.plugin.portalslist.listPortals.push(thisPortal);
   });
 
@@ -195,7 +216,7 @@ window.plugin.portalslist.displayPL = function() {
     dialogClass: 'ui-dialog-portalslist',
     title: 'Portal list: ' + window.plugin.portalslist.listPortals.length + ' ' + (window.plugin.portalslist.listPortals.length == 1 ? 'portal' : 'portals'),
     id: 'portal-list',
-    width: 800
+    width: 1000
   });
 
   // Setup sorting
@@ -301,6 +322,9 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   + '<th ' + sort('s2', sortBy, -1) + '>M2</th>'
   + '<th ' + sort('s3', sortBy, -1) + '>M3</th>'
   + '<th ' + sort('s4', sortBy, -1) + '>M4</th>'
+  + '<th ' + sort('mit_mods', sortBy, -1) + '>Mod Def</th>'
+  + '<th ' + sort('mit_links', sortBy, -1) + '>Link Def</th>'
+  + '<th ' + sort('mit_total', sortBy, -1) + '>Total Def</th>'
   + '<th ' + sort('APgain', sortBy, -1) + '>AP Gain</th>'
   + '<th title="Energy / AP Gain ratio" ' + sort('EAP', sortBy, -1) + '>E/AP</th>'
   + '<th ' + sort('age', sortBy, -1) + '>Age</th></tr>';
@@ -333,6 +357,9 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
       + '<td style="cursor:help; background-color: '+COLORS_MOD[portal.mods[1][0]]+';" title="Mod : ' + portal.mods[1][3] + '\nInstalled by : ' + portal.mods[1][1] + '\nRarity : ' + portal.mods[1][0] + '">' + portal.mods[1][2] + '</td>'
       + '<td style="cursor:help; background-color: '+COLORS_MOD[portal.mods[2][0]]+';" title="Mod : ' + portal.mods[2][3] + '\nInstalled by : ' + portal.mods[2][1] + '\nRarity : ' + portal.mods[2][0] + '">' + portal.mods[2][2] + '</td>'
       + '<td style="cursor:help; background-color: '+COLORS_MOD[portal.mods[3][0]]+';" title="Mod : ' + portal.mods[3][3] + '\nInstalled by : ' + portal.mods[3][1] + '\nRarity : ' + portal.mods[3][0] + '">' + portal.mods[3][2] + '</td>'
+      + '<td style="cursor:help" title="' + portal.mit_mods + '">' + portal.mit_mods + '</td>'
+      + '<td style="cursor:help" title="' + portal.mit_links + '">' + portal.mit_links + '</td>'
+      + '<td style="cursor:help" title="' + portal.mit_total + '">' + portal.mit_total + '</td>'
       + '<td>' + portal.APgain + '</td>'
       + '<td>' + portal.EAP + '</td>'
       + '<td style="cursor:help;" title="' + portal.age_string_long  + '">' + portal.age_string_short + '</td>';
@@ -411,7 +438,7 @@ var setup =  function() {
   $('#toolbox').append(' <a onclick="window.plugin.portalslist.displayPL()" title="Display a list of portals in the current view">Portals list</a>');
   $('head').append('<style>' +
     //style.css sets dialog max-width to 700px - override that here
-    '#dialog-portal-list {max-width: 800px !important;}' +
+    '#dialog-portal-list {max-width: 1000px !important;}' +
     '#portalslist table {margin-top:5px; border-collapse: collapse; empty-cells: show; width:100%; clear: both;}' +
     '#portalslist table td, #portalslist table th {border-bottom: 1px solid #0b314e; padding:3px; color:white; background-color:#1b415e}' +
     '#portalslist table tr.res td {  background-color: #005684; }' +
