@@ -2,7 +2,7 @@
 // @id             iitc-plugin-draw-resonators@xelio
 // @name           IITC plugin: Draw resonators
 // @category       Layer
-// @version        0.3.0.@@DATETIMEVERSION@@
+// @version        0.4.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -677,6 +677,71 @@ window.plugin.drawResonators.setupStyler = function() {
   };
 
   thisPlugin.render.addStyler(new thisPlugin.Styler(lessThanXPctReso));
+
+  // Styler for highlighting resonators deployed by specific player
+  var resoOfSpecificPlayer = {
+    name: 'Highlight resonators by player',
+    otherOptions: {
+      'highlightedReso': highlightedReso,
+      'normalReso': normalReso,
+      'selectedReso': selectedReso,
+      'highlightedConn': highlightedConn,
+      'normalConn': normalConn,
+      'selectedConn': selectedConn,
+      'player': '',
+      'playerGuid': '',
+      'dialogEntry': new thisPlugin.TextboxDialogEntry({
+                      name: 'resoOfSpecificPlayer-player',
+                      label: 'Player name',
+                      valueFunc: function() {return thisPlugin.options.getOption('styler-resoOfSpecificPlayer-player')},
+                      onChangeCallback: function(event) {thisPlugin.options.changeOption('styler-resoOfSpecificPlayer-player', event.target.value);}
+                    })
+    },
+    resonatorStyleFunc: function(resoDetail, selected) {
+      var highlight = resoDetail.ownerGuid === this.otherOptions.playerGuid;
+      var resoSharedStyle = highlight
+                        ? this.otherOptions.highlightedReso
+                        : (selected ? this.otherOptions.selectedReso : this.otherOptions.normalReso);
+
+      var resoStyle = $.extend({
+            fillColor: COLORS_LVL[resoDetail.level],
+            fillOpacity: resoDetail.energyTotal/RESO_NRG[resoDetail.level] * (highlight ? 1 : 0.75)
+          }, resoSharedStyle);
+      return resoStyle;
+    },
+    connectorStyleFunc: function(resoDetail, selected) {
+      var highlight = resoDetail.ownerGuid === this.otherOptions.playerGuid;
+      var connStyle  = highlight
+                     ? this.otherOptions.highlightedConn
+                     : (selected ? this.otherOptions.selectedConn : this.otherOptions.normalConn);
+      return connStyle;
+    },
+    onEnableFunc: function() {
+      var thisPlugin = window.plugin.drawResonators;
+      var thisStyler = this;
+      // Add option
+      thisPlugin.options.newOption('styler-resoOfSpecificPlayer-player', '');
+      thisPlugin.options.addCallback('styler-resoOfSpecificPlayer-player', function(value) {
+        thisStyler.otherOptions.player = value;
+        thisStyler.otherOptions.playerGuid = window.playerNameToGuid(value);
+        thisPlugin.render.refreshStyler();
+      });
+      thisStyler.otherOptions.player = thisPlugin.options.getOption('styler-resoOfSpecificPlayer-player');
+      thisStyler.otherOptions.playerGuid = window.playerNameToGuid(thisStyler.otherOptions.player);
+      // Add dialog entry
+      thisPlugin.dialog.addEntry('resoOfSpecificPlayer-player', this.otherOptions.dialogEntry);
+    },
+    onDisableFunc: function() {
+      var thisPlugin = window.plugin.drawResonators;
+      // Remove option
+      thisPlugin.options.removeOption('styler-resoOfSpecificPlayer-player');
+      // Remove dialog entry
+      thisPlugin.dialog.removeEntry('resoOfSpecificPlayer-player');
+    }
+  };
+
+  thisPlugin.render.addStyler(new thisPlugin.Styler(resoOfSpecificPlayer));
+
   thisPlugin.render.changeStyler(thisPlugin.options.getOption('useStyler'));
 }
 
