@@ -26,6 +26,8 @@
 //              shown at all. Injection point is in
 //              code/map_data.js#renderPortal near the end. Will hand
 //              the Leaflet CircleMarker for the portal in "portal" var.
+// linkAdded:   called when a link is about to be added to the map
+// fieldAdded:  called when a field is about to be added to the map
 // portalDetailsUpdated: fired after the details in the sidebar have
 //              been (re-)rendered Provides data about the portal that
 //              has been selected.
@@ -49,7 +51,8 @@ window._hooks = {}
 window.VALID_HOOKS = [
   'portalSelected',
   'mapDataRefreshStart', 'mapDataRefreshEnd',
-  'portalAdded', 'portalDetailsUpdated',
+  'portalAdded', 'linkAdded', 'fieldAdded',
+  'portalDetailsUpdated',
   'publicChatDataAvailable', 'factionChatDataAvailable',
   'requestFinished', 'nicknameClicked',
   'geoSearch', 'iitcLoaded'];

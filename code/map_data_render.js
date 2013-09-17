@@ -397,6 +397,8 @@ window.Render.prototype.createFieldEntity = function(ent) {
   addPortalLinkedField(ent[2].capturedRegion.vertexB.guid);
   addPortalLinkedField(ent[2].capturedRegion.vertexC.guid);
 
+  runHooks('fieldAdded',{field: poly});
+
   window.fields[ent[0]] = poly;
 
   // TODO? postpone adding to the layer??
@@ -439,6 +441,8 @@ window.Render.prototype.createLinkEntity = function(ent,faked) {
     // LEGACY FIELDS: these duplicate data available via .details, as IITC previously stored it in data and vertices
     data: ent[2]
   });
+
+  runHooks('linkAdded', {link: poly});
 
   window.links[ent[0]] = poly;
 
