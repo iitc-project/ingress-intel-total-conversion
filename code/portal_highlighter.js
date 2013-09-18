@@ -6,6 +6,12 @@ window._highlighters = null;
 window._current_highlighter = localStorage.portal_highlighter;
 window._no_highlighter = 'No Highlights';
 
+if(window._current_highlighter !== undefined) {
+  if (typeof android !== 'undefined' && android && android.setActiveHighlighter)
+    android.setActiveHighlighter(window._current_highlighter);
+}
+
+
 window.addPortalHighlighter = function(name, callback) {
   if(_highlighters === null) {
     _highlighters = {};
