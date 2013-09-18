@@ -2,7 +2,7 @@
 // @id             iitc-plugin-draw-resonators@xelio
 // @name           IITC plugin: Draw resonators
 // @category       Layer
-// @version        0.3.0.@@DATETIMEVERSION@@
+// @version        0.4.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -43,7 +43,7 @@ window.plugin.drawResonators.render;
 
 window.plugin.drawResonators.Render = function(options) {
   this.enableZoomLevel = options['enableZoomLevel'];
-  this.useStyler = options['useStyler'];
+  this.useStyler = '';
 
   this.stylers = {};
   this.resonators = {};
@@ -249,12 +249,19 @@ window.plugin.drawResonators.Render.prototype.changeStyler = function(name) {
   if (name === this.useStyler) return;
   for(stylerName in this.stylers) {
     if(stylerName === name) {
+      if(this.stylers[this.useStyler]) this.stylers[this.useStyler].onDisableFunc();
       this.useStyler = stylerName;
+      this.stylers[this.useStyler].onEnableFunc();
       this.clearAllResonators();
       this.drawAllResonators();
       return;
     }
   }
+}
+
+window.plugin.drawResonators.Render.prototype.refreshStyler = function() {
+  this.clearAllResonators();
+  this.drawAllResonators();
 }
 
 window.plugin.drawResonators.Render.prototype.isResonatorsShow = function() {
@@ -277,6 +284,8 @@ window.plugin.drawResonators.Styler = function(options) {
   this.otherOptions = options['otherOptions'];
   this.getResonatorStyle = options['resonatorStyleFunc'] || this.defaultResonatorStyle;
   this.getConnectorStyle = options['connectorStyleFunc'] || this.defaultConnectorStyle;
+  this.onEnableFunc = options['onEnableFunc'] || function() {};
+  this.onDisableFunc = options['onDisableFunc'] || function() {};
 }
 
 window.plugin.drawResonators.Styler.prototype.DEFAULT_OPTIONS_RESONATOR_SELECTED = {
@@ -356,6 +365,11 @@ window.plugin.drawResonators.Options.prototype.getOption = function(name) {
   return this._options[name];
 }
 
+window.plugin.drawResonators.Options.prototype.removeOption = function(name) {
+  delete this._options[name];
+  delete this._callbacks[name];
+}
+
 window.plugin.drawResonators.Options.prototype.changeOption = function(name, value) {
   if(!(name in this._options)) return false;
   if(value === this._options[name]) return false;
@@ -405,8 +419,13 @@ window.plugin.drawResonators.Dialog.prototype.addLink = function() {
 
 window.plugin.drawResonators.Dialog.prototype.addEntry = function(name, dialogEntry) {
   this._dialogEntries[name] = dialogEntry;
+  this.change();
 }
 
+window.plugin.drawResonators.Dialog.prototype.removeEntry = function(name) {
+  delete this._dialogEntries[name];
+  this.change();
+}
 
 window.plugin.drawResonators.Dialog.prototype.show = function() {
   window.dialog({html: this.getDialogHTML(), title: 'Resonators', modal: true, id: 'draw-reso-setting'});
@@ -419,6 +438,10 @@ window.plugin.drawResonators.Dialog.prototype.show = function() {
       $('#draw-reso-dialog').on(event.event, '#' + event.id, event.callback);
     }
   }
+}
+
+window.plugin.drawResonators.Dialog.prototype.change = function() {
+  if($('#draw-reso-dialog').length > 0) this.show();
 }
 
 window.plugin.drawResonators.Dialog.prototype.getDialogHTML = function() {
@@ -477,6 +500,40 @@ window.plugin.drawResonators.ListDialogEntry.prototype.getOnEvents = function() 
 }
 
 window.plugin.drawResonators.ListDialogEntry.prototype.getSelectId = function() {
+  return 'draw-reso-option-' + this._name;
+}
+
+
+
+//////// TextboxDialogEntry
+
+
+window.plugin.drawResonators.TextboxDialogEntry = function(options) {
+  this._name = options['name'];
+  this._label = options['label'];
+  this._valueFunc = options['valueFunc'];
+  this._onChangeCallback = options['onChangeCallback'];
+}
+
+window.plugin.drawResonators.TextboxDialogEntry.prototype.getHTML = function() {
+  var curValue = this._valueFunc();
+  var html = '<label for="' + this.getInputId() + '">'
+           + this._label + ': '
+           + '</label>'
+           + '<input type="text" size="20" id="' + this.getInputId() + '" '
+           + 'value="' + curValue + '" />';
+  return html;
+}
+
+
+window.plugin.drawResonators.TextboxDialogEntry.prototype.getOnEvents = function() {
+  return [{'event': 'change',
+           'id': this.getInputId(),
+           'callback': this._onChangeCallback
+  }];
+}
+
+window.plugin.drawResonators.TextboxDialogEntry.prototype.getInputId = function() {
   return 'draw-reso-option-' + this._name;
 }
 
@@ -560,19 +617,26 @@ window.plugin.drawResonators.setupStyler = function() {
 
   thisPlugin.render.addStyler(new thisPlugin.Styler(l8Reso));
 
-  // Styler for highlighting resonators with less than 10% energy
-  var lessThanTenPctReso = {
-    name: 'Highlight <10% resonators',
+  // Styler for highlighting resonators with less than X% energy
+  var lessThanXPctReso = {
+    name: 'Highlight < X% resonators',
     otherOptions: {
-      'highlightedReso' : highlightedReso,
-      'normalReso' : normalReso,
-      'selectedReso' : selectedReso,
-      'highlightedConn' : highlightedConn,
-      'normalConn' : normalConn,
-      'selectedConn' : selectedConn
+      'highlightedReso': highlightedReso,
+      'normalReso': normalReso,
+      'selectedReso': selectedReso,
+      'highlightedConn': highlightedConn,
+      'normalConn': normalConn,
+      'selectedConn': selectedConn,
+      'pct': 15,
+      'dialogEntry': new thisPlugin.TextboxDialogEntry({
+                      name: 'resoLessThanPct-pct',
+                      label: 'Percentage',
+                      valueFunc: function() {return thisPlugin.options.getOption('styler-resoLessThanPct-pct')},
+                      onChangeCallback: function(event) {thisPlugin.options.changeOption('styler-resoLessThanPct-pct', parseInt(event.target.value));}
+                    })
     },
     resonatorStyleFunc: function(resoDetail, selected) {
-      var highlight = (resoDetail.energyTotal * 10) < RESO_NRG[resoDetail.level];
+      var highlight = (resoDetail.energyTotal * 100) < (RESO_NRG[resoDetail.level] * this.otherOptions.pct);
       var resoSharedStyle = highlight
                         ? this.otherOptions.highlightedReso
                         : (selected ? this.otherOptions.selectedReso : this.otherOptions.normalReso);
@@ -584,44 +648,114 @@ window.plugin.drawResonators.setupStyler = function() {
       return resoStyle;
     },
     connectorStyleFunc: function(resoDetail, selected) {
-      var highlight = (resoDetail.energyTotal * 10) < RESO_NRG[resoDetail.level];
+      var highlight = (resoDetail.energyTotal * 100) < (RESO_NRG[resoDetail.level] * this.otherOptions.pct);
       var connStyle  = highlight
                      ? this.otherOptions.highlightedConn
                      : (selected ? this.otherOptions.selectedConn : this.otherOptions.normalConn);
       return connStyle;
+    },
+    onEnableFunc: function() {
+      var thisPlugin = window.plugin.drawResonators;
+      var thisStyler = this;
+      // Add option
+      thisPlugin.options.newOption('styler-resoLessThanPct-pct', 15);
+      thisPlugin.options.addCallback('styler-resoLessThanPct-pct', function(value) {
+        thisStyler.otherOptions.pct = value;
+        thisPlugin.render.refreshStyler();
+      });
+      thisStyler.otherOptions.pct = thisPlugin.options.getOption('styler-resoLessThanPct-pct');
+      // Add dialog entry
+      thisPlugin.dialog.addEntry('resoLessThanPct-pct', this.otherOptions.dialogEntry);
+    },
+    onDisableFunc: function() {
+      var thisPlugin = window.plugin.drawResonators;
+      // Remove option
+      thisPlugin.options.removeOption('styler-resoLessThanPct-pct');
+      // Remove dialog entry
+      thisPlugin.dialog.removeEntry('resoLessThanPct-pct');
     }
   };
 
-  thisPlugin.render.addStyler(new thisPlugin.Styler(lessThanTenPctReso));
+  thisPlugin.render.addStyler(new thisPlugin.Styler(lessThanXPctReso));
 
+  // Styler for highlighting resonators deployed by specific player
+  var resoOfSpecificPlayer = {
+    name: 'Highlight resonators by player',
+    otherOptions: {
+      'highlightedReso': highlightedReso,
+      'normalReso': normalReso,
+      'selectedReso': selectedReso,
+      'highlightedConn': highlightedConn,
+      'normalConn': normalConn,
+      'selectedConn': selectedConn,
+      'player': '',
+      'playerGuid': '',
+      'dialogEntry': new thisPlugin.TextboxDialogEntry({
+                      name: 'resoOfSpecificPlayer-player',
+                      label: 'Player name',
+                      valueFunc: function() {return thisPlugin.options.getOption('styler-resoOfSpecificPlayer-player')},
+                      onChangeCallback: function(event) {thisPlugin.options.changeOption('styler-resoOfSpecificPlayer-player', event.target.value);}
+                    })
+    },
+    resonatorStyleFunc: function(resoDetail, selected) {
+      var highlight = resoDetail.ownerGuid === this.otherOptions.playerGuid;
+      var resoSharedStyle = highlight
+                        ? this.otherOptions.highlightedReso
+                        : (selected ? this.otherOptions.selectedReso : this.otherOptions.normalReso);
+
+      var resoStyle = $.extend({
+            fillColor: COLORS_LVL[resoDetail.level],
+            fillOpacity: resoDetail.energyTotal/RESO_NRG[resoDetail.level] * (highlight ? 1 : 0.75)
+          }, resoSharedStyle);
+      return resoStyle;
+    },
+    connectorStyleFunc: function(resoDetail, selected) {
+      var highlight = resoDetail.ownerGuid === this.otherOptions.playerGuid;
+      var connStyle  = highlight
+                     ? this.otherOptions.highlightedConn
+                     : (selected ? this.otherOptions.selectedConn : this.otherOptions.normalConn);
+      return connStyle;
+    },
+    onEnableFunc: function() {
+      var thisPlugin = window.plugin.drawResonators;
+      var thisStyler = this;
+      // Add option
+      thisPlugin.options.newOption('styler-resoOfSpecificPlayer-player', '');
+      thisPlugin.options.addCallback('styler-resoOfSpecificPlayer-player', function(value) {
+        thisStyler.otherOptions.player = value;
+        thisStyler.otherOptions.playerGuid = window.playerNameToGuid(value);
+        thisPlugin.render.refreshStyler();
+      });
+      thisStyler.otherOptions.player = thisPlugin.options.getOption('styler-resoOfSpecificPlayer-player');
+      thisStyler.otherOptions.playerGuid = window.playerNameToGuid(thisStyler.otherOptions.player);
+      // Add dialog entry
+      thisPlugin.dialog.addEntry('resoOfSpecificPlayer-player', this.otherOptions.dialogEntry);
+    },
+    onDisableFunc: function() {
+      var thisPlugin = window.plugin.drawResonators;
+      // Remove option
+      thisPlugin.options.removeOption('styler-resoOfSpecificPlayer-player');
+      // Remove dialog entry
+      thisPlugin.dialog.removeEntry('resoOfSpecificPlayer-player');
+    }
+  };
+
+  thisPlugin.render.addStyler(new thisPlugin.Styler(resoOfSpecificPlayer));
+
+  thisPlugin.render.changeStyler(thisPlugin.options.getOption('useStyler'));
 }
 
 
-
-var setup =  function() {
+window.plugin.drawResonators.setupOptions = function() {
   var thisPlugin = window.plugin.drawResonators;
-
   // Initialize options
   thisPlugin.options = new thisPlugin.Options();
   thisPlugin.options.newOption('enableZoomLevel', 17);
   thisPlugin.options.newOption('useStyler', 'Default');
+}
 
-  // Initialize render
-  var renderOptions = {
-    'enableZoomLevel': thisPlugin.options.getOption('enableZoomLevel'),
-    'useStyler': thisPlugin.options.getOption('useStyler')};
-
-  thisPlugin.render = new thisPlugin.Render(renderOptions);
-  thisPlugin.render.registerHook();
-  window.addLayerGroup('Resonators', thisPlugin.render.resonatorLayerGroup, true);
-
-  // callback run at option change
-  thisPlugin.options.addCallback('enableZoomLevel', thisPlugin.render.handleEnableZoomLevelChange);
-  thisPlugin.options.addCallback('useStyler', thisPlugin.render.changeStyler);
-
-  // Initialize styler
-  thisPlugin.setupStyler();
-
+window.plugin.drawResonators.setupDialog = function() {
+  var thisPlugin = window.plugin.drawResonators;
   // Initialize dialog
   thisPlugin.dialog = new thisPlugin.Dialog();
 
@@ -646,6 +780,30 @@ var setup =  function() {
   thisPlugin.dialog.addEntry('use-styler', stylerDialogEntry);
 
   thisPlugin.dialog.addLink();
+}
+
+var setup =  function() {
+  var thisPlugin = window.plugin.drawResonators;
+
+  // Initialize options
+  thisPlugin.setupOptions();
+
+  // Initialize render
+  var renderOptions = {'enableZoomLevel': thisPlugin.options.getOption('enableZoomLevel')};
+
+  thisPlugin.render = new thisPlugin.Render(renderOptions);
+
+  // callback run at option change
+  thisPlugin.options.addCallback('enableZoomLevel', thisPlugin.render.handleEnableZoomLevelChange);
+  thisPlugin.options.addCallback('useStyler', thisPlugin.render.changeStyler);
+
+  // Initialize Dialog
+  thisPlugin.setupDialog();
+  // Initialize styler
+  thisPlugin.setupStyler();
+
+  thisPlugin.render.registerHook();
+  window.addLayerGroup('Resonators', thisPlugin.render.resonatorLayerGroup, true);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////
