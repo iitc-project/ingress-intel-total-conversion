@@ -94,8 +94,8 @@ window.plugin.portalHighligherPortalAPPerEnergyRelative.calculateAPLevels = func
   
 
 var setup =  function() {
-  window.addPortalHighlighter('AP/Energy (Relative)', window.plugin.portalHighligherPortalAPPerEnergyRelative.highlight);
-  window.addHook('requestFinished', window.plugin.portalHighligherPortalAPPerEnergyRelative.resetAPLevels);
+  window.addPortalHighlighter('AP/Energy (Relative)', window.plugin.portalHighligherPortalAPPerEnergyRelative.highlight,
+                              window.plugin.portalHighligherPortalAPPerEnergyRelative.resetAPLevels);
   
 }
 

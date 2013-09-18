@@ -3,14 +3,17 @@
 
 
 window._highlighters = null;
+window._data_refreshing = false;
 window._current_highlighter = localStorage.portal_highlighter;
 window._no_highlighter = 'No Highlights';
 
-window.addPortalHighlighter = function(name, callback) {
+window.addPortalHighlighter = function(name, callback, reset_function) {
   if(_highlighters === null) {
     _highlighters = {};
+    window.addHook('mapDataRefreshStart', function() { window._data_refreshing = true;});
+    window.addHook('mapDataRefreshEnd', window.portalHighligherRefreshEnd);
   }
-  _highlighters[name] = callback;
+  _highlighters[name] = {highlighter_callback: callback, reset_function:reset_function};
   if(localStorage.portal_highlighter === undefined) {
     _current_highlighter = name;
     localStorage.portal_highlighter = name;
@@ -43,15 +46,31 @@ window.changePortalHighlights = function(name) {
   localStorage.portal_highlighter = name;
 }
 
+//Skip highlighting if a relative highlighter will just blow it away
 window.highlightPortal = function(p) {
-  
-  if(_highlighters !== null && _highlighters[_current_highlighter] !== undefined) {
+  if(_highlighters !== null &&
+     _highlighters[_current_highlighter].highlighter_callback !== undefined &&
+     (_highlighters[_current_highlighter].reset_function === undefined ||
+      _highlighters[_current_highlighter].reset_function !== undefined &&
+      !window._data_refreshing)) { 
     p.options.highligher = _current_highlighter;
-    _highlighters[_current_highlighter]({portal: p});
+    _highlighters[_current_highlighter].highlighter_callback({portal: p});
+
+  }
+}
+
+window.portalHighligherRefreshEnd = function(){
+  window._data_refreshing = false;
+  if(_highlighters[_current_highlighter].reset_function !== undefined)
+  {
+    window.resetHighlightedPortals();
   }
 }
 
 window.resetHighlightedPortals = function() {
+  if(_highlighters[_current_highlighter].reset_function !== undefined) {
+    _highlighters[_current_highlighter].reset_function();
+  }
   $.each(portals, function(guid, portal) {
     setMarkerStyle(portal, guid === selectedPortal);
   });
