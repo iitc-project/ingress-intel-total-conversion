@@ -295,8 +295,12 @@ public class IITC_Mobile extends Activity {
             Log.d("iitcm", "preference had changed...reload needed");
             reloadIITC();
         }
-        else
-            mIitcWebView.loadUrl("javascript: window.idleReset();");
+        else {
+            // iitc is not fully booted...timer will be reset by the script itself
+            if (findViewById(R.id.imageLoading).getVisibility() == View.GONE) {
+                mIitcWebView.loadUrl("javascript: window.idleReset();");
+            }
+        }
     }
 
     @Override
