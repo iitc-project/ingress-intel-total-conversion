@@ -186,8 +186,14 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         plugin_name = plugin_name.replace("IITC plugin: ", "");
 
         // add [User] tag to user plugins
-        if (user)
+        if (user) {
             plugin_cat = USER_PLUGIN + plugin_cat;
+        }
+
+        // do not add deleted plugins
+        if (plugin_cat.equals("Deleted")) {
+            return;
+        }
 
         // now we have all stuff together and can build the preference
         // first check if we need a new category
