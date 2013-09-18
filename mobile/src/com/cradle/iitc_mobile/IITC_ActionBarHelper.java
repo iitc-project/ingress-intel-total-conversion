@@ -8,19 +8,17 @@ import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 public class IITC_ActionBarHelper implements OnNavigationListener {
-    /*
-     * Show/hide the up arrow on the left end
-     * getActionBar().setDisplayHomeAsUpEnabled(enabled);
-     *
-     * Show/hide the activity icon/logo
-     * getActionBar().setDisplayShowHomeEnabled(enabled);
-     *
-     * Show/hide the activity title
-     * getActionBar().setDisplayShowTitleEnabled(enabled);
-     *
-     * Makes the icon/title clickable
-     * getActionBar().setHomeButtonEnabled(enabled);
-     */
+    // Show/hide the up arrow on the very left
+    // getActionBar().setDisplayHomeAsUpEnabled(enabled);
+
+    // Show/hide the activity icon/logo
+    // getActionBar().setDisplayShowHomeEnabled(enabled);
+
+    // Show/hide the activity title
+    // getActionBar().setDisplayShowTitleEnabled(enabled);
+
+    // Makes the icon/title clickable
+    // getActionBar().setHomeButtonEnabled(enabled);
 
     private class HighlighterAdapter extends ArrayAdapter<String> {
         public HighlighterAdapter() {
@@ -90,9 +88,10 @@ public class IITC_ActionBarHelper implements OnNavigationListener {
         if (showHighlighter) {
             mActionBar.setDisplayShowTitleEnabled(false); // Hide title
             mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+            setActiveHighlighter(mActiveHighlighter);
         } else {
-            mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
             mActionBar.setDisplayShowTitleEnabled(true); // Show title
+            mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         }
         if (mFullscreen && mHideInFullscreen)
             mActionBar.hide();
@@ -133,11 +132,13 @@ public class IITC_ActionBarHelper implements OnNavigationListener {
     }
 
     public void setActiveHighlighter(String name) {
-        int position = mHighlighters.getPosition(name);
-        if (position >= 0)
-            mActionBar.setSelectedNavigationItem(position);
-
         mActiveHighlighter = name;
+
+        if (mActionBar.getNavigationMode() == ActionBar.NAVIGATION_MODE_LIST) {
+            int position = mHighlighters.getPosition(mActiveHighlighter);
+            if (position >= 0 && position < mActionBar.getNavigationItemCount())
+                mActionBar.setSelectedNavigationItem(position);
+        }
     }
 
     public void setFullscreen(boolean fullscreen) {
