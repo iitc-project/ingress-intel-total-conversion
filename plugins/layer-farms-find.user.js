@@ -340,13 +340,6 @@ var setup =  function() {
     possibleFarmPortals = [];
     window.plugin.farmFind.levelLayerGroup = new L.LayerGroup();
 	$('body').append('<select onchange="window.plugin.farmFind.changeLevel()" id="farm_level_select"><option value=1>Farm level 1</option><option value=2>Farm level 2</option><option value=3>Farm level 3</option><option value=4>Farm level 4</option><option value=5>Farm level 5</option><option value=6>Farm level 6</option><option value=7>Farm level 7</option><option value=8>Farm level 8</option></select>');
-    // notify android that the select spinner is enabled.
-    // this disables javascript injection on android side.
-    // if android is not notified, the spinner closes on the next JS call
-    if (typeof android !== 'undefined' && android && android.spinnerEnabled) {
-      $("#farm_level_select").click(function(){ android.spinnerEnabled(true);});
-      $("#farm_level_select").focus(function(){ android.spinnerEnabled(false);});
-    }
     var myselect = document.getElementById("farm_level_select");
     myselect.options.selectedIndex = 6;
     window.addLayerGroup('Farms', window.plugin.farmFind.levelLayerGroup, true);

@@ -1,6 +1,5 @@
 package com.cradle.iitc_mobile;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.os.Bundle;
@@ -43,9 +42,8 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
 
     @Override
     public void onBuildHeaders(List<Header> target) {
-        ActionBar bar = getActionBar();
-        bar.setTitle("IITC Plugins");
-        bar.setDisplayHomeAsUpEnabled(true);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+
         mHeaders = target;
         // since the plugins container is static,
         // it is enough to parse the plugin only on first start.
@@ -62,8 +60,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            // exit settings when home button (iitc icon) is pressed
-            case android.R.id.home:
+            case android.R.id.home: // exit settings when home button (iitc icon) is pressed
                 onBackPressed();
                 return true;
             default:
@@ -157,8 +154,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         }
     }
 
-    void addPluginPreference(String src, String plugin_key,
-                             boolean user) {
+    void addPluginPreference(String src, String plugin_key, boolean user) {
 
         // now parse plugin name, description and category
         String header = src.substring(src.indexOf("==UserScript=="),
@@ -186,8 +182,14 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         plugin_name = plugin_name.replace("IITC plugin: ", "");
 
         // add [User] tag to user plugins
-        if (user)
+        if (user) {
             plugin_cat = USER_PLUGIN + plugin_cat;
+        }
+
+        // do not add deleted plugins
+        if (plugin_cat.equals("Deleted")) {
+            return;
+        }
 
         // now we have all stuff together and can build the preference
         // first check if we need a new category
@@ -306,20 +308,20 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
             if (convertView == null) {
                 holder = new HeaderViewHolder();
                 switch (headerType) {
-                case HEADER_TYPE_CATEGORY:
-                    view = new TextView(getContext(), null,
-                            android.R.attr.listSeparatorTextViewStyle);
-                    holder.title = (TextView) view;
-                    break;
+                    case HEADER_TYPE_CATEGORY:
+                        view = new TextView(getContext(), null,
+                                android.R.attr.listSeparatorTextViewStyle);
+                        holder.title = (TextView) view;
+                        break;
 
-                case HEADER_TYPE_NORMAL:
-                    view = mInflater.inflate(R.layout.preference_header_item,
-                            parent, false);
-                    holder.title = (TextView) view
-                            .findViewById(R.id.plug_pref_title);
-                    holder.summary = (TextView) view
-                            .findViewById(R.id.plug_pref_summary);
-                    break;
+                    case HEADER_TYPE_NORMAL:
+                        view = mInflater.inflate(R.layout.preference_header_item,
+                                parent, false);
+                        holder.title = (TextView) view
+                                .findViewById(R.id.plug_pref_title);
+                        holder.summary = (TextView) view
+                                .findViewById(R.id.plug_pref_summary);
+                        break;
                 }
                 view.setTag(holder);
             } else {
@@ -330,22 +332,22 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
             // All view fields must be updated every time, because the view may
             // be recycled
             switch (headerType) {
-            case HEADER_TYPE_CATEGORY:
-                holder.title.setText(header.getTitle(getContext()
-                        .getResources()));
-                break;
-            case HEADER_TYPE_NORMAL:
-                holder.title.setText(header.getTitle(getContext()
-                        .getResources()));
-                CharSequence summary = header.getSummary(getContext()
-                        .getResources());
-                if (!TextUtils.isEmpty(summary)) {
-                    holder.summary.setVisibility(View.VISIBLE);
-                    holder.summary.setText(summary);
-                } else {
-                    holder.summary.setVisibility(View.GONE);
-                }
-                break;
+                case HEADER_TYPE_CATEGORY:
+                    holder.title.setText(header.getTitle(getContext()
+                            .getResources()));
+                    break;
+                case HEADER_TYPE_NORMAL:
+                    holder.title.setText(header.getTitle(getContext()
+                            .getResources()));
+                    CharSequence summary = header.getSummary(getContext()
+                            .getResources());
+                    if (!TextUtils.isEmpty(summary)) {
+                        holder.summary.setVisibility(View.VISIBLE);
+                        holder.summary.setText(summary);
+                    } else {
+                        holder.summary.setVisibility(View.GONE);
+                    }
+                    break;
             }
 
             return view;

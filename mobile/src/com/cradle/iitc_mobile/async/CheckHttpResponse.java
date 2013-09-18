@@ -8,7 +8,6 @@ import android.util.Log;
 
 import com.cradle.iitc_mobile.IITC_JSInterface;
 import com.cradle.iitc_mobile.IITC_Mobile;
-import com.cradle.iitc_mobile.IITC_WebView;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
