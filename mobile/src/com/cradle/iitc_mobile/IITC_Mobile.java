@@ -18,8 +18,6 @@ import android.content.res.Configuration;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -256,17 +254,13 @@ public class IITC_Mobile extends Activity {
             throw use;
         }
 
-        if (parts.length > 1) // query string present
-        {
+        if (parts.length > 1) { // query string present
             // search for z=
             for (String param : parts[1].split("&")) {
-                if (param.startsWith("z="))
-                {
-                    try
-                    {
+                if (param.startsWith("z=")) {
+                    try {
                         z = Integer.valueOf(param.substring(2));
-                    } catch (NumberFormatException e)
-                    {
+                    } catch (NumberFormatException e) {
                         URISyntaxException use = new URISyntaxException(uri.toString(), "could not parse zoom level");
                         use.initCause(e);
                         throw use;
@@ -307,13 +301,6 @@ public class IITC_Mobile extends Activity {
 
     @Override
     protected void onStop() {
-        ConnectivityManager conMan =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo mobile = conMan
-                .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        NetworkInfo wifi = conMan.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
         Log.d("iitcm", "stopping iitcm");
         mIitcWebView.loadUrl("javascript: window.idleSet();");
 
@@ -651,8 +638,7 @@ public class IITC_Mobile extends Activity {
         return super.getActionBar();
     }
 
-    public ActionBarHelper getActionBarHelper()
-    {
+    public ActionBarHelper getActionBarHelper() {
         return mActionBarHelper;
     }
 }

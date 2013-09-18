@@ -35,10 +35,8 @@ public class IntentListView extends ListView {
         }
     }
 
-    private class IntentAdapter extends ArrayAdapter<ResolveInfo>
-    {
-        private IntentAdapter()
-        {
+    private class IntentAdapter extends ArrayAdapter<ResolveInfo> {
+        private IntentAdapter() {
             super(IntentListView.this.getContext(), android.R.layout.simple_list_item_1);
         }
 
@@ -126,8 +124,7 @@ public class IntentListView extends ListView {
         setIntents(intentList);
     }
 
-    public void setIntents(ArrayList<Intent> intents)
-    {
+    public void setIntents(ArrayList<Intent> intents) {
         mAdapter.setNotifyOnChange(false);
         mAdapter.clear();
 
@@ -154,10 +151,8 @@ public class IntentListView extends ListView {
                 ActivityInfo activity = info.activityInfo;
 
                 // remove all IITCm intents, except for SendToClipboard in case Drive is not installed
-                if (activity.packageName.equals(packageName))
-                {
-                    if (hasCopyIntent || !activity.name.equals(SendToClipboard.class.getCanonicalName()))
-                    {
+                if (activity.packageName.equals(packageName)) {
+                    if (hasCopyIntent || !activity.name.equals(SendToClipboard.class.getCanonicalName())) {
                         activityList.remove(i);
                         i--;
                         continue;
