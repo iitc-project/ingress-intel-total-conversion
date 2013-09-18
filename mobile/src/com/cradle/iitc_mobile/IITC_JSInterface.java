@@ -1,10 +1,5 @@
 package com.cradle.iitc_mobile;
 
-import java.util.HashMap;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -24,6 +19,11 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.cradle.iitc_mobile.share.ShareActivity;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.HashMap;
 
 // provide communication between IITC script and android app
 public class IITC_JSInterface {
@@ -96,46 +96,20 @@ public class IITC_JSInterface {
     }
 
     @JavascriptInterface
-    public void switchToPane(String id) {
-
+    public void switchToPane(final String id) {
         final IITC_Mobile iitcm = (IITC_Mobile) mContext;
-        final int button_id;
-        final String title;
 
-        if (id.equals("map")) {
-            button_id = android.R.id.home;
-            title = iitcm.getString(R.string.app_name);
-        } else if (id.equals("info")) {
-            button_id = R.id.menu_info;
-            title = "Info";
-        } else if (id.equals("full")) {
-            button_id = R.id.menu_full;
-            title = "Full";
-        } else if (id.equals("compact")) {
-            button_id = R.id.menu_compact;
-            title = "Compact";
-        } else if (id.equals("public")) {
-            button_id = R.id.menu_public;
-            title = "Public";
-        } else if (id.equals("faction")) {
-            button_id = R.id.menu_faction;
-            title = "Faction";
-        } else if (id.equals("debug")) {
-            button_id = R.id.menu_debug;
-            title = "Debug";
-        }
-        // default
-        else {
-            button_id = android.R.id.home;
-            title = iitcm.getString(R.string.app_name);
-        }
-
-        Log.d("iitcm", "switch to pane " + id);
         iitcm.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                iitcm.getActionBar().setTitle(title);
-                iitcm.backStackUpdate(button_id);
+                IITC_ActionBarHelper actionbar = iitcm.getActionBarHelper();
+                Integer button = IITC_Mobile.PANES.get(id);
+
+                if (button == null)
+                    button = android.R.id.home;
+
+                actionbar.switchTo(button);
+                iitcm.backStackUpdate(button);
             }
         });
     }
@@ -169,10 +143,10 @@ public class IITC_JSInterface {
     public void setLayers(String base_layer, String overlay_layer) {
 
         /*
-         *  the layer strings have a form like:
-         *  [{"layerId":27,"name":"MapQuest OSM","active":true},
-         *  {"layerId":28,"name":"Default Ingress Map","active":false}]
-         *  Put it in a JSONArray and parse it
+         * the layer strings have a form like:
+         * [{"layerId":27,"name":"MapQuest OSM","active":true},
+         * {"layerId":28,"name":"Default Ingress Map","active":false}]
+         * Put it in a JSONArray and parse it
          */
         JSONArray base_layersJSON = null;
         JSONArray overlay_layersJSON = null;
@@ -256,6 +230,28 @@ public class IITC_JSInterface {
         showMultiSelection();
     }
 
+    @JavascriptInterface
+    public void addPortalHighlighter(final String name) {
+        final IITC_Mobile iitc = ((IITC_Mobile) mContext);
+        iitc.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                iitc.getActionBarHelper().addPortalHighlighter(name);
+            }
+        });
+    }
+
+    @JavascriptInterface
+    public void setActiveHighlighter(final String name) {
+        final IITC_Mobile iitc = ((IITC_Mobile) mContext);
+        iitc.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                iitc.getActionBarHelper().setActiveHighlighter(name);
+            }
+        });
+    }
+
     // show all overlay layers in a multi selection list dialog
     private void showMultiSelection() {
         // build the layer chooser dialog
@@ -287,6 +283,7 @@ public class IITC_JSInterface {
         final ListView list = dialog.getListView();
         list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             boolean disable = false;
+
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
                 int j = 0;
