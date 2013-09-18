@@ -99,8 +99,7 @@ public class IITC_Mobile extends Activity {
         mActionBarHelper = new ActionBarHelper(this, super.getActionBar());
 
         // do something if user changed something in the settings
-        mSharedPrefs = PreferenceManager
-                .getDefaultSharedPreferences(this);
+        mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         mSharedPrefChangeListener = new OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(
@@ -289,23 +288,21 @@ public class IITC_Mobile extends Activity {
 
         // enough idle...let's do some work
         Log.d("iitcm", "resuming...reset idleTimer");
-        mIitcWebView.loadUrl("javascript: window.idleReset();");
         mIitcWebView.updateCaching();
 
         if (mIsLocEnabled) {
             // Register the mSharedPrefChangeListener with the Location Manager to receive
             // location updates
-            mLocMngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
-                    0, 0, mLocListener);
-            mLocMngr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
-                    mLocListener);
+            mLocMngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, mLocListener);
+            mLocMngr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocListener);
         }
 
         if (mReloadNeeded) {
             Log.d("iitcm", "preference had changed...reload needed");
-            this.loadUrl(mIntelUrl);
-            mReloadNeeded = false;
+            reloadIITC();
         }
+        else
+            mIitcWebView.loadUrl("javascript: window.idleReset();");
     }
 
     @Override
@@ -499,7 +496,8 @@ public class IITC_Mobile extends Activity {
         mBackStack.clear();
         // iitc starts on map after reload
         mCurrentPane = android.R.id.home;
-        this.loadUrl(mIntelUrl);
+        loadUrl(mIntelUrl);
+        mReloadNeeded = false;
     }
 
     private void loadIITC() {
