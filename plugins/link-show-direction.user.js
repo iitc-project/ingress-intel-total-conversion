@@ -22,7 +22,7 @@
 // use own namespace for plugin
 window.plugin.linkShowDirection = function() {};
 
-window.plugin.linkShowDirection.ANIMATE_UPDATE_TIME=2;
+window.plugin.linkShowDirection.ANIMATE_UPDATE_TIME=1;
 window.plugin.linkShowDirection.frames = [
   '10,5,5,5,5,5,5,5,100%',
 //  '11,5,5,5,5,5,5,4,100%',
@@ -37,18 +37,23 @@ window.plugin.linkShowDirection.frames = [
 ];
 
 window.plugin.linkShowDirection.frame = 0;
+window.plugin.linkShowDirection.moving = false;
+
 
 window.plugin.linkShowDirection.animateLinks = function() {
-  window.plugin.linkShowDirection.frame ++;
-  window.plugin.linkShowDirection.frame %= window.plugin.linkShowDirection.frames.length;
+  if (!window.plugin.linkShowDirection.moving) {
+    window.plugin.linkShowDirection.frame ++;
+    window.plugin.linkShowDirection.frame %= window.plugin.linkShowDirection.frames.length;
 
-  $.each(links,function(guid,link) { window.plugin.linkShowDirection.addLinkStyle(link); });
+    $.each(links,function(guid,link) { window.plugin.linkShowDirection.addLinkStyle(link); });
+  }
 
   // browsers don't render the SVG style changes until after the timer function has finished.
   // this means if we start the next timeout in here a lot of the delay time will be taken by the browser itself
   // re-rendering the screen. in the worst case, the timer will run out before the render completes, and fire immediately
   // this would mean the user has no chance to interact with IITC
-  // to prevent this, create a short timer that then sets the timer for the next frame
+  // to prevent this, create a short timer that then sets the timer for the next frame. if the browser is slow to render,
+  // the short timer should fire later, at which point the desired ANIMATE_UPDATE_TIME timer is started
   setTimeout ( function() { setTimeout (window.plugin.linkShowDirection.animateLinks, window.plugin.linkShowDirection.ANIMATE_UPDATE_TIME*1000); }, 10);
 
 }
@@ -65,6 +70,11 @@ window.plugin.linkShowDirection.setup  = function() {
   // only start the animation timer of the paths support SVG
   if (L.Path.SVG) {
     setTimeout (window.plugin.linkShowDirection.animateLinks, window.plugin.linkShowDirection.ANIMATE_UPDATE_TIME*1000);
+
+    // set up move start/end handlers to pause animations while moving
+    map.on('movestart', function() { window.plugin.linkShowDirection.moving = true; });
+    map.on('moveend', function() { window.plugin.linkShowDirection.moving = false; });
+
   }
 };
 
