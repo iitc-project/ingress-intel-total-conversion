@@ -125,6 +125,18 @@ window.runOnSmartphonesAfterBoot = function() {
   var l = $('#chatcontrols a:visible');
   l.css('width', 100/l.length + '%');
 
+  // notify android that a select spinner is enabled.
+  // this disables javascript injection on android side.
+  // if android is not notified, the spinner closes on the next JS call
+  if (typeof android !== 'undefined' && android && android.spinnerEnabled) {
+    $("body").on("click", "select", function() {
+      android.spinnerEnabled(true);
+    });
+    $("body").on("focus", "select", function() {
+      android.spinnerEnabled(false);
+    });
+  }
+
   // add event to portals that allows long press to switch to sidebar
   window.addHook('portalAdded', function(data) {
     data.portal.on('add', function() {
