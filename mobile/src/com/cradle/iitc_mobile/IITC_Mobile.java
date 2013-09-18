@@ -283,8 +283,8 @@ public class IITC_Mobile extends Activity {
         super.onResume();
 
         // enough idle...let's do some work
-        Log.d("iitcm", "resuming...setting reset idleTimer");
-        mIitcWebView.loadUrl("javascript: window.idleTime = 0");
+        Log.d("iitcm", "resuming...reset idleTimer");
+        mIitcWebView.loadUrl("javascript: window.idleReset();");
         mIitcWebView.updateCaching();
 
         if (mIsLocEnabled) {
@@ -312,32 +312,8 @@ public class IITC_Mobile extends Activity {
                 .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
         NetworkInfo wifi = conMan.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
-        // check if Mobile or Wifi module is available..then handle states
-        // TODO: theory...we do not have to check for a Wifi module...every
-        // android device should have one
-        if (mobile != null) {
-            Log.d("iitcm", "mobile internet module detected...check states");
-            if (mobile.getState() == NetworkInfo.State.CONNECTED
-                    || mobile.getState() == NetworkInfo.State.CONNECTING) {
-                Log.d("iitcm",
-                        "connected to mobile net...abort all running requests");
-                // cancel all current requests
-                mIitcWebView.loadUrl("javascript: window.requests.abort()");
-                // set idletime to maximum...no need for more
-                mIitcWebView.loadUrl("javascript: window.idleTime = 999");
-            } else if (wifi.getState() == NetworkInfo.State.CONNECTED
-                    || wifi.getState() == NetworkInfo.State.CONNECTING) {
-                mIitcWebView.loadUrl("javascript: window.idleTime = 999");
-            }
-        } else {
-            Log.d("iitcm",
-                    "no mobile internet module detected...check wifi state");
-            if (wifi.getState() == NetworkInfo.State.CONNECTED
-                    || wifi.getState() == NetworkInfo.State.CONNECTING) {
-                mIitcWebView.loadUrl("javascript: window.idleTime = 999");
-            }
-        }
         Log.d("iitcm", "stopping iitcm");
+        mIitcWebView.loadUrl("javascript: window.idleSet();");
 
         if (mIsLocEnabled)
             mLocMngr.removeUpdates(mLocListener);
