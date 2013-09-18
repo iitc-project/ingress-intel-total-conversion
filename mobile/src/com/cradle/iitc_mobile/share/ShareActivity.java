@@ -1,9 +1,5 @@
 package com.cradle.iitc_mobile.share;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.content.Intent;
@@ -17,6 +13,10 @@ import android.support.v4.view.ViewPager;
 import android.view.MenuItem;
 
 import com.cradle.iitc_mobile.R;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 
 public class ShareActivity extends FragmentActivity implements ActionBar.TabListener {
     private boolean mIsPortal;

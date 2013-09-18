@@ -1,14 +1,5 @@
 package com.cradle.iitc_mobile;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.TreeMap;
-
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.os.Bundle;
@@ -23,6 +14,15 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.TreeMap;
 
 public class IITC_PluginPreferenceActivity extends PreferenceActivity {
 

@@ -1,10 +1,5 @@
 package com.cradle.iitc_mobile;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -35,6 +30,11 @@ import android.webkit.WebView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class IITC_Mobile extends Activity {
 
     private static final int REQUEST_LOGIN = 1;
@@ -54,7 +54,7 @@ public class IITC_Mobile extends Activity {
     private boolean mReloadNeeded = false;
     private final ArrayList<String> mDialogStack = new ArrayList<String>();
     private SharedPreferences mSharedPrefs;
-    private ActionBarHelper mActionBarHelper;
+    private IITC_ActionBarHelper mActionBarHelper;
 
     // Used for custom back stack handling
     private final ArrayList<Integer> mBackStack = new ArrayList<Integer>();
@@ -94,7 +94,7 @@ public class IITC_Mobile extends Activity {
         mIitcWebView = (IITC_WebView) findViewById(R.id.iitc_webview);
 
         // pass ActionBar to helper because we deprecated getActionBar
-        mActionBarHelper = new ActionBarHelper(this, super.getActionBar());
+        mActionBarHelper = new IITC_ActionBarHelper(this, super.getActionBar());
 
         // do something if user changed something in the settings
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -638,7 +638,7 @@ public class IITC_Mobile extends Activity {
         return super.getActionBar();
     }
 
-    public ActionBarHelper getActionBarHelper() {
+    public IITC_ActionBarHelper getActionBarHelper() {
         return mActionBarHelper;
     }
 }

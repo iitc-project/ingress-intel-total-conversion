@@ -7,17 +7,17 @@ import android.preference.PreferenceManager;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
-public class ActionBarHelper implements OnNavigationListener {
+public class IITC_ActionBarHelper implements OnNavigationListener {
     /*
      * Show/hide the up arrow on the left end
      * getActionBar().setDisplayHomeAsUpEnabled(enabled);
-     * 
+     *
      * Show/hide the activity icon/logo
      * getActionBar().setDisplayShowHomeEnabled(enabled);
-     * 
+     *
      * Show/hide the activity title
      * getActionBar().setDisplayShowTitleEnabled(enabled);
-     * 
+     *
      * Makes the icon/title clickable
      * getActionBar().setHomeButtonEnabled(enabled);
      */
@@ -52,7 +52,7 @@ public class ActionBarHelper implements OnNavigationListener {
     private boolean mHideInFullscreen = false;
     private int mPane = android.R.id.home;
 
-    public ActionBarHelper(IITC_Mobile activity, ActionBar bar) {
+    public IITC_ActionBarHelper(IITC_Mobile activity, ActionBar bar) {
         mIitc = activity;
         mActionBar = bar;
         mPrefs = PreferenceManager.getDefaultSharedPreferences(activity);

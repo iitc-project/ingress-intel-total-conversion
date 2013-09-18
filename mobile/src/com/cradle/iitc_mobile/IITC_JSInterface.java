@@ -1,10 +1,5 @@
 package com.cradle.iitc_mobile;
 
-import java.util.HashMap;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -24,6 +19,11 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.cradle.iitc_mobile.share.ShareActivity;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.HashMap;
 
 // provide communication between IITC script and android app
 public class IITC_JSInterface {
@@ -102,7 +102,7 @@ public class IITC_JSInterface {
         iitcm.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ActionBarHelper actionbar = iitcm.getActionBarHelper();
+                IITC_ActionBarHelper actionbar = iitcm.getActionBarHelper();
                 Integer button = IITC_Mobile.PANES.get(id);
 
                 if (button == null)

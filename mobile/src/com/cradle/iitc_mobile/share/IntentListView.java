@@ -1,10 +1,5 @@
 package com.cradle.iitc_mobile.share;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -23,6 +18,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.cradle.iitc_mobile.R;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
 public class IntentListView extends ListView {
     private static class CopyHandler extends Pair<String, String> {
