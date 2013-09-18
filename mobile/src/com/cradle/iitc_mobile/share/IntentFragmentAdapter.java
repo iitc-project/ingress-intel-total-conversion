@@ -1,11 +1,11 @@
 package com.cradle.iitc_mobile.share;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class IntentFragmentAdapter extends FragmentPagerAdapter {
     private List<IntentFragment> mTabs;
