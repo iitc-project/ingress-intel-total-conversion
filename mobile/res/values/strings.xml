@@ -2,6 +2,10 @@
 <resources>
 
     <string name="app_name">IITC Mobile</string>
+    <string name="activity_settings">IITC Mobile Settings</string>
+    <string name="activity_plugins">IITC Plugins</string>
+    <string name="activity_share">Share using…</string>
+    <string name="activity_share_to_clipboard">Copy to clipboard</string>
     <string name="action_settings">Settings</string>
     <string name="reload">Reload IITC</string>
     <string name="version">Print Version</string>
@@ -17,7 +21,7 @@
     <string name="pref_about_title">About IITC Mobile</string>
     <!-- Use CDATA to prevent android from parsing html tags....we are doing this with Html.fromHtml() -->
     <string name="pref_about_msg">
-        <![CDATA[<big><b>Ingress Intel Total Conversion Mobile</b></big><br><br>
+<![CDATA[<big><b>Ingress Intel Total Conversion Mobile</b></big><br><br>
         <b>by <a href="https://github.com/leCradle">cradle</a> and contributors</b><br><br>
         <b>Icon by <a href="http://www.ludolab.net">Giuseppe Lucido</a></b><br><br>
         IITC Mobile is an optimized mobile browser for the
@@ -67,9 +71,9 @@
     <string name="pref_press_twice_to_exit">Press back button twice to exit</string>
     <string name="pref_press_twice_to_exit_sum">Avoids accidental exits</string>
     <string name="pref_developer_options">Developer options</string>
-	<string name="pref_enable_dev_mode">Enable developer mode</string>
-	<string name="pref_enable_dev_mode_sum">If enabled, all IITC sources will be loaded from external storage of the Android device.
-	    Please copy all sources from $IITC_folder/build/mobile/ to /sdcard/IITC_Mobile/dev/.</string>
+    <string name="pref_enable_dev_mode">Enable developer mode</string>
+    <string name="pref_enable_dev_mode_sum">If enabled, all IITC sources will be loaded from external storage of the Android device.
+      Please copy all sources from $IITC_folder/build/mobile/ to /sdcard/IITC_Mobile/dev/.</string>
     <string name="pref_advanced_menu">Display advanced menu</string>
     <string name="pref_advanced_menu_sum">In addition to the default IITC buttons the advanced menu
         contains a debug pane plus an option to clear cookies</string>
@@ -99,4 +103,5 @@
     <string name="base_layers">Base Layers</string>
     <string name="overlay_layers">Overlay Layers</string>
     <string name="toggle_layer_selection">Deselect/Select all</string>
+
 </resources>
