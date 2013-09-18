@@ -276,3 +276,31 @@ window.getPortalMitigationDetails = function(d) {
 
   return mitigation;
 }
+
+
+window.getPortalHackDetails = function(d) {
+
+  var heatsinks = getPortalModsByType(d, 'HEATSINK');
+  var multihacks = getPortalModsByType(d, 'MULTIHACK');
+
+  // first mod of type is fully effective, the others are only 50% effective
+  var effectivenessReduction = [ 1, 0.5, 0.5, 0.5 ];
+
+  var cooldownTime = 300; // 5 mins - 300 seconds 
+
+  $.each(heatsinks, function(index,mod) {
+    var hackSpeed = parseInt(mod.stats.HACK_SPEED)/1000000;
+    cooldownTime = Math.round(cooldownTime * (1 - hackSpeed * effectivenessReduction[index]));
+  });
+
+  var numHacks = 4; // default hacks
+
+  $.each(multihacks, function(index,mod) {
+    var extraHacks = parseInt(mod.stats.BURNOUT_INSULATION);
+    numHacks = numHacks + (extraHacks * effectivenessReduction[index]);
+  });
+
+  return {cooldown: cooldownTime, hacks: numHacks, burnout: cooldownTime*(numHacks-1)};
+}
+
+

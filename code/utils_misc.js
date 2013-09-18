@@ -308,6 +308,21 @@ window.unixTimeToHHmm = function(time) {
   return  h + ':' + s;
 }
 
+window.formatInterval = function(seconds) {
+
+  var h = Math.floor(seconds / 3600);
+  var m = Math.floor((seconds % 3600) / 60);
+  var s = seconds % 60;
+
+  var text = '';
+  if (h > 0) text += h+'h';
+  if (m > 0) text += m+'m';
+  if (s > 0 || text == '') text += s+'s';
+
+  return text;
+}
+
+
 window.rangeLinkClick = function() {
   if(window.portalRangeIndicator)
     window.map.fitBounds(window.portalRangeIndicator.getBounds());
