@@ -230,6 +230,28 @@ public class IITC_JSInterface {
         showMultiSelection();
     }
 
+    @JavascriptInterface
+    public void addPortalHighlighter(final String name) {
+        final IITC_Mobile iitc = ((IITC_Mobile) mContext);
+        iitc.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                iitc.getActionBarHelper().addPortalHighlighter(name);
+            }
+        });
+    }
+
+    @JavascriptInterface
+    public void setActiveHighlighter(final String name) {
+        final IITC_Mobile iitc = ((IITC_Mobile) mContext);
+        iitc.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                iitc.getActionBarHelper().setActiveHighlighter(name);
+            }
+        });
+    }
+
     // show all overlay layers in a multi selection list dialog
     private void showMultiSelection() {
         // build the layer chooser dialog

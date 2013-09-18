@@ -11,14 +11,26 @@ window.addPortalHighlighter = function(name, callback) {
     _highlighters = {};
   }
   _highlighters[name] = callback;
+
+  if (typeof android !== 'undefined' && android && android.addPortalHighlighter)
+    android.addPortalHighlighter(name);
+
   if(localStorage.portal_highlighter === undefined) {
     _current_highlighter = name;
+    if (typeof android !== 'undefined' && android && android.setActiveHighlighter)
+      android.setActiveHighlighter(name);
+
     localStorage.portal_highlighter = name;
   }
   portalHighlighterControl();
 }
 
 window.portalHighlighterControl = function() {
+  if (typeof android !== 'undefined' && android && android.addPortalHighlighter) {
+    $('#portal_highlight_select').remove();
+    return;
+  }
+
   if(_highlighters !== null) {
     if($('#portal_highlight_select').length === 0) {
       $("body").append("<select id='portal_highlight_select'></select>");
@@ -46,6 +58,8 @@ window.portalHighlighterControl = function() {
 
 window.changePortalHighlights = function(name) {
   _current_highlighter = name;
+  if (typeof android !== 'undefined' && android && android.setActiveHighlighter)
+    android.setActiveHighlighter(name);
   resetHighlightedPortals();
   localStorage.portal_highlighter = name;
 }
