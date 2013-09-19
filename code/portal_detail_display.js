@@ -95,7 +95,7 @@ window.renderPortalDetails = function(guid) {
     .attr('class', TEAM_TO_CSS[getTeam(d)])
     .html(''
       + '<h3 class="title">'+escapeHtmlSpecialChars(d.portalV2.descriptiveText.TITLE)+'</h3>'
-      + '<span class="close" onclick="renderPortalDetails(null);" title="Close">X</span>'
+      + '<span class="close" onclick="renderPortalDetails(null); if(isSmartphone()) show(\'map\');" title="Close">X</span>'
       // help cursor via ".imgpreview img"
       + '<div class="imgpreview" '+imgTitle+' style="background-image: url('+img+')">'
       + '<span id="level">'+Math.floor(getPortalLevel(d))+'</span>'
