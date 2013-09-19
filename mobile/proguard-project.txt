@@ -8,7 +8,7 @@
 -keep class com.cradle.iitc_mobile.IITC_SearchableActivity { <init>(...); }
 
 # view AndroidManifest.xml #generated:50
--keep class com.cradle.iitc_mobile.IITC_Settings { <init>(...); }
+-keep class com.cradle.iitc_mobile.IITC_PreferenceActivity { <init>(...); }
 
 # view res/layout/activity_main.xml #generated:6
 -keep class com.cradle.iitc_mobile.IITC_WebView { <init>(...); }

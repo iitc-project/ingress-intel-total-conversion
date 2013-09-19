@@ -205,3 +205,102 @@ window.getPortalImageUrl = function(d) {
   }
 
 }
+
+
+window.getPortalModsByType = function(d, type) {
+  var mods = [];
+
+  $.each(d.portalV2.linkedModArray || [], function(i,mod) {
+    if (mod && mod.type == type) mods.push(mod);
+  });
+
+  var sortKey = {
+    RES_SHIELD: 'MITIGATION',
+    FORCE_AMP: 'FORCE_AMPLIFIER',
+    TURRET: 'HIT_BONUS',  // and/or ATTACK_FREQUENCY??
+    HEATSINK: 'HACK_SPEED',
+    MULTIHACK: 'BURNOUT_INSULATION',
+    LINK_AMPLIFIER: 'LINK_RANGE_MULTIPLIER'
+  };
+
+  // prefer to sort mods by stat - so if stats change (as they have for shields and turrets) we still put the highest first
+  if (sortKey[type]) {
+    // we have a stat type to sort by
+    var key = sortKey[type];
+
+    mods.sort (function(a,b) {
+      return b.stats[key] - a.stats[key];
+    });
+  } else {
+    // no known stat type - sort by rarity
+    mods.sort (function(a,b) {
+      // rarity values are COMMON, RARE and VERY_RARE. handy, as that's alphabetical order!
+      if (a.rarity < b.rarity) return -1;
+      if (a.rarity > b.rarity) return 1;
+      return 0;
+    });
+  }
+
+  return mods;
+}
+
+
+
+window.getPortalShieldMitigation = function(d) {
+  var shields = getPortalModsByType(d, 'RES_SHIELD');
+
+  var mitigation = 0;
+  $.each(shields, function(i,s) {
+    mitigation += parseInt(s.stats.MITIGATION);
+  });
+
+  return mitigation;
+}
+
+window.getPortalLinksMitigation = function(d) {
+  var links = (d.portalV2.linkedEdges||[]).length;
+  var mitigation = Math.round(400/9*Math.atan(links/Math.E));
+  return mitigation;
+}
+
+window.getPortalMitigationDetails = function(d) {
+  var mitigation = {
+    shields: getPortalShieldMitigation(d),
+    links: getPortalLinksMitigation(d)
+  };
+
+  // mitigation is limited to 95% (as confirmed by Brandon Badger on G+)
+  mitigation.total = Math.min(95, mitigation.shields+mitigation.links);
+
+  mitigation.excess = (mitigation.shields+mitigation.links) - mitigation.total;
+
+  return mitigation;
+}
+
+
+window.getPortalHackDetails = function(d) {
+
+  var heatsinks = getPortalModsByType(d, 'HEATSINK');
+  var multihacks = getPortalModsByType(d, 'MULTIHACK');
+
+  // first mod of type is fully effective, the others are only 50% effective
+  var effectivenessReduction = [ 1, 0.5, 0.5, 0.5 ];
+
+  var cooldownTime = 300; // 5 mins - 300 seconds 
+
+  $.each(heatsinks, function(index,mod) {
+    var hackSpeed = parseInt(mod.stats.HACK_SPEED)/1000000;
+    cooldownTime = Math.round(cooldownTime * (1 - hackSpeed * effectivenessReduction[index]));
+  });
+
+  var numHacks = 4; // default hacks
+
+  $.each(multihacks, function(index,mod) {
+    var extraHacks = parseInt(mod.stats.BURNOUT_INSULATION);
+    numHacks = numHacks + (extraHacks * effectivenessReduction[index]);
+  });
+
+  return {cooldown: cooldownTime, hacks: numHacks, burnout: cooldownTime*(numHacks-1)};
+}
+
+

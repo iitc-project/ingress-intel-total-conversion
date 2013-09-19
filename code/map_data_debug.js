@@ -34,8 +34,8 @@ window.RenderDebugTiles.prototype.setColour = function(id,bordercol,fillcol) {
 }
 
 window.RenderDebugTiles.prototype.setState = function(id,state) {
-  var col = '#666';
-  var fill = '#666';
+  var col = '#f0f';
+  var fill = '#f0f';
   switch(state) {
     case 'ok': col='#0f0'; fill='#0f0'; break;
     case 'error': col='#f00'; fill='#f00'; break;
@@ -43,6 +43,9 @@ window.RenderDebugTiles.prototype.setState = function(id,state) {
     case 'cache-stale': col='#f00'; fill='#ff0'; break;
     case 'requested': col='#66f'; fill='#66f'; break;
     case 'retrying': col='#666'; fill='#666'; break;
+    case 'request-fail': col='#a00'; fill='#666'; break;
+    case 'tile-fail': col='#f00'; fill='#666'; break;
+    case 'tile-timeout': col='#ff0'; fill='#666'; break;
   }
   this.setColour (id, col, fill);
 }

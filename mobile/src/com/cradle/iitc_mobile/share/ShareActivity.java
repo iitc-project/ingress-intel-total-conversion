@@ -16,7 +16,6 @@ import com.cradle.iitc_mobile.R;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 
 public class ShareActivity extends FragmentActivity implements ActionBar.TabListener {
@@ -28,15 +27,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
     IntentFragmentAdapter mFragmentAdapter;
     ViewPager mViewPager;
 
-    private void addTab(Intent intent, int label, int icon)
-    {
-        ArrayList<Intent> intents = new ArrayList<Intent>(1);
-        intents.add(intent);
-        addTab(intents, label, icon);
-    }
-
-    private void addTab(ArrayList<Intent> intents, int label, int icon)
-    {
+    private void addTab(ArrayList<Intent> intents, int label, int icon) {
         IntentFragment fragment = new IntentFragment();
         Bundle args = new Bundle();
         args.putParcelableArrayList("intents", intents);
@@ -44,6 +35,12 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         args.putInt("icon", icon);
         fragment.setArguments(args);
         mFragmentAdapter.add(fragment);
+    }
+
+    private void addTab(Intent intent, int label, int icon) {
+        ArrayList<Intent> intents = new ArrayList<Intent>(1);
+        intents.add(intent);
+        addTab(intents, label, icon);
     }
 
     private String getUrl() {
@@ -64,15 +61,6 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
                 .apply();
     }
 
-    private void setupShareIntent(String str) {
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, str);
-        intent.putExtra(Intent.EXTRA_SUBJECT, mTitle);
-        addTab(intent, R.string.tab_share, R.drawable.share);
-    }
-
     private void setupIntents() {
         setupShareIntent(getUrl());
 
@@ -81,9 +69,10 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         ArrayList<Intent> intents = new ArrayList<Intent>();
         String gMapsUri;
         try {
-            gMapsUri = "http://maps.google.com/?daddr=" + mLl + "%20(" + URLEncoder.encode(mTitle, "UTF-8") + ")";
+            gMapsUri = "http://maps.google.com/?q=loc:" + mLl
+                    + "%20(" + URLEncoder.encode(mTitle, "UTF-8") + ")&z=" + mZoom;
         } catch (UnsupportedEncodingException e) {
-            gMapsUri = "http://maps.google.com/?daddr=" + mLl;
+            gMapsUri = "http://maps.google.com/?ll=" + mLl + "&z=" + mZoom;
             e.printStackTrace();
         }
         Intent gMapsIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(gMapsUri));
@@ -95,6 +84,15 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
 
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getUrl()));
         addTab(intent, R.string.tab_browser, R.drawable.browser);
+    }
+
+    private void setupShareIntent(String str) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, str);
+        intent.putExtra(Intent.EXTRA_SUBJECT, mTitle);
+        addTab(intent, R.string.tab_share, R.drawable.share);
     }
 
     @Override
@@ -145,8 +143,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
 
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         int selected = mSharedPrefs.getInt("pref_share_selected_tab", 0);
-        if (selected < mFragmentAdapter.getCount())
-        {
+        if (selected < mFragmentAdapter.getCount()) {
             mViewPager.setCurrentItem(selected);
             actionBar.setSelectedNavigationItem(selected);
         }

@@ -489,6 +489,8 @@ window.chat.needMoreMessages = function() {
 window.chat.chooseAnchor = function(t) {
   var tt = t.text();
 
+  localStorage['iitc-chat-tab'] = tt;
+
   var mark = $('#chatinput mark');
   var input = $('#chatinput input');
 
@@ -577,6 +579,11 @@ window.chat.keepScrollPosition = function(box, scrollBefore, isOldMsgs) {
 
 window.chat.setup = function() {
   window.chat._localRangeCircle =  L.circle(map.getCenter(), CHAT_MIN_RANGE*1000);
+
+  if (localStorage['iitc-chat-tab']) {
+    var t = $('<a>'+localStorage['iitc-chat-tab']+'</a>');
+    window.chat.chooseAnchor(t);
+  }
 
   $('#chatcontrols, #chat, #chatinput').show();
 

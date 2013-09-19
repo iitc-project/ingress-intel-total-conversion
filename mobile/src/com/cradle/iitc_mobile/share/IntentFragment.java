@@ -42,8 +42,7 @@ public class IntentFragment extends Fragment implements OnScrollListener, OnItem
     }
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-    {
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent intent = mListView.getTargetIntent(position);
         startActivity(intent);
     }

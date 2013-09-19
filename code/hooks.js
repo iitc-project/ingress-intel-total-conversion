@@ -15,6 +15,8 @@
 //            required to successfully boot the plugin.
 //
 // Here’s more specific information about each event:
+// portalSelected: called when portal on map is selected/unselected.
+//              Provide guid of selected and unselected portal.
 // mapDataRefreshStart: called when we start refreshing map data
 // mapDataRefreshEnd: called when we complete the map data load
 // portalAdded: called when a portal has been received and is about to
@@ -24,6 +26,8 @@
 //              shown at all. Injection point is in
 //              code/map_data.js#renderPortal near the end. Will hand
 //              the Leaflet CircleMarker for the portal in "portal" var.
+// linkAdded:   called when a link is about to be added to the map
+// fieldAdded:  called when a field is about to be added to the map
 // portalDetailsUpdated: fired after the details in the sidebar have
 //              been (re-)rendered Provides data about the portal that
 //              has been selected.
@@ -45,8 +49,10 @@
 
 window._hooks = {}
 window.VALID_HOOKS = [
+  'portalSelected',
   'mapDataRefreshStart', 'mapDataRefreshEnd',
-  'portalAdded', 'portalDetailsUpdated',
+  'portalAdded', 'linkAdded', 'fieldAdded',
+  'portalDetailsUpdated',
   'publicChatDataAvailable', 'factionChatDataAvailable',
   'requestFinished', 'nicknameClicked',
   'geoSearch', 'iitcLoaded'];
@@ -57,9 +63,13 @@ window.runHooks = function(event, data) {
   if(!_hooks[event]) return true;
   var interupted = false;
   $.each(_hooks[event], function(ind, callback) {
-    if (callback(data) === false) {
-      interupted = true;
-      return false;  //break from $.each
+    try {
+      if (callback(data) === false) {
+        interupted = true;
+        return false;  //break from $.each
+      }
+    } catch(err) {
+      console.error('error running hook '+event+', error: '+err);
     }
   });
   return !interupted;

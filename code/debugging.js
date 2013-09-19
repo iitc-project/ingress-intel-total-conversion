@@ -16,33 +16,7 @@ window.debug.printStackTrace = function() {
   return e.stack;
 }
 
-window.debug.clearPortals = function() {
-  for(var i = 0; i < portalsLayers.length; i++)
-    portalsLayers[i].clearLayers();
-}
 
-window.debug.clearLinks = function() {
-  linksLayer.clearLayers();
-}
-
-window.debug.clearFields = function() {
-  fieldsLayer.clearLayers();
-}
-
-window.debug.getFields = function() {
-  return fields;
-}
-
-window.debug.forceSync = function() {
-  localStorage.clear();
-  window.playersToResolve = [];
-  window.playersInResolving = [];
-  debug.clearFields();
-  debug.clearLinks();
-  debug.clearPortals();
-  updateGameScore();
-  requestData();
-}
 
 window.debug.console = function() {
   $('#debugconsole').text();

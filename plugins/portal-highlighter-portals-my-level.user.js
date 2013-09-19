@@ -38,10 +38,7 @@ window.plugin.portalHighligherPortalsMyLevel.colorLevel = function(below,data) {
   if((below && portal_level <= player_level) ||
      (!below && portal_level >= player_level)) {
     data.portal.setStyle({fillColor: 'red', fillOpacity: opacity});
-  } else {
-    data.portal.setStyle({color:  COLORS[getTeam(data.portal.options.details)],
-                          fillOpacity: 0.5});
-  }
+  } 
 }
 
 var setup =  function() {

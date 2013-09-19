@@ -2,7 +2,7 @@
 // @id             iitc-plugin-farms@949
 // @name           IITC plugin: Show farms by level
 // @category       Info
-// @version        1.2.1.@@DATETIMEVERSION@@
+// @version        1.3.0@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -16,6 +16,9 @@
 
 //CHANGELOG
 /*
+v1.3.0
+Added mobile support
+
 v1.2.1
 Fixed dropdown location overlap
 
@@ -291,19 +294,29 @@ window.plugin.farmFind.drawCircle = function(farm)
 };
     
     window.plugin.farmFind.setupCSS = function() {
-		$("<style>").prop("type", "text/css").html(
-				""	 
-					 + "#farm_level_select {"
-            + " position: absolute;"
-            + "	top: 5px;"
-            + " left:180px;"
-            + " z-index: 2500;"
-            + " font-size:11px;"
-					 + ' font-family: "coda",arial,helvetica,sans-serif;'
-            + " background-color:#0E3C46;"
-            + " color:#ffce00;"
-					 + "}\n").appendTo("head");
+        $('<style>').prop('type', 'text/css').html(''
+            + '#farm_level_select {'
+            + ' position: absolute;'
+            + ' top: 5px;'
+            + ' left:180px;'
+            + ' z-index: 2500;'
+            + ' font-size:11px;'
+            + ' font-family: "coda",arial,helvetica,sans-serif;'
+            + ' background-color:#0E3C46;'
+            + ' color:#ffce00;'
+            + '}\n').appendTo('head');
 	};
+
+    window.plugin.farmFind.setupSmartCSS = function() {
+        $('<style>').prop('type', 'text/css').html(''
+            + '#farm_level_select {'
+            + ' top: 0px !important;'
+            + ' right: 0px;'
+            + ' left: auto !important;'
+            + ' margin-right: 0;'
+            + '}\n').appendTo('head');
+    };
+
 window.plugin.farmFind.changeLevel = function()
 {
     var myselect = document.getElementById("farm_level_select");
@@ -315,14 +328,18 @@ window.plugin.farmFind.changeLevel = function()
     
 };
 
-var setup =  function() {window.plugin.farmFind.minLevel = 7;
+var setup =  function() {
+    window.plugin.farmFind.minLevel = 7;
     window.plugin.farmFind.minNearby = 5;
     window.plugin.farmFind.setupCSS();
+    if (window.isSmartphone()) {
+        window.plugin.farmFind.setupSmartCSS();
+    }
     window.plugin.farmFind.Radius = 500;
     $('#toolbox').append(' <a onclick="window.plugin.farmFind.checkPortals()" id="findFarmClick" title="Check portals in view for L' + window.plugin.farmFind.minLevel + ' farms">L' + window.plugin.farmFind.minLevel + ' Farms</a>');
     possibleFarmPortals = [];
     window.plugin.farmFind.levelLayerGroup = new L.LayerGroup();
-	$('#dashboard').append('<select onchange="window.plugin.farmFind.changeLevel()" id="farm_level_select"><option value=1>Farm level 1</option><option value=2>Farm level 2</option><option value=3>Farm level 3</option><option value=4>Farm level 4</option><option value=5>Farm level 5</option><option value=6>Farm level 6</option><option value=7>Farm level 7</option><option value=8>Farm level 8</option></select>');
+	$('body').append('<select onchange="window.plugin.farmFind.changeLevel()" id="farm_level_select"><option value=1>Farm level 1</option><option value=2>Farm level 2</option><option value=3>Farm level 3</option><option value=4>Farm level 4</option><option value=5>Farm level 5</option><option value=6>Farm level 6</option><option value=7>Farm level 7</option><option value=8>Farm level 8</option></select>');
     var myselect = document.getElementById("farm_level_select");
     myselect.options.selectedIndex = 6;
     window.addLayerGroup('Farms', window.plugin.farmFind.levelLayerGroup, true);

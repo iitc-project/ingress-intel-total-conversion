@@ -43,8 +43,13 @@
             android:title="@string/pref_select_iitc"
             android:defaultValue="local"/>
         <PreferenceScreen
+            android:fragment="com.cradle.iitc_mobile.fragments.PluginsFragment"
             android:key="pref_plugins"
-            android:title="@string/pref_plugins" />
+            android:title="@string/pref_plugins" >
+            <intent
+                android:targetPackage="com.cradle.iitc_mobile"
+                android:targetClass="com.cradle.iitc_mobile.IITC_PluginPreferenceActivity"/>
+        </PreferenceScreen>
 	    <CheckBoxPreference
 	        android:key="pref_force_https"
 	        android:title="@string/pref_force_https"
@@ -66,6 +71,12 @@
 	        android:title="@string/pref_enable_dev_mode"
 	        android:summary="@string/pref_enable_dev_mode_sum"
 	        android:defaultValue="false" />
+
+        <CheckBoxPreference
+            android:key="pref_advanced_menu"
+            android:title="@string/pref_advanced_menu"
+            android:summary="@string/pref_advanced_menu_sum"
+            android:defaultValue="false" />
 
         <CheckBoxPreference
                 android:key="pref_disable_splash"

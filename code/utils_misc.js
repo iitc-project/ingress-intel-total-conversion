@@ -115,7 +115,8 @@ window.requestParameterMunges = [
     message: 'q0d6n7t1801bb6xu',
     latE6: '5ygbhpxfnt1u9e4t',
     lngE6: 'ak6twnljwwcgd7cj',
-    factionOnly: '0dvtbatgzcfccchh'
+    factionOnly: '0dvtbatgzcfccchh',
+    ascendingTimestampOrder: 'f6u1iqep9s2lc5y5'
   },
 
   // set 1
@@ -137,8 +138,40 @@ window.requestParameterMunges = [
     message: 'zz54435vfc57nlg9',
     latE6: 'cyltxjod3jhxgj8q',
     lngE6: 'h9whcgcz6kpqkz80',
-    factionOnly: '37okcr7gvd5yn2lj'
+    factionOnly: '37okcr7gvd5yn2lj',
+    ascendingTimestampOrder: 'iimftkq7flskwrx9'
   },
+
+  // set 2 - first seen 2013-09-12 21:30
+  {
+    method: '42suxeca8ttud7je',
+    boundsParamsList: '5uwd21hkedg3zh2c',
+    id: 'drtt302ebaj6ek2g',
+    minLatE6: 'l933r0l8brrt1x5b',
+    minLngE6: 'qg3xb340zed41jof',
+    maxLatE6: 'sw485z1n3tusdkul',
+    maxLngE6: '6meahm3f9xup9krb',
+    timestampMs: '6meahm3f9xup9krb',
+    qk: 'fpi9b1z0os0x9yjj',
+    desiredNumItems: 'inr3js77cetyibi6',
+    minTimestampMs: 'zfb2e5iqmggrxe98',
+    maxTimestampMs: '8c4imy17gfpfrl9l',
+    guids: '5d5hp2p3rkmanqn7',
+    inviteeEmailAddress: 'i1a5yp6p1l6iqk08',
+    message: 'xzhbk3ri04lx9xvj',
+    latE6: 'njg0zny4fb39mf0a',
+    lngE6: 'ti2rx4ltmg6d1zsr',
+    factionOnly: 'jegpo8rwhtuuuuhh',
+    ascendingTimestampOrder: '1ennke6gykwzziun',
+    // in this set, also the request method names are obsfucated!
+    'dashboard.getThinnedEntitiesV4': 'ufxcmvve3eirsf2b',
+    'dashboard.getPaginatedPlextsV2': 'd9dgziiw8vzhyecv',
+    'dashboard.getPlayersByGuids': 's53izqpxedtd0hv8',
+    'dashboard.sendInviteEmail': 'kn9plnbree2aeuh9',
+    'dashboard.redeemReward': 'les8vribyxb899wd',
+    'dashboard.sendPlext': '9u1ukkkx1euxf02a'
+  },
+
 ];
 window.activeRequestMungeSet = undefined;
 
@@ -165,10 +198,6 @@ window.detectActiveMungeSet = function() {
 
 // niantic now add some munging to the request parameters. so far, only two sets of this munging have been seen
 window.requestDataMunge = function(data) {
-  if (window.activeRequestMungeSet===undefined) {
-    window.detectActiveMungeSet();
-  }
-
   var activeMunge = window.requestParameterMunges[window.activeRequestMungeSet];
 
   function munge(obj) {
@@ -213,11 +242,19 @@ window.requestDataMunge = function(data) {
 //          able arguments: http://api.jquery.com/jQuery.ajax/
 // error: see above. Additionally it is logged if the request failed.
 window.postAjax = function(action, data, success, error) {
-  var post_data = JSON.stringify(window.requestDataMunge($.extend({method: 'dashboard.'+action}, data)));
+  if (window.activeRequestMungeSet===undefined) {
+    window.detectActiveMungeSet();
+  }
+  var activeMunge = window.requestParameterMunges[window.activeRequestMungeSet];
+
+  var methodName = 'dashboard.'+action;
+  // optional munging of the method name - seen in Set 2 (onwards?)
+  if (methodName in activeMunge) methodName = activeMunge[methodName];
+  var post_data = JSON.stringify(window.requestDataMunge($.extend({method: methodName}, data)));
   var remove = function(data, textStatus, jqXHR) { window.requests.remove(jqXHR); };
   var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
   var result = $.ajax({
-    url: '/r/dashboard.'+action,
+    url: '/r/'+methodName,
     type: 'POST',
     data: post_data,
     context: data,
@@ -270,6 +307,21 @@ window.unixTimeToHHmm = function(time) {
   var s = '' + d.getMinutes(); s = s.length === 1 ? '0' + s : s;
   return  h + ':' + s;
 }
+
+window.formatInterval = function(seconds) {
+
+  var h = Math.floor(seconds / 3600);
+  var m = Math.floor((seconds % 3600) / 60);
+  var s = seconds % 60;
+
+  var text = '';
+  if (h > 0) text += h+'h';
+  if (m > 0) text += m+'m';
+  if (s > 0 || text == '') text += s+'s';
+
+  return text;
+}
+
 
 window.rangeLinkClick = function() {
   if(window.portalRangeIndicator)
@@ -394,60 +446,6 @@ window.zoomToAndShowPortal = function(guid, latlng) {
     urlPortal = guid;
 }
 
-// translates guids to entity types
-window.getTypeByGuid = function(guid) {
-  // All GUID type values, extracted from the ingress app .apk
-  // some are almost certainly Niantic internal use only - never seen on the network
-  // .1  == Panoramio portal [deprecated]
-  // .2  == Random portal
-  // .3  == Beacon
-  // .4  == Resource (dropped media - other dropped items?)
-  // .5  == Inventory item
-  // .6  == Energy glob (XM)
-  // .7  == Energy spawn location
-  // .8  == HMDB portal [deprecated]
-  // .9  == Link (internally "edge")                     ** TYPE_LINK
-  // .a  == LocalStore portal [deprecated]
-  // .b  == Control field (internally "captured region") ** TYPE_FIELD
-  // .c  == Player                                       ** TYPE_PLAYER
-  // .d  == COMM message (internally "plext")            ** TYPE_CHAT
-  // .e  == Tracking record
-  // .f  == Tracking group
-  // .10 == Passcode reward [deprecated]
-  // .11 == SuperOps portal                              ** TYPE_PORTAL - the batch loaded from panorimo, etc?
-  // .12 == Anon portal                                  ** TYPE_PORTAL - user submitted by email?
-  // .13 == Account info
-  // .14 == GeoStore POI [deprecated]
-  // .15 == GeoStore mod
-  // .16 == GeoStore portal                              ** TYPE_PORTAL - new in-app submissions?
-  // .17 == Portal image
-  // .18 == PMRR change
-  
-  // resonator guid is [portal guid]-resonator-[slot]
-  switch(guid.slice(33)) {
-    case '2':
-    case '11':
-    case '12':
-    case '16':
-      return TYPE_PORTAL;
-
-    case '9':
-      return TYPE_LINK;
-
-    case 'b':
-      return TYPE_FIELD;
-
-    case 'c':
-      return TYPE_PLAYER;
-
-    case 'd':
-      return TYPE_CHAT;
-
-    default:
-      if(guid.slice(-11,-2) == 'resonator') return TYPE_RESONATOR;
-      return TYPE_UNKNOWN;
-  }
-}
 
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
@@ -572,10 +570,11 @@ window.addLayerGroup = function(name, layerGroup, defaultDisplay) {
 }
 
 window.clampLat = function(lat) {
-  if (lat > 90.0)
-    lat = 90.0;
-  else if (lat < -90.0)
-    lat = -90.0;
+  // the map projection used does not handle above approx +- 85 degrees north/south of the equator
+  if (lat > 85.051128)
+    lat = 85.051128;
+  else if (lat < -85.051128)
+    lat = -85.051128;
   return lat;
 }
 

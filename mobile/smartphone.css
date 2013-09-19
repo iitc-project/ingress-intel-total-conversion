@@ -76,6 +76,10 @@ body {
   background-color: #00c5ff !important;
 }
 
+#name #signout { /* no hover, always show signout button */
+  display: block;
+}
+
 #sidebar, #chatcontrols, #chat, #chatinput {
   background: #0B3351 !important;
 }
@@ -181,8 +185,33 @@ body {
   width: 100%;
 }
 
+/*
+ * for some reason leaflet popups on mobile are colored white on white
+ * so force the popup msg color to black
+ */
+.leaflet-popup-content{
+    color:black;
+}
 
-#portal_highlight_select{
-  top:0px !important;
-  left:0px !important;
+
+/* add extra padding, and a button effect, to sidebar link areas */
+.linkdetails aside  {
+  padding: 5px;
+  margin-top: 3px;
+  margin-botton: 3px;
+  border: 2px outset #0e3d4e;
+}
+
+#toolbox > a {
+  padding: 5px;
+  margin-top: 3px;
+  margin-botton: 3px;
+  border: 2px outset #0e3d4e;
+}
+
+#portaldetails .close {
+  padding: 4px;
+  border: 1px outset #0e3d4e;
+  margin-top: 2px;
+  background: #0e3d4e;
 }

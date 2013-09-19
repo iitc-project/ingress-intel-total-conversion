@@ -65,28 +65,48 @@ From here you can remove/disable individual plugins or IITC itself.
 </li>
 
 <li>
+<h4 id="mobile-plugins">Is it possible to add external plugins to IITC Mobile?</h4>
+Yes it is!
+<ul>
+<li>Create a folder named "IITC Mobile" in your home directory.</li>
+<li>Inside this folder, create a new folder named "plugins".</li>
+<li>Copy all your additional plugins to this folder.</li>
+<li>You should see your plugins listed above the official plugins.</li>
+</ul>
+Note:
+<ul>
+<li>The plugins wrapper function has to be identical to all other IITC plugins (IITCm removes it via search and replace).
+    Alternatively, you can use the @@PLUGINSTART@@ / @@PLUGINEND@@ macros or remove the wrapper by hand.</li>
+<li>The filename has to end with *.user.js.</li>
+<li>If you don't know where to find your home directory: Enable dev-mode in the settings and follow the hint.</li>
+</ul>
+</li>
+
+<li>
 <h4 id="debug-data-tiles">What do the colours mean in 'DEBUG Data Tiles'</h4>
 The data from the Niantic server is download in square tiles. Sometimes requests fail. The colours show this status
 visually. The outline colour shows the state of the request:
 <ul>
 <li>Blue: data requested, waiting for response</li>
+<li>Grey: queued, waiting for other requests to finish</li>
 <li>Green: successful request/cached data fresh</li>
 <li>Red: Dark red for a complete request failure, lighter red for an individual tile timeout</li>
 </ul>
 The colour within the square shows the state of the data:
 <ul>
-<li>Grey: data requested, waiting for response</li>
+<li>Blue: data requested, waiting for response</li>
+<li>Grey: queued, waiting for other requests to complete</li>
 <li>Green: successful request</li>
 <li>Yellow: data from cache</li>
 <li>Red: request failed - no data from cache</li>
 </ul>
 The status message at the bottom-right of the screen gives a summary.
 <ul>
-<li>If all requests were succesful/fresh from cache (i.e. all green borders) the status is 'Up to Date'.</li>
+<li>If all requests were succesful/fresh from cache (i.e. all green borders) the status is 'Done'.</li>
 <li>If some requests failed, but cached data was available (i.e. some red border/yellow fill) the status is 'Out of date'.</li>
 <li>If some requests failed, but no cached data was available (i.e. some red border/red fill) the status is 'Error'.</li>
 </ul>
-The tooltip for this message gives the counts of successful/cached/stale/failed map data tiles.
+The tooltip for this message gives more details.
 </li>
 
 <li>
