@@ -66,7 +66,7 @@ window.changePortalHighlights = function(name) {
 window.highlightPortal = function(p) {
   
   if(_highlighters !== null && _highlighters[_current_highlighter] !== undefined) {
-    p.options.highligher = _current_highlighter;
+    p.options.highlighter = _current_highlighter;
     _highlighters[_current_highlighter]({portal: p});
   }
 }
