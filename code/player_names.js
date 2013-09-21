@@ -37,7 +37,7 @@ window._playerNameToGuidCache = {};
 
 window.playerNameToGuid = function(playerName) {
   var cachedGuid = window._playerNameToGuidCache[playerName];
-  if (cachedGuid !== undefined) return cachedGuid;
+  if (cachedGuid !== undefined && cachedGuid !== null) return cachedGuid;
 
   var guid = null;
   $.each(Object.keys(sessionStorage), function(ind,key) {
