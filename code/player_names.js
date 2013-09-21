@@ -43,11 +43,11 @@ window.playerNameToGuid = function(playerName) {
   $.each(Object.keys(sessionStorage), function(ind,key) {
     if(playerName === sessionStorage[key]) {
       guid = key;
+      window._playerNameToGuidCache[playerName] = guid;
       return false;  //break from $.each
     }
   });
 
-  window._playerNameToGuidCache[playerName] = guid;
   return guid;
 }
 
