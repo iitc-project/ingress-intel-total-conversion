@@ -18,12 +18,14 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
 import com.cradle.iitc_mobile.share.ShareActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.HashMap;
+import java.util.Locale;
 
 // provide communication between IITC script and android app
 public class IITC_JSInterface {
@@ -102,14 +104,14 @@ public class IITC_JSInterface {
         iitcm.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                IITC_ActionBarHelper actionbar = iitcm.getActionBarHelper();
-                Integer button = IITC_Mobile.PANES.get(id);
+                Pane pane;
+                try {
+                    pane = Pane.valueOf(id.toUpperCase(Locale.getDefault()));
+                } catch (IllegalArgumentException e) {
+                    pane = Pane.MAP;
+                }
 
-                if (button == null)
-                    button = android.R.id.home;
-
-                actionbar.switchTo(button);
-                iitcm.backStackUpdate(button);
+                iitcm.setCurrentPane(pane);
             }
         });
     }
@@ -132,8 +134,7 @@ public class IITC_JSInterface {
         iitc.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                iitc.findViewById(R.id.iitc_webview).setVisibility(View.VISIBLE);
-                iitc.findViewById(R.id.imageLoading).setVisibility(View.GONE);
+                iitc.setLoadingState(false);
             }
         });
     }
@@ -236,7 +237,7 @@ public class IITC_JSInterface {
         iitc.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                iitc.getActionBarHelper().addPortalHighlighter(name);
+                iitc.getNavigationHelper().addPortalHighlighter(name);
             }
         });
     }
@@ -247,7 +248,7 @@ public class IITC_JSInterface {
         iitc.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                iitc.getActionBarHelper().setActiveHighlighter(name);
+                iitc.getNavigationHelper().setActiveHighlighter(name);
             }
         });
     }
