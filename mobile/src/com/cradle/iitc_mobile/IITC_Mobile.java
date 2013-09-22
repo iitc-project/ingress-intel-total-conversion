@@ -100,6 +100,7 @@ public class IITC_Mobile extends Activity {
                 }
                 if (key.equals("pref_advanced_menu")) {
                     mAdvancedMenu = sharedPreferences.getBoolean("pref_advanced_menu", false);
+                    mNavigationHelper.setDebugMode(mAdvancedMenu);
                     invalidateOptionsMenu();
                     // no reload needed
                     return;

@@ -52,8 +52,15 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
         public NavigationAdapter() {
             super(mIitc, android.R.layout.simple_list_item_1);
 
-            addAll(Pane.values());
-            // TODO: remove debug according to preferences
+            add(Pane.MAP);
+            add(Pane.INFO);
+            add(Pane.FULL);
+            add(Pane.COMPACT);
+            add(Pane.PUBLIC);
+            add(Pane.FACTION);
+
+            if (mPrefs.getBoolean("pref_advanced_menu", false))
+                add(Pane.DEBUG);
         }
 
         @Override
@@ -253,6 +260,12 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
             if (position >= 0 && position < mActionBar.getNavigationItemCount())
                 mActionBar.setSelectedNavigationItem(position);
         }
+    }
+
+    public void setDebugMode(boolean enabled) {
+        mNavigationAdapter.remove(Pane.DEBUG); // avoid duplicates
+        if (enabled)
+            mNavigationAdapter.add(Pane.DEBUG);
     }
 
     public void setFullscreen(boolean fullscreen) {
