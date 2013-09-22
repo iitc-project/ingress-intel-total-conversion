@@ -102,13 +102,13 @@ public class IITC_JSInterface {
         iitcm.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                IITC_ActionBarHelper actionbar = iitcm.getActionBarHelper();
+                IITC_NavigationHelper navigation = iitcm.getNavigationHelper();
                 Integer button = IITC_Mobile.PANES.get(id);
 
                 if (button == null)
                     button = android.R.id.home;
 
-                actionbar.switchTo(button);
+                navigation.switchTo(button);
                 iitcm.backStackUpdate(button);
             }
         });
@@ -236,7 +236,7 @@ public class IITC_JSInterface {
         iitc.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                iitc.getActionBarHelper().addPortalHighlighter(name);
+                iitc.getNavigationHelper().addPortalHighlighter(name);
             }
         });
     }
@@ -247,7 +247,7 @@ public class IITC_JSInterface {
         iitc.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                iitc.getActionBarHelper().setActiveHighlighter(name);
+                iitc.getNavigationHelper().setActiveHighlighter(name);
             }
         });
     }

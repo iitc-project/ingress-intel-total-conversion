@@ -54,7 +54,7 @@ public class IITC_Mobile extends Activity {
     private boolean mReloadNeeded = false;
     private final ArrayList<String> mDialogStack = new ArrayList<String>();
     private SharedPreferences mSharedPrefs;
-    private IITC_ActionBarHelper mActionBarHelper;
+    private IITC_NavigationHelper mNavigationHelper;
 
     // Used for custom back stack handling
     private final ArrayList<Integer> mBackStack = new ArrayList<Integer>();
@@ -94,7 +94,7 @@ public class IITC_Mobile extends Activity {
         mIitcWebView = (IITC_WebView) findViewById(R.id.iitc_webview);
 
         // pass ActionBar to helper because we deprecated getActionBar
-        mActionBarHelper = new IITC_ActionBarHelper(this, super.getActionBar());
+        mNavigationHelper = new IITC_NavigationHelper(this, super.getActionBar());
 
         // do something if user changed something in the settings
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -104,14 +104,14 @@ public class IITC_Mobile extends Activity {
                     SharedPreferences sharedPreferences, String key) {
                 if (key.equals("pref_force_desktop")) {
                     mDesktopMode = sharedPreferences.getBoolean("pref_force_desktop", false);
-                    mActionBarHelper.onPrefChanged();
+                    mNavigationHelper.onPrefChanged();
                     invalidateOptionsMenu();
                 }
                 if (key.equals("pref_user_loc"))
                     mIsLocEnabled = sharedPreferences.getBoolean("pref_user_loc",
                             false);
                 if (key.equals("pref_fullscreen_actionbar")) {
-                    mActionBarHelper.onPrefChanged();
+                    mNavigationHelper.onPrefChanged();
                     return;
                 }
                 if (key.equals("pref_advanced_menu")) {
@@ -224,7 +224,7 @@ public class IITC_Mobile extends Activity {
                     (SearchView) mSearchMenuItem.getActionView();
             searchView.setQuery(query, false);
             searchView.clearFocus();
-            mActionBarHelper.switchTo(android.R.id.home);
+            mNavigationHelper.switchTo(android.R.id.home);
             backStackUpdate(android.R.id.home);
             mIitcWebView.loadUrl("javascript:search('" + query + "');");
             return;
@@ -338,7 +338,7 @@ public class IITC_Mobile extends Activity {
         }
         // exit fullscreen mode if it is enabled and action bar is disabled
         // or the back stack is empty
-        if (mFullscreenMode && (mBackStack.isEmpty() || mActionBarHelper.hideInFullscreen())) {
+        if (mFullscreenMode && (mBackStack.isEmpty() || mNavigationHelper.hideInFullscreen())) {
             this.toggleFullscreen();
         } else if (!mBackStack.isEmpty()) {
             // Pop last item from backstack and pretend the relevant menu item was clicked
@@ -365,7 +365,7 @@ public class IITC_Mobile extends Activity {
         // catch wrong usage
         if (mBackStack.isEmpty()) {
             // Empty back stack means we should be at home (ie map) screen
-            mActionBarHelper.switchTo(android.R.id.home);
+            mNavigationHelper.switchTo(android.R.id.home);
             mIitcWebView.loadUrl("javascript: window.show('map');");
             return;
         }
@@ -483,7 +483,7 @@ public class IITC_Mobile extends Activity {
     }
 
     public void reloadIITC() {
-        mActionBarHelper.reset();
+        mNavigationHelper.reset();
         mBackStack.clear();
         // iitc starts on map after reload
         mCurrentPane = android.R.id.home;
@@ -534,7 +534,7 @@ public class IITC_Mobile extends Activity {
 
     public void toggleFullscreen() {
         mFullscreenMode = !mFullscreenMode;
-        mActionBarHelper.setFullscreen(mFullscreenMode);
+        mNavigationHelper.setFullscreen(mFullscreenMode);
 
         // toggle notification bar
         WindowManager.LayoutParams attrs = getWindow().getAttributes();
@@ -634,7 +634,8 @@ public class IITC_Mobile extends Activity {
     }
 
     /**
-     * @deprecated ActionBar related stuff should be handled by ActionBarHelper
+     * @deprecated ActionBar related stuff should be handled by IITC_NavigationHelper
+     * @see getNavigationHelper()
      */
     @Deprecated
     @Override
@@ -642,7 +643,7 @@ public class IITC_Mobile extends Activity {
         return super.getActionBar();
     }
 
-    public IITC_ActionBarHelper getActionBarHelper() {
-        return mActionBarHelper;
+    public IITC_NavigationHelper getNavigationHelper() {
+        return mNavigationHelper;
     }
 }

@@ -7,7 +7,7 @@ import android.preference.PreferenceManager;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
-public class IITC_ActionBarHelper implements OnNavigationListener {
+public class IITC_NavigationHelper implements OnNavigationListener {
     // Show/hide the up arrow on the very left
     // getActionBar().setDisplayHomeAsUpEnabled(enabled);
 
@@ -50,7 +50,7 @@ public class IITC_ActionBarHelper implements OnNavigationListener {
     private boolean mHideInFullscreen = false;
     private int mPane = android.R.id.home;
 
-    public IITC_ActionBarHelper(IITC_Mobile activity, ActionBar bar) {
+    public IITC_NavigationHelper(IITC_Mobile activity, ActionBar bar) {
         mIitc = activity;
         mActionBar = bar;
         mPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
