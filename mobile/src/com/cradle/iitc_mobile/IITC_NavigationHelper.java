@@ -50,7 +50,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
 
     private class NavigationAdapter extends ArrayAdapter<Pane> {
         public NavigationAdapter() {
-            super(mIitc, android.R.layout.simple_list_item_1);
+            super(mIitc, R.layout.list_item_selectable);
 
             add(Pane.MAP);
             add(Pane.INFO);
@@ -71,6 +71,27 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
                 view.setText("Map");
             else
                 view.setText(getPaneTitle(item));
+
+            int icon = 0;
+            switch (item)
+            {
+                case MAP:
+                    icon = R.drawable.location_map;
+                    break;
+                case INFO:
+                    icon = R.drawable.action_about;
+                    break;
+                case FULL:
+                case COMPACT:
+                case PUBLIC:
+                case FACTION:
+                    icon = R.drawable.social_group;
+                    break;
+            }
+
+            if (icon != 0)
+                view.setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0);
+
             return view;
         }
     }
@@ -111,6 +132,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
         mNavigationAdapter = new NavigationAdapter();
         mDrawerList.setAdapter(mNavigationAdapter);
         mDrawerList.setOnItemClickListener(this);
+        mDrawerList.setItemChecked(0, true);
         mDrawerLayout.setDrawerListener(this);
 
         onPrefChanged(); // also calls updateActionBar()
@@ -118,6 +140,10 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
 
     private void updateActionBar() {
         boolean showHighlighter = true;
+
+        int position = mNavigationAdapter.getPosition(mPane);
+        if (position >= 0 && position < mNavigationAdapter.getCount())
+            mDrawerList.setItemChecked(position, true);
 
         if (mDesktopMode) {
             mActionBar.setDisplayHomeAsUpEnabled(false); // Hide "up" indicator
