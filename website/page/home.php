@@ -13,21 +13,35 @@ offers many more features. It is available for
 
 <h3>Latest news</h3>
 
-<h4>2nd September 2013</h4>
+<h4>22nd September 2013</h4>
 <p>
-IITC 0.14.0, and IITC Mobile 0.5.6, have just been released. This is (yet another) change required to work with
-the latest changes to the standard intel website.
-</p>
-<p>
-Also, as part of some long-term improvements, the data loading and portal rendering code has been completely rewritten.
-This should ensure much more reliable loading of portal data, and faster rendering when lots of portals are shown.
-However, this code is new, and may have bugs. Some known issues are:
+IITC 0.14.1 and IITC Mobile 0.6.4 have been released. Changes in this version include:
 <ul>
-<li>Resonators are not displayed when zoomed in.</li>
-<li>Some smaller links/fields are not displayed. Often this is due to changes in the stock map (it doesn't show these
-links/fields either), but I think there are cases where IITC is getting it wrong.</li>
+<li>Better performance when a very large number of portals are within view (country/continent level)</li>
+<li>Add layer chooser options to hide resistance/enlightened portals/links/fields</li>
+<li>Chat tab now remembers which was active when reloading IITC</li>
+<li>Fix some shorter links not showing on the map</li>
+<li>Add details of hack information (number/cooldown time, taking account of mods) and mitigation (from shields and links)
+to the portal information panel</li>
+<li>Mobile
+ <ul>
+ <li>increase the size of various links on the info page to make them easier to tap</li>
+ <li>move the highlight selection dropdown to the native android app bar at the top</li>
+ </ul></li>
 </ul>
-However, as the current IITC release was broken I think it's better to release this build now rather than wait longer.
+And plugins:
+<ul>
+<li>Major update to bookmarks-by-zaso, including sync support</li>
+<li>New features added to the resonators plugin</li>
+<li>max-links plugin - start of rename to 'tidy links' - as this is a better description of what it does</li>
+<li>show-linked-portals - indicate which are incoming/outgoing links in the tooltip</li>
+<li>New Plugins
+ <ul>
+ <li>show-link-direction, to indicate visually which portal a link was created from</li>
+ <li>highlighter for portal mitigation - to show strength of defence from shields and links at a glance</li>
+ </ul></li>
+</ul>
+And, as always, numerous other bug fixes, tweaks and improvements.
 </p>
 
 <a class="btn btn-small" href="?page=news">Older news</a>
