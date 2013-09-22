@@ -22,21 +22,23 @@ public class PluginsFragment extends PreferenceFragment {
         // alphabetical order
         getPreferenceScreen().setOrderingAsAdded(false);
 
-        // get plugins category for this fragments and plugins list
-        String category = getArguments().getString("category");
-        ArrayList<IITC_PluginPreference> prefs =
-                IITC_PluginPreferenceActivity.getPluginPreference(category);
+        if (getArguments() != null) {
+            // get plugins category for this fragments and plugins list
+            String category = getArguments().getString("category");
+            ArrayList<IITC_PluginPreference> prefs =
+                    IITC_PluginPreferenceActivity.getPluginPreference(category);
 
-        // add plugin checkbox preferences
-        for (IITC_PluginPreference pref : prefs) {
-            getPreferenceScreen().addPreference(pref);
+            // add plugin checkbox preferences
+            for (IITC_PluginPreference pref : prefs) {
+                getPreferenceScreen().addPreference(pref);
+            }
+
+            // set action bar stuff
+            ActionBar bar = getActivity().getActionBar();
+            category = category.replace(IITC_PluginPreferenceActivity.USER_PLUGIN, "User ");
+            bar.setTitle("IITC Plugins: " + category);
+            bar.setDisplayHomeAsUpEnabled(true);
         }
-
-        // set action bar stuff
-        ActionBar bar = getActivity().getActionBar();
-        category = category.replace(IITC_PluginPreferenceActivity.USER_PLUGIN, "User ");
-        bar.setTitle("IITC Plugins: " + category);
-        bar.setDisplayHomeAsUpEnabled(true);
     }
 
 }

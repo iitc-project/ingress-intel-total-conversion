@@ -15,6 +15,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import com.cradle.iitc_mobile.fragments.PluginsFragment;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -55,6 +57,36 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
             checkForNewPlugins();
         }
         addHeaders();
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        if(onIsMultiPane()) getIntent()
+                .putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, PluginsFragment.class.getName());
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onResume() {
+
+        // Call super :
+        super.onResume();
+
+        // Select the displayed fragment in the headers (when using a tablet) :
+        // This should be done by Android, it is a bug fix
+        // thx to http://stackoverflow.com/a/16793839
+        if(mHeaders != null) {
+
+            final String displayedFragment = getIntent().getStringExtra(EXTRA_SHOW_FRAGMENT);
+            if (displayedFragment != null) {
+                for (final Header header : mHeaders) {
+                    if (displayedFragment.equals(header.fragment)) {
+                        switchToHeader(header);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     @Override
