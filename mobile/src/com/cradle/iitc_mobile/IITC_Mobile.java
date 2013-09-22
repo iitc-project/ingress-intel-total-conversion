@@ -387,15 +387,16 @@ public class IITC_Mobile extends Activity {
         getMenuInflater().inflate(R.menu.main, menu);
         // Get the SearchView and set the searchable configuration
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        this.mSearchMenuItem = menu.findItem(R.id.menu_search);
+        mSearchMenuItem = menu.findItem(R.id.menu_search);
         final SearchView searchView =
                 (SearchView) mSearchMenuItem.getActionView();
         // Assumes current activity is the searchable activity
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
+
         // enable/disable mDesktopMode menu
-        enableDesktopUI(menu);
-        enableAdvancedMenu(menu);
+        MenuItem item = menu.findItem(R.id.menu_clear_cookies);
+        item.setVisible(mAdvancedMenu);
         return true;
     }
 
@@ -445,24 +446,6 @@ public class IITC_Mobile extends Activity {
                 intent.putExtra("iitc_version", mIitcWebView.getWebViewClient()
                         .getIITCVersion());
                 startActivity(intent);
-                return true;
-            case R.id.menu_info:
-                switchToPane(Pane.INFO);
-                return true;
-            case R.id.menu_full:
-                switchToPane(Pane.FULL);
-                return true;
-            case R.id.menu_compact:
-                switchToPane(Pane.COMPACT);
-                return true;
-            case R.id.menu_public:
-                switchToPane(Pane.PUBLIC);
-                return true;
-            case R.id.menu_faction:
-                switchToPane(Pane.FACTION);
-                return true;
-            case R.id.menu_debug:
-                switchToPane(Pane.DEBUG);
                 return true;
             case R.id.menu_clear_cookies:
                 CookieManager cm = CookieManager.getInstance();
@@ -579,17 +562,6 @@ public class IITC_Mobile extends Activity {
         setLoadingState(true);
     }
 
-    // disable/enable some menu buttons...
-    public void enableDesktopUI(Menu menu) {
-        MenuItem item;
-        item = menu.findItem(R.id.menu_chat);
-        item.setVisible(!mDesktopMode);
-        item = menu.findItem(R.id.menu_info);
-        item.setVisible(!mDesktopMode);
-        item = menu.findItem(R.id.menu_debug);
-        item.setVisible(!mDesktopMode);
-    }
-
     // remove dialog and add it back again
     // to ensure it is the last element of the list
     // focused dialogs should be closed first
@@ -620,14 +592,6 @@ public class IITC_Mobile extends Activity {
             findViewById(R.id.iitc_webview).setVisibility(View.VISIBLE);
             findViewById(R.id.imageLoading).setVisibility(View.GONE);
         }
-    }
-
-    public void enableAdvancedMenu(Menu menu) {
-        MenuItem item;
-        item = menu.findItem(R.id.menu_debug);
-        item.setVisible(mAdvancedMenu);
-        item = menu.findItem(R.id.menu_clear_cookies);
-        item.setVisible(mAdvancedMenu);
     }
 
     /**

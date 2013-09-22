@@ -226,13 +226,13 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
 
     @Override
     public void onDrawerClosed(View drawerView) {
-        // TODO Auto-generated method stub
+        // TODO change menu? (via invalidateOptionsMenu)
         super.onDrawerClosed(drawerView);
     }
 
     @Override
     public void onDrawerOpened(View drawerView) {
-        // TODO Auto-generated method stub
+        // TODO change menu? (via invalidateOptionsMenu)
         super.onDrawerOpened(drawerView);
     }
 

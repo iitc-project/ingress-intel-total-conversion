@@ -83,13 +83,6 @@
     <string name="pref_select_iitc">IITC source</string>
     <string name="pref_select_iitc_sum">Load IITC main script from url or use local script. Currently used source:</string>
 
-    <string name="menu_chat">Chat</string>
-    <string name="menu_full">Full</string>
-    <string name="menu_compact">Compact</string>
-    <string name="menu_public">Public</string>
-    <string name="menu_faction">Faction</string>
-    <string name="menu_info">Info</string>
-    <string name="menu_debug">Debug</string>
     <string name="menu_clear_cookies">Clear Cookies</string>
     <string name="menu_search">Search</string>
     <string name="choose_account_to_login">Choose account to login</string>
