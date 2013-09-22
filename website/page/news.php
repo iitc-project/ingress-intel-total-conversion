@@ -2,6 +2,9 @@
 
 <h4>22nd September 2013</h4>
 <p>
+<b>Update</b>: IITC Mobile 0.6.5 replaces 0.6.4. This fixes a crash on entering plugin preferences on some tablets.
+</p>
+<p>
 IITC 0.14.1 and IITC Mobile 0.6.4 have been released. Changes in this version include:
 <ul>
 <li>Better performance when a very large number of portals are within view (country/continent level)</li>
