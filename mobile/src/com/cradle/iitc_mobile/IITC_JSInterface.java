@@ -18,12 +18,14 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
 import com.cradle.iitc_mobile.share.ShareActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.HashMap;
+import java.util.Locale;
 
 // provide communication between IITC script and android app
 public class IITC_JSInterface {
@@ -102,14 +104,14 @@ public class IITC_JSInterface {
         iitcm.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                IITC_NavigationHelper navigation = iitcm.getNavigationHelper();
-                Integer button = IITC_Mobile.PANES.get(id);
+                Pane pane;
+                try {
+                    pane = Pane.valueOf(id.toUpperCase(Locale.getDefault()));
+                } catch (IllegalArgumentException e) {
+                    pane = Pane.MAP;
+                }
 
-                if (button == null)
-                    button = android.R.id.home;
-
-                navigation.switchTo(button);
-                iitcm.backStackUpdate(button);
+                iitcm.setCurrentPane(pane);
             }
         });
     }

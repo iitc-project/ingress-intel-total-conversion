@@ -17,8 +17,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,19 +27,25 @@ import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
+
+import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Locale;
+import java.util.Stack;
 
 public class IITC_Mobile extends Activity {
 
     private static final int REQUEST_LOGIN = 1;
 
     private IITC_WebView mIitcWebView;
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
     private OnSharedPreferenceChangeListener mSharedPrefChangeListener;
     private final String mIntelUrl = "https://www.ingress.com/intel";
     private boolean mIsLocEnabled = false;
@@ -57,31 +63,10 @@ public class IITC_Mobile extends Activity {
     private IITC_NavigationHelper mNavigationHelper;
 
     // Used for custom back stack handling
-    private final ArrayList<Integer> mBackStack = new ArrayList<Integer>();
+    private final Stack<Pane> mBackStack = new Stack<IITC_NavigationHelper.Pane>();
     private boolean mBackStackPush = true;
-    private int mCurrentPane = android.R.id.home;
+    private Pane mCurrentPane = Pane.MAP;
     private boolean mBackButtonPressed = false;
-
-    public static final SparseArray<String> PANE_TITLES = new SparseArray<String>();
-    public static final HashMap<String, Integer> PANES = new HashMap<String, Integer>();
-
-    static {
-        PANES.put("map", android.R.id.home);
-        PANES.put("info", R.id.menu_info);
-        PANES.put("full", R.id.menu_full);
-        PANES.put("compact", R.id.menu_compact);
-        PANES.put("public", R.id.menu_public);
-        PANES.put("faction", R.id.menu_faction);
-        PANES.put("debug", R.id.menu_debug);
-
-        // No need to declare android.R.id.home - that title is default
-        PANE_TITLES.append(R.id.menu_info, "Info");
-        PANE_TITLES.append(R.id.menu_full, "Full");
-        PANE_TITLES.append(R.id.menu_compact, "Compact");
-        PANE_TITLES.append(R.id.menu_public, "Public");
-        PANE_TITLES.append(R.id.menu_faction, "Faction");
-        PANE_TITLES.append(R.id.menu_debug, "Debug");
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,9 +77,11 @@ public class IITC_Mobile extends Activity {
 
         setContentView(R.layout.activity_main);
         mIitcWebView = (IITC_WebView) findViewById(R.id.iitc_webview);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
         // pass ActionBar to helper because we deprecated getActionBar
-        mNavigationHelper = new IITC_NavigationHelper(this, super.getActionBar());
+        mNavigationHelper = new IITC_NavigationHelper(this, super.getActionBar(), mDrawerList, mDrawerLayout);
 
         // do something if user changed something in the settings
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -224,8 +211,8 @@ public class IITC_Mobile extends Activity {
                     (SearchView) mSearchMenuItem.getActionView();
             searchView.setQuery(query, false);
             searchView.clearFocus();
-            mNavigationHelper.switchTo(android.R.id.home);
-            backStackUpdate(android.R.id.home);
+            
+            switchToPane(Pane.MAP);
             mIitcWebView.loadUrl("javascript:search('" + query + "');");
             return;
         }
@@ -318,9 +305,17 @@ public class IITC_Mobile extends Activity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
+        mNavigationHelper.onConfigurationChanged(newConfig);
+
         Log.d("iitcm", "configuration changed...restoring...reset idleTimer");
         mIitcWebView.loadUrl("javascript: window.idleTime = 0");
         mIitcWebView.loadUrl("javascript: window.renderUpdateStatus()");
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mNavigationHelper.onPostCreate(savedInstanceState);
     }
 
     // we want a self defined behavior for the back button
@@ -364,31 +359,30 @@ public class IITC_Mobile extends Activity {
         // shouldn't be called when back stack is empty
         // catch wrong usage
         if (mBackStack.isEmpty()) {
-            // Empty back stack means we should be at home (ie map) screen
-            mNavigationHelper.switchTo(android.R.id.home);
-            mIitcWebView.loadUrl("javascript: window.show('map');");
-            return;
+            mBackStack.push(Pane.MAP);
         }
-        int index = mBackStack.size() - 1;
-        int itemId = mBackStack.remove(index);
+        
+        Pane pane = mBackStack.pop();
         mBackStackPush = false;
-        handleMenuItemSelected(itemId);
+        switchToPane(pane);
     }
 
-    public void backStackUpdate(int itemId) {
+    public void setCurrentPane(Pane pane) {
         // ensure no double adds
-        if (itemId == mCurrentPane) return;
-        if (itemId == android.R.id.home) {
-            mBackStack.clear();
-            mBackStackPush = true;
-        } else {
-            if (mBackStackPush)
-                mBackStack.add(mCurrentPane);
-            else
-                mBackStackPush = true;
-        }
+        if (pane == mCurrentPane) return;
 
-        mCurrentPane = itemId;
+        if (mBackStackPush)
+            mBackStack.push(mCurrentPane);
+        else
+            mBackStackPush = true;
+
+        mCurrentPane = pane;
+        mNavigationHelper.switchTo(pane);
+    }
+
+    public void switchToPane(Pane pane) {
+        String name = pane.name().toLowerCase(Locale.getDefault());
+        mIitcWebView.loadUrl("javascript: window.show('" + name + "');");
     }
 
     @Override
@@ -411,16 +405,17 @@ public class IITC_Mobile extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (mNavigationHelper.onOptionsItemSelected(item))
+            return true;
+
         // Handle item selection
         final int itemId = item.getItemId();
-        boolean result = handleMenuItemSelected(itemId);
-        return result || super.onOptionsItemSelected(item);
-    }
 
-    public boolean handleMenuItemSelected(int itemId) {
         switch (itemId) {
             case android.R.id.home:
-                mIitcWebView.loadUrl("javascript: window.show('map');");
+                mBackStack.clear();
+                mBackStackPush = false;
+                switchToPane(Pane.MAP);
                 return true;
             case R.id.reload_button:
                 reloadIITC();
@@ -430,13 +425,13 @@ public class IITC_Mobile extends Activity {
                 return true;
             case R.id.layer_chooser:
                 // Force map view to handle potential issue with back stack
-                if (!mBackStack.isEmpty() && mCurrentPane != android.R.id.home)
-                    mIitcWebView.loadUrl("javascript: window.show('map');");
+                if (!mBackStack.isEmpty() && mCurrentPane != Pane.MAP)
+                    switchToPane(Pane.MAP);
                 // the getLayers function calls the setLayers method of IITC_JSInterface
                 mIitcWebView.loadUrl("javascript: window.layerChooser.getLayers()");
                 return true;
             case R.id.locate: // get the users current location and focus it on map
-                mIitcWebView.loadUrl("javascript: window.show('map');");
+                switchToPane(Pane.MAP);
                 // get location from network by default
                 if (!mIsLocEnabled) {
                     mIitcWebView.loadUrl("javascript: " +
@@ -456,22 +451,22 @@ public class IITC_Mobile extends Activity {
                 startActivity(intent);
                 return true;
             case R.id.menu_info:
-                mIitcWebView.loadUrl("javascript: window.show('info');");
+                switchToPane(Pane.INFO);
                 return true;
             case R.id.menu_full:
-                mIitcWebView.loadUrl("javascript: window.show('full');");
+                switchToPane(Pane.FULL);
                 return true;
             case R.id.menu_compact:
-                mIitcWebView.loadUrl("javascript: window.show('compact');");
+                switchToPane(Pane.COMPACT);
                 return true;
             case R.id.menu_public:
-                mIitcWebView.loadUrl("javascript: window.show('public');");
+                switchToPane(Pane.PUBLIC);
                 return true;
             case R.id.menu_faction:
-                mIitcWebView.loadUrl("javascript: window.show('faction');");
+                switchToPane(Pane.FACTION);
                 return true;
             case R.id.menu_debug:
-                mIitcWebView.loadUrl("javascript: window.show('debug')");
+                switchToPane(Pane.DEBUG);
                 return true;
             case R.id.menu_clear_cookies:
                 CookieManager cm = CookieManager.getInstance();
@@ -485,8 +480,9 @@ public class IITC_Mobile extends Activity {
     public void reloadIITC() {
         mNavigationHelper.reset();
         mBackStack.clear();
+        mBackStackPush = true;
         // iitc starts on map after reload
-        mCurrentPane = android.R.id.home;
+        mCurrentPane = Pane.MAP;
         loadUrl(mIntelUrl);
         mReloadNeeded = false;
     }

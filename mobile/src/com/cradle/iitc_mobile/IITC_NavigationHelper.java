@@ -3,11 +3,20 @@ package com.cradle.iitc_mobile;
 import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.widget.DrawerLayout;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-public class IITC_NavigationHelper implements OnNavigationListener {
+public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNavigationListener, OnItemClickListener {
     // Show/hide the up arrow on the very left
     // getActionBar().setDisplayHomeAsUpEnabled(enabled);
 
@@ -19,6 +28,60 @@ public class IITC_NavigationHelper implements OnNavigationListener {
 
     // Makes the icon/title clickable
     // getActionBar().setHomeButtonEnabled(enabled);
+
+    public static enum Pane {
+        MAP, INFO, FULL, COMPACT, PUBLIC, FACTION, DEBUG
+    };
+
+    public String getPaneTitle(Pane pane)
+    {
+        switch (pane) {
+            case INFO:
+                return "Info";
+            case FULL:
+                return "Full";
+            case COMPACT:
+                return "Compact";
+            case PUBLIC:
+                return "Public";
+            case FACTION:
+                return "Faction";
+            case DEBUG:
+                return "Debug";
+            default:
+                return mIitc.getString(R.string.app_name);
+        }
+    }
+
+    private class NavigationAdapter extends ArrayAdapter<Pane> {
+        public NavigationAdapter() {
+            super(mIitc, android.R.layout.simple_list_item_1);
+
+            addAll(Pane.values());
+            // TODO: remove debug according to preferences
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            /*
+             * LayoutInflater inflater = ((Activity) getContext()).getLayoutInflater();
+             * TextView view = (TextView) inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
+             * 
+             * ActivityInfo info = getItem(position).activityInfo;
+             * CharSequence label = info.loadLabel(mPackageManager);
+             * Drawable icon = info.loadIcon(mPackageManager);
+             * 
+             * view.setText(label);
+             * view.setCompoundDrawablePadding((int) getResources().getDimension(R.dimen.icon_margin));
+             * view.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
+             * 
+             * return view;
+             */
+            TextView view = (TextView) super.getView(position, convertView, parent);
+            view.setText(getPaneTitle(getItem(position)));
+            return view;
+        }
+    }
 
     private class HighlighterAdapter extends ArrayAdapter<String> {
         public HighlighterAdapter() {
@@ -43,43 +106,61 @@ public class IITC_NavigationHelper implements OnNavigationListener {
     private ActionBar mActionBar;
     private SharedPreferences mPrefs;
     private HighlighterAdapter mHighlighters;
+    private NavigationAdapter mNavigationAdapter;
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
 
     private String mActiveHighlighter = null;
     private boolean mDesktopMode = false;
     private boolean mFullscreen = false;
     private boolean mHideInFullscreen = false;
-    private int mPane = android.R.id.home;
+    private Pane mPane = Pane.MAP;
 
-    public IITC_NavigationHelper(IITC_Mobile activity, ActionBar bar) {
+    public IITC_NavigationHelper(IITC_Mobile activity, ActionBar bar, ListView drawerList, DrawerLayout drawerLayout) {
+        super(activity, drawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close);
+
         mIitc = activity;
         mActionBar = bar;
+        mDrawerList = drawerList;
+        mDrawerLayout = drawerLayout;
+
         mPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
         mHighlighters = new HighlighterAdapter();
 
         mActionBar.setDisplayShowHomeEnabled(true); // show icon
         mActionBar.setListNavigationCallbacks(mHighlighters, this);
 
+        mNavigationAdapter = new NavigationAdapter();
+        mDrawerList.setAdapter(mNavigationAdapter);
+        mDrawerList.setOnItemClickListener(this);
+        mDrawerLayout.setDrawerListener(this);
+
         onPrefChanged(); // also calls updateActionBar()
     }
 
     private void updateActionBar() {
+        // TODO setDisplayHomeAsUpEnabled should always be true on mobile mode
+        // TODO hide draw list in desktop mode
         boolean showHighlighter = true;
 
         if (mDesktopMode) {
             mActionBar.setDisplayHomeAsUpEnabled(false); // Hide "up" indicator
             mActionBar.setHomeButtonEnabled(false); // Make icon unclickable
             mActionBar.setTitle(mIitc.getString(R.string.app_name));
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            setDrawerIndicatorEnabled(false);
         } else {
-            if (mPane != android.R.id.home) {
-                mActionBar.setDisplayHomeAsUpEnabled(true); // Show "up" indicator
-                mActionBar.setHomeButtonEnabled(true);// Make icon clickable
+            mActionBar.setDisplayHomeAsUpEnabled(true); // Show "up" indicator
+            mActionBar.setHomeButtonEnabled(true);// Make icon clickable
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            if (mPane != Pane.MAP) {
                 showHighlighter = false;
+                setDrawerIndicatorEnabled(false);
             }
-            else {
-                mActionBar.setDisplayHomeAsUpEnabled(false); // Hide "up" indicator
-                mActionBar.setHomeButtonEnabled(false); // Make icon unclickable
-            }
-            mActionBar.setTitle(IITC_Mobile.PANE_TITLES.get(mPane, mIitc.getString(R.string.app_name)));
+            else
+                setDrawerIndicatorEnabled(true);
+
+            mActionBar.setTitle(getPaneTitle(mPane));
         }
 
         if (mHighlighters.getCount() < 2) // there should always be "No Highlights"
@@ -116,6 +197,7 @@ public class IITC_NavigationHelper implements OnNavigationListener {
     public boolean onNavigationItemSelected(int position, long itemId) {
         String name = mHighlighters.getItem(position);
         mIitc.getWebView().loadUrl("javascript: window.changePortalHighlights('" + name + "')");
+
         return true;
     }
 
@@ -127,7 +209,7 @@ public class IITC_NavigationHelper implements OnNavigationListener {
 
     public void reset() {
         mHighlighters.clear();
-        mPane = android.R.id.home;
+        mPane = Pane.MAP;
         updateActionBar();
     }
 
@@ -151,8 +233,33 @@ public class IITC_NavigationHelper implements OnNavigationListener {
         updateActionBar();
     }
 
-    public void switchTo(int button) {
-        mPane = button;
+    public void switchTo(Pane pane) {
+        mPane = pane;
+
         updateActionBar();
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Pane item = mNavigationAdapter.getItem(position);
+        mIitc.switchToPane(item);
+        mDrawerLayout.closeDrawer(mDrawerList);
+    }
+
+    @Override
+    public void onDrawerOpened(View drawerView) {
+        // TODO Auto-generated method stub
+        super.onDrawerOpened(drawerView);
+    }
+
+    @Override
+    public void onDrawerClosed(View drawerView) {
+        // TODO Auto-generated method stub
+        super.onDrawerClosed(drawerView);
+    }
+
+    public void onPostCreate(Bundle savedInstanceState) {
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        syncState();
     }
 }
