@@ -65,22 +65,12 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            /*
-             * LayoutInflater inflater = ((Activity) getContext()).getLayoutInflater();
-             * TextView view = (TextView) inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
-             * 
-             * ActivityInfo info = getItem(position).activityInfo;
-             * CharSequence label = info.loadLabel(mPackageManager);
-             * Drawable icon = info.loadIcon(mPackageManager);
-             * 
-             * view.setText(label);
-             * view.setCompoundDrawablePadding((int) getResources().getDimension(R.dimen.icon_margin));
-             * view.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
-             * 
-             * return view;
-             */
             TextView view = (TextView) super.getView(position, convertView, parent);
-            view.setText(getPaneTitle(getItem(position)));
+            Pane item = getItem(position);
+            if (item == Pane.MAP)
+                view.setText("Map");
+            else
+                view.setText(getPaneTitle(item));
             return view;
         }
     }
