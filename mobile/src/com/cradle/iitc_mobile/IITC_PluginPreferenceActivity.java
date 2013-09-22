@@ -32,6 +32,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
     // we use a tree map to have a map with alphabetical order
     private static TreeMap<String, ArrayList<IITC_PluginPreference>> sPlugins = null;
     public static final String USER_PLUGIN = "00000";
+    private static int mDeletedPlugins = 0;
 
     @Override
     public void setListAdapter(ListAdapter adapter) {
@@ -138,7 +139,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         for (Map.Entry<String, ArrayList<IITC_PluginPreference>> entry : sPlugins.entrySet()) {
             numPlugins += entry.getValue().size();
         }
-        if ((user.length + official.length) != numPlugins) {
+        if ((user.length + official.length) != (numPlugins + mDeletedPlugins)) {
             Log.d("iitcm", "new or less plugins found since last start, rebuild preferences");
             sPlugins.clear();
             setUpPluginPreferenceScreen();
@@ -220,6 +221,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
 
         // do not add deleted plugins
         if (plugin_cat.equals("Deleted")) {
+            mDeletedPlugins++;
             return;
         }
 
