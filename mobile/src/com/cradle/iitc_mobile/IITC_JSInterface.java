@@ -134,8 +134,7 @@ public class IITC_JSInterface {
         iitc.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                iitc.findViewById(R.id.iitc_webview).setVisibility(View.VISIBLE);
-                iitc.findViewById(R.id.imageLoading).setVisibility(View.GONE);
+                iitc.setLoadingState(false);
             }
         });
     }

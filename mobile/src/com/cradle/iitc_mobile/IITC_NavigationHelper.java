@@ -29,29 +29,24 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
     // Makes the icon/title clickable
     // getActionBar().setHomeButtonEnabled(enabled);
 
-    public static enum Pane {
-        MAP, INFO, FULL, COMPACT, PUBLIC, FACTION, DEBUG
-    };
-
-    public String getPaneTitle(Pane pane)
-    {
-        switch (pane) {
-            case INFO:
-                return "Info";
-            case FULL:
-                return "Full";
-            case COMPACT:
-                return "Compact";
-            case PUBLIC:
-                return "Public";
-            case FACTION:
-                return "Faction";
-            case DEBUG:
-                return "Debug";
-            default:
-                return mIitc.getString(R.string.app_name);
+    private class HighlighterAdapter extends ArrayAdapter<String> {
+        public HighlighterAdapter() {
+            super(mIitc, android.R.layout.simple_list_item_1);
+            clear();
         }
-    }
+
+        @Override
+        public void add(String object) {
+            super.remove(object); // to avoid duplicates
+            super.add(object);
+        }
+
+        @Override
+        public void clear() {
+            super.clear();
+            add("No Highlights");// Probably must be the same as window._no_highlighter
+        }
+    };
 
     private class NavigationAdapter extends ArrayAdapter<Pane> {
         public NavigationAdapter() {
@@ -83,23 +78,8 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
         }
     }
 
-    private class HighlighterAdapter extends ArrayAdapter<String> {
-        public HighlighterAdapter() {
-            super(mIitc, android.R.layout.simple_list_item_1);
-            clear();
-        }
-
-        @Override
-        public void add(String object) {
-            super.remove(object); // to avoid duplicates
-            super.add(object);
-        }
-
-        @Override
-        public void clear() {
-            super.clear();
-            add("No Highlights");// Probably must be the same as window._no_highlighter
-        }
+    public static enum Pane {
+        COMPACT, DEBUG, FACTION, FULL, INFO, MAP, PUBLIC
     }
 
     private IITC_Mobile mIitc;
@@ -115,6 +95,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
     private boolean mFullscreen = false;
     private boolean mHideInFullscreen = false;
     private Pane mPane = Pane.MAP;
+    private boolean mIsLoading;
 
     public IITC_NavigationHelper(IITC_Mobile activity, ActionBar bar, ListView drawerList, DrawerLayout drawerLayout) {
         super(activity, drawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close);
@@ -139,8 +120,6 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
     }
 
     private void updateActionBar() {
-        // TODO setDisplayHomeAsUpEnabled should always be true on mobile mode
-        // TODO hide draw list in desktop mode
         boolean showHighlighter = true;
 
         if (mDesktopMode) {
@@ -150,15 +129,24 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             setDrawerIndicatorEnabled(false);
         } else {
-            mActionBar.setDisplayHomeAsUpEnabled(true); // Show "up" indicator
-            mActionBar.setHomeButtonEnabled(true);// Make icon clickable
-            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-            if (mPane != Pane.MAP) {
-                showHighlighter = false;
+            if (mIsLoading) {
+                mActionBar.setDisplayHomeAsUpEnabled(false); // Hide "up" indicator
+                mActionBar.setHomeButtonEnabled(false);// Make icon unclickable
+                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
                 setDrawerIndicatorEnabled(false);
+            } else {
+                mActionBar.setDisplayHomeAsUpEnabled(true); // Show "up" indicator
+                mActionBar.setHomeButtonEnabled(true);// Make icon clickable
+                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+
+                if (mPane != Pane.MAP)
+                    setDrawerIndicatorEnabled(false);
+                else
+                    setDrawerIndicatorEnabled(true);
             }
-            else
-                setDrawerIndicatorEnabled(true);
+
+            if (mPane != Pane.MAP)
+                showHighlighter = false;
 
             mActionBar.setTitle(getPaneTitle(mPane));
         }
@@ -189,8 +177,47 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
         updateActionBar();
     }
 
+    public String getPaneTitle(Pane pane)
+    {
+        switch (pane) {
+            case INFO:
+                return "Info";
+            case FULL:
+                return "Full";
+            case COMPACT:
+                return "Compact";
+            case PUBLIC:
+                return "Public";
+            case FACTION:
+                return "Faction";
+            case DEBUG:
+                return "Debug";
+            default:
+                return mIitc.getString(R.string.app_name);
+        }
+    }
+
     public boolean hideInFullscreen() {
         return mHideInFullscreen;
+    }
+
+    @Override
+    public void onDrawerClosed(View drawerView) {
+        // TODO Auto-generated method stub
+        super.onDrawerClosed(drawerView);
+    }
+
+    @Override
+    public void onDrawerOpened(View drawerView) {
+        // TODO Auto-generated method stub
+        super.onDrawerOpened(drawerView);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Pane item = mNavigationAdapter.getItem(position);
+        mIitc.switchToPane(item);
+        mDrawerLayout.closeDrawer(mDrawerList);
     }
 
     @Override
@@ -199,6 +226,11 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
         mIitc.getWebView().loadUrl("javascript: window.changePortalHighlights('" + name + "')");
 
         return true;
+    }
+
+    public void onPostCreate(Bundle savedInstanceState) {
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        syncState();
     }
 
     public void onPrefChanged() {
@@ -233,33 +265,14 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
         updateActionBar();
     }
 
+    public void setLoadingState(boolean isLoading) {
+        mIsLoading = isLoading;
+        updateActionBar();
+    }
+
     public void switchTo(Pane pane) {
         mPane = pane;
 
         updateActionBar();
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Pane item = mNavigationAdapter.getItem(position);
-        mIitc.switchToPane(item);
-        mDrawerLayout.closeDrawer(mDrawerList);
-    }
-
-    @Override
-    public void onDrawerOpened(View drawerView) {
-        // TODO Auto-generated method stub
-        super.onDrawerOpened(drawerView);
-    }
-
-    @Override
-    public void onDrawerClosed(View drawerView) {
-        // TODO Auto-generated method stub
-        super.onDrawerClosed(drawerView);
-    }
-
-    public void onPostCreate(Bundle savedInstanceState) {
-        // Sync the toggle state after onRestoreInstanceState has occurred.
-        syncState();
     }
 }

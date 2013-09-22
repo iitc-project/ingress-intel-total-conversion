@@ -505,7 +505,7 @@ public class IITC_Mobile extends Activity {
     // inject the iitc-script and load the intel url
     // plugins are injected onPageFinished
     public void loadUrl(String url) {
-        showSplashScreen();
+        setLoadingState(true);
         url = addUrlParam(url);
         loadIITC();
         mIitcWebView.loadUrl(url);
@@ -577,7 +577,7 @@ public class IITC_Mobile extends Activity {
     public void loginSucceeded() {
         // garbage collection
         mLogin = null;
-        showSplashScreen();
+        setLoadingState(true);
     }
 
     // disable/enable some menu buttons...
@@ -611,10 +611,15 @@ public class IITC_Mobile extends Activity {
         }
     }
 
-    public void showSplashScreen() {
-        if (!mSharedPrefs.getBoolean("pref_disable_splash", false)) {
+    public void setLoadingState(boolean isLoading) {
+        mNavigationHelper.setLoadingState(isLoading);
+        
+        if (isLoading && !mSharedPrefs.getBoolean("pref_disable_splash", false)) {
             findViewById(R.id.iitc_webview).setVisibility(View.GONE);
             findViewById(R.id.imageLoading).setVisibility(View.VISIBLE);
+        } else {
+            findViewById(R.id.iitc_webview).setVisibility(View.VISIBLE);
+            findViewById(R.id.imageLoading).setVisibility(View.GONE);
         }
     }
 
