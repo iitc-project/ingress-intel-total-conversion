@@ -44,8 +44,6 @@ public class IITC_Mobile extends Activity {
     private static final int REQUEST_LOGIN = 1;
 
     private IITC_WebView mIitcWebView;
-    private DrawerLayout mDrawerLayout;
-    private ListView mDrawerList;
     private OnSharedPreferenceChangeListener mSharedPrefChangeListener;
     private final String mIntelUrl = "https://www.ingress.com/intel";
     private boolean mIsLocEnabled = false;
@@ -77,11 +75,10 @@ public class IITC_Mobile extends Activity {
 
         setContentView(R.layout.activity_main);
         mIitcWebView = (IITC_WebView) findViewById(R.id.iitc_webview);
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
-
         // pass ActionBar to helper because we deprecated getActionBar
-        mNavigationHelper = new IITC_NavigationHelper(this, super.getActionBar(), mDrawerList, mDrawerLayout);
+        mNavigationHelper = new IITC_NavigationHelper(this, super.getActionBar(),
+                (ListView) findViewById(R.id.left_drawer),
+                (DrawerLayout) findViewById(R.id.drawer_layout));
 
         // do something if user changed something in the settings
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -211,7 +208,7 @@ public class IITC_Mobile extends Activity {
                     (SearchView) mSearchMenuItem.getActionView();
             searchView.setQuery(query, false);
             searchView.clearFocus();
-            
+
             switchToPane(Pane.MAP);
             mIitcWebView.loadUrl("javascript:search('" + query + "');");
             return;
@@ -361,7 +358,7 @@ public class IITC_Mobile extends Activity {
         if (mBackStack.isEmpty()) {
             mBackStack.push(Pane.MAP);
         }
-        
+
         Pane pane = mBackStack.pop();
         mBackStackPush = false;
         switchToPane(pane);
