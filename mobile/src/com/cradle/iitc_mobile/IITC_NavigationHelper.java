@@ -110,10 +110,11 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
 
     private String mActiveHighlighter = null;
     private boolean mDesktopMode = false;
+    private boolean mDrawerOpened;
     private boolean mFullscreen = false;
+    private boolean mIsLoading;
     private boolean mHideInFullscreen = false;
     private Pane mPane = Pane.MAP;
-    private boolean mIsLoading;
 
     public IITC_NavigationHelper(IITC_Mobile activity, ActionBar bar, ListView drawerList, DrawerLayout drawerLayout) {
         super(activity, drawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close);
@@ -176,6 +177,9 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
 
         if (mHighlighters.getCount() < 2) // there should always be "No Highlights"
             showHighlighter = false;
+        
+        if(mDrawerOpened)
+            showHighlighter = false;
 
         if (showHighlighter) {
             mActionBar.setDisplayShowTitleEnabled(false); // Hide title
@@ -228,12 +232,16 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
     public void onDrawerClosed(View drawerView) {
         // TODO change menu? (via invalidateOptionsMenu)
         super.onDrawerClosed(drawerView);
+        mDrawerOpened = false;
+        updateActionBar();
     }
 
     @Override
     public void onDrawerOpened(View drawerView) {
         // TODO change menu? (via invalidateOptionsMenu)
         super.onDrawerOpened(drawerView);
+        mDrawerOpened=true;
+        updateActionBar();
     }
 
     @Override
