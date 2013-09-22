@@ -35,7 +35,6 @@ import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Stack;
 
@@ -56,7 +55,7 @@ public class IITC_Mobile extends Activity {
     private boolean mDesktopMode = false;
     private boolean mAdvancedMenu = false;
     private boolean mReloadNeeded = false;
-    private final ArrayList<String> mDialogStack = new ArrayList<String>();
+    private final Stack<String> mDialogStack = new Stack<String>();
     private SharedPreferences mSharedPrefs;
     private IITC_NavigationHelper mNavigationHelper;
 
@@ -321,8 +320,7 @@ public class IITC_Mobile extends Activity {
     public void onBackPressed() {
         // first kill all open iitc dialogs
         if (!mDialogStack.isEmpty()) {
-            int last = mDialogStack.size() - 1;
-            String id = mDialogStack.get(last);
+            String id = mDialogStack.pop();
             mIitcWebView.loadUrl("javascript: " +
                     "var selector = $(window.DIALOGS['" + id + "']); " +
                     "selector.dialog('close'); " +
@@ -598,14 +596,14 @@ public class IITC_Mobile extends Activity {
     public void setFocusedDialog(String id) {
         Log.d("iitcm", "Dialog " + id + " focused");
         mDialogStack.remove(id);
-        mDialogStack.add(id);
+        mDialogStack.push(id);
     }
 
     // called by the javascript interface
     public void dialogOpened(String id, boolean open) {
         if (open) {
             Log.d("iitcm", "Dialog " + id + " added");
-            mDialogStack.add(id);
+            mDialogStack.push(id);
         } else {
             Log.d("iitcm", "Dialog " + id + " closed");
             mDialogStack.remove(id);
@@ -614,7 +612,7 @@ public class IITC_Mobile extends Activity {
 
     public void setLoadingState(boolean isLoading) {
         mNavigationHelper.setLoadingState(isLoading);
-        
+
         if (isLoading && !mSharedPrefs.getBoolean("pref_disable_splash", false)) {
             findViewById(R.id.iitc_webview).setVisibility(View.GONE);
             findViewById(R.id.imageLoading).setVisibility(View.VISIBLE);
