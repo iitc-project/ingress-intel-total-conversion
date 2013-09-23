@@ -88,7 +88,6 @@ public class IITC_Mobile extends Activity {
                 if (key.equals("pref_force_desktop")) {
                     mDesktopMode = sharedPreferences.getBoolean("pref_force_desktop", false);
                     mNavigationHelper.onPrefChanged();
-                    invalidateOptionsMenu();
                 }
                 if (key.equals("pref_user_loc"))
                     mIsLocEnabled = sharedPreferences.getBoolean("pref_user_loc",
@@ -407,10 +406,6 @@ public class IITC_Mobile extends Activity {
         // Assumes current activity is the searchable activity
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
-
-        // enable/disable mDesktopMode menu
-        MenuItem item = menu.findItem(R.id.menu_clear_cookies);
-        item.setVisible(mAdvancedMenu);
         return true;
     }
 
@@ -423,6 +418,10 @@ public class IITC_Mobile extends Activity {
                 if (menu.getItem(i).getItemId() != R.id.action_settings)
                     menu.getItem(i).setVisible(visible);
         }
+
+        // enable/disable Advanced menu
+        MenuItem item = menu.findItem(R.id.menu_clear_cookies);
+        item.setVisible(mAdvancedMenu);
 
         return super.onPrepareOptionsMenu(menu);
     }
