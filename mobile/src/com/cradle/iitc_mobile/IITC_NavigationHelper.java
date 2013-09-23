@@ -89,7 +89,6 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     private View mDrawerRight;
 
     private boolean mDesktopMode = false;
-    private boolean mDrawerOpened;
     private boolean mFullscreen = false;
     private boolean mIsLoading;
     private boolean mHideInFullscreen = false;
@@ -179,19 +178,18 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         }
     }
 
-    public boolean isDrawerOpened() {
-        return mDrawerOpened;
-    }
-
     public boolean hideInFullscreen() {
         return mHideInFullscreen;
+    }
+
+    public boolean isDrawerOpened() {
+        return mDrawerLayout.isDrawerOpen(mDrawerLeft) || mDrawerLayout.isDrawerOpen(mDrawerRight);
     }
 
     @Override
     public void onDrawerClosed(View drawerView) {
         // TODO change menu? (via invalidateOptionsMenu)
         super.onDrawerClosed(drawerView);
-        mDrawerOpened = false;
         updateActionBar();
     }
 
@@ -199,8 +197,8 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     public void onDrawerOpened(View drawerView) {
         // TODO change menu? (via invalidateOptionsMenu)
         super.onDrawerOpened(drawerView);
-        mDrawerOpened = true;
         updateActionBar();
+        mDrawerLayout.closeDrawer(drawerView.equals(mDrawerLeft) ? mDrawerRight : mDrawerLeft);
     }
 
     @Override
@@ -221,8 +219,11 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         updateActionBar();
     }
 
+    public void openRightDrawer() {
+        mDrawerLayout.openDrawer(mDrawerRight);
+    }
+
     public void reset() {
-        // TODO mHighlighters.clear();
         mPane = Pane.MAP;
         updateActionBar();
     }
@@ -252,10 +253,5 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         mPane = pane;
 
         updateActionBar();
-    }
-
-    public void openRightDrawer() {
-        // TODO should close left drawer
-        mDrawerLayout.openDrawer(mDrawerRight);
     }
 }
