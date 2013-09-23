@@ -126,7 +126,8 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
             mActionBar.setDisplayHomeAsUpEnabled(false); // Hide "up" indicator
             mActionBar.setHomeButtonEnabled(false); // Make icon unclickable
             mActionBar.setTitle(mIitc.getString(R.string.app_name));
-            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, mDrawerLeft);
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, mDrawerRight);
             setDrawerIndicatorEnabled(false);
         } else {
             if (mIsLoading) {
