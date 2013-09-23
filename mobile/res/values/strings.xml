@@ -7,6 +7,8 @@
     <string name="activity_share">Share using…</string>
     <string name="activity_share_to_clipboard">Copy to clipboard</string>
     <string name="action_settings">Settings</string>
+    <string name="drawer_open">Show navigation menu</string>
+    <string name="drawer_close">Hide navigation menu</string>
     <string name="reload">Reload IITC</string>
     <string name="version">Print Version</string>
     <string name="toggle_fullscreen">Toggle fullscreen</string>
@@ -53,6 +55,13 @@
         TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
         PERFORMANCE OF THIS SOFTWARE.]]>
     </string>
+    <string name="notice_drawers">
+        <![CDATA[IITCm recently changed its navigation structure. How to use it:<br><br>
+        • Navigation: swipe from the left edge of your screen (or click the app icon) to evoke the Navigation Drawer.
+        Click the app icon again to return to the map.<br><br>
+        • Layers/Highlights: swipe from the right edge of your screen (or click the layer-chooser icon in the ActionBar)
+        to evoke the Layer Drawer]]>
+    </string>
 
     <string name="pref_ui_cat">UI</string>
     <string name="pref_misc_cat">Misc</string>
@@ -81,13 +90,6 @@
     <string name="pref_select_iitc">IITC source</string>
     <string name="pref_select_iitc_sum">Load IITC main script from url or use local script. Currently used source:</string>
 
-    <string name="menu_chat">Chat</string>
-    <string name="menu_full">Full</string>
-    <string name="menu_compact">Compact</string>
-    <string name="menu_public">Public</string>
-    <string name="menu_faction">Faction</string>
-    <string name="menu_info">Info</string>
-    <string name="menu_debug">Debug</string>
     <string name="menu_clear_cookies">Clear Cookies</string>
     <string name="menu_search">Search</string>
     <string name="choose_account_to_login">Choose account to login</string>
@@ -100,8 +102,8 @@
     <string name="tab_share">Share</string>
     <string name="tab_browser">Browser</string>
 
-    <string name="base_layers">Base Layers</string>
-    <string name="overlay_layers">Overlay Layers</string>
-    <string name="toggle_layer_selection">Deselect/Select all</string>
+    <string name="label_highlighter">Highlighter</string>
+    <string name="label_base_layer">Base Layer</string>
+    <string name="label_overlay_layers">Overlay Layers</string>
 
 </resources>
