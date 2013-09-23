@@ -104,8 +104,11 @@ public class IITC_Mobile extends Activity {
                     // no reload needed
                     return;
                 }
-                // no reload needed
-                if (key.equals("pref_press_twice_to_exit") || key.equals("pref_share_selected_tab"))
+
+                if (key.equals("pref_press_twice_to_exit")
+                        || key.equals("pref_share_selected_tab")
+                        || key.equals("pref_drawers_seen"))
+                    // no reload needed
                     return;
 
                 mReloadNeeded = true;
@@ -409,6 +412,19 @@ public class IITC_Mobile extends Activity {
         MenuItem item = menu.findItem(R.id.menu_clear_cookies);
         item.setVisible(mAdvancedMenu);
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (mNavigationHelper != null) {
+            boolean visible = !mNavigationHelper.isDrawerOpened();
+
+            for (int i = 0; i < menu.size(); i++)
+                if (menu.getItem(i).getItemId() != R.id.action_settings)
+                    menu.getItem(i).setVisible(visible);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
