@@ -415,13 +415,15 @@ public class IITC_Mobile extends Activity {
             boolean visible = !mNavigationHelper.isDrawerOpened();
 
             for (int i = 0; i < menu.size(); i++)
-                if (menu.getItem(i).getItemId() != R.id.action_settings)
-                    menu.getItem(i).setVisible(visible);
+                if (menu.getItem(i).getItemId() != R.id.action_settings) {
+                    // clear cookies is part of the advanced menu
+                    if (menu.getItem(i).getItemId() == R.id.menu_clear_cookies) {
+                        menu.getItem(i).setVisible(mAdvancedMenu & visible);
+                    } else {
+                        menu.getItem(i).setVisible(visible);
+                    }
+                }
         }
-
-        // enable/disable Advanced menu
-        MenuItem item = menu.findItem(R.id.menu_clear_cookies);
-        item.setVisible(mAdvancedMenu);
 
         return super.onPrepareOptionsMenu(menu);
     }
