@@ -97,6 +97,8 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
     private String mActiveHighlighter;
     private int mActiveLayer;
 
+    private boolean mLoading = true;
+
     public IITC_MapSettings(IITC_Mobile activity) {
         mIitc = activity;
 
@@ -127,8 +129,9 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
     }
 
     private void setLayer(Layer layer) {
-        mIitc.getWebView().loadUrl(
-                "javascript: window.layerChooser.showLayer(" + layer.id + "," + layer.active + ");");
+        if (!mLoading)
+            mIitc.getWebView().loadUrl(
+                    "javascript: window.layerChooser.showLayer(" + layer.id + "," + layer.active + ");");
     }
 
     public void addPortalHighlighter(String name) {
@@ -136,6 +139,11 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
 
         if (name.equals(mActiveHighlighter))
             setActiveHighlighter(name);
+    }
+
+    public void onBootFinished() {
+        mLoading = false;
+        updateLayers();
     }
 
     @Override
@@ -168,6 +176,8 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        if (mLoading) return;
+        
         if (parent.equals(mSpinnerHighlighter)) {
             String name = mHighlighters.getItem(position);
             mIitc.getWebView().loadUrl("javascript: window.changePortalHighlights('" + name + "')");
@@ -190,6 +200,8 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
         mHighlighters.clear();
         mBaseLayers.clear();
         mOverlayLayers.clear();
+
+        mLoading = true;
     }
 
     public void setActiveHighlighter(String name) {
@@ -264,6 +276,7 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
     }
 
     public void updateLayers() {
-        mIitc.getWebView().loadUrl("javascript: window.layerChooser.getLayers()");
+        if (!mLoading)
+            mIitc.getWebView().loadUrl("javascript: window.layerChooser.getLayers()");
     }
 }
