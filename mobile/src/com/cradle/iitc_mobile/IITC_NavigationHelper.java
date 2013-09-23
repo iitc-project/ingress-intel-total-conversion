@@ -62,10 +62,19 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
                     icon = R.drawable.action_about;
                     break;
                 case FULL:
+                    icon = R.drawable.collections_view_as_list;
+                    break;
                 case COMPACT:
+                    icon = R.drawable.collections_view_as_list_compact;
+                    break;
                 case PUBLIC:
-                case FACTION:
                     icon = R.drawable.social_group;
+                    break;
+                case FACTION:
+                    icon = R.drawable.social_cc_bcc;
+                    break;
+                case DEBUG:
+                    icon = R.drawable.ic_debug;
                     break;
             }
 
