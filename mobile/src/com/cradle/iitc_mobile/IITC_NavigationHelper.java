@@ -140,13 +140,16 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
                 mActionBar.setHomeButtonEnabled(true);// Make icon clickable
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 
-                if (mPane != Pane.MAP)
-                    setDrawerIndicatorEnabled(false);
-                else
+                if (mPane == Pane.MAP || mDrawerLayout.isDrawerOpen(mDrawerLeft))
                     setDrawerIndicatorEnabled(true);
+                else
+                    setDrawerIndicatorEnabled(false);
             }
 
-            mActionBar.setTitle(getPaneTitle(mPane));
+            if (mDrawerLayout.isDrawerOpen(mDrawerLeft))
+                mActionBar.setTitle(mIitc.getString(R.string.app_name));
+            else
+                mActionBar.setTitle(getPaneTitle(mPane));
         }
 
         if (mFullscreen && mHideInFullscreen)
@@ -189,15 +192,15 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
 
     @Override
     public void onDrawerClosed(View drawerView) {
-        // TODO change menu? (via invalidateOptionsMenu)
         super.onDrawerClosed(drawerView);
+        mIitc.invalidateOptionsMenu();
         updateActionBar();
     }
 
     @Override
     public void onDrawerOpened(View drawerView) {
-        // TODO change menu? (via invalidateOptionsMenu)
         super.onDrawerOpened(drawerView);
+        mIitc.invalidateOptionsMenu();
         updateActionBar();
         mDrawerLayout.closeDrawer(drawerView.equals(mDrawerLeft) ? mDrawerRight : mDrawerLeft);
     }

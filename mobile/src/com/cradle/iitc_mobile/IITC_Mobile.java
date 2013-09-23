@@ -412,6 +412,19 @@ public class IITC_Mobile extends Activity {
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (mNavigationHelper != null) {
+            boolean visible = !mNavigationHelper.isDrawerOpened();
+
+            for (int i = 0; i < menu.size(); i++)
+                if (menu.getItem(i).getItemId() != R.id.action_settings)
+                    menu.getItem(i).setVisible(visible);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (mNavigationHelper.onOptionsItemSelected(item))
             return true;
