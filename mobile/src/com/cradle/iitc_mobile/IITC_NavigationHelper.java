@@ -16,6 +16,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Comparator;
+
 public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNavigationListener, OnItemClickListener {
     // Show/hide the up arrow on the very left
     // getActionBar().setDisplayHomeAsUpEnabled(enabled);
@@ -30,6 +32,22 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
     // getActionBar().setHomeButtonEnabled(enabled);
 
     private class HighlighterAdapter extends ArrayAdapter<String> {
+
+        // Move "No Highlights" on top. Sort the rest alphabetically
+        private class HighlighterComparator implements Comparator<String> {
+            @Override
+            public int compare(String lhs, String rhs) {
+                if (lhs.equals("No Highlights"))
+                    return -1000;
+                else if (rhs.equals("No Highlights"))
+                    return 1000;
+                else
+                    return lhs.compareTo(rhs);
+            }
+        }
+
+        private HighlighterComparator mComparator = new HighlighterComparator();
+
         public HighlighterAdapter() {
             super(mIitc, android.R.layout.simple_list_item_1);
             clear();
@@ -39,6 +57,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
         public void add(String object) {
             super.remove(object); // to avoid duplicates
             super.add(object);
+            super.sort(mComparator);
         }
 
         @Override
@@ -177,8 +196,8 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
 
         if (mHighlighters.getCount() < 2) // there should always be "No Highlights"
             showHighlighter = false;
-        
-        if(mDrawerOpened)
+
+        if (mDrawerOpened)
             showHighlighter = false;
 
         if (showHighlighter) {
@@ -240,7 +259,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
     public void onDrawerOpened(View drawerView) {
         // TODO change menu? (via invalidateOptionsMenu)
         super.onDrawerOpened(drawerView);
-        mDrawerOpened=true;
+        mDrawerOpened = true;
         updateActionBar();
     }
 

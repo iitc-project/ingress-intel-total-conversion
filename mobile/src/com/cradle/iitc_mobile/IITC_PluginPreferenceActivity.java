@@ -15,6 +15,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import com.cradle.iitc_mobile.fragments.PluginsFragment;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -30,6 +32,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
     // we use a tree map to have a map with alphabetical order
     private static TreeMap<String, ArrayList<IITC_PluginPreference>> sPlugins = null;
     public static final String USER_PLUGIN = "00000";
+    private static int mDeletedPlugins = 0;
 
     @Override
     public void setListAdapter(ListAdapter adapter) {
@@ -55,6 +58,36 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
             checkForNewPlugins();
         }
         addHeaders();
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        if(onIsMultiPane()) getIntent()
+                .putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, PluginsFragment.class.getName());
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onResume() {
+
+        // Call super :
+        super.onResume();
+
+        // Select the displayed fragment in the headers (when using a tablet) :
+        // This should be done by Android, it is a bug fix
+        // thx to http://stackoverflow.com/a/16793839
+        if(mHeaders != null) {
+
+            final String displayedFragment = getIntent().getStringExtra(EXTRA_SHOW_FRAGMENT);
+            if (displayedFragment != null) {
+                for (final Header header : mHeaders) {
+                    if (displayedFragment.equals(header.fragment)) {
+                        switchToHeader(header);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -106,7 +139,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         for (Map.Entry<String, ArrayList<IITC_PluginPreference>> entry : sPlugins.entrySet()) {
             numPlugins += entry.getValue().size();
         }
-        if ((user.length + official.length) != numPlugins) {
+        if ((user.length + official.length) != (numPlugins + mDeletedPlugins)) {
             Log.d("iitcm", "new or less plugins found since last start, rebuild preferences");
             sPlugins.clear();
             setUpPluginPreferenceScreen();
@@ -188,6 +221,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
 
         // do not add deleted plugins
         if (plugin_cat.equals("Deleted")) {
+            mDeletedPlugins++;
             return;
         }
 
