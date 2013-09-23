@@ -1,11 +1,16 @@
 package com.cradle.iitc_mobile;
 
 import android.app.ActionBar;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.content.DialogInterface.OnDismissListener;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
+import android.text.Html;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -115,6 +120,38 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         mDrawerLayout.setDrawerListener(this);
 
         onPrefChanged(); // also calls updateActionBar()
+
+        showNotice();
+    }
+
+    private void showNotice() {
+        if (mPrefs.getBoolean("pref_drawers_seen", false))
+            return;
+
+        TextView message = new TextView(mIitc);
+        message.setPadding(20, 20, 20, 20);
+        message.setText(Html.fromHtml(mIitc.getText(R.string.notice_drawers).toString()));
+
+        AlertDialog dialog = new AlertDialog.Builder(mIitc)
+                .setView(message)
+                .setCancelable(true)
+                .setPositiveButton(android.R.string.ok, new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                })
+                .create();
+        dialog.setOnDismissListener(new OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                mPrefs
+                        .edit()
+                        .putBoolean("pref_drawers_seen", true)
+                        .commit();
+            }
+        });
+        dialog.show();
     }
 
     private void updateActionBar() {

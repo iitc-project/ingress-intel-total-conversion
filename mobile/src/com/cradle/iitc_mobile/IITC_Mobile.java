@@ -104,8 +104,11 @@ public class IITC_Mobile extends Activity {
                     // no reload needed
                     return;
                 }
-                // no reload needed
-                if (key.equals("pref_press_twice_to_exit") || key.equals("pref_share_selected_tab"))
+
+                if (key.equals("pref_press_twice_to_exit")
+                        || key.equals("pref_share_selected_tab")
+                        || key.equals("pref_drawers_seen"))
+                    // no reload needed
                     return;
 
                 mReloadNeeded = true;

@@ -55,6 +55,13 @@
         TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
         PERFORMANCE OF THIS SOFTWARE.]]>
     </string>
+    <string name="notice_drawers">
+        <![CDATA[IITCm recently changed its navigation structure. How to use it:<br><br>
+        • Navigation: swipe from the left edge of your screen (or click the app icon) to evoke the Navigation Drawer.
+        Click the app icon again to return to the map.<br><br>
+        • Layers/Highlights: swipe from the right edge of your screen (or click the layer-chooser icon in the ActionBar)
+        to evoke the Layer Drawer]]>
+    </string>
 
     <string name="pref_ui_cat">UI</string>
     <string name="pref_misc_cat">Misc</string>
