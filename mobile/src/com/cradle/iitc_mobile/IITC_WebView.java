@@ -42,7 +42,7 @@ public class IITC_WebView extends WebView {
                 + "/databases/");
         mSettings.setAppCachePath(this.getContext().getCacheDir()
                 .getAbsolutePath());
-        this.mJsInterface = new IITC_JSInterface(mContext);
+        this.mJsInterface = new IITC_JSInterface((IITC_Mobile) mContext);
         this.addJavascriptInterface(mJsInterface, "android");
 
         this.setWebChromeClient(new WebChromeClient() {
@@ -53,7 +53,7 @@ public class IITC_WebView extends WebView {
              */
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin,
-                                                           GeolocationPermissions.Callback callback) {
+                    GeolocationPermissions.Callback callback) {
                 callback.invoke(origin, true, false);
             }
 

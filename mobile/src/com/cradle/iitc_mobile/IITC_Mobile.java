@@ -17,7 +17,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,7 +26,6 @@ import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -58,6 +56,7 @@ public class IITC_Mobile extends Activity {
     private final Stack<String> mDialogStack = new Stack<String>();
     private SharedPreferences mSharedPrefs;
     private IITC_NavigationHelper mNavigationHelper;
+    private IITC_MapSettings mMapSettings;
 
     // Used for custom back stack handling
     private final Stack<Pane> mBackStack = new Stack<IITC_NavigationHelper.Pane>();
@@ -74,10 +73,11 @@ public class IITC_Mobile extends Activity {
 
         setContentView(R.layout.activity_main);
         mIitcWebView = (IITC_WebView) findViewById(R.id.iitc_webview);
+
         // pass ActionBar to helper because we deprecated getActionBar
-        mNavigationHelper = new IITC_NavigationHelper(this, super.getActionBar(),
-                (ListView) findViewById(R.id.left_drawer),
-                (DrawerLayout) findViewById(R.id.drawer_layout));
+        mNavigationHelper = new IITC_NavigationHelper(this, super.getActionBar());
+
+        mMapSettings = new IITC_MapSettings(this);
 
         // do something if user changed something in the settings
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -326,7 +326,7 @@ public class IITC_Mobile extends Activity {
 
         // close drawer if opened
         if (mNavigationHelper.isDrawerOpened()) {
-            mNavigationHelper.closeDrawer();
+            mNavigationHelper.closeDrawers();
             return;
         }
 
@@ -432,11 +432,7 @@ public class IITC_Mobile extends Activity {
                 toggleFullscreen();
                 return true;
             case R.id.layer_chooser:
-                // Force map view to handle potential issue with back stack
-                if (!mBackStack.isEmpty() && mCurrentPane != Pane.MAP)
-                    switchToPane(Pane.MAP);
-                // the getLayers function calls the setLayers method of IITC_JSInterface
-                mIitcWebView.loadUrl("javascript: window.layerChooser.getLayers()");
+                mNavigationHelper.openRightDrawer();
                 return true;
             case R.id.locate: // get the users current location and focus it on map
                 switchToPane(Pane.MAP);
@@ -617,5 +613,9 @@ public class IITC_Mobile extends Activity {
 
     public IITC_NavigationHelper getNavigationHelper() {
         return mNavigationHelper;
+    }
+
+    public IITC_MapSettings getMapSettings() {
+        return mMapSettings;
     }
 }

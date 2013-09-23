@@ -95,8 +95,8 @@
     <string name="tab_share">Share</string>
     <string name="tab_browser">Browser</string>
 
-    <string name="base_layers">Base Layers</string>
-    <string name="overlay_layers">Overlay Layers</string>
-    <string name="toggle_layer_selection">Deselect/Select all</string>
+    <string name="label_highlighter">Highlighter</string>
+    <string name="label_base_layer">Base Layer</string>
+    <string name="label_overlay_layers">Overlay Layers</string>
 
 </resources>
