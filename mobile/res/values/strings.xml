@@ -65,7 +65,7 @@
     <string name="pref_user_zoom">Show zoom control</string>
     <string name="pref_user_zoom_sum">Shows +/- buttons even on multitouch capable devices.</string>
     <string name="pref_fullscreen_actionbar">Hide Action Bar in fullscreen mode</string>
-    <string name="pref_fullscreen_actionbar_sum">Nice for screenshots. Note: IITCM cannot be controlled without Action Bar.</string>
+    <string name="pref_fullscreen_actionbar_sum">Nice for screenshots. Note: IITCm can still be controlled via the Navigation Drawers</string>
     <string name="pref_force_desktop">Force desktop mode</string>
     <string name="pref_force_desktop_sum">Nice for tablets, looks awful on smartphones</string>
     <string name="pref_force_https">Force https</string>

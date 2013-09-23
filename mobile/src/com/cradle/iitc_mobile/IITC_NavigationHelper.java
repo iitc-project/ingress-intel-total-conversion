@@ -224,7 +224,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
 
     public void onPrefChanged() {
         mDesktopMode = mPrefs.getBoolean("pref_force_desktop", false);
-        mHideInFullscreen = mPrefs.getBoolean("pref_fullscreen_actionbar", false);
+        mHideInFullscreen = mPrefs.getBoolean("pref_fullscreen_actionbar", true);
         updateActionBar();
     }
 
