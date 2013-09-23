@@ -223,6 +223,10 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
         updateActionBar();
     }
 
+    public void closeDrawer() {
+        mDrawerLayout.closeDrawers();
+    }
+
     public String getPaneTitle(Pane pane)
     {
         switch (pane) {
@@ -241,6 +245,10 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnNa
             default:
                 return mIitc.getString(R.string.app_name);
         }
+    }
+
+    public boolean isDrawerOpened() {
+        return mDrawerOpened;
     }
 
     public boolean hideInFullscreen() {

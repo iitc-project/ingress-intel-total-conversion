@@ -318,7 +318,19 @@ public class IITC_Mobile extends Activity {
     // we want a self defined behavior for the back button
     @Override
     public void onBackPressed() {
-        // first kill all open iitc dialogs
+        // exit fullscreen mode if it is enabled and action bar is disabled or the back stack is empty
+        if (mFullscreenMode && (mBackStack.isEmpty() || mNavigationHelper.hideInFullscreen())) {
+            toggleFullscreen();
+            return;
+        }
+
+        // close drawer if opened
+        if (mNavigationHelper.isDrawerOpened()) {
+            mNavigationHelper.closeDrawer();
+            return;
+        }
+
+        // kill all open iitc dialogs
         if (!mDialogStack.isEmpty()) {
             String id = mDialogStack.pop();
             mIitcWebView.loadUrl("javascript: " +
@@ -327,27 +339,26 @@ public class IITC_Mobile extends Activity {
                     "selector.remove();");
             return;
         }
-        // exit fullscreen mode if it is enabled and action bar is disabled
-        // or the back stack is empty
-        if (mFullscreenMode && (mBackStack.isEmpty() || mNavigationHelper.hideInFullscreen())) {
-            this.toggleFullscreen();
-        } else if (!mBackStack.isEmpty()) {
-            // Pop last item from backstack and pretend the relevant menu item was clicked
+
+        // Pop last item from backstack and pretend the relevant menu item was clicked
+        if (!mBackStack.isEmpty()) {
             backStackPop();
+            return;
+        }
+
+        if (mBackButtonPressed || !mSharedPrefs.getBoolean("pref_press_twice_to_exit", false)) {
+            super.onBackPressed();
+            return;
         } else {
-            if (mBackButtonPressed || !mSharedPrefs.getBoolean("pref_press_twice_to_exit", false))
-                super.onBackPressed();
-            else {
-                mBackButtonPressed = true;
-                Toast.makeText(this, "Press twice to exit", Toast.LENGTH_SHORT).show();
-                // reset back button after 2 seconds
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mBackButtonPressed = false;
-                    }
-                }, 2000);
-            }
+            mBackButtonPressed = true;
+            Toast.makeText(this, "Press twice to exit", Toast.LENGTH_SHORT).show();
+            // reset back button after 2 seconds
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mBackButtonPressed = false;
+                }
+            }, 2000);
         }
     }
 
