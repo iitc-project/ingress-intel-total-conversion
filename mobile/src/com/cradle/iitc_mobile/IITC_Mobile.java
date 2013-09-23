@@ -465,6 +465,7 @@ public class IITC_Mobile extends Activity {
 
     public void reloadIITC() {
         mNavigationHelper.reset();
+        mMapSettings.reset();
         mBackStack.clear();
         mBackStackPush = true;
         // iitc starts on map after reload

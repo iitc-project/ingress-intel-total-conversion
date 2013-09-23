@@ -21,6 +21,28 @@ import org.json.JSONObject;
 import java.util.Comparator;
 
 public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickListener, OnItemLongClickListener {
+    private class HighlighterAdapter extends ArrayAdapter<String> {
+        private HighlighterComparator mComparator = new HighlighterComparator();
+
+        private HighlighterAdapter(int resource) {
+            super(mIitc, resource);
+            clear();
+        }
+
+        @Override
+        public void add(String object) {
+            super.remove(object); // to avoid duplicates
+            super.add(object);
+            super.sort(mComparator);
+        }
+
+        @Override
+        public void clear() {
+            super.clear();
+            add("No Highlights");// Probably must be the same as window._no_highlighter
+        }
+    }
+
     private class HighlighterComparator implements Comparator<String> {
         @Override
         public int compare(String lhs, String rhs) {
@@ -75,28 +97,6 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
     private String mActiveHighlighter;
     private int mActiveLayer;
 
-    private class HighlighterAdapter extends ArrayAdapter<String> {
-        private HighlighterComparator mComparator = new HighlighterComparator();
-
-        private HighlighterAdapter(int resource) {
-            super(mIitc, resource);
-            clear();
-        }
-
-        @Override
-        public void add(String object) {
-            super.remove(object); // to avoid duplicates
-            super.add(object);
-            super.sort(mComparator);
-        }
-
-        @Override
-        public void clear() {
-            super.clear();
-            add("No Highlights");// Probably must be the same as window._no_highlighter
-        }
-    }
-
     public IITC_MapSettings(IITC_Mobile activity) {
         mIitc = activity;
 
@@ -126,8 +126,9 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
         mListViewOverlayLayers.setOnItemLongClickListener(this);
     }
 
-    public void updateLayers() {
-        mIitc.getWebView().loadUrl("javascript: window.layerChooser.getLayers()");
+    private void setLayer(Layer layer) {
+        mIitc.getWebView().loadUrl(
+                "javascript: window.layerChooser.showLayer(" + layer.id + "," + layer.active + ");");
     }
 
     public void addPortalHighlighter(String name) {
@@ -135,6 +136,60 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
 
         if (name.equals(mActiveHighlighter))
             setActiveHighlighter(name);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        position--; // The ListView header counts as an item as well.
+
+        Layer item = mOverlayLayers.getItem(position);
+        item.active = !item.active;
+        setLayer(item);
+        mOverlayLayers.notifyDataSetChanged();
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        position--; // The ListView header counts as an item as well.
+        boolean active = !mOverlayLayers.getItem(position).active;
+
+        for (int i = 0; i < mOverlayLayers.getCount(); i++) {
+            Layer item = mOverlayLayers.getItem(i);
+            if (item.name.contains("DEBUG")) continue;
+            if (active == item.active) continue; // no need to set same value again
+            item.active = active;
+            setLayer(item);
+        }
+
+        mOverlayLayers.notifyDataSetChanged();
+
+        return true;
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        if (parent.equals(mSpinnerHighlighter)) {
+            String name = mHighlighters.getItem(position);
+            mIitc.getWebView().loadUrl("javascript: window.changePortalHighlights('" + name + "')");
+        }
+        else if (parent.equals(mSpinnerBaseMap)) {
+            mBaseLayers.getItem(mActiveLayer).active = false; // set old layer to hidden, but no need to really hide
+
+            Layer layer = mBaseLayers.getItem(position);
+            layer.active = true;
+            setLayer(layer);
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+        // ignore
+    }
+
+    public void reset() {
+        mHighlighters.clear();
+        mBaseLayers.clear();
+        mOverlayLayers.clear();
     }
 
     public void setActiveHighlighter(String name) {
@@ -208,56 +263,7 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
         mOverlayLayers.notifyDataSetChanged();
     }
 
-    private void updateLayer(Layer layer) {
-        mIitc.getWebView().loadUrl(
-                "javascript: window.layerChooser.showLayer(" + layer.id + "," + layer.active + ");");
-    }
-
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        if (parent.equals(mSpinnerHighlighter)) {
-            String name = mHighlighters.getItem(position);
-            mIitc.getWebView().loadUrl("javascript: window.changePortalHighlights('" + name + "')");
-        }
-        else if (parent.equals(mSpinnerBaseMap)) {
-            mBaseLayers.getItem(mActiveLayer).active = false; // set old layer to hidden, but no need to really hide
-
-            Layer layer = mBaseLayers.getItem(position);
-            layer.active = true;
-            updateLayer(layer);
-        }
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-        // ignore
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        position--; // The ListView header counts as an item as well.
-
-        Layer item = mOverlayLayers.getItem(position);
-        item.active = !item.active;
-        updateLayer(item);
-        mOverlayLayers.notifyDataSetChanged();
-    }
-
-    @Override
-    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        position--; // The ListView header counts as an item as well.
-        boolean active = !mOverlayLayers.getItem(position).active;
-
-        for (int i = 0; i < mOverlayLayers.getCount(); i++) {
-            Layer item = mOverlayLayers.getItem(i);
-            if (item.name.contains("DEBUG")) continue;
-            if (active == item.active) continue; // no need to set same value again
-            item.active = active;
-            updateLayer(item);
-        }
-
-        mOverlayLayers.notifyDataSetChanged();
-
-        return true;
+    public void updateLayers() {
+        mIitc.getWebView().loadUrl("javascript: window.layerChooser.getLayers()");
     }
 }
