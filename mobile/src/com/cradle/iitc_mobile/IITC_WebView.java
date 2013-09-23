@@ -76,7 +76,7 @@ public class IITC_WebView extends WebView {
             public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
                 if (consoleMessage.messageLevel() == ConsoleMessage.MessageLevel.ERROR) {
                     Log.d("iitcm", consoleMessage.message());
-                    mJsInterface.removeSplashScreen();
+                    ((IITC_Mobile) getContext()).setLoadingState(false);
                 }
                 return super.onConsoleMessage(consoleMessage);
             }

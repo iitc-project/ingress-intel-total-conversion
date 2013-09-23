@@ -104,8 +104,8 @@ public class IITC_JSInterface {
     }
 
     @JavascriptInterface
-    public void removeSplashScreen() {
-        Log.d("iitcm", "removing splash screen");
+    public void bootFinished() {
+        Log.d("iitcm", "...boot finished");
 
         mIitc.runOnUiThread(new Runnable() {
             @Override
