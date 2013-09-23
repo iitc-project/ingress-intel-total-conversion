@@ -111,7 +111,8 @@ public class IITC_JSInterface {
             @Override
             public void run() {
                 mIitc.setLoadingState(false);
-                mIitc.getMapSettings().updateLayers();
+                
+                mIitc.getMapSettings().onBootFinished();
             }
         });
     }
