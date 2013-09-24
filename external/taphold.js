@@ -115,7 +115,7 @@
                    .unbind((touchSupported ? "touchend"   : "mouseup"),    stopHandler)
                    .unbind((touchSupported ? "touchmove"  : "mouseleave"), leaveHandler);
             if(touchSupported)
-                $(this).bind("touchcancel", leaveHandler);
+                $(this).unbind("touchcancel", leaveHandler);
         }
     };
 })(jQuery);
