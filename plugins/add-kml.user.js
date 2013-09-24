@@ -45,7 +45,7 @@ window.plugin.overlayKML.load = function() {
     iconUrl: '@@INCLUDEIMAGE:images/marker-icon.png@@',
 
     iconSize:     [16, 24], // size of the icon
-    iconAnchor:   [16, 8], // point of the icon which will correspond to marker's location
+    iconAnchor:   [8, 24], // point of the icon which will correspond to marker's location
     popupAnchor:  [-3, 16] // point from which the popup should open relative to the iconAnchor
   });
   
