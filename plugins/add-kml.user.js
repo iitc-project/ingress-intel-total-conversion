@@ -29,28 +29,34 @@ window.plugin.overlayKML.loadExternals = function() {
   try { console.log('Loading KML JS now'); } catch(e) {}
   @@INCLUDERAW:external/KML.js@@
   try { console.log('done loading KML JS'); } catch(e) {}
-	  
+
   try { console.log('Loading togeojson JS now'); } catch(e) {}
   @@INCLUDERAW:external/togeojson.js@@
   try { console.log('done loading togeojson JS'); } catch(e) {}
 
   window.plugin.overlayKML.load();
 }
-	
-// window.plugin.overlayKML.setupCallback = function() {
-//   $('#toolbox').append(' <a onclick="window.plugin.overlayKML.load()" title="Load KML to overlay on top of Ingress Intel Map">Overlay KML</a>');
-// }
 
 window.plugin.overlayKML.load = function() {
   // Provide popup window allow user to select KML to overlay
-L.Control.FileLayerLoad.LABEL = 'O';
-L.Control.fileLayerLoad({
-	fitBounds: true,
-	layerOptions: {
-		pointToLayer: function (data, latlng) {
-		return L.marker(latlng);
-		}},
-}).addTo(map);
+	
+  L.Icon.Default.imagePath = '@@INCLUDEIMAGE:images/marker-icon.png@@';
+  var KMLIcon = L.icon({
+    iconUrl: '@@INCLUDEIMAGE:images/marker-icon.png@@',
+
+    iconSize:     [16, 24], // size of the icon
+    iconAnchor:   [8, 24], // point of the icon which will correspond to marker's location
+    popupAnchor:  [-3, 16] // point from which the popup should open relative to the iconAnchor
+  });
+  
+  L.Control.FileLayerLoad.LABEL = 'O';
+  L.Control.fileLayerLoad({
+    fitBounds: true,
+    layerOptions: {
+      pointToLayer: function (data, latlng) {
+      return L.marker(latlng, {icon: KMLIcon});
+    }},
+  }).addTo(map);
 }
 
 var setup =  function() {
