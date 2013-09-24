@@ -7,6 +7,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
@@ -264,8 +265,15 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     @Override
     public void onDrawerClosed(View drawerView) {
         super.onDrawerClosed(drawerView);
-        mIitc.invalidateOptionsMenu();
-        updateActionBar();
+
+        // delay invalidating to prevent flickering in case another drawer is opened
+        (new Handler()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mIitc.invalidateOptionsMenu();
+                updateActionBar();
+            }
+        }, 200);
     }
 
     @Override
