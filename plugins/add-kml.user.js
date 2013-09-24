@@ -49,8 +49,10 @@ window.plugin.overlayKML.load = function() {
     popupAnchor:  [-3, 16] // point from which the popup should open relative to the iconAnchor
   });
   
-  L.Control.FileLayerLoad.LABEL = '<img src="@@INCLUDEIMAGE:images/open-folder-icon_sml.png@@" alt="Open" />';
-  L.Control.fileLayerLoad({
+// Implementing a folder icon instead of default 'O' icon to open KML. Not yet useable
+//  L.Control.FileLayerLoad.LABEL = '<img src="@@INCLUDEIMAGE:images/open-folder-icon_sml.png@@" alt="Open" />';
+L.Control.FileLayerLoad.LABEL = 'O';  
+L.Control.fileLayerLoad({
     fitBounds: true,
     layerOptions: {
       pointToLayer: function (data, latlng) {
