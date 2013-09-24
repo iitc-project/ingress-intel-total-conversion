@@ -179,7 +179,7 @@ L.Draw.Polyline = L.Draw.Feature.extend({
 		TYPE: 'polyline'
 	},
 
-	Poly: L.Polyline,
+	Poly: L.GeodesicPolyline,
 
 	options: {
 		allowIntersection: true,
@@ -228,7 +228,7 @@ L.Draw.Polyline = L.Draw.Feature.extend({
 			this._markerGroup = new L.LayerGroup();
 			this._map.addLayer(this._markerGroup);
 
-			this._poly = new L.Polyline([], this.options.shapeOptions);
+			this._poly = new L.GeodesicPolyline([], this.options.shapeOptions);
 
 			this._tooltip.updateContent(this._getTooltipText());
 
@@ -564,7 +564,7 @@ L.Draw.Polygon = L.Draw.Polyline.extend({
 		TYPE: 'polygon'
 	},
 
-	Poly: L.Polygon,
+	Poly: L.GeodesicPolygon,
 
 	options: {
 		showArea: false,
@@ -997,7 +997,7 @@ L.Edit.Poly = L.Handler.extend({
 		}
 		this._markers = [];
 
-		var latlngs = this._poly._latlngs,
+		var latlngs = this._poly.getLatLngs(),
 			i, j, len, marker;
 
 		// TODO refactor holes implementation in Polygon to support it here
@@ -1012,7 +1012,7 @@ L.Edit.Poly = L.Handler.extend({
 		var markerLeft, markerRight;
 
 		for (i = 0, j = len - 1; i < len; j = i++) {
-			if (i === 0 && !(L.Polygon && (this._poly instanceof L.Polygon))) {
+			if (i === 0 && !(L.GeodesicPolygon && (this._poly instanceof L.GeodesicPolygon))) {
 				continue;
 			}
 
@@ -1077,7 +1077,7 @@ L.Edit.Poly = L.Handler.extend({
 
 	_onMarkerClick: function (e) {
 		// we want to remove the marker on click, but if latlng count < 3, polyline would be invalid
-		if (this._poly._latlngs.length < 3) { return; }
+		if (this._poly.getLatLngs().length < 3) { return; }
 
 		var marker = e.target;
 
@@ -2425,7 +2425,7 @@ L.EditToolbar.Edit = L.Handler.extend({
 
 		if (!this._uneditedLayerProps[id]) {
 			// Polyline, Polygon or Rectangle
-			if (layer instanceof L.Polyline || layer instanceof L.Polygon || layer instanceof L.Rectangle) {
+			if (layer instanceof L.GeodesicPolyline || layer instanceof L.GeodesicPolygon || layer instanceof L.Rectangle) {
 				this._uneditedLayerProps[id] = {
 					latlngs: L.LatLngUtil.cloneLatLngs(layer.getLatLngs())
 				};
@@ -2447,7 +2447,7 @@ L.EditToolbar.Edit = L.Handler.extend({
 		layer.edited = false;
 		if (this._uneditedLayerProps.hasOwnProperty(id)) {
 			// Polyline, Polygon or Rectangle
-			if (layer instanceof L.Polyline || layer instanceof L.Polygon || layer instanceof L.Rectangle) {
+			if (layer instanceof L.GeodesicPolyline || layer instanceof L.GeodesicPolygon || layer instanceof L.Rectangle) {
 				layer.setLatLngs(this._uneditedLayerProps[id].latlngs);
 			} else if (layer instanceof L.Circle) {
 				layer.setLatLng(this._uneditedLayerProps[id].latlng);
@@ -2514,7 +2514,7 @@ L.EditToolbar.Edit = L.Handler.extend({
 				layer.options.previousOptions = layer.options;
 
 				// Make sure that Polylines are not filled
-				if (!(layer instanceof L.Circle) && !(layer instanceof L.Polygon) && !(layer instanceof L.Rectangle)) {
+				if (!(layer instanceof L.Circle) && !(layer instanceof L.GeodesicPolygon) && !(layer instanceof L.Rectangle)) {
 					pathOptions.fill = false;
 				}
 
