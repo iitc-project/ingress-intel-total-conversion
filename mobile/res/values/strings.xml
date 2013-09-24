@@ -62,7 +62,10 @@
         • Layers/Highlights: swipe from the right edge of your screen (or click the layer-chooser icon in the ActionBar)
         to evoke the Layer Drawer]]>
     </string>
-
+    <string name="notice_info">
+        <![CDATA[Hint: The info screen will open if you tap and hold a portal for a second.]]>
+    </string>
+    
     <string name="pref_ui_cat">UI</string>
     <string name="pref_misc_cat">Misc</string>
     <string name="pref_plugins">IITC Plugins</string>

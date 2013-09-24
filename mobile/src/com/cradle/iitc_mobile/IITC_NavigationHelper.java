@@ -94,6 +94,10 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         COMPACT, DEBUG, FACTION, FULL, INFO, MAP, PUBLIC
     }
 
+    public static final int NOTICE_DRAWERS = 1 << 0;
+    public static final int NOTICE_INFO = 1 << 1;
+    // next one would be 1<<2; (this results in 1,2,4,8,...)
+
     private IITC_Mobile mIitc;
     private ActionBar mActionBar;
     private SharedPreferences mPrefs;
@@ -130,16 +134,28 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
 
         onPrefChanged(); // also calls updateActionBar()
 
-        showNotice();
+        showNotice(NOTICE_DRAWERS);
     }
 
-    private void showNotice() {
-        if (mPrefs.getBoolean("pref_drawers_seen", false))
+    private void showNotice(final int which) {
+        if ((mPrefs.getInt("pref_messages", 0) & which) != 0)
             return;
+
+        String text;
+        switch (which) {
+            case NOTICE_DRAWERS:
+                text = mIitc.getText(R.string.notice_drawers).toString();
+                break;
+            case NOTICE_INFO:
+                text = mIitc.getText(R.string.notice_info).toString();
+                break;
+            default:
+                return;
+        }
 
         TextView message = new TextView(mIitc);
         message.setPadding(20, 20, 20, 20);
-        message.setText(Html.fromHtml(mIitc.getText(R.string.notice_drawers).toString()));
+        message.setText(Html.fromHtml(text));
 
         AlertDialog dialog = new AlertDialog.Builder(mIitc)
                 .setView(message)
@@ -154,9 +170,12 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         dialog.setOnDismissListener(new OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
+                int value = mPrefs.getInt("pref_messages", 0);
+                value |= which;
+
                 mPrefs
                         .edit()
-                        .putBoolean("pref_drawers_seen", true)
+                        .putInt("pref_messages", value)
                         .commit();
             }
         });
@@ -255,6 +274,10 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Pane item = mNavigationAdapter.getItem(position);
         mIitc.switchToPane(item);
+
+        if (item == Pane.INFO)
+            showNotice(NOTICE_INFO);
+
         mDrawerLayout.closeDrawer(mDrawerLeft);
     }
 
