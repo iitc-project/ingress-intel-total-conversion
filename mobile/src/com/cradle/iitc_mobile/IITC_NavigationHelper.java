@@ -219,8 +219,11 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
                 mActionBar.setTitle(getPaneTitle(mPane));
         }
 
-        if (!isDrawerOpened() && (mDesktopMode || mPane == Pane.MAP))
-            mActionBar.setSubtitle(mHighlighter);
+        if (mHighlighter != null && !isDrawerOpened() && (mDesktopMode || mPane == Pane.MAP))
+            if (!mActionBar.equals("No Highlights"))
+                mActionBar.setSubtitle(mHighlighter);
+            else
+                mActionBar.setSubtitle(null);
         else
             mActionBar.setSubtitle(null);
 
