@@ -137,8 +137,8 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
     public void addPortalHighlighter(String name) {
         mHighlighters.add(name);
 
-        if (name.equals(mActiveHighlighter))
-            setActiveHighlighter(name);
+        // to select active highlighter. must be called every time because of sorting
+        setActiveHighlighter(mActiveHighlighter);
     }
 
     public void onBootFinished() {
