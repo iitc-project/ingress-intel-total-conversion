@@ -299,7 +299,8 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     }
 
     public void openRightDrawer() {
-        mDrawerLayout.openDrawer(mDrawerRight);
+        if (mDrawerLayout.getDrawerLockMode(mDrawerRight) == DrawerLayout.LOCK_MODE_UNLOCKED)
+            mDrawerLayout.openDrawer(mDrawerRight);
     }
 
     public void reset() {
