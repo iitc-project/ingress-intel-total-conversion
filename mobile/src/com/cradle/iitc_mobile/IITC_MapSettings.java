@@ -177,7 +177,7 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         if (mLoading) return;
-        
+
         if (parent.equals(mSpinnerHighlighter)) {
             String name = mHighlighters.getItem(position);
             mIitc.getWebView().loadUrl("javascript: window.changePortalHighlights('" + name + "')");
@@ -201,6 +201,8 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
         mBaseLayers.clear();
         mOverlayLayers.clear();
 
+        mIitc.getNavigationHelper().setHighlighter(null);
+
         mLoading = true;
     }
 
@@ -210,6 +212,8 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
         int position = mHighlighters.getPosition(mActiveHighlighter);
         if (position >= 0 && position < mHighlighters.getCount())
             mSpinnerHighlighter.setSelection(position);
+
+        mIitc.getNavigationHelper().setHighlighter(name);
     }
 
     public void setLayers(String base_layer, String overlay_layer) {

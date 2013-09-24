@@ -111,6 +111,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     private boolean mIsLoading;
     private boolean mHideInFullscreen = false;
     private Pane mPane = Pane.MAP;
+    private String mHighlighter = null;
 
     public IITC_NavigationHelper(IITC_Mobile activity, ActionBar bar) {
         super(activity, (DrawerLayout) activity.findViewById(R.id.drawer_layout),
@@ -217,6 +218,11 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
                 mActionBar.setTitle(getPaneTitle(mPane));
         }
 
+        if (!isDrawerOpened() && (mDesktopMode || mPane == Pane.MAP))
+            mActionBar.setSubtitle(mHighlighter);
+        else
+            mActionBar.setSubtitle(null);
+
         if (mFullscreen && mHideInFullscreen)
             mActionBar.hide();
         else
@@ -314,6 +320,11 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
             Toast.makeText(mIitc, "Press back button to exit fullscreen", Toast.LENGTH_SHORT).show();
         }
 
+        updateActionBar();
+    }
+
+    public void setHighlighter(String name) {
+        mHighlighter = name;
         updateActionBar();
     }
 
