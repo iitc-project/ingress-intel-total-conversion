@@ -1,3 +1,5 @@
+Forked to test a plugin to add a KML overlay over the map, chosen by file
+
 ingress intel total conversion (IITC)
 =====================================
 
