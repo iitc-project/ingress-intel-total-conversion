@@ -26,7 +26,7 @@
 * 0.0.10: Fixed persistent css problem with alert
 * 0.0.9 : bugs hunt
 * 0.0.8 : Aborted to avoid problems with Niantic (export portals informations as csv or kml file)
-* 0.0.7 : more informations avalaible via tooltips (who deployed, energy, ...), new E/AP column 
+* 0.0.7 : more informations avalaible via tooltips (who deployed, energy, ...), new E/AP column
 * 0.0.6 : Add power charge information into a new column + bugfix
 * 0.0.5 : Filter portals by clicking on 'All portals', 'Res Portals' or 'Enl Portals'
 * 0.0.4 : Add link to portals name, one click to display full information in portal panel, double click to zoom on portal, hover to show address
@@ -38,13 +38,13 @@
 * Portal link code from xelio - iitc: AP List - https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/ap-list.user.js
 *
 * todo : export as GPX, Open in Google Maps, more statistics in the header, what else ?
-*/ 
+*/
 
 // use own namespace for plugin
 window.plugin.portalslist = function() {};
-    
+
 window.plugin.portalslist.listPortals = []; // structure : name, team, level, resonators = Array, Shields = Array, APgain, Age
-window.plugin.portalslist.sortOrder=-1;    
+window.plugin.portalslist.sortOrder=-1;
 window.plugin.portalslist.enlP = 0;
 window.plugin.portalslist.resP = 0;
 window.plugin.portalslist.filter=0;
@@ -93,7 +93,7 @@ window.plugin.portalslist.getPortals = function() {
 
 
     //get resonators informations
-    var resonators = []; // my local resonator array : reso level, reso deployed by, distance to portal, energy total, max 
+    var resonators = []; // my local resonator array : reso level, reso deployed by, distance to portal, energy total, max
     var energy = 0;
     var maxenergy=0;
     $.each(portal.options.details.resonatorArray.resonators, function(ind, reso) {
@@ -113,36 +113,36 @@ window.plugin.portalslist.getPortals = function() {
         if (mod) {
             switch (mod.displayName) {
                 case 'Portal Shield':
-    				modShortName = 'S';		
+    				modShortName = 'S';
             		break;
                 case 'Force Amp':
-					modShortName = 'FA';		
+					modShortName = 'FA';
             		break;
                 case 'Link Amp':
-					modShortName = 'LA';		
-            		break;  
+					modShortName = 'LA';
+            		break;
                 case 'Heat Sink':
-					modShortName = 'H';		
+					modShortName = 'H';
             		break;
                 case 'Multi-hack':
-					modShortName = 'M';		
-            		break;  
+					modShortName = 'M';
+            		break;
                 case 'Turret':
-					modShortName = 'T';		
-            		break;  
+					modShortName = 'T';
+            		break;
                 default:
-                    modShortName = '';		
-            		break;  
+                    modShortName = '';
+            		break;
             }
         if (modShortName === '') {
             mods[ind] = ['', '', ''];
             } else {
 		if ((modShortName === 'S') &&
-		((mod.rarity=='COMMON' && mod.stats.MITIGATION == 6) || 
+		((mod.rarity=='COMMON' && mod.stats.MITIGATION == 6) ||
 		(mod.rarity=='RARE' && mod.stats.MITIGATION == 8) ||
 		(mod.rarity=='VERY_RARE' && mod.stats.MITIGATION == 10)))
 			modShortName=modShortName+'!';
-			mods[ind] = [mod.rarity, getPlayerName(mod.installingUser), modShortName, mod.displayName];            
+			mods[ind] = [mod.rarity, getPlayerName(mod.installingUser), modShortName, mod.displayName];
         }
       }else { mods[ind] = ['', '', '']; }
     });
@@ -211,12 +211,12 @@ window.plugin.portalslist.displayPL = function() {
   $(document).on('click.portalslist', '#portalslist .filterEnl', function() {
     $('#portalslist').html(window.plugin.portalslist.portalTable($(this).data('sort'),window.plugin.portalslist.sortOrder,2));
   });
-  
+
   //debug tools
   //end = new Date().getTime();
   //console.log('***** end : ' + end + ' and Elapse : ' + (end - start));
  }
-    
+
 window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   // sortOrder <0 ==> desc, >0 ==> asc, i use sortOrder * -1 to change the state
   window.plugin.portalslist.filter=filter;
@@ -310,6 +310,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
 
     if (filter === 0 || filter === portal.team) {
       html += '<tr class="' + (portal.team === 1 ? 'res' : (portal.team === 2 ? 'enl' : 'neutral')) + '">'
+      + '<td style="">' + ind + '</td>'
       + '<td style="">' + window.plugin.portalslist.getPortalLink(portal.portal, portal.guid) + '</td>'
       + '<td class="L' + Math.floor(portal.level) +'">' + portal.level + '</td>'
       + '<td style="text-align:center;">' + portal.team + '</td>';
@@ -336,6 +337,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
       + '<td>' + portal.APgain + '</td>'
       + '<td>' + portal.EAP + '</td>'
       + '<td style="cursor:help;" title="' + portal.age_string_long  + '">' + portal.age_string_short + '</td>';
+      + '<td style="">' + ind + '</td>'
 
       html+= '</tr>';
     }
@@ -354,8 +356,8 @@ window.plugin.portalslist.stats = function(sortBy) {
   //console.log('** stats');
   var html = '<table><tr>'
   + '<td class="filterAll" style="cursor:pointer"  onclick="window.plugin.portalslist.portalTable(\'level\',-1,0)"><a href=""></a>All Portals : (click to filter)</td><td class="filterAll">' + window.plugin.portalslist.listPortals.length + '</td>'
-  + '<td class="filterRes" style="cursor:pointer" class="sorted" onclick="window.plugin.portalslist.portalTable(\'level\',-1,1)">Resistance Portals : </td><td class="filterRes">' + window.plugin.portalslist.resP +' (' + Math.floor(window.plugin.portalslist.resP/window.plugin.portalslist.listPortals.length*100) + '%)</td>' 
-  + '<td class="filterEnl" style="cursor:pointer" class="sorted" onclick="window.plugin.portalslist.portalTable(\'level\',-1,2)">Enlightened Portals : </td><td class="filterEnl">'+ window.plugin.portalslist.enlP +' (' + Math.floor(window.plugin.portalslist.enlP/window.plugin.portalslist.listPortals.length*100) + '%)</td>'  
+  + '<td class="filterRes" style="cursor:pointer" class="sorted" onclick="window.plugin.portalslist.portalTable(\'level\',-1,1)">Resistance Portals : </td><td class="filterRes">' + window.plugin.portalslist.resP +' (' + Math.floor(window.plugin.portalslist.resP/window.plugin.portalslist.listPortals.length*100) + '%)</td>'
+  + '<td class="filterEnl" style="cursor:pointer" class="sorted" onclick="window.plugin.portalslist.portalTable(\'level\',-1,2)">Enlightened Portals : </td><td class="filterEnl">'+ window.plugin.portalslist.enlP +' (' + Math.floor(window.plugin.portalslist.enlP/window.plugin.portalslist.listPortals.length*100) + '%)</td>'
   + '</tr>'
   + '</table>';
   return html;
