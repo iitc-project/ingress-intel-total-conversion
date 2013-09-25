@@ -2,7 +2,7 @@
 // @id             iitc-plugin-farms@949
 // @name           IITC plugin: Show farms by level
 // @category       Info
-// @version        1.3.0@@DATETIMEVERSION@@
+// @version        1.4.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
