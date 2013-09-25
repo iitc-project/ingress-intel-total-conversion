@@ -2,7 +2,7 @@
 // @id             iitc-plugin-draw-tools@breunigs
 // @name           IITC plugin: draw tools
 // @category       Layer
-// @version        0.5.0.@@DATETIMEVERSION@@
+// @version        0.5.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -35,7 +35,7 @@ window.plugin.drawTools.loadExternals = function() {
 window.plugin.drawTools.setOptions = function() {
   window.plugin.drawTools.lineOptions = {
     stroke: true,
-    color: '#f06eaa',
+    color: '#a24ac3',
     weight: 4,
     opacity: 0.5,
     fill: false,
@@ -44,7 +44,7 @@ window.plugin.drawTools.setOptions = function() {
 
   window.plugin.drawTools.polygonOptions = {
     stroke: true,
-    color: '#f06eaa',
+    color: '#a24ac3',
     weight: 4,
     opacity: 0.5,
     fill: true,
