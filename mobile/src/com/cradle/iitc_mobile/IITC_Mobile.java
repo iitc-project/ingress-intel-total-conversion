@@ -18,7 +18,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,10 +29,12 @@ import android.webkit.WebView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Locale;
+import java.util.Stack;
 
 public class IITC_Mobile extends Activity {
 
@@ -52,36 +53,16 @@ public class IITC_Mobile extends Activity {
     private boolean mDesktopMode = false;
     private boolean mAdvancedMenu = false;
     private boolean mReloadNeeded = false;
-    private final ArrayList<String> mDialogStack = new ArrayList<String>();
+    private final Stack<String> mDialogStack = new Stack<String>();
     private SharedPreferences mSharedPrefs;
-    private IITC_ActionBarHelper mActionBarHelper;
+    private IITC_NavigationHelper mNavigationHelper;
+    private IITC_MapSettings mMapSettings;
 
     // Used for custom back stack handling
-    private final ArrayList<Integer> mBackStack = new ArrayList<Integer>();
+    private final Stack<Pane> mBackStack = new Stack<IITC_NavigationHelper.Pane>();
     private boolean mBackStackPush = true;
-    private int mCurrentPane = android.R.id.home;
+    private Pane mCurrentPane = Pane.MAP;
     private boolean mBackButtonPressed = false;
-
-    public static final SparseArray<String> PANE_TITLES = new SparseArray<String>();
-    public static final HashMap<String, Integer> PANES = new HashMap<String, Integer>();
-
-    static {
-        PANES.put("map", android.R.id.home);
-        PANES.put("info", R.id.menu_info);
-        PANES.put("full", R.id.menu_full);
-        PANES.put("compact", R.id.menu_compact);
-        PANES.put("public", R.id.menu_public);
-        PANES.put("faction", R.id.menu_faction);
-        PANES.put("debug", R.id.menu_debug);
-
-        // No need to declare android.R.id.home - that title is default
-        PANE_TITLES.append(R.id.menu_info, "Info");
-        PANE_TITLES.append(R.id.menu_full, "Full");
-        PANE_TITLES.append(R.id.menu_compact, "Compact");
-        PANE_TITLES.append(R.id.menu_public, "Public");
-        PANE_TITLES.append(R.id.menu_faction, "Faction");
-        PANE_TITLES.append(R.id.menu_debug, "Debug");
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +75,9 @@ public class IITC_Mobile extends Activity {
         mIitcWebView = (IITC_WebView) findViewById(R.id.iitc_webview);
 
         // pass ActionBar to helper because we deprecated getActionBar
-        mActionBarHelper = new IITC_ActionBarHelper(this, super.getActionBar());
+        mNavigationHelper = new IITC_NavigationHelper(this, super.getActionBar());
+
+        mMapSettings = new IITC_MapSettings(this);
 
         // do something if user changed something in the settings
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -104,24 +87,27 @@ public class IITC_Mobile extends Activity {
                     SharedPreferences sharedPreferences, String key) {
                 if (key.equals("pref_force_desktop")) {
                     mDesktopMode = sharedPreferences.getBoolean("pref_force_desktop", false);
-                    mActionBarHelper.onPrefChanged();
-                    invalidateOptionsMenu();
+                    mNavigationHelper.onPrefChanged();
                 }
                 if (key.equals("pref_user_loc"))
                     mIsLocEnabled = sharedPreferences.getBoolean("pref_user_loc",
                             false);
                 if (key.equals("pref_fullscreen_actionbar")) {
-                    mActionBarHelper.onPrefChanged();
+                    mNavigationHelper.onPrefChanged();
                     return;
                 }
                 if (key.equals("pref_advanced_menu")) {
                     mAdvancedMenu = sharedPreferences.getBoolean("pref_advanced_menu", false);
+                    mNavigationHelper.setDebugMode(mAdvancedMenu);
                     invalidateOptionsMenu();
                     // no reload needed
                     return;
                 }
-                // no reload needed
-                if (key.equals("pref_press_twice_to_exit") || key.equals("pref_share_selected_tab"))
+
+                if (key.equals("pref_press_twice_to_exit")
+                        || key.equals("pref_share_selected_tab")
+                        || key.equals("pref_messages"))
+                    // no reload needed
                     return;
 
                 mReloadNeeded = true;
@@ -224,8 +210,8 @@ public class IITC_Mobile extends Activity {
                     (SearchView) mSearchMenuItem.getActionView();
             searchView.setQuery(query, false);
             searchView.clearFocus();
-            mActionBarHelper.switchTo(android.R.id.home);
-            backStackUpdate(android.R.id.home);
+
+            switchToPane(Pane.MAP);
             mIitcWebView.loadUrl("javascript:search('" + query + "');");
             return;
         }
@@ -318,45 +304,63 @@ public class IITC_Mobile extends Activity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
+        mNavigationHelper.onConfigurationChanged(newConfig);
+
         Log.d("iitcm", "configuration changed...restoring...reset idleTimer");
         mIitcWebView.loadUrl("javascript: window.idleTime = 0");
         mIitcWebView.loadUrl("javascript: window.renderUpdateStatus()");
     }
 
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mNavigationHelper.onPostCreate(savedInstanceState);
+    }
+
     // we want a self defined behavior for the back button
     @Override
     public void onBackPressed() {
-        // first kill all open iitc dialogs
+        // exit fullscreen mode if it is enabled and action bar is disabled or the back stack is empty
+        if (mFullscreenMode && (mBackStack.isEmpty() || mNavigationHelper.hideInFullscreen())) {
+            toggleFullscreen();
+            return;
+        }
+
+        // close drawer if opened
+        if (mNavigationHelper.isDrawerOpened()) {
+            mNavigationHelper.closeDrawers();
+            return;
+        }
+
+        // kill all open iitc dialogs
         if (!mDialogStack.isEmpty()) {
-            int last = mDialogStack.size() - 1;
-            String id = mDialogStack.get(last);
+            String id = mDialogStack.pop();
             mIitcWebView.loadUrl("javascript: " +
                     "var selector = $(window.DIALOGS['" + id + "']); " +
                     "selector.dialog('close'); " +
                     "selector.remove();");
             return;
         }
-        // exit fullscreen mode if it is enabled and action bar is disabled
-        // or the back stack is empty
-        if (mFullscreenMode && (mBackStack.isEmpty() || mActionBarHelper.hideInFullscreen())) {
-            this.toggleFullscreen();
-        } else if (!mBackStack.isEmpty()) {
-            // Pop last item from backstack and pretend the relevant menu item was clicked
+
+        // Pop last item from backstack and pretend the relevant menu item was clicked
+        if (!mBackStack.isEmpty()) {
             backStackPop();
+            return;
+        }
+
+        if (mBackButtonPressed || !mSharedPrefs.getBoolean("pref_press_twice_to_exit", false)) {
+            super.onBackPressed();
+            return;
         } else {
-            if (mBackButtonPressed || !mSharedPrefs.getBoolean("pref_press_twice_to_exit", false))
-                super.onBackPressed();
-            else {
-                mBackButtonPressed = true;
-                Toast.makeText(this, "Press twice to exit", Toast.LENGTH_SHORT).show();
-                // reset back button after 2 seconds
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mBackButtonPressed = false;
-                    }
-                }, 2000);
-            }
+            mBackButtonPressed = true;
+            Toast.makeText(this, "Press twice to exit", Toast.LENGTH_SHORT).show();
+            // reset back button after 2 seconds
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mBackButtonPressed = false;
+                }
+            }, 2000);
         }
     }
 
@@ -364,31 +368,30 @@ public class IITC_Mobile extends Activity {
         // shouldn't be called when back stack is empty
         // catch wrong usage
         if (mBackStack.isEmpty()) {
-            // Empty back stack means we should be at home (ie map) screen
-            mActionBarHelper.switchTo(android.R.id.home);
-            mIitcWebView.loadUrl("javascript: window.show('map');");
-            return;
+            mBackStack.push(Pane.MAP);
         }
-        int index = mBackStack.size() - 1;
-        int itemId = mBackStack.remove(index);
+
+        Pane pane = mBackStack.pop();
         mBackStackPush = false;
-        handleMenuItemSelected(itemId);
+        switchToPane(pane);
     }
 
-    public void backStackUpdate(int itemId) {
+    public void setCurrentPane(Pane pane) {
         // ensure no double adds
-        if (itemId == mCurrentPane) return;
-        if (itemId == android.R.id.home) {
-            mBackStack.clear();
-            mBackStackPush = true;
-        } else {
-            if (mBackStackPush)
-                mBackStack.add(mCurrentPane);
-            else
-                mBackStackPush = true;
-        }
+        if (pane == mCurrentPane) return;
 
-        mCurrentPane = itemId;
+        if (mBackStackPush)
+            mBackStack.push(mCurrentPane);
+        else
+            mBackStackPush = true;
+
+        mCurrentPane = pane;
+        mNavigationHelper.switchTo(pane);
+    }
+
+    public void switchToPane(Pane pane) {
+        String name = pane.name().toLowerCase(Locale.getDefault());
+        mIitcWebView.loadUrl("javascript: window.show('" + name + "');");
     }
 
     @Override
@@ -397,30 +400,47 @@ public class IITC_Mobile extends Activity {
         getMenuInflater().inflate(R.menu.main, menu);
         // Get the SearchView and set the searchable configuration
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        this.mSearchMenuItem = menu.findItem(R.id.menu_search);
+        mSearchMenuItem = menu.findItem(R.id.menu_search);
         final SearchView searchView =
                 (SearchView) mSearchMenuItem.getActionView();
         // Assumes current activity is the searchable activity
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
-        // enable/disable mDesktopMode menu
-        enableDesktopUI(menu);
-        enableAdvancedMenu(menu);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        final int itemId = item.getItemId();
-        boolean result = handleMenuItemSelected(itemId);
-        return result || super.onOptionsItemSelected(item);
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (mNavigationHelper != null) {
+            boolean visible = !mNavigationHelper.isDrawerOpened();
+
+            for (int i = 0; i < menu.size(); i++)
+                if (menu.getItem(i).getItemId() != R.id.action_settings) {
+                    // clear cookies is part of the advanced menu
+                    if (menu.getItem(i).getItemId() == R.id.menu_clear_cookies) {
+                        menu.getItem(i).setVisible(mAdvancedMenu & visible);
+                    } else {
+                        menu.getItem(i).setVisible(visible);
+                    }
+                }
+        }
+
+        return super.onPrepareOptionsMenu(menu);
     }
 
-    public boolean handleMenuItemSelected(int itemId) {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (mNavigationHelper.onOptionsItemSelected(item))
+            return true;
+
+        // Handle item selection
+        final int itemId = item.getItemId();
+
         switch (itemId) {
             case android.R.id.home:
-                mIitcWebView.loadUrl("javascript: window.show('map');");
+                mBackStack.clear();
+                mBackStackPush = false;
+                switchToPane(Pane.MAP);
                 return true;
             case R.id.reload_button:
                 reloadIITC();
@@ -429,14 +449,10 @@ public class IITC_Mobile extends Activity {
                 toggleFullscreen();
                 return true;
             case R.id.layer_chooser:
-                // Force map view to handle potential issue with back stack
-                if (!mBackStack.isEmpty() && mCurrentPane != android.R.id.home)
-                    mIitcWebView.loadUrl("javascript: window.show('map');");
-                // the getLayers function calls the setLayers method of IITC_JSInterface
-                mIitcWebView.loadUrl("javascript: window.layerChooser.getLayers()");
+                mNavigationHelper.openRightDrawer();
                 return true;
             case R.id.locate: // get the users current location and focus it on map
-                mIitcWebView.loadUrl("javascript: window.show('map');");
+                switchToPane(Pane.MAP);
                 // get location from network by default
                 if (!mIsLocEnabled) {
                     mIitcWebView.loadUrl("javascript: " +
@@ -455,24 +471,6 @@ public class IITC_Mobile extends Activity {
                         .getIITCVersion());
                 startActivity(intent);
                 return true;
-            case R.id.menu_info:
-                mIitcWebView.loadUrl("javascript: window.show('info');");
-                return true;
-            case R.id.menu_full:
-                mIitcWebView.loadUrl("javascript: window.show('full');");
-                return true;
-            case R.id.menu_compact:
-                mIitcWebView.loadUrl("javascript: window.show('compact');");
-                return true;
-            case R.id.menu_public:
-                mIitcWebView.loadUrl("javascript: window.show('public');");
-                return true;
-            case R.id.menu_faction:
-                mIitcWebView.loadUrl("javascript: window.show('faction');");
-                return true;
-            case R.id.menu_debug:
-                mIitcWebView.loadUrl("javascript: window.show('debug')");
-                return true;
             case R.id.menu_clear_cookies:
                 CookieManager cm = CookieManager.getInstance();
                 cm.removeAllCookie();
@@ -483,10 +481,12 @@ public class IITC_Mobile extends Activity {
     }
 
     public void reloadIITC() {
-        mActionBarHelper.reset();
+        mNavigationHelper.reset();
+        mMapSettings.reset();
         mBackStack.clear();
+        mBackStackPush = true;
         // iitc starts on map after reload
-        mCurrentPane = android.R.id.home;
+        mCurrentPane = Pane.MAP;
         loadUrl(mIntelUrl);
         mReloadNeeded = false;
     }
@@ -512,7 +512,7 @@ public class IITC_Mobile extends Activity {
     // inject the iitc-script and load the intel url
     // plugins are injected onPageFinished
     public void loadUrl(String url) {
-        showSplashScreen();
+        setLoadingState(true);
         url = addUrlParam(url);
         loadIITC();
         mIitcWebView.loadUrl(url);
@@ -534,7 +534,7 @@ public class IITC_Mobile extends Activity {
 
     public void toggleFullscreen() {
         mFullscreenMode = !mFullscreenMode;
-        mActionBarHelper.setFullscreen(mFullscreenMode);
+        mNavigationHelper.setFullscreen(mFullscreenMode);
 
         // toggle notification bar
         WindowManager.LayoutParams attrs = getWindow().getAttributes();
@@ -584,18 +584,7 @@ public class IITC_Mobile extends Activity {
     public void loginSucceeded() {
         // garbage collection
         mLogin = null;
-        showSplashScreen();
-    }
-
-    // disable/enable some menu buttons...
-    public void enableDesktopUI(Menu menu) {
-        MenuItem item;
-        item = menu.findItem(R.id.menu_chat);
-        item.setVisible(!mDesktopMode);
-        item = menu.findItem(R.id.menu_info);
-        item.setVisible(!mDesktopMode);
-        item = menu.findItem(R.id.menu_debug);
-        item.setVisible(!mDesktopMode);
+        setLoadingState(true);
     }
 
     // remove dialog and add it back again
@@ -604,37 +593,35 @@ public class IITC_Mobile extends Activity {
     public void setFocusedDialog(String id) {
         Log.d("iitcm", "Dialog " + id + " focused");
         mDialogStack.remove(id);
-        mDialogStack.add(id);
+        mDialogStack.push(id);
     }
 
     // called by the javascript interface
     public void dialogOpened(String id, boolean open) {
         if (open) {
             Log.d("iitcm", "Dialog " + id + " added");
-            mDialogStack.add(id);
+            mDialogStack.push(id);
         } else {
             Log.d("iitcm", "Dialog " + id + " closed");
             mDialogStack.remove(id);
         }
     }
 
-    public void showSplashScreen() {
-        if (!mSharedPrefs.getBoolean("pref_disable_splash", false)) {
+    public void setLoadingState(boolean isLoading) {
+        mNavigationHelper.setLoadingState(isLoading);
+
+        if (isLoading && !mSharedPrefs.getBoolean("pref_disable_splash", false)) {
             findViewById(R.id.iitc_webview).setVisibility(View.GONE);
             findViewById(R.id.imageLoading).setVisibility(View.VISIBLE);
+        } else {
+            findViewById(R.id.iitc_webview).setVisibility(View.VISIBLE);
+            findViewById(R.id.imageLoading).setVisibility(View.GONE);
         }
     }
 
-    public void enableAdvancedMenu(Menu menu) {
-        MenuItem item;
-        item = menu.findItem(R.id.menu_debug);
-        item.setVisible(mAdvancedMenu);
-        item = menu.findItem(R.id.menu_clear_cookies);
-        item.setVisible(mAdvancedMenu);
-    }
-
     /**
-     * @deprecated ActionBar related stuff should be handled by ActionBarHelper
+     * @deprecated ActionBar related stuff should be handled by IITC_NavigationHelper
+     * @see getNavigationHelper()
      */
     @Deprecated
     @Override
@@ -642,7 +629,11 @@ public class IITC_Mobile extends Activity {
         return super.getActionBar();
     }
 
-    public IITC_ActionBarHelper getActionBarHelper() {
-        return mActionBarHelper;
+    public IITC_NavigationHelper getNavigationHelper() {
+        return mNavigationHelper;
+    }
+
+    public IITC_MapSettings getMapSettings() {
+        return mMapSettings;
     }
 }

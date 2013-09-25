@@ -26,7 +26,7 @@
             android:key="pref_fullscreen_actionbar"
             android:title="@string/pref_fullscreen_actionbar"
             android:summary="@string/pref_fullscreen_actionbar_sum"
-            android:defaultValue="false" />
+            android:defaultValue="true" />
         <CheckBoxPreference
 	        android:key="pref_force_desktop"
             android:title="@string/pref_force_desktop"
