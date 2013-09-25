@@ -334,6 +334,8 @@ L.Draw.Polyline = L.Draw.Feature.extend({
 		var latlng = e.target.getLatLng(),
 			markerCount = this._markers.length;
 
+                if (this.options.snapPoint) latlng = this.options.snapPoint(latlng);
+
 		if (markerCount > 0 && !this.options.allowIntersection && this._poly.newLatLngIntersects(latlng)) {
 			this._showErrorTooltip();
 			return;
@@ -411,6 +413,8 @@ L.Draw.Polyline = L.Draw.Feature.extend({
 	},
 
 	_drawGuide: function (pointA, pointB) {
+//TODO: rewrite this to use a regular leaflet line with a dashpattern!
+
 		var length = Math.floor(Math.sqrt(Math.pow((pointB.x - pointA.x), 2) + Math.pow((pointB.y - pointA.y), 2))),
 			i,
 			fraction,
@@ -716,6 +720,8 @@ L.Draw.SimpleShape = L.Draw.Feature.extend({
 		this._isDrawing = true;
 		this._startLatLng = e.latlng;
 
+                if (this.options.snapPoint) this._startLatLng = this.options.snapPoint(this._startLatLng);
+
 		L.DomEvent
 			.on(document, 'mouseup', this._onMouseUp, this)
 			.preventDefault(e.originalEvent);
@@ -936,6 +942,8 @@ L.Draw.Marker = L.Draw.Feature.extend({
 	},
 
 	_onClick: function () {
+                if (this.options.snapPoint) this._marker.setLatLng(this.options.snapPoint(this._marker.getLatLng()));
+
 		this._fireCreatedEvent();
 
 		this.disable();

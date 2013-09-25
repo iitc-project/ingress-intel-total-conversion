@@ -74,6 +74,7 @@ window.plugin.drawTools.addDrawControl = function() {
           + 'point of the line (a small white rectangle) to\n'
           + 'finish. Double clicking also works.',
         shapeOptions: window.plugin.drawTools.polygonOptions,
+        snapPoint: window.plugin.drawTools.getSnapLatLng,
       },
 
       polyline: {
@@ -84,6 +85,7 @@ window.plugin.drawTools.addDrawControl = function() {
           + 'point of the line (a small white rectangle) to\n'
           + 'finish. Double clicking also works.',
         shapeOptions: window.plugin.drawTools.lineOptions,
+        snapPoint: window.plugin.drawTools.getSnapLatLng,
       },
 
       circle: {
@@ -93,6 +95,7 @@ window.plugin.drawTools.addDrawControl = function() {
           + 'the mouse to control the radius. Release the mouse\n'
           + 'to finish.',
         shapeOptions: window.plugin.drawTools.polygonOptions,
+        snapPoint: window.plugin.drawTools.getSnapLatLng,
       },
 
       marker: {
@@ -100,6 +103,8 @@ window.plugin.drawTools.addDrawControl = function() {
           + 'Click on the button, then click on the map where\n'
           + 'you want the marker to appear.',
         shapeOptions: window.plugin.drawTools.markerOptions,
+        snapPoint: window.plugin.drawTools.getSnapLatLng,
+        repeatMode: true,
       },
 
     },
@@ -124,11 +129,11 @@ window.plugin.drawTools.addDrawControl = function() {
 }
 
 
-// given a container point it tries to find the most suitable portal to
+// given a point it tries to find the most suitable portal to
 // snap to. It takes the CircleMarker’s radius and weight into account.
 // Will return null if nothing to snap to or a LatLng instance.
-window.plugin.drawTools.getSnapLatLng = function(containerPoint) {
-// TODO: use this function again, if possible
+window.plugin.drawTools.getSnapLatLng = function(unsnappedLatLng) {
+  var containerPoint = map.latLngToContainerPoint(unsnappedLatLng);
   var candidates = [];
   $.each(window.portals, function(guid, portal) {
     var ll = portal.getLatLng();
@@ -139,7 +144,7 @@ window.plugin.drawTools.getSnapLatLng = function(containerPoint) {
     candidates.push([dist, ll]);
   });
 
-  if(candidates.length === 0) return;
+  if(candidates.length === 0) return unsnappedLatLng;
   candidates = candidates.sort(function(a, b) { return a[0]-b[0]; });
   return candidates[0][1];
 }
