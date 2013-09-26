@@ -12,6 +12,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Html;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -220,7 +221,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         }
 
         boolean mapVisible = mDesktopMode || mPane == Pane.MAP;
-        if ("No Highlights".equals(mHighlighter) || isDrawerOpened() || !mapVisible)
+        if ("No Highlights".equals(mHighlighter) || isDrawerOpened() || mIsLoading || !mapVisible)
             mActionBar.setSubtitle(null);
         else
             mActionBar.setSubtitle(mHighlighter);
@@ -294,6 +295,14 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
             showNotice(NOTICE_INFO);
 
         mDrawerLayout.closeDrawer(mDrawerLeft);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home)
+            mDrawerLayout.closeDrawer(mDrawerRight);
+
+        return super.onOptionsItemSelected(item);
     }
 
     public void onPostCreate(Bundle savedInstanceState) {
