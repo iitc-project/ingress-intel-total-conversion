@@ -2,7 +2,7 @@
 // @id             iitc-plugin-highlight-portals-missing-resonators-level-8@amsdams
 // @name           IITC plugin: highlight portals missing resonators level 8
 // @category       Highlighter
-// @version        0.1.1.@@DATETIMEVERSION@@
+// @version        0.1.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -17,29 +17,22 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 // use own namespace for plugin
 window.plugin.portalHighligherPortalsMissingResonatorsLevel8 = function () {};
+window.plugin.portalHighligherPortalsMissingResonatorsLevel8.RESOS_PER_PORTAL=8;
+window.plugin.portalHighligherPortalsMissingResonatorsLevel8.PORTAL_FILL_COLOR='red';
+window.plugin.portalHighligherPortalsMissingResonatorsLevel8.PORTAL_FILL_OPACITY=0.7;
+
 window.plugin.portalHighligherPortalsMissingResonatorsLevel8.highlight = function (data, missing) {
-  var d = data.portal.options.details,
-    r = d.resonatorArray.resonators,
-    countMissing = 0,
-    opacity = 0.7,
-    color = 'red';
-  $.each(r, function (ind, reso) {
-    if(!reso) {
-      countMissing++;
-    } else if(reso.level !== 8) {
+  var resos = data.portal.options.detailsd.resonatorArray.resonators,
+    countMissing = 0;
+  $.each(resos, function (ind, reso) {
+    if(!reso || reso.level !== window.MAX_PORTAL_LEVEL) {
       countMissing++;
     }
   });
   if(countMissing === missing) {
     data.portal.setStyle({
-      fillColor: color,
-      fillOpacity: opacity
-    });
-  } else {
-    // reset
-    data.portal.setStyle({
-      color: window.COLORS[getTeam(data.portal.options.details)],
-      fillOpacity: 0.5
+      fillColor: window.plugin.portalHighligherPortalsMissingResonatorsLevel8.PORTAL_FILL_COLOR,
+      fillOpacity: window.plugin.portalHighligherPortalsMissingResonatorsLevel8.PORTAL_FILL_OPACITY
     });
   }
 }
@@ -49,8 +42,8 @@ window.plugin.portalHighligherPortalsMissingResonatorsLevel8.getHighlighter = fu
   });
 }
 var setup = function () {
-  for(var missing = 1; missing < 9; missing++) {
-    window.addPortalHighlighter('Resos Missing: ' + missing + ' level 8 resonators ', window.plugin.portalHighligherPortalsMissingResonatorsLevel8.getHighlighter(missing));
+  for(var missing = 1; missing <=  window.plugin.portalHighligherPortalsMissingResonatorsLevel8.RESOS_PER_PORTAL; missing++) {
+    window.addPortalHighlighter('Resos Missing: ' + missing + ' level '+window.MAX_PORTAL_LEVEL+' resonators ', window.plugin.portalHighligherPortalsMissingResonatorsLevel8.getHighlighter(missing));
   }
 }
 // PLUGIN END //////////////////////////////////////////////////////////
