@@ -21,6 +21,7 @@
 // use own namespace for plugin
 window.plugin.portalNames = function() {};
 
+window.plugin.portalNames.MAX_PORTALS = 250;
 window.plugin.portalNames.NAME_WIDTH = 80;
 window.plugin.portalNames.NAME_HEIGHT = 23;
 
@@ -82,13 +83,6 @@ window.plugin.portalNames.addLabel = function(guid, latLng) {
 
 window.plugin.portalNames.updatePortalLabels = function() {
 
-  if (Object.keys(window.portals).length > 1000) {
-    // too manuy portals to handle quickly - clear all
-    window.plugin.portalNames.labelLayerGroup.clear();
-    window.plugin.portalNames.labelLayers = {};
-    return;
-  }
-
   var portalPoints = {};
 
   for (var guid in window.portals) {
@@ -98,6 +92,14 @@ window.plugin.portalNames.updatePortalLabels = function() {
       portalPoints[guid] = point;
     }
   }
+
+  if (Object.keys(portalPoints).length > window.plugin.portalNames.MAX_PORTALS) {
+    // too manuy VISIBLE portals to handle quickly - clear all
+    window.plugin.portalNames.labelLayerGroup.clearLayers();
+    window.plugin.portalNames.labelLayers = {};
+    return;
+  }
+
 
   var coveredPortals = {};
 
