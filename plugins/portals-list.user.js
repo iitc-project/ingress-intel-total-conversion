@@ -352,13 +352,65 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
 
 window.plugin.portalslist.stats = function(sortBy) {
   //console.log('** stats');
-  var html = '<table><tr>'
+  var html = '<div><select id="displayType"><option value="1">Hide</option><option value="0">Show</option></select> portals with '
+	  + '<select id="from"><option value="1">L1</option><option value="2">L2</option><option value="3">L3</option><option value="4">L4</option>'
+	  + '<option value="5">L5</option><option value="6">L6</option><option value="7">L7</option><option value="8">L8</option></select>'
+	  + ' to '
+	  + '<select id="to"><option value="1">L1</option><option value="2">L2</option><option value="3">L3</option><option value="4">L4</option>'
+	  + '<option value="5">L5</option><option value="6">L6</option><option value="7">L7</option><option value="8" selected="selected">L8</option></select>'
+	  + ' resonators from <input type="text" id="agentNames"/> <input type="submit" value="Apply" onclick="window.plugin.portalslist.filterPlayer($(\'#agentNames\').val());">'
+	  + ' </div>'
+  + '<table><tr>'
   + '<td class="filterAll" style="cursor:pointer"  onclick="window.plugin.portalslist.portalTable(\'level\',-1,0)"><a href=""></a>All Portals : (click to filter)</td><td class="filterAll">' + window.plugin.portalslist.listPortals.length + '</td>'
   + '<td class="filterRes" style="cursor:pointer" class="sorted" onclick="window.plugin.portalslist.portalTable(\'level\',-1,1)">Resistance Portals : </td><td class="filterRes">' + window.plugin.portalslist.resP +' (' + Math.floor(window.plugin.portalslist.resP/window.plugin.portalslist.listPortals.length*100) + '%)</td>' 
   + '<td class="filterEnl" style="cursor:pointer" class="sorted" onclick="window.plugin.portalslist.portalTable(\'level\',-1,2)">Enlightened Portals : </td><td class="filterEnl">'+ window.plugin.portalslist.enlP +' (' + Math.floor(window.plugin.portalslist.enlP/window.plugin.portalslist.listPortals.length*100) + '%)</td>'  
   + '</tr>'
   + '</table>';
   return html;
+}
+
+// hide portals that the player(s) has resos on
+window.plugin.portalslist.filterPlayer = function(player) {
+	var players = [];
+	var hide = $('#displayType').val();
+	var minLvl = $('#from').val();
+	var maxLvl = $('#to').val();
+	var n = player.indexOf(' ');
+	if (n > 0) {
+		// list of players
+		players = player.split(' ');
+	} else {
+		// just one player
+		players.push(player);
+	}
+	$('#portalslist .res').each(function (ind, val) {
+		var count = 0;
+		for (var i = 0; i < players.length; i++) {
+			player = players[i];
+			var lvl = minLvl;
+			var playerFound = false;
+			while (!playerFound && lvl <= maxLvl) {
+				if ($(this).find('.L'+lvl+'[title^="owner: <b>'+player+'</b>"]').length > 0) {
+					count++;
+					playerFound = true;
+				} else {
+					lvl++;
+				}
+			}
+		}
+		// if all players have resos on this portal
+		if (count == players.length) {
+			if (hide == 1)
+				$(this).hide();
+			else
+				$(this).show();
+		} else {
+			if (hide == 1)
+				$(this).show();
+			else
+				$(this).hide();
+		}
+	});
 }
 
 // A little helper functon so the above isn't so messy
