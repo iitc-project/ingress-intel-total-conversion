@@ -22,7 +22,7 @@ window.plugin.portalHighligherPortalsMissingResonatorsLevel8.PORTAL_FILL_COLOR='
 window.plugin.portalHighligherPortalsMissingResonatorsLevel8.PORTAL_FILL_OPACITY=0.7;
 
 window.plugin.portalHighligherPortalsMissingResonatorsLevel8.highlight = function (data, missing) {
-  var resos = data.portal.options.detailsd.resonatorArray.resonators,
+  var resos = data.portal.options.details.resonatorArray.resonators,
     countMissing = 0;
   $.each(resos, function (ind, reso) {
     if(!reso || reso.level !== window.MAX_PORTAL_LEVEL) {
