@@ -2,7 +2,7 @@
 // @id             iitc-plugin-highlight-portals-missing-resonators-level-8@amsdams
 // @name           IITC plugin: highlight portals missing resonators level 8
 // @category       Highlighter
-// @version        0.1.2.@@DATETIMEVERSION@@
+// @version        0.1.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
