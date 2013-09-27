@@ -322,7 +322,8 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
         + 'energy: ' + portal.resonators[slot][3] + ' / ' + portal.resonators[slot][4] + ' (' + percent + '%)<br>'
         + 'distance: ' + portal.resonators[slot][2] + 'm';
 
-        html += '<td class="L' + portal.resonators[slot][0] +'" ' + title + '">' + portal.resonators[slot][0] + '</td>';
+        var resoLvl = portal.resonators[slot][0] ? portal.resonators[slot][0] : '&nbsp;';
+        html += '<td style="padding: 0" class="L' + portal.resonators[slot][0] +'" ' + title + '"><div class="resoDiv"><div class="missingNRG" style="height:' + (100-percent) + '%">&nbsp;</div>' + '<div class="resoLvl">' + resoLvl + '</div></div></td>';
 
       });
 
@@ -383,7 +384,7 @@ window.plugin.portalslist.filterPlayer = function(player) {
 		// just one player
 		players.push(player);
 	}
-	$('#portalslist .res').each(function (ind, val) {
+	$('#portalslist .res, #portalslist .enl').each(function (ind, val) {
 		var count = 0;
 		for (var i = 0; i < players.length; i++) {
 			player = players[i];
@@ -393,6 +394,12 @@ window.plugin.portalslist.filterPlayer = function(player) {
 				if ($(this).find('.L'+lvl+'[title^="owner: <b>'+player+'</b>"]').length > 0) {
 					count++;
 					playerFound = true;
+					/*
+					cells = $(this).find('.L'+lvl+'[title^="owner: <b>'+player+'</b>"]')
+					cells.each(function () {
+						$(this).css('border','2px solid yellow');
+					});
+					*/
 				} else {
 					lvl++;
 				}
@@ -470,16 +477,16 @@ var setup =  function() {
     '#portalslist table tr.enl td {  background-color: #017f01; }' +
     '#portalslist table tr.neutral td {  background-color: #000000; }' +
     '#portalslist table th { text-align:center;}' +
-    '#portalslist table td { text-align: center;}' +
-    '#portalslist table td.L0 { cursor: help; background-color: #000000 !important;}' +
-    '#portalslist table td.L1 { cursor: help; background-color: #FECE5A !important;}' +
-    '#portalslist table td.L2 { cursor: help; background-color: #FFA630 !important;}' +
-    '#portalslist table td.L3 { cursor: help; background-color: #FF7315 !important;}' +
-    '#portalslist table td.L4 { cursor: help; background-color: #E40000 !important;}' +
-    '#portalslist table td.L5 { cursor: help; background-color: #FD2992 !important;}' +
-    '#portalslist table td.L6 { cursor: help; background-color: #EB26CD !important;}' +
-    '#portalslist table td.L7 { cursor: help; background-color: #C124E0 !important;}' +
-    '#portalslist table td.L8 { cursor: help; background-color: #9627F4 !important;}' +
+    '#portalslist table td { text-align: center; }' +
+    '#portalslist table td.L0 { cursor: help; background-color: #000000 !important; }' +
+    '#portalslist table td.L1 { cursor: help; background-color: #FECE5A !important; }' +
+    '#portalslist table td.L2 { cursor: help; background-color: #FFA630 !important; }' +
+    '#portalslist table td.L3 { cursor: help; background-color: #FF7315 !important; }' +
+    '#portalslist table td.L4 { cursor: help; background-color: #E40000 !important; }' +
+    '#portalslist table td.L5 { cursor: help; background-color: #FD2992 !important; }' +
+    '#portalslist table td.L6 { cursor: help; background-color: #EB26CD !important; }' +
+    '#portalslist table td.L7 { cursor: help; background-color: #C124E0 !important; }' +
+    '#portalslist table td.L8 { cursor: help; background-color: #9627F4 !important; }' +
     '#portalslist table td:nth-child(1) { text-align: left;}' +
     '#portalslist table th { cursor:pointer; text-align: right;}' +
     '#portalslist table th:nth-child(1) { text-align: left;}' +
@@ -488,6 +495,9 @@ var setup =  function() {
     '#portalslist .filterRes { margin-top:10px; background-color: #005684  }' +
     '#portalslist .filterEnl { margin-top:10px; background-color: #017f01  }' +
     '#portalslist .disclaimer { margin-top:10px; font-size:10px; }' +
+    '#portalslist .resoDiv { position: relative; width: 100%; height: 100%; margin: 0; padding: 0 }' + 
+    '#portalslist .resoLvl { height: 100%; vertical-align: middle; padding: 3px; }' +
+    '#portalslist .missingNRG { margin: 0; padding: 0; background-color: rgb(27, 65, 94) !important; border: none; position: absolute; top: 0; left: 0; right: 0; opacity: 0.7; }' +
     '</style>');
 }
 
