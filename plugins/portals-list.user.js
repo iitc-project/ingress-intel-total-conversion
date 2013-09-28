@@ -19,6 +19,7 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 /* whatsnew
+* 0.0.16: Added portal energy summaries
 * 0.0.15: Add 'age' column to display how long each portal has been controlled by its current owner.
 * 0.0.14: Add support to new mods (S:Shield - T:Turret - LA:Link Amp - H:Heat-sink - M:Multi-hack - FA:Force Amp)
 * 0.0.12: Use dialog() instead of alert so the user can drag the box around
@@ -47,7 +48,9 @@ window.plugin.portalslist.listPortals = []; // structure : name, team, level, re
 window.plugin.portalslist.sortOrder=-1;    
 window.plugin.portalslist.enlP = 0;
 window.plugin.portalslist.resP = 0;
-window.plugin.portalslist.filter=0;
+window.plugin.portalslist.enlPEnergy = 0;
+window.plugin.portalslist.resPEnergy = 0;
+window.plugin.portalslist.filter = 0;
 
 //fill the listPortals array with portals avalaible on the map (level filtered portals will not appear in the table)
 window.plugin.portalslist.getPortals = function() {
@@ -106,6 +109,15 @@ window.plugin.portalslist.getPortals = function() {
     // Sort resonators array by resonator level
     resonators.sort(function (a, b) {return b[0] - a[0]});
 
+    switch (team){
+      case 1 :
+        window.plugin.portalslist.resPEnergy += energy;
+        break;
+      case 2 :
+        window.plugin.portalslist.enlPEnergy += energy;
+        break;
+    }
+      
     //get mods informations
     var mods = [];
     $.each(d.portalV2.linkedModArray, function(ind, mod) {
@@ -353,9 +365,9 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
 window.plugin.portalslist.stats = function(sortBy) {
   //console.log('** stats');
   var html = '<table><tr>'
-  + '<td class="filterAll" style="cursor:pointer"  onclick="window.plugin.portalslist.portalTable(\'level\',-1,0)"><a href=""></a>All Portals : (click to filter)</td><td class="filterAll">' + window.plugin.portalslist.listPortals.length + '</td>'
-  + '<td class="filterRes" style="cursor:pointer" class="sorted" onclick="window.plugin.portalslist.portalTable(\'level\',-1,1)">Resistance Portals : </td><td class="filterRes">' + window.plugin.portalslist.resP +' (' + Math.floor(window.plugin.portalslist.resP/window.plugin.portalslist.listPortals.length*100) + '%)</td>' 
-  + '<td class="filterEnl" style="cursor:pointer" class="sorted" onclick="window.plugin.portalslist.portalTable(\'level\',-1,2)">Enlightened Portals : </td><td class="filterEnl">'+ window.plugin.portalslist.enlP +' (' + Math.floor(window.plugin.portalslist.enlP/window.plugin.portalslist.listPortals.length*100) + '%)</td>'  
+  + '<td class="filterAll" style="cursor:pointer"  onclick="window.plugin.portalslist.portalTable(\'level\',-1,0)"><a href=""></a>All Portals : (click to filter)</td><td class="filterAll">' + window.plugin.portalslist.listPortals.length + ' ['+prettyEnergy(window.plugin.portalslist.enlPEnergy+window.plugin.portalslist.resPEnergy)+'] </td>'
+  + '<td class="filterRes" style="cursor:pointer" class="sorted" onclick="window.plugin.portalslist.portalTable(\'level\',-1,1)">Resistance Portals : </td><td class="filterRes">' + window.plugin.portalslist.resP +' (' + Math.floor(window.plugin.portalslist.resP/window.plugin.portalslist.listPortals.length*100) + '%) ['+prettyEnergy(window.plugin.portalslist.resPEnergy)+'] </td>' 
+  + '<td class="filterEnl" style="cursor:pointer" class="sorted" onclick="window.plugin.portalslist.portalTable(\'level\',-1,2)">Enlightened Portals : </td><td class="filterEnl">'+ window.plugin.portalslist.enlP +' (' + Math.floor(window.plugin.portalslist.enlP/window.plugin.portalslist.listPortals.length*100) + '%) ['+prettyEnergy(window.plugin.portalslist.enlPEnergy)+'] </td>'  
   + '</tr>'
   + '</table>';
   return html;
