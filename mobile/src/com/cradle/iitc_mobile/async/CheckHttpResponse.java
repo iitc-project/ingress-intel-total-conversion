@@ -43,7 +43,13 @@ public class CheckHttpResponse extends AsyncTask<String, Void, Boolean> {
             int code = response.getStatusLine().getStatusCode();
             if (code != HttpStatus.SC_OK) {
                 Log.d("iitcm", "received error code: " + code);
-                ((IITC_Mobile) mContext).setLoadingState(false);
+                final IITC_Mobile iitc = (IITC_Mobile) mContext;
+                iitc.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        iitc.setLoadingState(false);
+                    }
+                });
                 // TODO: remove when google login issue is fixed
                 if (urls[0].contains("uberauth=WILL_NOT_SIGN_IN")) {
                     return true;
