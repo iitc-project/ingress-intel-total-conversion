@@ -459,6 +459,13 @@ input {
   box-sizing: border-box;
 }
 
+select {
+	font-size: 11px;
+	font-family: "roboto",arial,helvetica,sans-serif;
+	background-color: rgb(14, 60, 70);
+	color: rgb(255, 206, 0);
+}
+
 #geosearch{
   width:272px;
   background-color: transparent;

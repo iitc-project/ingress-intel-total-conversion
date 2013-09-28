@@ -285,7 +285,6 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   html += '<table>'
   + '<tr><th ' + sort('names', sortBy, -1) + '>Portal</th>'
   + '<th ' + sort('level', sortBy, -1) + '>Level</th>'
-  + '<th title="Team" ' + sort('team', sortBy, -1) + '>T</th>'
   + '<th ' + sort('r1', sortBy, -1) + '>R1</th>'
   + '<th ' + sort('r2', sortBy, -1) + '>R2</th>'
   + '<th ' + sort('r3', sortBy, -1) + '>R3</th>'
@@ -311,8 +310,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
     if (filter === 0 || filter === portal.team) {
       html += '<tr class="' + (portal.team === 1 ? 'res' : (portal.team === 2 ? 'enl' : 'neutral')) + '">'
       + '<td style="">' + window.plugin.portalslist.getPortalLink(portal.portal, portal.guid) + '</td>'
-      + '<td class="L' + Math.floor(portal.level) +'">' + portal.level + '</td>'
-      + '<td style="text-align:center;">' + portal.team + '</td>';
+      + '<td class="L' + Math.floor(portal.level) +'">' + portal.level + '</td>';
 
       var title;
       var percent;
@@ -322,7 +320,8 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
         + 'energy: ' + portal.resonators[slot][3] + ' / ' + portal.resonators[slot][4] + ' (' + percent + '%)<br>'
         + 'distance: ' + portal.resonators[slot][2] + 'm';
 
-        html += '<td class="L' + portal.resonators[slot][0] +'" ' + title + '">' + portal.resonators[slot][0] + '</td>';
+        var resoLvl = portal.resonators[slot][0] ? portal.resonators[slot][0] : '&nbsp;';
+        html += '<td style="padding: 0" class="L' + portal.resonators[slot][0] +'" ' + title + '"><div class="resoDiv"><div class="missingNRG" style="height:' + (100-percent) + '%">&nbsp;</div>' + '<div class="resoLvl">' + resoLvl + '</div></div></td>';
 
       });
 
@@ -352,13 +351,71 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
 
 window.plugin.portalslist.stats = function(sortBy) {
   //console.log('** stats');
-  var html = '<table><tr>'
+  var html = '<div><select id="displayType"><option value="1">Hide</option><option value="0">Show</option></select> portals with '
+	  + '<select id="from"><option value="1">L1</option><option value="2">L2</option><option value="3">L3</option><option value="4">L4</option>'
+	  + '<option value="5">L5</option><option value="6">L6</option><option value="7">L7</option><option value="8">L8</option></select>'
+	  + ' to '
+	  + '<select id="to"><option value="1">L1</option><option value="2">L2</option><option value="3">L3</option><option value="4">L4</option>'
+	  + '<option value="5">L5</option><option value="6">L6</option><option value="7">L7</option><option value="8" selected="selected">L8</option></select>'
+	  + ' resonators from <input type="text" id="agentNames"/> <input type="submit" value="Apply" onclick="window.plugin.portalslist.filterPlayer($(\'#agentNames\').val());">'
+	  + ' </div>'
+  + '<table><tr>'
   + '<td class="filterAll" style="cursor:pointer"  onclick="window.plugin.portalslist.portalTable(\'level\',-1,0)"><a href=""></a>All Portals : (click to filter)</td><td class="filterAll">' + window.plugin.portalslist.listPortals.length + '</td>'
   + '<td class="filterRes" style="cursor:pointer" class="sorted" onclick="window.plugin.portalslist.portalTable(\'level\',-1,1)">Resistance Portals : </td><td class="filterRes">' + window.plugin.portalslist.resP +' (' + Math.floor(window.plugin.portalslist.resP/window.plugin.portalslist.listPortals.length*100) + '%)</td>' 
   + '<td class="filterEnl" style="cursor:pointer" class="sorted" onclick="window.plugin.portalslist.portalTable(\'level\',-1,2)">Enlightened Portals : </td><td class="filterEnl">'+ window.plugin.portalslist.enlP +' (' + Math.floor(window.plugin.portalslist.enlP/window.plugin.portalslist.listPortals.length*100) + '%)</td>'  
   + '</tr>'
   + '</table>';
   return html;
+}
+
+// hide portals that the player(s) has resos on
+window.plugin.portalslist.filterPlayer = function(player) {
+	var players = [];
+	var hide = $('#displayType').val();
+	var minLvl = $('#from').val();
+	var maxLvl = $('#to').val();
+	var n = player.indexOf(' ');
+	if (n > 0) {
+		// list of players
+		players = player.split(' ');
+	} else {
+		// just one player
+		players.push(player);
+	}
+	$('#portalslist .res, #portalslist .enl').each(function (ind, val) {
+		var count = 0;
+		for (var i = 0; i < players.length; i++) {
+			player = players[i];
+			var lvl = minLvl;
+			var playerFound = false;
+			while (!playerFound && lvl <= maxLvl) {
+				if ($(this).find('.L'+lvl+'[title^="owner: <b>'+player+'</b>"]').length > 0) {
+					count++;
+					playerFound = true;
+					/*
+					cells = $(this).find('.L'+lvl+'[title^="owner: <b>'+player+'</b>"]')
+					cells.each(function () {
+						$(this).css('border','2px solid yellow');
+					});
+					*/
+				} else {
+					lvl++;
+				}
+			}
+		}
+		// if all players have resos on this portal
+		if (count == players.length) {
+			if (hide == 1)
+				$(this).hide();
+			else
+				$(this).show();
+		} else {
+			if (hide == 1)
+				$(this).show();
+			else
+				$(this).hide();
+		}
+	});
 }
 
 // A little helper functon so the above isn't so messy
@@ -418,16 +475,16 @@ var setup =  function() {
     '#portalslist table tr.enl td {  background-color: #017f01; }' +
     '#portalslist table tr.neutral td {  background-color: #000000; }' +
     '#portalslist table th { text-align:center;}' +
-    '#portalslist table td { text-align: center;}' +
-    '#portalslist table td.L0 { cursor: help; background-color: #000000 !important;}' +
-    '#portalslist table td.L1 { cursor: help; background-color: #FECE5A !important;}' +
-    '#portalslist table td.L2 { cursor: help; background-color: #FFA630 !important;}' +
-    '#portalslist table td.L3 { cursor: help; background-color: #FF7315 !important;}' +
-    '#portalslist table td.L4 { cursor: help; background-color: #E40000 !important;}' +
-    '#portalslist table td.L5 { cursor: help; background-color: #FD2992 !important;}' +
-    '#portalslist table td.L6 { cursor: help; background-color: #EB26CD !important;}' +
-    '#portalslist table td.L7 { cursor: help; background-color: #C124E0 !important;}' +
-    '#portalslist table td.L8 { cursor: help; background-color: #9627F4 !important;}' +
+    '#portalslist table td { text-align: center; }' +
+    '#portalslist table td.L0 { cursor: help; background-color: #000000 !important; }' +
+    '#portalslist table td.L1 { cursor: help; background-color: #FECE5A !important; }' +
+    '#portalslist table td.L2 { cursor: help; background-color: #FFA630 !important; }' +
+    '#portalslist table td.L3 { cursor: help; background-color: #FF7315 !important; }' +
+    '#portalslist table td.L4 { cursor: help; background-color: #E40000 !important; }' +
+    '#portalslist table td.L5 { cursor: help; background-color: #FD2992 !important; }' +
+    '#portalslist table td.L6 { cursor: help; background-color: #EB26CD !important; }' +
+    '#portalslist table td.L7 { cursor: help; background-color: #C124E0 !important; }' +
+    '#portalslist table td.L8 { cursor: help; background-color: #9627F4 !important; }' +
     '#portalslist table td:nth-child(1) { text-align: left;}' +
     '#portalslist table th { cursor:pointer; text-align: right;}' +
     '#portalslist table th:nth-child(1) { text-align: left;}' +
@@ -436,6 +493,9 @@ var setup =  function() {
     '#portalslist .filterRes { margin-top:10px; background-color: #005684  }' +
     '#portalslist .filterEnl { margin-top:10px; background-color: #017f01  }' +
     '#portalslist .disclaimer { margin-top:10px; font-size:10px; }' +
+    '#portalslist .resoDiv { position: relative; width: 100%; height: 100%; margin: 0; padding: 0 }' + 
+    '#portalslist .resoLvl { height: 100%; vertical-align: middle; padding: 3px; }' +
+    '#portalslist .missingNRG { margin: 0; padding: 0; background-color: rgb(27, 65, 94) !important; border: none; position: absolute; top: 0; left: 0; right: 0; opacity: 0.7; }' +
     '</style>');
 }
 
