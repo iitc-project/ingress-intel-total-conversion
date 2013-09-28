@@ -285,7 +285,6 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   html += '<table>'
   + '<tr><th ' + sort('names', sortBy, -1) + '>Portal</th>'
   + '<th ' + sort('level', sortBy, -1) + '>Level</th>'
-  + '<th title="Team" ' + sort('team', sortBy, -1) + '>T</th>'
   + '<th ' + sort('r1', sortBy, -1) + '>R1</th>'
   + '<th ' + sort('r2', sortBy, -1) + '>R2</th>'
   + '<th ' + sort('r3', sortBy, -1) + '>R3</th>'
@@ -311,8 +310,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
     if (filter === 0 || filter === portal.team) {
       html += '<tr class="' + (portal.team === 1 ? 'res' : (portal.team === 2 ? 'enl' : 'neutral')) + '">'
       + '<td style="">' + window.plugin.portalslist.getPortalLink(portal.portal, portal.guid) + '</td>'
-      + '<td class="L' + Math.floor(portal.level) +'">' + portal.level + '</td>'
-      + '<td style="text-align:center;">' + portal.team + '</td>';
+      + '<td class="L' + Math.floor(portal.level) +'">' + portal.level + '</td>';
 
       var title;
       var percent;
