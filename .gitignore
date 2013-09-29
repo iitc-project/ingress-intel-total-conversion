@@ -4,5 +4,3 @@ localbuildsettings.py
 *.swp
 *~
 *.bak
-.project
-.pydevproject
