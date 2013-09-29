@@ -2,11 +2,11 @@
 // @id             iitc-plugin-data-freezer@zaso
 // @name           IITC plugin: Data Freezer
 // @category       Tweaks
-// @version        0.1.4.@@DATETIMEVERSION@@
+// @version        0.1.5.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Disables the data refresh.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Disables map data refresh.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -22,52 +22,32 @@
   window.plugin.dataFreezer = function() {};
 
   window.plugin.dataFreezer.storageKEY = 'plugin-data-freezer';
-  window.plugin.dataFreezer.status;
-  window.plugin.dataFreezer.defaultVal = [4, 0.5, 200, 100]; // MAX_REQUESTS, REFRESH_CLOSE, CHAT_PUBLIC_ITEMS, CHAT_FACTION_ITEMS
-  window.plugin.dataFreezer.noMoreData = [0, 9999999]; // (MAX_REQUESTS, CHAT_PUBLIC_ITEMS, CHAT_FACTION_ITEMS), REFRESH_CLOSE
 
   window.plugin.dataFreezer.toggle = function() {
-    if(window.plugin.dataFreezer.status === false) {
-      window.plugin.dataFreezer.status = true;
-      localStorage[window.plugin.dataFreezer.storageKEY] = 1;
-
-      // Freezes map data refresh
-      window.mapDataRequest.MAX_REQUESTS = window.plugin.dataFreezer.noMoreData[0];
-      window.mapDataRequest.REFRESH_CLOSE = window.plugin.dataFreezer.noMoreData[1];
-
-      // Freezes chat data refresh
-      window.CHAT_PUBLIC_ITEMS = window.plugin.dataFreezer.noMoreData[0];
-      window.CHAT_FACTION_ITEMS = window.plugin.dataFreezer.noMoreData[0];
-
+    if(window.mapDataRequest.MAP_DATA_ENABLED) {
+      // Stop map data refresh
+      window.mapDataRequest.MAP_DATA_ENABLED = false;
+      localStorage[window.plugin.dataFreezer.storageKEY] = 0;
       $('a.dataFreezerBtn').addClass('noData');
       $('#updatestatus #innerstatus').hide();
       $('#updatestatus #datafreezer').show();
     } else {
-      window.plugin.dataFreezer.status = false;
-      localStorage[window.plugin.dataFreezer.storageKEY] = 0;
-
-      // Re-starts map data refresh
-      window.mapDataRequest.MAX_REQUESTS = window.plugin.dataFreezer.defaultVal[0];
-      window.mapDataRequest.REFRESH_CLOSE = window.plugin.dataFreezer.defaultVal[1];
-
-      // Re-starts chat data refresh
-      window.CHAT_PUBLIC_ITEMS = window.plugin.dataFreezer.defaultVal[2];
-      window.CHAT_FACTION_ITEMS = window.plugin.dataFreezer.defaultVal[3];
-
-      $('a.dataFreezerBtn').removeClass('noData');;
+      // Start map data refresh
+      window.mapDataRequest.MAP_DATA_ENABLED = true;
+      localStorage[window.plugin.dataFreezer.storageKEY] = 1;
+      $('a.dataFreezerBtn').removeClass('noData');
       $('#updatestatus #innerstatus').show();
       $('#updatestatus #datafreezer').hide();
     }
 
-    // Creates a movement on the map to refresh it
-    map.zoomOut(1, {animate:false});
-    map.zoomIn(1, {animate:false});
+    window.mapDataRequest.setStatus('refreshing');
+    window.mapDataRequest.refreshOnTimeout(this.MOVE_REFRESH);
   }
 
   window.plugin.dataFreezer.setupCSS = function() {
     $("<style>").prop("type", "text/css").html(''
       +'.leaflet-dataFreezer a.dataFreezerBtn, .leaflet-dataFreezer a.dataFreezerBtn:hover{outline:none;background:#03DC03 url(@@INCLUDEIMAGE:images/refresh-icon.png@@) no-repeat center center;}'
-      +'.leaflet-dataFreezer a.dataFreezerBtn.noData, .leaflet-dataFreezer a.dataFreezerBtn.noData:hover{background-color:#f66;}'
+    +'.leaflet-dataFreezer a.dataFreezerBtn.noData, .leaflet-dataFreezer a.dataFreezerBtn.noData:hover{background-color:#f66;}'
     ).appendTo("head");
   }
 
@@ -97,20 +77,16 @@
     map.addControl(new L.control.command());
 
     $('#updatestatus #innerstatus').after('<div id="datafreezer"><b>map</b>: freezed</div>');
-
-    window.plugin.dataFreezer.setupCSS();
-
-    if(!localStorage[window.plugin.dataFreezer.storageKEY]) {
+    if(!localStorage[window.plugin.dataFreezer.storageKEY]){
       localStorage[window.plugin.dataFreezer.storageKEY] = 1;
     }
-    if(localStorage[window.plugin.dataFreezer.storageKEY] === '1') {
-      // Disables data refresh
-      window.plugin.dataFreezer.status = false;
-    } else {
-      // Enables data refresh
-      window.plugin.dataFreezer.status = true;
+
+    window.plugin.dataFreezer.setupCSS();
+    $('#updatestatus #datafreezer').hide();
+    if(localStorage[window.plugin.dataFreezer.storageKEY] === '0'){
+      window.mapDataRequest.MAP_DATA_ENABLED = true;
+      window.plugin.dataFreezer.toggle();
     }
-    window.plugin.dataFreezer.toggle();
   }
 
 // PLUGIN END //////////////////////////////////////////////////////////
