@@ -195,7 +195,6 @@ window.requestParameterMunges = [
     message: 'e8qm0kptw2trrcrw',
     latE6: 'fja1phtsqxm71dqm',
     lngE6: 'iut1tb7c0x726hwn',
-    factionOnly: 'p88a2ztchtjhiazl',
     ascendingTimestampOrder: 'p88a2ztchtjhiazl',
     // in this set, also the request method names are obsfucated!
     'dashboard.getGameScore': 'fhlzntzkl5v7hcfh',          // GET_GAME_SCORE
