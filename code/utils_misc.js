@@ -96,82 +96,116 @@ window.digits = function(d) {
 
 
 window.requestParameterMunges = [
+// set 0 and 1 were brought online at the same time - an attempt to confuse us, or others hacking on the web interface?
   // set 0
-  {
-    method: '4kr3ofeptwgary2j',
-    boundsParamsList: 'n27qzc8389kgakyv',
-    id: '39031qie1i4aq563',
-    minLatE6: 'pg98bwox95ly0ouu',
-    minLngE6: 'eib1bkq8znpwr0g7',
-    maxLatE6: 'ilfap961rwdybv63',
-    maxLngE6: 'lpf7m1ifx0ieouzq',
-    timestampMs: '2ewujgywmum1yp49',
-    qk: 'bgxibcomzoto63sn',
-    desiredNumItems: 'tmb0vgxgp5grsnhp',
-    minTimestampMs: 'hljqffkpwlx0vtjt',
-    maxTimestampMs: 'sw317giy6x2xj9zm',
-    guids: 'pusjrhxxtyp5nois',
-    inviteeEmailAddress: 'cltkepgqkepfsyaq',
-    message: 'q0d6n7t1801bb6xu',
-    latE6: '5ygbhpxfnt1u9e4t',
-    lngE6: 'ak6twnljwwcgd7cj',
-    factionOnly: '0dvtbatgzcfccchh',
-    ascendingTimestampOrder: 'f6u1iqep9s2lc5y5'
-  },
+//  {
+//    method: '4kr3ofeptwgary2j',
+//    boundsParamsList: 'n27qzc8389kgakyv',
+//    id: '39031qie1i4aq563',
+//    minLatE6: 'pg98bwox95ly0ouu',
+//    minLngE6: 'eib1bkq8znpwr0g7',
+//    maxLatE6: 'ilfap961rwdybv63',
+//    maxLngE6: 'lpf7m1ifx0ieouzq',
+//    timestampMs: '2ewujgywmum1yp49',
+//    qk: 'bgxibcomzoto63sn',
+//    desiredNumItems: 'tmb0vgxgp5grsnhp',
+//    minTimestampMs: 'hljqffkpwlx0vtjt',
+//    maxTimestampMs: 'sw317giy6x2xj9zm',
+//    guids: 'pusjrhxxtyp5nois',
+//    inviteeEmailAddress: 'cltkepgqkepfsyaq',
+//    message: 'q0d6n7t1801bb6xu',
+//    latE6: '5ygbhpxfnt1u9e4t',
+//    lngE6: 'ak6twnljwwcgd7cj',
+//    factionOnly: '0dvtbatgzcfccchh',
+//    ascendingTimestampOrder: 'f6u1iqep9s2lc5y5'
+//  },
 
   // set 1
-  {
-    method: 'uuo2zqhhy5bw80fu',
-    boundsParamsList: '5rc0561uauf6x13u',
-    id: 'bzeizowtguoyrrtt',
-    minLatE6: '7qej3eqg4sefuaac',
-    minLngE6: 'yqegc976egk5q9vo',
-    maxLatE6: '2odsgh99ix9bbtsb',
-    maxLngE6: 'g9jess8dwa2j8pwi',
-    timestampMs: '604f34zcu9zna0a5',
-    qk: 'y853tux9h7cb6xp3',
-    desiredNumItems: 'sfv5i7l6ouljz8vf',
-    minTimestampMs: 'y3g07dbnw6sklloj',
-    maxTimestampMs: '3pdl28aa27xvyhke',
-    guids: 'xp1pl2jm5hrh3bna',
-    inviteeEmailAddress: '2pyrttrp3gh38mmu',
-    message: 'zz54435vfc57nlg9',
-    latE6: 'cyltxjod3jhxgj8q',
-    lngE6: 'h9whcgcz6kpqkz80',
-    factionOnly: '37okcr7gvd5yn2lj',
-    ascendingTimestampOrder: 'iimftkq7flskwrx9'
-  },
+//  {
+//    method: 'uuo2zqhhy5bw80fu',
+//    boundsParamsList: '5rc0561uauf6x13u',
+//    id: 'bzeizowtguoyrrtt',
+//    minLatE6: '7qej3eqg4sefuaac',
+//    minLngE6: 'yqegc976egk5q9vo',
+//    maxLatE6: '2odsgh99ix9bbtsb',
+//    maxLngE6: 'g9jess8dwa2j8pwi',
+//    timestampMs: '604f34zcu9zna0a5',
+//    qk: 'y853tux9h7cb6xp3',
+//    desiredNumItems: 'sfv5i7l6ouljz8vf',
+//    minTimestampMs: 'y3g07dbnw6sklloj',
+//    maxTimestampMs: '3pdl28aa27xvyhke',
+//    guids: 'xp1pl2jm5hrh3bna',
+//    inviteeEmailAddress: '2pyrttrp3gh38mmu',
+//    message: 'zz54435vfc57nlg9',
+//    latE6: 'cyltxjod3jhxgj8q',
+//    lngE6: 'h9whcgcz6kpqkz80',
+//    factionOnly: '37okcr7gvd5yn2lj',
+//    ascendingTimestampOrder: 'iimftkq7flskwrx9'
+//  },
 
   // set 2 - first seen 2013-09-12 21:30
-  {
-    method: '42suxeca8ttud7je',
-    boundsParamsList: '5uwd21hkedg3zh2c',
-    id: 'drtt302ebaj6ek2g',
-    minLatE6: 'l933r0l8brrt1x5b',
-    minLngE6: 'qg3xb340zed41jof',
-    maxLatE6: 'sw485z1n3tusdkul',
-    maxLngE6: '6meahm3f9xup9krb',
-    timestampMs: '6meahm3f9xup9krb',
-    qk: 'fpi9b1z0os0x9yjj',
-    desiredNumItems: 'inr3js77cetyibi6',
-    minTimestampMs: 'zfb2e5iqmggrxe98',
-    maxTimestampMs: '8c4imy17gfpfrl9l',
-    guids: '5d5hp2p3rkmanqn7',
-    inviteeEmailAddress: 'i1a5yp6p1l6iqk08',
-    message: 'xzhbk3ri04lx9xvj',
-    latE6: 'njg0zny4fb39mf0a',
-    lngE6: 'ti2rx4ltmg6d1zsr',
-    factionOnly: 'jegpo8rwhtuuuuhh',
-    ascendingTimestampOrder: '1ennke6gykwzziun',
-    // in this set, also the request method names are obsfucated!
-    'dashboard.getThinnedEntitiesV4': 'ufxcmvve3eirsf2b',
-    'dashboard.getPaginatedPlextsV2': 'd9dgziiw8vzhyecv',
-    'dashboard.getPlayersByGuids': 's53izqpxedtd0hv8',
-    'dashboard.sendInviteEmail': 'kn9plnbree2aeuh9',
-    'dashboard.redeemReward': 'les8vribyxb899wd',
-    'dashboard.sendPlext': '9u1ukkkx1euxf02a'
-  },
+  // (very briefly - and removed a few hours later)
+//  {
+//    method: '42suxeca8ttud7je',
+//    boundsParamsList: '5uwd21hkedg3zh2c',
+//    id: 'drtt302ebaj6ek2g',
+//    minLatE6: 'l933r0l8brrt1x5b',
+//    minLngE6: 'qg3xb340zed41jof',
+//    maxLatE6: 'sw485z1n3tusdkul',
+//    maxLngE6: '6meahm3f9xup9krb',
+//    timestampMs: '6meahm3f9xup9krb',
+//    qk: 'fpi9b1z0os0x9yjj',
+//    desiredNumItems: 'inr3js77cetyibi6',
+//    minTimestampMs: 'zfb2e5iqmggrxe98',
+//    maxTimestampMs: '8c4imy17gfpfrl9l',
+//    guids: '5d5hp2p3rkmanqn7',
+//    inviteeEmailAddress: 'i1a5yp6p1l6iqk08',
+//    message: 'xzhbk3ri04lx9xvj',
+//    latE6: 'njg0zny4fb39mf0a',
+//    lngE6: 'ti2rx4ltmg6d1zsr',
+//    factionOnly: 'jegpo8rwhtuuuuhh',
+//    ascendingTimestampOrder: '1ennke6gykwzziun',
+//    // in this set, also the request method names are obsfucated!
+//    'dashboard.getThinnedEntitiesV4': 'ufxcmvve3eirsf2b',
+//    'dashboard.getPaginatedPlextsV2': 'd9dgziiw8vzhyecv',
+//    'dashboard.getPlayersByGuids': 's53izqpxedtd0hv8',
+//    'dashboard.sendInviteEmail': 'kn9plnbree2aeuh9',
+//    'dashboard.redeemReward': 'les8vribyxb899wd',
+//    'dashboard.sendPlext': '9u1ukkkx1euxf02a'
+//  },
 
+  // set 3 - in the update of 2013-09-30 (addition of 'alerts' chat tab)
+  {
+    method: '22ux2z96jwq5zn78',
+    version: 'kf6hgl9yau03ws0o', //guessed parameter name - only seen munged
+    boundsParamsList: '29t16cmsn6l3r2xg',
+    id: '7rogqhp5pzcqobcw',
+    minLatE6: 'yzbnp7z9bd28p0yr',
+    minLngE6: '2pdhntvo85cd90bw',
+    maxLatE6: 'c4ivr013h4dr68pd',
+    maxLngE6: '4p8oorcrwalc1mzf',
+    timestampMs: 'vd2rsa9v6f8q606s',
+    qk: 'cblh9xe0bgwjy5ij',
+    desiredNumItems: '3ymaq7slb165porj',
+    minTimestampMs: 's9jf2seni33y3gyu',
+    maxTimestampMs: '2kh3vti98rhp3g29',
+    chatTab: '7n7ocqfq1p18352b', //guessed parameter name - only seen munged
+    guids: '5hyiwhwc0jyljvro',
+    inviteeEmailAddress: 's9z6zt03eymzxhkj',
+    message: 'e8qm0kptw2trrcrw',
+    latE6: 'fja1phtsqxm71dqm',
+    lngE6: 'iut1tb7c0x726hwn',
+    factionOnly: 'p88a2ztchtjhiazl',
+    ascendingTimestampOrder: 'p88a2ztchtjhiazl',
+    // in this set, also the request method names are obsfucated!
+    'dashboard.getGameScore': 'fhlzntzkl5v7hcfh',          // GET_GAME_SCORE
+    'dashboard.getPaginatedPlextsV2': 'wzuitnswoda7w028',  // GET_PAGINATED_PLEXTS
+    'dashboard.getThinnedEntitiesV4': 'scgrm4lf2371esgw',  // GET_THINNED_ENTITIES
+    'dashboard.getPlayersByGuids': '81l6usczczoi3lfi',     // LOOKUP_PLAYERS
+    'dashboard.redeemReward': '8kop2koeld9b4c26',          // REDEEM_REWARD
+    'dashboard.sendInviteEmail': 't0ccodsm1nuo5uso',       // SEND_INVITE_EMAIL
+    'dashboard.sendPlext': 'k04cfjwwsg3h3827'              // SEND_PLEXT
+  },
 ];
 window.activeRequestMungeSet = undefined;
 
@@ -179,10 +213,10 @@ window.activeRequestMungeSet = undefined;
 window.detectActiveMungeSet = function() {
   for (var m in window) {
     // try and find the stock page functions
-    if (typeof window[m] == 'function' && m.length <= 3) {
+    if (typeof window[m] == 'function') {
       var stockFunc = window[m].toString();
       for (var i in window.requestParameterMunges) {
-        if (stockFunc.indexOf (window.requestParameterMunges[i]['id']) >= 0) {
+        if (stockFunc.indexOf (window.requestParameterMunges[i]['method']) >= 0) {
           console.log('IITC: found request munge set '+i+' in stock intel function "window.'+m+'()"');
           window.activeRequestMungeSet = i;
         }
@@ -248,9 +282,10 @@ window.postAjax = function(action, data, success, error) {
   var activeMunge = window.requestParameterMunges[window.activeRequestMungeSet];
 
   var methodName = 'dashboard.'+action;
+  var versionStr = "4608f4356a6f55690f127fb542f557f98de66169";  // unsure of parameter value meaning. appears to be a constant used as a 'version'. added to all requests along with the method name in the stock site
   // optional munging of the method name - seen in Set 2 (onwards?)
   if (methodName in activeMunge) methodName = activeMunge[methodName];
-  var post_data = JSON.stringify(window.requestDataMunge($.extend({method: methodName}, data)));
+  var post_data = JSON.stringify(window.requestDataMunge($.extend({method: methodName, version: versionStr}, data)));
   var remove = function(data, textStatus, jqXHR) { window.requests.remove(jqXHR); };
   var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
   var result = $.ajax({
