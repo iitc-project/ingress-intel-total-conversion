@@ -81,7 +81,6 @@ window.chat.genPostData = function(isFaction, storageHash, getOlderMsgs) {
     maxLngE6: Math.round(ne.lng*1E6),
     minTimestampMs: -1,
     maxTimestampMs: -1,
-    factionOnly: isFaction,
     chatTab: isFaction ? 'faction' : 'all'
   }
 
@@ -690,7 +689,6 @@ window.chat.postMsg = function() {
   var data = {message: msg,
               latE6: Math.round(latlng.lat*1E6),
               lngE6: Math.round(latlng.lng*1E6),
-              factionOnly: !publik,
               chatTab: publik ? 'all' : 'faction'};
 
   var errMsg = 'Your message could not be delivered. You can copy&' +
