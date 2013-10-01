@@ -1,5 +1,16 @@
 <h2>News</h2>
 
+<h4>1st October 2013</h4>
+<p>
+IITC 0.14.2 and IITC Mobile 0.7.1 have been released. This is a critical update required to work with changes made
+to the standard intel site. Additionally, a major update to the mobile app interface has been made, and a handful
+of tweaks and bugfixes to IITC and a few plugins.
+</p>
+<p>
+The standard intel site now includes an 'alerts' chat tab. This will be coming to IITC in the future, but it's
+better to get this working version released without it than hold things up just for that.
+</p>
+
 <h4>22nd September 2013</h4>
 <p>
 <b>Update</b>: IITC Mobile 0.6.5 replaces 0.6.4. This fixes a crash on entering plugin preferences on some tablets.

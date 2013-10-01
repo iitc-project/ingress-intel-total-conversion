@@ -115,7 +115,7 @@ window.runOnSmartphonesAfterBoot = function() {
   smartphone.mapButton.click();
 
   // add a div/hook for updating mobile info
-  $('#updatestatus').prepend('<div id="mobileinfo"></div>');
+  $('#updatestatus').prepend('<div id="mobileinfo" onclick="show(\'info\')"></div>');
   window.addHook('portalDetailsUpdated', window.smartphoneInfo);
 
   // disable img full view

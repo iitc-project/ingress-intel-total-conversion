@@ -2,7 +2,7 @@
 // @id             iitc-plugin-draw-tools@breunigs
 // @name           IITC plugin: draw tools
 // @category       Layer
-// @version        0.5.0.@@DATETIMEVERSION@@
+// @version        0.5.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -33,25 +33,25 @@ window.plugin.drawTools.loadExternals = function() {
 }
 
 window.plugin.drawTools.setOptions = function() {
+
   window.plugin.drawTools.lineOptions = {
     stroke: true,
-    color: '#f06eaa',
+    color: '#a24ac3',
     weight: 4,
     opacity: 0.5,
     fill: false,
     clickable: true
   };
 
-  window.plugin.drawTools.polygonOptions = {
-    stroke: true,
-    color: '#f06eaa',
-    weight: 4,
-    opacity: 0.5,
+  window.plugin.drawTools.polygonOptions = L.extend({}, window.plugin.drawTools.lineOptions, {
     fill: true,
-    fillColor: null,
-    fillOpacity: 0.2,
-    clickable: true
-  };
+    fillColor: null, // to use the same as 'color' for fill
+    fillOpacity: 0.2
+  });
+
+  window.plugin.drawTools.editOptions = L.extend({}, window.plugin.drawTools.polygonOptions, {
+    dashArray: [10,10]
+  });
 
   window.plugin.drawTools.markerOptions = {
     icon: new L.Icon.Default(),
@@ -113,7 +113,8 @@ window.plugin.drawTools.addDrawControl = function() {
       featureGroup: window.plugin.drawTools.drawnItems,
 
       edit: {
-        title: 'Edit drawn items'
+        title: 'Edit drawn items',
+        selectedPathOptions: window.plugin.drawTools.editOptions,
       },
 
       remove: {

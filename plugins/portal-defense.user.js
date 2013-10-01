@@ -2,7 +2,7 @@
 // @id             iitc-plugin-defense@gluckies
 // @name           IITC plugin: portal defense 
 // @category       Layer
-// @version        0.2.1.@@DATETIMEVERSION@@
+// @version        0.2.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -81,8 +81,11 @@ window.plugin.portalDefense.renderAttackRegion = function(portal) {
 }
 
 window.plugin.portalDefense.reload = function() {
-  $.each(window.portals, function(ind, portal){
-    window.plugin.portalDefense.renderAttackRegion(portal)
+  $.each(window.portals, function(ind, portal) {
+    // only render mitigation details for portals added to the map
+    if (portal._map) {
+      window.plugin.portalDefense.renderAttackRegion(portal)
+    }
   });
 }
 
