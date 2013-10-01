@@ -63,7 +63,7 @@ document.getElementsByTagName('head')[0].innerHTML = ''
   + '<style>@@INCLUDESTRING:style.css@@</style>'
   + '<style>@@INCLUDESTRING:external/leaflet.css@@</style>'
 //note: smartphone.css injection moved into code/smartphone.js
-  + '<link href="http://fonts.googleapis.com/css?family=Roboto:normal,bold&subset=latin,cyrillic-ext,greek-ext,greek,cyrillic,latin-ext,vietnamese" rel="stylesheet" type="text/css">';
+  + '<link href="//fonts.googleapis.com/css?family=Roboto:normal,bold&subset=latin,cyrillic-ext,greek-ext,greek,cyrillic,latin-ext,vietnamese" rel="stylesheet" type="text/css">';
 
 document.getElementsByTagName('body')[0].innerHTML = ''
   + '<div id="map">Loading, please wait</div>'
