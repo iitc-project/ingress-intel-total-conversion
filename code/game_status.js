@@ -15,9 +15,9 @@ window.updateGameScore = function(data) {
   // detecting which munge set should be used is tricky - even the stock site gets it wrong sometimes
   // to detect the problem and try a different set is easiest in a place where there's only a single request of that type
   // sent at once, and it has no extra parameters. this method matches those requirements
-  if (data == '{"error": "invalid method params"}' || data.error) {
+  if (data.error || (data.indexOf && data.indexOf('"error"') != -1)) {
     window.window.updateGameScoreFailCount++;
-    if (window.window.updateGameScoreFailCount < 5) {
+    if (window.window.updateGameScoreFailCount <= window.requestParameterMunges.length) {
       window.activeRequestMungeSet = (window.activeRequestMungeSet+1) % window.requestParameterMunges.length;
       console.warn('IITC munge issue - cycling to set '+window.activeRequestMungeSet);
 
