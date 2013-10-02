@@ -39,6 +39,10 @@ window.playerNameToGuid = function(playerName) {
   var cachedGuid = window._playerNameToGuidCache[playerName];
   if (cachedGuid !== undefined) return cachedGuid;
 
+  // IITC needs our own player GUID, from a lookup by name. so we retrieve this from localstorage (if available)
+  cachedGuid = localStorage['PLAYER-'+PLAYER.nickname];
+  if (cachedGuid !== undefined) return cachedGuid;
+
   var guid = null;
   $.each(Object.keys(sessionStorage), function(ind,key) {
     if(playerName === sessionStorage[key]) {
@@ -107,22 +111,17 @@ window.setPlayerName = function(guid, nick, uncertain) {
     alert('You have run into bug #37. Please help me solve it!\nCopy and paste this text and post it here:\nhttps://github.com/breunigs/ingress-intel-total-conversion/issues/37\nIf copy & pasting doesn’t work, make a screenshot instead.\n\n\n' + window.debug.printStackTrace() + '\n\n\n' + JSON.stringify(nick));
   }
   sessionStorage[guid] = nick;
+
+  // IITC needs our own player ID early on in startup. the only way we can find this is by something else
+  // doing a guid->name lookup for our own name. as this doesn't always happen - and likely won't happen when needed
+  // we'll store our own name->guid lookup in localStorage
+  if (nick == PLAYER.nickname) {
+    localStorage['PLAYER-'+PLAYER.nickname] = guid;
+    PLAYER.guid = guid;  // set it in PLAYER in case it wasn't already done
+  }
 }
 
 
-window.loadPlayerNamesForPortal = function(portal_details) {
-  if(map.getZoom() < PRECACHE_PLAYER_NAMES_ZOOM) return;
-  var e = portal_details;
-
-  if(e.captured && e.captured.capturingPlayerId)
-    getPlayerName(e.captured.capturingPlayerId);
-
-  if(!e.resonatorArray || !e.resonatorArray.resonators) return;
-
-  $.each(e.resonatorArray.resonators, function(ind, reso) {
-    if(reso) getPlayerName(reso.ownerGuid);
-  });
-}
 
 
 // test to see if a specific player GUID is a special system account (e.g. __JARVIS__, __ADA__) that shouldn't
