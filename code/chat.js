@@ -540,7 +540,6 @@ window.chat.show = function(name) {
         ? $('#updatestatus').hide()
         : $('#updatestatus').show();
     $('#chat, #chatinput').show();
-    $('#map').css('visibility', 'hidden');
 
     var t = $('<a>'+name+'</a>');
     window.chat.chooseAnchor(t);

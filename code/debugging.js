@@ -23,10 +23,6 @@ window.debug.console = function() {
 }
 
 window.debug.console.show = function() {
-    if (window.isSmartphone()) {
-        $('#scrollwrapper, #updatestatus').hide();
-        $('#map').css('visibility', 'hidden');
-    }
     $('#chat, #chatinput').show();
     window.debug.console.create();
     $('#chatinput mark').css('cssText', 'color: #bbb !important').text('debug:');

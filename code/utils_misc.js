@@ -328,7 +328,7 @@ window.rangeLinkClick = function() {
   if(window.portalRangeIndicator)
     window.map.fitBounds(window.portalRangeIndicator.getBounds());
   if(window.isSmartphone())
-    window.smartphone.mapButton.click();
+    window.show('map');
 }
 
 window.showPortalPosLinks = function(lat, lng, name) {
