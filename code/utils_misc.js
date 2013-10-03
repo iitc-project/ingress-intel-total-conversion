@@ -95,106 +95,88 @@ window.digits = function(d) {
 }
 
 
-window.requestParameterMunges = [
-  // now obsolete (they don't have some of the new parameters) munge sets deleted
-
-
-  // set 3 - in the update of 2013-09-30 (addition of 'alerts' chat tab)
-  {
-    'dashboard.getGameScore': 'fhlzntzkl5v7hcfh',          // GET_GAME_SCORE
-    'dashboard.getPaginatedPlextsV2': 'wzuitnswoda7w028',  // GET_PAGINATED_PLEXTS
-    'dashboard.getThinnedEntitiesV4': 'scgrm4lf2371esgw',  // GET_THINNED_ENTITIES
-    'dashboard.getPlayersByGuids': '81l6usczczoi3lfi',     // LOOKUP_PLAYERS
-    'dashboard.redeemReward': '8kop2koeld9b4c26',          // REDEEM_REWARD
-    'dashboard.sendInviteEmail': 't0ccodsm1nuo5uso',       // SEND_INVITE_EMAIL
-    'dashboard.sendPlext': 'k04cfjwwsg3h3827',             // SEND_PLEXT
-
-    method: '22ux2z96jwq5zn78',
-    version: 'kf6hgl9yau03ws0o', //guessed parameter name - only seen munged
-    version_parameter: '4608f4356a6f55690f127fb542f557f98de66169', // passed as the value to the above parameter
-    boundsParamsList: '29t16cmsn6l3r2xg',
-    id: '7rogqhp5pzcqobcw',
-    minLatE6: 'yzbnp7z9bd28p0yr',
-    minLngE6: '2pdhntvo85cd90bw',
-    maxLatE6: 'c4ivr013h4dr68pd',
-    maxLngE6: '4p8oorcrwalc1mzf',
-    timestampMs: 'vd2rsa9v6f8q606s',
-    qk: 'cblh9xe0bgwjy5ij',
-    desiredNumItems: '3ymaq7slb165porj',
-    minTimestampMs: 's9jf2seni33y3gyu',
-    maxTimestampMs: '2kh3vti98rhp3g29',
-    chatTab: '7n7ocqfq1p18352b', //guessed parameter name - only seen munged
-    ascendingTimestampOrder: 'p88a2ztchtjhiazl',
-    message: 'e8qm0kptw2trrcrw',
-    latE6: 'fja1phtsqxm71dqm',
-    lngE6: 'iut1tb7c0x726hwn',
-    guids: '5hyiwhwc0jyljvro',
-    inviteeEmailAddress: 's9z6zt03eymzxhkj',
-  },
-
-  // set 4 - second update of 2013-09-30
-  {
-    'dashboard.getGameScore': 'ija9jgrf5hj7wm9r',          // GET_GAME_SCORE
-    'dashboard.getPaginatedPlextsV2': '0elftx739mkbzi1b',  // GET_PAGINATED_PLEXTS
-    'dashboard.getThinnedEntitiesV4': 'prv0ez8cbsykh63g',  // GET_THINNED_ENTITIES
-    'dashboard.getPlayersByGuids': 'i0lxy6nc695z9ka3',     // LOOKUP_PLAYERS
-    'dashboard.redeemReward': '376oivna8rf8qbfj',          // REDEEM_REWARD
-    'dashboard.sendInviteEmail': '96y930v5q96nrcrw',       // SEND_INVITE_EMAIL
-    'dashboard.sendPlext': 'c04kceytofuqvyqg',             // SEND_PLEXT
-
-    method: '9we4b31i48ui4sdm',
-    version: 'q402kn5zqisuo1ym', //guessed parameter name - only seen munged
-    version_parameter: 'dbad4485024d446ae946e3d287b5d640029ef3e3', // passed as the value to the above parameter
-    boundsParamsList: '3r5ctyvc2f653zjd',
-    id: 'izey8ciqg2dz2oqc',
-    minLatE6: 'cein0n4jrifa7ui2',
-    minLngE6: 'lbd1juids3johtdo',
-    maxLatE6: 'h4kyot9kmvd3g284',
-    maxLngE6: 'sbci6jjc2d5g9uy4',
-    timestampMs: '2wurn9giagbvv6bt',
-    qk: 'hq73mwpjqyvcp6ul',
-    desiredNumItems: 'kyo6vh5n58hmrnua',
-    minTimestampMs: 'hu4swdftcp7mvkdi',
-    maxTimestampMs: 'ly6ylae5lv1z9072',
-    chatTab: 'q5kxut5rmbtlqbf9', //guessed parameter name - only seen munged
-    ascendingTimestampOrder: 'hvfd0io35rahwjgr',
-    message: 'z4hf7tzl27o14455',
-    latE6: 'zyzh3bdxyd47vk1x',
-    lngE6: 'n5d1f8pql51t641x',
-    guids: 'gl16ehqoc3i3oi07',
-    inviteeEmailAddress: 'orc9ufg7rp7g1y9j',
-  },
-
-];
+window.requestParameterMunges = [];  // TODO: Cleared-Out for now
 window.activeRequestMungeSet = undefined;
 
-// attempt to guess the munge set in use, by looking therough the functions of the stock intel page for one of the munged params
+// attempt to guess the munge set in use, by looking through stock dashboard code for all of the munged params
 window.detectActiveMungeSet = function() {
-  if (window.requestParameterMunges.length == 1) {
-    // no point in searching through the code when there's only one set in use
-    window.activeRequestMungeSet = 0;
-    return;
-  }
 
-  // try and find the stock page functions
-  // FIXME? revert to searching through all the code? is that practical?
-  var stockFunc = nemesis.dashboard.network.DataFetcher.prototype.sendRequest_.toString()
-  for (var i in window.requestParameterMunges) {
-    if (stockFunc.indexOf (window.requestParameterMunges[i]['method']) >= 0) {
-      console.log('IITC: found request munge set index '+i+' in stock intel function nemesis.dashboard.network.DataFetcher.prototype.sendRequest_');
-      window.activeRequestMungeSet = i;
-    }
-  }
+    var gen_dashboard;
 
-  if (window.activeRequestMungeSet===undefined) {
-    console.error('IITC: failed to find request munge set - IITC will likely fail');
+    // Load the stock dashboard code to parse
+    $.ajax({
+        type: "GET",
+        url: "/jsc/gen_dashboard.js",
+        dataType: "text",
+        async: false,
+        success: function (data){
+            gen_dashboard=data;
+        }
+    });
+
+    //  Remove Carriage Returns from code
+    gen_dashboard = gen_dashboard.replace(/[\n\r]/g, '');
+
+    // Parsed Code Storage
+    var code = [];
+
+    // RegEx to breakdown code into more manageble pieces
+    var regexCode = /([\w]+)\s=\s[^{]*({(?:{(?:{(?:{(?:{(?:{(?:{.*?}|.)*?}|.)*?}|.)*?}|.)*?}|.)*?}|.)*?})/g;
+    var funcs;
+
+    // Store detected munges into corresponding functions etc
+    while (funcs = regexCode.exec(gen_dashboard))
+    {
+        var regexMunge = /([a-z0-9]*(?=[a-z0-9]*\d)(?=[a-z0-9]*[a-z0-9])[a-z0-9]{16,})/g;
+        var munges = [];
+        while (munge = regexMunge.exec(funcs[0]))
+        {
+            munges.push(munge[1]);
+        };
+        if (munges.length >0)
+            code[funcs[1]]={ munges: munges };
+    };
+
+    // Replace default munge set
+    window.requestParameterMunges[0] = {
+        'dashboard.getGameScore': code['MethodName'].munges[0],           // GET_GAME_SCORE
+        'dashboard.getPaginatedPlextsV2': code['MethodName'].munges[1],  // GET_PAGINATED_PLEXTS
+        'dashboard.getThinnedEntitiesV4': code['MethodName'].munges[2],  // GET_THINNED_ENTITIES
+        'dashboard.getPlayersByGuids': code['MethodName'].munges[3],     // LOOKUP_PLAYERS
+        'dashboard.redeemReward': code['MethodName'].munges[4],      // REDEEM_REWARD
+        'dashboard.sendInviteEmail': code['MethodName'].munges[5],// SEND_INVITE_EMAIL
+        'dashboard.sendPlext': code['MethodName'].munges[6],             // SEND_PLEXT
+
+        method: code['sendRequest_'].munges[0],
+        version: code['sendRequest_'].munges[1], //guessed parameter name - only seen munged
+        version_parameter: code['sendRequest_'].munges[2], // passed as the value to the above parameter
+        boundsParamsList: code['getGameEntities'].munges[1],
+        id: code['getGameEntities'].munges[2],
+        minLatE6:  code['getGameEntities'].munges[3],
+        minLngE6:  code['getGameEntities'].munges[4],
+        maxLatE6:  code['getGameEntities'].munges[5],
+        maxLngE6:  code['getGameEntities'].munges[6],
+        timestampMs:  code['getGameEntities'].munges[7],
+        qk:  code['getGameEntities'].munges[8],
+        desiredNumItems:  code['getPlexts'].munges[0],
+        minTimestampMs: code['getPlexts'].munges[5],
+        maxTimestampMs: code['getPlexts'].munges[6],
+        chatTab: code['getPlexts'].munges[7], //guessed parameter name - only seen munged
+        ascendingTimestampOrder: code['getPlexts'].munges[8],
+        message: code['sendPlext'].munges[0],
+        latE6: code['sendPlext'].munges[1],
+        lngE6: code['sendPlext'].munges[2],
+        guids: code['lookupPlayersByGuids'].munges[0],
+        inviteeEmailAddress: code['sendInviteEmail'].munges[0]
+    };
+
+    // Set the active Munge set to this one
     window.activeRequestMungeSet = 0;
-  }
 }
 
 // niantic now add some munging to the request parameters. so far, only two sets of this munging have been seen
 window.requestDataMunge = function(data) {
-  var activeMunge = window.requestParameterMunges[window.activeRequestMungeSet];
+  var activeMunge = window.requestParameterMunges[0]; //TODO: Set to 0 always for now.
 
   function munge(obj) {
     if (Object.prototype.toString.call(obj) === '[object Array]') {
