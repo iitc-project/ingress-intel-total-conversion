@@ -572,8 +572,6 @@ public class IITC_Mobile extends Activity {
      */
     public void onReceivedLoginRequest(IITC_WebViewClient client, WebView view,
             String realm, String account, String args) {
-        Log.d("iitcm", "logging in...set caching mode to default");
-        mIitcWebView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
         mLogin = new IITC_DeviceAccountLogin(this, view, client);
         mLogin.startLogin(realm, account, args);
     }

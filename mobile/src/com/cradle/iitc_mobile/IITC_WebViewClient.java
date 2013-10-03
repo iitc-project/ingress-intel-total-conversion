@@ -161,6 +161,8 @@ public class IITC_WebViewClient extends WebViewClient {
     @Override
     public void onReceivedLoginRequest(WebView view, String realm, String account, String args) {
         Log.d("iitcm", "Login requested: " + realm + " " + account + " " + args);
+        Log.d("iitcm", "logging in...set caching mode to default");
+        view.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
         //((IITC_Mobile) mContext).onReceivedLoginRequest(this, view, realm, account, args);
     }
 
