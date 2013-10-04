@@ -24,7 +24,6 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.CookieManager;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -36,17 +35,15 @@ import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.Stack;
 
-public class IITC_Mobile extends Activity {
+public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeListener, LocationListener {
 
     private static final int REQUEST_LOGIN = 1;
 
     private IITC_WebView mIitcWebView;
-    private OnSharedPreferenceChangeListener mSharedPrefChangeListener;
     private final String mIntelUrl = "https://www.ingress.com/intel";
     private boolean mIsLocEnabled = false;
     private Location mLastLocation = null;
     private LocationManager mLocMngr = null;
-    private LocationListener mLocListener = null;
     private boolean mFullscreenMode = false;
     private IITC_DeviceAccountLogin mLogin;
     private MenuItem mSearchMenuItem;
@@ -81,39 +78,7 @@ public class IITC_Mobile extends Activity {
 
         // do something if user changed something in the settings
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        mSharedPrefChangeListener = new OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(
-                    SharedPreferences sharedPreferences, String key) {
-                if (key.equals("pref_force_desktop")) {
-                    mDesktopMode = sharedPreferences.getBoolean("pref_force_desktop", false);
-                    mNavigationHelper.onPrefChanged();
-                }
-                if (key.equals("pref_user_loc"))
-                    mIsLocEnabled = sharedPreferences.getBoolean("pref_user_loc",
-                            false);
-                if (key.equals("pref_fullscreen_actionbar")) {
-                    mNavigationHelper.onPrefChanged();
-                    return;
-                }
-                if (key.equals("pref_advanced_menu")) {
-                    mAdvancedMenu = sharedPreferences.getBoolean("pref_advanced_menu", false);
-                    mNavigationHelper.setDebugMode(mAdvancedMenu);
-                    invalidateOptionsMenu();
-                    // no reload needed
-                    return;
-                }
-
-                if (key.equals("pref_press_twice_to_exit")
-                        || key.equals("pref_share_selected_tab")
-                        || key.equals("pref_messages"))
-                    // no reload needed
-                    return;
-
-                mReloadNeeded = true;
-            }
-        };
-        mSharedPrefs.registerOnSharedPreferenceChangeListener(mSharedPrefChangeListener);
+        mSharedPrefs.registerOnSharedPreferenceChangeListener(this);
 
         // enable/disable mDesktopMode mode on menu create and url load
         mDesktopMode = mSharedPrefs.getBoolean("pref_force_desktop", false);
@@ -125,33 +90,14 @@ public class IITC_Mobile extends Activity {
         mLocMngr = (LocationManager) this
                 .getSystemService(Context.LOCATION_SERVICE);
 
-        // Define a mSharedPrefChangeListener that responds to location updates
-        mLocListener = new LocationListener() {
-            public void onLocationChanged(Location location) {
-                // Called when a new location is found by the network location
-                // provider.
-                drawMarker(location);
-                mLastLocation = location;
-            }
-
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-            }
-
-            public void onProviderEnabled(String provider) {
-            }
-
-            public void onProviderDisabled(String provider) {
-            }
-        };
-
         mIsLocEnabled = mSharedPrefs.getBoolean("pref_user_loc", false);
         if (mIsLocEnabled) {
             // Register the mSharedPrefChangeListener with the Location Manager to receive
             // location updates
             mLocMngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
-                    0, 0, mLocListener);
+                    0, 0, this);
             mLocMngr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
-                    mLocListener);
+                    this);
         }
 
         // Clear the back stack
@@ -159,6 +105,63 @@ public class IITC_Mobile extends Activity {
 
         handleIntent(getIntent(), true);
     }
+
+    // --------------------- onSharedPreferenceListener -----------------------
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals("pref_force_desktop")) {
+            mDesktopMode = sharedPreferences.getBoolean("pref_force_desktop", false);
+            mNavigationHelper.onPrefChanged();
+        }
+        if (key.equals("pref_user_loc"))
+            mIsLocEnabled = sharedPreferences.getBoolean("pref_user_loc",
+                    false);
+        if (key.equals("pref_fullscreen_actionbar")) {
+            mNavigationHelper.onPrefChanged();
+            return;
+        }
+        if (key.equals("pref_advanced_menu")) {
+            mAdvancedMenu = sharedPreferences.getBoolean("pref_advanced_menu", false);
+            mNavigationHelper.setDebugMode(mAdvancedMenu);
+            invalidateOptionsMenu();
+            // no reload needed
+            return;
+        }
+
+        if (key.equals("pref_press_twice_to_exit")
+                || key.equals("pref_share_selected_tab")
+                || key.equals("pref_messages"))
+            // no reload needed
+            return;
+
+        mReloadNeeded = true;
+    }
+    // ------------------------------------------------------------------------
+
+    // ------------------------ LocationListener ------------------------------
+    @Override
+    public void onLocationChanged(Location location) {
+        // Called when a new location is found by the network location
+        // provider.
+        drawMarker(location);
+        mLastLocation = location;
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
+    // ------------------------------------------------------------------------
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -273,8 +276,8 @@ public class IITC_Mobile extends Activity {
         if (mIsLocEnabled) {
             // Register the mSharedPrefChangeListener with the Location Manager to receive
             // location updates
-            mLocMngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, mLocListener);
-            mLocMngr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocListener);
+            mLocMngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+            mLocMngr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         }
 
         if (mReloadNeeded) {
@@ -295,7 +298,7 @@ public class IITC_Mobile extends Activity {
         mIitcWebView.loadUrl("javascript: window.idleSet();");
 
         if (mIsLocEnabled)
-            mLocMngr.removeUpdates(mLocListener);
+            mLocMngr.removeUpdates(this);
 
         super.onStop();
     }
