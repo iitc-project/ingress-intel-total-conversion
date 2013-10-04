@@ -53,7 +53,7 @@ public class IITC_WebView extends WebView {
              */
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin,
-                    GeolocationPermissions.Callback callback) {
+                                                           GeolocationPermissions.Callback callback) {
                 callback.invoke(origin, true, false);
             }
 

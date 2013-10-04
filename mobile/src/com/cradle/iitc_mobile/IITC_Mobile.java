@@ -283,8 +283,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         if (mReloadNeeded) {
             Log.d("iitcm", "preference had changed...reload needed");
             reloadIITC();
-        }
-        else {
+        } else {
             // iitc is not fully booted...timer will be reset by the script itself
             if (findViewById(R.id.imageLoading).getVisibility() == View.GONE) {
                 mIitcWebView.loadUrl("javascript: window.idleReset();");
@@ -353,7 +352,6 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
         if (mBackButtonPressed || !mSharedPrefs.getBoolean("pref_press_twice_to_exit", false)) {
             super.onBackPressed();
-            return;
         } else {
             mBackButtonPressed = true;
             Toast.makeText(this, "Press twice to exit", Toast.LENGTH_SHORT).show();
@@ -574,7 +572,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
      * called by IITC_WebViewClient when the Google login form is opened.
      */
     public void onReceivedLoginRequest(IITC_WebViewClient client, WebView view,
-            String realm, String account, String args) {
+                                       String realm, String account, String args) {
         mLogin = new IITC_DeviceAccountLogin(this, view, client);
         mLogin.startLogin(realm, account, args);
     }
@@ -621,8 +619,8 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     }
 
     /**
-     * @deprecated ActionBar related stuff should be handled by IITC_NavigationHelper
      * @see getNavigationHelper()
+     * @deprecated ActionBar related stuff should be handled by IITC_NavigationHelper
      */
     @Deprecated
     @Override

@@ -18,7 +18,7 @@ import java.util.Locale;
 // provide communication between IITC script and android app
 public class IITC_JSInterface {
     // context of main activity
-    private IITC_Mobile mIitc;
+    private final IITC_Mobile mIitc;
 
     IITC_JSInterface(IITC_Mobile iitc) {
         mIitc = iitc;
@@ -111,7 +111,7 @@ public class IITC_JSInterface {
             @Override
             public void run() {
                 mIitc.setLoadingState(false);
-                
+
                 mIitc.getMapSettings().onBootFinished();
             }
         });
