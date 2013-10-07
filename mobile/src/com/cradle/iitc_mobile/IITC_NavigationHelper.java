@@ -60,8 +60,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
                 view.setText(getPaneTitle(item));
 
             int icon = 0;
-            switch (item)
-            {
+            switch (item) {
                 case MAP:
                     icon = R.drawable.location_map;
                     break;
@@ -100,13 +99,13 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     public static final int NOTICE_INFO = 1 << 1;
     // next one would be 1<<2; (this results in 1,2,4,8,...)
 
-    private IITC_Mobile mIitc;
-    private ActionBar mActionBar;
-    private SharedPreferences mPrefs;
-    private NavigationAdapter mNavigationAdapter;
-    private DrawerLayout mDrawerLayout;
-    private ListView mDrawerLeft;
-    private View mDrawerRight;
+    private final IITC_Mobile mIitc;
+    private final ActionBar mActionBar;
+    private final SharedPreferences mPrefs;
+    private final NavigationAdapter mNavigationAdapter;
+    private final DrawerLayout mDrawerLayout;
+    private final ListView mDrawerLeft;
+    private final View mDrawerRight;
 
     private boolean mDesktopMode = false;
     private boolean mFullscreen = false;
@@ -236,8 +235,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         mDrawerLayout.closeDrawers();
     }
 
-    public String getPaneTitle(Pane pane)
-    {
+    public String getPaneTitle(Pane pane) {
         switch (pane) {
             case INFO:
                 return "Info";

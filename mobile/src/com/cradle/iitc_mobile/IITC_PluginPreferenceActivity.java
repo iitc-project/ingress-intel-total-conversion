@@ -62,7 +62,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if(onIsMultiPane()) getIntent()
+        if (onIsMultiPane()) getIntent()
                 .putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, PluginsFragment.class.getName());
         super.onCreate(savedInstanceState);
     }
@@ -76,7 +76,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         // Select the displayed fragment in the headers (when using a tablet) :
         // This should be done by Android, it is a bug fix
         // thx to http://stackoverflow.com/a/16793839
-        if(mHeaders != null) {
+        if (mHeaders != null) {
 
             final String displayedFragment = getIntent().getStringExtra(EXTRA_SHOW_FRAGMENT);
             if (displayedFragment != null) {
@@ -227,7 +227,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
 
         // now we have all stuff together and can build the preference
         // first check if we need a new category
-        if (sPlugins.containsKey(plugin_cat) == false) {
+        if (!sPlugins.containsKey(plugin_cat)) {
             sPlugins.put(plugin_cat, new ArrayList<IITC_PluginPreference>());
             Log.d("iitcm", "create " + plugin_cat + " and add " + plugin_name);
         }
@@ -288,7 +288,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
             TextView summary;
         }
 
-        private LayoutInflater mInflater;
+        private final LayoutInflater mInflater;
 
         static int getHeaderType(Header header) {
             if (header.fragment == null && header.intent == null) {

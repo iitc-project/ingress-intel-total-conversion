@@ -74,7 +74,7 @@ public class IntentListView extends ListView {
 
     private IntentAdapter mAdapter;
     private PackageManager mPackageManager;
-    HashMap<ComponentName, Intent> mActivities = new HashMap<ComponentName, Intent>();
+    private final HashMap<ComponentName, Intent> mActivities = new HashMap<ComponentName, Intent>();
 
     public IntentListView(Context context) {
         super(context);
@@ -155,7 +155,6 @@ public class IntentListView extends ListView {
                     if (hasCopyIntent || !activity.name.equals(SendToClipboard.class.getCanonicalName())) {
                         activityList.remove(i);
                         i--;
-                        continue;
                     }
                 }
             }
@@ -172,8 +171,7 @@ public class IntentListView extends ListView {
                     if (resolveInfo.activityInfo.packageName.equals(defaultTarget.activityInfo.packageName)
                             && resolveInfo.activityInfo.name.equals(defaultTarget.activityInfo.name)) {
                         allActivities.add(0, resolveInfo);
-                    }
-                    else {
+                    } else {
                         allActivities.add(resolveInfo);
                     }
                 }

@@ -148,7 +148,7 @@ public class IITC_WebViewClient extends WebViewClient {
     @Override
     public void onPageFinished(WebView view, String url) {
         if (url.startsWith("http://www.ingress.com/intel")
-         || url.startsWith("https://www.ingress.com/intel")) {
+                || url.startsWith("https://www.ingress.com/intel")) {
             Log.d("iitcm", "injecting iitc..");
             view.loadUrl("javascript: " + this.mIitcScript);
         }

@@ -22,7 +22,7 @@ import java.util.Comparator;
 
 public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickListener, OnItemLongClickListener {
     private class HighlighterAdapter extends ArrayAdapter<String> {
-        private HighlighterComparator mComparator = new HighlighterComparator();
+        private final HighlighterComparator mComparator = new HighlighterComparator();
 
         private HighlighterAdapter(int resource) {
             super(mIitc, resource);
@@ -67,8 +67,7 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
         }
     }
 
-    private class LayerAdapter extends ArrayAdapter<Layer>
-    {
+    private class LayerAdapter extends ArrayAdapter<Layer> {
         public LayerAdapter(int resource) {
             super(mIitc, resource);
         }
@@ -84,15 +83,15 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
         }
     }
 
-    private IITC_Mobile mIitc;
+    private final IITC_Mobile mIitc;
 
-    private ArrayAdapter<String> mHighlighters;
-    private ArrayAdapter<Layer> mBaseLayers;
-    private ArrayAdapter<Layer> mOverlayLayers;
+    private final ArrayAdapter<String> mHighlighters;
+    private final ArrayAdapter<Layer> mBaseLayers;
+    private final ArrayAdapter<Layer> mOverlayLayers;
 
-    private Spinner mSpinnerBaseMap;
-    private Spinner mSpinnerHighlighter;
-    private ListView mListViewOverlayLayers;
+    private final Spinner mSpinnerBaseMap;
+    private final Spinner mSpinnerHighlighter;
+    private final ListView mListViewOverlayLayers;
 
     private String mActiveHighlighter;
     private int mActiveLayer;
@@ -181,8 +180,7 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
         if (parent.equals(mSpinnerHighlighter)) {
             String name = mHighlighters.getItem(position);
             mIitc.getWebView().loadUrl("javascript: window.changePortalHighlights('" + name + "')");
-        }
-        else if (parent.equals(mSpinnerBaseMap)) {
+        } else if (parent.equals(mSpinnerBaseMap)) {
             mBaseLayers.getItem(mActiveLayer).active = false; // set old layer to hidden, but no need to really hide
 
             Layer layer = mBaseLayers.getItem(position);
@@ -253,7 +251,6 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
                 mBaseLayers.add(layer);
             } catch (JSONException e) {
                 e.printStackTrace();
-                continue;
             }
         }
         mBaseLayers.notifyDataSetChanged();
@@ -273,7 +270,6 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
                 mOverlayLayers.add(layer);
             } catch (JSONException e) {
                 e.printStackTrace();
-                continue;
             }
         }
         mOverlayLayers.notifyDataSetChanged();
