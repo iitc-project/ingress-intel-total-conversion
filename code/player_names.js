@@ -40,8 +40,10 @@ window.playerNameToGuid = function(playerName) {
   if (cachedGuid !== undefined) return cachedGuid;
 
   // IITC needs our own player GUID, from a lookup by name. so we retrieve this from localstorage (if available)
-  cachedGuid = localStorage['PLAYER-'+PLAYER.nickname];
-  if (cachedGuid !== undefined) return cachedGuid;
+  if (playerName == PLAYER.nickname) {
+    cachedGuid = localStorage['PLAYER-'+PLAYER.nickname];
+    if (cachedGuid !== undefined) return cachedGuid;
+  }
 
   var guid = null;
   $.each(Object.keys(sessionStorage), function(ind,key) {
