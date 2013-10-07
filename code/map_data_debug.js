@@ -37,7 +37,8 @@ window.RenderDebugTiles.prototype.setState = function(id,state) {
   var col = '#f0f';
   var fill = '#f0f';
   switch(state) {
-    case 'ok': col='#0f0'; fill='#0f0'; break;
+    case 'ok': col='#080'; fill='#080'; break;
+    case 'ok-delta': col='#0f0'; fill='#0f0'; break;
     case 'error': col='#f00'; fill='#f00'; break;
     case 'cache-fresh': col='#0f0'; fill='#ff0'; break;
     case 'cache-stale': col='#f00'; fill='#ff0'; break;

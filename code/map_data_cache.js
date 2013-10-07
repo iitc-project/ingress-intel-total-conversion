@@ -2,8 +2,14 @@
 // cache for map data tiles. 
 
 window.DataCache = function() {
-  this.REQUEST_CACHE_FRESH_AGE = 60;  // if younger than this, use data in the cache rather than fetching from the server
-  this.REQUEST_CACHE_MAX_AGE = 180;  // maximum cache age. entries are deleted from the cache after this time
+  // stock site nemesis.dashboard.DataManager.CACHE_EXPIRY_MS_ = 18E4 - so should be 2 mins cache time
+  this.REQUEST_CACHE_FRESH_AGE = 120;  // if younger than this, use data in the cache rather than fetching from the server
+
+  // stale cache entries can be updated (that's what the optional 'timestampMs' field in getThinnedEntnties is
+  // for, retrieving deltas) so use a long max age to take advantage of this
+  // however, ther must be an overall limit on the maximum age of data from the servers, otherwise the deletedEntity
+  // entries would grow indefinitely. an hour seems reasonable from experience with the data, so 55 mins max cache time
+  this.REQUEST_CACHE_MAX_AGE = 55*60;  // maximum cache age. entries are deleted from the cache after this time
 
   if (L.Browser.mobile) {
     // on mobile devices, smaller cache size
