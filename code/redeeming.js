@@ -1,68 +1,80 @@
 // REDEEMING ///////////////////////////////////////////////////////
 // Heuristic passcode redemption that tries to guess unknown items /
-////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////// [NUMINIT] /
+
+/* This component's namespace.
+ */
+window.redeem = function(passcode, options) {
+  return window.redeem.redeemCode(passcode, options);
+};
 
 /* Abbreviates redemption items.
  * Example: VERY_RARE => VR
  */
-window.REDEEM_ABBREVIATE = function(tag) {return tag.split('_').map(function (i) {return i[0];}).join('');};
+window.redeem.REDEEM_ABBREVIATE = function(tag) {return tag.split('_').map(function (i) {return i[0];}).join('');};
 
 /* Resource type names mapped to actual names and abbreviations.
  * Add more here if necessary.
  * Sometimes, items will have more information than just a level. Allow for specialization.
  */
-window.REDEEM_RESOURCES = {
+window.redeem.REDEEM_RESOURCES = {
   RES_SHIELD: {
     /* modResource */
-    format: function(acquired) {
-      return {long: 'Portal Shield', short: 'S'};
+    format: function() {
+      return {long: 'Portal Shield', short: 'SH'};
     }
   },
   FORCE_AMP: {
-    format: function(acquired) {
+    /* modResource */
+    format: function() {
       return {long: 'Force Amp', short: 'FA'};
     }
   },
-  LINK_AMP: {
-    format: function(acquired) {
+  LINK_AMPLIFIER: {
+    /* modResource */
+    format: function() {
       return {long: 'Link Amp', short: 'LA'};
     }
   },
   HEATSINK: {
-    format: function(acquired) {
-      return {long: 'Heatsink', short: 'H'};
+    /* modResource */
+    format: function() {
+      return {long: 'Heatsink', short: 'HS'};
     }
   },
   MULTIHACK: {
-    format: function(acquired) {
-      return {long: 'Multihack', short: 'M'};
+    /* modResource */
+    format: function() {
+      return {long: 'Multihack', short: 'MH'};
     }
   },
   TURRET: {
-    format: function(acquired) {
-      return {long: 'Turret', short: 'T'};
-    }
-  },
-  UNUSUAL: {
-    format: function(acquired) {
-      return {long: 'Unusual Object', short: 'U'};
+    /* modResource */
+    format: function() {
+      return {long: 'Turret', short: 'TU'};
     }
   },
   EMITTER_A: {
     /* resourceWithLevels */
-    format: function(acquired) {
+    format: function() {
       return {long: 'Resonator', short: 'R'};
     }
   },
   EMP_BURSTER: {
     /* resourceWithLevels */
-    format: function(acquired) {
+    format: function() {
       return {long: 'XMP Burster', short: 'X'};
+    }
+  },
+  ULTRA_STRIKE: {
+    /* resourceWithLevels */
+    format: function() {
+      return {long: 'Ultra Strike', short: 'U'};
     }
   },
   POWER_CUBE: {
     /* resourceWithLevels */
-    format: function(acquired) {
+    format: function() {
       return {long: 'Power Cube', short: 'C'};
     }
   },
@@ -80,6 +92,8 @@ window.REDEEM_RESOURCES = {
       /* ADA or JARVIS */
       return acquired.flipCard.flipCardType;
     },
+
+    /* resource */
     format: function(acquired) {
       var type = acquired.flipCard.flipCardType;
       return {
@@ -95,13 +109,21 @@ window.REDEEM_RESOURCES = {
       /* A unique identifier for this portal. */
       return acquired.portalCoupler.portalGuid;
     },
+
+    /* resource */
     format: function(acquired) {
       return {
         long: 'Portal Key: ' + acquired.portalCoupler.portalTitle || 'Unknown Portal',
         short: 'K'
       };
     }
-  }
+  },
+  UNUSUAL: {
+    /* resource */
+    format: function(acquired) {
+      return {long: 'Unusual Object', short: '?'};
+    }
+  },
 };
 
 /* Redemption "handlers" handle decoding and formatting for rewards.
@@ -113,7 +135,7 @@ window.REDEEM_RESOURCES = {
  * Right now, Ingress has resourceWithLevels (leveled resources) and modResource (mods).
  * Resources with levels have levels, and mods have rarity. Format them appropriately.
  */
-window.REDEEM_HANDLERS = {
+window.redeem.REDEEM_HANDLERS = {
   resource: {
     decode: function(type, acquired, key) {return 'RESOURCE';},
     format: function(acquired, group) {
@@ -147,7 +169,7 @@ window.REDEEM_HANDLERS = {
     format: function(acquired, rarity) {
       var prefix = '<span style="color: ' + (window.COLORS_MOD[rarity] || 'white') + ';">';
       var suffix = '</span>';
-      var abbreviation = window.REDEEM_ABBREVIATE(rarity);
+      var abbreviation = window.redeem.REDEEM_ABBREVIATE(rarity);
       return {
         table: '<td>' + prefix + abbreviation + suffix + '</td><td>' + acquired.str.long + ' [' + acquired.count + ']</td>',
         html:  acquired.count + '&#215;' + acquired.str.short + ':' + prefix + abbreviation + suffix,
@@ -159,23 +181,24 @@ window.REDEEM_HANDLERS = {
 
 /* Redemption "hints" hint at what an unknown resource might be from its object properties.
  */
-window.REDEEM_HINTS = {
+window.redeem.REDEEM_HINTS = {
   level: 'resourceWithLevels',
   rarity: 'modResource'
 };
 
 /* Redemption errors. Very self-explanatory.
  */
-window.REDEEM_ERRORS = {
+window.redeem.REDEEM_ERRORS = {
   ALREADY_REDEEMED: 'The passcode has already been redeemed.',
   ALREADY_REDEEMED_BY_PLAYER : 'You have already redeemed this passcode.',
-  INVALID_PASSCODE: 'This passcode is invalid.'
+  INVALID_PASSCODE: 'This passcode is invalid.',
+  INVENTORY_FULL: 'Your inventory is full.'
 };
 
 /* These are HTTP status codes returned by the redemption API.
  * TODO: Move to another file? Use more generally across IITC?
  */
-window.REDEEM_STATUSES = {
+window.redeem.REDEEM_STATUSES = {
   429: 'You have been rate-limited by the server. Wait a bit and try again.',
   500: 'Internal server error'
 };
@@ -183,7 +206,7 @@ window.REDEEM_STATUSES = {
 /* Encouragement for people who got it in.
  * Just for fun.
  */
-window.REDEEM_ENCOURAGEMENT = [
+window.redeem.REDEEM_ENCOURAGEMENT = [
   "Passcode accepted!",
   "Access granted.",
   "Resources acquired.",
@@ -193,19 +216,19 @@ window.REDEEM_ENCOURAGEMENT = [
   "Make the " + {'RESISTANCE' : 'Resistance', 'ENLIGHTENED' : 'Enlightened'}[PLAYER.team] + " proud!"
 ];
 
-window.handleRedeemResponse = function(data, textStatus, jqXHR) {
+window.redeem.success = function(data, textStatus, jqXHR) {
   var passcode = this.passcode, to_dialog, to_log, dialog_title, dialog_buttons;
 
   if(data.error) {
     // What to display
-    to_dialog = '<strong>' + data.error + '</strong><br />' + (window.REDEEM_ERRORS[data.error] || 'There was a problem redeeming the passcode. Try again?');
+    to_dialog = '<strong>' + data.error + '</strong><br />' + (window.redeem.REDEEM_ERRORS[data.error] || 'There was a problem redeeming the passcode. Try again?');
     to_log    = '[ERROR] ' + data.error;
 
     // Dialog options
     dialog_title   = 'Error: ' + passcode;
     dialog_buttons = {};
   } else if(data.result) {
-    var encouragement = window.REDEEM_ENCOURAGEMENT[Math.floor(Math.random() * window.REDEEM_ENCOURAGEMENT.length)];
+    var encouragement = window.redeem.REDEEM_ENCOURAGEMENT[Math.floor(Math.random() * window.redeem.REDEEM_ENCOURAGEMENT.length)];
     var payload = {};
     var inferred = [];
     var results = {
@@ -221,22 +244,22 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
       // The "what the heck is this item" heuristic
       $.each(acquired, function (taxonomy, attribute) {
         if('resourceType' in attribute) {
-          if(taxonomy in window.REDEEM_HANDLERS) {
+          if(taxonomy in window.redeem.REDEEM_HANDLERS) {
             // Cool. We know how to directly handle this item.
             handler = {
-              functions: window.REDEEM_HANDLERS[taxonomy],
+              functions: window.redeem.REDEEM_HANDLERS[taxonomy],
               taxonomy: taxonomy,
               processed_as: taxonomy
             };
           } else {
             // Let's see if we can get a hint for how we should handle this.
             $.each(attribute, function (attribute_key, attribute_value) {
-              if(attribute_key in window.REDEEM_HINTS) {
+              if(attribute_key in window.redeem.REDEEM_HINTS) {
                 // We're not sure what this item is, but we can process it like another item
                 handler = {
-                  functions: (window.REDEEM_HANDLERS[window.REDEEM_HINTS[attribute_key]] || window.REDEEM_HANDLERS.resource),
+                  functions: (window.redeem.REDEEM_HANDLERS[window.redeem.REDEEM_HINTS[attribute_key]] || window.redeem.REDEEM_HANDLERS.resource),
                   taxonomy: taxonomy,
-                  processed_as: window.REDEEM_HINTS[attribute_key]
+                  processed_as: window.redeem.REDEEM_HINTS[attribute_key]
                 };
                 return false;
               }
@@ -244,7 +267,7 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
 
             // Fall back to the default handler if necessary
             handler = handler || {
-              functions: window.REDEEM_HANDLERS.resource,
+              functions: window.redeem.REDEEM_HANDLERS.resource,
               taxonomy: taxonomy,
               processed_as: 'resource'
             };
@@ -254,7 +277,7 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
           type = attribute.resourceType;
 
           // Prefer the resource's native format, falling back to a generic version that applies to an entire taxonomy
-          resource = $.extend({format: function(acquired) {return {long: type, short: type[0]};}}, window.REDEEM_RESOURCES[type] || {});
+          resource = $.extend({format: function(acquired) {return {long: type, short: type[0]};}}, window.redeem.REDEEM_RESOURCES[type] || {});
 
           // Get strings pertaining to this item, using server overrides for the item name if possible
           str = $.extend(resource.format(acquired),
@@ -266,7 +289,7 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
           key  = (resource.decode || handler.functions.decode)(type, acquired, handler.taxonomy);
 
           // Decide if we inferred this resource
-          if(!(type in window.REDEEM_RESOURCES) || handler.taxonomy !== handler.processed_as) {
+          if(!(type in window.redeem.REDEEM_RESOURCES) || handler.taxonomy !== handler.processed_as) {
             str.long  += '*';
             str.short += '*';
             inferred.push({type: type, key: key, handler: handler});
@@ -308,11 +331,11 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
     if(inferred.length > 0) {
       results.table.push('<td>*</td><td>Guessed (check console)</td>');
       $.each(inferred, function (idx, val) {
-        console.log(passcode +
+        console.log('redeem.success: ' + passcode +
                     ' => [INFERRED] ' + val.type + ':' + val.key + ' :: ' +
                     val.handler.taxonomy + ' =~ ' + val.handler.processed_as);
       });
-      console.log(passcode + ' => [RESPONSE] ' + JSON.stringify(data));
+      console.log('redeem.success: ' + passcode + ' => [RESPONSE] ' + JSON.stringify(data));
     }
 
     // Display formatted versions in a table, plaintext, and the console log
@@ -338,26 +361,31 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
     buttons: dialog_buttons,
     html: to_dialog
   });
-  console.log(passcode + ' => ' + to_log);
+  console.log('redeem.success: ' + passcode + ' => ' + to_log);
 };
 
-window.setupRedeem = function() {
+window.redeem.redeemCode = function(passcode, options) {
+  options = $.extend(options || {}, {success: window.redeem.success});
+  window.postAjax('redeemReward', {passcode: passcode}, options.success, options.failure);
+};
+
+window.redeem.setup = function() {
   $("#redeem").keypress(function(e) {
     if((e.keyCode ? e.keyCode : e.which) !== 13 || !$(this).val()) return;
-    var data = {passcode: $(this).val()};
-
-    window.postAjax('redeemReward', data, window.handleRedeemResponse,
-      function(response) {
+    window.redeem.redeemCode($(this).val(), {
+      success: window.redeem.success,
+      failure: function(response) {
         var extra = '';
         if(response.status) {
-          extra = (window.REDEEM_STATUSES[response.status] || 'The server indicated an error.') + ' (HTTP ' + response.status + ')';
+          extra = (window.redeem.REDEEM_STATUSES[response.status] || 'The server indicated an error.') + ' (HTTP ' + response.status + ')';
         } else {
           extra = 'No status code was returned.';
         }
         dialog({
-          title: 'Request failed: ' + data.passcode,
+          title: 'Request failed: ' + $(this).val(),
           html: '<strong>The HTTP request failed.</strong> ' + extra
         });
-      });
+      }
+    });
   });
 };
