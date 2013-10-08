@@ -9,7 +9,7 @@ So far, these people have contributed:
 [cmrn](https://github.com/cmrn),
 [epf](https://github.com/epf),
 [Fragger](https://github.com/Fragger),
-[integ3r](https://github.com/integ3r),
+[numinit](https://github.com/numinit),
 [j16sdiz](https://github.com/j16sdiz),
 [JasonMillward](https://github.com/JasonMillward),
 [jonatkins](https://github.com/jonatkins),
