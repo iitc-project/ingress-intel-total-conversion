@@ -91,7 +91,7 @@ window.dialog.open = function(options) {
       selector.dialog('close');
       selector.remove();
     } catch(err) {
-      console.log('window.dialog.dialog: Tried to close nonexistent dialog ' + id);
+      console.log('dialog.open: Tried to close nonexistent dialog ' + id);
     }
   }
 
