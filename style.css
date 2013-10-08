@@ -386,7 +386,7 @@ h2 {
 h2 #name {
   display: inline-block;
   overflow: hidden;
-  text-overflow: "~";
+  text-overflow: ellipsis;
   vertical-align: top;
   white-space: nowrap;
   width: 205px;
@@ -498,7 +498,7 @@ h3 {
   height: 23px;
   width: 100%;
   overflow:hidden;
-  text-overflow: "~";
+  text-overflow: ellipsis;
   white-space: nowrap;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -579,7 +579,7 @@ h3 {
 
 #randdetails td, #resodetails td {
   overflow: hidden;
-  text-overflow: "~";
+  text-overflow: ellipsis;
   vertical-align: top;
   white-space: nowrap;
   width: 50%;

@@ -2,7 +2,7 @@
 // @id             iitc-plugin-show-more-portals@jonatkins
 // @name           IITC plugin: Show more portals
 // @category       Tweaks
-// @version        0.1.3.@@DATETIMEVERSION@@
+// @version        0.1.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -32,9 +32,9 @@ window.plugin.showMorePortals.setup  = function() {
   window.getPortalDataZoom = function() {
     var mapZoom = map.getZoom();
 
-    // this plugin only cares about close in zoom levels (zoom 13 and higher) - run the original
+    // this plugin only cares about close in zoom levels (zoom 12 and higher) - run the original
     // code when this isn't the case. (this way, multiple zoom-modifying plugins can exist at once - in theory)
-    if (mapZoom < 13) {
+    if (mapZoom < 12) {
       return origGetPortalDataZoom();
     }
 

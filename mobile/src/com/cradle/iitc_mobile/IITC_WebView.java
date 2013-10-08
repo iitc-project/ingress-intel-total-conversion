@@ -42,7 +42,7 @@ public class IITC_WebView extends WebView {
                 + "/databases/");
         mSettings.setAppCachePath(this.getContext().getCacheDir()
                 .getAbsolutePath());
-        this.mJsInterface = new IITC_JSInterface(mContext);
+        this.mJsInterface = new IITC_JSInterface((IITC_Mobile) mContext);
         this.addJavascriptInterface(mJsInterface, "android");
 
         this.setWebChromeClient(new WebChromeClient() {
@@ -76,7 +76,7 @@ public class IITC_WebView extends WebView {
             public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
                 if (consoleMessage.messageLevel() == ConsoleMessage.MessageLevel.ERROR) {
                     Log.d("iitcm", consoleMessage.message());
-                    mJsInterface.removeSplashScreen();
+                    ((IITC_Mobile) getContext()).setLoadingState(false);
                 }
                 return super.onConsoleMessage(consoleMessage);
             }

@@ -2,7 +2,7 @@
 // @id             iitc-plugin-defense@gluckies
 // @name           IITC plugin: portal defense 
 // @category       Layer
-// @version        0.2.0.@@DATETIMEVERSION@@
+// @version        0.2.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -50,41 +50,17 @@ window.plugin.portalDefense.getDisplay = function() {
   return window.plugin.portalDefense.DisplayEnum.OFF;
 }
 
-window.plugin.portalDefense.computeDef = function(portal) {
-  var m = portal.options.details.portalV2.linkedModArray;
-  var ret = {};
-  ret.mod = 0;
-  ret.links = 0;
-  var display = "";
-  $.each(m, function(ind, mod) {
-    if (!mod) return true;
-    if(!mod.stats.MITIGATION)
-      return true;
-    ret.mod += parseInt(mod.stats.MITIGATION);
-  });
-  var link = 0;
-  $(portal.options.details.portalV2.linkedEdges).each(function () {
-    link++;
-  });
-  if (link > 0) {
-    ret.links = Math.round(400/9*Math.atan(link/Math.E));
-  }
-  ret.total = Math.min(95, ret.mod + ret.links);
-
-  return ret;
-}
-
 window.plugin.portalDefense.renderAttackRegion = function(portal) {
   plugin.portalDefense.removeAttackRegion(portal);
   if (window.plugin.portalDefense.currentDisplay == window.plugin.portalDefense.DisplayEnum.OFF) return;
 
   plugin.portalDefense.regionLayers[portal.options.guid] = [];
-  var defense = window.plugin.portalDefense.computeDef(portal);
+  var defense = window.getPortalMitigationDetails(portal.options.details);
   if (defense.total) {
     var display = defense.total;
     if (window.plugin.portalDefense.currentDisplay == window.plugin.portalDefense.DisplayEnum.DETAIL) {
-      if (defense.mod) {
-        display += "<br>"+"\u2297"+defense.mod;
+      if (defense.shields) {
+        display += "<br>"+"\u2297"+defense.shields;
       }
       if(defense.links) {
         display += "<br>"+"\u21b1"+defense.links;
@@ -105,8 +81,11 @@ window.plugin.portalDefense.renderAttackRegion = function(portal) {
 }
 
 window.plugin.portalDefense.reload = function() {
-  $.each(window.portals, function(ind, portal){
-    window.plugin.portalDefense.renderAttackRegion(portal)
+  $.each(window.portals, function(ind, portal) {
+    // only render mitigation details for portals added to the map
+    if (portal._map) {
+      window.plugin.portalDefense.renderAttackRegion(portal)
+    }
   });
 }
 

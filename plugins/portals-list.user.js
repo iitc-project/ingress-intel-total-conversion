@@ -301,6 +301,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   + '<th ' + sort('s2', sortBy, -1) + '>M2</th>'
   + '<th ' + sort('s3', sortBy, -1) + '>M3</th>'
   + '<th ' + sort('s4', sortBy, -1) + '>M4</th>'
+  + '<th ' + sort('mitigation', sortBy, -1) + '>Mit.</th>'
   + '<th ' + sort('APgain', sortBy, -1) + '>AP Gain</th>'
   + '<th title="Energy / AP Gain ratio" ' + sort('EAP', sortBy, -1) + '>E/AP</th>'
   + '<th ' + sort('age', sortBy, -1) + '>Age</th></tr>';
@@ -313,6 +314,9 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
       + '<td style="">' + window.plugin.portalslist.getPortalLink(portal.portal, portal.guid) + '</td>'
       + '<td class="L' + Math.floor(portal.level) +'">' + portal.level + '</td>'
       + '<td style="text-align:center;">' + portal.team + '</td>';
+
+      var mitigationDetails = getPortalMitigationDetails(portal.portal);
+      portal.mitigation = mitigationDetails.total + mitigationDetails.excess;
 
       var title;
       var percent;
@@ -333,6 +337,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
       + '<td style="cursor:help; background-color: '+COLORS_MOD[portal.mods[1][0]]+';" title="Mod : ' + portal.mods[1][3] + '\nInstalled by : ' + portal.mods[1][1] + '\nRarity : ' + portal.mods[1][0] + '">' + portal.mods[1][2] + '</td>'
       + '<td style="cursor:help; background-color: '+COLORS_MOD[portal.mods[2][0]]+';" title="Mod : ' + portal.mods[2][3] + '\nInstalled by : ' + portal.mods[2][1] + '\nRarity : ' + portal.mods[2][0] + '">' + portal.mods[2][2] + '</td>'
       + '<td style="cursor:help; background-color: '+COLORS_MOD[portal.mods[3][0]]+';" title="Mod : ' + portal.mods[3][3] + '\nInstalled by : ' + portal.mods[3][1] + '\nRarity : ' + portal.mods[3][0] + '">' + portal.mods[3][2] + '</td>'
+      + '<td>' + portal.mitigation + '</td>'
       + '<td>' + portal.APgain + '</td>'
       + '<td>' + portal.EAP + '</td>'
       + '<td style="cursor:help;" title="' + portal.age_string_long  + '">' + portal.age_string_short + '</td>';

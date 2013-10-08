@@ -148,7 +148,7 @@ public class IITC_WebViewClient extends WebViewClient {
     @Override
     public void onPageFinished(WebView view, String url) {
         if (url.startsWith("http://www.ingress.com/intel")
-         || url.startsWith("https://www.ingress.com/intel")) {
+                || url.startsWith("https://www.ingress.com/intel")) {
             Log.d("iitcm", "injecting iitc..");
             view.loadUrl("javascript: " + this.mIitcScript);
         }
@@ -161,7 +161,9 @@ public class IITC_WebViewClient extends WebViewClient {
     @Override
     public void onReceivedLoginRequest(WebView view, String realm, String account, String args) {
         Log.d("iitcm", "Login requested: " + realm + " " + account + " " + args);
-        ((IITC_Mobile) mContext).onReceivedLoginRequest(this, view, realm, account, args);
+        Log.d("iitcm", "logging in...set caching mode to default");
+        view.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
+        //((IITC_Mobile) mContext).onReceivedLoginRequest(this, view, realm, account, args);
     }
 
     // parse all enabled iitc plugins

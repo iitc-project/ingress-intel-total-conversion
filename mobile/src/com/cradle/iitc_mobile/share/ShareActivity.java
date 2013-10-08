@@ -108,7 +108,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
 
         Intent intent = getIntent();
         // from portallinks/permalinks we build 3 intents (share / geo / vanilla-intel-link)
-        if (intent.getBooleanExtra("onlyShare", false) == false) {
+        if (!intent.getBooleanExtra("onlyShare", false)) {
             mTitle = intent.getStringExtra("title");
             mLl = intent.getDoubleExtra("lat", 0) + "," + intent.getDoubleExtra("lng", 0);
             mZoom = intent.getIntExtra("zoom", 0);

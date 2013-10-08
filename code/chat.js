@@ -81,7 +81,7 @@ window.chat.genPostData = function(isFaction, storageHash, getOlderMsgs) {
     maxLngE6: Math.round(ne.lng*1E6),
     minTimestampMs: -1,
     maxTimestampMs: -1,
-    factionOnly: isFaction
+    chatTab: isFaction ? 'faction' : 'all'
   }
 
   if(getOlderMsgs) {
@@ -540,7 +540,6 @@ window.chat.show = function(name) {
         ? $('#updatestatus').hide()
         : $('#updatestatus').show();
     $('#chat, #chatinput').show();
-    $('#map').css('visibility', 'hidden');
 
     var t = $('<a>'+name+'</a>');
     window.chat.chooseAnchor(t);
@@ -689,7 +688,7 @@ window.chat.postMsg = function() {
   var data = {message: msg,
               latE6: Math.round(latlng.lat*1E6),
               lngE6: Math.round(latlng.lng*1E6),
-              factionOnly: !publik};
+              chatTab: publik ? 'all' : 'faction'};
 
   var errMsg = 'Your message could not be delivered. You can copy&' +
                'paste it here and try again if you want:\n\n' + msg;
