@@ -195,7 +195,7 @@ window.plugin.portalslist.displayPL = function() {
     dialogClass: 'ui-dialog-portalslist',
     title: 'Portal list: ' + window.plugin.portalslist.listPortals.length + ' ' + (window.plugin.portalslist.listPortals.length == 1 ? 'portal' : 'portals'),
     id: 'portal-list',
-    width: 800
+    width: 850
   });
 
   // Setup sorting
@@ -416,7 +416,7 @@ var setup =  function() {
   $('#toolbox').append(' <a onclick="window.plugin.portalslist.displayPL()" title="Display a list of portals in the current view">Portals list</a>');
   $('head').append('<style>' +
     //style.css sets dialog max-width to 700px - override that here
-    '#dialog-portal-list {max-width: 800px !important;}' +
+    '#dialog-portal-list {max-width: 850px !important;}' +
     '#portalslist table {margin-top:5px; border-collapse: collapse; empty-cells: show; width:100%; clear: both;}' +
     '#portalslist table td, #portalslist table th {border-bottom: 1px solid #0b314e; padding:3px; color:white; background-color:#1b415e}' +
     '#portalslist table tr.res td {  background-color: #005684; }' +
