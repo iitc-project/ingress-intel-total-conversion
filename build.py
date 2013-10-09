@@ -247,8 +247,6 @@ if buildMobile:
     except:
         pass
     shutil.copy(os.path.join(outDir,"total-conversion-build.user.js"), "mobile/assets/total-conversion-build.user.js")
-    # copy the user location script into the mobile folder.
-    shutil.copy(os.path.join(outDir,"user-location.user.js"), "mobile/assets/user-location.user.js")
     # also copy plugins
     try:
         shutil.rmtree("mobile/assets/plugins")
@@ -259,6 +257,9 @@ if buildMobile:
             ignore=shutil.ignore_patterns('*.meta.js',
             'force-https*', 'privacy-view*', 'speech-search*',
             'basemap-cloudmade*', 'scroll-wheel-zoom-disable*'))
+
+    # copy the user location script into the mobile folder.
+    shutil.copy(os.path.join(outDir,"user-location.user.js"), "mobile/assets/plugins/user-location.user.js")
 
 
     if buildMobile != 'copyonly':
