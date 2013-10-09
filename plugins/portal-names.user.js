@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portal-names@zaso
 // @name           IITC plugin: Portal Names
 // @category       Layer
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -21,7 +21,7 @@
 // use own namespace for plugin
 window.plugin.portalNames = function() {};
 
-window.plugin.portalNames.MAX_PORTALS = 250;
+window.plugin.portalNames.MAX_PORTALS = 400;
 window.plugin.portalNames.NAME_WIDTH = 80;
 window.plugin.portalNames.NAME_HEIGHT = 23;
 
@@ -88,7 +88,7 @@ window.plugin.portalNames.updatePortalLabels = function() {
   for (var guid in window.portals) {
     var p = window.portals[guid];
     if (p._map) {  // only consider portals added to the map
-      var point = map.latLngToLayerPoint(p.getLatLng());
+      var point = map.project(p.getLatLng());
       portalPoints[guid] = point;
     }
   }
@@ -150,6 +150,7 @@ var setup = function() {
   window.plugin.portalNames.labelLayerGroup = new L.LayerGroup();
   window.addLayerGroup('Portal Names', window.plugin.portalNames.labelLayerGroup, true);
 
+  window.addHook('requestFinished', window.plugin.portalNames.updatePortalLabels);
   window.addHook('mapDataRefreshEnd', window.plugin.portalNames.updatePortalLabels);
   window.map.on('overlayadd overlayremove', window.plugin.portalNames.updatePortalLabels);
 }
