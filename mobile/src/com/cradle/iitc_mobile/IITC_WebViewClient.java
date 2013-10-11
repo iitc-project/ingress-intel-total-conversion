@@ -191,8 +191,10 @@ public class IITC_WebViewClient extends WebViewClient {
         }
 
         // inject the user location script if enabled in settings
-        if (sharedPref.getBoolean("pref_user_loc", false))
-                loadJS(path + "user-location.user.js", !dev_enabled, view);
+        if (sharedPref.getBoolean("pref_user_loc", false)) {
+            path = path.replace("plugins/", "");
+            loadJS(path + "user-location.user.js", !dev_enabled, view);
+        }
     }
 
     // read a file into a string
