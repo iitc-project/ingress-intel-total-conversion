@@ -2,7 +2,7 @@
 // @id             iitc-plugin-bookmarks@ZasoGD
 // @name           IITC plugin: Bookmarks for maps and portals
 // @category       Controls
-// @version        0.2.46@@DATETIMEVERSION@@
+// @version        0.2.5@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -22,6 +22,7 @@
   HOOKS:
   - pluginBkmrksEdit: fired when a bookmarks/folder is removed, added or sorted, also when a folder is opened/closed;
   - pluginBkmrksOpenOpt: fired when the "Bookmarks Options" panel is opened (you can add new options);
+  - pluginBkmrksSyncEnd: fired when the sync is finished;
 
 ***********************************************************************/
 ////////////////////////////////////////////////////////////////////////
@@ -45,6 +46,9 @@
   window.plugin.bookmarks.updatingQueue = {};
 
   window.plugin.bookmarks.enableSync = false;
+
+  window.plugin.bookmarks.starLayers = {};
+  window.plugin.bookmarks.starLayerGroup = null;
 
   window.plugin.bookmarks.isSmart = undefined;
   window.plugin.bookmarks.isAndroid = function() {
@@ -324,8 +328,11 @@
 
       window.plugin.bookmarks.saveStorage();
       window.plugin.bookmarks.updateStarPortal();
-      window.runHooks('pluginBkmrksEdit', {"target": "portal", "action": "remove", "id": bkmrkData['id_bookmark']});
-      console.log('BOOKMARKS: removed portal '+bkmrkData['id_bookmark']);
+window.runHooks('pluginBkmrksEdit', {"target": "portal", "action": "remove", "folder": bkmrkData['id_folder'], "id": bkmrkData['id_bookmark'], "guid":guid});
+console.log('BOOKMARKS: removed portal ('+bkmrkData['id_bookmark']+' situated in '+bkmrkData['id_folder']+' folder)');
+
+//      window.runHooks('pluginBkmrksEdit', {"target": "portal", "action": "remove", "id": bkmrkData['id_bookmark']});
+//      console.log('BOOKMARKS: removed portal '+bkmrkData['id_bookmark']);
     }
     // If portal isn't saved in bookmarks: Add this bookmark
     else{
@@ -388,15 +395,22 @@
       var typeList = $(elem).parent().parent().parent().parent().parent('div').attr('id');
       var ID = $(elem).parent('li').attr('id');
       var IDfold = $(elem).parent().parent().parent('li').attr('id');
+      var guid = window.plugin.bookmarks.bkmrksObj[typeList.replace('bkmrk_', '')][IDfold]['bkmrk'][ID].guid;
 
       delete window.plugin.bookmarks.bkmrksObj[typeList.replace('bkmrk_', '')][IDfold]['bkmrk'][ID];
       $(elem).parent('li').remove();
 
       if(type === 'portals') {
+        var list = window.plugin.bookmarks.bkmrksObj['portals'];
+
         window.plugin.bookmarks.updateStarPortal();
         window.plugin.bookmarks.saveStorage();
-        window.runHooks('pluginBkmrksEdit', {"target": "portal", "action": "remove", "id": ID});
-        console.log('BOOKMARKS: removed portal '+ID);
+
+window.runHooks('pluginBkmrksEdit', {"target": "portal", "action": "remove", "folder": IDfold, "id": ID, "guid": guid});
+console.log('BOOKMARKS: removed portal ('+ID+' situated in '+IDfold+' folder)');
+
+//        window.runHooks('pluginBkmrksEdit', {"target": "portal", "action": "remove", "id": ID});
+//        console.log('BOOKMARKS: removed portal '+ID);
       } else {
         window.plugin.bookmarks.saveStorage();
         window.runHooks('pluginBkmrksEdit', {"target": "map", "action": "remove", "id": ID});
@@ -624,7 +638,7 @@
       }
 
       // Shown the layer if it is hidden
-      if(!map.hasLayer(window.plugin.drawTools.drawnItems)){
+      if(!map.hasLayer(window.plugin.drawTools.drawnItems)) {
         map.addLayer(window.plugin.drawTools.drawnItems);
       }
 
@@ -735,6 +749,8 @@
         delete window.plugin.bookmarks.updateQueue[e.property];
         window.plugin.bookmarks.storeLocal(window.plugin.bookmarks.UPDATE_QUEUE);
         window.plugin.bookmarks.refreshBkmrks();
+        window.runHooks('pluginBkmrksSyncEnd', {"target": "all", "action": "sync"});
+        console.log('BOOKMARKS: synchronized all');
       }
     }
   }
@@ -786,9 +802,65 @@
 
   window.plugin.bookmarks.highlightRefresh = function(data) {
     if(_current_highlighter === 'Bookmarked Portals') {
-      if(data.target === 'portal' || (data.target === 'folder' && data.action === 'remove') || (data.target === 'all' && data.action === 'import') || (data.target === 'all' && data.action === 'reset')) {
+      if(data.action === 'sync' || data.target === 'portal' || (data.target === 'folder' && data.action === 'remove') || (data.target === 'all' && data.action === 'import') || (data.target === 'all' && data.action === 'reset')) {
         window.resetHighlightedPortals();
       }
+    }
+  }
+
+/***************************************************************************************************************************************************************/
+/** BOOKMARKED PORTALS LAYER ***********************************************************************************************************************************/
+/***************************************************************************************************************************************************************/
+  window.plugin.bookmarks.addAllStars = function() {
+    var list = window.plugin.bookmarks.bkmrksObj.portals;
+
+    for(var idFolders in list) {
+      for(var idBkmrks in list[idFolders]['bkmrk']) {
+        var latlng = list[idFolders]['bkmrk'][idBkmrks].latlng.split(",");
+        var guid = list[idFolders]['bkmrk'][idBkmrks].guid;
+        window.plugin.bookmarks.addStar(guid, latlng);
+      }
+    }
+  }
+
+  window.plugin.bookmarks.resetAllStars = function() {
+    for(guid in window.plugin.bookmarks.starLayers) {
+      var starInLayer = window.plugin.bookmarks.starLayers[guid];
+      window.plugin.bookmarks.starLayerGroup.removeLayer(starInLayer);
+      delete window.plugin.bookmarks.starLayers[guid];
+    }
+    window.plugin.bookmarks.addAllStars();
+  }
+
+  window.plugin.bookmarks.addStar = function(guid, latlng) {
+    var star = L.marker(latlng, {
+      icon: L.divIcon({
+        className: 'bookmarked-portal',
+        iconAnchor: [15,40],
+        iconSize: [30,40],
+      }),
+      guid: guid
+    });
+    window.plugin.bookmarks.starLayers[guid] = star;
+    star.addTo(window.plugin.bookmarks.starLayerGroup);
+  }
+
+  window.plugin.bookmarks.editStar = function(data) {
+    if(data.target === 'portal') {
+      if(data.action === 'add') {
+        var guid = window.selectedPortal;
+        var latlng = window.portals[guid]._latlng;
+        var starInLayer = window.plugin.bookmarks.starLayers[data.guid];
+        window.plugin.bookmarks.addStar(guid, latlng);
+      }
+      else if(data.action === 'remove') {
+        var starInLayer = window.plugin.bookmarks.starLayers[data.guid];
+        window.plugin.bookmarks.starLayerGroup.removeLayer(starInLayer);
+        delete window.plugin.bookmarks.starLayers[data.guid];
+      }
+    }
+    else if((data.target === 'all' && (data.action === 'import' || data.action === 'reset')) || (data.target === 'folder' && data.action === 'remove')) {
+      window.plugin.bookmarks.resetAllStars();
     }
   }
 
@@ -851,6 +923,8 @@
     if($.inArray('pluginBkmrksEdit', window.VALID_HOOKS) < 0) { window.VALID_HOOKS.push('pluginBkmrksEdit'); }
     // Fired when the "Bookmarks Options" panell is opened (you can add new options);
     if($.inArray('pluginBkmrksOpenOpt', window.VALID_HOOKS) < 0) { window.VALID_HOOKS.push('pluginBkmrksOpenOpt'); }
+    // Fired when the sync is finished;
+    if($.inArray('pluginBkmrksSyncEnd', window.VALID_HOOKS) < 0) { window.VALID_HOOKS.push('pluginBkmrksSyncEnd'); }
 
     // If the storage not exists or is a old version
     window.plugin.bookmarks.createStorage();
@@ -892,9 +966,17 @@
     window.addHook('pluginBkmrksEdit', window.plugin.bookmarks.syncBkmrks);
     window.addHook('iitcLoaded', window.plugin.bookmarks.registerFieldForSyncing);
 
-    // Highlight bookmarked portals
+    // Highlighter - bookmarked portals
     window.addHook('pluginBkmrksEdit', window.plugin.bookmarks.highlightRefresh);
+    window.addHook('pluginBkmrksSyncEnd', window.plugin.bookmarks.highlightRefresh);
     window.addPortalHighlighter('Bookmarked Portals', window.plugin.bookmarks.highlight);
+
+    // Layer - Bookmarked portals
+    window.plugin.bookmarks.starLayerGroup = new L.LayerGroup();
+    window.addLayerGroup('Bookmarked Portals', window.plugin.bookmarks.starLayerGroup, false);
+    window.plugin.bookmarks.addAllStars();
+    window.addHook('pluginBkmrksEdit', window.plugin.bookmarks.editStar);
+    window.addHook('pluginBkmrksSyncEnd', window.plugin.bookmarks.resetAllStars);
   }
 
 // PLUGIN END //////////////////////////////////////////////////////////

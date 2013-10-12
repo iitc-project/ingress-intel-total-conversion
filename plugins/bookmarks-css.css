@@ -243,7 +243,8 @@
 	width:auto;
 }
 #bkmrksTrigger, .bkmrksStar span{
-	background-image:url(@@INCLUDEIMAGE:plugins/bookmarks-img.png@@);}
+	background-image:url(@@INCLUDEIMAGE:plugins/bookmarks-img.png@@);
+}
 .bkmrksStar span{
 	display:inline-block;
 	float:left;
@@ -604,4 +605,9 @@
 	width:96%;
 	height:120px;
 	resize:vertical;
+}
+/*---- Bookmarked portals - marker -----*/
+.leaflet-marker-icon.bookmarked-portal{
+	pointer-events:none;
+	background:transparent url(@@INCLUDEIMAGE:images/marker-star.png@@) no-repeat center bottom;
 }
