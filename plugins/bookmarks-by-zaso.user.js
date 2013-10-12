@@ -2,7 +2,7 @@
 // @id             iitc-plugin-bookmarks@ZasoGD
 // @name           IITC plugin: Bookmarks for maps and portals
 // @category       Controls
-// @version        0.2.45@@DATETIMEVERSION@@
+// @version        0.2.46@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -342,9 +342,9 @@
       window.plugin.bookmarks.bkmrksObj['portals'][window.plugin.bookmarks.KEY_OTHER_BKMRK]['bkmrk'][ID] = {"guid":guid,"latlng":latlng,"label":label};
 
       window.plugin.bookmarks.saveStorage();
+      window.plugin.bookmarks.refreshBkmrks();
       window.runHooks('pluginBkmrksEdit', {"target": "portal", "action": "add", "id": ID});
       console.log('BOOKMARKS: added portal '+ID);
-      window.plugin.bookmarks.refreshBkmrks();
     }
   }
 
@@ -398,6 +398,7 @@
         window.runHooks('pluginBkmrksEdit', {"target": "portal", "action": "remove", "id": ID});
         console.log('BOOKMARKS: removed portal '+ID);
       } else {
+        window.plugin.bookmarks.saveStorage();
         window.runHooks('pluginBkmrksEdit', {"target": "map", "action": "remove", "id": ID});
         console.log('BOOKMARKS: removed map '+ID);
       }
@@ -532,8 +533,8 @@
     if(promptAction !== null && promptAction !== '') {
       localStorage[window.plugin.bookmarks.KEY_STORAGE] = promptAction;
       window.plugin.bookmarks.refreshBkmrks();
-window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
-console.log('BOOKMARKS: resetted and imported bookmarks');
+      window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
+      console.log('BOOKMARKS: resetted and imported bookmarks');
       window.plugin.bookmarks.optAlert('Succesful. ');
     }
   }
@@ -545,8 +546,8 @@ console.log('BOOKMARKS: resetted and imported bookmarks');
       window.plugin.bookmarks.createStorage();
       window.plugin.bookmarks.loadStorage();
       window.plugin.bookmarks.refreshBkmrks();
-window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "reset"});
-console.log('BOOKMARKS: resetted all bookmarks');
+      window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "reset"});
+      console.log('BOOKMARKS: resetted all bookmarks');
       window.plugin.bookmarks.optAlert('Succesful. ');
     }
   }
@@ -774,6 +775,24 @@ console.log('BOOKMARKS: resetted all bookmarks');
   }
 
 /***************************************************************************************************************************************************************/
+/** HIGHLIGHTER ************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************/
+  window.plugin.bookmarks.highlight = function(data) {
+    var guid = data.portal.options.ent[0];
+    if(window.plugin.bookmarks.findByGuid(guid)) {
+      data.portal.setStyle({fillColor:'red'});
+    }
+  }
+
+  window.plugin.bookmarks.highlightRefresh = function(data) {
+    if(_current_highlighter === 'Bookmarked Portals') {
+      if(data.target === 'portal' || (data.target === 'folder' && data.action === 'remove') || (data.target === 'all' && data.action === 'import') || (data.target === 'all' && data.action === 'reset')) {
+        window.resetHighlightedPortals();
+      }
+    }
+  }
+
+/***************************************************************************************************************************************************************/
 
   window.plugin.bookmarks.setupCSS = function() {
     $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:plugins/bookmarks-css.css@@').appendTo('head');
@@ -783,8 +802,8 @@ console.log('BOOKMARKS: resetted all bookmarks');
     var ttt = '\'switch\'';
     if(!window.plugin.bookmarks.isSmart) { ttt = 1; }
 
-    plugin.bookmarks.htmlBoxTrigger    = '<a id="bkmrksTrigger" class="open" onclick="window.plugin.bookmarks.switchStatusBkmrksBox('+ttt+');return false;">[-] Bookmarks</a>';
-    plugin.bookmarks.htmlBkmrksBox    = '<div id="bookmarksBox">'
+    plugin.bookmarks.htmlBoxTrigger = '<a id="bkmrksTrigger" class="open" onclick="window.plugin.bookmarks.switchStatusBkmrksBox('+ttt+');return false;">[-] Bookmarks</a>';
+    plugin.bookmarks.htmlBkmrksBox = '<div id="bookmarksBox">'
                           +'<div id="topBar">'
                             +'<a id="bookmarksMin" class="btn" onclick="window.plugin.bookmarks.switchStatusBkmrksBox(0);return false;" title="Minimize">-</a>'
                             +'<div class="handle">...</div>'
@@ -809,11 +828,11 @@ console.log('BOOKMARKS: resetted all bookmarks');
                           +'</div>'
                         +'</div>';
 
-    plugin.bookmarks.htmlDisabledMessage= '<div title="Your browser do not support localStorage">Plugin Bookmarks disabled*.</div>';
-    plugin.bookmarks.htmlStar      = '<a class="bkmrksStar" onclick="window.plugin.bookmarks.switchStarPortal();return false;" title="Save this portal in your bookmarks"><span></span></a>';
-    plugin.bookmarks.htmlCalldrawBox  = '<a onclick="window.plugin.bookmarks.dialogDrawer();return false;" title="Draw lines/triangles between bookmarked portals">Auto draw</a>';
-    plugin.bookmarks.htmlCallSetBox    = '<a onclick="window.plugin.bookmarks.manualOpt();return false;">Bookmarks Opt</a>';
-    plugin.bookmarks.htmlSetbox      = '<div id="bkmrksSetbox">'
+    plugin.bookmarks.htmlDisabledMessage = '<div title="Your browser do not support localStorage">Plugin Bookmarks disabled*.</div>';
+    plugin.bookmarks.htmlStar = '<a class="bkmrksStar" onclick="window.plugin.bookmarks.switchStarPortal();return false;" title="Save this portal in your bookmarks"><span></span></a>';
+    plugin.bookmarks.htmlCalldrawBox = '<a onclick="window.plugin.bookmarks.dialogDrawer();return false;" title="Draw lines/triangles between bookmarked portals">Auto draw</a>';
+    plugin.bookmarks.htmlCallSetBox = '<a onclick="window.plugin.bookmarks.manualOpt();return false;">Bookmarks Opt</a>';
+    plugin.bookmarks.htmlSetbox = '<div id="bkmrksSetbox">'
                         +'<a onclick="window.plugin.bookmarks.optCopy();">Copy/Export Bookmarks</a>'
                         +'<a onclick="window.plugin.bookmarks.optPaste();return false;">Paste/Import Bookmarks</a>'
                         +'<a onclick="window.plugin.bookmarks.optReset();return false;">Reset Bookmarks</a>'
@@ -872,6 +891,10 @@ console.log('BOOKMARKS: resetted all bookmarks');
     // Sync
     window.addHook('pluginBkmrksEdit', window.plugin.bookmarks.syncBkmrks);
     window.addHook('iitcLoaded', window.plugin.bookmarks.registerFieldForSyncing);
+
+    // Highlight bookmarked portals
+    window.addHook('pluginBkmrksEdit', window.plugin.bookmarks.highlightRefresh);
+    window.addPortalHighlighter('Bookmarked Portals', window.plugin.bookmarks.highlight);
   }
 
 // PLUGIN END //////////////////////////////////////////////////////////
