@@ -606,8 +606,3 @@
 	height:120px;
 	resize:vertical;
 }
-/*---- Bookmarked portals - marker -----*/
-.leaflet-marker-icon.bookmarked-portal{
-	pointer-events:none;
-	background:transparent url(@@INCLUDEIMAGE:images/marker-star.png@@) no-repeat center bottom;
-}

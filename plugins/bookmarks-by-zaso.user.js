@@ -2,7 +2,7 @@
 // @id             iitc-plugin-bookmarks@ZasoGD
 // @name           IITC plugin: Bookmarks for maps and portals
 // @category       Controls
-// @version        0.2.5@@DATETIMEVERSION@@
+// @version        0.2.5.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -834,12 +834,11 @@ console.log('BOOKMARKS: removed portal ('+ID+' situated in '+IDfold+' folder)');
 
   window.plugin.bookmarks.addStar = function(guid, latlng) {
     var star = L.marker(latlng, {
-      icon: L.divIcon({
-        className: 'bookmarked-portal',
+      icon: L.icon({
+        iconUrl: '@@INCLUDEIMAGE:images/marker-star.png@@',
         iconAnchor: [15,40],
-        iconSize: [30,40],
-      }),
-      guid: guid
+        iconSize: [30,40]
+      })
     });
     window.plugin.bookmarks.starLayers[guid] = star;
     star.addTo(window.plugin.bookmarks.starLayerGroup);
