@@ -192,7 +192,9 @@ window.Render.prototype.deletePortalEntity = function(guid) {
 window.Render.prototype.deleteLinkEntity = function(guid) {
   if (guid in window.links) {
     var l = window.links[guid];
-    linksFactionLayers[l.options.team].removeLayer(l);
+    if (linksFactionLayers[l.options.team].hasLayer(l)) {
+      linksFactionLayers[l.options.team].removeLayer(l);
+    }
     delete window.links[guid];
   }
 }
