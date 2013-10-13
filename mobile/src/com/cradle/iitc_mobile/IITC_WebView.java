@@ -159,7 +159,7 @@ public class IITC_WebView extends WebView {
         return mJsInterface;
     }
 
-    public void updateCaching() {
+    public void updateCaching(boolean login) {
         switch(Integer.parseInt(mSharedPrefs.getString("pref_caching", "1"))) {
             case 0:
                 mSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
@@ -168,7 +168,6 @@ public class IITC_WebView extends WebView {
                 mSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
                 break;
             default:
-                boolean login = false;
                 if (getUrl() != null) {
                     login = getUrl().contains("accounts.google.com");
                 }

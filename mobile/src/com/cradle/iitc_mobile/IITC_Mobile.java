@@ -127,7 +127,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         } else if (key.equals("pref_fake_user_agent")) {
             mIitcWebView.setUserAgent();
         } else if (key.equals("pref_caching")) {
-            mIitcWebView.updateCaching();
+            mIitcWebView.updateCaching(false);
         } else if (key.equals("pref_press_twice_to_exit")
                 || key.equals("pref_share_selected_tab")
                 || key.equals("pref_messages"))
@@ -271,7 +271,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
         // enough idle...let's do some work
         Log.d("iitcm", "resuming...reset idleTimer");
-        mIitcWebView.updateCaching();
+        mIitcWebView.updateCaching(false);
 
         if (mIsLocEnabled) {
             // Register the mSharedPrefChangeListener with the Location Manager to receive

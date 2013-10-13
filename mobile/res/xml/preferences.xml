@@ -10,7 +10,7 @@
         android:dialogTitle="@string/pref_about_title"/>
 
     <PreferenceCategory
-        android:key="pref_about_cat"
+        android:key="pref_ui_cat"
         android:title="@string/pref_ui_cat">
         <CheckBoxPreference
 	        android:key="pref_user_loc"
@@ -72,36 +72,48 @@
             android:title="@string/pref_advanced_options"
             android:persistent="false">
 
-            <ListPreference
-                android:key="pref_caching"
-                android:title="@string/pref_caching"
-                android:summary="@string/pref_caching_sum"
-                android:defaultValue="1"
-                android:entries="@array/pref_caching_array"
-                android:entryValues="@array/pref_caching_array_vals" />
-
-            <CheckBoxPreference
-                android:key="pref_advanced_menu"
-                android:title="@string/pref_advanced_menu"
-                android:summary="@string/pref_advanced_menu_sum"
-                android:defaultValue="false" />
-
-            <CheckBoxPreference
-                android:key="pref_disable_splash"
-                android:title="@string/pref_disable_splash"
-                android:defaultValue="false" />
-
             <CheckBoxPreference
                 android:key="pref_dev_checkbox"
                 android:title="@string/pref_enable_dev_mode"
                 android:summary="@string/pref_enable_dev_mode_sum"
                 android:defaultValue="false" />
 
-            <CheckBoxPreference
-                android:key="pref_fake_user_agent"
-                android:title="@string/pref_fake_user_agent"
-                android:summary="@string/pref_fake_user_agent_sum"
-                android:defaultValue="false" />
+            <PreferenceCategory
+                android:key="pref_advanced_ui_cat"
+                android:title="@string/pref_ui_cat">
+
+                <CheckBoxPreference
+                    android:key="pref_advanced_menu"
+                    android:title="@string/pref_advanced_menu"
+                    android:summary="@string/pref_advanced_menu_sum"
+                    android:defaultValue="false" />
+
+                <CheckBoxPreference
+                    android:key="pref_disable_splash"
+                    android:title="@string/pref_disable_splash"
+                    android:defaultValue="false" />
+
+            </PreferenceCategory>
+
+            <PreferenceCategory
+                android:key="pref_advanced_tweaks_cat"
+                android:title="@string/pref_tweaks_cat">
+
+                <ListPreference
+                    android:key="pref_caching"
+                    android:title="@string/pref_caching"
+                    android:summary="@string/pref_caching_sum"
+                    android:defaultValue="1"
+                    android:entries="@array/pref_caching_array"
+                    android:entryValues="@array/pref_caching_array_vals" />
+
+                <CheckBoxPreference
+                    android:key="pref_fake_user_agent"
+                    android:title="@string/pref_fake_user_agent"
+                    android:summary="@string/pref_fake_user_agent_sum"
+                    android:defaultValue="false" />
+
+            </PreferenceCategory>
 
         </PreferenceScreen>
 
