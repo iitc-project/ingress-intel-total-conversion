@@ -195,7 +195,7 @@ window.plugin.portalslist.displayPL = function() {
     dialogClass: 'ui-dialog-portalslist',
     title: 'Portal list: ' + window.plugin.portalslist.listPortals.length + ' ' + (window.plugin.portalslist.listPortals.length == 1 ? 'portal' : 'portals'),
     id: 'portal-list',
-    width: 800
+    width: 830
   });
 
   // Setup sorting
