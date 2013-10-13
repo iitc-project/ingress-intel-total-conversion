@@ -15,6 +15,7 @@ public class IITC_PreferenceActivity extends Activity {
         MainSettings settings = new MainSettings();
 
         getActionBar().setHomeButtonEnabled(true);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
 
         // iitc version
         Bundle bundle = getIntent().getExtras();

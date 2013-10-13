@@ -45,7 +45,8 @@
         <PreferenceScreen
             android:fragment="com.cradle.iitc_mobile.fragments.PluginsFragment"
             android:key="pref_plugins"
-            android:title="@string/pref_plugins" >
+            android:title="@string/pref_plugins"
+            android:persistent="false">
             <intent
                 android:targetPackage="com.cradle.iitc_mobile"
                 android:targetClass="com.cradle.iitc_mobile.IITC_PluginPreferenceActivity"/>
@@ -64,36 +65,52 @@
 
     <PreferenceCategory
         android:key="pref_developer_options"
-        android:title="@string/pref_developer_options">
+        android:title="@string/pref_developer_options_cat">
 
-	    <CheckBoxPreference
-	        android:key="pref_dev_checkbox"
-	        android:title="@string/pref_enable_dev_mode"
-	        android:summary="@string/pref_enable_dev_mode_sum"
-	        android:defaultValue="false" />
+        <PreferenceScreen
+            android:key="pref_developer_screen"
+            android:title="@string/pref_advanced_options"
+            android:persistent="false">
 
-        <CheckBoxPreference
-            android:key="pref_advanced_menu"
-            android:title="@string/pref_advanced_menu"
-            android:summary="@string/pref_advanced_menu_sum"
-            android:defaultValue="false" />
+            <CheckBoxPreference
+                android:key="pref_advanced_menu"
+                android:title="@string/pref_advanced_menu"
+                android:summary="@string/pref_advanced_menu_sum"
+                android:defaultValue="false" />
 
-        <CheckBoxPreference
+            <CheckBoxPreference
                 android:key="pref_disable_splash"
                 android:title="@string/pref_disable_splash"
                 android:defaultValue="false" />
+
+            <CheckBoxPreference
+                android:key="pref_dev_checkbox"
+                android:title="@string/pref_enable_dev_mode"
+                android:summary="@string/pref_enable_dev_mode_sum"
+                android:defaultValue="false" />
+
+            <CheckBoxPreference
+                android:key="pref_fake_user_agent"
+                android:title="@string/pref_fake_user_agent"
+                android:summary="@string/pref_fake_user_agent_sum"
+                android:defaultValue="false" />
+
+        </PreferenceScreen>
 
         <ListPreference
             android:key="pref_build_version"
             android:title="@string/build_version"
             android:enabled="false"
-            android:selectable="false" />
+            android:selectable="false"
+            android:persistent="false" />
 
         <ListPreference
             android:key="pref_iitc_version"
             android:title="@string/iitc_version"
             android:enabled="false"
-            android:selectable="false" />
+            android:selectable="false"
+            android:persistent="false" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

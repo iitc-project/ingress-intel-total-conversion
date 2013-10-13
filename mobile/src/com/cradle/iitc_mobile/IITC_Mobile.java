@@ -112,23 +112,21 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         if (key.equals("pref_force_desktop")) {
             mDesktopMode = sharedPreferences.getBoolean("pref_force_desktop", false);
             mNavigationHelper.onPrefChanged();
-        }
-        if (key.equals("pref_user_loc"))
+        } else if (key.equals("pref_user_loc")) {
             mIsLocEnabled = sharedPreferences.getBoolean("pref_user_loc",
                     false);
-        if (key.equals("pref_fullscreen_actionbar")) {
+        } else if (key.equals("pref_fullscreen_actionbar")) {
             mNavigationHelper.onPrefChanged();
             return;
-        }
-        if (key.equals("pref_advanced_menu")) {
+        } else if (key.equals("pref_advanced_menu")) {
             mAdvancedMenu = sharedPreferences.getBoolean("pref_advanced_menu", false);
             mNavigationHelper.setDebugMode(mAdvancedMenu);
             invalidateOptionsMenu();
             // no reload needed
             return;
-        }
-
-        if (key.equals("pref_press_twice_to_exit")
+        } else if (key.equals("pref_fake_user_agent")) {
+            mIitcWebView.setUserAgent();
+        } else if (key.equals("pref_press_twice_to_exit")
                 || key.equals("pref_share_selected_tab")
                 || key.equals("pref_messages"))
             // no reload needed
