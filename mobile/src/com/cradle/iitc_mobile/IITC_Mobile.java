@@ -126,6 +126,8 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
             return;
         } else if (key.equals("pref_fake_user_agent")) {
             mIitcWebView.setUserAgent();
+        } else if (key.equals("pref_caching")) {
+            mIitcWebView.updateCaching();
         } else if (key.equals("pref_press_twice_to_exit")
                 || key.equals("pref_share_selected_tab")
                 || key.equals("pref_messages"))

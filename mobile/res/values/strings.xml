@@ -99,6 +99,20 @@
     <string name="pref_select_iitc">IITC source</string>
     <string name="pref_select_iitc_sum">Load IITC main script from url or use local script. Currently used source:</string>
 
+    <string name="pref_caching">Aggressive Caching</string>
+    <string name="pref_caching_sum">Prefer cached values even if they are expired…saves traffic but
+        may result in login issues</string>
+    <string-array name="pref_caching_array">
+        <item>Always</item>
+        <item>Mobile data only (default)</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_caching_array_vals">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
     <string name="menu_clear_cookies">Clear Cookies</string>
     <string name="menu_search">Search</string>
     <string name="choose_account_to_login">Choose account to login</string>

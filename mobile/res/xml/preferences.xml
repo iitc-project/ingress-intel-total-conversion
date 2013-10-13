@@ -72,6 +72,14 @@
             android:title="@string/pref_advanced_options"
             android:persistent="false">
 
+            <ListPreference
+                android:key="pref_caching"
+                android:title="@string/pref_caching"
+                android:summary="@string/pref_caching_sum"
+                android:defaultValue="1"
+                android:entries="@array/pref_caching_array"
+                android:entryValues="@array/pref_caching_array_vals" />
+
             <CheckBoxPreference
                 android:key="pref_advanced_menu"
                 android:title="@string/pref_advanced_menu"

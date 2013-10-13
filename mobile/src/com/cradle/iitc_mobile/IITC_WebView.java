@@ -26,6 +26,7 @@ public class IITC_WebView extends WebView {
     private IITC_WebViewClient mIitcWebViewClient;
     private IITC_JSInterface mJsInterface;
     private Context mContext;
+    private SharedPreferences mSharedPrefs;
     private boolean mDisableJs = false;
     private String mDefaultUserAgent;
     private final String mDesktopUserAgent = "Mozilla/5.0 (X11; Linux x86_64; rv:17.0)" +
@@ -49,6 +50,7 @@ public class IITC_WebView extends WebView {
                 .getAbsolutePath());
         mJsInterface = new IITC_JSInterface((IITC_Mobile) mContext);
         addJavascriptInterface(mJsInterface, "android");
+        mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         mDefaultUserAgent = mSettings.getUserAgentString();
         setUserAgent();
 
@@ -158,18 +160,28 @@ public class IITC_WebView extends WebView {
     }
 
     public void updateCaching() {
-        boolean login = false;
-        if (getUrl() != null) {
-            login = getUrl().contains("accounts.google.com");
-        }
-        // use cache if on mobile network...saves traffic
-        if (!isConnectedToWifi() && !login) {
-            Log.d("iitcm", "not connected to wifi...load tiles from cache");
-            mSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
-        } else {
-            if (login) Log.d("iitcm", "login...load tiles from network");
-            else Log.d("iitcm", "connected to wifi...load tiles from network");
-            mSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        switch(Integer.parseInt(mSharedPrefs.getString("pref_caching", "1"))) {
+            case 0:
+                mSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+                break;
+            case 2:
+                mSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
+                break;
+            default:
+                boolean login = false;
+                if (getUrl() != null) {
+                    login = getUrl().contains("accounts.google.com");
+                }
+                // use cache if on mobile network...saves traffic
+                if (!isConnectedToWifi() && !login) {
+                    Log.d("iitcm", "not connected to wifi...load tiles from cache");
+                    mSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+                } else {
+                    if (login) Log.d("iitcm", "login...load tiles from network");
+                    else Log.d("iitcm", "connected to wifi...load tiles from network");
+                    mSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
+                }
+                break;
         }
     }
 
@@ -195,8 +207,7 @@ public class IITC_WebView extends WebView {
     }
 
     public void setUserAgent() {
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        String ua = sharedPrefs.getBoolean("pref_fake_user_agent", false) ? mDesktopUserAgent : mDefaultUserAgent;
+        String ua = mSharedPrefs.getBoolean("pref_fake_user_agent", false) ? mDesktopUserAgent : mDefaultUserAgent;
         Log.d("iitcm", "setting user agent to: " + ua);
         mSettings.setUserAgentString(ua);
     }
