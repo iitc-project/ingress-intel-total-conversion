@@ -283,7 +283,8 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   var sort = window.plugin.portalslist.portalTableSort;
   var html = window.plugin.portalslist.stats();
   html += '<table>'
-  + '<tr><th ' + sort('names', sortBy, -1) + '>Portal</th>'
+  + '<tr><th style="cursor:default;">#</th>'
+  + '<th ' + sort('names', sortBy, -1) + '>Portal</th>'
   + '<th ' + sort('level', sortBy, -1) + '>Level</th>'
   + '<th title="Team" ' + sort('team', sortBy, -1) + '>T</th>'
   + '<th ' + sort('r1', sortBy, -1) + '>R1</th>'
@@ -311,6 +312,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
 
     if (filter === 0 || filter === portal.team) {
       html += '<tr class="' + (portal.team === 1 ? 'res' : (portal.team === 2 ? 'enl' : 'neutral')) + '">'
+      + '<td>' + (ind+1) + '</td>'
       + '<td style="">' + window.plugin.portalslist.getPortalLink(portal.portal, portal.guid) + '</td>'
       + '<td class="L' + Math.floor(portal.level) +'">' + portal.level + '</td>'
       + '<td style="text-align:center;">' + portal.team + '</td>';
