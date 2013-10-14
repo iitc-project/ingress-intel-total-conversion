@@ -69,7 +69,7 @@ window.dialog.open = function(options) {
   }
 
   // Build an identifier for this dialog
-  var id = 'dialog-' + (options.id ? options.id : 'anon-' + window.dialog.DIALOG_ID++);
+  var id = 'dialog-' + (options.id ? options.id : window.dialog.DIALOG_ID++);
   var jqID = '#' + id;
   var html = '';
 
@@ -160,18 +160,22 @@ window.dialog.open = function(options) {
         titlebar.prepend(collapse);
         close.addClass('ui-dialog-titlebar-button-close');
       } else {
+        // Hide the last entry in the stack
         if(window.dialog.DIALOG_STACK.length > 0) {
           var ui = $(window.dialog.DIALOG_STACK[window.dialog.DIALOG_STACK.length - 1]).closest('.ui-dialog');
           ui.hide();
           ui.next('.ui-widget-overlay').hide();
         }
+
+        // Push this onto the stack and set the stack index
         window.dialog.DIALOG_STACK.push(this);
+        $(this).data('stack_idx', window.dialog.DIALOG_STACK.length - 1);
       }
 
       window.dialog.DIALOGS[$(this).data('id')] = this;
       window.dialog.DIALOG_COUNT++;
 
-      console.log('dialog.open: ' + $(this).data('id') + ' (' + $(this).dialog('option', 'title') + ') opened. ' + window.dialog.DIALOG_COUNT + ' remain.');
+      console.log('dialog#open: ' + $(this).data('id') + ' (' + $(this).dialog('option', 'title') + ') opened. ' + window.dialog.DIALOG_COUNT + ' remain.');
     },
     close: function() {
       // Run the close callback if we have one
@@ -186,17 +190,20 @@ window.dialog.open = function(options) {
 
       // Finalize
       delete window.dialog.DIALOGS[$(this).data('id')];
-      if ($(this).dialog('option', 'modal')) {
-        window.dialog.DIALOG_STACK.pop();
-        if(window.dialog.DIALOG_STACK.length > 0) {
-          var ui = $(window.dialog.DIALOG_STACK[window.dialog.DIALOG_STACK.length - 1]).closest('.ui-dialog');
+      if($(this).dialog('option', 'modal')) {
+        // The top dialog was closed, so show the dialog and widget overlay under it
+        if(window.dialog.DIALOG_STACK.length > 0 && $(this).data('stack_idx') == window.dialog.DIALOG_STACK.length - 1) {
+          var ui = $(window.dialog.DIALOG_STACK[$(this).data('stack_idx') - 1]).closest('.ui-dialog');
           ui.show();
           ui.next('.ui-widget-overlay').show();
         }
+
+        // Lets us remove from the middle of the dialog stack. Not a typical use case, but (somehow) a dialog under a stacked dialog could be closed.
+        window.dialog.DIALOG_STACK.splice($(this).data('stack_idx'), 1);
       }
 
       window.dialog.DIALOG_COUNT--;
-      console.log('dialog.open: ' + $(this).data('id') + ' (' + $(this).dialog('option', 'title') + ') closed. ' + window.dialog.DIALOG_COUNT + ' remain.');
+      console.log('dialog#close: ' + $(this).data('id') + ' (' + $(this).dialog('option', 'title') + ') closed. ' + window.dialog.DIALOG_COUNT + ' remain.');
 
       // remove from DOM and destroy
       $(this).dialog('destroy').remove();
@@ -268,6 +275,32 @@ window.dialog.open = function(options) {
   dialog.dialog('open');
   
   return dialog;
+};
+
+/* Closes the dialog with the specified ID.
+ */
+window.dialog.close = function(id) {
+  if (id in window.dialog.DIALOGS) {
+    $(window.dialog.DIALOGS[id]).dialog('close');
+  }
+};
+
+/* Closes all dialogs.
+ */
+window.dialog.closeAll = function() {
+  $.each(window.dialog.DIALOGS, function(k, v) {
+    $(v).dialog('close');
+  });
+};
+
+/* Closes the top dialog on the stack.
+ */
+window.dialog.closeTop = function() {
+  if (window.dialog.DIALOG_STACK.length > 0) {
+    $(window.dialog.DIALOG_STACK[window.dialog.DIALOG_STACK.length - 1]).dialog('close');
+  } else if (window.dialog.DIALOG_FOCUS !== null) {
+    $(window.dialog.DIALOG_FOCUS).dialog('close');
+  }
 };
 
 /* Creates an alert dialog with default settings.
