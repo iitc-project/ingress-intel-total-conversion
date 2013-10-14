@@ -252,6 +252,9 @@ window.MapDataRequest.prototype.refresh = function() {
           lngEast
         );
 
+/* After some testing, this doesn't seem to actually work. The server returns the same data with and without the parameter
+ * Also, closer study of the stock site code shows the parameter isn't actually set anywhere.
+ * so, disabling for now...
         // however, the server does support delta requests - only returning the entities changed since a particular timestamp
         // retrieve the stale cache entry and use it, if possible
         var stale = (this.cache && this.cache.get(tile_id));
@@ -275,6 +278,7 @@ console.log('stale tile '+tile_id+': newest mtime '+lastTimestamp+(lastTimestamp
             boundsParams.timestampMs = lastTimestamp;
           }
         }
+*/
 
         this.tileBounds[tile_id] = boundsParams;
         this.requestedTileCount += 1;
@@ -504,6 +508,7 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
 
         var stale = this.requestedTiles[id].staleData;
         if (stale) {
+//NOTE: currently this code path won't be used, as we never set the staleData to anything other than 'undefined'
           // we have stale data. therefore, a delta request was made for this tile. we need to merge the results with
           // the existing stale data before proceeding
 
