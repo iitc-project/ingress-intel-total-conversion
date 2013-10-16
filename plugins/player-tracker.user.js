@@ -19,7 +19,7 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 window.PLAYER_TRACKER_MAX_TIME = 3*60*60*1000; // in milliseconds
 window.PLAYER_TRACKER_MIN_ZOOM = 9;
-
+window.PLAYER_TRACKER_MIN_OPACITY = 0.3;
 window.PLAYER_TRACKER_LINE_COLOUR = '#FF00FD';
 
 
@@ -323,9 +323,13 @@ window.plugin.playerTracker.drawData = function() {
       }
     });
 
+    // marker opacity
+    var relOpacity = 1 - (now - last.time) / window.PLAYER_TRACKER_MAX_TIME
+    var absOpacity = window.PLAYER_TRACKER_MIN_OPACITY + (1 - window.PLAYER_TRACKER_MIN_OPACITY) * relOpacity;
+
     // marker itself
     var icon = playerData.team === 'RESISTANCE' ?  new plugin.playerTracker.iconRes() :  new plugin.playerTracker.iconEnl();
-    var m = L.marker(gllfe(last), {title: title, icon: icon, referenceToPortal: closestPortal});
+    var m = L.marker(gllfe(last), {title: title, icon: icon, referenceToPortal: closestPortal, opacity: absOpacity});
     // ensure tooltips are closed, sometimes they linger
     m.on('mouseout', function() { $(this._icon).tooltip('close'); });
     m.addTo(playerData.team === 'RESISTANCE' ? plugin.playerTracker.drawnTracesRes : plugin.playerTracker.drawnTracesEnl);
