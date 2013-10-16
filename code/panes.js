@@ -1,10 +1,17 @@
 // created to start cleaning up "window" interaction
 //
 window.show = function(id) {
-        window.hideall();
         if (typeof android !== 'undefined' && android && android.switchToPane) {
           android.switchToPane(id);
         }
+        /*
+         * disable all map properties when switching to another pane
+         * because sometimes (bug?) touch events are passed to the map when
+         * other panes are focussed
+         */
+        window.disableMapProperties();
+        window.hideall();
+
         switch(id) {
                 case 'full':
                         window.chat.show('full');
@@ -22,6 +29,7 @@ window.show = function(id) {
                         window.debug.console.show();
                         break;
                 case 'map':
+                        window.enableMapProperties();
                         window.smartphone.mapButton.click();
                         $('#portal_highlight_select').show();
                         $('#farm_level_select').show();
@@ -33,6 +41,20 @@ window.show = function(id) {
                         window.smartphone.mapButton.click();
                         break;
         }
+}
+
+window.enableMapProperties = function() {
+    window.map.tap.enable();
+    window.map.dragging.enable();
+    window.map.touchZoom.enable();
+    window.map.doubleClickZoom.enable();
+}
+
+window.disableMapProperties = function() {
+    window.map.tap.disable();
+    window.map.dragging.disable();
+    window.map.touchZoom.disable();
+    window.map.doubleClickZoom.disable();
 }
 
 window.hideall = function() {
