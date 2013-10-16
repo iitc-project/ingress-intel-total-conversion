@@ -187,21 +187,21 @@ window.MapDataRequest.prototype.refresh = function() {
 //var debugrect = L.rectangle(bounds,{color: 'red', fill: false, weight: 4, opacity: 0.8}).addTo(map);
 //setTimeout (function(){ map.removeLayer(debugrect); }, 10*1000);
 
-  var x1 = lngToTile(bounds.getWest(), zoom);
-  var x2 = lngToTile(bounds.getEast(), zoom);
-  var y1 = latToTile(bounds.getNorth(), zoom);
-  var y2 = latToTile(bounds.getSouth(), zoom);
+  var x1 = lngToTile(bounds.getWest(), minPortalLevel);
+  var x2 = lngToTile(bounds.getEast(), minPortalLevel);
+  var y1 = latToTile(bounds.getNorth(), minPortalLevel);
+  var y2 = latToTile(bounds.getSouth(), minPortalLevel);
 
   // calculate the full bounds for the data - including the part of the tiles off the screen edge
   var dataBounds = L.latLngBounds([
-    [tileToLat(y2+1,zoom), tileToLng(x1,zoom)],
-    [tileToLat(y1,zoom), tileToLng(x2+1,zoom)]
+    [tileToLat(y2+1,minPortalLevel), tileToLng(x1,minPortalLevel)],
+    [tileToLat(y1,minPortalLevel), tileToLng(x2+1,minPortalLevel)]
   ]);
 //var debugrect2 = L.rectangle(dataBounds,{color: 'magenta', fill: false, weight: 4, opacity: 0.8}).addTo(map);
 //setTimeout (function(){ map.removeLayer(debugrect2); }, 10*1000);
 
   // store the parameters used for fetching the data. used to prevent unneeded refreshes after move/zoom
-  this.fetchedDataParams = { bounds: dataBounds, zoom: zoom };
+  this.fetchedDataParams = { bounds: dataBounds, zoom: zoom, minPortalLevel: minPortalLevel };
 
 
   window.runHooks ('mapDataRefreshStart', {bounds: bounds, zoom: zoom, tileBounds: dataBounds});
@@ -228,11 +228,11 @@ window.MapDataRequest.prototype.refresh = function() {
   for (var y = y1; y <= y2; y++) {
     // x goes from bottom to top(?)
     for (var x = x1; x <= x2; x++) {
-      var tile_id = pointToTileId(zoom, x, y);
-      var latNorth = tileToLat(y,zoom);
-      var latSouth = tileToLat(y+1,zoom);
-      var lngWest = tileToLng(x,zoom);
-      var lngEast = tileToLng(x+1,zoom);
+      var tile_id = pointToTileId(minPortalLevel, x, y);
+      var latNorth = tileToLat(y,minPortalLevel);
+      var latSouth = tileToLat(y+1,minPortalLevel);
+      var lngWest = tileToLng(x,minPortalLevel);
+      var lngEast = tileToLng(x+1,minPortalLevel);
 
       this.debugTiles.create(tile_id,[[latSouth,lngWest],[latNorth,lngEast]]);
 

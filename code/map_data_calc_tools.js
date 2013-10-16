@@ -9,26 +9,33 @@
 // Convertion functions courtesy of
 // http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames
 
-window.lngToTile = function(lng, zoom) {
-  return Math.floor((lng + 180) / 360 * Math.pow(2, (zoom>12)?zoom:(zoom+2)));
+
+window.levelToTilesPerEdge = function(level) {
+  var LEVEL_TO_TILES_PER_EDGE = [65536, 65536, 16384, 16384, 4096, 1536, 1024, 256, 32];
+  return LEVEL_TO_TILES_PER_EDGE[level];
 }
 
-window.latToTile = function(lat, zoom) {
+
+window.lngToTile = function(lng, level) {
+  return Math.floor((lng + 180) / 360 * levelToTilesPerEdge(level));
+}
+
+window.latToTile = function(lat, level) {
   return Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) +
-    1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, (zoom>12)?zoom:(zoom+2)));
+    1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * levelToTilesPerEdge(level));
 }
 
-window.tileToLng = function(x, zoom) {
-  return x / Math.pow(2, (zoom>12)?zoom:(zoom+2)) * 360 - 180;
+window.tileToLng = function(x, level) {
+  return x / levelToTilesPerEdge(level) * 360 - 180;
 }
 
-window.tileToLat = function(y, zoom) {
-  var n = Math.PI - 2 * Math.PI * y / Math.pow(2,  (zoom>12)?zoom:(zoom+2));
+window.tileToLat = function(y, level) {
+  var n = Math.PI - 2 * Math.PI * y / levelToTilesPerEdge(level);
   return 180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
 }
 
-window.pointToTileId = function(zoom, x, y) {
-  return zoom + "_" + x + "_" + y;
+window.pointToTileId = function(level, x, y) {
+  return level + "_" + x + "_" + y;
 }
 
 // given tile id and bounds, returns the format as required by the

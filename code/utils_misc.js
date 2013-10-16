@@ -165,6 +165,39 @@ window.requestParameterMunges = [
     inviteeEmailAddress: 'orc9ufg7rp7g1y9j',
   },
 
+  // set 5 - second update of 2013-10-16
+  {
+    'dashboard.getGameScore': '3b48kl956b33brrl',          // GET_GAME_SCORE
+    'dashboard.getPaginatedPlextsV2': 'h785pmet6wrx6xoa',  // GET_PAGINATED_PLEXTS
+    'dashboard.getThinnedEntitiesV4': '4gux7b0n3euu7e8y',  // GET_THINNED_ENTITIES
+    'dashboard.getPlayersByGuids': 'nqm1kocgzspecpzv',     // LOOKUP_PLAYERS
+    'dashboard.redeemReward': 'g618n6peb74u2ae9',          // REDEEM_REWARD
+    'dashboard.sendInviteEmail': 'bsl4280bm39bkl3a',       // SEND_INVITE_EMAIL
+    'dashboard.sendPlext': 'jym2hbw15i6uru7g',             // SEND_PLEXT
+
+    method: 'g9cmy5g6vpxpmcxz',
+    version: 'blq7574e6kkg0fig', //guessed parameter name - only seen munged
+    version_parameter: '465c62b22b3bc9ecae01e08b30703752186a1dc9', // passed as the value to the above parameter
+    boundsParamsList: '45k478vh10jt1ik7',
+    id: '3eh1ynwxjy8c8rd5',
+    minLatE6: 'krpywcgq1voq71z3',
+    minLngE6: 'yo6lte88zvoneqi6',
+    maxLatE6: 'dncli54tfafmtk6y',
+    maxLngE6: '76pq437r7vm3osx9',
+    timestampMs: '2zlgpsg1x6i9720s',
+    qk: 'pzejivoj28p6kkry',
+    desiredNumItems: 'u3uxpkqd4pn37ydn',
+    minTimestampMs: 'msw5gcxhuuk46rb2',
+    maxTimestampMs: 'bps0ekgdzakdfvr0',
+    chatTab: 'pm4fm8bjvotjm30h', //guessed parameter name - only seen munged
+    ascendingTimestampOrder: '7qp8gv50ogelh7cs',
+    message: 'y599irwyfs45adp4',
+    latE6: '19ko11fmx32sjfqk',
+    lngE6: 'i8yjq6v2mjhze29d',
+    guids: 'szebfshb9f3uo2h9',
+    inviteeEmailAddress: 'qq4t7lhqphq7wqvh',
+  },
+
 ];
 window.activeRequestMungeSet = undefined;
 
@@ -393,35 +426,9 @@ window.getPortalDataZoom = function() {
 
 window.getMinPortalLevelForZoom = function(z) {
 //based on code from stock gen_dashboard.js
-  switch(z) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-      return 8;
-    case 4:
-    case 5:
-      return 7;
-    case 6:
-    case 7:
-      return 6;
-    case 8:
-      return 5;
-    case 9:
-    case 10:
-      return 4;
-    case 11:
-    case 12:
-      return 3;
-    case 13:
-    case 14:
-      return 2;
-    case 15:
-    case 16:
-      return 1;
-    default:
-      return 0
-  }
+  var ZOOM_TO_LEVEL = [8, 8, 8, 8, 7, 7, 6, 6, 5, 4, 4, 3, 3, 2, 2, 1, 1];
+  var l = ZOOM_TO_LEVEL[z] || 0;
+  return l;
 }
 
 
