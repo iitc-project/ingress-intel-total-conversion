@@ -39,4 +39,5 @@ window.hideall = function() {
     $('#chatcontrols, #chat, #chatinput, #sidebartoggle, #scrollwrapper, #updatestatus, #portal_highlight_select').hide();
     $('#farm_level_select').hide();
     $('#map').css('visibility', 'hidden');
+    $('.ui-tooltip').remove();
 }
