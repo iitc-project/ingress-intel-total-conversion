@@ -37,16 +37,20 @@ window.MapDataRequest = function() {
   // processing cache, etc) and actually sending the first network requests
   this.DOWNLOAD_DELAY = 3;  //delay after preparing the data download before tile requests are sent
 
-  // a short delay between one request finishing and the queue being run for the next request
+
+  // a short delay between one request finishing and the queue being run for the next request.
+  // this gives a chance of other requests finishing, allowing better grouping of retries in new requests
   this.RUN_QUEUE_DELAY = 0.5;
 
   // delay before re-queueing tiles
-  this.TILE_TIMEOUT_REQUEUE_DELAY = 0.5;  // short delay before retrying a 'error==TIMEOUT' tile - as this is very common
-  this.BAD_REQUEST_REQUEUE_DELAY = 4; // longer delay before retrying a completely failed request - as in this case the servers are struggling
+  this.TILE_TIMEOUT_REQUEUE_DELAY = 0.2;  // short delay before retrying a 'error==TIMEOUT' tile. a common 'error', and the stock site has no delay in this case
+  this.BAD_REQUEST_REQUEUE_DELAY = 5; // longer delay before retrying a completely failed request - as in this case the servers are struggling
 
-  // additionally, a delay before processing the queue after requeueing tiles
-  // (this way, if multiple requeue delays finish within a short time of each other, they're all processed in one queue run)
-  this.RERUN_QUEUE_DELAY = 1;
+  // a delay before processing the queue after requeueing tiles. this gives a chance for other requests to finish
+  // or other requeue actions to happen before the queue is processed, allowing better grouping of requests
+  // however, the queue may be processed sooner if a previous timeout was set
+  this.REQUEUE_DELAY = 1;
+
 
   this.REFRESH_CLOSE = 120;  // refresh time to use for close views z>12 when not idle and not moving
   this.REFRESH_FAR = 600;  // refresh time for far views z <= 12
@@ -90,8 +94,8 @@ window.MapDataRequest.prototype.mapMoveEnd = function() {
 
   if (this.fetchedDataParams) {
     // we have fetched (or are fetching) data...
-    if (this.fetchedDataParams.zoom == zoom && this.fetchedDataParams.bounds.contains(bounds)) {
-      // ... and the data zoom levels are the same, and the current bounds is inside the fetched bounds
+    if (this.fetchedDataParams.mapZoom == map.getZoom() && this.fetchedDataParams.bounds.contains(bounds)) {
+      // ... and the zoom level is the same and the current bounds is inside the fetched bounds
       // so, no need to fetch data. if there's time left, restore the original timeout
 
       var remainingTime = (this.timerExpectedTimeoutTime - new Date().getTime())/1000;
@@ -201,10 +205,10 @@ window.MapDataRequest.prototype.refresh = function() {
 //setTimeout (function(){ map.removeLayer(debugrect2); }, 10*1000);
 
   // store the parameters used for fetching the data. used to prevent unneeded refreshes after move/zoom
-  this.fetchedDataParams = { bounds: dataBounds, zoom: zoom, minPortalLevel: minPortalLevel };
+  this.fetchedDataParams = { bounds: dataBounds, mapZoom: map.getZoom(), minPortalLevel: minPortalLevel };
 
 
-  window.runHooks ('mapDataRefreshStart', {bounds: bounds, zoom: zoom, tileBounds: dataBounds});
+  window.runHooks ('mapDataRefreshStart', {bounds: bounds, zoom: zoom, minPortalLevel: minPortalLevel, tileBounds: dataBounds});
 
   this.render.startRenderPass();
   this.render.clearPortalsBelowLevel(minPortalLevel);
@@ -290,8 +294,13 @@ console.log('stale tile '+tile_id+': newest mtime '+lastTimestamp+(lastTimestamp
 
   console.log ('done request preperation (cleared out-of-bounds and invalid for zoom, and rendered cached data)');
 
-  // don't start processing the download queue immediately - start it after a short delay
-  this.delayProcessRequestQueue (this.DOWNLOAD_DELAY,true);
+  if (Object.keys(this.tileBounds).length > 0) {
+    // queued requests - don't start processing the download queue immediately - start it after a short delay
+    this.delayProcessRequestQueue (this.DOWNLOAD_DELAY,true);
+  } else {
+    // all data was from the cache, nothing queued - run the queue 'immediately' so it handles the end request processing
+    this.delayProcessRequestQueue (0,true);
+  }
 }
 
 
@@ -581,7 +590,7 @@ console.log('processed delta mapData request:'+id+': '+oldEntityCount+' original
         delete savedContext.requestedTiles[id];
         savedContext.requeueTile(id, false);
       }
-      savedContext.delayProcessRequestQueue(this.RERUN_QUEUE_DELAY);
+      savedContext.delayProcessRequestQueue(this.REQUEUE_DELAY);
     }, this.TILE_TIMEOUT_REQUEUE_DELAY*1000);
   }
 
@@ -592,7 +601,7 @@ console.log('processed delta mapData request:'+id+': '+oldEntityCount+' original
         delete savedContext.requestedTiles[id];
         savedContext.requeueTile(id, true);
       }
-      savedContext.delayProcessRequestQueue(this.RERUN_QUEUE_DELAY);
+      savedContext.delayProcessRequestQueue(this.REQUEUE_DELAY);
     }, this.BAD_REQUEST_REQUEUE_DELAY*1000);
   }
 
