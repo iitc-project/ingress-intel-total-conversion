@@ -2,7 +2,7 @@
 // @id             iitc-plugin-draw-tools@breunigs
 // @name           IITC plugin: draw tools
 // @category       Layer
-// @version        0.5.1.@@DATETIMEVERSION@@
+// @version        0.5.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -197,7 +197,7 @@ window.plugin.drawTools.load = function() {
         layer = L.geodesicPolygon(item.latLngs,window.plugin.drawTools.polygonOptions);
         break;
       case 'circle':
-        layer = L.circle(item.latLng,item.radius,window.plugin.drawTools.polygonOptions);
+        layer = L.geodesicCircle(item.latLng,item.radius,window.plugin.drawTools.polygonOptions);
         break;
       case 'marker':
         layer = L.marker(item.latLng,window.plugin.drawTools.markerOptions)
