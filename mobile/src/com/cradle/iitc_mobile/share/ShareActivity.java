@@ -103,7 +103,6 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         mFragmentAdapter = new IntentFragmentAdapter(getSupportFragmentManager());
 
         final ActionBar actionBar = getActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
@@ -126,7 +125,8 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
-                actionBar.setSelectedNavigationItem(position);
+                if (actionBar.getNavigationMode() != ActionBar.NAVIGATION_MODE_STANDARD)
+                    actionBar.setSelectedNavigationItem(position);
                 setSelected(position);
             }
         });
@@ -141,11 +141,15 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
                     .setTabListener(this));
         }
 
+        if (mFragmentAdapter.getCount() > 1)
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         int selected = mSharedPrefs.getInt("pref_share_selected_tab", 0);
         if (selected < mFragmentAdapter.getCount()) {
             mViewPager.setCurrentItem(selected);
-            actionBar.setSelectedNavigationItem(selected);
+            if (actionBar.getNavigationMode() != ActionBar.NAVIGATION_MODE_STANDARD)
+                actionBar.setSelectedNavigationItem(selected);
         }
     }
 
