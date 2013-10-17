@@ -38,7 +38,7 @@ window.DataCache.prototype.store = function(qk,data,freshTime) {
   if (freshTime===undefined) freshTime = this.REQUEST_CACHE_FRESH_AGE*1000;
   var expire = time + freshTime;
 
-  this._cache[qk] = { time: time, expire: expire data: data };
+  this._cache[qk] = { time: time, expire: expire, data: data };
 }
 
 window.DataCache.prototype.get = function(qk) {
