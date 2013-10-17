@@ -152,7 +152,7 @@ window.setPortalIndicators = function(d) {
           weight: 3,
           dashArray: range.isLinkable ? undefined : "10,10",
           clickable: false })
-      : L.circle(coord, range, { fill: false, stroke: false, clickable: false })
+      : L.circle(coord, range.range, { fill: false, stroke: false, clickable: false })
     ).addTo(map);
 
   portalAccessIndicator = L.circle(coord, HACK_RANGE,
