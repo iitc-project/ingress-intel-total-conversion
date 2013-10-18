@@ -70,6 +70,8 @@
     
     <string name="pref_ui_cat">UI</string>
     <string name="pref_misc_cat">Misc</string>
+    <string name="pref_developer_options_cat">Developer options</string>
+    <string name="pref_tweaks_cat">Tweaks</string>
     <string name="pref_plugins">IITC Plugins</string>
     <string name="pref_plugins_title">Available plugins</string>
     <string name="pref_user_loc">Display user location</string>
@@ -84,7 +86,7 @@
     <string name="pref_force_https_sum">Disabling may improve performance</string>
     <string name="pref_press_twice_to_exit">Press back button twice to exit</string>
     <string name="pref_press_twice_to_exit_sum">Avoids accidental exits</string>
-    <string name="pref_developer_options">Developer options</string>
+    <string name="pref_advanced_options">Advanced settings</string>
     <string name="pref_enable_dev_mode">Enable developer mode</string>
     <string name="pref_enable_dev_mode_sum">If enabled, all IITC sources will be loaded from external storage of the Android device.
       Please copy all sources from $IITC_folder/build/mobile/ to /sdcard/IITC_Mobile/dev/.</string>
@@ -92,8 +94,25 @@
     <string name="pref_advanced_menu_sum">In addition to the default IITC buttons the advanced menu
         contains a debug pane plus an option to clear cookies</string>
     <string name="pref_disable_splash">Disable Splash Screen</string>
+    <string name="pref_fake_user_agent">Fake User Agent</string>
+    <string name="pref_fake_user_agent_sum">Let IITCm appear as a desktop browser for the intel site.
+        Note: If just want to use the desktop mode use the \'force desktop mode\' setting</string>
     <string name="pref_select_iitc">IITC source</string>
     <string name="pref_select_iitc_sum">Load IITC main script from url or use local script. Currently used source:</string>
+
+    <string name="pref_caching">Aggressive Caching</string>
+    <string name="pref_caching_sum">Prefer cached values even if they are expired…saves traffic but
+        may result in login issues</string>
+    <string-array name="pref_caching_array">
+        <item>Always</item>
+        <item>Mobile data only (default)</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_caching_array_vals">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
 
     <string name="menu_clear_cookies">Clear Cookies</string>
     <string name="menu_search">Search</string>

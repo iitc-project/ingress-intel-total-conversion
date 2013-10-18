@@ -395,7 +395,7 @@ window.plugin.portalslist.getPortalLink = function(portal,guid) {
     onClick: jsSingleClick,
     onDblClick: jsDoubleClick
   })[0].outerHTML;
-  var div = '<div style="max-height: 15px !important; min-width:140px !important;max-width:180px !important; overflow: hidden; text-overflow:ellipsis;">'+a+'</div>';
+  var div = '<div class="portalTitle">'+a+'</div>';
   return div;
 }
 
@@ -416,13 +416,14 @@ var setup =  function() {
   $('#toolbox').append(' <a onclick="window.plugin.portalslist.displayPL()" title="Display a list of portals in the current view">Portals list</a>');
   $('head').append('<style>' +
     //style.css sets dialog max-width to 700px - override that here
+    // (the width: 800 parameter to dialog is NOT enough to override that css limit)
     '#dialog-portal-list {max-width: 800px !important;}' +
     '#portalslist table {margin-top:5px; border-collapse: collapse; empty-cells: show; width:100%; clear: both;}' +
     '#portalslist table td, #portalslist table th {border-bottom: 1px solid #0b314e; padding:3px; color:white; background-color:#1b415e}' +
-    '#portalslist table tr.res td {  background-color: #005684; }' +
-    '#portalslist table tr.enl td {  background-color: #017f01; }' +
-    '#portalslist table tr.neutral td {  background-color: #000000; }' +
-    '#portalslist table th { text-align:center;}' +
+    '#portalslist table tr.res td { background-color: #005684; }' +
+    '#portalslist table tr.enl td { background-color: #017f01; }' +
+    '#portalslist table tr.neutral td { background-color: #000000; }' +
+    '#portalslist table th { text-align: center;}' +
     '#portalslist table td { text-align: center;}' +
     '#portalslist table td.L0 { cursor: help; background-color: #000000 !important;}' +
     '#portalslist table td.L1 { cursor: help; background-color: #FECE5A !important;}' +
@@ -437,10 +438,11 @@ var setup =  function() {
     '#portalslist table th { cursor:pointer; text-align: right;}' +
     '#portalslist table th:nth-child(1) { text-align: left;}' +
     '#portalslist table th.sorted { color:#FFCE00; }' +
-    '#portalslist .filterAll { margin-top:10px;}' +
-    '#portalslist .filterRes { margin-top:10px; background-color: #005684  }' +
-    '#portalslist .filterEnl { margin-top:10px; background-color: #017f01  }' +
-    '#portalslist .disclaimer { margin-top:10px; font-size:10px; }' +
+    '#portalslist .filterAll { margin-top: 10px;}' +
+    '#portalslist .filterRes { margin-top: 10px; background-color: #005684  }' +
+    '#portalslist .filterEnl { margin-top: 10px; background-color: #017f01  }' +
+    '#portalslist .disclaimer { margin-top: 10px; font-size:10px; }' +
+    '#portalslist .portalTitle { width: 160px !important; min-width: 160px !important; max-width: 160px !important; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }' +
     '</style>');
 }
 

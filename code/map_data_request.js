@@ -11,6 +11,7 @@ window.MapDataRequest = function() {
 
   this.activeRequestCount = 0;
   this.requestedTiles = {};
+  this.staleTileData = {};
 
   this.idle = false;
 
@@ -28,24 +29,28 @@ window.MapDataRequest = function() {
   this.MAX_TILE_RETRIES = 3;
 
   // refresh timers
-  this.MOVE_REFRESH = 0.5; //refresh time to use after a move
-  this.STARTUP_REFRESH = 5; //refresh time used on first load of IITC
+  this.MOVE_REFRESH = 1; //time, after a map move (pan/zoom) before starting the refresh processing
+  this.STARTUP_REFRESH = 3; //refresh time used on first load of IITC
   this.IDLE_RESUME_REFRESH = 5; //refresh time used after resuming from idle
 
   // after one of the above, there's an additional delay between preparing the refresh (clearing out of bounds,
   // processing cache, etc) and actually sending the first network requests
   this.DOWNLOAD_DELAY = 3;  //delay after preparing the data download before tile requests are sent
 
-  // a short delay between one request finishing and the queue being run for the next request
+
+  // a short delay between one request finishing and the queue being run for the next request.
+  // this gives a chance of other requests finishing, allowing better grouping of retries in new requests
   this.RUN_QUEUE_DELAY = 0.5;
 
   // delay before re-queueing tiles
-  this.TILE_TIMEOUT_REQUEUE_DELAY = 0.5;  // short delay before retrying a 'error==TIMEOUT' tile - as this is very common
-  this.BAD_REQUEST_REQUEUE_DELAY = 4; // longer delay before retrying a completely failed request - as in this case the servers are struggling
+  this.TILE_TIMEOUT_REQUEUE_DELAY = 0.2;  // short delay before retrying a 'error==TIMEOUT' tile. a common 'error', and the stock site has no delay in this case
+  this.BAD_REQUEST_REQUEUE_DELAY = 5; // longer delay before retrying a completely failed request - as in this case the servers are struggling
 
-  // additionally, a delay before processing the queue after requeueing tiles
-  // (this way, if multiple requeue delays finish within a short time of each other, they're all processed in one queue run)
-  this.RERUN_QUEUE_DELAY = 2;
+  // a delay before processing the queue after requeueing tiles. this gives a chance for other requests to finish
+  // or other requeue actions to happen before the queue is processed, allowing better grouping of requests
+  // however, the queue may be processed sooner if a previous timeout was set
+  this.REQUEUE_DELAY = 1;
+
 
   this.REFRESH_CLOSE = 120;  // refresh time to use for close views z>12 when not idle and not moving
   this.REFRESH_FAR = 600;  // refresh time for far views z <= 12
@@ -89,8 +94,8 @@ window.MapDataRequest.prototype.mapMoveEnd = function() {
 
   if (this.fetchedDataParams) {
     // we have fetched (or are fetching) data...
-    if (this.fetchedDataParams.zoom == zoom && this.fetchedDataParams.bounds.contains(bounds)) {
-      // ... and the data zoom levels are the same, and the current bounds is inside the fetched bounds
+    if (this.fetchedDataParams.mapZoom == map.getZoom() && this.fetchedDataParams.bounds.contains(bounds)) {
+      // ... and the zoom level is the same and the current bounds is inside the fetched bounds
       // so, no need to fetch data. if there's time left, restore the original timeout
 
       var remainingTime = (this.timerExpectedTimeoutTime - new Date().getTime())/1000;
@@ -172,6 +177,9 @@ window.MapDataRequest.prototype.refresh = function() {
   // fill tileBounds with the data needed to request each tile
   this.tileBounds = {};
 
+  // clear the stale tile data
+  this.staleTileData = {};
+
 
   var bounds = clampLatLngBounds(map.getBounds());
   var zoom = getPortalDataZoom();
@@ -183,24 +191,24 @@ window.MapDataRequest.prototype.refresh = function() {
 //var debugrect = L.rectangle(bounds,{color: 'red', fill: false, weight: 4, opacity: 0.8}).addTo(map);
 //setTimeout (function(){ map.removeLayer(debugrect); }, 10*1000);
 
-  var x1 = lngToTile(bounds.getWest(), zoom);
-  var x2 = lngToTile(bounds.getEast(), zoom);
-  var y1 = latToTile(bounds.getNorth(), zoom);
-  var y2 = latToTile(bounds.getSouth(), zoom);
+  var x1 = lngToTile(bounds.getWest(), minPortalLevel);
+  var x2 = lngToTile(bounds.getEast(), minPortalLevel);
+  var y1 = latToTile(bounds.getNorth(), minPortalLevel);
+  var y2 = latToTile(bounds.getSouth(), minPortalLevel);
 
   // calculate the full bounds for the data - including the part of the tiles off the screen edge
   var dataBounds = L.latLngBounds([
-    [tileToLat(y2+1,zoom), tileToLng(x1,zoom)],
-    [tileToLat(y1,zoom), tileToLng(x2+1,zoom)]
+    [tileToLat(y2+1,minPortalLevel), tileToLng(x1,minPortalLevel)],
+    [tileToLat(y1,minPortalLevel), tileToLng(x2+1,minPortalLevel)]
   ]);
 //var debugrect2 = L.rectangle(dataBounds,{color: 'magenta', fill: false, weight: 4, opacity: 0.8}).addTo(map);
 //setTimeout (function(){ map.removeLayer(debugrect2); }, 10*1000);
 
   // store the parameters used for fetching the data. used to prevent unneeded refreshes after move/zoom
-  this.fetchedDataParams = { bounds: dataBounds, zoom: zoom };
+  this.fetchedDataParams = { bounds: dataBounds, mapZoom: map.getZoom(), minPortalLevel: minPortalLevel };
 
 
-  window.runHooks ('mapDataRefreshStart', {bounds: bounds, zoom: zoom, tileBounds: dataBounds});
+  window.runHooks ('mapDataRefreshStart', {bounds: bounds, zoom: zoom, minPortalLevel: minPortalLevel, tileBounds: dataBounds});
 
   this.render.startRenderPass();
   this.render.clearPortalsBelowLevel(minPortalLevel);
@@ -224,11 +232,11 @@ window.MapDataRequest.prototype.refresh = function() {
   for (var y = y1; y <= y2; y++) {
     // x goes from bottom to top(?)
     for (var x = x1; x <= x2; x++) {
-      var tile_id = pointToTileId(zoom, x, y);
-      var latNorth = tileToLat(y,zoom);
-      var latSouth = tileToLat(y+1,zoom);
-      var lngWest = tileToLng(x,zoom);
-      var lngEast = tileToLng(x+1,zoom);
+      var tile_id = pointToTileId(minPortalLevel, x, y);
+      var latNorth = tileToLat(y,minPortalLevel);
+      var latSouth = tileToLat(y+1,minPortalLevel);
+      var lngWest = tileToLng(x,minPortalLevel);
+      var lngEast = tileToLng(x+1,minPortalLevel);
 
       this.debugTiles.create(tile_id,[[latSouth,lngWest],[latNorth,lngEast]]);
 
@@ -238,6 +246,7 @@ window.MapDataRequest.prototype.refresh = function() {
         this.render.processTileData (this.cache.get(tile_id));
         this.cachedTileCount += 1;
       } else {
+
         // no fresh data - queue a request
         var boundsParams = generateBoundsParams(
           tile_id,
@@ -246,6 +255,34 @@ window.MapDataRequest.prototype.refresh = function() {
           latNorth,
           lngEast
         );
+
+/* After some testing, this doesn't seem to actually work. The server returns the same data with and without the parameter
+ * Also, closer study of the stock site code shows the parameter isn't actually set anywhere.
+ * so, disabling for now...
+        // however, the server does support delta requests - only returning the entities changed since a particular timestamp
+        // retrieve the stale cache entry and use it, if possible
+        var stale = (this.cache && this.cache.get(tile_id));
+        var lastTimestamp = undefined;
+        if (stale) {
+          // find the timestamp of the latest entry in the stale records. the stock site appears to use the browser
+          // clock, but this isn't reliable. ideally the data set should include it's retrieval timestamp, set by the
+          // server, for use here. a good approximation is the highest timestamp of all entities
+
+          for (var i in stale.gameEntities) {
+            var ent = stale.gameEntities[i];
+            if (lastTimestamp===undefined || ent[1] > lastTimestamp) {
+              lastTimestamp = ent[1];
+            }
+          }
+
+console.log('stale tile '+tile_id+': newest mtime '+lastTimestamp+(lastTimestamp?' '+new Date(lastTimestamp).toString():''));
+          if (lastTimestamp) {
+            // we can issue a useful delta request - store the previous data, as we can't rely on the cache still having it later
+            this.staleTileData[tile_id] = stale;
+            boundsParams.timestampMs = lastTimestamp;
+          }
+        }
+*/
 
         this.tileBounds[tile_id] = boundsParams;
         this.requestedTileCount += 1;
@@ -257,8 +294,13 @@ window.MapDataRequest.prototype.refresh = function() {
 
   console.log ('done request preperation (cleared out-of-bounds and invalid for zoom, and rendered cached data)');
 
-  // don't start processing the download queue immediately - start it after a short delay
-  this.delayProcessRequestQueue (this.DOWNLOAD_DELAY,true);
+  if (Object.keys(this.tileBounds).length > 0) {
+    // queued requests - don't start processing the download queue immediately - start it after a short delay
+    this.delayProcessRequestQueue (this.DOWNLOAD_DELAY,true);
+  } else {
+    // all data was from the cache, nothing queued - run the queue 'immediately' so it handles the end request processing
+    this.delayProcessRequestQueue (0,true);
+  }
 }
 
 
@@ -358,7 +400,7 @@ window.MapDataRequest.prototype.sendTileRequest = function(tiles) {
 
     this.debugTiles.setState (id, 'requested');
 
-    this.requestedTiles[id] = true;
+    this.requestedTiles[id] = { staleData: this.staleTileData[id] };
 
     var boundsParams = this.tileBounds[id];
     if (boundsParams) {
@@ -473,13 +515,53 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
         // no error for this data tile - process it
         successTiles.push (id);
 
+        var stale = this.requestedTiles[id].staleData;
+        if (stale) {
+//NOTE: currently this code path won't be used, as we never set the staleData to anything other than 'undefined'
+          // we have stale data. therefore, a delta request was made for this tile. we need to merge the results with
+          // the existing stale data before proceeding
+
+          var dataObj = {};
+          // copy all entities from the stale data...
+          for (var i in stale.gameEntities||[]) {
+            var ent = stale.gameEntities[i];
+            dataObj[ent[0]] = { timestamp: ent[1], data: ent[2] };
+          }
+var oldEntityCount = Object.keys(dataObj).length;
+          // and remove any entities in the deletedEntnties list
+          for (var i in val.deletedEntities||[]) {
+            var guid = val.deletedEntities[i];
+            delete dataObj[guid];
+          }
+var oldEntityCount2 = Object.keys(dataObj).length;
+          // then add all entities from the new data
+          for (var i in val.gameEntities||[]) {
+            var ent = val.gameEntities[i];
+            dataObj[ent[0]] = { timestamp: ent[1], data: ent[2] };
+          }
+var newEntityCount = Object.keys(dataObj).length;
+console.log('processed delta mapData request:'+id+': '+oldEntityCount+' original entities, '+oldEntityCount2+' after deletion, '+val.gameEntities.length+' entities in the response');
+
+          // now reconstruct a new gameEntities array in val, with the updated data
+          val.gameEntities = [];
+          for (var guid in dataObj) {
+            var ent = [guid, dataObj[guid].timestamp, dataObj[guid].data];
+            val.gameEntities.push(ent);
+          }
+
+          // we can leave the returned 'deletedEntities' data unmodified - it's not critial to how IITC works anyway
+
+          // also delete any staleTileData entries for this tile - no longer required
+          delete this.staleTileData[id];
+        }
+
         // store the result in the cache
         this.cache && this.cache.store (id, val);
 
         // if this tile was in the render list, render it
         // (requests aren't aborted when new requests are started, so it's entirely possible we don't want to render it!)
         if (id in this.tileBounds) {
-          this.debugTiles.setState (id, 'ok');
+          this.debugTiles.setState (id, stale?'ok-delta':'ok');
 
           this.render.processTileData (val);
 
@@ -508,7 +590,7 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
         delete savedContext.requestedTiles[id];
         savedContext.requeueTile(id, false);
       }
-      savedContext.delayProcessRequestQueue(this.RERUN_QUEUE_DELAY);
+      savedContext.delayProcessRequestQueue(this.REQUEUE_DELAY);
     }, this.TILE_TIMEOUT_REQUEUE_DELAY*1000);
   }
 
@@ -519,7 +601,7 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
         delete savedContext.requestedTiles[id];
         savedContext.requeueTile(id, true);
       }
-      savedContext.delayProcessRequestQueue(this.RERUN_QUEUE_DELAY);
+      savedContext.delayProcessRequestQueue(this.REQUEUE_DELAY);
     }, this.BAD_REQUEST_REQUEUE_DELAY*1000);
   }
 
