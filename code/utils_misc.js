@@ -611,3 +611,13 @@ if(goog && goog.style) {
   };
 }
 
+// Fix Leaflet: handle touchcancel events in Draggable
+L.Draggable.prototype._onDownOrig = L.Draggable.prototype._onDown;
+L.Draggable.prototype._onDown = function(e) {
+  L.Draggable.prototype._onDownOrig.apply(this, arguments);
+
+  if(e.type === "touchstart") {
+    L.DomEvent.on(document, "touchcancel", this._onUp, this);
+  }
+}
+
