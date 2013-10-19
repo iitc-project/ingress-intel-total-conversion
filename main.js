@@ -100,7 +100,9 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '    </div>'
   + '  </div>'
   + '</div>'
-  + '<div id="updatestatus"><div id="innerstatus"></div></div>';
+  + '<div id="updatestatus"><div id="innerstatus"></div></div>'
+  // avoid error by stock JS
+  + '<div id="play_button"></div>';
 
 // putting everything in a wrapper function that in turn is placed in a
 // script tag on the website allows us to execute in the site’s context

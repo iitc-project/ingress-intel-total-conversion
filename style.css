@@ -969,3 +969,8 @@ td + td {
 .portal_details tr.padding-top th, .portal_details tr.padding-top td {
   padding-top: 0.7em;
 }
+
+#play_button {
+  display: none;
+}
+

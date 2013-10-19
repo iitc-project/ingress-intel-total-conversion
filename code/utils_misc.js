@@ -602,3 +602,12 @@ window.clampLatLng = function(latlng) {
 window.clampLatLngBounds = function(bounds) {
   return new L.LatLngBounds ( clampLatLng(bounds.getSouthWest()), clampLatLng(bounds.getNorthEast()) );
 }
+
+// avoid error in stock JS
+if(goog && goog.style) {
+  goog.style.showElement = function(a, b) {
+    if(a && a.style)
+      a.style.display = b ? "" : "none"
+  };
+}
+
