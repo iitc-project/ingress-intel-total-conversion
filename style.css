@@ -526,6 +526,7 @@ h3 {
   display: block;
   margin-right: 15px;
   text-align:right;
+  float: right;
 }
 
 /* portal mods */
