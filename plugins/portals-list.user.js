@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portals-list@teo96
 // @name           IITC plugin: show list of portals
 // @category       Info
-// @version        0.0.16.@@DATETIMEVERSION@@
+// @version        0.0.17.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -146,7 +146,7 @@ window.plugin.portalslist.getPortals = function() {
         }
       }else { mods[ind] = ['', '', '']; }
     });
-	console.log(mods);
+
     var APgain= getAttackApGain(d).enemyAp;
     var thisPortal = {'portal': d,
           'name': name,
@@ -442,7 +442,7 @@ var setup =  function() {
     '#portalslist .filterRes { margin-top: 10px; background-color: #005684  }' +
     '#portalslist .filterEnl { margin-top: 10px; background-color: #017f01  }' +
     '#portalslist .disclaimer { margin-top: 10px; font-size:10px; }' +
-    '#portalslist .portalTitle { width: 160px !important; min-width: 160px !important; max-width: 160px !important; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }' +
+    '#portalslist .portalTitle { display: inline-block; width: 160px !important; min-width: 160px !important; max-width: 160px !important; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }' +
     '</style>');
 }
 

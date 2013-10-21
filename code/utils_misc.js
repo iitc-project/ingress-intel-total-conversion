@@ -602,3 +602,22 @@ window.clampLatLng = function(latlng) {
 window.clampLatLngBounds = function(bounds) {
   return new L.LatLngBounds ( clampLatLng(bounds.getSouthWest()), clampLatLng(bounds.getNorthEast()) );
 }
+
+// avoid error in stock JS
+if(goog && goog.style) {
+  goog.style.showElement = function(a, b) {
+    if(a && a.style)
+      a.style.display = b ? "" : "none"
+  };
+}
+
+// Fix Leaflet: handle touchcancel events in Draggable
+L.Draggable.prototype._onDownOrig = L.Draggable.prototype._onDown;
+L.Draggable.prototype._onDown = function(e) {
+  L.Draggable.prototype._onDownOrig.apply(this, arguments);
+
+  if(e.type === "touchstart") {
+    L.DomEvent.on(document, "touchcancel", this._onUp, this);
+  }
+}
+
