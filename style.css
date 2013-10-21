@@ -510,6 +510,7 @@ h3 {
   background-size: contain;
   cursor: help;
   overflow: hidden;
+  position: relative;
 }
 
 .imgpreview img.hide {
