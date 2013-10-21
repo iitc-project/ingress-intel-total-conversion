@@ -168,7 +168,7 @@ public class IITC_WebView extends WebView {
                 break;
             default:
                 if (getUrl() != null) {
-                    login = getUrl().contains("accounts.google.com");
+                    login |= getUrl().contains("accounts.google.com");
                 }
                 // use cache if on mobile network...saves traffic
                 if (!isConnectedToWifi() && !login) {
