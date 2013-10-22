@@ -48,7 +48,7 @@
             android:title="@string/pref_plugins"
             android:persistent="false">
             <intent
-                android:targetPackage="com.cradle.iitc_mobile"
+                android:targetPackage="com.cradle.iitc_mobile.test"
                 android:targetClass="com.cradle.iitc_mobile.IITC_PluginPreferenceActivity"/>
         </PreferenceScreen>
 	    <CheckBoxPreference

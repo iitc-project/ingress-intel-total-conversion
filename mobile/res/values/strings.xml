@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">IITC Mobile</string>
-    <string name="activity_settings">IITC Mobile Settings</string>
+    <string name="app_name">IITCm Test</string>
+    <string name="activity_settings">IITCm Test Settings</string>
     <string name="activity_plugins">IITC Plugins</string>
     <string name="activity_share">Share using…</string>
     <string name="activity_share_to_clipboard">Copy to clipboard</string>
@@ -20,13 +20,13 @@
     <string name="iitc_version">IITC Version</string>
     <string name="about">About</string>
     
-    <string name="pref_about_title">About IITC Mobile</string>
+    <string name="pref_about_title">About IITCm Test</string>
     <!-- Use CDATA to prevent android from parsing html tags....we are doing this with Html.fromHtml() -->
     <string name="pref_about_msg">
         <![CDATA[<big><b>Ingress Intel Total Conversion Mobile</b></big><br><br>
         <b>by <a href="https://github.com/leCradle">cradle</a> and contributors</b><br><br>
         <b>Icon by <a href="http://www.ludolab.net">Giuseppe Lucido</a></b><br><br>
-        IITC Mobile is an optimized mobile browser for the
+        IITCm Test is an optimized mobile browser for the
         Ingress Intel Total Conversion (IITC) userscript by <a href="https://github.com/breunigs"><b>breunigs</b></a>.
         After Niantic asked the main developer to shut down his github project, development
         is continued on a fork of <a href="https://github.com/jonatkins"><b>jonatkins</b></a>.<br><br>
