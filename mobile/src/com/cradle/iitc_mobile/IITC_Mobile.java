@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Locale;
@@ -130,7 +131,8 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
             mIitcWebView.updateCaching(false);
         } else if (key.equals("pref_press_twice_to_exit")
                 || key.equals("pref_share_selected_tab")
-                || key.equals("pref_messages"))
+                || key.equals("pref_messages")
+                || key.equals("pref_external_storage"))
             // no reload needed
             return;
 
@@ -479,6 +481,11 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
             default:
                 return false;
         }
+    }
+
+    @Override
+    public File getCacheDir() {
+        return getApplicationContext().getCacheDir();
     }
 
     public void reloadIITC() {

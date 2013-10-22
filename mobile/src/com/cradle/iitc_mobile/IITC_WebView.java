@@ -44,10 +44,8 @@ public class IITC_WebView extends WebView {
         mSettings.setAllowFileAccess(true);
         mSettings.setGeolocationEnabled(true);
         mSettings.setAppCacheEnabled(true);
-        mSettings.setDatabasePath(getContext().getApplicationInfo().dataDir
-                + "/databases/");
-        mSettings.setAppCachePath(getContext().getCacheDir()
-                .getAbsolutePath());
+        mSettings.setDatabasePath(getContext().getApplicationInfo().dataDir + "/databases/");
+        mSettings.setAppCachePath(getContext().getCacheDir().getAbsolutePath());
         mJsInterface = new IITC_JSInterface((IITC_Mobile) mContext);
         addJavascriptInterface(mJsInterface, "android");
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
