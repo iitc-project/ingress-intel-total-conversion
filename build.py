@@ -263,7 +263,7 @@ if buildMobile:
 
     if buildMobile != 'copyonly':
         # now launch 'ant' to build the mobile project
-        retcode = os.system("ant clean %s -buildfile mobile/build.xml %s" % (antOptions, buildMobile))
+        retcode = os.system("ant %s -buildfile mobile/build.xml %s" % (antOptions, buildMobile))
 
         if retcode != 0:
             print ("Error: mobile app failed to build. ant returned %d" % retcode)
