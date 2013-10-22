@@ -10,8 +10,11 @@ window.Render = function() {
   this.CLUSTER_SIZE = L.Browser.mobile ? 16 : 8;  // the map is divited into squares of this size in pixels for clustering purposes. mobile uses larger markers, so therefore larger clustering areas
   this.CLUSTER_PORTAL_LIMIT = 4; // no more than this many portals are drawn in each cluster square
 
+  // link length, in pixels, to be visible. use the portal cluster size, as shorter than this is likely hidden
+  // under the portals
+  this.LINK_VISIBLE_PIXEL_LENGTH = this.CLUSTER_SIZE;
 
-  this.currentPortalClusterZoom = undefined;
+  this.entityVisibilityZoom = undefined;
 }
 
 
@@ -67,6 +70,12 @@ window.Render.prototype.clearEntitiesOutsideBounds = function(bounds) {
   console.log('Render: deleted '+pcount+' portals, '+lcount+' links, '+fcount+' fields by bounds check');
 }
 
+// TODO? as well as clearing portals by level, and clearing entities outside the bounds...
+// can we clear unneeded 'fake' links after zooming out? based on the portals no longer being available to construct
+// the data? (not *required* - as they'll be removed in the endRenderPass code - but clearing things earlier rather than
+// later is preferred, if possible)
+
+
 // process deleted entity list and entity data
 window.Render.prototype.processTileData = function(tiledata) {
   this.processDeletedGameEntityGuids(tiledata.deletedGameEntityGuids||[]);
@@ -94,7 +103,7 @@ window.Render.prototype.processDeletedGameEntityGuids = function(deleted) {
 }
 
 window.Render.prototype.processGameEntities = function(entities) {
-//  var portalGuids = [];
+  var portalGuids = [];
 
   for (var i in entities) {
     var ent = entities[i];
@@ -102,12 +111,14 @@ window.Render.prototype.processGameEntities = function(entities) {
     // don't create entities in the 'deleted' list
     if (!(ent[0] in this.deletedGuid)) {
       this.createEntity(ent);
-//      if ('portalV2' in ent[2]) portalGuids.push(ent[0]);
+      if ('portalV2' in ent[2]) portalGuids.push(ent[0]);
     }
   }
 
-//  // now reconstruct links 'optimised' out of the data from the portal link data
-//  this.createLinksFromPortalData(portalGuids);
+  // now reconstruct links 'optimised' out of the data from the portal link data
+  for (var i in portalGuids) {
+    this.createLinksFromPortalData(portalGuids[i]);
+  }
 }
 
 
@@ -139,13 +150,27 @@ window.Render.prototype.endRenderPass = function() {
 }
 
 window.Render.prototype.bringPortalsToFront = function() {
-  for (var i in portalsLayers) {
-    var layer = portalsLayers[i];
-    if (window.map.hasLayer(layer)) {
-      layer.eachLayer (function(p) {
-        p.bringToFront();
-      });
+  for (var lvl in portalsFactionLayers) {
+    // portals are stored in separate layers per faction
+    // to avoid giving weight to one faction or another, we'll push portals to front based on GUID order
+    var portals = {};
+    for (var fac in portalsFactionLayers[lvl]) {
+      var layer = portalsFactionLayers[lvl][fac];
+      if (layer._map) {
+        layer.eachLayer (function(p) {
+          portals[p.options.guid] = p;
+        });
+      }
     }
+
+    var guids = Object.keys(portals);
+    guids.sort();
+
+    for (var j in guids) {
+      var guid = guids[j];
+      portals[guid].bringToFront();
+    }
+
   }
 }
 
@@ -167,7 +192,9 @@ window.Render.prototype.deletePortalEntity = function(guid) {
 window.Render.prototype.deleteLinkEntity = function(guid) {
   if (guid in window.links) {
     var l = window.links[guid];
-    linksLayer.removeLayer(l);
+    if (linksFactionLayers[l.options.team].hasLayer(l)) {
+      linksFactionLayers[l.options.team].removeLayer(l);
+    }
     delete window.links[guid];
   }
 }
@@ -194,7 +221,7 @@ window.Render.prototype.deleteFieldEntity = function(guid) {
     deletePortalLinkedField (fd.capturedRegion.vertexB.guid);
     deletePortalLinkedField (fd.capturedRegion.vertexC.guid);
 
-    fieldsLayer.removeLayer(f);
+    fieldsFactionLayers[f.options.team].removeLayer(f);
     delete window.fields[guid];
   }
 }
@@ -311,9 +338,7 @@ window.Render.prototype.createPortalEntity = function(ent) {
     renderPortalDetails (selectedPortal);
   }
 
-//  //TODO? postpone adding to the map layer
-//  portalsLayers[parseInt(portalLevel)].addLayer(marker);
-
+  //TODO? postpone adding to the map layer
   this.addPortalToMapLayer(marker);
 
 }
@@ -349,6 +374,8 @@ window.Render.prototype.createFieldEntity = function(ent) {
     fillOpacity: 0.25,
     stroke: false,
     clickable: false,
+
+    team: team,
     guid: ent[0],
     timestamp: ent[1],
     details: ent[2],
@@ -372,13 +399,15 @@ window.Render.prototype.createFieldEntity = function(ent) {
   addPortalLinkedField(ent[2].capturedRegion.vertexB.guid);
   addPortalLinkedField(ent[2].capturedRegion.vertexC.guid);
 
+  runHooks('fieldAdded',{field: poly});
+
   window.fields[ent[0]] = poly;
 
   // TODO? postpone adding to the layer??
-  fieldsLayer.addLayer(poly);
+  fieldsFactionLayers[poly.options.team].addLayer(poly);
 }
 
-window.Render.prototype.createLinkEntity = function(ent) {
+window.Render.prototype.createLinkEntity = function(ent,faked) {
   this.seenLinksGuid[ent[0]] = true;  // flag we've seen it
 
   // check if entity already exists
@@ -404,8 +433,10 @@ window.Render.prototype.createLinkEntity = function(ent) {
   var poly = L.geodesicPolyline(latlngs, {
     color: COLORS[team],
     opacity: 1,
-    weight: 2,
+    weight: faked ? 1 : 2,
     clickable: false,
+
+    team: team,
     guid: ent[0],
     timestamp: ent[1],
     details: ent[2],
@@ -413,64 +444,75 @@ window.Render.prototype.createLinkEntity = function(ent) {
     data: ent[2]
   });
 
+  runHooks('linkAdded', {link: poly});
+
   window.links[ent[0]] = poly;
 
-  // TODO? postpone adding to the layer??
-  linksLayer.addLayer(poly);
+  // only add the link to the layer if it's long enough to be seen
+
+  if (this.linkVisible(poly)) {
+    linksFactionLayers[poly.options.team].addLayer(poly);
+  }
 }
 
 
-window.Render.prototype.createLinksFromPortalData = function(portalGuids) {
+window.Render.prototype.createLinksFromPortalData = function(portalGuid) {
 
-  for (var portalGuidIndex in portalGuids) {
-    var portalGuid = portalGuids[portalGuidIndex];
-    var sourcePortal = portals[portalGuid];
+  var sourcePortal = portals[portalGuid];
 
-    for (var sourceLinkIndex in sourcePortal.options.details.portalV2.linkedEdges||[]) {
-      var sourcePortalLinkInfo = sourcePortal.options.details.portalV2.linkedEdges[sourceLinkIndex];
+  for (var sourceLinkIndex in sourcePortal.options.details.portalV2.linkedEdges||[]) {
+    var sourcePortalLinkInfo = sourcePortal.options.details.portalV2.linkedEdges[sourceLinkIndex];
 
-      // portals often contain details for edges that don't exist. so only consider faking an edge if this
-      // is the origin portal, the link doesn't already exist...
-      if (sourcePortalLinkInfo.isOrigin && !(sourcePortalLinkInfo.edgeGuid in links)) {
+    // portals often contain details for edges that don't exist. so only consider faking an edge if this
+    // is the origin portal
+    if (sourcePortalLinkInfo.isOrigin) {
 
-        // ... and the other porta has matching link information. 
-        if (portalGuids.indexOf(sourcePortalLinkInfo.otherPortalGuid) != -1 &&
-            sourcePortalLinkInfo.otherPortalGuid in portals) {
+      // ... and the other porta has matching link information. 
+      if (sourcePortalLinkInfo.otherPortalGuid in portals) {
 
-          var targetPortal = portals[sourcePortalLinkInfo.otherPortalGuid];
+        var targetPortal = portals[sourcePortalLinkInfo.otherPortalGuid];
 
-          for (var targetLinkIndex in targetPortal.options.details.portalV2.linkedEdges||[]) {
-            var targetPortalLinkInfo = targetPortal.options.details.portalV2.linkedEdges[targetLinkIndex];
+        for (var targetLinkIndex in targetPortal.options.details.portalV2.linkedEdges||[]) {
+          var targetPortalLinkInfo = targetPortal.options.details.portalV2.linkedEdges[targetLinkIndex];
 
-            if (targetPortalLinkInfo.edgeGuid == sourcePortalLinkInfo.edgeGuid) {
-              // yes - edge in both portals. create it
+          if (targetPortalLinkInfo.edgeGuid == sourcePortalLinkInfo.edgeGuid) {
+            // yes - edge in both portals. create it
 
-              var fakeEnt = [
-                sourcePortalLinkInfo.edgeGuid,
-                0,  // mtime for entity data - unknown when faking it, so zero will be the oldest possible
-                {
-                  controllingTeam: sourcePortal.options.details.controllingTeam,
-                  edge: {
-                    originPortalGuid: portalGuid,
-                    originPortalLocation: sourcePortal.options.details.locationE6,
-                    destinationPortalGuid: sourcePortalLinkInfo.otherPortalGuid,
-                    destinationPortalLocation: targetPortal.options.details.locationE6
-                  }
+            var fakeEnt = [
+              sourcePortalLinkInfo.edgeGuid,
+              0,  // mtime for entity data - unknown when faking it, so zero will be the oldest possible
+              {
+                controllingTeam: sourcePortal.options.details.controllingTeam,
+                edge: {
+                  originPortalGuid: portalGuid,
+                  originPortalLocation: sourcePortal.options.details.locationE6,
+                  destinationPortalGuid: sourcePortalLinkInfo.otherPortalGuid,
+                  destinationPortalLocation: targetPortal.options.details.locationE6
                 }
-              ];
+              }
+            ];
 
-              this.createLinkEntity(fakeEnt);
+            this.createLinkEntity(fakeEnt,true);
 
-
-            }
 
           }
 
         }
-        
-      }
 
+      }
+      
     }
+
+  }
+}
+
+
+window.Render.prototype.updateEntityVisibility = function() {
+  if (this.entityVisibilityZoom === undefined || this.entityVisibilityZoom != map.getZoom()) {
+    this.entityVisibilityZoom = map.getZoom();
+
+    this.resetPortalClusters();
+    this.resetLinkVisibility();
   }
 }
 
@@ -479,44 +521,41 @@ window.Render.prototype.createLinksFromPortalData = function(portalGuids) {
 // portal clustering functionality
 
 window.Render.prototype.resetPortalClusters = function() {
-  if (this.currentPortalClusterZoom === undefined || this.currentPortalClusterZoom != map.getZoom()) {
 
-    this.portalClusters = {};
-    this.currentPortalClusterZoom = map.getZoom();
+  this.portalClusters = {};
 
-    // first, place the portals into the clusters
-    for (var pguid in window.portals) {
-      var p = window.portals[pguid];
-      var cid = this.getPortalClusterID(p);
+  // first, place the portals into the clusters
+  for (var pguid in window.portals) {
+    var p = window.portals[pguid];
+    var cid = this.getPortalClusterID(p);
 
-      if (!(cid in this.portalClusters)) this.portalClusters[cid] = [];
+    if (!(cid in this.portalClusters)) this.portalClusters[cid] = [];
 
-      this.portalClusters[cid].push(p.options.guid);
-    }
+    this.portalClusters[cid].push(p.options.guid);
+  }
 
-    // now, for each cluster, sort by some arbitary data (the guid will do), and display the first CLUSTER_PORTAL_LIMIT
-    for (var cid in this.portalClusters) {
-      var c = this.portalClusters[cid];
+  // now, for each cluster, sort by some arbitary data (the guid will do), and display the first CLUSTER_PORTAL_LIMIT
+  for (var cid in this.portalClusters) {
+    var c = this.portalClusters[cid];
 
-      c.sort();
+    c.sort();
 
-      for (var i=0; i<c.length; i++) {
-        var guid = c[i];
-        var p = window.portals[guid];
-        var layerGroup = portalsLayers[parseInt(p.options.level)];
-        if (i<this.CLUSTER_PORTAL_LIMIT || p.options.guid == selectedPortal) {
-          if (!layerGroup.hasLayer(p)) {
-            portalsLayers[parseInt(p.options.level)].addLayer(p);
-          }
-        } else {
-          if (layerGroup.hasLayer(p)) {
-            portalsLayers[parseInt(p.options.level)].removeLayer(p);
-          }
+    for (var i=0; i<c.length; i++) {
+      var guid = c[i];
+      var p = window.portals[guid];
+      var layerGroup = portalsFactionLayers[parseInt(p.options.level)][p.options.team];
+      if (i<this.CLUSTER_PORTAL_LIMIT || p.options.guid == selectedPortal) {
+        if (!layerGroup.hasLayer(p)) {
+          layerGroup.addLayer(p);
+        }
+      } else {
+        if (layerGroup.hasLayer(p)) {
+          layerGroup.removeLayer(p);
         }
       }
     }
+  }
 
-  } //else zoom unchanged, no need to update
 }
 
 // add the portal to the visiable map layer unless we pass the cluster limits
@@ -532,14 +571,14 @@ window.Render.prototype.addPortalToMapLayer = function(portal) {
   // however, it won't make a lot of visible difference compared to just pushing to the end of the list, then
   // adding to the visible layer if the list is below the limit
   if (this.portalClusters[cid].length < this.CLUSTER_PORTAL_LIMIT || portal.options.guid == selectedPortal) {
-    portalsLayers[parseInt(portal.options.level)].addLayer(portal);
+    portalsFactionLayers[parseInt(portal.options.level)][portal.options.team].addLayer(portal);
   }
 }
 
 window.Render.prototype.removePortalFromMapLayer = function(portal) {
 
   //remove it from the portalsLevels layer
-  portalsLayers[parseInt(portal.options.level)].removeLayer(portal);
+  portalsFactionLayers[parseInt(portal.options.level)][portal.options.team].removeLayer(portal);
 
   // and ensure there's no mention of the portal in the cluster list
   var cid = this.getPortalClusterID(portal);
@@ -562,4 +601,52 @@ window.Render.prototype.getPortalClusterID = function(portal) {
   var clusterpoint = point.divideBy(this.CLUSTER_SIZE).round();
 
   return z+":"+clusterpoint.x+":"+clusterpoint.y;
+}
+
+
+// link length
+
+window.Render.prototype.getLinkPixelLength = function(link) {
+  var z = map.getZoom();
+
+  var latLngs = link.getLatLngs();
+  if (latLngs.length != 2) {
+    console.warn ('Link had '+latLngs.length+' points - expected 2!');
+    return undefined;
+  }
+
+  var point0 = map.project(latLngs[0]);
+  var point1 = map.project(latLngs[1]);
+
+  var dx = point0.x - point1.x;
+  var dy = point0.y - point1.y;
+
+  var lengthSquared = (dx*dx)+(dy*dy);
+
+  var length = Math.sqrt (lengthSquared);
+
+  return length;
+}
+
+
+window.Render.prototype.linkVisible = function(link) {
+  var length = this.getLinkPixelLength (link);
+
+  return length >= this.LINK_VISIBLE_PIXEL_LENGTH;
+}
+
+
+window.Render.prototype.resetLinkVisibility = function() {
+
+  for (var guid in window.links) {
+    var link = window.links[guid];
+
+    var visible = this.linkVisible(link);
+
+    if (visible) {
+      if (!linksFactionLayers[link.options.team].hasLayer(link)) linksFactionLayers[link.options.team].addLayer(link);
+    } else {
+      if (linksFactionLayers[link.options.team].hasLayer(link)) linksFactionLayers[link.options.team].removeLayer(link);
+    }
+  }
 }

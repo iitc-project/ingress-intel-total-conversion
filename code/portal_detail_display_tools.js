@@ -5,11 +5,20 @@
 // returns displayable text+link about portal range
 window.getRangeText = function(d) {
   var range = getPortalRange(d);
+  
+  var title = 'Base range:\t' + digits(Math.floor(range.base))+'m'
+    + '\nLink amp boost:\t×'+range.boost
+    + '\nRange:\t'+digits(Math.floor(range.range))+'m';
+  
+  if(!range.isLinkable) title += '\nPortal is missing resonators,\nno new links can be made';
+  
   return ['range',
-      '<a onclick="window.rangeLinkClick()">'
-    + (range > 1000
-      ? Math.floor(range/1000) + ' km'
-      : Math.floor(range)      + ' m')
+      '<a onclick="window.rangeLinkClick()"'
+    + (range.isLinkable ? '' : ' style="text-decoration:line-through;"')
+    + ' title="'+title+'">'
+    + (range.range > 1000
+      ? Math.floor(range.range/1000) + ' km'
+      : Math.floor(range.range)      + ' m')
     + '</a>'];
 }
 
@@ -146,7 +155,7 @@ window.getEnergyText = function(d) {
 
 window.getAvgResoDistText = function(d) {
   var avgDist = Math.round(10*getAvgResoDist(d))/10;
-  return ['reso dist', avgDist + ' m'];
+  return ['res dist', avgDist + ' m'];
 }
 
 window.getResonatorDetails = function(d) {
@@ -226,8 +235,46 @@ window.getAttackApGainText = function(d) {
     t += 'Enemy AP:\t' + breakdown.enemyAp + '\n';
     t += '  Destroy AP:\t' + breakdown.destroyAp + '\n';
     t += '  Capture AP:\t' + breakdown.captureAp + '\n';
-    return '<tt title="' + t + '">' + digits(text) + '</tt>';
+    return '<tt title="' + t + '">' + text + '</tt>';
   }
 
-  return [tt('AP Gain'), tt(totalGain)];
+  return [tt('AP Gain'), tt(digits(totalGain))];
+}
+
+
+window.getHackDetailsText = function(d) {
+  var hackDetails = getPortalHackDetails(d);
+
+  var shortHackInfo = hackDetails.hacks+' @ '+formatInterval(hackDetails.cooldown);
+
+  function tt(text) {
+    var t = 'Hacks available every 4 hours\n';
+    t += 'Hack count:\t'+hackDetails.hacks+'\n';
+    t += 'Cooldown time:\t'+formatInterval(hackDetails.cooldown)+'\n';
+    t += 'Burnout time:\t'+formatInterval(hackDetails.burnout)+'\n';
+
+    return '<span title="'+t+'">'+text+'</span>';
+  }
+
+  return [tt('hacks'), tt(shortHackInfo)];
+}
+
+
+window.getMitigationText = function(d) {
+  var mitigationDetails = getPortalMitigationDetails(d);
+
+  var mitigationShort = mitigationDetails.total;
+  if (mitigationDetails.excess) mitigationShort += ' (+'+mitigationDetails.excess+')';
+
+  function tt(text) {
+    var t = 'Mitigation:\t'+mitigationDetails.total+'\n';
+    t += 'Shields:\t'+mitigationDetails.shields+'\n';
+    t += 'Links:\t'+mitigationDetails.links+'\n';
+    t += 'Excess:\t'+mitigationDetails.excess+'\n';
+
+    return '<span title="'+t+'">'+text+'</span>';
+  }
+
+  // 'mitigation' doesn't quite fit in the space.
+  return [tt('mitig…'), tt(mitigationShort)];
 }

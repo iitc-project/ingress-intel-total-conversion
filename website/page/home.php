@@ -13,21 +13,12 @@ offers many more features. It is available for
 
 <h3>Latest news</h3>
 
-<h4>2nd September 2013</h4>
+<h4>16th October 2013</h4>
 <p>
-IITC 0.14.0, and IITC Mobile 0.5.6, have just been released. This is (yet another) change required to work with
-the latest changes to the standard intel website.
-</p>
-<p>
-Also, as part of some long-term improvements, the data loading and portal rendering code has been completely rewritten.
-This should ensure much more reliable loading of portal data, and faster rendering when lots of portals are shown.
-However, this code is new, and may have bugs. Some known issues are:
-<ul>
-<li>Resonators are not displayed when zoomed in.</li>
-<li>Some smaller links/fields are not displayed. Often this is due to changes in the stock map (it doesn't show these
-links/fields either), but I think there are cases where IITC is getting it wrong.</li>
-</ul>
-However, as the current IITC release was broken I think it's better to release this build now rather than wait longer.
+IITC 0.14.3 and IITC MObile 0.7.4 have just been released. This is a critical update required to work with the latest
+changes Niantic have made to the standard intel site. Additionally, the draw-tools plugin now snaps points to portals
+when creating lines/polygons/markers (was actually in 0.14.2 release), a bugfix relating to IITC not realising who 
+'you' are, causing some highlighters to break, and a handful of other tweaks/bugfixes.
 </p>
 
 <a class="btn btn-small" href="?page=news">Older news</a>

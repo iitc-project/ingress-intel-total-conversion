@@ -6,64 +6,24 @@
           android:showAsAction="ifRoom|collapseActionView"
           android:actionViewClass="android.widget.SearchView" />
     <item
-        android:id="@+id/menu_info"
-        android:icon="@drawable/action_about"
-        android:orderInCategory="30"
+        android:id="@+id/locate"
+        android:icon="@drawable/device_access_location_found"
+        android:orderInCategory="100"
         android:showAsAction="ifRoom"
-        android:title="@string/menu_info">
-    </item>
-    <item
-        android:id="@+id/menu_chat"
-        android:icon="@drawable/social_group"
-        android:orderInCategory="35"
-        android:showAsAction="ifRoom"
-        android:title="@string/menu_chat">
-        <menu>
-            <item
-                android:id="@+id/menu_full"
-                android:orderInCategory="40"
-                android:showAsAction="never"
-                android:title="@string/menu_full">
-            </item>
-            <item
-                android:id="@+id/menu_compact"
-                android:orderInCategory="50"
-                android:showAsAction="never"
-                android:title="@string/menu_compact">
-            </item>
-            <item
-                android:id="@+id/menu_public"
-                android:orderInCategory="60"
-                android:showAsAction="never"
-                android:title="@string/menu_public">
-            </item>
-            <item
-                android:id="@+id/menu_faction"
-                android:orderInCategory="70"
-                android:showAsAction="never"
-                android:title="@string/menu_faction">
-            </item>
-        </menu>
+        android:title="@string/locate">
     </item>
     <item
         android:id="@+id/layer_chooser"
         android:icon="@drawable/ic_layer_chooser"
-        android:orderInCategory="100"
-        android:showAsAction="ifRoom"
-        android:title="@string/layer_chooser">
-    </item>
-    <item
-        android:id="@+id/locate"
-        android:icon="@drawable/device_access_location_found"
         android:orderInCategory="105"
         android:showAsAction="ifRoom"
-        android:title="@string/locate">
+        android:title="@string/layer_chooser">
     </item>
     <item
         android:id="@+id/reload_button"
         android:icon="@drawable/navigation_refresh"
         android:orderInCategory="110"
-        android:showAsAction="ifRoom"
+        android:showAsAction="never"
         android:title="@string/reload">
     </item>
     <item
@@ -74,17 +34,16 @@
         android:title="@string/toggle_fullscreen">
     </item>
     <item
-        android:id="@+id/action_settings"
-        android:icon="@drawable/action_settings"
+        android:id="@+id/menu_clear_cookies"
         android:orderInCategory="130"
-        android:showAsAction="ifRoom"
-        android:title="@string/action_settings">
+        android:showAsAction="never"
+        android:title="@string/menu_clear_cookies">
     </item>
     <item
-        android:id="@+id/menu_debug"
-        android:icon="@drawable/alerts_and_states_warning"
-        android:orderInCategory="190"
+        android:id="@+id/action_settings"
+        android:icon="@drawable/action_settings"
+        android:orderInCategory="200"
         android:showAsAction="never"
-        android:title="@string/menu_debug">
+        android:title="@string/action_settings">
     </item>
 </menu>

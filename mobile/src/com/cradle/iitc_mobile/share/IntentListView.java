@@ -1,10 +1,5 @@
 package com.cradle.iitc_mobile.share;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -24,6 +19,11 @@ import android.widget.TextView;
 
 import com.cradle.iitc_mobile.R;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+
 public class IntentListView extends ListView {
     private static class CopyHandler extends Pair<String, String> {
         public CopyHandler(ResolveInfo resolveInfo) {
@@ -35,10 +35,8 @@ public class IntentListView extends ListView {
         }
     }
 
-    private class IntentAdapter extends ArrayAdapter<ResolveInfo>
-    {
-        private IntentAdapter()
-        {
+    private class IntentAdapter extends ArrayAdapter<ResolveInfo> {
+        private IntentAdapter() {
             super(IntentListView.this.getContext(), android.R.layout.simple_list_item_1);
         }
 
@@ -62,8 +60,9 @@ public class IntentListView extends ListView {
     private static final HashSet<CopyHandler> KNOWN_COPY_HANDLERS = new HashSet<CopyHandler>();
 
     private static void setupKnownCopyHandlers() {
-        if (!KNOWN_COPY_HANDLERS.isEmpty())
+        if (!KNOWN_COPY_HANDLERS.isEmpty()) {
             return;
+        }
 
         KNOWN_COPY_HANDLERS.add(new CopyHandler(
                 "com.google.android.apps.docs",
@@ -76,7 +75,7 @@ public class IntentListView extends ListView {
 
     private IntentAdapter mAdapter;
     private PackageManager mPackageManager;
-    HashMap<ComponentName, Intent> mActivities = new HashMap<ComponentName, Intent>();
+    private final HashMap<ComponentName, Intent> mActivities = new HashMap<ComponentName, Intent>();
 
     public IntentListView(Context context) {
         super(context);
@@ -126,8 +125,7 @@ public class IntentListView extends ListView {
         setIntents(intentList);
     }
 
-    public void setIntents(ArrayList<Intent> intents)
-    {
+    public void setIntents(ArrayList<Intent> intents) {
         mAdapter.setNotifyOnChange(false);
         mAdapter.clear();
 
@@ -144,8 +142,9 @@ public class IntentListView extends ListView {
             for (ResolveInfo resolveInfo : activityList) { // search for "Copy to clipboard" handler
                 CopyHandler handler = new CopyHandler(resolveInfo);
 
-                if (KNOWN_COPY_HANDLERS.contains(handler))
+                if (KNOWN_COPY_HANDLERS.contains(handler)) {
                     hasCopyIntent = true;
+                }
             }
 
             // use traditional loop since list may change during iteration
@@ -154,13 +153,10 @@ public class IntentListView extends ListView {
                 ActivityInfo activity = info.activityInfo;
 
                 // remove all IITCm intents, except for SendToClipboard in case Drive is not installed
-                if (activity.packageName.equals(packageName))
-                {
-                    if (hasCopyIntent || !activity.name.equals(SendToClipboard.class.getCanonicalName()))
-                    {
+                if (activity.packageName.equals(packageName)) {
+                    if (hasCopyIntent || !activity.name.equals(SendToClipboard.class.getCanonicalName())) {
                         activityList.remove(i);
                         i--;
-                        continue;
                     }
                 }
             }
@@ -177,8 +173,7 @@ public class IntentListView extends ListView {
                     if (resolveInfo.activityInfo.packageName.equals(defaultTarget.activityInfo.packageName)
                             && resolveInfo.activityInfo.name.equals(defaultTarget.activityInfo.name)) {
                         allActivities.add(0, resolveInfo);
-                    }
-                    else {
+                    } else {
                         allActivities.add(resolveInfo);
                     }
                 }

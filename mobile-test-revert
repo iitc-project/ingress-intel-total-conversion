@@ -1,6 +1,0 @@
-#!/bin/sh
-
-# reverse of mobile-test-setup - reverts the changes made to AndroidManifest.xml and any resource files
-
-mv mobile/res/values/strings.xml~ mobile/res/values/strings.xml
-

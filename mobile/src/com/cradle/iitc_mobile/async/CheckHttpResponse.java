@@ -8,7 +8,6 @@ import android.util.Log;
 
 import com.cradle.iitc_mobile.IITC_JSInterface;
 import com.cradle.iitc_mobile.IITC_Mobile;
-import com.cradle.iitc_mobile.IITC_WebView;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -25,13 +24,13 @@ import java.io.IOException;
  */
 public class CheckHttpResponse extends AsyncTask<String, Void, Boolean> {
 
-    private IITC_JSInterface mJsInterface;
-    private Context mContext;
+    private final IITC_JSInterface mJsInterface;
+    private final Context mContext;
 
     public CheckHttpResponse(IITC_JSInterface jsInterface, Context c) {
         mContext = c;
         mJsInterface = jsInterface;
-    };
+    }
 
     @Override
     protected Boolean doInBackground(String... urls) {
@@ -44,7 +43,13 @@ public class CheckHttpResponse extends AsyncTask<String, Void, Boolean> {
             int code = response.getStatusLine().getStatusCode();
             if (code != HttpStatus.SC_OK) {
                 Log.d("iitcm", "received error code: " + code);
-                mJsInterface.removeSplashScreen();
+                final IITC_Mobile iitc = (IITC_Mobile) mContext;
+                iitc.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        iitc.setLoadingState(false);
+                    }
+                });
                 // TODO: remove when google login issue is fixed
                 if (urls[0].contains("uberauth=WILL_NOT_SIGN_IN")) {
                     return true;

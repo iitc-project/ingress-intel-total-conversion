@@ -14,24 +14,24 @@ public class IITC_PreferenceActivity extends Activity {
 
         MainSettings settings = new MainSettings();
 
-        // set action bar title
-        getActionBar().setTitle("IITC Mobile Settings");
         getActionBar().setHomeButtonEnabled(true);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
 
         // iitc version
         Bundle bundle = getIntent().getExtras();
         settings.setArguments(bundle);
 
         // Display the fragment as the main content.
-        getFragmentManager().beginTransaction()
-                .replace(android.R.id.content, settings).commit();
+        getFragmentManager()
+                .beginTransaction()
+                .replace(android.R.id.content, settings)
+                .commit();
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            // exit settings when home button (iitc icon) is pressed
-            case android.R.id.home:
+            case android.R.id.home: // exit settings when home button (iitc icon) is pressed
                 onBackPressed();
                 return true;
             default:

@@ -2,7 +2,7 @@
 // @id             iitc-plugin-show-linked-portals@fstopienski
 // @name           IITC plugin: Show linked portals
 // @category       Portal Info
-// @version        0.0.8.@@DATETIMEVERSION@@
+// @version        0.1.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -44,7 +44,7 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
         c = 1;
     //get linked portals
     $(d.linkedEdges).each(function () {
-        var portalInfo = window.plugin.showLinkedPortal.getPortalByGuid(this.otherPortalGuid);
+        var portalInfo = window.plugin.showLinkedPortal.getPortalByGuid(this.otherPortalGuid, this.isOrigin);
         $('#portaldetails').append('<div class="showLinkedPortalLink showLinkedPortalLink' + c + '" id="showLinkedPortalLink_' + c + '" data-guid="' + this.otherPortalGuid + '">' + portalInfo + '</div>');
         c = c + 1;
     });
@@ -61,22 +61,27 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
             map.setView(Rlatlng, map.getZoom());
         }
         else {
+            // TODO: instead of just zooming out one level, check the link data for the start+end coordinates,
+            // and fit the map view to the bounding box
             map.setZoom((map.getZoom() - 1));
         }
     });
 }
 
-window.plugin.showLinkedPortal.getPortalByGuid = function (guid) {
-    var portalInfoString = '<span class="outOfRange" title="Zoom out">Linked  Portal out of range.</span>';
+window.plugin.showLinkedPortal.getPortalByGuid = function (guid,isorigin) {
+    var linkDirection = $('<span/>').text(isorigin?'↴ outgoing link':'↳ incoming link');
+
+    var portalInfoString;
+
     if (window.portals[guid] !== undefined) {
         var portalDetails = window.portals[guid].options.details;
-        portalInfoString = '';
+
         var portalNameAdressAlt = "'" + portalDetails.portalV2.descriptiveText.TITLE + "' (" + portalDetails.portalV2.descriptiveText.ADDRESS + ")";
-        var portalNameAdressTitle = $('<div/>').append('\'')
-                                               .append($('<strong/>').text(portalDetails.portalV2.descriptiveText.TITLE))
-                                               .append('\'')
+        var portalNameAdressTitle = $('<div/>').append($('<strong/>').text(portalDetails.portalV2.descriptiveText.TITLE))
                                                .append($('<br/>'))
                                                .append($('<em/>').text('(' + portalDetails.portalV2.descriptiveText.ADDRESS + ')'))
+                                               .append($('<br/>'))
+                                               .append(linkDirection)
                                                .html();
         var imageUrl = getPortalImageUrl(portalDetails);
         portalInfoString = $('<div/>').html($('<img/>').attr('src', imageUrl)
@@ -84,7 +89,18 @@ window.plugin.showLinkedPortal.getPortalByGuid = function (guid) {
                                                        .attr('alt', portalNameAdressAlt)
                                                        .attr('title', portalNameAdressTitle))
                                       .html();
+    } else {
+        var title = $('<div/>').append($('<strong/>').text('Zoom out'))
+                               .append($('<br/>'))
+                               .append(linkDirection)
+                               .html();
+
+        portalInfoString = $('<div/>').html($('<span/>').attr('class','outOfRange')
+                                                        .attr('title',title)
+                                                        .text('Portal out of range.'))
+                                      .html();
     }
+
     return portalInfoString;
 };
 
@@ -102,8 +118,8 @@ var setup = function () {
     window.addHook('portalDetailsUpdated', window.plugin.showLinkedPortal.portalDetail);
     $('head').append('<style>' +
         '.showLinkedPortalLink{cursor: pointer; position: absolute; height: 40px; width: 50px; border:solid 1px; overflow: hidden; text-align: center; background: #0e3d4e;}' +
-        '.showLinkedPortalLink .minImg{height: 50px;}' +
-        '.showLinkedPortalLink span.outOfRange{font-size: 8px;}' +
+        '.showLinkedPortalLink .minImg{height: 40px;}' +
+        '.showLinkedPortalLink span.outOfRange{font-size: 10px;}' +
 
         '.showLinkedPortalLink1,.showLinkedPortalLink2,.showLinkedPortalLink3,.showLinkedPortalLink4 {left: 5px}' +
         '.showLinkedPortalLink5,.showLinkedPortalLink6,.showLinkedPortalLink7,.showLinkedPortalLink8 {right: 11px}' +
@@ -114,7 +130,7 @@ var setup = function () {
         '.showLinkedPortalLink2,.showLinkedPortalLink6,.showLinkedPortalLink10,.showLinkedPortalLink14 {top: 69px; }' +
         '.showLinkedPortalLink3,.showLinkedPortalLink7,.showLinkedPortalLink11,.showLinkedPortalLink15 {top: 113px; }' +
         '.showLinkedPortalLink4,.showLinkedPortalLink8,.showLinkedPortalLink12,.showLinkedPortalLink16 {top: 157px; }' +
-        '#level{text-align:center; margin-right: 0px;}' +
+        '#level{text-align: center; margin-right: -0.5em; position: relative; right: 50%; width: 1em;}' +
         '</style>');
     window.plugin.showLinkedPortal.setupCallback();
 }

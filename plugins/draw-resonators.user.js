@@ -2,11 +2,11 @@
 // @id             iitc-plugin-draw-resonators@xelio
 // @name           IITC plugin: Draw resonators
 // @category       Layer
-// @version        0.2.0.@@DATETIMEVERSION@@
+// @version        0.4.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Draw resonators on map.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Draw resonators on map. With stylers to highlight resonators with specific criteria.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -43,7 +43,7 @@ window.plugin.drawResonators.render;
 
 window.plugin.drawResonators.Render = function(options) {
   this.enableZoomLevel = options['enableZoomLevel'];
-  this.useStyler = options['useStyler'];
+  this.useStyler = '';
 
   this.stylers = {};
   this.resonators = {};
@@ -56,7 +56,10 @@ window.plugin.drawResonators.Render = function(options) {
   this.deleteResonatorEntities = this.deleteResonatorEntities.bind(this);
   this.handleResonatorEntitiesBeforeZoom = this.handleResonatorEntitiesBeforeZoom.bind(this);
   this.handleResonatorEntitiesAfterZoom = this.handleResonatorEntitiesAfterZoom.bind(this);
+  this.handleEnableZoomLevelChange = this.handleEnableZoomLevelChange.bind(this);
   this.portalSelectionChange = this.portalSelectionChange.bind(this);
+  this.changeStyler = this.changeStyler.bind(this);
+  this.getStylersList = this.getStylersList.bind(this);
 };
 
 window.plugin.drawResonators.Render.prototype.registerHook = function() {
@@ -161,24 +164,46 @@ window.plugin.drawResonators.Render.prototype.handleResonatorEntitiesBeforeZoom 
 
 window.plugin.drawResonators.Render.prototype.handleResonatorEntitiesAfterZoom = function() {
   if(!this.isResonatorsShow()) {
-    this.resonatorLayerGroup.clearLayers();
-    this.resonators = {};
-  } else {
-    // Redraw all resonators if they were deleted
-    if(this.isResonatorsShowBeforeZoom()) return;
+    this.clearAllResonators();
+    return;
+  }
 
-    var render = this;
+  // Draw all resonators if they were not drawn
+  if(!this.isResonatorsShowBeforeZoom()) {
+    this.drawAllResonators();
+  }
+}
 
-    // loop through level of portals, only draw if the portal is shown on map
-    for (var guid in window.portals) {
-      var portal = window.portals[guid];
-      // FIXME: need to find a proper way to check if a portal is added to the map without depending on leaflet internals
-      // (and without depending on portalsLayers either - that's IITC internal)
-      if (portal._map) {
-        render.createResonatorEntities(portal);
-      }
+window.plugin.drawResonators.Render.prototype.handleEnableZoomLevelChange = function(zoomLevel) {
+  this.enableZoomLevel = zoomLevel;
+
+  if(!this.isResonatorsShow()) {
+    this.clearAllResonators();
+    return;
+  }
+
+  // Draw all resonators if they were not drawn
+  if(!Object.keys(this.resonators).length > 0) {
+    this.drawAllResonators();
+  }
+}
+
+window.plugin.drawResonators.Render.prototype.clearAllResonators = function() {
+  this.resonatorLayerGroup.clearLayers();
+  this.resonators = {};
+}
+
+window.plugin.drawResonators.Render.prototype.drawAllResonators = function() {
+  var render = this;
+
+  // loop through level of portals, only draw if the portal is shown on map
+  for (var guid in window.portals) {
+    var portal = window.portals[guid];
+    // FIXME: need to find a proper way to check if a portal is added to the map without depending on leaflet internals
+    // (and without depending on portalsLayers either - that's IITC internal)
+    if (portal._map) {
+      render.createResonatorEntities(portal);
     }
-
   }
 }
 
@@ -215,12 +240,28 @@ window.plugin.drawResonators.Render.prototype.getStylersList = function() {
 }
 
 window.plugin.drawResonators.Render.prototype.getStyler = function() {
-  var stylerName = this.useStyler in this.stylers ? this.useStyler : 'default';
+  var stylerName = this.useStyler in this.stylers ? this.useStyler : 'Default';
   return this.stylers[stylerName];
 }
 
+// Change if styler need change, and redraw all resonators using new styler
 window.plugin.drawResonators.Render.prototype.changeStyler = function(name) {
-  // TODO: check whether styler has change, and update style of all resonators
+  if (name === this.useStyler) return;
+  for(stylerName in this.stylers) {
+    if(stylerName === name) {
+      if(this.stylers[this.useStyler]) this.stylers[this.useStyler].onDisableFunc();
+      this.useStyler = stylerName;
+      this.stylers[this.useStyler].onEnableFunc();
+      this.clearAllResonators();
+      this.drawAllResonators();
+      return;
+    }
+  }
+}
+
+window.plugin.drawResonators.Render.prototype.refreshStyler = function() {
+  this.clearAllResonators();
+  this.drawAllResonators();
 }
 
 window.plugin.drawResonators.Render.prototype.isResonatorsShow = function() {
@@ -239,9 +280,12 @@ window.plugin.drawResonators.Render.prototype.isResonatorsShowBeforeZoom = funct
 
 window.plugin.drawResonators.Styler = function(options) {
   options = options || {};
-  this.name = options['name'] || 'default';
+  this.name = options['name'] || 'Default';
+  this.otherOptions = options['otherOptions'];
   this.getResonatorStyle = options['resonatorStyleFunc'] || this.defaultResonatorStyle;
   this.getConnectorStyle = options['connectorStyleFunc'] || this.defaultConnectorStyle;
+  this.onEnableFunc = options['onEnableFunc'] || function() {};
+  this.onDisableFunc = options['onDisableFunc'] || function() {};
 }
 
 window.plugin.drawResonators.Styler.prototype.DEFAULT_OPTIONS_RESONATOR_SELECTED = {
@@ -299,25 +343,45 @@ window.plugin.drawResonators.Styler.prototype.defaultConnectorStyle = function(r
 
 //////// Options for storing and loading options ////////
 
-// TODO: add callback to notify option changes
+
 
 window.plugin.drawResonators.Options = function() {
   this._options = {};
+  this._callbacks = {};
+}
+
+window.plugin.drawResonators.Options.prototype.addCallback = function(name, callback) {
+  if (!this._callbacks[name]) {
+    this._callbacks[name] = [];
+  }
+  this._callbacks[name].push(callback);
 }
 
 window.plugin.drawResonators.Options.prototype.newOption = function(name, defaultValue) {
-  this._options[name] = this.loadLocal(this.getStorageKey, defaultValue)
+  this._options[name] = this.loadLocal(this.getStorageKey(name), defaultValue)
 }
 
 window.plugin.drawResonators.Options.prototype.getOption = function(name) {
   return this._options[name];
 }
 
+window.plugin.drawResonators.Options.prototype.removeOption = function(name) {
+  delete this._options[name];
+  delete this._callbacks[name];
+}
+
 window.plugin.drawResonators.Options.prototype.changeOption = function(name, value) {
   if(!(name in this._options)) return false;
+  if(value === this._options[name]) return false;
 
   this._options[name] = value;
-  this.storeLocal(name, this._options[name]);
+  this.storeLocal(this.getStorageKey(name), this._options[name]);
+
+  if (this._callbacks[name] !== null) {
+    for(var i in this._callbacks[name]) {
+      this._callbacks[name][i](value);
+    }
+  }
 }
 
 window.plugin.drawResonators.Options.prototype.getStorageKey = function(name) {
@@ -343,21 +407,403 @@ window.plugin.drawResonators.Options.prototype.storeLocal = function(key, value)
 
 
 
+//////// Dialog
+
+window.plugin.drawResonators.Dialog = function() {
+  this._dialogEntries = {};
+}
+
+window.plugin.drawResonators.Dialog.prototype.addLink = function() {
+  $('#toolbox').append('<a id="draw-reso-show-dialog" onclick="window.plugin.drawResonators.dialog.show();">Resonators</a> ');
+}
+
+window.plugin.drawResonators.Dialog.prototype.addEntry = function(name, dialogEntry) {
+  this._dialogEntries[name] = dialogEntry;
+  this.change();
+}
+
+window.plugin.drawResonators.Dialog.prototype.removeEntry = function(name) {
+  delete this._dialogEntries[name];
+  this.change();
+}
+
+window.plugin.drawResonators.Dialog.prototype.show = function() {
+  window.dialog({html: this.getDialogHTML(), title: 'Resonators', modal: true, id: 'draw-reso-setting'});
+
+  // Attach entries event
+  for(var name in this._dialogEntries) {
+    var events = this._dialogEntries[name].getOnEvents();
+    for(var i in events) {
+      var event = events[i];
+      $('#draw-reso-dialog').on(event.event, '#' + event.id, event.callback);
+    }
+  }
+}
+
+window.plugin.drawResonators.Dialog.prototype.change = function() {
+  if($('#draw-reso-dialog').length > 0) this.show();
+}
+
+window.plugin.drawResonators.Dialog.prototype.getDialogHTML = function() {
+  var html = '<div id="draw-reso-dialog">'
+  for(var name in this._dialogEntries) {
+    html += '<div>'
+          + this._dialogEntries[name].getHTML()
+          + '</div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+
+
+//////// ListDialogEntry
+
+
+
+window.plugin.drawResonators.ListDialogEntry = function(options) {
+  this._name = options['name'];
+  this._label = options['label'];
+  this._valueFunc = options['valueFunc'];
+  this._valuesList = options['valuesList'];
+  this._valuesListFunc = options['valuesListFunc'];
+  this._onChangeCallback = options['onChangeCallback'];
+}
+
+window.plugin.drawResonators.ListDialogEntry.prototype.getHTML = function() {
+  var curValue = this._valueFunc();
+  var valuesList = this._valuesList ? this._valuesList : this._valuesListFunc();
+  var html = '<label for="' + this.getSelectId() + '">'
+           + this._label + ': '
+           + '</label>'
+           + '<select id="' + this.getSelectId() + '">';
+
+  var noLabel = valuesList instanceof Array;
+  for(var label in valuesList) {
+    var selected = valuesList[label] === curValue;
+    html += '<option value="' + valuesList[label] + '" '
+          + (selected ? 'selected="selected"' : '')
+          +'>'
+          + (noLabel ? valuesList[label] : label)
+          + '</option>';
+  }
+
+  html += '</select>';
+  return html;
+}
+
+window.plugin.drawResonators.ListDialogEntry.prototype.getOnEvents = function() {
+  return [{'event': 'change',
+           'id': this.getSelectId(),
+           'callback': this._onChangeCallback
+  }];
+}
+
+window.plugin.drawResonators.ListDialogEntry.prototype.getSelectId = function() {
+  return 'draw-reso-option-' + this._name;
+}
+
+
+
+//////// TextboxDialogEntry
+
+
+window.plugin.drawResonators.TextboxDialogEntry = function(options) {
+  this._name = options['name'];
+  this._label = options['label'];
+  this._valueFunc = options['valueFunc'];
+  this._onChangeCallback = options['onChangeCallback'];
+}
+
+window.plugin.drawResonators.TextboxDialogEntry.prototype.getHTML = function() {
+  var curValue = this._valueFunc();
+  var html = '<label for="' + this.getInputId() + '">'
+           + this._label + ': '
+           + '</label>'
+           + '<input type="text" size="20" id="' + this.getInputId() + '" '
+           + 'value="' + curValue + '" />';
+  return html;
+}
+
+
+window.plugin.drawResonators.TextboxDialogEntry.prototype.getOnEvents = function() {
+  return [{'event': 'change',
+           'id': this.getInputId(),
+           'callback': this._onChangeCallback
+  }];
+}
+
+window.plugin.drawResonators.TextboxDialogEntry.prototype.getInputId = function() {
+  return 'draw-reso-option-' + this._name;
+}
+
+
+
+window.plugin.drawResonators.setupStyler = function() {
+  var thisPlugin = window.plugin.drawResonators;
+
+  var highlightedReso = {color: '#fff', weight: 2, radius: 4, opacity: 1, clickable: false};
+  var normalReso = {color: '#aaa', weight: 1, radius: 3, opacity: 1, clickable: false};
+  var selectedReso = {color: '#eee', weight: 1.1, radius: 4, opacity: 1, clickable: false};
+  var highlightedConn = {opacity: 0.7, weight: 3, color: '#FFA000', dashArray: '0,10,999', color: '#FFA000', fill: false, clickable: false};
+  var normalConn = {opacity: 0.25, weight: 2, color: '#FFA000', dashArray: '0,10' + (new Array(25).join(',8,4')), fill: false, clickable: false};
+  var selectedConn = {opacity: 0.7, weight: 3, color: '#FFA000', dashArray: '0,10' + (new Array(25).join(',8,4')), fill: false, clickable: false};
+
+  // Styler for highlighting resonators deployed by me
+  var myReso = {
+    name: 'Highlight my resonators',
+    otherOptions: {
+      'highlightedReso' : highlightedReso,
+      'normalReso' : normalReso,
+      'selectedReso' : selectedReso,
+      'highlightedConn' : highlightedConn,
+      'normalConn' : normalConn,
+      'selectedConn' : selectedConn
+    },
+    resonatorStyleFunc: function(resoDetail, selected) {
+      var mine = resoDetail.ownerGuid === PLAYER.guid;
+      var resoSharedStyle = mine
+                        ? this.otherOptions.highlightedReso
+                        : (selected ? this.otherOptions.selectedReso : this.otherOptions.normalReso);
+
+      var resoStyle = $.extend({
+            fillColor: COLORS_LVL[resoDetail.level],
+            fillOpacity: resoDetail.energyTotal/RESO_NRG[resoDetail.level] * (mine ? 1 : 0.75)
+          }, resoSharedStyle);
+      return resoStyle;
+    },
+    connectorStyleFunc: function(resoDetail, selected) {
+      var mine = resoDetail.ownerGuid === PLAYER.guid;
+      var connStyle  = mine
+                     ? this.otherOptions.highlightedConn
+                     : (selected ? this.otherOptions.selectedConn : this.otherOptions.normalConn);
+      return connStyle;
+    }
+  };
+
+  thisPlugin.render.addStyler(new thisPlugin.Styler(myReso));
+
+  // Styler for highlighting L8 resonators
+  var l8Reso = {
+    name: 'Highlight L8 resonators',
+    otherOptions: {
+      'highlightedReso' : highlightedReso,
+      'normalReso' : normalReso,
+      'selectedReso' : selectedReso,
+      'highlightedConn' : highlightedConn,
+      'normalConn' : normalConn,
+      'selectedConn' : selectedConn
+    },
+    resonatorStyleFunc: function(resoDetail, selected) {
+      var l8 = resoDetail.level === 8;
+      var resoSharedStyle = l8
+                        ? this.otherOptions.highlightedReso
+                        : (selected ? this.otherOptions.selectedReso : this.otherOptions.normalReso);
+
+      var resoStyle = $.extend({
+            fillColor: COLORS_LVL[resoDetail.level],
+            fillOpacity: resoDetail.energyTotal/RESO_NRG[resoDetail.level] * (l8 ? 1 : 0.75)
+          }, resoSharedStyle);
+      return resoStyle;
+    },
+    connectorStyleFunc: function(resoDetail, selected) {
+      var l8 = resoDetail.level === 8;
+      var connStyle  = l8
+                     ? this.otherOptions.highlightedConn
+                     : (selected ? this.otherOptions.selectedConn : this.otherOptions.normalConn);
+      return connStyle;
+    }
+  };
+
+  thisPlugin.render.addStyler(new thisPlugin.Styler(l8Reso));
+
+  // Styler for highlighting resonators with less than X% energy
+  var lessThanXPctReso = {
+    name: 'Highlight < X% resonators',
+    otherOptions: {
+      'highlightedReso': highlightedReso,
+      'normalReso': normalReso,
+      'selectedReso': selectedReso,
+      'highlightedConn': highlightedConn,
+      'normalConn': normalConn,
+      'selectedConn': selectedConn,
+      'pct': 15,
+      'dialogEntry': new thisPlugin.TextboxDialogEntry({
+                      name: 'resoLessThanPct-pct',
+                      label: 'Percentage',
+                      valueFunc: function() {return thisPlugin.options.getOption('styler-resoLessThanPct-pct')},
+                      onChangeCallback: function(event) {thisPlugin.options.changeOption('styler-resoLessThanPct-pct', parseInt(event.target.value));}
+                    })
+    },
+    resonatorStyleFunc: function(resoDetail, selected) {
+      var highlight = (resoDetail.energyTotal * 100) < (RESO_NRG[resoDetail.level] * this.otherOptions.pct);
+      var resoSharedStyle = highlight
+                        ? this.otherOptions.highlightedReso
+                        : (selected ? this.otherOptions.selectedReso : this.otherOptions.normalReso);
+
+      var resoStyle = $.extend({
+            fillColor: COLORS_LVL[resoDetail.level],
+            fillOpacity: resoDetail.energyTotal/RESO_NRG[resoDetail.level]
+          }, resoSharedStyle);
+      return resoStyle;
+    },
+    connectorStyleFunc: function(resoDetail, selected) {
+      var highlight = (resoDetail.energyTotal * 100) < (RESO_NRG[resoDetail.level] * this.otherOptions.pct);
+      var connStyle  = highlight
+                     ? this.otherOptions.highlightedConn
+                     : (selected ? this.otherOptions.selectedConn : this.otherOptions.normalConn);
+      return connStyle;
+    },
+    onEnableFunc: function() {
+      var thisPlugin = window.plugin.drawResonators;
+      var thisStyler = this;
+      // Add option
+      thisPlugin.options.newOption('styler-resoLessThanPct-pct', 15);
+      thisPlugin.options.addCallback('styler-resoLessThanPct-pct', function(value) {
+        thisStyler.otherOptions.pct = value;
+        thisPlugin.render.refreshStyler();
+      });
+      thisStyler.otherOptions.pct = thisPlugin.options.getOption('styler-resoLessThanPct-pct');
+      // Add dialog entry
+      thisPlugin.dialog.addEntry('resoLessThanPct-pct', this.otherOptions.dialogEntry);
+    },
+    onDisableFunc: function() {
+      var thisPlugin = window.plugin.drawResonators;
+      // Remove option
+      thisPlugin.options.removeOption('styler-resoLessThanPct-pct');
+      // Remove dialog entry
+      thisPlugin.dialog.removeEntry('resoLessThanPct-pct');
+    }
+  };
+
+  thisPlugin.render.addStyler(new thisPlugin.Styler(lessThanXPctReso));
+
+  // Styler for highlighting resonators deployed by specific player
+  var resoOfSpecificPlayer = {
+    name: 'Highlight resonators by player',
+    otherOptions: {
+      'highlightedReso': highlightedReso,
+      'normalReso': normalReso,
+      'selectedReso': selectedReso,
+      'highlightedConn': highlightedConn,
+      'normalConn': normalConn,
+      'selectedConn': selectedConn,
+      'player': '',
+      'playerGuid': '',
+      'dialogEntry': new thisPlugin.TextboxDialogEntry({
+                      name: 'resoOfSpecificPlayer-player',
+                      label: 'Player name',
+                      valueFunc: function() {return thisPlugin.options.getOption('styler-resoOfSpecificPlayer-player')},
+                      onChangeCallback: function(event) {thisPlugin.options.changeOption('styler-resoOfSpecificPlayer-player', event.target.value);}
+                    })
+    },
+    resonatorStyleFunc: function(resoDetail, selected) {
+      var highlight = resoDetail.ownerGuid === this.otherOptions.playerGuid;
+      var resoSharedStyle = highlight
+                        ? this.otherOptions.highlightedReso
+                        : (selected ? this.otherOptions.selectedReso : this.otherOptions.normalReso);
+
+      var resoStyle = $.extend({
+            fillColor: COLORS_LVL[resoDetail.level],
+            fillOpacity: resoDetail.energyTotal/RESO_NRG[resoDetail.level] * (highlight ? 1 : 0.75)
+          }, resoSharedStyle);
+      return resoStyle;
+    },
+    connectorStyleFunc: function(resoDetail, selected) {
+      var highlight = resoDetail.ownerGuid === this.otherOptions.playerGuid;
+      var connStyle  = highlight
+                     ? this.otherOptions.highlightedConn
+                     : (selected ? this.otherOptions.selectedConn : this.otherOptions.normalConn);
+      return connStyle;
+    },
+    onEnableFunc: function() {
+      var thisPlugin = window.plugin.drawResonators;
+      var thisStyler = this;
+      // Add option
+      thisPlugin.options.newOption('styler-resoOfSpecificPlayer-player', '');
+      thisPlugin.options.addCallback('styler-resoOfSpecificPlayer-player', function(value) {
+        thisStyler.otherOptions.player = value;
+        thisStyler.otherOptions.playerGuid = window.playerNameToGuid(value);
+        thisPlugin.render.refreshStyler();
+      });
+      thisStyler.otherOptions.player = thisPlugin.options.getOption('styler-resoOfSpecificPlayer-player');
+      thisStyler.otherOptions.playerGuid = window.playerNameToGuid(thisStyler.otherOptions.player);
+      // Add dialog entry
+      thisPlugin.dialog.addEntry('resoOfSpecificPlayer-player', this.otherOptions.dialogEntry);
+    },
+    onDisableFunc: function() {
+      var thisPlugin = window.plugin.drawResonators;
+      // Remove option
+      thisPlugin.options.removeOption('styler-resoOfSpecificPlayer-player');
+      // Remove dialog entry
+      thisPlugin.dialog.removeEntry('resoOfSpecificPlayer-player');
+    }
+  };
+
+  thisPlugin.render.addStyler(new thisPlugin.Styler(resoOfSpecificPlayer));
+
+  thisPlugin.render.changeStyler(thisPlugin.options.getOption('useStyler'));
+}
+
+
+window.plugin.drawResonators.setupOptions = function() {
+  var thisPlugin = window.plugin.drawResonators;
+  // Initialize options
+  thisPlugin.options = new thisPlugin.Options();
+  thisPlugin.options.newOption('enableZoomLevel', 17);
+  thisPlugin.options.newOption('useStyler', 'Default');
+}
+
+window.plugin.drawResonators.setupDialog = function() {
+  var thisPlugin = window.plugin.drawResonators;
+  // Initialize dialog
+  thisPlugin.dialog = new thisPlugin.Dialog();
+
+  var enableZoomLevelDialogEntryOptions = {
+    name: 'enable-zoom-level',
+    label: 'Enable zoom level',
+    valueFunc: function() {return thisPlugin.options.getOption('enableZoomLevel')},
+    valuesList: {'15':15, '16':16, '17':17, '18':18, '19':19, '20':20, 'None':99},
+    onChangeCallback: function(event) {thisPlugin.options.changeOption('enableZoomLevel', parseInt(event.target.value));}
+  };
+  var enableZoomLevelDialogEntry = new thisPlugin.ListDialogEntry(enableZoomLevelDialogEntryOptions);
+  thisPlugin.dialog.addEntry('enable-zoom-level', enableZoomLevelDialogEntry);
+
+  var stylerDialogEntryOptions = {
+    name: 'use-styler',
+    label: 'Styler',
+    valueFunc: function() {return thisPlugin.options.getOption('useStyler')},
+    valuesListFunc: thisPlugin.render.getStylersList,
+    onChangeCallback: function(event) {thisPlugin.options.changeOption('useStyler', event.target.value);}
+  };
+  var stylerDialogEntry = new thisPlugin.ListDialogEntry(stylerDialogEntryOptions);
+  thisPlugin.dialog.addEntry('use-styler', stylerDialogEntry);
+
+  thisPlugin.dialog.addLink();
+}
 
 var setup =  function() {
-  window.plugin.drawResonators.options = new window.plugin.drawResonators.Options();
-  window.plugin.drawResonators.options.newOption('enableZoomLevel', 17);
-  window.plugin.drawResonators.options.newOption('useStyler', 'default');
+  var thisPlugin = window.plugin.drawResonators;
 
-  var renderOptions = {
-    'enableZoomLevel': window.plugin.drawResonators.options.getOption('enableZoomLevel'),
-    'useStyler': window.plugin.drawResonators.options.getOption('useStyler')};
+  // Initialize options
+  thisPlugin.setupOptions();
 
-  window.plugin.drawResonators.render = new window.plugin.drawResonators.Render(renderOptions);
-  window.plugin.drawResonators.render.registerHook();
-  window.addLayerGroup('Resonators', window.plugin.drawResonators.render.resonatorLayerGroup, true);
+  // Initialize render
+  var renderOptions = {'enableZoomLevel': thisPlugin.options.getOption('enableZoomLevel')};
 
-  // TODO: add options dialog to change options
+  thisPlugin.render = new thisPlugin.Render(renderOptions);
+
+  // callback run at option change
+  thisPlugin.options.addCallback('enableZoomLevel', thisPlugin.render.handleEnableZoomLevelChange);
+  thisPlugin.options.addCallback('useStyler', thisPlugin.render.changeStyler);
+
+  // Initialize Dialog
+  thisPlugin.setupDialog();
+  // Initialize styler
+  thisPlugin.setupStyler();
+
+  thisPlugin.render.registerHook();
+  window.addLayerGroup('Resonators', thisPlugin.render.resonatorLayerGroup, true);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
+
 import com.cradle.iitc_mobile.R;
 
 public class SendToClipboard extends Activity {

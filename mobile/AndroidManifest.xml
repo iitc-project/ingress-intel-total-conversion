@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.cradle.iitc_mobile"
-          android:versionCode="44"
-          android:versionName="0.6">
+    package="com.cradle.iitc_mobile"
+    android:installLocation="auto"
+    android:versionCode="57"
+    android:versionName="0.7.7">
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -13,19 +14,20 @@
     <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
+        android:name=".IITC_Application"
         android:allowBackup="true"
         android:icon="@drawable/ic_iitcm"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
-        android:uiOptions="splitActionBarWhenNarrow">
+        android:theme="@style/AppTheme">
         <activity
             android:name="com.cradle.iitc_mobile.IITC_Mobile"
-            android:theme="@style/AppBaseTheme"
+            android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
             android:label="@string/app_name"
             android:launchMode="singleTop"
-            android:configChanges="orientation|keyboard|keyboardHidden|screenSize">
+            android:theme="@style/AppBaseTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -37,7 +39,7 @@
             <!-- Receives the search request. -->
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH"/>
-                <!-- No category needed, because the Intent will specify this class component-->
+                <!-- No category needed, because the Intent will specify this class component -->
             </intent-filter>
 
             <!-- Handles the implicit intent to VIEW the www.ingress.com/intel URI -->
@@ -49,12 +51,12 @@
 
                 <data
                     android:host="www.ingress.com"
-                    android:scheme="https"
-                    android:pathPrefix="/intel"/>
+                    android:pathPrefix="/intel"
+                    android:scheme="https"/>
                 <data
                     android:host="www.ingress.com"
-                    android:scheme="http"
-                    android:pathPrefix="/intel"/>
+                    android:pathPrefix="/intel"
+                    android:scheme="http"/>
             </intent-filter>
 
             <!-- Handles geo: URIs -->
@@ -68,24 +70,24 @@
             </intent-filter>
 
             <!-- Points to searchable meta data. -->
-            <meta-data android:name="android.app.searchable"
-                       android:resource="@xml/searchable" />
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable"/>
         </activity>
 
         <activity
             android:name=".IITC_PreferenceActivity"
-            android:theme="@style/AppBaseTheme"
-            android:label="@string/app_name"
-            android:configChanges="orientation|keyboard|keyboardHidden|screenSize"/>
+            android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
+            android:label="@string/activity_settings"
+            android:theme="@style/AppBaseTheme"/>
         <activity
-            android:name="com.cradle.iitc_mobile.IITC_PluginPreferenceActivity"
-            android:theme="@style/AppBaseTheme"
-            android:label="@string/app_name"
-            android:configChanges="orientation|keyboard|keyboardHidden|screenSize"/>
-
+            android:name=".IITC_PluginPreferenceActivity"
+            android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
+            android:label="@string/activity_plugins"
+            android:theme="@style/AppBaseTheme"/>
         <activity
             android:name=".share.ShareActivity"
-            android:label="@string/app_name"
+            android:label="@string/activity_share"
             android:noHistory="true"
             android:parentActivityName="com.cradle.iitc_mobile.IITC_Mobile"
             android:theme="@android:style/Theme.Holo.Light.DarkActionBar">
@@ -100,7 +102,7 @@
             android:excludeFromRecents="true"
             android:exported="false"
             android:icon="@drawable/copy"
-            android:label="Copy to clipboard"
+            android:label="@string/activity_share_to_clipboard"
             android:noHistory="false">
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>

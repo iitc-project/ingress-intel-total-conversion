@@ -2,7 +2,7 @@
 // @id             iitc-plugin-draw-tools@breunigs
 // @name           IITC plugin: draw tools
 // @category       Layer
-// @version        0.5.0.@@DATETIMEVERSION@@
+// @version        0.5.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -33,25 +33,25 @@ window.plugin.drawTools.loadExternals = function() {
 }
 
 window.plugin.drawTools.setOptions = function() {
+
   window.plugin.drawTools.lineOptions = {
     stroke: true,
-    color: '#f06eaa',
+    color: '#a24ac3',
     weight: 4,
     opacity: 0.5,
     fill: false,
     clickable: true
   };
 
-  window.plugin.drawTools.polygonOptions = {
-    stroke: true,
-    color: '#f06eaa',
-    weight: 4,
-    opacity: 0.5,
+  window.plugin.drawTools.polygonOptions = L.extend({}, window.plugin.drawTools.lineOptions, {
     fill: true,
-    fillColor: null,
-    fillOpacity: 0.2,
-    clickable: true
-  };
+    fillColor: null, // to use the same as 'color' for fill
+    fillOpacity: 0.2
+  });
+
+  window.plugin.drawTools.editOptions = L.extend({}, window.plugin.drawTools.polygonOptions, {
+    dashArray: [10,10]
+  });
 
   window.plugin.drawTools.markerOptions = {
     icon: new L.Icon.Default(),
@@ -74,6 +74,7 @@ window.plugin.drawTools.addDrawControl = function() {
           + 'point of the line (a small white rectangle) to\n'
           + 'finish. Double clicking also works.',
         shapeOptions: window.plugin.drawTools.polygonOptions,
+        snapPoint: window.plugin.drawTools.getSnapLatLng,
       },
 
       polyline: {
@@ -84,6 +85,7 @@ window.plugin.drawTools.addDrawControl = function() {
           + 'point of the line (a small white rectangle) to\n'
           + 'finish. Double clicking also works.',
         shapeOptions: window.plugin.drawTools.lineOptions,
+        snapPoint: window.plugin.drawTools.getSnapLatLng,
       },
 
       circle: {
@@ -93,6 +95,7 @@ window.plugin.drawTools.addDrawControl = function() {
           + 'the mouse to control the radius. Release the mouse\n'
           + 'to finish.',
         shapeOptions: window.plugin.drawTools.polygonOptions,
+        snapPoint: window.plugin.drawTools.getSnapLatLng,
       },
 
       marker: {
@@ -100,6 +103,8 @@ window.plugin.drawTools.addDrawControl = function() {
           + 'Click on the button, then click on the map where\n'
           + 'you want the marker to appear.',
         shapeOptions: window.plugin.drawTools.markerOptions,
+        snapPoint: window.plugin.drawTools.getSnapLatLng,
+        repeatMode: true,
       },
 
     },
@@ -108,7 +113,8 @@ window.plugin.drawTools.addDrawControl = function() {
       featureGroup: window.plugin.drawTools.drawnItems,
 
       edit: {
-        title: 'Edit drawn items'
+        title: 'Edit drawn items',
+        selectedPathOptions: window.plugin.drawTools.editOptions,
       },
 
       remove: {
@@ -124,11 +130,11 @@ window.plugin.drawTools.addDrawControl = function() {
 }
 
 
-// given a container point it tries to find the most suitable portal to
+// given a point it tries to find the most suitable portal to
 // snap to. It takes the CircleMarker’s radius and weight into account.
 // Will return null if nothing to snap to or a LatLng instance.
-window.plugin.drawTools.getSnapLatLng = function(containerPoint) {
-// TODO: use this function again, if possible
+window.plugin.drawTools.getSnapLatLng = function(unsnappedLatLng) {
+  var containerPoint = map.latLngToContainerPoint(unsnappedLatLng);
   var candidates = [];
   $.each(window.portals, function(guid, portal) {
     var ll = portal.getLatLng();
@@ -139,7 +145,7 @@ window.plugin.drawTools.getSnapLatLng = function(containerPoint) {
     candidates.push([dist, ll]);
   });
 
-  if(candidates.length === 0) return;
+  if(candidates.length === 0) return unsnappedLatLng;
   candidates = candidates.sort(function(a, b) { return a[0]-b[0]; });
   return candidates[0][1];
 }
@@ -191,7 +197,7 @@ window.plugin.drawTools.load = function() {
         layer = L.geodesicPolygon(item.latLngs,window.plugin.drawTools.polygonOptions);
         break;
       case 'circle':
-        layer = L.circle(item.latLng,item.radius,window.plugin.drawTools.polygonOptions);
+        layer = L.geodesicCircle(item.latLng,item.radius,window.plugin.drawTools.polygonOptions);
         break;
       case 'marker':
         layer = L.marker(item.latLng,window.plugin.drawTools.markerOptions)

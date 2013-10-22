@@ -2,7 +2,7 @@
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           IITC plugin: guess player level
 // @category       Info
-// @version        0.4.8.@@DATETIMEVERSION@@
+// @version        0.4.9.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -110,6 +110,8 @@ window.plugin.guessPlayerLevels.guess = function() {
     var r = portal.options.details.resonatorArray.resonators;
     $.each(r, function(ind, reso) {
       if(!reso) return true;
+      if(isSystemPlayer(reso.ownerGuid)) return true;
+
       var lvl = localStorage['level-' + reso.ownerGuid];
       var nick = getPlayerName(reso.ownerGuid);
       if(portal.options.team === TEAM_ENL)

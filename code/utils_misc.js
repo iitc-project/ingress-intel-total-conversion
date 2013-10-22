@@ -96,66 +96,126 @@ window.digits = function(d) {
 
 
 window.requestParameterMunges = [
-  // set 0
+  // now obsolete (they don't have some of the new parameters) munge sets deleted
+
+
+  // set 3 - in the update of 2013-09-30 (addition of 'alerts' chat tab)
   {
-    method: '4kr3ofeptwgary2j',
-    boundsParamsList: 'n27qzc8389kgakyv',
-    id: '39031qie1i4aq563',
-    minLatE6: 'pg98bwox95ly0ouu',
-    minLngE6: 'eib1bkq8znpwr0g7',
-    maxLatE6: 'ilfap961rwdybv63',
-    maxLngE6: 'lpf7m1ifx0ieouzq',
-    timestampMs: '2ewujgywmum1yp49',
-    qk: 'bgxibcomzoto63sn',
-    desiredNumItems: 'tmb0vgxgp5grsnhp',
-    minTimestampMs: 'hljqffkpwlx0vtjt',
-    maxTimestampMs: 'sw317giy6x2xj9zm',
-    guids: 'pusjrhxxtyp5nois',
-    inviteeEmailAddress: 'cltkepgqkepfsyaq',
-    message: 'q0d6n7t1801bb6xu',
-    latE6: '5ygbhpxfnt1u9e4t',
-    lngE6: 'ak6twnljwwcgd7cj',
-    factionOnly: '0dvtbatgzcfccchh',
-    ascendingTimestampOrder: 'f6u1iqep9s2lc5y5'
+    'dashboard.getGameScore': 'fhlzntzkl5v7hcfh',          // GET_GAME_SCORE
+    'dashboard.getPaginatedPlextsV2': 'wzuitnswoda7w028',  // GET_PAGINATED_PLEXTS
+    'dashboard.getThinnedEntitiesV4': 'scgrm4lf2371esgw',  // GET_THINNED_ENTITIES
+    'dashboard.getPlayersByGuids': '81l6usczczoi3lfi',     // LOOKUP_PLAYERS
+    'dashboard.redeemReward': '8kop2koeld9b4c26',          // REDEEM_REWARD
+    'dashboard.sendInviteEmail': 't0ccodsm1nuo5uso',       // SEND_INVITE_EMAIL
+    'dashboard.sendPlext': 'k04cfjwwsg3h3827',             // SEND_PLEXT
+
+    method: '22ux2z96jwq5zn78',
+    version: 'kf6hgl9yau03ws0o', //guessed parameter name - only seen munged
+    version_parameter: '4608f4356a6f55690f127fb542f557f98de66169', // passed as the value to the above parameter
+    boundsParamsList: '29t16cmsn6l3r2xg',
+    id: '7rogqhp5pzcqobcw',
+    minLatE6: 'yzbnp7z9bd28p0yr',
+    minLngE6: '2pdhntvo85cd90bw',
+    maxLatE6: 'c4ivr013h4dr68pd',
+    maxLngE6: '4p8oorcrwalc1mzf',
+    timestampMs: 'vd2rsa9v6f8q606s',
+    qk: 'cblh9xe0bgwjy5ij',
+    desiredNumItems: '3ymaq7slb165porj',
+    minTimestampMs: 's9jf2seni33y3gyu',
+    maxTimestampMs: '2kh3vti98rhp3g29',
+    chatTab: '7n7ocqfq1p18352b', //guessed parameter name - only seen munged
+    ascendingTimestampOrder: 'p88a2ztchtjhiazl',
+    message: 'e8qm0kptw2trrcrw',
+    latE6: 'fja1phtsqxm71dqm',
+    lngE6: 'iut1tb7c0x726hwn',
+    guids: '5hyiwhwc0jyljvro',
+    inviteeEmailAddress: 's9z6zt03eymzxhkj',
   },
 
-  // set 1
+  // set 4 - second update of 2013-09-30
   {
-    method: 'uuo2zqhhy5bw80fu',
-    boundsParamsList: '5rc0561uauf6x13u',
-    id: 'bzeizowtguoyrrtt',
-    minLatE6: '7qej3eqg4sefuaac',
-    minLngE6: 'yqegc976egk5q9vo',
-    maxLatE6: '2odsgh99ix9bbtsb',
-    maxLngE6: 'g9jess8dwa2j8pwi',
-    timestampMs: '604f34zcu9zna0a5',
-    qk: 'y853tux9h7cb6xp3',
-    desiredNumItems: 'sfv5i7l6ouljz8vf',
-    minTimestampMs: 'y3g07dbnw6sklloj',
-    maxTimestampMs: '3pdl28aa27xvyhke',
-    guids: 'xp1pl2jm5hrh3bna',
-    inviteeEmailAddress: '2pyrttrp3gh38mmu',
-    message: 'zz54435vfc57nlg9',
-    latE6: 'cyltxjod3jhxgj8q',
-    lngE6: 'h9whcgcz6kpqkz80',
-    factionOnly: '37okcr7gvd5yn2lj',
-    ascendingTimestampOrder: 'iimftkq7flskwrx9'
+    'dashboard.getGameScore': 'ija9jgrf5hj7wm9r',          // GET_GAME_SCORE
+    'dashboard.getPaginatedPlextsV2': '0elftx739mkbzi1b',  // GET_PAGINATED_PLEXTS
+    'dashboard.getThinnedEntitiesV4': 'prv0ez8cbsykh63g',  // GET_THINNED_ENTITIES
+    'dashboard.getPlayersByGuids': 'i0lxy6nc695z9ka3',     // LOOKUP_PLAYERS
+    'dashboard.redeemReward': '376oivna8rf8qbfj',          // REDEEM_REWARD
+    'dashboard.sendInviteEmail': '96y930v5q96nrcrw',       // SEND_INVITE_EMAIL
+    'dashboard.sendPlext': 'c04kceytofuqvyqg',             // SEND_PLEXT
+
+    method: '9we4b31i48ui4sdm',
+    version: 'q402kn5zqisuo1ym', //guessed parameter name - only seen munged
+    version_parameter: 'dbad4485024d446ae946e3d287b5d640029ef3e3', // passed as the value to the above parameter
+    boundsParamsList: '3r5ctyvc2f653zjd',
+    id: 'izey8ciqg2dz2oqc',
+    minLatE6: 'cein0n4jrifa7ui2',
+    minLngE6: 'lbd1juids3johtdo',
+    maxLatE6: 'h4kyot9kmvd3g284',
+    maxLngE6: 'sbci6jjc2d5g9uy4',
+    timestampMs: '2wurn9giagbvv6bt',
+    qk: 'hq73mwpjqyvcp6ul',
+    desiredNumItems: 'kyo6vh5n58hmrnua',
+    minTimestampMs: 'hu4swdftcp7mvkdi',
+    maxTimestampMs: 'ly6ylae5lv1z9072',
+    chatTab: 'q5kxut5rmbtlqbf9', //guessed parameter name - only seen munged
+    ascendingTimestampOrder: 'hvfd0io35rahwjgr',
+    message: 'z4hf7tzl27o14455',
+    latE6: 'zyzh3bdxyd47vk1x',
+    lngE6: 'n5d1f8pql51t641x',
+    guids: 'gl16ehqoc3i3oi07',
+    inviteeEmailAddress: 'orc9ufg7rp7g1y9j',
   },
+
+  // set 5 - second update of 2013-10-16
+  {
+    'dashboard.getGameScore': '3b48kl956b33brrl',          // GET_GAME_SCORE
+    'dashboard.getPaginatedPlextsV2': 'h785pmet6wrx6xoa',  // GET_PAGINATED_PLEXTS
+    'dashboard.getThinnedEntitiesV4': '4gux7b0n3euu7e8y',  // GET_THINNED_ENTITIES
+    'dashboard.getPlayersByGuids': 'nqm1kocgzspecpzv',     // LOOKUP_PLAYERS
+    'dashboard.redeemReward': 'g618n6peb74u2ae9',          // REDEEM_REWARD
+    'dashboard.sendInviteEmail': 'bsl4280bm39bkl3a',       // SEND_INVITE_EMAIL
+    'dashboard.sendPlext': 'jym2hbw15i6uru7g',             // SEND_PLEXT
+
+    method: 'g9cmy5g6vpxpmcxz',
+    version: 'blq7574e6kkg0fig', //guessed parameter name - only seen munged
+    version_parameter: '465c62b22b3bc9ecae01e08b30703752186a1dc9', // passed as the value to the above parameter
+    boundsParamsList: '45k478vh10jt1ik7',
+    id: '3eh1ynwxjy8c8rd5',
+    minLatE6: 'krpywcgq1voq71z3',
+    minLngE6: 'yo6lte88zvoneqi6',
+    maxLatE6: 'dncli54tfafmtk6y',
+    maxLngE6: '76pq437r7vm3osx9',
+    timestampMs: '2zlgpsg1x6i9720s',
+    qk: 'pzejivoj28p6kkry',
+    desiredNumItems: 'u3uxpkqd4pn37ydn',
+    minTimestampMs: 'msw5gcxhuuk46rb2',
+    maxTimestampMs: 'bps0ekgdzakdfvr0',
+    chatTab: 'pm4fm8bjvotjm30h', //guessed parameter name - only seen munged
+    ascendingTimestampOrder: '7qp8gv50ogelh7cs',
+    message: 'y599irwyfs45adp4',
+    latE6: '19ko11fmx32sjfqk',
+    lngE6: 'i8yjq6v2mjhze29d',
+    guids: 'szebfshb9f3uo2h9',
+    inviteeEmailAddress: 'qq4t7lhqphq7wqvh',
+  },
+
 ];
 window.activeRequestMungeSet = undefined;
 
 // attempt to guess the munge set in use, by looking therough the functions of the stock intel page for one of the munged params
 window.detectActiveMungeSet = function() {
-  for (var m in window) {
-    // try and find the stock page functions
-    if (typeof window[m] == 'function' && m.length <= 3) {
-      var stockFunc = window[m].toString();
-      for (var i in window.requestParameterMunges) {
-        if (stockFunc.indexOf (window.requestParameterMunges[i]['id']) >= 0) {
-          console.log('IITC: found request munge set '+i+' in stock intel function "window.'+m+'()"');
-          window.activeRequestMungeSet = i;
-        }
-      }
+  if (window.requestParameterMunges.length == 1) {
+    // no point in searching through the code when there's only one set in use
+    window.activeRequestMungeSet = 0;
+    return;
+  }
+
+  // try and find the stock page functions
+  // FIXME? revert to searching through all the code? is that practical?
+  var stockFunc = nemesis.dashboard.network.DataFetcher.prototype.sendRequest_.toString()
+  for (var i in window.requestParameterMunges) {
+    if (stockFunc.indexOf (window.requestParameterMunges[i]['method']) >= 0) {
+      console.log('IITC: found request munge set index '+i+' in stock intel function nemesis.dashboard.network.DataFetcher.prototype.sendRequest_');
+      window.activeRequestMungeSet = i;
     }
   }
 
@@ -167,10 +227,6 @@ window.detectActiveMungeSet = function() {
 
 // niantic now add some munging to the request parameters. so far, only two sets of this munging have been seen
 window.requestDataMunge = function(data) {
-  if (window.activeRequestMungeSet===undefined) {
-    window.detectActiveMungeSet();
-  }
-
   var activeMunge = window.requestParameterMunges[window.activeRequestMungeSet];
 
   function munge(obj) {
@@ -215,11 +271,24 @@ window.requestDataMunge = function(data) {
 //          able arguments: http://api.jquery.com/jQuery.ajax/
 // error: see above. Additionally it is logged if the request failed.
 window.postAjax = function(action, data, success, error) {
-  var post_data = JSON.stringify(window.requestDataMunge($.extend({method: 'dashboard.'+action}, data)));
+  if (window.activeRequestMungeSet===undefined) {
+    window.detectActiveMungeSet();
+  }
+  var activeMunge = window.requestParameterMunges[window.activeRequestMungeSet];
+
+  var methodName = 'dashboard.'+action;
+  var versionStr = 'version_parameter';
+
+  // munging of the method name - seen in Set 2 (onwards?)
+  methodName = activeMunge[methodName];
+  // and of the 'version' parameter
+  versionStr = activeMunge[versionStr];
+
+  var post_data = JSON.stringify(window.requestDataMunge($.extend({method: methodName, version: versionStr}, data)));
   var remove = function(data, textStatus, jqXHR) { window.requests.remove(jqXHR); };
   var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
   var result = $.ajax({
-    url: '/r/dashboard.'+action,
+    url: '/r/'+methodName,
     type: 'POST',
     data: post_data,
     context: data,
@@ -273,11 +342,26 @@ window.unixTimeToHHmm = function(time) {
   return  h + ':' + s;
 }
 
+window.formatInterval = function(seconds) {
+
+  var h = Math.floor(seconds / 3600);
+  var m = Math.floor((seconds % 3600) / 60);
+  var s = seconds % 60;
+
+  var text = '';
+  if (h > 0) text += h+'h';
+  if (m > 0) text += m+'m';
+  if (s > 0 || text == '') text += s+'s';
+
+  return text;
+}
+
+
 window.rangeLinkClick = function() {
   if(window.portalRangeIndicator)
     window.map.fitBounds(window.portalRangeIndicator.getBounds());
   if(window.isSmartphone())
-    window.smartphone.mapButton.click();
+    window.show('map');
 }
 
 window.showPortalPosLinks = function(lat, lng, name) {
@@ -342,35 +426,9 @@ window.getPortalDataZoom = function() {
 
 window.getMinPortalLevelForZoom = function(z) {
 //based on code from stock gen_dashboard.js
-  switch(z) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-      return 8;
-    case 4:
-    case 5:
-      return 7;
-    case 6:
-    case 7:
-      return 6;
-    case 8:
-      return 5;
-    case 9:
-    case 10:
-      return 4;
-    case 11:
-    case 12:
-      return 3;
-    case 13:
-    case 14:
-      return 2;
-    case 15:
-    case 16:
-      return 1;
-    default:
-      return 0
-  }
+  var ZOOM_TO_LEVEL = [8, 8, 8, 8, 7, 7, 6, 6, 5, 4, 4, 3, 3, 2, 2, 1, 1];
+  var l = ZOOM_TO_LEVEL[z] || 0;
+  return l;
 }
 
 
@@ -544,3 +602,22 @@ window.clampLatLng = function(latlng) {
 window.clampLatLngBounds = function(bounds) {
   return new L.LatLngBounds ( clampLatLng(bounds.getSouthWest()), clampLatLng(bounds.getNorthEast()) );
 }
+
+// avoid error in stock JS
+if(goog && goog.style) {
+  goog.style.showElement = function(a, b) {
+    if(a && a.style)
+      a.style.display = b ? "" : "none"
+  };
+}
+
+// Fix Leaflet: handle touchcancel events in Draggable
+L.Draggable.prototype._onDownOrig = L.Draggable.prototype._onDown;
+L.Draggable.prototype._onDown = function(e) {
+  L.Draggable.prototype._onDownOrig.apply(this, arguments);
+
+  if(e.type === "touchstart") {
+    L.DomEvent.on(document, "touchcancel", this._onUp, this);
+  }
+}
+

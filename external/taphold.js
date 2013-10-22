@@ -106,12 +106,16 @@
             $(this).bind((touchSupported ? "touchstart" : "mousedown"),  data, startHandler)
                    .bind((touchSupported ? "touchend"   : "mouseup"),    stopHandler)
                    .bind((touchSupported ? "touchmove"  : "mouseleave"), leaveHandler);
+            if(touchSupported)
+                $(this).bind("touchcancel", leaveHandler);
         },
         teardown: function(namespaces)
         {
             $(this).unbind((touchSupported ? "touchstart" : "mousedown"),  startHandler)
                    .unbind((touchSupported ? "touchend"   : "mouseup"),    stopHandler)
                    .unbind((touchSupported ? "touchmove"  : "mouseleave"), leaveHandler);
+            if(touchSupported)
+                $(this).unbind("touchcancel", leaveHandler);
         }
     };
 })(jQuery);

@@ -2,7 +2,7 @@
 // @id             iitc-plugin-raw-portal-data
 // @name           IITC plugin: Debug: Raw portal JSON data
 // @category       Debug
-// @version        0.2.1.@@DATETIMEVERSION@@
+// @version        0.2.2.@@DATETIMEVERSION@@
 // @namespace      rawdata
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -43,7 +43,7 @@ window.plugin.rawdata.showPortalData = function(guid) {
 
   var body =
     '<b>Portal GUID</b>: <code>'+guid+'</code><br />' +
-    '<b>Entity timestamp</b>: <code>'+ts+'</code> - '+new Date(ts).toLocaleString()+'<br />' + 
+    '<b>Entity timestamp</b>: <code>'+ts+'</code> - '+window.unixTimeToDateTimeString(ts,true)+'<br />' + 
     '<pre>'+JSON.stringify(d,null,2)+'</pre>';
 
   body += '<p><b>Links referencing this portal</b></p>';

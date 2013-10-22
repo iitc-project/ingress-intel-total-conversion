@@ -81,7 +81,7 @@ window.chat.genPostData = function(isFaction, storageHash, getOlderMsgs) {
     maxLngE6: Math.round(ne.lng*1E6),
     minTimestampMs: -1,
     maxTimestampMs: -1,
-    factionOnly: isFaction
+    chatTab: isFaction ? 'faction' : 'all'
   }
 
   if(getOlderMsgs) {
@@ -543,7 +543,6 @@ window.chat.show = function(name) {
         ? $('#updatestatus').hide()
         : $('#updatestatus').show();
     $('#chat, #chatinput').show();
-    $('#map').css('visibility', 'hidden');
 
     var t = $('<a>'+name+'</a>');
     window.chat.chooseAnchor(t);
@@ -684,7 +683,18 @@ window.chat.postMsg = function() {
   var msg = $.trim($('#chatinput input').val());
   if(!msg || msg === '') return;
 
-  if(c === 'debug') return new Function (msg)();
+  if(c === 'debug') {
+    var result;
+    try {
+      result = eval(msg);
+    } catch(e) {
+      if(e.stack) console.error(e.stack);
+      throw e; // to trigger native error message
+    }
+    if(result !== undefined)
+      console.log(result.toString());
+    return result;
+  }
 
   var publik = c === 'public';
   var latlng = map.getCenter();
@@ -692,7 +702,7 @@ window.chat.postMsg = function() {
   var data = {message: msg,
               latE6: Math.round(latlng.lat*1E6),
               lngE6: Math.round(latlng.lng*1E6),
-              factionOnly: !publik};
+              chatTab: publik ? 'all' : 'faction'};
 
   var errMsg = 'Your message could not be delivered. You can copy&' +
                'paste it here and try again if you want:\n\n' + msg;

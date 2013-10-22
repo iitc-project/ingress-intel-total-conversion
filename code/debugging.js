@@ -16,43 +16,13 @@ window.debug.printStackTrace = function() {
   return e.stack;
 }
 
-window.debug.clearPortals = function() {
-  for(var i = 0; i < portalsLayers.length; i++)
-    portalsLayers[i].clearLayers();
-}
 
-window.debug.clearLinks = function() {
-  linksLayer.clearLayers();
-}
-
-window.debug.clearFields = function() {
-  fieldsLayer.clearLayers();
-}
-
-window.debug.getFields = function() {
-  return fields;
-}
-
-window.debug.forceSync = function() {
-  localStorage.clear();
-  window.playersToResolve = [];
-  window.playersInResolving = [];
-  debug.clearFields();
-  debug.clearLinks();
-  debug.clearPortals();
-  updateGameScore();
-  requestData();
-}
 
 window.debug.console = function() {
   $('#debugconsole').text();
 }
 
 window.debug.console.show = function() {
-    if (window.isSmartphone()) {
-        $('#scrollwrapper, #updatestatus').hide();
-        $('#map').css('visibility', 'hidden');
-    }
     $('#chat, #chatinput').show();
     window.debug.console.create();
     $('#chatinput mark').css('cssText', 'color: #bbb !important').text('debug:');
@@ -114,10 +84,20 @@ window.debug.console.error = function(text) {
 
 window.debug.console.overwriteNative = function() {
   window.debug.console.create();
-  window.console = function() {}
-  window.console.log = window.debug.console.log;
-  window.console.warn = window.debug.console.warn;
-  window.console.error = window.debug.console.error;
+
+  var nativeConsole = window.console;
+  window.console = {};
+
+  function overwrite(which) {
+    window.console[which] = function() {
+      nativeConsole[which].apply(nativeConsole, arguments);
+      window.debug.console[which].apply(window.debug.console, arguments);
+    }
+  }
+
+  overwrite("log");
+  overwrite("warn");
+  overwrite("error");
 }
 
 window.debug.console.overwriteNativeIfRequired = function() {

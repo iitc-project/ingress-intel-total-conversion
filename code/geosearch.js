@@ -29,6 +29,6 @@ window.search = function(search) {
           northEast = new L.LatLng(b[1], b[3]),
           bounds = new L.LatLngBounds(southWest, northEast);
       window.map.fitBounds(bounds);
-      if(window.isSmartphone()) window.smartphone.mapButton.click();
+      if(window.isSmartphone()) window.show('map');
     });
 }
