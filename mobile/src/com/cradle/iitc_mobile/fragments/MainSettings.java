@@ -75,8 +75,9 @@ public class MainSettings extends PreferenceFragment {
     // thx to http://stackoverflow.com/a/16800527/2638486 !!
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-        if (preference.getTitle().toString().equals(getString(R.string.pref_advanced_options)))
+        if (preference.getTitle().toString().equals(getString(R.string.pref_advanced_options))) {
             initializeActionBar((PreferenceScreen) preference);
+        }
         return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
 

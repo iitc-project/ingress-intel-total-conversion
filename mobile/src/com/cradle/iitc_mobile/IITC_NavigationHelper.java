@@ -46,18 +46,20 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
             add(Pane.PUBLIC);
             add(Pane.FACTION);
 
-            if (mPrefs.getBoolean("pref_advanced_menu", false))
+            if (mPrefs.getBoolean("pref_advanced_menu", false)) {
                 add(Pane.DEBUG);
+            }
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             TextView view = (TextView) super.getView(position, convertView, parent);
             Pane item = getItem(position);
-            if (item == Pane.MAP)
+            if (item == Pane.MAP) {
                 view.setText("Map");
-            else
+            } else {
                 view.setText(getPaneTitle(item));
+            }
 
             int icon = 0;
             switch (item) {
@@ -84,8 +86,9 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
                     break;
             }
 
-            if (icon != 0)
+            if (icon != 0) {
                 view.setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0);
+            }
 
             return view;
         }
@@ -140,8 +143,9 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     }
 
     private void showNotice(final int which) {
-        if ((mPrefs.getInt("pref_messages", 0) & which) != 0)
+        if ((mPrefs.getInt("pref_messages", 0) & which) != 0) {
             return;
+        }
 
         String text;
         switch (which) {
@@ -186,8 +190,9 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
 
     private void updateActionBar() {
         int position = mNavigationAdapter.getPosition(mPane);
-        if (position >= 0 && position < mNavigationAdapter.getCount())
+        if (position >= 0 && position < mNavigationAdapter.getCount()) {
             mDrawerLeft.setItemChecked(position, true);
+        }
 
         if (mDesktopMode) {
             mActionBar.setDisplayHomeAsUpEnabled(false); // Hide "up" indicator
@@ -207,28 +212,32 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
                 mActionBar.setHomeButtonEnabled(true);// Make icon clickable
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 
-                if (mPane == Pane.MAP || mDrawerLayout.isDrawerOpen(mDrawerLeft))
+                if (mPane == Pane.MAP || mDrawerLayout.isDrawerOpen(mDrawerLeft)) {
                     setDrawerIndicatorEnabled(true);
-                else
+                } else {
                     setDrawerIndicatorEnabled(false);
+                }
             }
 
-            if (mDrawerLayout.isDrawerOpen(mDrawerLeft))
+            if (mDrawerLayout.isDrawerOpen(mDrawerLeft)) {
                 mActionBar.setTitle(mIitc.getString(R.string.app_name));
-            else
+            } else {
                 mActionBar.setTitle(getPaneTitle(mPane));
+            }
         }
 
         boolean mapVisible = mDesktopMode || mPane == Pane.MAP;
-        if ("No Highlights".equals(mHighlighter) || isDrawerOpened() || mIsLoading || !mapVisible)
+        if ("No Highlights".equals(mHighlighter) || isDrawerOpened() || mIsLoading || !mapVisible) {
             mActionBar.setSubtitle(null);
-        else
+        } else {
             mActionBar.setSubtitle(mHighlighter);
+        }
 
-        if (mFullscreen && mHideInFullscreen)
+        if (mFullscreen && mHideInFullscreen) {
             mActionBar.hide();
-        else
+        } else {
             mActionBar.show();
+        }
     }
 
     public void closeDrawers() {
@@ -289,16 +298,18 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         Pane item = mNavigationAdapter.getItem(position);
         mIitc.switchToPane(item);
 
-        if (item == Pane.INFO)
+        if (item == Pane.INFO) {
             showNotice(NOTICE_INFO);
+        }
 
         mDrawerLayout.closeDrawer(mDrawerLeft);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home)
+        if (item.getItemId() == android.R.id.home) {
             mDrawerLayout.closeDrawer(mDrawerRight);
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -315,8 +326,9 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     }
 
     public void openRightDrawer() {
-        if (mDrawerLayout.getDrawerLockMode(mDrawerRight) == DrawerLayout.LOCK_MODE_UNLOCKED)
+        if (mDrawerLayout.getDrawerLockMode(mDrawerRight) == DrawerLayout.LOCK_MODE_UNLOCKED) {
             mDrawerLayout.openDrawer(mDrawerRight);
+        }
     }
 
     public void reset() {
@@ -326,8 +338,9 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
 
     public void setDebugMode(boolean enabled) {
         mNavigationAdapter.remove(Pane.DEBUG); // avoid duplicates
-        if (enabled)
+        if (enabled) {
             mNavigationAdapter.add(Pane.DEBUG);
+        }
     }
 
     public void setFullscreen(boolean fullscreen) {

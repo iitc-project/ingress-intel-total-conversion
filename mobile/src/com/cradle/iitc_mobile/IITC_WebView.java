@@ -33,7 +33,6 @@ public class IITC_WebView extends WebView {
             " Gecko/20130810 Firefox/17.0 Iceweasel/17.0.8";
 
 
-
     // init web view
     private void iitc_init(Context c) {
         if (isInEditMode()) return;
@@ -136,10 +135,11 @@ public class IITC_WebView extends WebView {
             // force https if enabled in settings
             SharedPreferences sharedPref = PreferenceManager
                     .getDefaultSharedPreferences(getContext());
-            if (sharedPref.getBoolean("pref_force_https", true))
+            if (sharedPref.getBoolean("pref_force_https", true)) {
                 url = url.replace("http://", "https://");
-            else
+            } else {
                 url = url.replace("https://", "http://");
+            }
 
             // disable splash screen if a http error code is responded
             new CheckHttpResponse(mJsInterface, mContext).execute(url);
@@ -157,7 +157,7 @@ public class IITC_WebView extends WebView {
     }
 
     public void updateCaching(boolean login) {
-        switch(Integer.parseInt(mSharedPrefs.getString("pref_caching", "1"))) {
+        switch (Integer.parseInt(mSharedPrefs.getString("pref_caching", "1"))) {
             case 0:
                 mSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
                 break;
@@ -173,8 +173,11 @@ public class IITC_WebView extends WebView {
                     Log.d("iitcm", "not connected to wifi...load tiles from cache");
                     mSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
                 } else {
-                    if (login) Log.d("iitcm", "login...load tiles from network");
-                    else Log.d("iitcm", "connected to wifi...load tiles from network");
+                    if (login) {
+                        Log.d("iitcm", "login...load tiles from network");
+                    } else {
+                        Log.d("iitcm", "connected to wifi...load tiles from network");
+                    }
                     mSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
                 }
                 break;
