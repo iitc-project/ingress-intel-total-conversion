@@ -2,7 +2,7 @@
 // @id             iitc-plugin-highlight-portals-upgrade-with-other-agents@nickspoon
 // @name           IITC plugin: highlight portals you can upgrade to a specific level, alone or together with other agents
 // @category       Highlighter
-// @version        0.3.1.@@DATETIMEVERSION@@
+// @version        0.3.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -21,15 +21,14 @@
 window.plugin.portalHighligherPortalsCanMakeLevelWithAgents = function() {};
 
 window.plugin.portalHighligherPortalsCanMakeLevelWithAgents.agentList = [];
-window.plugin.portalHighligherPortalsCanMakeLevelWithAgents.allAgents = [];
 
-window.plugin.portalHighligherPortalsCanMakeLevelWithAgents.preLoadAgents = function() {
-  var all_agents = window.plugin.portalHighligherPortalsCanMakeLevelWithAgents.allAgents;
+window.plugin.portalHighligherPortalsCanMakeLevelWithAgents.loadAgents = function() {
+  var all_agents = [];
 
   // Find all cached player names and add them to the local array
-  $.each(Object.keys(localStorage), function(ind,key) {
-    if(!key.match(/[^0-9a-f\.]/g) && ['__ADA__', '__JARVIS__'].indexOf(localStorage[key].toUpperCase()) < 0) {
-      var agent = { name: localStorage[key], guid: key, level: 8 };
+  $.each(Object.keys(sessionStorage), function(ind,key) {
+    if(!key.match(/[^0-9a-f\.]/g) && !isSystemPlayer(key)) {
+      var agent = { name: sessionStorage[key], guid: key, level: 8 };
       all_agents.push(agent);
     }
   });
@@ -42,12 +41,8 @@ window.plugin.portalHighligherPortalsCanMakeLevelWithAgents.preLoadAgents = func
           break;
         }
   });
-}
-window.plugin.portalHighligherPortalsCanMakeLevelWithAgents.findAgent = function(name) {
-  var all_agents = window.plugin.portalHighligherPortalsCanMakeLevelWithAgents.allAgents;
-  for(var i = 0, agent; agent = all_agents[i]; i++)
-    if(agent.name === name)
-      return agent;
+  
+  return all_agents;
 }
   
 window.plugin.portalHighligherPortalsCanMakeLevelWithAgents.highlight = function(data,highlight_level) {
@@ -129,8 +124,9 @@ window.plugin.portalHighligherPortalsCanMakeLevelWithAgents.getHighlighter = fun
 }
 
 window.plugin.portalHighligherPortalsCanMakeLevelWithAgents.display = function() {
-  var all_agents = window.plugin.portalHighligherPortalsCanMakeLevelWithAgents.allAgents;
   var agent_list = window.plugin.portalHighligherPortalsCanMakeLevelWithAgents.agentList;
+  
+  var all_agents = window.plugin.portalHighligherPortalsCanMakeLevelWithAgents.loadAgents();
 
   var buildAgentObject = function(agent) {
     return $('<tr>')
@@ -184,7 +180,11 @@ window.plugin.portalHighligherPortalsCanMakeLevelWithAgents.display = function()
   }
 
   var addAgentByName = function(name) {
-    addAgent(window.plugin.portalHighligherPortalsCanMakeLevelWithAgents.findAgent(name));
+    for(var i = 0, agent; agent = all_agents[i]; i++)
+      if(agent.name === name) {
+        addAgent(agent);
+        break;
+      }
   }
   var addAgent = function(agent) {
     var add = true;
@@ -377,8 +377,6 @@ var setup =  function() {
 
   window.plugin.portalHighligherPortalsCanMakeLevelWithAgents.agentList.push(
     { name: PLAYER.nickname, guid: PLAYER.guid, level: PLAYER.level });
-
-  window.plugin.portalHighligherPortalsCanMakeLevelWithAgents.preLoadAgents();
 
   // The rational behind the "minimum" level below is that showing a level 7 player, for example, all the portals they can make
   // a level 5 would be silly, as they can make ANY portal a level 5.
