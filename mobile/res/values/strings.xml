@@ -85,6 +85,8 @@
     <string name="pref_force_desktop_sum">Nice for tablets, looks awful on smartphones</string>
     <string name="pref_force_https">Force https</string>
     <string name="pref_force_https_sum">Disabling may improve performance</string>
+    <string name="pref_external_storage">Move cache to external storage</string>
+    <string name="pref_external_storage_sum">Restart required! Write cache to sdCard. Saves internal storage. External storage has to be mounted.</string>
     <string name="pref_press_twice_to_exit">Press back button twice to exit</string>
     <string name="pref_press_twice_to_exit_sum">Avoids accidental exits</string>
     <string name="pref_advanced_options">Advanced settings</string>

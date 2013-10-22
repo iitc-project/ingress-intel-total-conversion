@@ -49,9 +49,10 @@ public class IITC_WebViewClient extends WebViewClient {
 
     public String getIITCVersion() {
         String header = "";
-        if (mIitcScript != null)
+        if (mIitcScript != null) {
             header = mIitcScript.substring(mIitcScript.indexOf("==UserScript=="),
                     mIitcScript.indexOf("==/UserScript=="));
+        }
         // remove new line comments
         header = header.replace("\n//", "");
         // get a list of key-value
@@ -59,8 +60,9 @@ public class IITC_WebViewClient extends WebViewClient {
         String iitc_version = "not found";
         for (int i = 0; i < attributes.length; i++) {
             // search for version and use the value
-            if (attributes[i].equals("@version"))
+            if (attributes[i].equals("@version")) {
                 iitc_version = attributes[i + 1];
+            }
         }
         return iitc_version;
     }
@@ -200,10 +202,11 @@ public class IITC_WebViewClient extends WebViewClient {
     // load it as javascript
     public boolean loadJS(String file, boolean asset, WebView view) {
         String js = fileToString(file, asset);
-        if (js.equals("false"))
+        if (js.equals("false")) {
             return false;
-        else
+        } else {
             view.loadUrl("javascript:" + js);
+        }
         return true;
     }
 
@@ -234,8 +237,9 @@ public class IITC_WebViewClient extends WebViewClient {
             }
         }
 
-        if (s != null)
+        if (s != null) {
             src = s.hasNext() ? s.next() : "";
+        }
         return src;
     }
 

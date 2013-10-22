@@ -61,10 +61,15 @@
             android:summary="@string/pref_force_https_sum"
             android:title="@string/pref_force_https"/>
         <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_press_twice_to_exit"
-            android:summary="@string/pref_press_twice_to_exit_sum"
-            android:title="@string/pref_press_twice_to_exit"/>
+            android:key="pref_external_storage"
+            android:title="@string/pref_external_storage"
+            android:summary="@string/pref_external_storage_sum"
+            android:defaultValue="false" />
+        <CheckBoxPreference
+                android:key="pref_press_twice_to_exit"
+                android:title="@string/pref_press_twice_to_exit"
+                android:summary="@string/pref_press_twice_to_exit_sum"
+                android:defaultValue="false" />
     </PreferenceCategory>
     <PreferenceCategory
         android:key="pref_developer_options"
