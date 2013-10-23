@@ -16,29 +16,29 @@
     <string name="locate">Get Location</string>
     <string name="local">local</string>
     <string name="close">Close</string>
-    <string name="build_version">Build Version</string>
-    <string name="iitc_version">IITC Version</string>
-    <string name="about">About</string>
-    
     <string name="pref_about_title">About IITC Mobile</string>
     <!-- Use CDATA to prevent android from parsing html tags....we are doing this with Html.fromHtml() -->
-    <string name="pref_about_msg">
-        <![CDATA[<big><b>Ingress Intel Total Conversion Mobile</b></big><br><br>
+    <string name="pref_about_text">
+        <![CDATA[
+        <h1>Ingress Intel Total Conversion Mobile</h1>
+        <b>Build Version: %1$s</b><br>
+        <b>IITC Version: %2$s</b><br>
+        <br>
         <b>by <a href="https://github.com/leCradle">cradle</a> and contributors</b><br><br>
         <b>Icon by <a href="http://www.ludolab.net">Giuseppe Lucido</a></b><br><br>
         IITC Mobile is an optimized mobile browser for the
         Ingress Intel Total Conversion (IITC) userscript by <a href="https://github.com/breunigs"><b>breunigs</b></a>.
         After Niantic asked the main developer to shut down his github project, development
-        is continued on a fork of <a href="https://github.com/jonatkins"><b>jonatkins</b></a>.<br><br>
-        <b>Community:</b><br>
+        is continued on a fork of <a href="https://github.com/jonatkins"><b>jonatkins</b></a>.
+        <h3>Community:</h3>
         • Visit the <a href="http://iitc.jonatkins.com/">IITC website</a> for new releases and the desktop version.<br>
         • Follow the <a href="https://plus.google.com/105383756361375410867">IITC Google+ page</a>
          for release announcements.<br>
         • Join the <a href="https://plus.google.com/communities/105647403088015055797">IITC Google+ community</a>
-         - a place to ask for help and discuss with other users.<br><br>
-        <b>Developers:</b><br>
-        <a href="https://github.com/jonatkins/ingress-intel-total-conversion">IITC on Github</a><br><br>
-        <b>IITC Licence:</b><br>
+         - a place to ask for help and discuss with other users.
+        <h3>Developers:</h3>
+        <a href="https://github.com/jonatkins/ingress-intel-total-conversion">IITC on Github</a>
+        <h3>IITC Licence:</h3>
         Copyright © 2013 Stefan Breunig, Jon Atkins, Philipp Schäfer and others<br><br>
 
         Permission to use, copy, modify, and/or distribute this software for
@@ -53,7 +53,8 @@
         DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA
         OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
         TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-        PERFORMANCE OF THIS SOFTWARE.]]>
+        PERFORMANCE OF THIS SOFTWARE.
+        ]]>
     </string>
     <string name="notice_drawers">
         <![CDATA[IITCm recently changed its navigation structure. How to use it:<br><br>
@@ -67,7 +68,7 @@
         • tap and hold a portal for a second<br>
         • tap on the left half of the status bar]]>
     </string>
-    
+
     <string name="pref_ui_cat">UI</string>
     <string name="pref_misc_cat">Misc</string>
     <string name="pref_developer_options_cat">Developer options</string>
@@ -84,6 +85,8 @@
     <string name="pref_force_desktop_sum">Nice for tablets, looks awful on smartphones</string>
     <string name="pref_force_https">Force https</string>
     <string name="pref_force_https_sum">Disabling may improve performance</string>
+    <string name="pref_external_storage">Move cache to external storage</string>
+    <string name="pref_external_storage_sum">Restart required! Write cache to sdCard. Saves internal storage. External storage has to be mounted.</string>
     <string name="pref_press_twice_to_exit">Press back button twice to exit</string>
     <string name="pref_press_twice_to_exit_sum">Avoids accidental exits</string>
     <string name="pref_advanced_options">Advanced settings</string>

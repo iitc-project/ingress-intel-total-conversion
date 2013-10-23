@@ -60,6 +60,8 @@ resourceUrlBase = settings.get('resourceUrlBase')
 distUrlBase = settings.get('distUrlBase')
 buildMobile = settings.get('buildMobile')
 antOptions = settings.get('antOptions','')
+antBuildFile = settings.get('antBuildFile', 'mobile/build.xml');
+
 
 # plugin wrapper code snippets. handled as macros, to ensure that
 # 1. indentation caused by the "function wrapper()" doesn't apply to the plugin code body
@@ -263,7 +265,7 @@ if buildMobile:
 
     if buildMobile != 'copyonly':
         # now launch 'ant' to build the mobile project
-        retcode = os.system("ant %s -buildfile mobile/build.xml %s" % (antOptions, buildMobile))
+        retcode = os.system("ant %s -buildfile %s %s" % (antOptions, antBuildFile, buildMobile))
 
         if retcode != 0:
             print ("Error: mobile app failed to build. ant returned %d" % retcode)

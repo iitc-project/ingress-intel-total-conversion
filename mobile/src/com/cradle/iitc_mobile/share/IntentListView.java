@@ -60,8 +60,9 @@ public class IntentListView extends ListView {
     private static final HashSet<CopyHandler> KNOWN_COPY_HANDLERS = new HashSet<CopyHandler>();
 
     private static void setupKnownCopyHandlers() {
-        if (!KNOWN_COPY_HANDLERS.isEmpty())
+        if (!KNOWN_COPY_HANDLERS.isEmpty()) {
             return;
+        }
 
         KNOWN_COPY_HANDLERS.add(new CopyHandler(
                 "com.google.android.apps.docs",
@@ -141,8 +142,9 @@ public class IntentListView extends ListView {
             for (ResolveInfo resolveInfo : activityList) { // search for "Copy to clipboard" handler
                 CopyHandler handler = new CopyHandler(resolveInfo);
 
-                if (KNOWN_COPY_HANDLERS.contains(handler))
+                if (KNOWN_COPY_HANDLERS.contains(handler)) {
                     hasCopyIntent = true;
+                }
             }
 
             // use traditional loop since list may change during iteration

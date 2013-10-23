@@ -128,10 +128,12 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
      */
     public void onActivityResult(int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK)
-            // authentication activity succeeded, request token again
+        // authentication activity succeeded, request token again
+        {
             startAuthentication();
-        else
+        } else {
             onLoginFailed();
+        }
     }
 
     /**
