@@ -372,7 +372,8 @@ window.redeem.redeemCode = function(passcode, options) {
 window.redeem.setup = function() {
   $("#redeem").keypress(function(e) {
     if((e.keyCode ? e.keyCode : e.which) !== 13 || !$(this).val()) return;
-    window.redeem.redeemCode($(this).val(), {
+    var passcode = $(this).val();
+    window.redeem.redeemCode(passcode, {
       success: window.redeem.success,
       failure: function(response) {
         var extra = '';
@@ -382,7 +383,7 @@ window.redeem.setup = function() {
           extra = 'No status code was returned.';
         }
         dialog({
-          title: 'Request failed: ' + $(this).val(),
+          title: 'Request failed: ' + passcode,
           html: '<strong>The HTTP request failed.</strong> ' + extra
         });
       }
