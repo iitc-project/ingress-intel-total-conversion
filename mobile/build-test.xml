@@ -68,26 +68,7 @@
     -->
     <import file="custom_rules.xml" optional="true" />
 
-    <!-- Import the actual build file.
-
-         To customize existing targets, there are two options:
-         - Customize only one target:
-             - copy/paste the target into this file, *before* the
-               <import> task.
-             - customize it to your needs.
-         - Customize the whole content of build.xml
-             - copy/paste the content of the rules files (minus the top node)
-               into this file, replacing the <import> task.
-             - customize to your needs.
-
-         ***********************
-         ****** IMPORTANT ******
-         ***********************
-         In all cases you must update the value of version-tag below to read 'custom' instead of an integer,
-         in order to avoid having your file be overridden by tools such as "android update project"
-    -->
-
-<!-- allow the package name to be overridden when building -->
+    <!-- allow the package name to be overridden when building -->
     <property name="override.package.name" value="com.cradle.iitc_mobile.test"/>
 
     <!-- Puts the project's resources into the output package file
@@ -137,29 +118,29 @@
 
     <!-- Custom targets -->
     <target name="-custom-git-version">
-    <exec executable="sh" outputproperty="git.commits">
-      <arg value="-c" />
-      <arg value="git log --pretty=format:'' | wc -l" />
-    </exec>
-    <echo>git.commits: ${git.commits}</echo>
-    <exec executable="git" outputproperty="git.version">
-       <arg value="rev-parse" />
-       <arg value="--short" />
-       <arg value="HEAD" />
-    </exec>
-    <echo>git.version: ${git.version}</echo>
+        <exec executable="sh" outputproperty="git.commits">
+            <arg value="-c" />
+            <arg value="git log --pretty=format:'' | wc -l" />
+        </exec>
+        <echo>git.commits: ${git.commits}</echo>
+        <exec executable="git" outputproperty="git.version">
+            <arg value="rev-parse" />
+            <arg value="--short" />
+            <arg value="HEAD" />
+        </exec>
+        <echo>git.version: ${git.version}</echo>
     </target>
 
     <target name="-custom-manifest-version">
-     <echo>Creating backup of AndroidManifest.xml</echo>
-     <copy file="AndroidManifest.xml" tofile="AndroidManifest.xml.antbak" preservelastmodified="true" />
+        <echo>Creating backup of AndroidManifest.xml</echo>
+        <copy file="AndroidManifest.xml" tofile="AndroidManifest.xml.antbak" preservelastmodified="true" />
 
-     <replaceregexp
+        <replaceregexp
         file="AndroidManifest.xml"
         match='android:versionCode="(\d+)"'
         replace='android:versionCode="${git.commits}"' />
 
-     <replaceregexp
+        <replaceregexp
         file="AndroidManifest.xml"
         match='android:versionName="(\d+\.\d+\.\d+)"'
         replace='android:versionName="\1.${git.version}"' />
@@ -188,17 +169,35 @@
     </target>
 
     <target name="-test-revert">
-    <echo>Restoring backup of strings.xml and preferences.xml</echo>
-    <move file="strings.xml.antbak"
-          tofile="res/values/strings.xml"
-          preservelastmodified="true"
-          overwrite="true" />
-    <move file="preferences.xml.antbak"
-          tofile="res/xml/preferences.xml"
-          preservelastmodified="true"
-          overwrite="true" />
+        <echo>Restoring backup of strings.xml and preferences.xml</echo>
+        <move file="strings.xml.antbak"
+              tofile="res/values/strings.xml"
+              preservelastmodified="true"
+              overwrite="true" />
+        <move file="preferences.xml.antbak"
+              tofile="res/xml/preferences.xml"
+              preservelastmodified="true"
+              overwrite="true" />
     </target>
 
+    <!-- Import the actual build file.
+
+         To customize existing targets, there are two options:
+         - Customize only one target:
+             - copy/paste the target into this file, *before* the
+               <import> task.
+             - customize it to your needs.
+         - Customize the whole content of build.xml
+             - copy/paste the content of the rules files (minus the top node)
+               into this file, replacing the <import> task.
+             - customize to your needs.
+
+         ***********************
+         ****** IMPORTANT ******
+         ***********************
+         In all cases you must update the value of version-tag below to read 'custom' instead of an integer,
+         in order to avoid having your file be overridden by tools such as "android update project"
+    -->
     <!-- version-tag: 1 -->
     <import file="${sdk.dir}/tools/ant/build.xml" />
 
