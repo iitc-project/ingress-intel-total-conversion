@@ -1,5 +1,5 @@
 // ==UserScript==
-// @id             iitc-plugin-highlight-portals-make8s-portals@bdh
+// @id             iitc-plugin-highlight-portals-make8s-portals@vanbhills
 // @name           IITC plugin: highlight portals a group of 8s can make 8
 // @category       Highlighter
 // @version        0.1.0.@@DATETIMEVERSION@@
