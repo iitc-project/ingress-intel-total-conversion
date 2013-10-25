@@ -18,6 +18,9 @@ bin/
 gen/
 out/
 
+# private ant configs
+ant.properties
+
 # Local configuration file (sdk path, etc)
 local.properties
 

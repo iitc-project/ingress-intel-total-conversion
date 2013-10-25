@@ -42,8 +42,7 @@ window.MapDataRequest = function() {
   // this gives a chance of other requests finishing, allowing better grouping of retries in new requests
   this.RUN_QUEUE_DELAY = 0.5;
 
-  // delay before re-queueing tiles
-  this.TILE_TIMEOUT_REQUEUE_DELAY = 0.2;  // short delay before retrying a 'error==TIMEOUT' tile. a common 'error', and the stock site has no delay in this case
+  // delay before re-queueing tiles in failed requests
   this.BAD_REQUEST_REQUEUE_DELAY = 5; // longer delay before retrying a completely failed request - as in this case the servers are struggling
 
   // a delay before processing the queue after requeueing tiles. this gives a chance for other requests to finish
@@ -247,7 +246,15 @@ window.MapDataRequest.prototype.refresh = function() {
         this.cachedTileCount += 1;
       } else {
 
-        // no fresh data - queue a request
+        // no fresh data
+
+        // render the cached stale data, if we have it. this ensures *something* appears quickly when possible
+        var old_data = this.cache && this.cache.get(tile_id);
+        if (old_data) {
+          this.render.processTileData (old_data);
+        }
+
+        // queue a request
         var boundsParams = generateBoundsParams(
           tile_id,
           latSouth,
@@ -505,7 +512,6 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
         if (val.error == "TIMEOUT") {
           // TIMEOUT errors for individual tiles are 'expected'(!) - and result in a silent unlimited retries
           timeoutTiles.push (id);
-          this.debugTiles.setState (id, 'tile-timeout');
         } else {
           console.warn('map data tile '+id+' failed: error=='+val.error);
           errorTiles.push (id);
@@ -580,21 +586,20 @@ console.log('processed delta mapData request:'+id+': '+oldEntityCount+' original
   console.log ('getThinnedEntities status: '+tiles.length+' tiles: '+successTiles.length+' successful, '+timeoutTiles.length+' timed out, '+errorTiles.length+' failed');
 
 
-  //setTimeout has no way of passing the 'context' (aka 'this') to it's function
-  var savedContext = this;
-
+  // requeue any 'timeout' tiles immediately
   if (timeoutTiles.length > 0) {
-    setTimeout (function() {
-      for (var i in timeoutTiles) {
-        var id = timeoutTiles[i];
-        delete savedContext.requestedTiles[id];
-        savedContext.requeueTile(id, false);
-      }
-      savedContext.delayProcessRequestQueue(this.REQUEUE_DELAY);
-    }, this.TILE_TIMEOUT_REQUEUE_DELAY*1000);
+    for (var i in timeoutTiles) {
+      var id = timeoutTiles[i];
+      delete this.requestedTiles[id];
+      this.requeueTile(id, false);
+    }
   }
 
+  // but for other errors, delay before retrying (as the server is having issues)
   if (errorTiles.length > 0) {
+    //setTimeout has no way of passing the 'context' (aka 'this') to it's function
+    var savedContext = this;
+
     setTimeout (function() {
       for (var i in errorTiles) {
         var id = errorTiles[i];
