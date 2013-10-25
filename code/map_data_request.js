@@ -247,7 +247,15 @@ window.MapDataRequest.prototype.refresh = function() {
         this.cachedTileCount += 1;
       } else {
 
-        // no fresh data - queue a request
+        // no fresh data
+
+        // render the cached stale data, if we have it. this ensures *something* appears quickly when possible
+        var old_data = this.cache && this.cache.get(tile_id);
+        if (old_data) {
+          this.render.processTileData (old_data);
+        }
+
+        // queue a request
         var boundsParams = generateBoundsParams(
           tile_id,
           latSouth,

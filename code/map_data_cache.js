@@ -11,7 +11,7 @@ window.DataCache = function() {
   // entries would grow indefinitely. an hour seems reasonable from experience with the data, so 55 mins max cache time
 //  this.REQUEST_CACHE_MAX_AGE = 55*60;  // maximum cache age. entries are deleted from the cache after this time
 //UPDATE: this timestampMs parameter doesn't work, so reduced max age to limit RAM usage
-  this.REQUEST_CACHE_MAX_AGE = 5*60;  // maximum cache age. entries are deleted from the cache after this time
+  this.REQUEST_CACHE_MAX_AGE = 15*60;  // maximum cache age. entries are deleted from the cache after this time
 
   if (L.Browser.mobile) {
     // on mobile devices, smaller cache size
