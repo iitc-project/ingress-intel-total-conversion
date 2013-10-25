@@ -19,6 +19,7 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 /* whatsnew
+* 0.0.16: Add 'owner' column to show the current owner. Handy for finding a user's stomping ground.
 * 0.0.15: Add 'age' column to display how long each portal has been controlled by its current owner.
 * 0.0.14: Add support to new mods (S:Shield - T:Turret - LA:Link Amp - H:Heat-sink - M:Multi-hack - FA:Force Amp)
 * 0.0.12: Use dialog() instead of alert so the user can drag the box around
@@ -69,6 +70,9 @@ window.plugin.portalslist.getPortals = function() {
     var address = d.portalV2.descriptiveText.ADDRESS;
     var img = getPortalImageUrl(d);
     var team = portal.options.team;
+    var owner = d.captured && d.captured.capturingPlayerId
+        ? '<span class="nickname">' + getPlayerName(d.captured.capturingPlayerId) + '</span>'
+        : '(none)';
     var now = new Date();
     var now_ms = now.getTime();// + (now.getTimezoneOffset() * 60000);
     var age_in_seconds = 0;
@@ -151,6 +155,7 @@ window.plugin.portalslist.getPortals = function() {
     var thisPortal = {'portal': d,
           'name': name,
           'team': team,
+          'owner': owner,
           'level': level,
           'guid': guid,
           'resonators': resonators,
@@ -195,7 +200,7 @@ window.plugin.portalslist.displayPL = function() {
     dialogClass: 'ui-dialog-portalslist',
     title: 'Portal list: ' + window.plugin.portalslist.listPortals.length + ' ' + (window.plugin.portalslist.listPortals.length == 1 ? 'portal' : 'portals'),
     id: 'portal-list',
-    width: 800
+    width: 1000
   });
 
   // Setup sorting
@@ -228,6 +233,9 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
     switch (sortBy) {
       case 'names':
         retVal = a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1;
+        break;
+      case 'owner':
+        retVal = a.owner.toLowerCase() < b.owner.toLowerCase() ? -1 : 1;
         break;
       case 'r1':
         retVal = b.resonators[0][0] - a.resonators[0][0];
@@ -304,7 +312,8 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   + '<th ' + sort('mitigation', sortBy, -1) + '>Mit.</th>'
   + '<th ' + sort('APgain', sortBy, -1) + '>AP Gain</th>'
   + '<th title="Energy / AP Gain ratio" ' + sort('EAP', sortBy, -1) + '>E/AP</th>'
-  + '<th ' + sort('age', sortBy, -1) + '>Age</th></tr>';
+  + '<th ' + sort('age', sortBy, -1) + '>Age</th>'
+  + '<th ' + sort('owner', sortBy, -1) + '>Owner</th></tr>';
 
 
   $.each(portals, function(ind, portal) {
@@ -340,7 +349,9 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
       + '<td>' + portal.mitigation + '</td>'
       + '<td>' + portal.APgain + '</td>'
       + '<td>' + portal.EAP + '</td>'
-      + '<td style="cursor:help;" title="' + portal.age_string_long  + '">' + portal.age_string_short + '</td>';
+      + '<td style="cursor:help;" title="' + portal.age_string_long  + '">' + portal.age_string_short + '</td>'
+      + '<td>' + portal.owner + '</td>'
+      ;
 
       html+= '</tr>';
     }
@@ -416,8 +427,8 @@ var setup =  function() {
   $('#toolbox').append(' <a onclick="window.plugin.portalslist.displayPL()" title="Display a list of portals in the current view">Portals list</a>');
   $('head').append('<style>' +
     //style.css sets dialog max-width to 700px - override that here
-    // (the width: 800 parameter to dialog is NOT enough to override that css limit)
-    '#dialog-portal-list {max-width: 800px !important;}' +
+    // (the width: 1000 parameter to dialog is NOT enough to override that css limit)
+    '#dialog-portal-list {max-width: 1000px !important;}' +
     '#portalslist table {margin-top:5px; border-collapse: collapse; empty-cells: show; width:100%; clear: both;}' +
     '#portalslist table td, #portalslist table th {border-bottom: 1px solid #0b314e; padding:3px; color:white; background-color:#1b415e}' +
     '#portalslist table tr.res td { background-color: #005684; }' +
