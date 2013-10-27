@@ -299,6 +299,10 @@ console.log('stale tile '+tile_id+': newest mtime '+lastTimestamp+(lastTimestamp
 
   this.setStatus ('loading');
 
+  // technically a request hasn't actually finished - however, displayed portal data has been refreshed
+  // so as far as plugins are concerned, it should be treated as a finished request
+  window.runHooks('requestFinished', {success: true});
+
   console.log ('done request preperation (cleared out-of-bounds and invalid for zoom, and rendered cached data)');
 
   if (Object.keys(this.tileBounds).length > 0) {
