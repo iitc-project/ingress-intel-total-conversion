@@ -10,5 +10,8 @@ This project is licensed under the permissive [ISC license](http://www.isc.org/d
 - [taphold.js by Rich Adams; unknown](https://github.com/richadams/jquery-taphold)
 - [L.Control.Pan.js by Kartena AB; same as Leaflet](https://github.com/kartena/Leaflet.Pancontrol)
 - [L.Control.Zoomslider.js by Kartena AB; same as Leaflet](https://github.com/kartena/Leaflet.zoomslider)
+- [KML.js by shramov; same as Leaflet](https://github.com/shramov/leaflet-plugins)
+- [leaflet.filelayer.js by shramov; same as Leaflet](https://github.com/shramov/leaflet-plugins)
+- [togeojson.js by shramov; same as Leaflet](https://github.com/shramov/leaflet-plugins)
 - StackOverflow-CopyPasta is attributed in the source; [CC-Wiki](https://creativecommons.org/licenses/by-sa/3.0/)
 - all Ingress/Niantic related stuff obviously remains non-free and is still copyrighted by Niantic/Google
