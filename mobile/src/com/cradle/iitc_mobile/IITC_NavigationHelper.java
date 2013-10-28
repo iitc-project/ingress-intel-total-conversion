@@ -20,7 +20,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnItemClickListener {
     // Show/hide the up arrow on the very left
@@ -111,9 +110,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     private final View mDrawerRight;
 
     private boolean mDesktopMode = false;
-    private boolean mFullscreen = false;
     private boolean mIsLoading;
-    private boolean mHideInFullscreen = false;
     private Pane mPane = Pane.MAP;
     private String mHighlighter = null;
 
@@ -232,12 +229,6 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         } else {
             mActionBar.setSubtitle(mHighlighter);
         }
-
-        if (mFullscreen && mHideInFullscreen) {
-            mActionBar.hide();
-        } else {
-            mActionBar.show();
-        }
     }
 
     public void closeDrawers() {
@@ -263,10 +254,6 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         }
     }
 
-    public boolean hideInFullscreen() {
-        return mHideInFullscreen;
-    }
-
     public boolean isDrawerOpened() {
         return mDrawerLayout.isDrawerOpen(mDrawerLeft) || mDrawerLayout.isDrawerOpen(mDrawerRight);
     }
@@ -275,6 +262,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     public void onDrawerClosed(View drawerView) {
         super.onDrawerClosed(drawerView);
 
+        mIitc.getWebView().onWindowFocusChanged(true);
         // delay invalidating to prevent flickering in case another drawer is opened
         (new Handler()).postDelayed(new Runnable() {
             @Override
@@ -288,6 +276,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     @Override
     public void onDrawerOpened(View drawerView) {
         super.onDrawerOpened(drawerView);
+        mIitc.getWebView().onWindowFocusChanged(false);
         mIitc.invalidateOptionsMenu();
         updateActionBar();
         mDrawerLayout.closeDrawer(drawerView.equals(mDrawerLeft) ? mDrawerRight : mDrawerLeft);
@@ -321,7 +310,6 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
 
     public void onPrefChanged() {
         mDesktopMode = mPrefs.getBoolean("pref_force_desktop", false);
-        mHideInFullscreen = mPrefs.getBoolean("pref_fullscreen_actionbar", true);
         updateActionBar();
     }
 
@@ -343,16 +331,6 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         }
     }
 
-    public void setFullscreen(boolean fullscreen) {
-        mFullscreen = fullscreen;
-        if (mFullscreen && mHideInFullscreen) {
-            // show a toast with instructions to exit the fullscreen mode again
-            Toast.makeText(mIitc, "Press back button to exit fullscreen", Toast.LENGTH_SHORT).show();
-        }
-
-        updateActionBar();
-    }
-
     public void setHighlighter(String name) {
         mHighlighter = name;
         updateActionBar();
@@ -367,5 +345,13 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         mPane = pane;
 
         updateActionBar();
+    }
+
+    public void showActionBar() {
+        mActionBar.show();
+    }
+
+    public void hideActionBar() {
+        mActionBar.hide();
     }
 }

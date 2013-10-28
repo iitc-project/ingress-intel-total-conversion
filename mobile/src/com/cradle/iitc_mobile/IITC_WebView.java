@@ -11,32 +11,47 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.WindowManager;
 import android.webkit.ConsoleMessage;
 import android.webkit.GeolocationPermissions;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.widget.Toast;
 
 import com.cradle.iitc_mobile.async.CheckHttpResponse;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @SuppressLint("SetJavaScriptEnabled")
 public class IITC_WebView extends WebView {
 
+    // fullscreen modes
+    public static final int FS_ENABLED = (1 << 0);
+    public static final int FS_SYSBAR = (1 << 1);
+    public static final int FS_ACTIONBAR = (1 << 2);
+    public static final int FS_STATUSBAR = (1 << 3);
+    public static final int FS_NAVBAR = (1 << 4);
+
     private WebSettings mSettings;
     private IITC_WebViewClient mIitcWebViewClient;
     private IITC_JSInterface mJsInterface;
-    private Context mContext;
+    private IITC_Mobile mIitc;
     private SharedPreferences mSharedPrefs;
+    private int mFullscreenStatus = 0;
+    private Runnable mNavHider;
     private boolean mDisableJs = false;
     private String mDefaultUserAgent;
     private final String mDesktopUserAgent = "Mozilla/5.0 (X11; Linux x86_64; rv:17.0)" +
             " Gecko/20130810 Firefox/17.0 Iceweasel/17.0.8";
 
-
     // init web view
     private void iitc_init(Context c) {
         if (isInEditMode()) return;
-        mContext = c;
+        mIitc = (IITC_Mobile) c;
         mSettings = getSettings();
         mSettings.setJavaScriptEnabled(true);
         mSettings.setDomStorageEnabled(true);
@@ -45,11 +60,20 @@ public class IITC_WebView extends WebView {
         mSettings.setAppCacheEnabled(true);
         mSettings.setDatabasePath(getContext().getApplicationInfo().dataDir + "/databases/");
         mSettings.setAppCachePath(getContext().getCacheDir().getAbsolutePath());
-        mJsInterface = new IITC_JSInterface((IITC_Mobile) mContext);
+        mJsInterface = new IITC_JSInterface(mIitc);
         addJavascriptInterface(mJsInterface, "android");
-        mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+        mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(mIitc);
         mDefaultUserAgent = mSettings.getUserAgentString();
         setUserAgent();
+
+        mNavHider = new Runnable() {
+            @Override
+            public void run() {
+                if (isInFullscreen() && (getFullscreenStatus() & (FS_NAVBAR)) != 0) {
+                    setSystemUiVisibility(SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+                }
+            }
+        };
 
         setWebChromeClient(new WebChromeClient() {
             /**
@@ -81,7 +105,7 @@ public class IITC_WebView extends WebView {
             @Override
             public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
                 if (consoleMessage.messageLevel() == ConsoleMessage.MessageLevel.ERROR) {
-                    ((IITC_Mobile) getContext()).setLoadingState(false);
+                    mIitc.setLoadingState(false);
                 }
                 return super.onConsoleMessage(consoleMessage);
             }
@@ -142,10 +166,82 @@ public class IITC_WebView extends WebView {
             }
 
             // disable splash screen if a http error code is responded
-            new CheckHttpResponse(mJsInterface, mContext).execute(url);
+            new CheckHttpResponse(mJsInterface, mIitc).execute(url);
             Log.d("iitcm", "loading url: " + url);
         }
         super.loadUrl(url);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        getHandler().removeCallbacks(mNavHider);
+        getHandler().postDelayed(mNavHider, 2000);
+        return super.onTouchEvent(event);
+    }
+
+    @Override
+    public void setSystemUiVisibility(int visibility) {
+        getHandler().postDelayed(mNavHider, 2000);
+        super.setSystemUiVisibility(visibility);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasWindowFocus) {
+        if (hasWindowFocus) {
+            getHandler().postDelayed(mNavHider, 2000);
+        } else {
+            getHandler().removeCallbacks(mNavHider);
+        }
+        super.onWindowFocusChanged(hasWindowFocus);
+    }
+
+    public void toggleFullscreen() {
+        mFullscreenStatus ^= FS_ENABLED;
+
+        WindowManager.LayoutParams attrs = mIitc.getWindow().getAttributes();
+        // toggle notification bar
+        if (isInFullscreen()) {
+            // show a toast with instructions to exit the fullscreen mode again
+            Toast.makeText(mIitc, "Press back button to exit fullscreen", Toast.LENGTH_SHORT).show();
+            if ((mFullscreenStatus & FS_ACTIONBAR) != 0) {
+                mIitc.getNavigationHelper().hideActionBar();
+            }
+            if ((mFullscreenStatus & FS_SYSBAR) != 0) {
+                attrs.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;
+            }
+            if ((mFullscreenStatus & FS_NAVBAR) != 0) {
+                setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+            }
+            if ((mFullscreenStatus & FS_STATUSBAR) != 0) {
+                loadUrl("javascript: $('#updatestatus').hide();");
+            }
+        } else {
+            attrs.flags &= ~WindowManager.LayoutParams.FLAG_FULLSCREEN;
+            mIitc.getNavigationHelper().showActionBar();
+            loadUrl("javascript: $('#updatestatus').show();");
+        }
+        mIitc.getWindow().setAttributes(attrs);
+    }
+
+    void updateFullscreenStatus() {
+        Set<String> entries = mSharedPrefs.getStringSet("pref_fullscreen", new HashSet<String>());
+        mFullscreenStatus &= FS_ENABLED;
+
+        // default values...android has no nice way to add default values to multiSelectListPreferences
+        if (entries.isEmpty()) {
+            mFullscreenStatus += FS_ACTIONBAR | FS_SYSBAR;
+        }
+        for (String entry : entries) {
+            mFullscreenStatus += Integer.parseInt(entry);
+        }
+    }
+
+    int getFullscreenStatus() {
+        return mFullscreenStatus;
+    }
+
+    public boolean isInFullscreen() {
+        return (mFullscreenStatus & FS_ENABLED) != 0;
     }
 
     public IITC_WebViewClient getWebViewClient() {
@@ -210,5 +306,4 @@ public class IITC_WebView extends WebView {
         Log.d("iitcm", "setting user agent to: " + ua);
         mSettings.setUserAgentString(ua);
     }
-
 }

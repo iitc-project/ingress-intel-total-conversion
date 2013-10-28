@@ -24,11 +24,12 @@
             android:key="pref_user_zoom"
             android:summary="@string/pref_user_zoom_sum"
             android:title="@string/pref_user_zoom"/>
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="pref_fullscreen_actionbar"
-            android:summary="@string/pref_fullscreen_actionbar_sum"
-            android:title="@string/pref_fullscreen_actionbar"/>
+        <MultiSelectListPreference
+            android:key="pref_fullscreen"
+            android:summary="@string/pref_fullscreen_sum"
+            android:title="@string/pref_fullscreen"
+            android:entries="@array/pref_hide_fullscreen"
+            android:entryValues="@array/pref_hide_fullscreen_vals"/>
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_force_desktop"
