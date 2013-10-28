@@ -67,24 +67,24 @@ antBuildFile = settings.get('antBuildFile', 'mobile/build.xml');
 # 1. indentation caused by the "function wrapper()" doesn't apply to the plugin code body
 # 2. the wrapper is formatted correctly for removal by the IITC Mobile android app
 pluginWrapperStart = """
-function wrapper() {
+function wrapper(plugin_info) {
 // ensure plugin framework is there, even if iitc is not yet loaded
 if(typeof window.plugin !== 'function') window.plugin = function() {};
 
 """
+
 pluginWrapperEnd = """
-if(window.iitcLoaded && typeof setup === 'function') {
-  setup();
-} else {
-  if(window.bootPlugins)
-    window.bootPlugins.push(setup);
-  else
-    window.bootPlugins = [setup];
-}
+setup.info = plugin_info; //add the script info data to the function as a property
+if(!window.bootPlugins) window.bootPlugins = [];
+window.bootPlugins.push(setup);
+// if IITC has already booted, immediately run the 'setup' function
+if(window.iitcLoaded && typeof setup === 'function') setup();
 } // wrapper end
 // inject code into site context
 var script = document.createElement('script');
-script.appendChild(document.createTextNode('('+ wrapper +')();'));
+var info = { buildName: '@@BUILDNAME@@', dateTimeVersion: '@@DATETIMEVERSION@@', pluginId: '@@PLUGINNAME@@' };
+if (this.GM_info && this.GM_info.script) info.script = { version: GM_info.script.version, name: GM_info.script.name, description: GM_info.script.description };
+script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
 (document.body || document.head || document.documentElement).appendChild(script);
 
 """
@@ -143,9 +143,12 @@ def extractUserScriptMeta(var):
 
 
 
-def doReplacements(script,updateUrl,downloadUrl):
+def doReplacements(script,updateUrl,downloadUrl,pluginName=None):
 
     script = re.sub('@@INJECTCODE@@',loadCode,script)
+
+    script = script.replace('@@PLUGINSTART@@', pluginWrapperStart)
+    script = script.replace('@@PLUGINEND@@', pluginWrapperEnd)
 
     script = re.sub('@@INCLUDERAW:([0-9a-zA-Z_./-]+)@@', loaderRaw, script)
     script = re.sub('@@INCLUDESTRING:([0-9a-zA-Z_./-]+)@@', loaderString, script)
@@ -166,8 +169,8 @@ def doReplacements(script,updateUrl,downloadUrl):
     script = script.replace('@@UPDATEURL@@', updateUrl)
     script = script.replace('@@DOWNLOADURL@@', downloadUrl)
 
-    script = script.replace('@@PLUGINSTART@@', pluginWrapperStart)
-    script = script.replace('@@PLUGINEND@@', pluginWrapperEnd)
+    if (pluginName):
+        script = script.replace('@@PLUGINNAME@@', pluginName);
 
     return script
 
@@ -223,7 +226,8 @@ for fn in glob.glob("plugins/*.user.js"):
 
     downloadUrl = distUrlBase and distUrlBase + '/' + fn.replace("\\","/") or 'none'
     updateUrl = distUrlBase and downloadUrl.replace('.user.js', '.meta.js') or 'none'
-    script = doReplacements(script, downloadUrl=downloadUrl, updateUrl=updateUrl)
+    pluginName = os.path.splitext(os.path.splitext(os.path.basename(fn))[0])[0]
+    script = doReplacements(script, downloadUrl=downloadUrl, updateUrl=updateUrl, pluginName=pluginName)
 
     metafn = fn.replace('.user.js', '.meta.js')
     saveScriptAndMeta(script, os.path.join(outDir,fn), os.path.join(outDir,metafn))
@@ -238,7 +242,7 @@ if buildMobile:
     script = readfile("mobile/plugins/" + fn)
     downloadUrl = distUrlBase and distUrlBase + '/' + fn.replace("\\","/") or 'none'
     updateUrl = distUrlBase and downloadUrl.replace('.user.js', '.meta.js') or 'none'
-    script = doReplacements(script, downloadUrl=downloadUrl, updateUrl=updateUrl)
+    script = doReplacements(script, downloadUrl=downloadUrl, updateUrl=updateUrl, pluginName='user-location')
 
     metafn = fn.replace('.user.js', '.meta.js')
     saveScriptAndMeta(script, os.path.join(outDir,fn), os.path.join(outDir,metafn))
