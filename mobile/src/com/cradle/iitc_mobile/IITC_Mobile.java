@@ -22,7 +22,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
 import android.widget.SearchView;
@@ -45,7 +44,6 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     private boolean mIsLocEnabled = false;
     private Location mLastLocation = null;
     private LocationManager mLocMngr = null;
-    private boolean mFullscreenMode = false;
     private IITC_DeviceAccountLogin mLogin;
     private MenuItem mSearchMenuItem;
     private boolean mDesktopMode = false;
@@ -72,11 +70,6 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         setContentView(R.layout.activity_main);
         mIitcWebView = (IITC_WebView) findViewById(R.id.iitc_webview);
 
-        // pass ActionBar to helper because we deprecated getActionBar
-        mNavigationHelper = new IITC_NavigationHelper(this, super.getActionBar());
-
-        mMapSettings = new IITC_MapSettings(this);
-
         // do something if user changed something in the settings
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         mSharedPrefs.registerOnSharedPreferenceChangeListener(this);
@@ -86,6 +79,9 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
         // enable/disable advance menu
         mAdvancedMenu = mSharedPrefs.getBoolean("pref_advanced_menu", false);
+
+        // get fullscreen status from settings
+        mIitcWebView.updateFullscreenStatus();
 
         // Acquire a reference to the system Location Manager
         mLocMngr = (LocationManager) this
@@ -101,6 +97,12 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                     this);
         }
 
+        // pass ActionBar to helper because we deprecated getActionBar
+        mNavigationHelper = new IITC_NavigationHelper(this, super.getActionBar());
+
+        mMapSettings = new IITC_MapSettings(this);
+
+
         // Clear the back stack
         mBackStack.clear();
 
@@ -114,9 +116,9 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
             mDesktopMode = sharedPreferences.getBoolean("pref_force_desktop", false);
             mNavigationHelper.onPrefChanged();
         } else if (key.equals("pref_user_loc")) {
-            mIsLocEnabled = sharedPreferences.getBoolean("pref_user_loc",
-                    false);
-        } else if (key.equals("pref_fullscreen_actionbar")) {
+            mIsLocEnabled = sharedPreferences.getBoolean("pref_user_loc", false);
+        } else if (key.equals("pref_fullscreen")) {
+            mIitcWebView.updateFullscreenStatus();
             mNavigationHelper.onPrefChanged();
             return;
         } else if (key.equals("pref_advanced_menu")) {
@@ -330,8 +332,8 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     @Override
     public void onBackPressed() {
         // exit fullscreen mode if it is enabled and action bar is disabled or the back stack is empty
-        if (mFullscreenMode && (mBackStack.isEmpty() || mNavigationHelper.hideInFullscreen())) {
-            toggleFullscreen();
+        if (mIitcWebView.isInFullscreen() && mBackStack.isEmpty()) {
+            mIitcWebView.toggleFullscreen();
             return;
         }
 
@@ -456,7 +458,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                 reloadIITC();
                 return true;
             case R.id.toggle_fullscreen:
-                toggleFullscreen();
+                mIitcWebView.toggleFullscreen();
                 return true;
             case R.id.layer_chooser:
                 mNavigationHelper.openRightDrawer();
@@ -547,16 +549,6 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                         + loc.getLatitude() + ", " + loc.getLongitude() + ");");
             }
         }
-    }
-
-    public void toggleFullscreen() {
-        mFullscreenMode = !mFullscreenMode;
-        mNavigationHelper.setFullscreen(mFullscreenMode);
-
-        // toggle notification bar
-        WindowManager.LayoutParams attrs = getWindow().getAttributes();
-        attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
-        this.getWindow().setAttributes(attrs);
     }
 
     public IITC_WebView getWebView() {

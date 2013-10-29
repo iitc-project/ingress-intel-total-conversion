@@ -5,6 +5,12 @@ import android.preference.PreferenceManager;
 
 import java.io.File;
 
+/*
+ * To write the WebView cache to external storage we need to override the
+ * getCacheDir method of the main application. Some internal Android code seems
+ * to call getApplicationContext().getCacheDir(); instead of
+ * getContext().getCacheDir(); to decide where to store and read cached files.
+ */
 public class IITC_Application extends Application {
     @Override
     public File getCacheDir() {
