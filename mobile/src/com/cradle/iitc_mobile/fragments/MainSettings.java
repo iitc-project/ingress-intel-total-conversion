@@ -6,66 +6,53 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
-import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import com.cradle.iitc_mobile.IITC_AboutDialogPreference;
 import com.cradle.iitc_mobile.R;
 
 public class MainSettings extends PreferenceFragment {
-
-    private String mIitcVersion;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mIitcVersion = getArguments().getString("iitc_version");
-
         addPreferencesFromResource(R.xml.preferences);
 
-        // set build version
-        ListPreference pref_build_version = (ListPreference) findPreference("pref_build_version");
+        // set versions
+        String iitcVersion = getArguments().getString("iitc_version");
+        String buildVersion = "unknown";
+
         PackageManager pm = getActivity().getPackageManager();
-        String version = "unknown";
         try {
-            PackageInfo info = pm.getPackageInfo(
-                    getActivity().getPackageName(), 0);
-            version = info.versionName;
+            PackageInfo info = pm.getPackageInfo(getActivity().getPackageName(), 0);
+            buildVersion = info.versionName;
         } catch (NameNotFoundException e) {
             e.printStackTrace();
         }
-        pref_build_version.setSummary(version);
 
-        // set iitc version
-        ListPreference pref_iitc_version = (ListPreference) findPreference("pref_iitc_version");
-        pref_iitc_version.setSummary(mIitcVersion);
+        IITC_AboutDialogPreference pref_about = (IITC_AboutDialogPreference) findPreference("pref_about");
+        pref_about.setVersions(iitcVersion, buildVersion);
 
         // set iitc source
         EditTextPreference pref_iitc_source = (EditTextPreference) findPreference("pref_iitc_source");
-        pref_iitc_source
-                .setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference,
-                                                      Object newValue) {
-                        preference.setSummary(getString(R.string.pref_select_iitc_sum) +
-                                " " + newValue);
-                        // TODO: update mIitcVersion when iitc source has
-                        // changed
-                        return true;
-                    }
-                });
+        pref_iitc_source.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                preference.setSummary(getString(R.string.pref_select_iitc_sum) + " " + newValue);
+                // TODO: update mIitcVersion when iitc source has changed
+                return true;
+            }
+        });
         // first init of summary
-        String pref_iitc_source_sum = getString(R.string.pref_select_iitc_sum)
-                + " " + pref_iitc_source.getText();
+        String pref_iitc_source_sum = getString(R.string.pref_select_iitc_sum) + " " + pref_iitc_source.getText();
         pref_iitc_source.setSummary(pref_iitc_source_sum);
     }
 
@@ -75,8 +62,10 @@ public class MainSettings extends PreferenceFragment {
     // thx to http://stackoverflow.com/a/16800527/2638486 !!
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-        if (preference.getTitle().toString().equals(getString(R.string.pref_advanced_options)))
+        if (preference.getTitle().toString().equals(getString(R.string.pref_advanced_options))
+                || preference.getTitle().toString().equals(getString(R.string.pref_about_title))) {
             initializeActionBar((PreferenceScreen) preference);
+        }
         return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
 

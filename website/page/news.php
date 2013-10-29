@@ -1,5 +1,13 @@
 <h2>News</h2>
 
+<h4>16th October 2013</h4>
+<p>
+IITC 0.14.3 and IITC MObile 0.7.4 have just been released. This is a critical update required to work with the latest
+changes Niantic have made to the standard intel site. Additionally, the draw-tools plugin now snaps points to portals
+when creating lines/polygons/markers (was actually in 0.14.2 release), a bugfix relating to IITC not realising who 
+'you' are, causing some highlighters to break, and a handful of other tweaks/bugfixes.
+</p>
+
 <h4>1st October 2013</h4>
 <p>
 IITC 0.14.2 and IITC Mobile 0.7.1 have been released. This is a critical update required to work with changes made

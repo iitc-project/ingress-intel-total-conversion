@@ -47,12 +47,13 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
         @Override
         public int compare(String lhs, String rhs) {
             // Move "No Highlights" on top. Sort the rest alphabetically
-            if (lhs.equals("No Highlights"))
+            if (lhs.equals("No Highlights")) {
                 return -1000;
-            else if (rhs.equals("No Highlights"))
+            } else if (rhs.equals("No Highlights")) {
                 return 1000;
-            else
+            } else {
                 return lhs.compareTo(rhs);
+            }
         }
     }
 
@@ -77,8 +78,9 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
             Layer item = getItem(position);
             View view = (TextView) super.getView(position, convertView, parent);
 
-            if (view instanceof CheckedTextView)
+            if (view instanceof CheckedTextView) {
                 ((CheckedTextView) view).setChecked(item.active);
+            }
             return view;
         }
     }
@@ -128,9 +130,10 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
     }
 
     private void setLayer(Layer layer) {
-        if (!mLoading)
+        if (!mLoading) {
             mIitc.getWebView().loadUrl(
                     "javascript: window.layerChooser.showLayer(" + layer.id + "," + layer.active + ");");
+        }
     }
 
     public void addPortalHighlighter(String name) {
@@ -208,8 +211,9 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
         mActiveHighlighter = name;
 
         int position = mHighlighters.getPosition(mActiveHighlighter);
-        if (position >= 0 && position < mHighlighters.getCount())
+        if (position >= 0 && position < mHighlighters.getCount()) {
             mSpinnerHighlighter.setSelection(position);
+        }
 
         mIitc.getNavigationHelper().setHighlighter(name);
     }
@@ -245,8 +249,10 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
                 layer.active = layerObj.getBoolean("active");
 
                 if (layer.active)
-                    // getCount() will be the index of the layer we are about to add
+                // getCount() will be the index of the layer we are about to add
+                {
                     mActiveLayer = mBaseLayers.getCount();
+                }
 
                 mBaseLayers.add(layer);
             } catch (JSONException e) {
@@ -276,7 +282,8 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
     }
 
     public void updateLayers() {
-        if (!mLoading)
+        if (!mLoading) {
             mIitc.getWebView().loadUrl("javascript: window.layerChooser.getLayers()");
+        }
     }
 }

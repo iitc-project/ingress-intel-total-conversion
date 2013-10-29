@@ -22,7 +22,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
 import android.widget.SearchView;
@@ -30,6 +29,7 @@ import android.widget.Toast;
 
 import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Locale;
@@ -44,7 +44,6 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     private boolean mIsLocEnabled = false;
     private Location mLastLocation = null;
     private LocationManager mLocMngr = null;
-    private boolean mFullscreenMode = false;
     private IITC_DeviceAccountLogin mLogin;
     private MenuItem mSearchMenuItem;
     private boolean mDesktopMode = false;
@@ -71,11 +70,6 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         setContentView(R.layout.activity_main);
         mIitcWebView = (IITC_WebView) findViewById(R.id.iitc_webview);
 
-        // pass ActionBar to helper because we deprecated getActionBar
-        mNavigationHelper = new IITC_NavigationHelper(this, super.getActionBar());
-
-        mMapSettings = new IITC_MapSettings(this);
-
         // do something if user changed something in the settings
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         mSharedPrefs.registerOnSharedPreferenceChangeListener(this);
@@ -85,6 +79,9 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
         // enable/disable advance menu
         mAdvancedMenu = mSharedPrefs.getBoolean("pref_advanced_menu", false);
+
+        // get fullscreen status from settings
+        mIitcWebView.updateFullscreenStatus();
 
         // Acquire a reference to the system Location Manager
         mLocMngr = (LocationManager) this
@@ -100,6 +97,12 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                     this);
         }
 
+        // pass ActionBar to helper because we deprecated getActionBar
+        mNavigationHelper = new IITC_NavigationHelper(this, super.getActionBar());
+
+        mMapSettings = new IITC_MapSettings(this);
+
+
         // Clear the back stack
         mBackStack.clear();
 
@@ -113,9 +116,9 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
             mDesktopMode = sharedPreferences.getBoolean("pref_force_desktop", false);
             mNavigationHelper.onPrefChanged();
         } else if (key.equals("pref_user_loc")) {
-            mIsLocEnabled = sharedPreferences.getBoolean("pref_user_loc",
-                    false);
-        } else if (key.equals("pref_fullscreen_actionbar")) {
+            mIsLocEnabled = sharedPreferences.getBoolean("pref_user_loc", false);
+        } else if (key.equals("pref_fullscreen")) {
+            mIitcWebView.updateFullscreenStatus();
             mNavigationHelper.onPrefChanged();
             return;
         } else if (key.equals("pref_advanced_menu")) {
@@ -130,9 +133,12 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
             mIitcWebView.updateCaching(false);
         } else if (key.equals("pref_press_twice_to_exit")
                 || key.equals("pref_share_selected_tab")
-                || key.equals("pref_messages"))
-            // no reload needed
+                || key.equals("pref_messages")
+                || key.equals("pref_external_storage"))
+        // no reload needed
+        {
             return;
+        }
 
         mReloadNeeded = true;
     }
@@ -231,8 +237,9 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
         // parts[0] may contain an 'uncertainty' parameter, delimited by a semicolon
         String[] pos = parts[0].split(";", 2)[0].split(",", 2);
-        if (pos.length != 2)
+        if (pos.length != 2) {
             throw new URISyntaxException(uri.toString(), "URI does not contain a valid position");
+        }
 
         try {
             lat = Double.valueOf(pos[0]);
@@ -260,8 +267,9 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         }
 
         String url = "http://www.ingress.com/intel?ll=" + lat + "," + lon;
-        if (z != null)
+        if (z != null) {
             url += "&z=" + z;
+        }
         this.loadUrl(url);
     }
 
@@ -296,8 +304,9 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         Log.d("iitcm", "stopping iitcm");
         mIitcWebView.loadUrl("javascript: window.idleSet();");
 
-        if (mIsLocEnabled)
+        if (mIsLocEnabled) {
             mLocMngr.removeUpdates(this);
+        }
 
         super.onStop();
     }
@@ -323,8 +332,8 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     @Override
     public void onBackPressed() {
         // exit fullscreen mode if it is enabled and action bar is disabled or the back stack is empty
-        if (mFullscreenMode && (mBackStack.isEmpty() || mNavigationHelper.hideInFullscreen())) {
-            toggleFullscreen();
+        if (mIitcWebView.isInFullscreen() && mBackStack.isEmpty()) {
+            mIitcWebView.toggleFullscreen();
             return;
         }
 
@@ -381,10 +390,11 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         // ensure no double adds
         if (pane == mCurrentPane) return;
 
-        if (mBackStackPush)
+        if (mBackStackPush) {
             mBackStack.push(mCurrentPane);
-        else
+        } else {
             mBackStackPush = true;
+        }
 
         mCurrentPane = pane;
         mNavigationHelper.switchTo(pane);
@@ -431,8 +441,9 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (mNavigationHelper.onOptionsItemSelected(item))
+        if (mNavigationHelper.onOptionsItemSelected(item)) {
             return true;
+        }
 
         // Handle item selection
         final int itemId = item.getItemId();
@@ -447,7 +458,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                 reloadIITC();
                 return true;
             case R.id.toggle_fullscreen:
-                toggleFullscreen();
+                mIitcWebView.toggleFullscreen();
                 return true;
             case R.id.layer_chooser:
                 mNavigationHelper.openRightDrawer();
@@ -460,10 +471,11 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                             "window.map.locate({setView : true, maxZoom: 15});");
                     // if gps location is displayed we can use a better location without any costs
                 } else {
-                    if (mLastLocation != null)
+                    if (mLastLocation != null) {
                         mIitcWebView.loadUrl("javascript: window.map.setView(new L.LatLng(" +
                                 mLastLocation.getLatitude() + "," +
                                 mLastLocation.getLongitude() + "), 15);");
+                    }
                 }
                 return true;
             case R.id.action_settings: // start settings activity
@@ -479,6 +491,11 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
             default:
                 return false;
         }
+    }
+
+    @Override
+    public File getCacheDir() {
+        return getApplicationContext().getCacheDir();
     }
 
     public void reloadIITC() {
@@ -504,10 +521,11 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
     // vp=f enables mDesktopMode mode...vp=m is the defaul mobile view
     private String addUrlParam(String url) {
-        if (mDesktopMode)
+        if (mDesktopMode) {
             return (url + "?vp=f");
-        else
+        } else {
             return (url + "?vp=m");
+        }
     }
 
     // inject the iitc-script and load the intel url
@@ -531,16 +549,6 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                         + loc.getLatitude() + ", " + loc.getLongitude() + ");");
             }
         }
-    }
-
-    public void toggleFullscreen() {
-        mFullscreenMode = !mFullscreenMode;
-        mNavigationHelper.setFullscreen(mFullscreenMode);
-
-        // toggle notification bar
-        WindowManager.LayoutParams attrs = getWindow().getAttributes();
-        attrs.flags ^= WindowManager.LayoutParams.FLAG_FULLSCREEN;
-        this.getWindow().setAttributes(attrs);
     }
 
     public IITC_WebView getWebView() {

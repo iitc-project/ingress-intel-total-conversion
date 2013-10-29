@@ -2542,7 +2542,7 @@ L.EditToolbar.Edit = L.Handler.extend({
 				layer.options.previousOptions = layer.options;
 
 				// Make sure that Polylines are not filled
-				if (!(layer instanceof L.Circle) && !(layer instanceof L.GeodrsicCircle) && !(layer instanceof L.GeodesicPolygon) && !(layer instanceof L.Rectangle)) {
+				if (!(layer instanceof L.Circle) && !(layer instanceof L.GeodesicCircle) && !(layer instanceof L.GeodesicPolygon) && !(layer instanceof L.Rectangle)) {
 					pathOptions.fill = false;
 				}
 

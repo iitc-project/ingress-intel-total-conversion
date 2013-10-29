@@ -102,8 +102,14 @@
     window.plugin.zaprange.zapLayerEnlHolderGroup.addLayer(window.plugin.zaprange.zapCircleEnlHolderGroup);
     window.plugin.zaprange.zapLayerResHolderGroup.addLayer(window.plugin.zaprange.zapCircleResHolderGroup);
 
-    window.addLayerGroup('Zaprange Enlightened', window.plugin.zaprange.zapLayerEnlHolderGroup, true);
-    window.addLayerGroup('Zaprange Resistance', window.plugin.zaprange.zapLayerResHolderGroup, true);
+    // to avoid any favouritism, we'll put the player's own faction layer first
+    if (PLAYER.team == 'RESISTANCE') {
+      window.addLayerGroup('Zaprange Resistance', window.plugin.zaprange.zapLayerResHolderGroup, true);
+      window.addLayerGroup('Zaprange Enlightened', window.plugin.zaprange.zapLayerEnlHolderGroup, true);
+    } else {
+      window.addLayerGroup('Zaprange Enlightened', window.plugin.zaprange.zapLayerEnlHolderGroup, true);
+      window.addLayerGroup('Zaprange Resistance', window.plugin.zaprange.zapLayerResHolderGroup, true);
+    }
 
     window.addHook('portalAdded', window.plugin.zaprange.portalAdded);
 

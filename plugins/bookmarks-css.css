@@ -223,7 +223,7 @@
 	display:none;
 	position:absolute;
 	top:0;
-	left:250px;
+	left:277px;
 	width:47px;
 	margin-top:-36px;
 	height:64px;
@@ -243,7 +243,8 @@
 	width:auto;
 }
 #bkmrksTrigger, .bkmrksStar span{
-	background-image:url(@@INCLUDEIMAGE:plugins/bookmarks-img.png@@);}
+	background-image:url(@@INCLUDEIMAGE:plugins/bookmarks-img.png@@);
+}
 .bkmrksStar span{
 	display:inline-block;
 	float:left;

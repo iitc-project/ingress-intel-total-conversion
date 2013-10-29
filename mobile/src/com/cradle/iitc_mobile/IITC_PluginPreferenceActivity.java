@@ -62,8 +62,10 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (onIsMultiPane()) getIntent()
-                .putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, PluginsFragment.class.getName());
+        if (onIsMultiPane()) {
+            getIntent()
+                    .putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, PluginsFragment.class.getName());
+        }
         super.onCreate(savedInstanceState);
     }
 
@@ -162,8 +164,9 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
                 // TODO Auto-generated catch block
                 e2.printStackTrace();
             }
-            if (s != null)
+            if (s != null) {
                 src = s.hasNext() ? s.next() : "";
+            }
             // now we have all stuff together and can build the pref screen
             addPluginPreference(src, anAsset_array, false);
         }
@@ -179,8 +182,9 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
                 e.printStackTrace();
                 Log.d("iitcm", "failed to parse file " + file);
             }
-            if (s != null)
+            if (s != null) {
                 src = s.hasNext() ? s.next() : "";
+            }
 
             // now we have all stuff together and can build the pref screen
             addPluginPreference(src, file.toString(), true);
@@ -202,12 +206,15 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         String plugin_cat = "Misc";
         for (int j = 0; j < attributes.length; j++) {
             // search for name and use the value
-            if (attributes[j].equals("@name"))
+            if (attributes[j].equals("@name")) {
                 plugin_name = attributes[j + 1];
-            if (attributes[j].equals("@description"))
+            }
+            if (attributes[j].equals("@description")) {
                 plugin_desc = attributes[j + 1];
-            if (attributes[j].equals("@category"))
+            }
+            if (attributes[j].equals("@category")) {
                 plugin_cat = attributes[j + 1];
+            }
         }
 
         // remove IITC plugin prefix from plugin_name

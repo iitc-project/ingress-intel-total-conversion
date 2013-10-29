@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.14.3.@@DATETIMEVERSION@@
+// @version        0.14.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -100,12 +100,18 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '    </div>'
   + '  </div>'
   + '</div>'
-  + '<div id="updatestatus"><div id="innerstatus"></div></div>';
+  + '<div id="updatestatus"><div id="innerstatus"></div></div>'
+  // avoid error by stock JS
+  + '<div id="play_button"></div>';
 
 // putting everything in a wrapper function that in turn is placed in a
 // script tag on the website allows us to execute in the site’s context
 // instead of in the Greasemonkey/Extension/etc. context.
-function wrapper() {
+function wrapper(info) {
+// a cut-down version of GM_info is passed as a parameter to the script
+// (not the full GM_info - it contains the ENTIRE script source!)
+window.script_info = info;
+
 
 // LEAFLET PREFER CANVAS ///////////////////////////////////////////////
 // Set to true if Leaflet should draw things using Canvas instead of SVG
@@ -238,5 +244,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 
 // inject code into site context
 var script = document.createElement('script');
-script.appendChild(document.createTextNode('('+ wrapper +')();'));
+var info = { buildName: '@@BUILDNAME@@', dateTimeVersion: '@@DATETIMEVERSION@@' };
+if (this.GM_info && this.GM_info.script) info.script = { version: GM_info.script.version, name: GM_info.script.name, description: GM_info.script.description };
+script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
 (document.body || document.head || document.documentElement).appendChild(script);
