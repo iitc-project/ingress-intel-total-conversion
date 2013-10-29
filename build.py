@@ -71,6 +71,13 @@ function wrapper(plugin_info) {
 // ensure plugin framework is there, even if iitc is not yet loaded
 if(typeof window.plugin !== 'function') window.plugin = function() {};
 
+//PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
+//(leaving them in place might break the 'About IITC' page or break update checks)
+plugin_info.buildName = '@@BUILDNAME@@';
+plugin_info.dateTimeVersion: '@@DATETIMEVERSION@@';
+plugin_info.pluginId = '@@PLUGINNAME@@';
+//END PLUGIN AUTHORS NOTE
+
 """
 
 pluginWrapperEnd = """
@@ -82,8 +89,8 @@ if(window.iitcLoaded && typeof setup === 'function') setup();
 } // wrapper end
 // inject code into site context
 var script = document.createElement('script');
-var info = { buildName: '@@BUILDNAME@@', dateTimeVersion: '@@DATETIMEVERSION@@', pluginId: '@@PLUGINNAME@@' };
-if (this.GM_info && this.GM_info.script) info.script = { version: GM_info.script.version, name: GM_info.script.name, description: GM_info.script.description };
+var info = {};
+if (typeof GM_info !== 'undefined' && GM_info && GM_info.script) info.script = { version: GM_info.script.version, name: GM_info.script.name, description: GM_info.script.description };
 script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
 (document.body || document.head || document.documentElement).appendChild(script);
 

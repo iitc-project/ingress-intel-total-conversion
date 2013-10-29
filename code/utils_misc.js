@@ -18,7 +18,7 @@ window.aboutIITC = function() {
 
       var ptext = pname + ' - ' + pvers;
       if (info.buildName != script_info.buildName) {
-        ptext += ' ['+info.buildName+']';
+        ptext += ' ['+(info.buildName||'<i>non-standard plugin</i>')+']';
       }
 
       plugins += '<li>'+ptext+'</li>';
