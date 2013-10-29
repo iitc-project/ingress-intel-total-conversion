@@ -11,7 +11,6 @@ window.MapDataRequest = function() {
 
   this.activeRequestCount = 0;
   this.requestedTiles = {};
-  this.staleTileData = {};
 
   this.idle = false;
 
@@ -173,11 +172,8 @@ window.MapDataRequest.prototype.refresh = function() {
   // a 'set' to keep track of hard failures for tiles
   this.tileErrorCount = {};
 
-  // fill tileBounds with the data needed to request each tile
-  this.tileBounds = {};
-
-  // clear the stale tile data
-  this.staleTileData = {};
+  // the 'set' of requested tile QKs
+  this.queuedTiles = {};
 
 
   var bounds = clampLatLngBounds(map.getBounds());
@@ -255,43 +251,7 @@ window.MapDataRequest.prototype.refresh = function() {
         }
 
         // queue a request
-        var boundsParams = generateBoundsParams(
-          tile_id,
-          latSouth,
-          lngWest,
-          latNorth,
-          lngEast
-        );
-
-/* After some testing, this doesn't seem to actually work. The server returns the same data with and without the parameter
- * Also, closer study of the stock site code shows the parameter isn't actually set anywhere.
- * so, disabling for now...
-        // however, the server does support delta requests - only returning the entities changed since a particular timestamp
-        // retrieve the stale cache entry and use it, if possible
-        var stale = (this.cache && this.cache.get(tile_id));
-        var lastTimestamp = undefined;
-        if (stale) {
-          // find the timestamp of the latest entry in the stale records. the stock site appears to use the browser
-          // clock, but this isn't reliable. ideally the data set should include it's retrieval timestamp, set by the
-          // server, for use here. a good approximation is the highest timestamp of all entities
-
-          for (var i in stale.gameEntities) {
-            var ent = stale.gameEntities[i];
-            if (lastTimestamp===undefined || ent[1] > lastTimestamp) {
-              lastTimestamp = ent[1];
-            }
-          }
-
-console.log('stale tile '+tile_id+': newest mtime '+lastTimestamp+(lastTimestamp?' '+new Date(lastTimestamp).toString():''));
-          if (lastTimestamp) {
-            // we can issue a useful delta request - store the previous data, as we can't rely on the cache still having it later
-            this.staleTileData[tile_id] = stale;
-            boundsParams.timestampMs = lastTimestamp;
-          }
-        }
-*/
-
-        this.tileBounds[tile_id] = boundsParams;
+        this.queuedTiles[tile_id] = tile_id;
         this.requestedTileCount += 1;
       }
     }
@@ -305,7 +265,7 @@ console.log('stale tile '+tile_id+': newest mtime '+lastTimestamp+(lastTimestamp
 
   console.log ('done request preperation (cleared out-of-bounds and invalid for zoom, and rendered cached data)');
 
-  if (Object.keys(this.tileBounds).length > 0) {
+  if (Object.keys(this.queuedTiles).length > 0) {
     // queued requests - don't start processing the download queue immediately - start it after a short delay
     this.delayProcessRequestQueue (this.DOWNLOAD_DELAY,true);
   } else {
@@ -326,7 +286,7 @@ window.MapDataRequest.prototype.delayProcessRequestQueue = function(seconds,isFi
 window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
 
   // if nothing left in the queue, end the render. otherwise, send network requests
-  if (Object.keys(this.tileBounds).length == 0) {
+  if (Object.keys(this.queuedTiles).length == 0) {
 
     this.render.endRenderPass();
 
@@ -354,7 +314,7 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
 
   // create a list of tiles that aren't requested over the network
   var pendingTiles = [];
-  for (var id in this.tileBounds) {
+  for (var id in this.queuedTiles) {
     if (!(id in this.requestedTiles) ) {
       pendingTiles.push(id);
     }
@@ -404,24 +364,23 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
 
 window.MapDataRequest.prototype.sendTileRequest = function(tiles) {
 
-  var boundsParamsList = [];
+  var tilesList = [];
 
   for (var i in tiles) {
     var id = tiles[i];
 
     this.debugTiles.setState (id, 'requested');
 
-    this.requestedTiles[id] = { staleData: this.staleTileData[id] };
+    this.requestedTiles[id] = true;
 
-    var boundsParams = this.tileBounds[id];
-    if (boundsParams) {
-      boundsParamsList.push (boundsParams);
+    if (id in this.queuedTiles) {
+      tilesList.push (id);
     } else {
-      console.warn('failed to find bounds for tile id '+id);
+      console.warn('no queue entry for tile id '+id);
     }
   }
 
-  var data = { boundsParamsList: boundsParamsList };
+  var data = { quadKeys: tilesList };
 
   this.activeRequestCount += 1;
 
@@ -435,7 +394,7 @@ window.MapDataRequest.prototype.sendTileRequest = function(tiles) {
 }
 
 window.MapDataRequest.prototype.requeueTile = function(id, error) {
-  if (id in this.tileBounds) {
+  if (id in this.queuedTiles) {
     // tile is currently wanted...
 
     // first, see if the error can be ignored due to retry counts
@@ -461,7 +420,7 @@ window.MapDataRequest.prototype.requeueTile = function(id, error) {
         this.failedTileCount += 1;
       }
       // and delete from the pending requests...
-      delete this.tileBounds[id];
+      delete this.queuedTiles[id];
 
     } else {
       // if false, was a 'timeout' or we're retrying, so unlimited retries (as the stock site does)
@@ -471,9 +430,8 @@ window.MapDataRequest.prototype.requeueTile = function(id, error) {
       // proper queue, just an object with guid as properties. Javascript standards don't guarantee the order of properties
       // within an object. however, all current browsers do keep property order, and new properties are added at the end.
       // therefore, delete and re-add the requeued tile and it will be added to the end of the queue
-      var boundsData = this.tileBounds[id];
-      delete this.tileBounds[id];
-      this.tileBounds[id] = boundsData;
+      delete this.queuedTiles[id];
+      this.queuedTiles[id] = id;
 
     }
   } // else the tile wasn't currently wanted (an old non-cancelled request) - ignore
@@ -525,57 +483,17 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
         // no error for this data tile - process it
         successTiles.push (id);
 
-        var stale = this.requestedTiles[id].staleData;
-        if (stale) {
-//NOTE: currently this code path won't be used, as we never set the staleData to anything other than 'undefined'
-          // we have stale data. therefore, a delta request was made for this tile. we need to merge the results with
-          // the existing stale data before proceeding
-
-          var dataObj = {};
-          // copy all entities from the stale data...
-          for (var i in stale.gameEntities||[]) {
-            var ent = stale.gameEntities[i];
-            dataObj[ent[0]] = { timestamp: ent[1], data: ent[2] };
-          }
-var oldEntityCount = Object.keys(dataObj).length;
-          // and remove any entities in the deletedEntnties list
-          for (var i in val.deletedEntities||[]) {
-            var guid = val.deletedEntities[i];
-            delete dataObj[guid];
-          }
-var oldEntityCount2 = Object.keys(dataObj).length;
-          // then add all entities from the new data
-          for (var i in val.gameEntities||[]) {
-            var ent = val.gameEntities[i];
-            dataObj[ent[0]] = { timestamp: ent[1], data: ent[2] };
-          }
-var newEntityCount = Object.keys(dataObj).length;
-console.log('processed delta mapData request:'+id+': '+oldEntityCount+' original entities, '+oldEntityCount2+' after deletion, '+val.gameEntities.length+' entities in the response');
-
-          // now reconstruct a new gameEntities array in val, with the updated data
-          val.gameEntities = [];
-          for (var guid in dataObj) {
-            var ent = [guid, dataObj[guid].timestamp, dataObj[guid].data];
-            val.gameEntities.push(ent);
-          }
-
-          // we can leave the returned 'deletedEntities' data unmodified - it's not critial to how IITC works anyway
-
-          // also delete any staleTileData entries for this tile - no longer required
-          delete this.staleTileData[id];
-        }
-
         // store the result in the cache
         this.cache && this.cache.store (id, val);
 
         // if this tile was in the render list, render it
         // (requests aren't aborted when new requests are started, so it's entirely possible we don't want to render it!)
-        if (id in this.tileBounds) {
-          this.debugTiles.setState (id, stale?'ok-delta':'ok');
+        if (id in this.queuedTiles) {
+          this.debugTiles.setState (id, 'ok');
 
           this.render.processTileData (val);
 
-          delete this.tileBounds[id];
+          delete this.queuedTiles[id];
           this.successTileCount += 1;
 
         } // else we don't want this tile (from an old non-cancelled request) - ignore
