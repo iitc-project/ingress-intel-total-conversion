@@ -13,6 +13,12 @@ offers many more features. It is available for
 
 <h3>Latest news</h3>
 
+<h4>29th October 2013</h4>
+<p>
+IITC 0.14.4 and IITC Mobile 0.7.7 have just been released. A critical update required to work with changes made to the
+standard intel site.
+</p>
+
 <h4>16th October 2013</h4>
 <p>
 IITC 0.14.3 and IITC MObile 0.7.4 have just been released. This is a critical update required to work with the latest
