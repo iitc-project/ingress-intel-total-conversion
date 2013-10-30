@@ -18,11 +18,15 @@ import android.widget.Toast;
 
 import com.cradle.iitc_mobile.async.UrlContentToString;
 
+import org.json.JSONObject;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
@@ -48,23 +52,40 @@ public class IITC_WebViewClient extends WebViewClient {
     }
 
     public String getIITCVersion() {
+        HashMap<String, String> map = getScriptInfo(mIitcScript);
+        return map.get("version");
+    }
+
+    public HashMap<String, String> getScriptInfo(String js) {
+        HashMap<String, String> map = new HashMap<String, String>();
         String header = "";
-        if (mIitcScript != null) {
-            header = mIitcScript.substring(mIitcScript.indexOf("==UserScript=="),
-                    mIitcScript.indexOf("==/UserScript=="));
+        if (js != null) {
+            header = js.substring(js.indexOf("==UserScript=="),
+                    js.indexOf("==/UserScript=="));
         }
         // remove new line comments
-        header = header.replace("\n//", "");
+        header = header.replace("\n//", " ");
         // get a list of key-value
-        String[] attributes = header.split(" +");
+        String[] attributes = header.split("  +");
         String iitc_version = "not found";
         for (int i = 0; i < attributes.length; i++) {
-            // search for version and use the value
+            // search for attributes and use the value
             if (attributes[i].equals("@version")) {
-                iitc_version = attributes[i + 1];
+                map.put("version", attributes[i + 1]);
+            }
+            if (attributes[i].equals("@name")) {
+                map.put("name", attributes[i + 1]);
+            }
+            if (attributes[i].equals("@description")) {
+                map.put("description", attributes[i + 1]);
             }
         }
-        return iitc_version;
+        return map;
+    }
+
+    public String getGmInfoJson(HashMap<String, String> map) {
+        JSONObject jObject = new JSONObject(map);
+        return "{\"script\":" + jObject.toString() + "}";
     }
 
     public void loadIITC_JS(Context c) throws java.io.IOException {
@@ -131,9 +152,8 @@ public class IITC_WebViewClient extends WebViewClient {
                     "window.showLayerChooser = false");
         }
 
-        // IITC expects to be injected after the DOM has been loaded completely.
-        // since it is injected with the onPageFinished() event, no further delay is necessary.
-        this.mIitcScript = js;
+        String gmInfo = "GM_info=" + getGmInfoJson(getScriptInfo(js)).toString() + "\n";
+        this.mIitcScript = gmInfo + js;
 
     }
 
@@ -205,7 +225,8 @@ public class IITC_WebViewClient extends WebViewClient {
         if (js.equals("false")) {
             return false;
         } else {
-            view.loadUrl("javascript:" + js);
+            String gmInfo = "GM_info=" + getGmInfoJson(getScriptInfo(js)) + "\n";
+            view.loadUrl("javascript:" + gmInfo + js);
         }
         return true;
     }
