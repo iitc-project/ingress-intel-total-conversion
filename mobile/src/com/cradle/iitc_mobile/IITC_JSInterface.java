@@ -77,6 +77,19 @@ public class IITC_JSInterface {
     }
 
     @JavascriptInterface
+    public String getVersionName() {
+        String buildVersion = "unknown";
+        PackageManager pm = mIitc.getPackageManager();
+        try {
+            PackageInfo info = pm.getPackageInfo(mIitc.getPackageName(), 0);
+            buildVersion = info.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return buildVersion;
+    }
+
+    @JavascriptInterface
     public void switchToPane(final String id) {
         mIitc.runOnUiThread(new Runnable() {
             @Override

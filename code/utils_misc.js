@@ -3,7 +3,7 @@
 window.aboutIITC = function() {
   var v = (script_info.script && script_info.script.version || script_info.dateTimeVersion) + ' ['+script_info.buildName+']';
   if (typeof android !== 'undefined' && android && android.getVersionCode) {
-    v += '[IITC Mobile '+android.getVersionCode()+']';
+    v += '[IITC Mobile '+android.getVersionName()+']';
   }
 
   var plugins = '<ul>';
