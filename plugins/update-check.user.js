@@ -71,13 +71,17 @@ window.plugin.updateCheck.versionDataCallback = function(data) {
     s.parentNode.removeChild(s);
   }
 
-  dialog({
-    text: JSON.stringify(data,null,2),
-    title: 'debug version check',
-    width: 700
-  });
-
   window.plugin.updateCheck.showReport(data);
+}
+
+window.plugin.updateCheck.versionHTML = function(ver) {
+  var re = new RegExp ('^([0-9]+\\.[0-9]+\\.[0-9]+)(\\.2[0-9][0-9][0-9][01][0-9][0123][0-9]\\.[0-9]+)$');
+  var match = ver.match(re);
+  if (match) {
+    return match[1]+'<small>'+match[2]+'</small>';
+  } else {
+    return ver;
+  }
 }
 
 window.plugin.updateCheck.compareDetails = function(web_version, script_version) {
@@ -101,9 +105,27 @@ window.plugin.updateCheck.compareDetails = function(web_version, script_version)
 
   }
 
+  var webVerHTML = result.webVersion && window.plugin.updateCheck.versionHTML(result.webVersion);
+  var localVerHTML = result.localVersion && window.plugin.updateCheck.versionHTML(result.localVersion);
+  var webLinkInstallHTML = '';
+  if (result.downloadUrl && result.webUrl) {
+    webLinkInstallHTML = '<a href="'+result.webUrl+'" title="Web page" target="_blank">web</a> '
+                       + '<a href="'+result.downloadUrl+'" title="Install" target="_blank">install</a>';
+  }
+
   if (!result.localVersion) {
-    
+    result.html = '<span class="help" title="Your version unknown\nLatest version '+webVerHTML+'">version check failed</span> '+webLinkInstallHTML;
   } else if (!result.webVersion) {
+    result.html = '<span class="help" title="Your version '+localVerHTML+'\nNo version from update check server">version check failed</span>';
+  } else if (result.upToDate) {
+    result.html = '<span class="help" title="Version '+localVerHTML+'">up to date</span>';
+  } else if (result.outOfDate) {
+    result.html = '<span class="help" title="Your version '+localVerHTML+'\nLatest version '+webVerHTML+'">out of date</span> '+webLinkInstallHTML;
+  } else if (result.localNewer) {
+    result.html = localVerHTML+' is newer than '+webVerHTML+'(?!)';
+  } else {
+    console.warn ('Unknown case of version combinations!');
+    result.html = '<span class="help" title="Your version '+localVerHTML+'\nLatest version '+webVerHTML+'">version check failed(!?)</span>';
   }
 
   return result;
@@ -111,7 +133,7 @@ window.plugin.updateCheck.compareDetails = function(web_version, script_version)
 
 
 window.plugin.updateCheck.showReport = function(data) {
-  var result = '<b>WORK IN PROGRESS - NOT YET FUNCTIONAL</b>';
+  var result = '<b>WORK IN PROGRESS</b>';
 
   if (data.error) {
     result += '<div><b>Error checking for updates</b><br>'+data.error+'</div>';
@@ -121,10 +143,8 @@ window.plugin.updateCheck.showReport = function(data) {
     }
 
     if (data.iitc && window.script_info) {
-
       var compare = window.plugin.updateCheck.compareDetails(data.iitc, window.script_info);
-
-      result += '<div>IITC Main script: '+JSON.stringify(compare)+'</div>';
+      result += '<div>IITC Main script: '+compare.html+'</div>';
 
     } else {
       if (!data.iitc) {
@@ -135,11 +155,38 @@ window.plugin.updateCheck.showReport = function(data) {
       }
     }
 
+    if (data.plugins && window.bootPlugins) {
+      result += '<div>Plugins:<ul>';
+
+      if (window.bootPlugins.length == 0) {
+        result += '<li>No plugins installed</li>';
+      } else {
+        for (var i=0; i<window.bootPlugins.length; i++) {
+          var info = window.bootPlugins[i].info;
+          var name = info.script && info.script.name || info.pluginId || ('(unknown plugin index '+i+')');
+          name = name.replace ( /^IITC plugin: /i, '' );
+          if (info && info.pluginId) {
+
+            var webinfo = data.plugins[info.pluginId];
+            if (webinfo) {
+              var compare = window.plugin.updateCheck.compareDetails(webinfo,info);
+              result += '<li>'+name+': '+compare.html+'</li>';
+            } else {
+              result += '<li>'+name+': no version data on server(!?)</li>';
+            }
+          } else {
+            result += '<li>'+name+': non-standard plugin - cannot check version</li>';
+          }
+        }
+      }
+
+      result += '</ul></div>';
+    }
 
   }
 
   dialog({
-    width: 500,
+    width: 700,
     title: 'Update check',
     html: result
   });
