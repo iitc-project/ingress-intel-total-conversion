@@ -56,7 +56,8 @@ public class IITC_WebViewClient extends WebViewClient {
         return map.get("version");
     }
 
-    public HashMap<String, String> getScriptInfo(String js) {
+    // static method because we use it in IITC_PluginPreferenceActivity too
+    public static HashMap<String, String> getScriptInfo(String js) {
         HashMap<String, String> map = new HashMap<String, String>();
         String header = "";
         if (js != null) {
@@ -67,7 +68,12 @@ public class IITC_WebViewClient extends WebViewClient {
         header = header.replace("\n//", " ");
         // get a list of key-value
         String[] attributes = header.split("  +");
-        String iitc_version = "not found";
+        // add default values
+        map.put("version", "not found");
+        map.put("name", "unknown");
+        map.put("description", "");
+        map.put("category", "Misc");
+        // add parsed values
         for (int i = 0; i < attributes.length; i++) {
             // search for attributes and use the value
             if (attributes[i].equals("@version")) {
@@ -78,6 +84,9 @@ public class IITC_WebViewClient extends WebViewClient {
             }
             if (attributes[i].equals("@description")) {
                 map.put("description", attributes[i + 1]);
+            }
+            if (attributes[i].equals("@category")) {
+                map.put("category", attributes[i + 1]);
             }
         }
         return map;

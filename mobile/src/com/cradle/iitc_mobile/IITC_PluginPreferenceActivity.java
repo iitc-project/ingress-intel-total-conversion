@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -193,29 +194,12 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
 
     void addPluginPreference(String src, String plugin_key, boolean user) {
 
-        // now parse plugin name, description and category
-        String header = src.substring(src.indexOf("==UserScript=="),
-                src.indexOf("==/UserScript=="));
-        // remove new line comments and replace with space
-        // this way we get double spaces instead of newline + double slash
-        header = header.replace("\n//", " ");
-        // get a list of key-value...split on multiple spaces
-        String[] attributes = header.split("  +");
-        String plugin_name = "not found";
-        String plugin_desc = "not found";
-        String plugin_cat = "Misc";
-        for (int j = 0; j < attributes.length; j++) {
-            // search for name and use the value
-            if (attributes[j].equals("@name")) {
-                plugin_name = attributes[j + 1];
-            }
-            if (attributes[j].equals("@description")) {
-                plugin_desc = attributes[j + 1];
-            }
-            if (attributes[j].equals("@category")) {
-                plugin_cat = attributes[j + 1];
-            }
-        }
+        // parse plugin name, description and category
+        // we need default versions here otherwise iitcm may crash
+        HashMap<String,String> info = IITC_WebViewClient.getScriptInfo(src);
+        String plugin_name = info.get("name");
+        String plugin_cat = info.get("category");
+        String plugin_desc = info.get("description");
 
         // remove IITC plugin prefix from plugin_name
         plugin_name = plugin_name.replace("IITC Plugin: ", "");
