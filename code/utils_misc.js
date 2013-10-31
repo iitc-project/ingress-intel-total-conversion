@@ -2,7 +2,7 @@
 
 window.aboutIITC = function() {
   var v = (script_info.script && script_info.script.version || script_info.dateTimeVersion) + ' ['+script_info.buildName+']';
-  if (typeof android !== 'undefined' && android && android.getVersionCode) {
+  if (typeof android !== 'undefined' && android && android.getVersionName) {
     v += '[IITC Mobile '+android.getVersionName()+']';
   }
 
