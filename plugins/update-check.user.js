@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-update-check@jonatkins
 // @name           IITC plugin: Check for updates
-// @category       Tweaks
+// @category       Misc
 // @version        0.1.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
@@ -107,20 +107,21 @@ window.plugin.updateCheck.compareDetails = function(web_version, script_version)
 
   var webVerHTML = result.webVersion && window.plugin.updateCheck.versionHTML(result.webVersion);
   var localVerHTML = result.localVersion && window.plugin.updateCheck.versionHTML(result.localVersion);
-  var webLinkInstallHTML = '';
-  if (result.downloadUrl && result.webUrl) {
-    webLinkInstallHTML = '<a href="'+result.webUrl+'" title="Web page" target="_blank">web</a> '
-                       + '<a href="'+result.downloadUrl+'" title="Install" target="_blank">install</a>';
-  }
+
+//  var webLinkInstallHTML = '';
+//  if (result.downloadUrl && result.webUrl) {
+//    webLinkInstallHTML = '<a href="'+result.webUrl+'" title="Web page" target="_blank">web</a> '
+//                       + '<a href="'+result.downloadUrl+'" title="Install" target="_blank">install</a>';
+//  }
 
   if (!result.localVersion) {
-    result.html = '<span class="help" title="Your version unknown\nLatest version '+webVerHTML+'">version check failed</span> '+webLinkInstallHTML;
+    result.html = '<span class="help" title="Your version unknown\nLatest version '+webVerHTML+'">version check failed</span>';
   } else if (!result.webVersion) {
     result.html = '<span class="help" title="Your version '+localVerHTML+'\nNo version from update check server">version check failed</span>';
   } else if (result.upToDate) {
     result.html = '<span class="help" title="Version '+localVerHTML+'">up to date</span>';
   } else if (result.outOfDate) {
-    result.html = '<span class="help" title="Your version '+localVerHTML+'\nLatest version '+webVerHTML+'">out of date</span> '+webLinkInstallHTML;
+    result.html = '<span class="help" title="Your version '+localVerHTML+'\nLatest version '+webVerHTML+'">out of date</span>';
   } else if (result.localNewer) {
     result.html = localVerHTML+' is newer than '+webVerHTML+'(?!)';
   } else {
@@ -156,31 +157,72 @@ window.plugin.updateCheck.showReport = function(data) {
     }
 
     if (data.plugins && window.bootPlugins) {
-      result += '<div>Plugins:<ul>';
+
+      var plugins = { upToDate: [], outOfDate: [], other: [] };
 
       if (window.bootPlugins.length == 0) {
         result += '<li>No plugins installed</li>';
       } else {
         for (var i=0; i<window.bootPlugins.length; i++) {
-          var info = window.bootPlugins[i].info;
-          var name = info.script && info.script.name || info.pluginId || ('(unknown plugin index '+i+')');
-          name = name.replace ( /^IITC plugin: /i, '' );
-          if (info && info.pluginId) {
+          var pluginStatus = { index: i, status: 'other' };
 
+          var info = window.bootPlugins[i].info;
+          pluginStatus.name = info.script && info.script.name || info.pluginId || ('(unknown plugin index '+i+')');
+          pluginStatus.name = pluginStatus.name.replace ( /^IITC plugin: /i, '' );
+
+          if (info && info.pluginId) {
             var webinfo = data.plugins[info.pluginId];
             if (webinfo) {
               var compare = window.plugin.updateCheck.compareDetails(webinfo,info);
-              result += '<li>'+name+': '+compare.html+'</li>';
-            } else {
-              result += '<li>'+name+': no version data on server(!?)</li>';
+              pluginStatus.compare = compare;
+              if (compare.upToDate) {
+                pluginStatus.status = 'upToDate';
+              } else if (compare.outOfDate) {
+                pluginStatus.status = 'outOfDate';
+              }
             }
-          } else {
-            result += '<li>'+name+': non-standard plugin - cannot check version</li>';
           }
+
+          plugins[pluginStatus.status].push(pluginStatus);
+
         }
       }
 
-      result += '</ul></div>';
+      result += '<div>Plugins:<table>';
+
+      var formatRow = function(p) {
+        var status = p.status;
+        var name = p.name;
+        var statustext = p.compare && p.compare.html || '-';
+
+        return '<tr class="'+status+'"><td>'+name+'</td><td>'+statustext+'</td></tr>';
+      }
+
+      result += '<tr><th colspan="3">Out of date</th></tr>';
+      for (var i in plugins.outOfDate) {
+        result += formatRow (plugins.outOfDate[i]);
+      }
+      if (plugins.outOfDate.length==0) {
+        result += '<tr><td colspan="3">no plugins</td></tr>';
+      }
+
+      result += '<tr><th colspan="3">Up To Date</th></tr>';
+      for (var i in plugins.upToDate) {
+        result += formatRow (plugins.upToDate[i]);
+      }
+      if (plugins.upToDate.length==0) {
+        result += '<tr><td colspan="3">no plugins</td></tr>';
+      }
+
+      result += '<tr><th colspan="3">Other</th></tr>';
+      for (var i in plugins.other) {
+        result += formatRow (plugins.other[i]);
+      }
+      if (plugins.other.length==0) {
+        result += '<tr><td colspan="3">no plugins</td></tr>';
+      }
+
+      result += '</table</div>';
     }
 
   }
