@@ -471,6 +471,12 @@ input {
   margin-bottom: 2px;
   cursor: pointer;
 }
+
+.search_not_found{
+  color:red;
+  font-style: italic;
+}
+
 ::-webkit-input-placeholder {
   font-style: italic;
 }
