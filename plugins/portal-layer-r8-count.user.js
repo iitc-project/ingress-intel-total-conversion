@@ -31,7 +31,7 @@ window.plugin.portalLayerR8Count.portalAdded = function (data) {
 window.plugin.portalLayerR8Count.getR8Count = function (d) {
   var count = 0;
   $.each(d.resonatorArray.resonators, function (ind, reso) {
-    if(!reso || reso.level == window.MAX_PORTAL_LEVEL) {
+    if(reso && reso.level == window.MAX_PORTAL_LEVEL) {
       count++;
     }
   });
