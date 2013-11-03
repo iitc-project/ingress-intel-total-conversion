@@ -90,6 +90,17 @@ window.renderPortalDetails = function(guid) {
     portalDetailedDescription += '</table>';
   }
 
+  var levelDetails = getPortalLevel(d);
+  if(levelDetails != 8) {
+    if(levelDetails==Math.ceil(levelDetails))
+      levelDetails += "\n8";
+    else
+      levelDetails += "\n" + (Math.ceil(levelDetails) - levelDetails)*8;
+    levelDetails += " resonator level(s) needed for next portal level";
+  } else {
+    levelDetails += "\nfully upgraded";
+  }
+  levelDetails = "Level " + levelDetails;
 
   $('#portaldetails')
     .attr('class', TEAM_TO_CSS[getTeam(d)])
@@ -98,7 +109,7 @@ window.renderPortalDetails = function(guid) {
       + '<span class="close" onclick="renderPortalDetails(null); if(isSmartphone()) show(\'map\');" title="Close">X</span>'
       // help cursor via ".imgpreview img"
       + '<div class="imgpreview" '+imgTitle+' style="background-image: url('+img+')">'
-      + '<span id="level">'+Math.floor(getPortalLevel(d))+'</span>'
+      + '<span id="level" title="'+levelDetails+'">'+Math.floor(getPortalLevel(d))+'</span>'
       + '<div class="portalDetails">'+ portalDetailedDescription + '</div>'
       + '<img class="hide" src="'+img+'"/></div>'
       + '</div>'
@@ -134,9 +145,14 @@ window.setPortalIndicators = function(d) {
 
   var range = getPortalRange(d);
   var coord = [d.locationE6.latE6/1E6, d.locationE6.lngE6/1E6];
-  portalRangeIndicator = (range > 0
-      ? L.geodesicCircle(coord, range, { fill: false, color: RANGE_INDICATOR_COLOR, weight: 3, clickable: false })
-      : L.circle(coord, range, { fill: false, stroke: false, clickable: false })
+  portalRangeIndicator = (range.range > 0
+      ? L.geodesicCircle(coord, range.range, {
+          fill: false,
+          color: RANGE_INDICATOR_COLOR,
+          weight: 3,
+          dashArray: range.isLinkable ? undefined : "10,10",
+          clickable: false })
+      : L.circle(coord, range.range, { fill: false, stroke: false, clickable: false })
     ).addTo(map);
 
   portalAccessIndicator = L.circle(coord, HACK_RANGE,

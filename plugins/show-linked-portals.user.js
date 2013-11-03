@@ -130,7 +130,7 @@ var setup = function () {
         '.showLinkedPortalLink2,.showLinkedPortalLink6,.showLinkedPortalLink10,.showLinkedPortalLink14 {top: 69px; }' +
         '.showLinkedPortalLink3,.showLinkedPortalLink7,.showLinkedPortalLink11,.showLinkedPortalLink15 {top: 113px; }' +
         '.showLinkedPortalLink4,.showLinkedPortalLink8,.showLinkedPortalLink12,.showLinkedPortalLink16 {top: 157px; }' +
-        '#level{text-align:center; margin-right: 0px;}' +
+        '#level{text-align: center; margin-right: -0.5em; position: relative; right: 50%; width: 1em;}' +
         '</style>');
     window.plugin.showLinkedPortal.setupCallback();
 }

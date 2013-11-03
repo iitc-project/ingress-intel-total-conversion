@@ -39,6 +39,12 @@ window.playerNameToGuid = function(playerName) {
   var cachedGuid = window._playerNameToGuidCache[playerName];
   if (cachedGuid !== undefined) return cachedGuid;
 
+  // IITC needs our own player GUID, from a lookup by name. so we retrieve this from localstorage (if available)
+  if (playerName == PLAYER.nickname) {
+    cachedGuid = localStorage['PLAYER-'+PLAYER.nickname];
+    if (cachedGuid !== undefined) return cachedGuid;
+  }
+
   var guid = null;
   $.each(Object.keys(sessionStorage), function(ind,key) {
     if(playerName === sessionStorage[key]) {
@@ -68,9 +74,11 @@ window.resolvePlayerNames = function() {
   window.playersInResolving = window.playersInResolving.concat(p);
 
   postAjax('getPlayersByGuids', d, function(dat) {
+    var resolvedName = {};
     if(dat.result) {
       $.each(dat.result, function(ind, player) {
         window.setPlayerName(player.guid, player.nickname);
+        resolvedName[player.guid] = player.nickname;
         // remove from array
         window.playersInResolving.splice(window.playersInResolving.indexOf(player.guid), 1);
       });
@@ -81,6 +89,9 @@ window.resolvePlayerNames = function() {
       //likely to be some kind of 'bad request' (e.g. too many names at once, or otherwise badly formatted data.
       //therefore, not a good idea to automatically retry by adding back to the playersToResolve list
     }
+
+    // Run hook 'playerNameResolved' with the resolved player names
+    window.runHooks('playerNameResolved', {names: resolvedName});
 
     //TODO: have an event triggered for this instead of hard-coded single function call
     if(window.selectedPortal)
@@ -107,22 +118,17 @@ window.setPlayerName = function(guid, nick, uncertain) {
     alert('You have run into bug #37. Please help me solve it!\nCopy and paste this text and post it here:\nhttps://github.com/breunigs/ingress-intel-total-conversion/issues/37\nIf copy & pasting doesn’t work, make a screenshot instead.\n\n\n' + window.debug.printStackTrace() + '\n\n\n' + JSON.stringify(nick));
   }
   sessionStorage[guid] = nick;
+
+  // IITC needs our own player ID early on in startup. the only way we can find this is by something else
+  // doing a guid->name lookup for our own name. as this doesn't always happen - and likely won't happen when needed
+  // we'll store our own name->guid lookup in localStorage
+  if (nick == PLAYER.nickname) {
+    localStorage['PLAYER-'+PLAYER.nickname] = guid;
+    PLAYER.guid = guid;  // set it in PLAYER in case it wasn't already done
+  }
 }
 
 
-window.loadPlayerNamesForPortal = function(portal_details) {
-  if(map.getZoom() < PRECACHE_PLAYER_NAMES_ZOOM) return;
-  var e = portal_details;
-
-  if(e.captured && e.captured.capturingPlayerId)
-    getPlayerName(e.captured.capturingPlayerId);
-
-  if(!e.resonatorArray || !e.resonatorArray.resonators) return;
-
-  $.each(e.resonatorArray.resonators, function(ind, reso) {
-    if(reso) getPlayerName(reso.ownerGuid);
-  });
-}
 
 
 // test to see if a specific player GUID is a special system account (e.g. __JARVIS__, __ADA__) that shouldn't

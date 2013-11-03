@@ -47,18 +47,20 @@ window.getPortalRange = function(d) {
   $.each(d.resonatorArray.resonators, function(ind, reso) {
     if(!reso) {
       resoMissing = true;
-      return false;
+      return;
     }
     lvl += parseInt(reso.level);
   });
-  if(resoMissing) return 0;
 
-  var range = 160*Math.pow(getPortalLevel(d), 4);
+  var range = {
+    base: 160*Math.pow(getPortalLevel(d), 4),
+    boost: getLinkAmpRangeBoost(d)
+  };
 
-  var boost = getLinkAmpRangeBoost(d);
+  range.range = range.boost * range.base;
+  range.isLinkable = !resoMissing;
 
-  return range*boost;
-
+  return range;
 }
 
 window.getLinkAmpRangeBoost = function(d) {

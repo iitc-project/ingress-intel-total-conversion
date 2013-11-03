@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.14.2.@@DATETIMEVERSION@@
+// @version        0.14.5.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -40,10 +40,10 @@ if(!d) {
   if(document.getElementById('header_email')) {
     // however, we are logged in.
     setTimeout('location.reload();', 3*1000);
-    throw('Page doesn’t have player data, but you are logged in. Reloading in 3s.');
+    throw("Page doesn't have player data, but you are logged in. Reloading in 3s.");
   }
   // FIXME: handle nia takedown in progress
-  throw('Couldn’t retrieve player data. Are you logged in?');
+  throw("Couldn't retrieve player data. Are you logged in?");
 }
 
 
@@ -63,7 +63,7 @@ document.getElementsByTagName('head')[0].innerHTML = ''
   + '<style>@@INCLUDESTRING:style.css@@</style>'
   + '<style>@@INCLUDESTRING:external/leaflet.css@@</style>'
 //note: smartphone.css injection moved into code/smartphone.js
-  + '<link href="http://fonts.googleapis.com/css?family=Roboto:normal,bold&subset=latin,cyrillic-ext,greek-ext,greek,cyrillic,latin-ext,vietnamese" rel="stylesheet" type="text/css">';
+  + '<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:100,100italic,300,300italic,400,400italic,500,500italic,700,700italic&subset=latin,cyrillic-ext,greek-ext,greek,vietnamese,latin-ext,cyrillic"/>';
 
 document.getElementsByTagName('body')[0].innerHTML = ''
   + '<div id="map">Loading, please wait</div>'
@@ -100,12 +100,18 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '    </div>'
   + '  </div>'
   + '</div>'
-  + '<div id="updatestatus"><div id="innerstatus"></div></div>';
+  + '<div id="updatestatus"><div id="innerstatus"></div></div>'
+  // avoid error by stock JS
+  + '<div id="play_button"></div>';
 
 // putting everything in a wrapper function that in turn is placed in a
 // script tag on the website allows us to execute in the site’s context
 // instead of in the Greasemonkey/Extension/etc. context.
-function wrapper() {
+function wrapper(info) {
+// a cut-down version of GM_info is passed as a parameter to the script
+// (not the full GM_info - it contains the ENTIRE script source!)
+window.script_info = info;
+
 
 // LEAFLET PREFER CANVAS ///////////////////////////////////////////////
 // Set to true if Leaflet should draw things using Canvas instead of SVG
@@ -238,5 +244,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 
 // inject code into site context
 var script = document.createElement('script');
-script.appendChild(document.createTextNode('('+ wrapper +')();'));
+var info = { buildName: '@@BUILDNAME@@', dateTimeVersion: '@@DATETIMEVERSION@@' };
+if (this.GM_info && this.GM_info.script) info.script = { version: GM_info.script.version, name: GM_info.script.name, description: GM_info.script.description };
+script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
 (document.body || document.head || document.documentElement).appendChild(script);

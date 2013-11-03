@@ -1,9 +1,38 @@
 // UTILS + MISC  ///////////////////////////////////////////////////////
 
-window.aboutIITC = function(){
-  var v = '@@BUILDNAME@@-@@BUILDDATE@@';
+window.aboutIITC = function() {
+  var v = (script_info.script && script_info.script.version || script_info.dateTimeVersion) + ' ['+script_info.buildName+']';
+  if (typeof android !== 'undefined' && android && android.getVersionName) {
+    v += '[IITC Mobile '+android.getVersionName()+']';
+  }
+
+  var plugins = '<ul>';
+  for (var i in bootPlugins) {
+    var info = bootPlugins[i].info;
+    if (info) {
+      var pname = info.script && info.script.name || info.pluginId;
+      if (pname.substr(0,13) == 'IITC plugin: ' || pname.substr(0,13) == 'IITC Plugin: ') {
+        pname = pname.substr(13);
+      }
+      var pvers = info.script && info.script.version || info.dateTimeVersion;
+
+      var ptext = pname + ' - ' + pvers;
+      if (info.buildName != script_info.buildName) {
+        ptext += ' ['+(info.buildName||'<i>non-standard plugin</i>')+']';
+      }
+
+      plugins += '<li>'+ptext+'</li>';
+    } else {
+      // no 'info' property of the plugin setup function - old plugin wrapper code
+      // could attempt to find the "window.plugin.NAME = function() {};" line it's likely to have..?
+      plugins += '<li>(unknown plugin: index '+i+')</li>';
+    }
+  }
+  plugins += '</ul>';
+
   var attrib = '@@INCLUDEMD:ATTRIBUTION.md@@';
   var contrib = '@@INCLUDEMD:CONTRIBS.md@@'
+
   var a = ''
   + '  <div><b>About IITC</b></div> '
   + '  <div>Ingress Intel Total Conversion</div> '
@@ -23,10 +52,12 @@ window.aboutIITC = function(){
   + '  </div>'
   + '  <hr>'
   + '  <div>Version: ' + v + '</div>'
+  + '  <div>Plugins: ' + plugins + '</div>'
   + '  <hr>'
   + '  <div>' + attrib + '</div>'
   + '  <hr>'
   + '  <div>' + contrib + '</div>';
+
   dialog({
     title: 'IITC ' + v,
     html: a,
@@ -98,71 +129,46 @@ window.digits = function(d) {
 window.requestParameterMunges = [
   // now obsolete (they don't have some of the new parameters) munge sets deleted
 
-
-  // set 3 - in the update of 2013-09-30 (addition of 'alerts' chat tab)
+  // set 6 - 2013-10-29
   {
-    'dashboard.getGameScore': 'fhlzntzkl5v7hcfh',          // GET_GAME_SCORE
-    'dashboard.getPaginatedPlextsV2': 'wzuitnswoda7w028',  // GET_PAGINATED_PLEXTS
-    'dashboard.getThinnedEntitiesV4': 'scgrm4lf2371esgw',  // GET_THINNED_ENTITIES
-    'dashboard.getPlayersByGuids': '81l6usczczoi3lfi',     // LOOKUP_PLAYERS
-    'dashboard.redeemReward': '8kop2koeld9b4c26',          // REDEEM_REWARD
-    'dashboard.sendInviteEmail': 't0ccodsm1nuo5uso',       // SEND_INVITE_EMAIL
-    'dashboard.sendPlext': 'k04cfjwwsg3h3827',             // SEND_PLEXT
+    'dashboard.getGameScore': 'vzjhib746rvkre04',          // GET_GAME_SCORE
+    'dashboard.getPaginatedPlextsV2': 'gqa96zhqpddtfmkl',  // GET_PAGINATED_PLEXTS
+    'dashboard.getThinnedEntitiesV4': '18lmw7lytgxji0dk',  // GET_THINNED_ENTITIES
+    'dashboard.getPlayersByGuids': 'emb5xrj8rav1i0be',     // LOOKUP_PLAYERS
+    'dashboard.redeemReward': '4xqof5pldqab63rb',          // REDEEM_REWARD
+    'dashboard.sendInviteEmail': 'yq5wxjlnud0tj6hu',       // SEND_INVITE_EMAIL
+    'dashboard.sendPlext': 'e1ipqdxjlwd3l7zb',             // SEND_PLEXT
 
-    method: '22ux2z96jwq5zn78',
-    version: 'kf6hgl9yau03ws0o', //guessed parameter name - only seen munged
-    version_parameter: '4608f4356a6f55690f127fb542f557f98de66169', // passed as the value to the above parameter
-    boundsParamsList: '29t16cmsn6l3r2xg',
-    id: '7rogqhp5pzcqobcw',
-    minLatE6: 'yzbnp7z9bd28p0yr',
-    minLngE6: '2pdhntvo85cd90bw',
-    maxLatE6: 'c4ivr013h4dr68pd',
-    maxLngE6: '4p8oorcrwalc1mzf',
-    timestampMs: 'vd2rsa9v6f8q606s',
-    qk: 'cblh9xe0bgwjy5ij',
-    desiredNumItems: '3ymaq7slb165porj',
-    minTimestampMs: 's9jf2seni33y3gyu',
-    maxTimestampMs: '2kh3vti98rhp3g29',
-    chatTab: '7n7ocqfq1p18352b', //guessed parameter name - only seen munged
-    ascendingTimestampOrder: 'p88a2ztchtjhiazl',
-    message: 'e8qm0kptw2trrcrw',
-    latE6: 'fja1phtsqxm71dqm',
-    lngE6: 'iut1tb7c0x726hwn',
-    guids: '5hyiwhwc0jyljvro',
-    inviteeEmailAddress: 's9z6zt03eymzxhkj',
-  },
+    // common parameters
+    method: 'wg7gyxoanqc1si5r',
+    version: 'adlo9o4kjvho5q94', //guessed parameter name - only seen munged
+    version_parameter: '56036a6497ea344a9fffa38b171a77c092c1f220', // passed as the value to the above parameter
 
-  // set 4 - second update of 2013-09-30
-  {
-    'dashboard.getGameScore': 'ija9jgrf5hj7wm9r',          // GET_GAME_SCORE
-    'dashboard.getPaginatedPlextsV2': '0elftx739mkbzi1b',  // GET_PAGINATED_PLEXTS
-    'dashboard.getThinnedEntitiesV4': 'prv0ez8cbsykh63g',  // GET_THINNED_ENTITIES
-    'dashboard.getPlayersByGuids': 'i0lxy6nc695z9ka3',     // LOOKUP_PLAYERS
-    'dashboard.redeemReward': '376oivna8rf8qbfj',          // REDEEM_REWARD
-    'dashboard.sendInviteEmail': '96y930v5q96nrcrw',       // SEND_INVITE_EMAIL
-    'dashboard.sendPlext': 'c04kceytofuqvyqg',             // SEND_PLEXT
+    // GET_THINNED_ENTITIES
+    quadKeys: '6vcl0ivqz4aj5sfu', //guessed parameter name - only seen munged
 
-    method: '9we4b31i48ui4sdm',
-    version: 'q402kn5zqisuo1ym', //guessed parameter name - only seen munged
-    version_parameter: 'dbad4485024d446ae946e3d287b5d640029ef3e3', // passed as the value to the above parameter
-    boundsParamsList: '3r5ctyvc2f653zjd',
-    id: 'izey8ciqg2dz2oqc',
-    minLatE6: 'cein0n4jrifa7ui2',
-    minLngE6: 'lbd1juids3johtdo',
-    maxLatE6: 'h4kyot9kmvd3g284',
-    maxLngE6: 'sbci6jjc2d5g9uy4',
-    timestampMs: '2wurn9giagbvv6bt',
-    qk: 'hq73mwpjqyvcp6ul',
-    desiredNumItems: 'kyo6vh5n58hmrnua',
-    minTimestampMs: 'hu4swdftcp7mvkdi',
-    maxTimestampMs: 'ly6ylae5lv1z9072',
-    chatTab: 'q5kxut5rmbtlqbf9', //guessed parameter name - only seen munged
-    ascendingTimestampOrder: 'hvfd0io35rahwjgr',
-    message: 'z4hf7tzl27o14455',
-    latE6: 'zyzh3bdxyd47vk1x',
-    lngE6: 'n5d1f8pql51t641x',
-    guids: 'gl16ehqoc3i3oi07',
-    inviteeEmailAddress: 'orc9ufg7rp7g1y9j',
+    // GET_PAGINATED_PLEXTS
+    desiredNumItems: '6jd5b49wn748diye',
+    minLatE6: '891ebsryg45b8cxb',
+    minLngE6: 'mvepdcx1k6noya15',
+    maxLatE6: 's3rh3fhji5mcjlof',
+    maxLngE6: 'yqdgfuukrxj8byzj',
+    minTimestampMs: 'btf0kpztxrkt6sl6',
+    maxTimestampMs: 'hg8vhtehxf53n5cu',
+    chatTab: '6bk9rmebtk1ux6da', //guessed parameter name - only seen munged
+    ascendingTimestampOrder: '4zw3v6xwp117r47w',
+
+    // SEND_PLEXT
+    message: '55vpsci0hji0ai5x',
+    latE6: 'lyhrt4miuwc7w29d',
+    lngE6: 'c1yl2qmzfu5j23ao',
+//  chatTab: '6bk9rmebtk1ux6da', //guessed parameter name - only seen munged
+
+    // LOOKUP_PLAYERS
+    guids: 'k76phw8ey9z21z7c',
+
+    // SEND_INVITE_EMAIL
+    inviteeEmailAddress: 'x16pe9u4i8bidbi2',
   },
 
 ];
@@ -170,20 +176,28 @@ window.activeRequestMungeSet = undefined;
 
 // attempt to guess the munge set in use, by looking therough the functions of the stock intel page for one of the munged params
 window.detectActiveMungeSet = function() {
-  if (window.requestParameterMunges.length == 1) {
-    // no point in searching through the code when there's only one set in use
-    window.activeRequestMungeSet = 0;
-    return;
-  }
 
   // try and find the stock page functions
   // FIXME? revert to searching through all the code? is that practical?
-  var stockFunc = nemesis.dashboard.network.DataFetcher.prototype.sendRequest_.toString()
-  for (var i in window.requestParameterMunges) {
-    if (stockFunc.indexOf (window.requestParameterMunges[i]['method']) >= 0) {
-      console.log('IITC: found request munge set index '+i+' in stock intel function nemesis.dashboard.network.DataFetcher.prototype.sendRequest_');
-      window.activeRequestMungeSet = i;
+  var stockFunc;
+  try {
+    stockFunc = nemesis.dashboard.network.XhrController.prototype.sendRequest.toString();
+  } catch(e) {
+    try {
+      stockFunc = nemesis.dashboard.network.DataFetcher.prototype.sendRequest_.toString();
+    } catch(e) {
     }
+  }
+
+  if(stockFunc) {
+    for (var i in window.requestParameterMunges) {
+      if (stockFunc.indexOf (window.requestParameterMunges[i]['method']) >= 0) {
+        console.log('IITC: found request munge set index '+i+' in stock intel site');
+        window.activeRequestMungeSet = i;
+      }
+    }
+  } else {
+    console.error('IITC: failed to find the stock site function for detecting munge set');
   }
 
   if (window.activeRequestMungeSet===undefined) {
@@ -328,7 +342,7 @@ window.rangeLinkClick = function() {
   if(window.portalRangeIndicator)
     window.map.fitBounds(window.portalRangeIndicator.getBounds());
   if(window.isSmartphone())
-    window.smartphone.mapButton.click();
+    window.show('map');
 }
 
 window.showPortalPosLinks = function(lat, lng, name) {
@@ -393,35 +407,9 @@ window.getPortalDataZoom = function() {
 
 window.getMinPortalLevelForZoom = function(z) {
 //based on code from stock gen_dashboard.js
-  switch(z) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-      return 8;
-    case 4:
-    case 5:
-      return 7;
-    case 6:
-    case 7:
-      return 6;
-    case 8:
-      return 5;
-    case 9:
-    case 10:
-      return 4;
-    case 11:
-    case 12:
-      return 3;
-    case 13:
-    case 14:
-      return 2;
-    case 15:
-    case 16:
-      return 1;
-    default:
-      return 0
-  }
+  var ZOOM_TO_LEVEL = [8, 8, 8, 8, 7, 7, 6, 6, 5, 4, 4, 3, 3, 2, 2, 1, 1];
+  var l = ZOOM_TO_LEVEL[z] || 0;
+  return l;
 }
 
 
@@ -595,3 +583,22 @@ window.clampLatLng = function(latlng) {
 window.clampLatLngBounds = function(bounds) {
   return new L.LatLngBounds ( clampLatLng(bounds.getSouthWest()), clampLatLng(bounds.getNorthEast()) );
 }
+
+// avoid error in stock JS
+if(goog && goog.style) {
+  goog.style.showElement = function(a, b) {
+    if(a && a.style)
+      a.style.display = b ? "" : "none"
+  };
+}
+
+// Fix Leaflet: handle touchcancel events in Draggable
+L.Draggable.prototype._onDownOrig = L.Draggable.prototype._onDown;
+L.Draggable.prototype._onDown = function(e) {
+  L.Draggable.prototype._onDownOrig.apply(this, arguments);
+
+  if(e.type === "touchstart") {
+    L.DomEvent.on(document, "touchcancel", this._onUp, this);
+  }
+}
+

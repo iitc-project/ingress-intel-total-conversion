@@ -20,7 +20,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnItemClickListener {
     // Show/hide the up arrow on the very left
@@ -46,22 +45,23 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
             add(Pane.PUBLIC);
             add(Pane.FACTION);
 
-            if (mPrefs.getBoolean("pref_advanced_menu", false))
+            if (mPrefs.getBoolean("pref_advanced_menu", false)) {
                 add(Pane.DEBUG);
+            }
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             TextView view = (TextView) super.getView(position, convertView, parent);
             Pane item = getItem(position);
-            if (item == Pane.MAP)
+            if (item == Pane.MAP) {
                 view.setText("Map");
-            else
+            } else {
                 view.setText(getPaneTitle(item));
+            }
 
             int icon = 0;
-            switch (item)
-            {
+            switch (item) {
                 case MAP:
                     icon = R.drawable.location_map;
                     break;
@@ -85,8 +85,9 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
                     break;
             }
 
-            if (icon != 0)
+            if (icon != 0) {
                 view.setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0);
+            }
 
             return view;
         }
@@ -100,18 +101,16 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     public static final int NOTICE_INFO = 1 << 1;
     // next one would be 1<<2; (this results in 1,2,4,8,...)
 
-    private IITC_Mobile mIitc;
-    private ActionBar mActionBar;
-    private SharedPreferences mPrefs;
-    private NavigationAdapter mNavigationAdapter;
-    private DrawerLayout mDrawerLayout;
-    private ListView mDrawerLeft;
-    private View mDrawerRight;
+    private final IITC_Mobile mIitc;
+    private final ActionBar mActionBar;
+    private final SharedPreferences mPrefs;
+    private final NavigationAdapter mNavigationAdapter;
+    private final DrawerLayout mDrawerLayout;
+    private final ListView mDrawerLeft;
+    private final View mDrawerRight;
 
     private boolean mDesktopMode = false;
-    private boolean mFullscreen = false;
     private boolean mIsLoading;
-    private boolean mHideInFullscreen = false;
     private Pane mPane = Pane.MAP;
     private String mHighlighter = null;
 
@@ -141,8 +140,9 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     }
 
     private void showNotice(final int which) {
-        if ((mPrefs.getInt("pref_messages", 0) & which) != 0)
+        if ((mPrefs.getInt("pref_messages", 0) & which) != 0) {
             return;
+        }
 
         String text;
         switch (which) {
@@ -187,8 +187,9 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
 
     private void updateActionBar() {
         int position = mNavigationAdapter.getPosition(mPane);
-        if (position >= 0 && position < mNavigationAdapter.getCount())
+        if (position >= 0 && position < mNavigationAdapter.getCount()) {
             mDrawerLeft.setItemChecked(position, true);
+        }
 
         if (mDesktopMode) {
             mActionBar.setDisplayHomeAsUpEnabled(false); // Hide "up" indicator
@@ -208,36 +209,33 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
                 mActionBar.setHomeButtonEnabled(true);// Make icon clickable
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 
-                if (mPane == Pane.MAP || mDrawerLayout.isDrawerOpen(mDrawerLeft))
+                if (mPane == Pane.MAP || mDrawerLayout.isDrawerOpen(mDrawerLeft)) {
                     setDrawerIndicatorEnabled(true);
-                else
+                } else {
                     setDrawerIndicatorEnabled(false);
+                }
             }
 
-            if (mDrawerLayout.isDrawerOpen(mDrawerLeft))
+            if (mDrawerLayout.isDrawerOpen(mDrawerLeft)) {
                 mActionBar.setTitle(mIitc.getString(R.string.app_name));
-            else
+            } else {
                 mActionBar.setTitle(getPaneTitle(mPane));
+            }
         }
 
         boolean mapVisible = mDesktopMode || mPane == Pane.MAP;
-        if ("No Highlights".equals(mHighlighter) || isDrawerOpened() || mIsLoading || !mapVisible)
+        if ("No Highlights".equals(mHighlighter) || isDrawerOpened() || mIsLoading || !mapVisible) {
             mActionBar.setSubtitle(null);
-        else
+        } else {
             mActionBar.setSubtitle(mHighlighter);
-
-        if (mFullscreen && mHideInFullscreen)
-            mActionBar.hide();
-        else
-            mActionBar.show();
+        }
     }
 
     public void closeDrawers() {
         mDrawerLayout.closeDrawers();
     }
 
-    public String getPaneTitle(Pane pane)
-    {
+    public String getPaneTitle(Pane pane) {
         switch (pane) {
             case INFO:
                 return "Info";
@@ -256,10 +254,6 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         }
     }
 
-    public boolean hideInFullscreen() {
-        return mHideInFullscreen;
-    }
-
     public boolean isDrawerOpened() {
         return mDrawerLayout.isDrawerOpen(mDrawerLeft) || mDrawerLayout.isDrawerOpen(mDrawerRight);
     }
@@ -268,6 +262,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     public void onDrawerClosed(View drawerView) {
         super.onDrawerClosed(drawerView);
 
+        mIitc.getWebView().onWindowFocusChanged(true);
         // delay invalidating to prevent flickering in case another drawer is opened
         (new Handler()).postDelayed(new Runnable() {
             @Override
@@ -281,6 +276,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     @Override
     public void onDrawerOpened(View drawerView) {
         super.onDrawerOpened(drawerView);
+        mIitc.getWebView().onWindowFocusChanged(false);
         mIitc.invalidateOptionsMenu();
         updateActionBar();
         mDrawerLayout.closeDrawer(drawerView.equals(mDrawerLeft) ? mDrawerRight : mDrawerLeft);
@@ -291,16 +287,18 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         Pane item = mNavigationAdapter.getItem(position);
         mIitc.switchToPane(item);
 
-        if (item == Pane.INFO)
+        if (item == Pane.INFO) {
             showNotice(NOTICE_INFO);
+        }
 
         mDrawerLayout.closeDrawer(mDrawerLeft);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home)
+        if (item.getItemId() == android.R.id.home) {
             mDrawerLayout.closeDrawer(mDrawerRight);
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -312,13 +310,13 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
 
     public void onPrefChanged() {
         mDesktopMode = mPrefs.getBoolean("pref_force_desktop", false);
-        mHideInFullscreen = mPrefs.getBoolean("pref_fullscreen_actionbar", true);
         updateActionBar();
     }
 
     public void openRightDrawer() {
-        if (mDrawerLayout.getDrawerLockMode(mDrawerRight) == DrawerLayout.LOCK_MODE_UNLOCKED)
+        if (mDrawerLayout.getDrawerLockMode(mDrawerRight) == DrawerLayout.LOCK_MODE_UNLOCKED) {
             mDrawerLayout.openDrawer(mDrawerRight);
+        }
     }
 
     public void reset() {
@@ -328,18 +326,9 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
 
     public void setDebugMode(boolean enabled) {
         mNavigationAdapter.remove(Pane.DEBUG); // avoid duplicates
-        if (enabled)
+        if (enabled) {
             mNavigationAdapter.add(Pane.DEBUG);
-    }
-
-    public void setFullscreen(boolean fullscreen) {
-        mFullscreen = fullscreen;
-        if (mFullscreen && mHideInFullscreen) {
-            // show a toast with instructions to exit the fullscreen mode again
-            Toast.makeText(mIitc, "Press back button to exit fullscreen", Toast.LENGTH_SHORT).show();
         }
-
-        updateActionBar();
     }
 
     public void setHighlighter(String name) {
@@ -356,5 +345,13 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         mPane = pane;
 
         updateActionBar();
+    }
+
+    public void showActionBar() {
+        mActionBar.show();
+    }
+
+    public void hideActionBar() {
+        mActionBar.hide();
     }
 }

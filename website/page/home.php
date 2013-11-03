@@ -13,50 +13,37 @@ offers many more features. It is available for
 
 <h3>Latest news</h3>
 
-<h4>1st October 2013</h4>
+<h4>29th October 2013</h4>
 <p>
-IITC 0.14.2 and IITC Mobile 0.7.1 have been released. This is a critical update required to work with changes made
-to the standard intel site. Additionally, a major update to the mobile app interface has been made, and a handful
-of tweaks and bugfixes to IITC and a few plugins.
+IITC 0.14.4 and IITC Mobile 0.7.7 have just been released. A critical update required to work with changes made to the
+standard intel site. Changes include
+<ul>
+<li>Fix to geodesic circle drawing. They were not correctly distorted, leading to incorrect link ranges drawn on the map.</li>
+<li>Bookmarks plugin: add layer and highlighter to indicate bookmarked portals</li>
+<li>Player tracker plugin: markers fade for older activity, and separate layers for each faction</li>
+<li>The 'About IITC' dialog now lists which plugins are installed. This may not work correctly for 3rd party plugins at this time</li>
+<li>Mobile:
+ <ul>
+ <li>Custom fullscreen preferences</li>
+ <li>Install to SD Card</li>
+ <li>Cache move to SD card option (hence the new permissions)</li>
+ </ul>
+</li>
+<li>... and, as always, various bugfixes and improvements.</li>
+</ul>
 </p>
 <p>
-The standard intel site now includes an 'alerts' chat tab. This will be coming to IITC in the future, but it's
-better to get this working version released without it than hold things up just for that.
+<b>3RD PARTY PLUGIN AUTHORS</b>: The plugin wrapper code has been modified to pass through the additioal version
+information. While existing plugins should continue to work, I highly recommend updating the wrapper code in your
+scripts to match.
 </p>
 
-<h4>22nd September 2013</h4>
+<h4>16th October 2013</h4>
 <p>
-<b>Update</b>: IITC Mobile 0.6.5 replaces 0.6.4. This fixes a crash on entering plugin preferences on some tablets.
+IITC 0.14.3 and IITC MObile 0.7.4 have just been released. This is a critical update required to work with the latest
+changes Niantic have made to the standard intel site. Additionally, the draw-tools plugin now snaps points to portals
+when creating lines/polygons/markers (was actually in 0.14.2 release), a bugfix relating to IITC not realising who 
+'you' are, causing some highlighters to break, and a handful of other tweaks/bugfixes.
 </p>
-<p>
-IITC 0.14.1 and IITC Mobile 0.6.4 have been released. Changes in this version include:
-<ul>
-<li>Better performance when a very large number of portals are within view (country/continent level)</li>
-<li>Add layer chooser options to hide resistance/enlightened portals/links/fields</li>
-<li>Chat tab now remembers which was active when reloading IITC</li>
-<li>Fix some shorter links not showing on the map</li>
-<li>Add details of hack information (number/cooldown time, taking account of mods) and mitigation (from shields and links)
-to the portal information panel</li>
-<li>Mobile
- <ul>
- <li>increase the size of various links on the info page to make them easier to tap</li>
- <li>move the highlight selection dropdown to the native android app bar at the top</li>
- </ul></li>
-</ul>
-And plugins:
-<ul>
-<li>Major update to bookmarks-by-zaso, including sync support</li>
-<li>New features added to the resonators plugin</li>
-<li>max-links plugin - start of rename to 'tidy links' - as this is a better description of what it does</li>
-<li>show-linked-portals - indicate which are incoming/outgoing links in the tooltip</li>
-<li>New Plugins
- <ul>
- <li>show-link-direction, to indicate visually which portal a link was created from</li>
- <li>highlighter for portal mitigation - to show strength of defence from shields and links at a glance</li>
- </ul></li>
-</ul>
-And, as always, numerous other bug fixes, tweaks and improvements.
-</p>
-
 
 <a class="btn btn-small" href="?page=news">Older news</a>

@@ -9,7 +9,7 @@ html, body, #map {
 
 body {
   font-size: 14px;
-  font-family: "roboto",arial,helvetica,sans-serif;
+  font-family: "Roboto", "Helvetica Neue", Helvetica, sans-serif;
   margin: 0;
 }
 
@@ -136,7 +136,7 @@ a:hover {
 .fieldmu {
   color: #FFCE00;
   font-size: 13px;
-  font-family: "roboto",arial,helvetica,sans-serif; /*override leaflet-container */
+  font-family: Roboto, "Helvetica Neue", Helvetica, sans-serif; /*override leaflet-container */
   text-align: center;
   text-shadow: 0 0 0.2em black, 0 0 0.2em black, 0 0 0.2em black;
   pointer-events: none;
@@ -210,6 +210,7 @@ a:hover {
   z-index: 3000;
   background: rgba(8, 48, 78, 0.9);
   font-size: 12.6px;
+  line-height: 15px;
   color: #eee;
   border: 1px solid #20A8B1;
   border-bottom: 0;
@@ -255,7 +256,6 @@ em {
 }
 
 #chat td, #chatinput td {
-  font-family: Verdana, sans-serif;
   font-size: 12.6px;
   vertical-align: top;
   padding-bottom: 3px;
@@ -302,7 +302,6 @@ mark {
 summary {
   color: #bbb;
   display: inline-block;
-  font-family: Verdana,sans-serif;
   height: 16px;
   overflow: hidden;
   padding: 0 2px;
@@ -333,7 +332,6 @@ summary {
 #chatinput input {
   background: transparent;
   font-size: 12.6px;
-  font-family: Verdana,sans-serif;
   color: #EEEEEE;
   width: 100%;
   height: 100%;
@@ -384,6 +382,7 @@ h2 {
 }
 
 h2 #name {
+  font-weight: 300;
   display: inline-block;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -472,6 +471,12 @@ input {
   margin-bottom: 2px;
   cursor: pointer;
 }
+
+.search_not_found{
+  color:red;
+  font-style: italic;
+}
+
 ::-webkit-input-placeholder {
   font-style: italic;
 }
@@ -511,6 +516,7 @@ h3 {
   background-size: contain;
   cursor: help;
   overflow: hidden;
+  position: relative;
 }
 
 .imgpreview img.hide {
@@ -527,6 +533,7 @@ h3 {
   display: block;
   margin-right: 15px;
   text-align:right;
+  float: right;
 }
 
 /* portal mods */
@@ -697,7 +704,6 @@ h3 {
   right: 2px;
   cursor: pointer;
   color: #FFCE00;
-  font-family: "Arial", sans;
   font-size: 16px;
 }
 
@@ -742,7 +748,8 @@ h3 {
   background-color: rgba(8, 48, 78, 0.9);
   border: 1px solid #20A8B1;
   color: #eee;
-  font: 13px/15px Roboto, Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  line-height: 15px;
   padding: 2px 4px;
 }
 
@@ -783,6 +790,8 @@ h3 {
 }
 
 .ui-dialog-titlebar {
+  font-size: 13px;
+  line-height: 15px;
   text-align: center;
   padding: 4px;
   background-color: rgba(8, 60, 78, 0.9);
@@ -892,7 +901,6 @@ td + td {
 /* redeem results *****************************************************/
 .redeem-result-table {
   font-size: 14px;
-  font-family: Roboto, Arial, Helvetica, sans-serif;
   table-layout: fixed;
 }
 
@@ -943,13 +951,12 @@ td + td {
   color: #28f428;
 }
 
-#portal_highlight_select{
+#portal_highlight_select {
   position: absolute;
   top:5px;
   left:10px;
   z-index: 2500;
   font-size:11px;
-  font-family: "roboto",arial,helvetica,sans-serif;
   background-color:#0E3C46;
   color:#ffce00;
   
@@ -970,3 +977,8 @@ td + td {
 .portal_details tr.padding-top th, .portal_details tr.padding-top td {
   padding-top: 0.7em;
 }
+
+#play_button {
+  display: none;
+}
+

@@ -18,7 +18,7 @@ import java.util.Locale;
 // provide communication between IITC script and android app
 public class IITC_JSInterface {
     // context of main activity
-    private IITC_Mobile mIitc;
+    private final IITC_Mobile mIitc;
 
     IITC_JSInterface(IITC_Mobile iitc) {
         mIitc = iitc;
@@ -77,6 +77,19 @@ public class IITC_JSInterface {
     }
 
     @JavascriptInterface
+    public String getVersionName() {
+        String buildVersion = "unknown";
+        PackageManager pm = mIitc.getPackageManager();
+        try {
+            PackageInfo info = pm.getPackageInfo(mIitc.getPackageName(), 0);
+            buildVersion = info.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return buildVersion;
+    }
+
+    @JavascriptInterface
     public void switchToPane(final String id) {
         mIitc.runOnUiThread(new Runnable() {
             @Override
@@ -111,7 +124,7 @@ public class IITC_JSInterface {
             @Override
             public void run() {
                 mIitc.setLoadingState(false);
-                
+
                 mIitc.getMapSettings().onBootFinished();
             }
         });

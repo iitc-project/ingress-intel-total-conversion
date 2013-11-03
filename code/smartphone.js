@@ -35,7 +35,6 @@ window.runOnSmartphonesBeforeBoot = function() {
   }
 
   window.smartphone.mapButton = $('<a>map</a>').click(function() {
-    $('#chat, #chatinput, #scrollwrapper').hide();
     $('#map').css('visibility', 'visible');
     $('#updatestatus').show();
     $('#chatcontrols a .active').removeClass('active');
@@ -43,8 +42,6 @@ window.runOnSmartphonesBeforeBoot = function() {
   });
 
   window.smartphone.sideButton = $('<a>info</a>').click(function() {
-    $('#chat, #chatinput, #updatestatus').hide();
-    $('#map').css('visibility', 'hidden');
     $('#scrollwrapper').show();
     $('.active').removeClass('active');
     $("#chatcontrols a:contains('info')").addClass('active');
@@ -112,11 +109,13 @@ window.runOnSmartphonesAfterBoot = function() {
   if(!isSmartphone()) return;
   console.warn('running smartphone post boot stuff');
 
-  smartphone.mapButton.click();
+  window.show('map');
 
   // add a div/hook for updating mobile info
   $('#updatestatus').prepend('<div id="mobileinfo" onclick="show(\'info\')"></div>');
   window.addHook('portalDetailsUpdated', window.smartphoneInfo);
+  // init msg of status bar. hint for the user that a tap leads to the info screen
+  $('#mobileinfo').html('<div style="text-align: center"><b>tap here for info screen</b></div>');
 
   // disable img full view
   $('#portaldetails').off('click', '**');

@@ -24,13 +24,13 @@ import java.io.IOException;
  */
 public class CheckHttpResponse extends AsyncTask<String, Void, Boolean> {
 
-    private IITC_JSInterface mJsInterface;
-    private Context mContext;
+    private final IITC_JSInterface mJsInterface;
+    private final Context mContext;
 
     public CheckHttpResponse(IITC_JSInterface jsInterface, Context c) {
         mContext = c;
         mJsInterface = jsInterface;
-    };
+    }
 
     @Override
     protected Boolean doInBackground(String... urls) {

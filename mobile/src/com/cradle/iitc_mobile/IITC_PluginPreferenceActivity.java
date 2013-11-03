@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -62,8 +63,10 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if(onIsMultiPane()) getIntent()
-                .putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, PluginsFragment.class.getName());
+        if (onIsMultiPane()) {
+            getIntent()
+                    .putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, PluginsFragment.class.getName());
+        }
         super.onCreate(savedInstanceState);
     }
 
@@ -76,7 +79,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         // Select the displayed fragment in the headers (when using a tablet) :
         // This should be done by Android, it is a bug fix
         // thx to http://stackoverflow.com/a/16793839
-        if(mHeaders != null) {
+        if (mHeaders != null) {
 
             final String displayedFragment = getIntent().getStringExtra(EXTRA_SHOW_FRAGMENT);
             if (displayedFragment != null) {
@@ -162,8 +165,9 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
                 // TODO Auto-generated catch block
                 e2.printStackTrace();
             }
-            if (s != null)
+            if (s != null) {
                 src = s.hasNext() ? s.next() : "";
+            }
             // now we have all stuff together and can build the pref screen
             addPluginPreference(src, anAsset_array, false);
         }
@@ -179,8 +183,9 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
                 e.printStackTrace();
                 Log.d("iitcm", "failed to parse file " + file);
             }
-            if (s != null)
+            if (s != null) {
                 src = s.hasNext() ? s.next() : "";
+            }
 
             // now we have all stuff together and can build the pref screen
             addPluginPreference(src, file.toString(), true);
@@ -189,26 +194,12 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
 
     void addPluginPreference(String src, String plugin_key, boolean user) {
 
-        // now parse plugin name, description and category
-        String header = src.substring(src.indexOf("==UserScript=="),
-                src.indexOf("==/UserScript=="));
-        // remove new line comments and replace with space
-        // this way we get double spaces instead of newline + double slash
-        header = header.replace("\n//", " ");
-        // get a list of key-value...split on multiple spaces
-        String[] attributes = header.split("  +");
-        String plugin_name = "not found";
-        String plugin_desc = "not found";
-        String plugin_cat = "Misc";
-        for (int j = 0; j < attributes.length; j++) {
-            // search for name and use the value
-            if (attributes[j].equals("@name"))
-                plugin_name = attributes[j + 1];
-            if (attributes[j].equals("@description"))
-                plugin_desc = attributes[j + 1];
-            if (attributes[j].equals("@category"))
-                plugin_cat = attributes[j + 1];
-        }
+        // parse plugin name, description and category
+        // we need default versions here otherwise iitcm may crash
+        HashMap<String,String> info = IITC_WebViewClient.getScriptInfo(src);
+        String plugin_name = info.get("name");
+        String plugin_cat = info.get("category");
+        String plugin_desc = info.get("description");
 
         // remove IITC plugin prefix from plugin_name
         plugin_name = plugin_name.replace("IITC Plugin: ", "");
@@ -227,7 +218,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
 
         // now we have all stuff together and can build the preference
         // first check if we need a new category
-        if (sPlugins.containsKey(plugin_cat) == false) {
+        if (!sPlugins.containsKey(plugin_cat)) {
             sPlugins.put(plugin_cat, new ArrayList<IITC_PluginPreference>());
             Log.d("iitcm", "create " + plugin_cat + " and add " + plugin_name);
         }
@@ -288,7 +279,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
             TextView summary;
         }
 
-        private LayoutInflater mInflater;
+        private final LayoutInflater mInflater;
 
         static int getHeaderType(Header header) {
             if (header.fragment == null && header.intent == null) {

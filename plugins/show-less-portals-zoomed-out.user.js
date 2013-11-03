@@ -2,11 +2,11 @@
 // @id             iitc-plugin-show-less-portals@jonatkins
 // @name           IITC plugin: Show less portals when zoomed out
 // @category       Tweaks
-// @version        0.1.3.@@DATETIMEVERSION@@
+// @version        0.1.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Decrease the portal detail level used when zoomed out. This can speed up map loading, decrease the amount of data used, and result in faster display. Only applies when zoomed out to show no closer than L3 portals. May stop display of the smaller links/fields.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Decrease the portal detail level used when zoomed out. This can speed up map loading, decrease the amount of data used, and solve excessive request issues. Only applies when zoomed out to show no closer than L3 portals. May stop display of the smaller links/fields.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -32,23 +32,21 @@ window.plugin.showLessPortals.setup  = function() {
   window.getPortalDataZoom = function() {
     var mapZoom = map.getZoom();
 
-    // this plugin only cares about close in zoom levels (zoom 13 and higher) - run the original
-    // code when this isn't the case. (this way, multiple zoom-modifying plugins can exist at once - in theory)
-    if (mapZoom >= 13) {
-      return origGetPortalDataZoom();
+    // the latest intel site update, as of 2013-10-16, requests a silly number of map tiles at the larger zoom levels
+    // IITC matches the behaviour by default, but it makes sense to reduce the detail level sooner
+
+    // at the largest scale zooms - move back two levels
+    if (mapZoom <= 7) {
+      return Math.max(mapZoom-2,0);
     }
 
-    // make sure we're dealing with an integer here
-    // (mobile: a float somehow gets through in some cases!)
-    var z = parseInt(mapZoom);
+    // intermediate zoom levels - move back one
+    if (mapZoom <= 11) {
+      return Math.max(mapZoom-1,0);
+    }
 
-    // reduce the portal zoom level by one
-    z -= 1;
-
-    // ensure we're not too far out
-    if (z < 0) z=0;
-
-    return z;
+    // otherwise revert to default behaviour
+    return origGetPortalDataZoom();
   }
 
 
