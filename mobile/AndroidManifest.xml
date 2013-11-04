@@ -100,7 +100,7 @@
             android:name=".share.SendToClipboard"
             android:enabled="true"
             android:excludeFromRecents="true"
-            android:exported="true"
+            android:exported="false"
             android:icon="@drawable/copy"
             android:label="@string/activity_share_to_clipboard"
             android:noHistory="false">
