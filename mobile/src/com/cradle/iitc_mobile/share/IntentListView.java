@@ -20,11 +20,36 @@ import android.widget.TextView;
 import com.cradle.iitc_mobile.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
 public class IntentListView extends ListView {
+    public class IntentComparator implements Comparator<ResolveInfo> {
+        @Override
+        public int compare(ResolveInfo lhs, ResolveInfo rhs) {
+            int order;
+
+            order = lhs.loadLabel(mPackageManager).toString().compareTo(rhs.loadLabel(mPackageManager).toString());
+            if (order != 0) return order;
+
+            if (lhs.nonLocalizedLabel != null && rhs.nonLocalizedLabel != null) {
+                order = lhs.nonLocalizedLabel.toString().compareTo(rhs.nonLocalizedLabel.toString());
+                if (order != 0) return order;
+            }
+
+            order = lhs.activityInfo.packageName.compareTo(rhs.activityInfo.packageName);
+            if (order != 0) return order;
+
+            order = lhs.activityInfo.name.compareTo(rhs.activityInfo.name);
+            if (order != 0) return order;
+
+            return 0;
+        }
+    }
+
     private static class CopyHandler extends Pair<String, String> {
         public CopyHandler(ResolveInfo resolveInfo) {
             super(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
@@ -185,6 +210,8 @@ public class IntentListView extends ListView {
 
             }
         }
+
+        Collections.sort(allActivities, new IntentComparator());
 
         mAdapter.addAll(allActivities);
         mAdapter.setNotifyOnChange(true);
