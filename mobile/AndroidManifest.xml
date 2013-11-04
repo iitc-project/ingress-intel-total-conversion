@@ -136,7 +136,7 @@
         <!-- Points to searchable activity so the whole app can invoke search. -->
         <meta-data
             android:name="android.app.default_searchable"
-            android:value="com.cradle.iitc_mobile.IITC_Mobile"/>
+            android:value=".IITC_Mobile"/>
     </application>
 
 </manifest>
