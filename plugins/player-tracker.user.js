@@ -329,11 +329,15 @@ window.plugin.playerTracker.drawData = function() {
 
     // marker itself
     var icon = playerData.team === 'RESISTANCE' ?  new plugin.playerTracker.iconRes() :  new plugin.playerTracker.iconEnl();
-    var m = L.marker(gllfe(last), {title: title, icon: icon, referenceToPortal: closestPortal, opacity: absOpacity});
-    if (typeof android !== 'undefined' && android)
+    var m;
+    if (typeof android !== 'undefined' && android) {
+        m = L.marker(gllfe(last), {icon: icon, referenceToPortal: closestPortal, opacity: absOpacity});
         m.bindPopup(title);
-    // ensure tooltips are closed, sometimes they linger
-    m.on('mouseout', function() { $(this._icon).tooltip('close'); });
+    } else {
+        m = L.marker(gllfe(last), {title: title, icon: icon, referenceToPortal: closestPortal, opacity: absOpacity});
+        // ensure tooltips are closed, sometimes they linger
+        m.on('mouseout', function() { $(this._icon).tooltip('close'); });
+    }
     m.addTo(playerData.team === 'RESISTANCE' ? plugin.playerTracker.drawnTracesRes : plugin.playerTracker.drawnTracesEnl);
     plugin.playerTracker.oms.addMarker(m);
     // jQueryUI doesn’t automatically notice the new markers
