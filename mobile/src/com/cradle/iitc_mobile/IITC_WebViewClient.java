@@ -43,6 +43,7 @@ public class IITC_WebViewClient extends WebViewClient {
 
     private String mIitcScript = null;
     private String mIitcPath = null;
+    private boolean mIitcInjected = false;
     private final Context mContext;
 
     public IITC_WebViewClient(Context c) {
@@ -142,6 +143,7 @@ public class IITC_WebViewClient extends WebViewClient {
             } else {
                 js = this.fileToString("total-conversion-build.user.js", true);
             }
+            mIitcInjected = false;
         }
 
         PackageManager pm = mContext.getPackageManager();
@@ -177,8 +179,10 @@ public class IITC_WebViewClient extends WebViewClient {
     public void onPageFinished(WebView view, String url) {
         if (url.startsWith("http://www.ingress.com/intel")
                 || url.startsWith("https://www.ingress.com/intel")) {
+            if (mIitcInjected) return;
             Log.d("iitcm", "injecting iitc..");
             view.loadUrl("javascript: " + this.mIitcScript);
+            mIitcInjected = true;
             loadPlugins(view);
         }
         super.onPageFinished(view, url);
