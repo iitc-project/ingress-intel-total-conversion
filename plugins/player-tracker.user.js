@@ -299,13 +299,18 @@ window.plugin.playerTracker.drawData = function() {
         + ago(last.time, now) + ' ago<br>'
         + window.chat.getChatPortalName(last);
     // show previous data in tooltip
-    var minsAgo = '\t<span style="white-space: nowrap;"> ago</span>\t';
-    if(evtsLength >= 2)
-      title += '<br>&nbsp;<br>previous locations:<br>';
+    if(evtsLength >= 2) {
+      title += '<br>&nbsp;<br>previous locations:<br>'
+          + '<table style="border-spacing:0">';
+    }
     for(var i = evtsLength - 2; i >= 0 && i >= evtsLength - 10; i--) {
       var ev = playerData.events[i];
-      title += ago(ev.time, now) + minsAgo + window.chat.getChatPortalName(ev) + '<br>';
+      title += '<tr align="left"><td>' + ago(ev.time, now) + '</td>'
+          + '<td>ago</td>'
+          + '<td>' + window.chat.getChatPortalName(ev) + '</td></tr>';
     }
+    if(evtsLength >= 2)
+      title += '</table>';
 
     // calculate the closest portal to the player
     var eventPortal = []
@@ -330,14 +335,8 @@ window.plugin.playerTracker.drawData = function() {
     // marker itself
     var icon = playerData.team === 'RESISTANCE' ?  new plugin.playerTracker.iconRes() :  new plugin.playerTracker.iconEnl();
     var m;
-    if (typeof android !== 'undefined' && android) {
-        m = L.marker(gllfe(last), {icon: icon, referenceToPortal: closestPortal, opacity: absOpacity});
-        m.bindPopup(title);
-    } else {
-        m = L.marker(gllfe(last), {title: title, icon: icon, referenceToPortal: closestPortal, opacity: absOpacity});
-        // ensure tooltips are closed, sometimes they linger
-        m.on('mouseout', function() { $(this._icon).tooltip('close'); });
-    }
+    m = L.marker(gllfe(last), {icon: icon, referenceToPortal: closestPortal, opacity: absOpacity});
+    m.bindPopup(title);
     m.addTo(playerData.team === 'RESISTANCE' ? plugin.playerTracker.drawnTracesRes : plugin.playerTracker.drawnTracesEnl);
     plugin.playerTracker.oms.addMarker(m);
     // jQueryUI doesn’t automatically notice the new markers
