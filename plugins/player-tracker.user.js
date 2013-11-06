@@ -19,7 +19,7 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 window.PLAYER_TRACKER_MAX_TIME = 3*60*60*1000; // in milliseconds
 window.PLAYER_TRACKER_MIN_ZOOM = 9;
-
+window.PLAYER_TRACKER_MIN_OPACITY = 0.3;
 window.PLAYER_TRACKER_LINE_COLOUR = '#FF00FD';
 
 
@@ -45,11 +45,18 @@ window.plugin.playerTracker.setup = function() {
     iconRetinaUrl: iconResRetImage
   }});
 
-  plugin.playerTracker.drawnTraces = new L.LayerGroup();
-  window.addLayerGroup('Player Tracker', plugin.playerTracker.drawnTraces, true);
+  plugin.playerTracker.drawnTracesEnl = new L.LayerGroup();
+  plugin.playerTracker.drawnTracesRes = new L.LayerGroup();
+  // to avoid any favouritism, we'll put the player's own faction layer first
+  if (PLAYER.team == 'RESISTANCE') {
+    window.addLayerGroup('Player Tracker Resistance', plugin.playerTracker.drawnTracesRes, true);
+    window.addLayerGroup('Player Tracker Enlightened', plugin.playerTracker.drawnTracesEnl, true);
+  } else {
+    window.addLayerGroup('Player Tracker Enlightened', plugin.playerTracker.drawnTracesEnl, true);
+    window.addLayerGroup('Player Tracker Resistance', plugin.playerTracker.drawnTracesRes, true);
+  }
   map.on('layeradd',function(obj) {
-    if(obj.layer === plugin.playerTracker.drawnTraces)
-    {
+    if(obj.layer === plugin.playerTracker.drawnTracesEnl || obj.layer === plugin.playerTracker.drawnTracesRes) {
       obj.layer.eachLayer(function(marker) {
         if(marker._icon) window.setupTooltips($(marker._icon));
       });
@@ -77,7 +84,8 @@ window.plugin.playerTracker.stored = {};
 window.plugin.playerTracker.zoomListener = function() {
   var ctrl = $('.leaflet-control-layers-selector + span:contains("Player Tracker")').parent();
   if(window.map.getZoom() < window.PLAYER_TRACKER_MIN_ZOOM) {
-    window.plugin.playerTracker.drawnTraces.clearLayers();
+    window.plugin.playerTracker.drawnTracesEnl.clearLayers();
+    window.plugin.playerTracker.drawnTracesRes.clearLayers();
     ctrl.addClass('disabled').attr('title', 'Zoom in to show those.');
   } else {
     ctrl.removeClass('disabled').attr('title', '');
@@ -241,9 +249,10 @@ window.plugin.playerTracker.ago = function(time, now) {
 
 window.plugin.playerTracker.drawData = function() {
   var gllfe = plugin.playerTracker.getLatLngFromEvent;
-  var layer = plugin.playerTracker.drawnTraces;
 
-  var polyLineByAge = [[], [], [], []];
+  var polyLineByAgeEnl = [[], [], [], []];
+  var polyLineByAgeRes = [[], [], [], []];
+
   var split = PLAYER_TRACKER_MAX_TIME / 4;
   var now = new Date().getTime();
   $.each(plugin.playerTracker.stored, function(pguid, playerData) {
@@ -259,7 +268,11 @@ window.plugin.playerTracker.drawData = function() {
       var p = playerData.events[i];
       var ageBucket = Math.min(parseInt((now - p.time) / split), 4-1);
       var line = [gllfe(p), gllfe(playerData.events[i-1])];
-      polyLineByAge[ageBucket].push(line);
+
+      if(playerData.team === 'RESISTANCE')
+        polyLineByAgeRes[ageBucket].push(line);
+      else
+        polyLineByAgeEnl[ageBucket].push(line);
     }
 
     // tooltip for marker
@@ -282,17 +295,22 @@ window.plugin.playerTracker.drawData = function() {
       }
     }
     
-    title += '\n'
-        + ago(last.time, now) + ' ago\n'
+    title += '<br>'
+        + ago(last.time, now) + ' ago<br>'
         + window.chat.getChatPortalName(last);
     // show previous data in tooltip
-    var minsAgo = '\t<span style="white-space: nowrap;"> ago</span>\t';
-    if(evtsLength >= 2)
-      title += '\n&nbsp;\nprevious locations:\n';
+    if(evtsLength >= 2) {
+      title += '<br>&nbsp;<br>previous locations:<br>'
+          + '<table style="border-spacing:0">';
+    }
     for(var i = evtsLength - 2; i >= 0 && i >= evtsLength - 10; i--) {
       var ev = playerData.events[i];
-      title += ago(ev.time, now) + minsAgo + window.chat.getChatPortalName(ev) + '\n';
+      title += '<tr align="left"><td>' + ago(ev.time, now) + '</td>'
+          + '<td>ago</td>'
+          + '<td>' + window.chat.getChatPortalName(ev) + '</td></tr>';
     }
+    if(evtsLength >= 2)
+      title += '</table>';
 
     // calculate the closest portal to the player
     var eventPortal = []
@@ -310,19 +328,23 @@ window.plugin.playerTracker.drawData = function() {
       }
     });
 
+    // marker opacity
+    var relOpacity = 1 - (now - last.time) / window.PLAYER_TRACKER_MAX_TIME
+    var absOpacity = window.PLAYER_TRACKER_MIN_OPACITY + (1 - window.PLAYER_TRACKER_MIN_OPACITY) * relOpacity;
+
     // marker itself
     var icon = playerData.team === 'RESISTANCE' ?  new plugin.playerTracker.iconRes() :  new plugin.playerTracker.iconEnl();
-    var m = L.marker(gllfe(last), {title: title, icon: icon, referenceToPortal: closestPortal});
-    // ensure tooltips are closed, sometimes they linger
-    m.on('mouseout', function() { $(this._icon).tooltip('close'); });
-    m.addTo(layer);
+    var m;
+    m = L.marker(gllfe(last), {icon: icon, referenceToPortal: closestPortal, opacity: absOpacity});
+    m.bindPopup(title);
+    m.addTo(playerData.team === 'RESISTANCE' ? plugin.playerTracker.drawnTracesRes : plugin.playerTracker.drawnTracesEnl);
     plugin.playerTracker.oms.addMarker(m);
     // jQueryUI doesn’t automatically notice the new markers
     window.setupTooltips($(m._icon));
   });
 
   // draw the poly lines to the map
-  $.each(polyLineByAge, function(i, polyLine) {
+  $.each(polyLineByAgeEnl, function(i, polyLine) {
     if(polyLine.length === 0) return true;
 
     var opts = {
@@ -333,7 +355,20 @@ window.plugin.playerTracker.drawData = function() {
       dashArray: "5,8"
     };
 
-    L.multiPolyline(polyLine, opts).addTo(layer);
+    L.multiPolyline(polyLine, opts).addTo(plugin.playerTracker.drawnTracesEnl);
+  });
+  $.each(polyLineByAgeRes, function(i, polyLine) {
+    if(polyLine.length === 0) return true;
+
+    var opts = {
+      weight: 2-0.25*i,
+      color: PLAYER_TRACKER_LINE_COLOUR,
+      clickable: false,
+      opacity: 1-0.2*i,
+      dashArray: "5,8"
+    };
+
+    L.multiPolyline(polyLine, opts).addTo(plugin.playerTracker.drawnTracesRes);
   });
 }
 
@@ -343,11 +378,15 @@ window.plugin.playerTracker.handleData = function(data) {
   plugin.playerTracker.discardOldData();
   plugin.playerTracker.processNewData(data);
   // remove old popups
-  plugin.playerTracker.drawnTraces.eachLayer(function(layer) {
+  plugin.playerTracker.drawnTracesEnl.eachLayer(function(layer) {
+    if(layer._icon) $(layer._icon).tooltip('destroy');
+  });
+  plugin.playerTracker.drawnTracesRes.eachLayer(function(layer) {
     if(layer._icon) $(layer._icon).tooltip('destroy');
   });
   plugin.playerTracker.oms.clearMarkers();
-  plugin.playerTracker.drawnTraces.clearLayers();
+  plugin.playerTracker.drawnTracesEnl.clearLayers();
+  plugin.playerTracker.drawnTracesRes.clearLayers();
   plugin.playerTracker.drawData();
 }
 

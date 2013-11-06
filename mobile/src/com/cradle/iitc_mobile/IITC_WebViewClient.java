@@ -12,18 +12,21 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceResponse;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import com.cradle.iitc_mobile.async.UrlContentToString;
 
+import org.json.JSONObject;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
@@ -40,6 +43,7 @@ public class IITC_WebViewClient extends WebViewClient {
 
     private String mIitcScript = null;
     private String mIitcPath = null;
+    private boolean mIitcInjected = false;
     private final Context mContext;
 
     public IITC_WebViewClient(Context c) {
@@ -49,21 +53,49 @@ public class IITC_WebViewClient extends WebViewClient {
     }
 
     public String getIITCVersion() {
+        HashMap<String, String> map = getScriptInfo(mIitcScript);
+        return map.get("version");
+    }
+
+    // static method because we use it in IITC_PluginPreferenceActivity too
+    public static HashMap<String, String> getScriptInfo(String js) {
+        HashMap<String, String> map = new HashMap<String, String>();
         String header = "";
-        if (mIitcScript != null)
-            header = mIitcScript.substring(mIitcScript.indexOf("==UserScript=="),
-                    mIitcScript.indexOf("==/UserScript=="));
-        // remove new line comments
-        header = header.replace("\n//", "");
-        // get a list of key-value
-        String[] attributes = header.split(" +");
-        String iitc_version = "not found";
-        for (int i = 0; i < attributes.length; i++) {
-            // search for version and use the value
-            if (attributes[i].equals("@version"))
-                iitc_version = attributes[i + 1];
+        if (js != null) {
+            header = js.substring(js.indexOf("==UserScript=="),
+                    js.indexOf("==/UserScript=="));
         }
-        return iitc_version;
+        // remove new line comments
+        header = header.replace("\n//", " ");
+        // get a list of key-value
+        String[] attributes = header.split("  +");
+        // add default values
+        map.put("version", "not found");
+        map.put("name", "unknown");
+        map.put("description", "");
+        map.put("category", "Misc");
+        // add parsed values
+        for (int i = 0; i < attributes.length; i++) {
+            // search for attributes and use the value
+            if (attributes[i].equals("@version")) {
+                map.put("version", attributes[i + 1]);
+            }
+            if (attributes[i].equals("@name")) {
+                map.put("name", attributes[i + 1]);
+            }
+            if (attributes[i].equals("@description")) {
+                map.put("description", attributes[i + 1]);
+            }
+            if (attributes[i].equals("@category")) {
+                map.put("category", attributes[i + 1]);
+            }
+        }
+        return map;
+    }
+
+    public String getGmInfoJson(HashMap<String, String> map) {
+        JSONObject jObject = new JSONObject(map);
+        return "{\"script\":" + jObject.toString() + "}";
     }
 
     public void loadIITC_JS(Context c) throws java.io.IOException {
@@ -111,6 +143,7 @@ public class IITC_WebViewClient extends WebViewClient {
             } else {
                 js = this.fileToString("total-conversion-build.user.js", true);
             }
+            mIitcInjected = false;
         }
 
         PackageManager pm = mContext.getPackageManager();
@@ -129,12 +162,9 @@ public class IITC_WebViewClient extends WebViewClient {
             js = js.replace("window.showLayerChooser = true;",
                     "window.showLayerChooser = false");
         }
-        // add all plugins to the script...inject plugins + main script simultaneously
-        js += parsePlugins();
 
-        // IITC expects to be injected after the DOM has been loaded completely.
-        // since it is injected with the onPageFinished() event, no further delay is necessary.
-        this.mIitcScript = js;
+        String gmInfo = "GM_info=" + getGmInfoJson(getScriptInfo(js)).toString() + "\n";
+        this.mIitcScript = gmInfo + js;
 
     }
 
@@ -149,8 +179,11 @@ public class IITC_WebViewClient extends WebViewClient {
     public void onPageFinished(WebView view, String url) {
         if (url.startsWith("http://www.ingress.com/intel")
                 || url.startsWith("https://www.ingress.com/intel")) {
+            if (mIitcInjected) return;
             Log.d("iitcm", "injecting iitc..");
             view.loadUrl("javascript: " + this.mIitcScript);
+            mIitcInjected = true;
+            loadPlugins(view);
         }
         super.onPageFinished(view, url);
     }
@@ -161,19 +194,17 @@ public class IITC_WebViewClient extends WebViewClient {
     @Override
     public void onReceivedLoginRequest(WebView view, String realm, String account, String args) {
         Log.d("iitcm", "Login requested: " + realm + " " + account + " " + args);
-        Log.d("iitcm", "logging in...set caching mode to default");
-        view.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
+        Log.d("iitcm", "logging in...updating caching mode");
+        ((IITC_WebView) view).updateCaching(true);
         //((IITC_Mobile) mContext).onReceivedLoginRequest(this, view, realm, account, args);
     }
 
-    // parse all enabled iitc plugins
-    // returns a string containing all plugins without their wrappers
-    public String parsePlugins() {
-        String js = "";
+    public void loadPlugins(WebView view) {
         // get the plugin preferences
         SharedPreferences sharedPref = PreferenceManager
                 .getDefaultSharedPreferences(mContext);
         boolean dev_enabled = sharedPref.getBoolean("pref_dev_checkbox", false);
+        String path = (dev_enabled) ? mIitcPath + "dev/plugins/" : "plugins/";
 
         Map<String, ?> all_prefs = sharedPref.getAll();
 
@@ -181,39 +212,36 @@ public class IITC_WebViewClient extends WebViewClient {
         for (Map.Entry<String, ?> entry : all_prefs.entrySet()) {
             String plugin = entry.getKey();
             if (plugin.endsWith("user.js") && entry.getValue().toString().equals("true")) {
-                // load default iitc plugins
                 if (!plugin.startsWith(mIitcPath)) {
+                    // load default iitc plugins
                     Log.d("iitcm", "adding plugin " + plugin);
-                    if (dev_enabled)
-                        js += this.removePluginWrapper(mIitcPath + "dev/plugins/"
-                                + plugin, false);
-                    else
-                        js += this.removePluginWrapper("plugins/" + plugin, true);
-                    // load user iitc plugins
+                    loadJS(path + plugin, !dev_enabled, view);
                 } else {
+                    // load user iitc plugins
                     Log.d("iitcm", "adding user plugin " + plugin);
-                    js += this.removePluginWrapper(plugin, false);
+                    loadJS(plugin, false, view);
                 }
             }
         }
 
         // inject the user location script if enabled in settings
-        if (sharedPref.getBoolean("pref_user_loc", false))
-            js += parseTrackingPlugin(dev_enabled);
-
-        return js;
+        if (sharedPref.getBoolean("pref_user_loc", false)) {
+            path = path.replace("plugins/", "");
+            loadJS(path + "user-location.user.js", !dev_enabled, view);
+        }
     }
 
-    public String parseTrackingPlugin(boolean dev_enabled) {
-        Log.d("iitcm", "enable tracking...");
-        String js = "";
-        // load plugin from external storage if dev mode are enabled
-        if (dev_enabled)
-            js = this.removePluginWrapper(mIitcPath + "dev/user-location.user.js", false);
-        else
-            // load plugin from asset folder
-            js = this.removePluginWrapper("user-location.user.js", true);
-        return js;
+    // read a file into a string
+    // load it as javascript
+    public boolean loadJS(String file, boolean asset, WebView view) {
+        String js = fileToString(file, asset);
+        if (js.equals("false")) {
+            return false;
+        } else {
+            String gmInfo = "GM_info=" + getGmInfoJson(getScriptInfo(js)) + "\n";
+            view.loadUrl("javascript:" + gmInfo + js);
+        }
+        return true;
     }
 
     // read a file into a string
@@ -243,51 +271,10 @@ public class IITC_WebViewClient extends WebViewClient {
             }
         }
 
-        if (s != null)
+        if (s != null) {
             src = s.hasNext() ? s.next() : "";
-        return src;
-    }
-
-    // read a file into a string
-    // load it as javascript
-    // at the moment not needed, but not bad to have it in the IITC_WebViewClient API
-    public boolean loadJS(String file, boolean asset, WebView view) {
-        if (!file.endsWith("user.js"))
-            return false;
-        String js = fileToString(file, asset);
-        if (js.equals("false"))
-            return false;
-        else
-            view.loadUrl("javascript:" + js);
-        return true;
-    }
-
-    // iitc and all plugins are loaded at the same time
-    // so remove the wrapper functions and injection code
-    // TODO: it only works if the plugin is coded with the iitc plugin template
-    public String removePluginWrapper(String file, boolean asset) {
-        if (!file.endsWith("user.js")) return "";
-        String js = fileToString(file, asset);
-        if (js.equals("false")) return "";
-        js = js.replaceAll("\r\n", "\n");  //convert CR-LF pairs to LF - windows format text files
-        js = js.replaceAll("\r", "\n");    //convert remaining CR to LF - Mac format files(?)
-        String wrapper_start = "function wrapper() {";
-        String wrapper_end = "} // wrapper end";
-        String injection_code = "// inject code into site context\n" +
-                "var script = document.createElement('script');\n" +
-                "script.appendChild(document.createTextNode('('+ wrapper +')();'));\n" +
-                "(document.body || document.head || document.documentElement).appendChild(script);";
-        if (js.contains(wrapper_start) && js.contains(wrapper_end) && js.contains(injection_code)) {
-            js = js.replace(wrapper_start, "");
-            // remove the wrapper function
-            js = js.replace(wrapper_end, "");
-            // and the code injection
-            js = js.replace(injection_code, "");
-        } else {
-            Log.d("iitcm", "Removal of wrapper/injection code failed for " + file);
-            return "";
         }
-        return js;
+        return src;
     }
 
     // Check every external resource if it’s okay to load it and maybe replace
@@ -334,8 +321,8 @@ public class IITC_WebViewClient extends WebViewClient {
                 ((IITC_Mobile) mContext).loadUrl(url);
             }
             if (url.contains("logout")) {
-                Log.d("iitcm", "logging out...set caching mode to default");
-                view.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
+                Log.d("iitcm", "logging out...updating caching mode");
+                ((IITC_WebView) view).updateCaching(true);
             }
             return false;
         } else {

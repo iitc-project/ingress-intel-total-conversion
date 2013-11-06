@@ -75,8 +75,6 @@ Yes it is!
 </ul>
 Note:
 <ul>
-<li>The plugins wrapper function has to be identical to all other IITC plugins (IITCm removes it via search and replace).
-    Alternatively, you can use the @@PLUGINSTART@@ / @@PLUGINEND@@ macros or remove the wrapper by hand.</li>
 <li>The filename has to end with *.user.js.</li>
 <li>If you don't know where to find your home directory: Enable dev-mode in the settings and follow the hint.</li>
 </ul>

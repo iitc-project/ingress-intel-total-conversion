@@ -44,7 +44,7 @@ Modified by qnstie 2013-07-17 to maintain compatibility with Leaflet.draw
       lat1, lat2, lng1, lng2, dLng, d, segments,
       f, A, B, x, y, z, fLat, fLng;
   
-    dLng = Math.abs(endLatlng.lng - startLatlng.lng) * d2r;
+    dLng = (endLatlng.lng - startLatlng.lng) * d2r;
     lat1 = startLatlng.lat * d2r;
     lat2 = endLatlng.lat * d2r;
     lng1 = startLatlng.lng * d2r;
@@ -60,14 +60,15 @@ Modified by qnstie 2013-07-17 to maintain compatibility with Leaflet.draw
     //  rounding errors? maths bug? not sure - but it solves the issue! and is a slight optimisation)
     for (i = 1; i < segments; i++) {
       // http://williams.best.vwh.net/avform.htm#Intermediate
+      // modified to handle longitude above +-180 degrees
       f = i / segments;
       A = Math.sin((1-f)*d) / Math.sin(d);
       B = Math.sin(f*d) / Math.sin(d);
-      x = A * Math.cos(lat1) * Math.cos(lng1) + B * Math.cos(lat2) * Math.cos(lng2);
-      y = A * Math.cos(lat1) * Math.sin(lng1) + B * Math.cos(lat2) * Math.sin(lng2);
-      z = A * Math.sin(lat1)                  + B * Math.sin(lat2);
+      x = A * Math.cos(lat1) * Math.cos(0) + B * Math.cos(lat2) * Math.cos(dLng);
+      y = A * Math.cos(lat1) * Math.sin(0) + B * Math.cos(lat2) * Math.sin(dLng);
+      z = A * Math.sin(lat1)               + B * Math.sin(lat2);
       fLat = r2d * Math.atan2(z, Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)));
-      fLng = r2d * Math.atan2(y, x);
+      fLng = r2d * (Math.atan2(y, x)+lng1);
 
       convertedPoints.push(L.latLng([fLat, fLng]));
     }
@@ -174,10 +175,9 @@ Modified by qnstie 2013-07-17 to maintain compatibility with Leaflet.draw
 
       var calcLatLngAtAngle = function(angle) {
         var lat = Math.asin(sinCentreLat*cosRadRadius + cosCentreLat*sinRadRadius*Math.cos(angle));
+        var lng = centreLng + Math.atan2(Math.sin(angle)*sinRadRadius*cosCentreLat, cosRadRadius-sinCentreLat*Math.sin(lat));
 
-        var lon = centreLng + Math.asin( Math.sin(angle) * sinRadRadius / cosCentreLat )
-
-        return L.latLng(lat * r2d,lon * r2d);
+        return L.latLng(lat * r2d,lng * r2d);
       }
 
 

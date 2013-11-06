@@ -60,8 +60,9 @@ public class IntentListView extends ListView {
     private static final HashSet<CopyHandler> KNOWN_COPY_HANDLERS = new HashSet<CopyHandler>();
 
     private static void setupKnownCopyHandlers() {
-        if (!KNOWN_COPY_HANDLERS.isEmpty())
+        if (!KNOWN_COPY_HANDLERS.isEmpty()) {
             return;
+        }
 
         KNOWN_COPY_HANDLERS.add(new CopyHandler(
                 "com.google.android.apps.docs",
@@ -141,8 +142,9 @@ public class IntentListView extends ListView {
             for (ResolveInfo resolveInfo : activityList) { // search for "Copy to clipboard" handler
                 CopyHandler handler = new CopyHandler(resolveInfo);
 
-                if (KNOWN_COPY_HANDLERS.contains(handler))
+                if (KNOWN_COPY_HANDLERS.contains(handler)) {
                     hasCopyIntent = true;
+                }
             }
 
             // use traditional loop since list may change during iteration
@@ -150,11 +152,19 @@ public class IntentListView extends ListView {
                 ResolveInfo info = activityList.get(i);
                 ActivityInfo activity = info.activityInfo;
 
+                // fix bug in PackageManager - a replaced package name might cause non-exported intents to appear
+                if (activity.exported == false && !activity.packageName.equals(packageName)) {
+                    activityList.remove(i);
+                    i--;
+                    continue;
+                }
+
                 // remove all IITCm intents, except for SendToClipboard in case Drive is not installed
                 if (activity.packageName.equals(packageName)) {
                     if (hasCopyIntent || !activity.name.equals(SendToClipboard.class.getCanonicalName())) {
                         activityList.remove(i);
                         i--;
+                        continue;
                     }
                 }
             }

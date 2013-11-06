@@ -40,8 +40,10 @@ window.playerNameToGuid = function(playerName) {
   if (cachedGuid !== undefined) return cachedGuid;
 
   // IITC needs our own player GUID, from a lookup by name. so we retrieve this from localstorage (if available)
-  cachedGuid = localStorage['PLAYER-'+PLAYER.nickname];
-  if (cachedGuid !== undefined) return cachedGuid;
+  if (playerName == PLAYER.nickname) {
+    cachedGuid = localStorage['PLAYER-'+PLAYER.nickname];
+    if (cachedGuid !== undefined) return cachedGuid;
+  }
 
   var guid = null;
   $.each(Object.keys(sessionStorage), function(ind,key) {
@@ -72,9 +74,11 @@ window.resolvePlayerNames = function() {
   window.playersInResolving = window.playersInResolving.concat(p);
 
   postAjax('getPlayersByGuids', d, function(dat) {
+    var resolvedName = {};
     if(dat.result) {
       $.each(dat.result, function(ind, player) {
         window.setPlayerName(player.guid, player.nickname);
+        resolvedName[player.guid] = player.nickname;
         // remove from array
         window.playersInResolving.splice(window.playersInResolving.indexOf(player.guid), 1);
       });
@@ -85,6 +89,9 @@ window.resolvePlayerNames = function() {
       //likely to be some kind of 'bad request' (e.g. too many names at once, or otherwise badly formatted data.
       //therefore, not a good idea to automatically retry by adding back to the playersToResolve list
     }
+
+    // Run hook 'playerNameResolved' with the resolved player names
+    window.runHooks('playerNameResolved', {names: resolvedName});
 
     //TODO: have an event triggered for this instead of hard-coded single function call
     if(window.selectedPortal)
