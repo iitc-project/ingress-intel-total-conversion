@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portals-list@teo96
 // @name           IITC plugin: show list of portals
 // @category       Info
-// @version        0.0.17.@@DATETIMEVERSION@@
+// @version        0.0.18.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -211,11 +211,14 @@ window.plugin.portalslist.displayPL = function() {
   $(document).on('click.portalslist', '#portalslist .filterEnl', function() {
     $('#portalslist').html(window.plugin.portalslist.portalTable($(this).data('sort'),window.plugin.portalslist.sortOrder,2));
   });
+
+  //run the name resolving process
+  resolvePlayerNames();
   
   //debug tools
   //end = new Date().getTime();
   //console.log('***** end : ' + end + ' and Elapse : ' + (end - start));
- }
+}
     
 window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   // sortOrder <0 ==> desc, >0 ==> asc, i use sortOrder * -1 to change the state
