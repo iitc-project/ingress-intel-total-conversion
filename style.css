@@ -982,3 +982,36 @@ td + td {
   display: none;
 }
 
+
+
+/* leaflet popups - restyle to match the theme of IITC */
+#map .leaflet-popup-content-wrapper {
+  border-radius: 0px;
+  -webkit-border-radius: 0px;
+  border: 1px solid #20A8B1;
+  background: #0e3d4e;
+}
+
+#map .leaflet-popup-content {
+  color: #ffce00;
+  margin: 5px 8px;
+}
+
+#map .leaflet-popup-close-button {
+  display: none;
+}
+
+#map .leaflet-popup-tip {
+  /* change the tip from an arrow to a simple line */
+  background: #20A8B1;
+  width: 1px;
+  height: 20px;
+  padding: 0;
+  margin: 0 0 0 20px;
+  -webkit-transform: none;
+  -moz-transform: none;
+  -ms-transform: none;
+  -o-transform: none;
+  transform: none;
+
+}
