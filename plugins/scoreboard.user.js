@@ -2,7 +2,7 @@
 // @id             iitc-plugin-scoreboard@vita10gy
 // @name           IITC plugin: show a localized scoreboard.
 // @category       Info
-// @version        0.1.8.@@DATETIMEVERSION@@
+// @version        0.1.9.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -291,6 +291,9 @@ window.plugin.scoreboard.display = function() {
   $(document).on('click', '#players table th', function() {
     $('#players').html(window.plugin.scoreboard.playerTable($(this).data('sort')));
   });
+
+  //run the name resolving process
+  resolvePlayerNames();
 }
 
 window.plugin.scoreboard.portalDistance = function(portalAE6Location, portalBE6Location) {
