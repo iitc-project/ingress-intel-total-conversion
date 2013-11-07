@@ -22,7 +22,7 @@ window.artifact.setup = function() {
   artifact.requestData();
 
   artifact._layer = new L.LayerGroup();
-  addLayerGroup ('Artifacts (Jarvis shards)', artifact._layer);
+  addLayerGroup ('Artifacts (Jarvis shards)', artifact._layer, true);
 }
 
 window.artifact.requestData = function() {
