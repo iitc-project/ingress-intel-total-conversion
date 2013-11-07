@@ -104,6 +104,11 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         }
     }
 
+    @Override
+    protected boolean isValidFragment(String s) {
+        return true;
+    }
+
     // called by Plugins Fragment
     public static ArrayList<IITC_PluginPreference> getPluginPreference(String key) {
         return sPlugins.get(key);
