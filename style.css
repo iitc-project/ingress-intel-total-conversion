@@ -985,11 +985,16 @@ td + td {
 
 
 /* leaflet popups - restyle to match the theme of IITC */
+#map .leaflet-popup {
+  pointer-events: none;
+}
+
 #map .leaflet-popup-content-wrapper {
   border-radius: 0px;
   -webkit-border-radius: 0px;
   border: 1px solid #20A8B1;
   background: #0e3d4e;
+  pointer-events: auto;
 }
 
 #map .leaflet-popup-content {
@@ -998,8 +1003,14 @@ td + td {
 }
 
 #map .leaflet-popup-close-button {
-  display: none;
+  padding: 2px 1px 0 0;
+  font-size: 12px;
+  line-height: 8px;
+  width: 10px;
+  height: 10px;
+  pointer-events: auto;
 }
+
 
 #map .leaflet-popup-tip {
   /* change the tip from an arrow to a simple line */
@@ -1013,5 +1024,11 @@ td + td {
   -ms-transform: none;
   -o-transform: none;
   transform: none;
+}
 
+
+/* misc */
+
+.no-pointer-events {
+  pointer-events: none;
 }
