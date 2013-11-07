@@ -307,14 +307,19 @@ window.plugin.playerTracker.drawData = function() {
     title += '<br>'
         + ago(last.time, now) + ' ago<br>'
         + window.chat.getChatPortalName(last);
-    // show previous data in popup
-    var minsAgo = '\t<span style="white-space: nowrap;"> ago</span>\t';
-    if(evtsLength >= 2)
-      title += '<br>&nbsp;<br>previous locations:<br>';
+    // show previous data in tooltip
+    if(evtsLength >= 2) {
+      title += '<br>&nbsp;<br>previous locations:<br>'
+          + '<table style="border-spacing:0">';
+    }
     for(var i = evtsLength - 2; i >= 0 && i >= evtsLength - 10; i--) {
       var ev = playerData.events[i];
-      title += ago(ev.time, now) + minsAgo + window.chat.getChatPortalName(ev) + '<br>';
+      title += '<tr align="left"><td>' + ago(ev.time, now) + '</td>'
+          + '<td>ago</td>'
+          + '<td>' + window.chat.getChatPortalName(ev) + '</td></tr>';
     }
+    if(evtsLength >= 2)
+      title += '</table>';
 
     // calculate the closest portal to the player
     var eventPortal = []
