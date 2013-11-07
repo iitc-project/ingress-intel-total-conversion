@@ -1015,3 +1015,10 @@ td + td {
   transform: none;
 
 }
+
+
+/* misc */
+
+.no-pointer-events {
+  pointer-events: none;
+}
