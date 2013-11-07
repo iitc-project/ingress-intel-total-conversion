@@ -2,8 +2,16 @@
 // cache for map data tiles. 
 
 window.DataCache = function() {
-  this.REQUEST_CACHE_FRESH_AGE = 60;  // if younger than this, use data in the cache rather than fetching from the server
-  this.REQUEST_CACHE_MAX_AGE = 180;  // maximum cache age. entries are deleted from the cache after this time
+  // stock site nemesis.dashboard.DataManager.CACHE_EXPIRY_MS_ = 18E4 - so should be 2 mins cache time
+  this.REQUEST_CACHE_FRESH_AGE = 120;  // if younger than this, use data in the cache rather than fetching from the server
+
+  // stale cache entries can be updated (that's what the optional 'timestampMs' field in getThinnedEntnties is
+  // for, retrieving deltas) so use a long max age to take advantage of this
+  // however, ther must be an overall limit on the maximum age of data from the servers, otherwise the deletedEntity
+  // entries would grow indefinitely. an hour seems reasonable from experience with the data, so 55 mins max cache time
+//  this.REQUEST_CACHE_MAX_AGE = 55*60;  // maximum cache age. entries are deleted from the cache after this time
+//UPDATE: this timestampMs parameter doesn't work, so reduced max age to limit RAM usage
+  this.REQUEST_CACHE_MAX_AGE = 15*60;  // maximum cache age. entries are deleted from the cache after this time
 
   if (L.Browser.mobile) {
     // on mobile devices, smaller cache size
@@ -18,15 +26,19 @@ window.DataCache = function() {
 
 }
 
-window.DataCache.prototype.store = function(qk,data,date) {
+window.DataCache.prototype.store = function(qk,data,freshTime) {
   // fixme? common behaviour for objects is that properties are kept in the order they're added
   // this is handy, as it allows easy retrieval of the oldest entries for expiring
   // however, this is not guaranteed by the standards, but all our supported browsers work this way
 
   delete this._cache[qk];
 
-  if (date === undefined) date = new Date();
-  this._cache[qk] = { time: date.getTime(), data: data };
+  var time = new Date().getTime();
+
+  if (freshTime===undefined) freshTime = this.REQUEST_CACHE_FRESH_AGE*1000;
+  var expire = time + freshTime;
+
+  this._cache[qk] = { time: time, expire: expire, data: data };
 }
 
 window.DataCache.prototype.get = function(qk) {
@@ -42,8 +54,8 @@ window.DataCache.prototype.getTime = function(qk) {
 window.DataCache.prototype.isFresh = function(qk) {
   if (qk in this._cache) {
     var d = new Date();
-    var t = d.getTime() - this.REQUEST_CACHE_FRESH_AGE*1000;
-    if (this._cache[qk].time >= t) return true;
+    var t = d.getTime();
+    if (this._cache[qk].expire >= t) return true;
     else return false;
   }
 

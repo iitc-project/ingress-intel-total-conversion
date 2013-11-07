@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IntentFragmentAdapter extends FragmentPagerAdapter {
-    private List<IntentFragment> mTabs;
+    private final List<IntentFragment> mTabs;
 
     public IntentFragmentAdapter(FragmentManager fm) {
         super(fm);

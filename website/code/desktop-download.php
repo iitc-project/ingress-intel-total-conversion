@@ -25,7 +25,7 @@ function loadPopularity()
 		{
 			$items = explode ( ' ', $line );
 			$popularity[$items[0]] = (int)$items[1];
-		}		
+		}
 	}
 
 	return $popularity;
@@ -33,10 +33,10 @@ function loadPopularity()
 
 function popularity_cmp ( $a, $b )
 {
-	if ( $a['popularity'] == $b['popularity'] )
+	if ( @$a['popularity'] == @$b['popularity'] )
 		return 0;
 	// sort from highest to lowest
-	return ($a['popularity'] > $b['popularity']) ? -1 : 1;
+	return (@$a['popularity'] > @$b['popularity']) ? -1 : 1;
 }
 
 

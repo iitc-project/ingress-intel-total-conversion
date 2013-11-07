@@ -60,8 +60,9 @@ public class IntentListView extends ListView {
     private static final HashSet<CopyHandler> KNOWN_COPY_HANDLERS = new HashSet<CopyHandler>();
 
     private static void setupKnownCopyHandlers() {
-        if (!KNOWN_COPY_HANDLERS.isEmpty())
+        if (!KNOWN_COPY_HANDLERS.isEmpty()) {
             return;
+        }
 
         KNOWN_COPY_HANDLERS.add(new CopyHandler(
                 "com.google.android.apps.docs",
@@ -74,7 +75,7 @@ public class IntentListView extends ListView {
 
     private IntentAdapter mAdapter;
     private PackageManager mPackageManager;
-    HashMap<ComponentName, Intent> mActivities = new HashMap<ComponentName, Intent>();
+    private final HashMap<ComponentName, Intent> mActivities = new HashMap<ComponentName, Intent>();
 
     public IntentListView(Context context) {
         super(context);
@@ -141,8 +142,9 @@ public class IntentListView extends ListView {
             for (ResolveInfo resolveInfo : activityList) { // search for "Copy to clipboard" handler
                 CopyHandler handler = new CopyHandler(resolveInfo);
 
-                if (KNOWN_COPY_HANDLERS.contains(handler))
+                if (KNOWN_COPY_HANDLERS.contains(handler)) {
                     hasCopyIntent = true;
+                }
             }
 
             // use traditional loop since list may change during iteration
@@ -155,7 +157,6 @@ public class IntentListView extends ListView {
                     if (hasCopyIntent || !activity.name.equals(SendToClipboard.class.getCanonicalName())) {
                         activityList.remove(i);
                         i--;
-                        continue;
                     }
                 }
             }
@@ -172,8 +173,7 @@ public class IntentListView extends ListView {
                     if (resolveInfo.activityInfo.packageName.equals(defaultTarget.activityInfo.packageName)
                             && resolveInfo.activityInfo.name.equals(defaultTarget.activityInfo.name)) {
                         allActivities.add(0, resolveInfo);
-                    }
-                    else {
+                    } else {
                         allActivities.add(resolveInfo);
                     }
                 }

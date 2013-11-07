@@ -2,24 +2,18 @@
 <module type="JAVA_MODULE" version="4">
   <component name="FacetManager">
     <facet type="android" name="Android">
-      <configuration>
-        <notImportedProperties>
-          <property>MANIFEST_FILE_PATH</property>
-          <property>RESOURCES_DIR_PATH</property>
-          <property>ASSETS_DIR_PATH</property>
-          <property>NATIVE_LIBS_DIR_PATH</property>
-        </notImportedProperties>
-      </configuration>
+      <configuration />
     </facet>
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/gen" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/gen" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="android-support-v4" level="project" />
   </component>
 </module>
 

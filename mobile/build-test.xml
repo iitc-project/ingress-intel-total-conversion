@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="IITC_Mobile" default="help">
+
+    <!-- The local.properties file is created and updated by the 'android' tool.
+         It contains the path to the SDK. It should *NOT* be checked into
+         Version Control Systems. -->
+    <property file="local.properties" />
+
+    <!-- The ant.properties file can be created by you. It is only edited by the
+         'android' tool to add properties to it.
+         This is the place to change some Ant specific build properties.
+         Here are some properties you may want to change/update:
+
+         source.dir
+             The name of the source directory. Default is 'src'.
+         out.dir
+             The name of the output directory. Default is 'bin'.
+
+         For other overridable properties, look at the beginning of the rules
+         files in the SDK, at tools/ant/build.xml
+
+         Properties related to the SDK location or the project target should
+         be updated using the 'android' tool with the 'update' action.
+
+         This file is an integral part of the build system for your
+         application and should be checked into Version Control Systems.
+
+         -->
+    <property file="ant.properties" />
+
+    <!-- if sdk.dir was not set from one of the property file, then
+         get it from the ANDROID_HOME env var.
+         This must be done before we load project.properties since
+         the proguard config can use sdk.dir -->
+    <property environment="env" />
+    <condition property="sdk.dir" value="${env.ANDROID_HOME}">
+        <isset property="env.ANDROID_HOME" />
+    </condition>
+
+    <!-- The project.properties file is created and updated by the 'android'
+         tool, as well as ADT.
+
+         This contains project specific properties such as project target, and library
+         dependencies. Lower level build properties are stored in ant.properties
+         (or in .classpath for Eclipse projects).
+
+         This file is an integral part of the build system for your
+         application and should be checked into Version Control Systems. -->
+    <loadproperties srcFile="project.properties" />
+
+    <!-- quick check on sdk.dir -->
+    <fail
+            message="sdk.dir is missing. Make sure to generate local.properties using 'android update project' or to inject it through the ANDROID_HOME environment variable."
+            unless="sdk.dir"
+    />
+
+    <!--
+        Import per project custom build rules if present at the root of the project.
+        This is the place to put custom intermediary targets such as:
+            -pre-build
+            -pre-compile
+            -post-compile (This is typically used for code obfuscation.
+                           Compiled code location: ${out.classes.absolute.dir}
+                           If this is not done in place, override ${out.dex.input.absolute.dir})
+            -post-package
+            -post-build
+            -pre-clean
+    -->
+    <import file="custom_rules.xml" optional="true" />
+
+    <!-- allow the package name to be overridden when building -->
+    <property name="override.package.name" value="com.cradle.iitc_mobile.test"/>
+
+    <!-- Puts the project's resources into the output package file
+         This actually can create multiple resource package in case
+         Some custom apk with specific configuration have been
+         declared in default.properties.
+         -->
+    <target name="-package-resources" depends="-crunch">
+        <!-- only package resources if *not* a library project -->
+        <do-only-if-not-library elseText="Library project: do not package resources..." >
+            <aapt executable="${aapt}"
+                    command="package"
+                    versioncode="${version.code}"
+                    versionname="${version.name}"
+                    debug="${build.is.packaging.debug}"
+                    manifest="${out.manifest.abs.file}"
+                    manifestpackage="${override.package.name}"
+                    assets="${asset.absolute.dir}"
+                    androidjar="${project.target.android.jar}"
+                    apkfolder="${out.absolute.dir}"
+                    nocrunch="${build.packaging.nocrunch}"
+                    resourcefilename="${resource.package.file.name}"
+                    resourcefilter="${aapt.resource.filter}"
+                    libraryResFolderPathRefid="project.library.res.folder.path"
+                    libraryPackagesRefid="project.library.packages"
+                    libraryRFileRefid="project.library.bin.r.file.path"
+                    previousBuildType="${build.last.target}"
+                    buildType="${build.target}"
+                    ignoreAssets="${aapt.ignore.assets}">
+                <res path="${out.res.absolute.dir}" />
+                <res path="${resource.absolute.dir}" />
+                <!-- <nocompress /> forces no compression on any files in assets or res/raw -->
+                <!-- <nocompress extension="xml" /> forces no compression on specific file extensions in assets and res/raw -->
+            </aapt>
+        </do-only-if-not-library>
+    </target>
+
+
+    <target name="-pre-build" depends="-custom-git-version,-custom-manifest-version,-test-setup">
+    </target>
+
+    <!-- Packages the application. -->
+    <target name="-post-build">
+    <antcall target="-custom-restore-manifest"/>
+    <antcall target="-test-revert"/>
+    </target>
+
+    <!-- Custom targets -->
+    <target name="-custom-git-version">
+        <exec executable="sh" outputproperty="git.commits">
+            <arg value="-c" />
+            <arg value="git log --pretty=format:'' | wc -l" />
+        </exec>
+        <echo>git.commits: ${git.commits}</echo>
+        <exec executable="git" outputproperty="git.version">
+            <arg value="rev-parse" />
+            <arg value="--short" />
+            <arg value="HEAD" />
+        </exec>
+        <echo>git.version: ${git.version}</echo>
+    </target>
+
+    <target name="-custom-manifest-version">
+        <echo>Creating backup of AndroidManifest.xml</echo>
+        <copy file="AndroidManifest.xml" tofile="AndroidManifest.xml.antbak" preservelastmodified="true" />
+
+        <replaceregexp
+        file="AndroidManifest.xml"
+        match='android:versionCode="(\d+)"'
+        replace='android:versionCode="${git.commits}"' />
+
+        <replaceregexp
+        file="AndroidManifest.xml"
+        match='android:versionName="(\d+\.\d+)"'
+        replace='android:versionName="\1.${git.version}"' />
+    </target>
+
+    <target name="-custom-restore-manifest">
+    <echo>Restoring backup of AndroidManifest.xml</echo>
+    <move file="AndroidManifest.xml.antbak"
+          tofile="AndroidManifest.xml"
+          preservelastmodified="true"
+          overwrite="true" />
+    </target>
+
+    <target name="-test-setup">
+        <echo>Creating backup of strings.xml and preferences.xml</echo>
+        <copy file="res/values/strings.xml" tofile="strings.xml.antbak" preservelastmodified="true" />
+        <copy file="res/xml/preferences.xml" tofile="preferences.xml.antbak" preservelastmodified="true" />
+        <replaceregexp
+           file="res/values/strings.xml"
+           match='IITC Mobile'
+           replace='IITCm Test'/>
+        <replaceregexp
+           file="res/xml/preferences.xml"
+           match='targetPackage="com.cradle.iitc_mobile"'
+           replace='targetPackage="com.cradle.iitc_mobile.test"'/>
+    </target>
+
+    <target name="-test-revert">
+        <echo>Restoring backup of strings.xml and preferences.xml</echo>
+        <move file="strings.xml.antbak"
+              tofile="res/values/strings.xml"
+              preservelastmodified="true"
+              overwrite="true" />
+        <move file="preferences.xml.antbak"
+              tofile="res/xml/preferences.xml"
+              preservelastmodified="true"
+              overwrite="true" />
+    </target>
+
+    <!-- Import the actual build file.
+
+         To customize existing targets, there are two options:
+         - Customize only one target:
+             - copy/paste the target into this file, *before* the
+               <import> task.
+             - customize it to your needs.
+         - Customize the whole content of build.xml
+             - copy/paste the content of the rules files (minus the top node)
+               into this file, replacing the <import> task.
+             - customize to your needs.
+
+         ***********************
+         ****** IMPORTANT ******
+         ***********************
+         In all cases you must update the value of version-tag below to read 'custom' instead of an integer,
+         in order to avoid having your file be overridden by tools such as "android update project"
+    -->
+    <!-- version-tag: 1 -->
+    <import file="${sdk.dir}/tools/ant/build.xml" />
+
+</project>

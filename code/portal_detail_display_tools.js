@@ -5,11 +5,20 @@
 // returns displayable text+link about portal range
 window.getRangeText = function(d) {
   var range = getPortalRange(d);
+  
+  var title = 'Base range:\t' + digits(Math.floor(range.base))+'m'
+    + '\nLink amp boost:\t×'+range.boost
+    + '\nRange:\t'+digits(Math.floor(range.range))+'m';
+  
+  if(!range.isLinkable) title += '\nPortal is missing resonators,\nno new links can be made';
+  
   return ['range',
-      '<a onclick="window.rangeLinkClick()">'
-    + (range > 1000
-      ? Math.floor(range/1000) + ' km'
-      : Math.floor(range)      + ' m')
+      '<a onclick="window.rangeLinkClick()"'
+    + (range.isLinkable ? '' : ' style="text-decoration:line-through;"')
+    + ' title="'+title+'">'
+    + (range.range > 1000
+      ? Math.floor(range.range/1000) + ' km'
+      : Math.floor(range.range)      + ' m')
     + '</a>'];
 }
 

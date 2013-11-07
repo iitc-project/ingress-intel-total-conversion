@@ -822,7 +822,7 @@ L.Draw.Circle = L.Draw.SimpleShape.extend({
 
 	_drawShape: function (latlng) {
 		if (!this._shape) {
-			this._shape = new L.Circle(this._startLatLng, this._startLatLng.distanceTo(latlng), this.options.shapeOptions);
+			this._shape = new L.GeodesicCircle(this._startLatLng, this._startLatLng.distanceTo(latlng), this.options.shapeOptions);
 			this._map.addLayer(this._shape);
 		} else {
 			this._shape.setRadius(this._startLatLng.distanceTo(latlng));
@@ -830,7 +830,7 @@ L.Draw.Circle = L.Draw.SimpleShape.extend({
 	},
 
 	_fireCreatedEvent: function () {
-		var circle = new L.Circle(this._startLatLng, this._shape.getRadius(), this.options.shapeOptions);
+		var circle = new L.GeodesicCircle(this._startLatLng, this._shape.getRadius(), this.options.shapeOptions);
 		L.Draw.SimpleShape.prototype._fireCreatedEvent.call(this, circle);
 	},
 
@@ -1502,10 +1502,8 @@ L.Edit.Circle = L.Edit.SimpleShape.extend({
 	},
 
 	_getResizeMarkerPoint: function (latlng) {
-		// From L.shape.getBounds()
-		var delta = this._shape._radius * Math.cos(Math.PI / 4),
-			point = this._map.project(latlng);
-		return this._map.unproject([point.x + delta, point.y - delta]);
+                var latRadius = (this._shape.getRadius() / 40075017) * 360;
+		return L.latLng(latlng.lat+latRadius,latlng.lng);
 	},
 
 	_move: function (latlng) {
@@ -1527,6 +1525,28 @@ L.Edit.Circle = L.Edit.SimpleShape.extend({
 });
 
 L.Circle.addInitHook(function () {
+	if (L.Edit.Circle) {
+		this.editing = new L.Edit.Circle(this);
+
+		if (this.options.editable) {
+			this.editing.enable();
+		}
+	}
+
+	this.on('add', function () {
+		if (this.editing && this.editing.enabled()) {
+			this.editing.addHooks();
+		}
+	});
+
+	this.on('remove', function () {
+		if (this.editing && this.editing.enabled()) {
+			this.editing.removeHooks();
+		}
+	});
+});
+
+L.GeodesicCircle.addInitHook(function () {
 	if (L.Edit.Circle) {
 		this.editing = new L.Edit.Circle(this);
 
@@ -2432,15 +2452,15 @@ L.EditToolbar.Edit = L.Handler.extend({
 		var id = L.Util.stamp(layer);
 
 		if (!this._uneditedLayerProps[id]) {
-			// Polyline, Polygon or Rectangle
-			if (layer instanceof L.GeodesicPolyline || layer instanceof L.GeodesicPolygon || layer instanceof L.Rectangle) {
-				this._uneditedLayerProps[id] = {
-					latlngs: L.LatLngUtil.cloneLatLngs(layer.getLatLngs())
-				};
-			} else if (layer instanceof L.Circle) {
+			if (layer instanceof L.GeodesicCircle || layer instanceof L.Circle) {
 				this._uneditedLayerProps[id] = {
 					latlng: L.LatLngUtil.cloneLatLng(layer.getLatLng()),
 					radius: layer.getRadius()
+				};
+			} else if (layer instanceof L.GeodesicPolyline || layer instanceof L.GeodesicPolygon || layer instanceof L.Rectangle) {
+				// Polyline, Polygon or Rectangle
+				this._uneditedLayerProps[id] = {
+					latlngs: L.LatLngUtil.cloneLatLngs(layer.getLatLngs())
 				};
 			} else { // Marker
 				this._uneditedLayerProps[id] = {
@@ -2454,12 +2474,12 @@ L.EditToolbar.Edit = L.Handler.extend({
 		var id = L.Util.stamp(layer);
 		layer.edited = false;
 		if (this._uneditedLayerProps.hasOwnProperty(id)) {
-			// Polyline, Polygon or Rectangle
-			if (layer instanceof L.GeodesicPolyline || layer instanceof L.GeodesicPolygon || layer instanceof L.Rectangle) {
-				layer.setLatLngs(this._uneditedLayerProps[id].latlngs);
-			} else if (layer instanceof L.Circle) {
+			if (layer instanceof L.GeodesicCircle || layer instanceof L.Circle) {
 				layer.setLatLng(this._uneditedLayerProps[id].latlng);
 				layer.setRadius(this._uneditedLayerProps[id].radius);
+			} else if (layer instanceof L.GeodesicPolyline || layer instanceof L.GeodesicPolygon || layer instanceof L.Rectangle) {
+				// Polyline, Polygon or Rectangle
+				layer.setLatLngs(this._uneditedLayerProps[id].latlngs);
 			} else { // Marker
 				layer.setLatLng(this._uneditedLayerProps[id].latlng);
 			}
@@ -2522,7 +2542,7 @@ L.EditToolbar.Edit = L.Handler.extend({
 				layer.options.previousOptions = layer.options;
 
 				// Make sure that Polylines are not filled
-				if (!(layer instanceof L.Circle) && !(layer instanceof L.GeodesicPolygon) && !(layer instanceof L.Rectangle)) {
+				if (!(layer instanceof L.Circle) && !(layer instanceof L.GeodesicCircle) && !(layer instanceof L.GeodesicPolygon) && !(layer instanceof L.Rectangle)) {
 					pathOptions.fill = false;
 				}
 

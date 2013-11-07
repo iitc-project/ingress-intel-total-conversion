@@ -28,24 +28,27 @@ window.MapDataRequest = function() {
   this.MAX_TILE_RETRIES = 3;
 
   // refresh timers
-  this.MOVE_REFRESH = 0.5; //refresh time to use after a move
-  this.STARTUP_REFRESH = 5; //refresh time used on first load of IITC
+  this.MOVE_REFRESH = 1; //time, after a map move (pan/zoom) before starting the refresh processing
+  this.STARTUP_REFRESH = 3; //refresh time used on first load of IITC
   this.IDLE_RESUME_REFRESH = 5; //refresh time used after resuming from idle
 
   // after one of the above, there's an additional delay between preparing the refresh (clearing out of bounds,
   // processing cache, etc) and actually sending the first network requests
   this.DOWNLOAD_DELAY = 3;  //delay after preparing the data download before tile requests are sent
 
-  // a short delay between one request finishing and the queue being run for the next request
+
+  // a short delay between one request finishing and the queue being run for the next request.
+  // this gives a chance of other requests finishing, allowing better grouping of retries in new requests
   this.RUN_QUEUE_DELAY = 0.5;
 
-  // delay before re-queueing tiles
-  this.TILE_TIMEOUT_REQUEUE_DELAY = 0.5;  // short delay before retrying a 'error==TIMEOUT' tile - as this is very common
-  this.BAD_REQUEST_REQUEUE_DELAY = 4; // longer delay before retrying a completely failed request - as in this case the servers are struggling
+  // delay before re-queueing tiles in failed requests
+  this.BAD_REQUEST_REQUEUE_DELAY = 5; // longer delay before retrying a completely failed request - as in this case the servers are struggling
 
-  // additionally, a delay before processing the queue after requeueing tiles
-  // (this way, if multiple requeue delays finish within a short time of each other, they're all processed in one queue run)
-  this.RERUN_QUEUE_DELAY = 2;
+  // a delay before processing the queue after requeueing tiles. this gives a chance for other requests to finish
+  // or other requeue actions to happen before the queue is processed, allowing better grouping of requests
+  // however, the queue may be processed sooner if a previous timeout was set
+  this.REQUEUE_DELAY = 1;
+
 
   this.REFRESH_CLOSE = 120;  // refresh time to use for close views z>12 when not idle and not moving
   this.REFRESH_FAR = 600;  // refresh time for far views z <= 12
@@ -89,8 +92,8 @@ window.MapDataRequest.prototype.mapMoveEnd = function() {
 
   if (this.fetchedDataParams) {
     // we have fetched (or are fetching) data...
-    if (this.fetchedDataParams.zoom == zoom && this.fetchedDataParams.bounds.contains(bounds)) {
-      // ... and the data zoom levels are the same, and the current bounds is inside the fetched bounds
+    if (this.fetchedDataParams.mapZoom == map.getZoom() && this.fetchedDataParams.bounds.contains(bounds)) {
+      // ... and the zoom level is the same and the current bounds is inside the fetched bounds
       // so, no need to fetch data. if there's time left, restore the original timeout
 
       var remainingTime = (this.timerExpectedTimeoutTime - new Date().getTime())/1000;
@@ -169,8 +172,8 @@ window.MapDataRequest.prototype.refresh = function() {
   // a 'set' to keep track of hard failures for tiles
   this.tileErrorCount = {};
 
-  // fill tileBounds with the data needed to request each tile
-  this.tileBounds = {};
+  // the 'set' of requested tile QKs
+  this.queuedTiles = {};
 
 
   var bounds = clampLatLngBounds(map.getBounds());
@@ -183,24 +186,24 @@ window.MapDataRequest.prototype.refresh = function() {
 //var debugrect = L.rectangle(bounds,{color: 'red', fill: false, weight: 4, opacity: 0.8}).addTo(map);
 //setTimeout (function(){ map.removeLayer(debugrect); }, 10*1000);
 
-  var x1 = lngToTile(bounds.getWest(), zoom);
-  var x2 = lngToTile(bounds.getEast(), zoom);
-  var y1 = latToTile(bounds.getNorth(), zoom);
-  var y2 = latToTile(bounds.getSouth(), zoom);
+  var x1 = lngToTile(bounds.getWest(), minPortalLevel);
+  var x2 = lngToTile(bounds.getEast(), minPortalLevel);
+  var y1 = latToTile(bounds.getNorth(), minPortalLevel);
+  var y2 = latToTile(bounds.getSouth(), minPortalLevel);
 
   // calculate the full bounds for the data - including the part of the tiles off the screen edge
   var dataBounds = L.latLngBounds([
-    [tileToLat(y2+1,zoom), tileToLng(x1,zoom)],
-    [tileToLat(y1,zoom), tileToLng(x2+1,zoom)]
+    [tileToLat(y2+1,minPortalLevel), tileToLng(x1,minPortalLevel)],
+    [tileToLat(y1,minPortalLevel), tileToLng(x2+1,minPortalLevel)]
   ]);
 //var debugrect2 = L.rectangle(dataBounds,{color: 'magenta', fill: false, weight: 4, opacity: 0.8}).addTo(map);
 //setTimeout (function(){ map.removeLayer(debugrect2); }, 10*1000);
 
   // store the parameters used for fetching the data. used to prevent unneeded refreshes after move/zoom
-  this.fetchedDataParams = { bounds: dataBounds, zoom: zoom };
+  this.fetchedDataParams = { bounds: dataBounds, mapZoom: map.getZoom(), minPortalLevel: minPortalLevel };
 
 
-  window.runHooks ('mapDataRefreshStart', {bounds: bounds, zoom: zoom, tileBounds: dataBounds});
+  window.runHooks ('mapDataRefreshStart', {bounds: bounds, zoom: zoom, minPortalLevel: minPortalLevel, tileBounds: dataBounds});
 
   this.render.startRenderPass();
   this.render.clearPortalsBelowLevel(minPortalLevel);
@@ -224,11 +227,11 @@ window.MapDataRequest.prototype.refresh = function() {
   for (var y = y1; y <= y2; y++) {
     // x goes from bottom to top(?)
     for (var x = x1; x <= x2; x++) {
-      var tile_id = pointToTileId(zoom, x, y);
-      var latNorth = tileToLat(y,zoom);
-      var latSouth = tileToLat(y+1,zoom);
-      var lngWest = tileToLng(x,zoom);
-      var lngEast = tileToLng(x+1,zoom);
+      var tile_id = pointToTileId(minPortalLevel, x, y);
+      var latNorth = tileToLat(y,minPortalLevel);
+      var latSouth = tileToLat(y+1,minPortalLevel);
+      var lngWest = tileToLng(x,minPortalLevel);
+      var lngEast = tileToLng(x+1,minPortalLevel);
 
       this.debugTiles.create(tile_id,[[latSouth,lngWest],[latNorth,lngEast]]);
 
@@ -238,16 +241,17 @@ window.MapDataRequest.prototype.refresh = function() {
         this.render.processTileData (this.cache.get(tile_id));
         this.cachedTileCount += 1;
       } else {
-        // no fresh data - queue a request
-        var boundsParams = generateBoundsParams(
-          tile_id,
-          latSouth,
-          lngWest,
-          latNorth,
-          lngEast
-        );
 
-        this.tileBounds[tile_id] = boundsParams;
+        // no fresh data
+
+        // render the cached stale data, if we have it. this ensures *something* appears quickly when possible
+        var old_data = this.cache && this.cache.get(tile_id);
+        if (old_data) {
+          this.render.processTileData (old_data);
+        }
+
+        // queue a request
+        this.queuedTiles[tile_id] = tile_id;
         this.requestedTileCount += 1;
       }
     }
@@ -255,10 +259,19 @@ window.MapDataRequest.prototype.refresh = function() {
 
   this.setStatus ('loading');
 
+  // technically a request hasn't actually finished - however, displayed portal data has been refreshed
+  // so as far as plugins are concerned, it should be treated as a finished request
+  window.runHooks('requestFinished', {success: true});
+
   console.log ('done request preperation (cleared out-of-bounds and invalid for zoom, and rendered cached data)');
 
-  // don't start processing the download queue immediately - start it after a short delay
-  this.delayProcessRequestQueue (this.DOWNLOAD_DELAY,true);
+  if (Object.keys(this.queuedTiles).length > 0) {
+    // queued requests - don't start processing the download queue immediately - start it after a short delay
+    this.delayProcessRequestQueue (this.DOWNLOAD_DELAY,true);
+  } else {
+    // all data was from the cache, nothing queued - run the queue 'immediately' so it handles the end request processing
+    this.delayProcessRequestQueue (0,true);
+  }
 }
 
 
@@ -273,7 +286,7 @@ window.MapDataRequest.prototype.delayProcessRequestQueue = function(seconds,isFi
 window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
 
   // if nothing left in the queue, end the render. otherwise, send network requests
-  if (Object.keys(this.tileBounds).length == 0) {
+  if (Object.keys(this.queuedTiles).length == 0) {
 
     this.render.endRenderPass();
 
@@ -301,7 +314,7 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
 
   // create a list of tiles that aren't requested over the network
   var pendingTiles = [];
-  for (var id in this.tileBounds) {
+  for (var id in this.queuedTiles) {
     if (!(id in this.requestedTiles) ) {
       pendingTiles.push(id);
     }
@@ -351,7 +364,7 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
 
 window.MapDataRequest.prototype.sendTileRequest = function(tiles) {
 
-  var boundsParamsList = [];
+  var tilesList = [];
 
   for (var i in tiles) {
     var id = tiles[i];
@@ -360,15 +373,14 @@ window.MapDataRequest.prototype.sendTileRequest = function(tiles) {
 
     this.requestedTiles[id] = true;
 
-    var boundsParams = this.tileBounds[id];
-    if (boundsParams) {
-      boundsParamsList.push (boundsParams);
+    if (id in this.queuedTiles) {
+      tilesList.push (id);
     } else {
-      console.warn('failed to find bounds for tile id '+id);
+      console.warn('no queue entry for tile id '+id);
     }
   }
 
-  var data = { boundsParamsList: boundsParamsList };
+  var data = { quadKeys: tilesList };
 
   this.activeRequestCount += 1;
 
@@ -382,7 +394,7 @@ window.MapDataRequest.prototype.sendTileRequest = function(tiles) {
 }
 
 window.MapDataRequest.prototype.requeueTile = function(id, error) {
-  if (id in this.tileBounds) {
+  if (id in this.queuedTiles) {
     // tile is currently wanted...
 
     // first, see if the error can be ignored due to retry counts
@@ -408,7 +420,7 @@ window.MapDataRequest.prototype.requeueTile = function(id, error) {
         this.failedTileCount += 1;
       }
       // and delete from the pending requests...
-      delete this.tileBounds[id];
+      delete this.queuedTiles[id];
 
     } else {
       // if false, was a 'timeout' or we're retrying, so unlimited retries (as the stock site does)
@@ -418,9 +430,8 @@ window.MapDataRequest.prototype.requeueTile = function(id, error) {
       // proper queue, just an object with guid as properties. Javascript standards don't guarantee the order of properties
       // within an object. however, all current browsers do keep property order, and new properties are added at the end.
       // therefore, delete and re-add the requeued tile and it will be added to the end of the queue
-      var boundsData = this.tileBounds[id];
-      delete this.tileBounds[id];
-      this.tileBounds[id] = boundsData;
+      delete this.queuedTiles[id];
+      this.queuedTiles[id] = id;
 
     }
   } // else the tile wasn't currently wanted (an old non-cancelled request) - ignore
@@ -463,7 +474,6 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
         if (val.error == "TIMEOUT") {
           // TIMEOUT errors for individual tiles are 'expected'(!) - and result in a silent unlimited retries
           timeoutTiles.push (id);
-          this.debugTiles.setState (id, 'tile-timeout');
         } else {
           console.warn('map data tile '+id+' failed: error=='+val.error);
           errorTiles.push (id);
@@ -478,18 +488,21 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
 
         // if this tile was in the render list, render it
         // (requests aren't aborted when new requests are started, so it's entirely possible we don't want to render it!)
-        if (id in this.tileBounds) {
+        if (id in this.queuedTiles) {
           this.debugTiles.setState (id, 'ok');
 
           this.render.processTileData (val);
 
-          delete this.tileBounds[id];
+          delete this.queuedTiles[id];
           this.successTileCount += 1;
 
         } // else we don't want this tile (from an old non-cancelled request) - ignore
       }
 
     }
+
+    // TODO? check for any requested tiles in 'tiles' not being mentioned in the response - and handle as if it's a 'timeout'?
+
 
     window.runHooks('requestFinished', {success: true});
   }
@@ -498,28 +511,27 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
   console.log ('getThinnedEntities status: '+tiles.length+' tiles: '+successTiles.length+' successful, '+timeoutTiles.length+' timed out, '+errorTiles.length+' failed');
 
 
-  //setTimeout has no way of passing the 'context' (aka 'this') to it's function
-  var savedContext = this;
-
+  // requeue any 'timeout' tiles immediately
   if (timeoutTiles.length > 0) {
-    setTimeout (function() {
-      for (var i in timeoutTiles) {
-        var id = timeoutTiles[i];
-        delete savedContext.requestedTiles[id];
-        savedContext.requeueTile(id, false);
-      }
-      savedContext.delayProcessRequestQueue(this.RERUN_QUEUE_DELAY);
-    }, this.TILE_TIMEOUT_REQUEUE_DELAY*1000);
+    for (var i in timeoutTiles) {
+      var id = timeoutTiles[i];
+      delete this.requestedTiles[id];
+      this.requeueTile(id, false);
+    }
   }
 
+  // but for other errors, delay before retrying (as the server is having issues)
   if (errorTiles.length > 0) {
+    //setTimeout has no way of passing the 'context' (aka 'this') to it's function
+    var savedContext = this;
+
     setTimeout (function() {
       for (var i in errorTiles) {
         var id = errorTiles[i];
         delete savedContext.requestedTiles[id];
         savedContext.requeueTile(id, true);
       }
-      savedContext.delayProcessRequestQueue(this.RERUN_QUEUE_DELAY);
+      savedContext.delayProcessRequestQueue(this.REQUEUE_DELAY);
     }, this.BAD_REQUEST_REQUEUE_DELAY*1000);
   }
 

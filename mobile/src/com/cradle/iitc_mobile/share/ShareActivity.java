@@ -45,15 +45,17 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
 
     private String getUrl() {
         String url = "http://www.ingress.com/intel?ll=" + mLl + "&z=" + mZoom;
-        if (mIsPortal)
+        if (mIsPortal) {
             url += "&pll=" + mLl;
+        }
         return url;
     }
 
     private void setSelected(int position) {
         // Activity not fully loaded yet (may occur during tab creation)
-        if (mSharedPrefs == null)
+        if (mSharedPrefs == null) {
             return;
+        }
 
         mSharedPrefs
                 .edit()
@@ -103,12 +105,11 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         mFragmentAdapter = new IntentFragmentAdapter(getSupportFragmentManager());
 
         final ActionBar actionBar = getActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
         // from portallinks/permalinks we build 3 intents (share / geo / vanilla-intel-link)
-        if (intent.getBooleanExtra("onlyShare", false) == false) {
+        if (!intent.getBooleanExtra("onlyShare", false)) {
             mTitle = intent.getStringExtra("title");
             mLl = intent.getDoubleExtra("lat", 0) + "," + intent.getDoubleExtra("lng", 0);
             mZoom = intent.getIntExtra("zoom", 0);
@@ -126,7 +127,9 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
-                actionBar.setSelectedNavigationItem(position);
+                if (actionBar.getNavigationMode() != ActionBar.NAVIGATION_MODE_STANDARD) {
+                    actionBar.setSelectedNavigationItem(position);
+                }
                 setSelected(position);
             }
         });
@@ -141,11 +144,17 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
                     .setTabListener(this));
         }
 
+        if (mFragmentAdapter.getCount() > 1) {
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        }
+
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         int selected = mSharedPrefs.getInt("pref_share_selected_tab", 0);
         if (selected < mFragmentAdapter.getCount()) {
             mViewPager.setCurrentItem(selected);
-            actionBar.setSelectedNavigationItem(selected);
+            if (actionBar.getNavigationMode() != ActionBar.NAVIGATION_MODE_STANDARD) {
+                actionBar.setSelectedNavigationItem(selected);
+            }
         }
     }
 
