@@ -160,4 +160,14 @@ public class IITC_JSInterface {
             }
         });
     }
+
+    @JavascriptInterface
+    public void updateIitc(final String fileUrl) {
+        mIitc.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mIitc.updateIitc(fileUrl);
+            }
+        });
+    }
 }
