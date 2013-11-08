@@ -136,15 +136,18 @@ window.artifact.getArtifactEntities = function() {
   return entities;
 }
 
+// quick test for portal being relevant to artifacts - of any type
+window.artifact.isInterestingPortal = function(guid) {
+  return guid in artifact.portalInfo;
+}
+
+// get the artifact data for a specified artifact id (e.g. 'jarvis'), if it exists - otherwise returns something 'false'y
+window.artifact.getPortalData = function(guid,artifactId) {
+  return artifact.portalInfo[guid] && artifact.portalInfo[guid][artifactId];
+}
 
 window.artifact.updateLayer = function() {
   artifact._layer.clearLayers();
-
-// TODO: icons
-//   //commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/jarvis_shard.png
-//   //commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/jarvis_shard_target_0.png
-// (replace '0' with count of shards at the target portal)
-
 
   $.each(artifact.portalInfo, function(guid,data) {
     var latlng = L.latLng ([data._entityData.locationE6.latE6/1E6, data._entityData.locationE6.lngE6/1E6]);
