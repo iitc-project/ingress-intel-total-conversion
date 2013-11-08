@@ -459,6 +459,11 @@ window.showPortalPosLinks = function(lat, lng, name) {
   }
 }
 
+window.isTouchDevice = function() {
+  return 'ontouchstart' in window // works on most browsers
+      || 'onmsgesturechange' in window; // works on ie10
+};
+
 window.androidCopy = function(text) {
   if(typeof android === 'undefined' || !android || !android.copy)
     return true; // i.e. execute other actions
