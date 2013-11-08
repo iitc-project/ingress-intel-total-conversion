@@ -37,10 +37,10 @@ public class DownloadIitcUpdate extends AsyncTask<String, Integer, String> {
     }
 
     @Override
-    protected String doInBackground(String... f_url) {
+    protected String doInBackground(String... fileUrl) {
         int count;
         try {
-            URL url = new URL(f_url[0]);
+            URL url = new URL(fileUrl[0]);
             URLConnection connection = url.openConnection();
             connection.connect();
             int lengthOfFile = connection.getContentLength();
@@ -87,7 +87,7 @@ public class DownloadIitcUpdate extends AsyncTask<String, Integer, String> {
    }
 
     @Override
-    protected void onPostExecute(String file_url) {
+    protected void onPostExecute(String fileUrl) {
         // dismiss the dialog after the file was downloaded
         mProgressDialog.dismiss();
 
