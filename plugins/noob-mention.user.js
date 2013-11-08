@@ -19,7 +19,7 @@ window.plugin.noob_mention = function() {
 };
 
 var setup = function() {
-  $('toolbox').append('<a href="javascript:window.plugin.noob_mention();">Mention Noobs</a>');
+  $('#toolbox').append('<a href="javascript:window.plugin.noob_mention();">Mention Noobs</a>');
 };
 
 @@PLUGINEND@@
