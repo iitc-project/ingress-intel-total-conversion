@@ -213,6 +213,7 @@ window.MapDataRequest.prototype.refresh = function() {
 
   this.render.updateEntityVisibility();
 
+  this.render.processGameEntities(artifact.getArtifactEntities());
 
   console.log('requesting data tiles at zoom '+zoom+' (L'+minPortalLevel+'+ portals), map zoom is '+map.getZoom());
 
