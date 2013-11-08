@@ -214,6 +214,49 @@ window.requestParameterMunges = [
     inviteeEmailAddress: 'thpbnoyjx0antwm5',
   },
 
+  // set 8 - 2013-11-07
+  {
+    'dashboard.getArtifactInfo': 'artifacts',               // GET_ARTIFACT_INFO: new (and not obfsucated?!)
+    'dashboard.getGameScore': 'lls4clhel87apzpa',          // GET_GAME_SCORE
+    'dashboard.getPaginatedPlextsV2': 'r6n2xgcd8wjsm4og',  // GET_PAGINATED_PLEXTS
+    'dashboard.getThinnedEntitiesV4': '1ybigzcf2sifu34b',  // GET_THINNED_ENTITIES
+    'dashboard.getPlayersByGuids': 'uig0xeb6trclqd2l',     // LOOKUP_PLAYERS
+    'dashboard.redeemReward': '7dd7x64cc2lbutoq',          // REDEEM_REWARD
+    'dashboard.sendInviteEmail': 'd8p6dvwilsr460u3',       // SEND_INVITE_EMAIL
+    'dashboard.sendPlext': 'repg2orpg7htkoto',             // SEND_PLEXT
+
+    // common parameters
+    method: '97aes4vnlvyhoxik',
+    version: 'an8mglz21qabq3wq', //guessed parameter name - only seen munged
+    version_parameter: 'b92c9d055fcdf715887b173c706e7a2c267e32c5', // passed as the value to the above parameter
+
+    // GET_THINNED_ENTITIES
+    quadKeys: 'mhjknavysslwfhk6', //guessed parameter name - only seen munged
+
+    // GET_PAGINATED_PLEXTS
+    desiredNumItems: 'l61g8u397alq3j1x',
+    minLatE6: 'wwsvpboc5bxd1s9q',
+    minLngE6: '48l4x7ngfsz47z3u',
+    maxLatE6: 'p3m1qg81uqldizu6',
+    maxLngE6: 'h4kv1eef878vfyk3',
+    minTimestampMs: 'uj1vcy9ufws24v2c',
+    maxTimestampMs: '8pt1x5nd9hk5vakv',
+    chatTab: 'zy1yc1rfczashshu', //guessed parameter name - only seen munged
+    ascendingTimestampOrder: 'duyuskmky68nl2ci',
+
+    // SEND_PLEXT
+    message: 'xktwjguq0nohzioa',
+    latE6: 'm4crflfaibmg9mdf',
+    lngE6: 'h6jfungrw5ii830r',
+//  chatTab: 'zy1yc1rfczashshu', //guessed parameter name - only seen munged
+
+    // LOOKUP_PLAYERS
+    guids: '3u9h9cpfh2yiy4fk',
+
+    // SEND_INVITE_EMAIL
+    inviteeEmailAddress: 'jpg3y4ax7t0w356j',
+  },
+
 ];
 window.activeRequestMungeSet = undefined;
 
@@ -224,11 +267,16 @@ window.detectActiveMungeSet = function() {
   // FIXME? revert to searching through all the code? is that practical?
   var stockFunc;
   try {
-    stockFunc = nemesis.dashboard.network.XhrController.prototype.sendRequest.toString();
+    stockFunc = nemesis.dashboard.network.XhrController.prototype.doSendRequest_.toString();
   } catch(e) {
     try {
-      stockFunc = nemesis.dashboard.network.DataFetcher.prototype.sendRequest_.toString();
+      stockFunc = nemesis.dashboard.network.XhrController.prototype.sendRequest.toString();
     } catch(e) {
+      try {
+        stockFunc = nemesis.dashboard.network.DataFetcher.prototype.sendRequest_.toString();
+      } catch(e) {
+        console.warn('Failed to find a relevant function in the stock site');
+      }
     }
   }
 
