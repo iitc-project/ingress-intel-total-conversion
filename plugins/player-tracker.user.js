@@ -65,7 +65,7 @@ window.plugin.playerTracker.setup = function() {
   plugin.playerTracker.oms = new OverlappingMarkerSpiderfier(map, {keepSpiderfied: true, legWeight: 3.5});
   plugin.playerTracker.oms.legColors = {'usual': '#FFFF00', 'highlighted': '#FF0000'};
 
-  var playerPopup = new L.Popup({offset: L.point([0,-20])});
+  var playerPopup = new L.Popup({offset: L.point([1,-34])});
   plugin.playerTracker.oms.addListener('click', function(player) {
     window.renderPortalDetails(player.options.referenceToPortal);
     if (player.options.desc) {
