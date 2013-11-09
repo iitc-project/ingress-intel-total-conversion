@@ -590,10 +590,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                 break;
             case REQUEST_UPDATE_FINISHED:
                 // clean up update apk
-                File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + '/' +
-                        Environment.DIRECTORY_DOWNLOADS + "/iitcUpdate.apk");
-                if (file != null) file.delete();
-
+                deleteUpdateFile();
             default:
                 super.onActivityResult(requestCode, resultCode, data);
         }
@@ -649,20 +646,27 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         }
     }
 
+    private void deleteUpdateFile() {
+        File file = new File(getExternalFilesDir(null).toString() + "/iitcUpdate.apk");
+        if (file != null) file.delete();
+    }
+
     public void updateIitc(String url) {
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
         request.setDescription("downloading IITCm update apk...");
         request.setTitle("IITCm Update");
         request.allowScanningByMediaScanner();
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "iitcUpdate.apk");
+        Uri fileUri = Uri.parse("file://" + getExternalFilesDir(null).toString() + "/iitcUpdate.apk");
+        request.setDestinationUri(fileUri);
+        // remove old files (iitcm cleans up after installation, but you never know...)
+        deleteUpdateFile();
         // get download service and enqueue file
         DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         manager.enqueue(request);
     }
 
     private void installIitcUpdate() {
-        String iitcUpdatePath = Environment.getExternalStorageDirectory().getAbsolutePath() + '/' +
-                Environment.DIRECTORY_DOWNLOADS + "/iitcUpdate.apk";
+        String iitcUpdatePath = getExternalFilesDir(null).toString() + "/iitcUpdate.apk";
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setDataAndType(Uri.fromFile(new File(iitcUpdatePath)), "application/vnd.android.package-archive");
         startActivityForResult(intent, REQUEST_UPDATE_FINISHED);
