@@ -169,17 +169,24 @@ window.plugin.updateCheck.showReport = function(data) {
         var latestVerCode = parseInt(data.mobile.versioncode);
         var latestVerName = data.mobile.versionstr;
 
+	var webLink = '';
+	if (data.mobile.pageurl) webLink = '<a href="'+data.mobile.pageurl+'" target="_blank">web</a>';
+        var downloadLink = '';
+        if (data.mobile.downloadurl) downloadLink = '<a href="'+data.mobile.downloadurl+'">download</a>';
+        if (data.mobile.downloadurl && android.updateIitc) downloadLink = '<a onclick="android.updateIitc(\''+data.mobile.downloadurl+'\')">install</a>';
+
+
         if (ourVerCode == latestVerCode) {
           // up to date
-          result += '<div>IITC Mobile is up to date - version <span="ver code "'+ourVerCode+'">'+ourVerName+'</span></div>';
+          result += '<div>IITC Mobile is up to date - version <span title="ver code "'+ourVerCode+'">'+ourVerName+'</span> '+webLink+'</div>';
         } else if (ourVerCode < latestVerCode) {
           // out of date
-          result += '<div>IITC Mobile is out of date. Current version <span="ver code "'+ourVerCode+'">'+ourVerName+'</span>, '
-                  + 'Available version <span="ver code "'+latestVerCode+'">'+latestVerName+'</span>.</div>';
+          result += '<div>IITC Mobile is out of date. Current version <span title="ver code "'+ourVerCode+'">'+ourVerName+'</span>, '
+                  + 'Available version <span title="ver code "'+latestVerCode+'">'+latestVerName+'</span>. '+webLink+' '+downloadLink+'</div>';
         } else {
           // local version newer?!
-          result += '<div>IITC Mobile version newer than latest on server?! Current version <span="ver code "'+ourVerCode+'">'+ourVerName+'</span>, '
-                  + 'Available version <span="ver code "'+latestVerCode+'">'+latestVerName+'</span>.</div>';
+          result += '<div>IITC Mobile version newer than latest on server?! Current version <span title="ver code "'+ourVerCode+'">'+ourVerName+'</span>, '
+                  + 'Available version <span title="ver code "'+latestVerCode+'">'+latestVerName+'</span>.</div>';
         }
 
       } else {
