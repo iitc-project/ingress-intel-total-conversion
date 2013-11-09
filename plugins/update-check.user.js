@@ -22,9 +22,21 @@
 // use own namespace for plugin
 window.plugin.updateCheck = function() {};
 
-window.plugin.updateCheck.url = 'http://iitc.jonatkins.com/versioncheck.php?build=@@BUILDNAME@@';
 window.plugin.updateCheck.versionDataLoading = false;
 
+
+window.plugin.updateCheck.getUrl = function(callback) {
+
+  var url = 'http://iitc.jonatkins.com/versioncheck.php'
+          + '?build=@@BUILDNAME@@'
+          + '&mobile='+((typeof android !== 'undefined' && android)?'1':'0');
+
+  if (callback) {
+    url = url + '&callback='+callback
+  }
+
+  return url;
+}
 
 window.plugin.updateCheck.versionCompare = function(a,b) {
   a = a.split('.');
@@ -51,9 +63,14 @@ window.plugin.updateCheck.loadVersionData = function() {
   if (!window.plugin.updateCheck.versionDataLoading) {
     window.plugin.updateCheck.versionDataLoading = true;
 
+//TODO: IITC Mobile-specific parameter, to retrieve the mobile app version rather than the script versions
+//also
+//  JSInterface public void updateIitc(String fileUrl)
+//call on the android object to be able to download+install the android app.
+
     var s = document.createElement('script');
     s.setAttribute('type','text/javascript');
-    s.setAttribute('src', window.plugin.updateCheck.url+'&callback=window.plugin.updateCheck.versionDataCallback');
+    s.setAttribute('src', window.plugin.updateCheck.getUrl('window.plugin.updateCheck.versionDataCallback'));
     s.setAttribute('id','update-check-script-tag');
     document.getElementsByTagName("head")[0].appendChild(s);
 
@@ -143,16 +160,44 @@ window.plugin.updateCheck.showReport = function(data) {
       result += '<div>IITC update check: '+data.name+'</div>';
     }
 
-    if (data.iitc && window.script_info) {
-      var compare = window.plugin.updateCheck.compareDetails(data.iitc, window.script_info);
-      result += '<div>IITC Main script: '+compare.html+'</div>';
+    if (typeof android !== 'undefined' && android) {
+      // mobile app version check
+      var ourVerCode = android.getVersionCode && android.getVersionCode() || 0;
+      var ourVerName = android.getVersionName && android.getVersionName() || '(unknown)';
 
-    } else {
-      if (!data.iitc) {
-        result += '<div>Warning: no version information for main IITC script found in response</div>';
+      if (data.mobile) {
+        var latestVerCode = parseInt(data.mobile.versioncode);
+        var latestVerName = data.mobile.versionstr;
+
+        if (ourVerCode == latestVerCode) {
+          // up to date
+          result += '<div>IITC Mobile is up to date - version <span="ver code "'+ourVerCode+'">'+ourVerName+'</span></div>';
+        } else if (ourVerCode < latestVerCode) {
+          // out of date
+          result += '<div>IITC Mobile is out of date. Current version <span="ver code "'+ourVerCode+'">'+ourVerName+'</span>, '
+                  + 'Available version <span="ver code "'+latestVerCode+'">'+latestVerName+'</span>.</div>';
+        } else {
+          // local version newer?!
+          result += '<div>IITC Mobile version newer than latest on server?! Current version <span="ver code "'+ourVerCode+'">'+ourVerName+'</span>, '
+                  + 'Available version <span="ver code "'+latestVerCode+'">'+latestVerName+'</span>.</div>';
+        }
+
+      } else {
+        result += '<div>Warning: no version data for mobile app found in response</div>';
       }
-      if (!window.script_info) {
-        result += '<div>Warning: your IITC script does not contain version data</div>';
+    } else {
+      // desktop userscript version check
+      if (data.iitc && window.script_info) {
+        var compare = window.plugin.updateCheck.compareDetails(data.iitc, window.script_info);
+        result += '<div>IITC Main script: '+compare.html+'</div>';
+
+      } else {
+        if (!data.iitc) {
+          result += '<div>Warning: no version information for main IITC script found in response</div>';
+        }
+        if (!window.script_info) {
+          result += '<div>Warning: your IITC script does not contain version data</div>';
+        }
       }
     }
 
@@ -190,17 +235,22 @@ window.plugin.updateCheck.showReport = function(data) {
 
       result += '<div>Plugins:<table>';
 
-      var formatRow = function(p) {
+      var formatRow = function(p,weblink,downloadlink) {
         var status = p.status;
         var name = p.name;
         var statustext = p.compare && p.compare.html || '-';
+        var links = [];
+        if (weblink && p.compare && p.compare.webUrl) links.push('<a href="'+p.compare.webUrl+'" target="_blank">web</a>');
+        if (downloadlink && p.compare && p.compare.downloadUrl) links.push('<a href="'+p.compare.downloadUrl+'" target="_blank">download</a>');
+        //now convert to text
+        links = links && links.join(' ') || '-';
 
-        return '<tr class="'+status+'"><td>'+name+'</td><td>'+statustext+'</td></tr>';
+        return '<tr class="'+status+'"><td>'+name+'</td><td>'+statustext+'</td><td>'+links+'</td></tr>';
       }
 
       result += '<tr><th colspan="3">Out of date</th></tr>';
       for (var i in plugins.outOfDate) {
-        result += formatRow (plugins.outOfDate[i]);
+        result += formatRow (plugins.outOfDate[i],true,true);
       }
       if (plugins.outOfDate.length==0) {
         result += '<tr><td colspan="3">no plugins</td></tr>';
@@ -208,7 +258,7 @@ window.plugin.updateCheck.showReport = function(data) {
 
       result += '<tr><th colspan="3">Up To Date</th></tr>';
       for (var i in plugins.upToDate) {
-        result += formatRow (plugins.upToDate[i]);
+        result += formatRow (plugins.upToDate[i],true,false);
       }
       if (plugins.upToDate.length==0) {
         result += '<tr><td colspan="3">no plugins</td></tr>';
@@ -216,7 +266,7 @@ window.plugin.updateCheck.showReport = function(data) {
 
       result += '<tr><th colspan="3">Other</th></tr>';
       for (var i in plugins.other) {
-        result += formatRow (plugins.other[i]);
+        result += formatRow (plugins.other[i],true,false);
       }
       if (plugins.other.length==0) {
         result += '<tr><td colspan="3">no plugins</td></tr>';
