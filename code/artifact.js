@@ -244,6 +244,6 @@ window.artifact.showArtifactList = function() {
   });
 
 
-  dialog({title: 'Artefacts', html: html, width: 400});
+  dialog({title: 'Artifacts', html: html, width: 400});
 
 }
