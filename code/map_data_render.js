@@ -33,7 +33,8 @@ window.Render.prototype.clearPortalsBelowLevel = function(level) {
   var count = 0;
   for (var guid in window.portals) {
     var p = portals[guid];
-    if (parseInt(p.options.level) < level && guid !== selectedPortal) {
+    // clear portals below specified level - unless it's the selected portal, or it's relevant to artifacts
+    if (parseInt(p.options.level) < level && guid !== selectedPortal && !artifact.isInterestingPortal(guid)) {
       this.deletePortalEntity(guid);
       count++;
     }
@@ -46,7 +47,7 @@ window.Render.prototype.clearEntitiesOutsideBounds = function(bounds) {
 
   for (var guid in window.portals) {
     var p = portals[guid];
-    if (!bounds.contains (p.getLatLng()) && guid !== selectedPortal) {
+    if (!bounds.contains (p.getLatLng()) && guid !== selectedPortal && !artifact.isInterestingPortal(guid)) {
       this.deletePortalEntity(guid);
       pcount++;
     }
@@ -128,6 +129,7 @@ window.Render.prototype.endRenderPass = function() {
 
   // check to see if there's eny entities we haven't seen. if so, delete them
   for (var guid in window.portals) {
+    // special case for selected portal - it's kept even if not seen
     if (!(guid in this.seenPortalsGuid) && guid !== selectedPortal) {
       this.deletePortalEntity(guid);
     }
@@ -153,25 +155,32 @@ window.Render.prototype.bringPortalsToFront = function() {
   for (var lvl in portalsFactionLayers) {
     // portals are stored in separate layers per faction
     // to avoid giving weight to one faction or another, we'll push portals to front based on GUID order
-    var portals = {};
+    var lvlPortals = {};
     for (var fac in portalsFactionLayers[lvl]) {
       var layer = portalsFactionLayers[lvl][fac];
       if (layer._map) {
         layer.eachLayer (function(p) {
-          portals[p.options.guid] = p;
+          lvlPortals[p.options.guid] = p;
         });
       }
     }
 
-    var guids = Object.keys(portals);
+    var guids = Object.keys(lvlPortals);
     guids.sort();
 
     for (var j in guids) {
       var guid = guids[j];
+      lvlPortals[guid].bringToFront();
+    }
+  }
+
+  // artifact portals are always brought to the front, above all others
+  $.each(artifact.getInterestingPortals(), function(i,guid) {
+    if (portals[guid] && portals[guid]._map) {
       portals[guid].bringToFront();
     }
+  });
 
-  }
 }
 
 
@@ -544,7 +553,7 @@ window.Render.prototype.resetPortalClusters = function() {
       var guid = c[i];
       var p = window.portals[guid];
       var layerGroup = portalsFactionLayers[parseInt(p.options.level)][p.options.team];
-      if (i<this.CLUSTER_PORTAL_LIMIT || p.options.guid == selectedPortal) {
+      if (i<this.CLUSTER_PORTAL_LIMIT || p.options.guid == selectedPortal || artifact.isInterestingPortal(p.options.guid)) {
         if (!layerGroup.hasLayer(p)) {
           layerGroup.addLayer(p);
         }
@@ -570,7 +579,7 @@ window.Render.prototype.addPortalToMapLayer = function(portal) {
   // now, at this point, we could match the above re-clustr code - sorting, and adding/removing as necessary
   // however, it won't make a lot of visible difference compared to just pushing to the end of the list, then
   // adding to the visible layer if the list is below the limit
-  if (this.portalClusters[cid].length < this.CLUSTER_PORTAL_LIMIT || portal.options.guid == selectedPortal) {
+  if (this.portalClusters[cid].length < this.CLUSTER_PORTAL_LIMIT || portal.options.guid == selectedPortal || artifact.isInterestingPortal(portal.options.guid)) {
     portalsFactionLayers[parseInt(portal.options.level)][portal.options.team].addLayer(portal);
   }
 }

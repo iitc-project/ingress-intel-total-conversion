@@ -1,5 +1,10 @@
 <h2>News</h2>
 
+<h4>7th November 2013</h4>
+<p>
+IITC 0.14.6 and IITC Mobile 0.7.7.2 released. Another change needed to match a minor update to the standard intel site.
+</p>
+
 <h4>6th November 2013</h4>
 <p>
 IITC 0.14.5 and IITC Mobile 0.7.7.1 have been released. This contains a fix to work with the latest intel site updates.
