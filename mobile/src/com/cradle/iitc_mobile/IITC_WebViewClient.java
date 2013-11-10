@@ -196,6 +196,7 @@ public class IITC_WebViewClient extends WebViewClient {
         Log.d("iitcm", "Login requested: " + realm + " " + account + " " + args);
         Log.d("iitcm", "logging in...updating caching mode");
         ((IITC_WebView) view).updateCaching(true);
+        mIitcInjected = false;
         //((IITC_Mobile) mContext).onReceivedLoginRequest(this, view, realm, account, args);
     }
 

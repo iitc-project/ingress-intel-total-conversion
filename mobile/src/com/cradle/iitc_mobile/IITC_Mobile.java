@@ -119,7 +119,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         mBackStack.clear();
 
         // receive downloadManagers downloadComplete intent
-        // afterwards install iitc update and clean up after installation
+        // afterwards install iitc update
         registerReceiver(mBroadcastReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 
         handleIntent(getIntent(), true);
