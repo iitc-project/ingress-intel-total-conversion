@@ -288,15 +288,16 @@ window.plugin.playerTracker.drawData = function() {
         polyLineByAgeEnl[ageBucket].push(line);
     }
 
-    // tooltip for marker - no HYML - and not shown on touchscreen devices
-    var tooltip = isTouchDev ? '' : playerData.nick;
-
-    // popup for marker
     var evtsLength = playerData.events.length;
     var last = playerData.events[evtsLength-1];
     var ago = plugin.playerTracker.ago;
+
+    // tooltip for marker - no HYML - and not shown on touchscreen devices
+    var tooltip = isTouchDev ? '' : (playerData.nick+', '+ago(last.time, now)+' ago');
+
+    // popup for marker
     var cssClass = playerData.team === 'RESISTANCE' ? 'res' : 'enl';
-    var popup = '<span class="nickname '+ cssClass+'" style="font-weight:bold;">' + playerData.nick + '</span>';
+    var popup = '<span class="nickname '+cssClass+'" style="font-weight:bold;">' + playerData.nick + '</span>';
 
     if(window.plugin.guessPlayerLevels !== undefined &&
        window.plugin.guessPlayerLevels.fetchLevelByPlayer !== undefined) {
