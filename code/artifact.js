@@ -23,6 +23,9 @@ window.artifact.setup = function() {
 
   artifact._layer = new L.LayerGroup();
   addLayerGroup ('Artifacts (Jarvis shards)', artifact._layer, true);
+
+  $('#toolbox').append(' <a onclick="window.artifact.showArtifactList()" title="Show artifact portal list (jarvis shards and targets)">Artifacts</a>');
+
 }
 
 window.artifact.requestData = function() {
@@ -69,6 +72,8 @@ window.artifact.processData = function(data) {
       console.warn('Note: unknown artifactId '+artData.artifactId+' - guessing how to handle it');
     }
 
+    artifact.artifactTypes[artData.artifactId] = artData.artifactId;
+
     if (artData.fragmentInfos) {
       artifact.processFragmentInfos (artData.artifactId, artData.fragmentInfos);
     }
@@ -90,6 +95,7 @@ window.artifact.processData = function(data) {
 window.artifact.clearData = function() {
 
   artifact.portalInfo = {};
+  artifact.artifactTypes = {};
 }
 
 window.artifact.processFragmentInfos = function (id, fragments) {
@@ -121,6 +127,13 @@ window.artifact.processTargetInfos = function (id, targets) {
   });
 }
 
+window.artifact.getArtifactTypes = function() {
+  return Object.keys(artifact.artifactTypes);
+}
+
+window.artifact.isArtifact = function(type) {
+  return type in artifact.artifactTypes;
+}
 
 // used to render portals that would otherwise be below the visible level
 window.artifact.getArtifactEntities = function() {
@@ -134,6 +147,10 @@ window.artifact.getArtifactEntities = function() {
   });
 
   return entities;
+}
+
+window.artifact.getInterestingPortals = function() {
+  return Object.keys(artifact.portalInfo);
 }
 
 // quick test for portal being relevant to artifacts - of any type
@@ -184,5 +201,49 @@ window.artifact.updateLayer = function() {
       console.warn('Oops! no URL for artifact portal icon?!');
     }
   });
+
+}
+
+
+window.artifact.showArtifactList = function() {
+
+
+  var html = '<div><b>Artifact portals</b></div>';
+
+  var types = { 'jarvis': 'Jarvis Shards' };
+
+  $.each(types, function(type, name) {
+
+    html += '<hr><div><b>'+types[type]+'</b></div>';
+
+    html += '<table><tr><th>Portal</th><th>Details</th></tr>';
+
+    $.each(artifact.portalInfo, function(guid, data) {
+      if (type in data) {
+        // this portal has data for this artifact type - add it to the table
+
+        var onclick = 'zoomToAndShowPortal(\''+guid+'\',['+data._entityData.locationE6.latE6/1E6+','+data._entityData.locationE6.lngE6/1E6+'])';
+        html += '<tr><td><a onclick="'+onclick+'" title="'+escapeHtmlSpecialChars(data._entityData.portalV2.descriptiveText.ADDRESS||'')+'">'+escapeHtmlSpecialChars(data._entityData.portalV2.descriptiveText.TITLE)+'</a></td>';
+
+        html += '<td>';
+
+        if (data[type].target) {
+          html += '<span class="'+TEAM_TO_CSS[data[type].target]+'">'+(data[type].target==TEAM_RES?'Resistance':'Enlightened')+' target</span> ';
+        }
+
+        if (data[type].fragments) {
+          html += '<span class="fragments">Shard: #'+data[type].fragments.join(', #')+'</span> ';
+        }
+
+        html += '</td></tr>';
+
+      }
+    });
+
+    html += '</table>';
+  });
+
+
+  dialog({title: 'Artefacts', html: html, width: 400});
 
 }
