@@ -244,6 +244,11 @@ window.artifact.showArtifactList = function() {
   });
 
 
-  dialog({title: 'Artifacts', html: html, width: 400});
+  dialog({
+    title: 'Artifacts',
+    html: html,
+    width: 400,
+    position: {my: 'right center', at: 'center-60 center', of: window, collision: 'fit'}
+  });
 
 }
