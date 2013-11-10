@@ -43,7 +43,6 @@ import java.util.Stack;
 public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeListener, LocationListener {
 
     private static final int REQUEST_LOGIN = 1;
-    public static final int REQUEST_UPDATE_FINISHED = 2;
 
     private IITC_WebView mIitcWebView;
     private final String mIntelUrl = "https://www.ingress.com/intel";
@@ -588,9 +587,6 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                 // authentication activity has returned. mLogin will continue authentication
                 mLogin.onActivityResult(resultCode, data);
                 break;
-            case REQUEST_UPDATE_FINISHED:
-                // clean up update apk
-                deleteUpdateFile();
             default:
                 super.onActivityResult(requestCode, resultCode, data);
         }
@@ -658,7 +654,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         request.allowScanningByMediaScanner();
         Uri fileUri = Uri.parse("file://" + getExternalFilesDir(null).toString() + "/iitcUpdate.apk");
         request.setDestinationUri(fileUri);
-        // remove old files (iitcm cleans up after installation, but you never know...)
+        // remove old update file...we don't want to spam the external storage
         deleteUpdateFile();
         // get download service and enqueue file
         DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
@@ -669,7 +665,9 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         String iitcUpdatePath = getExternalFilesDir(null).toString() + "/iitcUpdate.apk";
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setDataAndType(Uri.fromFile(new File(iitcUpdatePath)), "application/vnd.android.package-archive");
-        startActivityForResult(intent, REQUEST_UPDATE_FINISHED);
+        startActivity(intent);
+        // finish app, because otherwise it gets killed on update
+        finish();
     }
 
     /**
