@@ -153,7 +153,7 @@ public class IntentListView extends ListView {
                 ActivityInfo activity = info.activityInfo;
 
                 // fix bug in PackageManager - a replaced package name might cause non-exported intents to appear
-                if (activity.exported == false && !activity.packageName.equals(packageName)) {
+                if (!activity.exported && !activity.packageName.equals(packageName)) {
                     activityList.remove(i);
                     i--;
                     continue;

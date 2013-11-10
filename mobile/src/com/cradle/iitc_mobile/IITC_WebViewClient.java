@@ -26,7 +26,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
@@ -163,7 +162,7 @@ public class IITC_WebViewClient extends WebViewClient {
                     "window.showLayerChooser = false");
         }
 
-        String gmInfo = "GM_info=" + getGmInfoJson(getScriptInfo(js)).toString() + "\n";
+        String gmInfo = "GM_info=" + getGmInfoJson(getScriptInfo(js)) + "\n";
         this.mIitcScript = gmInfo + js;
 
     }
