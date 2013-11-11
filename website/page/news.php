@@ -1,5 +1,15 @@
 <h2>News</h2>
 
+<h4>11th November 2013</h4>
+<p>
+IITC 0.15.0 and IITC Mobile 0.9 have just been released. This update fixes things to work with the latest changes
+to the standard intel site. Also
+<ul>
+<li>Support for Jarvis shards (and other future artifacts)</li>
+<li>New base map plugins - for <a href="http://maps.stamen.com/">maps.stamen.com/</a> and Bing maps.</li>
+</ul>
+</p>
+
 <h4>7th November 2013</h4>
 <p>
 IITC 0.14.6 and IITC Mobile 0.7.7.2 released. Another change needed to match a minor update to the standard intel site.
