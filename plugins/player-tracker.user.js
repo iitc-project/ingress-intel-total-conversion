@@ -2,7 +2,7 @@
 // @id             iitc-plugin-player-tracker@breunigs
 // @name           IITC Plugin: Player tracker
 // @category       Layer
-// @version        0.9.6.@@DATETIMEVERSION@@
+// @version        0.10.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -62,12 +62,22 @@ window.plugin.playerTracker.setup = function() {
       });
     }
   });
-  plugin.playerTracker.oms = new OverlappingMarkerSpiderfier(map);
+  plugin.playerTracker.oms = new OverlappingMarkerSpiderfier(map, {keepSpiderfied: true, legWeight: 3.5});
   plugin.playerTracker.oms.legColors = {'usual': '#FFFF00', 'highlighted': '#FF0000'};
-  plugin.playerTracker.oms.legWeight = 3.5;
+
+  var playerPopup = new L.Popup({offset: L.point([1,-34])});
   plugin.playerTracker.oms.addListener('click', function(player) {
     window.renderPortalDetails(player.options.referenceToPortal);
+    if (player.options.desc) {
+      playerPopup.setContent(player.options.desc);
+      playerPopup.setLatLng(player.getLatLng());
+      map.openPopup(playerPopup);
+    }
   });
+  plugin.playerTracker.oms.addListener('spiderfy', function(markers) {
+    map.closePopup();
+  });
+
 
   addHook('publicChatDataAvailable', window.plugin.playerTracker.handleData);
 
@@ -226,6 +236,7 @@ window.plugin.playerTracker.processNewData = function(data) {
 }
 
 window.plugin.playerTracker.getLatLngFromEvent = function(ev) {
+//TODO? add weight to certain events, or otherwise prefer them, to give better locations?
   var lats = 0;
   var lngs = 0;
   $.each(ev.latlngs, function() {
@@ -248,6 +259,8 @@ window.plugin.playerTracker.ago = function(time, now) {
 }
 
 window.plugin.playerTracker.drawData = function() {
+  var isTouchDev = window.isTouchDevice();
+
   var gllfe = plugin.playerTracker.getLatLngFromEvent;
 
   var polyLineByAgeEnl = [[], [], [], []];
@@ -275,37 +288,46 @@ window.plugin.playerTracker.drawData = function() {
         polyLineByAgeEnl[ageBucket].push(line);
     }
 
-    // tooltip for marker
     var evtsLength = playerData.events.length;
     var last = playerData.events[evtsLength-1];
     var ago = plugin.playerTracker.ago;
+
+    // tooltip for marker - no HYML - and not shown on touchscreen devices
+    var tooltip = isTouchDev ? '' : (playerData.nick+', '+ago(last.time, now)+' ago');
+
+    // popup for marker
     var cssClass = playerData.team === 'RESISTANCE' ? 'res' : 'enl';
-    var title = '<span class="nickname '+ cssClass+'" style="font-weight:bold;">' + playerData.nick + '</span>';
-    
+    var popup = '<span class="nickname '+cssClass+'" style="font-weight:bold;">' + playerData.nick + '</span>';
+
     if(window.plugin.guessPlayerLevels !== undefined &&
        window.plugin.guessPlayerLevels.fetchLevelByPlayer !== undefined) {
       var playerLevel = window.plugin.guessPlayerLevels.fetchLevelByPlayer(pguid);
       if(playerLevel !== undefined) {
-        title += '<span style="font-weight:bold;margin-left:10px;">Level '
+        popup += '<span style="font-weight:bold;margin-left:10px;">Level '
           + playerLevel
           + ' (guessed)'
           + '</span>';
       } else {
-        title += '<span style="font-weight:bold;margin-left:10px;">Level unknown</span>'
+        popup += '<span style="font-weight:bold;margin-left:10px;">Level unknown</span>'
       }
     }
     
-    title += '\n'
-        + ago(last.time, now) + ' ago\n'
+    popup += '<br>'
+        + ago(last.time, now) + ' ago<br>'
         + window.chat.getChatPortalName(last);
     // show previous data in tooltip
-    var minsAgo = '\t<span style="white-space: nowrap;"> ago</span>\t';
-    if(evtsLength >= 2)
-      title += '\n&nbsp;\nprevious locations:\n';
+    if(evtsLength >= 2) {
+      popup += '<br>&nbsp;<br>previous locations:<br>'
+          + '<table style="border-spacing:0">';
+    }
     for(var i = evtsLength - 2; i >= 0 && i >= evtsLength - 10; i--) {
       var ev = playerData.events[i];
-      title += ago(ev.time, now) + minsAgo + window.chat.getChatPortalName(ev) + '\n';
+      popup += '<tr align="left"><td>' + ago(ev.time, now) + '</td>'
+          + '<td>ago</td>'
+          + '<td>' + window.chat.getChatPortalName(ev) + '</td></tr>';
     }
+    if(evtsLength >= 2)
+      popup += '</table>';
 
     // calculate the closest portal to the player
     var eventPortal = []
@@ -329,13 +351,18 @@ window.plugin.playerTracker.drawData = function() {
 
     // marker itself
     var icon = playerData.team === 'RESISTANCE' ?  new plugin.playerTracker.iconRes() :  new plugin.playerTracker.iconEnl();
-    var m = L.marker(gllfe(last), {title: title, icon: icon, referenceToPortal: closestPortal, opacity: absOpacity});
-    // ensure tooltips are closed, sometimes they linger
-    m.on('mouseout', function() { $(this._icon).tooltip('close'); });
+// as per OverlappingMarkerSpiderfier docs, click events (popups, etc) must be handled via it rather than the standard
+// marker click events. so store the popup text in the options, then display it in the oms click handler
+    var m = L.marker(gllfe(last), {icon: icon, referenceToPortal: closestPortal, opacity: absOpacity, desc: popup, title: tooltip});
+//    m.bindPopup(title);
+
     m.addTo(playerData.team === 'RESISTANCE' ? plugin.playerTracker.drawnTracesRes : plugin.playerTracker.drawnTracesEnl);
     plugin.playerTracker.oms.addMarker(m);
+
     // jQueryUI doesn’t automatically notice the new markers
-    window.setupTooltips($(m._icon));
+    if (!isTouchDev) {
+      window.setupTooltips($(m._icon));
+    }
   });
 
   // draw the poly lines to the map
@@ -372,13 +399,6 @@ window.plugin.playerTracker.handleData = function(data) {
 
   plugin.playerTracker.discardOldData();
   plugin.playerTracker.processNewData(data);
-  // remove old popups
-  plugin.playerTracker.drawnTracesEnl.eachLayer(function(layer) {
-    if(layer._icon) $(layer._icon).tooltip('destroy');
-  });
-  plugin.playerTracker.drawnTracesRes.eachLayer(function(layer) {
-    if(layer._icon) $(layer._icon).tooltip('destroy');
-  });
   plugin.playerTracker.oms.clearMarkers();
   plugin.playerTracker.drawnTracesEnl.clearLayers();
   plugin.playerTracker.drawnTracesRes.clearLayers();

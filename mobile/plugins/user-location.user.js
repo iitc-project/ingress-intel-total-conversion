@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-user-location@cradle
 // @name           IITC plugin: User Location
-// @version        0.1.3.@@DATETIMEVERSION@@
+// @version        0.1.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -35,9 +35,10 @@ window.plugin.userLocation.setup = function() {
     var title = '<span class="nickname '+ cssClass+'" style="font-weight:bold;">' + PLAYER.nickname + '</span>\'s location';
 
     var marker = L.marker(window.map.getCenter(), {
-        title: title,
         icon: new plugin.userLocation.icon()
     });
+
+    marker.bindPopup(title);
 
     plugin.userLocation.marker = marker;
     marker.addTo(window.map);

@@ -31,7 +31,8 @@ window.renderPortalDetails = function(guid) {
   var playerText = player ? ['owner', player] : null;
 
   var time = d.captured
-    ? '<span title="' + unixTimeToDateTimeString(d.captured.capturedTime, false) + '">'
+    ? '<span title="' + unixTimeToDateTimeString(d.captured.capturedTime, false) + '\n'
+                      + formatInterval(Math.floor((Date.now()-d.captured.capturedTime)/1000), 2) + ' ago">'
       +  unixTimeToString(d.captured.capturedTime) + '</span>'
     : null;
   var sinceText  = time ? ['since', time] : null;
@@ -46,6 +47,26 @@ window.renderPortalDetails = function(guid) {
     linkedFields, getAttackApGainText(d),
     getHackDetailsText(d), getMitigationText(d)
   ];
+
+  // artifact details
+
+  //niantic hard-code the fact it's just jarvis shards/targets - so until more examples exist, we'll do the same
+  //(at some future point we can iterate through all the artifact types and add rows as needed)
+  var jarvisArtifact = artifact.getPortalData (guid, 'jarvis');
+  if (jarvisArtifact) {
+    // the genFourColumnTable function below doesn't handle cases where one column is null and the other isn't - so default to *someting* in both columns
+    var target = ['',''], shards = ['shards','(none)'];
+    if (jarvisArtifact.target) {
+      target = ['target', '<span class="'+TEAM_TO_CSS[jarvisArtifact.target]+'">'+(jarvisArtifact.target==TEAM_RES?'Resistance':'Enlightened')+'</span>'];
+    }
+    if (jarvisArtifact.fragments) {
+      shards = [jarvisArtifact.fragments.length>1?'shards':'shard', '#'+jarvisArtifact.fragments.join(', #')];
+    }
+
+    randDetails.push (target, shards);
+  }
+
+
   randDetails = '<table id="randdetails">' + genFourColumnTable(randDetails) + '</table>';
 
   var resoDetails = '<table id="resodetails">' + getResonatorDetails(d) + '</table>';

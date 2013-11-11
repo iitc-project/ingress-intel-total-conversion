@@ -19,8 +19,6 @@ function getMobileVersion ( $apkfile )
 	$archive = $apkinfo->getApkArchive();
 
 	$stream = $archive->getStream ( "assets/total-conversion-build.user.js" );
-	if ( ! $stream )
-		$stream = $archive->getStream ( "assets/iitc.js" );
 
 	if ( $stream )
 	{

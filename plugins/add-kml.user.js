@@ -1,8 +1,8 @@
 // ==UserScript==
 // @id             overlay-kml@danielatkins
 // @name           IITC plugin: overlay KML
-// @category       Info
-// @version        0.1.@@DATETIMEVERSION@@
+// @category       Layer
+// @version        0.2.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@

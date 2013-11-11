@@ -525,6 +525,7 @@ function boot() {
   window.setupLargeImagePreview();
   window.setupSidebarToggle();
   window.updateGameScore();
+  window.artifact.setup();
   window.setupPlayerStat();
   window.setupTooltips();
   window.chat.setup();

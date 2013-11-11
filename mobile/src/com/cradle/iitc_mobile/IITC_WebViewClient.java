@@ -18,11 +18,14 @@ import android.widget.Toast;
 
 import com.cradle.iitc_mobile.async.UrlContentToString;
 
+import org.json.JSONObject;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
@@ -39,6 +42,7 @@ public class IITC_WebViewClient extends WebViewClient {
 
     private String mIitcScript = null;
     private String mIitcPath = null;
+    private boolean mIitcInjected = false;
     private final Context mContext;
 
     public IITC_WebViewClient(Context c) {
@@ -48,23 +52,49 @@ public class IITC_WebViewClient extends WebViewClient {
     }
 
     public String getIITCVersion() {
+        HashMap<String, String> map = getScriptInfo(mIitcScript);
+        return map.get("version");
+    }
+
+    // static method because we use it in IITC_PluginPreferenceActivity too
+    public static HashMap<String, String> getScriptInfo(String js) {
+        HashMap<String, String> map = new HashMap<String, String>();
         String header = "";
-        if (mIitcScript != null) {
-            header = mIitcScript.substring(mIitcScript.indexOf("==UserScript=="),
-                    mIitcScript.indexOf("==/UserScript=="));
+        if (js != null) {
+            header = js.substring(js.indexOf("==UserScript=="),
+                    js.indexOf("==/UserScript=="));
         }
         // remove new line comments
-        header = header.replace("\n//", "");
+        header = header.replace("\n//", " ");
         // get a list of key-value
-        String[] attributes = header.split(" +");
-        String iitc_version = "not found";
+        String[] attributes = header.split("  +");
+        // add default values
+        map.put("version", "not found");
+        map.put("name", "unknown");
+        map.put("description", "");
+        map.put("category", "Misc");
+        // add parsed values
         for (int i = 0; i < attributes.length; i++) {
-            // search for version and use the value
+            // search for attributes and use the value
             if (attributes[i].equals("@version")) {
-                iitc_version = attributes[i + 1];
+                map.put("version", attributes[i + 1]);
+            }
+            if (attributes[i].equals("@name")) {
+                map.put("name", attributes[i + 1]);
+            }
+            if (attributes[i].equals("@description")) {
+                map.put("description", attributes[i + 1]);
+            }
+            if (attributes[i].equals("@category")) {
+                map.put("category", attributes[i + 1]);
             }
         }
-        return iitc_version;
+        return map;
+    }
+
+    public String getGmInfoJson(HashMap<String, String> map) {
+        JSONObject jObject = new JSONObject(map);
+        return "{\"script\":" + jObject.toString() + "}";
     }
 
     public void loadIITC_JS(Context c) throws java.io.IOException {
@@ -112,6 +142,7 @@ public class IITC_WebViewClient extends WebViewClient {
             } else {
                 js = this.fileToString("total-conversion-build.user.js", true);
             }
+            mIitcInjected = false;
         }
 
         PackageManager pm = mContext.getPackageManager();
@@ -131,9 +162,8 @@ public class IITC_WebViewClient extends WebViewClient {
                     "window.showLayerChooser = false");
         }
 
-        // IITC expects to be injected after the DOM has been loaded completely.
-        // since it is injected with the onPageFinished() event, no further delay is necessary.
-        this.mIitcScript = js;
+        String gmInfo = "GM_info=" + getGmInfoJson(getScriptInfo(js)) + "\n";
+        this.mIitcScript = gmInfo + js;
 
     }
 
@@ -148,8 +178,10 @@ public class IITC_WebViewClient extends WebViewClient {
     public void onPageFinished(WebView view, String url) {
         if (url.startsWith("http://www.ingress.com/intel")
                 || url.startsWith("https://www.ingress.com/intel")) {
+            if (mIitcInjected) return;
             Log.d("iitcm", "injecting iitc..");
             view.loadUrl("javascript: " + this.mIitcScript);
+            mIitcInjected = true;
             loadPlugins(view);
         }
         super.onPageFinished(view, url);
@@ -163,6 +195,7 @@ public class IITC_WebViewClient extends WebViewClient {
         Log.d("iitcm", "Login requested: " + realm + " " + account + " " + args);
         Log.d("iitcm", "logging in...updating caching mode");
         ((IITC_WebView) view).updateCaching(true);
+        mIitcInjected = false;
         //((IITC_Mobile) mContext).onReceivedLoginRequest(this, view, realm, account, args);
     }
 
@@ -205,7 +238,8 @@ public class IITC_WebViewClient extends WebViewClient {
         if (js.equals("false")) {
             return false;
         } else {
-            view.loadUrl("javascript:" + js);
+            String gmInfo = "GM_info=" + getGmInfoJson(getScriptInfo(js)) + "\n";
+            view.loadUrl("javascript:" + gmInfo + js);
         }
         return true;
     }

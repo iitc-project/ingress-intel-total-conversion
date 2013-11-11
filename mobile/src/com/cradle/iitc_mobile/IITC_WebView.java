@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.webkit.ConsoleMessage;
 import android.webkit.GeolocationPermissions;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -138,24 +139,9 @@ public class IITC_WebView extends WebView {
 
     @Override
     public void loadUrl(String url) {
-        // if in edit text mode, don't load javascript otherwise the keyboard closes.
-        HitTestResult testResult = getHitTestResult();
-        if (url.startsWith("javascript:") && testResult != null &&
-                testResult.getType() == HitTestResult.EDIT_TEXT_TYPE) {
-            // let window.show(...) interupt input
-            // window.show(...) is called if one of the action bar buttons
-            // is clicked
-            if (!url.startsWith("javascript: window.show(")) {
-                Log.d("iitcm", "in insert mode. do not load script.");
-                return;
-            }
-        }
-        // do nothing if script is enabled;
-        if (mDisableJs) {
-            Log.d("iitcm", "javascript injection disabled...return");
-            return;
-        }
-        if (!url.startsWith("javascript:")) {
+        if (url.startsWith("javascript:")) {
+            loadJS(url.substring("javascript:".length()));
+        } else {
             // force https if enabled in settings
             SharedPreferences sharedPref = PreferenceManager
                     .getDefaultSharedPreferences(getContext());
@@ -168,8 +154,37 @@ public class IITC_WebView extends WebView {
             // disable splash screen if a http error code is responded
             new CheckHttpResponse(mJsInterface, mIitc).execute(url);
             Log.d("iitcm", "loading url: " + url);
+            super.loadUrl(url);
         }
-        super.loadUrl(url);
+    }
+
+    public void loadJS(String js) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            evaluateJavascript(js, new ValueCallback<String>() {
+                @Override
+                public void onReceiveValue(String value) {
+                    // maybe we want to add stuff here
+                }
+            });
+        } else {
+            // if in edit text mode, don't load javascript otherwise the keyboard closes.
+            HitTestResult testResult = getHitTestResult();
+            if (testResult != null && testResult.getType() == HitTestResult.EDIT_TEXT_TYPE) {
+                // let window.show(...) interupt input
+                // window.show(...) is called if one of the action bar buttons
+                // is clicked
+                if (!js.startsWith("window.show(")) {
+                    Log.d("iitcm", "in insert mode. do not load script.");
+                    return;
+                }
+            }
+            // do nothing if script is enabled;
+            if (mDisableJs) {
+                Log.d("iitcm", "javascript injection disabled...return");
+                return;
+            }
+            super.loadUrl("javascript:" + js);
+        }
     }
 
     @Override

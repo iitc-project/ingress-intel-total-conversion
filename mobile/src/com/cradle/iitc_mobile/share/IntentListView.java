@@ -152,11 +152,19 @@ public class IntentListView extends ListView {
                 ResolveInfo info = activityList.get(i);
                 ActivityInfo activity = info.activityInfo;
 
+                // fix bug in PackageManager - a replaced package name might cause non-exported intents to appear
+                if (!activity.exported && !activity.packageName.equals(packageName)) {
+                    activityList.remove(i);
+                    i--;
+                    continue;
+                }
+
                 // remove all IITCm intents, except for SendToClipboard in case Drive is not installed
                 if (activity.packageName.equals(packageName)) {
                     if (hasCopyIntent || !activity.name.equals(SendToClipboard.class.getCanonicalName())) {
                         activityList.remove(i);
                         i--;
+                        continue;
                     }
                 }
             }

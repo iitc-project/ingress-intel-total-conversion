@@ -68,6 +68,20 @@ if ( file_exists ( 'tracking.php' ) )
   - a place to ask for help and discuss with other users.
  </div>
 
+ <!-- **** alert box when standard intel site changes **** -->
+ <?php
+ if ( file_exists ( "flag-stock-site-changed.txt" ) )
+ {
+ ?>
+ <div class="alert alert-block alert-error">
+  <b>Note</b>: A change has been detected to the standard intel website. Such changes usually break IITC.
+  The developers have been notified of the update, and will be looking to fix things as soon as possible.
+  See the <a href="https://plus.google.com/communities/105647403088015055797">IITC Community</a>
+  for the latest details.
+ </div>
+ <?php
+ }
+ ?>
 <!--
  <div class="alert alert-block alert-error">
   <b>IITC has yet again been broken by changes Niantic have made.</b> Further information/discussion on
