@@ -26,7 +26,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
@@ -163,7 +162,7 @@ public class IITC_WebViewClient extends WebViewClient {
                     "window.showLayerChooser = false");
         }
 
-        String gmInfo = "GM_info=" + getGmInfoJson(getScriptInfo(js)).toString() + "\n";
+        String gmInfo = "GM_info=" + getGmInfoJson(getScriptInfo(js)) + "\n";
         this.mIitcScript = gmInfo + js;
 
     }
@@ -196,6 +195,7 @@ public class IITC_WebViewClient extends WebViewClient {
         Log.d("iitcm", "Login requested: " + realm + " " + account + " " + args);
         Log.d("iitcm", "logging in...updating caching mode");
         ((IITC_WebView) view).updateCaching(true);
+        mIitcInjected = false;
         //((IITC_Mobile) mContext).onReceivedLoginRequest(this, view, realm, account, args);
     }
 

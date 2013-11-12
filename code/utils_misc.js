@@ -208,18 +208,22 @@ window.unixTimeToHHmm = function(time) {
   return  h + ':' + s;
 }
 
-window.formatInterval = function(seconds) {
+window.formatInterval = function(seconds,maxTerms) {
 
-  var h = Math.floor(seconds / 3600);
+  var d = Math.floor(seconds / 86400);
+  var h = Math.floor((seconds % 86400) / 3600);
   var m = Math.floor((seconds % 3600) / 60);
   var s = seconds % 60;
 
-  var text = '';
-  if (h > 0) text += h+'h';
-  if (m > 0) text += m+'m';
-  if (s > 0 || text == '') text += s+'s';
+  var terms = [];
+  if (d > 0) terms.push(d+'d');
+  if (h > 0) terms.push(h+'h');
+  if (m > 0) terms.push(m+'m');
+  if (s > 0 || terms.length==0) terms.push(s+'s');
 
-  return text;
+  if (maxTerms) terms = terms.slice(0,maxTerms);
+
+  return terms.join(' ');
 }
 
 

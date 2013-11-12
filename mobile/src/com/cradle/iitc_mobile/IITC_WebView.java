@@ -164,7 +164,6 @@ public class IITC_WebView extends WebView {
                 @Override
                 public void onReceiveValue(String value) {
                     // maybe we want to add stuff here
-                    return;
                 }
             });
         } else {
