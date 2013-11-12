@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.cradle.iitc_mobile"
     android:installLocation="auto"
-    android:versionCode="59"
+    android:versionCode="60"
     android:versionName="0.9">
 
     <uses-sdk
