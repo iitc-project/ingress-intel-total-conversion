@@ -1,4 +1,3 @@
-
 // GAME STATUS ///////////////////////////////////////////////////////
 // MindUnit display
 
@@ -25,6 +24,13 @@ window.updateGameScore = function(data) {
       return;
     } else {
       console.error('IITC munge issue - and retry limit reached. IITC will likely fail');
+
+      // if we can be sure that the issue is not caused by Ingress being down, notify the user
+      if (data.error && data.error === 'missing version') {
+        alert("Could not fetch game score.\nThis is most likely due to changes on the stock Intel Map, breaking IITC at the moment.\n\nDON'T PANIC!\nDevelopers are automatically notified of this issue.");
+      } else {
+        alert("Could not fetch game score.\nIt appears to be a temporary problem, refreshing or simply waiting might help.");
+      }
     }
   }
 
