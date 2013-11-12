@@ -137,18 +137,14 @@ window.digits = function(d) {
 //          able arguments: http://api.jquery.com/jQuery.ajax/
 // error: see above. Additionally it is logged if the request failed.
 window.postAjax = function(action, data, success, error) {
-  if (window.activeRequestMungeSet===undefined) {
-    window.detectActiveMungeSet();
-  }
-  var activeMunge = window.requestParameterMunges[window.activeRequestMungeSet];
 
   var methodName = 'dashboard.'+action;
   var versionStr = 'version_parameter';
 
-  // munging of the method name - seen in Set 2 (onwards?)
-  methodName = activeMunge[methodName];
-  // and of the 'version' parameter
-  versionStr = activeMunge[versionStr];
+  // munging of the method name - seen in Set 2 onwards
+  methodName = mungeOneString(methodName);
+  // and of the 'version' parameter (we assume it's a version - if missing/wrong that's what the error refers to)
+  versionStr = mungeOneString(versionStr);
 
   var post_data = JSON.stringify(window.requestDataMunge($.extend({method: methodName, version: versionStr}, data)));
   var remove = function(data, textStatus, jqXHR) { window.requests.remove(jqXHR); };
