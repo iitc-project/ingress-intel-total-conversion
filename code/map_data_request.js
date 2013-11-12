@@ -17,9 +17,11 @@ window.MapDataRequest = function() {
 
   // no more than this many requests in parallel
   this.MAX_REQUESTS = 4;
+
   // no more than this many tiles in one request
-  // (the stock site seems to have no limit - i've seen ~100 for L3+ portals and a maximised browser window)
-  this.MAX_TILES_PER_REQUEST = 32;
+  // as of 2013-11-11, or possibly the release before that, the stock site was changed to only request four tiles at a time
+  // (which matches the number successfully returned for a *long* time!)
+  this.MAX_TILES_PER_REQUEST = 4;
 
   // try to maintain at least this may tiles in each request, by reducing the number of requests as needed
   this.MIN_TILES_PER_REQUEST = 4;
