@@ -91,11 +91,22 @@ window.plugin.playerTracker.setup = function() {
 
 window.plugin.playerTracker.stored = {};
 
+// force close all open tooltips before markers are cleared
+window.plugin.playerTracker.closeIconTooltips = function() {
+    plugin.playerTracker.drawnTracesRes.eachLayer(function(layer) {
+      if ($(layer._icon)) { $(layer._icon).tooltip('close');}
+    });
+    plugin.playerTracker.drawnTracesEnl.eachLayer(function(layer) {
+      if ($(layer._icon)) { $(layer._icon).tooltip('close');}
+    });
+}
+
 window.plugin.playerTracker.zoomListener = function() {
   var ctrl = $('.leaflet-control-layers-selector + span:contains("Player Tracker")').parent();
   if(window.map.getZoom() < window.PLAYER_TRACKER_MIN_ZOOM) {
-    window.plugin.playerTracker.drawnTracesEnl.clearLayers();
-    window.plugin.playerTracker.drawnTracesRes.clearLayers();
+    plugin.playerTracker.closeIconTooltips();
+    plugin.playerTracker.drawnTracesEnl.clearLayers();
+    plugin.playerTracker.drawnTracesRes.clearLayers();
     ctrl.addClass('disabled').attr('title', 'Zoom in to show those.');
   } else {
     ctrl.removeClass('disabled').attr('title', '');
@@ -404,6 +415,7 @@ window.plugin.playerTracker.handleData = function(data) {
 
   plugin.playerTracker.discardOldData();
   plugin.playerTracker.processNewData(data);
+  plugin.playerTracker.closeIconTooltips();
   plugin.playerTracker.oms.clearMarkers();
   plugin.playerTracker.drawnTracesEnl.clearLayers();
   plugin.playerTracker.drawnTracesRes.clearLayers();
