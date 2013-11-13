@@ -11,7 +11,8 @@
 window.artifact = function() {}
 
 window.artifact.setup = function() {
-  artifact.REFRESH_SUCCESS = 15*60;  // 15 minutes on success
+  artifact.REFRESH_JITTER = 2*60;  // 2 minute random period so not all users refresh at once
+  artifact.REFRESH_SUCCESS = 60*60;  // 60 minutes on success
   artifact.REFRESH_FAILURE = 2*60;  // 2 minute retry on failure
 
   artifact.idle = false;
@@ -46,7 +47,11 @@ window.artifact.idleResume = function() {
 window.artifact.handleSuccess = function(data) {
   artifact.processData (data);
 
-  setTimeout (artifact.requestData, artifact.REFRESH_SUCCESS*1000);
+  // start the next refresh at a multiple of REFRESH_SUCCESS seconds, plus a random REFRESH_JITTER amount to prevent excessive server hits at one time
+  var now = Date.now();
+  var nextTime = Math.ceil(now/(artifact.REFRESH_SUCCESS*1000))*(artifact.REFRESH_SUCCESS*1000) + Math.floor(Math.random()*artifact.REFRESH_JITTER*1000);
+
+  setTimeout (artifact.requestData, nextTime - now);
 }
 
 window.artifact.handleFailure = function(data) {
@@ -58,9 +63,8 @@ window.artifact.handleFailure = function(data) {
 
 window.artifact.processData = function(data) {
 
-  if (!data.artifacts) {
+  if (data.error || !data.artifacts) {
     console.warn('Failed to find artifacts in artifact response');
-    return;
   }
 
   artifact.clearData();
