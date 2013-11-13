@@ -315,7 +315,7 @@ window.plugin.playerTracker.drawData = function() {
     popup += '<br>'
         + ago(last.time, now) + ' ago<br>'
         + window.chat.getChatPortalName(last);
-    // show previous data in tooltip
+    // show previous data in popup
     if(evtsLength >= 2) {
       popup += '<br>&nbsp;<br>previous locations:<br>'
           + '<table style="border-spacing:0">';
@@ -355,6 +355,11 @@ window.plugin.playerTracker.drawData = function() {
 // marker click events. so store the popup text in the options, then display it in the oms click handler
     var m = L.marker(gllfe(last), {icon: icon, referenceToPortal: closestPortal, opacity: absOpacity, desc: popup, title: tooltip});
 //    m.bindPopup(title);
+
+    if (tooltip) {
+      // ensure tooltips are closed, sometimes they linger
+      m.on('mouseout', function() { $(this._icon).tooltip('close'); });
+    }
 
     m.addTo(playerData.team === 'RESISTANCE' ? plugin.playerTracker.drawnTracesRes : plugin.playerTracker.drawnTracesEnl);
     plugin.playerTracker.oms.addMarker(m);
