@@ -296,8 +296,14 @@ window.getPortalDataZoom = function() {
 
 
 window.getMinPortalLevelForZoom = function(z) {
-//based on code from stock gen_dashboard.js
-  var ZOOM_TO_LEVEL = [8, 8, 8, 8, 7, 7, 6, 6, 5, 4, 4, 3, 3, 2, 2, 1, 1];
+  // try to use the zoom-to-level mapping from the stock intel page, if available
+  var ZOOM_TO_LEVEL;
+  try {
+    ZOOM_TO_LEVEL = nemesis.dashboard.zoomlevel.ZOOM_TO_LOD_;
+  } catch(e) {
+    //based on code from stock gen_dashboard.js
+    ZOOM_TO_LEVEL = [8, 8, 8, 8, 7, 7, 6, 6, 5, 4, 4, 3, 3, 2, 2, 1, 1];
+  }
   var l = ZOOM_TO_LEVEL[z] || 0;
   return l;
 }
