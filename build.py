@@ -112,7 +112,7 @@ def loaderRaw(var):
 def loaderMD(var):
     fn = var.group(1)
     # use different MD.dat's for python 2 vs 3 incase user switches versions, as they are not compatible
-    db = shelve.open('build/MDv' + str(sys.version_info.major) + '.dat')
+    db = shelve.open('build/MDv' + str(sys.version_info[0]) + '.dat')
     if 'files' in db:
       files = db['files']
     else:
@@ -141,7 +141,7 @@ def loaderImage(var):
     return 'data:image/png;base64,{0}'.format(base64.encodestring(open(fn, 'rb').read()).decode('utf8').replace('\n', ''))
 
 def loadCode(ignore):
-    return '\n\n'.join(map(readfile, sorted(glob.glob('code/*.js'))))
+    return '\n\n;\n\n'.join(map(readfile, sorted(glob.glob('code/*.js'))))
 
 
 def extractUserScriptMeta(var):

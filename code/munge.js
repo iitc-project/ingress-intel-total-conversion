@@ -8,51 +8,11 @@
 // before IITC actually starts
 
 
+// wrap in an anonymous function to limit scope
+;(function(){
 
-window.requestParameterMunges = [
-  // now obsolete (they don't have some of the new parameters) munge sets deleted
-
-  // set 6 - 2013-10-29
-  {
-    'dashboard.getGameScore': 'vzjhib746rvkre04',          // GET_GAME_SCORE
-    'dashboard.getPaginatedPlextsV2': 'gqa96zhqpddtfmkl',  // GET_PAGINATED_PLEXTS
-    'dashboard.getThinnedEntitiesV4': '18lmw7lytgxji0dk',  // GET_THINNED_ENTITIES
-    'dashboard.getPlayersByGuids': 'emb5xrj8rav1i0be',     // LOOKUP_PLAYERS
-    'dashboard.redeemReward': '4xqof5pldqab63rb',          // REDEEM_REWARD
-    'dashboard.sendInviteEmail': 'yq5wxjlnud0tj6hu',       // SEND_INVITE_EMAIL
-    'dashboard.sendPlext': 'e1ipqdxjlwd3l7zb',             // SEND_PLEXT
-
-    // common parameters
-    method: 'wg7gyxoanqc1si5r',
-    version: 'adlo9o4kjvho5q94', //guessed parameter name - only seen munged
-    version_parameter: '56036a6497ea344a9fffa38b171a77c092c1f220', // passed as the value to the above parameter
-
-    // GET_THINNED_ENTITIES
-    quadKeys: '6vcl0ivqz4aj5sfu', //guessed parameter name - only seen munged
-
-    // GET_PAGINATED_PLEXTS
-    desiredNumItems: '6jd5b49wn748diye',
-    minLatE6: '891ebsryg45b8cxb',
-    minLngE6: 'mvepdcx1k6noya15',
-    maxLatE6: 's3rh3fhji5mcjlof',
-    maxLngE6: 'yqdgfuukrxj8byzj',
-    minTimestampMs: 'btf0kpztxrkt6sl6',
-    maxTimestampMs: 'hg8vhtehxf53n5cu',
-    chatTab: '6bk9rmebtk1ux6da', //guessed parameter name - only seen munged
-    ascendingTimestampOrder: '4zw3v6xwp117r47w',
-
-    // SEND_PLEXT
-    message: '55vpsci0hji0ai5x',
-    latE6: 'lyhrt4miuwc7w29d',
-    lngE6: 'c1yl2qmzfu5j23ao',
-//  chatTab: '6bk9rmebtk1ux6da', //guessed parameter name - only seen munged
-
-    // LOOKUP_PLAYERS
-    guids: 'k76phw8ey9z21z7c',
-
-    // SEND_INVITE_EMAIL
-    inviteeEmailAddress: 'x16pe9u4i8bidbi2',
-  },
+var requestParameterMunges = [
+  // obsolete munge sets (they don't have some of the new parameters) deleted
 
   // set 7 - 2013-11-06
   {
@@ -184,12 +144,109 @@ window.requestParameterMunges = [
   },
 
 ];
-window.activeRequestMungeSet = undefined;
 
+
+var activeRequestMungeSet = undefined;
+
+
+// in the recent stock site updates, their javascript code has been less obsfucated, but also the munge parameters
+// change on every release. I can only assume it's now an integrated step in the build/release system, rather
+// than continued efforts to block iitc. the lighter obsfucation on the code makes it easier to parse and find
+// the munges in the code - so let's attempt that
+function extractMungeFromStock() {
+  try {
+    var foundMunges = {};
+
+    // these are easy - directly available in variables
+    foundMunges['dashboard.getArtifactInfo'] = nemesis.dashboard.requests.MethodName.GET_ARTIFACT_INFO;
+    foundMunges['dashboard.getGameScore'] = nemesis.dashboard.requests.MethodName.GET_GAME_SCORE;
+    foundMunges['dashboard.getPaginatedPlextsV2'] = nemesis.dashboard.requests.MethodName.GET_PAGINATED_PLEXTS;
+    foundMunges['dashboard.getThinnedEntitiesV4'] = nemesis.dashboard.requests.MethodName.GET_THINNED_ENTITIES;
+    foundMunges['dashboard.getPlayersByGuids'] = nemesis.dashboard.requests.MethodName.LOOKUP_PLAYERS;
+    foundMunges['dashboard.redeemReward'] = nemesis.dashboard.requests.MethodName.REDEEM_REWARD;
+    foundMunges['dashboard.sendInviteEmail'] = nemesis.dashboard.requests.MethodName.SEND_INVITE_EMAIL;
+    foundMunges['dashboard.sendPlext'] = nemesis.dashboard.requests.MethodName.SEND_PLEXT;
+
+    // the rest are trickier - we need to parse the functions of the stock site. these break very often
+    // on site updates
+
+    // regular expression - to match either x.abcdef123456wxyz or x["123456abcdefwxyz"] format for property access
+    var mungeRegExpProp = '(?:\\.([a-z][a-z0-9]{15})|\\["([0-9][a-z0-9]{15})"\\])';
+    // and one to match members of object literal initialisation - {abcdef123456wxyz: or {"123456abcdefwxyz":
+    var mungeRegExpLit = '(?:([a-z][a-z0-9]{15})|"([0-9][a-z0-9]{15})"):';
+
+    // common parameters - method, version, version_parameter - currently found in the 
+    // nemesis.dashboard.network.XhrController.prototype.doSendRequest_ function
+    // look for something like
+    //  var e = a.getData();
+    //  e["3sld77nsm0tjmkvi"] = c;
+    //  e.xz7q6r3aja5ttvoo = "b121024077de2a0dc6b34119e4440785c9ea5e64";
+    var reg = new RegExp('getData\\(\\);.*\\n.*'+mungeRegExpProp+' =.*\n.*'+mungeRegExpProp+' *= *"([a-z0-9]{40})','m');
+    var result = reg.exec(nemesis.dashboard.network.XhrController.prototype.doSendRequest_.toString());
+    // there's two ways of matching the munge expression, so try both
+    foundMunges.method = result[1] || result[2];
+    foundMunges.version = result[3] || result[4];
+    foundMunges.version_parameter = result[5];
+
+    // GET_THINNED_ENTITIES parameters
+    var reg = new RegExp('GET_THINNED_ENTITIES, [a-zA-Z]+ = {'+mungeRegExpLit);
+    var result = reg.exec(nemesis.dashboard.network.DataFetcher.prototype.getGameEntities.toString());
+    foundMunges.quadKeys = result[1] || result[2];
+
+    // GET_PAGINATED_PLEXTS
+    var reg = new RegExp('GET_PAGINATED_PLEXTS, [a-z] = [a-z] \\|\\| nemesis.dashboard.BoundsParams.getBoundsParamsForWorld\\(\\), [a-z] = [a-z] \\|\\| -1, [a-z] = [a-z] \\|\\| -1, [a-z] = {'+mungeRegExpLit+'[a-z], '+mungeRegExpLit+'Math.round\\([a-z].bounds.sw.lat\\(\\) \\* 1E6\\), '+mungeRegExpLit+'Math.round\\([a-z].bounds.sw.lng\\(\\) \\* 1E6\\), '+mungeRegExpLit+'Math.round\\([a-z].bounds.ne.lat\\(\\) \\* 1E6\\), '+mungeRegExpLit+'Math.round\\([a-z].bounds.ne.lng\\(\\) \\* 1E6\\), '+mungeRegExpLit+'[a-z], '+mungeRegExpLit+'[a-z]};\n *[a-z]'+mungeRegExpProp+' = [a-z];\n *[a-z] > -1 && \\([a-z]'+mungeRegExpProp+' = true\\);', 'm');
+    var result = reg.exec(nemesis.dashboard.network.PlextStore.prototype.getPlexts.toString());
+
+    foundMunges.desiredNumItems = result[1] || result[2];
+    
+    foundMunges.minLatE6 = result[3] || result[4];
+    foundMunges.minLngE6 = result[5] || result[6];
+    foundMunges.maxLatE6 = result[7] || result[8];
+    foundMunges.maxLngE6 = result[9] || result[10];
+    foundMunges.minTimestampMs = result[11] || result[12];
+    foundMunges.maxTimestampMs = result[13] || result[14];
+    foundMunges.chatTab = result[15] || result[16];  //guessed parameter name - only seen munged
+    foundMunges.ascendingTimestampOrder = result[17] || result[18];
+
+    // SEND_PLEXT
+    var reg = new RegExp('SEND_PLEXT, {'+mungeRegExpLit+'[a-z], '+mungeRegExpLit+'[a-z], '+mungeRegExpLit+'[a-z], '+mungeRegExpLit+'[a-z]}');
+    var result = reg.exec(nemesis.dashboard.network.PlextStore.prototype.sendPlext.toString());
+
+    foundMunges.message = result[1] || result[2];
+    foundMunges.latE6 = result[3] || result[4];
+    foundMunges.lngE6 = result[5] || result[6];
+    var chatTab = result[7] || result[8];
+    if (chatTab != foundMunges.chatTab) throw 'Error: inconsistant munge parsing for chatTab';
+
+    // LOOKUP_PLAYERS
+    var reg = new RegExp('LOOKUP_PLAYERS, {'+mungeRegExpLit+'a}');
+    var result = reg.exec(nemesis.dashboard.network.DataFetcher.prototype.lookupPlayersByGuids.toString());
+
+    foundMunges.guids = result[1] || result[2];
+
+    // SEND_INVITE_EMAIL
+    var reg = new RegExp('SEND_INVITE_EMAIL, {'+mungeRegExpLit+'b}');
+    foundMunges.inviteeEmailAddress = result[1] || result[2];
+
+    return foundMunges;
+  } catch(e) {
+    console.warn('Failed to extract munges from the code: '+e);
+  }
+}
+
+
+var activeMunge = null;
 
 
 // attempt to guess the munge set in use, by looking therough the functions of the stock intel page for one of the munged params
 window.detectActiveMungeSet = function() {
+
+  // first, try and parse the stock functions and extract the munges directly
+  activeMunge = extractMungeFromStock();
+  if (activeMunge) {
+    console.log('IITC: Successfully extracted munges from stock javascript');
+    return;
+  }
 
   // try and find the stock page functions
   // FIXME? revert to searching through all the code? is that practical?
@@ -209,27 +266,36 @@ window.detectActiveMungeSet = function() {
   }
 
   if(stockFunc) {
-    for (var i in window.requestParameterMunges) {
-      if (stockFunc.indexOf (window.requestParameterMunges[i]['method']) >= 0) {
+    for (var i in requestParameterMunges) {
+      if (stockFunc.indexOf (requestParameterMunges[i]['method']) >= 0) {
         console.log('IITC: found request munge set index '+i+' in stock intel site');
-        window.activeRequestMungeSet = i;
+        activeRequestMungeSet = i;
       }
     }
   } else {
     console.error('IITC: failed to find the stock site function for detecting munge set');
   }
 
-  if (window.activeRequestMungeSet===undefined) {
+  if (activeRequestMungeSet===undefined) {
     console.error('IITC: failed to find request munge set - IITC will likely fail');
-    window.activeRequestMungeSet = 0;
+    activeRequestMungeSet = 0;
   }
+
+  activeMunge = requestParameterMunges[activeRequestMungeSet];
 }
 
 
 
+
+window.mungeOneString = function(str) {
+  if (!activeMunge) detectActiveMungeSet();
+
+  return activeMunge[str];
+}
+
 // niantic now add some munging to the request parameters. so far, only two sets of this munging have been seen
 window.requestDataMunge = function(data) {
-  var activeMunge = window.requestParameterMunges[window.activeRequestMungeSet];
+  if (!activeMunge) detectActiveMungeSet();
 
   function munge(obj) {
     if (Object.prototype.toString.call(obj) === '[object Array]') {
@@ -262,3 +328,9 @@ window.requestDataMunge = function(data) {
   var newdata = munge(data);
   return newdata;
 }
+
+
+//anonymous function end
+}());
+
+
