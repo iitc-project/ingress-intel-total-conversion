@@ -65,12 +65,14 @@ window.plugin.playerTracker.setup = function() {
   plugin.playerTracker.oms = new OverlappingMarkerSpiderfier(map, {keepSpiderfied: true, legWeight: 3.5});
   plugin.playerTracker.oms.legColors = {'usual': '#FFFF00', 'highlighted': '#FF0000'};
 
-  var playerPopup = new L.Popup({offset: L.point([0,-20])});
+  var playerPopup = new L.Popup({offset: L.point([1,-34])});
   plugin.playerTracker.oms.addListener('click', function(player) {
     window.renderPortalDetails(player.options.referenceToPortal);
-    playerPopup.setContent(player.options.desc);
-    playerPopup.setLatLng(player.getLatLng());
-    map.openPopup(playerPopup)
+    if (player.options.desc) {
+      playerPopup.setContent(player.options.desc);
+      playerPopup.setLatLng(player.getLatLng());
+      map.openPopup(playerPopup);
+    }
   });
   plugin.playerTracker.oms.addListener('spiderfy', function(markers) {
     map.closePopup();
@@ -89,11 +91,22 @@ window.plugin.playerTracker.setup = function() {
 
 window.plugin.playerTracker.stored = {};
 
+// force close all open tooltips before markers are cleared
+window.plugin.playerTracker.closeIconTooltips = function() {
+    plugin.playerTracker.drawnTracesRes.eachLayer(function(layer) {
+      if ($(layer._icon)) { $(layer._icon).tooltip('close');}
+    });
+    plugin.playerTracker.drawnTracesEnl.eachLayer(function(layer) {
+      if ($(layer._icon)) { $(layer._icon).tooltip('close');}
+    });
+}
+
 window.plugin.playerTracker.zoomListener = function() {
   var ctrl = $('.leaflet-control-layers-selector + span:contains("Player Tracker")').parent();
   if(window.map.getZoom() < window.PLAYER_TRACKER_MIN_ZOOM) {
-    window.plugin.playerTracker.drawnTracesEnl.clearLayers();
-    window.plugin.playerTracker.drawnTracesRes.clearLayers();
+    if (!window.isTouchDevice()) plugin.playerTracker.closeIconTooltips();
+    plugin.playerTracker.drawnTracesEnl.clearLayers();
+    plugin.playerTracker.drawnTracesRes.clearLayers();
     ctrl.addClass('disabled').attr('title', 'Zoom in to show those.');
   } else {
     ctrl.removeClass('disabled').attr('title', '');
@@ -257,6 +270,8 @@ window.plugin.playerTracker.ago = function(time, now) {
 }
 
 window.plugin.playerTracker.drawData = function() {
+  var isTouchDev = window.isTouchDevice();
+
   var gllfe = plugin.playerTracker.getLatLngFromEvent;
 
   var polyLineByAgeEnl = [[], [], [], []];
@@ -284,42 +299,46 @@ window.plugin.playerTracker.drawData = function() {
         polyLineByAgeEnl[ageBucket].push(line);
     }
 
-    // popup for marker
     var evtsLength = playerData.events.length;
     var last = playerData.events[evtsLength-1];
     var ago = plugin.playerTracker.ago;
+
+    // tooltip for marker - no HYML - and not shown on touchscreen devices
+    var tooltip = isTouchDev ? '' : (playerData.nick+', '+ago(last.time, now)+' ago');
+
+    // popup for marker
     var cssClass = playerData.team === 'RESISTANCE' ? 'res' : 'enl';
-    var title = '<span class="nickname '+ cssClass+'" style="font-weight:bold;">' + playerData.nick + '</span>';
+    var popup = '<span class="nickname '+cssClass+'" style="font-weight:bold;">' + playerData.nick + '</span>';
 
     if(window.plugin.guessPlayerLevels !== undefined &&
        window.plugin.guessPlayerLevels.fetchLevelByPlayer !== undefined) {
       var playerLevel = window.plugin.guessPlayerLevels.fetchLevelByPlayer(pguid);
       if(playerLevel !== undefined) {
-        title += '<span style="font-weight:bold;margin-left:10px;">Level '
+        popup += '<span style="font-weight:bold;margin-left:10px;">Level '
           + playerLevel
           + ' (guessed)'
           + '</span>';
       } else {
-        title += '<span style="font-weight:bold;margin-left:10px;">Level unknown</span>'
+        popup += '<span style="font-weight:bold;margin-left:10px;">Level unknown</span>'
       }
     }
     
-    title += '<br>'
+    popup += '<br>'
         + ago(last.time, now) + ' ago<br>'
         + window.chat.getChatPortalName(last);
-    // show previous data in tooltip
+    // show previous data in popup
     if(evtsLength >= 2) {
-      title += '<br>&nbsp;<br>previous locations:<br>'
+      popup += '<br>&nbsp;<br>previous locations:<br>'
           + '<table style="border-spacing:0">';
     }
     for(var i = evtsLength - 2; i >= 0 && i >= evtsLength - 10; i--) {
       var ev = playerData.events[i];
-      title += '<tr align="left"><td>' + ago(ev.time, now) + '</td>'
+      popup += '<tr align="left"><td>' + ago(ev.time, now) + '</td>'
           + '<td>ago</td>'
           + '<td>' + window.chat.getChatPortalName(ev) + '</td></tr>';
     }
     if(evtsLength >= 2)
-      title += '</table>';
+      popup += '</table>';
 
     // calculate the closest portal to the player
     var eventPortal = []
@@ -345,11 +364,21 @@ window.plugin.playerTracker.drawData = function() {
     var icon = playerData.team === 'RESISTANCE' ?  new plugin.playerTracker.iconRes() :  new plugin.playerTracker.iconEnl();
 // as per OverlappingMarkerSpiderfier docs, click events (popups, etc) must be handled via it rather than the standard
 // marker click events. so store the popup text in the options, then display it in the oms click handler
-    var m = L.marker(gllfe(last), {icon: icon, referenceToPortal: closestPortal, opacity: absOpacity, desc: title});
+    var m = L.marker(gllfe(last), {icon: icon, referenceToPortal: closestPortal, opacity: absOpacity, desc: popup, title: tooltip});
 //    m.bindPopup(title);
+
+    if (tooltip) {
+      // ensure tooltips are closed, sometimes they linger
+      m.on('mouseout', function() { $(this._icon).tooltip('close'); });
+    }
 
     m.addTo(playerData.team === 'RESISTANCE' ? plugin.playerTracker.drawnTracesRes : plugin.playerTracker.drawnTracesEnl);
     plugin.playerTracker.oms.addMarker(m);
+
+    // jQueryUI doesn’t automatically notice the new markers
+    if (!isTouchDev) {
+      window.setupTooltips($(m._icon));
+    }
   });
 
   // draw the poly lines to the map
@@ -386,6 +415,7 @@ window.plugin.playerTracker.handleData = function(data) {
 
   plugin.playerTracker.discardOldData();
   plugin.playerTracker.processNewData(data);
+  if (!window.isTouchDevice()) plugin.playerTracker.closeIconTooltips();
   plugin.playerTracker.oms.clearMarkers();
   plugin.playerTracker.drawnTracesEnl.clearLayers();
   plugin.playerTracker.drawnTracesRes.clearLayers();

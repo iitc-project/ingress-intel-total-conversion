@@ -142,8 +142,8 @@
 
         <replaceregexp
         file="AndroidManifest.xml"
-        match='android:versionName="(\d+\.\d+)"'
-        replace='android:versionName="\1.${git.version}"' />
+        match='android:versionName="(\d+(\.\d+)*)"'
+        replace='android:versionName="\1.${git.commits}.${git.version}"' />
     </target>
 
     <target name="-custom-restore-manifest">

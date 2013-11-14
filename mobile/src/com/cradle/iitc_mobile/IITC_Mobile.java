@@ -3,11 +3,13 @@ package com.cradle.iitc_mobile;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import android.app.DownloadManager;
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
@@ -16,7 +18,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -30,7 +31,6 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
-import com.cradle.iitc_mobile.async.DownloadIitcUpdate;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +41,6 @@ import java.util.Stack;
 public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeListener, LocationListener {
 
     private static final int REQUEST_LOGIN = 1;
-    public static final int REQUEST_UPDATE_FINISHED = 2;
 
     private IITC_WebView mIitcWebView;
     private final String mIntelUrl = "https://www.ingress.com/intel";
@@ -57,7 +56,13 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     private SharedPreferences mSharedPrefs;
     private IITC_NavigationHelper mNavigationHelper;
     private IITC_MapSettings mMapSettings;
-    private ProgressDialog mProgressDialog;
+
+    private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ((IITC_Mobile) context).installIitcUpdate();
+        }
+    };
 
     // Used for custom back stack handling
     private final Stack<Pane> mBackStack = new Stack<IITC_NavigationHelper.Pane>();
@@ -111,12 +116,9 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         // Clear the back stack
         mBackStack.clear();
 
-        // init update progress dialog
-        mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setMessage("Downloading IITCm update...");
-        mProgressDialog.setIndeterminate(true);
-        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        mProgressDialog.setCancelable(true);
+        // receive downloadManagers downloadComplete intent
+        // afterwards install iitc update
+        registerReceiver(mBroadcastReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 
         handleIntent(getIntent(), true);
     }
@@ -180,6 +182,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
     }
     // ------------------------------------------------------------------------
+
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -582,11 +585,6 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                 // authentication activity has returned. mLogin will continue authentication
                 mLogin.onActivityResult(resultCode, data);
                 break;
-            case REQUEST_UPDATE_FINISHED:
-                // clean up update apk
-                File file = new File(Environment.getExternalStorageDirectory().toString() + "/iitc_update.apk");
-                if (file != null) file.delete();
-
             default:
                 super.onActivityResult(requestCode, resultCode, data);
         }
@@ -642,15 +640,32 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         }
     }
 
+    private void deleteUpdateFile() {
+        File file = new File(getExternalFilesDir(null).toString() + "/iitcUpdate.apk");
+        if (file != null) file.delete();
+    }
+
     public void updateIitc(String url) {
-        final DownloadIitcUpdate updateTask = new DownloadIitcUpdate(this);
-        updateTask.execute(url);
-        mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                updateTask.cancel(true);
-            }
-        });
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+        request.setDescription("downloading IITCm update apk...");
+        request.setTitle("IITCm Update");
+        request.allowScanningByMediaScanner();
+        Uri fileUri = Uri.parse("file://" + getExternalFilesDir(null).toString() + "/iitcUpdate.apk");
+        request.setDestinationUri(fileUri);
+        // remove old update file...we don't want to spam the external storage
+        deleteUpdateFile();
+        // get download service and enqueue file
+        DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        manager.enqueue(request);
+    }
+
+    private void installIitcUpdate() {
+        String iitcUpdatePath = getExternalFilesDir(null).toString() + "/iitcUpdate.apk";
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.fromFile(new File(iitcUpdatePath)), "application/vnd.android.package-archive");
+        startActivity(intent);
+        // finish app, because otherwise it gets killed on update
+        finish();
     }
 
     /**
@@ -669,9 +684,5 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
     public IITC_MapSettings getMapSettings() {
         return mMapSettings;
-    }
-
-    public ProgressDialog getProgressDialog() {
-        return mProgressDialog;
     }
 }

@@ -31,7 +31,8 @@ window.renderPortalDetails = function(guid) {
   var playerText = player ? ['owner', player] : null;
 
   var time = d.captured
-    ? '<span title="' + unixTimeToDateTimeString(d.captured.capturedTime, false) + '">'
+    ? '<span title="' + unixTimeToDateTimeString(d.captured.capturedTime, false) + '\n'
+                      + formatInterval(Math.floor((Date.now()-d.captured.capturedTime)/1000), 2) + ' ago">'
       +  unixTimeToString(d.captured.capturedTime) + '</span>'
     : null;
   var sinceText  = time ? ['since', time] : null;

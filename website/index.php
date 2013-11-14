@@ -76,7 +76,7 @@ if ( file_exists ( 'tracking.php' ) )
  <div class="alert alert-block alert-error">
   <b>Note</b>: A change has been detected to the standard intel website. Such changes usually break IITC.
   The developers have been notified of the update, and will be looking to fix things as soon as possible.
-  See the <a href=https://plus.google.com/communities/105647403088015055797">IITC Community</a>
+  See the <a href="https://plus.google.com/communities/105647403088015055797">IITC Community</a>
   for the latest details.
  </div>
  <?php

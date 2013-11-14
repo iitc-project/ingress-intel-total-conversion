@@ -155,25 +155,32 @@ window.Render.prototype.bringPortalsToFront = function() {
   for (var lvl in portalsFactionLayers) {
     // portals are stored in separate layers per faction
     // to avoid giving weight to one faction or another, we'll push portals to front based on GUID order
-    var portals = {};
+    var lvlPortals = {};
     for (var fac in portalsFactionLayers[lvl]) {
       var layer = portalsFactionLayers[lvl][fac];
       if (layer._map) {
         layer.eachLayer (function(p) {
-          portals[p.options.guid] = p;
+          lvlPortals[p.options.guid] = p;
         });
       }
     }
 
-    var guids = Object.keys(portals);
+    var guids = Object.keys(lvlPortals);
     guids.sort();
 
     for (var j in guids) {
       var guid = guids[j];
+      lvlPortals[guid].bringToFront();
+    }
+  }
+
+  // artifact portals are always brought to the front, above all others
+  $.each(artifact.getInterestingPortals(), function(i,guid) {
+    if (portals[guid] && portals[guid]._map) {
       portals[guid].bringToFront();
     }
+  });
 
-  }
 }
 
 
