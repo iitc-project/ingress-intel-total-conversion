@@ -140,6 +140,11 @@ public class IITC_WebView extends WebView {
     @Override
     public void loadUrl(String url) {
         if (url.startsWith("javascript:")) {
+            // do nothing if script is enabled;
+            if (mDisableJs) {
+                Log.d("iitcm", "javascript injection disabled...return");
+                return;
+            }
             loadJS(url.substring("javascript:".length()));
         } else {
             // force https if enabled in settings
@@ -177,11 +182,6 @@ public class IITC_WebView extends WebView {
                     Log.d("iitcm", "in insert mode. do not load script.");
                     return;
                 }
-            }
-            // do nothing if script is enabled;
-            if (mDisableJs) {
-                Log.d("iitcm", "javascript injection disabled...return");
-                return;
             }
             super.loadUrl("javascript:" + js);
         }
