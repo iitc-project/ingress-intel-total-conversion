@@ -54,7 +54,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
 
     private void setSelected(int position) {
         // Activity not fully loaded yet (may occur during tab creation)
-        if (mSharedPrefs == null) { return; }
+        if (mSharedPrefs == null) return;
 
         mSharedPrefs
                 .edit()

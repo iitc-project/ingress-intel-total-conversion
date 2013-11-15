@@ -33,38 +33,29 @@ public class IntentComparator implements Comparator<ResolveInfo> {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o)
-                return true;
+            if (this == o) return true;
 
-            if (o == null)
-                return false;
-            if (o.getClass() != getClass())
-                return false;
+            if (o == null) return false;
+            if (o.getClass() != this.getClass()) return false;
 
             Component c = (Component) o;
 
             if (name == null) {
-                if (c.name != null)
-                    return false;
+                if (c.name != null) return false;
             } else {
-                if (!name.equals(c.name))
-                    return false;
+                if (!name.equals(c.name)) return false;
             }
 
             if (name == null) {
-                if (c.name != null)
-                    return false;
+                if (c.name != null) return false;
             } else {
-                if (!name.equals(c.name))
-                    return false;
+                if (!name.equals(c.name)) return false;
             }
 
             if (packageName == null) {
-                if (c.packageName != null)
-                    return false;
+                if (c.packageName != null) return false;
             } else {
-                if (!packageName.equals(c.packageName))
-                    return false;
+                if (!packageName.equals(c.packageName)) return false;
             }
 
             return true;
@@ -184,10 +175,11 @@ public class IntentComparator implements Comparator<ResolveInfo> {
         Component component = new Component(info);
 
         Integer counter = mIntentMap.get(component);
-        if (counter == null)
+        if (counter == null) {
             counter = 1;
-        else
+        } else {
             counter++;
+        }
 
         mIntentMap.put(component, counter);
     }
