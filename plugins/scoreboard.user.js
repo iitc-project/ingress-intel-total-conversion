@@ -287,11 +287,6 @@ window.plugin.scoreboard.display = function() {
     id: 'scoreboard'
   });
 
-  // Setup sorting
-  $(document).on('click', '#players table th', function() {
-    $('#players').html(window.plugin.scoreboard.playerTable($(this).data('sort')));
-  });
-
   //run the name resolving process
   resolvePlayerNames();
 }
@@ -334,6 +329,10 @@ var setup =  function() {
     '.mu_score span.res { background-color: #005684; text-align: right; padding-right:4px; }' +
     '.mu_score span.enl { background-color: #017f01; padding-left: 4px; }' +
     '</style>');
+  // Setup sorting
+  $(document).on('click', '#players table th', function() {
+    $('#players').html(window.plugin.scoreboard.playerTable($(this).data('sort')));
+  });
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////
