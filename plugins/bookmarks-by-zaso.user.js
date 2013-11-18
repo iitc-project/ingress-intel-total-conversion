@@ -2,7 +2,7 @@
 // @id             iitc-plugin-bookmarks@ZasoGD
 // @name           IITC plugin: Bookmarks for maps and portals
 // @category       Controls
-// @version        0.2.5.@@DATETIMEVERSION@@
+// @version        0.2.6.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -196,7 +196,7 @@
 
     window.plugin.bookmarks.bkmrksObj[typeList][ID]['state'] = newFlag;
     window.plugin.bookmarks.saveStorage();
-    window.runHooks('pluginBkmrksEdit');
+    window.runHooks('pluginBkmrksEdit', {"target": "folder", "action": newFlag?"open":"close", "id": ID});
   }
 
   // Load the HTML bookmarks
