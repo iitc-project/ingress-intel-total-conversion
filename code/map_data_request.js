@@ -15,8 +15,9 @@ window.MapDataRequest = function() {
   this.idle = false;
 
 
-  // no more than this many requests in parallel
-  this.MAX_REQUESTS = 4;
+  // no more than this many requests in parallel. stock site seems to rely on browser limits (6, usually), sending
+  // all requests at once. using our own queue limit ensures that other requests (e.g. chat) don't get postponed for too long
+  this.MAX_REQUESTS = 6;
 
   // no more than this many tiles in one request
   // as of 2013-11-11, or possibly the release before that, the stock site was changed to only request four tiles at a time
