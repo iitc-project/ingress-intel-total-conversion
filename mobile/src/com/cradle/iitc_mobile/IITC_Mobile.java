@@ -66,7 +66,6 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
     // Used for custom back stack handling
     private final Stack<Pane> mBackStack = new Stack<IITC_NavigationHelper.Pane>();
-    private boolean mBackStackPush = true;
     private Pane mCurrentPane = Pane.MAP;
     private boolean mBackButtonPressed = false;
 
@@ -397,7 +396,6 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         }
 
         Pane pane = mBackStack.pop();
-        mBackStackPush = false;
         switchToPane(pane);
     }
 
@@ -405,11 +403,9 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         // ensure no double adds
         if (pane == mCurrentPane) return;
 
-        if (mBackStackPush) {
-            mBackStack.push(mCurrentPane);
-        } else {
-            mBackStackPush = true;
-        }
+        // map pane is top-lvl. clear stack.
+        if (pane == Pane.MAP) mBackStack.clear();
+        else mBackStack.push(mCurrentPane);
 
         mCurrentPane = pane;
         mNavigationHelper.switchTo(pane);
@@ -465,8 +461,6 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
         switch (itemId) {
             case android.R.id.home:
-                mBackStack.clear();
-                mBackStackPush = false;
                 switchToPane(Pane.MAP);
                 return true;
             case R.id.reload_button:
@@ -517,7 +511,6 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         mNavigationHelper.reset();
         mMapSettings.reset();
         mBackStack.clear();
-        mBackStackPush = true;
         // iitc starts on map after reload
         mCurrentPane = Pane.MAP;
         loadUrl(mIntelUrl);
