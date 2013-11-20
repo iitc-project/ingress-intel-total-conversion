@@ -176,18 +176,22 @@ window.artifact.updateLayer = function() {
     // jarvis shard icon
     var iconUrl = undefined;
     var iconSize = 0;
+    var opacity = 1.0;
 
-    if (data.jarvis.fragments) {
-      iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/jarvis_shard.png';
-      iconSize = 60/2; // 60 pixels - half that size works better
-    }
-    if (data.jarvis.target) {
-      // target portal - show the target marker. use the count of fragments at the target to pick the right icon - it has segments that fill up
+    if (data.jarvis) {
+      if (data.jarvis.target) {
+        // target portal - show the target marker. use the count of fragments at the target to pick the right icon - it has segments that fill up
 
-      var count = data.jarvis.fragments ? data.jarvis.fragments.length : 0;
+        var count = data.jarvis.fragments ? data.jarvis.fragments.length : 0;
 
-      iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/jarvis_shard_target_'+count+'.png';
-      iconSize = 100/2; // 100 pixels - half that size works better
+        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/jarvis_shard_target_'+count+'.png';
+        iconSize = 100/2; // 100 pixels - half that size works better
+      } else if (data.jarvis.fragments) {
+        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/jarvis_shard.png';
+        iconSize = 60/2; // 60 pixels - half that size works better
+        opacity = 0.6; // these often hide portals - let's make them semi transparent
+      }
+
     }
 
     if (iconUrl) {
@@ -198,7 +202,7 @@ window.artifact.updateLayer = function() {
         className: 'no-pointer-events'  // the clickable: false below still blocks events going through to the svg underneath
       });
 
-      var marker = L.marker (latlng, {icon: icon, clickable: false, keyboard: false});
+      var marker = L.marker (latlng, {icon: icon, clickable: false, keyboard: false, opacity: opacity });
 
       artifact._layer.addLayer(marker);
     } else {
