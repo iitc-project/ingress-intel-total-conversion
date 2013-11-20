@@ -220,29 +220,45 @@ window.artifact.showArtifactList = function() {
 
     html += '<hr><div><b>'+types[type]+'</b></div>';
 
-    html += '<table><tr><th>Portal</th><th>Details</th></tr>';
+    html += '<table class="artifact '+type+'">';
+    html += '<tr><th>Portal</th><th>Details</th></tr>';
+
+    var tableRows = [];
 
     $.each(artifact.portalInfo, function(guid, data) {
       if (type in data) {
         // this portal has data for this artifact type - add it to the table
 
-        var onclick = 'zoomToAndShowPortal(\''+guid+'\',['+data._entityData.locationE6.latE6/1E6+','+data._entityData.locationE6.lngE6/1E6+'])';
-        html += '<tr><td><a onclick="'+onclick+'" title="'+escapeHtmlSpecialChars(data._entityData.portalV2.descriptiveText.ADDRESS||'')+'">'+escapeHtmlSpecialChars(data._entityData.portalV2.descriptiveText.TITLE)+'</a></td>';
+        var sortVal = 0;
 
-        html += '<td>';
+        var onclick = 'zoomToAndShowPortal(\''+guid+'\',['+data._entityData.locationE6.latE6/1E6+','+data._entityData.locationE6.lngE6/1E6+'])';
+        var row = '<tr><td class="portal"><a onclick="'+onclick+'" title="'+escapeHtmlSpecialChars(data._entityData.portalV2.descriptiveText.ADDRESS||'')+'">'+escapeHtmlSpecialChars(data._entityData.portalV2.descriptiveText.TITLE)+'</a></td>';
+
+        row += '<td class="info">';
 
         if (data[type].target) {
-          html += '<span class="'+TEAM_TO_CSS[data[type].target]+'">'+(data[type].target==TEAM_RES?'Resistance':'Enlightened')+' target</span> ';
+          row += '<span class="target '+TEAM_TO_CSS[data[type].target]+'">'+(data[type].target==TEAM_RES?'Resistance':'Enlightened')+' target</span> ';
+          sortVal = 100000+data[type].target;
         }
 
         if (data[type].fragments) {
-          html += '<span class="fragments">Shard: #'+data[type].fragments.join(', #')+'</span> ';
+          row += '<span class="fragments">Shard: #'+data[type].fragments.join(', #')+'</span> ';
+          sortVal = Math.min.apply(null, data[type].fragments); // use min shard number at portal as sort key
         }
 
-        html += '</td></tr>';
+        row += '</td></tr>';
 
+        tableRows.push ( [sortVal, row] );
       }
     });
+
+    // sort the rows
+    tableRows.sort(function(a,b) {
+      return a[0]-b[0];
+    });
+
+    // and add them to the table
+    html += tableRows.map(function(a){return a[1];}).join('');
 
     html += '</table>';
   });

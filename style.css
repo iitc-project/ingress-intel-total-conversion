@@ -983,6 +983,15 @@ td + td {
 }
 
 
+/** artifact dialog *****************/
+table.artifact tr > * {
+  background: rgba(8, 48, 78, 0.9);
+}
+
+table.artifact td.info {
+  min-width: 110px;
+}
+
 
 /* leaflet popups - restyle to match the theme of IITC */
 #map .leaflet-popup {
