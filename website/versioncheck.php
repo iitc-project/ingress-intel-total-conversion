@@ -29,7 +29,7 @@ $details = Array (
 		'path' => 'experimental',
 		'name' => 'Experimental build',
 		'web' => 'http://iitc.jonatkins.com/?page=test&build=experimental',
-		'mobileweb' => 'http://iitc.jonatkins.com/?page=test&build=experimental#test-mobild',
+		'mobileweb' => 'http://iitc.jonatkins.com/?page=test&build=experimental#test-mobile',
 	),
 
 	'jonatkins-dev' => Array ( # personal
