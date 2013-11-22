@@ -114,9 +114,22 @@ window.setupMap = function() {
   //var mqSatOpt = {attribution: 'Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency', mazZoom: 18, subdomains: mqSubdomains};
   //var mqSat = new L.TileLayer('http://{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg',mqSatOpt);
 
+  var ingressGMapOptions = {
+    backgroundColor: '#0e3d4e', //or #dddddd ? - that's the Google tile layer default
+    styles: [
+        { featureType:"all", elementType:"all",
+          stylers: [{visibility:"on"}, {hue:"#131c1c"}, {saturation:"-50"}, {invert_lightness:true}] },
+        { featureType:"water", elementType:"all",
+          stylers: [{visibility:"on"}, {hue:"#005eff"}, {invert_lightness:true}] },
+        { featureType:"poi", stylers:[{visibility:"off"}]},
+        { featureType:"transit", elementType:"all", stylers:[{visibility:"off"}] }
+      ]
+  };
+
+
   var views = [
     /*0*/ mqMap,
-    /*1*/ new L.Google('INGRESS',{maxZoom:20}),
+    /*1*/ new L.Google('ROADMAP',{maxZoom:20, mapOptions:ingressGMapOptions}),
     /*2*/ new L.Google('ROADMAP',{maxZoom:20}),
     /*3*/ new L.Google('SATELLITE',{maxZoom:20}),
     /*4*/ new L.Google('HYBRID',{maxZoom:20}),
@@ -581,7 +594,7 @@ try { console.log('Loading included JS now'); } catch(e) {}
 @@INCLUDERAW:external/L.Geodesic.js@@
 // modified version of https://github.com/shramov/leaflet-plugins. Also
 // contains the default Ingress map style.
-@@INCLUDERAW:external/leaflet_google.js@@
+@@INCLUDERAW:external/Google.js@@
 @@INCLUDERAW:external/autolink.js@@
 
 try { console.log('done loading included JS'); } catch(e) {}
