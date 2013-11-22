@@ -7,7 +7,7 @@
 var oldL = window.L,
     L = {};
 
-L.version = '0.7-dev';
+L.version = '0.7';
 
 // define Leaflet for Node module pattern loaders, including Browserify
 if (typeof module === 'object' && typeof module.exports === 'object') {
@@ -961,18 +961,44 @@ L.DomUtil = {
 	},
 
 	hasClass: function (el, name) {
-		return (el.className.length > 0) &&
-		        new RegExp('(^|\\s)' + name + '(\\s|$)').test(el.className);
+		if (el.classList !== undefined) {
+			return el.classList.contains(name);
+		}
+		var className = L.DomUtil._getClass(el);
+		return className.length > 0 && new RegExp('(^|\\s)' + name + '(\\s|$)').test(className);
 	},
 
 	addClass: function (el, name) {
-		if (!L.DomUtil.hasClass(el, name)) {
-			el.className += (el.className ? ' ' : '') + name;
+		if (el.classList !== undefined) {
+			var classes = L.Util.splitWords(name);
+			for (var i = 0, len = classes.length; i < len; i++) {
+				el.classList.add(classes[i]);
+			}
+		} else if (!L.DomUtil.hasClass(el, name)) {
+			var className = L.DomUtil._getClass(el);
+			L.DomUtil._setClass(el, (className ? className + ' ' : '') + name);
 		}
 	},
 
 	removeClass: function (el, name) {
-		el.className = L.Util.trim((' ' + el.className + ' ').replace(' ' + name + ' ', ' '));
+		if (el.classList !== undefined) {
+			el.classList.remove(name);
+		} else {
+			L.DomUtil._setClass(el, L.Util.trim((' ' + L.DomUtil._getClass(el) + ' ').replace(' ' + name + ' ', ' ')));
+		}
+	},
+
+	_setClass: function (el, name) {
+		if (el.className.baseVal === undefined) {
+			el.className = name;
+		} else {
+			// in case of SVG element
+			el.className.baseVal = name;
+		}
+	},
+
+	_getClass: function (el) {
+		return el.className.baseVal === undefined ? el.className : el.className.baseVal;
 	},
 
 	setOpacity: function (el, value) {
@@ -1637,7 +1663,7 @@ L.Map = L.Class.extend({
 	},
 
 	panBy: function (offset) { // (Point)
-		// replaced with animated panBy in Map.Animation.js
+		// replaced with animated panBy in Map.PanAnimation.js
 		this.fire('movestart');
 
 		this._rawPanBy(L.point(offset));
@@ -1646,63 +1672,29 @@ L.Map = L.Class.extend({
 		return this.fire('moveend');
 	},
 
-	setMaxBounds: function (bounds, options) {
+	setMaxBounds: function (bounds) {
 		bounds = L.latLngBounds(bounds);
 
 		this.options.maxBounds = bounds;
 
 		if (!bounds) {
-			this._boundsMinZoom = null;
-			this.off('moveend', this._panInsideMaxBounds, this);
-			return this;
+			return this.off('moveend', this._panInsideMaxBounds, this);
 		}
-
-		var minZoom = this.getBoundsZoom(bounds, true);
-
-		this._boundsMinZoom = minZoom;
 
 		if (this._loaded) {
-			if (this._zoom < minZoom) {
-				this.setView(bounds.getCenter(), minZoom, options);
-			} else {
-				this.panInsideBounds(bounds);
-			}
+			this._panInsideMaxBounds();
 		}
 
-		this.on('moveend', this._panInsideMaxBounds, this);
-
-		return this;
+		return this.on('moveend', this._panInsideMaxBounds, this);
 	},
 
-	panInsideBounds: function (bounds) {
-		bounds = L.latLngBounds(bounds);
+	panInsideBounds: function (bounds, options) {
+		var center = this.getCenter(),
+			newCenter = this._limitCenter(center, this._zoom, bounds);
 
-		var viewBounds = this.getPixelBounds(),
-		    viewSw = viewBounds.getBottomLeft(),
-		    viewNe = viewBounds.getTopRight(),
-		    sw = this.project(bounds.getSouthWest()),
-		    ne = this.project(bounds.getNorthEast()),
-		    dx = 0,
-		    dy = 0;
+		if (center.equals(newCenter)) { return this; }
 
-		if (viewNe.y < ne.y) { // north
-			dy = Math.ceil(ne.y - viewNe.y);
-		}
-		if (viewNe.x > ne.x) { // east
-			dx = Math.floor(ne.x - viewNe.x);
-		}
-		if (viewSw.y > sw.y) { // south
-			dy = Math.floor(sw.y - viewSw.y);
-		}
-		if (viewSw.x < sw.x) { // west
-			dx = Math.ceil(sw.x - viewSw.x);
-		}
-
-		if (dx || dy) {
-			return this.panBy([dx, dy]);
-		}
-
-		return this;
+		return this.panTo(newCenter, options);
 	},
 
 	addLayer: function (layer) {
@@ -1787,10 +1779,6 @@ L.Map = L.Class.extend({
 		this._sizeChanged = true;
 		this._initialCenter = null;
 
-		if (this.options.maxBounds) {
-			this.setMaxBounds(this.options.maxBounds);
-		}
-
 		if (!this._loaded) { return this; }
 
 		var newSize = this.getSize(),
@@ -1810,9 +1798,12 @@ L.Map = L.Class.extend({
 
 			this.fire('move');
 
-			// make sure moveend is not fired too often on resize
-			clearTimeout(this._sizeTimer);
-			this._sizeTimer = setTimeout(L.bind(this.fire, this, 'moveend'), 200);
+			if (options.debounceMoveend) {
+				clearTimeout(this._sizeTimer);
+				this._sizeTimer = setTimeout(L.bind(this.fire, this, 'moveend'), 200);
+			} else {
+				this.fire('moveend');
+			}
 		}
 
 		return this.fire('resize', {
@@ -1885,9 +1876,9 @@ L.Map = L.Class.extend({
 	},
 
 	getMinZoom: function () {
-		var z1 = this._layersMinZoom === undefined ? 0 : this._layersMinZoom,
-		    z2 = this._boundsMinZoom === undefined ? 0 : this._boundsMinZoom;
-		return this.options.minZoom === undefined ? Math.max(z1, z2) : this.options.minZoom;
+		return this.options.minZoom === undefined ?
+			(this._layersMinZoom === undefined ? 0 : this._layersMinZoom) :
+			this.options.minZoom;
 	},
 
 	getMaxZoom: function () {
@@ -2210,7 +2201,7 @@ L.Map = L.Class.extend({
 	_onResize: function () {
 		L.Util.cancelAnimFrame(this._resizeRequest);
 		this._resizeRequest = L.Util.requestAnimFrame(
-		        this.invalidateSize, this, false, this._container);
+		        function () { this.invalidateSize({debounceMoveend: true}); }, this, false, this._container);
 	},
 
 	_onMouseClick: function (e) {
@@ -2310,6 +2301,46 @@ L.Map = L.Class.extend({
 	// offset of the specified place to the current center in pixels
 	_getCenterOffset: function (latlng) {
 		return this.latLngToLayerPoint(latlng).subtract(this._getCenterLayerPoint());
+	},
+
+	// adjust center for view to get inside bounds
+	_limitCenter: function (center, zoom, bounds) {
+
+		if (!bounds) { return center; }
+
+		var centerPoint = this.project(center, zoom),
+		    viewHalf = this.getSize().divideBy(2),
+		    viewBounds = new L.Bounds(centerPoint.subtract(viewHalf), centerPoint.add(viewHalf)),
+		    offset = this._getBoundsOffset(viewBounds, bounds, zoom);
+
+		return this.unproject(centerPoint.add(offset), zoom);
+	},
+
+	// adjust offset for view to get inside bounds
+	_limitOffset: function (offset, bounds) {
+		if (!bounds) { return offset; }
+
+		var viewBounds = this.getPixelBounds(),
+		    newBounds = new L.Bounds(viewBounds.min.add(offset), viewBounds.max.add(offset));
+
+		return offset.add(this._getBoundsOffset(newBounds, bounds));
+	},
+
+	// returns offset needed for pxBounds to get inside maxBounds at a specified zoom
+	_getBoundsOffset: function (pxBounds, maxBounds, zoom) {
+		var nwOffset = this.project(maxBounds.getNorthWest(), zoom).subtract(pxBounds.min),
+		    seOffset = this.project(maxBounds.getSouthEast(), zoom).subtract(pxBounds.max),
+
+		    dx = this._rebound(nwOffset.x, -seOffset.x),
+		    dy = this._rebound(nwOffset.y, -seOffset.y);
+
+		return new L.Point(dx, dy);
+	},
+
+	_rebound: function (left, right) {
+		return left + right > 0 ?
+			Math.round(left - right) / 2 :
+			Math.max(0, Math.ceil(left)) - Math.max(0, Math.floor(right));
 	},
 
 	_limitZoom: function (zoom) {
@@ -2669,7 +2700,7 @@ L.TileLayer = L.Class.extend({
 
 	_getTileSize: function () {
 		var map = this._map,
-		    zoom = map.getZoom(),
+		    zoom = map.getZoom() + this.options.zoomOffset,
 		    zoomN = this.options.maxNativeZoom,
 		    tileSize = this.options.tileSize;
 
@@ -2875,7 +2906,7 @@ L.TileLayer = L.Class.extend({
 
 	_getWrapTileNum: function () {
 		var crs = this._map.options.crs,
-		    size = crs.getSize(this._getZoomForUrl());
+		    size = crs.getSize(this._map.getZoom());
 		return size.divideBy(this.options.tileSize);
 	},
 
@@ -2921,6 +2952,11 @@ L.TileLayer = L.Class.extend({
 
 		if (L.Browser.ielt9 && this.options.opacity !== undefined) {
 			L.DomUtil.setOpacity(tile, this.options.opacity);
+		}
+		// without this hack, tiles disappear after zoom on Chrome for Android
+		// https://github.com/Leaflet/Leaflet/issues/2078
+		if (L.Browser.mobileWebkit3d) {
+			tile.style.WebkitBackfaceVisibility = 'hidden';
 		}
 		return tile;
 	},
@@ -4413,6 +4449,15 @@ L.FeatureGroup = L.LayerGroup.extend({
 		return this.invoke('bindPopup', content, options);
 	},
 
+	openPopup: function (latlng) {
+		// open popup on the first layer
+		for (var id in this._layers) {
+			this._layers[id].openPopup(latlng);
+			break;
+		}
+		return this;
+	},
+
 	setStyle: function (style) {
 		return this.invoke('setStyle', style);
 	},
@@ -4622,6 +4667,11 @@ L.Path = L.Path.extend({
 		this._container = this._createElement('g');
 
 		this._path = this._createElement('path');
+
+		if (this.options.className) {
+			L.DomUtil.addClass(this._path, this.options.className);
+		}
+
 		this._container.appendChild(this._path);
 	},
 
@@ -4682,7 +4732,7 @@ L.Path = L.Path.extend({
 	_initEvents: function () {
 		if (this.options.clickable) {
 			if (L.Browser.svg || !L.Browser.vml) {
-				this._path.setAttribute('class', 'leaflet-clickable');
+				L.DomUtil.addClass(this._path, 'leaflet-clickable');
 			}
 
 			L.DomEvent.on(this._container, 'click', this._onMouseClick, this);
@@ -4732,14 +4782,14 @@ L.Map.include({
 			this._panes.overlayPane.appendChild(this._pathRoot);
 
 			if (this.options.zoomAnimation && L.Browser.any3d) {
-				this._pathRoot.setAttribute('class', ' leaflet-zoom-animated');
+				L.DomUtil.addClass(this._pathRoot, 'leaflet-zoom-animated');
 
 				this.on({
 					'zoomanim': this._animatePathZoom,
 					'zoomend': this._endPathZoom
 				});
 			} else {
-				this._pathRoot.setAttribute('class', ' leaflet-zoom-hide');
+				L.DomUtil.addClass(this._pathRoot, 'leaflet-zoom-hide');
 			}
 
 			this.on('moveend', this._updateSvgViewport);
@@ -4906,10 +4956,14 @@ L.Path = L.Browser.svg || !L.Browser.vml ? L.Path : L.Path.extend({
 
 	_initPath: function () {
 		var container = this._container = this._createElement('shape');
-		L.DomUtil.addClass(container, 'leaflet-vml-shape');
+
+		L.DomUtil.addClass(container, 'leaflet-vml-shape' +
+			(this.options.className ? ' ' + this.options.className : ''));
+
 		if (this.options.clickable) {
 			L.DomUtil.addClass(container, 'leaflet-clickable');
 		}
+
 		container.coordsize = '1 1';
 
 		this._path = this._createElement('path');
@@ -6685,9 +6739,8 @@ L.Draggable = L.Class.extend({
 			this._moved = true;
 			this._startPos = L.DomUtil.getPosition(this._element).subtract(offset);
 
-			if (!L.Browser.touch) {
-				L.DomUtil.addClass(document.body, 'leaflet-dragging');
-			}
+			L.DomUtil.addClass(document.body, 'leaflet-dragging');
+			L.DomUtil.addClass((e.target || e.srcElement), 'leaflet-drag-target');
 		}
 
 		this._newPos = this._startPos.add(offset);
@@ -6703,10 +6756,9 @@ L.Draggable = L.Class.extend({
 		this.fire('drag');
 	},
 
-	_onUp: function () {
-		if (!L.Browser.touch) {
-			L.DomUtil.removeClass(document.body, 'leaflet-dragging');
-		}
+	_onUp: function (e) {
+		L.DomUtil.removeClass(document.body, 'leaflet-dragging');
+		L.DomUtil.removeClass((e.target || e.srcElement), 'leaflet-drag-target');
 
 		for (var i in L.Draggable.MOVE) {
 			L.DomEvent
@@ -6898,6 +6950,8 @@ L.Map.Drag = L.Handler.extend({
 				map.fire('moveend');
 
 			} else {
+				offset = map._limitOffset(offset, map.options.maxBounds);
+
 				L.Util.requestAnimFrame(function () {
 					map.panBy(offset, {
 						duration: decelerationDuration,
@@ -6932,7 +6986,7 @@ L.Map.DoubleClickZoom = L.Handler.extend({
 
 	_onDoubleClick: function (e) {
 		var map = this._map,
-		    zoom = map.getZoom() + 1;
+		    zoom = map.getZoom() + (e.originalEvent.shiftKey ? -1 : 1);
 
 		if (map.options.doubleClickZoom === 'center') {
 			map.setZoom(zoom);
@@ -7550,21 +7604,22 @@ L.Map.BoxZoom = L.Handler.extend({
 
 		this._startLayerPoint = this._map.mouseEventToLayerPoint(e);
 
-		this._box = L.DomUtil.create('div', 'leaflet-zoom-box', this._pane);
-		L.DomUtil.setPosition(this._box, this._startLayerPoint);
-
-		//TODO refactor: move cursor to styles
-		this._container.style.cursor = 'crosshair';
-
 		L.DomEvent
 		    .on(document, 'mousemove', this._onMouseMove, this)
 		    .on(document, 'mouseup', this._onMouseUp, this)
 		    .on(document, 'keydown', this._onKeyDown, this);
-
-		this._map.fire('boxzoomstart');
 	},
 
 	_onMouseMove: function (e) {
+		if (!this._moved) {
+			this._box = L.DomUtil.create('div', 'leaflet-zoom-box', this._pane);
+			L.DomUtil.setPosition(this._box, this._startLayerPoint);
+
+			//TODO refactor: move cursor to styles
+			this._container.style.cursor = 'crosshair';
+			this._map.fire('boxzoomstart');
+		}
+
 		var startPoint = this._startLayerPoint,
 		    box = this._box,
 
@@ -7585,8 +7640,10 @@ L.Map.BoxZoom = L.Handler.extend({
 	},
 
 	_finish: function () {
-		this._pane.removeChild(this._box);
-		this._container.style.cursor = '';
+		if (this._moved) {
+			this._pane.removeChild(this._box);
+			this._container.style.cursor = '';
+		}
 
 		L.DomUtil.enableTextSelection();
 		L.DomUtil.enableImageDrag();
@@ -7821,7 +7878,6 @@ L.Handler.MarkerDrag = L.Handler.extend({
 		    .closePopup()
 		    .fire('movestart')
 		    .fire('dragstart');
-		L.DomUtil.addClass(this._marker._icon, 'leaflet-marker-dragging');
 	},
 
 	_onDrag: function () {
@@ -7846,7 +7902,6 @@ L.Handler.MarkerDrag = L.Handler.extend({
 		this._marker
 		    .fire('moveend')
 		    .fire('dragend', e);
-		L.DomUtil.removeClass(this._marker._icon, 'leaflet-marker-dragging');
 	}
 });
 
@@ -8086,6 +8141,12 @@ L.Control.Attribution = L.Control.extend({
 		this._container = L.DomUtil.create('div', 'leaflet-control-attribution');
 		L.DomEvent.disableClickPropagation(this._container);
 
+		for (var i in map._layers) {
+			if (map._layers[i].getAttribution) {
+				this.addAttribution(map._layers[i].getAttribution());
+			}
+		}
+		
 		map
 		    .on('layeradd', this._onLayerAdd, this)
 		    .on('layerremove', this._onLayerRemove, this);
@@ -8656,7 +8717,7 @@ L.Map.include({
 	setView: function (center, zoom, options) {
 
 		zoom = zoom === undefined ? this._zoom : this._limitZoom(zoom);
-		center = L.latLng(center);
+		center = this._limitCenter(L.latLng(center), zoom, this.options.maxBounds);
 		options = options || {};
 
 		if (this._panAnim) {
