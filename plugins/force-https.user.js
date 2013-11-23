@@ -17,7 +17,7 @@
 
 
 //NOTE: plugin authors - due to the unique requirements of this plugin, it doesn't use the standard IITC
-//plugin architechure. do NOT use it as a template for other plugins
+//plugin architecture. do NOT use it as a template for other plugins
 
 
 if(window.location.protocol !== 'https:') {

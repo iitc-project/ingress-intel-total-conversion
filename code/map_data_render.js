@@ -289,7 +289,7 @@ window.Render.prototype.createPortalEntity = function(ent) {
 //(as it's called from elsewhere - e.g. selecting/deselecting portals)
 
 //ALSO: change API for highlighters - make them return the updated style rather than directly calling setStyle on the portal marker
-//(can this be done in a backwardly-compatable way??)
+//(can this be done in a backwardly-compatible way??)
 
   var dataOptions = {
     level: portalLevel,
@@ -543,7 +543,7 @@ window.Render.prototype.resetPortalClusters = function() {
     this.portalClusters[cid].push(p.options.guid);
   }
 
-  // now, for each cluster, sort by some arbitary data (the guid will do), and display the first CLUSTER_PORTAL_LIMIT
+  // now, for each cluster, sort by some arbitrary data (the guid will do), and display the first CLUSTER_PORTAL_LIMIT
   for (var cid in this.portalClusters) {
     var c = this.portalClusters[cid];
 
