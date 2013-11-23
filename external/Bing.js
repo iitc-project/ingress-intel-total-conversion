@@ -38,8 +38,19 @@ L.BingLayer = L.TileLayer.extend({
 	},
 
 	loadMetadata: function() {
+		//MODIFIED: use browser sessionStorage, if available, to cache the metadata
 		var _this = this;
 		var cbid = '_bing_metadata_' + L.Util.stamp(this);
+		var cachedMetadataKey = '_Leaflet_Bing_metadata_'+this.options.type;
+
+		try {
+			if (sessionStorage[cachedMetadataKey]) {
+				this.meta = JSON.parse(sessionStorage[cachedMetadataKey]);
+				this.initMetadata();
+				return;
+			}
+		} catch(e) {}
+
 		window[cbid] = function (meta) {
 			_this.meta = meta;
 			window[cbid] = undefined;
@@ -49,6 +60,9 @@ L.BingLayer = L.TileLayer.extend({
 				if (window.console) console.log("Leaflet Bing Plugin Error - Got metadata: " + meta.errorDetails);
 				return;
 			}
+			try {
+				sessionStorage[cachedMetadataKey] = JSON.stringify(meta);
+			} catch(e) {}
 			_this.initMetadata();
 		};
 		var url = document.location.protocol + "//dev.virtualearth.net/REST/v1/Imagery/Metadata/" + this.options.type + "?include=ImageryProviders&jsonp=" + cbid + "&key=" + this._key;
