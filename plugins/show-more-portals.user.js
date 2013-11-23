@@ -42,7 +42,7 @@ window.plugin.showMorePortals.setup  = function() {
     }
 
     // and, the same scale for L2+ and L3+ portals. again, forcing the level down isn't unfriendly to the servers
-    // (ditto on the cacheing)
+    // (ditto on the caching)
     if (mapZoom >= 12) {
       return 13;
     }

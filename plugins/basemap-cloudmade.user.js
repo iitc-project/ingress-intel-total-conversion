@@ -6,7 +6,7 @@
 
 // 1. Go to the www.cloudmade.com website and register an account
 // 2. Get an API Key
-// 3. Edit the clode below, replace YOUR_API_KEY with the API key from CloudMade.com
+// 3. Edit the code below, replace YOUR_API_KEY with the API key from CloudMade.com
 // 4. Reload the page
 // optional: browse their map styles, add/modify any you like to the cmStyles list
 

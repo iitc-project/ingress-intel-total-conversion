@@ -58,7 +58,7 @@ Every browser has a console built in that allows for easy debugging.
 - **Firefox:** hit `CTRL+SHIFT+K` or if you have Firebug installed `F12`
 - **Opera:** hit `CTRL+SHIFT+I`
 
-The consoles basically work the same. You can run commands in the console window that execute in the page’s context. All browsers also allow you to inspect the HTML code that currently makes the page. It’s usually available in a different tab and called “document” or “elements” (expection for Firefox: hit `CTRL+SHIFT+I`).
+The consoles basically work the same. You can run commands in the console window that execute in the page’s context. All browsers also allow you to inspect the HTML code that currently makes the page. It’s usually available in a different tab and called “document” or “elements” (except for Firefox: hit `CTRL+SHIFT+I`).
 
 
 How do I report bugs?

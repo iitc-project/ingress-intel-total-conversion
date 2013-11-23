@@ -30,7 +30,7 @@ window.plugin.updateCheck.getUrl = function(callback) {
   var url = 'http://iitc.jonatkins.com/versioncheck.php'
           + '?build=@@BUILDNAME@@'
           + '&mobile='+((typeof android !== 'undefined' && android)?'1':'0')
-          + '&ts='+Date.now();  // append timestamp - ensures no cacheing of old data, even on mobile with the aggressive cache code
+          + '&ts='+Date.now();  // append timestamp - ensures no caching of old data, even on mobile with the aggressive cache code
 
   if (callback) {
     url = url + '&callback='+callback
