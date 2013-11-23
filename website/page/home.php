@@ -54,7 +54,7 @@ standard intel site. Changes include
 </ul>
 </p>
 <p>
-<b>3RD PARTY PLUGIN AUTHORS</b>: The plugin wrapper code has been modified to pass through the additioal version
+<b>3RD PARTY PLUGIN AUTHORS</b>: The plugin wrapper code has been modified to pass through the additional version
 information. While existing plugins should continue to work, I highly recommend updating the wrapper code in your
 scripts to match.
 </p>

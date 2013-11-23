@@ -160,7 +160,7 @@ CHANGES IN 0.5 / 0.51
            Ingress
 - Feature: You are now alerted if some of the resources fail to load
 - Change: portal level should now stand out better against more
-          backgrouds (by jonatkins)
+          backgrounds (by jonatkins)
 - Change: increased hack range from 35m to 40m
 - Change: Sidebar now semi-transparent, just like chat (by cmrn)
 - Change: portals are now sized according to their level (by OshiHidra)
