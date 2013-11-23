@@ -730,7 +730,7 @@
   window.plugin.bookmarks.syncCallback = function(pluginName, fieldName, e, fullUpdated) {
     if(fieldName === window.plugin.bookmarks.KEY.field) {
       window.plugin.bookmarks.storeLocal(window.plugin.bookmarks.KEY);
-      // All data is replaced if other client update the data duing this client offline, 
+      // All data is replaced if other client update the data during this client offline, 
       if(fullUpdated) {
         window.plugin.bookmarks.refreshBkmrks();
         return;
