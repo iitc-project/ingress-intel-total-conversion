@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-players-resonators@rbino
 // @name           IITC plugin: Player's Resonators
-// @version        0.1.5.@@DATETIMEVERSION@@
+// @version        0.1.6.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -20,6 +20,7 @@
 /*********************************************************************************************************
 * Changelog:
 *
+* 0.1.6 Added highlighter to highlight portals with player reso
 * 0.1.5 Added portal and reso counter and reso details (Thanks BJT)
 * 0.1.4 Added focus link in the toolbox. Some renaming. Removed div to use sidebar style.
 * 0.1.3 Effective player name (with wrong capitalization) if it finds some reso
@@ -30,6 +31,7 @@
 
 // use own namespace for plugin
 window.plugin.playersResonators = function() {};
+window.plugin.playersResonators.NICKTOFIND = '';
 
 window.plugin.playersResonators.findReso = function(playername) {
   var s = "";
@@ -91,15 +93,34 @@ window.plugin.playersResonators.findReso = function(playername) {
   alert(s);
 }
 
+window.plugin.playersResonators.highlight = function(data) {
+  if(window.plugin.playersResonators.NICKTOFIND !== '' && data.portal.options.details.controllingTeam !== 'NEUTRAL'){
+    var res = data.portal.options.details.resonatorArray.resonators;
+    for(var r in res){
+      if(res[r] !== null){
+        var ownerRes = getPlayerName(res[r].ownerGuid).toLowerCase();
+        if(ownerRes === window.plugin.playersResonators.NICKTOFIND.toLowerCase()){
+          data.portal.setStyle({fillColor:'red'});
+          return true;
+        }
+      }
+    }
+  }
+}
+
 var setup = function() {
   var content = '<input id="playerReso" placeholder="Type player name to find resonators..." type="text">';
   $('#sidebar').append(content);
   $('#toolbox').append('  <a onclick=$("#playerReso").focus() title="Find all portals with resonators of a certain player">Player\'s Reso</a>');
   $("#playerReso").keypress(function(e) {
     if((e.keyCode ? e.keyCode : e.which) !== 13) return;
-    var data = $(this).val();
-    window.plugin.playersResonators.findReso(data);
+    window.plugin.playersResonators.NICKTOFIND = $(this).val();
+    window.plugin.playersResonators.findReso(window.plugin.playersResonators.NICKTOFIND);
+    if(localStorage['portal_highlighter'] === 'Players Resonators'){
+      window.resetHighlightedPortals();
+    }
   });
+  window.addPortalHighlighter('Players Resonators', window.plugin.playersResonators.highlight);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////
