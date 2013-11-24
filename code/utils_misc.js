@@ -146,7 +146,7 @@ window.postAjax = function(action, data, success, error) {
   // and of the 'version' parameter (we assume it's a version - if missing/wrong that's what the error refers to)
   versionStr = mungeOneString(versionStr);
 
-  var post_data = JSON.stringify(window.requestDataMunge($.extend({method: methodName, version: versionStr}, data)));
+  var post_data = JSON.stringify(window.requestDataMunge($.extend({}, data, {method: methodName, version: versionStr})));
   var remove = function(data, textStatus, jqXHR) { window.requests.remove(jqXHR); };
   var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
   var result = $.ajax({
