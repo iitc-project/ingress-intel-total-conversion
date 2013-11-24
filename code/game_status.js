@@ -11,7 +11,7 @@ window.updateGameScore = function(data) {
   }
 
   // hacky - but here is as good as any for a location
-  // the niantic servers have attempted to obsfucate the client/server protocol, by munging the request parameters
+  // the niantic servers have attempted to obfuscate the client/server protocol, by munging the request parameters
   // detecting which munge set should be used is tricky - even the stock site gets it wrong sometimes
   // to detect the problem and try a different set is easiest in a place where there's only a single request of that type
   // sent at once, and it has no extra parameters. this method matches those requirements

@@ -592,7 +592,7 @@ window.plugin.apList.comparePortal = function(a,b) {
       aProperty = aProperty[propertyName];
       bProperty = bProperty[propertyName];
     });
-    // compare next porperty if equal
+    // compare next property if equal
     if(aProperty === bProperty) return true;
 
     result = (aProperty > bProperty ? 1 : -1) * option.order;
@@ -619,7 +619,7 @@ window.plugin.apList.disableCache = function() {
 
 window.plugin.apList.selectPortal = function(guid) {
   // Add error catching to avoid following link of portal if error 
-  // occured in renderPortalDetails or hooked plugin
+  // occurred in renderPortalDetails or hooked plugin
   try {
     renderPortalDetails(guid);
   } catch(e) {

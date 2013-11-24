@@ -283,7 +283,7 @@ window.getPortalDataZoom = function() {
   // (mobile: a float somehow gets through in some cases!)
   var z = parseInt(mapZoom);
 
-  // limiting the mazimum zoom level for data retrieval reduces the number of requests at high zoom levels
+  // limiting the maximum zoom level for data retrieval reduces the number of requests at high zoom levels
   // (as all portal data is retrieved at z=17, why retrieve multiple z=18 tiles when fewer z=17 would do?)
   // very effective along with the new cache code
   if (z > 17) z=17;

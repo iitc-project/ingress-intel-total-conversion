@@ -175,7 +175,7 @@ public class IITC_WebView extends WebView {
             // if in edit text mode, don't load javascript otherwise the keyboard closes.
             HitTestResult testResult = getHitTestResult();
             if (testResult != null && testResult.getType() == HitTestResult.EDIT_TEXT_TYPE) {
-                // let window.show(...) interupt input
+                // let window.show(...) interrupt input
                 // window.show(...) is called if one of the action bar buttons
                 // is clicked
                 if (!js.startsWith("window.show(")) {

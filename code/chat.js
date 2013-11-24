@@ -90,7 +90,7 @@ window.chat.genPostData = function(isFaction, storageHash, getOlderMsgs) {
   } else {
     // ask for newer chat
     var min = storageHash.newestTimestamp;
-    // the inital request will have both timestamp values set to -1,
+    // the initial request will have both timestamp values set to -1,
     // thus we receive the newest desiredNumItems. After that, we will
     // only receive messages with a timestamp greater or equal to min
     // above.
