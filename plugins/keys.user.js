@@ -86,7 +86,7 @@ window.plugin.keys.delaySync = function() {
     }, plugin.keys.SYNC_DELAY);
 }
 
-// Store the upadteQueue in updatingQueue and upload
+// Store the updateQueue in updatingQueue and upload
 window.plugin.keys.syncNow = function() {
   if(!plugin.keys.enableSync) return;
   $.extend(plugin.keys.updatingQueue, plugin.keys.updateQueue);

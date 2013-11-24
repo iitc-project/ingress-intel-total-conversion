@@ -100,7 +100,7 @@ The colour within the square shows the state of the data:
 </ul>
 The status message at the bottom-right of the screen gives a summary.
 <ul>
-<li>If all requests were succesful/fresh from cache (i.e. all green borders) the status is 'Done'.</li>
+<li>If all requests were successful/fresh from cache (i.e. all green borders) the status is 'Done'.</li>
 <li>If some requests failed, but cached data was available (i.e. some red border/yellow fill) the status is 'Out of date'.</li>
 <li>If some requests failed, but no cached data was available (i.e. some red border/red fill) the status is 'Error'.</li>
 </ul>

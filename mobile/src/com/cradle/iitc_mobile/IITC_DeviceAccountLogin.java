@@ -155,7 +155,7 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
 
             String result = value.getResult().getString(AccountManager.KEY_AUTHTOKEN);
             if (result != null) {
-                // authentication succeded, we can load the given url, which will redirect
+                // authentication succeeded, we can load the given url, which will redirect
                 // back to the intel map
                 mWebView.loadUrl(result);
                 mActivity.loginSucceeded();
