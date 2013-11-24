@@ -326,6 +326,16 @@ window.requestDataMunge = function(data) {
   };
 
   var newdata = munge(data);
+
+  try {
+    newdata = nemesis.dashboard.requests.normalizeParamCount(newdata);
+  } catch(e) {
+    if (!window._mungeHaveLoggedError) {
+      console.warn('Failed to call the stock site normalizeParamCount() function: '+e);
+      window._mungeHaveLoggedError = true;
+    }
+  }
+
   return newdata;
 }
 
