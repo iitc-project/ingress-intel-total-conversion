@@ -91,7 +91,7 @@ window.MapDataRequest.prototype.mapMoveStart = function() {
 
 window.MapDataRequest.prototype.mapMoveEnd = function() {
   var bounds = clampLatLngBounds(map.getBounds());
-  var zoom = getPortalDataZoom();
+  var zoom = map.getZoom();
 
   if (this.fetchedDataParams) {
     // we have fetched (or are fetching) data...
@@ -180,7 +180,7 @@ window.MapDataRequest.prototype.refresh = function() {
 
 
   var bounds = clampLatLngBounds(map.getBounds());
-  var zoom = getPortalDataZoom();
+  var zoom = map.getZoom();
   var minPortalLevel = getMinPortalLevelForZoom(zoom);
 
 //DEBUG: resize the bounds so we only retrieve some data
