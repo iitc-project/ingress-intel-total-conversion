@@ -52,7 +52,7 @@ function iitcDesktopPluginDownloadTable ( $build )
 		'Map Tiles' => "Alternative map layers",
 		'Tweaks' => "Adjust IITC settings",
 		'Misc' => "Unclassified plugins",
-		'Obsolete' => "Plugins that are no longer recommended, due to being superceeded by others or similar",
+		'Obsolete' => "Plugins that are no longer recommended, due to being superceded by others or similar",
 		'Deleted' => "Deleted plugins - listed here for reference only. No download available"
 	);
 

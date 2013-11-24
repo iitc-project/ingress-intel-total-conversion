@@ -127,7 +127,7 @@ window.Render.prototype.processGameEntities = function(entities) {
 // is considered complete
 window.Render.prototype.endRenderPass = function() {
 
-  // check to see if there's eny entities we haven't seen. if so, delete them
+  // check to see if there are any entities we haven't seen. if so, delete them
   for (var guid in window.portals) {
     // special case for selected portal - it's kept even if not seen
     if (!(guid in this.seenPortalsGuid) && guid !== selectedPortal) {
@@ -567,7 +567,7 @@ window.Render.prototype.resetPortalClusters = function() {
 
 }
 
-// add the portal to the visiable map layer unless we pass the cluster limits
+// add the portal to the visible map layer unless we pass the cluster limits
 window.Render.prototype.addPortalToMapLayer = function(portal) {
 
   var cid = this.getPortalClusterID(portal);

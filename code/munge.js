@@ -238,7 +238,7 @@ function extractMungeFromStock() {
 var activeMunge = null;
 
 
-// attempt to guess the munge set in use, by looking therough the functions of the stock intel page for one of the munged params
+// attempt to guess the munge set in use, by looking through the functions of the stock intel page for one of the munged params
 window.detectActiveMungeSet = function() {
 
   // first, try and parse the stock functions and extract the munges directly
