@@ -527,7 +527,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         }
     }
 
-    // vp=f enables mDesktopMode mode...vp=m is the defaul mobile view
+    // vp=f enables mDesktopMode mode...vp=m is the default mobile view
     private String addUrlParam(String url) {
         if (mDesktopMode) {
             return (url + "?vp=f");

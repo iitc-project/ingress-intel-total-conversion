@@ -176,7 +176,7 @@ window.setupMap = function() {
   if(!isLayerGroupDisplayed('Links', true)) hiddenLayer.push(linksLayer);
 
   // faction-specific layers
-  // these layers don't actually contain any data. instead, everytime they're added/removed from the map,
+  // these layers don't actually contain any data. instead, every time they're added/removed from the map,
   // the matching sub-layers within the above portals/fields/links are added/removed from their parent with
   // the below 'onoverlayadd/onoverlayremovve' events
   var factionLayers = [L.layerGroup(), L.layerGroup(), L.layerGroup()];

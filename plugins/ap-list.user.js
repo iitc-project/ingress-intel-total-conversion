@@ -579,7 +579,7 @@ window.plugin.apList.getShieldsEffect = function(portal) {
 // Sorting done by loop through the options, get the property by 
 // property chain of each option, compare the property of two object 
 // with the ordering of option and return the result when the first 
-// differece is found.
+// difference is found.
 window.plugin.apList.comparePortal = function(a,b) {
   var result = 0;
   var options = plugin.apList.sortOptions[plugin.apList.sortBy];

@@ -355,7 +355,7 @@ window.plugin.portalslist.stats = function(sortBy) {
   return html;
 }
 
-// A little helper functon so the above isn't so messy
+// A little helper function so the above isn't so messy
 window.plugin.portalslist.portalTableSort = function(name, by) {
   var retVal = 'data-sort="' + name + '"';
   if(name === by) {

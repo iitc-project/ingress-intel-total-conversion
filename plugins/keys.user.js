@@ -107,7 +107,7 @@ window.plugin.keys.registerFieldForSyncing = function() {
 window.plugin.keys.syncCallback = function(pluginName, fieldName, e, fullUpdated) {
   if(fieldName === 'keys') {
     plugin.keys.storeLocal(plugin.keys.KEY);
-    // All data is replaced if other client update the data duing this client offline, 
+    // All data is replaced if other client update the data during this client offline, 
     // fire 'pluginKeysRefreshAll' to notify a full update
     if(fullUpdated) {
       plugin.keys.updateDisplayCount();
