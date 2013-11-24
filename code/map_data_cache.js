@@ -7,7 +7,7 @@ window.DataCache = function() {
 
   // stale cache entries can be updated (that's what the optional 'timestampMs' field in getThinnedEntities is
   // for, retrieving deltas) so use a long max age to take advantage of this
-  // however, ther must be an overall limit on the maximum age of data from the servers, otherwise the deletedEntity
+  // however, there must be an overall limit on the maximum age of data from the servers, otherwise the deletedEntity
   // entries would grow indefinitely. an hour seems reasonable from experience with the data, so 55 mins max cache time
 //  this.REQUEST_CACHE_MAX_AGE = 55*60;  // maximum cache age. entries are deleted from the cache after this time
 //UPDATE: this timestampMs parameter doesn't work, so reduced max age to limit RAM usage

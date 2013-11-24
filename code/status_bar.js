@@ -6,7 +6,7 @@ window.renderUpdateStatus = function() {
 
   // portal level display
   var t = '<span class="help portallevel" title="Indicates portal levels displayed.  Zoom in to display lower level portals.">';
-  if(!window.isSmartphone()) // space is valueable
+  if(!window.isSmartphone()) // space is valuable
     t += '<b>portals</b>: ';
   var minlvl = getMinPortalLevel();
   if(minlvl === 0)

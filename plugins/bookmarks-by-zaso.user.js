@@ -543,8 +543,8 @@
       localStorage[window.plugin.bookmarks.KEY_STORAGE] = promptAction;
       window.plugin.bookmarks.refreshBkmrks();
       window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
-      console.log('BOOKMARKS: resetted and imported bookmarks');
-      window.plugin.bookmarks.optAlert('Succesful. ');
+      console.log('BOOKMARKS: reset and imported bookmarks');
+      window.plugin.bookmarks.optAlert('Successful. ');
     }
   }
 
@@ -556,8 +556,8 @@
       window.plugin.bookmarks.loadStorage();
       window.plugin.bookmarks.refreshBkmrks();
       window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "reset"});
-      console.log('BOOKMARKS: resetted all bookmarks');
-      window.plugin.bookmarks.optAlert('Succesful. ');
+      console.log('BOOKMARKS: reset all bookmarks');
+      window.plugin.bookmarks.optAlert('Successful. ');
     }
   }
 
@@ -709,7 +709,7 @@
       }, window.plugin.bookmarks.SYNC_DELAY);
   }
 
-  // Store the upadteQueue in updatingQueue and upload
+  // Store the updateQueue in updatingQueue and upload
   window.plugin.bookmarks.syncNow = function() {
     if(!window.plugin.bookmarks.enableSync) return;
     $.extend(window.plugin.bookmarks.updatingQueue, window.plugin.bookmarks.updateQueue);

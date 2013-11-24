@@ -32,7 +32,7 @@
 // use own namespace for plugin
 window.plugin.portalcounts = function() {};
 
-//count portals for each level avalaible on the map
+//count portals for each level available on the map
 window.plugin.portalcounts.getPortals = function(){
   //console.log('** getPortals');
   var retval=false;

@@ -54,7 +54,7 @@ window.renderPortalDetails = function(guid) {
   //(at some future point we can iterate through all the artifact types and add rows as needed)
   var jarvisArtifact = artifact.getPortalData (guid, 'jarvis');
   if (jarvisArtifact) {
-    // the genFourColumnTable function below doesn't handle cases where one column is null and the other isn't - so default to *someting* in both columns
+    // the genFourColumnTable function below doesn't handle cases where one column is null and the other isn't - so default to *something* in both columns
     var target = ['',''], shards = ['shards','(none)'];
     if (jarvisArtifact.target) {
       target = ['target', '<span class="'+TEAM_TO_CSS[jarvisArtifact.target]+'">'+(jarvisArtifact.target==TEAM_RES?'Resistance':'Enlightened')+'</span>'];

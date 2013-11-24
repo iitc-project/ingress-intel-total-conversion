@@ -115,7 +115,7 @@ a:hover {
   padding-left: 8px;
 }
 
-/* hide the usual seperator */
+/* hide the usual separator */
 .leaflet-control-layers-separator {
   display: none;
 }
