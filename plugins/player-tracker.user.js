@@ -303,7 +303,7 @@ window.plugin.playerTracker.drawData = function() {
     var last = playerData.events[evtsLength-1];
     var ago = plugin.playerTracker.ago;
 
-    // tooltip for marker - no HYML - and not shown on touchscreen devices
+    // tooltip for marker - no HTML - and not shown on touchscreen devices
     var tooltip = isTouchDev ? '' : (playerData.nick+', '+ago(last.time, now)+' ago');
 
     // popup for marker

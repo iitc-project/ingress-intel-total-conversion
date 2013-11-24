@@ -122,7 +122,7 @@ function iitcDesktopPluginDownloadTable ( $build )
 			# remove 'IITC Plugin: ' prefix if it's there, for neatness
 			$name = preg_replace ( '/^IITC plugin: /i', '', $details['@name'] );
 
-			# format extended version info in less prominant font
+			# format extended version info in less prominent font
 			$version = preg_replace ( '/^(\d+\.\d+\.\d+)\.(\d{8}\.\d{1,6})/', '\1<br><small class="muted">.\2</small>', $details['@version'] );
 
 			# remove unneeded prefix from description

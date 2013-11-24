@@ -16,7 +16,7 @@ var requestParameterMunges = [
 
   // set 7 - 2013-11-06
   {
-    'dashboard.getArtifactInfo': 'artifacts',               // GET_ARTIFACT_INFO: new (and not obfsucated?!)
+    'dashboard.getArtifactInfo': 'artifacts',               // GET_ARTIFACT_INFO: new (and not obfuscated?!)
     'dashboard.getGameScore': 'yol4dxx5ufqolhk2',          // GET_GAME_SCORE
     'dashboard.getPaginatedPlextsV2': '7b83j2z81rtk6101',  // GET_PAGINATED_PLEXTS
     'dashboard.getThinnedEntitiesV4': '46su4lrisoq28gxh',  // GET_THINNED_ENTITIES
@@ -59,7 +59,7 @@ var requestParameterMunges = [
 
   // set 8 - 2013-11-07
   {
-    'dashboard.getArtifactInfo': 'artifacts',               // GET_ARTIFACT_INFO: new (and not obfsucated?!)
+    'dashboard.getArtifactInfo': 'artifacts',               // GET_ARTIFACT_INFO: new (and not obfuscated?!)
     'dashboard.getGameScore': 'lls4clhel87apzpa',          // GET_GAME_SCORE
     'dashboard.getPaginatedPlextsV2': 'r6n2xgcd8wjsm4og',  // GET_PAGINATED_PLEXTS
     'dashboard.getThinnedEntitiesV4': '1ybigzcf2sifu34b',  // GET_THINNED_ENTITIES
@@ -102,7 +102,7 @@ var requestParameterMunges = [
 
   // set 9 - 2013-11-1
   {
-    'dashboard.getArtifactInfo': 'artifacts',               // GET_ARTIFACT_INFO: new (and not obfsucated?!)
+    'dashboard.getArtifactInfo': 'artifacts',               // GET_ARTIFACT_INFO: new (and not obfuscated?!)
     'dashboard.getGameScore': '9w8phj2dccvns3t9',          // GET_GAME_SCORE
     'dashboard.getPaginatedPlextsV2': '3b1nc3ub0sd1704x',  // GET_PAGINATED_PLEXTS
     'dashboard.getThinnedEntitiesV4': '2xa55qj41qrhfhas',  // GET_THINNED_ENTITIES
@@ -149,9 +149,9 @@ var requestParameterMunges = [
 var activeRequestMungeSet = undefined;
 
 
-// in the recent stock site updates, their javascript code has been less obsfucated, but also the munge parameters
+// in the recent stock site updates, their javascript code has been less obfuscated, but also the munge parameters
 // change on every release. I can only assume it's now an integrated step in the build/release system, rather
-// than continued efforts to block iitc. the lighter obsfucation on the code makes it easier to parse and find
+// than continued efforts to block iitc. the lighter obfuscation on the code makes it easier to parse and find
 // the munges in the code - so let's attempt that
 function extractMungeFromStock() {
   try {
@@ -216,7 +216,7 @@ function extractMungeFromStock() {
     foundMunges.latE6 = result[3] || result[4];
     foundMunges.lngE6 = result[5] || result[6];
     var chatTab = result[7] || result[8];
-    if (chatTab != foundMunges.chatTab) throw 'Error: inconsistant munge parsing for chatTab';
+    if (chatTab != foundMunges.chatTab) throw 'Error: inconsistent munge parsing for chatTab';
 
     // LOOKUP_PLAYERS
     var reg = new RegExp('LOOKUP_PLAYERS, {'+mungeRegExpLit+'a}');

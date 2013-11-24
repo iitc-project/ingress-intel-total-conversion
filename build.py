@@ -121,7 +121,7 @@ def loaderMD(var):
     filemd5 = hashlib.md5(file.encode('utf8')).hexdigest()
     # check if file has already been parsed by the github api
     if fn in files and filemd5 in files[fn]:
-      # use the stored copy if nothing has changed to avoid hiting the api more then the 60/hour when not signed in
+      # use the stored copy if nothing has changed to avoid hitting the api more then the 60/hour when not signed in
       db.close()
       return files[fn][filemd5]
     else:

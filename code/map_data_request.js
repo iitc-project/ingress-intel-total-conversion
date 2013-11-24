@@ -27,7 +27,7 @@ window.MapDataRequest = function() {
   // try to maintain at least this may tiles in each request, by reducing the number of requests as needed
   this.MIN_TILES_PER_REQUEST = 4;
 
-  // number of times to retty a tile after a 'bad' error (i.e. not a timeout)
+  // number of times to retry a tile after a 'bad' error (i.e. not a timeout)
   this.MAX_TILE_RETRIES = 3;
 
   // refresh timers
@@ -44,10 +44,10 @@ window.MapDataRequest = function() {
   // this gives a chance of other requests finishing, allowing better grouping of retries in new requests
   this.RUN_QUEUE_DELAY = 0.5;
 
-  // delay before re-queueing tiles in failed requests
+  // delay before requeuing tiles in failed requests
   this.BAD_REQUEST_REQUEUE_DELAY = 5; // longer delay before retrying a completely failed request - as in this case the servers are struggling
 
-  // a delay before processing the queue after requeueing tiles. this gives a chance for other requests to finish
+  // a delay before processing the queue after requeuing tiles. this gives a chance for other requests to finish
   // or other requeue actions to happen before the queue is processed, allowing better grouping of requests
   // however, the queue may be processed sooner if a previous timeout was set
   this.REQUEUE_DELAY = 1;
@@ -451,7 +451,7 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
   var timeoutTiles = [];
 
   if (!success || !data || !data.result) {
-    console.warn("Request.handleResponse: request failed - requeing...");
+    console.warn("Request.handleResponse: request failed - requeuing...");
 
     //request failed - requeue all the tiles(?)
 
