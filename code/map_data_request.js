@@ -267,7 +267,7 @@ window.MapDataRequest.prototype.refresh = function() {
   // so as far as plugins are concerned, it should be treated as a finished request
   window.runHooks('requestFinished', {success: true});
 
-  console.log ('done request preperation (cleared out-of-bounds and invalid for zoom, and rendered cached data)');
+  console.log ('done request preparation (cleared out-of-bounds and invalid for zoom, and rendered cached data)');
 
   if (Object.keys(this.queuedTiles).length > 0) {
     // queued requests - don't start processing the download queue immediately - start it after a short delay
