@@ -130,7 +130,7 @@ foreach ( $pages as $key => $name )
 
 	print "<li".($page == $key ? ' class="active"' :'')."><a href=\"$url\">$name</a></li>\n";
 
-	# after 'mobile', add a horizontal seperator
+	# after 'mobile', add a horizontal separator
 	if ( $key == 'test' )
 		print "<li class=\"divider\"></li>";
 }

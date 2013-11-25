@@ -48,7 +48,7 @@ scripts to match.
 
 <h4>16th October 2013</h4>
 <p>
-IITC 0.14.3 and IITC MObile 0.7.4 have just been released. This is a critical update required to work with the latest
+IITC 0.14.3 and IITC Mobile 0.7.4 have just been released. This is a critical update required to work with the latest
 changes Niantic have made to the standard intel site. Additionally, the draw-tools plugin now snaps points to portals
 when creating lines/polygons/markers (was actually in 0.14.2 release), a bugfix relating to IITC not realising who 
 'you' are, causing some highlighters to break, and a handful of other tweaks/bugfixes.
@@ -230,7 +230,7 @@ IITC version 0.12.0 has been released. This contains quite a few changes and new
 <li>Sync plugin - to sync data from the 'Keys' addon to multiple computers via Google Drive</li>
 <li>... and many other tweaks, bug fixes, etc</li>
 </ul>
-IITC Mobile 0.4.0 is also released. THis has also had major work. Along with the above, it includes a
+IITC Mobile 0.4.0 is also released. This has also had major work. Along with the above, it includes a
 new in-app layer chooser and chat/map switcher, and authentication has been revamped to use the native
 Android authentication rather than entering your password.
 </p>

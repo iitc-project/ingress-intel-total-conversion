@@ -66,6 +66,12 @@ window.resolvePlayerNames = function() {
   //limit per request. stock site is never more than 13 (8 res, 4 mods, owner)
   //testing shows 15 works and 20 fails
   var MAX_RESOLVE_PLAYERS_PER_REQUEST = 15;
+  var MAX_RESOLVE_REQUESTS = 8;
+
+  if (window.playersToResolve.length > MAX_RESOLVE_PLAYERS_PER_REQUEST*MAX_RESOLVE_REQUESTS) {
+    console.log('Warning: player name resolve queue had '+window.playersToResolve.length+' entries. Limiting to the first '+MAX_RESOLVE_PLAYERS_PER_REQUEST*MAX_RESOLVE_REQUESTS+' to prevent excessive requests');
+    window.playersToResolve = playersToResolve.slice(0,MAX_RESOLVE_PLAYERS_PER_REQUEST*MAX_RESOLVE_REQUESTS);
+  }
 
   var p = window.playersToResolve.slice(0,MAX_RESOLVE_PLAYERS_PER_REQUEST);
   window.playersToResolve = playersToResolve.slice(MAX_RESOLVE_PLAYERS_PER_REQUEST);

@@ -7,7 +7,7 @@ window.Render = function() {
 
   // when there are lots of portals close together, we only add some of them to the map
   // the idea is to keep the impression of the dense set of portals, without rendering them all
-  this.CLUSTER_SIZE = L.Browser.mobile ? 16 : 8;  // the map is divited into squares of this size in pixels for clustering purposes. mobile uses larger markers, so therefore larger clustering areas
+  this.CLUSTER_SIZE = L.Browser.mobile ? 16 : 8;  // the map is divided into squares of this size in pixels for clustering purposes. mobile uses larger markers, so therefore larger clustering areas
   this.CLUSTER_PORTAL_LIMIT = 4; // no more than this many portals are drawn in each cluster square
 
   // link length, in pixels, to be visible. use the portal cluster size, as shorter than this is likely hidden
@@ -127,7 +127,7 @@ window.Render.prototype.processGameEntities = function(entities) {
 // is considered complete
 window.Render.prototype.endRenderPass = function() {
 
-  // check to see if there's eny entities we haven't seen. if so, delete them
+  // check to see if there are any entities we haven't seen. if so, delete them
   for (var guid in window.portals) {
     // special case for selected portal - it's kept even if not seen
     if (!(guid in this.seenPortalsGuid) && guid !== selectedPortal) {
@@ -567,7 +567,7 @@ window.Render.prototype.resetPortalClusters = function() {
 
 }
 
-// add the portal to the visiable map layer unless we pass the cluster limits
+// add the portal to the visible map layer unless we pass the cluster limits
 window.Render.prototype.addPortalToMapLayer = function(portal) {
 
   var cid = this.getPortalClusterID(portal);

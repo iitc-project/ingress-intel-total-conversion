@@ -2,7 +2,7 @@
 // @id             iitc-plugin-highlight-bad-deployment-distance@cathesaurus
 // @name           IITC plugin: highlight badly-deployed portals
 // @category       Highlighter
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -25,12 +25,15 @@ window.plugin.portalHighlighterBadDeploymentDistance.highlight = function(data) 
   var d = data.portal.options.details;
   var portal_deployment = 0;
   if(getTeam(d) !== 0) {
-    if(window.getAvgResoDist(d) > 0 && window.getAvgResoDist(d) < window.HACK_RANGE*0.9) {
-      portal_deployment = (window.HACK_RANGE - window.getAvgResoDist(d))/window.HACK_RANGE;
+    var avgDist = window.getAvgResoDist(d);
+    if(avgDist > 0 && avgDist < window.HACK_RANGE*0.9) {
+      portal_deployment = (window.HACK_RANGE - avgDist)/window.HACK_RANGE;
     }
     if(portal_deployment > 0) {
       var fill_opacity = portal_deployment*.85 + .15;
-      color = 'red';
+      // magenta for *exceptionally* close deployments (spoofing? under 1m average), then shades of
+      // red, orange and yellow for further out
+      color = avgDist < 1 ? 'magenta' : avgDist < (window.HACK_RANGE*.25) ? 'red' : avgDist < (window.HACK_RANGE*.6) ? 'orange' : 'yellow';
       var params = {fillColor: color, fillOpacity: fill_opacity};
       data.portal.setStyle(params);
     } 

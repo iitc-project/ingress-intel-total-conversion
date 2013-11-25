@@ -543,8 +543,8 @@
       localStorage[window.plugin.bookmarks.KEY_STORAGE] = promptAction;
       window.plugin.bookmarks.refreshBkmrks();
       window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
-      console.log('BOOKMARKS: resetted and imported bookmarks');
-      window.plugin.bookmarks.optAlert('Succesful. ');
+      console.log('BOOKMARKS: reset and imported bookmarks');
+      window.plugin.bookmarks.optAlert('Successful. ');
     }
   }
 
@@ -556,8 +556,8 @@
       window.plugin.bookmarks.loadStorage();
       window.plugin.bookmarks.refreshBkmrks();
       window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "reset"});
-      console.log('BOOKMARKS: resetted all bookmarks');
-      window.plugin.bookmarks.optAlert('Succesful. ');
+      console.log('BOOKMARKS: reset all bookmarks');
+      window.plugin.bookmarks.optAlert('Successful. ');
     }
   }
 
@@ -709,7 +709,7 @@
       }, window.plugin.bookmarks.SYNC_DELAY);
   }
 
-  // Store the upadteQueue in updatingQueue and upload
+  // Store the updateQueue in updatingQueue and upload
   window.plugin.bookmarks.syncNow = function() {
     if(!window.plugin.bookmarks.enableSync) return;
     $.extend(window.plugin.bookmarks.updatingQueue, window.plugin.bookmarks.updateQueue);
@@ -730,7 +730,7 @@
   window.plugin.bookmarks.syncCallback = function(pluginName, fieldName, e, fullUpdated) {
     if(fieldName === window.plugin.bookmarks.KEY.field) {
       window.plugin.bookmarks.storeLocal(window.plugin.bookmarks.KEY);
-      // All data is replaced if other client update the data duing this client offline, 
+      // All data is replaced if other client update the data during this client offline, 
       if(fullUpdated) {
         window.plugin.bookmarks.refreshBkmrks();
         return;
@@ -916,7 +916,7 @@
 
     // Fired when a bookmarks/folder is removed, added or sorted, also when a folder is opened/closed.
     if($.inArray('pluginBkmrksEdit', window.VALID_HOOKS) < 0) { window.VALID_HOOKS.push('pluginBkmrksEdit'); }
-    // Fired when the "Bookmarks Options" panell is opened (you can add new options);
+    // Fired when the "Bookmarks Options" panel is opened (you can add new options);
     if($.inArray('pluginBkmrksOpenOpt', window.VALID_HOOKS) < 0) { window.VALID_HOOKS.push('pluginBkmrksOpenOpt'); }
     // Fired when the sync is finished;
     if($.inArray('pluginBkmrksSyncEnd', window.VALID_HOOKS) < 0) { window.VALID_HOOKS.push('pluginBkmrksSyncEnd'); }

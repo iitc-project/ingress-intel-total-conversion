@@ -176,7 +176,7 @@ window.setupMap = function() {
   if(!isLayerGroupDisplayed('Links', true)) hiddenLayer.push(linksLayer);
 
   // faction-specific layers
-  // these layers don't actually contain any data. instead, everytime they're added/removed from the map,
+  // these layers don't actually contain any data. instead, every time they're added/removed from the map,
   // the matching sub-layers within the above portals/fields/links are added/removed from their parent with
   // the below 'onoverlayadd/onoverlayremovve' events
   var factionLayers = [L.layerGroup(), L.layerGroup(), L.layerGroup()];
@@ -251,7 +251,7 @@ window.setupMap = function() {
 
   map.on('moveend', function(e) {
     // two limits on map position
-    // we wrap longitude (the L.LatLng 'wrap' method) - so we don't find outselves looking beyond +-180 degrees
+    // we wrap longitude (the L.LatLng 'wrap' method) - so we don't find ourselves looking beyond +-180 degrees
     // then latitude is clamped with the clampLatLng function (to the 85 deg north/south limits)
     var newPos = clampLatLng(map.getCenter().wrap());
     if (!map.getCenter().equals(newPos)) {
@@ -600,8 +600,8 @@ try { console.log('Loading included JS now'); } catch(e) {}
 try { console.log('done loading included JS'); } catch(e) {}
 
 //note: no protocol - so uses http or https as used on the current page
-var JQUERY = '//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js';
-var JQUERYUI = '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js';
+var JQUERY = '//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js';
+var JQUERYUI = '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js';
 
 // after all scripts have loaded, boot the actual app
 load(JQUERY).then(JQUERYUI).thenRun(boot);

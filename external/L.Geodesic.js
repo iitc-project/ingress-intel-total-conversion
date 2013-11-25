@@ -88,9 +88,9 @@ Modified by qnstie 2013-07-17 to maintain compatibility with Leaflet.draw
       latlngs[i] = L.latLng(latlngs[i]);
     }
 
-    // geodrsic calculations have issues when crossing the anti-meridian. so offset the points
+    // geodesic calculations have issues when crossing the anti-meridian. so offset the points
     // so this isn't an issue, then add back the offset afterwards
-    // a center longitude would be ideal - but the start point logitude will be 'good enougn'
+    // a center longitude would be ideal - but the start point longitude will be 'good enough'
     var lngOffset = latlngs[0].lng;
 
     // points are wrapped after being offset relative to the first point coordinate, so they're

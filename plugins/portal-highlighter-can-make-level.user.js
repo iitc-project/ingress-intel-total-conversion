@@ -56,7 +56,7 @@ window.plugin.portalHighligherPortalsCanMakeLevel.getHighlighter = function(lvl)
 
 
 var setup =  function() {
-  // This is the maximum level of a portal a user can be the "last peice of"
+  // This is the maximum level of a portal a user can be the "last piece of"
   // yes, even a level 1 can be the difference in bumping a portal up to level 7
   var max_can_complete = 7;
   if(PLAYER.level === 8) {

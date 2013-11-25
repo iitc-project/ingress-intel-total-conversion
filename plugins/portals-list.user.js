@@ -26,7 +26,7 @@
 * 0.0.10: Fixed persistent css problem with alert
 * 0.0.9 : bugs hunt
 * 0.0.8 : Aborted to avoid problems with Niantic (export portals informations as csv or kml file)
-* 0.0.7 : more informations avalaible via tooltips (who deployed, energy, ...), new E/AP column 
+* 0.0.7 : more informations available via tooltips (who deployed, energy, ...), new E/AP column 
 * 0.0.6 : Add power charge information into a new column + bugfix
 * 0.0.5 : Filter portals by clicking on 'All portals', 'Res Portals' or 'Enl Portals'
 * 0.0.4 : Add link to portals name, one click to display full information in portal panel, double click to zoom on portal, hover to show address
@@ -49,7 +49,7 @@ window.plugin.portalslist.enlP = 0;
 window.plugin.portalslist.resP = 0;
 window.plugin.portalslist.filter=0;
 
-//fill the listPortals array with portals avalaible on the map (level filtered portals will not appear in the table)
+//fill the listPortals array with portals avaliable on the map (level filtered portals will not appear in the table)
 window.plugin.portalslist.getPortals = function() {
   //filter : 0 = All, 1 = Res, 2 = Enl
   //console.log('** getPortals');
@@ -355,7 +355,7 @@ window.plugin.portalslist.stats = function(sortBy) {
   return html;
 }
 
-// A little helper functon so the above isn't so messy
+// A little helper function so the above isn't so messy
 window.plugin.portalslist.portalTableSort = function(name, by) {
   var retVal = 'data-sort="' + name + '"';
   if(name === by) {

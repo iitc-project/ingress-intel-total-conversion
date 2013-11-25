@@ -86,7 +86,7 @@ window.plugin.keys.delaySync = function() {
     }, plugin.keys.SYNC_DELAY);
 }
 
-// Store the upadteQueue in updatingQueue and upload
+// Store the updateQueue in updatingQueue and upload
 window.plugin.keys.syncNow = function() {
   if(!plugin.keys.enableSync) return;
   $.extend(plugin.keys.updatingQueue, plugin.keys.updateQueue);
@@ -107,7 +107,7 @@ window.plugin.keys.registerFieldForSyncing = function() {
 window.plugin.keys.syncCallback = function(pluginName, fieldName, e, fullUpdated) {
   if(fieldName === 'keys') {
     plugin.keys.storeLocal(plugin.keys.KEY);
-    // All data is replaced if other client update the data duing this client offline, 
+    // All data is replaced if other client update the data during this client offline, 
     // fire 'pluginKeysRefreshAll' to notify a full update
     if(fullUpdated) {
       plugin.keys.updateDisplayCount();

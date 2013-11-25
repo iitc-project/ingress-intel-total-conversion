@@ -152,7 +152,7 @@ var setup =  function() {
   window.plugin.portalDefense.currentDisplay = window.plugin.portalDefense.getDisplay();
   map.on('zoomend', window.plugin.portalDefense.showOrHide);
     
-  // this layer is added to tha layer chooser, to be toggled on/off
+  // this layer is added to the layer chooser, to be toggled on/off
   window.plugin.portalDefense.regionLayerGroup = new L.LayerGroup();
 
   // this layer is added into the above layer, and removed from it when we zoom out too far

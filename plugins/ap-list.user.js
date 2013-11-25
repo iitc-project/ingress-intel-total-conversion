@@ -579,7 +579,7 @@ window.plugin.apList.getShieldsEffect = function(portal) {
 // Sorting done by loop through the options, get the property by 
 // property chain of each option, compare the property of two object 
 // with the ordering of option and return the result when the first 
-// differece is found.
+// difference is found.
 window.plugin.apList.comparePortal = function(a,b) {
   var result = 0;
   var options = plugin.apList.sortOptions[plugin.apList.sortBy];
@@ -592,7 +592,7 @@ window.plugin.apList.comparePortal = function(a,b) {
       aProperty = aProperty[propertyName];
       bProperty = bProperty[propertyName];
     });
-    // compare next porperty if equal
+    // compare next property if equal
     if(aProperty === bProperty) return true;
 
     result = (aProperty > bProperty ? 1 : -1) * option.order;
@@ -619,7 +619,7 @@ window.plugin.apList.disableCache = function() {
 
 window.plugin.apList.selectPortal = function(guid) {
   // Add error catching to avoid following link of portal if error 
-  // occured in renderPortalDetails or hooked plugin
+  // occurred in renderPortalDetails or hooked plugin
   try {
     renderPortalDetails(guid);
   } catch(e) {
