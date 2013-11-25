@@ -91,7 +91,9 @@ window.getAvgResoDist = function(d) {
   var sum = 0, resos = 0;
   $.each(d.resonatorArray.resonators, function(ind, reso) {
     if(!reso) return true;
-    sum += parseInt(reso.distanceToPortal);
+    var resDist = parseInt(reso.distanceToPortal);
+    if (resDist == 0) resDist = 0.01; // set a non-zero but very small distance for zero deployment distance. allows the return value to distinguish between zero deployment distance average and zero resonators
+    sum += resDist;
     resos++;
   });
   return resos ? sum/resos : 0;

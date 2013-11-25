@@ -106,6 +106,9 @@ window.chat.genPostData = function(isFaction, storageHash, getOlderMsgs) {
     // Currently this edge case is not handled. Let’s see if this is a
     // problem in crowded areas.
     $.extend(data, {minTimestampMs: min});
+    // when requesting with an acutal minimum timestamp, request oldest rather than newest first.
+    // this matches the stock intel site, and ensures no gaps when continuing after an extended idle period
+    if (min > -1) $.extend(data, {ascendingTimestampOrder: true});
   }
   return data;
 }

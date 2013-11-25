@@ -146,7 +146,7 @@ window.postAjax = function(action, data, success, error) {
   // and of the 'version' parameter (we assume it's a version - if missing/wrong that's what the error refers to)
   versionStr = mungeOneString(versionStr);
 
-  var post_data = JSON.stringify(window.requestDataMunge($.extend({method: methodName, version: versionStr}, data)));
+  var post_data = JSON.stringify(window.requestDataMunge($.extend({}, data, {method: methodName, version: versionStr})));
   var remove = function(data, textStatus, jqXHR) { window.requests.remove(jqXHR); };
   var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
   var result = $.ajax({
@@ -276,41 +276,20 @@ window.androidPermalink = function() {
 }
 
 
-window.getPortalDataZoom = function() {
-  var mapZoom = map.getZoom();
-
-  // make sure we're dealing with an integer here
-  // (mobile: a float somehow gets through in some cases!)
-  var z = parseInt(mapZoom);
-
-  // limiting the maximum zoom level for data retrieval reduces the number of requests at high zoom levels
-  // (as all portal data is retrieved at z=17, why retrieve multiple z=18 tiles when fewer z=17 would do?)
-  // very effective along with the new cache code
-  if (z > 17) z=17;
-
-  //sanity check - should never happen
-  if (z < 0) z=0;
-
-  return z;
-}
-
-
 window.getMinPortalLevelForZoom = function(z) {
-  // try to use the zoom-to-level mapping from the stock intel page, if available
-  var ZOOM_TO_LEVEL;
-  try {
-    ZOOM_TO_LEVEL = nemesis.dashboard.zoomlevel.ZOOM_TO_LOD_;
-  } catch(e) {
-    //based on code from stock gen_dashboard.js
-    ZOOM_TO_LEVEL = [8, 8, 8, 8, 7, 7, 6, 6, 5, 4, 4, 3, 3, 2, 2, 1, 1];
-  }
+
+  // these values are from the stock intel map. however, they're too detailed for reasonable speed, and increasing
+  // detail at a higher zoom level shows enough detail still, AND speeds up IITC considerably
+//var ZOOM_TO_LEVEL = [8, 8, 8, 8, 7, 7, 6, 6, 5, 4, 4, 3, 3, 2, 2, 1, 1];
+  var ZOOM_TO_LEVEL = [8, 8, 8, 8, 8, 8, 7, 7, 6, 5, 4, 4, 3, 2, 2, 1, 1];
+
   var l = ZOOM_TO_LEVEL[z] || 0;
   return l;
 }
 
 
 window.getMinPortalLevel = function() {
-  var z = getPortalDataZoom();
+  var z = map.getZoom();
   return getMinPortalLevelForZoom(z);
 }
 
