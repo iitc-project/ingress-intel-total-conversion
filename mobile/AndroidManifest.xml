@@ -90,7 +90,7 @@
             android:label="@string/activity_share"
             android:noHistory="true"
             android:parentActivityName=".IITC_Mobile"
-            android:theme="@android:style/Theme.Holo.Light.DarkActionBar">
+            android:theme="@style/AppBaseTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".IITC_Mobile"/>
