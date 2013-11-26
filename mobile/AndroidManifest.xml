@@ -28,8 +28,7 @@
             android:name=".IITC_Mobile"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
             android:label="@string/app_name"
-            android:launchMode="singleTop"
-            android:theme="@style/AppBaseTheme">
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -80,19 +79,16 @@
         <activity
             android:name=".IITC_PreferenceActivity"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
-            android:label="@string/activity_settings"
-            android:theme="@style/AppBaseTheme"/>
+            android:label="@string/activity_settings"/>
         <activity
             android:name=".IITC_PluginPreferenceActivity"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
-            android:label="@string/activity_plugins"
-            android:theme="@style/AppBaseTheme"/>
+            android:label="@string/activity_plugins"/>
         <activity
             android:name=".share.ShareActivity"
             android:label="@string/activity_share"
             android:noHistory="true"
-            android:parentActivityName=".IITC_Mobile"
-            android:theme="@style/AppBaseTheme">
+            android:parentActivityName=".IITC_Mobile">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".IITC_Mobile"/>
