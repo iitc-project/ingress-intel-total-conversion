@@ -34,19 +34,19 @@ window.plugin.portalHighligherPortalsCanMakeLevel.highlight = function(data,high
 
 //determines the level of poral a user can make all on their own
 window.plugin.portalHighligherPortalsCanMakeLevel.playerCanSoloLevel = function(lvl) {
-  var renators_total = 0;
-  var renators_placed = 0;
+  var resonators_total = 0;
+  var resonators_placed = 0;
   var resonator_level = PLAYER.level
-  while(renators_placed < 8) {
+  while(resonators_placed < 8) {
     for(var i = 0; i<MAX_RESO_PER_PLAYER[resonator_level]; i++) {
-      if(renators_placed < 8) {
-        renators_total += resonator_level;
-        renators_placed++;
+      if(resonators_placed < 8) {
+        resonators_total += resonator_level;
+        resonators_placed++;
       }
     }
     resonator_level--;
   }
-  return(Math.floor(renators_total/8));
+  return(Math.floor(resonators_total/8));
 }
 window.plugin.portalHighligherPortalsCanMakeLevel.getHighlighter = function(lvl) {
   return(function(data){ 
