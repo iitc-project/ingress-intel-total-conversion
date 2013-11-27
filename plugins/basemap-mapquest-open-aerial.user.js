@@ -27,7 +27,7 @@ window.plugin.mapTileMapQuestSat.addLayer = function() {
   var mqSubdomains = [ 'otile1','otile2', 'otile3', 'otile4' ];
   var mqTileUrlPrefix = window.location.protocol !== 'https:' ? 'http://{s}.mqcdn.com' : 'https://{s}-s.mqcdn.com';
   //MapQuest satellite coverage outside of the US is rather limited - so not really worth having as we have google as an op!
-  var mqSatOpt = {attribution: 'Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency', mazZoom: 18, subdomains: mqSubdomains};
+  var mqSatOpt = {attribution: 'Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency', maxZoom: 18, subdomains: mqSubdomains};
   var mqSat = new L.TileLayer('http://{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg',mqSatOpt);
 
   layerChooser.addBaseLayer(mqSat, "MapQuest Open Satellite");
