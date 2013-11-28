@@ -1,5 +1,25 @@
 <h2>News</h2>
 
+<div class="alert alert-block alert-error">
+<h4>27th November 2013</h4>
+<p>
+IITC and IITC Mobile are currently broken, due to changes made to the standard intel website. This is a major change in how
+portal details are sent, with most of the extra data that the standard site didn't use being removed.
+</p>
+<p>
+This is not something simple to fix, and will take some time. Also, it severely cripples what IITC can do, as using this
+extra data, not displayed by the standard site, was it's big feature.
+</p>
+<p>
+We will look into what can be done to get it working again, but it will take some time. Many plugins won't be practical 
+as the data will not be available.
+</p>
+<p>
+More details, and discussion, available in the
+<a href="https://plus.google.com/105383756361375410867/posts/E65qngRjR2T">Google+ post</a>.
+</p>
+</div>
+
 <h4>11th November 2013</h4>
 <p>
 IITC 0.15.0 and IITC Mobile 0.9 have just been released. This update fixes things to work with the latest changes
