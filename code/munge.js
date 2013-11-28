@@ -143,6 +143,49 @@ var requestParameterMunges = [
     inviteeEmailAddress: 'rye9be4um2t1z5ts',
   },
 
+  // set 10 - 2013-11-27
+  {
+    'dashboard.getArtifactInfo': 'artifacts',
+    'dashboard.getGameScore': '4oid643d9zc168hs',
+    'dashboard.getPaginatedPlextsV2': 's1msyywq51ntudpe',
+    'dashboard.getThinnedEntitiesV4': '4467ff9bgxxe4csa',
+
+    'dashboard.redeemReward': '66l9ivg39ygfqqjm',
+    'dashboard.sendInviteEmail': 'cgb7hi5hglv0xx8k',
+    'dashboard.sendPlext': 'etn9xq7brd6947kq',
+
+    // common parameters
+    method: 'yyngyttbmmbuvdpa',
+    version: 'avz401t36lzrapis',
+    version_parameter: 'c5d0a5d608f729a1232bebdc12fb86ba5fb6c43f',
+
+    // GET_THINNED_ENTITIES
+    quadKeys: '1mpmxz2yun22rwnn',
+
+    // GET_PAGINATED_PLEXTS
+    desiredNumItems: 'nzd23jqm9k1cnnij',
+    minLatE6: '0dod6onpa1s4fezp',
+    minLngE6: 'soass3t7mm7anneo',
+    maxLatE6: 'cvarmr3o00ngylo1',
+    maxLngE6: 'udzwnlx07hzd3bfo',
+    minTimestampMs: '9iiiks138gkf8xho',
+    maxTimestampMs: '94wm0u3sc3sgzq7x',
+    chatTab: 'tqfj4a3okzn5v5o1',
+    ascendingTimestampOrder: '5jv1m90sq35u6utq',
+
+    // SEND_PLEXT
+    message: '8exta9k7y8huhqmc',
+    latE6: 'kqek161gza3kjcry',
+    lngE6: '3dlxsqrjj2vcmhbc',
+//  chatTab: 'efaznrayv5n3jxs0', //guessed parameter name - only seen munged
+
+    // LOOKUP_PLAYERS
+    guids: '',
+
+    // SEND_INVITE_EMAIL
+    inviteeEmailAddress: '8exta9k7y8huhqmc',
+  },
+
 ];
 
 
