@@ -8,7 +8,7 @@ portal details are sent, with most of the extra data that the standard site didn
 </p>
 <p>
 This is not something simple to fix, and will take some time. Also, it severely cripples what IITC can do, as using this
-extra data, not displayed by the standard site, was it's big feature.
+extra data, not displayed by the standard site, was it' big feature.
 </p>
 <p>
 We will look into what can be done to get it working again, but it will take some time. Many plugins won't be practical 
