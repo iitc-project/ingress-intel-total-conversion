@@ -28,6 +28,8 @@ window.plugin.scoreboard.resetTeam = function(team) {
   var scores = window.plugin.scoreboard.scores['team'];
   scores[team] = {};
   scores[team]['mu'] = 0;
+  scores[team]['count_agents'] = 0;
+  scores[team]['count_virus'] = 0;
   scores[team]['count_fields'] = 0;
   scores[team]['count_links'] = 0;
   scores[team]['count_portals'] = 0;
@@ -133,6 +135,17 @@ window.plugin.scoreboard.compileStats = function() {
       });
     }
   });
+  
+  $.each(scores['player'], function(id, player) {
+    var playerName = window.getPlayerName(id);
+    console.log(playerName);
+    console.log(id);
+    if(id === ('0000000000000000000000000000000' + player.team + ".c")) {
+      scores['team'][player.team]['count_virus']++;
+    } else {
+      scores['team'][player.team]['count_agents']++;
+    }
+  });
   return somethingInView;
 };
 
@@ -235,6 +248,8 @@ window.plugin.scoreboard.display = function() {
   if(somethingInView) {
    scoreHtml += '<table>'
       + '<tr><th></th><th class="number">Resistance</th><th class="number">Enlightened</th><th class="number">Total</th></tr>'
+      + window.plugin.scoreboard.teamTableRow('count_agents','Agents')
+      + window.plugin.scoreboard.teamTableRow('count_virus','Virus')
       + window.plugin.scoreboard.teamTableRow('count_fields','Field #')
       + window.plugin.scoreboard.teamTableRow('field_area','Field (km&sup2;)')
       + window.plugin.scoreboard.teamTableRow('count_links','Link #')
