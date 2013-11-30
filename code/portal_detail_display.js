@@ -28,8 +28,9 @@ window.renderPortalDetails = function(guid) {
   var randDetails = details ? getPortalRandDetails(details) : '';
   var resoDetails = details ? getResonatorDetails(details) : '';
 
-
-  
+//TODO? other status details...
+  var statusDetails = details ? '' : '<div id="portalStatus">Loading details...</div>';
+ 
 
   var img = fixPortalImageUrl(details ? details.imageByUrl && details.imageByUrl.imageUrl : data.image);
   var title = details ? details.portalV2.descriptiveText.TITLE : data.title;
@@ -131,11 +132,9 @@ window.renderPortalDetails = function(guid) {
       ),
 
       modDetails,
-
       randDetails,
-
       resoDetails,
-
+      statusDetails,
       '<div class="linkdetails">' + linkDetails.join('') + '</div>'
     );
 

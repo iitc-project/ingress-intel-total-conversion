@@ -112,7 +112,8 @@ window.getAttackApGain = function(d) {
       return true;
     resoCount += 1;
     var reslevel=parseInt(reso.level);
-    if(reso.ownerGuid === PLAYER.guid) {
+    // NOTE: reso.ownerGuid is actually the name - no player GUIDs are visible in the protocol any more
+    if(reso.ownerGuid === PLAYER.nickname) {
       if(maxResonators[reslevel] > 0) {
         maxResonators[reslevel] -= 1;
       }
@@ -167,7 +168,8 @@ window.potentialPortalLevel = function(d) {
       player_resontators[i] = i > PLAYER.level ? 0 : MAX_RESO_PER_PLAYER[i];
     }
     $.each(resonators_on_portal, function(ind, reso) {
-      if(reso !== null && reso.ownerGuid === window.PLAYER.guid) {
+      // NOTE: reso.ownerGuid is actually the player name - GUIDs are not in the protocol any more
+      if(reso !== null && reso.ownerGuid === window.PLAYER.nickname) {
         player_resontators[reso.level]--;
       }
       resonator_levels.push(reso === null ? 0 : reso.level);  
