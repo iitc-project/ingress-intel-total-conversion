@@ -147,9 +147,6 @@ window.renderPortalDetails = function(guid) {
       + '</div>'
     );
 
-  // try to resolve names that were required for above functions, but
-  // weren't available yet.
-  resolvePlayerNames();
 
   runHooks('portalDetailsUpdated', {portalDetails: d});
 }

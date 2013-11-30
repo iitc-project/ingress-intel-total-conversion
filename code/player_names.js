@@ -57,62 +57,6 @@ window.playerNameToGuid = function(playerName) {
   return guid;
 }
 
-// resolves all player GUIDs that have been added to the list. Reruns
-// renderPortalDetails when finished, so that then-unresolved names
-// get replaced by their correct versions.
-window.resolvePlayerNames = function() {
-  if(window.playersToResolve.length === 0) return;
-
-  //limit per request. stock site is never more than 13 (8 res, 4 mods, owner)
-  //testing shows 15 works and 20 fails
-  var MAX_RESOLVE_PLAYERS_PER_REQUEST = 15;
-  var MAX_RESOLVE_REQUESTS = 8;
-
-  if (window.playersToResolve.length > MAX_RESOLVE_PLAYERS_PER_REQUEST*MAX_RESOLVE_REQUESTS) {
-    console.log('Warning: player name resolve queue had '+window.playersToResolve.length+' entries. Limiting to the first '+MAX_RESOLVE_PLAYERS_PER_REQUEST*MAX_RESOLVE_REQUESTS+' to prevent excessive requests');
-    window.playersToResolve = playersToResolve.slice(0,MAX_RESOLVE_PLAYERS_PER_REQUEST*MAX_RESOLVE_REQUESTS);
-  }
-
-  var p = window.playersToResolve.slice(0,MAX_RESOLVE_PLAYERS_PER_REQUEST);
-  window.playersToResolve = playersToResolve.slice(MAX_RESOLVE_PLAYERS_PER_REQUEST);
-
-  var d = {guids: p};
-  window.playersInResolving = window.playersInResolving.concat(p);
-
-  postAjax('getPlayersByGuids', d, function(dat) {
-    var resolvedName = {};
-    if(dat.result) {
-      $.each(dat.result, function(ind, player) {
-        window.setPlayerName(player.guid, player.nickname);
-        resolvedName[player.guid] = player.nickname;
-        // remove from array
-        window.playersInResolving.splice(window.playersInResolving.indexOf(player.guid), 1);
-      });
-    } else {
-      //no 'result' - a successful http request, but the returned result was an error of some kind
-      console.warn('getplayers problem - no result in response: '+dat);
-
-      //likely to be some kind of 'bad request' (e.g. too many names at once, or otherwise badly formatted data.
-      //therefore, not a good idea to automatically retry by adding back to the playersToResolve list
-    }
-
-    // Run hook 'playerNameResolved' with the resolved player names
-    window.runHooks('playerNameResolved', {names: resolvedName});
-
-    //TODO: have an event triggered for this instead of hard-coded single function call
-    if(window.selectedPortal)
-      window.renderPortalDetails(window.selectedPortal);
-
-    //if more to do, run again
-    if(window.playersToResolve.length>0) resolvePlayerNames();
-  },
-  function() {
-    // append failed resolves to the list again
-    console.warn('resolving player guids failed: ' + p.join(', '));
-    window.playersToResolve.concat(p);
-  });
-}
-
 
 window.setPlayerName = function(guid, nick, uncertain) {
   // the 'uncertain' flag is set when we're scrolling back through chat. it's possible in this case

@@ -171,7 +171,7 @@ window.artifact.updateLayer = function() {
   artifact._layer.clearLayers();
 
   $.each(artifact.portalInfo, function(guid,data) {
-    var latlng = L.latLng ([data._entityData.locationE6.latE6/1E6, data._entityData.locationE6.lngE6/1E6]);
+    var latlng = L.latLng ([data._entityData.latE6/1E6, data._entityData.lngE6/1E6]);
 
     // jarvis shard icon
     var iconUrl = undefined;
@@ -235,7 +235,7 @@ window.artifact.showArtifactList = function() {
 
         var sortVal = 0;
 
-        var onclick = 'zoomToAndShowPortal(\''+guid+'\',['+data._entityData.locationE6.latE6/1E6+','+data._entityData.locationE6.lngE6/1E6+'])';
+        var onclick = 'zoomToAndShowPortal(\''+guid+'\',['+data._entityData.latE6/1E6+','+data._entityData.lngE6/1E6+'])';
         var row = '<tr><td class="portal"><a onclick="'+onclick+'" title="'+escapeHtmlSpecialChars(data._entityData.portalV2.descriptiveText.ADDRESS||'')+'">'+escapeHtmlSpecialChars(data._entityData.portalV2.descriptiveText.TITLE)+'</a></td>';
 
         row += '<td class="info">';

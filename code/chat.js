@@ -127,7 +127,7 @@ window.chat.requestFaction = function(getOlderMsgs, isRetry) {
 
   var d = chat.genPostData(true, chat._faction, getOlderMsgs);
   var r = window.postAjax(
-    'getPaginatedPlextsV2',
+    'getPaginatedPlexts',
     d,
     function(data, textStatus, jqXHR) { chat.handleFaction(data, getOlderMsgs); },
     isRetry
@@ -178,7 +178,7 @@ window.chat.requestPublic = function(getOlderMsgs, isRetry) {
 
   var d = chat.genPostData(false, chat._public, getOlderMsgs);
   var r = window.postAjax(
-    'getPaginatedPlextsV2',
+    'getPaginatedPlexts',
     d,
     function(data, textStatus, jqXHR) { chat.handlePublic(data, getOlderMsgs); },
     isRetry
