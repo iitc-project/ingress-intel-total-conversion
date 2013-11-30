@@ -277,7 +277,7 @@ window.Render.prototype.createPortalEntity = function(ent) {
     ent: ent,  // LEGACY - TO BE REMOVED AT SOME POINT! use .guid, .timestamp and .details instead
     guid: ent[0],
     timestamp: ent[1],
-    data: { summary: ent[2] },
+    data: ent[2]
   };
 
   var marker = createMarker(latlng, dataOptions);
