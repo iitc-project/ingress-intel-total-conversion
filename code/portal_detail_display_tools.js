@@ -184,7 +184,8 @@ window.getResonatorDetails = function(d) {
 
     resoDetails.push(renderResonatorDetails(slot, l, v, dist, nick));
   });
-  return genFourColumnTable(resoDetails);
+  return '<table id="resodetails">' + genFourColumnTable(resoDetails) + '</table>';
+
 }
 
 // helper function that renders the HTML for a given resonator. Does

@@ -194,10 +194,8 @@ window.potentialPortalLevel = function(d) {
 }
 
 
-window.getPortalImageUrl = function(d) {
-  if (d.imageByUrl && d.imageByUrl.imageUrl) {
-    url = d.imageByUrl.imageUrl;
-
+window.fixPortalImageUrl = function(url) {
+  if (url) {
     if (window.location.protocol === 'https:') {
       url = url.indexOf('www.panoramio.com') !== -1
             ? url.replace(/^http:\/\/www/, 'https://ssl').replace('small', 'medium')
