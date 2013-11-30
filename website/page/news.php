@@ -18,6 +18,11 @@ as the data will not be available.
 More details, and discussion, available in the
 <a href="https://plus.google.com/105383756361375410867/posts/E65qngRjR2T">Google+ post</a>.
 </p>
+<p>
+<b>Update</b> I've created a 'dummy' version of the desktop plugin that will, for now, disable IITC if you leave it installed.
+This is shown as version 0.15.99. When a fixed build is released, it will be 0.16.something and will update and start working.
+Test versions remain, but broken. Please join the Google+ Community where announcements will be made.
+</p>
 </div>
 
 <h4>11th November 2013</h4>
