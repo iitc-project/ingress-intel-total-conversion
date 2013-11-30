@@ -60,8 +60,6 @@ var requestParameterMunges = [
 ];
 
 
-var activeRequestMungeSet = undefined;
-
 
 // in the recent stock site updates, their javascript code has been less obfuscated, but also the munge parameters
 // change on every release. I can only assume it's now an integrated step in the build/release system, rather
@@ -72,14 +70,15 @@ function extractMungeFromStock() {
     var foundMunges = {};
 
     // these are easy - directly available in variables
-    foundMunges['dashboard.getArtifactInfo'] = nemesis.dashboard.requests.MethodName.GET_ARTIFACT_INFO;
-    foundMunges['dashboard.getGameScore'] = nemesis.dashboard.requests.MethodName.GET_GAME_SCORE;
-    foundMunges['dashboard.getPaginatedPlexts'] = nemesis.dashboard.requests.MethodName.GET_PAGINATED_PLEXTS;
-    foundMunges['dashboard.getThinnedEntities'] = nemesis.dashboard.requests.MethodName.GET_THINNED_ENTITIES;
-    foundMunges['dashboard.getPortalDetails'] = nemesis.dashboard.requests.MethodName.GET_PORTAL_DETAILS;
-    foundMunges['dashboard.redeemReward'] = nemesis.dashboard.requests.MethodName.REDEEM_REWARD;
-    foundMunges['dashboard.sendInviteEmail'] = nemesis.dashboard.requests.MethodName.SEND_INVITE_EMAIL;
-    foundMunges['dashboard.sendPlext'] = nemesis.dashboard.requests.MethodName.SEND_PLEXT;
+    // NOTE: the .toString() is there so missing variables throw an exception, rather than storing 'undefined'
+    foundMunges['dashboard.getArtifactInfo'] = nemesis.dashboard.requests.MethodName.GET_ARTIFACT_INFO.toString();
+    foundMunges['dashboard.getGameScore'] = nemesis.dashboard.requests.MethodName.GET_GAME_SCORE.toString();
+    foundMunges['dashboard.getPaginatedPlexts'] = nemesis.dashboard.requests.MethodName.GET_PAGINATED_PLEXTS.toString();
+    foundMunges['dashboard.getThinnedEntities'] = nemesis.dashboard.requests.MethodName.GET_THINNED_ENTITIES.toString();
+    foundMunges['dashboard.getPortalDetails'] = nemesis.dashboard.requests.MethodName.GET_PORTAL_DETAILS.toString();
+    foundMunges['dashboard.redeemReward'] = nemesis.dashboard.requests.MethodName.REDEEM_REWARD.toString();
+    foundMunges['dashboard.sendInviteEmail'] = nemesis.dashboard.requests.MethodName.SEND_INVITE_EMAIL.toString();
+    foundMunges['dashboard.sendPlext'] = nemesis.dashboard.requests.MethodName.SEND_PLEXT.toString();
 
     // the rest are trickier - we need to parse the functions of the stock site. these break very often
     // on site updates
@@ -158,44 +157,32 @@ window.detectActiveMungeSet = function() {
   // first, try and parse the stock functions and extract the munges directly
   activeMunge = extractMungeFromStock();
   if (activeMunge) {
-    console.log('IITC: Successfully extracted munges from stock javascript');
-    return;
-  }
-
-  // try and find the stock page functions
-  // FIXME? revert to searching through all the code? is that practical?
-  var stockFunc;
-  try {
-    stockFunc = nemesis.dashboard.network.XhrController.prototype.doSendRequest_.toString();
-  } catch(e) {
-    try {
-      stockFunc = nemesis.dashboard.network.XhrController.prototype.sendRequest.toString();
-    } catch(e) {
-      try {
-        stockFunc = nemesis.dashboard.network.DataFetcher.prototype.sendRequest_.toString();
-      } catch(e) {
-        console.warn('Failed to find a relevant function in the stock site');
-      }
-    }
-  }
-
-  if(stockFunc) {
-    for (var i in requestParameterMunges) {
-      if (stockFunc.indexOf (requestParameterMunges[i]['method']) >= 0) {
-        console.log('IITC: found request munge set index '+i+' in stock intel site');
-        activeRequestMungeSet = i;
-      }
-    }
+    console.log('IITC: Successfully extracted munges from stock javascript - excellent work!');
   } else {
-    console.error('IITC: failed to find the stock site function for detecting munge set');
+    console.warn('IITC: failed to detect a munge set from the code - searching our list...');
+
+    // try to find a matching munge set from the pre-defined ones. this code remains as in the case of
+    // things breaking it can be quicker to update the table than to fix the regular expressions used
+    // above
+
+    try {
+      for (var i in requestParameterMunges) {
+        if (requestParameterMunges[i]['dashboard.getThinnedEntities'] == nemesis.dashboard.requests.MethodName.GET_THINNED_ENTITIES) {
+          console.log('IITC: found a match with munge set index '+i);
+          activeMunge = requestParameterMunges[i];
+          break;
+        }
+      }
+    } catch(e) {
+      console.warn('IITC: failed to find matching munge set from supplied list');
+    }
   }
 
-  if (activeRequestMungeSet===undefined) {
-    console.error('IITC: failed to find request munge set - IITC will likely fail');
-    activeRequestMungeSet = 0;
+  if (!activeMunge) {
+    console.warn('IITC: Error!! failed to find a parameter munge set - neither extracting from stock, or searching through table. IITC CANNOT WORK');
+    throw {error:'Failed to find a munge set'};
   }
 
-  activeMunge = requestParameterMunges[activeRequestMungeSet];
 }
 
 
