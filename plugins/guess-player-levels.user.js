@@ -84,13 +84,15 @@ window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
   var el = $(dom);
   var nick = el.text();
 
-  var level = window.plugin.guessPlayerLevels.fetchLevelByPlayer(nick);
+  var details = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(nick);
 
   var text;
-  if (level) {
-    text = 'Min player level: ' + level + ' (guessed)';
-  } else {
-    text = 'Min player level unknown';
+  if(details.min == 8)
+    text = 'Player level: 8';
+  else {
+    text = 'Min player level: ' + details.min;
+    if(details.min != details.guessed)
+      text += '\nGuessed player level: ' + details.guessed;
   }
   window.setupTooltips(el);
 

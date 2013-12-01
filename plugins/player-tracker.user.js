@@ -311,16 +311,22 @@ window.plugin.playerTracker.drawData = function() {
     var popup = '<span class="nickname '+cssClass+'" style="font-weight:bold;">' + playerData.nick + '</span>';
 
     if(window.plugin.guessPlayerLevels !== undefined &&
-       window.plugin.guessPlayerLevels.fetchLevelByPlayer !== undefined) {
-      var playerLevel = window.plugin.guessPlayerLevels.fetchLevelByPlayer(pguid);
-      if(playerLevel !== undefined) {
-        popup += '<span style="font-weight:bold;margin-left:10px;">Level '
-          + playerLevel
-          + ' (guessed)'
-          + '</span>';
-      } else {
-        popup += '<span style="font-weight:bold;margin-left:10px;">Level unknown</span>'
+       window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer !== undefined) {
+      function getLevel(lvl) {
+        return '<span style="padding:4px;color:white;background-color:'+COLORS_LVL[lvl]+'">'+lvl+'</span>';
       }
+      popup += '<span style="font-weight:bold;margin-left:10px;">';
+
+      var playerLevelDetails = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(pguid);
+      if(playerLevelDetails.min == 8) {
+        popup += 'Level ' + getLevel(8);
+      } else {
+        popup += 'Min level: ' + getLevel(playerLevelDetails.min);
+        if(playerLevelDetails.min != playerLevelDetails.guessed)
+          popup += ', guessed level: ' + getLevel(playerLevelDetails.guessed);
+      }
+
+      popup += '</span>';
     }
     
     popup += '<br>'
