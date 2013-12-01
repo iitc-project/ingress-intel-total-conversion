@@ -1,6 +1,10 @@
 /// PORTAL DETAIL //////////////////////////////////////
 // code to retrieve the new potal detail data from the servers
 
+// NOTE: the API for portal detailed information is NOT FINAL
+// this is a temporary measure to get things working again after a major change to the intel map
+// API. expect things to change here
+
 
 // anonymous function wrapper for the code - any variables/functions not placed into 'window' will be private
 (function(){
