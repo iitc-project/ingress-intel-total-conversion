@@ -82,7 +82,7 @@ window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
 }
 
 window.plugin.guessPlayerLevels.setupChatNickHelper = function() {
-  $(document).on('mouseenter', '.nickname', function() {
+  $(document).on('mouseenter', '.nickname, .pl_nudge_player', function() {
     window.plugin.guessPlayerLevels.setLevelTitle(this);
   });
 }
