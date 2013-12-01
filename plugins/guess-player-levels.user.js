@@ -246,18 +246,30 @@ window.plugin.guessPlayerLevels.guess = function() {
   var totallvlR = 0;
   var totallvlE = 0;
   var max = Math.max(namesR.length, namesE.length);
-  for(var i = 0; i < max; i++) {
-    var nickR = namesR[i];
-    var lvlR = playersRes[nickR];
-    var lineR = nickR ? nickR + ':\t' + lvlR : '\t';
-    if(!isNaN(parseInt(lvlR)))
-        totallvlR += parseInt(lvlR);
 
-    var nickE = namesE[i];
-    var lvlE = playersEnl[nickE];
-    var lineE = nickE ? nickE + ':\t' + lvlE : '\t';
-    if(!isNaN(parseInt(lvlE)))
-        totallvlE += parseInt(lvlE);
+  function makeRow(nick, lvl, team) {
+    if(!nick)
+      return '\t';
+
+    var color = COLORS[team];
+    if (nick === window.PLAYER.nickname) color = '#fd6'; //highlight the player's name in a unique colour (similar to @player mentions from others in the chat text itself)
+
+    return '<mark class="nickname" style="color:'+color+'">'+nick+'</mark>\t' + lvl;
+  }
+
+  var nick, lvl, lineE, lineR;
+  for(var i = 0; i < max; i++) {
+    nick = namesR[i];
+    lvl = playersRes[nick];
+    lineR = makeRow(nick, lvl, TEAM_RES);
+    if(!isNaN(parseInt(lvl)))
+      totallvlR += parseInt(lvl);
+
+    nick = namesE[i];
+    lvl = playersEnl[nick];
+    lineE = makeRow(nick, lvl, TEAM_ENL);
+    if(!isNaN(parseInt(lvl)))
+      totallvlE += parseInt(lvl);
 
     s += '\n'+lineR + '\t' + lineE + '\n';
   }
