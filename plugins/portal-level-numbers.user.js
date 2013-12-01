@@ -38,7 +38,8 @@ window.plugin.portalLevelNumbers.portalAdded = function(data) {
 window.plugin.portalLevelNumbers.renderLevel = function(guid,latLng) {
     plugin.portalLevelNumbers.removeLevel(guid);
 
-    var levelNumber = window.portals[guid].options.level;
+    var p = window.portals[guid];
+    var levelNumber = p.options.level;
     var level = L.marker(latLng, {
       icon: L.divIcon({
         className: 'plugin-portal-level-numbers',
