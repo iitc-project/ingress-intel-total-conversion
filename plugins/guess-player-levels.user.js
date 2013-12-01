@@ -2,7 +2,7 @@
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           IITC plugin: guess player level
 // @category       Info
-// @version        0.4.9.@@DATETIMEVERSION@@
+// @version        0.4.10.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -212,11 +212,6 @@ window.plugin.guessPlayerLevels.guess = function() {
     buttons: {
       'RESET GUESSES': function() {
         // clear all guessed levels from local storage
-        $.each(Object.keys(localStorage), function(ind,key) {// legacy code - should be removed in the future
-          if(key.lastIndexOf("level-",0)===0) {
-            localStorage.removeItem(key);
-          }
-        });
         localStorage.removeItem("plugin-guess-player-levels")
         window.plugin.guessPlayerLevels._nameToLevelCache = {}
         // now force all portals through the callback manually
@@ -245,6 +240,14 @@ window.plugin.guessPlayerLevels.sort = function(playerHash) {
 
 
 var setup =  function() {
+  // we used to sture level guesses as one localStorage key per player, named 'level-PLAYER_GUID'
+  // they're now stored in a single storage key - 'plugin-guess-player-levels' - so clear these old entries
+  $.each(Object.keys(localStorage), function(ind,key) {// legacy code - should be removed in the future
+    if(key.lastIndexOf("level-",0)===0) {
+      localStorage.removeItem(key);
+    }
+  });
+
   window.plugin.guessPlayerLevels.setupCallback();
   window.plugin.guessPlayerLevels.setupChatNickHelper();
 }
