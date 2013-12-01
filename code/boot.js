@@ -540,6 +540,7 @@ function boot() {
   window.setupPlayerStat();
   window.setupTooltips();
   window.chat.setup();
+  window.portalDetail.setup();
   window.setupQRLoadLib();
   window.setupLayerChooserSelectOne();
   window.setupLayerChooserStatusRecorder();

@@ -3,11 +3,14 @@
 // methods that highlight the portal in the map view.
 
 window.renderPortalDetails = function(guid) {
-  // TODO: start a request for the selected portal detailed data
-  // (do this even if not in window.portals?)
-
   selectPortal(window.portals[guid] ? guid : null);
 
+  if (!portalDetail.isFresh(guid)) {
+    portalDetail.request(guid);
+  }
+
+  // TODO? handle the case where we request data for a particular portal GUID, but it *isn't* in
+  // window.portals....
 
   if(!window.portals[guid]) {
     urlPortal = guid;
@@ -21,11 +24,11 @@ window.renderPortalDetails = function(guid) {
 
   var portal = window.portals[guid];
   var data = portal.options.data;
-  var details = undefined; //TODO: get the details
+  var details = portalDetail.get(guid);
 
 
   var modDetails = details ? '<div class="mods">'+getModDetails(details)+'</div>' : '';
-  var randDetails = details ? getPortalRandDetails(details) : '';
+  var miscDetails = details ? getPortalMiscDetails(guid,details) : '';
   var resoDetails = details ? getResonatorDetails(details) : '';
 
 //TODO? other status details...
@@ -132,7 +135,7 @@ window.renderPortalDetails = function(guid) {
       ),
 
       modDetails,
-      randDetails,
+      miscDetails,
       resoDetails,
       statusDetails,
       '<div class="linkdetails">' + linkDetails.join('') + '</div>'
@@ -144,7 +147,7 @@ window.renderPortalDetails = function(guid) {
 
 
 
-window.getRandPortalDetails = function(d) {
+window.getPortalMiscDetails = function(guid,d) {
 
   var randDetails;
 
@@ -160,7 +163,7 @@ window.getRandPortalDetails = function(d) {
     var linksText = [linkExpl('links'), linkExpl(' ↳ ' + links.incoming+'&nbsp;&nbsp;•&nbsp;&nbsp;'+links.outgoing+' ↴')];
 
     var player = d.captured && d.captured.capturingPlayerId
-      ? '<span class="nickname">' + getPlayerName(d.captured.capturingPlayerId) + '</span>'
+      ? '<span class="nickname">' + d.captured.capturingPlayerId + '</span>'
       : null;
     var playerText = player ? ['owner', player] : null;
 

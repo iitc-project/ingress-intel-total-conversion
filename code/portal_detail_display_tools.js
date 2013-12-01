@@ -102,7 +102,7 @@ window.getModDetails = function(d) {
 
       modTooltip = modName + '\n';
       if (mod.installingUser) {
-        modTooltip += 'Installed by: '+ getPlayerName(mod.installingUser) + '\n';
+        modTooltip += 'Installed by: '+ mod.installingUser + '\n';
       }
 
       if (mod.stats) {
@@ -176,7 +176,7 @@ window.getResonatorDetails = function(d) {
 
     var l = parseInt(reso.level);
     var v = parseInt(reso.energyTotal);
-    var nick = window.getPlayerName(reso.ownerGuid);
+    var nick = reso.ownerGuid;
     var dist = reso.distanceToPortal;
     // if array order and slot order drift apart, at least the octant
     // naming will still be correct.
