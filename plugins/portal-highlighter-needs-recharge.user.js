@@ -24,7 +24,7 @@ window.plugin.portalHighligherNeedsRecharge = function() {};
 window.plugin.portalHighligherNeedsRecharge.highlight = function(data) {
   var d = data.portal.options.data;
   var portal_health = d.health/100;
-  if(portal_health > 0 && portal_health < 1) {
+  if(data.portal.options.team != TEAM_NONE && portal_health < 1) {
     var fill_opacity = (1-portal_health)*.85 + .15;
     var color;
     if (portal_health > .85) color = 'yellow';
