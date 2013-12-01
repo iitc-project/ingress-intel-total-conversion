@@ -21,26 +21,44 @@
 // use own namespace for plugin
 window.plugin.guessPlayerLevels = function() {};
 
+// we prepend a hash sign (#) in front of the player name in storage in order to prevent accessing a pre-defined property
+// (like constructor, __defineGetter__, etc.
+
 window.plugin.guessPlayerLevels.setupCallback = function() {
   $('#toolbox').append(' <a onclick="window.plugin.guessPlayerLevels.guess()" title="Show player level guesses based on resonator placement in displayed portals">Guess player levels</a>');
-  addHook('portalAdded', window.plugin.guessPlayerLevels.extractPortalData);
+  addHook('portalDetailLoaded', window.plugin.guessPlayerLevels.extractPortalData);
 }
 
 
 // This function is intended to be called by other plugins
-window.plugin.guessPlayerLevels.fetchLevelByPlayer = function(guid) {
-  return(window.localStorage['level-' + guid]);
+window.plugin.guessPlayerLevels.fetchLevelByPlayer = function(nick) {
+  var cache = window.plugin.guessPlayerLevels._nameToLevelCache;
+
+  if(cache["#" + nick] === undefined) {
+    // no use in reading localStorage repeatedly
+    if(window.plugin.guessPlayerLevels._localStorageLastUpdate < Date.now() - 10*1000) {
+      try {
+        cache = JSON.parse(localStorage["plugin-guess-player-levels"])
+        window.plugin.guessPlayerLevels._nameToLevelCache = cache;
+        window.plugin.guessPlayerLevels._localStorageLastUpdate = Date.now();
+      } catch(e) {
+      }
+    }
+  }
+
+  return cache["#" + nick];
 }
 
-window.plugin.guessPlayerLevels._nameToGuidCache = {};
+window.plugin.guessPlayerLevels._nameToLevelCache = {};
+window.plugin.guessPlayerLevels._localStorageLastUpdate = 0;
 
 window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
   // expects dom node with nick in its child text node
 
   var el = $(dom);
   var nick = el.text();
-  var guid = window.playerNameToGuid(nick);
-  var level = guid ? localStorage['level-'+guid] : null;
+
+  var level = window.plugin.guessPlayerLevels.fetchLevelByPlayer(nick);
 
   var text;
   if (level) {
@@ -49,7 +67,7 @@ window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
     text = 'Min player level unknown';
   }
   window.setupTooltips(el);
- 
+
   /*
   This code looks hacky but since we are a little late within the mouseenter so
   we need to improvise a little. The open method doesn't open the tooltip directly.
@@ -69,7 +87,9 @@ window.plugin.guessPlayerLevels.setupChatNickHelper = function() {
 }
 
 window.plugin.guessPlayerLevels.extractPortalData = function(data) {
-  var r = data.portal.options.details.resonatorArray.resonators;
+  if(!data.success) return;
+
+  var r = data.details.resonatorArray.resonators;
 
   //due to the Jarvis Virus/ADA Refactor it's possible for a player to own resonators on a portal
   //at a higher level than the player themselves. It is not possible to detect for sure when this
@@ -96,29 +116,61 @@ window.plugin.guessPlayerLevels.extractPortalData = function(data) {
 
   $.each(perPlayerResMaxLevel, function(guid, level) {
     if (perPlayerResMaxLevelCount[guid] <= window.MAX_RESO_PER_PLAYER[level]) {
-      var p = 'level-'+guid;
-      if(!window.localStorage[p] || window.localStorage[p] < level)
-        window.localStorage[p] = level;
+      window.plugin.guessPlayerLevels.savePlayerLevel(guid, level);
     }
   });
+}
+
+window.plugin.guessPlayerLevels.savePlayerLevel = function(nick, level) {
+  var stored = window.plugin.guessPlayerLevels.fetchLevelByPlayer(nick);
+  if(stored && stored >= level)
+    return;
+
+  window.plugin.guessPlayerLevels._nameToLevelCache["#" + nick] = level;
+
+  // to minimize accesses to localStorage, writing is delayed a bit
+
+  if(window.plugin.guessPlayerLevels._writeTimeout)
+    clearTimeout(window.plugin.guessPlayerLevels._writeTimeout);
+
+  window.plugin.guessPlayerLevels._writeTimeout = setTimeout(function() {
+    localStorage["plugin-guess-player-levels"] = JSON.stringify(window.plugin.guessPlayerLevels._nameToLevelCache);
+  }, 500);
 }
 
 window.plugin.guessPlayerLevels.guess = function() {
   var playersRes = {};
   var playersEnl = {};
-  $.each(window.portals, function(ind, portal) {
-    var r = portal.options.details.resonatorArray.resonators;
-    $.each(r, function(ind, reso) {
-      if(!reso) return true;
-      if(isSystemPlayer(reso.ownerGuid)) return true;
+  $.each(window.portals, function(guid,p) {
+    var details = portalDetail.get(guid);
+    if(details) {
+      var r = details.resonatorArray.resonators;
+      $.each(r, function(ind, reso) {
+        if(!reso) return true;
+        var nick = reso.ownerGuid;
+        if(isSystemPlayer(nick)) return true;
 
-      var lvl = localStorage['level-' + reso.ownerGuid];
-      var nick = getPlayerName(reso.ownerGuid);
-      if(portal.options.team === TEAM_ENL)
-        playersEnl[nick] = lvl;
-      else
-        playersRes[nick] = lvl;
-    });
+        var lvl = window.plugin.guessPlayerLevels.fetchLevelByPlayer(nick);
+        if(!lvl) return true;
+
+        if(getTeam(details) === TEAM_ENL)
+          playersEnl[nick] = lvl;
+        else
+          playersRes[nick] = lvl;
+      });
+
+      if(details.captured) {
+        var nick = details.captured.capturingPlayerId
+        if(isSystemPlayer(nick)) return true;
+        var lvl = window.plugin.guessPlayerLevels.fetchLevelByPlayer(nick);
+        if(!lvl) return true;
+
+        if(getTeam(details) === TEAM_ENL)
+          playersEnl[nick] = lvl;
+        else
+          playersRes[nick] = lvl;
+      }
+    }
   });
 
   var s = 'Players have at least the following level:\n\n';
@@ -151,7 +203,7 @@ window.plugin.guessPlayerLevels.guess = function() {
   if (namesE.length > 0)  averageE = (totallvlE/namesE.length);
   s += '\nAverage level:\t'+averageR.toFixed(2)+'\tAverage level:\t'+averageE.toFixed(2);
   s += '\n\nIf there are some unresolved names, simply try again.'
-  //console.log(s);
+
   dialog({
     text: s,
     title: 'Player levels: R' + averageR.toFixed(2) + ', E' + averageE.toFixed(2),
@@ -160,24 +212,24 @@ window.plugin.guessPlayerLevels.guess = function() {
     buttons: {
       'RESET GUESSES': function() {
         // clear all guessed levels from local storage
-        $.each(Object.keys(localStorage), function(ind,key) {
+        $.each(Object.keys(localStorage), function(ind,key) {// legacy code - should be removed in the future
           if(key.lastIndexOf("level-",0)===0) {
             localStorage.removeItem(key);
           }
         });
+        localStorage.removeItem("plugin-guess-player-levels")
+        window.plugin.guessPlayerLevels._nameToLevelCache = {}
         // now force all portals through the callback manually
         $.each(window.portals, function(guid,p) {
-          window.plugin.guessPlayerLevels.extractPortalData({portal: p});
+          var details = portalDetail.get(guid);
+          if(details)
+            window.plugin.guessPlayerLevels.extractPortalData({details:details, success:true});
         });
         // and re-open the dialog (on a minimal timeout - so it's not closed while processing this callback)
         setTimeout(window.plugin.guessPlayerLevels.guess,1);
       },
-    },
-
+    }
   });
-
-  //run the name resolving process
-  resolvePlayerNames();
 }
 
 window.plugin.guessPlayerLevels.sort = function(playerHash) {
