@@ -35,23 +35,48 @@ window.plugin.guessPlayerLevels.setupCallback = function() {
 window.plugin.guessPlayerLevels.fetchLevelByPlayer = function(nick) {
   var cache = window.plugin.guessPlayerLevels._nameToLevelCache;
 
-  if(cache['#' + nick] === undefined) {
-    // no use in reading localStorage repeatedly
-    if(window.plugin.guessPlayerLevels._localStorageLastUpdate < Date.now() - 10*1000) {
-      try {
-        cache = JSON.parse(localStorage['plugin-guess-player-levels'])
-        window.plugin.guessPlayerLevels._nameToLevelCache = cache;
-        window.plugin.guessPlayerLevels._localStorageLastUpdate = Date.now();
-      } catch(e) {
-      }
-    }
-  }
+  if(cache['#' + nick] === undefined)
+    cache = window.plugin.guessPlayerLevels._loadLevels();
 
-  return cache['#' + nick];
+  var details = cache['#' + nick];
+  if(details === undefined)
+    return 1;
+  if(typeof details === 'number')
+    return details;
+  return details.guessed;
+}
+
+// This function is intended to be called by other plugins
+window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer = function(nick) {
+  var cache = window.plugin.guessPlayerLevels._nameToLevelCache;
+
+  if(cache['#' + nick] === undefined)
+    cache = window.plugin.guessPlayerLevels._loadLevels();
+
+  var details = cache['#' + nick];
+  if(details === undefined)
+    return {min: 1, guessed: 1};
+  if(typeof details === 'number')
+    return {min: 1, guessed: details};
+  return details;
 }
 
 window.plugin.guessPlayerLevels._nameToLevelCache = {};
 window.plugin.guessPlayerLevels._localStorageLastUpdate = 0;
+
+window.plugin.guessPlayerLevels._loadLevels = function() {
+  // no use in reading localStorage repeatedly
+  if(window.plugin.guessPlayerLevels._localStorageLastUpdate < Date.now() - 10*1000) {
+    try {
+      var cache = JSON.parse(localStorage['plugin-guess-player-levels'])
+      window.plugin.guessPlayerLevels._nameToLevelCache = cache;
+      window.plugin.guessPlayerLevels._localStorageLastUpdate = Date.now();
+    } catch(e) {
+    }
+  }
+
+  return window.plugin.guessPlayerLevels._nameToLevelCache;
+}
 
 window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
   // expects dom node with nick in its child text node
@@ -136,17 +161,35 @@ window.plugin.guessPlayerLevels.extractChatData = function(data) {
 		&& plext.markup[3][1].plain == ' Resonator on ') {
 			var nick = plext.markup[0][1].plain;
 			var lvl = parseInt(plext.markup[2][1].plain.substr(1));
-			window.plugin.guessPlayerLevels.savePlayerLevel(nick, lvl);
+			window.plugin.guessPlayerLevels.savePlayerLevel(nick, lvl, true);
 		}
 	});
 };
 
-window.plugin.guessPlayerLevels.savePlayerLevel = function(nick, level) {
-  var stored = window.plugin.guessPlayerLevels.fetchLevelByPlayer(nick);
-  if(stored && stored >= level)
-    return;
+window.plugin.guessPlayerLevels.savePlayerLevel = function(nick, level, safe) {
+  var cache = window.plugin.guessPlayerLevels._loadLevels();
 
-  window.plugin.guessPlayerLevels._nameToLevelCache['#' + nick] = level;
+  var details = cache['#' + nick];
+  if(details === undefined)
+    details = {min: 1, guessed: 1};
+  if(typeof details === 'number')
+    details = {min: 1, guessed: details};
+
+  if(safe) {
+    if(details.min >= level)
+      return;
+
+    details.min = level;
+    if(details.guessed < details.min)
+      details.guessed = details.min;
+  } else {
+    if(details.guessed >= level)
+      return;
+
+    details.guessed = level;
+  }
+
+  window.plugin.guessPlayerLevels._nameToLevelCache['#' + nick] = details;
 
   // to minimize accesses to localStorage, writing is delayed a bit
 
@@ -263,7 +306,7 @@ var setup =  function() {
   // we used to sture level guesses as one localStorage key per player, named 'level-PLAYER_GUID'
   // they're now stored in a single storage key - 'plugin-guess-player-levels' - so clear these old entries
   $.each(Object.keys(localStorage), function(ind,key) {// legacy code - should be removed in the future
-    if(key.lastIndexOf("level-",0)===0) {
+    if(key.lastIndexOf('level-',0)===0) {
       localStorage.removeItem(key);
     }
   });
