@@ -215,7 +215,7 @@ window.plugin.guessPlayerLevels.guess = function() {
         var nick = reso.ownerGuid;
         if(isSystemPlayer(nick)) return true;
 
-        var lvl = window.plugin.guessPlayerLevels.fetchLevelByPlayer(nick);
+        var lvl = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(nick).min;
         if(!lvl) return true;
 
         if(getTeam(details) === TEAM_ENL)
@@ -227,7 +227,7 @@ window.plugin.guessPlayerLevels.guess = function() {
       if(details.captured) {
         var nick = details.captured.capturingPlayerId
         if(isSystemPlayer(nick)) return true;
-        var lvl = window.plugin.guessPlayerLevels.fetchLevelByPlayer(nick);
+        var lvl = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(nick).min;
         if(!lvl) return true;
 
         if(getTeam(details) === TEAM_ENL)
