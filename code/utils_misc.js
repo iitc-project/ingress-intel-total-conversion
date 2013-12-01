@@ -281,7 +281,7 @@ window.getMinPortalLevelForZoom = function(z) {
   // these values are from the stock intel map. however, they're too detailed for reasonable speed, and increasing
   // detail at a higher zoom level shows enough detail still, AND speeds up IITC considerably
 //var ZOOM_TO_LEVEL = [8, 8, 8, 8, 7, 7, 6, 6, 5, 4, 4, 3, 3, 2, 2, 1, 1];
-  var ZOOM_TO_LEVEL = [8, 8, 8, 8, 8, 8, 7, 7, 6, 5, 4, 4, 3, 2, 2, 1, 1];
+  var ZOOM_TO_LEVEL = [8, 8, 8, 8, 8, 7, 7, 7, 6, 5, 4, 4, 3, 2, 2, 1, 1];
 
   var l = ZOOM_TO_LEVEL[z] || 0;
   return l;
