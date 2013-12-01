@@ -250,9 +250,9 @@ window.plugin.playerTracker.getLatLngFromEvent = function(ev) {
 //TODO? add weight to certain events, or otherwise prefer them, to give better locations?
   var lats = 0;
   var lngs = 0;
-  $.each(ev.latlngs, function() {
-    lats += this[0];
-    lngs += this[1];
+  $.each(ev.latlngs, function(i, latlng) {
+    lats += latlng[0];
+    lngs += latlng[1];
   });
 
   return L.latLng(lats / ev.latlngs.length, lngs / ev.latlngs.length);
@@ -344,15 +344,15 @@ window.plugin.playerTracker.drawData = function() {
     var eventPortal = []
     var closestPortal;
     var mostPortals = 0;
-    $.each(last.guids, function() {
-      if(eventPortal[this]) {
-        eventPortal[this]++;
+    $.each(last.guids, function(i, guid) {
+      if(eventPortal[guid]) {
+        eventPortal[guid]++;
       } else {
-        eventPortal[this] = 1;
+        eventPortal[guid] = 1;
       }
-      if(eventPortal[this] > mostPortals) {
-        mostPortals = eventPortal[this];
-        closestPortal = this;
+      if(eventPortal[guid] > mostPortals) {
+        mostPortals = eventPortal[guid];
+        closestPortal = guid;
       }
     });
 
