@@ -218,6 +218,7 @@ window.getPortalMiscDetails = function(guid,d) {
 // draws link-range and hack-range circles around the portal with the
 // given details. Clear them if parameter 'd' is null.
 window.setPortalIndicators = function(p) {
+
   if(portalRangeIndicator) map.removeLayer(portalRangeIndicator);
   portalRangeIndicator = null;
   if(portalAccessIndicator) map.removeLayer(portalAccessIndicator);
@@ -231,7 +232,7 @@ window.setPortalIndicators = function(p) {
     // range is only known for sure if we have portal details
     // TODO? render a min range guess until details are loaded..?
 
-    var d = p.options.details;
+    var d = portalDetail.get(p.options.guid);
     if (d) {
       var range = getPortalRange(d);
       portalRangeIndicator = (range.range > 0
@@ -276,7 +277,7 @@ window.selectPortal = function(guid) {
     }
   }
 
-  setPortalIndicators(newPortal ? newPortal.options.details : null);
+  setPortalIndicators(newPortal);
 
   runHooks('portalSelected', {selectedPortalGuid: guid, unselectedPortalGuid: oldPortalGuid});
   return update;
