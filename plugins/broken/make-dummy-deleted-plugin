@@ -1,0 +1,21 @@
+#!/bin/bash
+
+
+if test -d ../broken
+then
+
+ for a in *.js
+ do
+  if test -f ../$a
+  then
+   true
+#   echo $a already exists in ..
+  else
+   echo creating 'deleted' plugin from header of $a
+
+   sed -n -e 's/\@category.*/\@category  Deleted/' -e 's/\@description .*/\@description   PLUGIN CURRENTLY UNAVAILABLE/' -e 'p' -e '/\/UserScript/q' $a > ../$a
+  fi
+ done
+else
+ echo error: wrong directory - must be run in plugins/broken
+fi
