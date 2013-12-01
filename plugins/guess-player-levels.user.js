@@ -202,7 +202,7 @@ window.plugin.guessPlayerLevels.guess = function() {
   if (namesR.length > 0)  averageR = (totallvlR/namesR.length);
   if (namesE.length > 0)  averageE = (totallvlE/namesE.length);
   s += '\nAverage level:\t'+averageR.toFixed(2)+'\tAverage level:\t'+averageE.toFixed(2);
-  s += '\n\nIf there are some unresolved names, simply try again.'
+  s += '\n\nOnly players from recently viewed portal details are listed.'
 
   dialog({
     text: s,
