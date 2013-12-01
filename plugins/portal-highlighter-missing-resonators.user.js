@@ -22,20 +22,18 @@
 window.plugin.portalsMissingResonators = function() {};
 
 window.plugin.portalsMissingResonators.highlight = function(data) {
-  var d = data.portal.options.details;
 
   if(data.portal.options.team != TEAM_NONE) {
-    var missing_res = 8-data.portal.options.data.resCount;
-    
-    if(missing_res > 0) {
-      var fill_opacity = ((8-missing_res)/8)*.85 + .15;
+    var res_count = data.portal.options.data.resCount;
+
+    if(res_count < 8) {
+      var fill_opacity = ((8-res_count)/8)*.85 + .15;
       var color = 'red';
-      fill_opacity = Math.round(fill_opacity*100)/100;
       var params = {fillColor: color, fillOpacity: fill_opacity};
 
       // Hole per missing resonator
-      var dash = new Array(missing_res + 1).join("1,4,") + "100,0"
-      params["dashArray"] = dash;
+      var dash = new Array((8 - res_count) + 1).join("1,4,") + "100,0"
+      params.dashArray = dash;
 
       data.portal.setStyle(params);
     } 
