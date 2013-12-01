@@ -268,6 +268,8 @@ window.Render.prototype.createPortalEntity = function(ent) {
 
   var portalLevel = parseInt(ent[2].level);
   var team = teamStringToId(ent[2].team);
+  // the data returns unclaimed portals as level 1 - but IITC wants them treated as level 0
+  if (team == TEAM_NONE) portalLevel = 0;
 
   var latlng = L.latLng(ent[2].latE6/1E6, ent[2].lngE6/1E6);
 
