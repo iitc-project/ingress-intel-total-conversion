@@ -27,6 +27,7 @@ window.plugin.guessPlayerLevels = function() {};
 window.plugin.guessPlayerLevels.setupCallback = function() {
   $('#toolbox').append(' <a onclick="window.plugin.guessPlayerLevels.guess()" title="Show player level guesses based on resonator placement in displayed portals">Guess player levels</a>');
   addHook('portalDetailLoaded', window.plugin.guessPlayerLevels.extractPortalData);
+  addHook('publicChatDataAvailable', window.plugin.guessPlayerLevels.extractChatData);
 }
 
 
@@ -34,11 +35,11 @@ window.plugin.guessPlayerLevels.setupCallback = function() {
 window.plugin.guessPlayerLevels.fetchLevelByPlayer = function(nick) {
   var cache = window.plugin.guessPlayerLevels._nameToLevelCache;
 
-  if(cache["#" + nick] === undefined) {
+  if(cache['#' + nick] === undefined) {
     // no use in reading localStorage repeatedly
     if(window.plugin.guessPlayerLevels._localStorageLastUpdate < Date.now() - 10*1000) {
       try {
-        cache = JSON.parse(localStorage["plugin-guess-player-levels"])
+        cache = JSON.parse(localStorage['plugin-guess-player-levels'])
         window.plugin.guessPlayerLevels._nameToLevelCache = cache;
         window.plugin.guessPlayerLevels._localStorageLastUpdate = Date.now();
       } catch(e) {
@@ -46,7 +47,7 @@ window.plugin.guessPlayerLevels.fetchLevelByPlayer = function(nick) {
     }
   }
 
-  return cache["#" + nick];
+  return cache['#' + nick];
 }
 
 window.plugin.guessPlayerLevels._nameToLevelCache = {};
@@ -121,12 +122,31 @@ window.plugin.guessPlayerLevels.extractPortalData = function(data) {
   });
 }
 
+window.plugin.guessPlayerLevels.extractChatData = function(data) {
+	data.raw.result.forEach(function(msg) {
+		var plext = msg[2].plext;
+		if(plext.plextType == 'SYSTEM_BROADCAST'
+		&& plext.markup.length==5
+		&& plext.markup[0][0] == 'PLAYER'
+		&& plext.markup[1][0] == 'TEXT'
+		&& plext.markup[1][1].plain == ' deployed an '
+		&& plext.markup[2][0] == 'TEXT'
+		&& plext.markup[2][0] == 'TEXT'
+		&& plext.markup[3][0] == 'TEXT'
+		&& plext.markup[3][1].plain == ' Resonator on ') {
+			var nick = plext.markup[0][1].plain;
+			var lvl = parseInt(plext.markup[2][1].plain.substr(1));
+			window.plugin.guessPlayerLevels.savePlayerLevel(nick, lvl);
+		}
+	});
+};
+
 window.plugin.guessPlayerLevels.savePlayerLevel = function(nick, level) {
   var stored = window.plugin.guessPlayerLevels.fetchLevelByPlayer(nick);
   if(stored && stored >= level)
     return;
 
-  window.plugin.guessPlayerLevels._nameToLevelCache["#" + nick] = level;
+  window.plugin.guessPlayerLevels._nameToLevelCache['#' + nick] = level;
 
   // to minimize accesses to localStorage, writing is delayed a bit
 
@@ -134,7 +154,7 @@ window.plugin.guessPlayerLevels.savePlayerLevel = function(nick, level) {
     clearTimeout(window.plugin.guessPlayerLevels._writeTimeout);
 
   window.plugin.guessPlayerLevels._writeTimeout = setTimeout(function() {
-    localStorage["plugin-guess-player-levels"] = JSON.stringify(window.plugin.guessPlayerLevels._nameToLevelCache);
+    localStorage['plugin-guess-player-levels'] = JSON.stringify(window.plugin.guessPlayerLevels._nameToLevelCache);
   }, 500);
 }
 
@@ -212,7 +232,7 @@ window.plugin.guessPlayerLevels.guess = function() {
     buttons: {
       'RESET GUESSES': function() {
         // clear all guessed levels from local storage
-        localStorage.removeItem("plugin-guess-player-levels")
+        localStorage.removeItem('plugin-guess-player-levels')
         window.plugin.guessPlayerLevels._nameToLevelCache = {}
         // now force all portals through the callback manually
         $.each(window.portals, function(guid,p) {
