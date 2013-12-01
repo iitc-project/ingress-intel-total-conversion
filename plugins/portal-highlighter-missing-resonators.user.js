@@ -22,31 +22,24 @@
 window.plugin.portalsMissingResonators = function() {};
 
 window.plugin.portalsMissingResonators.highlight = function(data) {
-  var d = data.portal.options.details;
-  var portal_weakness = 0;
-  if(getTeam(d) !== 0) {
-    //Ding the portal for every missing resonator.
-    var resCount = 0;
-    $.each(d.resonatorArray.resonators, function(ind, reso) {
-      if(reso === null) {
-        portal_weakness += .125;
-      } else {
-        resCount++;
-      }
-    });
-    
-    if(portal_weakness > 0) {
-      var fill_opacity = portal_weakness*.85 + .15;
-      var color = 'red';
-      fill_opacity = Math.round(fill_opacity*100)/100;
-      var params = {fillColor: color, fillOpacity: fill_opacity};
-      if(resCount < 8) {
-        // Hole per missing resonator
-        var dash = new Array(8-resCount + 1).join("1,4,") + "100,0"
-        params["dashArray"] = dash;
-      }
-      data.portal.setStyle(params);
-    } 
+  var d = data.portal.options.data;
+  if(getTeam(d) === TEAM_NONE)
+    return;
+
+  var resCount = d.resCount;
+  var portal_weakness = 1 - resCount/8.0;
+
+  if(portal_weakness > 0) {
+    var fill_opacity = portal_weakness*.85 + .15;
+    var color = 'red';
+    fill_opacity = Math.round(fill_opacity*100)/100;
+    var params = {fillColor: color, fillOpacity: fill_opacity};
+    if(resCount < 8) {
+      // Hole per missing resonator
+      var dash = new Array(8-resCount + 1).join("1,4,") + "100,0"
+      params["dashArray"] = dash;
+    }
+    data.portal.setStyle(params);
   }
 }
 
