@@ -25,14 +25,13 @@ window.plugin.portalWeakness.highlightWeakness = function(data) {
 
   if(data.portal.options.team != TEAM_NONE) {
     var res_count = data.portal.options.data.resCount;
-    var portal_health = data.portal.options.data.health/100;
+    var portal_health = data.portal.options.data.health;
 
-    var weakness = (res_count/8) * (portal_health/100);
+    var strength = (res_count/8) * (portal_health/100);
    
-    if(weakness < 1) {
-      var fill_opacity = weakness*.85 + .15;
+    if(strength < 1) {
+      var fill_opacity = (1-strength)*.85 + .15;
       var color = 'red';
-      fill_opacity = Math.round(fill_opacity*100)/100;
       var params = {fillColor: color, fillOpacity: fill_opacity};
 
       // Hole per missing resonator
