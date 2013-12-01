@@ -159,15 +159,17 @@ window.plugin.guessPlayerLevels.guess = function() {
           playersRes[nick] = lvl;
       });
 
-      var nick = details.captured.capturingPlayerId
-      if(isSystemPlayer(nick)) return true;
-      var lvl = window.plugin.guessPlayerLevels.fetchLevelByPlayer(nick);
-      if(!lvl) return true;
+      if(details.captured) {
+        var nick = details.captured.capturingPlayerId
+        if(isSystemPlayer(nick)) return true;
+        var lvl = window.plugin.guessPlayerLevels.fetchLevelByPlayer(nick);
+        if(!lvl) return true;
 
-      if(getTeam(details) === TEAM_ENL)
-        playersEnl[nick] = lvl;
-      else
-        playersRes[nick] = lvl;
+        if(getTeam(details) === TEAM_ENL)
+          playersEnl[nick] = lvl;
+        else
+          playersRes[nick] = lvl;
+      }
     }
   });
 
