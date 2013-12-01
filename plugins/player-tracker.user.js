@@ -165,7 +165,7 @@ window.plugin.playerTracker.processNewData = function(data) {
         }
         break;
       case 'PLAYER':
-        pguid = markup[1].guid;
+        pguid = markup[1].plain;
         break;
       case 'PORTAL':
         // link messages are “player linked X to Y” and the player is at
@@ -196,7 +196,7 @@ window.plugin.playerTracker.processNewData = function(data) {
     if(!playerData || playerData.events.length === 0) {
       plugin.playerTracker.stored[pguid] = {
          // this always resolves, as the chat delivers this data
-        nick: window.getPlayerName(pguid),
+        nick: pguid,
         team: json[2].plext.team,
         events: [newEvent]
       };
