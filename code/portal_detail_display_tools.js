@@ -29,8 +29,8 @@ window.getPortalDescriptionFromDetails = function(details) {
   var desc = descObj.TITLE;
   if(descObj.ADDRESS)
     desc += '\n' + descObj.ADDRESS;
-  if(descObj.ATTRIBUTION)
-    desc += '\nby '+descObj.ATTRIBUTION+' ('+descObj.ATTRIBUTION_LINK+')';
+//  if(descObj.ATTRIBUTION)
+//    desc += '\nby '+descObj.ATTRIBUTION+' ('+descObj.ATTRIBUTION_LINK+')';
   return desc;
 }
 

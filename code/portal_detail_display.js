@@ -41,8 +41,9 @@ window.renderPortalDetails = function(guid) {
   var lat = data.latE6/1E6;
   var lng = data.lngE6/1E6;
 
-  var imgTitle = ''; //'title="'+getPortalDescriptionFromDetails(details)+'\n\nClick to show full image."';
-  var portalDetailObj = undefined;  //window.getPortalDescriptionFromDetailsExtended(details);
+  var imgTitle = details ? getPortalDescriptionFromDetails(details) : data.title;
+  imgTitle += '\n\nClick to show full image.';
+  var portalDetailObj = details ? window.getPortalDescriptionFromDetailsExtended(details) : undefined;
 
   var portalDetailedDescription = '';
 
