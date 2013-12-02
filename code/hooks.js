@@ -75,6 +75,7 @@ window.runHooks = function(event, data) {
       }
     } catch(err) {
       console.error('error running hook '+event+', error: '+err);
+      debugger;
     }
   });
   return !interupted;
