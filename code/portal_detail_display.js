@@ -5,7 +5,7 @@
 window.renderPortalDetails = function(guid) {
   selectPortal(window.portals[guid] ? guid : null);
 
-  if (!portalDetail.isFresh(guid)) {
+  if (guid && !portalDetail.isFresh(guid)) {
     portalDetail.request(guid);
   }
 
