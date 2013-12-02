@@ -13,8 +13,6 @@ import android.widget.Toast;
 import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
 import com.cradle.iitc_mobile.share.ShareActivity;
 
-import java.util.Locale;
-
 // provide communication between IITC script and android app
 public class IITC_JSInterface {
     // context of main activity
@@ -96,7 +94,7 @@ public class IITC_JSInterface {
             public void run() {
                 Pane pane;
                 try {
-                    pane = Pane.valueOf(id.toUpperCase(Locale.getDefault()));
+                    pane = mIitc.getNavigationHelper().getPane(id);
                 } catch (IllegalArgumentException e) {
                     pane = Pane.MAP;
                 }
