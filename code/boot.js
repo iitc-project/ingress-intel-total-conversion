@@ -111,7 +111,7 @@ window.setupMap = function() {
   var mqMapOpt = {attribution: osmAttribution+', Tiles Courtesy of MapQuest', maxZoom: 18, subdomains: mqSubdomains};
   var mqMap = new L.TileLayer(mqTileUrlPrefix+'/tiles/1.0.0/map/{z}/{x}/{y}.jpg',mqMapOpt);
   //MapQuest satellite coverage outside of the US is rather limited - so not really worth having as we have google as an option
-  //var mqSatOpt = {attribution: 'Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency', mazZoom: 18, subdomains: mqSubdomains};
+  //var mqSatOpt = {attribution: 'Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency', maxZoom: 18, subdomains: mqSubdomains};
   //var mqSat = new L.TileLayer('http://{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg',mqSatOpt);
 
   var ingressGMapOptions = {
@@ -338,7 +338,6 @@ window.setMapBaseLayer = function() {
 // included as inline script in the original site, the data is static
 // and cannot be updated.
 window.setupPlayerStat = function() {
-  PLAYER.guid = playerNameToGuid(PLAYER.nickname);
   var level;
   var ap = parseInt(PLAYER.ap);
   for(level = 0; level < MIN_AP_FOR_LEVEL.length; level++) {
@@ -531,7 +530,6 @@ function boot() {
   window.setupTaphold();
   window.setupStyles();
   window.setupDialogs();
-  window.setupPlayerNameCache();
   window.setupMap();
   window.setupGeosearch();
   window.setupRedeem();
@@ -542,6 +540,7 @@ function boot() {
   window.setupPlayerStat();
   window.setupTooltips();
   window.chat.setup();
+  window.portalDetail.setup();
   window.setupQRLoadLib();
   window.setupLayerChooserSelectOne();
   window.setupLayerChooserStatusRecorder();
