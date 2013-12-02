@@ -121,7 +121,7 @@ def loaderMD(var):
     filemd5 = hashlib.md5(file.encode('utf8')).hexdigest()
     # check if file has already been parsed by the github api
     if fn in files and filemd5 in files[fn]:
-      # use the stored copy if nothing has changed to avoid hiting the api more then the 60/hour when not signed in
+      # use the stored copy if nothing has changed to avoid hitting the api more then the 60/hour when not signed in
       db.close()
       return files[fn][filemd5]
     else:
@@ -182,13 +182,19 @@ def doReplacements(script,updateUrl,downloadUrl,pluginName=None):
     return script
 
 
-def saveScriptAndMeta(script,fn,metafn):
+def saveScriptAndMeta(script,ourDir,filename,oldDir=None):
+    # TODO: if oldDir is set, compare files. if only data/time-based version strings are different
+    # copy from there instead of saving a new file
+
+    fn = os.path.join(outDir,filename)
     with io.open(fn, 'w', encoding='utf8') as f:
         f.write(script)
 
-    with io.open(metafn, 'w', encoding='utf8') as f:
-        meta = extractUserScriptMeta(script)
-        f.write(meta)
+    metafn = fn.replace('.user.js', '.meta.js')
+    if metafn != fn:
+        with io.open(metafn, 'w', encoding='utf8') as f:
+            meta = extractUserScriptMeta(script)
+            f.write(meta)
 
 
 outDir = os.path.join('build', buildName)
@@ -196,9 +202,14 @@ outDir = os.path.join('build', buildName)
 
 # create the build output
 
-# first, delete any existing build
+# first, delete any existing build - but keep it in a temporary folder for now
+oldDir = None
 if os.path.exists(outDir):
-    shutil.rmtree(outDir)
+    oldDir = outDir+'~';
+    if os.path.exists(oldDir):
+        shutil.rmtree(oldDir)
+    os.rename(outDir, oldDir)
+
 
 # copy the 'dist' folder, if it exists
 if os.path.exists('dist'):
@@ -222,7 +233,7 @@ downloadUrl = distUrlBase and distUrlBase + '/total-conversion-build.user.js' or
 updateUrl = distUrlBase and distUrlBase + '/total-conversion-build.meta.js' or 'none'
 main = doReplacements(main,downloadUrl=downloadUrl,updateUrl=updateUrl)
 
-saveScriptAndMeta(main, os.path.join(outDir,'total-conversion-build.user.js'), os.path.join(outDir,'total-conversion-build.meta.js'))
+saveScriptAndMeta(main, outDir, 'total-conversion-build.user.js', oldDir)
 
 
 # for each plugin, load, parse, and save output
@@ -236,8 +247,7 @@ for fn in glob.glob("plugins/*.user.js"):
     pluginName = os.path.splitext(os.path.splitext(os.path.basename(fn))[0])[0]
     script = doReplacements(script, downloadUrl=downloadUrl, updateUrl=updateUrl, pluginName=pluginName)
 
-    metafn = fn.replace('.user.js', '.meta.js')
-    saveScriptAndMeta(script, os.path.join(outDir,fn), os.path.join(outDir,metafn))
+    saveScriptAndMeta(script, outDir, fn, oldDir)
 
 # if we're building mobile too
 if buildMobile:
@@ -251,8 +261,7 @@ if buildMobile:
     updateUrl = distUrlBase and downloadUrl.replace('.user.js', '.meta.js') or 'none'
     script = doReplacements(script, downloadUrl=downloadUrl, updateUrl=updateUrl, pluginName='user-location')
 
-    metafn = fn.replace('.user.js', '.meta.js')
-    saveScriptAndMeta(script, os.path.join(outDir,fn), os.path.join(outDir,metafn))
+    saveScriptAndMeta(script, outDir, fn)
 
     # copy the IITC script into the mobile folder. create the folder if needed
     try:

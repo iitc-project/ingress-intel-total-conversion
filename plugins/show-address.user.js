@@ -22,7 +22,7 @@
 window.plugin.portalAddress = function() {};
 
 window.plugin.portalAddress.portalDetail = function(data) {
-  // If there's 4 sets of comma delimieted info the last one is the
+  // If there's 4 sets of comma delimited info the last one is the
   // country, so get rid of it. If the country is in the [2] then it
   // doesn't matter because address is usually short enough to fit.
   var d = data.portalDetails.portalV2;

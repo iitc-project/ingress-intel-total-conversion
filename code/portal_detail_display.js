@@ -5,79 +5,45 @@
 window.renderPortalDetails = function(guid) {
   selectPortal(window.portals[guid] ? guid : null);
 
+  if (!portalDetail.isFresh(guid)) {
+    portalDetail.request(guid);
+  }
+
+  // TODO? handle the case where we request data for a particular portal GUID, but it *isn't* in
+  // window.portals....
+
   if(!window.portals[guid]) {
     urlPortal = guid;
     $('#portaldetails').html('');
     if(isSmartphone()) {
       $('.fullimg').remove();
-      $('#mobileinfo').html('');
+      $('#mobileinfo').html('<div style="text-align: center"><b>tap here for info screen</b></div>');
     }
     return;
   }
 
-  var d = window.portals[guid].options.details;
-
-  // collect some random data that’s not worth to put in an own method
-  var links = {incoming: 0, outgoing: 0};
-  if(d.portalV2.linkedEdges) $.each(d.portalV2.linkedEdges, function(ind, link) {
-    links[link.isOrigin ? 'outgoing' : 'incoming']++;
-  });
-  function linkExpl(t) { return '<tt title="↳ incoming links\n↴ outgoing links\n• is the portal">'+t+'</tt>'; }
-  var linksText = [linkExpl('links'), linkExpl(' ↳ ' + links.incoming+'&nbsp;&nbsp;•&nbsp;&nbsp;'+links.outgoing+' ↴')];
-
-  var player = d.captured && d.captured.capturingPlayerId
-    ? '<span class="nickname">' + getPlayerName(d.captured.capturingPlayerId) + '</span>'
-    : null;
-  var playerText = player ? ['owner', player] : null;
-
-  var time = d.captured
-    ? '<span title="' + unixTimeToDateTimeString(d.captured.capturedTime, false) + '\n'
-                      + formatInterval(Math.floor((Date.now()-d.captured.capturedTime)/1000), 2) + ' ago">'
-      +  unixTimeToString(d.captured.capturedTime) + '</span>'
-    : null;
-  var sinceText  = time ? ['since', time] : null;
-
-  var linkedFields = ['fields', d.portalV2.linkedFields ? d.portalV2.linkedFields.length : 0];
-
-  // collect and html-ify random data
-  var randDetails = [
-    playerText, sinceText,
-    getRangeText(d), getEnergyText(d),
-    linksText, getAvgResoDistText(d),
-    linkedFields, getAttackApGainText(d),
-    getHackDetailsText(d), getMitigationText(d)
-  ];
-
-  // artifact details
-
-  //niantic hard-code the fact it's just jarvis shards/targets - so until more examples exist, we'll do the same
-  //(at some future point we can iterate through all the artifact types and add rows as needed)
-  var jarvisArtifact = artifact.getPortalData (guid, 'jarvis');
-  if (jarvisArtifact) {
-    // the genFourColumnTable function below doesn't handle cases where one column is null and the other isn't - so default to *someting* in both columns
-    var target = ['',''], shards = ['shards','(none)'];
-    if (jarvisArtifact.target) {
-      target = ['target', '<span class="'+TEAM_TO_CSS[jarvisArtifact.target]+'">'+(jarvisArtifact.target==TEAM_RES?'Resistance':'Enlightened')+'</span>'];
-    }
-    if (jarvisArtifact.fragments) {
-      shards = [jarvisArtifact.fragments.length>1?'shards':'shard', '#'+jarvisArtifact.fragments.join(', #')];
-    }
-
-    randDetails.push (target, shards);
-  }
+  var portal = window.portals[guid];
+  var data = portal.options.data;
+  var details = portalDetail.get(guid);
 
 
-  randDetails = '<table id="randdetails">' + genFourColumnTable(randDetails) + '</table>';
+  var modDetails = details ? '<div class="mods">'+getModDetails(details)+'</div>' : '';
+  var miscDetails = details ? getPortalMiscDetails(guid,details) : '';
+  var resoDetails = details ? getResonatorDetails(details) : '';
 
-  var resoDetails = '<table id="resodetails">' + getResonatorDetails(d) + '</table>';
+//TODO? other status details...
+  var statusDetails = details ? '' : '<div id="portalStatus">Loading details...</div>';
+ 
 
-  var img = getPortalImageUrl(d);
-  var lat = d.locationE6.latE6/1E6;
-  var lng = d.locationE6.lngE6/1E6;
-  var perma = '/intel?ll='+lat+','+lng+'&z=17&pll='+lat+','+lng;
-  var imgTitle = 'title="'+getPortalDescriptionFromDetails(d)+'\n\nClick to show full image."';
-  var poslinks = 'window.showPortalPosLinks('+lat+','+lng+',\''+escapeJavascriptString(d.portalV2.descriptiveText.TITLE)+'\')';
-  var portalDetailObj = window.getPortalDescriptionFromDetailsExtended(d);
+  var img = fixPortalImageUrl(details ? details.imageByUrl && details.imageByUrl.imageUrl : data.image);
+  var title = details ? details.portalV2.descriptiveText.TITLE : data.title;
+
+  var lat = data.latE6/1E6;
+  var lng = data.lngE6/1E6;
+
+  var imgTitle = details ? getPortalDescriptionFromDetails(details) : data.title;
+  imgTitle += '\n\nClick to show full image.';
+  var portalDetailObj = details ? window.getPortalDescriptionFromDetailsExtended(details) : undefined;
 
   var portalDetailedDescription = '';
 
@@ -111,74 +77,184 @@ window.renderPortalDetails = function(guid) {
     portalDetailedDescription += '</table>';
   }
 
-  var levelDetails = getPortalLevel(d);
-  if(levelDetails != 8) {
-    if(levelDetails==Math.ceil(levelDetails))
-      levelDetails += "\n8";
-    else
-      levelDetails += "\n" + (Math.ceil(levelDetails) - levelDetails)*8;
-    levelDetails += " resonator level(s) needed for next portal level";
-  } else {
-    levelDetails += "\nfully upgraded";
+  // portal level. start with basic data - then extend with fractional info in tooltip if available
+  var levelInt = data ? data.level : getPortalLevel(details);
+  var levelDetails = data.level;
+  if (details) {
+    levelDetails = getPortalLevel(details);
+    if(levelDetails != 8) {
+      if(levelDetails==Math.ceil(levelDetails))
+        levelDetails += "\n8";
+      else
+        levelDetails += "\n" + (Math.ceil(levelDetails) - levelDetails)*8;
+      levelDetails += " resonator level(s) needed for next portal level";
+    } else {
+      levelDetails += "\nfully upgraded";
+    }
   }
   levelDetails = "Level " + levelDetails;
 
+
+  var linkDetails = [];
+
+  var posOnClick = 'window.showPortalPosLinks('+lat+','+lng+',\''+escapeJavascriptString(title)+'\')';
+  var permalinkUrl = '/intel?ll='+lat+','+lng+'&z=17&pll='+lat+','+lng;
+
+  if (typeof android !== 'undefined' && android && android.intentPosLink) {
+    // android devices. one share link option - and the android app provides an interface to share the URL,
+    // share as a geo: intent (navigation via google maps), etc
+
+    var shareLink = $('<div>').html( $('<a>').attr({onclick:posOnClick}).text('Share portal') ).html();
+    linkDetails.push('<aside>'+shareLink+'</aside>');
+
+  } else {
+    // non-android - a permalink for the portal
+    var permaHtml = $('<div>').html( $('<a>').attr({href:permalinkUrl, target:'_blank', title:'Create a URL link to this portal'}).text('Portal link') ).html();
+    linkDetails.push ( '<aside>'+permaHtml+'</aside>' );
+
+    // and a map link popup dialog
+    var mapHtml = $('<div>').html( $('<a>').attr({onclick:posOnClick, title:'Link to alternative maps (Google, etc)'}).text('Map links') ).html();
+    linkDetails.push('<aside>'+mapHtml+'</aside>');
+
+  }
+
   $('#portaldetails')
-    .attr('class', TEAM_TO_CSS[getTeam(d)])
-    .html(''
-      + '<h3 class="title">'+escapeHtmlSpecialChars(d.portalV2.descriptiveText.TITLE)+'</h3>'
-      + '<span class="close" onclick="renderPortalDetails(null); if(isSmartphone()) show(\'map\');" title="Close">X</span>'
+    .html('') //to ensure it's clear
+    .attr('class', TEAM_TO_CSS[portal.options.team])
+    .append(
+      $('<h3>').attr({class:'title'}).text(data.title),
+
+      $('<span>').attr({class:'close', onclick:'renderPortalDetails(null); if(isSmartphone()) show("map");',title:'Close'}).text('X'),
+
       // help cursor via ".imgpreview img"
-      + '<div class="imgpreview" '+imgTitle+' style="background-image: url('+img+')">'
-      + '<span id="level" title="'+levelDetails+'">'+Math.floor(getPortalLevel(d))+'</span>'
-      + '<div class="portalDetails">'+ portalDetailedDescription + '</div>'
-      + '<img class="hide" src="'+img+'"/></div>'
-      + '</div>'
-      + '<div class="mods">'+getModDetails(d)+'</div>'
-      + randDetails
-      + resoDetails
-      + '<div class="linkdetails">'
-      + (
-        typeof android !== 'undefined' && android && android.intentPosLink // Android handles both links via a dialog
-        ? '<aside><a onclick="'+poslinks+'" title="Create a URL link to this portal" >Portal link</a></aside>'
-        : '<aside><a href="'+perma+'" onclick="return androidCopy(this.href)" title="Create a URL link to this portal" >Portal link</a></aside>'
-        + '<aside><a onclick="'+poslinks+'" title="Link to alternative maps (Google, etc)">Map links</a></aside>'
-        )
-      + '</div>'
+      $('<div>')
+      .attr({class:'imgpreview', title:imgTitle, style:"background-image: url('"+img+"')"})
+      .append(
+        $('<span>').attr({id:'level', title: levelDetails}).text(levelInt),
+        $('<div>').attr({class:'portalDetails'}).html(portalDetailedDescription),
+        $('<img>').attr({class:'hide', src:img})
+      ),
+
+      modDetails,
+      miscDetails,
+      resoDetails,
+      statusDetails,
+      '<div class="linkdetails">' + linkDetails.join('') + '</div>'
     );
 
-  // try to resolve names that were required for above functions, but
-  // weren't available yet.
-  resolvePlayerNames();
-
-  runHooks('portalDetailsUpdated', {portalDetails: d});
+  // only run the hooks when we have a portalDetails object - most plugins rely on the extended data
+  // TODO? another hook to call always, for any plugins that can work with less data?
+  if (details) {
+    runHooks('portalDetailsUpdated', {guid: guid, portal: portal, portalDetails: details, portalData: data});
+  }
 }
+
+
+
+window.getPortalMiscDetails = function(guid,d) {
+
+  var randDetails;
+
+  if (d) {
+
+    // collect some random data that’s not worth to put in an own method
+    var links = {incoming: 0, outgoing: 0};
+    $.each(d.portalV2.linkedEdges||[], function(ind, link) {
+      links[link.isOrigin ? 'outgoing' : 'incoming']++;
+    });
+
+    function linkExpl(t) { return '<tt title="↳ incoming links\n↴ outgoing links\n• is the portal">'+t+'</tt>'; }
+    var linksText = [linkExpl('links'), linkExpl(' ↳ ' + links.incoming+'&nbsp;&nbsp;•&nbsp;&nbsp;'+links.outgoing+' ↴')];
+
+    var player = d.captured && d.captured.capturingPlayerId
+      ? '<span class="nickname">' + d.captured.capturingPlayerId + '</span>'
+      : null;
+    var playerText = player ? ['owner', player] : null;
+
+    var time = d.captured
+      ? '<span title="' + unixTimeToDateTimeString(d.captured.capturedTime, false) + '\n'
+                        + formatInterval(Math.floor((Date.now()-d.captured.capturedTime)/1000), 2) + ' ago">'
+        +  unixTimeToString(d.captured.capturedTime) + '</span>'
+      : null;
+    var sinceText  = time ? ['since', time] : null;
+
+    var linkedFields = ['fields', d.portalV2.linkedFields ? d.portalV2.linkedFields.length : 0];
+
+    // collect and html-ify random data
+    var randDetailsData = [];
+    if (playerText && sinceText) {
+      randDetailsData.push (playerText, sinceText);
+    }
+
+    randDetailsData.push (
+      getRangeText(d), getEnergyText(d),
+      linksText, getAvgResoDistText(d),
+      linkedFields, getAttackApGainText(d),
+      getHackDetailsText(d), getMitigationText(d)
+    );
+
+    // artifact details
+
+    //niantic hard-code the fact it's just jarvis shards/targets - so until more examples exist, we'll do the same
+    //(at some future point we can iterate through all the artifact types and add rows as needed)
+    var jarvisArtifact = artifact.getPortalData (guid, 'jarvis');
+    if (jarvisArtifact) {
+      // the genFourColumnTable function below doesn't handle cases where one column is null and the other isn't - so default to *something* in both columns
+      var target = ['',''], shards = ['shards','(none)'];
+      if (jarvisArtifact.target) {
+        target = ['target', '<span class="'+TEAM_TO_CSS[jarvisArtifact.target]+'">'+(jarvisArtifact.target==TEAM_RES?'Resistance':'Enlightened')+'</span>'];
+      }
+      if (jarvisArtifact.fragments) {
+        shards = [jarvisArtifact.fragments.length>1?'shards':'shard', '#'+jarvisArtifact.fragments.join(', #')];
+      }
+
+      randDetailsData.push (target, shards);
+    }
+
+    randDetails = '<table id="randdetails">' + genFourColumnTable(randDetailsData) + '</table>';
+
+  }
+
+  return randDetails;
+}
+
 
 // draws link-range and hack-range circles around the portal with the
 // given details. Clear them if parameter 'd' is null.
-window.setPortalIndicators = function(d) {
+window.setPortalIndicators = function(p) {
+
   if(portalRangeIndicator) map.removeLayer(portalRangeIndicator);
   portalRangeIndicator = null;
   if(portalAccessIndicator) map.removeLayer(portalAccessIndicator);
   portalAccessIndicator = null;
 
-  if(d === null) return;
+  // if we have a portal...
 
-  var range = getPortalRange(d);
-  var coord = [d.locationE6.latE6/1E6, d.locationE6.lngE6/1E6];
-  portalRangeIndicator = (range.range > 0
-      ? L.geodesicCircle(coord, range.range, {
-          fill: false,
-          color: RANGE_INDICATOR_COLOR,
-          weight: 3,
-          dashArray: range.isLinkable ? undefined : "10,10",
-          clickable: false })
-      : L.circle(coord, range.range, { fill: false, stroke: false, clickable: false })
+  if(p) {
+    var coord = p.getLatLng();
+
+    // range is only known for sure if we have portal details
+    // TODO? render a min range guess until details are loaded..?
+
+    var d = portalDetail.get(p.options.guid);
+    if (d) {
+      var range = getPortalRange(d);
+      portalRangeIndicator = (range.range > 0
+          ? L.geodesicCircle(coord, range.range, {
+              fill: false,
+              color: RANGE_INDICATOR_COLOR,
+              weight: 3,
+              dashArray: range.isLinkable ? undefined : "10,10",
+              clickable: false })
+          : L.circle(coord, range.range, { fill: false, stroke: false, clickable: false })
+        ).addTo(map);
+    }
+
+    portalAccessIndicator = L.circle(coord, HACK_RANGE,
+      { fill: false, color: ACCESS_INDICATOR_COLOR, weight: 2, clickable: false }
     ).addTo(map);
+  }
 
-  portalAccessIndicator = L.circle(coord, HACK_RANGE,
-    { fill: false, color: ACCESS_INDICATOR_COLOR, weight: 2, clickable: false }
-  ).addTo(map);
 }
 
 // highlights portal with given GUID. Automatically clears highlights
@@ -205,7 +281,7 @@ window.selectPortal = function(guid) {
     }
   }
 
-  setPortalIndicators(newPortal ? newPortal.options.details : null);
+  setPortalIndicators(newPortal);
 
   runHooks('portalSelected', {selectedPortalGuid: guid, unselectedPortalGuid: oldPortalGuid});
   return update;

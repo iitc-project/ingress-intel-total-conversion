@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portal-level-numbers@rongou
 // @name           IITC plugin: Portal Level Numbers
 // @category       Layer
-// @version        0.1.1.@@DATETIMEVERSION@@
+// @version        0.1.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -38,8 +38,8 @@ window.plugin.portalLevelNumbers.portalAdded = function(data) {
 window.plugin.portalLevelNumbers.renderLevel = function(guid,latLng) {
     plugin.portalLevelNumbers.removeLevel(guid);
 
-    var d = window.portals[guid].options.details;
-    var levelNumber = Math.floor(window.getPortalLevel(d));
+    var p = window.portals[guid];
+    var levelNumber = p.options.level;
     var level = L.marker(latLng, {
       icon: L.divIcon({
         className: 'plugin-portal-level-numbers',

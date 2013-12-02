@@ -5,7 +5,7 @@
 # possible fields:
 # resourceBaseUrl - optional - the URL base for external resources (all resources embedded in standard IITC)
 # distUrlBase - optional - the base URL to use for update checks
-# buildMobild - optional - if set, mobild builds are built with 'ant'. requires the Android SDK and appropriate mobile/local.properties file configured
+# buildMobile - optional - if set, mobile builds are built with 'ant'. requires the Android SDK and appropriate mobile/local.properties file configured
 # preBuild - optional - an array of strings to run as commands, via os.system, before building the scripts
 # postBuild - optional - an array of string to run as commands, via os.system, after all builds are complete
 

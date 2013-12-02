@@ -60,7 +60,7 @@ window.plugin.sync.updateMap = function(pluginName, fieldName, keyArray) {
 // example: plugin.sync.registerMapForSync('keys', 'keysdata', plugin.keys.updateCallback, plugin.keys.initializedCallback)
 // which register plugin.keys.keysdata
 //
-// updateCallback function format: function(pluginName, fieldName, eventObejct, fullUpdated)
+// updateCallback function format: function(pluginName, fieldName, eventObject, fullUpdated)
 // updateCallback will be fired when local or remote pushed update to Google Realtime API
 // fullUpdated is true when remote update occur during local client offline, all data is replaced by remote data
 // eventObject is a ValueChangedEvent, is null if fullUpdated is true
@@ -68,7 +68,7 @@ window.plugin.sync.updateMap = function(pluginName, fieldName, keyArray) {
 // detail of ValueChangedEvent refer to following url
 // https://developers.google.com/drive/realtime/reference/gapi.drive.realtime.ValueChangedEvent
 //
-// initializedCallback funciton format: function(pluginName, fieldName)
+// initializedCallback function format: function(pluginName, fieldName)
 // initializedCallback will be fired when the CollaborativeMap finished initialize and good to use
 window.plugin.sync.registerMapForSync = function(pluginName, fieldName, callback, initializedCallback) {
   var options, registeredMap;
@@ -244,7 +244,7 @@ window.plugin.sync.RegisteredMap.prototype.loadRealtimeDocument = function(callb
     } else if(e.type === gapi.drive.realtime.ErrorType.NOT_FOUND) {
       _this.forceFileSearch = true;
     } else if(e.type === gapi.drive.realtime.ErrorType.CLIENT_ERROR) {
-      // Workaround: if Realtime API open a second docuemnt and the file do not exist, 
+      // Workaround: if Realtime API open a second document and the file do not exist, 
       // it will rasie 'CLIENT_ERROR' instead of 'NOT_FOUND'. So we do a force file search here.
       _this.forceFileSearch = true;
     } else {

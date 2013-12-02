@@ -20,6 +20,7 @@ import android.widget.TextView;
 import com.cradle.iitc_mobile.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -59,23 +60,23 @@ public class IntentListView extends ListView {
 
     private static final HashSet<CopyHandler> KNOWN_COPY_HANDLERS = new HashSet<CopyHandler>();
 
-    private static void setupKnownCopyHandlers() {
-        if (!KNOWN_COPY_HANDLERS.isEmpty()) {
-            return;
+    static {
+        if (KNOWN_COPY_HANDLERS.isEmpty()) {
+
+            KNOWN_COPY_HANDLERS.add(new CopyHandler(
+                    "com.google.android.apps.docs",
+                    "com.google.android.apps.docs.app.SendTextToClipboardActivity"));
+
+            KNOWN_COPY_HANDLERS.add(new CopyHandler(
+                    "com.aokp.romcontrol",
+                    "com.aokp.romcontrol.ShareToClipboard"));
         }
-
-        KNOWN_COPY_HANDLERS.add(new CopyHandler(
-                "com.google.android.apps.docs",
-                "com.google.android.apps.docs.app.SendTextToClipboardActivity"));
-
-        KNOWN_COPY_HANDLERS.add(new CopyHandler(
-                "com.aokp.romcontrol",
-                "com.aokp.romcontrol.ShareToClipboard"));
     }
+
+    private HashMap<ComponentName, Intent> mActivities = new HashMap<ComponentName, Intent>();
 
     private IntentAdapter mAdapter;
     private PackageManager mPackageManager;
-    private final HashMap<ComponentName, Intent> mActivities = new HashMap<ComponentName, Intent>();
 
     public IntentListView(Context context) {
         super(context);
@@ -93,8 +94,6 @@ public class IntentListView extends ListView {
     }
 
     private void init() {
-        setupKnownCopyHandlers();
-
         mPackageManager = getContext().getPackageManager();
         mAdapter = new IntentAdapter();
         setAdapter(mAdapter);
@@ -189,9 +188,10 @@ public class IntentListView extends ListView {
             }
         }
 
+        Collections.sort(allActivities, ((ShareActivity) getContext()).getIntentComparator());
+
         mAdapter.addAll(allActivities);
         mAdapter.setNotifyOnChange(true);
         mAdapter.notifyDataSetChanged();
     }
-
 }

@@ -2,7 +2,7 @@
 // @id             max-links@boombuler
 // @name           IITC plugin: Max Links
 // @category       Layer
-// @version        0.4.1.@@DATETIMEVERSION@@
+// @version        0.4.2.@@DATETIMEVERSION@@
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Calculates how to link the portals to create a reasonably tidy set of links/fields. Enable from the layer chooser. (Max Links is a poor name, but remains for historical reasons.)
@@ -22,26 +22,20 @@ window.plugin.maxLinks = function() {};
 
 // const values
 window.plugin.maxLinks.MAX_PORTALS_TO_LINK = 200;
+// zoom level used for projecting points between latLng and pixel coordinates. may affect precision of triangulation
+window.plugin.maxLinks.PROJECT_ZOOM = 16;
 
 window.plugin.maxLinks.STROKE_STYLE = {
   color: '#FF0000',
   opacity: 1,
-  weight: 2,
+  weight: 1.5,
   clickable: false,
-  dashArray: [8,6],
+  dashArray: [6,4],
   smoothFactor: 10,
 };
 window.plugin.maxLinks.layer = null;
 window.plugin.maxLinks.errorMarker = null;
 
-
-window.plugin.maxLinks.Point = function(x,y) {
-  this.x=x;
-  this.y=y;
-}
-window.plugin.maxLinks.Point.prototype.toString = function() {
-  return this.x+","+this.y;
-}
 
 
 window.plugin.maxLinks.addErrorMarker = function() {
@@ -81,10 +75,13 @@ window.plugin.maxLinks.updateLayer = function() {
 
   var locations = [];
 
+  var bounds = map.getBounds();
   $.each(window.portals, function(guid, portal) {
-    var loc = portal.options.details.locationE6;
-    var nloc = new window.plugin.maxLinks.Point(loc.latE6/1E6, loc.lngE6/1E6);
-    locations.push(nloc);
+    var ll = portal.getLatLng();
+    if (bounds.contains(ll)) {
+      var p = map.project (portal.getLatLng(), window.plugin.maxLinks.PROJECT_ZOOM);
+      locations.push(p);
+    }
   });
 
   var triangles = window.delaunay.triangulate(locations);
@@ -117,7 +114,11 @@ window.plugin.maxLinks.updateLayer = function() {
       //using drawnLinks[a] as a set - so the stored value is of no importance
       drawnLinks[a][b] = null;
 
-      var poly = L.polyline([[a.x,a.y],[b.x,b.y]], window.plugin.maxLinks.STROKE_STYLE);
+      // convert back from x/y coordinates to lat/lng for drawing
+      var alatlng = map.unproject (a, window.plugin.maxLinks.PROJECT_ZOOM);
+      var blatlng = map.unproject (b, window.plugin.maxLinks.PROJECT_ZOOM);
+
+      var poly = L.polyline([alatlng, blatlng], window.plugin.maxLinks.STROKE_STYLE);
       poly.addTo(window.plugin.maxLinks.layer);
       drawnLinkCount++;
     }

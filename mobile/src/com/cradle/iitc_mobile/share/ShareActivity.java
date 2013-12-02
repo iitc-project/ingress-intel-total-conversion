@@ -19,13 +19,14 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 public class ShareActivity extends FragmentActivity implements ActionBar.TabListener {
+    private IntentComparator mComparator;
+    private IntentFragmentAdapter mFragmentAdapter;
     private boolean mIsPortal;
     private String mLl;
     private SharedPreferences mSharedPrefs = null;
     private String mTitle;
+    private ViewPager mViewPager;
     private int mZoom;
-    IntentFragmentAdapter mFragmentAdapter;
-    ViewPager mViewPager;
 
     private void addTab(ArrayList<Intent> intents, int label, int icon) {
         IntentFragment fragment = new IntentFragment();
@@ -53,9 +54,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
 
     private void setSelected(int position) {
         // Activity not fully loaded yet (may occur during tab creation)
-        if (mSharedPrefs == null) {
-            return;
-        }
+        if (mSharedPrefs == null) return;
 
         mSharedPrefs
                 .edit()
@@ -101,6 +100,8 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share);
+
+        mComparator = new IntentComparator(this);
 
         mFragmentAdapter = new IntentFragmentAdapter(getSupportFragmentManager());
 
@@ -156,6 +157,16 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
                 actionBar.setSelectedNavigationItem(selected);
             }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mComparator.save();
+    }
+
+    public IntentComparator getIntentComparator() {
+        return mComparator;
     }
 
     @Override

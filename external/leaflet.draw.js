@@ -201,7 +201,7 @@ L.Draw.Polyline = L.Draw.Feature.extend({
 			fill: false,
 			clickable: true
 		},
-		metric: true, // Whether to use the metric meaurement system or imperial
+		metric: true, // Whether to use the metric measurement system or imperial
 		zIndexOffset: 2000 // This should be > than the highest z-index any map layers
 	},
 
@@ -808,7 +808,7 @@ L.Draw.Circle = L.Draw.SimpleShape.extend({
 			fillOpacity: 0.2,
 			clickable: true
 		},
-		metric: true // Whether to use the metric meaurement system or imperial
+		metric: true // Whether to use the metric measurement system or imperial
 	},
 
 	initialize: function (map, options) {
@@ -2523,7 +2523,7 @@ L.EditToolbar.Edit = L.Handler.extend({
 			pathOptions;
 
 		// Don't do anything if this layer is a marker but doesn't have an icon. Markers
-		// should usually have icons. If using Leaflet.draw with Leafler.markercluster there
+		// should usually have icons. If using Leaflet.draw with Leaflet.markercluster there
 		// is a chance that a marker doesn't.
 		if (isMarker && !layer._icon) {
 			return;

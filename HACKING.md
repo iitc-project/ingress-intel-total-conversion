@@ -1,7 +1,7 @@
 Hacking
 =======
 
-Execute `./build.py` to effectively concatenate `main.js` with all the files in `code/`. It generates the user script which may be installed into your browser. Do not modify `ttic-debug.user.js` manually, because it is automatically generated. Instead, modify the files in `code/` and have that file built for you. The files in `dist/` are for release only and should not be touched by you.
+Execute `./build.py` to effectively concatenate `main.js` with all the files in `code/`. It generates the user script which may be installed into your browser. Do not modify `iitc-debug.user.js` manually, because it is automatically generated. Instead, modify the files in `code/` and have that file built for you. The files in `dist/` are for release only and should not be touched by you.
 
 `style.css` contains most styles required for the user-script. The extra ones can be found in `code/boot.js#window.setupStyles`. Only CSS rules that depend on config variables should be defined there.
 
@@ -23,7 +23,7 @@ My dev setup is like this:
 Code Style
 ----------
 
-Please follow the these guidelines. Some are just preference, others are good pratice.
+Please follow the these guidelines. Some are just preference, others are good practice.
 - use identity operators: `===` and `!==`. [Why do I want this?](http://stackoverflow.com/a/359509/1684530)
 - jQuery is your friend
 - indent using two spaces
@@ -58,7 +58,7 @@ Every browser has a console built in that allows for easy debugging.
 - **Firefox:** hit `CTRL+SHIFT+K` or if you have Firebug installed `F12`
 - **Opera:** hit `CTRL+SHIFT+I`
 
-The consoles basically work the same. You can run commands in the console window that execute in the page’s context. All browsers also allow you to inspect the HTML code that currently makes the page. It’s usually available in a different tab and called “document” or “elements” (expection for Firefox: hit `CTRL+SHIFT+I`).
+The consoles basically work the same. You can run commands in the console window that execute in the page’s context. All browsers also allow you to inspect the HTML code that currently makes the page. It’s usually available in a different tab and called “document” or “elements” (except for Firefox: hit `CTRL+SHIFT+I`).
 
 
 How do I report bugs?

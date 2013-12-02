@@ -40,12 +40,6 @@
         android:key="pref_mics"
         android:title="@string/pref_misc_cat">
 
-        <!-- summary is set in settings fragment -->
-        <EditTextPreference
-            android:defaultValue="local"
-            android:key="pref_iitc_source"
-            android:title="@string/pref_select_iitc"/>
-
         <PreferenceScreen
             android:fragment="com.cradle.iitc_mobile.fragments.PluginsFragment"
             android:key="pref_plugins"
@@ -84,6 +78,12 @@
                 android:key="pref_dev_checkbox"
                 android:summary="@string/pref_enable_dev_mode_sum"
                 android:title="@string/pref_enable_dev_mode"/>
+
+            <!-- summary is set in settings fragment -->
+            <EditTextPreference
+                android:defaultValue="local"
+                android:key="pref_iitc_source"
+                android:title="@string/pref_select_iitc"/>
 
             <PreferenceCategory
                 android:key="pref_advanced_ui_cat"
