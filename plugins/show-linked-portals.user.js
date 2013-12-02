@@ -2,7 +2,7 @@
 // @id             iitc-plugin-show-linked-portals@fstopienski
 // @name           IITC plugin: Show linked portals
 // @category       Portal Info
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -35,6 +35,7 @@ window.plugin.showLinkedPortal.handleUpdate = function () {
 }
 
 window.plugin.showLinkedPortal.portalDetail = function (data) {
+
     // don't render linked portal data if portal is neutral.
     // (the data can remain sometimes - when a portal decays?)
     if (data.portalDetails.controllingTeam.team == 'NEUTRAL')
@@ -51,20 +52,17 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
 
     $('.showLinkedPortalLink:not(.outOfRange)').bind('click', function () {
         var guid = $(this).attr('data-guid');
-        if (window.portals[guid] !== undefined) {
-            window.selectPortal($(this).attr('data-guid'));
-            window.renderPortalDetails(window.selectedPortal);
-            var portalDetails = window.portals[guid].options.details;
-            var lat0 = portalDetails.locationE6.latE6 / 1E6;
-            var lon0 = portalDetails.locationE6.lngE6 / 1E6;
-            var Rlatlng = [lat0, lon0];
-            map.setView(Rlatlng, map.getZoom());
+        window.renderPortalDetails(guid);
+        var latlng = findPortalLatLng(guid);
+        if (latlng) {
+            if (!map.getBounds().pad(-0.1).contains(latlng)) {
+                map.panTo(latlng);
+            }
+        } else {
+            // no idea where this portal is(!) - so step back one zoom level
+            map.setZoom(map.getZoom()-1);
         }
-        else {
-            // TODO: instead of just zooming out one level, check the link data for the start+end coordinates,
-            // and fit the map view to the bounding box
-            map.setZoom((map.getZoom() - 1));
-        }
+
     });
 }
 
@@ -74,23 +72,21 @@ window.plugin.showLinkedPortal.getPortalByGuid = function (guid,isorigin) {
     var portalInfoString;
 
     if (window.portals[guid] !== undefined) {
-        var portalDetails = window.portals[guid].options.details;
+        var portalData = window.portals[guid].options.data;
 
-        var portalNameAdressAlt = "'" + portalDetails.portalV2.descriptiveText.TITLE + "' (" + portalDetails.portalV2.descriptiveText.ADDRESS + ")";
-        var portalNameAdressTitle = $('<div/>').append($('<strong/>').text(portalDetails.portalV2.descriptiveText.TITLE))
-                                               .append($('<br/>'))
-                                               .append($('<em/>').text('(' + portalDetails.portalV2.descriptiveText.ADDRESS + ')'))
+        var portalNameAdressAlt = "'" + portalData.title + "'";;
+        var portalNameAdressTitle = $('<div/>').append($('<strong/>').text(portalData.title))
                                                .append($('<br/>'))
                                                .append(linkDirection)
                                                .html();
-        var imageUrl = getPortalImageUrl(portalDetails);
+        var imageUrl = fixPortalImageUrl(portalData.image);
         portalInfoString = $('<div/>').html($('<img/>').attr('src', imageUrl)
                                                        .attr('class', 'minImg')
                                                        .attr('alt', portalNameAdressAlt)
                                                        .attr('title', portalNameAdressTitle))
                                       .html();
     } else {
-        var title = $('<div/>').append($('<strong/>').text('Zoom out'))
+        var title = $('<div/>').append($('<strong/>').text('Go to portal'))
                                .append($('<br/>'))
                                .append(linkDirection)
                                .html();

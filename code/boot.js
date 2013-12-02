@@ -338,7 +338,6 @@ window.setMapBaseLayer = function() {
 // included as inline script in the original site, the data is static
 // and cannot be updated.
 window.setupPlayerStat = function() {
-  PLAYER.guid = playerNameToGuid(PLAYER.nickname);
   var level;
   var ap = parseInt(PLAYER.ap);
   for(level = 0; level < MIN_AP_FOR_LEVEL.length; level++) {
@@ -531,7 +530,6 @@ function boot() {
   window.setupTaphold();
   window.setupStyles();
   window.setupDialogs();
-  window.setupPlayerNameCache();
   window.setupMap();
   window.setupGeosearch();
   window.setupRedeem();
@@ -542,6 +540,7 @@ function boot() {
   window.setupPlayerStat();
   window.setupTooltips();
   window.chat.setup();
+  window.portalDetail.setup();
   window.setupQRLoadLib();
   window.setupLayerChooserSelectOne();
   window.setupLayerChooserStatusRecorder();

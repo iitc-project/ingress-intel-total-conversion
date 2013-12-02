@@ -28,7 +28,7 @@ window.MapDataRequest = function() {
   this.MIN_TILES_PER_REQUEST = 4;
 
   // number of times to retry a tile after a 'bad' error (i.e. not a timeout)
-  this.MAX_TILE_RETRIES = 3;
+  this.MAX_TILE_RETRIES = 1;
 
   // refresh timers
   this.MOVE_REFRESH = 1; //time, after a map move (pan/zoom) before starting the refresh processing
@@ -45,7 +45,7 @@ window.MapDataRequest = function() {
   this.RUN_QUEUE_DELAY = 0.5;
 
   // delay before requeuing tiles in failed requests
-  this.BAD_REQUEST_REQUEUE_DELAY = 5; // longer delay before retrying a completely failed request - as in this case the servers are struggling
+  this.BAD_REQUEST_REQUEUE_DELAY = 10; // longer delay before retrying a completely failed request - as in this case the servers are struggling
 
   // a delay before processing the queue after requeuing tiles. this gives a chance for other requests to finish
   // or other requeue actions to happen before the queue is processed, allowing better grouping of requests
@@ -391,7 +391,7 @@ window.MapDataRequest.prototype.sendTileRequest = function(tiles) {
   var savedThis = this;
 
   // NOTE: don't add the request with window.request.add, as we don't want the abort handling to apply to map data any more
-  window.postAjax('getThinnedEntitiesV4', data, 
+  window.postAjax('getThinnedEntities', data, 
     function(data, textStatus, jqXHR) { savedThis.handleResponse (data, tiles, true); },  // request successful callback
     function() { savedThis.handleResponse (undefined, tiles, false); }  // request failed callback
   );

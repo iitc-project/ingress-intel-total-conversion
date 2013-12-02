@@ -48,7 +48,8 @@
 //              called after each map data request finished. Argument is
 //              {success: boolean} indicated the request success or fail.
 // iitcLoaded: called after IITC and all plugins loaded
-
+// portalDetailLoaded: called when a request to load full portal detail
+//              completes. guid, success, details parameters
 
 window._hooks = {}
 window.VALID_HOOKS = [
@@ -58,7 +59,8 @@ window.VALID_HOOKS = [
   'portalDetailsUpdated',
   'publicChatDataAvailable', 'factionChatDataAvailable',
   'requestFinished', 'nicknameClicked',
-  'geoSearch', 'iitcLoaded'];
+  'geoSearch', 'iitcLoaded',
+  'portalDetailLoaded'];
 
 window.runHooks = function(event, data) {
   if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);

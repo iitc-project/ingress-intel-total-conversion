@@ -2,7 +2,7 @@
 // @id             iitc-plugin-player-tracker@breunigs
 // @name           IITC Plugin: Player tracker
 // @category       Layer
-// @version        0.10.0.@@DATETIMEVERSION@@
+// @version        0.10.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -165,7 +165,7 @@ window.plugin.playerTracker.processNewData = function(data) {
         }
         break;
       case 'PLAYER':
-        pguid = markup[1].guid;
+        pguid = markup[1].plain;
         break;
       case 'PORTAL':
         // link messages are “player linked X to Y” and the player is at
@@ -196,7 +196,7 @@ window.plugin.playerTracker.processNewData = function(data) {
     if(!playerData || playerData.events.length === 0) {
       plugin.playerTracker.stored[pguid] = {
          // this always resolves, as the chat delivers this data
-        nick: window.getPlayerName(pguid),
+        nick: pguid,
         team: json[2].plext.team,
         events: [newEvent]
       };
@@ -250,9 +250,9 @@ window.plugin.playerTracker.getLatLngFromEvent = function(ev) {
 //TODO? add weight to certain events, or otherwise prefer them, to give better locations?
   var lats = 0;
   var lngs = 0;
-  $.each(ev.latlngs, function() {
-    lats += this[0];
-    lngs += this[1];
+  $.each(ev.latlngs, function(i, latlng) {
+    lats += latlng[0];
+    lngs += latlng[1];
   });
 
   return L.latLng(lats / ev.latlngs.length, lngs / ev.latlngs.length);
@@ -311,16 +311,22 @@ window.plugin.playerTracker.drawData = function() {
     var popup = '<span class="nickname '+cssClass+'" style="font-weight:bold;">' + playerData.nick + '</span>';
 
     if(window.plugin.guessPlayerLevels !== undefined &&
-       window.plugin.guessPlayerLevels.fetchLevelByPlayer !== undefined) {
-      var playerLevel = window.plugin.guessPlayerLevels.fetchLevelByPlayer(pguid);
-      if(playerLevel !== undefined) {
-        popup += '<span style="font-weight:bold;margin-left:10px;">Level '
-          + playerLevel
-          + ' (guessed)'
-          + '</span>';
-      } else {
-        popup += '<span style="font-weight:bold;margin-left:10px;">Level unknown</span>'
+       window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer !== undefined) {
+      function getLevel(lvl) {
+        return '<span style="padding:4px;color:white;background-color:'+COLORS_LVL[lvl]+'">'+lvl+'</span>';
       }
+      popup += '<span style="font-weight:bold;margin-left:10px;">';
+
+      var playerLevelDetails = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(pguid);
+      if(playerLevelDetails.min == 8) {
+        popup += 'Level ' + getLevel(8);
+      } else {
+        popup += 'Min level: ' + getLevel(playerLevelDetails.min);
+        if(playerLevelDetails.min != playerLevelDetails.guessed)
+          popup += ', guessed level: ' + getLevel(playerLevelDetails.guessed);
+      }
+
+      popup += '</span>';
     }
     
     popup += '<br>'
@@ -344,15 +350,15 @@ window.plugin.playerTracker.drawData = function() {
     var eventPortal = []
     var closestPortal;
     var mostPortals = 0;
-    $.each(last.guids, function() {
-      if(eventPortal[this]) {
-        eventPortal[this]++;
+    $.each(last.guids, function(i, guid) {
+      if(eventPortal[guid]) {
+        eventPortal[guid]++;
       } else {
-        eventPortal[this] = 1;
+        eventPortal[guid] = 1;
       }
-      if(eventPortal[this] > mostPortals) {
-        mostPortals = eventPortal[this];
-        closestPortal = this;
+      if(eventPortal[guid] > mostPortals) {
+        mostPortals = eventPortal[guid];
+        closestPortal = guid;
       }
     });
 
