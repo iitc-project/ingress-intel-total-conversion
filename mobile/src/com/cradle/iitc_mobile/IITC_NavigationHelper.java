@@ -168,6 +168,11 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         }
     }
 
+    public void addPane(String name, String label, String icon) {
+        // TODO handle icon
+        mNavigationAdapter.add(new Pane(name, label, 0));
+    }
+
     public void closeDrawers() {
         mDrawerLayout.closeDrawers();
     }

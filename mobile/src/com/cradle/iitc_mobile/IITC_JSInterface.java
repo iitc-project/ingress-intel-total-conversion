@@ -168,4 +168,14 @@ public class IITC_JSInterface {
             }
         });
     }
+
+    @JavascriptInterface
+    public void addPane(final String name, final String label, final String icon) {
+        mIitc.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mIitc.getNavigationHelper().addPane(name, label, icon);
+            }
+        });
+    }
 }
