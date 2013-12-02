@@ -2,7 +2,7 @@
 // @id             iitc-plugin-bookmarks@ZasoGD
 // @name           IITC plugin: Bookmarks for maps and portals
 // @category       Controls
-// @version        0.2.6.@@DATETIMEVERSION@@
+// @version        0.2.7.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -335,10 +335,11 @@
     // If portal isn't saved in bookmarks: Add this bookmark
     else{
       // Get portal name and coordinates
-      var d = window.portals[guid].options.details;
-      var label = d.portalV2.descriptiveText.TITLE;
-      var lat = (d.locationE6.latE6)/1E6;
-      var lng = (d.locationE6.lngE6)/1E6;
+      var p = window.portals[guid];
+      var d = p.options.data;
+      var label = d.title;
+      var lat = p.getLatLng().lat;
+      var lng = p.getLatLng().lng;
       var latlng = lat+','+lng;
 
       var ID = window.plugin.bookmarks.generateID();

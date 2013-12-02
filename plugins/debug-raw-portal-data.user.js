@@ -2,7 +2,7 @@
 // @id             iitc-plugin-raw-portal-data
 // @name           IITC plugin: Debug: Raw portal JSON data
 // @category       Debug
-// @version        0.2.2.@@DATETIMEVERSION@@
+// @version        0.2.3.@@DATETIMEVERSION@@
 // @namespace      rawdata
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -36,40 +36,43 @@ window.plugin.rawdata.showPortalData = function(guid) {
   }
 
 
-  var d = window.portals[guid].options.details;
+  var data = window.portals[guid].options.data;
   var ts = window.portals[guid].options.timestamp;
 
-  var title = 'Raw portal data: ' + (d.portalV2.descriptiveText.TITLE || '<no title>') + ' ('+guid+')';
+  var title = 'Raw portal data: ' + (data.title || '<no title>') + ' ('+guid+')';
 
   var body =
     '<b>Portal GUID</b>: <code>'+guid+'</code><br />' +
     '<b>Entity timestamp</b>: <code>'+ts+'</code> - '+window.unixTimeToDateTimeString(ts,true)+'<br />' + 
-    '<pre>'+JSON.stringify(d,null,2)+'</pre>';
+    '<pre>'+JSON.stringify(data,null,2)+'</pre>';
+
+  var details = portalDetail.get(guid);
+  if (details) {
+    body += '<b>Portal details:</b><pre>'+JSON.stringify(details,null,2)+'</pre>';
+  }
+
 
   body += '<p><b>Links referencing this portal</b></p>';
   var haslinks = false;
-  for (var lguid in window.links) {
+  var linkGuids = getPortalLinks(guid);
+  $.each(linkGuids.in.concat(linkGuids.out), function(i,lguid) {
     var l = window.links[lguid];
-    var ld = l.options.details;
-    if (ld.edge.originPortalGuid == guid || ld.edge.destinationPortalGuid == guid) {
-      body += '<b>Link GUID</b>: <code>'+l.options.guid+'</code><br /><pre>'+JSON.stringify(ld,null,2)+'</pre>';
-      haslinks = true;
-    }
-  }
+    var ld = l.options.data;
+    body += '<b>Link GUID</b>: <code>'+l.options.guid+'</code><br /><pre>'+JSON.stringify(ld,null,2)+'</pre>';
+    haslinks = true;
+  });
+
   if (!haslinks) body += '<p>No links to/from this portal</p>';
 
   body += '<p><b>Fields referencing this portal</b></p>';
   var hasfields = false;
-  for (var fguid in window.fields) {
+  var fieldGuids = getPortalFields(guid);
+  $.each(fieldGuids, function(i,fguid) {
     var f = window.fields[fguid];
-    var fd = f.options.details;
-    if (fd.capturedRegion.vertexA.guid == guid ||
-        fd.capturedRegion.vertexB.guid == guid ||
-        fd.capturedRegion.vertexC.guid == guid) {
-      body += '<b>Field guid</b>: <code>'+f.options.guid+'</code><br /><pre>'+JSON.stringify(fd,null,2)+'</pre>';
-      hasfields = true;
-    }
-  }
+    var fd = f.options.data;
+    body += '<b>Field guid</b>: <code>'+f.options.guid+'</code><br /><pre>'+JSON.stringify(fd,null,2)+'</pre>';
+    hasfields = true;
+  });
   if (!hasfields) body += '<p>No fields linked to this portal</p>';
 
   dialog({

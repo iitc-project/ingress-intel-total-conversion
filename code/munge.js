@@ -14,139 +14,51 @@
 var requestParameterMunges = [
   // obsolete munge sets (they don't have some of the new parameters) deleted
 
-  // set 7 - 2013-11-06
+  // set 10 - 2013-11-27
   {
-    'dashboard.getArtifactInfo': 'artifacts',               // GET_ARTIFACT_INFO: new (and not obfuscated?!)
-    'dashboard.getGameScore': 'yol4dxx5ufqolhk2',          // GET_GAME_SCORE
-    'dashboard.getPaginatedPlextsV2': '7b83j2z81rtk6101',  // GET_PAGINATED_PLEXTS
-    'dashboard.getThinnedEntitiesV4': '46su4lrisoq28gxh',  // GET_THINNED_ENTITIES
-    'dashboard.getPlayersByGuids': 'wsc5puahrymtf1qh',     // LOOKUP_PLAYERS
-    'dashboard.redeemReward': 'oo0n7pw2m0xufpzx',          // REDEEM_REWARD
-    'dashboard.sendInviteEmail': 'bo1bp74rz8kbdjkb',       // SEND_INVITE_EMAIL
-    'dashboard.sendPlext': 'q0f8o4v9t8pt91yv',             // SEND_PLEXT
+    'dashboard.getArtifactInfo': 'artifacts',            // GET_ARTIFACT_INFO
+    'dashboard.getGameScore': '4oid643d9zc168hs',        // GET_GAME_SCORE
+    'dashboard.getPaginatedPlexts': 's1msyywq51ntudpe',  // GET_PAGINATED_PLEXTS
+    'dashboard.getThinnedEntities': '4467ff9bgxxe4csa',  // GET_THINNED_ENTITIES
+    'dashboard.getPortalDetails': 'c00thnhf1yp3z6mn',    // GET_PORTAL_DETAILS
+    'dashboard.redeemReward': '66l9ivg39ygfqqjm',        // REDEEM_REWARD
+    'dashboard.sendInviteEmail': 'cgb7hi5hglv0xx8k',     // SEND_INVITE_EMAIL
+    'dashboard.sendPlext': 'etn9xq7brd6947kq',           // SEND_PLEXT
 
     // common parameters
-    method: 'imo60cdzkemxduub',
-    version: '54lh4o0q7nz7dao9', //guessed parameter name - only seen munged
-    version_parameter: '370c0b4e160ed26c8c4ce40f10f546545730e1ef', // passed as the value to the above parameter
+    method: 'yyngyttbmmbuvdpa',
+    version: 'avz401t36lzrapis',
+    version_parameter: 'c5d0a5d608f729a1232bebdc12fb86ba5fb6c43f',
 
     // GET_THINNED_ENTITIES
-    quadKeys: 'iqy8e2d3zpne0cmh', //guessed parameter name - only seen munged
+    quadKeys: '1mpmxz2yun22rwnn',
 
     // GET_PAGINATED_PLEXTS
-    desiredNumItems: 'chwe3yko3xy0qlk3',
-    minLatE6: 'f31z3x27ua8i05cf',
-    minLngE6: 't0rmob7f42c0w04r',
-    maxLatE6: 'ebwfvri5io9q0tvu',
-    maxLngE6: 'lfqzvpj92dp8uxo6',
-    minTimestampMs: '23a6djyyieeaeduu',
-    maxTimestampMs: 'zhjtsm2gw7w3b7mx',
-    chatTab: 'tak64gipm3hhqpnh', //guessed parameter name - only seen munged
-    ascendingTimestampOrder: 'v5rzzxtg5rmry3dx',
+    desiredNumItems: 'nzd23jqm9k1cnnij',
+    minLatE6: '0dod6onpa1s4fezp',
+    minLngE6: 'soass3t7mm7anneo',
+    maxLatE6: 'cvarmr3o00ngylo1',
+    maxLngE6: 'udzwnlx07hzd3bfo',
+    minTimestampMs: '9iiiks138gkf8xho',
+    maxTimestampMs: '94wm0u3sc3sgzq7x',
+    chatTab: 'tqfj4a3okzn5v5o1',
+    ascendingTimestampOrder: '5jv1m90sq35u6utq',
 
     // SEND_PLEXT
-    message: 'onptntn3szan21lj',
-    latE6: '1jq9lgu3hjajrt7s',
-    lngE6: 'plbubiopnavbxxh6',
-//  chatTab: 'tak64gipm3hhqpnh', //guessed parameter name - only seen munged
-
-    // LOOKUP_PLAYERS
-    guids: '919p2cfpdo2wz03n',
-
-    // SEND_INVITE_EMAIL
-    inviteeEmailAddress: 'thpbnoyjx0antwm5',
-  },
-
-  // set 8 - 2013-11-07
-  {
-    'dashboard.getArtifactInfo': 'artifacts',               // GET_ARTIFACT_INFO: new (and not obfuscated?!)
-    'dashboard.getGameScore': 'lls4clhel87apzpa',          // GET_GAME_SCORE
-    'dashboard.getPaginatedPlextsV2': 'r6n2xgcd8wjsm4og',  // GET_PAGINATED_PLEXTS
-    'dashboard.getThinnedEntitiesV4': '1ybigzcf2sifu34b',  // GET_THINNED_ENTITIES
-    'dashboard.getPlayersByGuids': 'uig0xeb6trclqd2l',     // LOOKUP_PLAYERS
-    'dashboard.redeemReward': '7dd7x64cc2lbutoq',          // REDEEM_REWARD
-    'dashboard.sendInviteEmail': 'd8p6dvwilsr460u3',       // SEND_INVITE_EMAIL
-    'dashboard.sendPlext': 'repg2orpg7htkoto',             // SEND_PLEXT
-
-    // common parameters
-    method: '97aes4vnlvyhoxik',
-    version: 'an8mglz21qabq3wq', //guessed parameter name - only seen munged
-    version_parameter: 'b92c9d055fcdf715887b173c706e7a2c267e32c5', // passed as the value to the above parameter
-
-    // GET_THINNED_ENTITIES
-    quadKeys: 'mhjknavysslwfhk6', //guessed parameter name - only seen munged
-
-    // GET_PAGINATED_PLEXTS
-    desiredNumItems: 'l61g8u397alq3j1x',
-    minLatE6: 'wwsvpboc5bxd1s9q',
-    minLngE6: '48l4x7ngfsz47z3u',
-    maxLatE6: 'p3m1qg81uqldizu6',
-    maxLngE6: 'h4kv1eef878vfyk3',
-    minTimestampMs: 'uj1vcy9ufws24v2c',
-    maxTimestampMs: '8pt1x5nd9hk5vakv',
-    chatTab: 'zy1yc1rfczashshu', //guessed parameter name - only seen munged
-    ascendingTimestampOrder: 'duyuskmky68nl2ci',
-
-    // SEND_PLEXT
-    message: 'xktwjguq0nohzioa',
-    latE6: 'm4crflfaibmg9mdf',
-    lngE6: 'h6jfungrw5ii830r',
-//  chatTab: 'zy1yc1rfczashshu', //guessed parameter name - only seen munged
-
-    // LOOKUP_PLAYERS
-    guids: '3u9h9cpfh2yiy4fk',
-
-    // SEND_INVITE_EMAIL
-    inviteeEmailAddress: 'jpg3y4ax7t0w356j',
-  },
-
-  // set 9 - 2013-11-1
-  {
-    'dashboard.getArtifactInfo': 'artifacts',               // GET_ARTIFACT_INFO: new (and not obfuscated?!)
-    'dashboard.getGameScore': '9w8phj2dccvns3t9',          // GET_GAME_SCORE
-    'dashboard.getPaginatedPlextsV2': '3b1nc3ub0sd1704x',  // GET_PAGINATED_PLEXTS
-    'dashboard.getThinnedEntitiesV4': '2xa55qj41qrhfhas',  // GET_THINNED_ENTITIES
-    'dashboard.getPlayersByGuids': '734hxjh89d53clqq',     // LOOKUP_PLAYERS
-    'dashboard.redeemReward': 'k3hwg41wf112gjjh',          // REDEEM_REWARD
-    'dashboard.sendInviteEmail': 'uwizjeb18xmcesa0',       // SEND_INVITE_EMAIL
-    'dashboard.sendPlext': '5au1m1hut1gyvnix',             // SEND_PLEXT
-
-    // common parameters
-    method: '3sld77nsm0tjmkvi',
-    version: 'xz7q6r3aja5ttvoo', //guessed parameter name - only seen munged
-    version_parameter: 'b121024077de2a0dc6b34119e4440785c9ea5e64', // passed as the value to the above parameter
-
-    // GET_THINNED_ENTITIES
-    quadKeys: '0o6bkrbwevwn6bg1', //guessed parameter name - only seen munged
-
-    // GET_PAGINATED_PLEXTS
-    desiredNumItems: '3fketl1tv01q7vxu',
-    minLatE6: '5i6jhgbv3aq3c4qz',
-    minLngE6: 'pe2io3r932qysg4u',
-    maxLatE6: 'plzyuy89bnlb3pth',
-    maxLngE6: 'q0qq1ooc7sxpynth',
-    minTimestampMs: 'nc282s8hdklv21mw',
-    maxTimestampMs: 'ezrljj0l71gpelpu',
-    chatTab: 'efaznrayv5n3jxs0', //guessed parameter name - only seen munged
-    ascendingTimestampOrder: 'fcmlcb8ya0oa1clk',
-
-    // SEND_PLEXT
-    message: 'jg4ms2i14rgzi02n',
-    latE6: 'nkf3evzpkxkq8l2q',
-    lngE6: '7xoz0xl8se4d1j53',
+    message: '8exta9k7y8huhqmc',
+    latE6: 'kqek161gza3kjcry',
+    lngE6: '3dlxsqrjj2vcmhbc',
 //  chatTab: 'efaznrayv5n3jxs0', //guessed parameter name - only seen munged
 
-    // LOOKUP_PLAYERS
-    guids: 'm4dcrdltldigfo94',
+    // GET_PORTAL_DETAILS
+    guid: 'seg6ohxgnqf9xu9w',
 
     // SEND_INVITE_EMAIL
-    inviteeEmailAddress: 'rye9be4um2t1z5ts',
+    inviteeEmailAddress: '8exta9k7y8huhqmc',
   },
 
 ];
 
-
-var activeRequestMungeSet = undefined;
 
 
 // in the recent stock site updates, their javascript code has been less obfuscated, but also the munge parameters
@@ -158,14 +70,15 @@ function extractMungeFromStock() {
     var foundMunges = {};
 
     // these are easy - directly available in variables
-    foundMunges['dashboard.getArtifactInfo'] = nemesis.dashboard.requests.MethodName.GET_ARTIFACT_INFO;
-    foundMunges['dashboard.getGameScore'] = nemesis.dashboard.requests.MethodName.GET_GAME_SCORE;
-    foundMunges['dashboard.getPaginatedPlextsV2'] = nemesis.dashboard.requests.MethodName.GET_PAGINATED_PLEXTS;
-    foundMunges['dashboard.getThinnedEntitiesV4'] = nemesis.dashboard.requests.MethodName.GET_THINNED_ENTITIES;
-    foundMunges['dashboard.getPlayersByGuids'] = nemesis.dashboard.requests.MethodName.LOOKUP_PLAYERS;
-    foundMunges['dashboard.redeemReward'] = nemesis.dashboard.requests.MethodName.REDEEM_REWARD;
-    foundMunges['dashboard.sendInviteEmail'] = nemesis.dashboard.requests.MethodName.SEND_INVITE_EMAIL;
-    foundMunges['dashboard.sendPlext'] = nemesis.dashboard.requests.MethodName.SEND_PLEXT;
+    // NOTE: the .toString() is there so missing variables throw an exception, rather than storing 'undefined'
+    foundMunges['dashboard.getArtifactInfo'] = nemesis.dashboard.requests.MethodName.GET_ARTIFACT_INFO.toString();
+    foundMunges['dashboard.getGameScore'] = nemesis.dashboard.requests.MethodName.GET_GAME_SCORE.toString();
+    foundMunges['dashboard.getPaginatedPlexts'] = nemesis.dashboard.requests.MethodName.GET_PAGINATED_PLEXTS.toString();
+    foundMunges['dashboard.getThinnedEntities'] = nemesis.dashboard.requests.MethodName.GET_THINNED_ENTITIES.toString();
+    foundMunges['dashboard.getPortalDetails'] = nemesis.dashboard.requests.MethodName.GET_PORTAL_DETAILS.toString();
+    foundMunges['dashboard.redeemReward'] = nemesis.dashboard.requests.MethodName.REDEEM_REWARD.toString();
+    foundMunges['dashboard.sendInviteEmail'] = nemesis.dashboard.requests.MethodName.SEND_INVITE_EMAIL.toString();
+    foundMunges['dashboard.sendPlext'] = nemesis.dashboard.requests.MethodName.SEND_PLEXT.toString();
 
     // the rest are trickier - we need to parse the functions of the stock site. these break very often
     // on site updates
@@ -218,11 +131,11 @@ function extractMungeFromStock() {
     var chatTab = result[7] || result[8];
     if (chatTab != foundMunges.chatTab) throw 'Error: inconsistent munge parsing for chatTab';
 
-    // LOOKUP_PLAYERS
-    var reg = new RegExp('LOOKUP_PLAYERS, {'+mungeRegExpLit+'a}');
-    var result = reg.exec(nemesis.dashboard.network.DataFetcher.prototype.lookupPlayersByGuids.toString());
+    // GET_PORTAL_DETAILS
+    var reg = new RegExp('GET_PORTAL_DETAILS, {'+mungeRegExpLit+'a}');
+    var result = reg.exec(nemesis.dashboard.network.DataFetcher.prototype.getPortalDetails.toString());
 
-    foundMunges.guids = result[1] || result[2];
+    foundMunges.guid = result[1] || result[2];
 
     // SEND_INVITE_EMAIL
     var reg = new RegExp('SEND_INVITE_EMAIL, {'+mungeRegExpLit+'b}');
@@ -244,44 +157,32 @@ window.detectActiveMungeSet = function() {
   // first, try and parse the stock functions and extract the munges directly
   activeMunge = extractMungeFromStock();
   if (activeMunge) {
-    console.log('IITC: Successfully extracted munges from stock javascript');
-    return;
-  }
-
-  // try and find the stock page functions
-  // FIXME? revert to searching through all the code? is that practical?
-  var stockFunc;
-  try {
-    stockFunc = nemesis.dashboard.network.XhrController.prototype.doSendRequest_.toString();
-  } catch(e) {
-    try {
-      stockFunc = nemesis.dashboard.network.XhrController.prototype.sendRequest.toString();
-    } catch(e) {
-      try {
-        stockFunc = nemesis.dashboard.network.DataFetcher.prototype.sendRequest_.toString();
-      } catch(e) {
-        console.warn('Failed to find a relevant function in the stock site');
-      }
-    }
-  }
-
-  if(stockFunc) {
-    for (var i in requestParameterMunges) {
-      if (stockFunc.indexOf (requestParameterMunges[i]['method']) >= 0) {
-        console.log('IITC: found request munge set index '+i+' in stock intel site');
-        activeRequestMungeSet = i;
-      }
-    }
+    console.log('IITC: Successfully extracted munges from stock javascript - excellent work!');
   } else {
-    console.error('IITC: failed to find the stock site function for detecting munge set');
+    console.warn('IITC: failed to detect a munge set from the code - searching our list...');
+
+    // try to find a matching munge set from the pre-defined ones. this code remains as in the case of
+    // things breaking it can be quicker to update the table than to fix the regular expressions used
+    // above
+
+    try {
+      for (var i in requestParameterMunges) {
+        if (requestParameterMunges[i]['dashboard.getThinnedEntities'] == nemesis.dashboard.requests.MethodName.GET_THINNED_ENTITIES) {
+          console.log('IITC: found a match with munge set index '+i);
+          activeMunge = requestParameterMunges[i];
+          break;
+        }
+      }
+    } catch(e) {
+      console.warn('IITC: failed to find matching munge set from supplied list');
+    }
   }
 
-  if (activeRequestMungeSet===undefined) {
-    console.error('IITC: failed to find request munge set - IITC will likely fail');
-    activeRequestMungeSet = 0;
+  if (!activeMunge) {
+    console.warn('IITC: Error!! failed to find a parameter munge set - neither extracting from stock, or searching through table. IITC CANNOT WORK');
+    throw {error:'Failed to find a munge set'};
   }
 
-  activeMunge = requestParameterMunges[activeRequestMungeSet];
 }
 
 

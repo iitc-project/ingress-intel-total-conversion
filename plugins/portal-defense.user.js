@@ -1,17 +1,18 @@
 // ==UserScript==
 // @id             iitc-plugin-defense@gluckies
 // @name           IITC plugin: portal defense 
-// @category       Layer
+// @category  Deleted
 // @version        0.2.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Shows the defense values of every portal (see also "hightlight portals total mitigation" highlighter)
+// @description   PLUGIN CURRENTLY UNAVAILABLE
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
 // ==/UserScript==
+<<<<<<< HEAD
 
 @@PLUGINSTART@@
 
@@ -169,3 +170,5 @@ var setup =  function() {
 // PLUGIN END //////////////////////////////////////////////////////////
 
 @@PLUGINEND@@
+=======
+>>>>>>> 68ec278914ced792f20cbd133f9481d6078435a6

@@ -2,7 +2,7 @@
 // @id             iitc-plugin-highlight-portals-missing-resonators@vita10gy
 // @name           IITC plugin: highlight portals missing resonators
 // @category       Highlighter
-// @version        0.1.1.@@DATETIMEVERSION@@
+// @version        0.1.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -22,29 +22,19 @@
 window.plugin.portalsMissingResonators = function() {};
 
 window.plugin.portalsMissingResonators.highlight = function(data) {
-  var d = data.portal.options.details;
-  var portal_weakness = 0;
-  if(getTeam(d) !== 0) {
-    //Ding the portal for every missing resonator.
-    var resCount = 0;
-    $.each(d.resonatorArray.resonators, function(ind, reso) {
-      if(reso === null) {
-        portal_weakness += .125;
-      } else {
-        resCount++;
-      }
-    });
-    
-    if(portal_weakness > 0) {
-      var fill_opacity = portal_weakness*.85 + .15;
+
+  if(data.portal.options.team != TEAM_NONE) {
+    var res_count = data.portal.options.data.resCount;
+
+    if(res_count < 8) {
+      var fill_opacity = ((8-res_count)/8)*.85 + .15;
       var color = 'red';
-      fill_opacity = Math.round(fill_opacity*100)/100;
       var params = {fillColor: color, fillOpacity: fill_opacity};
-      if(resCount < 8) {
-        // Hole per missing resonator
-        var dash = new Array(8-resCount + 1).join("1,4,") + "100,0"
-        params["dashArray"] = dash;
-      }
+
+      // Hole per missing resonator
+      var dash = new Array((8 - res_count) + 1).join("1,4,") + "100,0"
+      params.dashArray = dash;
+
       data.portal.setStyle(params);
     } 
   }
