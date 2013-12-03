@@ -317,7 +317,7 @@ window.plugin.guessPlayerLevels.sort = function(playerHash) {
 
 
 var setup =  function() {
-  // we used to sture level guesses as one localStorage key per player, named 'level-PLAYER_GUID'
+  // we used to store level guesses as one localStorage key per player, named 'level-PLAYER_GUID'
   // they're now stored in a single storage key - 'plugin-guess-player-levels' - so clear these old entries
   $.each(Object.keys(localStorage), function(ind,key) {// legacy code - should be removed in the future
     if(key.lastIndexOf('level-',0)===0) {

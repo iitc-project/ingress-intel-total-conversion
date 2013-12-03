@@ -155,7 +155,7 @@ window.plugin.keys.loadLocal = function(mapping) {
                           : JSON.parse(objectJSON);
 }
 
-// For backward compitable, will change to use loadLocal after a few version
+// For backward compatibility, will change to use loadLocal after a few version
 window.plugin.keys.loadKeys = function() {
   var keysObjectJSON = localStorage[plugin.keys.KEY.key];
   if(!keysObjectJSON) return;
