@@ -36,6 +36,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
 
     public static final int NOTICE_DRAWERS = 1 << 0;
     public static final int NOTICE_INFO = 1 << 1;
+    public static final int NOTICE_PANES = 1 << 2;
     // next one would be 1<<2; (this results in 1,2,4,8,...)
 
     private final IITC_Mobile mIitc;
@@ -86,6 +87,9 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
                 break;
             case NOTICE_INFO:
                 text = mIitc.getText(R.string.notice_info).toString();
+                break;
+            case NOTICE_PANES:
+                text = mIitc.getText(R.string.notice_panes).toString();
                 break;
             default:
                 return;
@@ -169,6 +173,8 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     }
 
     public void addPane(String name, String label, String icon) {
+        showNotice(NOTICE_PANES);
+
         int resId = mIitc.getResources().getIdentifier(icon, "drawable", mIitc.getPackageName());
         mNavigationAdapter.add(new Pane(name, label, resId));
     }
