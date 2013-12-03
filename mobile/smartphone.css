@@ -1,5 +1,4 @@
 body {
-  background: #000;
   color: #fff;
 }
 
@@ -81,7 +80,7 @@ body {
 }
 
 #sidebar, #chatcontrols, #chat, #chatinput {
-  background: #0B3351 !important;
+  background: transparent !important;
 }
 
 .leaflet-top .leaflet-control {
@@ -199,19 +198,18 @@ body {
   padding: 5px;
   margin-top: 3px;
   margin-bottom: 3px;
-  border: 2px outset #0e3d4e;
+  border: 2px outset #20A8B1;
 }
 
 #toolbox > a {
   padding: 5px;
   margin-top: 3px;
   margin-bottom: 3px;
-  border: 2px outset #0e3d4e;
+  border: 2px outset #20A8B1;
 }
 
 #portaldetails .close {
   padding: 4px;
-  border: 1px outset #0e3d4e;
+  border: 1px outset #20A8B1;
   margin-top: 2px;
-  background: #0e3d4e;
 }
