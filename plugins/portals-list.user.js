@@ -132,7 +132,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   //Array sort
   window.plugin.portalslist.listPortals.sort(function(a, b) {
     var retVal = 0;
-    switch (sortBy) { win
+    switch (sortBy) {
       case 'names':
         retVal = a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1;
         break;
@@ -165,7 +165,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
 
       html += '<td style="cursor:help" title="'+ portal.health +'">' + portal.health + '</td>'
         + '<td>' + portal.resCount + '</td>'
-        + '<td>' + portal.linkCount + '</td>'
+        + '<td title="In: ' + portal.link.in.length + ' Out: ' + portal.link.out.length + '">' + portal.linkCount + '</td>'
         + '<td>' + portal.fieldCount + '</td>';
 
       html+= '</tr>';
