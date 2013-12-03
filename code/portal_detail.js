@@ -32,6 +32,7 @@ window.portalDetail.isFresh = function(guid) {
 var handleResponse = function(guid, data, success) {
 
   if (success) {
+    data.guid = guid;
     cache.store(guid,data);
 
     //FIXME..? better way of handling sidebar refreshing...
