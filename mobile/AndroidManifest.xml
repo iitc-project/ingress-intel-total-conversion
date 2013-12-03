@@ -99,7 +99,7 @@
             android:enabled="true"
             android:excludeFromRecents="true"
             android:exported="false"
-            android:icon="@drawable/copy"
+            android:icon="@drawable/ic_action_copy"
             android:label="@string/activity_share_to_clipboard"
             android:noHistory="false">
             <intent-filter>

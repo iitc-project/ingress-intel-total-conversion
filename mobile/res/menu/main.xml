@@ -7,7 +7,7 @@
           android:actionViewClass="android.widget.SearchView" />
     <item
         android:id="@+id/locate"
-        android:icon="@drawable/device_access_location_found"
+        android:icon="@drawable/ic_action_location_found"
         android:orderInCategory="100"
         android:showAsAction="ifRoom"
         android:title="@string/locate">
@@ -21,7 +21,7 @@
     </item>
     <item
         android:id="@+id/reload_button"
-        android:icon="@drawable/navigation_refresh"
+        android:icon="@drawable/ic_action_refresh"
         android:orderInCategory="110"
         android:showAsAction="never"
         android:title="@string/reload">
