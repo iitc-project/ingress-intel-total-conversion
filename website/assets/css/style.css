@@ -11,3 +11,17 @@ table tr.category_header {
 table .description {
 	font-style: italic;
 }
+
+.icon-chevron-desktop,
+.icon-chevron-mobile {
+  background-image: url("../img/glyphicons-devices.png");
+  background-position: 0 0;
+}
+.nav-list > .active > a > .icon-chevron-desktop,
+.nav-list > .active > a > .icon-chevron-mobile 
+{
+  background-image: url("../img/glyphicons-devices-white.png");
+}
+.icon-chevron-mobile {
+  background-position: 0 -14px;
+}

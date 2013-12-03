@@ -5,7 +5,7 @@
 window.renderPortalDetails = function(guid) {
   selectPortal(window.portals[guid] ? guid : null);
 
-  if (!portalDetail.isFresh(guid)) {
+  if (guid && !portalDetail.isFresh(guid)) {
     portalDetail.request(guid);
   }
 
@@ -178,7 +178,7 @@ window.getPortalMiscDetails = function(guid,d) {
       : null;
     var sinceText  = time ? ['since', time] : null;
 
-    var linkedFields = ['fields', d.portalV2.linkedFields ? d.portalV2.linkedFields.length : 0];
+    var linkedFields = ['fields', getPortalFields(guid).length];
 
     // collect and html-ify random data
     var randDetailsData = [];
