@@ -6,7 +6,8 @@ window.updateGameScoreFailCount = 0;
 
 window.updateGameScore = function(data) {
   if(!data) {
-    window.postAjax('getGameScore', {}, window.updateGameScore);
+    // move the postAjax call onto a very short timer. this way, if it throws an exception, it won't prevent IITC booting
+    setTimeout (function() { window.postAjax('getGameScore', {}, window.updateGameScore); }, 1);
     return;
   }
 

@@ -123,6 +123,9 @@ window.getAttackApGain = function(d) {
   });
 
   var linkCount = d.portalV2.linkedEdges ? d.portalV2.linkedEdges.length : 0;
+
+//FIXME: portalV2.linkedFields was never a piece of data from the server - it was something faked in IITC
+//with the portal guid, window.getPortalFields will return the count of linked fields - but no guid passed into here
   var fieldCount = d.portalV2.linkedFields ? d.portalV2.linkedFields.length : 0;
 
   var resoAp = resoCount * DESTROY_RESONATOR;
