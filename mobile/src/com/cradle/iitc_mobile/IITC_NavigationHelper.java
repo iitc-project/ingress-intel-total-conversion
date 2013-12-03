@@ -81,7 +81,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
                     icon = R.drawable.ic_action_cc_bcc;
                     break;
                 case DEBUG:
-                    icon = R.drawable.ic_debug;
+                    icon = R.drawable.ic_action_error;
                     break;
             }
 
