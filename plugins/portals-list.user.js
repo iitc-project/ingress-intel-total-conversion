@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portals-list@teo96
 // @name           IITC plugin: show list of portals
 // @category       Info
-// @version        0.0.19.@@DATETIMEVERSION@@
+// @version        0.1.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -19,7 +19,7 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
   /* whatsnew
-   * 0.0.19: Using the new data format
+   * 0.1.0 : Using the new data format
    * 0.0.15: Add 'age' column to display how long each portal has been controlled by its current owner.
    * 0.0.14: Add support to new mods (S:Shield - T:Turret - LA:Link Amp - H:Heat-sink - M:Multi-hack - FA:Force Amp)
    * 0.0.12: Use dialog() instead of alert so the user can drag the box around
@@ -64,30 +64,36 @@ window.plugin.portalslist.getPortals = function() {
 
     retval=true;
     var d = portal.options.data;
-    var teamN = 0;
+    var teamN = window.TEAM_NONE;
 
     switch (d.team){
       case 'RESISTANCE' :
         window.plugin.portalslist.resP++;
-        teamN = 1
+        teamN = window.TEAM_RES
         break;
       case 'ENLIGHTENED' :
         window.plugin.portalslist.enlP++;
-        teamN = 2;
+        teamN = window.TEAM_ENL;
         break;
     }
+    var l = window.getPortalLinks(i);
+    var f = window.getPortalFields(i);
 
     var thisPortal = {
+      'portal': portal,
       'guid': i,
       'teamN': teamN,
       'name': d.title,
       'team': d.team,
-      'level': d.level,
+      'level': portal.options.level,
       'health': d.health,
       'resCount': d.resCount,
-      'lat': d.latE6,
-      'lng': d.lngE6,
-      'img': d.img};
+      'img': d.img,
+      'linkCount': l.in.length + l.out.length,
+      'link' : l,
+      'fieldCount': f.length,
+      'field' : f
+    };
     window.plugin.portalslist.listPortals.push(thisPortal);
   });
 
@@ -126,7 +132,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   //Array sort
   window.plugin.portalslist.listPortals.sort(function(a, b) {
     var retVal = 0;
-    switch (sortBy) {
+    switch (sortBy) { win
       case 'names':
         retVal = a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1;
         break;
@@ -146,17 +152,21 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
     + '<th title="Team" ' + sort('teamN', sortBy, -1) + '>Team</th>'
     + '<th ' + sort('health', sortBy, -1) + '>Health</th>'
     + '<th ' + sort('resCount', sortBy, -1) + '>Resonator Count</th>'
+    + '<th ' + sort('linkCount', sortBy, -1) + '>Link Count</th>'
+    + '<th ' + sort('fieldCount', sortBy, -1) + '>Field Count</th>'
 
 
   $.each(portals, function(ind, portal) {
-    if (filter === 0 || filter === portal.teamN) {
-      html += '<tr class="' + (portal.teamN === 1 ? 'res' : (portal.teamN === 2 ? 'enl' : 'neutral')) + '">'
+    if (filter === TEAM_NONE || filter === portal.teamN) {
+      html += '<tr class="' + (portal.teamN === window.TEAM_RES ? 'res' : (portal.teamN === window.TEAM_ENL ? 'enl' : 'neutral')) + '">'
         + '<td style="">' + window.plugin.portalslist.getPortalLink(portal, portal.guid) + '</td>'
         + '<td class="L' + Math.floor(portal.level) +'">' + portal.level + '</td>'
         + '<td style="text-align:center;">' + portal.team + '</td>';
 
       html += '<td style="cursor:help" title="'+ portal.health +'">' + portal.health + '</td>'
-        + '<td>' + portal.resCount + '</td>';
+        + '<td>' + portal.resCount + '</td>'
+        + '<td>' + portal.linkCount + '</td>'
+        + '<td>' + portal.fieldCount + '</td>';
 
       html+= '</tr>';
     }
@@ -195,11 +205,11 @@ window.plugin.portalslist.portalTableSort = function(name, by) {
 //               hover: show address
 // code from getPortalLink function by xelio from iitc: AP List - https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/ap-list.user.js
 window.plugin.portalslist.getPortalLink = function(portal,guid) {
-
-  var latlng = [portal.latE6/1E6, portal.lngE6/1E6].join();
+  var coord = portal.portal.getLatLng();
+  var latlng = [coord.lat, coord.lng].join();
   var jsSingleClick = 'window.renderPortalDetails(\''+guid+'\');return false';
   var jsDoubleClick = 'window.zoomToAndShowPortal(\''+guid+'\', ['+latlng+']);return false';
-  var perma = '/intel?latE6='+portal.latE6+'&lngE6='+portal.lngE6+'&z=17&pguid='+guid;
+  var perma = '/intel?latE6='+coord.lat+'&lngE6='+coord.lng+'&z=17&pguid='+guid;
 
   //Use Jquery to create the link, which escape characters in TITLE and ADDRESS of portal
   var a = $('<a>',{
