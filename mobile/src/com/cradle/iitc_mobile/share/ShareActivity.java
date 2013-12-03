@@ -84,7 +84,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         addTab(intents, R.string.tab_map, R.drawable.location_map);
 
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getUrl()));
-        addTab(intent, R.string.tab_browser, R.drawable.browser);
+        addTab(intent, R.string.tab_browser, R.drawable.ic_action_web_site);
     }
 
     private void setupShareIntent(String str) {

@@ -66,7 +66,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
                     icon = R.drawable.location_map;
                     break;
                 case INFO:
-                    icon = R.drawable.action_about;
+                    icon = R.drawable.ic_action_about;
                     break;
                 case FULL:
                     icon = R.drawable.collections_view_as_list;
