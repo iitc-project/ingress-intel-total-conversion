@@ -14,7 +14,7 @@
     </item>
     <item
         android:id="@+id/layer_chooser"
-        android:icon="@drawable/ic_layer_chooser"
+        android:icon="@drawable/ic_action_add_to_queue"
         android:orderInCategory="105"
         android:showAsAction="ifRoom"
         android:title="@string/layer_chooser">
