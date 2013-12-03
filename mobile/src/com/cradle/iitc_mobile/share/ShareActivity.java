@@ -81,10 +81,10 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         String geoUri = "geo:" + mLl;
         Intent geoIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(geoUri));
         intents.add(geoIntent);
-        addTab(intents, R.string.tab_map, R.drawable.location_map);
+        addTab(intents, R.string.tab_map, R.drawable.ic_action_map);
 
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getUrl()));
-        addTab(intent, R.string.tab_browser, R.drawable.browser);
+        addTab(intent, R.string.tab_browser, R.drawable.ic_action_web_site);
     }
 
     private void setupShareIntent(String str) {
@@ -93,7 +93,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TEXT, str);
         intent.putExtra(Intent.EXTRA_SUBJECT, mTitle);
-        addTab(intent, R.string.tab_share, R.drawable.share);
+        addTab(intent, R.string.tab_share, R.drawable.ic_action_share);
     }
 
     @Override

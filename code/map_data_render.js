@@ -470,7 +470,7 @@ window.Render.prototype.addPortalToMapLayer = function(portal) {
 
   this.portalClusters[cid].push(portal.options.guid);
 
-  // now, at this point, we could match the above re-clustr code - sorting, and adding/removing as necessary
+  // now, at this point, we could match the above re-cluster code - sorting, and adding/removing as necessary
   // however, it won't make a lot of visible difference compared to just pushing to the end of the list, then
   // adding to the visible layer if the list is below the limit
   if (this.portalClusters[cid].length < this.CLUSTER_PORTAL_LIMIT || portal.options.guid == selectedPortal || artifact.isInterestingPortal(portal.options.guid)) {

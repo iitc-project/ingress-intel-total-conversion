@@ -327,13 +327,13 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     }
 
     public static class Pane {
-        public static final Pane COMPACT = new Pane("compact", "Compact", R.drawable.collections_view_as_list_compact);
-        public static final Pane DEBUG = new Pane("debug", "Debug", R.drawable.ic_debug);
-        public static final Pane FACTION = new Pane("faction", "Faction", R.drawable.social_cc_bcc);
-        public static final Pane FULL = new Pane("full", "Full", R.drawable.collections_view_as_list);
-        public static final Pane INFO = new Pane("info", "Info", R.drawable.action_about);
-        public static final Pane MAP = new Pane("map", "IITC Mobile", R.drawable.location_map);
-        public static final Pane PUBLIC = new Pane("public", "Public", R.drawable.social_group);
+        public static final Pane COMPACT = new Pane("compact", "Compact", R.drawable.ic_action_view_as_list_compact);
+        public static final Pane DEBUG = new Pane("debug", "Debug", R.drawable.ic_action_error);
+        public static final Pane FACTION = new Pane("faction", "Faction", R.drawable.ic_action_cc_bcc);
+        public static final Pane FULL = new Pane("full", "Full", R.drawable.ic_action_view_as_list);
+        public static final Pane INFO = new Pane("info", "Info", R.drawable.ic_action_about);
+        public static final Pane MAP = new Pane("map", "IITC Mobile", R.drawable.ic_action_map);
+        public static final Pane PUBLIC = new Pane("public", "Public", R.drawable.ic_action_group);
 
         private int icon;
         public String label;
