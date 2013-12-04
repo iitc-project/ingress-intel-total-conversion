@@ -36,7 +36,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     // Makes the icon/title clickable
     // getActionBar().setHomeButtonEnabled(enabled);
 
-    public static final int NOTICE_DRAWERS = 1 << 0;
+    public static final int NOTICE_HOWTO = 1 << 0;
     public static final int NOTICE_INFO = 1 << 1;
     public static final int NOTICE_PANES = 1 << 2;
     // next one would be 1<<2; (this results in 1,2,4,8,...)
@@ -77,7 +77,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
 
         onPrefChanged(); // also calls updateActionBar()
 
-        showNotice(NOTICE_DRAWERS);
+        showNotice(NOTICE_HOWTO);
     }
 
     private void showNotice(final int which) {
@@ -85,7 +85,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
 
         int text;
         switch (which) {
-            case NOTICE_DRAWERS:
+            case NOTICE_HOWTO:
                 text = R.string.notice_how_to;
                 break;
             case NOTICE_INFO:
