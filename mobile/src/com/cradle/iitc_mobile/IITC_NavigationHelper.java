@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -52,6 +53,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     private boolean mIsLoading;
     private Pane mPane = Pane.MAP;
     private String mHighlighter = null;
+    private int mDialogs = 0;
 
     public IITC_NavigationHelper(IITC_Mobile activity, ActionBar bar) {
         super(activity, (DrawerLayout) activity.findViewById(R.id.drawer_layout),
@@ -79,30 +81,30 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     }
 
     private void showNotice(final int which) {
-        if ((mPrefs.getInt("pref_messages", 0) & which) != 0) return;
+        if ((mPrefs.getInt("pref_messages", 0) & which) != 0 || (mDialogs & which) != 0) return;
 
-        String text;
+        int text;
         switch (which) {
             case NOTICE_DRAWERS:
-                text = mIitc.getText(R.string.notice_how_to).toString();
+                text = R.string.notice_how_to;
                 break;
             case NOTICE_INFO:
-                text = mIitc.getText(R.string.notice_info).toString();
+                text = R.string.notice_info;
                 break;
             case NOTICE_PANES:
-                text = mIitc.getText(R.string.notice_panes).toString();
+                text = R.string.notice_panes;
                 break;
             default:
                 return;
         }
 
-        TextView message = new TextView(mIitc);
-        message.setPadding(20, 20, 20, 20);
-        message.setText(Html.fromHtml(text));
+        final View content = mIitc.getLayoutInflater().inflate(R.layout.dialog_notice, null);
+        TextView message = (TextView) content.findViewById(R.id.tv_notice);
+        message.setText(Html.fromHtml(mIitc.getString(text)));
         message.setMovementMethod(LinkMovementMethod.getInstance());
 
         AlertDialog dialog = new AlertDialog.Builder(mIitc)
-                .setView(message)
+                .setView(content)
                 .setCancelable(true)
                 .setPositiveButton(android.R.string.ok, new OnClickListener() {
                     @Override
@@ -114,15 +116,20 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         dialog.setOnDismissListener(new OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                int value = mPrefs.getInt("pref_messages", 0);
-                value |= which;
+                mDialogs &= ~which;
+                if (((CheckBox) content.findViewById(R.id.cb_do_not_show_again)).isChecked()) {
+                    int value = mPrefs.getInt("pref_messages", 0);
+                    value |= which;
 
-                mPrefs
-                        .edit()
-                        .putInt("pref_messages", value)
-                        .commit();
+                    mPrefs
+                            .edit()
+                            .putInt("pref_messages", value)
+                            .commit();
+                }
             }
         });
+
+        mDialogs |= which;
         dialog.show();
     }
 
