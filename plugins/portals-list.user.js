@@ -237,7 +237,7 @@ window.plugin.portalslist.onPaneChanged = function(pane) {
 
 var setup =  function() {
   if(typeof android !== 'undefined' && android && android.addPane) {
-    android.addPane("plugin-portalslist", "Portals list", "ic_action_view_as_list");
+    android.addPane("plugin-portalslist", "Portals list", "ic_action_paste");
     addHook("paneChanged", window.plugin.portalslist.onPaneChanged);
   } else {
     $('#toolbox').append(' <a onclick="window.plugin.portalslist.displayPL()" title="Display a list of portals in the current view">Portals list</a>');
