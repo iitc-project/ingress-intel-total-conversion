@@ -169,6 +169,13 @@
     window.plugin.bookmarks.saveStorageBox();
   }
 
+  window.plugin.bookmarks.onPaneChanged = function(pane) {
+    if(pane == "plugin-bookmarks")
+      $('#bookmarksBox').css("display", "");
+    else
+      $('#bookmarksBox').css("display", "none");
+  }
+
   // Switch list (maps/portals)
   window.plugin.bookmarks.switchPageBkmrksBox = function(elem, page) {
     window.plugin.bookmarks.statusBox.page = page;
@@ -938,8 +945,13 @@
       $("#bookmarksBox #bookmarksMin , #bookmarksBox ul li, #bookmarksBox ul li a, #bookmarksBox ul li a span, #bookmarksBox h5, #bookmarksBox .addForm a").disableSelection();
       $('#bookmarksBox').css({'top':window.plugin.bookmarks.statusBox.pos.x, 'left':window.plugin.bookmarks.statusBox.pos.y});
     }else{
-      $('#portaldetails').before(window.plugin.bookmarks.htmlBoxTrigger + window.plugin.bookmarks.htmlBkmrksBox);
+      $('body').append(window.plugin.bookmarks.htmlBkmrksBox);
+      $('#bookmarksBox').css("display", "none").addClass("mobile");
 
+      if(typeof android !== 'undefined' && android && android.addPane)
+        android.addPane("plugin-bookmarks", "Bookmarks", "ic_action_star");
+      window.addHook('paneChanged', window.plugin.bookmarks.onPaneChanged);
+      
       // Remove the star
       window.addHook('portalSelected', function(data) {
         if(data.selectedPortalGuid === null) {
