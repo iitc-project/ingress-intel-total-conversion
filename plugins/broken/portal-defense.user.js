@@ -68,7 +68,7 @@ window.plugin.portalDefense.renderAttackRegion = function(portal) {
     }
     var region = L.marker(portal.getLatLng(), {
       icon: L.divIcon({
-        className: 'plugin-iic-defense',
+        className: 'plugin-iitc-defense',
         clickable: false,
         iconAnchor: [-10,10],
         html: "<div class='defense-label'>"+display+"</div>"
@@ -127,7 +127,7 @@ var setup =  function() {
   $('#toolbox').append(' <a onclick="window.plugin.portalDefense.reload()">Reload Defense</a>');
   $("<style>")
     .prop("type", "text/css")
-    .html(".plugin-iic-defense {\
+    .html(".plugin-iitc-defense {\
             font-size: 10px;\
             color: #FFFFBB;\
             font-family: monospace;\
