@@ -12,6 +12,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -83,7 +84,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         String text;
         switch (which) {
             case NOTICE_DRAWERS:
-                text = mIitc.getText(R.string.notice_drawers).toString();
+                text = mIitc.getText(R.string.notice_how_to).toString();
                 break;
             case NOTICE_INFO:
                 text = mIitc.getText(R.string.notice_info).toString();
@@ -98,6 +99,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         TextView message = new TextView(mIitc);
         message.setPadding(20, 20, 20, 20);
         message.setText(Html.fromHtml(text));
+        message.setMovementMethod(LinkMovementMethod.getInstance());
 
         AlertDialog dialog = new AlertDialog.Builder(mIitc)
                 .setView(message)

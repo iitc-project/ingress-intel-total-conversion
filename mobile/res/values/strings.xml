@@ -56,12 +56,14 @@
         PERFORMANCE OF THIS SOFTWARE.
         ]]>
     </string>
-    <string name="notice_drawers">
-        <![CDATA[IITCm recently changed its navigation structure. How to use it:<br><br>
+    <string name="notice_how_to">
+        <![CDATA[<b>How to use IITCm:</b><br><br>
         • Navigation: swipe from the left edge of your screen (or click the app icon) to evoke the Navigation Drawer.
         Click the app icon again to return to the map.<br><br>
         • Layers/Highlights: swipe from the right edge of your screen (or click the layer-chooser icon in the ActionBar)
-        to evoke the Layer Drawer]]>
+        to evoke the Layer Drawer<br><br>
+        • You can add official plugins in the settings<br><br>
+        • For external plugins please have a look at the <a href="http://iitc.jonatkins.com/?page=faq#mobile-plugins">FAQ]]>
     </string>
     <string name="notice_info">
         <![CDATA[Hint: Alternative ways to open the info screen:<br><br>
