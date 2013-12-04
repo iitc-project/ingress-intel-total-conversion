@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Highlight unclaimed portals with no recent activity. Shades of red from one week to one month, then tinted to purple for longer. (May also highlight captured portals that are stuck and fail to decay every 24 hours)
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Highlight unclaimed portals with no recent activity. Shades of red from one week to one month, then tinted to purple for longer. May also highlight captured portals that are stuck and fail to decay every 24 hours.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
