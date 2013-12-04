@@ -74,17 +74,17 @@ window.plugin.showLinkedPortal.getPortalByGuid = function (guid,isorigin) {
     if (window.portals[guid] !== undefined) {
         var portalData = window.portals[guid].options.data;
 
-        var portalNameAdressAlt = "'" + portalData.title + "'";;
-        var portalNameAdressTitle = $('<div/>').append($('<strong/>').text(portalData.title))
-                                               .append($('<br/>'))
-                                               .append(linkDirection)
-                                               .html();
+        var portalNameAddressAlt = "'" + portalData.title + "'";;
+        var portalNameAddressTitle = $('<div/>').append($('<strong/>').text(portalData.title))
+                                                .append($('<br/>'))
+                                                .append(linkDirection)
+                                                .html();
         var imageUrl = fixPortalImageUrl(portalData.image);
         portalInfoString = $('<div/>').html($('<img/>').attr('src', imageUrl)
                                                        .attr('class', 'minImg')
-                                                       .attr('alt', portalNameAdressAlt)
-                                                       .attr('title', portalNameAdressTitle))
-                                      .html();
+                                                       .attr('alt', portalNameAddressAlt)
+                                                       .attr('title', portalNameAddressTitle))
+                                                       .html();
     } else {
         var title = $('<div/>').append($('<strong/>').text('Go to portal'))
                                .append($('<br/>'))
