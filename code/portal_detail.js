@@ -1,5 +1,5 @@
 /// PORTAL DETAIL //////////////////////////////////////
-// code to retrieve the new potal detail data from the servers
+// code to retrieve the new portal detail data from the servers
 
 // NOTE: the API for portal detailed information is NOT FINAL
 // this is a temporary measure to get things working again after a major change to the intel map
@@ -54,6 +54,6 @@ window.portalDetail.request = function(guid) {
 
 
 
-})(); // anonumous wrapper function end
+})(); // anonymous wrapper function end
 
 

@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] IITC now defaults to showing fewer portals when zoomed out, making this plugin unnecessary
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] IITC now defaults to showing fewer portals when zoomed out, making this plugin unnecessary.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*

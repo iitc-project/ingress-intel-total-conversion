@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Allow manual entry of key counts for each portal. Use 'keys-on-map' to show the numbers on the map, and 'sync' to share between multiple browsers or desktop/mobile.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Allow manual entry of key counts for each portal. Use the 'keys-on-map' plugin to show the numbers on the map, and 'sync' to share between multiple browsers or desktop/mobile.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -155,7 +155,7 @@ window.plugin.keys.loadLocal = function(mapping) {
                           : JSON.parse(objectJSON);
 }
 
-// For backward compitable, will change to use loadLocal after a few version
+// For backward compatibility, will change to use loadLocal after a few version
 window.plugin.keys.loadKeys = function() {
   var keysObjectJSON = localStorage[plugin.keys.KEY.key];
   if(!keysObjectJSON) return;
