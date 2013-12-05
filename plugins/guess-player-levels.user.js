@@ -2,7 +2,7 @@
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           IITC plugin: guess player level
 // @category       Info
-// @version        0.5.0.@@DATETIMEVERSION@@
+// @version        0.5.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
