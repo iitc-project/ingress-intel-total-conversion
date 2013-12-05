@@ -124,6 +124,13 @@ public class IntentComparator implements Comparator<ResolveInfo> {
     public int compare(ResolveInfo lhs, ResolveInfo rhs) {
         int order;
 
+        // we might be merging multiple intents, so there could be more than one default
+        if (lhs.isDefault && !rhs.isDefault)
+            return -1;
+        if (rhs.isDefault && !lhs.isDefault)
+            return 1;
+
+        // Show more frequently used items in top
         Integer lCount = mIntentMap.get(new Component(lhs));
         Integer rCount = mIntentMap.get(new Component(rhs));
 
@@ -133,8 +140,15 @@ public class IntentComparator implements Comparator<ResolveInfo> {
         if (lCount > rCount) return -1;
         if (lCount < rCount) return 1;
 
-        order = lhs.loadLabel(mPackageManager).toString()
-                .compareTo(rhs.loadLabel(mPackageManager).toString());
+        // don't known how these are set (or if they can be set at all), but it sounds promising...
+        if (lhs.preferredOrder != rhs.preferredOrder)
+            return rhs.preferredOrder - lhs.preferredOrder;
+        if (lhs.priority != rhs.priority)
+            return rhs.priority - lhs.priority;
+
+        // still no order. fall back to alphabetical order
+        order = lhs.loadLabel(mPackageManager).toString().compareTo(
+                rhs.loadLabel(mPackageManager).toString());
         if (order != 0) return order;
 
         if (lhs.nonLocalizedLabel != null && rhs.nonLocalizedLabel != null) {
