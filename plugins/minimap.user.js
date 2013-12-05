@@ -41,17 +41,17 @@ window.plugin.miniMap.setup  = function() {
   var mqMapOpt = {attribution: osmAttribution+', Tiles Courtesy of MapQuest', maxZoom: 18, subdomains: mqSubdomains};
   var mqMap = new L.TileLayer(mqTileUrlPrefix+'/tiles/1.0.0/map/{z}/{x}/{y}.jpg',mqMapOpt);
 
-  if(!isSmartphone()) {
-    // desktop mode - bottom-left, so it doesn't clash with the sidebar
-    new L.Control.MiniMap(mqMap, {toggleDisplay: true, position: 'bottomleft'}).addTo(window.map);
-  } else {
-    // mobile mode - bottom-right - so it floats above the map copyright text
-    new L.Control.MiniMap(mqMap, {toggleDisplay: true, position: 'bottomright'}).addTo(window.map);
-  }
+  setTimeout(function() {
+    if(!isSmartphone()) {
+      // desktop mode - bottom-left, so it doesn't clash with the sidebar
+      new L.Control.MiniMap(mqMap, {toggleDisplay: true, position: 'bottomleft'}).addTo(window.map);
+    } else {
+      // mobile mode - bottom-right - so it floats above the map copyright text
+      new L.Control.MiniMap(mqMap, {toggleDisplay: true, position: 'bottomright'}).addTo(window.map);
+    }
+  }, 0);
 
   $('head').append('<style>@@INCLUDESTRING:external/Control.MiniMap.css@@</style>');
-
-
 };
 
 var setup =  window.plugin.miniMap.setup;

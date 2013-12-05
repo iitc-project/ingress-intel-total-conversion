@@ -50,6 +50,10 @@
 // iitcLoaded: called after IITC and all plugins loaded
 // portalDetailLoaded: called when a request to load full portal detail
 //              completes. guid, success, details parameters
+// paneChanged  called when the current pane has changed. On desktop,
+//              this only selects the current chat pane; on mobile, it
+//              also switches between map, info and other panes defined
+//              by plugins
 
 window._hooks = {}
 window.VALID_HOOKS = [
@@ -60,7 +64,7 @@ window.VALID_HOOKS = [
   'publicChatDataAvailable', 'factionChatDataAvailable',
   'requestFinished', 'nicknameClicked',
   'geoSearch', 'iitcLoaded',
-  'portalDetailLoaded'];
+  'portalDetailLoaded', 'paneChanged'];
 
 window.runHooks = function(event, data) {
   if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);

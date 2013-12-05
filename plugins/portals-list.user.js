@@ -112,13 +112,17 @@ window.plugin.portalslist.displayPL = function() {
     html = '<table><tr><td>Nothing to show!</td></tr></table>';
   };
 
-  dialog({
-    html: '<div id="portalslist">' + html + '</div>',
-    dialogClass: 'ui-dialog-portalslist',
-    title: 'Portal list: ' + window.plugin.portalslist.listPortals.length + ' ' + (window.plugin.portalslist.listPortals.length == 1 ? 'portal' : 'portals'),
-    id: 'portal-list',
-    width: 700
-  });
+  if(typeof android !== 'undefined' && android && android.addPane) {
+    $('<div id="portalslist" class="mobile">' + html + '</div>').appendTo(document.body);
+  } else {
+    dialog({
+      html: '<div id="portalslist">' + html + '</div>',
+      dialogClass: 'ui-dialog-portalslist',
+      title: 'Portal list: ' + window.plugin.portalslist.listPortals.length + ' ' + (window.plugin.portalslist.listPortals.length == 1 ? 'portal' : 'portals'),
+      id: 'portal-list',
+      width: 700
+    });
+  }
 
   //run the name resolving process
   //resolvePlayerNames();
@@ -224,9 +228,23 @@ window.plugin.portalslist.getPortalLink = function(portal,guid) {
   return div;
 }
 
+window.plugin.portalslist.onPaneChanged = function(pane) {
+  if(pane == "plugin-portalslist")
+    window.plugin.portalslist.displayPL();
+  else
+    $("#portalslist").remove()
+};
+
 var setup =  function() {
-  $('#toolbox').append(' <a onclick="window.plugin.portalslist.displayPL()" title="Display a list of portals in the current view">Portals list</a>');
+  if(typeof android !== 'undefined' && android && android.addPane) {
+    android.addPane("plugin-portalslist", "Portals list", "ic_action_paste");
+    addHook("paneChanged", window.plugin.portalslist.onPaneChanged);
+  } else {
+    $('#toolbox').append(' <a onclick="window.plugin.portalslist.displayPL()" title="Display a list of portals in the current view">Portals list</a>');
+  }
+
   $('head').append('<style>' +
+    '#portalslist.mobile {background: transparent; border: 0 none !important; height: 100% !important; width: 100% !important; left: 0 !important; top: 0 !important; position: absolute; overflow: auto; }' +
     '#portalslist table {margin-top:5px; border-collapse: collapse; empty-cells: show; width:100%; clear: both;}' +
     '#portalslist table td, #portalslist table th {border-bottom: 1px solid #0b314e; padding:3px; color:white; background-color:#1b415e}' +
     '#portalslist table tr.res td { background-color: #005684; }' +

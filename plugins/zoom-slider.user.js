@@ -27,6 +27,11 @@ window.plugin.zoomSlider.setup  = function() {
   @@INCLUDERAW:external/L.Control.Zoomslider.js@@
   try { console.log('done loading Leaflet.zoomslider JS'); } catch(e) {}
 
+  // prevent Zoomslider from being activated by default (e.g. in minimap)
+  L.Map.mergeOptions({
+    zoomsliderControl: false
+  });
+
   if(map.zoomControl._map) {
     window.map.removeControl(map.zoomControl);
   }
@@ -35,7 +40,7 @@ window.plugin.zoomSlider.setup  = function() {
   $('head').append('<style>@@INCLUDESTRING:external/L.Control.Zoomslider.css@@</style>');
 };
 
-var setup =  window.plugin.zoomSlider.setup;
+var setup = window.plugin.zoomSlider.setup;
 
 // PLUGIN END //////////////////////////////////////////////////////////
 

@@ -3,6 +3,8 @@
 window.show = function(id) {
   window.hideall();
 
+  runHooks("paneChanged", id);
+
   switch(id) {
     case 'full':
       window.chat.show('full');
@@ -26,9 +28,6 @@ window.show = function(id) {
       break;
     case 'info':
       window.smartphone.sideButton.click();
-      break;
-    default:
-      window.smartphone.mapButton.click();
       break;
   }
 
