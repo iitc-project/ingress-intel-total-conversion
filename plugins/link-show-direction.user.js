@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Show the direction of links on the map, by adding short dashes to the line at the origin portal.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Show the direction of links on the map by adding short dashes to the line at the origin portal.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*

@@ -6,7 +6,7 @@
 // @namespace      rawdata
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Developer debugging aid: Adds a link to the portal details to show the raw data of a portal
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Developer debugging aid: Add a link to the portal details to show the raw data of a portal.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
