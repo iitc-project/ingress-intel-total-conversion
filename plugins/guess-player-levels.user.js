@@ -127,6 +127,11 @@ window.plugin.guessPlayerLevels.extractPortalData = function(data) {
      their minimal level */
 
   var owner = data.details.captured && data.details.captured.capturingPlayerId || "";
+  var ownerModCount = 0;
+  data.details.portalV2.linkedModArray.forEach(function(mod) {
+    if(mod && mod.installingUser == owner)
+      ownerModCount++;
+  });
 
   var players = {};
 
@@ -145,8 +150,16 @@ window.plugin.guessPlayerLevels.extractPortalData = function(data) {
     var ignore = false;
     var minLevel = 0;
 
+    if(nickname == owner) {
+      if(ownerModCount > 2) // more than 2 mods by capturing player --> portal was flipped, ignore their resonators
+        continue;
+      var certain = false;
+    } else { // not deployed by owner - player must be at least that level
+      var certain = true;
+    }
+
     players[nickname].forEach(function(count, level) {
-      if(MAX_RESO_PER_PLAYER[level] < count) {
+      if(MAX_RESO_PER_PLAYER[level] < count)
         ignore = true;
 
       if(count > 0)
@@ -154,35 +167,32 @@ window.plugin.guessPlayerLevels.extractPortalData = function(data) {
     });
 
     if(ignore)
-      return;
+      continue;
 
-    if(nickname == owner)
-      window.plugin.guessPlayerLevels.savePlayerLevel(nickname, minLevel);
-    else // not deployed by owner - player must be at least that level
-      window.plugin.guessPlayerLevels.savePlayerLevel(nickname, minLevel, true);
-  });
+    window.plugin.guessPlayerLevels.savePlayerLevel(nickname, minLevel, certain);
+  }
 }
 
 window.plugin.guessPlayerLevels.extractChatData = function(data) {
-	data.raw.result.forEach(function(msg) {
-		var plext = msg[2].plext;
-		if(plext.plextType == 'SYSTEM_BROADCAST'
-		&& plext.markup.length==5
-		&& plext.markup[0][0] == 'PLAYER'
-		&& plext.markup[1][0] == 'TEXT'
-		&& plext.markup[1][1].plain == ' deployed an '
-		&& plext.markup[2][0] == 'TEXT'
-		&& plext.markup[2][0] == 'TEXT'
-		&& plext.markup[3][0] == 'TEXT'
-		&& plext.markup[3][1].plain == ' Resonator on ') {
-			var nick = plext.markup[0][1].plain;
-			var lvl = parseInt(plext.markup[2][1].plain.substr(1));
-			window.plugin.guessPlayerLevels.savePlayerLevel(nick, lvl, true);
-		}
-	});
+  data.raw.result.forEach(function(msg) {
+    var plext = msg[2].plext;
+    if(plext.plextType == 'SYSTEM_BROADCAST'
+    && plext.markup.length==5
+    && plext.markup[0][0] == 'PLAYER'
+    && plext.markup[1][0] == 'TEXT'
+    && plext.markup[1][1].plain == ' deployed an '
+    && plext.markup[2][0] == 'TEXT'
+    && plext.markup[2][0] == 'TEXT'
+    && plext.markup[3][0] == 'TEXT'
+    && plext.markup[3][1].plain == ' Resonator on ') {
+      var nick = plext.markup[0][1].plain;
+      var lvl = parseInt(plext.markup[2][1].plain.substr(1));
+      window.plugin.guessPlayerLevels.savePlayerLevel(nick, lvl, true);
+    }
+  });
 };
 
-window.plugin.guessPlayerLevels.savePlayerLevel = function(nick, level, safe) {
+window.plugin.guessPlayerLevels.savePlayerLevel = function(nick, level, certain) {
   var cache = window.plugin.guessPlayerLevels._loadLevels();
 
   var details = cache['#' + nick];
@@ -191,7 +201,7 @@ window.plugin.guessPlayerLevels.savePlayerLevel = function(nick, level, safe) {
   if(typeof details === 'number')
     details = {min: 1, guessed: details};
 
-  if(safe) {
+  if(certain) {
     if(details.min >= level)
       return;
 
