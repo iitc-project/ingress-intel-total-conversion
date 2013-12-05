@@ -109,7 +109,7 @@ window.renderPortalDetails = function(guid) {
 
   } else {
     // non-android - a permalink for the portal
-    var permaHtml = $('<div>').html( $('<a>').attr({href:permalinkUrl, target:'_blank', title:'Create a URL link to this portal'}).text('Portal link') ).html();
+    var permaHtml = $('<div>').html( $('<a>').attr({href:permalinkUrl, title:'Create a URL link to this portal'}).text('Portal link') ).html();
     linkDetails.push ( '<aside>'+permaHtml+'</aside>' );
 
     // and a map link popup dialog
