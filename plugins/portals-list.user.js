@@ -147,18 +147,22 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   var sort = window.plugin.portalslist.portalTableSort;
   var html = window.plugin.portalslist.stats();
   html += '<table>'
-    + '<tr><th ' + sort('names', sortBy, -1) + '>Portal</th>'
+    + '<tr>'
+    + '<th>#</th>'
+    + '<th ' + sort('names', sortBy, -1) + '>Portal</th>'
     + '<th ' + sort('level', sortBy, -1) + '>Level</th>'
     + '<th title="Team" ' + sort('teamN', sortBy, -1) + '>Team</th>'
     + '<th ' + sort('health', sortBy, -1) + '>Health</th>'
     + '<th ' + sort('resCount', sortBy, -1) + '>Resonator Count</th>'
     + '<th ' + sort('linkCount', sortBy, -1) + '>Link Count</th>'
     + '<th ' + sort('fieldCount', sortBy, -1) + '>Field Count</th>'
+    + '</tr>';
 
 
   $.each(portals, function(ind, portal) {
     if (filter === TEAM_NONE || filter === portal.teamN) {
       html += '<tr class="' + (portal.teamN === window.TEAM_RES ? 'res' : (portal.teamN === window.TEAM_ENL ? 'enl' : 'neutral')) + '">'
+        + '<td>' + (ind+1) + '</td>'
         + '<td style="">' + window.plugin.portalslist.getPortalLink(portal, portal.guid) + '</td>'
         + '<td class="L' + Math.floor(portal.level) +'">' + portal.level + '</td>'
         + '<td style="text-align:center;">' + portal.team + '</td>';
