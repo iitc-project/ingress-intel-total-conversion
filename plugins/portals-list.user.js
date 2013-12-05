@@ -19,6 +19,7 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
   /* whatsnew
+   * 0.1.1 : AP Gain and portal number!
    * 0.1.0 : Using the new data format
    * 0.0.15: Add 'age' column to display how long each portal has been controlled by its current owner.
    * 0.0.14: Add support to new mods (S:Shield - T:Turret - LA:Link Amp - H:Heat-sink - M:Multi-hack - FA:Force Amp)
@@ -78,6 +79,12 @@ window.plugin.portalslist.getPortals = function() {
     }
     var l = window.getPortalLinks(i);
     var f = window.getPortalFields(i);
+    var apGain = 0;
+    if(d.team === PLAYER.team) {
+      apGain = window.getApGainDefending(i);
+    } else {
+      apGain = window.getApGainAttacking(i);
+    }
 
     var thisPortal = {
       'portal': portal,
@@ -89,10 +96,10 @@ window.plugin.portalslist.getPortals = function() {
       'health': d.health,
       'resCount': d.resCount,
       'img': d.img,
-      'linkCount': l.in.length + l.out.length,
+      'linkCount': window.getPortalLinksCount(i),
       'link' : l,
-      'fieldCount': f.length,
-      'field' : f
+      'fieldCount': window.getPortalFieldsCount(i),
+      'apGain': apGain
     };
     window.plugin.portalslist.listPortals.push(thisPortal);
   });
@@ -119,9 +126,6 @@ window.plugin.portalslist.displayPL = function() {
     id: 'portal-list',
     width: 800
   });
-
-  //run the name resolving process
-  //resolvePlayerNames();
 }
 
 window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
@@ -156,6 +160,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
     + '<th ' + sort('resCount', sortBy, -1) + '>Resonator Count</th>'
     + '<th ' + sort('linkCount', sortBy, -1) + '>Link Count</th>'
     + '<th ' + sort('fieldCount', sortBy, -1) + '>Field Count</th>'
+    + '<th ' + sort('apGain', sortBy, -1) + '>AP Gain</th>'
     + '</tr>';
 
 
@@ -170,7 +175,8 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
       html += '<td style="cursor:help" title="'+ portal.health +'">' + portal.health + '</td>'
         + '<td>' + portal.resCount + '</td>'
         + '<td title="In: ' + portal.link.in.length + ' Out: ' + portal.link.out.length + '">' + portal.linkCount + '</td>'
-        + '<td>' + portal.fieldCount + '</td>';
+        + '<td>' + portal.fieldCount + '</td>'
+        + '<td>' + portal.apGain + '</td>';
 
       html+= '</tr>';
     }

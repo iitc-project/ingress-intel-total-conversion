@@ -21,6 +21,21 @@ window.getPortalLinks = function(guid) {
   return links;
 }
 
+window.getPortalLinksCount = function(guid) {
+  var count = 0;
+  $.each(window.links, function(g,l) {
+    var d = l.options.data;
+    if (d.oGuid == guid) {
+      count++;
+    }
+    if (d.dGuid == guid) {
+      count++;
+    }
+  });
+
+  return count;
+}
+
 
 // search through the fields for all that reference a portal
 window.getPortalFields = function(guid) {
@@ -38,6 +53,19 @@ window.getPortalFields = function(guid) {
   });
 
   return fields;
+}
+window.getPortalFieldsCount = function(guid) {
+  var count = 0;
+  $.each(window.fields, function(g,f) {
+    var d = f.options.data;
+    if ( d.points[0].guid == guid
+      || d.points[1].guid == guid
+      || d.points[2].guid == guid ) {
+        count++;
+    }
+  });
+
+  return count;
 }
 
 
@@ -78,4 +106,40 @@ window.findPortalLatLng = function(guid) {
 
   // no luck finding portal lat/lng
   return undefined;
+}
+
+window.getApGainDefending = function(guid) {
+  var d = window.getPortalByGuid(guid);
+  var resoCount = d.options.data.resCount;
+
+  var deployCount = 8 - resoCount;
+  var completionAp = (deployCount > 0) ? COMPLETION_BONUS : 0;
+  var friendlyAp = deployCount * DEPLOY_RESONATOR + completionAp;
+  return friendlyAp;
+}
+
+window.getApGainAttacking = function(guid) {
+  var d = window.getPortalByGuid(guid);
+  var resoCount = d.options.data.resCount;
+  var linkCount = window.getPortalLinksCount(guid);
+  var fieldCount = window.getPortalFieldsCount(guid);
+
+  var resoAp = resoCount * DESTROY_RESONATOR;
+  var linkAp = linkCount * DESTROY_LINK;
+  var fieldAp = fieldCount * DESTROY_FIELD;
+  var destroyAp = resoAp + linkAp + fieldAp;
+  var captureAp = CAPTURE_PORTAL + 8 * DEPLOY_RESONATOR + COMPLETION_BONUS;
+  var enemyAp = destroyAp + captureAp;
+  return enemyAp;
+}
+
+window.getPortalByGuid = function(guid) {
+  var portal = false;
+  $.each(window.portals, function(i, d) {
+    if(guid == i) {
+      portal = d;
+      return false;
+    }
+  });
+  return portal;
 }
