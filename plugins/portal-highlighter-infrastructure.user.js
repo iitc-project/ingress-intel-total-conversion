@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Red - No Picture, Yellow - Potential title issue, Orange - both of these
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Red - No Picture, Yellow - Potential title issue, Orange - both of these.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*

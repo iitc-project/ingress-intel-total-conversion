@@ -3,23 +3,6 @@
 <ul>
 
 <li>
-<h4 id="mobile-login">Login on mobile doesn't work!</h4>
-<p>
-Many users are seeing the error message <b>Error: Server Error</b> when attempting to log in on mobile.
-To get past this and log in successfully, you can try to
-<ol>
-<li>Exit IITC and try again. Some people have success after a number of tries, <i>or</i></li>
-<li>Cancel when asked to choose an account, and manually enter your email address and password into the web page</li>
-</ol>
-</p>
-<p>
-As far as we can tell this isn't an IITC Mobile issue - using the Chrome browser on android, which also supports
-Google login, can give similar issues. Further discussion on this is happening in
-<a href="https://github.com/jonatkins/ingress-intel-total-conversion/issues/497">github issue #497</a>.
-</p>
-</li>
-
-<li>
 <h4 id="not-activated">I get a message saying my account isn't activated</h4>
 <p>
 Occasionally the Niantic servers give this misleading message - what it should usually say is

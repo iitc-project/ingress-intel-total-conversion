@@ -2,11 +2,11 @@
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           IITC plugin: guess player level
 // @category       Info
-// @version        0.5.0.@@DATETIMEVERSION@@
+// @version        0.5.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Tries to determine player levels from the data available in the current view
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Try to determine player levels from the data available in the current view.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -119,56 +119,80 @@ window.plugin.guessPlayerLevels.extractPortalData = function(data) {
 
   var r = data.details.resonatorArray.resonators;
 
-  //due to the Jarvis Virus/ADA Refactor it's possible for a player to own resonators on a portal
-  //at a higher level than the player themselves. It is not possible to detect for sure when this
-  //has happened, but in many cases it will result in an impossible deployment arrangement
-  //(over 1 L8/7 res, over 2 L6/5 res, etc). if we detect this case, ignore all resonators owned
-  //by that player on the portal
+  /* Due to the Jarvis Virus/ADA Refactor it's possible for a player to own resonators on a portal at a higher level
+     than the player themselves. It is not possible to detect for sure when this has happened, but in many cases it will
+     result in an impossible deployment arrangement (more than 1 L8/7 res, more than 2 L6/5 res, etc). If we detect this
+     case, we ignore all resonators owned by that player on the portal
+     Hint: This can only happen to the owner of the portal, so resonators by other players can be used to determine
+     their minimal level */
 
-// TODO? go further, and just ignore all resonators owned by the portal owner?
-// or; have a 'guessed' level and a 'certain' level. 'certain' comes from res from non-owner, and COMM deploy
-// while 'guessed' comes from resonators of the portal owner
+  var owner = data.details.captured && data.details.captured.capturingPlayerId || "";
+  var ownerModCount = 0;
+  data.details.portalV2.linkedModArray.forEach(function(mod) {
+    if(mod && mod.installingUser == owner)
+      ownerModCount++;
+  });
 
-  var perPlayerResMaxLevel = {};
-  var perPlayerResMaxLevelCount = {};
+  var players = {};
 
   $.each(r, function(ind, reso) {
     if(!reso) return true;
 
-    if(!perPlayerResMaxLevel[reso.ownerGuid] || reso.level > perPlayerResMaxLevel[reso.ownerGuid]) {
-      perPlayerResMaxLevel[reso.ownerGuid] = reso.level;
-      perPlayerResMaxLevelCount[reso.ownerGuid] = 0;
-    }
-    if (reso.level == perPlayerResMaxLevel[reso.ownerGuid]) perPlayerResMaxLevelCount[reso.ownerGuid]++;
+    if(!players[reso.ownerGuid]) players[reso.ownerGuid] = [];
+
+    if(players[reso.ownerGuid][reso.level] === undefined)
+      players[reso.ownerGuid][reso.level] = 1
+    else
+      players[reso.ownerGuid][reso.level]++;
   });
 
-  $.each(perPlayerResMaxLevel, function(guid, level) {
-    if (perPlayerResMaxLevelCount[guid] <= window.MAX_RESO_PER_PLAYER[level]) {
-      window.plugin.guessPlayerLevels.savePlayerLevel(guid, level);
+  for(nickname in players) {
+    var ignore = false;
+    var minLevel = 0;
+
+    if(nickname == owner) {
+      if(ownerModCount > 2) // more than 2 mods by capturing player --> portal was flipped, ignore their resonators
+        continue;
+      var certain = false;
+    } else { // not deployed by owner - player must be at least that level
+      var certain = true;
     }
-  });
+
+    players[nickname].forEach(function(count, level) {
+      if(MAX_RESO_PER_PLAYER[level] < count)
+        ignore = true;
+
+      if(count > 0)
+        minLevel = level;
+    });
+
+    if(ignore)
+      continue;
+
+    window.plugin.guessPlayerLevels.savePlayerLevel(nickname, minLevel, certain);
+  }
 }
 
 window.plugin.guessPlayerLevels.extractChatData = function(data) {
-	data.raw.result.forEach(function(msg) {
-		var plext = msg[2].plext;
-		if(plext.plextType == 'SYSTEM_BROADCAST'
-		&& plext.markup.length==5
-		&& plext.markup[0][0] == 'PLAYER'
-		&& plext.markup[1][0] == 'TEXT'
-		&& plext.markup[1][1].plain == ' deployed an '
-		&& plext.markup[2][0] == 'TEXT'
-		&& plext.markup[2][0] == 'TEXT'
-		&& plext.markup[3][0] == 'TEXT'
-		&& plext.markup[3][1].plain == ' Resonator on ') {
-			var nick = plext.markup[0][1].plain;
-			var lvl = parseInt(plext.markup[2][1].plain.substr(1));
-			window.plugin.guessPlayerLevels.savePlayerLevel(nick, lvl, true);
-		}
-	});
+  data.raw.result.forEach(function(msg) {
+    var plext = msg[2].plext;
+    if(plext.plextType == 'SYSTEM_BROADCAST'
+    && plext.markup.length==5
+    && plext.markup[0][0] == 'PLAYER'
+    && plext.markup[1][0] == 'TEXT'
+    && plext.markup[1][1].plain == ' deployed an '
+    && plext.markup[2][0] == 'TEXT'
+    && plext.markup[2][0] == 'TEXT'
+    && plext.markup[3][0] == 'TEXT'
+    && plext.markup[3][1].plain == ' Resonator on ') {
+      var nick = plext.markup[0][1].plain;
+      var lvl = parseInt(plext.markup[2][1].plain.substr(1));
+      window.plugin.guessPlayerLevels.savePlayerLevel(nick, lvl, true);
+    }
+  });
 };
 
-window.plugin.guessPlayerLevels.savePlayerLevel = function(nick, level, safe) {
+window.plugin.guessPlayerLevels.savePlayerLevel = function(nick, level, certain) {
   var cache = window.plugin.guessPlayerLevels._loadLevels();
 
   var details = cache['#' + nick];
@@ -177,7 +201,7 @@ window.plugin.guessPlayerLevels.savePlayerLevel = function(nick, level, safe) {
   if(typeof details === 'number')
     details = {min: 1, guessed: details};
 
-  if(safe) {
+  if(certain) {
     if(details.min >= level)
       return;
 
@@ -317,7 +341,7 @@ window.plugin.guessPlayerLevels.sort = function(playerHash) {
 
 
 var setup =  function() {
-  // we used to sture level guesses as one localStorage key per player, named 'level-PLAYER_GUID'
+  // we used to store level guesses as one localStorage key per player, named 'level-PLAYER_GUID'
   // they're now stored in a single storage key - 'plugin-guess-player-levels' - so clear these old entries
   $.each(Object.keys(localStorage), function(ind,key) {// legacy code - should be removed in the future
     if(key.lastIndexOf('level-',0)===0) {
