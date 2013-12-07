@@ -86,11 +86,10 @@ window.redeem.REDEEM_RESOURCES = {
 
     /* resourceWithLevels with custom URL */
     format: function(acquired) {
-      var level = parseInt(acquired.resourceWithLevels.level);
       return {
         long: 'Media: <a href="' + (acquired.storyItem.primaryUrl || '#') + '" target="_blank">' + (acquired.storyItem.shortDescription || 'UNKNOWN') + '</a>',
         short: 'M',
-        primary: '<span style="color: ' + (window.COLORS_LVL[level] || 'white') + ';">L' + level + '</span>'
+        primary: acquired.resourceWithLevels.level
       };
     }
   },
@@ -166,7 +165,7 @@ window.redeem.REDEEM_HANDLERS = {
       var prefix = '<span style="color: ' + (window.COLORS_LVL[level] || 'white') + ';">';
       var suffix = '</span>';
       return {
-        table: '<td>' + prefix + 'L' + (acquired.str.primary || level) + suffix + '</td><td title="' + acquired.desc + '">' + acquired.str.long + ' [' + acquired.count + ']</td>',
+        table: '<td>' + prefix + 'L' + level + suffix + '</td><td title="' + acquired.desc + '">' + acquired.str.long + ' [' + acquired.count + ']</td>',
         html:  acquired.count + '&#215;' + acquired.str.short + prefix + level + suffix,
         plain: acquired.count + '@' + acquired.str.short + level
       };
@@ -355,7 +354,7 @@ window.redeem.format = function(ap, xm, payload, inferred, types, whitelist) {
     // Build it
     $.each(Object.keys(payload[type]).sort(), function(key_idx, key) {
       var acquired = payload[type][key];
-      $.each(acquired.handler.functions.format(acquired, key), function(format, string) {
+      $.each(acquired.handler.functions.format(acquired, acquired.str.primary || key), function(format, string) {
         results[format].push(string);
       });
     });
