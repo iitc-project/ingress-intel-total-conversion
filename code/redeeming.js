@@ -80,6 +80,11 @@ window.redeem.REDEEM_RESOURCES = {
   },
   MEDIA: {
     /* resourceWithLevels */
+    decode: function(type, acquired, key) {
+      return acquired.storyItem.shortDescription;
+    },
+
+    /* resourceWithLevels with custom URL */
     format: function(acquired) {
       return {
         long: 'Media: <a href="' + (acquired.storyItem.primaryUrl || '#') + '" target="_blank">' + (acquired.storyItem.shortDescription || 'UNKNOWN') + '</a>',
@@ -112,9 +117,12 @@ window.redeem.REDEEM_RESOURCES = {
 
     /* resource */
     format: function(acquired) {
+      var location = acquired.portalCoupler.portalLocation.split(',').map(function(a){return parseInt(a, 16) / 1e6;});
       return {
-        long: 'Portal Key: ' + acquired.portalCoupler.portalTitle || 'Unknown Portal',
-        short: 'K'
+        long: 'Key: ' + acquired.portalCoupler.portalTitle || 'Unknown Portal',
+        short: 'K',
+        prefix: '<a onclick="zoomToAndShowPortal(\'' + acquired.portalCoupler.portalGuid + '\', [' + location.join(', ') + '])">',
+        suffix: '</a>'
       };
     }
   },
