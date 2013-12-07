@@ -41,7 +41,6 @@
     </item>
     <item
         android:id="@+id/action_settings"
-        android:icon="@drawable/ic_action_settings"
         android:orderInCategory="200"
         android:showAsAction="never"
         android:title="@string/action_settings">
