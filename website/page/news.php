@@ -1,5 +1,13 @@
 <h2>News</h2>
 
+<h4>6th December 2013</h3>
+<p>
+Niantic have just released a minor update to the standard intel site. Good news - recent IITC changes have made it
+successfully detect the protocol changes in most cases, so no update is needed. You may need to reload the page,
+and for IITC Mobile you may need to change a cache setting. See 
+<a href="https://plus.google.com/105383756361375410867/posts/1yTb59HGDm3">this G+ post</a> for more details.
+</p>
+
 <h4>2nd December 2013</h3>
 <p>
 IITC 0.16.0 and IITC Mobile 0.10.0 have been released. This update is required to work with the latest changes to
