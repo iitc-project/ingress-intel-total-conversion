@@ -321,6 +321,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
             mLocMngr.removeUpdates(this);
         }
 
+        unregisterReceiver(mBroadcastReceiver);
         super.onStop();
     }
 
