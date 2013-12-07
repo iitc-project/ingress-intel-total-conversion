@@ -88,7 +88,8 @@ window.redeem.REDEEM_RESOURCES = {
     format: function(acquired) {
       return {
         long: 'Media: <a href="' + (acquired.storyItem.primaryUrl || '#') + '" target="_blank">' + (acquired.storyItem.shortDescription || 'UNKNOWN') + '</a>',
-        short: 'M'
+        short: 'M',
+        primary: acquired.resourceWithLevels.level
       };
     }
   },
@@ -117,7 +118,7 @@ window.redeem.REDEEM_RESOURCES = {
 
     /* resource */
     format: function(acquired) {
-      var location = acquired.portalCoupler.portalLocation.split(',').map(function(a){return parseInt(a, 16) / 1e6;});
+      var location = acquired.portalCoupler.portalLocation.split(',').map(function(a){return a = parseInt(a, 16); (a & (1 << 31) != 0 ? -((a ^ 0xffffffff) + 1) : a) / 1e6;});
       return {
         long: 'Key: ' + acquired.portalCoupler.portalTitle || 'Unknown Portal',
         short: 'K',
@@ -164,7 +165,7 @@ window.redeem.REDEEM_HANDLERS = {
       var prefix = '<span style="color: ' + (window.COLORS_LVL[level] || 'white') + ';">';
       var suffix = '</span>';
       return {
-        table: '<td>' + prefix + 'L' + level + suffix + '</td><td title="' + acquired.desc + '">' + acquired.str.long + ' [' + acquired.count + ']</td>',
+        table: '<td>' + prefix + 'L' + (acquired.str.primary || level) + suffix + '</td><td title="' + acquired.desc + '">' + acquired.str.long + ' [' + acquired.count + ']</td>',
         html:  acquired.count + '&#215;' + acquired.str.short + prefix + level + suffix,
         plain: acquired.count + '@' + acquired.str.short + level
       };
