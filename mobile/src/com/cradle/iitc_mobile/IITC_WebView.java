@@ -165,12 +165,7 @@ public class IITC_WebView extends WebView {
 
     public void loadJS(String js) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            evaluateJavascript(js, new ValueCallback<String>() {
-                @Override
-                public void onReceiveValue(String value) {
-                    // maybe we want to add stuff here
-                }
-            });
+            evaluateJavascript(js, null);
         } else {
             // if in edit text mode, don't load javascript otherwise the keyboard closes.
             HitTestResult testResult = getHitTestResult();
