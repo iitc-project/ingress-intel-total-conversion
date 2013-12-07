@@ -39,7 +39,7 @@ public class IntentListView extends ListView {
 
     private class IntentAdapter extends ArrayAdapter<ResolveInfo> {
 
-        // actually the mdpi pixel size is 48, but this ugly...so scale icons down for listView
+        // actually the mdpi pixel size is 48, but this looks ugly...so scale icons down for listView
         private static final int MDPI_PX = 36;
 
         private IntentAdapter() {
