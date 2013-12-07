@@ -86,10 +86,11 @@ window.redeem.REDEEM_RESOURCES = {
 
     /* resourceWithLevels with custom URL */
     format: function(acquired) {
+      var level = parseInt(acquired.resourceWithLevels.level);
       return {
         long: 'Media: <a href="' + (acquired.storyItem.primaryUrl || '#') + '" target="_blank">' + (acquired.storyItem.shortDescription || 'UNKNOWN') + '</a>',
         short: 'M',
-        primary: acquired.resourceWithLevels.level
+        primary: '<span style="color: ' + (window.COLORS_LVL[level] || 'white') + ';">L' + level + '</span>'
       };
     }
   },
