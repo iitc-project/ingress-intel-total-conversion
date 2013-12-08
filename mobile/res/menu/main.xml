@@ -20,18 +20,18 @@
         android:title="@string/layer_chooser">
     </item>
     <item
-        android:id="@+id/reload_button"
-        android:icon="@drawable/ic_action_refresh"
-        android:orderInCategory="110"
-        android:showAsAction="never"
-        android:title="@string/reload">
-    </item>
-    <item
         android:id="@+id/toggle_fullscreen"
         android:icon="@drawable/ic_action_full_screen"
-        android:orderInCategory="120"
+        android:orderInCategory="110"
         android:showAsAction="ifRoom"
         android:title="@string/toggle_fullscreen">
+    </item>
+    <item
+        android:id="@+id/reload_button"
+        android:icon="@drawable/ic_action_refresh"
+        android:orderInCategory="120"
+        android:showAsAction="ifRoom"
+        android:title="@string/reload">
     </item>
     <item
         android:id="@+id/menu_clear_cookies"
@@ -41,7 +41,6 @@
     </item>
     <item
         android:id="@+id/action_settings"
-        android:icon="@drawable/ic_action_settings"
         android:orderInCategory="200"
         android:showAsAction="never"
         android:title="@string/action_settings">
