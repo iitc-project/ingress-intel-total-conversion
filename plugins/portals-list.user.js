@@ -19,6 +19,7 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
   /* whatsnew
+   * 0.1.1 : AP Gain/Enemy Gain and optimized the getApGain function!
    * 0.1.1 : AP Gain and portal number!
    * 0.1.0 : Using the new data format
    * 0.0.15: Add 'age' column to display how long each portal has been controlled by its current owner.
@@ -78,12 +79,14 @@ window.plugin.portalslist.getPortals = function() {
         break;
     }
     var l = window.getPortalLinks(i);
-    var f = window.getPortalFields(i);
     var apGain = 0;
+    var apGainEnemy = 0;
     if(d.team === PLAYER.team) {
       apGain = window.getApGainDefending(i);
+      apGainEnemy = window.getApGainAttacking(i);
     } else {
       apGain = window.getApGainAttacking(i);
+      apGainEnemy = window.getApGainDefending(i);
     }
 
     var thisPortal = {
@@ -99,7 +102,8 @@ window.plugin.portalslist.getPortals = function() {
       'linkCount': window.getPortalLinksCount(i),
       'link' : l,
       'fieldCount': window.getPortalFieldsCount(i),
-      'apGain': apGain
+      'apGain': apGain,
+      'apGainEnemy': apGainEnemy
     };
     window.plugin.portalslist.listPortals.push(thisPortal);
   });
@@ -180,7 +184,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
         + '<td>' + portal.resCount + '</td>'
         + '<td title="In: ' + portal.link.in.length + ' Out: ' + portal.link.out.length + '">' + portal.linkCount + '</td>'
         + '<td>' + portal.fieldCount + '</td>'
-        + '<td>' + portal.apGain + '</td>';
+        + '<td title="'+portal.apGainEnemy+'">' + portal.apGain + '</td>';
 
       html+= '</tr>';
     }

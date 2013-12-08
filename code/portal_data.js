@@ -134,12 +134,9 @@ window.getApGainAttacking = function(guid) {
 }
 
 window.getPortalByGuid = function(guid) {
-  var portal = false;
-  $.each(window.portals, function(i, d) {
-    if(guid == i) {
-      portal = d;
-      return false;
-    }
-  });
-  return portal;
+  if(guid in window.portals) {
+    return window.portals[guid];
+  }
+
+  return false;
 }
