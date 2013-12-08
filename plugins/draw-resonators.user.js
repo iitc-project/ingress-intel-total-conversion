@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-draw-resonators@xelio
 // @name           IITC plugin: Draw resonators
-// @category  Deleted
+// @category       Layer
 // @version        0.4.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
