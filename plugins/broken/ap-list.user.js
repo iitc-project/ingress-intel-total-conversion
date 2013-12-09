@@ -893,7 +893,7 @@ window.plugin.apList.setupPagination = function() {
                   + '<div class="ap-list-triangle ap-list-triangle-right ap-list-triangle-right-half"/>'
                   + '<div class="ap-list-triangle ap-list-triangle-right ap-list-triangle-right-half"/>'
                 + '</div>'
-                + '<div class="spacer" style="clear: both;"></div>'// fix collapsion of parent caused by inner div's float:left
+                + '<div class="spacer" style="clear: both;"></div>'// fix collapsing of parent caused by inner div's float:left
               + '</div>';
   $('#ap-list-pagination').html(content);
 }
