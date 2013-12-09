@@ -81,7 +81,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         String geoUri = "geo:" + mLl;
         Intent geoIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(geoUri));
         intents.add(geoIntent);
-        addTab(intents, R.string.tab_map, R.drawable.ic_action_map);
+        addTab(intents, R.string.tab_map, R.drawable.ic_action_place);
 
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getUrl()));
         addTab(intent, R.string.tab_browser, R.drawable.ic_action_web_site);
@@ -121,6 +121,9 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
             mTitle = getString(R.string.app_name);
             setupShareIntent(intent.getStringExtra("shareString"));
         }
+
+        // show portal name as action bar title, if available
+        if (mTitle != getString(R.string.app_name)) actionBar.setTitle(mTitle);
 
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mFragmentAdapter);

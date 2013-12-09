@@ -325,6 +325,12 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     }
 
     @Override
+    protected void onDestroy() {
+        unregisterReceiver(mBroadcastReceiver);
+        super.onDestroy();
+    }
+
+    @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 

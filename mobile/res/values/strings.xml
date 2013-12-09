@@ -150,9 +150,9 @@
     <string name="msg_copied">Copied to clipboard…</string>
     <string name="notice_do_not_show_again">Do not show again</string>
 
-    <string name="tab_map">Map</string>
+    <string name="tab_map">Locate</string>
     <string name="tab_share">Share</string>
-    <string name="tab_browser">Browser</string>
+    <string name="tab_browser">Intel</string>
 
     <string name="label_highlighter">Highlighter</string>
     <string name="label_base_layer">Base Layer</string>

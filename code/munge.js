@@ -12,49 +12,53 @@
 ;(function(){
 
 var requestParameterMunges = [
-  // obsolete munge sets (they don't have some of the new parameters) deleted
+  // all old munge sets deleted - there's no sign that any old ones will become active again
 
-  // set 10 - 2013-11-27
+  // set 11 - 2013-12-06
   {
     'dashboard.getArtifactInfo': 'artifacts',            // GET_ARTIFACT_INFO
     'dashboard.getGameScore': '4oid643d9zc168hs',        // GET_GAME_SCORE
     'dashboard.getPaginatedPlexts': 's1msyywq51ntudpe',  // GET_PAGINATED_PLEXTS
     'dashboard.getThinnedEntities': '4467ff9bgxxe4csa',  // GET_THINNED_ENTITIES
     'dashboard.getPortalDetails': 'c00thnhf1yp3z6mn',    // GET_PORTAL_DETAILS
-    'dashboard.redeemReward': '66l9ivg39ygfqqjm',        // REDEEM_REWARD
-    'dashboard.sendInviteEmail': 'cgb7hi5hglv0xx8k',     // SEND_INVITE_EMAIL
-    'dashboard.sendPlext': 'etn9xq7brd6947kq',           // SEND_PLEXT
+    'dashboard.redeemReward': 'ivshfv9zvyfxyqcd',        // REDEEM_REWARD
+    'dashboard.sendInviteEmail': '1rsx15vc0m8wwdax',     // SEND_INVITE_EMAIL
+    'dashboard.sendPlext': 'tods2imd0xcfsug6',           // SEND_PLEXT
 
     // common parameters
-    method: 'yyngyttbmmbuvdpa',
-    version: 'avz401t36lzrapis',
-    version_parameter: 'c5d0a5d608f729a1232bebdc12fb86ba5fb6c43f',
+    method: '0wvzluo8av4sk17f',
+    version: 'paeh4g353xu06kfg',
+    version_parameter: '4acc1e3230c3fd66be3422c0df8dc637336bbd7c',
 
     // GET_THINNED_ENTITIES
-    quadKeys: '1mpmxz2yun22rwnn',
+    quadKeys: 'ilgv0w4dlldky1yh',
+
+    // GET_PORTAL_DETAILS
+    guid: '7o8tzmj6oxz1n5w3',
+
+    // REDEEM_REWARD
+    passcode: 'passcode',   // no munging on this parameter
+
+    // SEND_INVITE_EMAIL
+    inviteeEmailAddress: 'p4rwszdfovuwfdgp',
 
     // GET_PAGINATED_PLEXTS
-    desiredNumItems: 'nzd23jqm9k1cnnij',
-    minLatE6: '0dod6onpa1s4fezp',
-    minLngE6: 'soass3t7mm7anneo',
-    maxLatE6: 'cvarmr3o00ngylo1',
-    maxLngE6: 'udzwnlx07hzd3bfo',
-    minTimestampMs: '9iiiks138gkf8xho',
-    maxTimestampMs: '94wm0u3sc3sgzq7x',
-    chatTab: 'tqfj4a3okzn5v5o1',
-    ascendingTimestampOrder: '5jv1m90sq35u6utq',
+    desiredNumItems: 'kxsbuvc90l6f40xn',
+    minLatE6: 'llizye3i5dbapxac',
+    minLngE6: 'w01zpiba1mn5tsab',
+    maxLatE6: 'd5phhqzj2tbsq599',
+    maxLngE6: 'avq5srnvg431aehn',
+    minTimestampMs: 'mhsav5by25wi4s46',
+    maxTimestampMs: 'hpu7l8h7eccwytyt',
+    chatTab: 'q9343nem7hs1v37b',
+    ascendingTimestampOrder: '7pc5c9ggh03pig1b',
 
     // SEND_PLEXT
     message: '8exta9k7y8huhqmc',
-    latE6: 'kqek161gza3kjcry',
-    lngE6: '3dlxsqrjj2vcmhbc',
-//  chatTab: 'efaznrayv5n3jxs0', //guessed parameter name - only seen munged
+    latE6: '7ffwyf3zd2yf8xam',
+    lngE6: 'n7ewiach2v22iy20',
+//  chatTab: 'q9343nem7hs1v37b', // duplicate from GET_PAGINATED_PLEXTS
 
-    // GET_PORTAL_DETAILS
-    guid: 'seg6ohxgnqf9xu9w',
-
-    // SEND_INVITE_EMAIL
-    inviteeEmailAddress: '8exta9k7y8huhqmc',
   },
 
 ];
