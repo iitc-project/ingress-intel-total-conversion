@@ -93,8 +93,12 @@ window.plugin.drawResonators.createConnMarker = function(resoData, resoLatLng, p
 }
 
 window.plugin.drawResonators.zoomListener = function() {
+  var ctrl = $('.leaflet-control-layers-selector + span:contains("Resonators")').parent();
   if(window.map.getZoom() < window.RESONATOR_MIN_ZOOM) {
     window.plugin.drawResonators.levelLayerGroup.clearLayers();
+    ctrl.addClass('disabled').attr('title', 'Zoom in to show those.');
+  } else {
+    ctrl.removeClass('disabled').attr('title', 'Select a portal to draw resos');
   };
 }
 
@@ -102,7 +106,7 @@ var setup = function() {
 
   window.plugin.drawResonators.levelLayerGroup = new L.LayerGroup();
 
-  window.addLayerGroup('Draw Reso', window.plugin.drawResonators.levelLayerGroup, true);
+  window.addLayerGroup('Resonators', window.plugin.drawResonators.levelLayerGroup, true);
 
   window.addHook('portalDetailsUpdated', window.plugin.drawResonators.handledata);
   
