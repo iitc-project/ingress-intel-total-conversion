@@ -48,8 +48,11 @@ window.plugin.userLocation.setup = function() {
     clickable: false
   });
 
-  marker.addTo(window.map);
-  circle.addTo(window.map);
+  marker.addTo(window.plugin.userLocation.locationLayer);
+  circle.addTo(window.plugin.userLocation.locationLayer);
+  window.plugin.userLocation.locationLayer.addTo(window.map);
+  window.addLayerGroup('User location', window.plugin.userLocation.locationLayer, true);
+
   var container = $(".container", marker._icon);
 
   window.plugin.userLocation.marker = marker;
