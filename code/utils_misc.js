@@ -267,11 +267,11 @@ window.androidCopy = function(text) {
 }
 
 window.androidPermalink = function() {
-  if(typeof android === 'undefined' || !android || !android.copy)
+  if(typeof android === 'undefined' || !android || !android.intentPosLink)
     return true; // i.e. execute other actions
 
   var center = map.getCenter();
-  android.intentPosLink(center.lat, center.lng, map.getZoom(), "Intel Map", false);
+  android.intentPosLink(center.lat, center.lng, map.getZoom(), "Selected map view", false);
   return false;
 }
 
