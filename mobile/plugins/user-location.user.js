@@ -49,7 +49,6 @@ window.plugin.userLocation.setup = function() {
   });
 
   marker.addTo(window.plugin.userLocation.locationLayer);
-  circle.addTo(window.plugin.userLocation.locationLayer);
   window.plugin.userLocation.locationLayer.addTo(window.map);
   window.addLayerGroup('User location', window.plugin.userLocation.locationLayer, true);
 
@@ -62,6 +61,16 @@ window.plugin.userLocation.setup = function() {
 
   if('ondeviceorientation' in window)
     window.addEventListener('deviceorientation', window.plugin.userLocation.onDeviceOrientation, false);
+
+  window.map.on('zoomend', window.plugin.userLocation.onZoomEnd);
+  window.plugin.userLocation.onZoomEnd();
+};
+
+window.plugin.userLocation.onZoomEnd = function() {
+  if(window.map.getZoom() < 16)
+    window.plugin.userLocation.locationLayer.removeLayer(window.plugin.userLocation.circle);
+  else
+    window.plugin.userLocation.locationLayer.addLayer(window.plugin.userLocation.circle);
 };
 
 window.plugin.userLocation.onDeviceOrientation = function(e) {
