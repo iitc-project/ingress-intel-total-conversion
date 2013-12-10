@@ -1,7 +1,8 @@
 // ==UserScript==
 // @id             iitc-plugin-user-location@cradle
 // @name           IITC plugin: User Location
-// @version        0.1.4.@@DATETIMEVERSION@@
+// @category       Tweaks
+// @version        0.2.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -10,6 +11,7 @@
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
+// @grant          none
 // ==/UserScript==
 
 @@PLUGINSTART@@
@@ -18,38 +20,65 @@
 
 window.plugin.userLocation = function() {};
 
-window.plugin.userLocation.marker = {};
 window.plugin.userLocation.locationLayer = new L.LayerGroup();
 
 window.plugin.userLocation.setup = function() {
+  $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:mobile/plugins/user-location.css@@').appendTo('head');
 
-    var iconImage = '@@INCLUDEIMAGE:images/marker-icon.png@@';
-    var iconRetImage = '@@INCLUDEIMAGE:images/marker-icon-2x.png@@';
+  var cssClass = PLAYER.team === 'RESISTANCE' ? 'res' : 'enl';
 
-    plugin.userLocation.icon = L.Icon.Default.extend({options: {
-        iconUrl: iconImage,
-        iconRetinaUrl: iconRetImage
-    }});
+  var icon = L.divIcon({
+    iconSize: L.point(32, 32),
+    iconAnchor: L.point(16, 16),
+    className: 'user-location',
+    html: '<div class="container ' + cssClass + ' circle"><div class="outer"></div><div class="inner"></div></div>'
+  });
 
-    var cssClass = PLAYER.team === 'RESISTANCE' ? 'res' : 'enl';
-    var title = '<span class="nickname '+ cssClass+'" style="font-weight:bold;">' + PLAYER.nickname + '</span>\'s location';
+  var marker = L.marker(new L.LatLng(0,0), {
+    icon: icon,
+    zIndexOffset: 300,
+    clickable: false
+  });
 
-    var marker = L.marker(window.map.getCenter(), {
-        icon: new plugin.userLocation.icon()
-    });
+  marker.addTo(window.map);
+  var container = $(".container", marker._icon);
 
-    marker.bindPopup(title);
+  window.plugin.userLocation.marker = marker;
+  window.plugin.userLocation.icon = icon;
+  window.plugin.userLocation.container = container;
 
-    plugin.userLocation.marker = marker;
-    marker.addTo(window.map);
-    // jQueryUI doesn’t automatically notice the new markers
-    window.setupTooltips($(marker._icon));
+  if('ondeviceorientation' in window)
+    window.addEventListener('deviceorientation', window.plugin.userLocation.onDeviceOrientation, false);
 };
 
-window.plugin.userLocation.updateLocation = function(lat, lng) {
-    var latlng = new L.LatLng(lat, lng);
-    window.plugin.userLocation.marker.setLatLng(latlng);
+window.plugin.userLocation.onDeviceOrientation = function(e) {
+  var direction, delta, heading;
+
+  if (typeof e.webkitCompassHeading !== 'undefined') {
+    direction = e.webkitCompassHeading;
+    if (typeof window.orientation !== 'undefined') {
+      direction += window.orientation;
+    }
+  }
+  else {
+    // http://dev.w3.org/geo/api/spec-source-orientation.html#deviceorientation
+    direction = 360 - e.alpha;
+  }
+
+  var container = window.plugin.userLocation.container;
+  container
+    .removeClass("circle")
+    .addClass("arrow")
+    .css({
+      "transform": "rotate(" + direction + "deg)",
+      "webkitTransform": "rotate(" + direction + "deg)"
+    });
 }
+
+window.plugin.userLocation.updateLocation = function(lat, lng) {
+  var latlng = new L.LatLng(lat, lng);
+  window.plugin.userLocation.marker.setLatLng(latlng);
+};
 
 var setup = window.plugin.userLocation.setup;
 
