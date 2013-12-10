@@ -40,10 +40,20 @@ window.plugin.userLocation.setup = function() {
     clickable: false
   });
 
+  var circle = new L.Circle(new L.LatLng(0,0), 40, {
+    color: 'orange',
+    opacity: 0.7,
+    fillOpacity: 0,
+    weight: 1.5,
+    clickable: false
+  });
+
   marker.addTo(window.map);
+  circle.addTo(window.map);
   var container = $(".container", marker._icon);
 
   window.plugin.userLocation.marker = marker;
+  window.plugin.userLocation.circle = circle;
   window.plugin.userLocation.icon = icon;
   window.plugin.userLocation.container = container;
 
@@ -78,6 +88,7 @@ window.plugin.userLocation.onDeviceOrientation = function(e) {
 window.plugin.userLocation.updateLocation = function(lat, lng) {
   var latlng = new L.LatLng(lat, lng);
   window.plugin.userLocation.marker.setLatLng(latlng);
+  window.plugin.userLocation.circle.setLatLng(latlng);
 };
 
 var setup = window.plugin.userLocation.setup;
