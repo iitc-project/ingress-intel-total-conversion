@@ -52,12 +52,9 @@ window.plugin.userLocation.setup = function() {
   window.plugin.userLocation.locationLayer.addTo(window.map);
   window.addLayerGroup('User location', window.plugin.userLocation.locationLayer, true);
 
-  var container = $(".container", marker._icon);
-
   window.plugin.userLocation.marker = marker;
   window.plugin.userLocation.circle = circle;
   window.plugin.userLocation.icon = icon;
-  window.plugin.userLocation.container = container;
 
   if('ondeviceorientation' in window)
     window.addEventListener('deviceorientation', window.plugin.userLocation.onDeviceOrientation, false);
@@ -87,8 +84,7 @@ window.plugin.userLocation.onDeviceOrientation = function(e) {
     direction = 360 - e.alpha;
   }
 
-  var container = window.plugin.userLocation.container;
-  container
+  $(".container", window.plugin.userLocation.marker._icon)
     .removeClass("circle")
     .addClass("arrow")
     .css({
