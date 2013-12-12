@@ -1,4 +1,4 @@
-default: mkmobile
+default: mklocal
 
 local: mklocal
 mobile: mkmobile
