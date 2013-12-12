@@ -21,6 +21,11 @@ window.getPortalLinks = function(guid) {
   return links;
 }
 
+window.getPortalLinksCount = function(guid) {
+  var links = getPortalLinks();
+  return links.in.length+links.out.length;
+}
+
 
 // search through the fields for all that reference a portal
 window.getPortalFields = function(guid) {
@@ -38,6 +43,11 @@ window.getPortalFields = function(guid) {
   });
 
   return fields;
+}
+
+window.getPortalFieldsCount = function(guid) {
+  var fields = getPortalFields();
+  return fields.length;
 }
 
 
@@ -78,4 +88,49 @@ window.findPortalLatLng = function(guid) {
 
   // no luck finding portal lat/lng
   return undefined;
+}
+
+
+// get the AP gains from a portal, based only on the brief summary data from portals, links and fields
+// not entirely accurate - but available for all portals on the screen
+window.getPortalApGain = function(guid) {
+
+  var p = window.portals[guid];
+  if (p) {
+    var data = p.options.data;
+
+    var linkCount = getPortalLinksCount(guid);
+    var fieldCount = getPortalFieldsCount(guid);
+
+    var result = portalApGainMaths(data.resCount, linkCount, fieldCount);
+    return result;
+  }
+
+  return undefined;
+}
+
+// given counts of resonators, links and fields, calculate the available AP
+// doesn't take account AP for resonator upgrades or AP for adding mods
+window.portalApGainMaths = function(resCount, linkCount, fieldCount) {
+
+  var deployAp = (8-resCount)*DEPLOY_RESONATOR;
+  if (resCount == 0) deployAp += CAPTURE_PORTAL;
+  if (resCount != 8) deployAp += COMPLETION_BONUS;
+  // there could also be AP for upgrading existing resonators, and for deploying mods - but we don't have data for that
+  var friendlyAp = deployAp;
+
+  var destroyResoAp = resCount*DESTROY_RESONATOR;
+  var destroyLinkAp = linkCount*DESTROY_LINK;
+  var destroyFieldAp = fieldCount*DESTROY_FIELD;
+  var captureAp = CAPTURE_PORTAL + 8 * DEPLOY_RESONATOR + COMPLETION_BONUS;
+  var destroyAp = destroyResoAp+destroyLinkAp+destroyFieldAp;
+  var enemyAp = destroyAp+captureAp;
+
+  return {
+    friendlyAp: friendlyAp,
+    enemyAp: enemyAp,
+    destroyAp: destroyAp,
+    destroyResoAp: destroyResoAp,
+    captureAp: captureAp
+  }
 }
