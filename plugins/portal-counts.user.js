@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portals-count@yenky
 // @name           IITC plugin: Show total counts of portals
 // @category       Info
-// @version        0.0.9.@@DATETIMEVERSION@@
+// @version        0.0.10.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -19,15 +19,16 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 /* whatsnew
-* 0.0.8 : use dialog() instead of alert()
-* 0.0.6 : ignoring outside bounds portals (even if close to)
-* 0.0.5 : changed table layout, added some colors
-* 0.0.4 : reverse show order of portals, using MAX_PORTAL_LEVEL now for array, changed table layout to be more compact, cleaned up code
-* 0.0.3 : fixed incorrect rounded portal levels, adjusted viewport
-* 0.0.2 : fixed counts to be reset after scrolling
-* 0.0.1 : initial release, show count of portals
-* todo : 
-*/ 
+* 0.0.10 : show in nav drawer on mobile devices
+* 0.0.9  : fix for new intel map
+* 0.0.8  : use dialog() instead of alert()
+* 0.0.6  : ignoring outside bounds portals (even if close to)
+* 0.0.5  : changed table layout, added some colors
+* 0.0.4  : reverse show order of portals, using MAX_PORTAL_LEVEL now for array, changed table layout to be more compact, cleaned up code
+* 0.0.3  : fixed incorrect rounded portal levels, adjusted viewport
+* 0.0.2  : fixed counts to be reset after scrolling
+* 0.0.1  : initial release, show count of portals
+*/
 
 // use own namespace for plugin
 window.plugin.portalcounts = function() {};
@@ -97,17 +98,39 @@ window.plugin.portalcounts.getPortals = function(){
     counts += '<tr><td>No Portals in range!</td></tr>';
   counts += '</table>';
 
-
   var total = window.plugin.portalcounts.enlP + window.plugin.portalcounts.resP + window.plugin.portalcounts.neuP;
-  dialog({
-    html: '<div id="portalcounts">' + counts + '</div>',
-    title: 'Portal counts: ' + total + ' ' + (total == 1 ? 'portal' : 'portals'),
-  });
+  var title = total + ' ' + (total == 1 ? 'portal' : 'portals');
+
+  if(typeof android !== 'undefined' && android && android.addPane) {
+    $('<div id="portalcounts" class="mobile">'
+    + '<div class="ui-dialog-titlebar"><span class="ui-dialog-title ui-dialog-title-active">' + title + '</span></div>'
+    + counts
+    + '</div>').appendTo(document.body);
+  } else {
+    dialog({
+      html: '<div id="portalcounts">' + counts + '</div>',
+      title: 'Portal counts: ' + title,
+    });
+  }
 }
 
+window.plugin.portalcounts.onPaneChanged = function(pane) {
+  if(pane == "plugin-portalcounts")
+    window.plugin.portalcounts.getPortals();
+  else
+    $("#portalcounts").remove()
+};
+
 var setup =  function() {
-  $('#toolbox').append(' <a onclick="window.plugin.portalcounts.getPortals()" title="Display a summary of portals in the current view">Portal counts</a>');
+  if(typeof android !== 'undefined' && android && android.addPane) {
+    android.addPane("plugin-portalcounts", "Portal counts", "ic_action_data_usage");
+    addHook("paneChanged", window.plugin.portalcounts.onPaneChanged);
+  } else {
+    $('#toolbox').append(' <a onclick="window.plugin.portalcounts.getPortals()" title="Display a summary of portals in the current view">Portal counts</a>');
+  }
+
   $('head').append('<style>' + 
+    '#portalcounts.mobile {background: transparent; border: 0 none !important; height: 100% !important; width: 100% !important; left: 0 !important; top: 0 !important; position: absolute; overflow: auto; }' +
     '#portalcounts table {margin-top:5px; border-collapse: collapse; empty-cells: show; width:100%; clear: both;}' +
     '#portalcounts table td, #portalcounts table th {border-bottom: 1px solid #0b314e; padding:3px; color:white; background-color:#1b415e}' +
     '#portalcounts table tr.res th {  background-color: #005684; }' +
