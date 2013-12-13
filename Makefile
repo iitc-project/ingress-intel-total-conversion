@@ -1,7 +1,10 @@
-default: mklocal
+default: mkdefault
 
 local: mklocal
 mobile: mkmobile
+
+mkdefault:
+	./build.py
 
 mklocal:
 	./build.py local
