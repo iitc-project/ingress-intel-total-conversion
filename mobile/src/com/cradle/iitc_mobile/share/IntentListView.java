@@ -187,17 +187,16 @@ public class IntentListView extends ListView {
                 ActivityInfo activity = resolveInfo.activityInfo;
                 ComponentName activityId = new ComponentName(activity.packageName, activity.name);
 
+                // ResolveInfo.isDefault usually means "The target would like to be considered a default action that the
+                // user can perform on this data." It is set by the package manager, but we overwrite it to store
+                // whether this app is the default for the given intent
+                resolveInfo.isDefault = resolveInfo.activityInfo.name.equals(defaultTarget.activityInfo.name)
+                        && resolveInfo.activityInfo.packageName.equals(defaultTarget.activityInfo.packageName);
+
                 if (!mActivities.containsKey(activityId)) {
                     mActivities.put(activityId, intent);
-                    // move default Intent to top
-                    if (resolveInfo.activityInfo.packageName.equals(defaultTarget.activityInfo.packageName)
-                            && resolveInfo.activityInfo.name.equals(defaultTarget.activityInfo.name)) {
-                        allActivities.add(0, resolveInfo);
-                    } else {
-                        allActivities.add(resolveInfo);
-                    }
+                    allActivities.add(resolveInfo);
                 }
-
             }
         }
 

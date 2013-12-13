@@ -116,14 +116,12 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
             mZoom = intent.getIntExtra("zoom", 0);
             mIsPortal = intent.getBooleanExtra("isPortal", false);
 
+            actionBar.setTitle(mTitle);
             setupIntents();
         } else {
             mTitle = getString(R.string.app_name);
             setupShareIntent(intent.getStringExtra("shareString"));
         }
-
-        // show portal name as action bar title, if available
-        if (mTitle != getString(R.string.app_name)) actionBar.setTitle(mTitle);
 
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mFragmentAdapter);

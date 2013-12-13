@@ -289,6 +289,7 @@ if buildMobile:
 
         if retcode != 0:
             print ("Error: mobile app failed to build. ant returned %d" % retcode)
+            exit(1) # ant may return 256, but python seems to allow only values <256
         else:
             shutil.copy("mobile/bin/IITC_Mobile-%s.apk" % buildMobile, os.path.join(outDir,"IITC_Mobile-%s.apk" % buildMobile) )
 
