@@ -2,11 +2,11 @@
 // @id             iitc-plugin-portal-names@zaso
 // @name           IITC plugin: Portal Names
 // @category       Layer
-// @version        0.1.2.@@DATETIMEVERSION@@
+// @version        0.1.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Show portal names on the map
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Show portal names on the map.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -63,8 +63,8 @@ window.plugin.portalNames.addLabel = function(guid, latLng) {
   var previousLayer = window.plugin.portalNames.labelLayers[guid];
   if (!previousLayer) {
 
-    var d = window.portals[guid].options.details;
-    var portalName = d.portalV2.descriptiveText.TITLE;
+    var d = window.portals[guid].options.data;
+    var portalName = d.title;
 
     var label = L.marker(latLng, {
       icon: L.divIcon({

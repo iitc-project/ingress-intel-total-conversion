@@ -111,12 +111,25 @@ window.setupMap = function() {
   var mqMapOpt = {attribution: osmAttribution+', Tiles Courtesy of MapQuest', maxZoom: 18, subdomains: mqSubdomains};
   var mqMap = new L.TileLayer(mqTileUrlPrefix+'/tiles/1.0.0/map/{z}/{x}/{y}.jpg',mqMapOpt);
   //MapQuest satellite coverage outside of the US is rather limited - so not really worth having as we have google as an option
-  //var mqSatOpt = {attribution: 'Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency', mazZoom: 18, subdomains: mqSubdomains};
+  //var mqSatOpt = {attribution: 'Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency', maxZoom: 18, subdomains: mqSubdomains};
   //var mqSat = new L.TileLayer('http://{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg',mqSatOpt);
+
+  var ingressGMapOptions = {
+    backgroundColor: '#0e3d4e', //or #dddddd ? - that's the Google tile layer default
+    styles: [
+        { featureType:"all", elementType:"all",
+          stylers: [{visibility:"on"}, {hue:"#131c1c"}, {saturation:"-50"}, {invert_lightness:true}] },
+        { featureType:"water", elementType:"all",
+          stylers: [{visibility:"on"}, {hue:"#005eff"}, {invert_lightness:true}] },
+        { featureType:"poi", stylers:[{visibility:"off"}]},
+        { featureType:"transit", elementType:"all", stylers:[{visibility:"off"}] }
+      ]
+  };
+
 
   var views = [
     /*0*/ mqMap,
-    /*1*/ new L.Google('INGRESS',{maxZoom:20}),
+    /*1*/ new L.Google('ROADMAP',{maxZoom:20, mapOptions:ingressGMapOptions}),
     /*2*/ new L.Google('ROADMAP',{maxZoom:20}),
     /*3*/ new L.Google('SATELLITE',{maxZoom:20}),
     /*4*/ new L.Google('HYBRID',{maxZoom:20}),
@@ -163,7 +176,7 @@ window.setupMap = function() {
   if(!isLayerGroupDisplayed('Links', true)) hiddenLayer.push(linksLayer);
 
   // faction-specific layers
-  // these layers don't actually contain any data. instead, everytime they're added/removed from the map,
+  // these layers don't actually contain any data. instead, every time they're added/removed from the map,
   // the matching sub-layers within the above portals/fields/links are added/removed from their parent with
   // the below 'onoverlayadd/onoverlayremovve' events
   var factionLayers = [L.layerGroup(), L.layerGroup(), L.layerGroup()];
@@ -238,7 +251,7 @@ window.setupMap = function() {
 
   map.on('moveend', function(e) {
     // two limits on map position
-    // we wrap longitude (the L.LatLng 'wrap' method) - so we don't find outselves looking beyond +-180 degrees
+    // we wrap longitude (the L.LatLng 'wrap' method) - so we don't find ourselves looking beyond +-180 degrees
     // then latitude is clamped with the clampLatLng function (to the 85 deg north/south limits)
     var newPos = clampLatLng(map.getCenter().wrap());
     if (!map.getCenter().equals(newPos)) {
@@ -325,7 +338,6 @@ window.setMapBaseLayer = function() {
 // included as inline script in the original site, the data is static
 // and cannot be updated.
 window.setupPlayerStat = function() {
-  PLAYER.guid = playerNameToGuid(PLAYER.nickname);
   var level;
   var ap = parseInt(PLAYER.ap);
   for(level = 0; level < MIN_AP_FOR_LEVEL.length; level++) {
@@ -518,7 +530,6 @@ function boot() {
   window.setupTaphold();
   window.setupStyles();
   window.setupDialogs();
-  window.setupPlayerNameCache();
   window.setupMap();
   window.setupGeosearch();
   window.setupRedeem();
@@ -529,6 +540,7 @@ function boot() {
   window.setupPlayerStat();
   window.setupTooltips();
   window.chat.setup();
+  window.portalDetail.setup();
   window.setupQRLoadLib();
   window.setupLayerChooserSelectOne();
   window.setupLayerChooserStatusRecorder();
@@ -581,14 +593,14 @@ try { console.log('Loading included JS now'); } catch(e) {}
 @@INCLUDERAW:external/L.Geodesic.js@@
 // modified version of https://github.com/shramov/leaflet-plugins. Also
 // contains the default Ingress map style.
-@@INCLUDERAW:external/leaflet_google.js@@
+@@INCLUDERAW:external/Google.js@@
 @@INCLUDERAW:external/autolink.js@@
 
 try { console.log('done loading included JS'); } catch(e) {}
 
 //note: no protocol - so uses http or https as used on the current page
-var JQUERY = '//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js';
-var JQUERYUI = '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js';
+var JQUERY = '//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js';
+var JQUERYUI = '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js';
 
 // after all scripts have loaded, boot the actual app
 load(JQUERY).then(JQUERYUI).thenRun(boot);

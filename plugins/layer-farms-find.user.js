@@ -2,11 +2,11 @@
 // @id             iitc-plugin-farms@949
 // @name           IITC plugin: Show farms by level
 // @category       Info
-// @version        1.4.0.@@DATETIMEVERSION@@
+// @version        1.4.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Find farms by minimum level
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Find farms by minimum level.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -62,7 +62,7 @@ window.plugin.farmFind.getNearbyPortalCount = function(portal){
     $.each(window.portals, function(i, otherPortal) {
         var thisPortal = new google.maps.LatLng(otherPortal.getLatLng().lat, otherPortal.getLatLng().lng);
       	 if (circle.getBounds().contains(thisPortal))
-             if (getPortalLevel(otherPortal.options.details) >= window.plugin.farmFind.minLevel) nearby8Portals++;
+             if (otherPortal.options.level >= window.plugin.farmFind.minLevel) nearby8Portals++;
     });
     //console.log(nearby8Portals);         
     return nearby8Portals;

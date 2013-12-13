@@ -2,11 +2,11 @@
 // @id             iitc-plugin-portals-count@yenky
 // @name           IITC plugin: Show total counts of portals
 // @category       Info
-// @version        0.0.8.@@DATETIMEVERSION@@
+// @version        0.0.9.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Display a list of all localized portals by level and faction
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Display a list of all localized portals by level and faction.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -32,7 +32,7 @@
 // use own namespace for plugin
 window.plugin.portalcounts = function() {};
 
-//count portals for each level avalaible on the map
+//count portals for each level available on the map
 window.plugin.portalcounts.getPortals = function(){
   //console.log('** getPortals');
   var retval=false;
@@ -50,9 +50,8 @@ window.plugin.portalcounts.getPortals = function(){
     
   $.each(window.portals, function(i, portal) {
     retval=true;
-    var d = portal.options.details;
+    var level = portal.options.level;
     var team = portal.options.team;
-    var level = Math.floor(getPortalLevel(d));
     // just count portals in viewport
     if(!displayBounds.contains(portal.getLatLng())) return true;
     switch (team){
@@ -84,15 +83,16 @@ window.plugin.portalcounts.getPortals = function(){
         counts += '<td class="enl">'+window.plugin.portalcounts.PortalsEnl[level]+'</td><td class="res">'+window.plugin.portalcounts.PortalsRes[level]+'</td>';
       counts += '</tr>';
     }
-    counts += '<tr><td colspan="3">&nbsp</td></tr>';
+
+    counts += '<tr><th>Total:</th><td class="enl">'+window.plugin.portalcounts.enlP+'</td><td class="res">'+window.plugin.portalcounts.resP+'</td></tr>';
+
     counts += '<tr><td>Neutral:</td><td colspan="2">';
     if(minlvl > 0)
-      counts += 'zoom in to see unclaimed';
+      counts += 'zoom in to see unclaimed portals';
     else
       counts += window.plugin.portalcounts.neuP;
-    counts += ' Portal(s)</td></tr>';
-    counts += '<tr class="enl"><th colspan="2">Enlightened:</th><td>'+window.plugin.portalcounts.enlP+' Portal(s)</td></tr>';
-    counts += '<tr class="res"><th colspan="2">Resistance:</th><td>'+window.plugin.portalcounts.resP+' Portal(s)</td></tr>';
+    counts += '</td></tr>';
+
   } else
     counts += '<tr><td>No Portals in range!</td></tr>';
   counts += '</table>';

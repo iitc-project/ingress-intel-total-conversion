@@ -68,6 +68,20 @@ if ( file_exists ( 'tracking.php' ) )
   - a place to ask for help and discuss with other users.
  </div>
 
+ <!-- **** alert box when standard intel site changes **** -->
+ <?php
+ if ( file_exists ( "flag-stock-site-changed.txt" ) )
+ {
+ ?>
+ <div class="alert alert-block alert-error">
+  <b>Note</b>: A change has been detected to the standard intel website. Such changes usually break IITC.
+  The developers have been notified of the update, and will be looking to fix things as soon as possible.
+  See the <a href="https://plus.google.com/communities/105647403088015055797">IITC Community</a>
+  for the latest details.
+ </div>
+ <?php
+ }
+ ?>
 <!--
  <div class="alert alert-block alert-error">
   <b>IITC has yet again been broken by changes Niantic have made.</b> Further information/discussion on
@@ -88,8 +102,8 @@ $pages = Array (
 	'home' => '<i class="icon-home"></i> Home',
 	'news' => '<i class="icon-list"></i> News',
 	'faq' => '<i class="icon-question-sign"></i> FAQ',
-	'desktop' => '<i class="icon-chevron-right"></i> Desktop',
-	'mobile' => '<i class="icon-chevron-right"></i> Mobile',
+	'desktop' => '<i class="icon-chevron-desktop"></i> Desktop',
+	'mobile' => '<i class="icon-chevron-mobile"></i> Mobile',
 	'test' => '<i class="icon-wrench"></i> Test Builds',
 	'developer' => '<i class="icon-cog"></i> Developers',
 	'about' => '<i class="icon-info-sign"></i> About',
@@ -116,7 +130,7 @@ foreach ( $pages as $key => $name )
 
 	print "<li".($page == $key ? ' class="active"' :'')."><a href=\"$url\">$name</a></li>\n";
 
-	# after 'mobile', add a horizontal seperator
+	# after 'mobile', add a horizontal separator
 	if ( $key == 'test' )
 		print "<li class=\"divider\"></li>";
 }

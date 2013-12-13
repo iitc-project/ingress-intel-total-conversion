@@ -444,7 +444,7 @@ function join_url( $parts, $encode=FALSE)
  *
  * RFC3986 specifies the allowed characters in the URL as well as
  * reserved characters in the URL. This function replaces all the 
- * disallowed characters in the URL with their repective percent 
+ * disallowed characters in the URL with their respective percent 
  * encodings. Already encoded characters are not encoded again,
  * such as '%20' is not encoded to '%2520'.
  *

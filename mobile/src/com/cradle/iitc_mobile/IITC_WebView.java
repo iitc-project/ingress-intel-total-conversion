@@ -71,7 +71,15 @@ public class IITC_WebView extends WebView {
             @Override
             public void run() {
                 if (isInFullscreen() && (getFullscreenStatus() & (FS_NAVBAR)) != 0) {
-                    setSystemUiVisibility(SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+                    int systemUiVisibility = SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+                    // in immersive mode the user can interact with the app while the navbar is hidden
+                    // this mode is available since KitKat
+                    // you can leave this mode by swiping down from the top of the screen. this does only work
+                    // when the app is in total-fullscreen mode
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && (mFullscreenStatus & FS_SYSBAR) != 0) {
+                        systemUiVisibility |= SYSTEM_UI_FLAG_IMMERSIVE;
+                    }
+                    setSystemUiVisibility(systemUiVisibility);
                 }
             }
         };
@@ -140,6 +148,11 @@ public class IITC_WebView extends WebView {
     @Override
     public void loadUrl(String url) {
         if (url.startsWith("javascript:")) {
+            // do nothing if script is enabled;
+            if (mDisableJs) {
+                Log.d("iitcm", "javascript injection disabled...return");
+                return;
+            }
             loadJS(url.substring("javascript:".length()));
         } else {
             // force https if enabled in settings
@@ -160,29 +173,18 @@ public class IITC_WebView extends WebView {
 
     public void loadJS(String js) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            evaluateJavascript(js, new ValueCallback<String>() {
-                @Override
-                public void onReceiveValue(String value) {
-                    // maybe we want to add stuff here
-                    return;
-                }
-            });
+            evaluateJavascript(js, null);
         } else {
             // if in edit text mode, don't load javascript otherwise the keyboard closes.
             HitTestResult testResult = getHitTestResult();
             if (testResult != null && testResult.getType() == HitTestResult.EDIT_TEXT_TYPE) {
-                // let window.show(...) interupt input
+                // let window.show(...) interrupt input
                 // window.show(...) is called if one of the action bar buttons
                 // is clicked
                 if (!js.startsWith("window.show(")) {
                     Log.d("iitcm", "in insert mode. do not load script.");
                     return;
                 }
-            }
-            // do nothing if script is enabled;
-            if (mDisableJs) {
-                Log.d("iitcm", "javascript injection disabled...return");
-                return;
             }
             super.loadUrl("javascript:" + js);
         }
@@ -191,20 +193,22 @@ public class IITC_WebView extends WebView {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         getHandler().removeCallbacks(mNavHider);
-        getHandler().postDelayed(mNavHider, 2000);
+        getHandler().postDelayed(mNavHider, 3000);
         return super.onTouchEvent(event);
     }
 
     @Override
     public void setSystemUiVisibility(int visibility) {
-        getHandler().postDelayed(mNavHider, 2000);
+        if ((visibility & SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
+            getHandler().postDelayed(mNavHider, 3000);
+        }
         super.setSystemUiVisibility(visibility);
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         if (hasWindowFocus) {
-            getHandler().postDelayed(mNavHider, 2000);
+            getHandler().postDelayed(mNavHider, 3000);
         } else {
             getHandler().removeCallbacks(mNavHider);
         }
@@ -226,7 +230,7 @@ public class IITC_WebView extends WebView {
                 attrs.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;
             }
             if ((mFullscreenStatus & FS_NAVBAR) != 0) {
-                setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+                getHandler().post(mNavHider);
             }
             if ((mFullscreenStatus & FS_STATUSBAR) != 0) {
                 loadUrl("javascript: $('#updatestatus').hide();");

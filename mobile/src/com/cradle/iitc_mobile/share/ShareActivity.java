@@ -19,13 +19,14 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 public class ShareActivity extends FragmentActivity implements ActionBar.TabListener {
+    private IntentComparator mComparator;
+    private IntentFragmentAdapter mFragmentAdapter;
     private boolean mIsPortal;
     private String mLl;
     private SharedPreferences mSharedPrefs = null;
     private String mTitle;
+    private ViewPager mViewPager;
     private int mZoom;
-    IntentFragmentAdapter mFragmentAdapter;
-    ViewPager mViewPager;
 
     private void addTab(ArrayList<Intent> intents, int label, int icon) {
         IntentFragment fragment = new IntentFragment();
@@ -53,9 +54,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
 
     private void setSelected(int position) {
         // Activity not fully loaded yet (may occur during tab creation)
-        if (mSharedPrefs == null) {
-            return;
-        }
+        if (mSharedPrefs == null) return;
 
         mSharedPrefs
                 .edit()
@@ -82,10 +81,10 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         String geoUri = "geo:" + mLl;
         Intent geoIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(geoUri));
         intents.add(geoIntent);
-        addTab(intents, R.string.tab_map, R.drawable.location_map);
+        addTab(intents, R.string.tab_map, R.drawable.ic_action_place);
 
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getUrl()));
-        addTab(intent, R.string.tab_browser, R.drawable.browser);
+        addTab(intent, R.string.tab_browser, R.drawable.ic_action_web_site);
     }
 
     private void setupShareIntent(String str) {
@@ -94,13 +93,15 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TEXT, str);
         intent.putExtra(Intent.EXTRA_SUBJECT, mTitle);
-        addTab(intent, R.string.tab_share, R.drawable.share);
+        addTab(intent, R.string.tab_share, R.drawable.ic_action_share);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share);
+
+        mComparator = new IntentComparator(this);
 
         mFragmentAdapter = new IntentFragmentAdapter(getSupportFragmentManager());
 
@@ -115,6 +116,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
             mZoom = intent.getIntExtra("zoom", 0);
             mIsPortal = intent.getBooleanExtra("isPortal", false);
 
+            actionBar.setTitle(mTitle);
             setupIntents();
         } else {
             mTitle = getString(R.string.app_name);
@@ -156,6 +158,16 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
                 actionBar.setSelectedNavigationItem(selected);
             }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mComparator.save();
+    }
+
+    public IntentComparator getIntentComparator() {
+        return mComparator;
     }
 
     @Override

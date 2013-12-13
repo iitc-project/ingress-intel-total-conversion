@@ -1,0 +1,65 @@
+.user-location {
+  pointer-events: none;
+}
+
+.user-location .container {
+  height: 32px;
+  width: 32px;
+  transform-origin: center;
+  -webkit-transform-origin: center;
+}
+
+.user-location .container .inner,
+.user-location .container .outer {
+  position: absolute;
+}
+
+.user-location .res .inner {
+  background-color: #03baf4;
+  border-color: #03baf4;
+}
+
+.user-location .res .outer {
+  background-color: #0088b3;
+  border-color: #0088b3;
+}
+
+.user-location .enl .inner {
+  background-color: #1ee681;
+  border-color: #1ee681;
+}
+
+.user-location .enl .outer {
+  background-color: #00aa4e;
+  border-color: #00aa4e;
+}
+
+.user-location .circle .inner,
+.user-location .circle .outer {
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+}
+
+.user-location .circle .inner {
+  transform: scale(0.6);
+  -webkit-transform: scale(0.6);
+}
+
+.user-location .arrow .inner,
+.user-location .arrow .outer {
+  left: 4px;
+  width: 0px;
+  height: 0px;
+  border-style: solid;
+  border-width: 0px 12px 32px;
+  border-left-color: transparent;
+  border-right-color: transparent;
+  background: transparent;
+}
+
+.user-location .arrow .inner {
+  transform: scale(0.6) translateY(15%);
+  -webkit-transform: scale(0.6) translateY(15%);
+}
+

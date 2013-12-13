@@ -115,7 +115,7 @@ a:hover {
   padding-left: 8px;
 }
 
-/* hide the usual seperator */
+/* hide the usual separator */
 .leaflet-control-layers-separator {
   display: none;
 }
@@ -982,6 +982,15 @@ td + td {
   display: none;
 }
 
+
+/** artifact dialog *****************/
+table.artifact tr > * {
+  background: rgba(8, 48, 78, 0.9);
+}
+
+table.artifact td.info {
+  min-width: 110px;
+}
 
 
 /* leaflet popups - restyle to match the theme of IITC */

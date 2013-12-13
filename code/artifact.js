@@ -11,7 +11,8 @@
 window.artifact = function() {}
 
 window.artifact.setup = function() {
-  artifact.REFRESH_SUCCESS = 15*60;  // 15 minutes on success
+  artifact.REFRESH_JITTER = 2*60;  // 2 minute random period so not all users refresh at once
+  artifact.REFRESH_SUCCESS = 60*60;  // 60 minutes on success
   artifact.REFRESH_FAILURE = 2*60;  // 2 minute retry on failure
 
   artifact.idle = false;
@@ -19,10 +20,14 @@ window.artifact.setup = function() {
 
   addResumeFunction(artifact.idleResume);
 
-  artifact.requestData();
+  // move the initial data request onto a very short timer. prevents thrown exceptions causing IITC boot failures
+  setTimeout (artifact.requestData, 1);
 
   artifact._layer = new L.LayerGroup();
   addLayerGroup ('Artifacts (Jarvis shards)', artifact._layer, true);
+
+  $('#toolbox').append(' <a onclick="window.artifact.showArtifactList()" title="Show artifact portal list (jarvis shards and targets)">Artifacts</a>');
+
 }
 
 window.artifact.requestData = function() {
@@ -43,7 +48,11 @@ window.artifact.idleResume = function() {
 window.artifact.handleSuccess = function(data) {
   artifact.processData (data);
 
-  setTimeout (artifact.requestData, artifact.REFRESH_SUCCESS*1000);
+  // start the next refresh at a multiple of REFRESH_SUCCESS seconds, plus a random REFRESH_JITTER amount to prevent excessive server hits at one time
+  var now = Date.now();
+  var nextTime = Math.ceil(now/(artifact.REFRESH_SUCCESS*1000))*(artifact.REFRESH_SUCCESS*1000) + Math.floor(Math.random()*artifact.REFRESH_JITTER*1000);
+
+  setTimeout (artifact.requestData, nextTime - now);
 }
 
 window.artifact.handleFailure = function(data) {
@@ -55,9 +64,8 @@ window.artifact.handleFailure = function(data) {
 
 window.artifact.processData = function(data) {
 
-  if (!data.artifacts) {
+  if (data.error || !data.artifacts) {
     console.warn('Failed to find artifacts in artifact response');
-    return;
   }
 
   artifact.clearData();
@@ -68,6 +76,8 @@ window.artifact.processData = function(data) {
       // (future types? completely unknown at this time!)
       console.warn('Note: unknown artifactId '+artData.artifactId+' - guessing how to handle it');
     }
+
+    artifact.artifactTypes[artData.artifactId] = artData.artifactId;
 
     if (artData.fragmentInfos) {
       artifact.processFragmentInfos (artData.artifactId, artData.fragmentInfos);
@@ -90,6 +100,7 @@ window.artifact.processData = function(data) {
 window.artifact.clearData = function() {
 
   artifact.portalInfo = {};
+  artifact.artifactTypes = {};
 }
 
 window.artifact.processFragmentInfos = function (id, fragments) {
@@ -121,6 +132,13 @@ window.artifact.processTargetInfos = function (id, targets) {
   });
 }
 
+window.artifact.getArtifactTypes = function() {
+  return Object.keys(artifact.artifactTypes);
+}
+
+window.artifact.isArtifact = function(type) {
+  return type in artifact.artifactTypes;
+}
 
 // used to render portals that would otherwise be below the visible level
 window.artifact.getArtifactEntities = function() {
@@ -136,34 +154,45 @@ window.artifact.getArtifactEntities = function() {
   return entities;
 }
 
+window.artifact.getInterestingPortals = function() {
+  return Object.keys(artifact.portalInfo);
+}
+
+// quick test for portal being relevant to artifacts - of any type
+window.artifact.isInterestingPortal = function(guid) {
+  return guid in artifact.portalInfo;
+}
+
+// get the artifact data for a specified artifact id (e.g. 'jarvis'), if it exists - otherwise returns something 'false'y
+window.artifact.getPortalData = function(guid,artifactId) {
+  return artifact.portalInfo[guid] && artifact.portalInfo[guid][artifactId];
+}
 
 window.artifact.updateLayer = function() {
   artifact._layer.clearLayers();
 
-// TODO: icons
-//   //commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/jarvis_shard.png
-//   //commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/jarvis_shard_target_0.png
-// (replace '0' with count of shards at the target portal)
-
-
   $.each(artifact.portalInfo, function(guid,data) {
-    var latlng = L.latLng ([data._entityData.locationE6.latE6/1E6, data._entityData.locationE6.lngE6/1E6]);
+    var latlng = L.latLng ([data._entityData.latE6/1E6, data._entityData.lngE6/1E6]);
 
     // jarvis shard icon
     var iconUrl = undefined;
     var iconSize = 0;
+    var opacity = 1.0;
 
-    if (data.jarvis.fragments) {
-      iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/jarvis_shard.png';
-      iconSize = 60/2; // 60 pixels - half that size works better
-    }
-    if (data.jarvis.target) {
-      // target portal - show the target marker. use the count of fragments at the target to pick the right icon - it has segments that fill up
+    if (data.jarvis) {
+      if (data.jarvis.target) {
+        // target portal - show the target marker. use the count of fragments at the target to pick the right icon - it has segments that fill up
 
-      var count = data.jarvis.fragments ? data.jarvis.fragments.length : 0;
+        var count = data.jarvis.fragments ? data.jarvis.fragments.length : 0;
 
-      iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/jarvis_shard_target_'+count+'.png';
-      iconSize = 100/2; // 100 pixels - half that size works better
+        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/jarvis_shard_target_'+count+'.png';
+        iconSize = 100/2; // 100 pixels - half that size works better
+      } else if (data.jarvis.fragments) {
+        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/jarvis_shard.png';
+        iconSize = 60/2; // 60 pixels - half that size works better
+        opacity = 0.6; // these often hide portals - let's make them semi transparent
+      }
+
     }
 
     if (iconUrl) {
@@ -174,12 +203,77 @@ window.artifact.updateLayer = function() {
         className: 'no-pointer-events'  // the clickable: false below still blocks events going through to the svg underneath
       });
 
-      var marker = L.marker (latlng, {icon: icon, clickable: false, keyboard: false});
+      var marker = L.marker (latlng, {icon: icon, clickable: false, keyboard: false, opacity: opacity });
 
       artifact._layer.addLayer(marker);
     } else {
       console.warn('Oops! no URL for artifact portal icon?!');
     }
+  });
+
+}
+
+
+window.artifact.showArtifactList = function() {
+
+
+  var html = '<div><b>Artifact portals</b></div>';
+
+  var types = { 'jarvis': 'Jarvis Shards' };
+
+  $.each(types, function(type, name) {
+
+    html += '<hr><div><b>'+types[type]+'</b></div>';
+
+    html += '<table class="artifact '+type+'">';
+    html += '<tr><th>Portal</th><th>Details</th></tr>';
+
+    var tableRows = [];
+
+    $.each(artifact.portalInfo, function(guid, data) {
+      if (type in data) {
+        // this portal has data for this artifact type - add it to the table
+
+        var sortVal = 0;
+
+        var onclick = 'zoomToAndShowPortal(\''+guid+'\',['+data._entityData.latE6/1E6+','+data._entityData.lngE6/1E6+'])';
+        var row = '<tr><td class="portal"><a onclick="'+onclick+'">'+escapeHtmlSpecialChars(data._entityData.title)+'</a></td>';
+
+        row += '<td class="info">';
+
+        if (data[type].target) {
+          row += '<span class="target '+TEAM_TO_CSS[data[type].target]+'">'+(data[type].target==TEAM_RES?'Resistance':'Enlightened')+' target</span> ';
+          sortVal = 100000+data[type].target;
+        }
+
+        if (data[type].fragments) {
+          row += '<span class="fragments">Shard: #'+data[type].fragments.join(', #')+'</span> ';
+          sortVal = Math.min.apply(null, data[type].fragments); // use min shard number at portal as sort key
+        }
+
+        row += '</td></tr>';
+
+        tableRows.push ( [sortVal, row] );
+      }
+    });
+
+    // sort the rows
+    tableRows.sort(function(a,b) {
+      return a[0]-b[0];
+    });
+
+    // and add them to the table
+    html += tableRows.map(function(a){return a[1];}).join('');
+
+    html += '</table>';
+  });
+
+
+  dialog({
+    title: 'Artifacts',
+    html: html,
+    width: 400,
+    position: {my: 'right center', at: 'center-60 center', of: window, collision: 'fit'}
   });
 
 }

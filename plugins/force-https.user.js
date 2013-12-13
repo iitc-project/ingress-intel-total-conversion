@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Force https access for ingress.com/intel. If the intel site is accessed via http, it redirects to the https version
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Force https access for ingress.com/intel. If the intel site is accessed via http, it redirects to the https version.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -17,7 +17,7 @@
 
 
 //NOTE: plugin authors - due to the unique requirements of this plugin, it doesn't use the standard IITC
-//plugin architechure. do NOT use it as a template for other plugins
+//plugin architecture. do NOT use it as a template for other plugins
 
 
 if(window.location.protocol !== 'https:') {

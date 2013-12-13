@@ -12,7 +12,6 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -76,7 +75,7 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             Layer item = getItem(position);
-            View view = (TextView) super.getView(position, convertView, parent);
+            View view = super.getView(position, convertView, parent);
 
             if (view instanceof CheckedTextView) {
                 ((CheckedTextView) view).setChecked(item.active);

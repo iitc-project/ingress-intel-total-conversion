@@ -2,24 +2,26 @@
 // GAME STATUS ///////////////////////////////////////////////////////
 // MindUnit display
 
-window.window.updateGameScoreFailCount = 0;
+window.updateGameScoreFailCount = 0;
 
 window.updateGameScore = function(data) {
   if(!data) {
-    window.postAjax('getGameScore', {}, window.updateGameScore);
+    // move the postAjax call onto a very short timer. this way, if it throws an exception, it won't prevent IITC booting
+    setTimeout (function() { window.postAjax('getGameScore', {}, window.updateGameScore); }, 1);
     return;
   }
 
   // hacky - but here is as good as any for a location
-  // the niantic servers have attempted to obsfucate the client/server protocol, by munging the request parameters
+  // the niantic servers have attempted to obfuscate the client/server protocol, by munging the request parameters
   // detecting which munge set should be used is tricky - even the stock site gets it wrong sometimes
   // to detect the problem and try a different set is easiest in a place where there's only a single request of that type
   // sent at once, and it has no extra parameters. this method matches those requirements
   if (data.error || (data.indexOf && data.indexOf('"error"') != -1)) {
-    window.window.updateGameScoreFailCount++;
-    if (window.window.updateGameScoreFailCount <= window.requestParameterMunges.length) {
-      window.activeRequestMungeSet = (window.activeRequestMungeSet+1) % window.requestParameterMunges.length;
-      console.warn('IITC munge issue - cycling to set '+window.activeRequestMungeSet);
+    window.updateGameScoreFailCount++;
+    if (window.updateGameScoreFailCount <= window.requestParameterMunges.length) {
+//TODO: methods to try a different munge set?
+//      window.activeRequestMungeSet = (window.activeRequestMungeSet+1) % window.requestParameterMunges.length;
+//      console.warn('IITC munge issue - cycling to set '+window.activeRequestMungeSet);
 
       updateGameScore();
       return;
@@ -28,7 +30,7 @@ window.updateGameScore = function(data) {
     }
   }
 
-  window.window.updateGameScoreFailCount = 0;
+  window.updateGameScoreFailCount = 0;
 
   var r = parseInt(data.result.resistanceScore), e = parseInt(data.result.enlightenedScore);
   var s = r+e;

@@ -6,7 +6,7 @@
 // tile and a quadkey. Both the bounds and the quadkey are “somewhat”
 // required to get complete data.
 //
-// Convertion functions courtesy of
+// Conversion functions courtesy of
 // http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames
 
 

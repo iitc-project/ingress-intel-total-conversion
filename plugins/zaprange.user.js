@@ -2,7 +2,7 @@
 // @id             iitc-plugin-zaprange@zaso
 // @name           IITC plugin: Zaprange
 // @category       Layer
-// @version        0.1.2.@@DATETIMEVERSION@@
+// @version        0.1.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -25,11 +25,11 @@
 
   window.plugin.zaprange.portalAdded = function(data) {
     data.portal.on('add', function() {
-      window.plugin.zaprange.draw(this.options.guid, this.options.details.controllingTeam.team);
+      window.plugin.zaprange.draw(this.options.guid, this.options.data.team);
     });
 
     data.portal.on('remove', function() {
-      window.plugin.zaprange.remove(this.options.guid, this.options.details.controllingTeam.team);
+      window.plugin.zaprange.remove(this.options.guid, this.options.data.team);
     });
   }
 
@@ -51,7 +51,7 @@
     if(faction !== "NEUTRAL") {
       var coo = d._latlng;
       var latlng = new L.LatLng(coo.lat,coo.lng);
-      var portalLevel = parseInt(getPortalLevel(d.options.details));
+      var portalLevel = d.options.level;
       var optCircle = {color:'red',opacity:0.7,fillColor:'red',fillOpacity:0.1,weight:1,clickable:false, dashArray: [10,6]};
       var range = (5*portalLevel)+35;
 

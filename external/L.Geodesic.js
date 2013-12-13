@@ -77,14 +77,28 @@ Modified by qnstie 2013-07-17 to maintain compatibility with Leaflet.draw
   }
 
   L.geodesicConvertLines = function (latlngs, fill) {
-    var i, j, len, geodesiclatlngs = [];
-    for (i = 0, len = latlngs.length; i < len; i++) {
+    if (latlngs.length == 0) {
+      return [];
+    }
+
+    for (var i = 0, len = latlngs.length; i < len; i++) {
       if (L.Util.isArray(latlngs[i]) && typeof latlngs[i][0] !== 'number') {
         return;
       }
       latlngs[i] = L.latLng(latlngs[i]);
     }
-    
+
+    // geodesic calculations have issues when crossing the anti-meridian. so offset the points
+    // so this isn't an issue, then add back the offset afterwards
+    // a center longitude would be ideal - but the start point longitude will be 'good enough'
+    var lngOffset = latlngs[0].lng;
+
+    // points are wrapped after being offset relative to the first point coordinate, so they're
+    // within +-180 degrees
+    latlngs = latlngs.map(function(a){ return L.latLng(a.lat, a.lng-lngOffset).wrap(); });
+
+    var geodesiclatlngs = [];
+
     if(!fill) {
       geodesiclatlngs.push(latlngs[0]);
     }
@@ -94,6 +108,12 @@ Modified by qnstie 2013-07-17 to maintain compatibility with Leaflet.draw
     if(fill) {
       geodesicConvertLine(latlngs[len], latlngs[0], geodesiclatlngs);
     }
+
+    // now add back the offset subtracted above. no wrapping here - the drawing code handles
+    // things better when there's no sudden jumps in coordinates. yes, lines will extend
+    // beyond +-180 degrees - but they won't be 'broken'
+    geodesiclatlngs = geodesiclatlngs.map(function(a){ return L.latLng(a.lat, a.lng+lngOffset); });
+
     return geodesiclatlngs;
   }
   

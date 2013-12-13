@@ -91,7 +91,9 @@ window.getAvgResoDist = function(d) {
   var sum = 0, resos = 0;
   $.each(d.resonatorArray.resonators, function(ind, reso) {
     if(!reso) return true;
-    sum += parseInt(reso.distanceToPortal);
+    var resDist = parseInt(reso.distanceToPortal);
+    if (resDist == 0) resDist = 0.01; // set a non-zero but very small distance for zero deployment distance. allows the return value to distinguish between zero deployment distance average and zero resonators
+    sum += resDist;
     resos++;
   });
   return resos ? sum/resos : 0;
@@ -110,7 +112,8 @@ window.getAttackApGain = function(d) {
       return true;
     resoCount += 1;
     var reslevel=parseInt(reso.level);
-    if(reso.ownerGuid === PLAYER.guid) {
+    // NOTE: reso.ownerGuid is actually the name - no player GUIDs are visible in the protocol any more
+    if(reso.ownerGuid === PLAYER.nickname) {
       if(maxResonators[reslevel] > 0) {
         maxResonators[reslevel] -= 1;
       }
@@ -120,6 +123,9 @@ window.getAttackApGain = function(d) {
   });
 
   var linkCount = d.portalV2.linkedEdges ? d.portalV2.linkedEdges.length : 0;
+
+//FIXME: portalV2.linkedFields was never a piece of data from the server - it was something faked in IITC
+//with the portal guid, window.getPortalFields will return the count of linked fields - but no guid passed into here
   var fieldCount = d.portalV2.linkedFields ? d.portalV2.linkedFields.length : 0;
 
   var resoAp = resoCount * DESTROY_RESONATOR;
@@ -165,7 +171,8 @@ window.potentialPortalLevel = function(d) {
       player_resontators[i] = i > PLAYER.level ? 0 : MAX_RESO_PER_PLAYER[i];
     }
     $.each(resonators_on_portal, function(ind, reso) {
-      if(reso !== null && reso.ownerGuid === window.PLAYER.guid) {
+      // NOTE: reso.ownerGuid is actually the player name - GUIDs are not in the protocol any more
+      if(reso !== null && reso.ownerGuid === window.PLAYER.nickname) {
         player_resontators[reso.level]--;
       }
       resonator_levels.push(reso === null ? 0 : reso.level);  
@@ -192,10 +199,8 @@ window.potentialPortalLevel = function(d) {
 }
 
 
-window.getPortalImageUrl = function(d) {
-  if (d.imageByUrl && d.imageByUrl.imageUrl) {
-    url = d.imageByUrl.imageUrl;
-
+window.fixPortalImageUrl = function(url) {
+  if (url) {
     if (window.location.protocol === 'https:') {
       url = url.indexOf('www.panoramio.com') !== -1
             ? url.replace(/^http:\/\/www/, 'https://ssl').replace('small', 'medium')
