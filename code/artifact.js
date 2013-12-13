@@ -247,7 +247,10 @@ window.artifact.showArtifactList = function() {
         }
 
         if (data[type].fragments) {
-          row += '<span class="fragments">Shard: #'+data[type].fragments.join(', #')+'</span> ';
+          if (data[type].target) {
+            row += '<br>';
+          }
+          row += '<span class="fragments'+(data[type].target?' '+TEAM_TO_CSS[data[type].target]:'')+'">Shard: #'+data[type].fragments.join(', #')+'</span> ';
           sortVal = Math.min.apply(null, data[type].fragments); // use min shard number at portal as sort key
         }
 
