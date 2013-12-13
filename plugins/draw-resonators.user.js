@@ -2,7 +2,7 @@
 // @id             iitc-plugin-draw-resonators@xelio
 // @name           IITC plugin: Draw resonators
 // @category       Layer
-// @version        0.4.1.@@DATETIMEVERSION@@
+// @version        0.5.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -24,14 +24,32 @@ window.plugin.drawResonators = function() {};
 
 window.plugin.drawResonators.levelLayerGroup = null;
 
-window.plugin.drawResonators.handledata = function(data) {
-window.plugin.drawResonators.levelLayerGroup.clearLayers();
-window.plugin.drawResonators.drawData(data);
+window.plugin.drawResonators.portalSelected = function(data) {
+  // new portal selected - clear any existing resonators..
+  window.plugin.drawResonators.levelLayerGroup.clearLayers();
+
+  // then, if a portal is selected...
+  if (data.selectedPortalGuid) {
+    // draw it's resonators if we have it's details
+    var details = portalDetail.get(data.selectedPortalGuid);
+    if (details) {
+      window.plugin.drawResonators.drawData(details);
+    }
+  }
 }
 
-window.plugin.drawResonators.drawData = function(portal) {
-if(window.map.getZoom() < window.RESONATOR_MIN_ZOOM) return;
-  var portalDetails = portal.portalDetails;
+window.plugin.drawResonators.portalDetailsLoaded = function(data) {
+  // the detailed data for a portal was just loaded - if this is the selected portal, draw them
+
+  if (data.guid == window.selectedPortal) {
+    window.plugin.drawResonators.levelLayerGroup.clearLayers();
+    window.plugin.drawResonators.drawData(data.details);
+  }
+}
+
+window.plugin.drawResonators.drawData = function(portalDetails) {
+  if(window.map.getZoom() < window.RESONATOR_MIN_ZOOM) return;
+
   var portalLatLng = [portalDetails.locationE6.latE6/1E6, portalDetails.locationE6.lngE6/1E6];
   for(var i in portalDetails.resonatorArray.resonators) {
     resoData = portalDetails.resonatorArray.resonators[i];
@@ -108,7 +126,8 @@ var setup = function() {
 
   window.addLayerGroup('Resonators', window.plugin.drawResonators.levelLayerGroup, true);
 
-  window.addHook('portalDetailsUpdated', window.plugin.drawResonators.handledata);
+  window.addHook('portalSelected', window.plugin.drawResonators.portalSelected);
+  window.addHook('portalDetailsLoaded', window.plugin.drawResonators.portalDetailsLoaded);
   
   window.map.on('zoomend', function() {
     window.plugin.drawResonators.zoomListener();
