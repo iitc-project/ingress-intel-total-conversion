@@ -302,6 +302,7 @@ window.redeem.getFrequencies = function(inventory) {
     payload[type][key].str = payload[type][key].str || str;
     payload[type][key].desc = payload[type][key].desc || desc;
     payload[type][key].count = payload[type][key].count || 0;
+    payload[type][key].acquired = payload[type][key].acquired || acquired;
     payload[type][key].count += 1;
   });
 
