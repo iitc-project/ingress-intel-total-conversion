@@ -118,12 +118,11 @@ window.redeem.REDEEM_RESOURCES = {
 
     /* resource */
     format: function(acquired) {
-      var location = acquired.portalCoupler.portalLocation.split(',').map(function(a){a = parseInt(a, 16); return ((a & 0x80000000) != 0 ? -((a ^ 0xffffffff) + 1) : a) / 1e6;});
-      acquired.portalCoupler.portalLocation = location;
+      acquired.portalCoupler.portalLocation = $.isArray(acquired.portalCoupler.portalLocation) ? acquired.portalCoupler.portalLocation : acquired.portalCoupler.portalLocation.split(',').map(function(a){a = parseInt(a, 16); return ((a & 0x80000000) != 0 ? -((a ^ 0xffffffff) + 1) : a) / 1e6;});
       return {
         long: 'Key: ' + acquired.portalCoupler.portalTitle || 'Unknown Portal',
         short: 'K',
-        prefix: '<a onclick="zoomToAndShowPortal(\'' + acquired.portalCoupler.portalGuid + '\', [' + location.join(', ') + '])">',
+        prefix: '<a onclick="zoomToAndShowPortal(\'' + acquired.portalCoupler.portalGuid + '\', [' + acquired.portalCoupler.portalLocation.join(',') + '])">',
         suffix: '</a>'
       };
     }
