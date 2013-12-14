@@ -125,7 +125,7 @@
 	background:rgba(0,0,0,.6);
 }
 #bookmarksBox .bookmarkList > ul{
-	width:231px;
+	width: (screen.availWidth / 6.4) + "px";
 	clear:both;
 	list-style-type:none;
 	color:#fff;
