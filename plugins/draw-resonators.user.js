@@ -117,6 +117,13 @@ window.plugin.drawResonators.zoomListener = function() {
     ctrl.addClass('disabled').attr('title', 'Zoom in to show those.');
   } else {
     ctrl.removeClass('disabled').attr('title', 'Select a portal to draw resos');
+    window.plugin.drawResonators.levelLayerGroup.clearLayers();
+    if (window.selectedPortal) {
+      var details = portalDetail.get(window.selectedPortal);
+      if (details) {
+        window.plugin.drawResonators.drawData(details);
+      }
+    }
   };
 }
 
