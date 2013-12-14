@@ -34,7 +34,7 @@
 }
 #bookmarksBox .handle{
 	text-indent:-20px;
-	width:209px;
+	width:224px;
 	text-align:center;
 	color:#fff;
 	line-height:8px;
@@ -126,7 +126,7 @@
 }
 #bookmarksBox .bookmarkList > ul{
 	height: 500px;
-	width: (screen.availWidth / 6.4) + "px";
+	width: 250px;
 	clear:both;
 	list-style-type:none;
 	color:#fff;
