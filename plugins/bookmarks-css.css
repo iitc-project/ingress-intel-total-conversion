@@ -96,7 +96,7 @@
 	cursor:pointer;
 	color:#20a8b1;
 	font-size:12px;
-	width:60px;
+	width:68px;
 	text-align:center;
 	line-height:20px;
 	padding:4px 0 3px;
@@ -109,7 +109,7 @@
 #bookmarksBox .addForm input{
 	font-size:11px !important;
 	color:#ffce00;
-	width:81px;
+	width:98px;
 	line-height:11px;
 	font-size:12px;
 	-webkit-box-sizing:content-box;
@@ -117,7 +117,7 @@
 	box-sizing:content-box;
 }
 #bookmarksBox #bkmrk_portals .addForm input{
-	width:147px;
+	width:167px;
 }
 #bookmarksBox .addForm input:hover,
 #bookmarksBox .addForm input:focus{
