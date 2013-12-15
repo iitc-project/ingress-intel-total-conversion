@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -184,7 +185,16 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     public void addPane(String name, String label, String icon) {
         showNotice(NOTICE_PANES);
 
-        int resId = mIitc.getResources().getIdentifier(icon, "drawable", mIitc.getPackageName());
+        Resources res = mIitc.getResources();
+        String packageName = res.getResourcePackageName(R.string.app_name);
+        /*
+         * since the package name is overridden in test builds
+         * we can't use context.getPackageName() to get the package name
+         * because the resources were processed before the package name was finally updated.
+         * so we have to retrieve the package name of another resource with Resources.getResourcePackageName()
+         * see http://www.piwai.info/renaming-android-manifest-package/
+         */
+        int resId = mIitc.getResources().getIdentifier(icon, "drawable", packageName);
         mNavigationAdapter.add(new Pane(name, label, resId));
     }
 
