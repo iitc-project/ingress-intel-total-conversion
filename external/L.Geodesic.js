@@ -58,19 +58,23 @@ Modified by qnstie 2013-07-17 to maintain compatibility with Leaflet.draw
     // loop ends before 'segments' is reached - we don't add the very last point here but outside the loop
     // (this was to fix a bug - https://github.com/jonatkins/ingress-intel-total-conversion/issues/471
     //  rounding errors? maths bug? not sure - but it solves the issue! and is a slight optimisation)
-    for (i = 1; i < segments; i++) {
-      // http://williams.best.vwh.net/avform.htm#Intermediate
-      // modified to handle longitude above +-180 degrees
-      f = i / segments;
-      A = Math.sin((1-f)*d) / Math.sin(d);
-      B = Math.sin(f*d) / Math.sin(d);
-      x = A * Math.cos(lat1) * Math.cos(0) + B * Math.cos(lat2) * Math.cos(dLng);
-      y = A * Math.cos(lat1) * Math.sin(0) + B * Math.cos(lat2) * Math.sin(dLng);
-      z = A * Math.sin(lat1)               + B * Math.sin(lat2);
-      fLat = r2d * Math.atan2(z, Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)));
-      fLng = r2d * (Math.atan2(y, x)+lng1);
+    // UPDATE: there still seem to be rounding errors on relatively short links - but only on mobile.
+    // let's only add intermediate points if there's two or more
+    if (segments >= 3) {
+      for (i = 1; i < segments; i++) {
+        // http://williams.best.vwh.net/avform.htm#Intermediate
+        // modified to handle longitude above +-180 degrees
+        f = i / segments;
+        A = Math.sin((1-f)*d) / Math.sin(d);
+        B = Math.sin(f*d) / Math.sin(d);
+        x = A * Math.cos(lat1) * Math.cos(0) + B * Math.cos(lat2) * Math.cos(dLng);
+        y = A * Math.cos(lat1) * Math.sin(0) + B * Math.cos(lat2) * Math.sin(dLng);
+        z = A * Math.sin(lat1)               + B * Math.sin(lat2);
+        fLat = r2d * Math.atan2(z, Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)));
+        fLng = r2d * (Math.atan2(y, x)+lng1);
 
-      convertedPoints.push(L.latLng([fLat, fLng]));
+        convertedPoints.push(L.latLng([fLat, fLng]));
+      }
     }
     // push the final point unmodified
     convertedPoints.push(L.latLng(endLatlng));
