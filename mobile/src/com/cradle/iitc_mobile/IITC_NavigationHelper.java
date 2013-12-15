@@ -166,7 +166,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
                 }
             }
 
-            if (mDrawerLayout.isDrawerOpen(mDrawerLeft)) {
+            if (mDrawerLayout.isDrawerOpen(mDrawerLeft) || mPane == Pane.MAP) {
                 mActionBar.setTitle(mIitc.getString(R.string.app_name));
             } else {
                 mActionBar.setTitle(mPane.label);
@@ -341,7 +341,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         public static final Pane FACTION = new Pane("faction", "Faction", R.drawable.ic_action_cc_bcc);
         public static final Pane FULL = new Pane("full", "Full", R.drawable.ic_action_view_as_list);
         public static final Pane INFO = new Pane("info", "Info", R.drawable.ic_action_about);
-        public static final Pane MAP = new Pane("map", "IITC Mobile", R.drawable.ic_action_map);
+        public static final Pane MAP = new Pane("map", "Map", R.drawable.ic_action_map);
         public static final Pane PUBLIC = new Pane("public", "Public", R.drawable.ic_action_group);
 
         private int icon;
