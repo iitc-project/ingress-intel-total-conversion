@@ -64,16 +64,14 @@ window.plugin.portalslist.getPortals = function() {
 
     retval=true;
     var d = portal.options.data;
-    var teamN = window.TEAM_NONE;
+    var teamN = portal.options.team;
 
-    switch (d.team){
-      case 'RESISTANCE' :
+    switch (teamN){
+      case TEAM_RES:
         window.plugin.portalslist.resP++;
-        teamN = window.TEAM_RES
         break;
-      case 'ENLIGHTENED' :
+      case TEAM_ENL:
         window.plugin.portalslist.enlP++;
-        teamN = window.TEAM_ENL;
         break;
     }
     var l = window.getPortalLinks(i);
@@ -155,17 +153,17 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
     + '<th ' + sort('level', sortBy, -1) + '>Level</th>'
     + '<th title="Team" ' + sort('teamN', sortBy, -1) + '>Team</th>'
     + '<th ' + sort('health', sortBy, -1) + '>Health</th>'
-    + '<th ' + sort('resCount', sortBy, -1) + '>Resonator Count</th>'
-    + '<th ' + sort('linkCount', sortBy, -1) + '>Link Count</th>'
-    + '<th ' + sort('fieldCount', sortBy, -1) + '>Field Count</th>'
+    + '<th ' + sort('resCount', sortBy, -1) + '>Resonators</th>'
+    + '<th ' + sort('linkCount', sortBy, -1) + '>Links</th>'
+    + '<th ' + sort('fieldCount', sortBy, -1) + '>Fields</th>'
 
 
   $.each(portals, function(ind, portal) {
     if (filter === TEAM_NONE || filter === portal.teamN) {
       html += '<tr class="' + (portal.teamN === window.TEAM_RES ? 'res' : (portal.teamN === window.TEAM_ENL ? 'enl' : 'neutral')) + '">'
         + '<td style="">' + window.plugin.portalslist.getPortalLink(portal, portal.guid) + '</td>'
-        + '<td class="L' + Math.floor(portal.level) +'">' + portal.level + '</td>'
-        + '<td style="text-align:center;">' + portal.team + '</td>';
+        + '<td class="L' + portal.level +'" style="background-color: '+COLORS_LVL[portal.level]+'">' + portal.level + '</td>'
+        + '<td style="text-align:center;">' + portal.team.substr(0,3) + '</td>';
 
       html += '<td style="cursor:help" title="'+ portal.health +'">' + portal.health + '</td>'
         + '<td>' + portal.resCount + '</td>'
@@ -260,7 +258,7 @@ var setup =  function() {
     '#portalslist .filterRes { margin-top: 10px; background-color: #005684  }' +
     '#portalslist .filterEnl { margin-top: 10px; background-color: #017f01  }' +
     '#portalslist .disclaimer { margin-top: 10px; font-size:10px; }' +
-    '#portalslist .portalTitle { display: inline-block; width: 160px !important; min-width: 160px !important; max-width: 160px !important; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }' +
+    '#portalslist .portalTitle { display: inline-block; width: 240px !important; min-width: 240px !important; max-width: 160px !important; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }' +
     '</style>');
   // Setup sorting
   $(document).on('click.portalslist', '#portalslist table th', function() {
