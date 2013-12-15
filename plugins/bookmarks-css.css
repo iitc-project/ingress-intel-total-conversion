@@ -130,7 +130,7 @@
 	clear:both;
 	list-style-type:none;
 	color:#fff;
-	overflow: scroll;
+	overflow-y: auto;
 }
 #bookmarksBox .sortable-placeholder{
 	background:rgba(8,48,78,.55);
