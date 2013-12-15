@@ -34,7 +34,7 @@
 }
 #bookmarksBox .handle{
 	text-indent:-20px;
-	width:224px;
+	width:232px;
 	text-align:center;
 	color:#fff;
 	line-height:8px;
@@ -60,7 +60,7 @@
 }
 #bookmarksBox h5{
 	padding:4px 0;
-	width:114px;
+	width:125px;
 	text-align:center;
 	color:#788;
 }
@@ -96,7 +96,7 @@
 	cursor:pointer;
 	color:#20a8b1;
 	font-size:12px;
-	width:68px;
+	width:62px;
 	text-align:center;
 	line-height:20px;
 	padding:4px 0 3px;
@@ -109,7 +109,7 @@
 #bookmarksBox .addForm input{
 	font-size:11px !important;
 	color:#ffce00;
-	width:98px;
+	width:109px;
 	line-height:11px;
 	font-size:12px;
 	-webkit-box-sizing:content-box;
@@ -117,7 +117,7 @@
 	box-sizing:content-box;
 }
 #bookmarksBox #bkmrk_portals .addForm input{
-	width:167px;
+	width:172px;
 }
 #bookmarksBox .addForm input:hover,
 #bookmarksBox .addForm input:focus{
