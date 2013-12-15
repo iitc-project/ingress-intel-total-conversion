@@ -44,7 +44,7 @@ window.plugin.portalcounts = {
 };
 
 //count portals for each level available on the map
-window.plugin.portalcounts.getPortals = function(){
+window.plugin.portalcounts.getPortals = function (){
   //console.log('** getPortals');
   var self = window.plugin.portalcounts;
   var displayBounds = map.getBounds();
@@ -104,7 +104,7 @@ window.plugin.portalcounts.getPortals = function(){
       counts += self.neuP;
     counts += '</td></tr></table>';
 
-    var svg = $('<svg width="300" height="200">').css("padding-top", 10);
+    var svg = $('<svg width="300" height="200">').css("margin-top", 10);
 
     var all = self.PortalsRes.map(function(val,i){return val+self.PortalsEnl[i]});
     all[0] = self.neuP;
@@ -177,10 +177,9 @@ window.plugin.portalcounts.getPortals = function(){
         .appendTo(g);
     }
 
-    counts += svg[0].outerHTML;
+    counts += $("<div>").append(svg).html();
   } else
     counts += '<p>No Portals in range!</p>';
-  counts += '';
 
   var total = self.enlP + self.resP + self.neuP;
   var title = total + ' ' + (total == 1 ? 'portal' : 'portals');
@@ -248,6 +247,10 @@ window.plugin.portalcounts.makePie = function(startAngle, endAngle, color) {
   var p2x = Math.sin(endAngle   * 2 * Math.PI) * self.RADIUS_INNER;
   var p2y = Math.cos(endAngle   * 2 * Math.PI) * self.RADIUS_INNER;
 
+  // for a full circle, both coordinates would be identical, so no circle would be drawn
+  if(startAngle == 0.5 && endAngle == -0.5)
+    p2x -= 1E-5;
+
   return $("<path>")
     .attr({
       fill: color,
@@ -270,6 +273,12 @@ window.plugin.portalcounts.makeRing = function(startAngle, endAngle, color) {
   var p3y = Math.cos(endAngle   * 2 * Math.PI) * self.RADIUS_INNER;
   var p4x = Math.sin(startAngle * 2 * Math.PI) * self.RADIUS_INNER;
   var p4y = Math.cos(startAngle * 2 * Math.PI) * self.RADIUS_INNER;
+
+  // for a full circle, both coordinates would be identical, so no circle would be drawn
+  if(startAngle == 0.5 && endAngle == -0.5) {
+    p2x -= 1E-5;
+    p3x -= 1E-5;
+  }
 
   return $("<path>")
     .attr({
@@ -306,7 +315,7 @@ var setup =  function() {
   }
 
   $('head').append('<style>' +
-    '#portalcounts.mobile {background: transparent; border: 0 none !important; height: 100% !important; width: 100% !important; left: 0 !important; top: 0 !important; position: absolute; overflow: auto; }' +
+    '#portalcounts.mobile {background: transparent; border: 0 none !important; height: 100% !important; width: 100% !important; left: 0 !important; top: 0 !important; position: absolute; overflow: auto; z-index: 9000 !important; }' +
     '#portalcounts table {margin-top:5px; border-collapse: collapse; empty-cells: show; width:100%; clear: both;}' +
     '#portalcounts table td, #portalcounts table th {border-bottom: 1px solid #0b314e; padding:3px; color:white; background-color:#1b415e}' +
     '#portalcounts table tr.res th {  background-color: #005684; }' +
