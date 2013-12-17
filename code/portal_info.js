@@ -100,11 +100,13 @@ window.getAvgResoDist = function(d) {
   return resos ? sum/resos : 0;
 }
 
-window.getAttackApGain = function(d) {
+window.getAttackApGain = function(d,fieldCount) {
+  if (!fieldCount) fieldCount = 0;
+
   var resoCount = 0;
   var maxResonators = MAX_RESO_PER_PLAYER.slice(0);
   var curResonators = [ 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  
+
   for(var n = PLAYER.level + 1; n < 9; n++) {
     maxResonators[n] = 0;
   }
@@ -125,9 +127,6 @@ window.getAttackApGain = function(d) {
 
   var linkCount = d.portalV2.linkedEdges ? d.portalV2.linkedEdges.length : 0;
 
-//FIXME: portalV2.linkedFields was never a piece of data from the server - it was something faked in IITC
-//with the portal guid, window.getPortalFields will return the count of linked fields - but no guid passed into here
-  var fieldCount = d.portalV2.linkedFields ? d.portalV2.linkedFields.length : 0;
 
   var resoAp = resoCount * DESTROY_RESONATOR;
   var linkAp = linkCount * DESTROY_LINK;
@@ -311,4 +310,30 @@ window.getPortalHackDetails = function(d) {
   return {cooldown: cooldownTime, hacks: numHacks, burnout: cooldownTime*(numHacks-1)};
 }
 
+// given a detailed portal structure, return summary portal data, as seen in the map tile data
+window.getPortalSummaryData = function(d) {
 
+  // NOTE: the summary data reports unclaimed portals as level 1 - not zero as elsewhere in IITC
+  var level = d.controllingTeam.team == "NEUTRAL" ? 1 : parseInt(getPortalLevel(d));
+  var resCount = 0;
+  if (d.resonatorArray && d.resonatorArray.resonators) {
+    for (var x in d.resonatorArray.resonators) {
+      if (d.resonatorArray.resonators[x]) resCount++;
+    }
+  }
+  var maxEnergy = getTotalPortalEnergy(d);
+  var curEnergy = getCurrentPortalEnergy(d);
+  var health = maxEnergy>0 ? parseInt(curEnergy/maxEnergy*100) : 0;
+
+  return {
+    level: level,
+    title: d.portalV2.descriptiveText.TITLE,
+    image: d.imageByUrl && d.imageByUrl.imageUrl,
+    resCount: resCount,
+    latE6: d.locationE6.latE6,
+    health: health,
+    team: d.controllingTeam.team,
+    lngE6: d.locationE6.lngE6,
+    type: 'portal'
+  };
+}
