@@ -170,3 +170,9 @@ window.runOnSmartphonesAfterBoot = function() {
   window.MAX_DRAWN_LINKS = 200;
   window.MAX_DRAWN_FIELDS = 100;
 }
+
+window.useAndroidPanes = function() {
+  // isSmartphone is important to disable panes in desktop mode
+  return (typeof android !== 'undefined' && android && android.addPane && window.isSmartphone());
+}
+
