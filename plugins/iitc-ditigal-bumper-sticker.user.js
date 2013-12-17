@@ -2,7 +2,7 @@
 // @id             iitc-digital-bumper-sticker
 // @name           IITC Digital Bumper Sticker
 // @category       Stock
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -14,13 +14,16 @@
 // @grant          none
 // ==/UserScript==
 
-var logoDiv = document.createElement('div');
-logoDiv.setAttribute('style', "position: fixed; left: 20px; top: 130px; z-index: auto; pointer-events: none;");
-
-var img = document.createElement('img');
-img.setAttribute('src', 'http://iitc.jonatkins.com/assets/img/prefer-iitc-200.png');
-
-logoDiv.appendChild(img);
-
 var targetContainer = document.getElementById('dashboard_container');
-targetContainer.appendChild(logoDiv);
+if (targetContainer) {
+
+  var logoDiv = document.createElement('div');
+  logoDiv.setAttribute('style', "position: fixed; left: 20px; top: 130px; z-index: auto; pointer-events: none;");
+
+  var img = document.createElement('img');
+  img.setAttribute('src', 'http://iitc.jonatkins.com/assets/img/prefer-iitc-200.png');
+
+  logoDiv.appendChild(img);
+
+  targetContainer.appendChild(logoDiv);
+}
