@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -166,7 +167,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
                 }
             }
 
-            if (mDrawerLayout.isDrawerOpen(mDrawerLeft)) {
+            if (mDrawerLayout.isDrawerOpen(mDrawerLeft) || mPane == Pane.MAP) {
                 mActionBar.setTitle(mIitc.getString(R.string.app_name));
             } else {
                 mActionBar.setTitle(mPane.label);
@@ -184,7 +185,16 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     public void addPane(String name, String label, String icon) {
         showNotice(NOTICE_PANES);
 
-        int resId = mIitc.getResources().getIdentifier(icon, "drawable", mIitc.getPackageName());
+        Resources res = mIitc.getResources();
+        String packageName = res.getResourcePackageName(R.string.app_name);
+        /*
+         * since the package name is overridden in test builds
+         * we can't use context.getPackageName() to get the package name
+         * because the resources were processed before the package name was finally updated.
+         * so we have to retrieve the package name of another resource with Resources.getResourcePackageName()
+         * see http://www.piwai.info/renaming-android-manifest-package/
+         */
+        int resId = mIitc.getResources().getIdentifier(icon, "drawable", packageName);
         mNavigationAdapter.add(new Pane(name, label, resId));
     }
 
@@ -341,7 +351,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         public static final Pane FACTION = new Pane("faction", "Faction", R.drawable.ic_action_cc_bcc);
         public static final Pane FULL = new Pane("full", "Full", R.drawable.ic_action_view_as_list);
         public static final Pane INFO = new Pane("info", "Info", R.drawable.ic_action_about);
-        public static final Pane MAP = new Pane("map", "IITC Mobile", R.drawable.ic_action_map);
+        public static final Pane MAP = new Pane("map", "Map", R.drawable.ic_action_map);
         public static final Pane PUBLIC = new Pane("public", "Public", R.drawable.ic_action_group);
 
         private int icon;

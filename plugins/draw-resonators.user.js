@@ -38,7 +38,7 @@ window.plugin.drawResonators.portalSelected = function(data) {
   }
 }
 
-window.plugin.drawResonators.portalDetailsLoaded = function(data) {
+window.plugin.drawResonators.portalDetailLoaded = function(data) {
   // the detailed data for a portal was just loaded - if this is the selected portal, draw them
 
   if (data.guid == window.selectedPortal) {
@@ -117,6 +117,13 @@ window.plugin.drawResonators.zoomListener = function() {
     ctrl.addClass('disabled').attr('title', 'Zoom in to show those.');
   } else {
     ctrl.removeClass('disabled').attr('title', 'Select a portal to draw resos');
+    window.plugin.drawResonators.levelLayerGroup.clearLayers();
+    if (window.selectedPortal) {
+      var details = portalDetail.get(window.selectedPortal);
+      if (details) {
+        window.plugin.drawResonators.drawData(details);
+      }
+    }
   };
 }
 
@@ -127,7 +134,7 @@ var setup = function() {
   window.addLayerGroup('Resonators', window.plugin.drawResonators.levelLayerGroup, true);
 
   window.addHook('portalSelected', window.plugin.drawResonators.portalSelected);
-  window.addHook('portalDetailsLoaded', window.plugin.drawResonators.portalDetailsLoaded);
+  window.addHook('portalDetailLoaded', window.plugin.drawResonators.portalDetailLoaded);
   
   window.map.on('zoomend', function() {
     window.plugin.drawResonators.zoomListener();
