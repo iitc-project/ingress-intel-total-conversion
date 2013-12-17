@@ -114,7 +114,7 @@ window.plugin.portalslist.displayPL = function() {
     html = '<table><tr><td>Nothing to show!</td></tr></table>';
   };
 
-  if(typeof android !== 'undefined' && android && android.addPane) {
+  if(window.useAndroidPanes()) {
     $('<div id="portalslist" class="mobile">' + html + '</div>').appendTo(document.body);
   } else {
     dialog({
@@ -248,7 +248,7 @@ window.plugin.portalslist.onPaneChanged = function(pane) {
 };
 
 var setup =  function() {
-  if(typeof android !== 'undefined' && android && android.addPane) {
+  if(window.useAndroidPanes()) {
     android.addPane("plugin-portalslist", "Portals list", "ic_action_paste");
     addHook("paneChanged", window.plugin.portalslist.onPaneChanged);
   } else {
