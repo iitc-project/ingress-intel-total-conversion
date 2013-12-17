@@ -90,9 +90,11 @@ window.smartphoneInfo = function(data) {
 
   if(details) {
     var l,v,max,perc;
-    var className = TEAM_TO_CSS[getTeam(details)];
     for(var i=0;i<8;i++)
     {
+      var className = TEAM_TO_CSS[getTeam(details)];
+      if(OCTANTS[i] === 'N')
+        className += ' north'
       var reso = details.resonatorArray.resonators[i];
       if(reso) {
         l = parseInt(reso.level);
