@@ -45,7 +45,8 @@
 window.plugin.portalslist = function() {};
 
 window.plugin.portalslist.listPortals = [];
-window.plugin.portalslist.sortOrder=-1;
+window.plugin.portalslist.sortBy = 'level';
+window.plugin.portalslist.sortOrder = -1;
 window.plugin.portalslist.enlP = 0;
 window.plugin.portalslist.resP = 0;
 window.plugin.portalslist.filter = 0;
@@ -66,7 +67,7 @@ window.plugin.portalslist.getPortals = function() {
     var d = portal.options.data;
     var teamN = portal.options.team;
 
-    switch (teamN){
+    switch (teamN) {
       case TEAM_RES:
         window.plugin.portalslist.resP++;
         break;
@@ -82,6 +83,7 @@ window.plugin.portalslist.getPortals = function() {
       'guid': i,
       'teamN': teamN,
       'name': d.title,
+      'nameLower': d.title.toLowerCase(),
       'team': d.team,
       'level': portal.options.level,
       'health': d.health,
@@ -100,12 +102,14 @@ window.plugin.portalslist.getPortals = function() {
 
 window.plugin.portalslist.displayPL = function() {
   var html = '';
-  window.plugin.portalslist.sortOrder=-1;
+  window.plugin.portalslist.sortBy = 'level';
+  window.plugin.portalslist.sortOrder = -1;
   window.plugin.portalslist.enlP = 0;
   window.plugin.portalslist.resP = 0;
+  window.plugin.portalslist.filter = 0;
 
   if (window.plugin.portalslist.getPortals()) {
-    html += window.plugin.portalslist.portalTable('level', window.plugin.portalslist.sortOrder,window.plugin.portalslist.filter);
+    html += window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy, window.plugin.portalslist.sortOrder,window.plugin.portalslist.filter);
   } else {
     html = '<table><tr><td>Nothing to show!</td></tr></table>';
   };
@@ -124,26 +128,31 @@ window.plugin.portalslist.displayPL = function() {
 }
 
 window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
-  // sortOrder <0 ==> desc, >0 ==> asc, i use sortOrder * -1 to change the state
-  window.plugin.portalslist.filter=filter;
+  // save the sortBy/sortOrder/filter
+  window.plugin.portalslist.sortBy = sortBy;
+  window.plugin.portalslist.sortOrder = sortOrder;
+  window.plugin.portalslist.filter = filter;
+
   var portals=window.plugin.portalslist.listPortals;
 
   //Array sort
   window.plugin.portalslist.listPortals.sort(function(a, b) {
     var retVal = 0;
-    switch (sortBy) {
-      case 'names':
-        retVal = a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1;
-        break;
-      default:
-        retVal = b[sortBy] - a[sortBy];
-        break;
+
+    var aComp = a[sortBy];
+    var bComp = b[sortBy];
+
+    if (aComp < bComp) {
+      retVal = -1;
+    } else if (aComp > bComp) {
+      retVal = 1;
+    } else {
+      // equal - compare GUIDs to ensure consistant (but arbitary) order
+      retVal = a.guid < b.guid ? -1 : 1;
     }
 
-    // break sort ties by comparing guids - ensures consistant sort order
-    if (retVal == 0) retVal = a.guid < b.guid ? -1 : 1;
-
-    if (sortOrder > 0) retVal = -retVal; //thx @jonatkins
+    // sortOrder is 1 (normal) or -1 (reversed)
+    retVal = retVal * sortOrder;
     return retVal;
   });
 
@@ -152,13 +161,13 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   html += '<table>'
     + '<tr>'
     + '<th>#</th>'
-    + '<th ' + sortAttr('names', sortAttr, 1, 'portalTitle') + '>Portal</th>'
-    + '<th ' + sortAttr('level', sortAttr, -1) + '>Level</th>'
-    + '<th ' + sortAttr('teamN', sortAttr, 1) + '>Team</th>'
-    + '<th ' + sortAttr('health', sortAttr, -1) + '>Health</th>'
-    + '<th ' + sortAttr('resCount', sortAttr, -1) + '>Resonators</th>'
-    + '<th ' + sortAttr('linkCount', sortAttr, -1) + '>Links</th>'
-    + '<th ' + sortAttr('fieldCount', sortAttr, -1) + '>Fields</th>'
+    + '<th ' + sortAttr('nameLower', sortBy, 1, 'portalTitle') + '>Portal Name</th>'
+    + '<th ' + sortAttr('level', sortBy, -1) + '>Level</th>'
+    + '<th ' + sortAttr('teamN', sortBy, 1) + '>Team</th>'
+    + '<th ' + sortAttr('health', sortBy, -1) + '>Health</th>'
+    + '<th ' + sortAttr('resCount', sortBy, -1) + '>Resonators</th>'
+    + '<th ' + sortAttr('linkCount', sortBy, -1) + '>Links</th>'
+    + '<th ' + sortAttr('fieldCount', sortBy, -1) + '>Fields</th>'
 
   var rowNum = 1;
 
@@ -173,8 +182,8 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
 
       html += '<td style="cursor:help" title="'+ portal.health +'">' + portal.health + '</td>'
         + '<td>' + portal.resCount + '</td>'
-        + '<td title="In: ' + portal.link.in.length + ' Out: ' + portal.link.out.length + '">' + portal.linkCount + '</td>'
-        + '<td>' + portal.fieldCount + '</td>';
+        + '<td title="In: ' + portal.link.in.length + ' Out: ' + portal.link.out.length + '">' + (portal.linkCount?portal.linkCount:'-') + '</td>'
+        + '<td>' + (portal.fieldCount?portal.fieldCount:'-') + '</td>';
 
       html+= '</tr>';
 
@@ -184,10 +193,8 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   html += '</table>';
 
   html += '<div class="disclaimer">Click on portals table headers to sort by that column. '
-    + 'Click on <b>All Portals, Resistance Portals, Enlightened Portals</b> to filter<br>'
-    + 'Thanks to @vita10gy & @xelio for their IITC plugins who inspired me. A <a href="https://plus.google.com/113965246471577467739">@teo96</a> production. Vive la Résistance !</div>';
+    + 'Click on <b>All Portals, Resistance Portals, Enlightened Portals</b> to filter</div>';
 
-  window.plugin.portalslist.sortOrder = window.plugin.portalslist.sortOrder*-1;
   return html;
 }
 
@@ -204,7 +211,7 @@ window.plugin.portalslist.stats = function(sortBy) {
 // A little helper function so the above isn't so messy
 window.plugin.portalslist.portalTableHeaderSortAttr = function(name, by, defOrder, extraClass) {
   // data-sort attr: used by jquery .data('sort') below
-  var retVal = 'data-sort="' + name + '" class="'+(extraClass?extraClass+' ':'')+'sortable'+(name==by?' sorted':'')+'"';
+  var retVal = 'data-sort="'+name+'" data-defaultorder="'+defOrder+'" class="'+(extraClass?extraClass+' ':'')+'sortable'+(name==by?' sorted':'')+'"';
 
   return retVal;
 };
@@ -270,17 +277,20 @@ var setup =  function() {
 
   // Setup sorting
   $(document).on('click.portalslist', '#portalslist table th.sortable', function() {
-    $('#portalslist').html(window.plugin.portalslist.portalTable($(this).data('sort'),window.plugin.portalslist.sortOrder,window.plugin.portalslist.filter));
+    var sortBy = $(this).data('sort');
+    // if this is the currently selected column, toggle the sort order - otherwise use the columns default sort order
+    var sortOrder = sortBy == window.plugin.portalslist.sortBy ? window.plugin.portalslist.sortOrder*-1 : parseInt($(this).data('defaultorder'));
+    $('#portalslist').html(window.plugin.portalslist.portalTable(sortBy,sortOrder,window.plugin.portalslist.filter));
   });
 
   $(document).on('click.portalslist', '#portalslist .filterAll', function() {
-    $('#portalslist').html(window.plugin.portalslist.portalTable($(this).data('sort'),window.plugin.portalslist.sortOrder,0));
+    $('#portalslist').html(window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy,window.plugin.portalslist.sortOrder,0));
   });
   $(document).on('click.portalslist', '#portalslist .filterRes', function() {
-    $('#portalslist').html(window.plugin.portalslist.portalTable($(this).data('sort'),window.plugin.portalslist.sortOrder,1));
+    $('#portalslist').html(window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy,window.plugin.portalslist.sortOrder,1));
   });
   $(document).on('click.portalslist', '#portalslist .filterEnl', function() {
-    $('#portalslist').html(window.plugin.portalslist.portalTable($(this).data('sort'),window.plugin.portalslist.sortOrder,2));
+    $('#portalslist').html(window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy,window.plugin.portalslist.sortOrder,2));
   });
 }
 
