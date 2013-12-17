@@ -74,13 +74,14 @@ window.getLinkAmpRangeBoost = function(d) {
   var boost = 0.0;  // initial boost is 0.0 (i.e. no boost over standard range)
   var count = 0;
 
-  $.each(d.portalV2.linkedModArray, function(ind, mod) {
-    if(mod && mod.type === 'LINK_AMPLIFIER' && mod.stats && mod.stats.LINK_RANGE_MULTIPLIER) {
-      // link amp stat LINK_RANGE_MULTIPLIER is 2000 for rare, and gives 2x boost to the range
-      var baseMultiplier = mod.stats.LINK_RANGE_MULTIPLIER/1000;
-      boost += baseMultiplier*scale[count];
-      count++;
-    }
+  var linkAmps = getPortalModsByType(d, 'LINK_AMPLIFIER');
+
+  $.each(linkAmps, function(ind, mod) {
+    // link amp stat LINK_RANGE_MULTIPLIER is 2000 for rare, and gives 2x boost to the range
+    // and very-rare is 7000 and gives 7x the range
+    var baseMultiplier = mod.stats.LINK_RANGE_MULTIPLIER/1000;
+    boost += baseMultiplier*scale[count];
+    count++;
   });
 
   return (count > 0) ? boost : 1.0;
