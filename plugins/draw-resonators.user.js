@@ -38,7 +38,7 @@ window.plugin.drawResonators.portalSelected = function(data) {
   }
 }
 
-window.plugin.drawResonators.portalDetailsLoaded = function(data) {
+window.plugin.drawResonators.portalDetailLoaded = function(data) {
   // the detailed data for a portal was just loaded - if this is the selected portal, draw them
 
   if (data.guid == window.selectedPortal) {
@@ -134,7 +134,7 @@ var setup = function() {
   window.addLayerGroup('Resonators', window.plugin.drawResonators.levelLayerGroup, true);
 
   window.addHook('portalSelected', window.plugin.drawResonators.portalSelected);
-  window.addHook('portalDetailsLoaded', window.plugin.drawResonators.portalDetailsLoaded);
+  window.addHook('portalDetailLoaded', window.plugin.drawResonators.portalDetailLoaded);
   
   window.map.on('zoomend', function() {
     window.plugin.drawResonators.zoomListener();
