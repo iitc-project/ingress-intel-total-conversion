@@ -89,6 +89,7 @@ window.runHooks = function(event, data) {
 window.addHook = function(event, callback) {
   if(VALID_HOOKS.indexOf(event) === -1) {
     console.error('addHook: Unknown event type: ' + event + ' - ignoring');
+    debugger;
     return;
   }
 
