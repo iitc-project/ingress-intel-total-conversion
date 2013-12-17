@@ -22,7 +22,7 @@ window.getPortalLinks = function(guid) {
 }
 
 window.getPortalLinksCount = function(guid) {
-  var links = getPortalLinks();
+  var links = getPortalLinks(guid);
   return links.in.length+links.out.length;
 }
 
@@ -46,7 +46,7 @@ window.getPortalFields = function(guid) {
 }
 
 window.getPortalFieldsCount = function(guid) {
-  var fields = getPortalFields();
+  var fields = getPortalFields(guid);
   return fields.length;
 }
 
