@@ -12,11 +12,9 @@ import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.WindowManager;
 import android.webkit.ConsoleMessage;
 import android.webkit.GeolocationPermissions;
-import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -92,7 +90,7 @@ public class IITC_WebView extends WebView {
              */
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin,
-                                                           GeolocationPermissions.Callback callback) {
+                    GeolocationPermissions.Callback callback) {
                 callback.invoke(origin, true, false);
             }
 
@@ -171,6 +169,7 @@ public class IITC_WebView extends WebView {
         }
     }
 
+    @TargetApi(19)
     public void loadJS(String js) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             evaluateJavascript(js, null);
