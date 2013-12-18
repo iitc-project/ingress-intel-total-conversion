@@ -184,7 +184,7 @@ window.plugin.portalcounts.getPortals = function (){
   var total = self.enlP + self.resP + self.neuP;
   var title = total + ' ' + (total == 1 ? 'portal' : 'portals');
 
-  if(typeof android !== 'undefined' && android && android.addPane) {
+  if(window.useAndroidPanes()) {
     $('<div id="portalcounts" class="mobile">'
     + '<div class="ui-dialog-titlebar"><span class="ui-dialog-title ui-dialog-title-active">' + title + '</span></div>'
     + counts
@@ -307,7 +307,7 @@ window.plugin.portalcounts.onPaneChanged = function(pane) {
 };
 
 var setup =  function() {
-  if(typeof android !== 'undefined' && android && android.addPane) {
+  if(window.useAndroidPanes()) {
     android.addPane("plugin-portalcounts", "Portal counts", "ic_action_data_usage");
     addHook("paneChanged", window.plugin.portalcounts.onPaneChanged);
   } else {
