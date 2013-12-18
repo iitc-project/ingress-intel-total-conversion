@@ -122,7 +122,9 @@ window.convertCookieToLocalStorage = function(name) {
 // add thousand separators to given number.
 // http://stackoverflow.com/a/1990590/1684530 by Doug Neiner.
 window.digits = function(d) {
-  return (d+"").replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1 ");
+  // U+2009 - Thin Space. Recommended for use as a thousands separator...
+  // https://en.wikipedia.org/wiki/Space_(punctuation)#Table_of_spaces
+  return (d+"").replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1&#8201;");
 }
 
 
