@@ -77,7 +77,7 @@ public class MainSettings extends PreferenceFragment {
         final Dialog dialog = preferenceScreen.getDialog();
 
         if (dialog != null) {
-            dialog.getActionBar().setDisplayHomeAsUpEnabled(true);
+            if (dialog.getActionBar() != null) dialog.getActionBar().setDisplayHomeAsUpEnabled(true);
 
             View homeBtn = dialog.findViewById(android.R.id.home);
 
