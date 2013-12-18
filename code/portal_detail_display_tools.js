@@ -225,8 +225,8 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
 }
 
 // calculate AP gain from destroying portal and then capturing it by deploying resonators
-window.getAttackApGainText = function(d) {
-  var breakdown = getAttackApGain(d);
+window.getAttackApGainText = function(d,fieldCount) {
+  var breakdown = getAttackApGain(d,fieldCount);
   var totalGain = breakdown.enemyAp;
 
   function tt(text) {
