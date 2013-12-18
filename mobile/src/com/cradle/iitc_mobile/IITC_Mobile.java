@@ -14,8 +14,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -37,24 +35,28 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Stack;
 
-public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeListener, LocationListener {
+public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeListener {
 
     private static final int REQUEST_LOGIN = 1;
+    private static final String mIntelUrl = "https://www.ingress.com/intel";
 
-    private IITC_WebView mIitcWebView;
-    private final String mIntelUrl = "https://www.ingress.com/intel";
-    private boolean mIsLocEnabled = false;
-    private Location mLastLocation = null;
-    private LocationManager mLocMngr = null;
-    private IITC_DeviceAccountLogin mLogin;
-    private MenuItem mSearchMenuItem;
-    private boolean mDesktopMode = false;
-    private boolean mAdvancedMenu = false;
-    private boolean mReloadNeeded = false;
-    private final Stack<String> mDialogStack = new Stack<String>();
     private SharedPreferences mSharedPrefs;
+    private IITC_WebView mIitcWebView;
+    private IITC_UserLocation mUserLocation;
     private IITC_NavigationHelper mNavigationHelper;
     private IITC_MapSettings mMapSettings;
+    private IITC_DeviceAccountLogin mLogin;
+    private boolean mDesktopMode = false;
+    private boolean mAdvancedMenu = false;
+    private MenuItem mSearchMenuItem;
+    private boolean mReloadNeeded = false;
+    private boolean mIsLoading = true;
+    private final Stack<String> mDialogStack = new Stack<String>();
+
+    // Used for custom back stack handling
+    private final Stack<Pane> mBackStack = new Stack<IITC_NavigationHelper.Pane>();
+    private Pane mCurrentPane = Pane.MAP;
+    private boolean mBackButtonPressed = false;
 
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -62,11 +64,6 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
             ((IITC_Mobile) context).installIitcUpdate();
         }
     };
-
-    // Used for custom back stack handling
-    private final Stack<Pane> mBackStack = new Stack<IITC_NavigationHelper.Pane>();
-    private Pane mCurrentPane = Pane.MAP;
-    private boolean mBackButtonPressed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,25 +88,13 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         // get fullscreen status from settings
         mIitcWebView.updateFullscreenStatus();
 
-        // Acquire a reference to the system Location Manager
-        mLocMngr = (LocationManager) this
-                .getSystemService(Context.LOCATION_SERVICE);
-
-        mIsLocEnabled = mSharedPrefs.getBoolean("pref_user_loc", false);
-        if (mIsLocEnabled) {
-            // Register the mSharedPrefChangeListener with the Location Manager to receive
-            // location updates
-            mLocMngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
-                    0, 0, this);
-            mLocMngr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
-                    this);
-        }
+        mUserLocation = new IITC_UserLocation(this);
+        mUserLocation.setEnabled(mSharedPrefs.getBoolean("pref_user_loc", false));
 
         // pass ActionBar to helper because we deprecated getActionBar
         mNavigationHelper = new IITC_NavigationHelper(this, super.getActionBar());
 
         mMapSettings = new IITC_MapSettings(this);
-
 
         // Clear the back stack
         mBackStack.clear();
@@ -121,14 +106,13 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         handleIntent(getIntent(), true);
     }
 
-    // --------------------- onSharedPreferenceListener -----------------------
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals("pref_force_desktop")) {
             mDesktopMode = sharedPreferences.getBoolean("pref_force_desktop", false);
             mNavigationHelper.onPrefChanged();
         } else if (key.equals("pref_user_loc")) {
-            mIsLocEnabled = sharedPreferences.getBoolean("pref_user_loc", false);
+            mUserLocation.setEnabled(sharedPreferences.getBoolean("pref_user_loc", false));
         } else if (key.equals("pref_fullscreen")) {
             mIitcWebView.updateFullscreenStatus();
             mNavigationHelper.onPrefChanged();
@@ -154,33 +138,6 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
         mReloadNeeded = true;
     }
-    // ------------------------------------------------------------------------
-
-    // ------------------------ LocationListener ------------------------------
-    @Override
-    public void onLocationChanged(Location location) {
-        // Called when a new location is found by the network location
-        // provider.
-        drawMarker(location);
-        mLastLocation = location;
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
-    }
-    // ------------------------------------------------------------------------
-
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -287,19 +244,14 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
 
         // enough idle...let's do some work
         Log.d("iitcm", "resuming...reset idleTimer");
         mIitcWebView.updateCaching(false);
 
-        if (mIsLocEnabled) {
-            // Register the mSharedPrefChangeListener with the Location Manager to receive
-            // location updates
-            mLocMngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
-            mLocMngr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-        }
+        mUserLocation.onStart();
 
         if (mReloadNeeded) {
             Log.d("iitcm", "preference had changed...reload needed");
@@ -317,9 +269,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         Log.d("iitcm", "stopping iitcm");
         mIitcWebView.loadUrl("javascript: window.idleSet();");
 
-        if (mIsLocEnabled) {
-            mLocMngr.removeUpdates(this);
-        }
+        mUserLocation.onStop();
 
         super.onStop();
     }
@@ -481,17 +431,13 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                 return true;
             case R.id.locate: // get the users current location and focus it on map
                 switchToPane(Pane.MAP);
-                // get location from network by default
-                if (!mIsLocEnabled) {
-                    mIitcWebView.loadUrl("javascript: " +
-                            "window.map.locate({setView : true, maxZoom: 15});");
+
+                if (mUserLocation.hasCurrentLocation()) {
                     // if gps location is displayed we can use a better location without any costs
+                    mUserLocation.locate();
                 } else {
-                    if (mLastLocation != null) {
-                        mIitcWebView.loadUrl("javascript: window.map.setView(new L.LatLng(" +
-                                mLastLocation.getLatitude() + "," +
-                                mLastLocation.getLongitude() + "), 15);");
-                    }
+                    // get location from network by default
+                    mIitcWebView.loadUrl("javascript: window.map.locate({setView : true});");
                 }
                 return true;
             case R.id.action_settings: // start settings activity
@@ -552,20 +498,6 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         mIitcWebView.loadUrl(url);
     }
 
-    // update the user location marker on the map
-    public void drawMarker(Location loc) {
-        // throw away all positions with accuracy > 100 meters
-        // should avoid gps glitches
-        if (loc.getAccuracy() < 100) {
-            // do not touch the javascript while iitc boots
-            if (findViewById(R.id.imageLoading).getVisibility() == View.GONE) {
-                mIitcWebView.loadUrl("javascript: "
-                        + "window.plugin.userLocation.updateLocation( "
-                        + loc.getLatitude() + ", " + loc.getLongitude() + ");");
-            }
-        }
-    }
-
     public IITC_WebView getWebView() {
         return this.mIitcWebView;
     }
@@ -594,7 +526,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
      * called by IITC_WebViewClient when the Google login form is opened.
      */
     public void onReceivedLoginRequest(IITC_WebViewClient client, WebView view,
-                                       String realm, String account, String args) {
+            String realm, String account, String args) {
         mLogin = new IITC_DeviceAccountLogin(this, view, client);
         mLogin.startLogin(realm, account, args);
     }
@@ -629,7 +561,9 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     }
 
     public void setLoadingState(boolean isLoading) {
-        mNavigationHelper.setLoadingState(isLoading);
+        mIsLoading = isLoading;
+
+        mNavigationHelper.onLoadingStateChanged();
 
         if (isLoading && !mSharedPrefs.getBoolean("pref_disable_splash", false)) {
             findViewById(R.id.iitc_webview).setVisibility(View.GONE);
@@ -666,6 +600,10 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         startActivity(intent);
         // finish app, because otherwise it gets killed on update
         finish();
+    }
+
+    public boolean isLoading() {
+        return mIsLoading;
     }
 
     /**

@@ -59,9 +59,6 @@ window.plugin.userLocation.setup = function() {
   window.plugin.userLocation.circle = circle;
   window.plugin.userLocation.icon = icon;
 
-  if('ondeviceorientation' in window)
-    window.addEventListener('deviceorientation', window.plugin.userLocation.onDeviceOrientation, false);
-
   window.map.on('zoomend', window.plugin.userLocation.onZoomEnd);
   window.plugin.userLocation.onZoomEnd();
 };
@@ -73,20 +70,25 @@ window.plugin.userLocation.onZoomEnd = function() {
     window.plugin.userLocation.locationLayer.addLayer(window.plugin.userLocation.circle);
 };
 
-window.plugin.userLocation.onDeviceOrientation = function(e) {
-  var direction, delta, heading;
+window.plugin.userLocation.locate = function(lat, lng, accuracy) {
+  var latlng = new L.LatLng(lat, lng);
 
-  if (typeof e.webkitCompassHeading !== 'undefined') {
-    direction = e.webkitCompassHeading;
-    if (typeof window.orientation !== 'undefined') {
-      direction += window.orientation;
-    }
-  }
-  else {
-    // http://dev.w3.org/geo/api/spec-source-orientation.html#deviceorientation
-    direction = 360 - e.alpha;
-  }
+  var latAccuracy = 180 * accuracy / 40075017;
+  var lngAccuracy = latAccuracy / Math.cos(L.LatLng.DEG_TO_RAD * lat);
 
+  var zoom = window.map.getBoundsZoom(L.latLngBounds(
+    [lat - latAccuracy, lng - lngAccuracy],
+    [lat + latAccuracy, lng + lngAccuracy]));
+  window.map.setView(latlng, zoom);
+}
+
+window.plugin.userLocation.onLocationChange = function(lat, lng) {
+  var latlng = new L.LatLng(lat, lng);
+  window.plugin.userLocation.marker.setLatLng(latlng);
+  window.plugin.userLocation.circle.setLatLng(latlng);
+};
+
+window.plugin.userLocation.onOrientationChange = function(direction) {
   $(".container", window.plugin.userLocation.marker._icon)
     .removeClass("circle")
     .addClass("arrow")
@@ -95,12 +97,6 @@ window.plugin.userLocation.onDeviceOrientation = function(e) {
       "webkitTransform": "rotate(" + direction + "deg)"
     });
 }
-
-window.plugin.userLocation.updateLocation = function(lat, lng) {
-  var latlng = new L.LatLng(lat, lng);
-  window.plugin.userLocation.marker.setLatLng(latlng);
-  window.plugin.userLocation.circle.setLatLng(latlng);
-};
 
 var setup = window.plugin.userLocation.setup;
 
