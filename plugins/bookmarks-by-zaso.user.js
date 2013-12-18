@@ -948,7 +948,7 @@
       $('body').append(window.plugin.bookmarks.htmlBkmrksBox);
       $('#bookmarksBox').css("display", "none").addClass("mobile");
 
-      if(typeof android !== 'undefined' && android && android.addPane)
+      if(window.useAndroidPanes())
         android.addPane("plugin-bookmarks", "Bookmarks", "ic_action_star");
       window.addHook('paneChanged', window.plugin.bookmarks.onPaneChanged);
       
