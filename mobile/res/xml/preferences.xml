@@ -14,17 +14,22 @@
     <PreferenceCategory
         android:key="pref_ui_cat"
         android:title="@string/pref_ui_cat">
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_user_loc"
-            android:summary="@string/pref_user_loc_sum"
-            android:title="@string/pref_user_loc"/>
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="pref_user_loc_sensor"
-            android:dependency="pref_user_loc"
-            android:summary="@string/pref_user_loc_sensor_sum"
-            android:title="@string/pref_user_loc_sensor"/>
+        <PreferenceScreen
+            android:key="pref_user_loc_screen"
+            android:persistent="false"
+            android:title="@string/pref_user_loc_screen">
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="pref_user_loc"
+                android:summary="@string/pref_user_loc_sum"
+                android:title="@string/pref_user_loc"/>
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:key="pref_user_loc_sensor"
+                android:dependency="pref_user_loc"
+                android:summary="@string/pref_user_loc_sensor_sum"
+                android:title="@string/pref_user_loc_sensor"/>
+        </PreferenceScreen>
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_user_zoom"

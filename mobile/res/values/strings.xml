@@ -83,6 +83,7 @@
     <string name="pref_tweaks_cat">Tweaks</string>
     <string name="pref_plugins">IITC Plugins</string>
     <string name="pref_plugins_title">Available plugins</string>
+    <string name="pref_user_loc_screen">User location</string>
     <string name="pref_user_loc">Display user location</string>
     <string name="pref_user_loc_sum">Show users position on map</string>
     <string name="pref_user_loc_sensor">Use sensor orientation</string>
