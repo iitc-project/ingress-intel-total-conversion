@@ -12,7 +12,8 @@ import android.os.Bundle;
 import android.view.Surface;
 
 public class IITC_UserLocation implements LocationListener, SensorEventListener {
-    private boolean mEnabled = false;
+    private boolean mLocationEnabled = false;
+    private boolean mSensorEnabled = false;
     private IITC_Mobile mIitc;
     private Location mLastLocation = null;
     private LocationManager mLocationManager;
@@ -49,7 +50,7 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
             e.printStackTrace();
         }
 
-        if (mSensorAccelerometer != null && mSensorMagnetometer != null) {
+        if (mSensorAccelerometer != null && mSensorMagnetometer != null && mSensorEnabled) {
             mSensorManager.registerListener(this, mSensorAccelerometer, SensorManager.SENSOR_DELAY_UI);
             mSensorManager.registerListener(this, mSensorMagnetometer, SensorManager.SENSOR_DELAY_UI);
         }
@@ -61,7 +62,7 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
 
         mLocationManager.removeUpdates(this);
 
-        if (mSensorAccelerometer != null && mSensorMagnetometer != null) {
+        if (mSensorAccelerometer != null && mSensorMagnetometer != null && mSensorEnabled) {
             mSensorManager.unregisterListener(this, mSensorAccelerometer);
             mSensorManager.unregisterListener(this, mSensorMagnetometer);
         }
@@ -69,7 +70,7 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
     }
 
     private void updateListeners() {
-        if (mRunning && mEnabled)
+        if (mRunning && mLocationEnabled)
             registerListeners();
         else
             unregisterListeners();
@@ -102,10 +103,17 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
         updateListeners();
     }
 
-    public void setEnabled(boolean enabled) {
-        if (enabled == mEnabled) return;
+    public void setLocationEnabled(boolean enabled) {
+        if (enabled == mLocationEnabled) return;
 
-        mEnabled = enabled;
+        mLocationEnabled = enabled;
+        updateListeners();
+    }
+
+    public void setSensorEnabled(boolean enabled) {
+        if (enabled == mSensorEnabled) return;
+
+        mSensorEnabled = enabled;
         updateListeners();
     }
 

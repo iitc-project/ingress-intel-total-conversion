@@ -20,6 +20,12 @@
             android:summary="@string/pref_user_loc_sum"
             android:title="@string/pref_user_loc"/>
         <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_user_loc_sensor"
+            android:dependency="pref_user_loc"
+            android:summary="@string/pref_user_loc_sensor_sum"
+            android:title="@string/pref_user_loc_sensor"/>
+        <CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_user_zoom"
             android:summary="@string/pref_user_zoom_sum"

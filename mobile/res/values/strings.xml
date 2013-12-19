@@ -85,6 +85,8 @@
     <string name="pref_plugins_title">Available plugins</string>
     <string name="pref_user_loc">Display user location</string>
     <string name="pref_user_loc_sum">Show users position on map</string>
+    <string name="pref_user_loc_sensor">Use sensor orientation</string>
+    <string name="pref_user_loc_sensor_sum">Fancier but eats battery packs for breakfast</string>
     <string name="pref_user_zoom">Show zoom control</string>
     <string name="pref_user_zoom_sum">Shows +/- buttons even on multitouch capable devices.</string>
     <string name="pref_fullscreen">Hide in fullscreen mode</string>

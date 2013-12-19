@@ -89,7 +89,8 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         mIitcWebView.updateFullscreenStatus();
 
         mUserLocation = new IITC_UserLocation(this);
-        mUserLocation.setEnabled(mSharedPrefs.getBoolean("pref_user_loc", false));
+        mUserLocation.setLocationEnabled(mSharedPrefs.getBoolean("pref_user_loc", false));
+        mUserLocation.setSensorEnabled(mSharedPrefs.getBoolean("pref_user_loc_sensor", true));
 
         // pass ActionBar to helper because we deprecated getActionBar
         mNavigationHelper = new IITC_NavigationHelper(this, super.getActionBar());
@@ -112,7 +113,9 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
             mDesktopMode = sharedPreferences.getBoolean("pref_force_desktop", false);
             mNavigationHelper.onPrefChanged();
         } else if (key.equals("pref_user_loc")) {
-            mUserLocation.setEnabled(sharedPreferences.getBoolean("pref_user_loc", false));
+            mUserLocation.setLocationEnabled(sharedPreferences.getBoolean("pref_user_loc", false));
+        } else if (key.equals("pref_user_loc_sensor")) {
+            mUserLocation.setSensorEnabled(sharedPreferences.getBoolean("pref_user_loc_sensor", true));
         } else if (key.equals("pref_fullscreen")) {
             mIitcWebView.updateFullscreenStatus();
             mNavigationHelper.onPrefChanged();
