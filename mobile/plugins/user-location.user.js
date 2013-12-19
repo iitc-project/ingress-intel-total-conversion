@@ -79,6 +79,11 @@ window.plugin.userLocation.locate = function(lat, lng, accuracy) {
   var zoom = window.map.getBoundsZoom(L.latLngBounds(
     [lat - latAccuracy, lng - lngAccuracy],
     [lat + latAccuracy, lng + lngAccuracy]));
+
+  // an extremely close view is pretty pointless (especially with maps that support zoom level 20+)
+  // so limit to 17 (enough to see all portals)
+  zoom = Math.min(zoom,17);
+
   window.map.setView(latlng, zoom);
 }
 
