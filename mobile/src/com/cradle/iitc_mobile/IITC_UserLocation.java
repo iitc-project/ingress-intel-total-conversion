@@ -14,6 +14,7 @@ import android.view.Surface;
 public class IITC_UserLocation implements LocationListener, SensorEventListener {
     private boolean mLocationEnabled = false;
     private boolean mSensorEnabled = false;
+    private long mLastUpdate = 0;
     private IITC_Mobile mIitc;
     private Location mLastLocation = null;
     private LocationManager mLocationManager;
@@ -163,6 +164,10 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        // save some battery 10 updates per second should be enough
+        if ((event.timestamp - mLastUpdate) < 10*10e6) return;
+        mLastUpdate = event.timestamp;
+
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
             mValuesGravity = event.values;
         if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
