@@ -114,7 +114,7 @@ window.plugin.portalslist.displayPL = function() {
   if (window.plugin.portalslist.getPortals()) {
     html += window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy, window.plugin.portalslist.sortOrder,window.plugin.portalslist.filter);
   } else {
-    html = '<table><tr><td>Nothing to show!</td></tr></table>';
+    html = '<table class="noPortals"><tr><td>Nothing to show!</td></tr></table>';
   };
 
   if(window.useAndroidPanes()) {
@@ -161,8 +161,8 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
 
   var sortAttr = window.plugin.portalslist.portalTableHeaderSortAttr;
   var html = window.plugin.portalslist.stats();
-  html += '<table>'
-    + '<tr>'
+  html += '<table class="portals">'
+    + '<tr class="header">'
     + '<th>#</th>'
     + '<th ' + sortAttr('nameLower', sortBy, 1, 'portalTitle') + '>Portal Name</th>'
     + '<th ' + sortAttr('level', sortBy, -1) + '>Level</th>'
@@ -216,7 +216,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
 }
 
 window.plugin.portalslist.stats = function(sortBy) {
-  var html = '<table><tr>'
+  var html = '<table class="teamFilter"><tr>'
     + '<td class="filterAll" style="cursor:pointer"><a href=""></a>All Portals : (click to filter)</td><td class="filterAll">' + window.plugin.portalslist.listPortals.length + '</td>'
     + '<td class="filterRes" style="cursor:pointer" class="sorted">Resistance Portals : </td><td class="filterRes">' + window.plugin.portalslist.resP +' (' + Math.floor(window.plugin.portalslist.resP/window.plugin.portalslist.listPortals.length*100) + '%)</td>'
     + '<td class="filterEnl" style="cursor:pointer" class="sorted">Enlightened Portals : </td><td class="filterEnl">'+ window.plugin.portalslist.enlP +' (' + Math.floor(window.plugin.portalslist.enlP/window.plugin.portalslist.listPortals.length*100) + '%)</td>'
@@ -278,12 +278,13 @@ var setup =  function() {
     '#portalslist table tr.res td { background-color: #005684; }' +
     '#portalslist table tr.enl td { background-color: #017f01; }' +
     '#portalslist table tr.neutral td { background-color: #000000; }' +
-    '#portalslist table th { text-align: center;}' +
-    '#portalslist table td { text-align: center;}' +
+    '#portalslist table th { text-align: center; }' +
+    '#portalslist table td { text-align: center; }' +
+    '#portalslist table.portals td { white-space: nowrap; }' +
     '#portalslist table td.portalTitle { text-align: left;}' +
     '#portalslist table th.sortable { cursor:pointer;}' +
     '#portalslist table th.portalTitle { text-align: left;}' +
-    '#portalslist table .portalTitle { min-width: 160px !important; max-width: 240px !important; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }' +
+    '#portalslist table .portalTitle { min-width: 120px !important; max-width: 240px !important; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }' +
     '#portalslist table .apGain { text-align: right !important; }' +
     '#portalslist .sorted { color:#FFCE00; }' +
     '#portalslist .filterAll { margin-top: 10px;}' +
