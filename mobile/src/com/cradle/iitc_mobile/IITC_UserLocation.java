@@ -12,8 +12,9 @@ import android.os.Bundle;
 import android.view.Surface;
 
 public class IITC_UserLocation implements LocationListener, SensorEventListener {
+    private static final double SENSOR_DELAY_USER = 100*1e6;
     private boolean mLocationEnabled = false;
-    private boolean mSensorEnabled = false;
+    private boolean mSensorEnabled = true;
     private long mLastUpdate = 0;
     private IITC_Mobile mIitc;
     private Location mLastLocation = null;
@@ -52,8 +53,8 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
         }
 
         if (mSensorAccelerometer != null && mSensorMagnetometer != null && mSensorEnabled) {
-            mSensorManager.registerListener(this, mSensorAccelerometer, SensorManager.SENSOR_DELAY_UI);
-            mSensorManager.registerListener(this, mSensorMagnetometer, SensorManager.SENSOR_DELAY_UI);
+            mSensorManager.registerListener(this, mSensorAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+            mSensorManager.registerListener(this, mSensorMagnetometer, SensorManager.SENSOR_DELAY_NORMAL);
         }
     }
 
@@ -165,7 +166,7 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
     @Override
     public void onSensorChanged(SensorEvent event) {
         // save some battery 10 updates per second should be enough
-        if ((event.timestamp - mLastUpdate) < 10*10e6) return;
+        if ((event.timestamp - mLastUpdate) < SENSOR_DELAY_USER) return;
         mLastUpdate = event.timestamp;
 
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
