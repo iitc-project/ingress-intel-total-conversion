@@ -14,52 +14,56 @@
 var requestParameterMunges = [
   // all old munge sets deleted - there's no sign that any old ones will become active again
 
-  // set 11 - 2013-12-06
-  {
-    'dashboard.getArtifactInfo': 'artifacts',            // GET_ARTIFACT_INFO
-    'dashboard.getGameScore': '4oid643d9zc168hs',        // GET_GAME_SCORE
-    'dashboard.getPaginatedPlexts': 's1msyywq51ntudpe',  // GET_PAGINATED_PLEXTS
-    'dashboard.getThinnedEntities': '4467ff9bgxxe4csa',  // GET_THINNED_ENTITIES
-    'dashboard.getPortalDetails': 'c00thnhf1yp3z6mn',    // GET_PORTAL_DETAILS
-    'dashboard.redeemReward': 'ivshfv9zvyfxyqcd',        // REDEEM_REWARD
-    'dashboard.sendInviteEmail': '1rsx15vc0m8wwdax',     // SEND_INVITE_EMAIL
-    'dashboard.sendPlext': 'tods2imd0xcfsug6',           // SEND_PLEXT
-
-    // common parameters
-    method: '0wvzluo8av4sk17f',
-    version: 'paeh4g353xu06kfg',
-    version_parameter: '4acc1e3230c3fd66be3422c0df8dc637336bbd7c',
-
-    // GET_THINNED_ENTITIES
-    quadKeys: 'ilgv0w4dlldky1yh',
-
-    // GET_PORTAL_DETAILS
-    guid: '7o8tzmj6oxz1n5w3',
-
-    // REDEEM_REWARD
-    passcode: 'passcode',   // no munging on this parameter
-
-    // SEND_INVITE_EMAIL
-    inviteeEmailAddress: 'p4rwszdfovuwfdgp',
-
-    // GET_PAGINATED_PLEXTS
-    desiredNumItems: 'kxsbuvc90l6f40xn',
-    minLatE6: 'llizye3i5dbapxac',
-    minLngE6: 'w01zpiba1mn5tsab',
-    maxLatE6: 'd5phhqzj2tbsq599',
-    maxLngE6: 'avq5srnvg431aehn',
-    minTimestampMs: 'mhsav5by25wi4s46',
-    maxTimestampMs: 'hpu7l8h7eccwytyt',
-    chatTab: 'q9343nem7hs1v37b',
-    ascendingTimestampOrder: '7pc5c9ggh03pig1b',
-
-    // SEND_PLEXT
-    message: '8exta9k7y8huhqmc',
-    latE6: '7ffwyf3zd2yf8xam',
-    lngE6: 'n7ewiach2v22iy20',
-//  chatTab: 'q9343nem7hs1v37b', // duplicate from GET_PAGINATED_PLEXTS
-
-  },
+// the current munge set auto-detection code is working very well. as any site update that breaks that detection
+// code will also, almost certainly, change the munges in use, it seems pointless keeping this set up to date by hand
+// at this time. If that auto-detection breaks, it may be easier to quicky add a munge set by hand than update
+// the regular expressions, so the list-based code remains available for the future
+//  // set 11 - 2013-12-06
+//  {
+//    'dashboard.getArtifactInfo': 'artifacts',            // GET_ARTIFACT_INFO
+//    'dashboard.getGameScore': '4oid643d9zc168hs',        // GET_GAME_SCORE
+//    'dashboard.getPaginatedPlexts': 's1msyywq51ntudpe',  // GET_PAGINATED_PLEXTS
+//    'dashboard.getThinnedEntities': '4467ff9bgxxe4csa',  // GET_THINNED_ENTITIES
+//    'dashboard.getPortalDetails': 'c00thnhf1yp3z6mn',    // GET_PORTAL_DETAILS
+//    'dashboard.redeemReward': 'ivshfv9zvyfxyqcd',        // REDEEM_REWARD
+//    'dashboard.sendInviteEmail': '1rsx15vc0m8wwdax',     // SEND_INVITE_EMAIL
+//    'dashboard.sendPlext': 'tods2imd0xcfsug6',           // SEND_PLEXT
+//
+//    // common parameters
+//    method: '0wvzluo8av4sk17f',
+//    version: 'paeh4g353xu06kfg',
+//    version_parameter: '4acc1e3230c3fd66be3422c0df8dc637336bbd7c',
+//
+//    // GET_THINNED_ENTITIES
+//    quadKeys: 'ilgv0w4dlldky1yh',
+//
+//    // GET_PORTAL_DETAILS
+//    guid: '7o8tzmj6oxz1n5w3',
+//
+//    // REDEEM_REWARD
+//    passcode: 'passcode',   // no munging on this parameter
+//
+//    // SEND_INVITE_EMAIL
+//    inviteeEmailAddress: 'p4rwszdfovuwfdgp',
+//
+//    // GET_PAGINATED_PLEXTS
+//    desiredNumItems: 'kxsbuvc90l6f40xn',
+//    minLatE6: 'llizye3i5dbapxac',
+//    minLngE6: 'w01zpiba1mn5tsab',
+//    maxLatE6: 'd5phhqzj2tbsq599',
+//    maxLngE6: 'avq5srnvg431aehn',
+//    minTimestampMs: 'mhsav5by25wi4s46',
+//    maxTimestampMs: 'hpu7l8h7eccwytyt',
+//    chatTab: 'q9343nem7hs1v37b',
+//    ascendingTimestampOrder: '7pc5c9ggh03pig1b',
+//
+//    // SEND_PLEXT
+//    message: '8exta9k7y8huhqmc',
+//    latE6: '7ffwyf3zd2yf8xam',
+//    lngE6: 'n7ewiach2v22iy20',
+////  chatTab: 'q9343nem7hs1v37b', // duplicate from GET_PAGINATED_PLEXTS
+//
+//  },
 
 ];
 
