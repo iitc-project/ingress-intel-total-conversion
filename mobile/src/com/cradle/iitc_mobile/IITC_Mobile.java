@@ -287,8 +287,8 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
 
         // enough idle...let's do some work
         Log.d("iitcm", "resuming...reset idleTimer");
@@ -310,6 +310,20 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                 mIitcWebView.loadUrl("javascript: window.idleReset();");
             }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        mIitcWebView.resumeTimers();
+        mIitcWebView.onResume();
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        mIitcWebView.pauseTimers();
+        mIitcWebView.onPause();
+        super.onPause();
     }
 
     @Override
