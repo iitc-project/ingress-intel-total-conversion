@@ -37,6 +37,7 @@ public class IITC_WebView extends WebView {
 
     private WebSettings mSettings;
     private IITC_WebViewClient mIitcWebViewClient;
+    private IITC_WebChromeClient mIitcWebChromeClient;
     private IITC_JSInterface mJsInterface;
     private IITC_Mobile mIitc;
     private SharedPreferences mSharedPrefs;
@@ -66,56 +67,22 @@ public class IITC_WebView extends WebView {
         mNavHider = new Runnable() {
             @Override
             public void run() {
-                if (isInFullscreen() && (getFullscreenStatus() & (FS_NAVBAR)) != 0) {
-                    int systemUiVisibility = SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-                    // in immersive mode the user can interact with the app while the navbar is hidden
-                    // this mode is available since KitKat
-                    // you can leave this mode by swiping down from the top of the screen. this does only work
-                    // when the app is in total-fullscreen mode
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && (mFullscreenStatus & FS_SYSBAR) != 0) {
-                        systemUiVisibility |= SYSTEM_UI_FLAG_IMMERSIVE;
-                    }
-                    setSystemUiVisibility(systemUiVisibility);
+            if (isInFullscreen() && (getFullscreenStatus() & (FS_NAVBAR)) != 0) {
+                int systemUiVisibility = SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+                // in immersive mode the user can interact with the app while the navbar is hidden
+                // this mode is available since KitKat
+                // you can leave this mode by swiping down from the top of the screen. this does only work
+                // when the app is in total-fullscreen mode
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && (mFullscreenStatus & FS_SYSBAR) != 0) {
+                    systemUiVisibility |= SYSTEM_UI_FLAG_IMMERSIVE;
                 }
+                setSystemUiVisibility(systemUiVisibility);
+            }
             }
         };
 
-        setWebChromeClient(new WebChromeClient() {
-            /**
-             * our webchromeclient should share geolocation with the iitc script
-             *
-             * allow access by default
-             */
-            @Override
-            public void onGeolocationPermissionsShowPrompt(String origin,
-                    GeolocationPermissions.Callback callback) {
-                callback.invoke(origin, true, false);
-            }
-
-            /**
-             * display progress bar in activity
-             */
-            @Override
-            public void onProgressChanged(WebView view, int newProgress) {
-                super.onProgressChanged(view, newProgress);
-
-                // maximum for newProgress is 100
-                // maximum for setProgress is 10,000
-                ((Activity) getContext()).setProgress(newProgress * 100);
-            }
-
-            /**
-             * remove splash screen if any JS error occurs
-             */
-            @Override
-            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-                if (consoleMessage.messageLevel() == ConsoleMessage.MessageLevel.ERROR) {
-                    mIitc.setLoadingState(false);
-                }
-                return super.onConsoleMessage(consoleMessage);
-            }
-        });
-
+        mIitcWebChromeClient = new IITC_WebChromeClient(mIitc);
+        setWebChromeClient(mIitcWebChromeClient);
         mIitcWebViewClient = new IITC_WebViewClient(mIitc);
         setWebViewClient(mIitcWebViewClient);
     }
