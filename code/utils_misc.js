@@ -122,7 +122,9 @@ window.convertCookieToLocalStorage = function(name) {
 // add thousand separators to given number.
 // http://stackoverflow.com/a/1990590/1684530 by Doug Neiner.
 window.digits = function(d) {
-  return (d+"").replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1 ");
+  // U+2009 - Thin Space. Recommended for use as a thousands separator...
+  // https://en.wikipedia.org/wiki/Space_(punctuation)#Table_of_spaces
+  return (d+"").replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1&#8201;");
 }
 
 
@@ -267,11 +269,11 @@ window.androidCopy = function(text) {
 }
 
 window.androidPermalink = function() {
-  if(typeof android === 'undefined' || !android || !android.copy)
+  if(typeof android === 'undefined' || !android || !android.intentPosLink)
     return true; // i.e. execute other actions
 
   var center = map.getCenter();
-  android.intentPosLink(center.lat, center.lng, map.getZoom(), "Intel Map", false);
+  android.intentPosLink(center.lat, center.lng, map.getZoom(), "Selected map view", false);
   return false;
 }
 

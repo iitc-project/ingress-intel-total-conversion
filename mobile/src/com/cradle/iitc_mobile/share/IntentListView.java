@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +38,10 @@ public class IntentListView extends ListView {
     }
 
     private class IntentAdapter extends ArrayAdapter<ResolveInfo> {
+
+        // actually the mdpi pixel size is 48, but this looks ugly...so scale icons down for listView
+        private static final int MDPI_PX = 36;
+
         private IntentAdapter() {
             super(IntentListView.this.getContext(), android.R.layout.simple_list_item_1);
         }
@@ -48,11 +53,19 @@ public class IntentListView extends ListView {
 
             ActivityInfo info = getItem(position).activityInfo;
             CharSequence label = info.loadLabel(mPackageManager);
+
+            // get icon and scale it manually to ensure that all have the same size
             Drawable icon = info.loadIcon(mPackageManager);
+            DisplayMetrics dm = new DisplayMetrics();
+            ((Activity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(dm);
+            float densityScale = dm.density;
+            float scaledWidth = MDPI_PX * densityScale;
+            float scaledHeight = MDPI_PX * densityScale;
+            icon.setBounds(0,0,Math.round(scaledWidth),Math.round(scaledHeight));
 
             view.setText(label);
             view.setCompoundDrawablePadding((int) getResources().getDimension(R.dimen.icon_margin));
-            view.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
+            view.setCompoundDrawables(icon, null, null, null);
 
             return view;
         }
@@ -174,17 +187,16 @@ public class IntentListView extends ListView {
                 ActivityInfo activity = resolveInfo.activityInfo;
                 ComponentName activityId = new ComponentName(activity.packageName, activity.name);
 
+                // ResolveInfo.isDefault usually means "The target would like to be considered a default action that the
+                // user can perform on this data." It is set by the package manager, but we overwrite it to store
+                // whether this app is the default for the given intent
+                resolveInfo.isDefault = resolveInfo.activityInfo.name.equals(defaultTarget.activityInfo.name)
+                        && resolveInfo.activityInfo.packageName.equals(defaultTarget.activityInfo.packageName);
+
                 if (!mActivities.containsKey(activityId)) {
                     mActivities.put(activityId, intent);
-                    // move default Intent to top
-                    if (resolveInfo.activityInfo.packageName.equals(defaultTarget.activityInfo.packageName)
-                            && resolveInfo.activityInfo.name.equals(defaultTarget.activityInfo.name)) {
-                        allActivities.add(0, resolveInfo);
-                    } else {
-                        allActivities.add(resolveInfo);
-                    }
+                    allActivities.add(resolveInfo);
                 }
-
             }
         }
 

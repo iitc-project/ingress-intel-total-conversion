@@ -16,8 +16,9 @@ window.MapDataRequest = function() {
 
 
   // no more than this many requests in parallel. stock site seems to rely on browser limits (6, usually), sending
-  // all requests at once. using our own queue limit ensures that other requests (e.g. chat) don't get postponed for too long
-  this.MAX_REQUESTS = 6;
+  // many requests at once.
+  // using our own queue limit ensures that other requests (e.g. chat, portal details) don't get delayed
+  this.MAX_REQUESTS = 5;
 
   // no more than this many tiles in one request
   // as of 2013-11-11, or possibly the release before that, the stock site was changed to only request four tiles at a time
@@ -28,7 +29,7 @@ window.MapDataRequest = function() {
   this.MIN_TILES_PER_REQUEST = 4;
 
   // number of times to retry a tile after a 'bad' error (i.e. not a timeout)
-  this.MAX_TILE_RETRIES = 1;
+  this.MAX_TILE_RETRIES = 2;
 
   // refresh timers
   this.MOVE_REFRESH = 1; //time, after a map move (pan/zoom) before starting the refresh processing

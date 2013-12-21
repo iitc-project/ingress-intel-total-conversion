@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.cradle.iitc_mobile"
     android:installLocation="auto"
-    android:versionCode="61"
-    android:versionName="0.10.0">
+    android:versionCode="62"
+    android:versionName="0.10.1">
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -99,7 +99,7 @@
             android:enabled="true"
             android:excludeFromRecents="true"
             android:exported="false"
-            android:icon="@drawable/copy"
+            android:icon="@drawable/ic_action_copy"
             android:label="@string/activity_share_to_clipboard"
             android:noHistory="false">
             <intent-filter>

@@ -56,17 +56,25 @@
         PERFORMANCE OF THIS SOFTWARE.
         ]]>
     </string>
-    <string name="notice_drawers">
-        <![CDATA[IITCm recently changed its navigation structure. How to use it:<br><br>
+    <string name="notice_how_to">
+        <![CDATA[<b>How to use IITCm:</b><br><br>
         • Navigation: swipe from the left edge of your screen (or click the app icon) to evoke the Navigation Drawer.
         Click the app icon again to return to the map.<br><br>
         • Layers/Highlights: swipe from the right edge of your screen (or click the layer-chooser icon in the ActionBar)
-        to evoke the Layer Drawer]]>
+        to evoke the Layer Drawer<br><br>
+        • You can add official plugins in the settings<br><br>
+        • For external plugins please have a look at the <a href="http://iitc.jonatkins.com/?page=faq#mobile-plugins">FAQ]]>
     </string>
     <string name="notice_info">
         <![CDATA[Hint: Alternative ways to open the info screen:<br><br>
         • tap and hold a portal for a second<br>
         • tap on the left half of the status bar]]>
+    </string>
+    <string name="notice_panes">
+        <![CDATA[Hint:<br><br>
+        Some plugins (e.g. portals list and bookmarks) now appear in the navigation drawer for quick access.<br>
+        They won\'t appear in the info pane any more.<br><br>
+        Swipe from the left edge of your screen (or click the app icon) to seem them.]]>
     </string>
 
     <string name="pref_ui_cat">UI</string>
@@ -140,10 +148,11 @@
     <string name="search_hint">Search Locations</string>
     <string name="intent_error">Address could not be opened</string>
     <string name="msg_copied">Copied to clipboard…</string>
+    <string name="notice_do_not_show_again">Do not show again</string>
 
-    <string name="tab_map">Map</string>
+    <string name="tab_map">Locate</string>
     <string name="tab_share">Share</string>
-    <string name="tab_browser">Browser</string>
+    <string name="tab_browser">Intel</string>
 
     <string name="label_highlighter">Highlighter</string>
     <string name="label_base_layer">Base Layer</string>

@@ -193,8 +193,13 @@ window.getResonatorDetails = function(d) {
 // slot: which slot this resonator occupies. Starts with 0 (east) and
 // rotates clockwise. So, last one is 7 (southeast).
 window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
+  if(OCTANTS[slot] === 'N')
+    var className = 'meter north';
+  else
+    var className = 'meter';
+
   if(level === 0) {
-    var meter = '<span class="meter" title="octant:\t' + OCTANTS[slot] + ' ' + OCTANTS_ARROW[slot] + '"></span>';
+    var meter = '<span class="' + className + '" title="octant:\t' + OCTANTS[slot] + ' ' + OCTANTS_ARROW[slot] + '"></span>';
   } else {
     var max = RESO_NRG[level];
     var fillGrade = nrg/max*100;
@@ -209,19 +214,19 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
 
     var color = (level < 3 ? "#9900FF" : "#FFFFFF");
 
-    var lbar = '<span class="meter-level" style="color: ' + color + ';"> ' + level + ' </span>';
+    var lbar = '<span class="meter-level" style="color: ' + color + ';"> L ' + level + ' </span>';
 
     var fill  = '<span style="'+style+'"></span>';
 
-    var meter = '<span class="meter" title="'+inf+'">' + fill + lbar + '</span>';
+    var meter = '<span class="' + className + '" title="'+inf+'">' + fill + lbar + '</span>';
   }
   nick = nick ? '<span class="nickname">'+nick+'</span>' : null;
   return [meter, nick || ''];
 }
 
 // calculate AP gain from destroying portal and then capturing it by deploying resonators
-window.getAttackApGainText = function(d) {
-  var breakdown = getAttackApGain(d);
+window.getAttackApGainText = function(d,fieldCount) {
+  var breakdown = getAttackApGain(d,fieldCount);
   var totalGain = breakdown.enemyAp;
 
   function tt(text) {

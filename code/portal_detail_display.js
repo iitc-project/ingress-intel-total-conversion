@@ -5,7 +5,7 @@
 window.renderPortalDetails = function(guid) {
   selectPortal(window.portals[guid] ? guid : null);
 
-  if (!portalDetail.isFresh(guid)) {
+  if (guid && !portalDetail.isFresh(guid)) {
     portalDetail.request(guid);
   }
 
@@ -25,6 +25,11 @@ window.renderPortalDetails = function(guid) {
   var portal = window.portals[guid];
   var data = portal.options.data;
   var details = portalDetail.get(guid);
+
+  // details and data can get out of sync. if we have details, construct a matching 'data'
+  if (details) {
+    data = getPortalSummaryData(details);
+  }
 
 
   var modDetails = details ? '<div class="mods">'+getModDetails(details)+'</div>' : '';
@@ -78,8 +83,8 @@ window.renderPortalDetails = function(guid) {
   }
 
   // portal level. start with basic data - then extend with fractional info in tooltip if available
-  var levelInt = data ? data.level : getPortalLevel(details);
-  var levelDetails = data.level;
+  var levelInt = portal.options.level;
+  var levelDetails = portal.options.level;
   if (details) {
     levelDetails = getPortalLevel(details);
     if(levelDetails != 8) {
@@ -109,7 +114,7 @@ window.renderPortalDetails = function(guid) {
 
   } else {
     // non-android - a permalink for the portal
-    var permaHtml = $('<div>').html( $('<a>').attr({href:permalinkUrl, target:'_blank', title:'Create a URL link to this portal'}).text('Portal link') ).html();
+    var permaHtml = $('<div>').html( $('<a>').attr({href:permalinkUrl, title:'Create a URL link to this portal'}).text('Portal link') ).html();
     linkDetails.push ( '<aside>'+permaHtml+'</aside>' );
 
     // and a map link popup dialog
@@ -178,7 +183,9 @@ window.getPortalMiscDetails = function(guid,d) {
       : null;
     var sinceText  = time ? ['since', time] : null;
 
-    var linkedFields = ['fields', d.portalV2.linkedFields ? d.portalV2.linkedFields.length : 0];
+    var fieldCount = getPortalFieldsCount(guid);
+
+    var linkedFields = ['fields', fieldCount];
 
     // collect and html-ify random data
     var randDetailsData = [];
@@ -189,7 +196,7 @@ window.getPortalMiscDetails = function(guid,d) {
     randDetailsData.push (
       getRangeText(d), getEnergyText(d),
       linksText, getAvgResoDistText(d),
-      linkedFields, getAttackApGainText(d),
+      linkedFields, getAttackApGainText(d,fieldCount),
       getHackDetailsText(d), getMitigationText(d)
     );
 

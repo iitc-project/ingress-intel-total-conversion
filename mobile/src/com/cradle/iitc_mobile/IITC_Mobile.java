@@ -35,7 +35,6 @@ import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Locale;
 import java.util.Stack;
 
 public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeListener, LocationListener {
@@ -288,8 +287,8 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
 
         // enough idle...let's do some work
         Log.d("iitcm", "resuming...reset idleTimer");
@@ -314,6 +313,20 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     }
 
     @Override
+    protected void onResume() {
+        mIitcWebView.resumeTimers();
+        mIitcWebView.onResume();
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        mIitcWebView.pauseTimers();
+        mIitcWebView.onPause();
+        super.onPause();
+    }
+
+    @Override
     protected void onStop() {
         Log.d("iitcm", "stopping iitcm");
         mIitcWebView.loadUrl("javascript: window.idleSet();");
@@ -323,6 +336,12 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         }
 
         super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(mBroadcastReceiver);
+        super.onDestroy();
     }
 
     @Override
@@ -370,6 +389,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         // Pop last item from backstack and pretend the relevant menu item was clicked
         if (!mBackStack.isEmpty()) {
             backStackPop();
+            mBackButtonPressed = true;
             return;
         }
 
@@ -405,15 +425,16 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
         // map pane is top-lvl. clear stack.
         if (pane == Pane.MAP) mBackStack.clear();
-        else mBackStack.push(mCurrentPane);
+        // don't push current pane to backstack if this method was called via back button
+        else if (!mBackButtonPressed) mBackStack.push(mCurrentPane);
 
+        mBackButtonPressed = false;
         mCurrentPane = pane;
         mNavigationHelper.switchTo(pane);
     }
 
     public void switchToPane(Pane pane) {
-        String name = pane.name().toLowerCase(Locale.getDefault());
-        mIitcWebView.loadUrl("javascript: window.show('" + name + "');");
+        mIitcWebView.loadUrl("javascript: window.show('" + pane.name + "');");
     }
 
     @Override

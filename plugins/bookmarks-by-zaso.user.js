@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Save your favorite Maps and Portals and move the intelmap with a click. Now sync.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Save your favorite Maps and Portals and move the intel map with a click. Now with sync.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -167,6 +167,13 @@
 
     window.plugin.bookmarks.statusBox['show'] = newStatus;
     window.plugin.bookmarks.saveStorageBox();
+  }
+
+  window.plugin.bookmarks.onPaneChanged = function(pane) {
+    if(pane == "plugin-bookmarks")
+      $('#bookmarksBox').css("display", "");
+    else
+      $('#bookmarksBox').css("display", "none");
   }
 
   // Switch list (maps/portals)
@@ -938,8 +945,13 @@
       $("#bookmarksBox #bookmarksMin , #bookmarksBox ul li, #bookmarksBox ul li a, #bookmarksBox ul li a span, #bookmarksBox h5, #bookmarksBox .addForm a").disableSelection();
       $('#bookmarksBox').css({'top':window.plugin.bookmarks.statusBox.pos.x, 'left':window.plugin.bookmarks.statusBox.pos.y});
     }else{
-      $('#portaldetails').before(window.plugin.bookmarks.htmlBoxTrigger + window.plugin.bookmarks.htmlBkmrksBox);
+      $('body').append(window.plugin.bookmarks.htmlBkmrksBox);
+      $('#bookmarksBox').css("display", "none").addClass("mobile");
 
+      if(window.useAndroidPanes())
+        android.addPane("plugin-bookmarks", "Bookmarks", "ic_action_star");
+      window.addHook('paneChanged', window.plugin.bookmarks.onPaneChanged);
+      
       // Remove the star
       window.addHook('portalSelected', function(data) {
         if(data.selectedPortalGuid === null) {
