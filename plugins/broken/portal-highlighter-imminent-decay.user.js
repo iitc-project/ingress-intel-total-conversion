@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Uses the fill color of the portals to show resonators due to decay within the next day. Red = portal will decay completely, orange = portal will drop all links, yellow = one or more resonators will decay completely.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Use the fill color of the portals to show resonators due to decay within the next day. Red = portal will decay completely, orange = portal will drop all links, yellow = one or more resonators will decay completely.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*

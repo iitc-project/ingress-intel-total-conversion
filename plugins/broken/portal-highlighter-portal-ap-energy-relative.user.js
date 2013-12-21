@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Uses the fill color of the portals to denote AP/Energy value relative to what's currently on the screen. Brighter is better. Orange means your standard 8 down 8 up swap.  
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Use the fill color of the portals to denote AP/Energy value relative to what's currently on the screen. Brighter is better. Orange means your standard 8 down 8 up swap.  
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*

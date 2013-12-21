@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Uses the fill color of the portals to show the number of outbound links: red = 8 (i.e. no more outbound links may be made), orange = 6 or 7, yellow = 4 or 5.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Use the fill color of the portals to show the number of outbound links: red = 8 (i.e. no more outbound links may be made), orange = 6 or 7, yellow = 4 or 5.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
