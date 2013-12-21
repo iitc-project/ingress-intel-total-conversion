@@ -43,10 +43,12 @@ public class IITC_WebViewClient extends WebViewClient {
     private String mIitcScript = null;
     private String mIitcPath = null;
     private boolean mIitcInjected = false;
-    private final Context mContext;
+    private final IITC_Mobile mIitc;
+    private final IITC_TileManager mTileManager;
 
-    public IITC_WebViewClient(Context c) {
-        this.mContext = c;
+    public IITC_WebViewClient(IITC_Mobile iitc) {
+        this.mIitc = iitc;
+        this.mTileManager = new IITC_TileManager(mIitc);
         this.mIitcPath = Environment.getExternalStorageDirectory().getPath()
                 + "/IITC_Mobile/";
     }
@@ -113,13 +115,13 @@ public class IITC_WebViewClient extends WebViewClient {
             js = this.fileToString(mIitcPath
                     + "dev/total-conversion-build.user.js", false);
             if (js.equals("false")) {
-                Toast.makeText(mContext, "File " + mIitcPath +
+                Toast.makeText(mIitc, "File " + mIitcPath +
                         "dev/total-conversion-build.user.js not found. " +
                         "Disable developer mode or add iitc files to the dev folder.",
                         Toast.LENGTH_LONG).show();
                 return;
             } else {
-                Toast.makeText(mContext, "Developer mode enabled",
+                Toast.makeText(mIitc, "Developer mode enabled",
                         Toast.LENGTH_SHORT).show();
             }
         } else {
@@ -145,7 +147,7 @@ public class IITC_WebViewClient extends WebViewClient {
             mIitcInjected = false;
         }
 
-        PackageManager pm = mContext.getPackageManager();
+        PackageManager pm = mIitc.getPackageManager();
         boolean hasMultitouch = pm
                 .hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH);
         boolean forcedZoom = sharedPref.getBoolean("pref_user_zoom", false);
@@ -193,8 +195,6 @@ public class IITC_WebViewClient extends WebViewClient {
     @Override
     public void onReceivedLoginRequest(WebView view, String realm, String account, String args) {
         Log.d("iitcm", "Login requested: " + realm + " " + account + " " + args);
-        Log.d("iitcm", "logging in...updating caching mode");
-        ((IITC_WebView) view).updateCaching(true);
         mIitcInjected = false;
         //((IITC_Mobile) mContext).onReceivedLoginRequest(this, view, realm, account, args);
     }
@@ -202,7 +202,7 @@ public class IITC_WebViewClient extends WebViewClient {
     public void loadPlugins(WebView view) {
         // get the plugin preferences
         SharedPreferences sharedPref = PreferenceManager
-                .getDefaultSharedPreferences(mContext);
+                .getDefaultSharedPreferences(mIitc);
         boolean dev_enabled = sharedPref.getBoolean("pref_dev_checkbox", false);
         String path = (dev_enabled) ? mIitcPath + "dev/plugins/" : "plugins/";
 
@@ -261,7 +261,7 @@ public class IITC_WebViewClient extends WebViewClient {
             }
         } else {
             // load plugins from asset folder
-            AssetManager am = mContext.getAssets();
+            AssetManager am = mIitc.getAssets();
             try {
                 s = new Scanner(am.open(file)).useDelimiter("\\A");
             } catch (IOException e) {
@@ -285,7 +285,20 @@ public class IITC_WebViewClient extends WebViewClient {
     @Override
     public WebResourceResponse shouldInterceptRequest(final WebView view,
                                                       String url) {
-        if (url.contains("/css/common.css")) {
+        // if any tiles are requested, handle it with IITC_TileManager
+        if (url.matches(".*tile.*jpg.*") // mapquest tiles | ovi tiles
+                || url.matches(".*tile.*png.*") // cloudmade tiles
+                || url.matches(".*mts.*googleapis.*smartmaps") // google tiles
+                || url.matches(".*tile.*jpeg.*") // bing tiles
+                || url.matches(".*maps.*yandex.*tiles.*") // yandex maps
+            ) {
+            try {
+                return mTileManager.getTile(url);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return super.shouldInterceptRequest(view, url);
+            }
+        } else if (url.contains("/css/common.css")) {
             return new WebResourceResponse("text/css", "UTF-8", STYLE);
 //        } else if (url.contains("gen_dashboard.js")) {
 //            // define initialize function to get rid of JS ReferenceError on intel page's 'onLoad'
@@ -318,11 +331,7 @@ public class IITC_WebViewClient extends WebViewClient {
                 Log.d("iitcm",
                         "should be an internal clicked position link...reload script for: "
                                 + url);
-                ((IITC_Mobile) mContext).loadUrl(url);
-            }
-            if (url.contains("logout")) {
-                Log.d("iitcm", "logging out...updating caching mode");
-                ((IITC_WebView) view).updateCaching(true);
+                mIitc.loadUrl(url);
             }
             return false;
         } else {
@@ -330,7 +339,7 @@ public class IITC_WebViewClient extends WebViewClient {
                     "no ingress intel link, start external app to load url: "
                             + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            mContext.startActivity(intent);
+            mIitc.startActivity(intent);
             return true;
         }
     }

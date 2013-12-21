@@ -37,6 +37,7 @@ public class IITC_WebView extends WebView {
 
     private WebSettings mSettings;
     private IITC_WebViewClient mIitcWebViewClient;
+    private IITC_WebChromeClient mIitcWebChromeClient;
     private IITC_JSInterface mJsInterface;
     private IITC_Mobile mIitc;
     private SharedPreferences mSharedPrefs;
@@ -56,9 +57,7 @@ public class IITC_WebView extends WebView {
         mSettings.setDomStorageEnabled(true);
         mSettings.setAllowFileAccess(true);
         mSettings.setGeolocationEnabled(true);
-        mSettings.setAppCacheEnabled(true);
         mSettings.setDatabasePath(getContext().getApplicationInfo().dataDir + "/databases/");
-        mSettings.setAppCachePath(getContext().getCacheDir().getAbsolutePath());
         mJsInterface = new IITC_JSInterface(mIitc);
         addJavascriptInterface(mJsInterface, "android");
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(mIitc);
@@ -68,57 +67,23 @@ public class IITC_WebView extends WebView {
         mNavHider = new Runnable() {
             @Override
             public void run() {
-                if (isInFullscreen() && (getFullscreenStatus() & (FS_NAVBAR)) != 0) {
-                    int systemUiVisibility = SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-                    // in immersive mode the user can interact with the app while the navbar is hidden
-                    // this mode is available since KitKat
-                    // you can leave this mode by swiping down from the top of the screen. this does only work
-                    // when the app is in total-fullscreen mode
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && (mFullscreenStatus & FS_SYSBAR) != 0) {
-                        systemUiVisibility |= SYSTEM_UI_FLAG_IMMERSIVE;
-                    }
-                    setSystemUiVisibility(systemUiVisibility);
+            if (isInFullscreen() && (getFullscreenStatus() & (FS_NAVBAR)) != 0) {
+                int systemUiVisibility = SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+                // in immersive mode the user can interact with the app while the navbar is hidden
+                // this mode is available since KitKat
+                // you can leave this mode by swiping down from the top of the screen. this does only work
+                // when the app is in total-fullscreen mode
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && (mFullscreenStatus & FS_SYSBAR) != 0) {
+                    systemUiVisibility |= SYSTEM_UI_FLAG_IMMERSIVE;
                 }
+                setSystemUiVisibility(systemUiVisibility);
+            }
             }
         };
 
-        setWebChromeClient(new WebChromeClient() {
-            /**
-             * our webchromeclient should share geolocation with the iitc script
-             *
-             * allow access by default
-             */
-            @Override
-            public void onGeolocationPermissionsShowPrompt(String origin,
-                    GeolocationPermissions.Callback callback) {
-                callback.invoke(origin, true, false);
-            }
-
-            /**
-             * display progress bar in activity
-             */
-            @Override
-            public void onProgressChanged(WebView view, int newProgress) {
-                super.onProgressChanged(view, newProgress);
-
-                // maximum for newProgress is 100
-                // maximum for setProgress is 10,000
-                ((Activity) getContext()).setProgress(newProgress * 100);
-            }
-
-            /**
-             * remove splash screen if any JS error occurs
-             */
-            @Override
-            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-                if (consoleMessage.messageLevel() == ConsoleMessage.MessageLevel.ERROR) {
-                    mIitc.setLoadingState(false);
-                }
-                return super.onConsoleMessage(consoleMessage);
-            }
-        });
-
-        mIitcWebViewClient = new IITC_WebViewClient(c);
+        mIitcWebChromeClient = new IITC_WebChromeClient(mIitc);
+        setWebChromeClient(mIitcWebChromeClient);
+        mIitcWebViewClient = new IITC_WebViewClient(mIitc);
         setWebViewClient(mIitcWebViewClient);
     }
 
@@ -271,36 +236,8 @@ public class IITC_WebView extends WebView {
         return mJsInterface;
     }
 
-    public void updateCaching(boolean login) {
-        switch (Integer.parseInt(mSharedPrefs.getString("pref_caching", "1"))) {
-            case 0:
-                mSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
-                break;
-            case 2:
-                mSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
-                break;
-            default:
-                if (getUrl() != null) {
-                    login |= getUrl().contains("accounts.google.com");
-                }
-                // use cache if on mobile network...saves traffic
-                if (!isConnectedToWifi() && !login) {
-                    Log.d("iitcm", "not connected to wifi...load tiles from cache");
-                    mSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
-                } else {
-                    if (login) {
-                        Log.d("iitcm", "login...load tiles from network");
-                    } else {
-                        Log.d("iitcm", "connected to wifi...load tiles from network");
-                    }
-                    mSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
-                }
-                break;
-        }
-    }
-
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private boolean isConnectedToWifi() {
+    public boolean isConnectedToWifi() {
         ConnectivityManager conMan = (ConnectivityManager) getContext()
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo wifi = conMan.getNetworkInfo(ConnectivityManager.TYPE_WIFI);

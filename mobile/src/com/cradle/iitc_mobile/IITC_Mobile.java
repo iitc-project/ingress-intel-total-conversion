@@ -13,7 +13,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -128,8 +127,6 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
             return;
         } else if (key.equals("pref_fake_user_agent")) {
             mIitcWebView.setUserAgent();
-        } else if (key.equals("pref_caching")) {
-            mIitcWebView.updateCaching(false);
         } else if (key.equals("pref_press_twice_to_exit")
                 || key.equals("pref_share_selected_tab")
                 || key.equals("pref_messages")
@@ -252,8 +249,6 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
         // enough idle...let's do some work
         Log.d("iitcm", "resuming...reset idleTimer");
-        mIitcWebView.updateCaching(false);
-
         mUserLocation.onStart();
 
         if (mReloadNeeded) {
@@ -265,6 +260,20 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                 mIitcWebView.loadUrl("javascript: window.idleReset();");
             }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        mIitcWebView.resumeTimers();
+        mIitcWebView.onResume();
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        mIitcWebView.pauseTimers();
+        mIitcWebView.onPause();
+        super.onPause();
     }
 
     @Override
