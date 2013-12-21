@@ -112,14 +112,6 @@
             <PreferenceCategory
                 android:key="pref_advanced_tweaks_cat"
                 android:title="@string/pref_tweaks_cat">
-                <ListPreference
-                    android:defaultValue="1"
-                    android:entries="@array/pref_caching_array"
-                    android:entryValues="@array/pref_caching_array_vals"
-                    android:key="pref_caching"
-                    android:summary="@string/pref_caching_sum"
-                    android:title="@string/pref_caching"/>
-
                 <CheckBoxPreference
                     android:defaultValue="false"
                     android:key="pref_fake_user_agent"

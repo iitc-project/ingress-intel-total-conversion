@@ -56,9 +56,7 @@ public class IITC_WebView extends WebView {
         mSettings.setDomStorageEnabled(true);
         mSettings.setAllowFileAccess(true);
         mSettings.setGeolocationEnabled(true);
-        mSettings.setAppCacheEnabled(true);
         mSettings.setDatabasePath(getContext().getApplicationInfo().dataDir + "/databases/");
-        mSettings.setAppCachePath(getContext().getCacheDir().getAbsolutePath());
         mJsInterface = new IITC_JSInterface(mIitc);
         addJavascriptInterface(mJsInterface, "android");
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(mIitc);
@@ -269,34 +267,6 @@ public class IITC_WebView extends WebView {
 
     public IITC_JSInterface getJSInterface() {
         return mJsInterface;
-    }
-
-    public void updateCaching(boolean login) {
-        switch (Integer.parseInt(mSharedPrefs.getString("pref_caching", "1"))) {
-            case 0:
-                mSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
-                break;
-            case 2:
-                mSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
-                break;
-            default:
-                if (getUrl() != null) {
-                    login |= getUrl().contains("accounts.google.com");
-                }
-                // use cache if on mobile network...saves traffic
-                if (!isConnectedToWifi() && !login) {
-                    Log.d("iitcm", "not connected to wifi...load tiles from cache");
-                    mSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
-                } else {
-                    if (login) {
-                        Log.d("iitcm", "login...load tiles from network");
-                    } else {
-                        Log.d("iitcm", "connected to wifi...load tiles from network");
-                    }
-                    mSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
-                }
-                break;
-        }
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)

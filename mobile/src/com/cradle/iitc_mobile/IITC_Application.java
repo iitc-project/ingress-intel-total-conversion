@@ -13,15 +13,6 @@ import java.io.File;
  */
 public class IITC_Application extends Application {
     @Override
-    public File getCacheDir() {
-        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pref_external_storage", false)) {
-            return (getExternalCacheDir() != null) ? getExternalCacheDir() : super.getCacheDir();
-        } else {
-            return super.getCacheDir();
-        }
-    }
-
-    @Override
     public File getFilesDir() {
         if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pref_external_storage", false)) {
             return (getExternalFilesDir(null) != null) ? getExternalFilesDir(null) : super.getFilesDir();

@@ -195,8 +195,6 @@ public class IITC_WebViewClient extends WebViewClient {
     @Override
     public void onReceivedLoginRequest(WebView view, String realm, String account, String args) {
         Log.d("iitcm", "Login requested: " + realm + " " + account + " " + args);
-        Log.d("iitcm", "logging in...updating caching mode");
-        ((IITC_WebView) view).updateCaching(true);
         mIitcInjected = false;
         //((IITC_Mobile) mContext).onReceivedLoginRequest(this, view, realm, account, args);
     }
@@ -328,10 +326,6 @@ public class IITC_WebViewClient extends WebViewClient {
                         "should be an internal clicked position link...reload script for: "
                                 + url);
                 mIitc.loadUrl(url);
-            }
-            if (url.contains("logout")) {
-                Log.d("iitcm", "logging out...updating caching mode");
-                ((IITC_WebView) view).updateCaching(true);
             }
             return false;
         } else {
