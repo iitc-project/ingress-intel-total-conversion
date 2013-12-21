@@ -1,5 +1,24 @@
 <h2>News</h2>
 
+<h4>21st December 2013</h4>
+<p>
+Just in time for the holidays, another IITC update. IITC 0.16.1 and IITC Mobile 0.10.1 have just been released.
+Changes include
+<ul>
+<li>Portals list plugin returns - but less data than before due to the Niatnic backend changes</li>
+<li>Resonators plugin returns - but only shows the selected portal</li>
+<li>Mobile:
+ <ul>
+ <li>Some plugins moved to panes from the left-swipe menu: portals list, portal counts</li>
+ <li>Immersive fullscreen mode on Android 4.4 KitKat</li>
+ <li>Sort apps in share activity - most used at the top</li>
+ <li>Fix links sometimes being badly drawn on mobile</li>
+ </ul>
+</li>
+<li>.. and, as always, other various bug fixes, improvements, etc</li>
+</ul>
+</p>
+
 <h4>6th December 2013</h3>
 <p>
 Niantic have just released a minor update to the standard intel site. Good news - recent IITC changes have made it
