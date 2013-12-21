@@ -1,16 +1,12 @@
 package com.cradle.iitc_mobile.async;
 
-import android.app.AlertDialog;
 import android.os.AsyncTask;
 import android.util.Log;
-
-import com.cradle.iitc_mobile.IITC_Mobile;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 

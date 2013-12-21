@@ -1,6 +1,5 @@
 package com.cradle.iitc_mobile;
 
-import android.util.Log;
 import android.webkit.WebResourceResponse;
 
 import com.cradle.iitc_mobile.async.DownloadTile;
@@ -8,11 +7,7 @@ import com.cradle.iitc_mobile.async.DownloadTile;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Date;
 
 public class IITC_TileManager {
 

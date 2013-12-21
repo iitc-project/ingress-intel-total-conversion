@@ -1,6 +1,5 @@
 package com.cradle.iitc_mobile;
 
-import android.app.Activity;
 import android.webkit.ConsoleMessage;
 import android.webkit.GeolocationPermissions;
 import android.webkit.WebChromeClient;
