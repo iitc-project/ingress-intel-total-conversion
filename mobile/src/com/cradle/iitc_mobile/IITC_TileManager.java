@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Date;
 
 public class IITC_TileManager {
 
@@ -24,7 +25,6 @@ public class IITC_TileManager {
     }
 
     public WebResourceResponse getTile(String url) throws Exception {
-        Log.d("iitcm", "checking for tile: " + url);
         String path = mIitc.getApplication().getFilesDir().toString() + "/" + url;
         path = path.replace("http://", "");
         path = path.replace("https://", "");
@@ -33,6 +33,9 @@ public class IITC_TileManager {
         path = path.replace(fileName, "");
         File file = new File(path, fileName);
         if (file.exists()) {
+            // asynchronously download tile if outdated, ignore date if not connected to wifi
+            if (mIitc.getWebView().isConnectedToWifi()) new DownloadTile(path, fileName).execute(url);
+            // return tile from storage
             InputStream in = new BufferedInputStream(new FileInputStream(file));
             return new WebResourceResponse(TYPE, ENCODING, in);
         } else {

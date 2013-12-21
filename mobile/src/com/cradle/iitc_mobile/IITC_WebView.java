@@ -237,7 +237,7 @@ public class IITC_WebView extends WebView {
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private boolean isConnectedToWifi() {
+    public boolean isConnectedToWifi() {
         ConnectivityManager conMan = (ConnectivityManager) getContext()
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo wifi = conMan.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
