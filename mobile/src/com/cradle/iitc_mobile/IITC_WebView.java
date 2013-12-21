@@ -118,7 +118,7 @@ public class IITC_WebView extends WebView {
             }
         });
 
-        mIitcWebViewClient = new IITC_WebViewClient(c);
+        mIitcWebViewClient = new IITC_WebViewClient(mIitc);
         setWebViewClient(mIitcWebViewClient);
     }
 
