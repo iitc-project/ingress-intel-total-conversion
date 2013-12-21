@@ -10,11 +10,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-/*
- * this class parses the http response of a web page.
- * since network operations shouldn't be done on main UI thread
- * (NetworkOnMainThread exception is thrown) we use an async task for this.
- */
 public class DownloadTile extends AsyncTask<String, Void, Boolean> {
 
     private String mFilePath;
