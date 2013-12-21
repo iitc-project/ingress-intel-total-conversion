@@ -285,7 +285,8 @@ public class IITC_WebViewClient extends WebViewClient {
     @Override
     public WebResourceResponse shouldInterceptRequest(final WebView view,
                                                       String url) {
-        if (url.matches(".*tile.*jpg") || url.matches(".*tile.*png") || url.matches(".*mts.*googleapis.*")) {
+        // if any tiles are requested, handle it with IITC_TileManager
+        if (url.matches(".*tile.*jpg") || url.matches(".*tile.*png") || url.matches(".*mts.*googleapis.*smartmaps")) {
             try {
                 return mTileManager.getTile(url);
             } catch (Exception e) {

@@ -39,8 +39,8 @@ public class DownloadTile extends AsyncTask<String, Void, Boolean> {
             conn = tileUrl.openConnection();
             InputStream is = null;
             is = conn.getInputStream();
-            Log.d("iitcm", "writing to path: " + mFilePath);
             File file = new File(mFilePath, mFileName);
+            Log.d("iitcm", "writing to file: " + file.toString());
             File output = writeTileToFile(is, file, mFilePath);
         } catch (IOException e) {
             e.printStackTrace();
