@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Use the portal fill color to denote if you had a hand in building the portal. Orange is just ownership. Yellow is shields. Red is Resonators. Red trumps both, yellow trumps orange.  
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Use the portal fill color to denote if you had a hand in building the portal. Orange: just ownership. Yellow: shields. Red: resonators. Red trumps both, yellow trumps orange.  
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
