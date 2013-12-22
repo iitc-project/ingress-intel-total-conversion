@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Use the fill color of the portals to highlight portals you can upgrade to a specific level.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Use the portal fill color to denote if you can upgrade the portal to a specific level.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*

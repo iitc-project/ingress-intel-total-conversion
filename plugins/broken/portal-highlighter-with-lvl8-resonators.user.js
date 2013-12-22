@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Use the fill red of the portals, if portal has L8 res.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Use the portal fill color to denote if any L8 resonators are present.  Brighter means more are present.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
