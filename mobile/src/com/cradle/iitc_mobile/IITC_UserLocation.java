@@ -23,7 +23,8 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
     private LocationManager mLocationManager;
     private Sensor mSensorAccelerometer, mSensorMagnetometer;
     private SensorManager mSensorManager = null;
-    float[] mValuesGravity = null, mValuesGeomagnetic = null;
+    private float[] mValuesGravity = null, mValuesGeomagnetic = null;
+    private double mOrientation = 0;
 
     public IITC_UserLocation(IITC_Mobile iitc) {
         mIitc = iitc;
@@ -33,6 +34,24 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
         mSensorManager = (SensorManager) iitc.getSystemService(Context.SENSOR_SERVICE);
         mSensorAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+    }
+
+    private void setOrientation(Double orientation) {
+        // we have a transition defined for the rotation
+        // changes to the orientation should always be less than 180°
+
+        if (orientation != null) {
+            while (orientation < mOrientation - 180)
+                orientation += 360;
+            while (orientation > mOrientation + 180)
+                orientation -= 360;
+            mOrientation = orientation;
+        } else {
+            mOrientation = 0;
+        }
+
+        mIitc.getWebView().loadJS("if(window.plugin && window.plugin.userLocation)"
+                + "window.plugin.userLocation.onOrientationChange(" + String.valueOf(orientation) + ");");
     }
 
     private void updateListeners() {
@@ -94,8 +113,7 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
 
         // in case we just switched from loc+sensor to loc-only, let javascript know
         if (mMode == 1) {
-            mIitc.getWebView().loadJS("if(window.plugin && window.plugin.userLocation)"
-                    + "window.plugin.userLocation.onOrientationChange(null);");
+            setOrientation(null);
         }
     }
 
@@ -200,8 +218,7 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
                 break;
         }
 
-        mIitc.getWebView().loadJS("if(window.plugin && window.plugin.userLocation)"
-                + "window.plugin.userLocation.onOrientationChange(" + direction + ");");
+        setOrientation(direction);
     }
 
     // </interface SensorEventListener>
