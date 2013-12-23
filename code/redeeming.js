@@ -419,7 +419,7 @@ window.redeem.success = function(data, textStatus, jqXHR) {
 
     // What to display
     to_dialog      = rendered.table;
-    to_log         = rendered.text;
+    to_log         = rendered.plain;
 
     // Dialog options
     dialog_title   = 'Passcode: ' + passcode;
