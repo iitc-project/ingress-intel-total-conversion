@@ -400,18 +400,32 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (mNavigationHelper != null) {
-            boolean visible = !mNavigationHelper.isDrawerOpened();
+        boolean visible = false;
+        if (mNavigationHelper != null)
+            visible = !mNavigationHelper.isDrawerOpened();
 
-            for (int i = 0; i < menu.size(); i++)
-                if (menu.getItem(i).getItemId() != R.id.action_settings) {
-                    // clear cookies is part of the advanced menu
-                    if (menu.getItem(i).getItemId() == R.id.menu_clear_cookies) {
-                        menu.getItem(i).setVisible(mAdvancedMenu & visible);
-                    } else {
-                        menu.getItem(i).setVisible(visible);
-                    }
-                }
+        for (int i = 0; i < menu.size(); i++) {
+            MenuItem item = menu.getItem(i);
+
+            switch (item.getItemId()) {
+                case R.id.action_settings:
+                    item.setVisible(true);
+                    break;
+
+                case R.id.menu_clear_cookies:
+                    item.setVisible(mAdvancedMenu && visible);
+                    break;
+
+                case R.id.locate:
+                    item.setVisible(visible);
+                    item.setIcon(mUserLocation.isFollowing()
+                            ? R.drawable.ic_action_location_follow
+                            : R.drawable.ic_action_location_found);
+                    break;
+
+                default:
+                    item.setVisible(visible);
+            }
         }
 
         return super.onPrepareOptionsMenu(menu);
@@ -473,6 +487,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     public void reloadIITC() {
         mNavigationHelper.reset();
         mMapSettings.reset();
+        mUserLocation.reset();
         mBackStack.clear();
         // iitc starts on map after reload
         mCurrentPane = Pane.MAP;
@@ -632,5 +647,9 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
     public IITC_MapSettings getMapSettings() {
         return mMapSettings;
+    }
+
+    public IITC_UserLocation getUserLocation() {
+        return mUserLocation;
     }
 }

@@ -189,4 +189,14 @@ public class IITC_JSInterface {
             }
         });
     }
+
+    @JavascriptInterface
+    public void setFollowMode(final boolean follow) {
+        mIitc.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mIitc.getUserLocation().setFollowMode(follow);
+            }
+        });
+    }
 }

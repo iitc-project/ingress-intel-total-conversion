@@ -21,6 +21,7 @@
 window.plugin.userLocation = function() {};
 
 window.plugin.userLocation.locationLayer = new L.LayerGroup();
+window.plugin.userLocation.follow = false;
 
 window.plugin.userLocation.setup = function() {
   $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:mobile/plugins/user-location.css@@').appendTo('head');
@@ -59,8 +60,18 @@ window.plugin.userLocation.setup = function() {
   window.plugin.userLocation.circle = circle;
   window.plugin.userLocation.icon = icon;
 
+  window.map.on('movestart', window.plugin.userLocation.onMoveStart);
   window.map.on('zoomend', window.plugin.userLocation.onZoomEnd);
   window.plugin.userLocation.onZoomEnd();
+};
+
+window.plugin.userLocation.onMoveStart = function(e) {
+  if(window.plugin.userLocation.moving)
+    return;
+
+  window.plugin.userLocation.follow = false;
+  if(typeof android !== 'undefined' && android && android.setFollowMode)
+    android.setFollowMode(window.plugin.userLocation.follow);
 };
 
 window.plugin.userLocation.onZoomEnd = function() {
@@ -71,6 +82,13 @@ window.plugin.userLocation.onZoomEnd = function() {
 };
 
 window.plugin.userLocation.locate = function(lat, lng, accuracy) {
+  if(window.plugin.userLocation.follow) {
+    window.plugin.userLocation.follow = false;
+    if(typeof android !== 'undefined' && android && android.setFollowMode)
+      android.setFollowMode(window.plugin.userLocation.follow);
+    return;
+  }
+
   var latlng = new L.LatLng(lat, lng);
 
   var latAccuracy = 180 * accuracy / 40075017;
@@ -85,12 +103,22 @@ window.plugin.userLocation.locate = function(lat, lng, accuracy) {
   zoom = Math.min(zoom,17);
 
   window.map.setView(latlng, zoom);
+
+  window.plugin.userLocation.follow = true;
+  if(typeof android !== 'undefined' && android && android.setFollowMode)
+    android.setFollowMode(window.plugin.userLocation.follow);
 }
 
 window.plugin.userLocation.onLocationChange = function(lat, lng) {
   var latlng = new L.LatLng(lat, lng);
   window.plugin.userLocation.marker.setLatLng(latlng);
   window.plugin.userLocation.circle.setLatLng(latlng);
+
+  if(window.plugin.userLocation.follow) {
+    window.plugin.userLocation.moving = true;
+    window.map.setView(latlng);
+    window.plugin.userLocation.moving = false;
+  }
 };
 
 window.plugin.userLocation.onOrientationChange = function(direction) {

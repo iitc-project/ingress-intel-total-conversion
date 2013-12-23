@@ -25,6 +25,7 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
     private SensorManager mSensorManager = null;
     private float[] mValuesGravity = null, mValuesGeomagnetic = null;
     private double mOrientation = 0;
+    private boolean mFollowing = false;
 
     public IITC_UserLocation(IITC_Mobile iitc) {
         mIitc = iitc;
@@ -95,6 +96,10 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
         return mLastLocation != null;
     }
 
+    public boolean isFollowing() {
+        return mFollowing;
+    }
+
     public void locate() {
         // do not touch the javascript while iitc boots
         if (mIitc.isLoading()) return;
@@ -120,6 +125,15 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
     public void onStop() {
         mRunning = false;
         updateListeners();
+    }
+
+    public void reset() {
+        setFollowMode(false);
+    }
+
+    public void setFollowMode(boolean follow) {
+        mFollowing = follow;
+        mIitc.invalidateOptionsMenu();
     }
 
     /**
