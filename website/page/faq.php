@@ -26,12 +26,12 @@ reversed - including some confirmed IITC users</li>
 </ul>
 <p>
 Given that a large number of serious Ingress players use, or have used, IITC, it isn't surprising to find
-that if Niantic ban someone by mistake, they might have used IITC. 
+that if Niantic ban someone by mistake, they have used IITC. 
 </p>
 <p>
-I believe none of these bans are related to IITC. Rather, Niantic have been working on more aggressive catching of
-cheaters and other ToS violations - spoofing, bots, multiple accounts, account sharing, etc. These things are inherently
-hard to detect though, and Niantic are likely to make mistakes sometimes, banning legitimate players.
+I believe none of these 'ToS violation' bans are related to IITC. Rather, Niantic have been working on more aggressive
+catching of cheaters and other ToS violations - spoofing, bots, multiple accounts, account sharing, etc. These things
+are inherently hard to detect though, and Niantic are likely to make mistakes sometimes, banning legitimate players.
 </p>
 <p>
 Note that Niantic have remained completely silent on the reason for any of these bans. This is partly because if they
@@ -68,6 +68,10 @@ So, was 'IITC' sent a takedown request? No - this website, and the IITC G+ page,
 END
 ),
 
+# for reference:
+# Some notes from a Hangout available <a href="https://plus.google.com/111333123856542807695/posts/QtiFdoRuh6w">here</a>
+
+
 'not-activated' => Array ( "I get a message saying my account isn't activated",
 <<<'END'
 <p>
@@ -88,13 +92,13 @@ END
 
 'broken' => Array ( "No portals are displayed on the map/some portals are missing",
 <<<'END'
-Two common reasons.
+Common reasons.
 <ol>
 <li>You have some portal layers turned off in the layer chooser</li>
+<li>Niantic have released a site update that broke IITC. Reloading the page might fix it.
+Otherwise check the G+ IITC Community as others are likely to post when this is the case.</li>
 <li>Some requests failed - check the status at the bottom-right of the screen</li>
 </ol>
-In the second case, wait 30 seconds for the next refresh, or drag the map a very small amount to perform an immediate
-refresh.
 END
 ),
 
@@ -161,22 +165,6 @@ The status message at the bottom-right of the screen gives a summary.
 <li>If some requests failed, but no cached data was available (i.e. some red border/red fill) the status is 'Error'.</li>
 </ul>
 The tooltip for this message gives more details.
-END
-),
-
-'no-penalty' => Array ( "Will Google/Niantic penalise me for using IITC?",
-<<<'END'
-There have been rumours that Niantic/Google have been asking people to stop using IITC, and penalising users
-with a loss of points for doing so. This, as far as we can tell, is a hoax. Consider the following:
-<ol>
-<li>Before penalising users, they would request that this site is taken down. This has not happened.</li>
-<li>Any such request would come via email, not via a Google+ message. Ingress is not closely tied into the Google
-account system unlike, for example, Gmail; an email, like they already use for portal submissions, is the only
-communication method available.</li>
-<li>The message I've seen talks about "points" - when they should be talking about "AP".</li>
-</ol>
-Some notes from a Hangout available <a href="https://plus.google.com/111333123856542807695/posts/QtiFdoRuh6w">here</a>
-with further details.
 END
 ),
 
