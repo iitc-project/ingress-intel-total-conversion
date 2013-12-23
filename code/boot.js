@@ -505,6 +505,7 @@ window.setupLayerChooserApi = function() {
 // BOOTING ///////////////////////////////////////////////////////////
 
 function boot() {
+ try { //EXPERIMENTAL TEST
   window.debug.console.overwriteNativeIfRequired();
 
   console.log('loading done, booting. Built: @@BUILDDATE@@');
@@ -583,6 +584,13 @@ function boot() {
     android.bootFinished();
   }
 
+ //EXPERIMENTAL TEST
+ } catch(e) {
+    console.log('Exception caught in IITC boot function - will fail to start');
+    console.log(e);
+    debugger;
+    throw e;
+ }
 }
 
 
