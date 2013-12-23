@@ -13,6 +13,7 @@
  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css" rel="stylesheet">
  <link href="assets/css/style.css" rel="stylesheet">
+ <link href="assets/icomoon/style.css" rel="stylesheet">
 
  <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
  <!--[if lt IE 9]>
@@ -59,10 +60,10 @@ if ( file_exists ( 'tracking.php' ) )
  <!-- **** top alert box **** -->
  <div class="alert alert-block alert-info">
   Follow the
-  <b><a href="https://plus.google.com/105383756361375410867">IITC <img src="//ssl.gstatic.com/images/icons/gplus-16.png" alt="Google+" style="border:0;width:16px;height:16px;"/> page</a></b>
+  <b><a href="https://plus.google.com/105383756361375410867"><span class="icon-google-plus"></span> IITC page</a></b>
   for release announcements.
   Join the
-  <b><a href="https://plus.google.com/communities/105647403088015055797">IITC <img src="//ssl.gstatic.com/images/icons/gplus-16.png" alt="Google+" style="border:0;width:16px;height:16px;"/> Community</a></b>
+  <b><a href="https://plus.google.com/communities/105647403088015055797"><span class="icon-google-plus"></span> IITC Community</a></b>
   - a place to ask for help and discuss with other users.
  </div>
 
@@ -97,15 +98,15 @@ if ( file_exists ( 'tracking.php' ) )
 <?php
 
 $pages = Array (
-	'home' => '<span class="glyphicon glyphicon-home"></span> Home',
-	'news' => '<span class="glyphicon glyphicon-list"></span> News',
-	'faq' => '<span class="glyphicon glyphicon-question-sign"></span> FAQ',
-	'desktop' => '<span class="glyphicon glyphicon-chevron-right"></span> Desktop',
-	'mobile' => '<span class="glyphicon glyphicon-phone"></span> Mobile',
-	'test' => '<span class="glyphicon glyphicon-wrench"></span> Test Builds',
-	'developer' => '<span class="glyphicon glyphicon-cog"></span> Developers',
-	'about' => '<span class="glyphicon glyphicon-info-sign"></span> About',
-	'donate' => '<span class="glyphicon glyphicon-gift"></span> Donate',
+	'home' => '<span class="icon-house"></span> Home',
+	'news' => '<span class="icon-newspaper"></span> News',
+	'faq' => '<span class="icon-help"></span> FAQ',
+	'desktop' => '<span class="icon-screen"></span> Desktop',
+	'mobile' => '<span class="icon-mobile"></span> Mobile',
+	'test' => '<span class="icon-tools"></span> Test Builds',
+	'developer' => '<span class="icon-cog"></span> Developers',
+	'about' => '<span class="icon-info"></span> About',
+	'donate' => '<span class="icon-arrow-right"></span> Donate',
 );
 
 $page = 'home';
@@ -119,7 +120,7 @@ foreach ( $pages as $key => $name )
 {
 	# before 'desktop', start a sub-list for the download links
 	if ( $key == 'desktop' )
-		print "<div class=\"list-group-item\"><div class=\"text-muted\"><span class=\"glyphicon glyphicon-download\"></span> Downloads</div><div class=\"list-group\">";
+		print "<div class=\"list-group-item\"><div class=\"text-muted\"><span class=\"icon-arrow-right\"></span> Downloads</div><div class=\"list-group\">";
 
 	if ( $key == "home" )
 		$url = "./";
@@ -158,6 +159,7 @@ include "page/$page.php";
 
  <!-- **** footer **** -->
  <div class="alert alert-block alert-danger">
+ <span class="icon-warning"></span>
  This site and the scripts are not officially affiliated with Ingress or Niantic Labs at Google.
  Using these scripts is likely to be considered against the Ingress Terms of Service. Any use is at your own risk.
  </div>
