@@ -32,4 +32,4 @@ Changes include
 <li>.. and, as always, other various bug fixes, improvements, etc</li>
 </ul>
 
-<a class="btn btn-small" href="?page=news">Older news</a>
+<a class="btn btn-default btn-sm" href="?page=news">Older news</a>
