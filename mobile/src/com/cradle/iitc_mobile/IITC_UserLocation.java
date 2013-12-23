@@ -12,15 +12,15 @@ import android.os.Bundle;
 import android.view.Surface;
 
 public class IITC_UserLocation implements LocationListener, SensorEventListener {
-    private static final double SENSOR_DELAY_USER = 100*1e6;
-    private boolean mLocationEnabled = false;
-    private boolean mSensorEnabled = true;
+    private static final double SENSOR_DELAY_USER = 100 * 1e6; // 100 milliseconds
+    private int mMode = 0;
+    private boolean mRunning = false;
+    private boolean mLocationRegistered = false;
+    private boolean mOrientationRegistered = false;
     private long mLastUpdate = 0;
     private IITC_Mobile mIitc;
     private Location mLastLocation = null;
     private LocationManager mLocationManager;
-    private boolean mRegistered = false;
-    private boolean mRunning = false;
     private Sensor mSensorAccelerometer, mSensorMagnetometer;
     private SensorManager mSensorManager = null;
     float[] mValuesGravity = null, mValuesGeomagnetic = null;
@@ -35,51 +35,44 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
         mSensorMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
     }
 
-    private void registerListeners() {
-        if (mRegistered) return;
-        mRegistered = true;
+    private void updateListeners() {
+        boolean useLocation = mRunning && mMode != 0;
+        boolean useOrientation = mRunning && mMode == 2;
 
-        try {
-            mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
-        } catch (IllegalArgumentException e) {
-            // if the given provider doesn't exist
-            e.printStackTrace();
+        if (useLocation && !mLocationRegistered) {
+            try {
+                mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+            } catch (IllegalArgumentException e) {
+                // if the given provider doesn't exist
+                e.printStackTrace();
+            }
+            try {
+                mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+            } catch (IllegalArgumentException e) {
+                // if the given provider doesn't exist
+                e.printStackTrace();
+            }
+            mLocationRegistered = true;
         }
-        try {
-            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-        } catch (IllegalArgumentException e) {
-            // if the given provider doesn't exist
-            e.printStackTrace();
+        if (!useLocation && mLocationRegistered) {
+            mLocationManager.removeUpdates(this);
+            mLocationRegistered = false;
         }
 
-        if (mSensorAccelerometer != null && mSensorMagnetometer != null && mSensorEnabled) {
+        if (useOrientation && !mOrientationRegistered && mSensorAccelerometer != null && mSensorMagnetometer != null) {
             mSensorManager.registerListener(this, mSensorAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
             mSensorManager.registerListener(this, mSensorMagnetometer, SensorManager.SENSOR_DELAY_NORMAL);
+            mOrientationRegistered = true;
         }
-    }
-
-    private void unregisterListeners() {
-        if (!mRegistered) return;
-        mRegistered = false;
-
-        mLocationManager.removeUpdates(this);
-
-        if (mSensorAccelerometer != null && mSensorMagnetometer != null && mSensorEnabled) {
+        if (!useOrientation && mOrientationRegistered && mSensorAccelerometer != null && mSensorMagnetometer != null) {
             mSensorManager.unregisterListener(this, mSensorAccelerometer);
             mSensorManager.unregisterListener(this, mSensorMagnetometer);
+            mOrientationRegistered = false;
         }
-
-    }
-
-    private void updateListeners() {
-        if (mRunning && mLocationEnabled)
-            registerListeners();
-        else
-            unregisterListeners();
     }
 
     public boolean hasCurrentLocation() {
-        if (!mRegistered) return false;
+        if (!mLocationRegistered) return false;
         return mLastLocation != null;
     }
 
@@ -98,6 +91,12 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
     public void onStart() {
         mRunning = true;
         updateListeners();
+
+        // in case we just switched from loc+sensor to loc-only, let javascript know
+        if (mMode == 1) {
+            mIitc.getWebView().loadJS("if(window.plugin && window.plugin.userLocation)"
+                    + "window.plugin.userLocation.onOrientationChange(null);");
+        }
     }
 
     public void onStop() {
@@ -105,18 +104,19 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
         updateListeners();
     }
 
-    public void setLocationEnabled(boolean enabled) {
-        if (enabled == mLocationEnabled) return;
+    /**
+     * set the location mode to use. Available modes:
+     * 0: don't show user's position
+     * 1: show user's position
+     * 2: show user's position and orientation
+     * 
+     * @return whether a reload is needed to reflect the changes made to the preferences
+     */
+    public boolean setLocationMode(int mode) {
+        boolean needsReload = (mode == 0 && mMode != 0) || (mode != 0 && mMode == 0);
+        mMode = mode;
 
-        mLocationEnabled = enabled;
-        updateListeners();
-    }
-
-    public void setSensorEnabled(boolean enabled) {
-        if (enabled == mSensorEnabled) return;
-
-        mSensorEnabled = enabled;
-        updateListeners();
+        return needsReload;
     }
 
     // ------------------------------------------------------------------------
@@ -140,12 +140,10 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
 
     @Override
     public void onProviderDisabled(String provider) {
-
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-
     }
 
     @Override
@@ -165,14 +163,14 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        // save some battery 10 updates per second should be enough
-        if ((event.timestamp - mLastUpdate) < SENSOR_DELAY_USER) return;
-        mLastUpdate = event.timestamp;
-
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
             mValuesGravity = event.values;
         if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
             mValuesGeomagnetic = event.values;
+
+        // save some battery, 10 updates per second should be enough
+        if ((event.timestamp - mLastUpdate) < SENSOR_DELAY_USER) return;
+        mLastUpdate = event.timestamp;
 
         // do not touch the javascript while iitc boots
         if (mIitc.isLoading()) return;

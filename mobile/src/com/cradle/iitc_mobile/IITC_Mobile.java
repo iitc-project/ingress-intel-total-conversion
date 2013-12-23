@@ -88,8 +88,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         mIitcWebView.updateFullscreenStatus();
 
         mUserLocation = new IITC_UserLocation(this);
-        mUserLocation.setLocationEnabled(mSharedPrefs.getBoolean("pref_user_loc", false));
-        mUserLocation.setSensorEnabled(mSharedPrefs.getBoolean("pref_user_loc_sensor", true));
+        mUserLocation.setLocationMode(Integer.parseInt(mSharedPrefs.getString("pref_user_location_mode", "0")));
 
         // pass ActionBar to helper because we deprecated getActionBar
         mNavigationHelper = new IITC_NavigationHelper(this, super.getActionBar());
@@ -111,10 +110,11 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         if (key.equals("pref_force_desktop")) {
             mDesktopMode = sharedPreferences.getBoolean("pref_force_desktop", false);
             mNavigationHelper.onPrefChanged();
-        } else if (key.equals("pref_user_loc")) {
-            mUserLocation.setLocationEnabled(sharedPreferences.getBoolean("pref_user_loc", false));
-        } else if (key.equals("pref_user_loc_sensor")) {
-            mUserLocation.setSensorEnabled(sharedPreferences.getBoolean("pref_user_loc_sensor", true));
+        } else if (key.equals("pref_user_location_mode")) {
+            int mode = Integer.parseInt(mSharedPrefs.getString("pref_user_location_mode", "0"));
+            if (mUserLocation.setLocationMode(mode))
+                mReloadNeeded = true;
+            return;
         } else if (key.equals("pref_fullscreen")) {
             mIitcWebView.updateFullscreenStatus();
             mNavigationHelper.onPrefChanged();
@@ -247,43 +247,41 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     protected void onStart() {
         super.onStart();
 
-        // enough idle...let's do some work
-        Log.d("iitcm", "resuming...reset idleTimer");
-        mUserLocation.onStart();
-
         if (mReloadNeeded) {
             Log.d("iitcm", "preference had changed...reload needed");
             reloadIITC();
         } else {
             // iitc is not fully booted...timer will be reset by the script itself
             if (findViewById(R.id.imageLoading).getVisibility() == View.GONE) {
+                // enough idle...let's do some work
+                Log.d("iitcm", "resuming...reset idleTimer");
                 mIitcWebView.loadUrl("javascript: window.idleReset();");
             }
         }
+
+        mUserLocation.onStart();
     }
 
     @Override
     protected void onResume() {
+        super.onResume();
         mIitcWebView.resumeTimers();
         mIitcWebView.onResume();
-        super.onResume();
     }
 
     @Override
     protected void onPause() {
+        super.onPause();
         mIitcWebView.pauseTimers();
         mIitcWebView.onPause();
-        super.onPause();
     }
 
     @Override
     protected void onStop() {
+        super.onStop();
         Log.d("iitcm", "stopping iitcm");
         mIitcWebView.loadUrl("javascript: window.idleSet();");
-
         mUserLocation.onStop();
-
-        super.onStop();
     }
 
     @Override

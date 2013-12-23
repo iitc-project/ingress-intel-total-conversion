@@ -94,13 +94,25 @@ window.plugin.userLocation.onLocationChange = function(lat, lng) {
 };
 
 window.plugin.userLocation.onOrientationChange = function(direction) {
-  $(".container", window.plugin.userLocation.marker._icon)
-    .removeClass("circle")
-    .addClass("arrow")
-    .css({
-      "transform": "rotate(" + direction + "deg)",
-      "webkitTransform": "rotate(" + direction + "deg)"
-    });
+  var container = $(".container", window.plugin.userLocation.marker._icon);
+
+  if(direction === null) {
+    container
+      .removeClass("arrow")
+      .addClass("circle")
+      .css({
+        "transform": "",
+        "webkitTransform": ""
+      });
+  } else {
+    container
+      .removeClass("circle")
+      .addClass("arrow")
+      .css({
+        "transform": "rotate(" + direction + "deg)",
+        "webkitTransform": "rotate(" + direction + "deg)"
+      });
+  }
 }
 
 var setup = window.plugin.userLocation.setup;
