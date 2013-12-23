@@ -5,6 +5,69 @@
 
 $faq = Array (
 
+'ban' => Array ( "Will I be banned for using IITC?",
+<<<'END'
+<p>
+Niantic consider IITC (and any other unofficial software) against the Ingress ToS. However, just because
+something is against the ToS it doesn't mean Niantic <i>will</i> enforce it.
+</p>
+<p>
+However, in early December 2013, many people started to believe Niantic were banning people for using IITC. This is not
+the case. However, the following events have lead to this belief:
+</p>
+<ul>
+<li>On 27th November 2013, Niantic released a major update of the standard intel site. A couple of days later there were
+reports of user bans for 'excessive intel use'. A couple of people confirmed it was attempts to use the broken IITC Mobile 0.9
+that lead to instant bans.</li>
+<li>About a week later, Niantic made a large batch of user bans 'for ToS violations'. Many users reported their only ToS
+violation was using IITC - and some said that even IITC hadn't been used. On appeal, many of these bans were
+reversed - including some confirmed IITC users</li>
+<li>A week after that and and there were more reports of the same.</li>
+</ul>
+<p>
+Given that a large number of serious Ingress players use, or have used, IITC, it isn't surprising to find
+that if Niantic ban someone by mistake, they might have used IITC. 
+</p>
+<p>
+I believe none of these bans are related to IITC. Rather, Niantic have been working on more aggressive catching of
+cheaters and other ToS violations - spoofing, bots, multiple accounts, account sharing, etc. These things are inherently
+hard to detect though, and Niantic are likely to make mistakes sometimes, banning legitimate players.
+</p>
+<p>
+Note that Niantic have remained completely silent on the reason for any of these bans. This is partly because if they
+did say what someone had been banned for doing, it might lead to cheaters knowing what they can and can't get away with.
+</p>
+<p>
+<b>However</b>: IITC is against the Ingress ToS - so it's sensible to be cautious. Don't publicly share screenshots
+from IITC in the official Ingress community, or with the official Ingress/NIA G+ accounts. 
+</p>
+
+END
+),
+
+'takedown' => Array ( "Why is IITC still available? Wasn't it sent a takedown notice?",
+<<<'END'
+<p>
+I've seen several comments of the form "IITC was sent a takedown notice, and at this point
+it moved to Github and kept going". This is not true.
+</p>
+<ol>
+<li>IITC was started on Github, by <a href="https://github.com/breunigs">Stefan breunigs</a>.</li>
+<li>Stefan decided to email Niantic, asking if IITC was OK to develop.</li>
+<li>Niantic replied to this request, stating that any 3rd party software is against the ToS and asked that he delete it from Github.</li>
+<li>Stefan deleted IITC from Github. However, the nature of Git meant that many other copies of the project already existed.</li>
+<li>My understanding of the situation, at the time, was that Niantic tolerated IITC. Other software had been sent takedown
+requests, IITC had not. However, on an explicit request, Niantic felt forced to reply in strict accordance with their terms.</li>
+<li>I, <a href="https://github.com/jonatkins">Jon Atkins</a>, decided to fix up my copy of IITC, and created this website.</li>
+<li>Development continued, the website was polished, a G+ page/community were created. Niantic have <i>not</i> contacted me
+with a takedown request though.</li>
+</ol>
+<p>
+So, was 'IITC' sent a takedown request? No - this website, and the IITC G+ page, have not been sent such a request.
+</p>
+END
+),
+
 'not-activated' => Array ( "I get a message saying my account isn't activated",
 <<<'END'
 <p>
@@ -43,7 +106,7 @@ why they are drawn curved, see
 END
 ),
 
-'uninstall' => Array ( "How do I uninstall/disable IITC or plugins?",
+'uninstall' => Array ( "IITC Desktop: How do I uninstall/disable IITC or plugins?",
 <<<'END'
 This depends on your browser.
 <ul>
@@ -53,9 +116,10 @@ This depends on your browser.
 </ul>
 From here you can remove/disable individual plugins or IITC itself.
 </li>
+END
 ),
 
-'mobile-plugins' => Array ( "Is it possible to add external plugins to IITC Mobile?",
+'mobile-plugins' => Array ( "IITC Mobile: Is it possible to add other plugins to IITC Mobile?",
 <<<'END'
 Yes it is!
 <ul>
@@ -145,7 +209,7 @@ END
 
 );
 
-
+# FAQ table of contents
 print "<ul>";
 
 foreach ( $faq as $name => $value )
@@ -153,12 +217,28 @@ foreach ( $faq as $name => $value )
 	$title = $value[0];
 	$body = $value[1];
 
-	print "<li><h4 id=\"$name\">$title</h4>\n";
-	print "$body\n";
-	print "</li>\n";
+	print "<li><a href=\"#$name\">$title</a></li>\n";
 
 }
 
 print "</ul>";
+
+print "<hr>\n";
+
+
+# faq list
+
+foreach ( $faq as $name => $value )
+{
+	$title = $value[0];
+	$body = $value[1];
+
+	print "<div class=\"panel panel-default\" id=\"$name\">";
+	print "<div class=\"panel-heading\"><h4>$title</h4></div>";
+	print "<div class=\"panel-body\">$body</div>";
+	print "</div>\n";
+
+}
+
 
 ?>
