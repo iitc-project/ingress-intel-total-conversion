@@ -1,25 +1,30 @@
 <h2>Frequently Asked Questions</h2>
 
-<ul>
 
-<li>
-<h4 id="not-activated">I get a message saying my account isn't activated</h4>
+<?php
+
+$faq = Array (
+
+'not-activated' => Array ( "I get a message saying my account isn't activated",
+<<<'END'
 <p>
 Occasionally the Niantic servers give this misleading message - what it should usually say is
-"Failed to check account status - please reload to try again". IITC will, in most cases, retry for you.
+"Failed to check account status - please reload to try again".
 </p>
 <p>
 Sometimes this is caused by server issues, and no amount of reloading will fix it. Come back later and try again.
 </p>
 <p>
 However, another reason for this message is your account being blocked/suspended by Niantic. There
-are no (known) cases of this happening due to IITC use, but any use of bots, unofficial (e.g. iPhone) clients,
-or other ingress mods could lead to this. In this case, the scanner app will also fail to work correctly.
+are no (known) cases of this happening due to IITC use, but any use of bots, unofficial clients (e.g. iPhone, broot),
+or other ingress mods (auto-drop/pickup apps) could lead to this. In this case, the scanner app will also fail
+to work correctly ("Scan failed" error message).
 </p>
-</li>
+END
+),
 
-<li>
-<h4 id="broken">No portals are displayed on the map/some portals are missing</h4>
+'broken' => Array ( "No portals are displayed on the map/some portals are missing",
+<<<'END'
 Two common reasons.
 <ol>
 <li>You have some portal layers turned off in the layer chooser</li>
@@ -27,17 +32,19 @@ Two common reasons.
 </ol>
 In the second case, wait 30 seconds for the next refresh, or drag the map a very small amount to perform an immediate
 refresh.
-</li>
+END
+),
 
-<li>
-<h4 id="curved-lines">Long lines are drawn curved on the map</h4>
+'curved-lines' => Array ( "Long lines are drawn curved on the map",
+<<<'END'
 This is a good thing. IITC has been updated (as of 0.13.0) to draw long links/fields correctly. If you want to understand
 why they are drawn curved, see
 <a href="http://gis.stackexchange.com/questions/6822/why-is-the-straight-line-path-across-continent-so-curved">here</a>.
-</li>
+END
+),
 
-<li>
-<h4 id="uninstall">How do I uninstall/disable IITC or plugins?</h4>
+'uninstall' => Array ( "How do I uninstall/disable IITC or plugins?",
+<<<'END'
 This depends on your browser.
 <ul>
 <li><b>Chrome + Tampermonkey</b>: Click on the Tampermonkey icon (a dark square with two circles at the bottom) and choose 'Dashboard'.</li>
@@ -46,9 +53,10 @@ This depends on your browser.
 </ul>
 From here you can remove/disable individual plugins or IITC itself.
 </li>
+),
 
-<li>
-<h4 id="mobile-plugins">Is it possible to add external plugins to IITC Mobile?</h4>
+'mobile-plugins' => Array ( "Is it possible to add external plugins to IITC Mobile?",
+<<<'END'
 Yes it is!
 <ul>
 <li>Create a folder named "IITC_Mobile" in your home directory.</li>
@@ -61,10 +69,11 @@ Note:
 <li>The filename has to end with *.user.js.</li>
 <li>If you don't know where to find your home directory: Enable dev-mode in the settings and follow the hint.</li>
 </ul>
-</li>
+END
+),
 
-<li>
-<h4 id="debug-data-tiles">What do the colours mean in 'DEBUG Data Tiles'</h4>
+'debug-data-tiles' => Array ( "What do the colours mean in 'DEBUG Data Tiles'",
+<<<'END'
 The data from the Niantic server is download in square tiles. Sometimes requests fail. The colours show this status
 visually. The outline colour shows the state of the request:
 <ul>
@@ -88,10 +97,11 @@ The status message at the bottom-right of the screen gives a summary.
 <li>If some requests failed, but no cached data was available (i.e. some red border/red fill) the status is 'Error'.</li>
 </ul>
 The tooltip for this message gives more details.
-</li>
+END
+),
 
-<li>
-<h4 id="no-penalty">Will Google/Niantic penalise me for using IITC?</h4>
+'no-penalty' => Array ( "Will Google/Niantic penalise me for using IITC?",
+<<<'END'
 There have been rumours that Niantic/Google have been asking people to stop using IITC, and penalising users
 with a loss of points for doing so. This, as far as we can tell, is a hoax. Consider the following:
 <ol>
@@ -103,45 +113,52 @@ communication method available.</li>
 </ol>
 Some notes from a Hangout available <a href="https://plus.google.com/111333123856542807695/posts/QtiFdoRuh6w">here</a>
 with further details.
-</li>
+END
+),
 
-<li>
-<h4 id="bluemap">What happened to the original blue map?</h4>
-If you're asking about the default ingress map, this is available in the layer chooser, as "Default Ingress Map".
-If you're wondering about the blue map available in the original IITC, this is no longer available by default, as we
-far exceeded the free quota offered by Cloudmade, the map tile provider. However, there is a template plugin you can
-use to add these back.
-<ol>
-<li>Install the <a href="?page=desktop#plugin-basemap-cloudmade">basemap-cloudmade plugin</a>.</li>
-<li>Find the plugin.
-In Chrome+Tampermonkey, choose 'Dashboard' from the Tampermonkey menu;
-in Firefox+Greasemonkey, choose 'Manage user scripts' from the Greasemonkey menu.</li>
-<li>Edit the plugin code, and follow the instructions within the file. You will need to register your own account
-at Cloudmade.com, and obtain your own API key.</li>
-</ol>
-</li>
-
-<li>
-<h4 id="cheating">Isn't using IITC cheating/an unfair advantage?</h4>
+'cheating' => Array ( "Isn't using IITC cheating/an unfair advantage?",
+<<<'END'
 IITC only uses data that is sent from the Ingress servers to the browser - it just displays it in an easy to use format.
 With the right skills it is already possible to see this data using the browser debugging console, and
 there were, and continue to be, other browser add-ons that display this data - just not widely available.
 Having a good quality, feature rich add-on, available to all - Enlightened and Resistance - ensures one side does not
 have an unfair advantage.
-</li>
+END
+),
 
-<li>
-<h4 id="export">Can you add an export feature?</h4>
+'export' => Array ( "Can you add an export feature?",
+<<<'END'
 No. As it stands IITC is tolerated, but not officially accepted, by Niantic/Google. Adding in features that
 allow exporting of data outside the browser environment, or break additional Ingress terms of service
 is likely to trigger a takedown request from Google.
-</li>
+END
+),
 
-<li>
-<h4 id="otherapp">I used another <i>{ingress mod/IITC plugin}</i> and it's broken - can you fix it?</h4>
+'otherapp' => Array ( "I used another <i>{ingress mod/IITC plugin}</i> and it's broken - can you fix it?",
+<<<'END'
 Probably not, no. If the plugin is not listed on this site, it's not part of my IITC distribution.
 I do accept new plugins (see the Developer page for links to Github), but I do not accept any that
 allow export of Ingress data outside of the browser or make use of data not retrieved by the standard intel website.
-</li>
+END
 
-</ul>
+),
+
+);
+
+
+print "<ul>";
+
+foreach ( $faq as $name => $value )
+{
+	$title = $value[0];
+	$body = $value[1];
+
+	print "<li><h4 id=\"$name\">$title</h4>\n";
+	print "$body\n";
+	print "</li>\n";
+
+}
+
+print "</ul>";
+
+?>
