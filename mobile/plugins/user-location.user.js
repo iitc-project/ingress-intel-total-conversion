@@ -115,6 +115,11 @@ window.plugin.userLocation.onLocationChange = function(lat, lng) {
   window.plugin.userLocation.circle.setLatLng(latlng);
 
   if(window.plugin.userLocation.follow) {
+    // move map if marker moves more than 35% from the center
+    // 100% - 2*15% = 70% → 35% from center in either direction
+    if(map.getBounds().pad(-0.15).contains(latlng))
+      return;
+
     window.plugin.userLocation.moving = true;
     window.map.setView(latlng);
     window.plugin.userLocation.moving = false;
