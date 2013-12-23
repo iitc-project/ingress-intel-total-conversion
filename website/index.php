@@ -101,7 +101,7 @@ $pages = Array (
 	'news' => '<span class="glyphicon glyphicon-list"></span> News',
 	'faq' => '<span class="glyphicon glyphicon-question-sign"></span> FAQ',
 	'desktop' => '<span class="glyphicon glyphicon-chevron-right"></span> Desktop',
-	'mobile' => '<span class="glyphicon glyphicon-chevron-right"></span> Mobile',
+	'mobile' => '<span class="glyphicon glyphicon-phone"></span> Mobile',
 	'test' => '<span class="glyphicon glyphicon-wrench"></span> Test Builds',
 	'developer' => '<span class="glyphicon glyphicon-cog"></span> Developers',
 	'about' => '<span class="glyphicon glyphicon-info-sign"></span> About',
@@ -119,7 +119,7 @@ foreach ( $pages as $key => $name )
 {
 	# before 'desktop', start a sub-list for the download links
 	if ( $key == 'desktop' )
-		print "<span class=\"list-group-item\"><div class=\"text-muted\"><span class=\"glyphicon glyphicon-download\"></span> Downloads</div><div class=\"list-group\">";
+		print "<div class=\"list-group-item\"><div class=\"text-muted\"><span class=\"glyphicon glyphicon-download\"></span> Downloads</div><div class=\"list-group\">";
 
 	if ( $key == "home" )
 		$url = "./";
@@ -130,7 +130,7 @@ foreach ( $pages as $key => $name )
 
 	# after 'test', end the above sub-list
 	if ( $key == 'test' )
-		print "</div></span>";
+		print "</div></div>";
 }
 
 ?>

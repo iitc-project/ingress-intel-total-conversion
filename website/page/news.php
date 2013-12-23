@@ -4,6 +4,7 @@
 <p>
 Just in time for the holidays, another IITC update. IITC 0.16.1 and IITC Mobile 0.10.1 have just been released.
 Changes include
+</p>
 <ul>
 <li>Portals list plugin returns - but less data than before due to the Niatnic backend changes</li>
 <li>Resonators plugin returns - but only shows the selected portal</li>
@@ -17,7 +18,6 @@ Changes include
 </li>
 <li>.. and, as always, other various bug fixes, improvements, etc</li>
 </ul>
-</p>
 
 <h4>6th December 2013</h3>
 <p>
