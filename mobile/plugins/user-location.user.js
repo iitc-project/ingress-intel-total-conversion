@@ -102,11 +102,13 @@ window.plugin.userLocation.locate = function(lat, lng, accuracy) {
   // so limit to 17 (enough to see all portals)
   zoom = Math.min(zoom,17);
 
-  window.map.setView(latlng, zoom);
+  if(window.map.getCenter().distanceTo(latlng) < 10) {
+    window.plugin.userLocation.follow = true;
+    if(typeof android !== 'undefined' && android && android.setFollowMode)
+      android.setFollowMode(window.plugin.userLocation.follow);
+  }
 
-  window.plugin.userLocation.follow = true;
-  if(typeof android !== 'undefined' && android && android.setFollowMode)
-    android.setFollowMode(window.plugin.userLocation.follow);
+  window.map.setView(latlng, zoom);
 }
 
 window.plugin.userLocation.onLocationChange = function(lat, lng) {
