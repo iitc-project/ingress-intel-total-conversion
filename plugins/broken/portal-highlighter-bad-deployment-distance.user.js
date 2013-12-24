@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Uses the fill color of the portals to show the effective resonator deployment range, where that average is less than 36 metres
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Use the portal fill color to denote the effective resonator deployment range, where that average is less than 36 metres.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
