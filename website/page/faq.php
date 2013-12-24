@@ -72,6 +72,41 @@ END
 # Some notes from a Hangout available <a href="https://plus.google.com/111333123856542807695/posts/QtiFdoRuh6w">here</a>
 
 
+'less-data' => Array ( "IITC does not show as much data, many plugins are not available",
+<<<'END'
+<p>
+On 27th November 2013 Niantic made a major change to the protocol used by the intel map to display portals. Before this
+date, the full data for every portal on the map was sent to the browser, so IITC could take advantage of it and provide
+various features - resonator search, mitigation highlighters, portal age lists, many highlighters, etc.
+</p>
+<p>
+After this date they only send the bare nimimum of data for all the portals on the screen. The data available is:
+</p>
+<ul>
+<li>Location</li>
+<li>Name</li>
+<li>Photo URL</li>
+<li>Controlling team</li>
+<li>Level (whole number only)</li>
+<li>Resonator count</li>
+<li>Health (in percent)</li>
+</ul>
+<p>
+IITC can also count links/fields visible on the map, but this is not accurate when zoomed out to larger areas as
+the server does not send the smaller links/fields.
+</p>
+<p>
+It is still possible to get the full details for individual portals, but only one at a time.
+Some people have suggested making IITC do this automatically with a plugin - but it's very likely that
+Niantic will monitor the portal detail requests for this kind of abuse and suspend/ban anyone caught doing it.
+</p>
+<p>
+Some people think that Niantic made this change just to break IITC. This is not true. It was a sensible change to make
+to optimise the intel map, and I'm surprised they wated so long.
+</p>
+END
+),
+
 'not-activated' => Array ( "I get a message saying my account isn't activated",
 <<<'END'
 <p>
