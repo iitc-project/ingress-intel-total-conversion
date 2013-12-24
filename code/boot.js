@@ -3,10 +3,6 @@
 // created a basic framework. All of these functions should only ever
 // be run once.
 
-// Used to disable on multitouch devices
-window.showZoom = true;
-window.showLayerChooser = true;
-
 window.setupLargeImagePreview = function() {
   $('#portaldetails').on('click', '.imgpreview', function() {
     var img = $(this).find('img')[0];
@@ -137,7 +133,12 @@ window.setupMap = function() {
   ];
 
   // proper initial position is now delayed until all plugins are loaded and the base layer is set
-  window.map = new L.Map('map', {center: [0,0], zoom: 1, zoomControl: window.showZoom, minZoom: 1});
+  window.map = new L.Map('map', {
+    center: [0,0],
+    zoom: 1,
+    zoomControl: (typeof android !== 'undefined' && android && android.showZoom) ? !android.showZoom() : true,
+    minZoom: 1
+  });
 
   // add empty div to leaflet control areas - to force other leaflet controls to move around IITC UI elements
   // TODO? move the actual IITC DOM into the leaflet control areas, so dummy <div>s aren't needed
@@ -428,7 +429,7 @@ window.setupQRLoadLib = function() {
 
 window.setupLayerChooserApi = function() {
   // hide layer chooser on mobile devices running desktop mode
-  if (!window.showLayerChooser) {
+  if (typeof android !== 'undefined' && android && android.setLayers) {
     $('.leaflet-control-layers').hide();
   }
 

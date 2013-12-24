@@ -157,14 +157,14 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
     void setUpPluginPreferenceScreen() {
 
         // get all plugins from asset manager
-        String[] asset_array = getAssetPlugins();
+        String[] assets = getAssetPlugins();
 
-        for (String anAsset_array : asset_array) {
+        for (String asset : assets) {
             // find user plugin name for user readable entries
             Scanner s = null;
             String src = "";
             try {
-                s = new Scanner(getAssets().open("plugins/" + anAsset_array))
+                s = new Scanner(getAssets().open("plugins/" + asset))
                         .useDelimiter("\\A");
             } catch (IOException e2) {
                 // TODO Auto-generated catch block
@@ -174,7 +174,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
                 src = s.hasNext() ? s.next() : "";
             }
             // now we have all stuff together and can build the pref screen
-            addPluginPreference(src, anAsset_array, false);
+            addPluginPreference(src, asset, false);
         }
 
         // load user plugins from <storage-path>/IITC_Mobile/plugins/
@@ -201,7 +201,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
 
         // parse plugin name, description and category
         // we need default versions here otherwise iitcm may crash
-        HashMap<String,String> info = IITC_WebViewClient.getScriptInfo(src);
+        HashMap<String,String> info = IITC_FileManager.getScriptInfo(src);
         String plugin_name = info.get("name");
         String plugin_cat = info.get("category");
         String plugin_desc = info.get("description");

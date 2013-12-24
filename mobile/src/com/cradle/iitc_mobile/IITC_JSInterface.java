@@ -190,6 +190,13 @@ public class IITC_JSInterface {
         });
     }
 
+    public boolean showZoom() {
+        PackageManager pm = mIitc.getPackageManager();
+        boolean hasMultitouch = pm.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH);
+        boolean forcedZoom = mIitc.getPrefs().getBoolean("pref_user_zoom", false);
+        return forcedZoom || !hasMultitouch;
+    }
+
     @JavascriptInterface
     public void setFollowMode(final boolean follow) {
         mIitc.runOnUiThread(new Runnable() {

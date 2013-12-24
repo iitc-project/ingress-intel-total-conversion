@@ -29,6 +29,7 @@ public class MainSettings extends PreferenceFragment {
 
         // set versions
         String iitcVersion = getArguments().getString("iitc_version");
+
         String buildVersion = "unknown";
 
         PackageManager pm = getActivity().getPackageManager();

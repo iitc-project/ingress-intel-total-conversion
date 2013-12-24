@@ -20,7 +20,6 @@
 
 window.plugin.userLocation = function() {};
 
-window.plugin.userLocation.locationLayer = new L.LayerGroup();
 window.plugin.userLocation.follow = false;
 
 window.plugin.userLocation.setup = function() {
@@ -51,6 +50,8 @@ window.plugin.userLocation.setup = function() {
     weight: 1.5,
     clickable: false
   });
+
+  window.plugin.userLocation.locationLayer = new L.LayerGroup();
 
   marker.addTo(window.plugin.userLocation.locationLayer);
   window.plugin.userLocation.locationLayer.addTo(window.map);

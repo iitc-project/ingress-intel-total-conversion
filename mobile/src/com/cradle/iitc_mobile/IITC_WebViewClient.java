@@ -1,10 +1,7 @@
 package com.cradle.iitc_mobile;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Environment;
@@ -14,23 +11,11 @@ import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
-
-import com.cradle.iitc_mobile.async.UrlContentToString;
-
-import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URL;
-import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class IITC_WebViewClient extends WebViewClient {
 
@@ -40,8 +25,7 @@ public class IITC_WebViewClient extends WebViewClient {
     private static final ByteArrayInputStream EMPTY = new ByteArrayInputStream(
             "".getBytes());
 
-    private String mIitcScript = null;
-    private String mIitcPath = null;
+    private String mIitcPath;
     private boolean mIitcInjected = false;
     private final IITC_Mobile mIitc;
     private final IITC_TileManager mTileManager;
@@ -49,130 +33,18 @@ public class IITC_WebViewClient extends WebViewClient {
     public IITC_WebViewClient(IITC_Mobile iitc) {
         this.mIitc = iitc;
         this.mTileManager = new IITC_TileManager(mIitc);
-        this.mIitcPath = Environment.getExternalStorageDirectory().getPath()
-                + "/IITC_Mobile/";
+        this.mIitcPath = Environment.getExternalStorageDirectory().getPath() + "/IITC_Mobile/";
     }
 
-    public String getIITCVersion() {
-        HashMap<String, String> map = getScriptInfo(mIitcScript);
-        return map.get("version");
-    }
-
-    // static method because we use it in IITC_PluginPreferenceActivity too
-    public static HashMap<String, String> getScriptInfo(String js) {
-        HashMap<String, String> map = new HashMap<String, String>();
-        String header = "";
-        if (js != null) {
-            header = js.substring(js.indexOf("==UserScript=="),
-                    js.indexOf("==/UserScript=="));
-        }
-        // remove new line comments
-        header = header.replace("\n//", " ");
-        // get a list of key-value
-        String[] attributes = header.split("  +");
-        // add default values
-        map.put("version", "not found");
-        map.put("name", "unknown");
-        map.put("description", "");
-        map.put("category", "Misc");
-        // add parsed values
-        for (int i = 0; i < attributes.length; i++) {
-            // search for attributes and use the value
-            if (attributes[i].equals("@version")) {
-                map.put("version", attributes[i + 1]);
-            }
-            if (attributes[i].equals("@name")) {
-                map.put("name", attributes[i + 1]);
-            }
-            if (attributes[i].equals("@description")) {
-                map.put("description", attributes[i + 1]);
-            }
-            if (attributes[i].equals("@category")) {
-                map.put("category", attributes[i + 1]);
-            }
-        }
-        return map;
-    }
-
-    public String getGmInfoJson(HashMap<String, String> map) {
-        JSONObject jObject = new JSONObject(map);
-        return "{\"script\":" + jObject.toString() + "}";
-    }
-
-    public void loadIITC_JS(Context c) throws java.io.IOException {
-        // You are able to load the script from external source
-        // if a http address is given, use script from this address. else use
-        // the local script
-        SharedPreferences sharedPref = PreferenceManager
-                .getDefaultSharedPreferences(c);
-        String iitc_source = sharedPref.getString("pref_iitc_source", "local");
-        String js = "";
-
-        // if developer mode are enabled, load all iitc script from external
-        // storage
-        Log.d("iitcm", "adding iitc main script");
-        if (sharedPref.getBoolean("pref_dev_checkbox", false)) {
-            js = this.fileToString(mIitcPath
-                    + "dev/total-conversion-build.user.js", false);
-            if (js.equals("false")) {
-                Toast.makeText(mIitc, "File " + mIitcPath +
-                        "dev/total-conversion-build.user.js not found. " +
-                        "Disable developer mode or add iitc files to the dev folder.",
-                        Toast.LENGTH_LONG).show();
-                return;
-            } else {
-                Toast.makeText(mIitc, "Developer mode enabled",
-                        Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            // load iitc script from web or asset folder
-            if (iitc_source.contains("http")) {
-                URL url = new URL(iitc_source);
-                // if parsing of the online iitc source timed out, use the script from assets
-                try {
-                    js = new UrlContentToString().execute(url).get(5, TimeUnit.SECONDS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    js = this.fileToString("total-conversion-build.user.js", true);
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                    js = this.fileToString("total-conversion-build.user.js", true);
-                } catch (TimeoutException e) {
-                    e.printStackTrace();
-                    js = this.fileToString("total-conversion-build.user.js", true);
-                }
-            } else {
-                js = this.fileToString("total-conversion-build.user.js", true);
-            }
-            mIitcInjected = false;
-        }
-
-        PackageManager pm = mIitc.getPackageManager();
-        boolean hasMultitouch = pm
-                .hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH);
-        boolean forcedZoom = sharedPref.getBoolean("pref_user_zoom", false);
-        if (hasMultitouch && !forcedZoom) {
-            js = js.replace("window.showZoom = true;",
-                    "window.showZoom = false;");
-        }
-
-        // hide layer chooser on desktop mode
-        // on mobile mode it is hidden via smartphone.css
-        boolean desktopMode = sharedPref.getBoolean("pref_force_desktop", false);
-        if (desktopMode) {
-            js = js.replace("window.showLayerChooser = true;",
-                    "window.showLayerChooser = false");
-        }
-
-        String gmInfo = "GM_info=" + getGmInfoJson(getScriptInfo(js)) + "\n";
-        this.mIitcScript = gmInfo + js;
-
-    }
+    // TODO use somewhere else:
+    // Toast.makeText(mIitc, "File " + mIitcPath +
+    // "dev/total-conversion-build.user.js not found. " +
+    // "Disable developer mode or add iitc files to the dev folder.",
+    // Toast.LENGTH_LONG).show();
 
     // enable https
     @Override
-    public void onReceivedSslError(WebView view, SslErrorHandler handler,
-                                   SslError error) {
+    public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
         handler.proceed();
     }
 
@@ -182,11 +54,59 @@ public class IITC_WebViewClient extends WebViewClient {
                 || url.startsWith("https://www.ingress.com/intel")) {
             if (mIitcInjected) return;
             Log.d("iitcm", "injecting iitc..");
-            view.loadUrl("javascript: " + this.mIitcScript);
+            loadScripts((IITC_WebView) view);
             mIitcInjected = true;
-            loadPlugins(view);
         }
         super.onPageFinished(view, url);
+    }
+
+    private void loadScripts(IITC_WebView view) {
+        List<String> scripts = new LinkedList<String>();
+
+        scripts.add("script/total-conversion-build.user.js");
+
+        // get the plugin preferences
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mIitc);
+        Map<String, ?> all_prefs = sharedPref.getAll();
+
+        // iterate through all plugins
+        for (Map.Entry<String, ?> entry : all_prefs.entrySet()) {
+            String plugin = entry.getKey();
+            if (plugin.endsWith(".user.js") && entry.getValue().toString().equals("true")) {
+                if (plugin.startsWith(mIitcPath)) {
+                    scripts.add("user-plugin" + plugin);
+                } else {
+                    scripts.add("script/plugins/" + plugin);
+                }
+            }
+        }
+
+        // inject the user location script if enabled in settings
+        if (Integer.parseInt(sharedPref.getString("pref_user_location_mode", "0")) != 0) {
+            scripts.add("script/user-location.user.js");
+        }
+
+        String js = "(function(){['" + join(scripts, "','") + "'].forEach(function(src) {" +
+                "var script = document.createElement('script');script.src = 'iitcm://'+src;" +
+                "(document.body || document.head || document.documentElement).appendChild(script);" +
+                "});})();";
+
+        view.loadJS(js);
+    }
+
+    static public String join(List<String> list, String conjunction)
+    {
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (String item : list)
+        {
+            if (first)
+                first = false;
+            else
+                sb.append(conjunction);
+            sb.append(item);
+        }
+        return sb.toString();
     }
 
     /**
@@ -196,86 +116,41 @@ public class IITC_WebViewClient extends WebViewClient {
     public void onReceivedLoginRequest(WebView view, String realm, String account, String args) {
         Log.d("iitcm", "Login requested: " + realm + " " + account + " " + args);
         mIitcInjected = false;
-        //((IITC_Mobile) mContext).onReceivedLoginRequest(this, view, realm, account, args);
-    }
-
-    public void loadPlugins(WebView view) {
-        // get the plugin preferences
-        SharedPreferences sharedPref = PreferenceManager
-                .getDefaultSharedPreferences(mIitc);
-        boolean dev_enabled = sharedPref.getBoolean("pref_dev_checkbox", false);
-        String path = (dev_enabled) ? mIitcPath + "dev/plugins/" : "plugins/";
-
-        Map<String, ?> all_prefs = sharedPref.getAll();
-
-        // iterate through all plugins
-        for (Map.Entry<String, ?> entry : all_prefs.entrySet()) {
-            String plugin = entry.getKey();
-            if (plugin.endsWith("user.js") && entry.getValue().toString().equals("true")) {
-                if (!plugin.startsWith(mIitcPath)) {
-                    // load default iitc plugins
-                    Log.d("iitcm", "adding plugin " + plugin);
-                    loadJS(path + plugin, !dev_enabled, view);
-                } else {
-                    // load user iitc plugins
-                    Log.d("iitcm", "adding user plugin " + plugin);
-                    loadJS(plugin, false, view);
-                }
-            }
-        }
-
-        // inject the user location script if enabled in settings
-        if (Integer.parseInt(sharedPref.getString("pref_user_location_mode", "0")) != 0) {
-            path = path.replace("plugins/", "");
-            loadJS(path + "user-location.user.js", !dev_enabled, view);
-        }
-    }
-
-    // read a file into a string
-    // load it as javascript
-    public boolean loadJS(String file, boolean asset, WebView view) {
-        String js = fileToString(file, asset);
-        if (js.equals("false")) {
-            return false;
-        } else {
-            String gmInfo = "GM_info=" + getGmInfoJson(getScriptInfo(js)) + "\n";
-            view.loadUrl("javascript:" + gmInfo + js);
-        }
-        return true;
+        // ((IITC_Mobile) mContext).onReceivedLoginRequest(this, view, realm, account, args);
     }
 
     // read a file into a string
     // use the full path for File
     // if asset == true use the asset manager to open file
-    public String fileToString(String file, boolean asset) {
-        Scanner s = null;
-        String src = "";
-        if (!asset) {
-            File js_file = new File(file);
-            try {
-                s = new Scanner(js_file).useDelimiter("\\A");
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                Log.d("iitcm", "failed to parse file " + file);
-                return "false";
-            }
-        } else {
-            // load plugins from asset folder
-            AssetManager am = mIitc.getAssets();
-            try {
-                s = new Scanner(am.open(file)).useDelimiter("\\A");
-            } catch (IOException e) {
-                e.printStackTrace();
-                Log.d("iitcm", "failed to parse file assets/" + file);
-                return "false";
-            }
-        }
-
-        if (s != null) {
-            src = s.hasNext() ? s.next() : "";
-        }
-        return src;
-    }
+    // public String fileToString(String file, boolean asset) {
+    // Scanner s = null;
+    // String src = "";
+    // if (!asset) {
+    // File js_file = new File(file);
+    // try {
+    // s = new Scanner(js_file).useDelimiter("\\A");
+    // } catch (FileNotFoundException e) {
+    // e.printStackTrace();
+    // Log.d("iitcm", "failed to parse file " + file);
+    // return "false";
+    // }
+    // } else {
+    // // load plugins from asset folder
+    // AssetManager am = mIitc.getAssets();
+    // try {
+    // s = new Scanner(am.open(file)).useDelimiter("\\A");
+    // } catch (IOException e) {
+    // e.printStackTrace();
+    // Log.d("iitcm", "failed to parse file assets/" + file);
+    // return "false";
+    // }
+    // }
+    //
+    // if (s != null) {
+    // src = s.hasNext() ? s.next() : "";
+    // }
+    // return src;
+    // }
 
     // Check every external resource if it’s okay to load it and maybe replace
     // it
@@ -283,8 +158,7 @@ public class IITC_WebViewClient extends WebViewClient {
     // which aren’t required and to inject IITC early into the site.
     // via http://stackoverflow.com/a/8274881/1684530
     @Override
-    public WebResourceResponse shouldInterceptRequest(final WebView view,
-                                                      String url) {
+    public WebResourceResponse shouldInterceptRequest(final WebView view, String url) {
         // if any tiles are requested, handle it with IITC_TileManager
         if (url.matches(".*tile.*jpg.*") // mapquest tiles | ovi tiles
                 || url.matches(".*tile.*png.*") // cloudmade tiles
@@ -292,7 +166,7 @@ public class IITC_WebViewClient extends WebViewClient {
                 || url.matches(".*khms.*googleapis.*") // google satellite tiles
                 || url.matches(".*tile.*jpeg.*") // bing tiles
                 || url.matches(".*maps.*yandex.*tiles.*") // yandex maps
-            ) {
+        ) {
             try {
                 return mTileManager.getTile(url);
             } catch (Exception e) {
@@ -301,11 +175,11 @@ public class IITC_WebViewClient extends WebViewClient {
             }
         } else if (url.contains("/css/common.css")) {
             return new WebResourceResponse("text/css", "UTF-8", STYLE);
-//        } else if (url.contains("gen_dashboard.js")) {
-//            // define initialize function to get rid of JS ReferenceError on intel page's 'onLoad'
-//            String gen_dashboard_replacement = "window.initialize = function() {}";
-//            return new WebResourceResponse("text/javascript", "UTF-8",
-//                    new ByteArrayInputStream(gen_dashboard_replacement.getBytes()));
+            // } else if (url.contains("gen_dashboard.js")) {
+            // // define initialize function to get rid of JS ReferenceError on intel page's 'onLoad'
+            // String gen_dashboard_replacement = "window.initialize = function() {}";
+            // return new WebResourceResponse("text/javascript", "UTF-8",
+            // new ByteArrayInputStream(gen_dashboard_replacement.getBytes()));
         } else if (url.contains("/css/ap_icons.css")
                 || url.contains("/css/map_icons.css")
                 || url.contains("/css/common.css")
@@ -317,6 +191,8 @@ public class IITC_WebViewClient extends WebViewClient {
                 || url.contains("js/analytics.js")
                 || url.contains("google-analytics.com/ga.js")) {
             return new WebResourceResponse("text/plain", "UTF-8", EMPTY);
+        } else if (url.startsWith("iitcm:")) {
+            return mIitc.getFileManager().getResponse(url);
         } else {
             return super.shouldInterceptRequest(view, url);
         }

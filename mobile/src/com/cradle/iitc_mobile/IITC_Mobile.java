@@ -40,6 +40,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     private static final String mIntelUrl = "https://www.ingress.com/intel";
 
     private SharedPreferences mSharedPrefs;
+    private IITC_FileManager mFileManager;
     private IITC_WebView mIitcWebView;
     private IITC_UserLocation mUserLocation;
     private IITC_NavigationHelper mNavigationHelper;
@@ -87,6 +88,8 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         // get fullscreen status from settings
         mIitcWebView.updateFullscreenStatus();
 
+        mFileManager = new IITC_FileManager(this);
+
         mUserLocation = new IITC_UserLocation(this);
         mUserLocation.setLocationMode(Integer.parseInt(mSharedPrefs.getString("pref_user_location_mode", "0")));
 
@@ -130,9 +133,8 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         } else if (key.equals("pref_press_twice_to_exit")
                 || key.equals("pref_share_selected_tab")
                 || key.equals("pref_messages")
-                || key.equals("pref_external_storage"))
-        // no reload needed
-        {
+                || key.equals("pref_external_storage")) {
+            // no reload needed
             return;
         }
 
@@ -466,8 +468,12 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                 return true;
             case R.id.action_settings: // start settings activity
                 Intent intent = new Intent(this, IITC_PreferenceActivity.class);
-                intent.putExtra("iitc_version", mIitcWebView.getWebViewClient()
-                        .getIITCVersion());
+                try {
+                    intent.putExtra("iitc_version", mFileManager.getIITCVersion());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return true;
+                }
                 startActivity(intent);
                 return true;
             case R.id.menu_clear_cookies:
@@ -495,16 +501,6 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         mReloadNeeded = false;
     }
 
-    private void loadIITC() {
-        try {
-            mIitcWebView.getWebViewClient().loadIITC_JS(this);
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        } catch (NullPointerException e2) {
-            e2.printStackTrace();
-        }
-    }
-
     // vp=f enables mDesktopMode mode...vp=m is the default mobile view
     private String addUrlParam(String url) {
         if (mDesktopMode) {
@@ -519,7 +515,6 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     public void loadUrl(String url) {
         setLoadingState(true);
         url = addUrlParam(url);
-        loadIITC();
         mIitcWebView.loadUrl(url);
     }
 
@@ -647,6 +642,14 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
     public IITC_MapSettings getMapSettings() {
         return mMapSettings;
+    }
+
+    public IITC_FileManager getFileManager() {
+        return mFileManager;
+    }
+
+    public SharedPreferences getPrefs() {
+        return mSharedPrefs;
     }
 
     public IITC_UserLocation getUserLocation() {
