@@ -273,7 +273,7 @@ window.getMitigationText = function(d) {
   if (mitigationDetails.excess) mitigationShort += ' (+'+mitigationDetails.excess+')';
 
   function tt(text) {
-    var t = 'Mitigation:\t'+mitigationDetails.total+'\n';
+    var t = 'Shielding:\t'+mitigationDetails.total+'\n';
     t += 'Shields:\t'+mitigationDetails.shields+'\n';
     t += 'Links:\t'+mitigationDetails.links+'\n';
     t += 'Excess:\t'+mitigationDetails.excess+'\n';
@@ -281,6 +281,5 @@ window.getMitigationText = function(d) {
     return '<span title="'+t+'">'+text+'</span>';
   }
 
-  // 'mitigation' doesn't quite fit in the space.
-  return [tt('mitig…'), tt(mitigationShort)];
+  return [tt('shielding'), tt(mitigationShort)];
 }
