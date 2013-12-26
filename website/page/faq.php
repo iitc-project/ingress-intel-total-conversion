@@ -102,7 +102,7 @@ Niantic will monitor the portal detail requests for this kind of abuse and suspe
 </p>
 <p>
 Some people think that Niantic made this change just to break IITC. This is not true. It was a sensible change to make
-to optimise the intel map, and I'm surprised they wated so long.
+to optimise the intel map, and I'm surprised they waited so long.
 </p>
 END
 ),
