@@ -46,24 +46,32 @@ window.plugin.compAPStats.requestFinished = function() {
 window.plugin.compAPStats.update = function(hasFinished) {
   var result = window.plugin.compAPStats.compAPStats();
   var loading = hasFinished ? '' : 'Loading...';
+
+  var formatRow = function(team,data) {
+    var title = 'Destroy and capture '+data.destroyPortals+' portals\n'
+              + 'Destroy '+data.destroyLinks+' links and '+data.destroyFields+' fields\n'
+              + 'Capture '+data.capturePortals+' neutral portals, complete '+data.finishPortals+' portals\n'
+              + '(unknown additional AP for links/fields)';
+    return '<tr><td>'+team+'</td><td style="text-align:right" title="'+title+'">'+digits(data.AP)+'</td></tr>';
+  }
+
+
   $('#available_ap_display').html('Available AP in this area: '
     + loading
     + '<table>'
-    + '<tr><td>Enlightened:</td><td style="text-align:right">' + digits(result[1]) + '</td></tr>'
-    + '<tr><td>Resistance:</td><td style="text-align:right">' + digits(result[0]) + '</td></tr>'
+    + formatRow('Enlightened',result.enl)
+    + formatRow('Resistance', result.res)
     + '</table>');
 }
 
 
 window.plugin.compAPStats.compAPStats = function() {
 
-  var totalAP_RES = 0;
-  var totalAP_ENL = 0;
+  var result = {
+    res: { AP: 0, destroyPortals: 0, capturePortals: 0, finishPortals: 0, destroyLinks: 0, destroyFields: 0 },
+    enl: { AP: 0, destroyPortals: 0, capturePortals: 0, finishPortals: 0, destroyLinks: 0, destroyFields: 0 },
+  };
 
-  var allResEdges = [];
-  var allResFields = [];
-  var allEnlEdges = [];
-  var allEnlFields = [];
 
   var displayBounds = map.getBounds();
 
@@ -79,22 +87,36 @@ window.plugin.compAPStats.compAPStats = function() {
     if(!displayBounds.contains(portal.getLatLng())) return true; //$.each 'continue'
 
     // AP to complete a portal - assuming it's already captured (so no CAPTURE_PORTAL)
-    var completePortalAp = data.resCount != 8 ? (8-data.resCount)*DEPLOY_RESONATOR + COMPLETION_BONUS : 0;
+    var completePortalAp = 0;
+    var isFullyDeployed = data.resCount == 8;
+    if (!isFullyDeployed) {
+      completePortalAp = data.resCount != 8 ? (8-data.resCount)*DEPLOY_RESONATOR + COMPLETION_BONUS : 0;
+    }
 
     // AP to destroy this portal
     var destroyAp = data.resCount * DESTROY_RESONATOR;
 
     if (portal.options.team == TEAM_ENL) {
-      totalAP_RES += destroyAp + PORTAL_FULL_DEPLOY_AP;
-      totalAP_ENL += completePortalAp;
+      result.res.AP += destroyAp + PORTAL_FULL_DEPLOY_AP;
+      result.res.destroyPortals++;
+      if (!isFullyDeployed) {
+        result.enl.AP += completePortalAp;
+        result.enl.finishPortals++;
+      }
     }
     else if (portal.options.team == TEAM_RES) {
-      totalAP_ENL += destroyAp + PORTAL_FULL_DEPLOY_AP;
-      totalAP_RES += completePortalAp
+      result.enl.AP += destroyAp + PORTAL_FULL_DEPLOY_AP;
+      result.enl.destroyPortals++;
+      if (!isFullyDeployed) {
+        result.res.AP += completePortalAp;
+        result.res.finishPortals++;
+      }
     } else {
       // it's a neutral portal, potential for both teams.  by definition no fields or edges
-      totalAP_ENL += PORTAL_FULL_DEPLOY_AP;
-      totalAP_RES += PORTAL_FULL_DEPLOY_AP;
+      result.enl.AP += PORTAL_FULL_DEPLOY_AP;
+      result.enl.capturePortals++;
+      result.res.AP += PORTAL_FULL_DEPLOY_AP;
+      result.res.capturePortals++;
     }
   });
 
@@ -104,9 +126,11 @@ window.plugin.compAPStats.compAPStats = function() {
     var points = link.getLatLngs();
     if (displayBounds.contains(points[0]) || displayBounds.contains(points[1])) {
       if (link.options.team == TEAM_ENL) {
-        totalAP_RES += DESTROY_LINK;
+        result.res.AP += DESTROY_LINK;
+        result.res.destroyLinks++;
       } else if (link.options.team == TEAM_RES) {
-        totalAP_ENL += DESTROY_LINK;
+        result.enl.AP += DESTROY_LINK;
+        result.enl.destroyLinks++;
       }
     }
   });
@@ -117,14 +141,16 @@ window.plugin.compAPStats.compAPStats = function() {
     var points = field.getLatLngs();
     if (displayBounds.contains(points[0]) || displayBounds.contains(points[1]) || displayBounds.contains(points[2])) {
       if (field.options.team == TEAM_ENL) {
-        totalAP_RES += DESTROY_FIELD;
+        result.res.AP += DESTROY_FIELD;
+        result.res.destroyFields++;
       } else if (field.options.team == TEAM_RES) {
-        totalAP_ENL += DESTROY_FIELD;
+        result.enl.AP += DESTROY_FIELD;
+        result.enl.destroyFields++;
       }
     }
   });
 
-  return [totalAP_RES, totalAP_ENL];
+  return result;
 }
 
 var setup =  function() {
