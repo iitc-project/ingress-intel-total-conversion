@@ -822,7 +822,8 @@
       for(var idBkmrks in list[idFolders]['bkmrk']) {
         var latlng = list[idFolders]['bkmrk'][idBkmrks].latlng.split(",");
         var guid = list[idFolders]['bkmrk'][idBkmrks].guid;
-        window.plugin.bookmarks.addStar(guid, latlng);
+        var lbl = list[idFolders]['bkmrk'][idBkmrks].label;
+        window.plugin.bookmarks.addStar(guid, latlng, lbl);
       }
     }
   }
@@ -836,8 +837,9 @@
     window.plugin.bookmarks.addAllStars();
   }
 
-  window.plugin.bookmarks.addStar = function(guid, latlng) {
+  window.plugin.bookmarks.addStar = function(guid, latlng, lbl) {
     var star = L.marker(latlng, {
+      title: lbl,
       icon: L.icon({
         iconUrl: '@@INCLUDEIMAGE:images/marker-star.png@@',
         iconAnchor: [15,40],
@@ -853,8 +855,9 @@
       if(data.action === 'add') {
         var guid = window.selectedPortal;
         var latlng = window.portals[guid]._latlng;
+        var lbl = window.portals[guid]._label;
         var starInLayer = window.plugin.bookmarks.starLayers[data.guid];
-        window.plugin.bookmarks.addStar(guid, latlng);
+        window.plugin.bookmarks.addStar(guid, latlng,lbl);
       }
       else if(data.action === 'remove') {
         var starInLayer = window.plugin.bookmarks.starLayers[data.guid];
