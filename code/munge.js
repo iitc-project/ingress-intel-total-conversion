@@ -194,6 +194,14 @@ window.detectActiveMungeSet = function() {
 }
 
 
+window.haveDetectedMungeSet = function() {
+  try {
+    if (!activeMunge) detectActiveMungeSet();
+  } catch(e) {
+  }
+
+  return activeMunge != null;
+}
 
 
 window.mungeOneString = function(str) {
