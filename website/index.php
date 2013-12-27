@@ -48,10 +48,9 @@ if ( file_exists ( 'tracking.php' ) )
    </a>
    <div class="media-body">
     <h1 class="media-heading">Ingress Intel Total Conversion</h1>
-<!--
-<a href="//plus.google.com/105383756361375410867?prsrc=3" rel="publisher" style="text-decoration:none;">
-<img src="//ssl.gstatic.com/images/icons/gplus-16.png" alt="Google+" style="border:0;width:16px;height:16px;"/></a>
--->
+
+<div class="g-plusone" data-annotation="inline" data-width="300" data-href="http://iitc.jonatkins.com/"></div>
+
    </div>
   </div>
  </div>
@@ -171,6 +170,7 @@ include "page/$page.php";
 
 <script src="http://code.jquery.com/jquery.js"></script>
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://apis.google.com/js/platform.js"></script>
 
 
 </body>
