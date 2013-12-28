@@ -83,11 +83,7 @@
     <string name="pref_tweaks_cat">Tweaks</string>
     <string name="pref_plugins">IITC Plugins</string>
     <string name="pref_plugins_title">Available plugins</string>
-    <string name="pref_user_loc_screen">User location</string>
-    <string name="pref_user_loc">Display user location</string>
-    <string name="pref_user_loc_sum">Show users position on map</string>
-    <string name="pref_user_loc_sensor">Use sensor orientation</string>
-    <string name="pref_user_loc_sensor_sum">Experimental! Fancier but eats battery packs for breakfast</string>
+    <string name="pref_user_location">Display user location on map</string>
     <string name="pref_user_zoom">Show zoom control</string>
     <string name="pref_user_zoom_sum">Shows +/- buttons even on multitouch capable devices.</string>
     <string name="pref_fullscreen">Hide in fullscreen mode</string>
@@ -127,6 +123,16 @@
         <item>4</item>
         <item>8</item>
         <item>16</item>
+    </string-array>
+    <string-array name="pref_user_location_titles">
+        <item>Don\'t show user position</item>
+        <item>Show user position on map</item>
+        <item>Show user position and orientation on map</item>
+    </string-array>
+    <string-array name="pref_user_location_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
     </string-array>
 
     <string name="menu_clear_cookies">Clear Cookies</string>

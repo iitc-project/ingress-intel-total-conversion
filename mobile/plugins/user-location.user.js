@@ -21,6 +21,7 @@
 window.plugin.userLocation = function() {};
 
 window.plugin.userLocation.locationLayer = new L.LayerGroup();
+window.plugin.userLocation.follow = false;
 
 window.plugin.userLocation.setup = function() {
   $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:mobile/plugins/user-location.css@@').appendTo('head');
@@ -59,8 +60,18 @@ window.plugin.userLocation.setup = function() {
   window.plugin.userLocation.circle = circle;
   window.plugin.userLocation.icon = icon;
 
+  window.map.on('movestart', window.plugin.userLocation.onMoveStart);
   window.map.on('zoomend', window.plugin.userLocation.onZoomEnd);
   window.plugin.userLocation.onZoomEnd();
+};
+
+window.plugin.userLocation.onMoveStart = function(e) {
+  if(window.plugin.userLocation.moving)
+    return;
+
+  window.plugin.userLocation.follow = false;
+  if(typeof android !== 'undefined' && android && android.setFollowMode)
+    android.setFollowMode(window.plugin.userLocation.follow);
 };
 
 window.plugin.userLocation.onZoomEnd = function() {
@@ -71,6 +82,13 @@ window.plugin.userLocation.onZoomEnd = function() {
 };
 
 window.plugin.userLocation.locate = function(lat, lng, accuracy) {
+  if(window.plugin.userLocation.follow) {
+    window.plugin.userLocation.follow = false;
+    if(typeof android !== 'undefined' && android && android.setFollowMode)
+      android.setFollowMode(window.plugin.userLocation.follow);
+    return;
+  }
+
   var latlng = new L.LatLng(lat, lng);
 
   var latAccuracy = 180 * accuracy / 40075017;
@@ -84,6 +102,12 @@ window.plugin.userLocation.locate = function(lat, lng, accuracy) {
   // so limit to 17 (enough to see all portals)
   zoom = Math.min(zoom,17);
 
+  if(window.map.getCenter().distanceTo(latlng) < 10) {
+    window.plugin.userLocation.follow = true;
+    if(typeof android !== 'undefined' && android && android.setFollowMode)
+      android.setFollowMode(window.plugin.userLocation.follow);
+  }
+
   window.map.setView(latlng, zoom);
 }
 
@@ -91,16 +115,39 @@ window.plugin.userLocation.onLocationChange = function(lat, lng) {
   var latlng = new L.LatLng(lat, lng);
   window.plugin.userLocation.marker.setLatLng(latlng);
   window.plugin.userLocation.circle.setLatLng(latlng);
+
+  if(window.plugin.userLocation.follow) {
+    // move map if marker moves more than 35% from the center
+    // 100% - 2*15% = 70% → 35% from center in either direction
+    if(map.getBounds().pad(-0.15).contains(latlng))
+      return;
+
+    window.plugin.userLocation.moving = true;
+    window.map.setView(latlng);
+    window.plugin.userLocation.moving = false;
+  }
 };
 
 window.plugin.userLocation.onOrientationChange = function(direction) {
-  $(".container", window.plugin.userLocation.marker._icon)
-    .removeClass("circle")
-    .addClass("arrow")
-    .css({
-      "transform": "rotate(" + direction + "deg)",
-      "webkitTransform": "rotate(" + direction + "deg)"
-    });
+  var container = $(".container", window.plugin.userLocation.marker._icon);
+
+  if(direction === null) {
+    container
+      .removeClass("arrow")
+      .addClass("circle")
+      .css({
+        "transform": "",
+        "webkitTransform": ""
+      });
+  } else {
+    container
+      .removeClass("circle")
+      .addClass("arrow")
+      .css({
+        "transform": "rotate(" + direction + "deg)",
+        "webkitTransform": "rotate(" + direction + "deg)"
+      });
+  }
 }
 
 var setup = window.plugin.userLocation.setup;

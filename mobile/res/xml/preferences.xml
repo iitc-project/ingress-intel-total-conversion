@@ -14,33 +14,26 @@
     <PreferenceCategory
         android:key="pref_ui_cat"
         android:title="@string/pref_ui_cat">
-        <PreferenceScreen
-            android:key="pref_user_loc_screen"
-            android:persistent="false"
-            android:title="@string/pref_user_loc_screen">
-            <CheckBoxPreference
-                android:defaultValue="false"
-                android:key="pref_user_loc"
-                android:summary="@string/pref_user_loc_sum"
-                android:title="@string/pref_user_loc"/>
-            <CheckBoxPreference
-                android:defaultValue="true"
-                android:key="pref_user_loc_sensor"
-                android:dependency="pref_user_loc"
-                android:summary="@string/pref_user_loc_sensor_sum"
-                android:title="@string/pref_user_loc_sensor"/>
-        </PreferenceScreen>
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/pref_user_location_titles"
+            android:entryValues="@array/pref_user_location_values"
+            android:key="pref_user_location_mode"
+            android:title="@string/pref_user_location"/>
+
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_user_zoom"
             android:summary="@string/pref_user_zoom_sum"
             android:title="@string/pref_user_zoom"/>
+
         <MultiSelectListPreference
+            android:entries="@array/pref_hide_fullscreen"
+            android:entryValues="@array/pref_hide_fullscreen_vals"
             android:key="pref_fullscreen"
             android:summary="@string/pref_fullscreen_sum"
-            android:title="@string/pref_fullscreen"
-            android:entries="@array/pref_hide_fullscreen"
-            android:entryValues="@array/pref_hide_fullscreen_vals"/>
+            android:title="@string/pref_fullscreen"/>
+
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_force_desktop"
@@ -50,7 +43,6 @@
     <PreferenceCategory
         android:key="pref_mics"
         android:title="@string/pref_misc_cat">
-
         <PreferenceScreen
             android:fragment="com.cradle.iitc_mobile.fragments.PluginsFragment"
             android:key="pref_plugins"
@@ -67,15 +59,15 @@
             android:summary="@string/pref_force_https_sum"
             android:title="@string/pref_force_https"/>
         <CheckBoxPreference
+            android:defaultValue="false"
             android:key="pref_external_storage"
-            android:title="@string/pref_external_storage"
             android:summary="@string/pref_external_storage_sum"
-            android:defaultValue="false" />
+            android:title="@string/pref_external_storage"/>
         <CheckBoxPreference
-                android:key="pref_press_twice_to_exit"
-                android:title="@string/pref_press_twice_to_exit"
-                android:summary="@string/pref_press_twice_to_exit_sum"
-                android:defaultValue="false" />
+            android:defaultValue="false"
+            android:key="pref_press_twice_to_exit"
+            android:summary="@string/pref_press_twice_to_exit_sum"
+            android:title="@string/pref_press_twice_to_exit"/>
     </PreferenceCategory>
     <PreferenceCategory
         android:key="pref_developer_options"

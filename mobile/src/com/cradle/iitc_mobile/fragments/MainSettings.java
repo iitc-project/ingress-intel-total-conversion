@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
@@ -54,6 +55,20 @@ public class MainSettings extends PreferenceFragment {
         // first init of summary
         String pref_iitc_source_sum = getString(R.string.pref_select_iitc_sum) + " " + pref_iitc_source.getText();
         pref_iitc_source.setSummary(pref_iitc_source_sum);
+
+        final ListPreference pref_user_location_mode = (ListPreference) findPreference("pref_user_location_mode");
+        pref_user_location_mode.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                int mode = Integer.parseInt((String) newValue);
+                preference.setSummary(getResources().getStringArray(R.array.pref_user_location_titles)[mode]);
+                return true;
+            }
+        });
+
+        String value = getPreferenceManager().getSharedPreferences().getString("pref_user_location_mode", "0");
+        int mode = Integer.parseInt(value);
+        pref_user_location_mode.setSummary(getResources().getStringArray(R.array.pref_user_location_titles)[mode]);
     }
 
     // we want a home button + HomeAsUpEnabled in nested preferences
@@ -63,8 +78,7 @@ public class MainSettings extends PreferenceFragment {
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
         if (preference.getTitle().toString().equals(getString(R.string.pref_advanced_options))
-                || preference.getTitle().toString().equals(getString(R.string.pref_about_title))
-                || preference.getTitle().toString().equals(getString(R.string.pref_user_loc_screen))) {
+                || preference.getTitle().toString().equals(getString(R.string.pref_about_title))) {
             initializeActionBar((PreferenceScreen) preference);
         }
         return super.onPreferenceTreeClick(preferenceScreen, preference);

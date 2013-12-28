@@ -2,7 +2,6 @@ package com.cradle.iitc_mobile;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -13,9 +12,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.WindowManager;
-import android.webkit.ConsoleMessage;
-import android.webkit.GeolocationPermissions;
-import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Toast;
@@ -70,17 +66,17 @@ public class IITC_WebView extends WebView {
         mNavHider = new Runnable() {
             @Override
             public void run() {
-            if (isInFullscreen() && (getFullscreenStatus() & (FS_NAVBAR)) != 0) {
-                int systemUiVisibility = SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-                // in immersive mode the user can interact with the app while the navbar is hidden
-                // this mode is available since KitKat
-                // you can leave this mode by swiping down from the top of the screen. this does only work
-                // when the app is in total-fullscreen mode
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && (mFullscreenStatus & FS_SYSBAR) != 0) {
-                    systemUiVisibility |= SYSTEM_UI_FLAG_IMMERSIVE;
+                if (isInFullscreen() && (getFullscreenStatus() & (FS_NAVBAR)) != 0) {
+                    int systemUiVisibility = SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+                    // in immersive mode the user can interact with the app while the navbar is hidden
+                    // this mode is available since KitKat
+                    // you can leave this mode by swiping down from the top of the screen. this does only work
+                    // when the app is in total-fullscreen mode
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && (mFullscreenStatus & FS_SYSBAR) != 0) {
+                        systemUiVisibility |= SYSTEM_UI_FLAG_IMMERSIVE;
+                    }
+                    setSystemUiVisibility(systemUiVisibility);
                 }
-                setSystemUiVisibility(systemUiVisibility);
-            }
             }
         };
 
@@ -131,7 +127,7 @@ public class IITC_WebView extends WebView {
             }
 
             // disable splash screen if a http error code is responded
-            new CheckHttpResponse(mJsInterface, mIitc).execute(url);
+            new CheckHttpResponse(mIitc).execute(url);
             Log.d("iitcm", "loading url: " + url);
             super.loadUrl(url);
         }
