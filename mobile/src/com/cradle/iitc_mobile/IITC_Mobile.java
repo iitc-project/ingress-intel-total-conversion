@@ -606,7 +606,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
     public void updateIitc(String url) {
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-        request.setDescription("downloading IITCm update apk...");
+        request.setDescription(getString(R.string.download_description));
         request.setTitle("IITCm Update");
         request.allowScanningByMediaScanner();
         Uri fileUri = Uri.parse("file://" + getExternalFilesDir(null).toString() + "/iitcUpdate.apk");
