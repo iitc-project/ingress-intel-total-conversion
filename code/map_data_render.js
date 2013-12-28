@@ -114,6 +114,9 @@ window.Render.prototype.processGameEntities = function(entities) {
     }
   }
 
+  // reorder portals to be after links/fields
+  this.bringPortalsToFront();
+
 }
 
 
@@ -140,8 +143,8 @@ window.Render.prototype.endRenderPass = function() {
     }
   }
 
-  // reorder portals to be after links/fields
-  this.bringPortalsToFront();
+//  // reorder portals to be after links/fields
+//  this.bringPortalsToFront();
 
   this.isRendering = false;
 }
