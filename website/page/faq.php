@@ -80,7 +80,7 @@ date, the full data for every portal on the map was sent to the browser, so IITC
 various features - resonator search, mitigation highlighters, portal age lists, many highlighters, etc.
 </p>
 <p>
-After this date they only send the bare nimimum of data for all the portals on the screen. The data available is:
+After this date they only send the bare minimum of data for all the portals on the screen. The data available is:
 </p>
 <ul>
 <li>Location</li>

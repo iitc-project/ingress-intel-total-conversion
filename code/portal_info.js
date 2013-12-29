@@ -68,7 +68,7 @@ window.getLinkAmpRangeBoost = function(d) {
   // (at the time of writing, only rare link amps have been seen in the wild, so there's a little guesswork at how
   // the stats work and combine - jon 2013-06-26)
 
-  // link amps scale: first is full, second a quarter, the last two an eigth
+  // link amps scale: first is full, second a quarter, the last two an eighth
   var scale = [1.0, 0.25, 0.125, 0.125];
 
   var boost = 0.0;  // initial boost is 0.0 (i.e. no boost over standard range)

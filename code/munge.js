@@ -16,7 +16,7 @@ var requestParameterMunges = [
 
 // the current munge set auto-detection code is working very well. as any site update that breaks that detection
 // code will also, almost certainly, change the munges in use, it seems pointless keeping this set up to date by hand
-// at this time. If that auto-detection breaks, it may be easier to quicky add a munge set by hand than update
+// at this time. If that auto-detection breaks, it may be easier to quickly add a munge set by hand than update
 // the regular expressions, so the list-based code remains available for the future
 //  // set 11 - 2013-12-06
 //  {
