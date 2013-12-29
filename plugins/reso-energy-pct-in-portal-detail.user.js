@@ -19,9 +19,9 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.resoEnergyPctInPortalDetal = function() {};
+window.plugin.resoEnergyPctInPortalDetail = function() {};
 
-window.plugin.resoEnergyPctInPortalDetal.updateMeter = function(data) {
+window.plugin.resoEnergyPctInPortalDetail.updateMeter = function(data) {
   var meterLevel = $("span.meter-level");
   meterLevel
     .css('top','0px')
@@ -39,7 +39,7 @@ window.plugin.resoEnergyPctInPortalDetal.updateMeter = function(data) {
 }
 
 var setup =  function() {
-  window.addHook('portalDetailsUpdated', window.plugin.resoEnergyPctInPortalDetal.updateMeter);
+  window.addHook('portalDetailsUpdated', window.plugin.resoEnergyPctInPortalDetail.updateMeter);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////
