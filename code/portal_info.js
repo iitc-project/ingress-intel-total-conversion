@@ -166,14 +166,14 @@ window.potentialPortalLevel = function(d) {
     var resonators_on_portal = d.resonatorArray.resonators;
     var resonator_levels = new Array();
     // figure out how many of each of these resonators can be placed by the player
-    var player_resontators = new Array();
+    var player_resonators = new Array();
     for(var i=1;i<=MAX_PORTAL_LEVEL; i++) {
-      player_resontators[i] = i > PLAYER.level ? 0 : MAX_RESO_PER_PLAYER[i];
+      player_resonators[i] = i > PLAYER.level ? 0 : MAX_RESO_PER_PLAYER[i];
     }
     $.each(resonators_on_portal, function(ind, reso) {
       // NOTE: reso.ownerGuid is actually the player name - GUIDs are not in the protocol any more
       if(reso !== null && reso.ownerGuid === window.PLAYER.nickname) {
-        player_resontators[reso.level]--;
+        player_resonators[reso.level]--;
       }
       resonator_levels.push(reso === null ? 0 : reso.level);  
     });
@@ -185,7 +185,7 @@ window.potentialPortalLevel = function(d) {
     // Max out portal
     var install_index = 0;
     for(var i=MAX_PORTAL_LEVEL;i>=1; i--) {
-      for(var install = player_resontators[i]; install>0; install--) {
+      for(var install = player_resonators[i]; install>0; install--) {
         if(resonator_levels[install_index] < i) {
           resonator_levels[install_index] = i;
           install_index++;
