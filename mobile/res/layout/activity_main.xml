@@ -4,20 +4,58 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.cradle.iitc_mobile.IITC_WebView
-        android:id="@+id/iitc_webview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
-    <ImageView
-        android:id="@+id/imageLoading"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/darker_gray"
-        android:paddingBottom="20dp"
-        android:paddingTop="20dp"
-        android:src="@drawable/iitc"
-        tools:ignore="ContentDescription"/>
+        android:orientation="vertical">
+
+        <com.cradle.iitc_mobile.IITC_WebView
+            android:id="@+id/iitc_webview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+        <ImageView
+            android:id="@+id/imageLoading"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/darker_gray"
+            android:paddingBottom="20dp"
+            android:paddingTop="20dp"
+            android:src="@drawable/iitc"
+            tools:ignore="ContentDescription"/>
+
+        <ListView
+            android:id="@+id/lvDebug"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:visibility="gone"/>
+
+        <LinearLayout
+            android:id="@+id/viewDebug"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/btnToggleMapVisibility"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/toggle_map"
+                android:onClick="onToggleMapVisibility"
+                android:src="@drawable/ic_action_map"/>
+
+            <EditText
+                android:id="@+id/editCommand"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:imeOptions="actionGo"
+                android:inputType="textNoSuggestions"/>
+        </LinearLayout>
+    </LinearLayout>
 
     <!-- The navigation drawer -->
 

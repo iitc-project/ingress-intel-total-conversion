@@ -15,14 +15,14 @@ public class IITC_WebChromeClient extends WebChromeClient {
     public IITC_WebChromeClient(IITC_Mobile iitcm) {
         mIitcm = iitcm;
     }
+
     /**
      * our webchromeclient should share geolocation with the iitc script
      *
      * allow access by default
      */
     @Override
-    public void onGeolocationPermissionsShowPrompt(String origin,
-            GeolocationPermissions.Callback callback) {
+    public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
         callback.invoke(origin, true, false);
     }
 
@@ -42,10 +42,14 @@ public class IITC_WebChromeClient extends WebChromeClient {
      * remove splash screen if any JS error occurs
      */
     @Override
-    public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-        if (consoleMessage.messageLevel() == ConsoleMessage.MessageLevel.ERROR) {
+    public boolean onConsoleMessage(ConsoleMessage message) {
+        if (message.messageLevel() == ConsoleMessage.MessageLevel.ERROR) {
             mIitcm.setLoadingState(false);
         }
-        return super.onConsoleMessage(consoleMessage);
+
+        if (Log.log(message))
+            return true; // message was handled
+
+        return super.onConsoleMessage(message);
     }
 }

@@ -507,7 +507,8 @@ window.setupLayerChooserApi = function() {
 
 function boot() {
  try { //EXPERIMENTAL TEST
-  window.debug.console.overwriteNativeIfRequired();
+  if(!isSmartphone()) // TODO remove completly?
+    window.debug.console.overwriteNativeIfRequired();
 
   console.log('loading done, booting. Built: @@BUILDDATE@@');
   if(window.deviceID) console.log('Your device ID: ' + window.deviceID);

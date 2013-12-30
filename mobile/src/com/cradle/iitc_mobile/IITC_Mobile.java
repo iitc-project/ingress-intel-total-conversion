@@ -24,6 +24,9 @@ import android.view.View;
 import android.view.Window;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -49,8 +52,15 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     private boolean mDesktopMode = false;
     private boolean mAdvancedMenu = false;
     private MenuItem mSearchMenuItem;
+    private View mImageLoading;
+    private ListView mLvDebug;
+    private View mViewDebug;
+    private ImageButton mBtnToggleMap;
+    private EditText mEditCommand;
+    private boolean mDebugging = false;
     private boolean mReloadNeeded = false;
     private boolean mIsLoading = true;
+    private boolean mShowMapInDebug = false;
     private final Stack<String> mDialogStack = new Stack<String>();
 
     // Used for custom back stack handling
@@ -73,7 +83,14 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         requestWindowFeature(Window.FEATURE_PROGRESS);
 
         setContentView(R.layout.activity_main);
+        mImageLoading = findViewById(R.id.imageLoading);
         mIitcWebView = (IITC_WebView) findViewById(R.id.iitc_webview);
+        mLvDebug = (ListView) findViewById(R.id.lvDebug);
+        mViewDebug = findViewById(R.id.viewDebug);
+        mBtnToggleMap = (ImageButton) findViewById(R.id.btnToggleMapVisibility);
+        mEditCommand = (EditText) findViewById(R.id.editCommand);
+
+        mLvDebug.setAdapter(new IITC_LogAdapter(this));
 
         // do something if user changed something in the settings
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -425,6 +442,11 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                             : R.drawable.ic_action_location_found);
                     break;
 
+                case R.id.menu_debug:
+                    item.setVisible(mAdvancedMenu && visible);
+                    item.setChecked(mDebugging);
+                    break;
+
                 default:
                     item.setVisible(visible);
             }
@@ -480,6 +502,13 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                 CookieManager cm = CookieManager.getInstance();
                 cm.removeAllCookie();
                 return true;
+            case R.id.menu_debug:
+                mDebugging = !mDebugging;
+                updateViews();
+                invalidateOptionsMenu();
+
+                // TODO remove debugging stuff from JS?
+                return true;
             default:
                 return false;
         }
@@ -494,6 +523,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         mNavigationHelper.reset();
         mMapSettings.reset();
         mUserLocation.reset();
+        mIitcWebView.getWebViewClient().reset();
         mBackStack.clear();
         // iitc starts on map after reload
         mCurrentPane = Pane.MAP;
@@ -585,13 +615,52 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
         mNavigationHelper.onLoadingStateChanged();
 
-        if (isLoading && !mSharedPrefs.getBoolean("pref_disable_splash", false)) {
-            findViewById(R.id.iitc_webview).setVisibility(View.GONE);
-            findViewById(R.id.imageLoading).setVisibility(View.VISIBLE);
+        updateViews();
+    }
+
+    private void updateViews() {
+        if (!mDebugging) {
+            mViewDebug.setVisibility(View.GONE);
+            mLvDebug.setVisibility(View.GONE);
+
+            if (mIsLoading && !mSharedPrefs.getBoolean("pref_disable_splash", false)) {
+                mIitcWebView.setVisibility(View.GONE);
+                mImageLoading.setVisibility(View.VISIBLE);
+            } else {
+                mIitcWebView.setVisibility(View.VISIBLE);
+                mImageLoading.setVisibility(View.GONE);
+            }
         } else {
-            findViewById(R.id.iitc_webview).setVisibility(View.VISIBLE);
-            findViewById(R.id.imageLoading).setVisibility(View.GONE);
+            // if the debug container is invisible (and we are about to show it), select the text box
+            boolean select = mViewDebug.getVisibility() != View.VISIBLE;
+
+            mImageLoading.setVisibility(View.GONE); // never show splash screen while debugging
+            mViewDebug.setVisibility(View.VISIBLE);
+
+            if (select) {
+                mEditCommand.requestFocus();
+                mEditCommand.selectAll();
+            }
+
+            if (mShowMapInDebug) {
+                mBtnToggleMap.setImageResource(R.drawable.ic_action_view_as_list);
+                mIitcWebView.setVisibility(View.VISIBLE);
+                mLvDebug.setVisibility(View.GONE);
+            } else {
+                mBtnToggleMap.setImageResource(R.drawable.ic_action_map);
+                mIitcWebView.setVisibility(View.GONE);
+                mLvDebug.setVisibility(View.VISIBLE);
+            }
         }
+    }
+
+    /**
+     * onClick handler for R.id.btnToggleMapVisibility, assigned in activity_main.xml
+     */
+    public void onToggleMapVisibility(View v)
+    {
+        mShowMapInDebug = !mShowMapInDebug;
+        updateViews();
     }
 
     private void deleteUpdateFile() {

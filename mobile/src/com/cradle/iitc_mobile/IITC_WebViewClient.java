@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceResponse;
@@ -86,7 +87,7 @@ public class IITC_WebViewClient extends WebViewClient {
             scripts.add("script/user-location.user.js");
         }
 
-        String js = "(function(){['" + join(scripts, "','") + "'].forEach(function(src) {" +
+        String js = "(function(){['" + TextUtils.join("','", scripts) + "'].forEach(function(src) {" +
                 "var script = document.createElement('script');script.src = 'iitcm://'+src;" +
                 "(document.body || document.head || document.documentElement).appendChild(script);" +
                 "});})();";
@@ -94,63 +95,15 @@ public class IITC_WebViewClient extends WebViewClient {
         view.loadJS(js);
     }
 
-    static public String join(List<String> list, String conjunction)
-    {
-        StringBuilder sb = new StringBuilder();
-        boolean first = true;
-        for (String item : list)
-        {
-            if (first)
-                first = false;
-            else
-                sb.append(conjunction);
-            sb.append(item);
-        }
-        return sb.toString();
-    }
-
     /**
      * this method is called automatically when the Google login form is opened.
      */
     @Override
     public void onReceivedLoginRequest(WebView view, String realm, String account, String args) {
-        Log.d("iitcm", "Login requested: " + realm + " " + account + " " + args);
         mIitcInjected = false;
+        // Log.d("iitcm", "Login requested: " + realm + " " + account + " " + args);
         // ((IITC_Mobile) mContext).onReceivedLoginRequest(this, view, realm, account, args);
     }
-
-    // read a file into a string
-    // use the full path for File
-    // if asset == true use the asset manager to open file
-    // public String fileToString(String file, boolean asset) {
-    // Scanner s = null;
-    // String src = "";
-    // if (!asset) {
-    // File js_file = new File(file);
-    // try {
-    // s = new Scanner(js_file).useDelimiter("\\A");
-    // } catch (FileNotFoundException e) {
-    // e.printStackTrace();
-    // Log.d("iitcm", "failed to parse file " + file);
-    // return "false";
-    // }
-    // } else {
-    // // load plugins from asset folder
-    // AssetManager am = mIitc.getAssets();
-    // try {
-    // s = new Scanner(am.open(file)).useDelimiter("\\A");
-    // } catch (IOException e) {
-    // e.printStackTrace();
-    // Log.d("iitcm", "failed to parse file assets/" + file);
-    // return "false";
-    // }
-    // }
-    //
-    // if (s != null) {
-    // src = s.hasNext() ? s.next() : "";
-    // }
-    // return src;
-    // }
 
     // Check every external resource if it’s okay to load it and maybe replace
     // it
@@ -219,5 +172,9 @@ public class IITC_WebViewClient extends WebViewClient {
             mIitc.startActivity(intent);
             return true;
         }
+    }
+
+    public void reset() {
+        mIitcInjected = false;
     }
 }
