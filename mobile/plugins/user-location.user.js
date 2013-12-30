@@ -60,18 +60,8 @@ window.plugin.userLocation.setup = function() {
   window.plugin.userLocation.circle = circle;
   window.plugin.userLocation.icon = icon;
 
-  window.map.on('movestart', window.plugin.userLocation.onMoveStart);
   window.map.on('zoomend', window.plugin.userLocation.onZoomEnd);
   window.plugin.userLocation.onZoomEnd();
-};
-
-window.plugin.userLocation.onMoveStart = function(e) {
-  if(window.plugin.userLocation.moving)
-    return;
-
-  window.plugin.userLocation.follow = false;
-  if(typeof android !== 'undefined' && android && android.setFollowMode)
-    android.setFollowMode(window.plugin.userLocation.follow);
 };
 
 window.plugin.userLocation.onZoomEnd = function() {
@@ -122,9 +112,7 @@ window.plugin.userLocation.onLocationChange = function(lat, lng) {
     if(map.getBounds().pad(-0.15).contains(latlng))
       return;
 
-    window.plugin.userLocation.moving = true;
     window.map.setView(latlng);
-    window.plugin.userLocation.moving = false;
   }
 };
 
