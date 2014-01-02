@@ -84,6 +84,6 @@ public class IITC_LogAdapter extends ArrayAdapter<Log.Message> implements Log.Re
 
     @Override
     public void handle(Message message) {
-        this.insert(message, 0);
+        insert(message, 0);
     }
 }

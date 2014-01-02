@@ -101,7 +101,10 @@ public final class Log {
     }
 
     public static boolean log(ConsoleMessage message) {
-        final String msg = message.sourceId() + ":" + message.lineNumber() + ": " + message.message();
+        String msg = message.sourceId();
+        if ("".equals(msg)) msg = "<no source>";
+        msg += ":" + message.lineNumber() + ": " + message.message();
+
         final Integer priority = CONSOLE_MAPPING.get(message.messageLevel());
 
         if (priority != null) {
