@@ -215,8 +215,8 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
             plugin_cat = USER_PLUGIN + plugin_cat;
         }
 
-        // do not add deleted plugins
-        if (plugin_cat.equals("Deleted")) {
+        // do not add deleted or stock map plugins
+        if (plugin_cat.equals("Deleted") || plugin_cat.equals("Stock")) {
             mDeletedPlugins++;
             return;
         }
