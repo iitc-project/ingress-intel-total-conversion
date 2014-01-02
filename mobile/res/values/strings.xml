@@ -3,6 +3,7 @@
 
     <string name="app_name">IITC Mobile</string>
     <string name="toggle_map">Toggle map visibility</string>
+    <string name="debug_run">Run</string>
     <string name="activity_settings">IITC Mobile Settings</string>
     <string name="activity_plugins">IITC Plugins</string>
     <string name="activity_share">Share using…</string>

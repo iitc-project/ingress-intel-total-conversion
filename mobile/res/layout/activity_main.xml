@@ -52,8 +52,18 @@
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
+                android:imeActionLabel="@string/debug_run"
                 android:imeOptions="actionGo"
-                android:inputType="textNoSuggestions"/>
+                android:inputType="textMultiLine|textNoSuggestions"
+                android:lines="1"/>
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/debug_run"
+                android:onClick="onBtnRunCodeClick"
+                android:src="@android:drawable/ic_menu_send"/>
         </LinearLayout>
     </LinearLayout>
 

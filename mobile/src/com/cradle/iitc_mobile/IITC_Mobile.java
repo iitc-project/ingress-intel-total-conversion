@@ -18,19 +18,26 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -89,6 +96,20 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         mViewDebug = findViewById(R.id.viewDebug);
         mBtnToggleMap = (ImageButton) findViewById(R.id.btnToggleMapVisibility);
         mEditCommand = (EditText) findViewById(R.id.editCommand);
+        mEditCommand.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (EditorInfo.IME_ACTION_GO == actionId) {
+                    onBtnRunCodeClick(v);
+
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+
+                    return true;
+                }
+                return false;
+            }
+        });
 
         mLvDebug.setAdapter(new IITC_LogAdapter(this));
 
@@ -652,6 +673,26 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                 mLvDebug.setVisibility(View.VISIBLE);
             }
         }
+    }
+
+    public void onBtnRunCodeClick(View v) {
+        String code = mEditCommand.getText().toString();
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("code", code);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        // throwing an exception will be reported by WebView
+        String js = "(function(obj){var result;" +
+                "console.log('>>> ' + obj.code);" +
+                "try{result=eval(obj.code);}catch(e){if(e.stack) console.error(e.stack);throw e;}" +
+                "if(result!==undefined) console.log(result.toString());" +
+                "})(" + obj.toString() + ");";
+
+        mIitcWebView.loadJS(js);
     }
 
     /**
