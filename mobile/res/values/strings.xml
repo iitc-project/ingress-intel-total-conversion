@@ -16,7 +16,7 @@
     <string name="locate">Get Location</string>
     <string name="local">local</string>
     <string name="close">Close</string>
-    <string name="download_description">Downloading latest intel package...</string>
+    <string name="download_description">Downloading latest intel package…</string>
 
     <string name="pref_about_title">About IITC Mobile</string>
     <!-- Use CDATA to prevent android from parsing html tags....we are doing this with Html.fromHtml() -->
@@ -26,7 +26,8 @@
         <b>Build Version: %1$s</b><br>
         <b>IITC Version: %2$s</b><br>
         <br>
-        <b>by <a href="https://github.com/leCradle">cradle</a> and contributors</b><br><br>
+        <b>by <a href="https://github.com/leCradle">cradle</a>, <a href="https://github.com/fkloft">fkloft</a> and
+        contributors</b><br><br>
         <b>Icon by <a href="http://www.ludolab.net">Giuseppe Lucido</a></b><br><br>
         IITC Mobile is an optimized mobile browser for the
         Ingress Intel Total Conversion (IITC) userscript by <a href="https://github.com/breunigs"><b>breunigs</b></a>.
@@ -35,9 +36,9 @@
         <h3>Community:</h3>
         • Visit the <a href="http://iitc.jonatkins.com/">IITC website</a> for new releases and the desktop version.<br>
         • Follow the <a href="https://plus.google.com/105383756361375410867">IITC Google+ page</a>
-         for release announcements.<br>
+        for release announcements.<br>
         • Join the <a href="https://plus.google.com/communities/105647403088015055797">IITC Google+ community</a>
-         - a place to ask for help and discuss with other users.
+        - a place to ask for help and discuss with other users.
         <h3>Developers:</h3>
         <a href="https://github.com/jonatkins/ingress-intel-total-conversion">IITC on Github</a>
         <h3>IITC Licence:</h3>
