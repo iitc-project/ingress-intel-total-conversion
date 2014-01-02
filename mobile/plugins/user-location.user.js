@@ -102,6 +102,8 @@ window.plugin.userLocation.locate = function(lat, lng, accuracy) {
 }
 
 window.plugin.userLocation.onLocationChange = function(lat, lng) {
+  if(!window.plugin.userLocation.marker) return;
+
   var latlng = new L.LatLng(lat, lng);
   window.plugin.userLocation.marker.setLatLng(latlng);
   window.plugin.userLocation.circle.setLatLng(latlng);
@@ -117,6 +119,8 @@ window.plugin.userLocation.onLocationChange = function(lat, lng) {
 };
 
 window.plugin.userLocation.onOrientationChange = function(direction) {
+  if(!window.plugin.userLocation.marker) return;
+
   var container = $(".container", window.plugin.userLocation.marker._icon);
 
   if(direction === null) {
