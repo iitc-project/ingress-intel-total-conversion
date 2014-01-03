@@ -136,7 +136,7 @@ window.setupMap = function() {
   window.map = new L.Map('map', {
     center: [0,0],
     zoom: 1,
-    zoomControl: (typeof android !== 'undefined' && android && android.showZoom) ? !android.showZoom() : true,
+    zoomControl: (typeof android !== 'undefined' && android && android.showZoom) ? android.showZoom() : true,
     minZoom: 1
   });
 

@@ -190,6 +190,7 @@ public class IITC_JSInterface {
         });
     }
 
+    @JavascriptInterface
     public boolean showZoom() {
         PackageManager pm = mIitc.getPackageManager();
         boolean hasMultitouch = pm.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH);
