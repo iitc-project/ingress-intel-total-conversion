@@ -39,25 +39,17 @@ public class IITC_TileManager {
         String path = mIitc.getApplication().getFilesDir().toString() + "/" + hostId + filePath;
         if (uri.getQuery() != null) path += uri.getQuery();
 
-        /*
-         * unfortunately, the filename is included in our path. since we may need to create directories,
-         * we need filename and filepath split.
-         */
-        String[] split = path.split("/");
-        String fileName = split[split.length - 1];
-        path = path.replace(fileName, "");
-
         // do the tile management
-        File file = new File(path, fileName);
+        File file = new File(path);
         if (file.exists()) {
             // asynchronously download tile if outdated, ignore date if not connected to wifi
-            if (mIitc.getWebView().isConnectedToWifi()) new DownloadTile(path, fileName).execute(url);
+            if (mIitc.getWebView().isConnectedToWifi()) new DownloadTile(path).execute(url);
             // return tile from storage
             InputStream in = new BufferedInputStream(new FileInputStream(file));
             return new WebResourceResponse(TYPE, ENCODING, in);
         } else {
             // asynchronously download tile to cache and let webviewclient load the resource
-            new DownloadTile(path, fileName).execute(url);
+            new DownloadTile(path).execute(url);
             return null;
         }
     }

@@ -13,11 +13,9 @@ import java.net.URLConnection;
 public class DownloadTile extends AsyncTask<String, Void, Boolean> {
 
     private String mFilePath;
-    private String mFileName;
 
-    public DownloadTile(String path, String fileName) {
+    public DownloadTile(String path) {
         mFilePath = path;
-        mFileName = fileName;
 
     }
 
@@ -28,13 +26,13 @@ public class DownloadTile extends AsyncTask<String, Void, Boolean> {
         try {
             tileUrl = new URL(urls[0]);
             conn = tileUrl.openConnection();
-            File file = new File(mFilePath, mFileName);
+            File file = new File(mFilePath);
             // update tile if needed, else return
             if (conn.getLastModified() < file.lastModified()) return true;
             InputStream is = null;
             is = conn.getInputStream();
             Log.d("iitcm", "writing to file: " + file.toString());
-            writeTileToFile(is, file, mFilePath);
+            writeTileToFile(is, file);
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -45,9 +43,8 @@ public class DownloadTile extends AsyncTask<String, Void, Boolean> {
         return true;
     }
 
-    private void writeTileToFile(InputStream inStream, File file, String path) throws Exception {
-        File filePath = new File(path);
-        filePath.mkdirs();
+    private void writeTileToFile(InputStream inStream, File file) throws Exception {
+        file.getParentFile().mkdirs();
         FileOutputStream outStream = new FileOutputStream(file);
         int bufferSize = 1024;
         byte[] buffer = new byte[bufferSize];
