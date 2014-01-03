@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
@@ -47,7 +46,7 @@ public class IITC_JSInterface {
     // prevent the spinner from closing automatically
     @JavascriptInterface
     public void spinnerEnabled(boolean en) {
-        Log.d("iitcm", "disableJS? " + en);
+        Log.d("disableJS? " + en);
         mIitc.getWebView().disableJS(en);
     }
 
@@ -116,7 +115,7 @@ public class IITC_JSInterface {
 
     @JavascriptInterface
     public void bootFinished() {
-        Log.d("iitcm", "...boot finished");
+        Log.d("...boot finished");
 
         mIitc.runOnUiThread(new Runnable() {
             @Override

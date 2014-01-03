@@ -9,7 +9,6 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
@@ -112,7 +111,7 @@ public class IITC_WebView extends WebView {
         if (url.startsWith("javascript:")) {
             // do nothing if script is enabled;
             if (mDisableJs) {
-                Log.d("iitcm", "javascript injection disabled...return");
+                Log.d("javascript injection disabled...return");
                 return;
             }
             loadJS(url.substring("javascript:".length()));
@@ -128,7 +127,7 @@ public class IITC_WebView extends WebView {
 
             // disable splash screen if a http error code is responded
             new CheckHttpResponse(mIitc).execute(url);
-            Log.d("iitcm", "loading url: " + url);
+            Log.d("loading url: " + url);
             super.loadUrl(url);
         }
     }
@@ -145,7 +144,7 @@ public class IITC_WebView extends WebView {
                 // window.show(...) is called if one of the action bar buttons
                 // is clicked
                 if (!js.startsWith("window.show(")) {
-                    Log.d("iitcm", "in insert mode. do not load script.");
+                    Log.d("in insert mode. do not load script.");
                     return;
                 }
             }
@@ -258,7 +257,7 @@ public class IITC_WebView extends WebView {
 
     public void setUserAgent() {
         String ua = mSharedPrefs.getBoolean("pref_fake_user_agent", false) ? mDesktopUserAgent : mDefaultUserAgent;
-        Log.d("iitcm", "setting user agent to: " + ua);
+        Log.d("setting user agent to: " + ua);
         mSettings.setUserAgentString(ua);
     }
 }

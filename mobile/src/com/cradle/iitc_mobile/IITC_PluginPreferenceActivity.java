@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -52,7 +51,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         // since the plugins container is static,
         // it is enough to parse the plugin only on first start.
         if (sPlugins == null) {
-            Log.d("iitcm", "opened plugin prefs the first time since app start -> parse plugins");
+            Log.d("opened plugin prefs the first time since app start -> parse plugins");
             sPlugins = new TreeMap<String, ArrayList<IITC_PluginPreference>>();
             setUpPluginPreferenceScreen();
         } else {
@@ -148,7 +147,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
             numPlugins += entry.getValue().size();
         }
         if ((user.length + official.length) != (numPlugins + mDeletedPlugins)) {
-            Log.d("iitcm", "new or less plugins found since last start, rebuild preferences");
+            Log.d("new or less plugins found since last start, rebuild preferences");
             sPlugins.clear();
             setUpPluginPreferenceScreen();
         }
@@ -186,7 +185,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
                 s = new Scanner(file).useDelimiter("\\A");
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-                Log.d("iitcm", "failed to parse file " + file);
+                Log.d("failed to parse file " + file);
             }
             if (s != null) {
                 src = s.hasNext() ? s.next() : "";
@@ -225,7 +224,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         // first check if we need a new category
         if (!sPlugins.containsKey(plugin_cat)) {
             sPlugins.put(plugin_cat, new ArrayList<IITC_PluginPreference>());
-            Log.d("iitcm", "create " + plugin_cat + " and add " + plugin_name);
+            Log.d("create " + plugin_cat + " and add " + plugin_name);
         }
 
         // now build a new checkable preference for the plugin

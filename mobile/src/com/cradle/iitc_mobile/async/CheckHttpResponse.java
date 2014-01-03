@@ -3,9 +3,9 @@ package com.cradle.iitc_mobile.async;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.cradle.iitc_mobile.IITC_Mobile;
+import com.cradle.iitc_mobile.Log;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -38,7 +38,7 @@ public class CheckHttpResponse extends AsyncTask<String, Void, Boolean> {
             response = httpclient.execute(httpRequest);
             int code = response.getStatusLine().getStatusCode();
             if (code != HttpStatus.SC_OK) {
-                Log.d("iitcm", "received error code: " + code);
+                Log.d("received error code: " + code);
                 mIitc.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -62,7 +62,7 @@ public class CheckHttpResponse extends AsyncTask<String, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean aBoolean) {
         if (aBoolean) {
-            Log.d("iitcm", "google auth error, redirecting to work-around page");
+            Log.d("google auth error, redirecting to work-around page");
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mIitc);
 
             // set title

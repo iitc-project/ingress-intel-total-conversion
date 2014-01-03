@@ -7,7 +7,6 @@ import android.net.http.SslError;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -54,7 +53,7 @@ public class IITC_WebViewClient extends WebViewClient {
         if (url.startsWith("http://www.ingress.com/intel")
                 || url.startsWith("https://www.ingress.com/intel")) {
             if (mIitcInjected) return;
-            Log.d("iitcm", "injecting iitc..");
+            Log.d("injecting iitc..");
             loadScripts((IITC_WebView) view);
             mIitcInjected = true;
         }
@@ -158,16 +157,12 @@ public class IITC_WebViewClient extends WebViewClient {
             // reload iitc if a poslink is clicked inside the app
             if (url.contains("intel?ll=")
                     || (url.contains("latE6") && url.contains("lngE6"))) {
-                Log.d("iitcm",
-                        "should be an internal clicked position link...reload script for: "
-                                + url);
+                Log.d("should be an internal clicked position link...reload script for: " + url);
                 mIitc.loadUrl(url);
             }
             return false;
         } else {
-            Log.d("iitcm",
-                    "no ingress intel link, start external app to load url: "
-                            + url);
+            Log.d("no ingress intel link, start external app to load url: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             mIitc.startActivity(intent);
             return true;

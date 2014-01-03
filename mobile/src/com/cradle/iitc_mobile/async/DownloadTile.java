@@ -1,7 +1,8 @@
 package com.cradle.iitc_mobile.async;
 
 import android.os.AsyncTask;
-import android.util.Log;
+
+import com.cradle.iitc_mobile.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,7 +32,7 @@ public class DownloadTile extends AsyncTask<String, Void, Boolean> {
             if (conn.getLastModified() < file.lastModified()) return true;
             InputStream is = null;
             is = conn.getInputStream();
-            Log.d("iitcm", "writing to file: " + file.toString());
+            Log.d("writing to file: " + file.toString());
             writeTileToFile(is, file);
         } catch (IOException e) {
             e.printStackTrace();

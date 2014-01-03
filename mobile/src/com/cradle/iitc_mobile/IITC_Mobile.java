@@ -17,7 +17,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -190,12 +189,12 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         String action = intent.getAction();
         if (Intent.ACTION_VIEW.equals(action)) {
             Uri uri = intent.getData();
-            Log.d("iitcm", "intent received url: " + uri.toString());
+            Log.d("intent received url: " + uri.toString());
 
             if (uri.getScheme().equals("http") || uri.getScheme().equals("https")) {
                 if (uri.getHost() != null
                         && (uri.getHost().equals("ingress.com") || uri.getHost().endsWith(".ingress.com"))) {
-                    Log.d("iitcm", "loading url...");
+                    Log.d("loading url...");
                     this.loadUrl(uri.toString());
                     return;
                 }
@@ -288,13 +287,13 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         super.onStart();
 
         if (mReloadNeeded) {
-            Log.d("iitcm", "preference had changed...reload needed");
+            Log.d("preference had changed...reload needed");
             reloadIITC();
         } else {
             // iitc is not fully booted...timer will be reset by the script itself
             if (findViewById(R.id.imageLoading).getVisibility() == View.GONE) {
                 // enough idle...let's do some work
-                Log.d("iitcm", "resuming...reset idleTimer");
+                Log.d("resuming...reset idleTimer");
                 mIitcWebView.loadUrl("javascript: window.idleReset();");
             }
         }
@@ -319,7 +318,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     @Override
     protected void onStop() {
         super.onStop();
-        Log.d("iitcm", "stopping iitcm");
+        Log.d("stopping iitcm");
         mIitcWebView.loadUrl("javascript: window.idleSet();");
         mUserLocation.onStop();
     }
@@ -336,7 +335,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
         mNavigationHelper.onConfigurationChanged(newConfig);
 
-        Log.d("iitcm", "configuration changed...restoring...reset idleTimer");
+        Log.d("configuration changed...restoring...reset idleTimer");
         mIitcWebView.loadUrl("javascript: window.idleTime = 0");
         mIitcWebView.loadUrl("javascript: window.renderUpdateStatus()");
     }
@@ -615,7 +614,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     // to ensure it is the last element of the list
     // focused dialogs should be closed first
     public void setFocusedDialog(String id) {
-        Log.d("iitcm", "Dialog " + id + " focused");
+        Log.d("Dialog " + id + " focused");
         mDialogStack.remove(id);
         mDialogStack.push(id);
     }
@@ -623,10 +622,10 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     // called by the javascript interface
     public void dialogOpened(String id, boolean open) {
         if (open) {
-            Log.d("iitcm", "Dialog " + id + " added");
+            Log.d("Dialog " + id + " added");
             mDialogStack.push(id);
         } else {
-            Log.d("iitcm", "Dialog " + id + " closed");
+            Log.d("Dialog " + id + " closed");
             mDialogStack.remove(id);
         }
     }

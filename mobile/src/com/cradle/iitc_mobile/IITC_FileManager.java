@@ -5,7 +5,6 @@ import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.webkit.WebResourceResponse;
 
 import org.json.JSONObject;
@@ -131,7 +130,7 @@ public class IITC_FileManager {
 
     private WebResourceResponse getUserPlugin(Uri uri) {
         if (!mPrefs.getBoolean(uri.getPath(), false)) {
-            Log.e("iitcm", "Attempted to inject user script that is not enabled by user: " + uri.getPath());
+            Log.e("Attempted to inject user script that is not enabled by user: " + uri.getPath());
             return EMPTY;
         }
 
@@ -193,7 +192,7 @@ public class IITC_FileManager {
         if ("user-plugin".equals(host))
             return getUserPlugin(uri);
 
-        Log.e("iitcm", "could not generate response for url: " + url);
+        Log.e("could not generate response for url: " + url);
         return EMPTY;
     }
 }

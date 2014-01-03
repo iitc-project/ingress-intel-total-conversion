@@ -44,12 +44,18 @@ public final class Log {
         d(DEFAULT_TAG, msg);
     }
 
+    /**
+     * @deprecated A default tag is provided by {@link Log.d}
+     */
     @Deprecated
     public static void d(String tag, String msg) {
         log(android.util.Log.DEBUG, tag, msg, null);
         android.util.Log.d(tag, msg);
     }
 
+    /**
+     * @deprecated A default tag is provided by {@link Log.d}
+     */
     @Deprecated
     public static void d(String tag, String msg, Throwable tr) {
         log(android.util.Log.DEBUG, tag, msg, tr);
@@ -64,12 +70,18 @@ public final class Log {
         e(DEFAULT_TAG, msg);
     }
 
+    /**
+     * @deprecated A default tag is provided by {@link Log.e}
+     */
     @Deprecated
     public static void e(String tag, String msg) {
         log(android.util.Log.ERROR, tag, msg, null);
         android.util.Log.e(tag, msg);
     }
 
+    /**
+     * @deprecated A default tag is provided by {@link Log.e}
+     */
     @Deprecated
     public static void e(String tag, String msg, Throwable tr) {
         log(android.util.Log.ERROR, tag, msg, tr);
@@ -84,12 +96,18 @@ public final class Log {
         i(DEFAULT_TAG, msg);
     }
 
+    /**
+     * @deprecated A default tag is provided by {@link Log.i}
+     */
     @Deprecated
     public static void i(String tag, String msg) {
         log(android.util.Log.INFO, tag, msg, null);
         android.util.Log.i(tag, msg);
     }
 
+    /**
+     * @deprecated A default tag is provided by {@link Log.i}
+     */
     @Deprecated
     public static void i(String tag, String msg, Throwable tr) {
         log(android.util.Log.INFO, tag, msg, tr);
@@ -122,6 +140,9 @@ public final class Log {
         return println(priority, DEFAULT_TAG, msg);
     }
 
+    /**
+     * @deprecated A default tag is provided by {@link Log.println}
+     */
     @Deprecated
     public static int println(int priority, String tag, String msg) {
         log(priority, tag, msg, null);
@@ -132,12 +153,18 @@ public final class Log {
         v(DEFAULT_TAG, msg);
     }
 
+    /**
+     * @deprecated A default tag is provided by {@link Log.v}
+     */
     @Deprecated
     public static void v(String tag, String msg) {
         log(android.util.Log.VERBOSE, tag, msg, null);
         android.util.Log.v(tag, msg);
     }
 
+    /**
+     * @deprecated A default tag is provided by {@link Log.v}
+     */
     @Deprecated
     public static void v(String tag, String msg, Throwable tr) {
         log(android.util.Log.VERBOSE, tag, msg, tr);
@@ -152,12 +179,18 @@ public final class Log {
         w(DEFAULT_TAG, msg);
     }
 
+    /**
+     * @deprecated A default tag is provided by {@link Log.w}
+     */
     @Deprecated
     public static void w(String tag, String msg) {
         log(android.util.Log.WARN, tag, msg, null);
         android.util.Log.w(tag, msg);
     }
 
+    /**
+     * @deprecated A default tag is provided by {@link Log.w}
+     */
     @Deprecated
     public static void w(String tag, String msg, Throwable tr) {
         log(android.util.Log.WARN, tag, msg, tr);
