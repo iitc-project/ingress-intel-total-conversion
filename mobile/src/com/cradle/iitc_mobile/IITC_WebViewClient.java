@@ -289,6 +289,7 @@ public class IITC_WebViewClient extends WebViewClient {
         if (url.matches(".*tile.*jpg.*") // mapquest tiles | ovi tiles
                 || url.matches(".*tile.*png.*") // cloudmade tiles
                 || url.matches(".*mts.*googleapis.*smartmaps") // google tiles
+                || url.matches(".*khms.*googleapis.*") // google satellite tiles
                 || url.matches(".*tile.*jpeg.*") // bing tiles
                 || url.matches(".*maps.*yandex.*tiles.*") // yandex maps
             ) {

@@ -8,6 +8,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.net.URL;
 
 public class IITC_TileManager {
 
@@ -20,12 +21,33 @@ public class IITC_TileManager {
     }
 
     public WebResourceResponse getTile(String url) throws Exception {
-        String path = mIitc.getApplication().getFilesDir().toString() + "/" + url;
-        path = path.replace("http://", "");
-        path = path.replace("https://", "");
+        /*
+         * We want to merge equal top lvl domains into one folder.
+         * This saves traffic since many tile providers get one and the same tile from different subdomains.
+         * Furthermore, it is easier for users to extend their tile-cache by tiles downloaded from PC.
+         */
+        URL uri = new URL(url);
+        String tileHoster = uri.getHost();
+        String[] subdomains = tileHoster.split("\\.");
+        String hostId = subdomains[subdomains.length - 2] + "." + subdomains[subdomains.length - 1];
+
+        /*
+         * now get the file path...example path:
+         * /storage/emulated/0/Android/data/com.cradle.iitc_mobile/files/mqcdn.com/tiles/1.0.0/map/18/137397/89580.jpg
+         */
+        String filePath = uri.getPath();
+        String path = mIitc.getApplication().getFilesDir().toString() + "/" + hostId + filePath;
+        if (uri.getQuery() != null) path += uri.getQuery();
+
+        /*
+         * unfortunately, the filename is included in our path. since we may need to create directories,
+         * we need filename and filepath split.
+         */
         String[] split = path.split("/");
         String fileName = split[split.length - 1];
         path = path.replace(fileName, "");
+
+        // do the tile management
         File file = new File(path, fileName);
         if (file.exists()) {
             // asynchronously download tile if outdated, ignore date if not connected to wifi
