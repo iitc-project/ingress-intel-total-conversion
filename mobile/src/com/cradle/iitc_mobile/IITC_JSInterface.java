@@ -206,4 +206,22 @@ public class IITC_JSInterface {
             }
         });
     }
+
+    @JavascriptInterface
+    public void setProgress(final double progress) {
+        mIitc.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (progress != -1) {
+                    // maximum for setProgress is 10,000
+                    mIitc.setProgressBarIndeterminate(false);
+                    mIitc.setProgress((int) Math.round(progress * 10000));
+                }
+                else {
+                    mIitc.setProgressBarIndeterminate(true);
+                    mIitc.setProgress(1);
+                }
+            }
+        });
+    }
 }

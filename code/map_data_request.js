@@ -59,7 +59,7 @@ window.MapDataRequest = function() {
   this.FETCH_TO_REFRESH_FACTOR = 2;  //refresh time is based on the time to complete a data fetch, times this value
 
   // ensure we have some initial map status
-  this.setStatus ('startup');
+  this.setStatus ('startup', undefined, -1);
 }
 
 
@@ -76,7 +76,7 @@ window.MapDataRequest.prototype.start = function() {
 
   // then set a timeout to start the first refresh
   this.refreshOnTimeout (this.STARTUP_REFRESH);
-  this.setStatus ('refreshing');
+  this.setStatus ('refreshing', undefined, -1);
 
   this.cache && this.cache.startExpireInterval (15);
 }
@@ -110,7 +110,7 @@ window.MapDataRequest.prototype.mapMoveEnd = function() {
     }
   }
 
-  this.setStatus('refreshing');
+  this.setStatus('refreshing', undefined, -1);
   this.refreshOnTimeout(this.MOVE_REFRESH);
 }
 
@@ -120,7 +120,7 @@ window.MapDataRequest.prototype.idleResume = function() {
   if (this.idle) {
     console.log('refresh map idle resume');
     this.idle = false;
-    this.setStatus('idle restart');
+    this.setStatus('idle restart', undefined, -1);
     this.refreshOnTimeout(this.IDLE_RESUME_REFRESH);
   }
 }
@@ -262,7 +262,7 @@ window.MapDataRequest.prototype.refresh = function() {
     }
   }
 
-  this.setStatus ('loading');
+  this.setStatus ('loading', undefined, -1);
 
   // technically a request hasn't actually finished - however, displayed portal data has been refreshed
   // so as far as plugins are concerned, it should be treated as a finished request
