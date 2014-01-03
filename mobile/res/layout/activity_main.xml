@@ -12,7 +12,7 @@
         <com.cradle.iitc_mobile.IITC_WebView
             android:id="@+id/iitc_webview"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="fill_parent"
             android:layout_weight="1"/>
 
         <ImageView
@@ -40,8 +40,9 @@
 
             <ImageButton
                 android:id="@+id/btnToggleMapVisibility"
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
+                android:layout_width="@dimen/button_size"
+                android:layout_height="@dimen/button_size"
+                android:layout_gravity="bottom"
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/toggle_map"
                 android:onClick="onToggleMapVisibility"
@@ -50,16 +51,17 @@
             <EditText
                 android:id="@+id/editCommand"
                 android:layout_width="0dp"
-                android:layout_height="fill_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:imeActionLabel="@string/debug_run"
                 android:imeOptions="actionGo"
                 android:inputType="textMultiLine|textNoSuggestions"
-                android:lines="1"/>
+                android:maxLines="4"/>
 
             <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
+                android:layout_width="@dimen/button_size"
+                android:layout_height="@dimen/button_size"
+                android:layout_gravity="bottom"
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/debug_run"
                 android:onClick="onBtnRunCodeClick"
