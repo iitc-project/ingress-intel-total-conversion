@@ -1,32 +1,44 @@
-// DIALOGS /////////////////////////////////////////////////////////
+// DIALOGS: ////////////////////////////////////////////////////////
 // Inspired by TES III: Morrowind. Long live House Telvanni. ///////
-////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////// [NUMINIT] /
+
+/* This component's namespace.
+ */
+window.dialog = function(options) {
+  return window.dialog.open(options);
+};
 
 /* The global ID of onscreen dialogs.
  * Starts at 0.
  */
-window.DIALOG_ID = 0;
+window.dialog.DIALOG_ID = 0;
 
 /* All onscreen dialogs, keyed by their ID.
  */
-window.DIALOGS = {};
+window.dialog.DIALOGS = {};
+
+/* The dialog stack.
+ */
+window.dialog.DIALOG_STACK = [];
 
 /* The number of dialogs on screen.
  */
-window.DIALOG_COUNT = 0;
+window.dialog.DIALOG_COUNT = 0;
 
 /* The dialog that has focus.
  */
-window.DIALOG_FOCUS = null;
+window.dialog.DIALOG_FOCUS = null;
 
 /* Controls how quickly the slide toggle animation
  * should play for dialog collapsing and expanding.
  */
-window.DIALOG_SLIDE_DURATION = 100;
+window.dialog.DIALOG_SLIDE_DURATION = 100;
 
 /* Creates a dialog and puts it onscreen. Takes one argument: options, a JS object.
  * == Common options
  * (text|html): The text or HTML to display in the dialog. Text is auto-converted to HTML.
+ *              If either is a function, it will be called in the context of the dialog object,
+ *              using the `options' object as an argument.
  * title: The dialog's title.
  * modal: Whether to open a modal dialog. Implies draggable=false; dialogClass='ui-dialog-modal'.
  *        Please note that modal dialogs hijack the entire screen and should only be used in very
@@ -48,7 +60,7 @@ window.DIALOG_SLIDE_DURATION = 100;
  * applied a class to your dialog after creating it with alert(), dialogClass may be particularly
  * useful.
  */
-window.dialog = function(options) {
+window.dialog.open = function(options) {
   // Override for smartphones. Preserve default behavior and create a modal dialog.
   options = options || {};
   if(isSmartphone()) {
@@ -57,23 +69,13 @@ window.dialog = function(options) {
   }
 
   // Build an identifier for this dialog
-  var id = 'dialog-' + (options.modal ? 'modal' : (options.id ? options.id : 'anon-' + window.DIALOG_ID++));
+  var id = 'dialog-' + (options.id ? options.id : window.dialog.DIALOG_ID++);
   var jqID = '#' + id;
   var html = '';
 
   // hint for iitc mobile that a dialog was opened
   if (typeof android !== 'undefined' && android && android.dialogOpened) {
     android.dialogOpened(id, true);
-  }
-
-  // Convert text to HTML if necessary
-  if(options.text) {
-    html = window.convertTextToTableMagic(options.text);
-  } else if(options.html) {
-    html = options.html;
-  } else {
-    console.log('window.dialog: warning: no text in dialog');
-    html = window.convertTextToTableMagic('');
   }
 
   // Modal dialogs should not be draggable
@@ -83,13 +85,13 @@ window.dialog = function(options) {
   }
 
   // Close out existing dialogs.
-  if(window.DIALOGS[id]) {
+  if(window.dialog.DIALOGS[id]) {
     try {
-      var selector = $(window.DIALOGS[id]);
+      var selector = $(window.dialog.DIALOGS[id]);
       selector.dialog('close');
       selector.remove();
     } catch(err) {
-      console.log('window.dialog: Tried to close nonexistent dialog ' + id);
+      console.log('dialog.open: Tried to close nonexistent dialog ' + id);
     }
   }
 
@@ -140,7 +142,7 @@ window.dialog = function(options) {
           var button   = dialog.find('.ui-dialog-titlebar-button-collapse');
 
           // Slide toggle
-          $(selector).slideToggle({duration: window.DIALOG_SLIDE_DURATION});
+          $(selector).slideToggle({duration: window.dialog.DIALOG_SLIDE_DURATION});
 
           if(collapsed) {
             $(button).removeClass('ui-dialog-titlebar-button-collapse-collapsed');
@@ -157,12 +159,23 @@ window.dialog = function(options) {
         // Put it into the titlebar
         titlebar.prepend(collapse);
         close.addClass('ui-dialog-titlebar-button-close');
+      } else {
+        // Hide the last entry in the stack
+        if(window.dialog.DIALOG_STACK.length > 0) {
+          var ui = $(window.dialog.DIALOG_STACK[window.dialog.DIALOG_STACK.length - 1]).closest('.ui-dialog');
+          ui.hide();
+          ui.next('.ui-widget-overlay').hide();
+        }
+
+        // Push this onto the stack and set the stack index
+        window.dialog.DIALOG_STACK.push(this);
+        $(this).data('stack_idx', window.dialog.DIALOG_STACK.length - 1);
       }
 
-      window.DIALOGS[$(this).data('id')] = this;
-      window.DIALOG_COUNT++;
+      window.dialog.DIALOGS[$(this).data('id')] = this;
+      window.dialog.DIALOG_COUNT++;
 
-      console.log('window.dialog: ' + $(this).data('id') + ' (' + $(this).dialog('option', 'title') + ') opened. ' + window.DIALOG_COUNT + ' remain.');
+      console.log('dialog#open: ' + $(this).data('id') + ' (' + $(this).dialog('option', 'title') + ') opened. ' + window.dialog.DIALOG_COUNT + ' remain.');
     },
     close: function() {
       // Run the close callback if we have one
@@ -171,19 +184,26 @@ window.dialog = function(options) {
       }
 
       // Make sure that we don't keep a dead dialog in focus
-      if(window.DIALOG_FOCUS && $(window.DIALOG_FOCUS).data('id') === $(this).data('id')) {
-        window.DIALOG_FOCUS = null;
+      if(window.dialog.DIALOG_FOCUS && $(window.dialog.DIALOG_FOCUS).data('id') === $(this).data('id')) {
+        window.dialog.DIALOG_FOCUS = null;
       }
 
       // Finalize
-      delete window.DIALOGS[$(this).data('id')];
+      delete window.dialog.DIALOGS[$(this).data('id')];
+      if($(this).dialog('option', 'modal')) {
+        // The top dialog was closed, so show the dialog and widget overlay under it
+        if(window.dialog.DIALOG_STACK.length > 0 && $(this).data('stack_idx') == window.dialog.DIALOG_STACK.length - 1) {
+          var ui = $(window.dialog.DIALOG_STACK[$(this).data('stack_idx') - 1]).closest('.ui-dialog');
+          ui.show();
+          ui.next('.ui-widget-overlay').show();
+        }
 
-      window.DIALOG_COUNT--;
-      console.log('window.dialog: ' + $(this).data('id') + ' (' + $(this).dialog('option', 'title') + ') closed. ' + window.DIALOG_COUNT + ' remain.');
-      // hint for iitc mobile that a dialog was closed
-      if (typeof android !== 'undefined' && android && android.dialogOpened) {
-        android.dialogOpened(id, false);
+        // Lets us remove from the middle of the dialog stack. Not a typical use case, but (somehow) a dialog under a stacked dialog could be closed.
+        window.dialog.DIALOG_STACK.splice($(this).data('stack_idx'), 1);
       }
+
+      window.dialog.DIALOG_COUNT--;
+      console.log('dialog#close: ' + $(this).data('id') + ' (' + $(this).dialog('option', 'title') + ') closed. ' + window.dialog.DIALOG_COUNT + ' remain.');
 
       // remove from DOM and destroy
       $(this).dialog('destroy').remove();
@@ -194,28 +214,31 @@ window.dialog = function(options) {
       }
 
       // Blur the window currently in focus unless we're gaining focus
-      if(window.DIALOG_FOCUS && $(window.DIALOG_FOCUS).data('id') !== $(this).data('id')) {
+      if(window.dialog.DIALOG_FOCUS && $(window.dialog.DIALOG_FOCUS).data('id') !== $(this).data('id')) {
         $.proxy(function(event, ui) {
           if($(this).data('blurCallback')) {
             $.proxy($(this).data('blurCallback'), this)();
           }
 
           $(this).closest('.ui-dialog').find('.ui-dialog-title').removeClass('ui-dialog-title-active').addClass('ui-dialog-title-inactive');
-        }, window.DIALOG_FOCUS)();
+        }, window.dialog.DIALOG_FOCUS)();
       }
 
       // This dialog is now in focus
-      window.DIALOG_FOCUS = this;
+      window.dialog.DIALOG_FOCUS = this;
       // hint for iitc mobile that a dialog was focused
       if (typeof android !== 'undefined' && android && android.dialogFocused) {
-        android.dialogFocused($(window.DIALOG_FOCUS).data('id'));
+        android.dialogFocused($(window.dialog.DIALOG_FOCUS).data('id'));
       }
       $(this).closest('.ui-dialog').find('.ui-dialog-title').removeClass('ui-dialog-title-inactive').addClass('ui-dialog-title-active');
     }
   }, options));
 
+  var proxy = function(text) {
+    return ($.isFunction(text) ? $.proxy(text, dialog)(options) : text);
+  };
+
   // Set HTML and IDs
-  dialog.html(html);
   dialog.data('id', id);
   dialog.data('jqID', jqID);
 
@@ -235,16 +258,55 @@ window.dialog = function(options) {
     dialog.dialog().parents('.ui-dialog').draggable('option', 'snap', true);
   }
 
-  // Run it
-  dialog.dialog('open');
+  // Convert text to HTML if necessary
+  if(options.text) {
+    html = window.convertTextToTableMagic(proxy(options.text));
+  } else if(options.html) {
+    html = proxy(options.html);
+  } else {
+    console.log('dialog.open: warning: no text in dialog');
+    html = window.convertTextToTableMagic('');
+  }
 
+  // Set its HTML
+  dialog.html(html);
+
+  // Open the dialog
+  dialog.dialog('open');
+  
   return dialog;
-}
+};
+
+/* Closes the dialog with the specified ID.
+ */
+window.dialog.close = function(id) {
+  if (id in window.dialog.DIALOGS) {
+    $(window.dialog.DIALOGS[id]).dialog('close');
+  }
+};
+
+/* Closes all dialogs.
+ */
+window.dialog.closeAll = function() {
+  $.each(window.dialog.DIALOGS, function(k, v) {
+    $(v).dialog('close');
+  });
+};
+
+/* Closes the top dialog on the stack.
+ */
+window.dialog.closeTop = function() {
+  if (window.dialog.DIALOG_STACK.length > 0) {
+    $(window.dialog.DIALOG_STACK[window.dialog.DIALOG_STACK.length - 1]).dialog('close');
+  } else if (window.dialog.DIALOG_FOCUS !== null) {
+    $(window.dialog.DIALOG_FOCUS).dialog('close');
+  }
+};
 
 /* Creates an alert dialog with default settings.
  * If you want more configurability, use window.dialog instead.
  */
-window.alert = function(text, isHTML, closeCallback) {
+window.dialog.alert = function(text, isHTML, closeCallback) {
   var obj = {closeCallback: closeCallback};
   if(isHTML) {
     obj.html = text;
@@ -252,12 +314,18 @@ window.alert = function(text, isHTML, closeCallback) {
     obj.text = text;
   }
 
-  return dialog(obj);
-}
+  return window.dialog.open(obj);
+};
 
-window.setupDialogs = function() {
-  window.DIALOG_ID = 0;
-  window.DIALOGS   = {}
-  window.DIALOG_COUNT = 0;
-  window.DIALOG_FOCUS = null;
-}
+window.dialog.setup = function() {
+  window.dialog.DIALOG_ID = 0;
+  window.dialog.DIALOGS = {};
+  window.dialog.DIALOG_STACK = [];
+  window.dialog.DIALOG_COUNT = 0;
+  window.dialog.DIALOG_FOCUS = null;
+  window.dialog.DIALOG_SLIDE_DURATION = 100;
+};
+
+/* Exports
+ */
+window.alert = window.dialog.alert;

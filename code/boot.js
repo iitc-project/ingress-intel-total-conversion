@@ -527,13 +527,13 @@ function boot() {
     shadowSize: new L.Point(41, 41)
   }});
 
+  var components = [window.dialog, window.chat, window.redeem];
+
   window.setupIdle();
   window.setupTaphold();
   window.setupStyles();
-  window.setupDialogs();
   window.setupMap();
   window.setupGeosearch();
-  window.setupRedeem();
   window.setupLargeImagePreview();
   window.setupSidebarToggle();
   window.updateGameScore();
@@ -545,6 +545,14 @@ function boot() {
   window.setupQRLoadLib();
   window.setupLayerChooserSelectOne();
   window.setupLayerChooserStatusRecorder();
+
+  // Initialize each component
+  $.each(components, function(i, c) {
+    if($.isFunction(c.setup)) {
+      c.setup();
+    }
+  });
+
   // read here ONCE, so the URL is only evaluated one time after the
   // necessary data has been loaded.
   urlPortalLL = getURLParam('pll');
