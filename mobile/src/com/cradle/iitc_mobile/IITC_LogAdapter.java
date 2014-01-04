@@ -83,7 +83,12 @@ public class IITC_LogAdapter extends ArrayAdapter<Log.Message> implements Log.Re
     }
 
     @Override
-    public void handle(Message message) {
-        insert(message, 0);
+    public void handle(final Message message) {
+        mIitc.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                insert(message, 0);
+            }
+        });
     }
 }
