@@ -27,6 +27,8 @@ public class IITC_FileManager {
             "script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));\n"
                     + "(document.body || document.head || document.documentElement).appendChild(script);";
 
+    public static final String DOMAIN = ".iitcm.localhost";
+
     public static HashMap<String, String> getScriptInfo(String js) {
         HashMap<String, String> map = new HashMap<String, String>();
         String header = "";
@@ -183,16 +185,19 @@ public class IITC_FileManager {
         return getScriptInfo(stream).get("version");
     }
 
-    public WebResourceResponse getResponse(String url) {
-        Uri uri = Uri.parse(url);
-
+    public WebResourceResponse getResponse(Uri uri) {
         String host = uri.getHost();
+        if (!host.endsWith(DOMAIN))
+            return EMPTY;
+
+        host = host.substring(0, host.length() - DOMAIN.length());
+
         if ("script".equals(host))
             return getScript(uri);
         if ("user-plugin".equals(host))
             return getUserPlugin(uri);
 
-        Log.e("could not generate response for url: " + url);
+        Log.e("could not generate response for url: " + uri);
         return EMPTY;
     }
 }

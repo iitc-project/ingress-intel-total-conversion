@@ -22,8 +22,8 @@ public class IITC_WebViewClient extends WebViewClient {
     private static final ByteArrayInputStream STYLE = new ByteArrayInputStream(
             "body, #dashboard_container, #map_canvas { background: #000 !important; }"
                     .getBytes());
-    private static final ByteArrayInputStream EMPTY = new ByteArrayInputStream(
-            "".getBytes());
+    private static final ByteArrayInputStream EMPTY = new ByteArrayInputStream("".getBytes());
+    private static final String DOMAIN = IITC_FileManager.DOMAIN;
 
     private String mIitcPath;
     private boolean mIitcInjected = false;
@@ -63,7 +63,7 @@ public class IITC_WebViewClient extends WebViewClient {
     private void loadScripts(IITC_WebView view) {
         List<String> scripts = new LinkedList<String>();
 
-        scripts.add("script/total-conversion-build.user.js");
+        scripts.add("script" + DOMAIN + "/total-conversion-build.user.js");
 
         // get the plugin preferences
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mIitc);
@@ -74,9 +74,9 @@ public class IITC_WebViewClient extends WebViewClient {
             String plugin = entry.getKey();
             if (plugin.endsWith(".user.js") && entry.getValue().toString().equals("true")) {
                 if (plugin.startsWith(mIitcPath)) {
-                    scripts.add("user-plugin" + plugin);
+                    scripts.add("user-plugin" + DOMAIN + plugin);
                 } else {
-                    scripts.add("script/plugins/" + plugin);
+                    scripts.add("script" + DOMAIN + "/plugins/" + plugin);
                 }
             }
         }
@@ -87,7 +87,7 @@ public class IITC_WebViewClient extends WebViewClient {
         }
 
         String js = "(function(){['" + TextUtils.join("','", scripts) + "'].forEach(function(src) {" +
-                "var script = document.createElement('script');script.src = 'iitcm://'+src;" +
+                "var script = document.createElement('script');script.src = '//'+src;" +
                 "(document.body || document.head || document.documentElement).appendChild(script);" +
                 "});})();";
 
@@ -104,11 +104,11 @@ public class IITC_WebViewClient extends WebViewClient {
         // ((IITC_Mobile) mContext).onReceivedLoginRequest(this, view, realm, account, args);
     }
 
-    // Check every external resource if it’s okay to load it and maybe replace
-    // it
-    // with our own content. This is used to block loading Niantic resources
-    // which aren’t required and to inject IITC early into the site.
-    // via http://stackoverflow.com/a/8274881/1684530
+    /**
+     * Check every external resource if it's okay to load it and maybe replace it with our own content.
+     * This is used to block loading Niantic resources which aren’t required and to inject IITC early into the site.
+     * via http://stackoverflow.com/a/8274881/1684530
+     */
     @Override
     public WebResourceResponse shouldInterceptRequest(final WebView view, String url) {
         // if any tiles are requested, handle it with IITC_TileManager
@@ -125,14 +125,14 @@ public class IITC_WebViewClient extends WebViewClient {
                 e.printStackTrace();
                 return super.shouldInterceptRequest(view, url);
             }
-        } else if (url.contains("/css/common.css")) {
+        }
+
+        if (url.contains("/css/common.css")) {
+            // return custom stylesheet
             return new WebResourceResponse("text/css", "UTF-8", STYLE);
-            // } else if (url.contains("gen_dashboard.js")) {
-            // // define initialize function to get rid of JS ReferenceError on intel page's 'onLoad'
-            // String gen_dashboard_replacement = "window.initialize = function() {}";
-            // return new WebResourceResponse("text/javascript", "UTF-8",
-            // new ByteArrayInputStream(gen_dashboard_replacement.getBytes()));
-        } else if (url.contains("/css/ap_icons.css")
+        }
+
+        if (url.contains("/css/ap_icons.css")
                 || url.contains("/css/map_icons.css")
                 || url.contains("/css/common.css")
                 || url.contains("/css/misc_icons.css")
@@ -142,12 +142,16 @@ public class IITC_WebViewClient extends WebViewClient {
                 || url.contains("/css/portalrender_mobile.css")
                 || url.contains("js/analytics.js")
                 || url.contains("google-analytics.com/ga.js")) {
+            // don't load stylesheets
             return new WebResourceResponse("text/plain", "UTF-8", EMPTY);
-        } else if (url.startsWith("iitcm:")) {
-            return mIitc.getFileManager().getResponse(url);
-        } else {
-            return super.shouldInterceptRequest(view, url);
         }
+
+        Uri uri = Uri.parse(url);
+        if (uri.getHost().endsWith(DOMAIN) &&
+                ("http".equals(uri.getScheme()) || "https".equals(uri.getScheme())))
+            return mIitc.getFileManager().getResponse(uri);
+
+        return super.shouldInterceptRequest(view, url);
     }
 
     // start non-ingress-intel-urls in another app...
