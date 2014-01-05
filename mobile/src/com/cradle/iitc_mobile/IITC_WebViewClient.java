@@ -122,7 +122,7 @@ public class IITC_WebViewClient extends WebViewClient {
             try {
                 return mTileManager.getTile(url);
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.w(e);
                 return super.shouldInterceptRequest(view, url);
             }
         }

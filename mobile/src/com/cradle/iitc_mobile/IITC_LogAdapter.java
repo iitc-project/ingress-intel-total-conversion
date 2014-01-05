@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import com.cradle.iitc_mobile.Log.Message;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 
 public class IITC_LogAdapter extends ArrayAdapter<Log.Message> implements Log.Receiver {
@@ -50,8 +52,20 @@ public class IITC_LogAdapter extends ArrayAdapter<Log.Message> implements Log.Re
         tv = (TextView) v.findViewById(R.id.log_time);
         tv.setText(FORMATTER.format(item.getDate()));
 
+        String msg = item.getMsg();
+        if (item.getTr() != null) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            item.getTr().printStackTrace(pw);
+
+            if (msg == null || msg.isEmpty())
+                msg = sw.toString();
+            else
+                msg += "\n" + sw.toString();
+        }
+
         tv = (TextView) v.findViewById(R.id.log_msg);
-        tv.setText(item.getMsg());
+        tv.setText(msg);
 
         return v;
     }

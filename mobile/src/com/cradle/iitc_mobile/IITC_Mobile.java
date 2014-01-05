@@ -205,7 +205,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                     handleGeoUri(uri);
                     return;
                 } catch (URISyntaxException e) {
-                    e.printStackTrace();
+                    Log.w(e);
                     new AlertDialog.Builder(this)
                             .setTitle(R.string.intent_error)
                             .setMessage(e.getReason())
@@ -513,7 +513,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                 try {
                     intent.putExtra("iitc_version", mFileManager.getIITCVersion());
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.w(e);
                     return true;
                 }
                 startActivity(intent);
@@ -680,7 +680,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         try {
             obj.put("code", code);
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.w(e);
             return;
         }
 

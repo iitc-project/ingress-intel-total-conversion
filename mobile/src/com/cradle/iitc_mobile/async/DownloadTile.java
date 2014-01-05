@@ -35,16 +35,12 @@ public class DownloadTile extends AsyncTask<String, Void, Boolean> {
             Log.d("writing to file: " + file.toString());
             writeTileToFile(is, file);
         } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
         return true;
     }
 
-    private void writeTileToFile(InputStream inStream, File file) throws Exception {
+    private void writeTileToFile(InputStream inStream, File file) throws IOException {
         file.getParentFile().mkdirs();
         FileOutputStream outStream = new FileOutputStream(file);
         int bufferSize = 1024;
@@ -53,7 +49,7 @@ public class DownloadTile extends AsyncTask<String, Void, Boolean> {
         while ((len = inStream.read(buffer)) != -1) {
             outStream.write(buffer, 0, len);
         }
-        if(outStream!=null) outStream.close();
+        if (outStream != null)
+            outStream.close();
     }
-
 }

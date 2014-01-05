@@ -64,13 +64,13 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
                 mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
             } catch (IllegalArgumentException e) {
                 // if the given provider doesn't exist
-                e.printStackTrace();
+                Log.w(e);
             }
             try {
                 mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
             } catch (IllegalArgumentException e) {
                 // if the given provider doesn't exist
-                e.printStackTrace();
+                Log.w(e);
             }
             mLocationRegistered = true;
         }

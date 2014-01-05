@@ -120,7 +120,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
             asset_array = am.list("plugins");
         } catch (IOException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            Log.w(e);
         }
         if (asset_array == null) {
             asset_array = new String[0];
@@ -163,11 +163,9 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
             Scanner s = null;
             String src = "";
             try {
-                s = new Scanner(getAssets().open("plugins/" + asset))
-                        .useDelimiter("\\A");
-            } catch (IOException e2) {
-                // TODO Auto-generated catch block
-                e2.printStackTrace();
+                s = new Scanner(getAssets().open("plugins/" + asset)).useDelimiter("\\A");
+            } catch (IOException e) {
+                Log.w(e);
             }
             if (s != null) {
                 src = s.hasNext() ? s.next() : "";
@@ -184,7 +182,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
             try {
                 s = new Scanner(file).useDelimiter("\\A");
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                Log.w(e);
                 Log.d("failed to parse file " + file);
             }
             if (s != null) {
@@ -200,7 +198,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
 
         // parse plugin name, description and category
         // we need default versions here otherwise iitcm may crash
-        HashMap<String,String> info = IITC_FileManager.getScriptInfo(src);
+        HashMap<String, String> info = IITC_FileManager.getScriptInfo(src);
         String plugin_name = info.get("name");
         String plugin_cat = info.get("category");
         String plugin_desc = info.get("description");

@@ -51,7 +51,7 @@ public class CheckHttpResponse extends AsyncTask<String, Void, Boolean> {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(e);
         }
         return false;
     }

@@ -83,7 +83,7 @@ public class IITC_FileManager {
             try {
                 return new FileInputStream(file);
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                Log.w(e);
             }
         }
 
@@ -96,14 +96,14 @@ public class IITC_FileManager {
                     URL url = new URL(context, filename);
                     return url.openStream();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.w(e);
                 }
             } else {
                 File file = new File(source + File.separatorChar + filename);
                 try {
                     return new FileInputStream(file);
                 } catch (FileNotFoundException e) {
-                    e.printStackTrace();
+                    Log.w(e);
                 }
             }
         }
@@ -117,7 +117,7 @@ public class IITC_FileManager {
         try {
             stream = getAssetFile(uri.getPath().substring(1));
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(e);
             return EMPTY;
         }
 
@@ -140,7 +140,7 @@ public class IITC_FileManager {
         try {
             stream = new FileInputStream(new File(uri.getPath()));
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(e);
             return EMPTY;
         }
 
@@ -173,7 +173,7 @@ public class IITC_FileManager {
                 os.write(buffer, 0, read);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(e);
             return "";
         }
         return os.toString();

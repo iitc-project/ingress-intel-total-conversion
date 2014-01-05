@@ -46,6 +46,10 @@ public final class Log {
         }
     }
 
+    public static void addReceiver(Log.Receiver receiver) {
+        RECEIVERS.add(receiver);
+    }
+
     public static void d(String msg) {
         d(DEFAULT_TAG, msg);
     }
@@ -70,6 +74,10 @@ public final class Log {
 
     public static void d(String msg, Throwable tr) {
         d(DEFAULT_TAG, msg, tr);
+    }
+
+    public static void d(Throwable tr) {
+        d("Unexpected " + tr, tr);
     }
 
     public static void e(String msg) {
@@ -98,6 +106,10 @@ public final class Log {
         e(DEFAULT_TAG, msg, tr);
     }
 
+    public static void e(Throwable tr) {
+        e("Unexpected " + tr, tr);
+    }
+
     public static void i(String msg) {
         i(DEFAULT_TAG, msg);
     }
@@ -122,6 +134,10 @@ public final class Log {
 
     public static void i(String msg, Throwable tr) {
         i(DEFAULT_TAG, msg, tr);
+    }
+
+    public static void i(Throwable tr) {
+        i("Unexpected " + tr, tr);
     }
 
     public static boolean log(ConsoleMessage message) {
@@ -160,6 +176,10 @@ public final class Log {
         return android.util.Log.println(priority, tag, msg);
     }
 
+    public static void removeReceiver(Log.Receiver receiver) {
+        RECEIVERS.remove(receiver);
+    }
+
     public static void v(String msg) {
         v(DEFAULT_TAG, msg);
     }
@@ -186,6 +206,10 @@ public final class Log {
         v(DEFAULT_TAG, msg, tr);
     }
 
+    public static void v(Throwable tr) {
+        v("Unexpected " + tr, tr);
+    }
+
     public static void w(String msg) {
         w(DEFAULT_TAG, msg);
     }
@@ -210,6 +234,10 @@ public final class Log {
 
     public static void w(String msg, Throwable tr) {
         w(DEFAULT_TAG, msg, tr);
+    }
+
+    public static void w(Throwable tr) {
+        w("Unexpected " + tr, tr);
     }
 
     private Log() {
@@ -255,13 +283,5 @@ public final class Log {
 
     public static interface Receiver {
         void handle(Message message);
-    }
-
-    public static void removeReceiver(Log.Receiver receiver) {
-        RECEIVERS.remove(receiver);
-    }
-
-    public static void addReceiver(Log.Receiver receiver) {
-        RECEIVERS.add(receiver);
     }
 }

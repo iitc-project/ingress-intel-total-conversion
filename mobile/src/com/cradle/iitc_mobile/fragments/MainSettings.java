@@ -18,6 +18,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import com.cradle.iitc_mobile.IITC_AboutDialogPreference;
+import com.cradle.iitc_mobile.Log;
 import com.cradle.iitc_mobile.R;
 
 public class MainSettings extends PreferenceFragment {
@@ -37,7 +38,7 @@ public class MainSettings extends PreferenceFragment {
             PackageInfo info = pm.getPackageInfo(getActivity().getPackageName(), 0);
             buildVersion = info.versionName;
         } catch (NameNotFoundException e) {
-            e.printStackTrace();
+            Log.w(e);
         }
 
         IITC_AboutDialogPreference pref_about = (IITC_AboutDialogPreference) findPreference("pref_about");

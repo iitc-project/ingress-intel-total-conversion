@@ -68,7 +68,7 @@ public class IITC_JSInterface {
                     .getPackageInfo(mIitc.getPackageName(), 0);
             versionCode = pInfo.versionCode;
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            Log.w(e);
         }
         return versionCode;
     }
@@ -81,7 +81,7 @@ public class IITC_JSInterface {
             PackageInfo info = pm.getPackageInfo(mIitc.getPackageName(), 0);
             buildVersion = info.versionName;
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            Log.w(e);
         }
         return buildVersion;
     }
