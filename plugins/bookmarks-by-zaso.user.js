@@ -854,10 +854,10 @@
     if(data.target === 'portal') {
       if(data.action === 'add') {
         var guid = window.selectedPortal;
-        var latlng = window.portals[guid]._latlng;
-        var lbl = window.portals[guid]._label;
+        var latlng = window.portals[guid].getLatLng();
+        var lbl = window.portals[guid].options.data.title;
         var starInLayer = window.plugin.bookmarks.starLayers[data.guid];
-        window.plugin.bookmarks.addStar(guid, latlng,lbl);
+        window.plugin.bookmarks.addStar(guid, latlng, lbl);
       }
       else if(data.action === 'remove') {
         var starInLayer = window.plugin.bookmarks.starLayers[data.guid];
