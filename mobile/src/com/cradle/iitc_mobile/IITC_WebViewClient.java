@@ -83,7 +83,7 @@ public class IITC_WebViewClient extends WebViewClient {
 
         // inject the user location script if enabled in settings
         if (Integer.parseInt(sharedPref.getString("pref_user_location_mode", "0")) != 0) {
-            scripts.add("script/user-location.user.js");
+            scripts.add("script" + DOMAIN + "/user-location.user.js");
         }
 
         String js = "(function(){['" + TextUtils.join("','", scripts) + "'].forEach(function(src) {" +

@@ -33,7 +33,7 @@ public final class Log {
         CONSOLE_MAPPING.put(MessageLevel.ERROR, android.util.Log.ERROR);
         CONSOLE_MAPPING.put(MessageLevel.DEBUG, android.util.Log.DEBUG);
 
-        URL_PATTERN = Pattern.compile("^https?://([a-z.]+)" + Pattern.quote(IITC_FileManager.DOMAIN) + "/(.*)$",
+        URL_PATTERN = Pattern.compile("^https?://([a-z.-]+)" + Pattern.quote(IITC_FileManager.DOMAIN) + "/(.*)$",
                 Pattern.CASE_INSENSITIVE);
     };
 
