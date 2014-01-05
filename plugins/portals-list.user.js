@@ -150,7 +150,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
     } else if (aComp > bComp) {
       retVal = 1;
     } else {
-      // equal - compare GUIDs to ensure consistant (but arbitary) order
+      // equal - compare GUIDs to ensure consistent (but arbitrary) order
       retVal = a.guid < b.guid ? -1 : 1;
     }
 
