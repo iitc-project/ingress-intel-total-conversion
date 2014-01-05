@@ -7,10 +7,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class Log {
     private static final HashMap<ConsoleMessage.MessageLevel, Integer> CONSOLE_MAPPING;
     private static final List<Receiver> RECEIVERS = new LinkedList<Log.Receiver>();
+    private static final Pattern URL_PATTERN;
 
     public static final String CONSOLE_TAG = "iitcm-console";
     public static final String DEFAULT_TAG = "iitcm";
@@ -29,6 +32,9 @@ public final class Log {
         CONSOLE_MAPPING.put(MessageLevel.WARNING, android.util.Log.WARN);
         CONSOLE_MAPPING.put(MessageLevel.ERROR, android.util.Log.ERROR);
         CONSOLE_MAPPING.put(MessageLevel.DEBUG, android.util.Log.DEBUG);
+
+        URL_PATTERN = Pattern.compile("^https?://([a-z.]+)" + Pattern.quote(IITC_FileManager.DOMAIN) + "/(.*)$",
+                Pattern.CASE_INSENSITIVE);
     };
 
     private static synchronized void log(int priority, String tag, String msg, Throwable tr) {
@@ -120,6 +126,11 @@ public final class Log {
 
     public static boolean log(ConsoleMessage message) {
         String msg = message.sourceId();
+        Matcher matcher = URL_PATTERN.matcher(msg);
+        if (matcher.matches()) {
+            msg = "<" + matcher.group(1) + "/" + matcher.group(2) + ">";
+        }
+
         if ("".equals(msg)) msg = "<no source>";
         msg += ":" + message.lineNumber() + ": " + message.message();
 
