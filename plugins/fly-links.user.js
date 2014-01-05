@@ -288,7 +288,6 @@ window.plugin.flyLinks.updateLayer = function() {
       }
     }
     
-    // построить рёбра или треугольники
     var edges = [];
     var makesubtriangulation = function _makesubtriangulation(ai, bi, ci) {
       var _i = [ai, bi, ci].sort(function(a,b){return a-b;});
