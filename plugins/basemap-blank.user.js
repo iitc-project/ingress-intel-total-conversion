@@ -2,7 +2,7 @@
 // @id             iitc-plugin-basemap-blank@jonatkins
 // @name           IITC plugin: Blank map
 // @category       Map Tiles
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -25,9 +25,11 @@ window.plugin.mapTileBlank = function() {};
 window.plugin.mapTileBlank.addLayer = function() {
 
   var blankOpt = {attribution: '', maxZoom: 20};
-  var blank = new L.TileLayer('@@INCLUDEIMAGE:plugins/basemap-blank-tile.png@@', blankOpt);
+  var blankWhite = new L.TileLayer('@@INCLUDEIMAGE:images/basemap-blank-tile-white.png@@', blankOpt);
+  var blankBlack = new L.TileLayer('@@INCLUDEIMAGE:images/basemap-blank-tile-black.png@@', blankOpt);
 
-  layerChooser.addBaseLayer(blank, "Blank Map");
+  layerChooser.addBaseLayer(blankWhite, "Blank Map (White)");
+  layerChooser.addBaseLayer(blankBlack, "Blank Map (Black)");
 };
 
 var setup =  window.plugin.mapTileBlank.addLayer;
