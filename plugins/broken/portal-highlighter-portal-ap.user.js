@@ -19,16 +19,16 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.portalHighligherPortalAP = function() {};
+window.plugin.portalHighlighterPortalAP = function() {};
 
-window.plugin.portalHighligherPortalAP.minAP = 65;
+window.plugin.portalHighlighterPortalAP.minAP = 65;
 //Anything over max AP will be 100% opacity.
-window.plugin.portalHighligherPortalAP.maxAP = 6000;
+window.plugin.portalHighlighterPortalAP.maxAP = 6000;
 //This is the AP for a run of the mill takedown/putback
-window.plugin.portalHighligherPortalAP.baseSwapAP = 2350;
+window.plugin.portalHighlighterPortalAP.baseSwapAP = 2350;
 
 
-window.plugin.portalHighligherPortalAP.highlight = function(data) {
+window.plugin.portalHighlighterPortalAP.highlight = function(data) {
   var d = data.portal.options.details;
   var color = 'red';
   var ap = getAttackApGain(d);
@@ -36,12 +36,12 @@ window.plugin.portalHighligherPortalAP.highlight = function(data) {
   
   if(PLAYER.team !== d.controllingTeam.team) {
     portal_ap = ap.enemyAp;
-    if(portal_ap === window.plugin.portalHighligherPortalAP.baseSwapAP) {
+    if(portal_ap === window.plugin.portalHighlighterPortalAP.baseSwapAP) {
       color = 'orange';
     }
   }
   
-  var opacity = (portal_ap - window.plugin.portalHighligherPortalAP.minAP) / window.plugin.portalHighligherPortalAP.maxAP;
+  var opacity = (portal_ap - window.plugin.portalHighlighterPortalAP.minAP) / window.plugin.portalHighlighterPortalAP.maxAP;
   if(opacity < 0) {
     opacity = 0;
   }
@@ -52,7 +52,7 @@ window.plugin.portalHighligherPortalAP.highlight = function(data) {
 }
 
 var setup =  function() {
-  window.addPortalHighlighter('AP (Static)', window.plugin.portalHighligherPortalAP.highlight);
+  window.addPortalHighlighter('AP (Static)', window.plugin.portalHighlighterPortalAP.highlight);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

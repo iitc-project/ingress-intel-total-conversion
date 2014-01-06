@@ -19,9 +19,9 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.portalHighligherMyPortals = function() {};
+window.plugin.portalHighlighterMyPortals = function() {};
 
-window.plugin.portalHighligherMyPortals.highlight = function(data) {
+window.plugin.portalHighlighterMyPortals.highlight = function(data) {
   var d = data.portal.options.details;
   var portal_weakness = 0;
   if(getTeam(d) !== 0) {
@@ -62,7 +62,7 @@ window.plugin.portalHighligherMyPortals.highlight = function(data) {
 }
 
 var setup =  function() {
-  window.addPortalHighlighter('My Portals', window.plugin.portalHighligherMyPortals.highlight);
+  window.addPortalHighlighter('My Portals', window.plugin.portalHighlighterMyPortals.highlight);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

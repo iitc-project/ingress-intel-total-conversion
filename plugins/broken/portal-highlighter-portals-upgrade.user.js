@@ -19,9 +19,9 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.portalHighligherPortalsUpgrade = function() {};
+window.plugin.portalHighlighterPortalsUpgrade = function() {};
 
-window.plugin.portalHighligherPortalsUpgrade.highlight = function(data) {
+window.plugin.portalHighlighterPortalsUpgrade.highlight = function(data) {
   var d = data.portal.options.details;
   var current_level = getPortalLevel(d);
   var potential_level = window.potentialPortalLevel(d);
@@ -44,7 +44,7 @@ window.plugin.portalHighligherPortalsUpgrade.highlight = function(data) {
   } 
 }
 
-window.plugin.portalHighligherPortalsUpgrade.highlight_elite = function(data) {
+window.plugin.portalHighlighterPortalsUpgrade.highlight_elite = function(data) {
   var d = data.portal.options.details;
   var current_level = getPortalLevel(d);
   var potential_level = window.potentialPortalLevel(d);
@@ -71,8 +71,8 @@ window.plugin.portalHighligherPortalsUpgrade.highlight_elite = function(data) {
 }
 
 var setup =  function() {
-  window.addPortalHighlighter('Upgradable', window.plugin.portalHighligherPortalsUpgrade.highlight);
-  window.addPortalHighlighter('Upgradable to Elite', window.plugin.portalHighligherPortalsUpgrade.highlight_elite);
+  window.addPortalHighlighter('Upgradable', window.plugin.portalHighlighterPortalsUpgrade.highlight);
+  window.addPortalHighlighter('Upgradable to Elite', window.plugin.portalHighlighterPortalsUpgrade.highlight_elite);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////
