@@ -32,7 +32,7 @@ window.plugin.portalHighlighterPortalsCanMakeLevel.highlight = function(data,hig
   } 
 }
 
-//determines the level of poral a user can make all on their own
+//determines the level of portal a user can make all on their own
 window.plugin.portalHighlighterPortalsCanMakeLevel.playerCanSoloLevel = function(lvl) {
   var resonators_total = 0;
   var resonators_placed = 0;
