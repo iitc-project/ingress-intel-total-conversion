@@ -147,7 +147,7 @@ public class IITC_WebViewClient extends WebViewClient {
         }
 
         Uri uri = Uri.parse(url);
-        if (uri.getHost().endsWith(DOMAIN) &&
+        if (uri.getHost()!=null && uri.getHost().endsWith(DOMAIN) &&
                 ("http".equals(uri.getScheme()) || "https".equals(uri.getScheme())))
             return mIitc.getFileManager().getResponse(uri);
 
