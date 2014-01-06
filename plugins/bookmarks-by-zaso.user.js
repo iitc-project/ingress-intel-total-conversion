@@ -538,7 +538,7 @@
       return androidCopy(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
     } else {
       dialog({
-        html: '<p><a onclick="$(\'.ui-dialog-bkmrksSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea disabled>'+localStorage[window.plugin.bookmarks.KEY_STORAGE]+'</textarea>',
+        html: '<p><a onclick="$(\'.ui-dialog-bkmrksSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly>'+localStorage[window.plugin.bookmarks.KEY_STORAGE]+'</textarea>',
         dialogClass: 'ui-dialog-bkmrksSet-copy',
         title: 'Bookmarks Export'
       });
