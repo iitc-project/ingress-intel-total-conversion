@@ -36,7 +36,7 @@ window.plugin.sync = function() {};
 
 window.plugin.sync.KEY_UUID = {key: 'plugin-sync-data-uuid', field: 'uuid'};
 
-// Each client has an unique UUID, to identify remote data is udpated by other clients or not
+// Each client has an unique UUID, to identify remote data is updated by other clients or not
 window.plugin.sync.uuid = null;
 
 window.plugin.sync.dialogHTML = null;

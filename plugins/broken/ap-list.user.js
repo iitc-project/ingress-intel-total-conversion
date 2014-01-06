@@ -133,7 +133,7 @@ window.plugin.apList.getPortalDestroyCheckbox = function(portal) {
 
 window.plugin.apList.getCheckbox = function(onClick, addedClass, content) {
   // 2 div for centering checkbox horizontally and vertically, 
-  // click event on outest div for people with not so good aiming
+  // click event on most outer div for people with not so good aiming
   var div = '<div class="ap-list-checkbox-outer" onclick="' + (onClick || '')+ '">'
           + '<div class="ap-list-checkbox-inner ' + (addedClass || '') + '">'
           + (content || '')
