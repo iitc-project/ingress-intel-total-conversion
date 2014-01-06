@@ -19,9 +19,9 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.portalHighligherNeedsRecharge = function() {};
+window.plugin.portalHighlighterNeedsRecharge = function() {};
 
-window.plugin.portalHighligherNeedsRecharge.highlight = function(data) {
+window.plugin.portalHighlighterNeedsRecharge.highlight = function(data) {
   var d = data.portal.options.data;
   var portal_health = d.health/100;
   if(data.portal.options.team != TEAM_NONE && portal_health < 1) {
@@ -38,7 +38,7 @@ window.plugin.portalHighligherNeedsRecharge.highlight = function(data) {
 }
 
 var setup =  function() {
-  window.addPortalHighlighter('Needs Recharge (Health)', window.plugin.portalHighligherNeedsRecharge.highlight);
+  window.addPortalHighlighter('Needs Recharge (Health)', window.plugin.portalHighlighterNeedsRecharge.highlight);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

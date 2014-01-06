@@ -19,24 +19,24 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.portalHighligherPortalAPPerEnergyRelative = function() {};
+window.plugin.portalHighlighterPortalAPPerEnergyRelative = function() {};
 
-window.plugin.portalHighligherPortalAPPerEnergyRelative.minAP = null;
-window.plugin.portalHighligherPortalAPPerEnergyRelative.maxAP = null;
+window.plugin.portalHighlighterPortalAPPerEnergyRelative.minAP = null;
+window.plugin.portalHighlighterPortalAPPerEnergyRelative.maxAP = null;
 //This is the AP for a run of the mill takedown/putback
-window.plugin.portalHighligherPortalAPPerEnergyRelative.baseSwapAP = 2350;
+window.plugin.portalHighlighterPortalAPPerEnergyRelative.baseSwapAP = 2350;
 
 
-window.plugin.portalHighligherPortalAPPerEnergyRelative.highlight = function(data) {
+window.plugin.portalHighlighterPortalAPPerEnergyRelative.highlight = function(data) {
   var d = data.portal.options.details;
   var color = 'red';
   
-  if(window.plugin.portalHighligherPortalAPPerEnergyRelative.minAP == null ||
-     window.plugin.portalHighligherPortalAPPerEnergyRelative.maxAP == null) {
-    window.plugin.portalHighligherPortalAPPerEnergyRelative.calculateAPLevels();
+  if(window.plugin.portalHighlighterPortalAPPerEnergyRelative.minAP == null ||
+     window.plugin.portalHighlighterPortalAPPerEnergyRelative.maxAP == null) {
+    window.plugin.portalHighlighterPortalAPPerEnergyRelative.calculateAPLevels();
   }
-  var minApE = window.plugin.portalHighligherPortalAPPerEnergyRelative.minAP;
-  var maxApE = window.plugin.portalHighligherPortalAPPerEnergyRelative.maxAP;
+  var minApE = window.plugin.portalHighlighterPortalAPPerEnergyRelative.minAP;
+  var maxApE = window.plugin.portalHighlighterPortalAPPerEnergyRelative.maxAP;
   
   if(PLAYER.team !== d.controllingTeam.team) {
     var ap = getAttackApGain(d);
@@ -61,12 +61,12 @@ window.plugin.portalHighligherPortalAPPerEnergyRelative.highlight = function(dat
   }
 }
 
-window.plugin.portalHighligherPortalAPPerEnergyRelative.resetAPLevels = function() {
-  window.plugin.portalHighligherPortalAPPerEnergyRelative.minAP = null;
-  window.plugin.portalHighligherPortalAPPerEnergyRelative.maxAP = null;
+window.plugin.portalHighlighterPortalAPPerEnergyRelative.resetAPLevels = function() {
+  window.plugin.portalHighlighterPortalAPPerEnergyRelative.minAP = null;
+  window.plugin.portalHighlighterPortalAPPerEnergyRelative.maxAP = null;
 }
 
-window.plugin.portalHighligherPortalAPPerEnergyRelative.calculateAPLevels = function() {
+window.plugin.portalHighlighterPortalAPPerEnergyRelative.calculateAPLevels = function() {
   var displayBounds = map.getBounds();
   $.each(window.portals, function(qk, portal) {
     if(displayBounds.contains(portal.getLatLng())) {
@@ -77,13 +77,13 @@ window.plugin.portalHighligherPortalAPPerEnergyRelative.calculateAPLevels = func
           energy = 1;
         }
         var portal_ap = ap.enemyAp / energy;
-        if(window.plugin.portalHighligherPortalAPPerEnergyRelative.minAP === null ||
-           portal_ap < window.plugin.portalHighligherPortalAPPerEnergyRelative.minAP) {
-          window.plugin.portalHighligherPortalAPPerEnergyRelative.minAP = portal_ap;
+        if(window.plugin.portalHighlighterPortalAPPerEnergyRelative.minAP === null ||
+           portal_ap < window.plugin.portalHighlighterPortalAPPerEnergyRelative.minAP) {
+          window.plugin.portalHighlighterPortalAPPerEnergyRelative.minAP = portal_ap;
         }
-        if(window.plugin.portalHighligherPortalAPPerEnergyRelative.maxAP === null ||
-           portal_ap > window.plugin.portalHighligherPortalAPPerEnergyRelative.maxAP) {
-          window.plugin.portalHighligherPortalAPPerEnergyRelative.maxAP = portal_ap;
+        if(window.plugin.portalHighlighterPortalAPPerEnergyRelative.maxAP === null ||
+           portal_ap > window.plugin.portalHighlighterPortalAPPerEnergyRelative.maxAP) {
+          window.plugin.portalHighlighterPortalAPPerEnergyRelative.maxAP = portal_ap;
         }
       
       }
@@ -94,8 +94,8 @@ window.plugin.portalHighligherPortalAPPerEnergyRelative.calculateAPLevels = func
   
 
 var setup =  function() {
-  window.addPortalHighlighter('AP/Energy (Relative)', window.plugin.portalHighligherPortalAPPerEnergyRelative.highlight);
-  window.addHook('requestFinished', window.plugin.portalHighligherPortalAPPerEnergyRelative.resetAPLevels);
+  window.addPortalHighlighter('AP/Energy (Relative)', window.plugin.portalHighlighterPortalAPPerEnergyRelative.highlight);
+  window.addHook('requestFinished', window.plugin.portalHighlighterPortalAPPerEnergyRelative.resetAPLevels);
   
 }
 

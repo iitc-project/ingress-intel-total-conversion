@@ -19,9 +19,9 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.portalHighligherInactive = function() {};
+window.plugin.portalHighlighterInactive = function() {};
 
-window.plugin.portalHighligherInactive.highlight = function(data) {
+window.plugin.portalHighlighterInactive.highlight = function(data) {
 
   var daysUnmodified = (new Date().getTime() - data.portal.options.timestamp) / (24*60*60*1000);
 
@@ -41,7 +41,7 @@ window.plugin.portalHighligherInactive.highlight = function(data) {
 }
 
 var setup =  function() {
-  window.addPortalHighlighter('Inactive Portals', window.plugin.portalHighligherInactive.highlight);
+  window.addPortalHighlighter('Inactive Portals', window.plugin.portalHighlighterInactive.highlight);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

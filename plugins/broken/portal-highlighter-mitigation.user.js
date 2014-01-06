@@ -19,9 +19,9 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.portalHighligherMitigation = function() {};
+window.plugin.portalHighlighterMitigation = function() {};
 
-window.plugin.portalHighligherMitigation.highlight = function(data) {
+window.plugin.portalHighlighterMitigation.highlight = function(data) {
 
   var defense = window.getPortalMitigationDetails(data.portal.options.details);
 
@@ -40,7 +40,7 @@ window.plugin.portalHighligherMitigation.highlight = function(data) {
 }
 
 var setup =  function() {
-  window.addPortalHighlighter('Mitigation (defense)', window.plugin.portalHighligherMitigation.highlight);
+  window.addPortalHighlighter('Mitigation (defense)', window.plugin.portalHighlighterMitigation.highlight);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

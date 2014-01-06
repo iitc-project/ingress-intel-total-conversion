@@ -19,9 +19,9 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.portalHighligherPortalsHighLevel = function() {};
+window.plugin.portalHighlighterPortalsHighLevel = function() {};
 
-window.plugin.portalHighligherPortalsHighLevel.colorLevel = function(data) {
+window.plugin.portalHighlighterPortalsHighLevel.colorLevel = function(data) {
   var portal_level = data.portal.options.data.level;
   var opacity = 0.7;
   var color = undefined;
@@ -38,7 +38,7 @@ window.plugin.portalHighligherPortalsHighLevel.colorLevel = function(data) {
 }
 
 var setup =  function() {
-  window.addPortalHighlighter('Higher Level Portals', window.plugin.portalHighligherPortalsHighLevel.colorLevel);
+  window.addPortalHighlighter('Higher Level Portals', window.plugin.portalHighlighterPortalsHighLevel.colorLevel);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

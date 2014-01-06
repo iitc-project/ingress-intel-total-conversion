@@ -19,9 +19,9 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.portalHighligherPortalsCanMakeLevel = function() {};
+window.plugin.portalHighlighterPortalsCanMakeLevel = function() {};
 
-window.plugin.portalHighligherPortalsCanMakeLevel.highlight = function(data,highlight_level) {
+window.plugin.portalHighlighterPortalsCanMakeLevel.highlight = function(data,highlight_level) {
   var d = data.portal.options.details;
   var current_level = Math.floor(getPortalLevel(d));
   var potential_level = Math.floor(window.potentialPortalLevel(d));
@@ -33,7 +33,7 @@ window.plugin.portalHighligherPortalsCanMakeLevel.highlight = function(data,high
 }
 
 //determines the level of poral a user can make all on their own
-window.plugin.portalHighligherPortalsCanMakeLevel.playerCanSoloLevel = function(lvl) {
+window.plugin.portalHighlighterPortalsCanMakeLevel.playerCanSoloLevel = function(lvl) {
   var resonators_total = 0;
   var resonators_placed = 0;
   var resonator_level = PLAYER.level
@@ -48,9 +48,9 @@ window.plugin.portalHighligherPortalsCanMakeLevel.playerCanSoloLevel = function(
   }
   return(Math.floor(resonators_total/8));
 }
-window.plugin.portalHighligherPortalsCanMakeLevel.getHighlighter = function(lvl) {
+window.plugin.portalHighlighterPortalsCanMakeLevel.getHighlighter = function(lvl) {
   return(function(data){ 
-    window.plugin.portalHighligherPortalsCanMakeLevel.highlight(data,lvl);
+    window.plugin.portalHighlighterPortalsCanMakeLevel.highlight(data,lvl);
   });  
 }
 
@@ -64,8 +64,8 @@ var setup =  function() {
   }
   // The rational behind the "minimum" level below is that showing a level 7 player, for example, all the portals they can make
   // a level 5 would be silly, as they can make ANY portal a level 5.
-  for(var ptl_lvl = window.plugin.portalHighligherPortalsCanMakeLevel.playerCanSoloLevel()+1; ptl_lvl<=max_can_complete; ptl_lvl++) {
-    window.addPortalHighlighter('Can Make Level ' + ptl_lvl, window.plugin.portalHighligherPortalsCanMakeLevel.getHighlighter(ptl_lvl));
+  for(var ptl_lvl = window.plugin.portalHighlighterPortalsCanMakeLevel.playerCanSoloLevel()+1; ptl_lvl<=max_can_complete; ptl_lvl++) {
+    window.addPortalHighlighter('Can Make Level ' + ptl_lvl, window.plugin.portalHighlighterPortalsCanMakeLevel.getHighlighter(ptl_lvl));
   }
 }
 
