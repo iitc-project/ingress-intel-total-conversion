@@ -2,7 +2,7 @@
 // @id             fly-links@fly
 // @name           IITC plugin: Fly Links
 // @category       Layer
-// @version        0.2.0.@@DATETIMEVERSION@@
+// @version        0.2.1.@@DATETIMEVERSION@@
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
@@ -31,6 +31,10 @@ window.plugin.flyLinks.linksLayerGroup = null;
 window.plugin.flyLinks.fieldsLayerGroup = null;
 
 window.plugin.flyLinks.updateLayer = function() {
+  if (!window.map.hasLayer(window.plugin.flyLinks.linksLayerGroup) &&
+      !window.map.hasLayer(window.plugin.flyLinks.fieldsLayerGroup))
+    return;
+
   window.plugin.flyLinks.linksLayerGroup.clearLayers();
   window.plugin.flyLinks.fieldsLayerGroup.clearLayers();
   var ctrl = [$('.leaflet-control-layers-selector + span:contains("Fly links")').parent(), 
@@ -284,8 +288,8 @@ window.plugin.flyLinks.setup = function() {
     window.plugin.flyLinks.updateLayer();
   });
 
-  window.addLayerGroup('Fly links', window.plugin.flyLinks.linksLayerGroup, true);
-  window.addLayerGroup('Fly fields', window.plugin.flyLinks.fieldsLayerGroup, true);
+  window.addLayerGroup('Fly links', window.plugin.flyLinks.linksLayerGroup, false);
+  window.addLayerGroup('Fly fields', window.plugin.flyLinks.fieldsLayerGroup, false);
 }
 var setup = window.plugin.flyLinks.setup;
 
