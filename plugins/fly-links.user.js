@@ -2,7 +2,7 @@
 // @id             fly-links@fly
 // @name           IITC plugin: Fly Links
 // @category       Layer
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.2.0.@@DATETIMEVERSION@@
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
@@ -26,22 +26,17 @@ window.plugin.flyLinks.MAX_PORTALS_TO_LINK = 100;
 // zoom level used for projecting points between latLng and pixel coordinates. may affect precision of triangulation
 window.plugin.flyLinks.PROJECT_ZOOM = 16;
 
-window.plugin.flyLinks.STROKE_STYLE = {
-  color: '#FF0000',
-  opacity: 1,
-  weight: 1.5,
-  clickable: false,
-  dashArray: [6,4],
-  smoothFactor: 10,
-};
 
-window.plugin.flyLinks.levelLayerGroup = null;
+window.plugin.flyLinks.linksLayerGroup = null;
+window.plugin.flyLinks.fieldsLayerGroup = null;
 
 window.plugin.flyLinks.updateLayer = function() {
-  window.plugin.flyLinks.levelLayerGroup.clearLayers();
-  var ctrl = $('.leaflet-control-layers-selector + span:contains("Fly links")').parent();
+  window.plugin.flyLinks.linksLayerGroup.clearLayers();
+  window.plugin.flyLinks.fieldsLayerGroup.clearLayers();
+  var ctrl = [$('.leaflet-control-layers-selector + span:contains("Fly links")').parent(), 
+              $('.leaflet-control-layers-selector + span:contains("Fly fields")').parent()];
   if (Object.keys(window.portals).length > window.plugin.flyLinks.MAX_PORTALS_TO_OBSERVE) {
-    ctrl.addClass('disabled').attr('title', 'Too many portals: ' + Object.keys(window.portals).length);
+    $.each(ctrl, function(guid, ctl) {ctl.addClass('disabled').attr('title', 'Too many portals: ' + Object.keys(window.portals).length);});
     return;
   }
   
@@ -59,106 +54,29 @@ window.plugin.flyLinks.updateLayer = function() {
   var distance = function(a, b) {
     return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
   };
-  
+
   var drawLink = function(a, b, style) {
-    var alatlng = map.unproject (a, window.plugin.flyLinks.PROJECT_ZOOM);
-    var blatlng = map.unproject (b, window.plugin.flyLinks.PROJECT_ZOOM);
+    var alatlng = map.unproject(a, window.plugin.flyLinks.PROJECT_ZOOM);
+    var blatlng = map.unproject(b, window.plugin.flyLinks.PROJECT_ZOOM);
 
     var poly = L.polyline([alatlng, blatlng], style);
-    poly.addTo(window.plugin.flyLinks.levelLayerGroup);
+    poly.addTo(window.plugin.flyLinks.linksLayerGroup);
   }
   
-  var filterLocations = function(locations) {
-    var bounds = map.getBounds();
-    var minp = map.project(bounds.getNorthWest(), window.plugin.flyLinks.PROJECT_ZOOM);
-    var maxp = map.project(bounds.getSouthEast(), window.plugin.flyLinks.PROJECT_ZOOM);
-    var center = map.project(map.getCenter(), window.plugin.flyLinks.PROJECT_ZOOM);
-
-    var minx = minp.x;
-    var miny = minp.y;
-    var maxx = maxp.x;
-    var maxy = maxp.y;
+  var drawField = function(a, b, c, style) {
+    var alatlng = map.unproject(a, window.plugin.flyLinks.PROJECT_ZOOM);
+    var blatlng = map.unproject(b, window.plugin.flyLinks.PROJECT_ZOOM);
+    var clatlng = map.unproject(c, window.plugin.flyLinks.PROJECT_ZOOM);
     
-    var r = Math.min((maxx - minx) / 6, (maxy - miny) / 6);
-
-    var rindex = [];
-    
-    for (var i = 0; i < locations.length; ++i) {
-      if (distance(locations[i], center) <= r) {
-        rindex.push(i);
-      }
-    }
-    
-    if (rindex.length == 0)
-      return [];
-
-    var dist = [];
-    var isSelected = [];
-    for (var i = 0; i < locations.length; ++i) {
-      dist[i] = -1;
-      isSelected[i] = false;
-    }
-    
-    dist[rindex[0]] = 0;
-    
-    var maxdist = 0;
-    while (true) {
-      var mini = -1;
-      for (var i = 0; i < rindex.length; ++i) {
-        if (!isSelected[rindex[i]] && dist[rindex[i]] != -1)
-          if (mini == -1 || dist[mini] > dist[rindex[i]])
-            mini = rindex[i];
-      }
-      if (mini == -1)
-        break;
-      isSelected[mini] = true;
-      if (maxdist < dist[mini])
-        maxdist = dist[mini];
-      for (var i = 0; i < locations.length; ++i) {
-        if (isSelected[i])
-          continue;
-        var dst = distance(locations[mini], locations[i]);
-        if (dist[i] == -1 || dist[i] > dst) {
-          dist[i] = dst;
-        }
-      }
-    }
-
-    while (true) {
-      var mini = -1;
-      for (var i = 0; i < locations.length; ++i) {
-        if (!isSelected[i] && dist[i] != -1 && dist[i] <= maxdist)
-          if (mini == -1 || dist[mini] > dist[i])
-            mini = i;
-      }
-      if (mini == -1)
-        break;
-      isSelected[mini] = true;
-      rindex.push(mini);
-      for (var i = 0; i < locations.length; ++i) {
-        if (isSelected[i])
-          continue;
-        var dst = distance(locations[mini], locations[i]);
-        if (dist[i] == -1 || dist[i] > dst) {
-          dist[i] = dst;
-        }
-      }
-    }
-    
-    var result = [];
-    for (var i = 0; i < rindex.length; ++i)
-      result.push(locations[rindex[i]]);
-    
-    return result;
+    var poly = L.polygon([alatlng, blatlng, clatlng], style);
+    poly.addTo(window.plugin.flyLinks.fieldsLayerGroup);
   }
-  
-  var locations = filterLocations(locations);
   
   if (locations.length > window.plugin.flyLinks.MAX_PORTALS_TO_LINK) {
-    ctrl.addClass('disabled').attr('title', 'Too many portals (linked/observed): ' + locations.length + '/' + Object.keys(window.portals).length);
+    $.each(ctrl, function(guid, ctl) {ctl.addClass('disabled').attr('title', 'Too many portals (linked/observed): ' + locations.length + '/' + Object.keys(window.portals).length);});
     return;
   }
-  ctrl.removeClass('disabled').attr('title', 'portals (linked/observed): ' + locations.length + '/' + Object.keys(window.portals).length);
+  $.each(ctrl, function(guid, ctl) {ctl.removeClass('disabled').attr('title', 'portals (linked/observed): ' + locations.length + '/' + Object.keys(window.portals).length);});
   
   var EPS = 1e-9;
   var det = function(a, b, c) {
@@ -212,7 +130,7 @@ window.plugin.flyLinks.updateLayer = function() {
   
   var triangulate = function(index, locations) {
     if (index.length == 0)
-      return [];
+      return {edges: [], triangles: []};
     var data = [];
     var subtriangulate = function _subtriangulate(ai, bi, ci, index) {
       var _i = [ai, bi, ci].sort(function(a,b){return a-b;});
@@ -257,23 +175,23 @@ window.plugin.flyLinks.updateLayer = function() {
             }
           }
         }
-        data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]] = [besth, besthi];
+        data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]] = {height: besth, index: besthi};
       }
-      return data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]][0];
+      return data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]].height;
     }
     var subindex = [];
     for (var i = 0; i < locations.length; ++i) {
       subindex.push(i);
     }
-    var bestt = [];
+    var best = [];
     for (var len = 1; len <= index.length - 1; ++len) {
-      bestt[len] = [];
+      best[len] = [];
       for (var k = 0; k < index.length - len; ++k) {
         var t = 0;
         var tlen = -1;
         for (var _len = 1; _len <= len - 1; ++_len) {
           var _t = 0;
-          $.each([bestt[_len][k][0], bestt[len-_len][k+_len][0], subtriangulate(index[k], index[k+_len], index[k+len], subindex)], function(guid, __t) {
+          $.each([best[_len][k].height, best[len-_len][k+_len].height, subtriangulate(index[k], index[k+_len], index[k+len], subindex)], function(guid, __t) {
             if (__t == 0)
               return;
             if (_t == 0 || _t > __t)
@@ -284,48 +202,79 @@ window.plugin.flyLinks.updateLayer = function() {
             tlen = _len;
           }
         }
-        bestt[len][k] = [t, tlen];
+        best[len][k] = {height: t, length: tlen};
       }
     }
     
     var edges = [];
-    var makesubtriangulation = function _makesubtriangulation(ai, bi, ci) {
+    var triangles = [];
+    var makesubtriangulation = function _makesubtriangulation(ai, bi, ci, depth) {
       var _i = [ai, bi, ci].sort(function(a,b){return a-b;});
-      if (data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]][1] != -1) {
-        _makesubtriangulation(ai, bi, data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]][1]);
-        _makesubtriangulation(bi, ci, data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]][1]);
-        _makesubtriangulation(ci, ai, data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]][1]);
-        edges.push(new window.plugin.flyLinks.Edge(locations[ai], locations[data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]][1]]));
-        edges.push(new window.plugin.flyLinks.Edge(locations[bi], locations[data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]][1]]));
-        edges.push(new window.plugin.flyLinks.Edge(locations[ci], locations[data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]][1]]));
+      if (data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]].index == -1) {
+        triangles.push(new window.plugin.flyLinks.Triangle(locations[ai], locations[bi], locations[ci], depth));
+      } else {
+        _makesubtriangulation(ai, bi, data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]].index, depth+1);
+        _makesubtriangulation(bi, ci, data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]].index, depth+1);
+        _makesubtriangulation(ci, ai, data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]].index, depth+1);
+        edges.push(new window.plugin.flyLinks.Edge(locations[ai], locations[data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]].index], depth));
+        edges.push(new window.plugin.flyLinks.Edge(locations[bi], locations[data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]].index], depth));
+        edges.push(new window.plugin.flyLinks.Edge(locations[ci], locations[data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]].index], depth));
       }
     }
     var maketriangulation = function _maketriangulation(len, a) {
-      edges.push(new window.plugin.flyLinks.Edge(locations[index[a]], locations[index[a+len]]));
-      if (bestt[len][a][1] == -1)
+      edges.push(new window.plugin.flyLinks.Edge(locations[index[a]], locations[index[a+len]], 0));
+      if (best[len][a].length == -1)
         return;
-      makesubtriangulation(index[a], index[a+bestt[len][a][1]], index[a+len]);
-      _maketriangulation(bestt[len][a][1], a);
-      _maketriangulation(len - bestt[len][a][1], a + bestt[len][a][1]);
+      makesubtriangulation(index[a], index[a+best[len][a].length], index[a+len], 1);
+      _maketriangulation(best[len][a].length, a);
+      _maketriangulation(len - best[len][a].length, a + best[len][a].length);
     }
     maketriangulation(index.length - 1, 0);
-    return edges;
+    return {edges: edges, triangles: triangles};
   }
   
-  var edges = triangulate(index, locations);
+  var triangulation = triangulate(index, locations);
+  var edges = triangulation.edges;
+  var triangles = triangulation.triangles;
 
   $.each(edges, function(idx, edge) {
-    drawLink(edge.a, edge.b, window.plugin.flyLinks.STROKE_STYLE);
+    drawLink(edge.a, edge.b, {
+      color: '#FF0000',
+      opacity: 1,
+      weight: 1.5,
+      clickable: false,
+      smoothFactor: 10,
+      dashArray: [6, 4],
+    });
+  });
+  
+  $.each(triangles, function(idx, triangle) {
+    drawField(triangle.a, triangle.b, triangle.c, {
+      stroke: false,
+      fill: true,
+      fillColor: '#FF0000',
+      fillOpacity: 1 - Math.pow(0.85, triangle.depth),
+      clickable: false,
+    });
   });
 }
 
-window.plugin.flyLinks.Edge = function(a, b) {
+window.plugin.flyLinks.Edge = function(a, b, depth) {
   this.a = a;
   this.b = b;
+  this.depth = depth;
+}
+
+window.plugin.flyLinks.Triangle = function(a, b, c, depth) {
+  this.a = a;
+  this.b = b;
+  this.c = c;
+  this.depth = depth;
 }
 
 window.plugin.flyLinks.setup = function() {
-  window.plugin.flyLinks.levelLayerGroup = new L.LayerGroup();
+  window.plugin.flyLinks.linksLayerGroup = new L.LayerGroup();
+  window.plugin.flyLinks.fieldsLayerGroup = new L.LayerGroup();
   
   window.addHook('mapDataRefreshEnd', function(e) {
     window.plugin.flyLinks.updateLayer();
@@ -335,9 +284,9 @@ window.plugin.flyLinks.setup = function() {
     window.plugin.flyLinks.updateLayer();
   });
 
-  window.addLayerGroup('Fly links', window.plugin.flyLinks.levelLayerGroup, true);
+  window.addLayerGroup('Fly links', window.plugin.flyLinks.linksLayerGroup, true);
+  window.addLayerGroup('Fly fields', window.plugin.flyLinks.fieldsLayerGroup, true);
 }
-
 var setup = window.plugin.flyLinks.setup;
 
 // PLUGIN END //////////////////////////////////////////////////////////
