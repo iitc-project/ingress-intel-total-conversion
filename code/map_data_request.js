@@ -262,6 +262,10 @@ window.MapDataRequest.prototype.refresh = function() {
     }
   }
 
+//TODO: the stock intel site now orders tiles based on distance from the centre of the map, to get relevent
+//data loaded sooner. IITC should do the same...
+
+
   this.setStatus ('loading', undefined, -1);
 
   // technically a request hasn't actually finished - however, displayed portal data has been refreshed
