@@ -19,4 +19,6 @@
 
     <color name="drawer_background">#99111111</color>
 
+    <dimen name="button_size">36dp</dimen>
+
 </resources>

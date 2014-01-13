@@ -12,6 +12,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.view.MenuItem;
 
+import com.cradle.iitc_mobile.Log;
 import com.cradle.iitc_mobile.R;
 
 import java.io.UnsupportedEncodingException;
@@ -74,7 +75,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
                     + "%20(" + URLEncoder.encode(mTitle, "UTF-8") + ")&z=" + mZoom;
         } catch (UnsupportedEncodingException e) {
             gMapsUri = "http://maps.google.com/?ll=" + mLl + "&z=" + mZoom;
-            e.printStackTrace();
+            Log.w(e);
         }
         Intent gMapsIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(gMapsUri));
         intents.add(gMapsIntent);

@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Uses the fill color of the portals to denote if the portal has the selected mod. 
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Use the portal fill color to denote if the portal has the selected mod. 
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -19,9 +19,9 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.portalHighligherMods = function() {};
+window.plugin.portalHighlighterMods = function() {};
 
-window.plugin.portalHighligherMods.highlight = function(data, mod_type) {
+window.plugin.portalHighlighterMods.highlight = function(data, mod_type) {
   var d = data.portal.options.details;
   
   if(!jQuery.isArray(mod_type)) {
@@ -54,7 +54,7 @@ window.plugin.portalHighligherMods.highlight = function(data, mod_type) {
   }
 }
 
-window.plugin.portalHighligherMods.highlightNoMods = function(data) {
+window.plugin.portalHighlighterMods.highlightNoMods = function(data) {
   var d = data.portal.options.details;
   
   var mods = 0;
@@ -78,9 +78,9 @@ window.plugin.portalHighligherMods.highlightNoMods = function(data) {
 }
 
 
-window.plugin.portalHighligherMods.getHighlighter = function(type) {
+window.plugin.portalHighlighterMods.getHighlighter = function(type) {
   return(function(data){ 
-    window.plugin.portalHighligherMods.highlight(data,type);
+    window.plugin.portalHighlighterMods.highlight(data,type);
   });  
 }
 
@@ -88,13 +88,13 @@ window.plugin.portalHighligherMods.getHighlighter = function(type) {
 var setup =  function() {
   
   $.each(MOD_TYPE, function(ind, name){
-    window.addPortalHighlighter('Mod: '+name, window.plugin.portalHighligherMods.getHighlighter(ind));  
+    window.addPortalHighlighter('Mod: '+name, window.plugin.portalHighlighterMods.getHighlighter(ind));  
   });
   
-  window.addPortalHighlighter('Mod: Hackability', window.plugin.portalHighligherMods.getHighlighter(['MULTIHACK', 'HEATSINK']));
-  window.addPortalHighlighter('Mod: Attack', window.plugin.portalHighligherMods.getHighlighter(['FORCE_AMP', 'TURRET']));
-  window.addPortalHighlighter('Mod: Defense', window.plugin.portalHighligherMods.getHighlighter(['RES_SHIELD', 'FORCE_AMP', 'TURRET']));
-  window.addPortalHighlighter('Mod: None', window.plugin.portalHighligherMods.highlightNoMods);
+  window.addPortalHighlighter('Mod: Hackability', window.plugin.portalHighlighterMods.getHighlighter(['MULTIHACK', 'HEATSINK']));
+  window.addPortalHighlighter('Mod: Attack', window.plugin.portalHighlighterMods.getHighlighter(['FORCE_AMP', 'TURRET']));
+  window.addPortalHighlighter('Mod: Defense', window.plugin.portalHighlighterMods.getHighlighter(['RES_SHIELD', 'FORCE_AMP', 'TURRET']));
+  window.addPortalHighlighter('Mod: None', window.plugin.portalHighlighterMods.highlightNoMods);
   
 }
 

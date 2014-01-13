@@ -3,10 +3,6 @@
 // created a basic framework. All of these functions should only ever
 // be run once.
 
-// Used to disable on multitouch devices
-window.showZoom = true;
-window.showLayerChooser = true;
-
 window.setupLargeImagePreview = function() {
   $('#portaldetails').on('click', '.imgpreview', function() {
     var img = $(this).find('img')[0];
@@ -137,7 +133,12 @@ window.setupMap = function() {
   ];
 
   // proper initial position is now delayed until all plugins are loaded and the base layer is set
-  window.map = new L.Map('map', {center: [0,0], zoom: 1, zoomControl: window.showZoom, minZoom: 1});
+  window.map = new L.Map('map', {
+    center: [0,0],
+    zoom: 1,
+    zoomControl: (typeof android !== 'undefined' && android && android.showZoom) ? android.showZoom() : true,
+    minZoom: 1
+  });
 
   // add empty div to leaflet control areas - to force other leaflet controls to move around IITC UI elements
   // TODO? move the actual IITC DOM into the leaflet control areas, so dummy <div>s aren't needed
@@ -178,7 +179,7 @@ window.setupMap = function() {
   // faction-specific layers
   // these layers don't actually contain any data. instead, every time they're added/removed from the map,
   // the matching sub-layers within the above portals/fields/links are added/removed from their parent with
-  // the below 'onoverlayadd/onoverlayremovve' events
+  // the below 'onoverlayadd/onoverlayremove' events
   var factionLayers = [L.layerGroup(), L.layerGroup(), L.layerGroup()];
   for (var fac in factionLayers) {
     map.addLayer (factionLayers[fac]);
@@ -287,7 +288,7 @@ window.setupMap = function() {
   window.mapDataRequest.start();
 
   // start the refresh process with a small timeout, so the first data request happens quickly
-  // (the code originally called the request function directly, and triggered a normal delay for the nxt refresh.
+  // (the code originally called the request function directly, and triggered a normal delay for the next refresh.
   //  however, the moveend/zoomend gets triggered on map load, causing a duplicate refresh. this helps prevent that
   window.startRefreshTimeout(ON_MOVE_REFRESH*1000);
 };
@@ -428,7 +429,7 @@ window.setupQRLoadLib = function() {
 
 window.setupLayerChooserApi = function() {
   // hide layer chooser on mobile devices running desktop mode
-  if (!window.showLayerChooser) {
+  if (typeof android !== 'undefined' && android && android.setLayers) {
     $('.leaflet-control-layers').hide();
   }
 
@@ -505,7 +506,9 @@ window.setupLayerChooserApi = function() {
 // BOOTING ///////////////////////////////////////////////////////////
 
 function boot() {
-  window.debug.console.overwriteNativeIfRequired();
+ try { //EXPERIMENTAL TEST
+  if(!isSmartphone()) // TODO remove completely?
+    window.debug.console.overwriteNativeIfRequired();
 
   console.log('loading done, booting. Built: @@BUILDDATE@@');
   if(window.deviceID) console.log('Your device ID: ' + window.deviceID);
@@ -579,10 +582,29 @@ function boot() {
   window.iitcLoaded = true;
   window.runHooks('iitcLoaded');
 
+  if (!haveDetectedMungeSet()) {
+    dialog({
+      title:'IITC unavailable',
+      html:'<p>IITC failed to detect the appropriate network protocol "munge" parameters from the standard intel site. '
+          +'This can happen when Niantic make changes to the standard intel site.</p>'
+          +'<p>The IITC developers are made aware of these problems and will be working on a fix. Please see the following for news/updates.</p>'
+          +'<ul><li><a href="http://iitc.jonatkins.com/" target="_blank">IITC Home Page</a></li>'
+          +'<li><a href="https://plus.google.com/105383756361375410867/posts" target="_blank">IITC G+ Page</a></li>'
+          +'<li><a href="https://plus.google.com/communities/105647403088015055797" target="_blank">IITC G+ Community</a></li></ol>'
+    });
+  }
+
   if (typeof android !== 'undefined' && android && android.bootFinished) {
     android.bootFinished();
   }
 
+ //EXPERIMENTAL TEST
+ } catch(e) {
+    console.log('Exception caught in IITC boot function - will fail to start');
+    console.log(e);
+    debugger;
+    throw e;
+ }
 }
 
 

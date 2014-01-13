@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
@@ -47,7 +46,7 @@ public class IITC_JSInterface {
     // prevent the spinner from closing automatically
     @JavascriptInterface
     public void spinnerEnabled(boolean en) {
-        Log.d("iitcm", "disableJS? " + en);
+        Log.d("disableJS? " + en);
         mIitc.getWebView().disableJS(en);
     }
 
@@ -69,7 +68,7 @@ public class IITC_JSInterface {
                     .getPackageInfo(mIitc.getPackageName(), 0);
             versionCode = pInfo.versionCode;
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            Log.w(e);
         }
         return versionCode;
     }
@@ -82,7 +81,7 @@ public class IITC_JSInterface {
             PackageInfo info = pm.getPackageInfo(mIitc.getPackageName(), 0);
             buildVersion = info.versionName;
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            Log.w(e);
         }
         return buildVersion;
     }
@@ -116,7 +115,7 @@ public class IITC_JSInterface {
 
     @JavascriptInterface
     public void bootFinished() {
-        Log.d("iitcm", "...boot finished");
+        Log.d("...boot finished");
 
         mIitc.runOnUiThread(new Runnable() {
             @Override
@@ -186,6 +185,42 @@ public class IITC_JSInterface {
             @Override
             public void run() {
                 mIitc.getNavigationHelper().addPane(name, label, "ic_action_new_event");
+            }
+        });
+    }
+
+    @JavascriptInterface
+    public boolean showZoom() {
+        PackageManager pm = mIitc.getPackageManager();
+        boolean hasMultitouch = pm.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH);
+        boolean forcedZoom = mIitc.getPrefs().getBoolean("pref_user_zoom", false);
+        return forcedZoom || !hasMultitouch;
+    }
+
+    @JavascriptInterface
+    public void setFollowMode(final boolean follow) {
+        mIitc.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mIitc.getUserLocation().setFollowMode(follow);
+            }
+        });
+    }
+
+    @JavascriptInterface
+    public void setProgress(final double progress) {
+        mIitc.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (progress != -1) {
+                    // maximum for setProgress is 10,000
+                    mIitc.setProgressBarIndeterminate(false);
+                    mIitc.setProgress((int) Math.round(progress * 10000));
+                }
+                else {
+                    mIitc.setProgressBarIndeterminate(true);
+                    mIitc.setProgress(1);
+                }
             }
         });
     }

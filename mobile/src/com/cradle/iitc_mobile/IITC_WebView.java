@@ -2,7 +2,6 @@ package com.cradle.iitc_mobile;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -10,14 +9,8 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.WindowManager;
-import android.webkit.ConsoleMessage;
-import android.webkit.GeolocationPermissions;
-import android.webkit.ValueCallback;
-import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Toast;
@@ -39,6 +32,7 @@ public class IITC_WebView extends WebView {
 
     private WebSettings mSettings;
     private IITC_WebViewClient mIitcWebViewClient;
+    private IITC_WebChromeClient mIitcWebChromeClient;
     private IITC_JSInterface mJsInterface;
     private IITC_Mobile mIitc;
     private SharedPreferences mSharedPrefs;
@@ -59,8 +53,9 @@ public class IITC_WebView extends WebView {
         mSettings.setAllowFileAccess(true);
         mSettings.setGeolocationEnabled(true);
         mSettings.setAppCacheEnabled(true);
-        mSettings.setDatabasePath(getContext().getApplicationInfo().dataDir + "/databases/");
+        mSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
         mSettings.setAppCachePath(getContext().getCacheDir().getAbsolutePath());
+        mSettings.setDatabasePath(getContext().getApplicationInfo().dataDir + "/databases/");
         mJsInterface = new IITC_JSInterface(mIitc);
         addJavascriptInterface(mJsInterface, "android");
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(mIitc);
@@ -84,43 +79,9 @@ public class IITC_WebView extends WebView {
             }
         };
 
-        setWebChromeClient(new WebChromeClient() {
-            /**
-             * our webchromeclient should share geolocation with the iitc script
-             *
-             * allow access by default
-             */
-            @Override
-            public void onGeolocationPermissionsShowPrompt(String origin,
-                                                           GeolocationPermissions.Callback callback) {
-                callback.invoke(origin, true, false);
-            }
-
-            /**
-             * display progress bar in activity
-             */
-            @Override
-            public void onProgressChanged(WebView view, int newProgress) {
-                super.onProgressChanged(view, newProgress);
-
-                // maximum for newProgress is 100
-                // maximum for setProgress is 10,000
-                ((Activity) getContext()).setProgress(newProgress * 100);
-            }
-
-            /**
-             * remove splash screen if any JS error occurs
-             */
-            @Override
-            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-                if (consoleMessage.messageLevel() == ConsoleMessage.MessageLevel.ERROR) {
-                    mIitc.setLoadingState(false);
-                }
-                return super.onConsoleMessage(consoleMessage);
-            }
-        });
-
-        mIitcWebViewClient = new IITC_WebViewClient(c);
+        mIitcWebChromeClient = new IITC_WebChromeClient(mIitc);
+        setWebChromeClient(mIitcWebChromeClient);
+        mIitcWebViewClient = new IITC_WebViewClient(mIitc);
         setWebViewClient(mIitcWebViewClient);
     }
 
@@ -150,7 +111,7 @@ public class IITC_WebView extends WebView {
         if (url.startsWith("javascript:")) {
             // do nothing if script is enabled;
             if (mDisableJs) {
-                Log.d("iitcm", "javascript injection disabled...return");
+                Log.d("javascript injection disabled...return");
                 return;
             }
             loadJS(url.substring("javascript:".length()));
@@ -165,12 +126,13 @@ public class IITC_WebView extends WebView {
             }
 
             // disable splash screen if a http error code is responded
-            new CheckHttpResponse(mJsInterface, mIitc).execute(url);
-            Log.d("iitcm", "loading url: " + url);
+            new CheckHttpResponse(mIitc).execute(url);
+            Log.d("loading url: " + url);
             super.loadUrl(url);
         }
     }
 
+    @TargetApi(19)
     public void loadJS(String js) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             evaluateJavascript(js, null);
@@ -182,7 +144,7 @@ public class IITC_WebView extends WebView {
                 // window.show(...) is called if one of the action bar buttons
                 // is clicked
                 if (!js.startsWith("window.show(")) {
-                    Log.d("iitcm", "in insert mode. do not load script.");
+                    Log.d("in insert mode. do not load script.");
                     return;
                 }
             }
@@ -272,36 +234,8 @@ public class IITC_WebView extends WebView {
         return mJsInterface;
     }
 
-    public void updateCaching(boolean login) {
-        switch (Integer.parseInt(mSharedPrefs.getString("pref_caching", "1"))) {
-            case 0:
-                mSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
-                break;
-            case 2:
-                mSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
-                break;
-            default:
-                if (getUrl() != null) {
-                    login |= getUrl().contains("accounts.google.com");
-                }
-                // use cache if on mobile network...saves traffic
-                if (!isConnectedToWifi() && !login) {
-                    Log.d("iitcm", "not connected to wifi...load tiles from cache");
-                    mSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
-                } else {
-                    if (login) {
-                        Log.d("iitcm", "login...load tiles from network");
-                    } else {
-                        Log.d("iitcm", "connected to wifi...load tiles from network");
-                    }
-                    mSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
-                }
-                break;
-        }
-    }
-
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private boolean isConnectedToWifi() {
+    public boolean isConnectedToWifi() {
         ConnectivityManager conMan = (ConnectivityManager) getContext()
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo wifi = conMan.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
@@ -323,7 +257,7 @@ public class IITC_WebView extends WebView {
 
     public void setUserAgent() {
         String ua = mSharedPrefs.getBoolean("pref_fake_user_agent", false) ? mDesktopUserAgent : mDefaultUserAgent;
-        Log.d("iitcm", "setting user agent to: " + ua);
+        Log.d("setting user agent to: " + ua);
         mSettings.setUserAgentString(ua);
     }
 }

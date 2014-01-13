@@ -51,7 +51,6 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     private final View mDrawerRight;
 
     private boolean mDesktopMode = false;
-    private boolean mIsLoading;
     private Pane mPane = Pane.MAP;
     private String mHighlighter = null;
     private int mDialogs = 0;
@@ -150,7 +149,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, mDrawerRight);
             setDrawerIndicatorEnabled(false);
         } else {
-            if (mIsLoading) {
+            if (mIitc.isLoading()) {
                 mActionBar.setDisplayHomeAsUpEnabled(false); // Hide "up" indicator
                 mActionBar.setHomeButtonEnabled(false);// Make icon unclickable
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
@@ -175,7 +174,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         }
 
         boolean mapVisible = mDesktopMode || mPane == Pane.MAP;
-        if ("No Highlights".equals(mHighlighter) || isDrawerOpened() || mIsLoading || !mapVisible) {
+        if ("No Highlights".equals(mHighlighter) || isDrawerOpened() || mIitc.isLoading() || !mapVisible) {
             mActionBar.setSubtitle(null);
         } else {
             mActionBar.setSubtitle(mHighlighter);
@@ -255,6 +254,10 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         mDrawerLayout.closeDrawer(mDrawerLeft);
     }
 
+    public void onLoadingStateChanged() {
+        updateViews();
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
@@ -292,11 +295,6 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
 
     public void setHighlighter(String name) {
         mHighlighter = name;
-        updateViews();
-    }
-
-    public void setLoadingState(boolean isLoading) {
-        mIsLoading = isLoading;
         updateViews();
     }
 
@@ -338,16 +336,11 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
             add(Pane.COMPACT);
             add(Pane.PUBLIC);
             add(Pane.FACTION);
-
-            if (mPrefs.getBoolean("pref_advanced_menu", false)) {
-                add(Pane.DEBUG);
-            }
         }
     }
 
     public static class Pane {
         public static final Pane COMPACT = new Pane("compact", "Compact", R.drawable.ic_action_view_as_list_compact);
-        public static final Pane DEBUG = new Pane("debug", "Debug", R.drawable.ic_action_error);
         public static final Pane FACTION = new Pane("faction", "Faction", R.drawable.ic_action_cc_bcc);
         public static final Pane FULL = new Pane("full", "Full", R.drawable.ic_action_view_as_list);
         public static final Pane INFO = new Pane("info", "Info", R.drawable.ic_action_about);

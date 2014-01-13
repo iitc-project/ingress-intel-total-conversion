@@ -13,48 +13,66 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Stack;
 
-public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeListener, LocationListener {
+public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeListener {
 
     private static final int REQUEST_LOGIN = 1;
+    private static final String mIntelUrl = "https://www.ingress.com/intel";
 
-    private IITC_WebView mIitcWebView;
-    private final String mIntelUrl = "https://www.ingress.com/intel";
-    private boolean mIsLocEnabled = false;
-    private Location mLastLocation = null;
-    private LocationManager mLocMngr = null;
-    private IITC_DeviceAccountLogin mLogin;
-    private MenuItem mSearchMenuItem;
-    private boolean mDesktopMode = false;
-    private boolean mAdvancedMenu = false;
-    private boolean mReloadNeeded = false;
-    private final Stack<String> mDialogStack = new Stack<String>();
     private SharedPreferences mSharedPrefs;
+    private IITC_FileManager mFileManager;
+    private IITC_WebView mIitcWebView;
+    private IITC_UserLocation mUserLocation;
     private IITC_NavigationHelper mNavigationHelper;
     private IITC_MapSettings mMapSettings;
+    private IITC_DeviceAccountLogin mLogin;
+    private boolean mDesktopMode = false;
+    private boolean mAdvancedMenu = false;
+    private MenuItem mSearchMenuItem;
+    private View mImageLoading;
+    private ListView mLvDebug;
+    private View mViewDebug;
+    private ImageButton mBtnToggleMap;
+    private EditText mEditCommand;
+    private boolean mDebugging = false;
+    private boolean mReloadNeeded = false;
+    private boolean mIsLoading = true;
+    private boolean mShowMapInDebug = false;
+    private final Stack<String> mDialogStack = new Stack<String>();
+
+    // Used for custom back stack handling
+    private final Stack<Pane> mBackStack = new Stack<IITC_NavigationHelper.Pane>();
+    private Pane mCurrentPane = Pane.MAP;
+    private boolean mBackButtonPressed = false;
 
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -62,11 +80,6 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
             ((IITC_Mobile) context).installIitcUpdate();
         }
     };
-
-    // Used for custom back stack handling
-    private final Stack<Pane> mBackStack = new Stack<IITC_NavigationHelper.Pane>();
-    private Pane mCurrentPane = Pane.MAP;
-    private boolean mBackButtonPressed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +89,28 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         requestWindowFeature(Window.FEATURE_PROGRESS);
 
         setContentView(R.layout.activity_main);
+        mImageLoading = findViewById(R.id.imageLoading);
         mIitcWebView = (IITC_WebView) findViewById(R.id.iitc_webview);
+        mLvDebug = (ListView) findViewById(R.id.lvDebug);
+        mViewDebug = findViewById(R.id.viewDebug);
+        mBtnToggleMap = (ImageButton) findViewById(R.id.btnToggleMapVisibility);
+        mEditCommand = (EditText) findViewById(R.id.editCommand);
+        mEditCommand.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (EditorInfo.IME_ACTION_GO == actionId) {
+                    onBtnRunCodeClick(v);
+
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        mLvDebug.setAdapter(new IITC_LogAdapter(this));
 
         // do something if user changed something in the settings
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -91,25 +125,15 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         // get fullscreen status from settings
         mIitcWebView.updateFullscreenStatus();
 
-        // Acquire a reference to the system Location Manager
-        mLocMngr = (LocationManager) this
-                .getSystemService(Context.LOCATION_SERVICE);
+        mFileManager = new IITC_FileManager(this);
 
-        mIsLocEnabled = mSharedPrefs.getBoolean("pref_user_loc", false);
-        if (mIsLocEnabled) {
-            // Register the mSharedPrefChangeListener with the Location Manager to receive
-            // location updates
-            mLocMngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
-                    0, 0, this);
-            mLocMngr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
-                    this);
-        }
+        mUserLocation = new IITC_UserLocation(this);
+        mUserLocation.setLocationMode(Integer.parseInt(mSharedPrefs.getString("pref_user_location_mode", "0")));
 
         // pass ActionBar to helper because we deprecated getActionBar
         mNavigationHelper = new IITC_NavigationHelper(this, super.getActionBar());
 
         mMapSettings = new IITC_MapSettings(this);
-
 
         // Clear the back stack
         mBackStack.clear();
@@ -121,14 +145,16 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         handleIntent(getIntent(), true);
     }
 
-    // --------------------- onSharedPreferenceListener -----------------------
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals("pref_force_desktop")) {
             mDesktopMode = sharedPreferences.getBoolean("pref_force_desktop", false);
             mNavigationHelper.onPrefChanged();
-        } else if (key.equals("pref_user_loc")) {
-            mIsLocEnabled = sharedPreferences.getBoolean("pref_user_loc", false);
+        } else if (key.equals("pref_user_location_mode")) {
+            int mode = Integer.parseInt(mSharedPrefs.getString("pref_user_location_mode", "0"));
+            if (mUserLocation.setLocationMode(mode))
+                mReloadNeeded = true;
+            return;
         } else if (key.equals("pref_fullscreen")) {
             mIitcWebView.updateFullscreenStatus();
             mNavigationHelper.onPrefChanged();
@@ -141,46 +167,16 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
             return;
         } else if (key.equals("pref_fake_user_agent")) {
             mIitcWebView.setUserAgent();
-        } else if (key.equals("pref_caching")) {
-            mIitcWebView.updateCaching(false);
         } else if (key.equals("pref_press_twice_to_exit")
                 || key.equals("pref_share_selected_tab")
                 || key.equals("pref_messages")
-                || key.equals("pref_external_storage"))
-        // no reload needed
-        {
+                || key.equals("pref_external_storage")) {
+            // no reload needed
             return;
         }
 
         mReloadNeeded = true;
     }
-    // ------------------------------------------------------------------------
-
-    // ------------------------ LocationListener ------------------------------
-    @Override
-    public void onLocationChanged(Location location) {
-        // Called when a new location is found by the network location
-        // provider.
-        drawMarker(location);
-        mLastLocation = location;
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
-    }
-    // ------------------------------------------------------------------------
-
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -193,12 +189,12 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         String action = intent.getAction();
         if (Intent.ACTION_VIEW.equals(action)) {
             Uri uri = intent.getData();
-            Log.d("iitcm", "intent received url: " + uri.toString());
+            Log.d("intent received url: " + uri.toString());
 
             if (uri.getScheme().equals("http") || uri.getScheme().equals("https")) {
                 if (uri.getHost() != null
                         && (uri.getHost().equals("ingress.com") || uri.getHost().endsWith(".ingress.com"))) {
-                    Log.d("iitcm", "loading url...");
+                    Log.d("loading url...");
                     this.loadUrl(uri.toString());
                     return;
                 }
@@ -209,7 +205,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                     handleGeoUri(uri);
                     return;
                 } catch (URISyntaxException e) {
-                    e.printStackTrace();
+                    Log.w(e);
                     new AlertDialog.Builder(this)
                             .setTitle(R.string.intent_error)
                             .setMessage(e.getReason())
@@ -290,52 +286,41 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     protected void onStart() {
         super.onStart();
 
-        // enough idle...let's do some work
-        Log.d("iitcm", "resuming...reset idleTimer");
-        mIitcWebView.updateCaching(false);
-
-        if (mIsLocEnabled) {
-            // Register the mSharedPrefChangeListener with the Location Manager to receive
-            // location updates
-            mLocMngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
-            mLocMngr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-        }
-
         if (mReloadNeeded) {
-            Log.d("iitcm", "preference had changed...reload needed");
+            Log.d("preference had changed...reload needed");
             reloadIITC();
         } else {
             // iitc is not fully booted...timer will be reset by the script itself
             if (findViewById(R.id.imageLoading).getVisibility() == View.GONE) {
+                // enough idle...let's do some work
+                Log.d("resuming...reset idleTimer");
                 mIitcWebView.loadUrl("javascript: window.idleReset();");
             }
         }
+
+        mUserLocation.onStart();
     }
 
     @Override
     protected void onResume() {
+        super.onResume();
         mIitcWebView.resumeTimers();
         mIitcWebView.onResume();
-        super.onResume();
     }
 
     @Override
     protected void onPause() {
+        super.onPause();
         mIitcWebView.pauseTimers();
         mIitcWebView.onPause();
-        super.onPause();
     }
 
     @Override
     protected void onStop() {
-        Log.d("iitcm", "stopping iitcm");
-        mIitcWebView.loadUrl("javascript: window.idleSet();");
-
-        if (mIsLocEnabled) {
-            mLocMngr.removeUpdates(this);
-        }
-
         super.onStop();
+        Log.d("stopping iitcm");
+        mIitcWebView.loadUrl("javascript: window.idleSet();");
+        mUserLocation.onStop();
     }
 
     @Override
@@ -350,7 +335,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
         mNavigationHelper.onConfigurationChanged(newConfig);
 
-        Log.d("iitcm", "configuration changed...restoring...reset idleTimer");
+        Log.d("configuration changed...restoring...reset idleTimer");
         mIitcWebView.loadUrl("javascript: window.idleTime = 0");
         mIitcWebView.loadUrl("javascript: window.renderUpdateStatus()");
     }
@@ -454,18 +439,37 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (mNavigationHelper != null) {
-            boolean visible = !mNavigationHelper.isDrawerOpened();
+        boolean visible = false;
+        if (mNavigationHelper != null)
+            visible = !mNavigationHelper.isDrawerOpened();
 
-            for (int i = 0; i < menu.size(); i++)
-                if (menu.getItem(i).getItemId() != R.id.action_settings) {
-                    // clear cookies is part of the advanced menu
-                    if (menu.getItem(i).getItemId() == R.id.menu_clear_cookies) {
-                        menu.getItem(i).setVisible(mAdvancedMenu & visible);
-                    } else {
-                        menu.getItem(i).setVisible(visible);
-                    }
-                }
+        for (int i = 0; i < menu.size(); i++) {
+            MenuItem item = menu.getItem(i);
+
+            switch (item.getItemId()) {
+                case R.id.action_settings:
+                    item.setVisible(true);
+                    break;
+
+                case R.id.menu_clear_cookies:
+                    item.setVisible(mAdvancedMenu && visible);
+                    break;
+
+                case R.id.locate:
+                    item.setVisible(visible);
+                    item.setIcon(mUserLocation.isFollowing()
+                            ? R.drawable.ic_action_location_follow
+                            : R.drawable.ic_action_location_found);
+                    break;
+
+                case R.id.menu_debug:
+                    item.setVisible(mAdvancedMenu && visible);
+                    item.setChecked(mDebugging);
+                    break;
+
+                default:
+                    item.setVisible(visible);
+            }
         }
 
         return super.onPrepareOptionsMenu(menu);
@@ -495,28 +499,35 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                 return true;
             case R.id.locate: // get the users current location and focus it on map
                 switchToPane(Pane.MAP);
-                // get location from network by default
-                if (!mIsLocEnabled) {
-                    mIitcWebView.loadUrl("javascript: " +
-                            "window.map.locate({setView : true, maxZoom: 15});");
+
+                if (mUserLocation.hasCurrentLocation()) {
                     // if gps location is displayed we can use a better location without any costs
+                    mUserLocation.locate();
                 } else {
-                    if (mLastLocation != null) {
-                        mIitcWebView.loadUrl("javascript: window.map.setView(new L.LatLng(" +
-                                mLastLocation.getLatitude() + "," +
-                                mLastLocation.getLongitude() + "), 15);");
-                    }
+                    // get location from network by default
+                    mIitcWebView.loadUrl("javascript: window.map.locate({setView : true});");
                 }
                 return true;
             case R.id.action_settings: // start settings activity
                 Intent intent = new Intent(this, IITC_PreferenceActivity.class);
-                intent.putExtra("iitc_version", mIitcWebView.getWebViewClient()
-                        .getIITCVersion());
+                try {
+                    intent.putExtra("iitc_version", mFileManager.getIITCVersion());
+                } catch (IOException e) {
+                    Log.w(e);
+                    return true;
+                }
                 startActivity(intent);
                 return true;
             case R.id.menu_clear_cookies:
                 CookieManager cm = CookieManager.getInstance();
                 cm.removeAllCookie();
+                return true;
+            case R.id.menu_debug:
+                mDebugging = !mDebugging;
+                updateViews();
+                invalidateOptionsMenu();
+
+                // TODO remove debugging stuff from JS?
                 return true;
             default:
                 return false;
@@ -531,21 +542,13 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     public void reloadIITC() {
         mNavigationHelper.reset();
         mMapSettings.reset();
+        mUserLocation.reset();
+        mIitcWebView.getWebViewClient().reset();
         mBackStack.clear();
         // iitc starts on map after reload
         mCurrentPane = Pane.MAP;
         loadUrl(mIntelUrl);
         mReloadNeeded = false;
-    }
-
-    private void loadIITC() {
-        try {
-            mIitcWebView.getWebViewClient().loadIITC_JS(this);
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        } catch (NullPointerException e2) {
-            e2.printStackTrace();
-        }
     }
 
     // vp=f enables mDesktopMode mode...vp=m is the default mobile view
@@ -562,22 +565,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     public void loadUrl(String url) {
         setLoadingState(true);
         url = addUrlParam(url);
-        loadIITC();
         mIitcWebView.loadUrl(url);
-    }
-
-    // update the user location marker on the map
-    public void drawMarker(Location loc) {
-        // throw away all positions with accuracy > 100 meters
-        // should avoid gps glitches
-        if (loc.getAccuracy() < 100) {
-            // do not touch the javascript while iitc boots
-            if (findViewById(R.id.imageLoading).getVisibility() == View.GONE) {
-                mIitcWebView.loadUrl("javascript: "
-                        + "window.plugin.userLocation.updateLocation( "
-                        + loc.getLatitude() + ", " + loc.getLongitude() + ");");
-            }
-        }
     }
 
     public IITC_WebView getWebView() {
@@ -608,7 +596,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
      * called by IITC_WebViewClient when the Google login form is opened.
      */
     public void onReceivedLoginRequest(IITC_WebViewClient client, WebView view,
-                                       String realm, String account, String args) {
+            String realm, String account, String args) {
         mLogin = new IITC_DeviceAccountLogin(this, view, client);
         mLogin.startLogin(realm, account, args);
     }
@@ -626,7 +614,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     // to ensure it is the last element of the list
     // focused dialogs should be closed first
     public void setFocusedDialog(String id) {
-        Log.d("iitcm", "Dialog " + id + " focused");
+        Log.d("Dialog " + id + " focused");
         mDialogStack.remove(id);
         mDialogStack.push(id);
     }
@@ -634,24 +622,85 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     // called by the javascript interface
     public void dialogOpened(String id, boolean open) {
         if (open) {
-            Log.d("iitcm", "Dialog " + id + " added");
+            Log.d("Dialog " + id + " added");
             mDialogStack.push(id);
         } else {
-            Log.d("iitcm", "Dialog " + id + " closed");
+            Log.d("Dialog " + id + " closed");
             mDialogStack.remove(id);
         }
     }
 
     public void setLoadingState(boolean isLoading) {
-        mNavigationHelper.setLoadingState(isLoading);
+        mIsLoading = isLoading;
 
-        if (isLoading && !mSharedPrefs.getBoolean("pref_disable_splash", false)) {
-            findViewById(R.id.iitc_webview).setVisibility(View.GONE);
-            findViewById(R.id.imageLoading).setVisibility(View.VISIBLE);
+        mNavigationHelper.onLoadingStateChanged();
+
+        updateViews();
+    }
+
+    private void updateViews() {
+        if (!mDebugging) {
+            mViewDebug.setVisibility(View.GONE);
+            mLvDebug.setVisibility(View.GONE);
+
+            if (mIsLoading && !mSharedPrefs.getBoolean("pref_disable_splash", false)) {
+                mIitcWebView.setVisibility(View.GONE);
+                mImageLoading.setVisibility(View.VISIBLE);
+            } else {
+                mIitcWebView.setVisibility(View.VISIBLE);
+                mImageLoading.setVisibility(View.GONE);
+            }
         } else {
-            findViewById(R.id.iitc_webview).setVisibility(View.VISIBLE);
-            findViewById(R.id.imageLoading).setVisibility(View.GONE);
+            // if the debug container is invisible (and we are about to show it), select the text box
+            boolean select = mViewDebug.getVisibility() != View.VISIBLE;
+
+            mImageLoading.setVisibility(View.GONE); // never show splash screen while debugging
+            mViewDebug.setVisibility(View.VISIBLE);
+
+            if (select) {
+                mEditCommand.requestFocus();
+                mEditCommand.selectAll();
+            }
+
+            if (mShowMapInDebug) {
+                mBtnToggleMap.setImageResource(R.drawable.ic_action_view_as_list);
+                mIitcWebView.setVisibility(View.VISIBLE);
+                mLvDebug.setVisibility(View.GONE);
+            } else {
+                mBtnToggleMap.setImageResource(R.drawable.ic_action_map);
+                mIitcWebView.setVisibility(View.GONE);
+                mLvDebug.setVisibility(View.VISIBLE);
+            }
         }
+    }
+
+    public void onBtnRunCodeClick(View v) {
+        String code = mEditCommand.getText().toString();
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("code", code);
+        } catch (JSONException e) {
+            Log.w(e);
+            return;
+        }
+
+        // throwing an exception will be reported by WebView
+        String js = "(function(obj){var result;" +
+                "console.log('>>> ' + obj.code);" +
+                "try{result=eval(obj.code);}catch(e){if(e.stack) console.error(e.stack);throw e;}" +
+                "if(result!==undefined) console.log(result.toString());" +
+                "})(" + obj.toString() + ");";
+
+        mIitcWebView.loadJS(js);
+    }
+
+    /**
+     * onClick handler for R.id.btnToggleMapVisibility, assigned in activity_main.xml
+     */
+    public void onToggleMapVisibility(View v)
+    {
+        mShowMapInDebug = !mShowMapInDebug;
+        updateViews();
     }
 
     private void deleteUpdateFile() {
@@ -661,7 +710,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
     public void updateIitc(String url) {
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-        request.setDescription("downloading IITCm update apk...");
+        request.setDescription(getString(R.string.download_description));
         request.setTitle("IITCm Update");
         request.allowScanningByMediaScanner();
         Uri fileUri = Uri.parse("file://" + getExternalFilesDir(null).toString() + "/iitcUpdate.apk");
@@ -682,6 +731,10 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         finish();
     }
 
+    public boolean isLoading() {
+        return mIsLoading;
+    }
+
     /**
      * @see getNavigationHelper()
      * @deprecated ActionBar related stuff should be handled by IITC_NavigationHelper
@@ -698,5 +751,17 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
     public IITC_MapSettings getMapSettings() {
         return mMapSettings;
+    }
+
+    public IITC_FileManager getFileManager() {
+        return mFileManager;
+    }
+
+    public SharedPreferences getPrefs() {
+        return mSharedPrefs;
+    }
+
+    public IITC_UserLocation getUserLocation() {
+        return mUserLocation;
     }
 }

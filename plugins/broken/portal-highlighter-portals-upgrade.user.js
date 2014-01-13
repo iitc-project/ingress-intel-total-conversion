@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Upgradable - Yellow: you can upgrade it at all. Orange: you can change the level. Red: you can make it your level or higher. To Elite: Yellow - To Level 6. Orange - To Level 7. Red - To Level 8.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Use the portal fill color to denote if the portal is upgradable, depending on highlighter selected. Standard:: Yellow: you can upgrade it at all. Orange: you can change the level. Red: you can make it your level or higher. Elite:: Yellow: to level 6. Orange: to level 7. Red: to level 8.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -19,9 +19,9 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.portalHighligherPortalsUpgrade = function() {};
+window.plugin.portalHighlighterPortalsUpgrade = function() {};
 
-window.plugin.portalHighligherPortalsUpgrade.highlight = function(data) {
+window.plugin.portalHighlighterPortalsUpgrade.highlight = function(data) {
   var d = data.portal.options.details;
   var current_level = getPortalLevel(d);
   var potential_level = window.potentialPortalLevel(d);
@@ -44,7 +44,7 @@ window.plugin.portalHighligherPortalsUpgrade.highlight = function(data) {
   } 
 }
 
-window.plugin.portalHighligherPortalsUpgrade.highlight_elite = function(data) {
+window.plugin.portalHighlighterPortalsUpgrade.highlight_elite = function(data) {
   var d = data.portal.options.details;
   var current_level = getPortalLevel(d);
   var potential_level = window.potentialPortalLevel(d);
@@ -71,8 +71,8 @@ window.plugin.portalHighligherPortalsUpgrade.highlight_elite = function(data) {
 }
 
 var setup =  function() {
-  window.addPortalHighlighter('Upgradable', window.plugin.portalHighligherPortalsUpgrade.highlight);
-  window.addPortalHighlighter('Upgradable to Elite', window.plugin.portalHighligherPortalsUpgrade.highlight_elite);
+  window.addPortalHighlighter('Upgradable', window.plugin.portalHighlighterPortalsUpgrade.highlight);
+  window.addPortalHighlighter('Upgradable to Elite', window.plugin.portalHighlighterPortalsUpgrade.highlight_elite);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

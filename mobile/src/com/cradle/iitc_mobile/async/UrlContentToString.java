@@ -2,6 +2,8 @@ package com.cradle.iitc_mobile.async;
 
 import android.os.AsyncTask;
 
+import com.cradle.iitc_mobile.Log;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.Scanner;
@@ -21,7 +23,7 @@ public class UrlContentToString extends AsyncTask<URL, Integer, String> {
             js = new Scanner(url.openStream(), "UTF-8").useDelimiter("\\A")
                     .next();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(e);
         }
         return js;
     }

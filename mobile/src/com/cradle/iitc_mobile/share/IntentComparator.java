@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 
+import com.cradle.iitc_mobile.Log;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -106,15 +108,15 @@ public class IntentComparator implements Comparator<ResolveInfo> {
         } catch (FileNotFoundException e) {
             // Do nothing
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(e);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            Log.w(e);
         } finally {
             if (objectIn != null) {
                 try {
                     objectIn.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.w(e);
                 }
             }
         }
@@ -173,13 +175,13 @@ public class IntentComparator implements Comparator<ResolveInfo> {
             objectOut.writeObject(mIntentMap);
             fileOut.getFD().sync();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(e);
         } finally {
             if (objectOut != null) {
                 try {
                     objectOut.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.w(e);
                 }
             }
         }

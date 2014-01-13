@@ -114,6 +114,16 @@ window.Render.prototype.processGameEntities = function(entities) {
     }
   }
 
+//TODO: better method to bring portals to front during rendering
+//as it stands, rendering from cache causes multiple passes through bringToFront - which is a waste
+//possible options:
+//1. add fields, links and portals in the order they should be rendered. will be close to right while rendering, and
+//   a final bringPortalsToFront call can fix up any errors
+//2. run bringPortalsToFront on a short timer, so it's not immediate after render.
+
+//  // reorder portals to be after links/fields
+//  this.bringPortalsToFront();
+
 }
 
 

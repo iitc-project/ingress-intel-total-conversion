@@ -207,7 +207,7 @@ Modified by qnstie 2013-07-17 to maintain compatibility with Leaflet.draw
       }
 
 
-      var segments = Math.max(32,Math.floor(this._mRadius/1000));
+      var segments = Math.max(48,Math.floor(this._mRadius/1000));
 //console.log(" (drawing circle as "+segments+" lines)");
       var points = [];
       for (var i=0; i<segments; i++) {
