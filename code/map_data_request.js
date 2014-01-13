@@ -177,6 +177,9 @@ window.MapDataRequest.prototype.refresh = function() {
   this.tileErrorCount = {};
 
   // the 'set' of requested tile QKs
+  // NOTE: javascript does not guarantee any order to properties of an object. however, in all major implementations
+  // properties retain the order they are added in. IITC uses this to control the tile fetch order. if browsers change
+  // then fetch order isn't optimal, but it won't break things.
   this.queuedTiles = {};
 
 
@@ -228,6 +231,11 @@ window.MapDataRequest.prototype.refresh = function() {
   this.failedTileCount = 0;
   this.staleTileCount = 0;
 
+  var tilesToFetchDistance = {};
+
+  // map center point - for fetching center tiles first
+  var mapCenterPoint = map.project(map.getCenter(), zoom);
+
   // y goes from left to right
   for (var y = y1; y <= y2; y++) {
     // x goes from bottom to top(?)
@@ -255,15 +263,35 @@ window.MapDataRequest.prototype.refresh = function() {
           this.render.processTileData (old_data);
         }
 
-        // queue a request
-        this.queuedTiles[tile_id] = tile_id;
+        // tile needed. calculate the distance from the centre of the screen, to optimise the load order
+
+        var latCenter = (latNorth+latSouth)/2;
+        var lngCenter = (lngEast+lngWest)/2;
+        var tileLatLng = L.latLng(latCenter,lngCenter);
+
+        var tilePoint = map.project(tileLatLng, zoom);
+
+        var delta = mapCenterPoint.subtract(tilePoint);
+        var distanceSquared = delta.x*delta.x + delta.y*delta.y;
+
+        tilesToFetchDistance[tile_id] = distanceSquared;
         this.requestedTileCount += 1;
       }
     }
   }
 
-//TODO: the stock intel site now orders tiles based on distance from the centre of the map, to get relevent
-//data loaded sooner. IITC should do the same...
+  // re-order the tile list by distance from the centre of the screen. this should load more relevant data first
+  var tilesToFetch = Object.keys(tilesToFetchDistance);
+  tilesToFetch.sort(function(a,b) {
+    return tilesToFetchDistance[a]-tilesToFetchDistance[b];
+  });
+
+  for (var i in tilesToFetch) {
+    var qk = tilesToFetch[i];
+
+    this.queuedTiles[qk] = qk;
+  }
+
 
 
   this.setStatus ('loading', undefined, -1);
