@@ -110,7 +110,7 @@ function extractMungeFromStock() {
     foundMunges.version_parameter = result[5];
 
     // GET_THINNED_ENTITIES parameters
-    var reg = new RegExp('GET_THINNED_ENTITIES, [a-zA-Z]+ = {'+mungeRegExpLit);
+    var reg = new RegExp('GET_THINNED_ENTITIES, {'+mungeRegExpLit+'[a-z]');
     var result = reg.exec(nemesis.dashboard.network.DataFetcher.prototype.getGameEntities.toString());
     foundMunges.quadKeys = result[1] || result[2];
 
