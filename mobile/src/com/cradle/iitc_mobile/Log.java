@@ -142,12 +142,16 @@ public final class Log {
 
     public static boolean log(ConsoleMessage message) {
         String msg = message.sourceId();
-        Matcher matcher = URL_PATTERN.matcher(msg);
-        if (matcher.matches()) {
-            msg = "<" + matcher.group(1) + "/" + matcher.group(2) + ">";
+
+        if (msg == null || "".equals(msg)) {
+            msg = "<no source>";
+        } else {
+            Matcher matcher = URL_PATTERN.matcher(msg);
+            if (matcher.matches()) {
+                msg = "<" + matcher.group(1) + "/" + matcher.group(2) + ">";
+            }
         }
 
-        if ("".equals(msg)) msg = "<no source>";
         msg += ":" + message.lineNumber() + ": " + message.message();
 
         final Integer priority = CONSOLE_MAPPING.get(message.messageLevel());
