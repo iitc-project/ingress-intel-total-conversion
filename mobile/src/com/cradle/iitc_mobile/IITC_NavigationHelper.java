@@ -25,6 +25,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnItemClickListener {
+
     // Show/hide the up arrow on the very left
     // getActionBar().setDisplayHomeAsUpEnabled(enabled);
 
@@ -37,11 +38,6 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     // Makes the icon/title clickable
     // getActionBar().setHomeButtonEnabled(enabled);
 
-    public static final int NOTICE_HOWTO = 1 << 0;
-    public static final int NOTICE_INFO = 1 << 1;
-    public static final int NOTICE_PANES = 1 << 2;
-    // next one would be 1<<2; (this results in 1,2,4,8,...)
-
     private final IITC_Mobile mIitc;
     private final ActionBar mActionBar;
     private final SharedPreferences mPrefs;
@@ -49,11 +45,11 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     private final DrawerLayout mDrawerLayout;
     private final ListView mDrawerLeft;
     private final View mDrawerRight;
+    private final IITC_NotificationHelper mNotificationHelper;
 
     private boolean mDesktopMode = false;
     private Pane mPane = Pane.MAP;
     private String mHighlighter = null;
-    private int mDialogs = 0;
 
     public IITC_NavigationHelper(IITC_Mobile activity, ActionBar bar) {
         super(activity, (DrawerLayout) activity.findViewById(R.id.drawer_layout),
@@ -74,63 +70,11 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         mDrawerLeft.setOnItemClickListener(this);
         mDrawerLeft.setItemChecked(0, true);
         mDrawerLayout.setDrawerListener(this);
+        mNotificationHelper = new IITC_NotificationHelper(mIitc);
 
         onPrefChanged(); // also calls updateActionBar()
 
-        showNotice(NOTICE_HOWTO);
-    }
-
-    private void showNotice(final int which) {
-        if ((mPrefs.getInt("pref_messages", 0) & which) != 0 || (mDialogs & which) != 0) return;
-
-        int text;
-        switch (which) {
-            case NOTICE_HOWTO:
-                text = R.string.notice_how_to;
-                break;
-            case NOTICE_INFO:
-                text = R.string.notice_info;
-                break;
-            case NOTICE_PANES:
-                text = R.string.notice_panes;
-                break;
-            default:
-                return;
-        }
-
-        final View content = mIitc.getLayoutInflater().inflate(R.layout.dialog_notice, null);
-        TextView message = (TextView) content.findViewById(R.id.tv_notice);
-        message.setText(Html.fromHtml(mIitc.getString(text)));
-        message.setMovementMethod(LinkMovementMethod.getInstance());
-
-        AlertDialog dialog = new AlertDialog.Builder(mIitc)
-                .setView(content)
-                .setCancelable(true)
-                .setPositiveButton(android.R.string.ok, new OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                })
-                .create();
-        dialog.setOnDismissListener(new OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                mDialogs &= ~which;
-                if (((CheckBox) content.findViewById(R.id.cb_do_not_show_again)).isChecked()) {
-                    int value = mPrefs.getInt("pref_messages", 0);
-                    value |= which;
-
-                    mPrefs
-                            .edit()
-                            .putInt("pref_messages", value)
-                            .commit();
-                }
-            }
-        });
-
-        mDialogs |= which;
-        dialog.show();
+        mNotificationHelper.showNotice(IITC_NotificationHelper.NOTICE_HOWTO);
     }
 
     private void updateViews() {
@@ -182,7 +126,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     }
 
     public void addPane(String name, String label, String icon) {
-        showNotice(NOTICE_PANES);
+        mNotificationHelper.showNotice(IITC_NotificationHelper.NOTICE_PANES);
 
         Resources res = mIitc.getResources();
         String packageName = res.getResourcePackageName(R.string.app_name);
@@ -248,7 +192,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         mIitc.switchToPane(item);
 
         if (item == Pane.INFO) {
-            showNotice(NOTICE_INFO);
+            mNotificationHelper.showNotice(IITC_NotificationHelper.NOTICE_INFO);
         }
 
         mDrawerLayout.closeDrawer(mDrawerLeft);

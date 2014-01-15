@@ -81,6 +81,13 @@
         They won\'t appear in the info pane any more.<br><br>
         Swipe from the left edge of your screen (or click the app icon) to seem them.]]>
     </string>
+    <string name="notice_extplugins">
+        <![CDATA[Hint:<br><br>
+        IITC Mobile is able to load external plugins too!<br><br>
+        • create <b>%1$s</b><br>
+        • move user *.user.js files there<br>
+        • plugins should be listed above the official plugins]]>
+    </string>
 
     <string name="pref_ui_cat">UI</string>
     <string name="pref_misc_cat">Misc</string>

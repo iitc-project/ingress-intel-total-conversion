@@ -47,6 +47,10 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
     public void onBuildHeaders(List<Header> target) {
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
+        // notify about external plugins
+        IITC_NotificationHelper nh = new IITC_NotificationHelper(this);
+        nh.showNotice(IITC_NotificationHelper.NOTICE_EXTPLUGINS);
+
         mHeaders = target;
         // since the plugins container is static,
         // it is enough to parse the plugin only on first start.
@@ -62,11 +66,12 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
         if (onIsMultiPane()) {
             getIntent()
                     .putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, PluginsFragment.class.getName());
         }
-        super.onCreate(savedInstanceState);
     }
 
     @Override
