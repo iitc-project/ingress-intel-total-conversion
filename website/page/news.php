@@ -10,6 +10,11 @@ Additionally, the 'Compute AP Statistics' plugin has been brought back, the 'bla
 to go with the white, and the 'Yandex' base map has had some bug fixes. Also, IITC Mobile features some changes to
 the 'show my location' feature. You may need to turn this option on again for it to work.
 </p>
+<p>
+<b>Update 14th January 2014</b>: An updated IITC Mobile, 0.10.3, has been released, to fix a crash issue seen by some.
+Also, a minor update was made to the main IITC script which changes the order the data is loaded, to match a change made to
+the standard intel site.
+</p>
 
 
 <h4>21st December 2013</h4>
