@@ -36,12 +36,6 @@ public class IITC_WebViewClient extends WebViewClient {
         this.mIitcPath = Environment.getExternalStorageDirectory().getPath() + "/IITC_Mobile/";
     }
 
-    // TODO use somewhere else:
-    // Toast.makeText(mIitc, "File " + mIitcPath +
-    // "dev/total-conversion-build.user.js not found. " +
-    // "Disable developer mode or add iitc files to the dev folder.",
-    // Toast.LENGTH_LONG).show();
-
     // enable https
     @Override
     public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
