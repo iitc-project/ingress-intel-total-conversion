@@ -85,7 +85,7 @@
         <![CDATA[Hint:<br><br>
         IITC Mobile is able to load external plugins too!<br><br>
         • create <b>%1$s</b><br>
-        • move user *.user.js files there<br>
+        • move *.user.js files there<br>
         • plugins should be listed above the official plugins]]>
     </string>
 
