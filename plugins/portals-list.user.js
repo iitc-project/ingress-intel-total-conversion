@@ -79,6 +79,9 @@ window.plugin.portalslist.getPortals = function() {
     var f = window.getPortalFields(i);
     var ap = portalApGainMaths(d.resCount, l.in.length+l.out.length, f.length);
 
+    portalDetail.request(portal.options.guid);
+    var details = portalDetail.get(portal.options.guid);
+
     var thisPortal = {
       'portal': portal,
       'guid': i,
@@ -96,6 +99,7 @@ window.plugin.portalslist.getPortals = function() {
       'field' : f,
       'enemyAp': ap.enemyAp,
       'ap': ap,
+      'age': details != null ? details.captured.capturedTime : null,
     };
     window.plugin.portalslist.listPortals.push(thisPortal);
   });
@@ -172,6 +176,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
     + '<th ' + sortAttr('linkCount', sortBy, -1) + '>Links</th>'
     + '<th ' + sortAttr('fieldCount', sortBy, -1) + '>Fields</th>'
     + '<th ' + sortAttr('enemyAp', sortBy, -1) + '>AP</th>'
+    + '<th ' + sortAttr('age', sortBy, -1) + '>Age</th>'
     + '</tr>\n';
 
   var rowNum = 1;
@@ -201,6 +206,10 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
                + '- Capture AP:\t'+portal.ap.captureAp;
 
       html += '<td class="help apGain" title="' + apTitle + '">' + digits(portal.ap.enemyAp) + '</td>';
+
+      html += portal.age
+         ? '<td class="help" title="' + unixTimeToDateTimeString(portal.age, false) + '\n' + formatInterval(Math.floor((Date.now()-portal.age)/1000), 2) + ' ago">' + unixTimeToString(portal.age) + '</span>'
+         : '<td>unknown</td>';
 
       html+= '</tr>';
 
