@@ -222,11 +222,14 @@ public class IITC_FileManager {
         return EMPTY;
     }
 
-    private class FileRequest extends WebResourceResponse implements ResponseHandler {
-        private PipedOutputStream mStreamOut;
+    private class FileRequest extends WebResourceResponse implements ResponseHandler, Runnable {
+        private Intent mData;
         private String mFunctionName;
+        private int mResultCode;
+        private PipedOutputStream mStreamOut;
 
         private FileRequest(Uri uri) {
+            // create two connected streams we can write to after the file has been read
             super("application/x-javascript", "UTF-8", new PipedInputStream());
 
             try {
@@ -235,13 +238,14 @@ public class IITC_FileManager {
                 Log.w(e);
             }
 
+            // the function to call
             mFunctionName = uri.getPathSegments().get(0);
 
+            // create the chooser Intent
             final Intent target = new Intent(Intent.ACTION_GET_CONTENT);
             target.setType("file/*");
             target.addCategory(Intent.CATEGORY_OPENABLE);
 
-            // Create the chooser Intent
             Intent intent = Intent.createChooser(target, "Choose file");
             try {
                 mIitc.startActivityForResult(intent, this);
@@ -255,9 +259,17 @@ public class IITC_FileManager {
         public void onActivityResult(int resultCode, Intent data) {
             mIitc.deleteResponseHandler(this); // to enable garbage collection
 
+            mResultCode = resultCode;
+            mData = data;
+
+            new Thread(this, "FileRequestReader").start();
+        }
+
+        @Override
+        public void run() {
             try {
-                if (resultCode == Activity.RESULT_OK && data != null) {
-                    Uri uri = data.getData();
+                if (mResultCode == Activity.RESULT_OK && mData != null) {
+                    Uri uri = mData.getData();
                     File file = new File(uri.getPath());
 
                     mStreamOut.write(
