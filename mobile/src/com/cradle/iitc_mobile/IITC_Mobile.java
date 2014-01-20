@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.app.SearchManager;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,6 +18,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,7 +40,9 @@ import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Stack;
@@ -46,6 +50,7 @@ import java.util.Stack;
 public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeListener {
 
     private static final int REQUEST_LOGIN = 1;
+    private static final int REQUEST_FILECHOOSER = 2;
     private static final String mIntelUrl = "https://www.ingress.com/intel";
 
     private SharedPreferences mSharedPrefs;
@@ -587,6 +592,41 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                 // authentication activity has returned. mLogin will continue authentication
                 mLogin.onActivityResult(resultCode, data);
                 break;
+            case REQUEST_FILECHOOSER:
+            	// filechooser activity has returned
+                // If the file selection was successful
+                if (resultCode == RESULT_OK) {
+                    if (data != null) {
+                        // Get the URI of the selected file
+                        final Uri uri = data.getData();
+                        try {
+                            Toast.makeText(this, "Opening file '" + uri.getPath() + "'.", Toast.LENGTH_LONG).show();
+                            
+                            // Read file.
+                            File file = new File(uri.getPath());
+                            FileReader r = new FileReader(file);
+                            BufferedReader br = new BufferedReader(r);
+                            StringBuilder sb = new StringBuilder();
+                            String line = null;
+                            while ((line = br.readLine()) != null) {
+                            	sb.append(line).append("\n");
+                            }
+                            br.close();
+                            String content = sb.toString();
+                            
+                            // Base64 encode file content to avoid problems when building the javascript call.
+                            content = new String(Base64.encode(content.getBytes(), Base64.DEFAULT | Base64.NO_WRAP));
+ 
+                            // Call javascript function to add kml/geojson/gpx file as layer.
+                            String jsCall = "javascript: window.plugin.overlayKML.addKML(\"" + content + "\", \"" + uri.getPath() + "\");";
+                            mIitcWebView.loadUrl(jsCall);
+                        } catch (Exception e) {
+                            Log.e("File select error", e);
+                            Toast.makeText(this, "An error occurred when trying to open the file.", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }
+            	break;
             default:
                 super.onActivityResult(requestCode, resultCode, data);
         }
@@ -763,5 +803,20 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
     public IITC_UserLocation getUserLocation() {
         return mUserLocation;
+    }
+    
+    public void onOpenKmlFile() {
+        final Intent target = new Intent(Intent.ACTION_GET_CONTENT);
+        target.setType("*/*");
+        target.addCategory(Intent.CATEGORY_OPENABLE);
+
+        // Create the chooser Intent
+        Intent intent = Intent.createChooser(
+                target, "Choose KML/geoJSON/GPX file");
+        try {
+            startActivityForResult(intent, REQUEST_FILECHOOSER);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, "No activity to select a file found. Please install a file browser of your choice!", Toast.LENGTH_LONG).show();
+        }
     }
 }
