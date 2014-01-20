@@ -431,6 +431,8 @@ window.isLayerGroupDisplayed = function(name, defaultDisplay) {
 }
 
 window.addLayerGroup = function(name, layerGroup, defaultDisplay) {
+  if (defaultDisplay === undefined) defaultDisplay = true;
+
   if(isLayerGroupDisplayed(name, defaultDisplay)) map.addLayer(layerGroup);
   layerChooser.addOverlay(layerGroup, name);
 }
