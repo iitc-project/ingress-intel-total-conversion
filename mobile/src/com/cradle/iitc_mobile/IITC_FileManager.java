@@ -262,6 +262,7 @@ public class IITC_FileManager {
             mResultCode = resultCode;
             mData = data;
 
+            // read file in new thread using Runnable interface, see run()
             new Thread(this, "FileRequestReader").start();
         }
 
@@ -271,6 +272,9 @@ public class IITC_FileManager {
                 if (mResultCode == Activity.RESULT_OK && mData != null) {
                     Uri uri = mData.getData();
                     File file = new File(uri.getPath());
+
+                    // now create a resource that basically looks like:
+                    // someFunctionName('<url encoded filename>', '<base64 encoded content>');
 
                     mStreamOut.write(
                             (mFunctionName + "('" + URLEncoder.encode(file.getName(), "UTF-8") + "', '").getBytes());
