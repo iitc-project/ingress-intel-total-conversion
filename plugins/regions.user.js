@@ -33,7 +33,8 @@ window.plugin.regions.setup  = function() {
     .prop("type", "text/css")
     .html(".plugin-regions-name {\
              font-size: 12px;\
-             color: #FFFFAA;\
+             font-weight: bold;\
+             color: gold;\
              text-shadow: -1px -1px #000, 1px -1px #000, -1px 1px #000, 1px 1px #000, 0 0 2px #000; \
              pointer-events: none;\
           }")
@@ -95,20 +96,46 @@ window.plugin.regions.update = function() {
 
   window.plugin.regions.regionLayer.clearLayers();
 
+  var bounds = map.getBounds();
 
+  var seenCells = {};
+
+  var drawCellAndNeighbors = function(cell) {
+if (Object.keys(seenCells).length > 500) {
+  console.wawn('over 500 cells! - oops!');
+  return;
+}
+
+    var cellStr = cell.toString();
+
+    if (!seenCells[cellStr]) {
+      // cell not visited - flag it as visited now
+      seenCells[cellStr] = true;
+
+      // is it on the screen?
+      var corners = cell.getCornerLatLngs();
+      var cellBounds = L.latLngBounds([corners[0],corners[1]]).extend(corners[2]).extend(corners[3]);
+
+      if (cellBounds.intersects(bounds)) {
+        // on screen - draw it
+        window.plugin.regions.drawCell(cell);
+
+        // and recurse to our neighbors
+        var neighbors = cell.getNeighbors();
+        for (var i=0; i<neighbors.length; i++) {
+          drawCellAndNeighbors(neighbors[i]);
+        }
+      }
+    }
+
+  };
 
   // centre cell
-  var centerCell = S2.S2Cell.FromLatLng ( map.getCenter(), 6 );
+  var zoom = map.getZoom();
+  var cellSize = zoom>=7 ? 6 : zoom>=4 ? 4 : 0;
+  var cell = S2.S2Cell.FromLatLng ( map.getCenter(), cellSize );
 
-  window.plugin.regions.drawCell(centerCell);
-
-//HACKS!!!
-
-var box = map.getBounds().pad(-0.3);
-window.plugin.regions.drawCell(S2.S2Cell.FromLatLng(box.getNorthEast(),6));
-window.plugin.regions.drawCell(S2.S2Cell.FromLatLng(box.getNorthWest(),6));
-window.plugin.regions.drawCell(S2.S2Cell.FromLatLng(box.getSouthEast(),6));
-window.plugin.regions.drawCell(S2.S2Cell.FromLatLng(box.getSouthWest(),6));
+  drawCellAndNeighbors(cell);
 
 }
 
@@ -127,7 +154,9 @@ window.plugin.regions.drawCell = function(cell) {
   // name
   var name = window.plugin.regions.regionName(cell);
 
+
   var region = L.polygon(corners, {fill: false, color: 'gold', opacity: 0.25, clickable: false});
+
   window.plugin.regions.regionLayer.addLayer(region);
 
   var marker = L.marker(center, {
