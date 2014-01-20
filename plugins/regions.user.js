@@ -32,9 +32,10 @@ window.plugin.regions.setup  = function() {
   $("<style>")
     .prop("type", "text/css")
     .html(".plugin-regions-name {\
-             font-size: 12px;\
+             font-size: 14px;\
              font-weight: bold;\
              color: gold;\
+             text-align: center;\
              text-shadow: -1px -1px #000, 1px -1px #000, -1px 1px #000, 1px 1px #000, 0 0 2px #000; \
              pointer-events: none;\
           }")
@@ -69,6 +70,14 @@ window.plugin.regions.regionName = function(cell) {
     'SIERRA'
   ];
 
+
+  // ingress does some odd things with the naming. for some faces, the i and j coords are flipped when converting
+  // (and not only the names - but the full quad coords too!). easiest fix is to create a temporary cell with the coords
+  // swapped
+  if (cell.face in [1, 3, 5]) {
+    cell = S2.S2Cell.FromFaceIJ ( cell.face, [cell.ij[1], cell.ij[0]], cell.level );
+  }
+
   // first component of the name is the face
   var name = face2name[cell.face];
 
@@ -101,10 +110,6 @@ window.plugin.regions.update = function() {
   var seenCells = {};
 
   var drawCellAndNeighbors = function(cell) {
-if (Object.keys(seenCells).length > 500) {
-  console.wawn('over 500 cells! - oops!');
-  return;
-}
 
     var cellStr = cell.toString();
 
@@ -132,10 +137,35 @@ if (Object.keys(seenCells).length > 500) {
 
   // centre cell
   var zoom = map.getZoom();
-  var cellSize = zoom>=7 ? 6 : zoom>=4 ? 4 : 0;
-  var cell = S2.S2Cell.FromLatLng ( map.getCenter(), cellSize );
+  if (zoom >= 5) {
+    var cellSize = zoom>=7 ? 6 : 4;
+    var cell = S2.S2Cell.FromLatLng ( map.getCenter(), cellSize );
 
-  drawCellAndNeighbors(cell);
+    drawCellAndNeighbors(cell);
+  }
+
+
+  // the six cube side boundaries. we cheat by hard-coding the coords as it's simple enough
+  var latLngs = [ [45,-180], [35.264389682754654,-135], [35.264389682754654,-45], [35.264389682754654,45], [35.264389682754654,135], [45,180]];
+
+  var globalCellOptions = {color: 'red', weight: 7, opacity: 0.5};
+
+  for (var i=0; i<latLngs.length-1; i++) {
+    // the geodesic line code can't handle a line/polyline spanning more than (or close to?) 180 degrees, so we draw
+    // each segment as a separate line
+    var poly1 = L.geodesicPolyline ( [latLngs[i], latLngs[i+1]], globalCellOptions );
+    window.plugin.regions.regionLayer.addLayer(poly1);
+
+    //southern mirror of the above
+    var poly2 = L.geodesicPolyline ( [[-latLngs[i][0],latLngs[i][1]], [-latLngs[i+1][0], latLngs[i+1][1]]], globalCellOptions );
+    window.plugin.regions.regionLayer.addLayer(poly2);
+  }
+
+  // and the north-south lines. no need for geodesic here
+  for (var i=-135; i<=135; i+=90) {
+    var poly = L.polyline ( [[35.264389682754654,i], [-35.264389682754654,i]], globalCellOptions );
+    window.plugin.regions.regionLayer.addLayer(poly);
+  }
 
 }
 
@@ -154,16 +184,18 @@ window.plugin.regions.drawCell = function(cell) {
   // name
   var name = window.plugin.regions.regionName(cell);
 
-
-  var region = L.polygon(corners, {fill: false, color: 'gold', opacity: 0.25, clickable: false});
+  // the level 6 cells have noticible errors with non-geodesic lines - and the larger level 4 cells are worse
+  // NOTE: we only draw two of the edges. as we draw all cells on screen, the other two edges will either be drawn
+  // from the other cell, or be off screen so we don't care
+  var region = L.geodesicPolyline([corners[0],corners[1],corners[2]], {fill: false, color: 'gold', opacity: 0.5, weight: 5, clickable: false});
 
   window.plugin.regions.regionLayer.addLayer(region);
 
   var marker = L.marker(center, {
     icon: L.divIcon({
       className: 'plugin-regions-name',
-      iconAnchor: [50,5],
-      iconSize: [100,10],
+      iconAnchor: [100,5],
+      iconSize: [200,10],
       html: name,
     })
   });
