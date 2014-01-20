@@ -74,7 +74,7 @@ window.plugin.regions.regionName = function(cell) {
   // ingress does some odd things with the naming. for some faces, the i and j coords are flipped when converting
   // (and not only the names - but the full quad coords too!). easiest fix is to create a temporary cell with the coords
   // swapped
-  if (cell.face in [1, 3, 5]) {
+  if (cell.face == 1 || cell.face == 3 || cell.face == 5) {
     cell = S2.S2Cell.FromFaceIJ ( cell.face, [cell.ij[1], cell.ij[0]], cell.level );
   }
 
