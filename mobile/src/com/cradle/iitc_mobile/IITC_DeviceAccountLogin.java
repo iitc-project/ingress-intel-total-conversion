@@ -18,10 +18,12 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cradle.iitc_mobile.IITC_Mobile.ResponseHandler;
+
 /**
  * this class manages automatic login using the Google account stored on the device
  */
-public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
+public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle>, ResponseHandler {
     /**
      * Adapter to show available accounts in a ListView. Accounts are read from mAccounts
      */
@@ -126,6 +128,7 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
     /**
      * called by IITC_Mobile when the authentication activity has finished.
      */
+    @Override
     public void onActivityResult(int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK)
         // authentication activity succeeded, request token again
@@ -149,7 +152,7 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
                 // There is a reason we need to start the given activity if we want an
                 // authentication token. (Could be user confirmation or something else. Whatever,
                 // we have to start it) IITC_Mobile will call it using startActivityForResult
-                mActivity.startLoginActivity(launch);
+                mActivity.startActivityForResult(launch, this);
                 return;
             }
 

@@ -1,11 +1,19 @@
 package com.cradle.iitc_mobile;
 
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.util.Base64;
+import android.util.Base64OutputStream;
 import android.webkit.WebResourceResponse;
+import android.widget.Toast;
+
+import com.cradle.iitc_mobile.IITC_Mobile.ResponseHandler;
 
 import org.json.JSONObject;
 
@@ -16,7 +24,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.HashMap;
 
 public class IITC_FileManager {
@@ -112,6 +123,10 @@ public class IITC_FileManager {
         return mAssetManager.open(filename);
     }
 
+    private WebResourceResponse getFileRequest(Uri uri) {
+        return new FileRequest(uri);
+    }
+
     private WebResourceResponse getScript(Uri uri) {
         InputStream stream;
         try {
@@ -179,6 +194,10 @@ public class IITC_FileManager {
         return os.toString();
     }
 
+    public String getFileRequestPrefix() {
+        return "//file-request" + DOMAIN + "/";
+    }
+
     public String getIITCVersion() throws IOException {
         InputStream stream = getAssetFile("total-conversion-build.user.js");
 
@@ -196,8 +215,90 @@ public class IITC_FileManager {
             return getScript(uri);
         if ("user-plugin".equals(host))
             return getUserPlugin(uri);
+        if ("file-request".equals(host))
+            return getFileRequest(uri);
 
         Log.e("could not generate response for url: " + uri);
         return EMPTY;
+    }
+
+    private class FileRequest extends WebResourceResponse implements ResponseHandler, Runnable {
+        private Intent mData;
+        private String mFunctionName;
+        private int mResultCode;
+        private PipedOutputStream mStreamOut;
+
+        private FileRequest(Uri uri) {
+            // create two connected streams we can write to after the file has been read
+            super("application/x-javascript", "UTF-8", new PipedInputStream());
+
+            try {
+                mStreamOut = new PipedOutputStream((PipedInputStream) getData());
+            } catch (IOException e) {
+                Log.w(e);
+            }
+
+            // the function to call
+            mFunctionName = uri.getPathSegments().get(0);
+
+            // create the chooser Intent
+            final Intent target = new Intent(Intent.ACTION_GET_CONTENT);
+            target.setType("file/*");
+            target.addCategory(Intent.CATEGORY_OPENABLE);
+
+            Intent intent = Intent.createChooser(target, "Choose file");
+            try {
+                mIitc.startActivityForResult(intent, this);
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(mIitc, "No activity to select a file found." +
+                        "Please install a file browser of your choice!", Toast.LENGTH_LONG).show();
+            }
+        }
+
+        @Override
+        public void onActivityResult(int resultCode, Intent data) {
+            mIitc.deleteResponseHandler(this); // to enable garbage collection
+
+            mResultCode = resultCode;
+            mData = data;
+
+            new Thread(this, "FileRequestReader").start();
+        }
+
+        @Override
+        public void run() {
+            try {
+                if (mResultCode == Activity.RESULT_OK && mData != null) {
+                    Uri uri = mData.getData();
+                    File file = new File(uri.getPath());
+
+                    mStreamOut.write(
+                            (mFunctionName + "('" + URLEncoder.encode(file.getName(), "UTF-8") + "', '").getBytes());
+
+                    Base64OutputStream encoder =
+                            new Base64OutputStream(mStreamOut, Base64.NO_CLOSE | Base64.NO_WRAP | Base64.DEFAULT);
+
+                    FileInputStream fileinput = new FileInputStream(file);
+                    int c;
+                    while ((c = fileinput.read()) != -1)
+                    {
+                        encoder.write(c);
+                    }
+
+                    encoder.close();
+                    mStreamOut.write("');".getBytes());
+                }
+
+                mStreamOut.close();
+            } catch (IOException e) {
+                Log.w(e);
+
+                // try to close stream, but ignore errors
+                try {
+                    mStreamOut.close();
+                } catch (IOException e1) {
+                }
+            }
+        }
     }
 }
