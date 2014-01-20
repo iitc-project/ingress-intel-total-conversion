@@ -42,10 +42,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Stack;
+import java.util.Vector;
 
 public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeListener {
-
-    private static final int REQUEST_LOGIN = 1;
     private static final String mIntelUrl = "https://www.ingress.com/intel";
 
     private SharedPreferences mSharedPrefs;
@@ -55,6 +54,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     private IITC_NavigationHelper mNavigationHelper;
     private IITC_MapSettings mMapSettings;
     private IITC_DeviceAccountLogin mLogin;
+    private Vector<ResponseHandler> mResponseHandlers = new Vector<ResponseHandler>();
     private boolean mDesktopMode = false;
     private boolean mAdvancedMenu = false;
     private MenuItem mSearchMenuItem;
@@ -572,23 +572,25 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         return this.mIitcWebView;
     }
 
-    /**
-     * It can occur that in order to authenticate, an external activity has to be launched.
-     * (This could for example be a confirmation dialog.)
-     */
-    public void startLoginActivity(Intent launch) {
-        startActivityForResult(launch, REQUEST_LOGIN); // REQUEST_LOGIN is to recognize the result
+    public void startActivityForResult(Intent launch, ResponseHandler handler) {
+        int index = mResponseHandlers.indexOf(handler);
+        if (index == -1) {
+            mResponseHandlers.add(handler);
+            index = mResponseHandlers.indexOf(handler);
+        }
+
+        startActivityForResult(launch, RESULT_FIRST_USER + index);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case REQUEST_LOGIN:
-                // authentication activity has returned. mLogin will continue authentication
-                mLogin.onActivityResult(resultCode, data);
-                break;
-            default:
-                super.onActivityResult(requestCode, resultCode, data);
+        int index = requestCode - RESULT_FIRST_USER;
+
+        try {
+            ResponseHandler handler = mResponseHandlers.get(index);
+            handler.onActivityResult(resultCode, data);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
@@ -763,5 +765,9 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
     public IITC_UserLocation getUserLocation() {
         return mUserLocation;
+    }
+
+    public interface ResponseHandler {
+        void onActivityResult(int resultCode, Intent data);
     }
 }
