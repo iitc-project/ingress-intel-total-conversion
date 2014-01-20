@@ -66,12 +66,11 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
         if (onIsMultiPane()) {
             getIntent()
                     .putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, PluginsFragment.class.getName());
         }
+        super.onCreate(savedInstanceState);
     }
 
     @Override
