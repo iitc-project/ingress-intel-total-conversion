@@ -582,6 +582,14 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         startActivityForResult(launch, RESULT_FIRST_USER + index);
     }
 
+    public void deleteResponseHandler(ResponseHandler handler) {
+        int index = mResponseHandlers.indexOf(handler);
+        if (index != -1) {
+            // set value to null to enable garbage collection, but don't remove it to keep indexes
+            mResponseHandlers.set(index, null);
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         int index = requestCode - RESULT_FIRST_USER;

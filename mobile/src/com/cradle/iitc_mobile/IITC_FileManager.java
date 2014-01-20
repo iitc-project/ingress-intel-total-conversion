@@ -253,6 +253,8 @@ public class IITC_FileManager {
 
         @Override
         public void onActivityResult(int resultCode, Intent data) {
+            mIitc.deleteResponseHandler(this); // to enable garbage collection
+
             try {
                 if (resultCode == Activity.RESULT_OK && data != null) {
                     Uri uri = data.getData();
@@ -270,8 +272,8 @@ public class IITC_FileManager {
                     {
                         encoder.write(c);
                     }
+
                     encoder.close();
-                    
                     mStreamOut.write("');".getBytes());
                 }
 
