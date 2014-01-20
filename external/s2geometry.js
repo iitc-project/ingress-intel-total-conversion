@@ -211,15 +211,24 @@ S2.S2Cell.FromLatLng = function(latLng,level) {
 
   var ij = STToIJ(st,level);
 
-
-  var result = new S2.S2Cell();
-  result.face = faceuv[0];
-  result.ij = ij;
-  result.level = level;
+  return S2.S2Cell.FromFaceIJ (faceuv[0], ij, level);
 
   return result;
 };
 
+S2.S2Cell.FromFaceIJ = function(face,ij,level) {
+  var cell = new S2.S2Cell();
+  cell.face = face;
+  cell.ij = ij;
+  cell.level = level;
+
+  return cell;
+};
+
+
+S2.S2Cell.prototype.toString = function() {
+  return 'F'+this.face+'ij['+this.ij[0]+','+this.ij[1]+']@'+this.level;
+};
 
 S2.S2Cell.prototype.getLatLng = function() {
   var st = IJToST(this.ij,this.level, [0.5,0.5]);
@@ -239,7 +248,7 @@ S2.S2Cell.prototype.getCornerLatLngs = function() {
   ];
 
   for (var i=0; i<4; i++) {
-    var st = IJToST(this.ij,this.level, offsets[i]);
+    var st = IJToST(this.ij, this.level, offsets[i]);
     var uv = STToUV(st);
     var xyz = FaceUVToXYZ(this.face, uv);
 
@@ -254,5 +263,45 @@ S2.S2Cell.prototype.getFaceAndQuads = function() {
 
   return [this.face,quads];
 };
+
+S2.S2Cell.prototype.getNeighbors = function() {
+
+  var fromFaceIJWrap = function(face,ij,level) {
+    var maxSize = (1<<level);
+    if (ij[0]>=0 && ij[1]>=0 && ij[0]<maxSize && ij[1]<maxSize) {
+      // no wrapping out of bounds
+      return S2.S2Cell.FromFaceIJ(face,ij,level);
+    } else {
+      // the new i,j are out of range.
+      // with the assumption that they're only a little past the borders we can just take the points as
+      // just beyond the cube face, project to XYZ, then re-create FaceUV from the XYZ vector
+
+      var st = IJToST(ij,level,[0.5,0.5]);
+      var uv = STToUV(st);
+      var xyz = FaceUVToXYZ(face,uv);
+      var faceuv = XYZToFaceUV(xyz);
+      face = faceuv[0];
+      uv = faceuv[1];
+      st = UVToST(uv);
+      ij = STToIJ(st,level);
+      return S2.S2Cell.FromFaceIJ (face, ij, level);
+    }
+  };
+
+  var face = this.face;
+  var i = this.ij[0];
+  var j = this.ij[1];
+  var level = this.level;
+
+
+  return [
+    fromFaceIJWrap(face, [i-1,j], level),
+    fromFaceIJWrap(face, [i,j-1], level),
+    fromFaceIJWrap(face, [i+1,j], level),
+    fromFaceIJWrap(face, [i,j+1], level)
+  ];
+
+};
+
 
 })();
