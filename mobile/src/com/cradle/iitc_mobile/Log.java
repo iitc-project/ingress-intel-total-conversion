@@ -37,20 +37,20 @@ public final class Log {
                 Pattern.CASE_INSENSITIVE);
     };
 
-    private static synchronized void log(int priority, String tag, String msg, Throwable tr) {
-        Date now = new Date();
+    private static synchronized void log(final int priority, final String tag, final String msg, final Throwable tr) {
+        final Date now = new Date();
 
-        Message message = new Message(now, priority, tag, msg, tr);
-        for (Receiver receiver : RECEIVERS) {
+        final Message message = new Message(now, priority, tag, msg, tr);
+        for (final Receiver receiver : RECEIVERS) {
             receiver.handle(message);
         }
     }
 
-    public static void addReceiver(Log.Receiver receiver) {
+    public static void addReceiver(final Log.Receiver receiver) {
         RECEIVERS.add(receiver);
     }
 
-    public static void d(String msg) {
+    public static void d(final String msg) {
         d(DEFAULT_TAG, msg);
     }
 
@@ -58,7 +58,7 @@ public final class Log {
      * @deprecated A default tag is provided by {@link Log.d}
      */
     @Deprecated
-    public static void d(String tag, String msg) {
+    public static void d(final String tag, final String msg) {
         log(android.util.Log.DEBUG, tag, msg, null);
         android.util.Log.d(tag, msg);
     }
@@ -67,20 +67,20 @@ public final class Log {
      * @deprecated A default tag is provided by {@link Log.d}
      */
     @Deprecated
-    public static void d(String tag, String msg, Throwable tr) {
+    public static void d(final String tag, final String msg, final Throwable tr) {
         log(android.util.Log.DEBUG, tag, msg, tr);
         android.util.Log.d(tag, msg, tr);
     }
 
-    public static void d(String msg, Throwable tr) {
+    public static void d(final String msg, final Throwable tr) {
         d(DEFAULT_TAG, msg, tr);
     }
 
-    public static void d(Throwable tr) {
+    public static void d(final Throwable tr) {
         d("Unexpected " + tr, tr);
     }
 
-    public static void e(String msg) {
+    public static void e(final String msg) {
         e(DEFAULT_TAG, msg);
     }
 
@@ -88,7 +88,7 @@ public final class Log {
      * @deprecated A default tag is provided by {@link Log.e}
      */
     @Deprecated
-    public static void e(String tag, String msg) {
+    public static void e(final String tag, final String msg) {
         log(android.util.Log.ERROR, tag, msg, null);
         android.util.Log.e(tag, msg);
     }
@@ -97,20 +97,20 @@ public final class Log {
      * @deprecated A default tag is provided by {@link Log.e}
      */
     @Deprecated
-    public static void e(String tag, String msg, Throwable tr) {
+    public static void e(final String tag, final String msg, final Throwable tr) {
         log(android.util.Log.ERROR, tag, msg, tr);
         android.util.Log.e(tag, msg, tr);
     }
 
-    public static void e(String msg, Throwable tr) {
+    public static void e(final String msg, final Throwable tr) {
         e(DEFAULT_TAG, msg, tr);
     }
 
-    public static void e(Throwable tr) {
+    public static void e(final Throwable tr) {
         e("Unexpected " + tr, tr);
     }
 
-    public static void i(String msg) {
+    public static void i(final String msg) {
         i(DEFAULT_TAG, msg);
     }
 
@@ -118,7 +118,7 @@ public final class Log {
      * @deprecated A default tag is provided by {@link Log.i}
      */
     @Deprecated
-    public static void i(String tag, String msg) {
+    public static void i(final String tag, final String msg) {
         log(android.util.Log.INFO, tag, msg, null);
         android.util.Log.i(tag, msg);
     }
@@ -127,26 +127,26 @@ public final class Log {
      * @deprecated A default tag is provided by {@link Log.i}
      */
     @Deprecated
-    public static void i(String tag, String msg, Throwable tr) {
+    public static void i(final String tag, final String msg, final Throwable tr) {
         log(android.util.Log.INFO, tag, msg, tr);
         android.util.Log.i(tag, msg, tr);
     }
 
-    public static void i(String msg, Throwable tr) {
+    public static void i(final String msg, final Throwable tr) {
         i(DEFAULT_TAG, msg, tr);
     }
 
-    public static void i(Throwable tr) {
+    public static void i(final Throwable tr) {
         i("Unexpected " + tr, tr);
     }
 
-    public static boolean log(ConsoleMessage message) {
+    public static boolean log(final ConsoleMessage message) {
         String msg = message.sourceId();
 
         if (msg == null || "".equals(msg)) {
             msg = "<no source>";
         } else {
-            Matcher matcher = URL_PATTERN.matcher(msg);
+            final Matcher matcher = URL_PATTERN.matcher(msg);
             if (matcher.matches()) {
                 msg = "<" + matcher.group(1) + "/" + matcher.group(2) + ">";
             }
@@ -167,7 +167,7 @@ public final class Log {
         return false;
     }
 
-    public static int println(int priority, String msg) {
+    public static int println(final int priority, final String msg) {
         return println(priority, DEFAULT_TAG, msg);
     }
 
@@ -175,16 +175,16 @@ public final class Log {
      * @deprecated A default tag is provided by {@link Log.println}
      */
     @Deprecated
-    public static int println(int priority, String tag, String msg) {
+    public static int println(final int priority, final String tag, final String msg) {
         log(priority, tag, msg, null);
         return android.util.Log.println(priority, tag, msg);
     }
 
-    public static void removeReceiver(Log.Receiver receiver) {
+    public static void removeReceiver(final Log.Receiver receiver) {
         RECEIVERS.remove(receiver);
     }
 
-    public static void v(String msg) {
+    public static void v(final String msg) {
         v(DEFAULT_TAG, msg);
     }
 
@@ -192,7 +192,7 @@ public final class Log {
      * @deprecated A default tag is provided by {@link Log.v}
      */
     @Deprecated
-    public static void v(String tag, String msg) {
+    public static void v(final String tag, final String msg) {
         log(android.util.Log.VERBOSE, tag, msg, null);
         android.util.Log.v(tag, msg);
     }
@@ -201,20 +201,20 @@ public final class Log {
      * @deprecated A default tag is provided by {@link Log.v}
      */
     @Deprecated
-    public static void v(String tag, String msg, Throwable tr) {
+    public static void v(final String tag, final String msg, final Throwable tr) {
         log(android.util.Log.VERBOSE, tag, msg, tr);
         android.util.Log.v(tag, msg, tr);
     }
 
-    public static void v(String msg, Throwable tr) {
+    public static void v(final String msg, final Throwable tr) {
         v(DEFAULT_TAG, msg, tr);
     }
 
-    public static void v(Throwable tr) {
+    public static void v(final Throwable tr) {
         v("Unexpected " + tr, tr);
     }
 
-    public static void w(String msg) {
+    public static void w(final String msg) {
         w(DEFAULT_TAG, msg);
     }
 
@@ -222,7 +222,7 @@ public final class Log {
      * @deprecated A default tag is provided by {@link Log.w}
      */
     @Deprecated
-    public static void w(String tag, String msg) {
+    public static void w(final String tag, final String msg) {
         log(android.util.Log.WARN, tag, msg, null);
         android.util.Log.w(tag, msg);
     }
@@ -231,16 +231,16 @@ public final class Log {
      * @deprecated A default tag is provided by {@link Log.w}
      */
     @Deprecated
-    public static void w(String tag, String msg, Throwable tr) {
+    public static void w(final String tag, final String msg, final Throwable tr) {
         log(android.util.Log.WARN, tag, msg, tr);
         android.util.Log.w(tag, msg, tr);
     }
 
-    public static void w(String msg, Throwable tr) {
+    public static void w(final String msg, final Throwable tr) {
         w(DEFAULT_TAG, msg, tr);
     }
 
-    public static void w(Throwable tr) {
+    public static void w(final Throwable tr) {
         w("Unexpected " + tr, tr);
     }
 
@@ -250,13 +250,13 @@ public final class Log {
     }
 
     public static class Message {
-        private Date mDate;
-        private String mMsg;
-        private int mPriority;
-        private String mTag;
-        private Throwable mTr;
+        private final Date mDate;
+        private final String mMsg;
+        private final int mPriority;
+        private final String mTag;
+        private final Throwable mTr;
 
-        private Message(Date date, int priority, String tag, String msg, Throwable tr) {
+        private Message(final Date date, final int priority, final String tag, final String msg, final Throwable tr) {
             mDate = date;
             mPriority = priority;
             mTag = tag;
@@ -265,23 +265,23 @@ public final class Log {
         }
 
         public Date getDate() {
-            return this.mDate;
+            return mDate;
         }
 
         public String getMsg() {
-            return this.mMsg;
+            return mMsg;
         }
 
         public int getPriority() {
-            return this.mPriority;
+            return mPriority;
         }
 
         public String getTag() {
-            return this.mTag;
+            return mTag;
         }
 
         public Throwable getTr() {
-            return this.mTr;
+            return mTr;
         }
     }
 

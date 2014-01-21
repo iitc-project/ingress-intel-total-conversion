@@ -24,7 +24,7 @@ public class IITC_NotificationHelper {
     private final SharedPreferences mPrefs;
     private int mDialogs = 0;
 
-    public IITC_NotificationHelper(Activity activity) {
+    public IITC_NotificationHelper(final Activity activity) {
         mActivity = activity;
         mPrefs = PreferenceManager.getDefaultSharedPreferences(mActivity);
     }
@@ -45,30 +45,31 @@ public class IITC_NotificationHelper {
                 break;
             case NOTICE_EXTPLUGINS:
                 text = mActivity.getString(R.string.notice_extplugins);
-                text = String.format(text, Environment.getExternalStorageDirectory().getPath() + "/IITC_Mobile/plugins/");
+                text = String.format(text, Environment.getExternalStorageDirectory().getPath()
+                        + "/IITC_Mobile/plugins/");
                 break;
             default:
                 return;
         }
 
         final View content = mActivity.getLayoutInflater().inflate(R.layout.dialog_notice, null);
-        TextView message = (TextView) content.findViewById(R.id.tv_notice);
+        final TextView message = (TextView) content.findViewById(R.id.tv_notice);
         message.setText(Html.fromHtml(text));
         message.setMovementMethod(LinkMovementMethod.getInstance());
 
-        AlertDialog dialog = new AlertDialog.Builder(mActivity)
+        final AlertDialog dialog = new AlertDialog.Builder(mActivity)
                 .setView(content)
                 .setCancelable(true)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onClick(final DialogInterface dialog, final int which) {
                         dialog.cancel();
                     }
                 })
                 .create();
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
-            public void onDismiss(DialogInterface dialog) {
+            public void onDismiss(final DialogInterface dialog) {
                 mDialogs &= ~which;
                 if (((CheckBox) content.findViewById(R.id.cb_do_not_show_again)).isChecked()) {
                     int value = mPrefs.getInt("pref_messages", 0);
@@ -85,6 +86,4 @@ public class IITC_NotificationHelper {
         mDialogs |= which;
         dialog.show();
     }
-
-
 }

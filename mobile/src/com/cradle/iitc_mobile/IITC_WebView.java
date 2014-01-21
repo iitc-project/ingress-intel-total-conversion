@@ -44,7 +44,7 @@ public class IITC_WebView extends WebView {
             " Gecko/20130810 Firefox/17.0 Iceweasel/17.0.8";
 
     // init web view
-    private void iitc_init(Context c) {
+    private void iitc_init(final Context c) {
         if (isInEditMode()) return;
         mIitc = (IITC_Mobile) c;
         mSettings = getSettings();
@@ -86,19 +86,19 @@ public class IITC_WebView extends WebView {
     }
 
     // constructors -------------------------------------------------
-    public IITC_WebView(Context context) {
+    public IITC_WebView(final Context context) {
         super(context);
 
         iitc_init(context);
     }
 
-    public IITC_WebView(Context context, AttributeSet attrs) {
+    public IITC_WebView(final Context context, final AttributeSet attrs) {
         super(context, attrs);
 
         iitc_init(context);
     }
 
-    public IITC_WebView(Context context, AttributeSet attrs, int defStyle) {
+    public IITC_WebView(final Context context, final AttributeSet attrs, final int defStyle) {
         super(context, attrs, defStyle);
 
         iitc_init(context);
@@ -117,7 +117,7 @@ public class IITC_WebView extends WebView {
             loadJS(url.substring("javascript:".length()));
         } else {
             // force https if enabled in settings
-            SharedPreferences sharedPref = PreferenceManager
+            final SharedPreferences sharedPref = PreferenceManager
                     .getDefaultSharedPreferences(getContext());
             if (sharedPref.getBoolean("pref_force_https", true)) {
                 url = url.replace("http://", "https://");
@@ -133,12 +133,12 @@ public class IITC_WebView extends WebView {
     }
 
     @TargetApi(19)
-    public void loadJS(String js) {
+    public void loadJS(final String js) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             evaluateJavascript(js, null);
         } else {
             // if in edit text mode, don't load javascript otherwise the keyboard closes.
-            HitTestResult testResult = getHitTestResult();
+            final HitTestResult testResult = getHitTestResult();
             if (testResult != null && testResult.getType() == HitTestResult.EDIT_TEXT_TYPE) {
                 // let window.show(...) interrupt input
                 // window.show(...) is called if one of the action bar buttons
@@ -153,14 +153,14 @@ public class IITC_WebView extends WebView {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(final MotionEvent event) {
         getHandler().removeCallbacks(mNavHider);
         getHandler().postDelayed(mNavHider, 3000);
         return super.onTouchEvent(event);
     }
 
     @Override
-    public void setSystemUiVisibility(int visibility) {
+    public void setSystemUiVisibility(final int visibility) {
         if ((visibility & SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
             getHandler().postDelayed(mNavHider, 3000);
         }
@@ -168,7 +168,7 @@ public class IITC_WebView extends WebView {
     }
 
     @Override
-    public void onWindowFocusChanged(boolean hasWindowFocus) {
+    public void onWindowFocusChanged(final boolean hasWindowFocus) {
         if (hasWindowFocus) {
             getHandler().postDelayed(mNavHider, 3000);
         } else {
@@ -180,7 +180,7 @@ public class IITC_WebView extends WebView {
     public void toggleFullscreen() {
         mFullscreenStatus ^= FS_ENABLED;
 
-        WindowManager.LayoutParams attrs = mIitc.getWindow().getAttributes();
+        final WindowManager.LayoutParams attrs = mIitc.getWindow().getAttributes();
         // toggle notification bar
         if (isInFullscreen()) {
             // show a toast with instructions to exit the fullscreen mode again
@@ -206,14 +206,14 @@ public class IITC_WebView extends WebView {
     }
 
     void updateFullscreenStatus() {
-        Set<String> entries = mSharedPrefs.getStringSet("pref_fullscreen", new HashSet<String>());
+        final Set<String> entries = mSharedPrefs.getStringSet("pref_fullscreen", new HashSet<String>());
         mFullscreenStatus &= FS_ENABLED;
 
         // default values...android has no nice way to add default values to multiSelectListPreferences
         if (entries.isEmpty()) {
             mFullscreenStatus += FS_ACTIONBAR | FS_SYSBAR;
         }
-        for (String entry : entries) {
+        for (final String entry : entries) {
             mFullscreenStatus += Integer.parseInt(entry);
         }
     }
@@ -236,27 +236,28 @@ public class IITC_WebView extends WebView {
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public boolean isConnectedToWifi() {
-        ConnectivityManager conMan = (ConnectivityManager) getContext()
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo wifi = conMan.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        final ConnectivityManager conMan = (ConnectivityManager) mIitc.getSystemService(Context.CONNECTIVITY_SERVICE);
+        final NetworkInfo wifi = conMan.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
         // since jelly bean you can mark wifi networks as mobile hotspots
         // settings -> data usage -> menu -> mobile hotspots
         // ConnectivityManager.isActiveNetworkMeter returns if the currently used wifi-network
         // is ticked as mobile hotspot or not.
         // --> IITC_WebView.isConnectedToWifi should return 'false' if connected to mobile hotspot
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            return ((wifi.getState() == NetworkInfo.State.CONNECTED) &&
-                    !conMan.isActiveNetworkMetered());
+            if (conMan.isActiveNetworkMetered()) return false;
         }
+
         return (wifi.getState() == NetworkInfo.State.CONNECTED);
     }
 
-    public void disableJS(boolean val) {
+    public void disableJS(final boolean val) {
         mDisableJs = val;
     }
 
     public void setUserAgent() {
-        String ua = mSharedPrefs.getBoolean("pref_fake_user_agent", false) ? mDesktopUserAgent : mDefaultUserAgent;
+        final String ua = mSharedPrefs.getBoolean("pref_fake_user_agent", false) ?
+                mDesktopUserAgent : mDefaultUserAgent;
         Log.d("setting user agent to: " + ua);
         mSettings.setUserAgentString(ua);
     }

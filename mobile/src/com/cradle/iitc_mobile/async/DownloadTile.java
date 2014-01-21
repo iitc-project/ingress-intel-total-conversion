@@ -14,36 +14,36 @@ import java.net.URLConnection;
 
 public class DownloadTile extends AsyncTask<String, Void, Boolean> {
 
-    private String mFilePath;
+    private final String mFilePath;
 
-    public DownloadTile(String path) {
+    public DownloadTile(final String path) {
         mFilePath = path;
 
     }
 
     @Override
-    protected Boolean doInBackground(String... urls) {
+    protected Boolean doInBackground(final String... urls) {
         URL tileUrl = null;
         URLConnection conn = null;
         try {
             tileUrl = new URL(urls[0]);
             conn = tileUrl.openConnection();
-            File file = new File(mFilePath);
+            final File file = new File(mFilePath);
             // update tile if needed, else return
             if (conn.getLastModified() < file.lastModified()) return true;
             InputStream is = null;
             is = conn.getInputStream();
             Log.d("writing to file: " + file.toString());
             writeTileToFile(is, file);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             return false;
         }
         return true;
     }
 
-    private void writeTileToFile(InputStream inStream, File file) throws IOException {
+    private void writeTileToFile(final InputStream inStream, final File file) throws IOException {
         file.getParentFile().mkdirs();
-        FileOutputStream outStream = new FileOutputStream(file);
+        final FileOutputStream outStream = new FileOutputStream(file);
 
         IITC_FileManager.copyStream(inStream, outStream, true);
     }

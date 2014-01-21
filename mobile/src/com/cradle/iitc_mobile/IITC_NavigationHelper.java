@@ -1,10 +1,6 @@
 package com.cradle.iitc_mobile;
 
 import android.app.ActionBar;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
-import android.content.DialogInterface.OnDismissListener;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -12,15 +8,12 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -51,17 +44,17 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     private Pane mPane = Pane.MAP;
     private String mHighlighter = null;
 
-    public IITC_NavigationHelper(IITC_Mobile activity, ActionBar bar) {
-        super(activity, (DrawerLayout) activity.findViewById(R.id.drawer_layout),
+    public IITC_NavigationHelper(final IITC_Mobile iitc, final ActionBar bar) {
+        super(iitc, (DrawerLayout) iitc.findViewById(R.id.drawer_layout),
                 R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close);
 
-        mIitc = activity;
+        mIitc = iitc;
         mActionBar = bar;
-        mDrawerLeft = (ListView) activity.findViewById(R.id.left_drawer);
-        mDrawerRight = activity.findViewById(R.id.right_drawer);
-        mDrawerLayout = (DrawerLayout) activity.findViewById(R.id.drawer_layout);
+        mDrawerLeft = (ListView) iitc.findViewById(R.id.left_drawer);
+        mDrawerRight = iitc.findViewById(R.id.right_drawer);
+        mDrawerLayout = (DrawerLayout) iitc.findViewById(R.id.drawer_layout);
 
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(iitc);
 
         mActionBar.setDisplayShowHomeEnabled(true); // show icon
 
@@ -78,7 +71,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     }
 
     private void updateViews() {
-        int position = mNavigationAdapter.getPosition(mPane);
+        final int position = mNavigationAdapter.getPosition(mPane);
         if (position >= 0 && position < mNavigationAdapter.getCount()) {
             mDrawerLeft.setItemChecked(position, true);
         } else {
@@ -117,7 +110,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
             }
         }
 
-        boolean mapVisible = mDesktopMode || mPane == Pane.MAP;
+        final boolean mapVisible = mDesktopMode || mPane == Pane.MAP;
         if ("No Highlights".equals(mHighlighter) || isDrawerOpened() || mIitc.isLoading() || !mapVisible) {
             mActionBar.setSubtitle(null);
         } else {
@@ -125,11 +118,11 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         }
     }
 
-    public void addPane(String name, String label, String icon) {
+    public void addPane(final String name, final String label, final String icon) {
         mNotificationHelper.showNotice(IITC_NotificationHelper.NOTICE_PANES);
 
-        Resources res = mIitc.getResources();
-        String packageName = res.getResourcePackageName(R.string.app_name);
+        final Resources res = mIitc.getResources();
+        final String packageName = res.getResourcePackageName(R.string.app_name);
         /*
          * since the package name is overridden in test builds
          * we can't use context.getPackageName() to get the package name
@@ -137,7 +130,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
          * so we have to retrieve the package name of another resource with Resources.getResourcePackageName()
          * see http://www.piwai.info/renaming-android-manifest-package/
          */
-        int resId = mIitc.getResources().getIdentifier(icon, "drawable", packageName);
+        final int resId = mIitc.getResources().getIdentifier(icon, "drawable", packageName);
         mNavigationAdapter.add(new Pane(name, label, resId));
     }
 
@@ -145,9 +138,9 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         mDrawerLayout.closeDrawers();
     }
 
-    public Pane getPane(String id) {
+    public Pane getPane(final String id) {
         for (int i = 0; i < mNavigationAdapter.getCount(); i++) {
-            Pane pane = mNavigationAdapter.getItem(i);
+            final Pane pane = mNavigationAdapter.getItem(i);
             if (pane.name.equals(id))
                 return pane;
         }
@@ -163,7 +156,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     }
 
     @Override
-    public void onDrawerClosed(View drawerView) {
+    public void onDrawerClosed(final View drawerView) {
         super.onDrawerClosed(drawerView);
 
         mIitc.getWebView().onWindowFocusChanged(true);
@@ -178,7 +171,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     }
 
     @Override
-    public void onDrawerOpened(View drawerView) {
+    public void onDrawerOpened(final View drawerView) {
         super.onDrawerOpened(drawerView);
         mIitc.getWebView().onWindowFocusChanged(false);
         mIitc.invalidateOptionsMenu();
@@ -187,8 +180,8 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     }
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Pane item = mNavigationAdapter.getItem(position);
+    public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
+        final Pane item = mNavigationAdapter.getItem(position);
         mIitc.switchToPane(item);
 
         if (item == Pane.INFO) {
@@ -203,7 +196,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             mDrawerLayout.closeDrawer(mDrawerRight);
         }
@@ -211,7 +204,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         return super.onOptionsItemSelected(item);
     }
 
-    public void onPostCreate(Bundle savedInstanceState) {
+    public void onPostCreate(final Bundle savedInstanceState) {
         // Sync the toggle state after onRestoreInstanceState has occurred.
         syncState();
     }
@@ -233,11 +226,11 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         updateViews();
     }
 
-    public void setDebugMode(boolean enabled) {
+    public void setDebugMode(final boolean enabled) {
         mNavigationAdapter.reset();
     }
 
-    public void setHighlighter(String name) {
+    public void setHighlighter(final String name) {
         mHighlighter = name;
         updateViews();
     }
@@ -246,7 +239,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         mActionBar.show();
     }
 
-    public void switchTo(Pane pane) {
+    public void switchTo(final Pane pane) {
         mPane = pane;
 
         updateViews();
@@ -260,9 +253,9 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            TextView view = (TextView) super.getView(position, convertView, parent);
-            Pane item = getItem(position);
+        public View getView(final int position, final View convertView, final ViewGroup parent) {
+            final TextView view = (TextView) super.getView(position, convertView, parent);
+            final Pane item = getItem(position);
             view.setText(item.label);
 
             if (item.icon != 0) {
@@ -291,22 +284,22 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         public static final Pane MAP = new Pane("map", "Map", R.drawable.ic_action_map);
         public static final Pane PUBLIC = new Pane("public", "Public", R.drawable.ic_action_group);
 
-        private int icon;
+        private final int icon;
         public String label;
         public String name;
 
-        public Pane(String name, String label, int icon) {
+        public Pane(final String name, final String label, final int icon) {
             this.name = name;
             this.label = label;
             this.icon = icon;
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
             if (o == null) return false;
             if (o.getClass() != getClass()) return false;
 
-            Pane pane = (Pane) o;
+            final Pane pane = (Pane) o;
             return name.equals(pane.name);
         }
 

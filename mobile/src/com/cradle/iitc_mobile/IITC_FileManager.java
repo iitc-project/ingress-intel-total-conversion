@@ -43,22 +43,22 @@ public class IITC_FileManager {
 
     /**
      * copies the contents of a stream into another stream and (optionally) closes the output stream afterwards
-     * 
+     *
      * @param inStream
      *            the stream to read from
      * @param outStream
      *            the stream to write to
      * @param closeOutput
      *            whether to close the output stream when finished
-     * 
+     *
      * @throws IOException
      */
-    public static void copyStream(InputStream inStream, OutputStream outStream, boolean closeOutput) throws IOException
+    public static void copyStream(final InputStream inStream, final OutputStream outStream, final boolean closeOutput)
+            throws IOException
     {
-
         // in case Android includes Apache commons IO in the future, this function should be replaced by IOUtils.copy
-        int bufferSize = 1024;
-        byte[] buffer = new byte[bufferSize];
+        final int bufferSize = 1024;
+        final byte[] buffer = new byte[bufferSize];
         int len = 0;
 
         try {
@@ -71,8 +71,8 @@ public class IITC_FileManager {
         }
     }
 
-    public static HashMap<String, String> getScriptInfo(String js) {
-        HashMap<String, String> map = new HashMap<String, String>();
+    public static HashMap<String, String> getScriptInfo(final String js) {
+        final HashMap<String, String> map = new HashMap<String, String>();
         String header = "";
         if (js != null) {
             header = js.substring(js.indexOf("==UserScript=="),
@@ -81,7 +81,7 @@ public class IITC_FileManager {
         // remove new line comments
         header = header.replace("\n//", " ");
         // get a list of key-value
-        String[] attributes = header.split("  +");
+        final String[] attributes = header.split("  +");
         // add default values
         map.put("version", "not found");
         map.put("name", "unknown");
@@ -106,12 +106,12 @@ public class IITC_FileManager {
         return map;
     }
 
-    private AssetManager mAssetManager;
-    private IITC_Mobile mIitc;
-    private String mIitcPath;
-    private SharedPreferences mPrefs;
+    private final AssetManager mAssetManager;
+    private final IITC_Mobile mIitc;
+    private final String mIitcPath;
+    private final SharedPreferences mPrefs;
 
-    public IITC_FileManager(IITC_Mobile iitc) {
+    public IITC_FileManager(final IITC_Mobile iitc) {
         mIitc = iitc;
         mIitcPath = Environment.getExternalStorageDirectory().getPath() + "/IITC_Mobile/";
         mPrefs = PreferenceManager.getDefaultSharedPreferences(iitc);
@@ -120,10 +120,10 @@ public class IITC_FileManager {
 
     private InputStream getAssetFile(final String filename) throws IOException {
         if (mPrefs.getBoolean("pref_dev_checkbox", false)) {
-            File file = new File(mIitcPath + "dev/" + filename);
+            final File file = new File(mIitcPath + "dev/" + filename);
             try {
                 return new FileInputStream(file);
-            } catch (FileNotFoundException e) {
+            } catch (final FileNotFoundException e) {
                 mIitc.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -137,22 +137,22 @@ public class IITC_FileManager {
             }
         }
 
-        String source = mPrefs.getString("pref_iitc_source", "local");
+        final String source = mPrefs.getString("pref_iitc_source", "local");
         if (!source.equals("local")) {
             // load iitc script from web or asset folder
             if (source.contains("http")) {
                 try {
-                    URL context = new URL(source);
-                    URL url = new URL(context, filename);
+                    final URL context = new URL(source);
+                    final URL url = new URL(context, filename);
                     return url.openStream();
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     Log.w(e);
                 }
             } else {
-                File file = new File(source + File.separatorChar + filename);
+                final File file = new File(source + File.separatorChar + filename);
                 try {
                     return new FileInputStream(file);
-                } catch (FileNotFoundException e) {
+                } catch (final FileNotFoundException e) {
                     Log.w(e);
                 }
             }
@@ -162,29 +162,29 @@ public class IITC_FileManager {
         return mAssetManager.open(filename);
     }
 
-    private WebResourceResponse getFileRequest(Uri uri) {
+    private WebResourceResponse getFileRequest(final Uri uri) {
         return new FileRequest(uri);
     }
 
-    private WebResourceResponse getScript(Uri uri) {
+    private WebResourceResponse getScript(final Uri uri) {
         InputStream stream;
         try {
             stream = getAssetFile(uri.getPath().substring(1));
-        } catch (IOException e) {
+        } catch (final IOException e) {
             Log.w(e);
             return EMPTY;
         }
 
-        InputStream data = prepareUserScript(stream);
+        final InputStream data = prepareUserScript(stream);
 
         return new WebResourceResponse("application/x-javascript", "UTF-8", data);
     }
 
-    private HashMap<String, String> getScriptInfo(InputStream stream) {
+    private HashMap<String, String> getScriptInfo(final InputStream stream) {
         return getScriptInfo(readStream(stream));
     }
 
-    private WebResourceResponse getUserPlugin(Uri uri) {
+    private WebResourceResponse getUserPlugin(final Uri uri) {
         if (!mPrefs.getBoolean(uri.getPath(), false)) {
             Log.e("Attempted to inject user script that is not enabled by user: " + uri.getPath());
             return EMPTY;
@@ -193,40 +193,40 @@ public class IITC_FileManager {
         InputStream stream;
         try {
             stream = new FileInputStream(new File(uri.getPath()));
-        } catch (IOException e) {
+        } catch (final IOException e) {
             Log.w(e);
             return EMPTY;
         }
 
-        InputStream data = prepareUserScript(stream);
+        final InputStream data = prepareUserScript(stream);
 
         return new WebResourceResponse("application/x-javascript", "UTF-8", data);
     }
 
-    private InputStream prepareUserScript(InputStream stream) {
+    private InputStream prepareUserScript(final InputStream stream) {
         String content = readStream(stream);
-        HashMap<String, String> info = getScriptInfo(content);
+        final HashMap<String, String> info = getScriptInfo(content);
 
-        JSONObject jObject = new JSONObject(info);
-        String gmInfo = "var GM_info={\"script\":" + jObject.toString() + "}";
+        final JSONObject jObject = new JSONObject(info);
+        final String gmInfo = "var GM_info={\"script\":" + jObject.toString() + "}";
 
         content = content.replace(WRAPPER_OLD, WRAPPER_NEW);
 
         return new ByteArrayInputStream((gmInfo + content).getBytes());
     }
 
-    private String readStream(InputStream stream) {
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        byte[] buffer = new byte[4096];
+    private String readStream(final InputStream stream) {
+        final ByteArrayOutputStream os = new ByteArrayOutputStream();
+        final byte[] buffer = new byte[4096];
 
         try {
             while (true) {
-                int read = stream.read(buffer);
+                final int read = stream.read(buffer);
                 if (read == -1)
                     break;
                 os.write(buffer, 0, read);
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             Log.w(e);
             return "";
         }
@@ -238,12 +238,12 @@ public class IITC_FileManager {
     }
 
     public String getIITCVersion() throws IOException {
-        InputStream stream = getAssetFile("total-conversion-build.user.js");
+        final InputStream stream = getAssetFile("total-conversion-build.user.js");
 
         return getScriptInfo(stream).get("version");
     }
 
-    public WebResourceResponse getResponse(Uri uri) {
+    public WebResourceResponse getResponse(final Uri uri) {
         String host = uri.getHost();
         if (!host.endsWith(DOMAIN))
             return EMPTY;
@@ -263,17 +263,17 @@ public class IITC_FileManager {
 
     private class FileRequest extends WebResourceResponse implements ResponseHandler, Runnable {
         private Intent mData;
-        private String mFunctionName;
+        private final String mFunctionName;
         private int mResultCode;
         private PipedOutputStream mStreamOut;
 
-        private FileRequest(Uri uri) {
+        private FileRequest(final Uri uri) {
             // create two connected streams we can write to after the file has been read
             super("application/x-javascript", "UTF-8", new PipedInputStream());
 
             try {
                 mStreamOut = new PipedOutputStream((PipedInputStream) getData());
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 Log.w(e);
             }
 
@@ -285,17 +285,16 @@ public class IITC_FileManager {
             target.setType("file/*");
             target.addCategory(Intent.CATEGORY_OPENABLE);
 
-            Intent intent = Intent.createChooser(target, "Choose file");
             try {
-                mIitc.startActivityForResult(intent, this);
-            } catch (ActivityNotFoundException e) {
+                mIitc.startActivityForResult(Intent.createChooser(target, "Choose file"), this);
+            } catch (final ActivityNotFoundException e) {
                 Toast.makeText(mIitc, "No activity to select a file found." +
                         "Please install a file browser of your choice!", Toast.LENGTH_LONG).show();
             }
         }
 
         @Override
-        public void onActivityResult(int resultCode, Intent data) {
+        public void onActivityResult(final int resultCode, final Intent data) {
             mIitc.deleteResponseHandler(this); // to enable garbage collection
 
             mResultCode = resultCode;
@@ -309,8 +308,8 @@ public class IITC_FileManager {
         public void run() {
             try {
                 if (mResultCode == Activity.RESULT_OK && mData != null) {
-                    Uri uri = mData.getData();
-                    File file = new File(uri.getPath());
+                    final Uri uri = mData.getData();
+                    final File file = new File(uri.getPath());
 
                     // now create a resource that basically looks like:
                     // someFunctionName('<url encoded filename>', '<base64 encoded content>');
@@ -318,23 +317,23 @@ public class IITC_FileManager {
                     mStreamOut.write(
                             (mFunctionName + "('" + URLEncoder.encode(file.getName(), "UTF-8") + "', '").getBytes());
 
-                    Base64OutputStream encoder =
+                    final Base64OutputStream encoder =
                             new Base64OutputStream(mStreamOut, Base64.NO_CLOSE | Base64.NO_WRAP | Base64.DEFAULT);
 
-                    FileInputStream fileinput = new FileInputStream(file);
+                    final FileInputStream fileinput = new FileInputStream(file);
 
                     copyStream(fileinput, encoder, true);
 
                     mStreamOut.write("');".getBytes());
                 }
 
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 Log.w(e);
             } finally {
                 // try to close stream, but ignore errors
                 try {
                     mStreamOut.close();
-                } catch (IOException e1) {
+                } catch (final IOException e1) {
                 }
             }
         }

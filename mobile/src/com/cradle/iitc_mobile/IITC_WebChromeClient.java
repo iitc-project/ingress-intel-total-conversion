@@ -10,10 +10,10 @@ import android.webkit.WebView;
  */
 public class IITC_WebChromeClient extends WebChromeClient {
 
-    private IITC_Mobile mIitcm;
+    private final IITC_Mobile mIitc;
 
-    public IITC_WebChromeClient(IITC_Mobile iitcm) {
-        mIitcm = iitcm;
+    public IITC_WebChromeClient(final IITC_Mobile iitc) {
+        mIitc = iitc;
     }
 
     /**
@@ -22,7 +22,7 @@ public class IITC_WebChromeClient extends WebChromeClient {
      * allow access by default
      */
     @Override
-    public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
+    public void onGeolocationPermissionsShowPrompt(final String origin, final GeolocationPermissions.Callback callback) {
         callback.invoke(origin, true, false);
     }
 
@@ -30,21 +30,21 @@ public class IITC_WebChromeClient extends WebChromeClient {
      * display progress bar in activity
      */
     @Override
-    public void onProgressChanged(WebView view, int newProgress) {
+    public void onProgressChanged(final WebView view, final int newProgress) {
         super.onProgressChanged(view, newProgress);
 
         // maximum for newProgress is 100
         // maximum for setProgress is 10,000
-        mIitcm.setProgress(newProgress * 100);
+        mIitc.setProgress(newProgress * 100);
     }
 
     /**
      * remove splash screen if any JS error occurs
      */
     @Override
-    public boolean onConsoleMessage(ConsoleMessage message) {
+    public boolean onConsoleMessage(final ConsoleMessage message) {
         if (message.messageLevel() == ConsoleMessage.MessageLevel.ERROR) {
-            mIitcm.setLoadingState(false);
+            mIitc.setLoadingState(false);
         }
 
         if (Log.log(message))
