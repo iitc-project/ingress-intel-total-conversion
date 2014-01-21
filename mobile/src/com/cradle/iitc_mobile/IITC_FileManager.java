@@ -88,12 +88,21 @@ public class IITC_FileManager {
         mAssetManager = mIitc.getAssets();
     }
 
-    private InputStream getAssetFile(String filename) throws IOException {
+    private InputStream getAssetFile(final String filename) throws IOException {
         if (mPrefs.getBoolean("pref_dev_checkbox", false)) {
             File file = new File(mIitcPath + "dev/" + filename);
             try {
                 return new FileInputStream(file);
             } catch (FileNotFoundException e) {
+                mIitc.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(mIitc, "File " + mIitcPath +
+                                "dev/" + filename + " not found. " +
+                                "Disable developer mode or add iitc files to the dev folder.",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
                 Log.w(e);
             }
         }
