@@ -224,4 +224,9 @@ public class IITC_JSInterface {
             }
         });
     }
+
+    @JavascriptInterface
+    public String getFileRequestUrlPrefix() {
+        return mIitc.getFileManager().getFileRequestPrefix();
+    }
 }

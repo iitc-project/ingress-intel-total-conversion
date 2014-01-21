@@ -66,6 +66,9 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // on tablets, select a default fragment BEFORE calling super onCreate
+        // otherwise the application will crash, because the first header (the
+        // category) does not have a fragment assigned
         if (onIsMultiPane()) {
             getIntent()
                     .putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, PluginsFragment.class.getName());
