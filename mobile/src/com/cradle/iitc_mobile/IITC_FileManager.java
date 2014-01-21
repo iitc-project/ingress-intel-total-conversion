@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.net.URL;
@@ -39,6 +40,36 @@ public class IITC_FileManager {
                     + "(document.body || document.head || document.documentElement).appendChild(script);";
 
     public static final String DOMAIN = ".iitcm.localhost";
+
+    /**
+     * copies the contents of a stream into another stream and (optionally) closes the output stream afterwards
+     * 
+     * @param inStream
+     *            the stream to read from
+     * @param outStream
+     *            the stream to write to
+     * @param closeOutput
+     *            whether to close the output stream when finished
+     * 
+     * @throws IOException
+     */
+    public static void copyStream(InputStream inStream, OutputStream outStream, boolean closeOutput) throws IOException
+    {
+
+        // in case Android includes Apache commons IO in the future, this function should be replaced by IOUtils.copy
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+        int len = 0;
+
+        try {
+            while ((len = inStream.read(buffer)) != -1) {
+                outStream.write(buffer, 0, len);
+            }
+        } finally {
+            if (outStream != null && closeOutput)
+                outStream.close();
+        }
+    }
 
     public static HashMap<String, String> getScriptInfo(String js) {
         HashMap<String, String> map = new HashMap<String, String>();
@@ -78,7 +109,6 @@ public class IITC_FileManager {
     private AssetManager mAssetManager;
     private IITC_Mobile mIitc;
     private String mIitcPath;
-
     private SharedPreferences mPrefs;
 
     public IITC_FileManager(IITC_Mobile iitc) {
@@ -292,20 +322,15 @@ public class IITC_FileManager {
                             new Base64OutputStream(mStreamOut, Base64.NO_CLOSE | Base64.NO_WRAP | Base64.DEFAULT);
 
                     FileInputStream fileinput = new FileInputStream(file);
-                    int c;
-                    while ((c = fileinput.read()) != -1)
-                    {
-                        encoder.write(c);
-                    }
 
-                    encoder.close();
+                    copyStream(fileinput, encoder, true);
+
                     mStreamOut.write("');".getBytes());
                 }
 
-                mStreamOut.close();
             } catch (IOException e) {
                 Log.w(e);
-
+            } finally {
                 // try to close stream, but ignore errors
                 try {
                     mStreamOut.close();

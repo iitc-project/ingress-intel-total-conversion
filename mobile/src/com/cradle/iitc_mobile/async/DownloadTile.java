@@ -2,6 +2,7 @@ package com.cradle.iitc_mobile.async;
 
 import android.os.AsyncTask;
 
+import com.cradle.iitc_mobile.IITC_FileManager;
 import com.cradle.iitc_mobile.Log;
 
 import java.io.File;
@@ -43,13 +44,7 @@ public class DownloadTile extends AsyncTask<String, Void, Boolean> {
     private void writeTileToFile(InputStream inStream, File file) throws IOException {
         file.getParentFile().mkdirs();
         FileOutputStream outStream = new FileOutputStream(file);
-        int bufferSize = 1024;
-        byte[] buffer = new byte[bufferSize];
-        int len = 0;
-        while ((len = inStream.read(buffer)) != -1) {
-            outStream.write(buffer, 0, len);
-        }
-        if (outStream != null)
-            outStream.close();
+
+        IITC_FileManager.copyStream(inStream, outStream, true);
     }
 }
