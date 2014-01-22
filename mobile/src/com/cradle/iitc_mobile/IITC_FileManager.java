@@ -27,7 +27,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 
@@ -152,27 +151,6 @@ public class IITC_FileManager {
                     }
                 });
                 Log.w(e);
-            }
-        }
-
-        final String source = mPrefs.getString("pref_iitc_source", "local");
-        if (!source.equals("local")) {
-            // load iitc script from web or asset folder
-            if (source.contains("http")) {
-                try {
-                    final URL context = new URL(source);
-                    final URL url = new URL(context, filename);
-                    return url.openStream();
-                } catch (final IOException e) {
-                    Log.w(e);
-                }
-            } else {
-                final File file = new File(source + File.separatorChar + filename);
-                try {
-                    return new FileInputStream(file);
-                } catch (final FileNotFoundException e) {
-                    Log.w(e);
-                }
             }
         }
 

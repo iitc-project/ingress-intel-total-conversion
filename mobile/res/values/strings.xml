@@ -121,8 +121,6 @@
     <string name="pref_fake_user_agent">Fake User Agent</string>
     <string name="pref_fake_user_agent_sum">Let IITCm appear as a desktop browser for the intel site.
         Note: If just want to use the desktop mode use the \'force desktop mode\' setting</string>
-    <string name="pref_select_iitc">IITC source</string>
-    <string name="pref_select_iitc_sum">Load IITC main script from url or use local script. Currently used source:</string>
 
     <string-array name="pref_hide_fullscreen">
         <item>System Bar</item>

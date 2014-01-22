@@ -71,13 +71,6 @@
                 android:key="pref_dev_checkbox"
                 android:summary="@string/pref_enable_dev_mode_sum"
                 android:title="@string/pref_enable_dev_mode"/>
-
-            <!-- summary is set in settings fragment -->
-            <EditTextPreference
-                android:defaultValue="local"
-                android:key="pref_iitc_source"
-                android:title="@string/pref_select_iitc"/>
-
             <PreferenceCategory
                 android:key="pref_advanced_ui_cat"
                 android:title="@string/pref_ui_cat">
