@@ -64,8 +64,8 @@ window.plugin.scoreCycleTimes.update = function() {
 
   var html = '<table>'
            + formatRow('Cycle start', cycleStart)
-           + formatRow('Checkpoint start', checkpointStart)
-           + formatRow('Checkpoint end', checkpointEnd)
+           + formatRow('Previous checkpoint', checkpointStart)
+           + formatRow('Next checkpoint', checkpointEnd)
            + formatRow('Cycle end', cycleEnd)
            + '</table>';
 
