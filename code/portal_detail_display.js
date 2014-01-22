@@ -83,6 +83,7 @@ window.renderPortalDetails = function(guid) {
   }
 
   // portal level. start with basic data - then extend with fractional info in tooltip if available
+//FIXME: use details or data if possible, to avoid ambiguity
   var levelInt = portal.options.level;
   var levelDetails = portal.options.level;
   if (details) {
@@ -125,7 +126,7 @@ window.renderPortalDetails = function(guid) {
 
   $('#portaldetails')
     .html('') //to ensure it's clear
-    .attr('class', TEAM_TO_CSS[portal.options.team])
+    .attr('class', TEAM_TO_CSS[portal.options.team]) //FIXME: use details/data if possible, to avoid ambiguity
     .append(
       $('<h3>').attr({class:'title'}).text(data.title),
 
