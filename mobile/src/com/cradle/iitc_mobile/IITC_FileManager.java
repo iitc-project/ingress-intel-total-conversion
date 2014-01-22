@@ -56,7 +56,7 @@ public class IITC_FileManager {
             throws IOException
     {
         // in case Android includes Apache commons IO in the future, this function should be replaced by IOUtils.copy
-        final int bufferSize = 1024;
+        final int bufferSize = 4096;
         final byte[] buffer = new byte[bufferSize];
         int len = 0;
 
@@ -68,24 +68,6 @@ public class IITC_FileManager {
             if (outStream != null && closeOutput)
                 outStream.close();
         }
-    }
-
-    public static String readStream(final InputStream stream) {
-        final ByteArrayOutputStream os = new ByteArrayOutputStream();
-        final byte[] buffer = new byte[4096];
-
-        try {
-            while (true) {
-                final int read = stream.read(buffer);
-                if (read == -1)
-                    break;
-                os.write(buffer, 0, read);
-            }
-        } catch (final IOException e) {
-            Log.w(e);
-            return "";
-        }
-        return os.toString();
     }
 
     public static HashMap<String, String> getScriptInfo(final String js) {
@@ -121,6 +103,18 @@ public class IITC_FileManager {
             }
         }
         return map;
+    }
+
+    public static String readStream(final InputStream stream) {
+        final ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        try {
+            copyStream(stream, os, true);
+        } catch (final IOException e) {
+            Log.w(e);
+            return "";
+        }
+        return os.toString();
     }
 
     private final AssetManager mAssetManager;
