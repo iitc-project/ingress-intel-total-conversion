@@ -2,11 +2,12 @@ package com.cradle.iitc_mobile.async;
 
 import android.os.AsyncTask;
 
-import com.cradle.iitc_mobile.Log;
+import com.cradle.iitc_mobile.IITC_FileManager;
 
-import java.io.IOException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.net.URL;
-import java.util.Scanner;
 
 /*
  * this class parses the content of a web page.
@@ -20,10 +21,10 @@ public class UrlContentToString extends AsyncTask<URL, Integer, String> {
         String js = "";
         URL url = urls[0];
         try {
-            js = new Scanner(url.openStream(), "UTF-8").useDelimiter("\\A")
-                    .next();
-        } catch (IOException e) {
-            Log.w(e);
+            FileInputStream is = new FileInputStream(new File(url.getPath()));
+            js = IITC_FileManager.readStream(is);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
         return js;
     }

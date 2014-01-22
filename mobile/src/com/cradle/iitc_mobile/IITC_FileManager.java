@@ -71,10 +71,28 @@ public class IITC_FileManager {
         }
     }
 
+    public static String readStream(final InputStream stream) {
+        final ByteArrayOutputStream os = new ByteArrayOutputStream();
+        final byte[] buffer = new byte[4096];
+
+        try {
+            while (true) {
+                final int read = stream.read(buffer);
+                if (read == -1)
+                    break;
+                os.write(buffer, 0, read);
+            }
+        } catch (final IOException e) {
+            Log.w(e);
+            return "";
+        }
+        return os.toString();
+    }
+
     public static HashMap<String, String> getScriptInfo(final String js) {
         final HashMap<String, String> map = new HashMap<String, String>();
         String header = "";
-        if (js != null) {
+        if (js != null && js.contains("==UserScript==") && js.contains("==/UserScript==")) {
             header = js.substring(js.indexOf("==UserScript=="),
                     js.indexOf("==/UserScript=="));
         }
@@ -213,24 +231,6 @@ public class IITC_FileManager {
         content = content.replace(WRAPPER_OLD, WRAPPER_NEW);
 
         return new ByteArrayInputStream((gmInfo + content).getBytes());
-    }
-
-    private String readStream(final InputStream stream) {
-        final ByteArrayOutputStream os = new ByteArrayOutputStream();
-        final byte[] buffer = new byte[4096];
-
-        try {
-            while (true) {
-                final int read = stream.read(buffer);
-                if (read == -1)
-                    break;
-                os.write(buffer, 0, read);
-            }
-        } catch (final IOException e) {
-            Log.w(e);
-            return "";
-        }
-        return os.toString();
     }
 
     public String getFileRequestPrefix() {
