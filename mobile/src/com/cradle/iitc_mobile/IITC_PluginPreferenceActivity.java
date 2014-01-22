@@ -178,10 +178,10 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
                 addPluginPreference(IITC_FileManager.readStream(is), asset, false);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-                Log.e("iitcm", asset + " not found");
+                Log.e(asset + " not found");
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.e("iitcm", "couldn't read plugin " + asset);
+                Log.e("couldn't read plugin " + asset);
             }
         }
 
@@ -193,7 +193,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
                 addPluginPreference(IITC_FileManager.readStream(is), file.toString(), true);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-                Log.e("iitcm", "couldn't read plugin " + file.toString());
+                Log.e("couldn't read plugin " + file.toString());
             }
         }
     }
