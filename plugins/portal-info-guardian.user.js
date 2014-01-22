@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-guardian-info@optimator
 // @name           IITC plugin: Show information for guardian portal
-// @category       Info
+// @category       Portal Info
 // @version        0.1.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
@@ -43,11 +43,11 @@ window.plugin.guardianInfo.portalDetail = function(data)
       
     //goals data
     var goals = [
-                  {days:   3, badge: 'Bronze',   imgURL: 'http://niantic.schlarp.com/_media/investigation:apps:ingress:guardian1.png?w=80'},
-                  {days:  10, badge: 'Silver',   imgURL: 'http://niantic.schlarp.com/_media/investigation:apps:ingress:guardian2.png?w=80'},
-                  {days:  20, badge: 'Gold',     imgURL: 'http://niantic.schlarp.com/_media/investigation:apps:ingress:guardian3.png?w=80'},
-                  {days:  90, badge: 'Platinum', imgURL: 'http://niantic.schlarp.com/_media/investigation:apps:ingress:guardian4.png?w=80'},
-                  {days: 150, badge: 'Onyx',     imgURL: 'http://niantic.schlarp.com/_media/investigation:apps:ingress:guardian5.png?w=80'},
+                  {days:   3, badge: 'Bronze',   imgURL: 'http://niantic.schlarp.com/_media/investigation:apps:ingress:guardian1.png'},
+                  {days:  10, badge: 'Silver',   imgURL: 'http://niantic.schlarp.com/_media/investigation:apps:ingress:guardian2.png'},
+                  {days:  20, badge: 'Gold',     imgURL: 'http://niantic.schlarp.com/_media/investigation:apps:ingress:guardian3.png'},
+                  {days:  90, badge: 'Platinum', imgURL: 'http://niantic.schlarp.com/_media/investigation:apps:ingress:guardian4.png'},
+                  {days: 150, badge: 'Onyx',     imgURL: 'http://niantic.schlarp.com/_media/investigation:apps:ingress:guardian5.png'},
                 ];
 
 	
