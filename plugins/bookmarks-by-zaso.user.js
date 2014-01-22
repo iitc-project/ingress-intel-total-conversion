@@ -632,7 +632,9 @@
         newItem = L.geodesicPolygon(latlngs, window.plugin.drawTools.polygonOptions);
       }
 
-      $('#bkmrksAutoDrawer a.bkmrk.selected').removeClass('selected');
+      if($("#bkmrkClearSelection").prop("checked"))
+        $('#bkmrksAutoDrawer a.bkmrk.selected').removeClass('selected');
+
       newItem.addTo(window.plugin.drawTools.drawnItems);
       // Save in localStorage
       window.plugin.drawTools.save();
@@ -699,7 +701,13 @@
       element += elemGenericFolder;
 
       // Append all folders and bookmarks
-      r = '<div id="bkmrksAutoDrawer"><p style="color:red;text-align:center;margin-bottom:9px;">You must select 2 or 3 portals.</p>'+element+'</div>';
+      r = '<div id="bkmrksAutoDrawer">'
+        + '<label style="margin-bottom: 9px; display: block;">'
+        + '<input style="vertical-align: middle;" type="checkbox" id="bkmrkClearSelection" checked>'
+        + ' Clear selection after drawing</label>'
+        + '<p style="color:red;text-align:center;margin-bottom:9px;">You must select 2 or 3 portals.</p>'
+        + element
+        + '</div>';
     }
     return r;
   }
