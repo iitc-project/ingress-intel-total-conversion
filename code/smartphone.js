@@ -144,9 +144,6 @@ window.runOnSmartphonesAfterBoot = function() {
     $("body").on("click", "select", function() {
       android.spinnerEnabled(true);
     });
-    $("body").on("focus", "select", function() {
-      android.spinnerEnabled(false);
-    });
   }
 
   // add event to portals that allows long press to switch to sidebar

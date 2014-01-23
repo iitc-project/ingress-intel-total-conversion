@@ -46,7 +46,6 @@ public class IITC_JSInterface {
     // prevent the spinner from closing automatically
     @JavascriptInterface
     public void spinnerEnabled(boolean en) {
-        Log.d("disableJS? " + en);
         mIitc.getWebView().disableJS(en);
     }
 

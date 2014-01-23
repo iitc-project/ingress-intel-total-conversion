@@ -171,6 +171,8 @@ public class IITC_WebView extends WebView {
     public void onWindowFocusChanged(final boolean hasWindowFocus) {
         if (hasWindowFocus) {
             getHandler().postDelayed(mNavHider, 3000);
+            // if the webView has focus, JS should always be enabled
+            mDisableJs = false;
         } else {
             getHandler().removeCallbacks(mNavHider);
         }
