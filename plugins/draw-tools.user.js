@@ -32,11 +32,11 @@ window.plugin.drawTools.loadExternals = function() {
   $('head').append('<style>@@INCLUDESTRING:external/leaflet.draw.css@@</style>');
 }
 
-window.plugin.drawTools.setOptions = function() {
+window.plugin.drawTools.setOptions = function(setcolor) {
 
   window.plugin.drawTools.lineOptions = {
     stroke: true,
-    color: '#a24ac3',
+    color: setcolor,
     weight: 4,
     opacity: 0.5,
     fill: false,
@@ -62,7 +62,7 @@ window.plugin.drawTools.setOptions = function() {
 
 
 // renders the draw control buttons in the top left corner
-window.plugin.drawTools.addDrawControl = function() {
+window.plugin.drawTools.DrawControl = function() {
   var drawControl = new L.Control.Draw({
     draw: {
       rectangle: false,
@@ -124,8 +124,9 @@ window.plugin.drawTools.addDrawControl = function() {
     },
 
   });
+  return drawControl;
 
-  map.addControl(drawControl);
+
 //  plugin.drawTools.addCustomButtons();
 }
 
@@ -155,17 +156,21 @@ window.plugin.drawTools.save = function() {
   var data = [];
 
   window.plugin.drawTools.drawnItems.eachLayer( function(layer) {
+    console.log(layer);
     var item = {};
     if (layer instanceof L.GeodesicCircle || layer instanceof L.Circle) {
       item.type = 'circle';
       item.latLng = layer.getLatLng();
       item.radius = layer.getRadius();
+      item.color = layer.options.color;
     } else if (layer instanceof L.GeodesicPolygon || layer instanceof L.Polygon) {
       item.type = 'polygon';
       item.latLngs = layer.getLatLngs();
+      item.color = layer.options.color;
     } else if (layer instanceof L.GeodesicPolyline || layer instanceof L.Polyline) {
       item.type = 'polyline';
       item.latLngs = layer.getLatLngs();
+      item.color = layer.options.color;
     } else if (layer instanceof L.Marker) {
       item.type = 'marker';
       item.latLng = layer.getLatLng();
@@ -191,12 +196,24 @@ window.plugin.drawTools.load = function() {
     var layer = null;
     switch(item.type) {
       case 'polyline':
+        if (typeof item.color === 'undefined'){
+        window.plugin.drawTools.setOptions('#a24ac3');
+        }else{
+        window.plugin.drawTools.setOptions(item.color);}
         layer = L.geodesicPolyline(item.latLngs,window.plugin.drawTools.lineOptions);
         break;
       case 'polygon':
+        if (typeof item.color === 'undefined'){
+        window.plugin.drawTools.setOptions('#a24ac3');
+        }else{
+        window.plugin.drawTools.setOptions(item.color);}
         layer = L.geodesicPolygon(item.latLngs,window.plugin.drawTools.polygonOptions);
         break;
       case 'circle':
+        if (typeof item.color === 'undefined'){
+        window.plugin.drawTools.setOptions('#a24ac3');
+        }else{
+        window.plugin.drawTools.setOptions(item.color);}
         layer = L.geodesicCircle(item.latLng,item.radius,window.plugin.drawTools.polygonOptions);
         break;
       case 'marker':
@@ -214,9 +231,65 @@ window.plugin.drawTools.load = function() {
 
 }
 
+//Draw Tools Options
+  // Manual import, export and reset data
+  window.plugin.drawTools.manualOpt = function() {
+    dialog({
+      html: plugin.drawTools.htmlSetbox,
+      dialogClass: 'ui-dialog-drawtoolsSet',
+      title: 'Draw Tools Options'
+    });
+  }
+
+  window.plugin.drawTools.optAlert = function(message) {
+      $('.ui-dialog-drawtoolsSet .ui-dialog-buttonset').prepend('<p class="drawtools-alert" style="float:left;margin-top:4px;">'+message+'</p>');
+      $('.drawtools-alert').delay(2500).fadeOut();
+  }
+
+  window.plugin.drawTools.optCopy = function() {
+      dialog({
+        html: '<p><a onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly>'+localStorage['plugin-draw-tools-layer']+'</textarea>',
+        dialogClass: 'ui-dialog-drawtoolsSet-copy',
+        title: 'Draw Tools Export'
+      });
+  }
+
+  window.plugin.drawTools.optPaste = function() {
+    var promptAction = prompt('Press CTRL+V to paste it.', '');
+    if(promptAction !== null && promptAction !== '') {
+      localStorage['plugin-draw-tools-layer'] = promptAction;
+	  window.plugin.drawTools.drawnItems.clearLayers();
+      window.plugin.drawTools.load();
+      console.log('DRAWTOOLS: reset and imported drawn tiems');
+      window.plugin.drawTools.optAlert('Import Successful. ');
+    }
+  }
+
+  window.plugin.drawTools.optReset = function() {
+    var promptAction = prompt('All drawn items will be deleted. Are you sure? [Y/N]', '');
+    if(promptAction !== null && (promptAction === 'Y' || promptAction === 'y')) {
+      delete localStorage['plugin-draw-tools-layer'];
+	  window.plugin.drawTools.drawnItems.clearLayers();
+      window.plugin.drawTools.load();
+      console.log('DRAWTOOLS: reset all drawn items');
+      window.plugin.drawTools.optAlert('Reset Successful. ');
+    }
+  }
+   
+  window.plugin.drawTools.optColor = function() {
+    var promptAction = prompt('Current Color is '+window.plugin.drawTools.lineOptions.color, '');
+    if(promptAction !== null && promptAction !== '') {
+      plugin.drawTools.controller.removeFrom(map);
+	  window.plugin.drawTools.setOptions(promptAction);
+plugin.drawTools.controller = plugin.drawTools.DrawControl();
+  plugin.drawTools.controller.addTo(map);
+      console.log('DRAWTOOLS: color changed');
+      window.plugin.drawTools.optAlert('Color Changed. ');
+    }
+  }
 
 window.plugin.drawTools.boot = function() {
-  window.plugin.drawTools.setOptions();
+  window.plugin.drawTools.setOptions('#a24ac3');
 
   //create a leaflet FeatureGroup to hold drawn items
   window.plugin.drawTools.drawnItems = new L.FeatureGroup();
@@ -225,7 +298,8 @@ window.plugin.drawTools.boot = function() {
   plugin.drawTools.load();
 
   //add the draw control - this references the above FeatureGroup for editing purposes
-  plugin.drawTools.addDrawControl();
+  plugin.drawTools.controller = plugin.drawTools.DrawControl();
+  plugin.drawTools.controller.addTo(map);
 
   //start off hidden. if the layer is enabled, the below addLayerGroup will add it, triggering a 'show'
   $('.leaflet-draw-section').hide();
@@ -262,7 +336,18 @@ window.plugin.drawTools.boot = function() {
   map.on('draw:edited', function(e) {
     window.plugin.drawTools.save();
   });
-
+  //add options menu
+  $('#toolbox').append('<a onclick="window.plugin.drawTools.manualOpt();return false;">DrawTools Opt</a>');
+  plugin.drawTools.htmlSetbox = '<div id="drawtoolsSetbox">'
+                        +'<a onclick="window.plugin.drawTools.optColor();">Set Color</a>'
+                        +'<a onclick="window.plugin.drawTools.optCopy();">Copy/Export Drawn Items</a>'
+                        +'<a onclick="window.plugin.drawTools.optPaste();return false;">Paste/Import Drawn Items</a>'
+                        +'<a onclick="window.plugin.drawTools.optReset();return false;">Reset Drawn Items</a>'
+                        +'</div>';
+  $('head').append('<style>' +
+        '#drawtoolsSetbox a{display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:80%; text-align:center; background:rgba(8,48,78,.9);}'+
+        '.ui-dialog-drawtoolsSet-copy textarea{width:96%; height:120px; resize:vertical;}'+
+	    '</style>');
 
 }
 
