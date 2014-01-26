@@ -7,7 +7,7 @@ window.Render = function() {
 
   // when there are lots of portals close together, we only add some of them to the map
   // the idea is to keep the impression of the dense set of portals, without rendering them all
-  this.CLUSTER_SIZE = L.Browser.mobile ? 16 : 8;  // the map is divided into squares of this size in pixels for clustering purposes. mobile uses larger markers, so therefore larger clustering areas
+  this.CLUSTER_SIZE = L.Browser.mobile ? 10 : 4;  // the map is divided into squares of this size in pixels for clustering purposes. mobile uses larger markers, so therefore larger clustering areas
   this.CLUSTER_PORTAL_LIMIT = 4; // no more than this many portals are drawn in each cluster square
 
   // link length, in pixels, to be visible. use the portal cluster size, as shorter than this is likely hidden
@@ -15,6 +15,8 @@ window.Render = function() {
   this.LINK_VISIBLE_PIXEL_LENGTH = this.CLUSTER_SIZE;
 
   this.entityVisibilityZoom = undefined;
+
+  this.portalMarkerScale = undefined;
 }
 
 
@@ -426,6 +428,15 @@ window.Render.prototype.updateEntityVisibility = function() {
 
     this.resetPortalClusters();
     this.resetLinkVisibility();
+
+    if (this.portalMarkerScale === undefined || this.portalMarkerScale != portalMarkerScale()) {
+      this.portalMarkerScale = portalMarkerScale();
+
+      console.log('Render: map zoom '+map.getZoom()+' changes portal scale to '+portalMarkerScale()+' - redrawing all portals');
+
+      //NOTE: we're not calling this because it resets highlights - we're calling it as it resets the style (inc size) of all portal markers
+      resetHighlightedPortals();
+    }
   }
 }
 
