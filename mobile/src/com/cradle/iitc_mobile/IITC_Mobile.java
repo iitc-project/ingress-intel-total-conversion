@@ -196,7 +196,7 @@ public class IITC_Mobile extends Activity
     private void handleIntent(final Intent intent, final boolean onCreate) {
         // load new iitc web view with ingress intel page
         final String action = intent.getAction();
-        if (Intent.ACTION_VIEW.equals(action)) {
+        if (Intent.ACTION_VIEW.equals(action) || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
             final Uri uri = intent.getData();
             Log.d("intent received url: " + uri.toString());
 

@@ -47,6 +47,7 @@
             <!-- Handles the implicit intent to VIEW the www.ingress.com/intel URI -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
 
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
