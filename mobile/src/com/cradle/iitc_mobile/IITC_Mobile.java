@@ -14,6 +14,10 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcEvent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -44,7 +48,8 @@ import java.net.URISyntaxException;
 import java.util.Stack;
 import java.util.Vector;
 
-public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeListener {
+public class IITC_Mobile extends Activity
+        implements OnSharedPreferenceChangeListener, NfcAdapter.CreateNdefMessageCallback {
     private static final String mIntelUrl = "https://www.ingress.com/intel";
 
     private SharedPreferences mSharedPrefs;
@@ -68,6 +73,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     private boolean mIsLoading = true;
     private boolean mShowMapInDebug = false;
     private final Stack<String> mDialogStack = new Stack<String>();
+    private String mPermalink = null;
 
     // Used for custom back stack handling
     private final Stack<Pane> mBackStack = new Stack<IITC_NavigationHelper.Pane>();
@@ -141,6 +147,9 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         // receive downloadManagers downloadComplete intent
         // afterwards install iitc update
         registerReceiver(mBroadcastReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+
+        final NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
+        nfc.setNdefPushMessageCallback(this, this);
 
         handleIntent(getIntent(), true);
     }
@@ -776,5 +785,20 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
     public interface ResponseHandler {
         void onActivityResult(int resultCode, Intent data);
+    }
+
+    public void setPermalink(final String href) {
+        mPermalink = href;
+    }
+
+    @Override
+    public NdefMessage createNdefMessage(final NfcEvent event) {
+        if (mPermalink == null) { // no permalink yet, just provide AAR
+            return new NdefMessage(NdefRecord.createApplicationRecord(getPackageName()));
+        }
+
+        return new NdefMessage(
+                NdefRecord.createUri(mPermalink),
+                NdefRecord.createApplicationRecord(getPackageName()));
     }
 }

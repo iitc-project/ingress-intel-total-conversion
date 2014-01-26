@@ -227,4 +227,9 @@ public class IITC_JSInterface {
     public String getFileRequestUrlPrefix() {
         return mIitc.getFileManager().getFileRequestPrefix();
     }
+
+    @JavascriptInterface
+    public void setPermalink(final String href) {
+        mIitc.setPermalink(href);
+    }
 }
