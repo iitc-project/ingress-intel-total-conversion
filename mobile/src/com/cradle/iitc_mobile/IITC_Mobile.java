@@ -149,7 +149,7 @@ public class IITC_Mobile extends Activity
         registerReceiver(mBroadcastReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 
         final NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
-        nfc.setNdefPushMessageCallback(this, this);
+        if (nfc != null) nfc.setNdefPushMessageCallback(this, this);
 
         handleIntent(getIntent(), true);
     }
@@ -793,12 +793,17 @@ public class IITC_Mobile extends Activity
 
     @Override
     public NdefMessage createNdefMessage(final NfcEvent event) {
+        NdefRecord[] records;
         if (mPermalink == null) { // no permalink yet, just provide AAR
-            return new NdefMessage(NdefRecord.createApplicationRecord(getPackageName()));
+            records = new NdefRecord[] {
+                    NdefRecord.createApplicationRecord(getPackageName())
+            };
+        } else {
+            records = new NdefRecord[] {
+                    NdefRecord.createUri(mPermalink),
+                    NdefRecord.createApplicationRecord(getPackageName())
+            };
         }
-
-        return new NdefMessage(
-                NdefRecord.createUri(mPermalink),
-                NdefRecord.createApplicationRecord(getPackageName()));
+        return new NdefMessage(records);
     }
 }
