@@ -44,13 +44,13 @@ var FileLoader = L.Class.extend({
         if (typeof content == 'string') {
             content = JSON.parse(content);
         }
-        return L.geoJson(content, {
+        return L.geoJson(content, L.Util.extend({}, this.options.layerOptions, {
             style: function (feature) {
                 return feature.properties && feature.properties.style;
             }
-        }).addTo(this._map);
+        })).addTo(this._map);
     },
-
+	
     _convertToGeoJSON: function (content, format) {
         // Format is either 'gpx' or 'kml'
         if (typeof content == 'string') {
