@@ -185,12 +185,33 @@ window.plugin.regions.drawCell = function(cell) {
   // name
   var name = window.plugin.regions.regionName(cell);
 
+
+  var color = cell.level == 6 ? 'gold' : 'orange';
+
   // the level 6 cells have noticible errors with non-geodesic lines - and the larger level 4 cells are worse
   // NOTE: we only draw two of the edges. as we draw all cells on screen, the other two edges will either be drawn
   // from the other cell, or be off screen so we don't care
-  var region = L.geodesicPolyline([corners[0],corners[1],corners[2]], {fill: false, color: 'gold', opacity: 0.5, weight: 5, clickable: false});
+  var region = L.geodesicPolyline([corners[0],corners[1],corners[2]], {fill: false, color: color, opacity: 0.5, weight: 5, clickable: false});
 
   window.plugin.regions.regionLayer.addLayer(region);
+
+// move the label if we're at a high enough zoom level and it's off screen
+  if (map.getZoom() >= 9) {
+    var namebounds = map.getBounds().pad(-0.1); // pad 10% inside the screen bounds
+    if (!namebounds.contains(center)) {
+      // name is off-screen. pull it in so it's inside the bounds
+      var newlat = Math.max(Math.min(center.lat, namebounds.getNorth()), namebounds.getSouth());
+      var newlng = Math.max(Math.min(center.lng, namebounds.getEast()), namebounds.getWest());
+
+      var newpos = L.latLng(newlat,newlng);
+
+      // ensure the new centre point is within the corners
+      var cornerbounds = L.latLngBounds([corners[0],corners[1]]).extend(corners[2]).extend(corners[3]);
+
+      if (cornerbounds.contains(newpos)) center=newpos;
+      // else we leave the name where it was - offscreen
+    }
+  }
 
   var marker = L.marker(center, {
     icon: L.divIcon({
