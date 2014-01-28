@@ -107,24 +107,35 @@ window.Render.prototype.processDeletedGameEntityGuids = function(deleted) {
 
 window.Render.prototype.processGameEntities = function(entities) {
 
+  // we loop through the entities three times - for fields, links and portals separately
+  // this is a reasonably efficient work-around for leafletjs limitations on svg render order
+
+
   for (var i in entities) {
     var ent = entities[i];
 
-    // don't create entities in the 'deleted' list
-    if (!(ent[0] in this.deletedGuid)) {
-      this.createEntity(ent);
+    if (ent[2].type == 'region' && !(ent[0] in this.deletedGuid)) {
+      this.createFieldEntity(ent);
     }
   }
 
-//TODO: better method to bring portals to front during rendering
-//as it stands, rendering from cache causes multiple passes through bringToFront - which is a waste
-//possible options:
-//1. add fields, links and portals in the order they should be rendered. will be close to right while rendering, and
-//   a final bringPortalsToFront call can fix up any errors
-//2. run bringPortalsToFront on a short timer, so it's not immediate after render.
+  for (var i in entities) {
+    var ent = entities[i];
 
-//  // reorder portals to be after links/fields
-//  this.bringPortalsToFront();
+    if (ent[2].type == 'edge' && !(ent[0] in this.deletedGuid)) {
+      this.createLinkEntity(ent);
+    }
+  }
+
+  for (var i in entities) {
+    var ent = entities[i];
+
+    if (ent[2].type == 'portal' && !(ent[0] in this.deletedGuid)) {
+      this.createPortalEntity(ent);
+    }
+  }
+
+
 
 }
 
@@ -227,32 +238,6 @@ window.Render.prototype.deleteFieldEntity = function(guid) {
 }
 
 
-window.Render.prototype.createEntity = function(ent) {
-
-  // ent[0] == guid
-  // ent[1] == mtime
-  // ent[2] == data
-
-
-  // logic on detecting entity type based on the stock site javascript.
-  switch (ent[2].type) {
-    case 'portal':
-      this.createPortalEntity(ent);
-      break;
-
-    case 'edge':
-      this.createLinkEntity(ent);
-      break;
-
-    case 'region':
-      this.createFieldEntity(ent);
-      break;
-
-    default:
-      console.warn('unknown entity found: '+JSON.stringify(ent));
-      break;
-  }
-}
 
 
 window.Render.prototype.createPortalEntity = function(ent) {
