@@ -535,7 +535,7 @@
 
   window.plugin.bookmarks.optCopy = function() {
     if(typeof android !== 'undefined' && android && android.intentPosLink) {
-      return androidCopy(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
+      return android.shareString(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
     } else {
       dialog({
         html: '<p><a onclick="$(\'.ui-dialog-bkmrksSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly>'+localStorage[window.plugin.bookmarks.KEY_STORAGE]+'</textarea>',
@@ -566,14 +566,6 @@
       window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "reset"});
       console.log('BOOKMARKS: reset all bookmarks');
       window.plugin.bookmarks.optAlert('Successful. ');
-    }
-  }
-
-  window.plugin.bookmarks.optShare = function() {
-    if(window.plugin.bookmarks.isAndroid() && android.shareString) {
-      android.shareString(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
-    } else {
-      window.plugin.bookmarks.optAlert('Only IITC mobile. ');
     }
   }
 
@@ -922,7 +914,6 @@
                         +'<a onclick="window.plugin.bookmarks.optCopy();">Copy/Export Bookmarks</a>'
                         +'<a onclick="window.plugin.bookmarks.optPaste();return false;">Paste/Import Bookmarks</a>'
                         +'<a onclick="window.plugin.bookmarks.optReset();return false;">Reset Bookmarks</a>'
-                        +'<a onclick="window.plugin.bookmarks.optShare();">Share all Bookmarks (IITCm)</a>'
                         +'<a onclick="window.plugin.bookmarks.optBox(\'save\');">Save box position (No IITCm)</a>'
                         +'<a onclick="window.plugin.bookmarks.optBox(\'reset\');">Reset box position (No IITCm)</a>'
                       +'</div>';
