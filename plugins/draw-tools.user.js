@@ -26,10 +26,31 @@ window.plugin.drawTools.loadExternals = function() {
   try { console.log('Loading leaflet.draw JS now'); } catch(e) {}
   @@INCLUDERAW:external/leaflet.draw.js@@
   try { console.log('done loading leaflet.draw JS'); } catch(e) {}
+  
+  try { console.log('Loading save/load extension to leaflet.draw JS now'); } catch(e) {}
+  @@INCLUDERAW:external/leaflet.draw-save.js@@
+  
+  if (window.requestFile !== undefined) {
+    // overwrite load method for android, as android does not support loading files via a html file input 
+    L.SaveToolbar.prototype.load = function() {
+      var that = this;
+      window.requestFile(function(filename, content) {
+        if (!that._checkExtension(filename)) {
+          return;
+        }
+
+        that._addItems(content);
+      });
+      this._activeMode.handler.disable();
+    }
+  }
+  try { console.log('done loading save/load extension to leaflet.draw JS'); } catch(e) {}
 
   window.plugin.drawTools.boot();
 
   $('head').append('<style>@@INCLUDESTRING:external/leaflet.draw.css@@</style>');
+  $('head').append('<style>@@INCLUDESTRING:external/leaflet.draw-save.css@@</style>');
+
 }
 
 window.plugin.drawTools.setOptions = function() {
@@ -121,6 +142,20 @@ window.plugin.drawTools.addDrawControl = function() {
         title: 'Delete drawn items'
       },
 
+    },
+
+    save: {
+      featureGroup: window.plugin.drawTools.drawnItems,
+      fileName: 'iitc-drawings',
+      filePrefix: 'idi',
+      polylineOptions: window.plugin.drawTools.lineOptions,
+      polygonOptions: window.plugin.drawTools.polygonOptions,
+      circleOptions: window.plugin.drawTools.polygonOptions,
+      markerOptions: window.plugin.drawTools.markerOptions,
+
+      save: {
+        title: 'Save / load drawn items'
+      },
     },
 
   });
@@ -263,6 +298,9 @@ window.plugin.drawTools.boot = function() {
     window.plugin.drawTools.save();
   });
 
+  map.on('draw:loaded', function(e) {
+    window.plugin.drawTools.save();
+  });
 
 }
 
