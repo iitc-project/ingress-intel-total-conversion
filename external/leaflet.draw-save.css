@@ -1,0 +1,14 @@
+.leaflet-draw-actions {
+	/* fixed problem of draw tools that delete actions get wrapped */
+	white-space: nowrap;
+}
+
+.leaflet-draw-toolbar a.leaflet-draw-save-save {
+	background-image: url(@@INCLUDEIMAGE:images/draw-save.png@@);
+	background-position: -2px -2px;
+}
+
+.leaflet-retina .leaflet-draw-toolbar a.leaflet-draw-save-save {
+	background-image: url(@@INCLUDEIMAGE:images/draw-save-2x.png@@);
+	background-size: 30px 30px;
+}
