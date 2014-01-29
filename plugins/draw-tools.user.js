@@ -204,10 +204,19 @@ window.plugin.drawTools.save = function() {
 }
 
 window.plugin.drawTools.load = function() {
-  var dataStr = localStorage['plugin-draw-tools-layer'];
-  if (dataStr === undefined) return;
+  try {
+    var dataStr = localStorage['plugin-draw-tools-layer'];
+    if (dataStr === undefined) return;
 
-  var data = JSON.parse(dataStr);
+    var data = JSON.parse(dataStr);
+    window.plugin.drawTools.import(data);
+
+  } catch(e) {
+    console.warn('draw-tools: failed to load data from localStorage: '+e);
+  }
+}
+
+window.plugin.drawTools.import = function(data) {
   $.each(data, function(index,item) {
     var layer = null;
     var extraOpt = {};
@@ -233,10 +242,9 @@ window.plugin.drawTools.load = function() {
     if (layer) {
       window.plugin.drawTools.drawnItems.addLayer(layer);
     }
-
   });
-
 }
+
 
 //Draw Tools Options
 
@@ -255,7 +263,6 @@ window.plugin.drawTools.manualOpt = function() {
 
   dialog({
     html: html,
-    width: 500,
     dialogClass: 'ui-dialog-drawtoolsSet',
     title: 'Draw Tools Options'
   });
@@ -294,11 +301,20 @@ window.plugin.drawTools.optCopy = function() {
 window.plugin.drawTools.optPaste = function() {
   var promptAction = prompt('Press CTRL+V to paste it.', '');
   if(promptAction !== null && promptAction !== '') {
-    localStorage['plugin-draw-tools-layer'] = promptAction;
-    window.plugin.drawTools.drawnItems.clearLayers();
-    window.plugin.drawTools.load();
-    console.log('DRAWTOOLS: reset and imported drawn tiems');
-    window.plugin.drawTools.optAlert('Import Successful.');
+    try {
+      var data = JSON.parse(promptAction);
+      window.plugin.drawTools.drawnItems.clearLayers();
+      window.plugin.drawTools.import(data);
+      console.log('DRAWTOOLS: reset and imported drawn tiems');
+      window.plugin.drawTools.optAlert('Import Successful.');
+
+      // to write back the data to localStorage
+      window.plugin.drawTools.save();
+    } catch(e) {
+      console.warn('DRAWTOOLS: failed to import data: '+e);
+      window.plugin.drawTools.optAlert('<span style="color: #f88">Import failed</span>');
+    }
+
   }
 }
 
