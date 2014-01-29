@@ -25,18 +25,23 @@ window.plugin.drawTools = function() {};
 window.plugin.drawTools.loadExternals = function() {
   try { console.log('Loading leaflet.draw JS now'); } catch(e) {}
   @@INCLUDERAW:external/leaflet.draw.js@@
+  @@INCLUDERAW:external/spectrum/spectrum.js@@
   try { console.log('done loading leaflet.draw JS'); } catch(e) {}
 
   window.plugin.drawTools.boot();
 
   $('head').append('<style>@@INCLUDESTRING:external/leaflet.draw.css@@</style>');
+  $('head').append('<style>@@INCLUDESTRING:external/spectrum/spectrum.css@@</style>');
 }
+
+window.plugin.drawTools.currentColor = '#a24ac3';
+
 
 window.plugin.drawTools.setOptions = function() {
 
   window.plugin.drawTools.lineOptions = {
     stroke: true,
-    color: '#a24ac3',
+    color: window.plugin.drawTools.currentColor,
     weight: 4,
     opacity: 0.5,
     fill: false,
@@ -52,6 +57,7 @@ window.plugin.drawTools.setOptions = function() {
   window.plugin.drawTools.editOptions = L.extend({}, window.plugin.drawTools.polygonOptions, {
     dashArray: [10,10]
   });
+  delete window.plugin.drawTools.editOptions.color;
 
   window.plugin.drawTools.markerOptions = {
     icon: new L.Icon.Default(),
@@ -61,6 +67,7 @@ window.plugin.drawTools.setOptions = function() {
 }
 
 window.plugin.drawTools.setDrawColor = function(color) {
+  window.plugin.drawTools.currentColor = color;
 
   window.plugin.drawTools.drawControl.setDrawingOptions({
     'polygon': { 'shapeOptions': { color: color } },
@@ -235,10 +242,38 @@ window.plugin.drawTools.load = function() {
 
 // Manual import, export and reset data
 window.plugin.drawTools.manualOpt = function() {
+
+  var html = '<div class="drawtoolsStyles">'
+           + '<input type="color" name="drawColor" id="drawtools_color"></input>'
+//TODO: add line style choosers: thickness, maybe dash styles?
+           + '</div>'
+           + '<div class="drawtoolsSetbox">'
+           + '<a onclick="window.plugin.drawTools.optCopy();">Copy/Export Drawn Items</a>'
+           + '<a onclick="window.plugin.drawTools.optPaste();return false;">Paste/Import Drawn Items</a>'
+           + '<a onclick="window.plugin.drawTools.optReset();return false;">Reset Drawn Items</a>'
+           + '</div>';
+
   dialog({
-    html: plugin.drawTools.htmlSetbox,
+    html: html,
+    width: 500,
     dialogClass: 'ui-dialog-drawtoolsSet',
     title: 'Draw Tools Options'
+  });
+
+  // need to initialise the 'spectrum' colour picker
+  $('#drawtools_color').spectrum({
+    flat: false,
+    showInput: false,
+    showButtons: false,
+    showPalette: true,
+    showSelectionPalette: false,
+    palette: [ ['#a24ac3','#514ac3','#4aa8c3','#51c34a'],
+               ['#c1c34a','#c38a4a','#c34a4a','#c34a6f'],
+               ['#000000','#666666','#bbbbbb','#ffffff']
+    ],
+    change: function(color) { window.plugin.drawTools.setDrawColor(color.toHexString()); },
+//    move: function(color) { window.plugin.drawTools.setDrawColor(color.toHexString()); },
+    color: window.plugin.drawTools.currentColor,
   });
 }
 
@@ -275,15 +310,6 @@ window.plugin.drawTools.optReset = function() {
     window.plugin.drawTools.load();
     console.log('DRAWTOOLS: reset all drawn items');
     window.plugin.drawTools.optAlert('Reset Successful. ');
-  }
-}
- 
-window.plugin.drawTools.optColor = function() {
-  var promptAction = prompt('Current Color is '+window.plugin.drawTools.lineOptions.color, '');
-  if(promptAction !== null && promptAction !== '') {
-    window.plugin.drawTools.setDrawColor(promptAction);
-    console.log('DRAWTOOLS: color changed');
-    window.plugin.drawTools.optAlert('Color Changed. ');
   }
 }
 
@@ -336,15 +362,9 @@ window.plugin.drawTools.boot = function() {
   });
   //add options menu
   $('#toolbox').append('<a onclick="window.plugin.drawTools.manualOpt();return false;">DrawTools Opt</a>');
-  plugin.drawTools.htmlSetbox = '<div id="drawtoolsSetbox">'
-                        +'<a onclick="window.plugin.drawTools.optColor();">Set Color</a>'
-                        +'<a onclick="window.plugin.drawTools.optCopy();">Copy/Export Drawn Items</a>'
-                        +'<a onclick="window.plugin.drawTools.optPaste();return false;">Paste/Import Drawn Items</a>'
-                        +'<a onclick="window.plugin.drawTools.optReset();return false;">Reset Drawn Items</a>'
-                        +'</div>';
 
   $('head').append('<style>' +
-        '#drawtoolsSetbox a { display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:80%; text-align:center; background:rgba(8,48,78,.9); }'+
+        '.drawtoolsSetbox > a { display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:80%; text-align:center; background:rgba(8,48,78,.9); }'+
         '.ui-dialog-drawtoolsSet-copy textarea { width:96%; height:250px; resize:vertical; }'+
         '</style>');
 
