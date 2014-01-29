@@ -32,12 +32,11 @@ window.plugin.drawTools.loadExternals = function() {
   $('head').append('<style>@@INCLUDESTRING:external/leaflet.draw.css@@</style>');
 }
 
-window.plugin.drawTools.setOptions = function(color) {
-  if (color === undefined) color = '#a24ac3';
+window.plugin.drawTools.setOptions = function() {
 
   window.plugin.drawTools.lineOptions = {
     stroke: true,
-    color: color,
+    color: '#a24ac3',
     weight: 4,
     opacity: 0.5,
     fill: false,
@@ -61,6 +60,14 @@ window.plugin.drawTools.setOptions = function(color) {
 
 }
 
+window.plugin.drawTools.setDrawColor = function(color) {
+
+  window.plugin.drawTools.drawControl.setDrawingOptions({
+    'polygon': { 'shapeOptions': { color: color } },
+    'polyline': { 'shapeOptions': { color: color } },
+    'circle': { 'shapeOptions': { color: color } },
+  });
+}
 
 // renders the draw control buttons in the top left corner
 window.plugin.drawTools.addDrawControl = function() {
@@ -125,6 +132,8 @@ window.plugin.drawTools.addDrawControl = function() {
     },
 
   });
+
+  window.plugin.drawTools.drawControl = drawControl;
 
   map.addControl(drawControl);
 //  plugin.drawTools.addCustomButtons();
@@ -194,22 +203,21 @@ window.plugin.drawTools.load = function() {
   var data = JSON.parse(dataStr);
   $.each(data, function(index,item) {
     var layer = null;
+    var extraOpt = {};
+    if (item.color) extraOpt.color = item.color;
+
     switch(item.type) {
       case 'polyline':
-        window.plugin.drawTools.setOptions(item.color);
-        layer = L.geodesicPolyline(item.latLngs,window.plugin.drawTools.lineOptions);
+        layer = L.geodesicPolyline(item.latLngs, L.extend({},window.plugin.drawTools.lineOptions,extraOpt));
         break;
       case 'polygon':
-        window.plugin.drawTools.setOptions(item.color);
-        layer = L.geodesicPolygon(item.latLngs,window.plugin.drawTools.polygonOptions);
+        layer = L.geodesicPolygon(item.latLngs, L.extend({},window.plugin.drawTools.polygonOptions,extraOpt));
         break;
       case 'circle':
-        window.plugin.drawTools.setOptions(item.color);
-        layer = L.geodesicCircle(item.latLng,item.radius,window.plugin.drawTools.polygonOptions);
+        layer = L.geodesicCircle(item.latLng, item.radius, L.extend({},window.plugin.drawTools.polygonOptions,extraOpt));
         break;
       case 'marker':
-        // TODO? marker colours
-        layer = L.marker(item.latLng,window.plugin.drawTools.markerOptions)
+        layer = L.marker(item.latLng, window.plugin.drawTools.markerOptions);
         break;
       default:
         console.warn('unknown layer type "'+item.type+'" when loading draw tools layer');
@@ -273,7 +281,7 @@ window.plugin.drawTools.optReset = function() {
 window.plugin.drawTools.optColor = function() {
   var promptAction = prompt('Current Color is '+window.plugin.drawTools.lineOptions.color, '');
   if(promptAction !== null && promptAction !== '') {
-    window.plugin.drawTools.setOptions(promptAction);
+    window.plugin.drawTools.setDrawColor(promptAction);
     console.log('DRAWTOOLS: color changed');
     window.plugin.drawTools.optAlert('Color Changed. ');
   }
