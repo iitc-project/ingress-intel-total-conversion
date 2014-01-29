@@ -290,12 +290,16 @@ window.plugin.drawTools.optAlert = function(message) {
 }
 
 window.plugin.drawTools.optCopy = function() {
-    dialog({
-      html: '<p><a onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">'+localStorage['plugin-draw-tools-layer']+'</textarea>',
-      width: 600,
-      dialogClass: 'ui-dialog-drawtoolsSet-copy',
-      title: 'Draw Tools Export'
-    });
+    if (typeof android !== 'undefined' && android && android.shareString) {
+        android.shareString(localStorage['plugin-draw-tools-layer']);
+    } else {
+      dialog({
+        html: '<p><a onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">'+localStorage['plugin-draw-tools-layer']+'</textarea>',
+        width: 600,
+        dialogClass: 'ui-dialog-drawtoolsSet-copy',
+        title: 'Draw Tools Export'
+        });
+    }
 }
 
 window.plugin.drawTools.optPaste = function() {
