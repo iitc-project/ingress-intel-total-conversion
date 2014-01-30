@@ -66,9 +66,11 @@
         • Navigation: swipe from the left edge of your screen (or click the app icon) to evoke the Navigation Drawer.
         Click the app icon again to return to the map.<br><br>
         • Layers/Highlights: swipe from the right edge of your screen (or click the layer-chooser icon in the ActionBar)
-        to evoke the Layer Drawer<br><br>
-        • You can add official plugins in the settings<br><br>
-        • For external plugins please have a look at the <a href="http://iitc.jonatkins.com/?page=faq#mobile-plugins">FAQ]]>
+        to evoke the Layer Drawer.<br><br>
+        • You can quickly send the current portal link/permalink to another device if both devices support NFC (hold
+        both devices back-to-back and tap the screen to beam the map to the other device).
+        • You can add official plugins in the settings.<br><br>
+        • For external plugins please have a look at the <a href="http://iitc.jonatkins.com/?page=faq#mobile-plugins">FAQ.]]>
     </string>
     <string name="notice_info">
         <![CDATA[Hint: Alternative ways to open the info screen:<br><br>
@@ -87,6 +89,17 @@
         • create <b>%1$s</b><br>
         • move *.user.js files there<br>
         • plugins should be listed above the official plugins]]>
+    </string>
+    <string name="notice_sharing">
+        <![CDATA[With <em>Share portal</em> you can:<br>
+        • send the portal link to other people<br>
+        • view the selected portal\'s position in another app<br>
+        • open the portal link in a webbrowser<br>
+        <br>
+        Hint: By selecting Google Maps (or any other installed navigation software), you can quickly navigate to the
+        selected portal.<br>
+        <br>
+        These hints also apply for the <em>permalink</em>.]]>
     </string>
 
     <string name="pref_ui_cat">UI</string>

@@ -242,6 +242,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     public void switchTo(final Pane pane) {
         mPane = pane;
 
+        if (pane.equals(Pane.INFO)) mNotificationHelper.showNotice(IITC_NotificationHelper.NOTICE_SHARING);
         updateViews();
     }
 

@@ -18,7 +18,8 @@ public class IITC_NotificationHelper {
     public static final int NOTICE_INFO = 1 << 1;
     public static final int NOTICE_PANES = 1 << 2;
     public static final int NOTICE_EXTPLUGINS = 1 << 3;
-    // next one would be 1<<4; (this results in 1,2,4,8,...)
+    public static final int NOTICE_SHARING = 1 << 4;
+    // next one would be 1<<5; (this results in 1,2,4,8,...)
 
     private final Activity mActivity;
     private final SharedPreferences mPrefs;
@@ -47,6 +48,9 @@ public class IITC_NotificationHelper {
                 text = mActivity.getString(R.string.notice_extplugins);
                 text = String.format(text, Environment.getExternalStorageDirectory().getPath()
                         + "/IITC_Mobile/plugins/");
+                break;
+            case NOTICE_SHARING:
+                text = mActivity.getString(R.string.notice_sharing);
                 break;
             default:
                 return;
