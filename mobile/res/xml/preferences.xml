@@ -36,7 +36,8 @@
             android:fragment="com.cradle.iitc_mobile.fragments.PluginsFragment"
             android:key="pref_plugins"
             android:persistent="false"
-            android:title="@string/pref_plugins">
+            android:title="@string/pref_plugins"
+            android:summary="@string/pref_plugins_sum">
             <intent
                 android:targetClass="com.cradle.iitc_mobile.IITC_PluginPreferenceActivity"
                 android:targetPackage="com.cradle.iitc_mobile"/>

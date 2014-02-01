@@ -106,6 +106,7 @@
     <string name="pref_misc_cat">Misc</string>
     <string name="pref_tweaks_cat">Tweaks</string>
     <string name="pref_plugins">IITC Plugins</string>
+    <string name="pref_plugins_sum">Plugins extend/modify the IITC experience. Most plugins known from desktop IITC can be found here.</string>
     <string name="pref_plugins_title">Available plugins</string>
     <string name="pref_user_location">Display user location on map</string>
     <string name="pref_user_zoom">Show zoom control</string>
