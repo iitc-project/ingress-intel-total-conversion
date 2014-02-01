@@ -39,7 +39,7 @@ window.plugin.drawTools.getMarkerIcon = function(color) {
 console.log('getMarkerIcon("' + color + '")');
   if (typeof(color) === "undefined" || color.search(/^[0-9A-Fa-f]{6}$/) == -1) {
     // TODO maybe improve error handling here.
-    console.log('Color is not set of not a valid color. Using default color as fallback.');
+    console.warn('Color is not set or not a valid color. Using default color as fallback.');
     color = "a24ac3";
   }
 
@@ -58,7 +58,10 @@ console.log('getMarkerIcon("' + color + '")');
     iconSize: new L.Point(25, 41),
     iconAnchor: new L.Point(12, 41),
     popupAnchor: new L.Point(1, -34),
-    shadowSize: new L.Point(41, 41)
+    shadowSize: new L.Point(41, 41),
+    // L.icon does not use the option color, but we store it here to
+    // be able to simply retrieve the color for serializing markers
+    color: '#' + color
   });
 }
 
@@ -221,6 +224,7 @@ window.plugin.drawTools.save = function() {
     } else if (layer instanceof L.Marker) {
       item.type = 'marker';
       item.latLng = layer.getLatLng();
+      item.color = layer.options.icon.options.color;
     } else {
       console.warn('Unknown layer type when saving draw tools layer');
       return; //.eachLayer 'continue'
@@ -264,7 +268,9 @@ window.plugin.drawTools.import = function(data) {
         layer = L.geodesicCircle(item.latLng, item.radius, L.extend({},window.plugin.drawTools.polygonOptions,extraOpt));
         break;
       case 'marker':
-        layer = L.marker(item.latLng, window.plugin.drawTools.markerOptions);
+        var extraMarkerOpt = {};
+        if (item.color) extraMarkerOpt.icon = window.plugin.drawTools.getMarkerIcon(item.color.substr(1));
+        layer = L.marker(item.latLng, L.extend({},window.plugin.drawTools.markerOptions,extraMarkerOpt));
         break;
       default:
         console.warn('unknown layer type "'+item.type+'" when loading draw tools layer');
