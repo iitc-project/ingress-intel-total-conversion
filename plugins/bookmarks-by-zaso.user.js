@@ -2,7 +2,7 @@
 // @id             iitc-plugin-bookmarks@ZasoGD
 // @name           IITC plugin: Bookmarks for maps and portals
 // @category       Controls
-// @version        0.2.7.@@DATETIMEVERSION@@
+// @version        0.2.8.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -433,6 +433,11 @@
     }
   }
 
+  window.plugin.bookmarks.deleteMode = function() {
+    $('#bookmarksBox').toggleClass('deleteMode');
+  }
+
+
 /***************************************************************************************************************************************************************/
 
   // Saved the new sort of the folders (in the localStorage)
@@ -489,6 +494,7 @@
       items:"li.bookmarkFolder:not(.othersBookmarks)",
       handle:".bookmarksAnchor",
       placeholder:"sortable-placeholder",
+      helper:'clone', // fix accidental click in firefox
       forcePlaceholderSize:true,
       update:function(event, ui) {
         var typeList = $('#'+ui.item.context.id).parent().parent('.bookmarkList').attr('id');
@@ -501,6 +507,7 @@
       connectWith:".bookmarkList ul ul",
       handle:".bookmarksLink",
       placeholder:"sortable-placeholder",
+      helper:'clone', // fix accidental click in firefox
       forcePlaceholderSize:true,
       update:function(event, ui) {
         var typeList = $('#'+ui.item.context.id).parent().parent().parent().parent('.bookmarkList').attr('id');
@@ -885,6 +892,7 @@
                           +'<div id="topBar">'
                             +'<a id="bookmarksMin" class="btn" onclick="window.plugin.bookmarks.switchStatusBkmrksBox(0);return false;" title="Minimize">-</a>'
                             +'<div class="handle">...</div>'
+                            +'<a id="bookmarksDel" class="btn" onclick="window.plugin.bookmarks.deleteMode();return false;" title="Show/Hide \'X\' button">Show/Hide "X" button</a>'
                           +'</div>'
                           +'<div id="bookmarksTypeBar">'
                             +'<h5 class="bkmrk_maps current" onclick="window.plugin.bookmarks.switchPageBkmrksBox(this, 0);return false">Maps</h5>'
