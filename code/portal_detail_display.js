@@ -83,8 +83,8 @@ window.renderPortalDetails = function(guid) {
   }
 
   // portal level. start with basic data - then extend with fractional info in tooltip if available
-  var levelInt = data.level;
-  var levelDetails = data.level;
+  var levelInt = (teamStringToId(data.team) == TEAM_NONE) ? 0 : data.level;
+  var levelDetails = levelInt;
   if (details) {
     levelDetails = getPortalLevel(details);
     if(levelDetails != 8) {
