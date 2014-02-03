@@ -29,7 +29,7 @@ window.portalDetail.isFresh = function(guid) {
 }
 
 
-var handleResponse = function(guid, data, success) {
+var handleResponse = function(guid, data, success, callback) {
 
   if (success) {
     cache.store(guid,data);
@@ -40,15 +40,16 @@ var handleResponse = function(guid, data, success) {
       renderPortalDetails(guid);
     }
   }
-
+  if (typeof(callback) != 'undefined')
+    callback(success);
   window.runHooks ('portalDetailLoaded', {guid:guid, success:success, details:data});
 }
 
-window.portalDetail.request = function(guid) {
+window.portalDetail.request = function(guid, callback) {
 
   window.postAjax('getPortalDetails', {guid:guid},
-    function(data,textStatus,jqXHR) { handleResponse(guid, data, true); },
-    function() { handleResponse(guid, undefined, false); }
+    function(data,textStatus,jqXHR) { handleResponse(guid, data, true, callback); },
+    function() { handleResponse(guid, undefined, false, callback); }
   );
 }
 

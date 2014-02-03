@@ -50,6 +50,7 @@ window.plugin.portalslist.sortOrder = -1;
 window.plugin.portalslist.enlP = 0;
 window.plugin.portalslist.resP = 0;
 window.plugin.portalslist.filter = 0;
+window.plugin.portalslist.pendingRequests = 0;
 
 //fill the listPortals array with portals avaliable on the map (level filtered portals will not appear in the table)
 window.plugin.portalslist.getPortals = function() {
@@ -96,14 +97,30 @@ window.plugin.portalslist.getPortals = function() {
       'field' : f,
       'enemyAp': ap.enemyAp,
       'ap': ap,
+      'shielding': null
     };
-    window.plugin.portalslist.listPortals.push(thisPortal);
+    var shielding;
+    window.plugin.portalslist.pendingRequests++;
+    portalDetail.request(i, function(success) {
+      if (success) {
+        shielding = getPortalMitigationDetails(portalDetail.get(i)).total;
+      } else {
+        shielding = '-';
+      }
+      thisPortal.shielding = shielding;
+      window.plugin.portalslist.listPortals.push(thisPortal);
+      window.plugin.portalslist.pendingRequests--;
+    });
   });
 
   return retval;
 }
 
 window.plugin.portalslist.displayPL = function() {
+  if (window.plugin.portalslist.pendingRequests != 0)  {
+    setTimeout(window.plugin.portalslist.displayPL, 500);
+    return false;
+  }
   var html = '';
   window.plugin.portalslist.sortBy = 'level';
   window.plugin.portalslist.sortOrder = -1;
@@ -171,6 +188,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
     + '<th ' + sortAttr('resCount', sortBy, -1) + '>Res</th>'
     + '<th ' + sortAttr('linkCount', sortBy, -1) + '>Links</th>'
     + '<th ' + sortAttr('fieldCount', sortBy, -1) + '>Fields</th>'
+    + '<th ' + sortAttr('shielding', sortBy, -1) + '>Shielding</th>'
     + '<th ' + sortAttr('enemyAp', sortBy, -1) + '>AP</th>'
     + '</tr>\n';
 
@@ -188,7 +206,8 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
       html += '<td>' + (portal.teamN!=TEAM_NONE?portal.health+'%':'-') + '</td>'
         + '<td>' + portal.resCount + '</td>'
         + '<td class="help" title="In: ' + portal.link.in.length + ' Out: ' + portal.link.out.length + '">' + (portal.linkCount?portal.linkCount:'-') + '</td>'
-        + '<td>' + (portal.fieldCount?portal.fieldCount:'-') + '</td>';
+        + '<td>' + (portal.fieldCount?portal.fieldCount:'-') + '</td>'
+        + '<td>' + portal.shielding + '</td>';
 
       var apTitle = '';
       if (PLAYER.team == portal.team) {
