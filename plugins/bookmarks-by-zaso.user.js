@@ -2,7 +2,7 @@
 // @id             iitc-plugin-bookmarks@ZasoGD
 // @name           IITC plugin: Bookmarks for maps and portals
 // @category       Controls
-// @version        0.2.8.@@DATETIMEVERSION@@
+// @version        0.2.81.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -555,17 +555,22 @@
   window.plugin.bookmarks.optPaste = function() {
     var promptAction = prompt('Press CTRL+V to paste it.', '');
     if(promptAction !== null && promptAction !== '') {
-      localStorage[window.plugin.bookmarks.KEY_STORAGE] = promptAction;
-      window.plugin.bookmarks.refreshBkmrks();
-      window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
-      console.log('BOOKMARKS: reset and imported bookmarks');
-      window.plugin.bookmarks.optAlert('Successful. ');
+      try {
+        localStorage[window.plugin.bookmarks.KEY_STORAGE] = promptAction;
+        window.plugin.bookmarks.refreshBkmrks();
+        window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
+        console.log('BOOKMARKS: reset and imported bookmarks');
+        window.plugin.bookmarks.optAlert('Successful. ');
+      } catch(e) {
+        console.warn('BOOKMARKS: failed to import data: '+e);
+        window.plugin.bookmarks.optAlert('<span style="color: #f88">Import failed </span>');
+      }
     }
   }
 
   window.plugin.bookmarks.optReset = function() {
-    var promptAction = prompt('All bookmarks will be deleted. Are you sure? [Y/N]', '');
-    if(promptAction !== null && (promptAction === 'Y' || promptAction === 'y')) {
+    var promptAction = confirm('All bookmarks will be deleted. Are you sure?', '');
+    if(promptAction) {
       delete localStorage[window.plugin.bookmarks.KEY_STORAGE];
       window.plugin.bookmarks.createStorage();
       window.plugin.bookmarks.loadStorage();
@@ -625,6 +630,8 @@
     if(latlngs.length >= 2 && latlngs.length <= 3) {
       // TODO: add an API to draw-tools rather than assuming things about it's internals
       var newItem;
+      window.plugin.drawTools.setOptions();
+
       if(latlngs.length == 2) {
         newItem = L.geodesicPolyline(latlngs, window.plugin.drawTools.lineOptions);
       } else {
