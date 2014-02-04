@@ -121,7 +121,7 @@ def loaderMD(var):
     filemd5 = hashlib.md5(file.encode('utf8')).hexdigest()
     # check if file has already been parsed by the github api
     if fn in files and filemd5 in files[fn]:
-      # use the stored copy if nothing has changed to avoid hiting the api more then the 60/hour when not signed in
+      # use the stored copy if nothing has changed to avoid hitting the api more then the 60/hour when not signed in
       db.close()
       return files[fn][filemd5]
     else:
@@ -289,6 +289,7 @@ if buildMobile:
 
         if retcode != 0:
             print ("Error: mobile app failed to build. ant returned %d" % retcode)
+            exit(1) # ant may return 256, but python seems to allow only values <256
         else:
             shutil.copy("mobile/bin/IITC_Mobile-%s.apk" % buildMobile, os.path.join(outDir,"IITC_Mobile-%s.apk" % buildMobile) )
 

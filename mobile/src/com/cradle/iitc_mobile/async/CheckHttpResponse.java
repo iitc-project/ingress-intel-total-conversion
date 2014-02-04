@@ -1,13 +1,11 @@
 package com.cradle.iitc_mobile.async;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
-import android.util.Log;
 
-import com.cradle.iitc_mobile.IITC_JSInterface;
 import com.cradle.iitc_mobile.IITC_Mobile;
+import com.cradle.iitc_mobile.Log;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -24,12 +22,10 @@ import java.io.IOException;
  */
 public class CheckHttpResponse extends AsyncTask<String, Void, Boolean> {
 
-    private final IITC_JSInterface mJsInterface;
-    private final Context mContext;
+    private final IITC_Mobile mIitc;
 
-    public CheckHttpResponse(IITC_JSInterface jsInterface, Context c) {
-        mContext = c;
-        mJsInterface = jsInterface;
+    public CheckHttpResponse(IITC_Mobile iitc) {
+        mIitc = iitc;
     }
 
     @Override
@@ -42,12 +38,11 @@ public class CheckHttpResponse extends AsyncTask<String, Void, Boolean> {
             response = httpclient.execute(httpRequest);
             int code = response.getStatusLine().getStatusCode();
             if (code != HttpStatus.SC_OK) {
-                Log.d("iitcm", "received error code: " + code);
-                final IITC_Mobile iitc = (IITC_Mobile) mContext;
-                iitc.runOnUiThread(new Runnable() {
+                Log.d("received error code: " + code);
+                mIitc.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        iitc.setLoadingState(false);
+                        mIitc.setLoadingState(false);
                     }
                 });
                 // TODO: remove when google login issue is fixed
@@ -56,7 +51,7 @@ public class CheckHttpResponse extends AsyncTask<String, Void, Boolean> {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(e);
         }
         return false;
     }
@@ -67,8 +62,8 @@ public class CheckHttpResponse extends AsyncTask<String, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean aBoolean) {
         if (aBoolean) {
-            Log.d("iitcm", "google auth error, redirecting to work-around page");
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
+            Log.d("google auth error, redirecting to work-around page");
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mIitc);
 
             // set title
             alertDialogBuilder.setTitle("LOGIN FAILED!");
@@ -86,8 +81,7 @@ public class CheckHttpResponse extends AsyncTask<String, Void, Boolean> {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.cancel();
-                            IITC_Mobile iitc_mobile = (IITC_Mobile) mContext;
-                            iitc_mobile.reloadIITC();
+                            mIitc.reloadIITC();
                         }
                     });
 

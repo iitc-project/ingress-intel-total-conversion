@@ -2,11 +2,11 @@
 // @id             iitc-plugin-bookmarks@ZasoGD
 // @name           IITC plugin: Bookmarks for maps and portals
 // @category       Controls
-// @version        0.2.5.@@DATETIMEVERSION@@
+// @version        0.2.7.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Save your favorite Maps and Portals and move the intelmap with a click. Now sync.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Save your favorite Maps and Portals and move the intel map with a click. Works with sync.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -169,6 +169,13 @@
     window.plugin.bookmarks.saveStorageBox();
   }
 
+  window.plugin.bookmarks.onPaneChanged = function(pane) {
+    if(pane == "plugin-bookmarks")
+      $('#bookmarksBox').css("display", "");
+    else
+      $('#bookmarksBox').css("display", "none");
+  }
+
   // Switch list (maps/portals)
   window.plugin.bookmarks.switchPageBkmrksBox = function(elem, page) {
     window.plugin.bookmarks.statusBox.page = page;
@@ -196,7 +203,7 @@
 
     window.plugin.bookmarks.bkmrksObj[typeList][ID]['state'] = newFlag;
     window.plugin.bookmarks.saveStorage();
-    window.runHooks('pluginBkmrksEdit');
+    window.runHooks('pluginBkmrksEdit', {"target": "folder", "action": newFlag?"open":"close", "id": ID});
   }
 
   // Load the HTML bookmarks
@@ -335,10 +342,11 @@
     // If portal isn't saved in bookmarks: Add this bookmark
     else{
       // Get portal name and coordinates
-      var d = window.portals[guid].options.details;
-      var label = d.portalV2.descriptiveText.TITLE;
-      var lat = (d.locationE6.latE6)/1E6;
-      var lng = (d.locationE6.lngE6)/1E6;
+      var p = window.portals[guid];
+      var d = p.options.data;
+      var label = d.title;
+      var lat = p.getLatLng().lat;
+      var lng = p.getLatLng().lng;
       var latlng = lat+','+lng;
 
       var ID = window.plugin.bookmarks.generateID();
@@ -527,10 +535,10 @@
 
   window.plugin.bookmarks.optCopy = function() {
     if(typeof android !== 'undefined' && android && android.intentPosLink) {
-      return androidCopy(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
+      return android.shareString(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
     } else {
       dialog({
-        html: '<p><a onclick="$(\'.ui-dialog-bkmrksSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea disabled>'+localStorage[window.plugin.bookmarks.KEY_STORAGE]+'</textarea>',
+        html: '<p><a onclick="$(\'.ui-dialog-bkmrksSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly>'+localStorage[window.plugin.bookmarks.KEY_STORAGE]+'</textarea>',
         dialogClass: 'ui-dialog-bkmrksSet-copy',
         title: 'Bookmarks Export'
       });
@@ -543,8 +551,8 @@
       localStorage[window.plugin.bookmarks.KEY_STORAGE] = promptAction;
       window.plugin.bookmarks.refreshBkmrks();
       window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
-      console.log('BOOKMARKS: resetted and imported bookmarks');
-      window.plugin.bookmarks.optAlert('Succesful. ');
+      console.log('BOOKMARKS: reset and imported bookmarks');
+      window.plugin.bookmarks.optAlert('Successful. ');
     }
   }
 
@@ -556,16 +564,8 @@
       window.plugin.bookmarks.loadStorage();
       window.plugin.bookmarks.refreshBkmrks();
       window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "reset"});
-      console.log('BOOKMARKS: resetted all bookmarks');
-      window.plugin.bookmarks.optAlert('Succesful. ');
-    }
-  }
-
-  window.plugin.bookmarks.optShare = function() {
-    if(window.plugin.bookmarks.isAndroid() && android.shareString) {
-      android.shareString(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
-    } else {
-      window.plugin.bookmarks.optAlert('Only IITC mobile. ');
+      console.log('BOOKMARKS: reset all bookmarks');
+      window.plugin.bookmarks.optAlert('Successful. ');
     }
   }
 
@@ -616,14 +616,17 @@
     });
 
     if(latlngs.length >= 2 && latlngs.length <= 3) {
+      // TODO: add an API to draw-tools rather than assuming things about it's internals
       var newItem;
-      // var options = {color:"#a24ac3",weight:4,opacity:.5}
-      var options = window.plugin.drawTools.polygonOptions;
+      if(latlngs.length == 2) {
+        newItem = L.geodesicPolyline(latlngs, window.plugin.drawTools.lineOptions);
+      } else {
+        newItem = L.geodesicPolygon(latlngs, window.plugin.drawTools.polygonOptions);
+      }
 
-      if(latlngs.length == 3) { newItem = L.geodesicPolygon(latlngs, options); }
-      else if(latlngs.length == 2) { newItem = L.geodesicPolyline(latlngs, options); }
+      if($("#bkmrkClearSelection").prop("checked"))
+        $('#bkmrksAutoDrawer a.bkmrk.selected').removeClass('selected');
 
-      $('#bkmrksAutoDrawer a.bkmrk.selected').removeClass('selected');
       newItem.addTo(window.plugin.drawTools.drawnItems);
       // Save in localStorage
       window.plugin.drawTools.save();
@@ -690,7 +693,13 @@
       element += elemGenericFolder;
 
       // Append all folders and bookmarks
-      r = '<div id="bkmrksAutoDrawer"><p style="color:red;text-align:center;margin-bottom:9px;">You must select 2 or 3 portals.</p>'+element+'</div>';
+      r = '<div id="bkmrksAutoDrawer">'
+        + '<label style="margin-bottom: 9px; display: block;">'
+        + '<input style="vertical-align: middle;" type="checkbox" id="bkmrkClearSelection" checked>'
+        + ' Clear selection after drawing</label>'
+        + '<p style="color:red;text-align:center;margin-bottom:9px;">You must select 2 or 3 portals.</p>'
+        + element
+        + '</div>';
     }
     return r;
   }
@@ -708,7 +717,7 @@
       }, window.plugin.bookmarks.SYNC_DELAY);
   }
 
-  // Store the upadteQueue in updatingQueue and upload
+  // Store the updateQueue in updatingQueue and upload
   window.plugin.bookmarks.syncNow = function() {
     if(!window.plugin.bookmarks.enableSync) return;
     $.extend(window.plugin.bookmarks.updatingQueue, window.plugin.bookmarks.updateQueue);
@@ -729,7 +738,7 @@
   window.plugin.bookmarks.syncCallback = function(pluginName, fieldName, e, fullUpdated) {
     if(fieldName === window.plugin.bookmarks.KEY.field) {
       window.plugin.bookmarks.storeLocal(window.plugin.bookmarks.KEY);
-      // All data is replaced if other client update the data duing this client offline, 
+      // All data is replaced if other client update the data during this client offline, 
       if(fullUpdated) {
         window.plugin.bookmarks.refreshBkmrks();
         return;
@@ -813,7 +822,8 @@
       for(var idBkmrks in list[idFolders]['bkmrk']) {
         var latlng = list[idFolders]['bkmrk'][idBkmrks].latlng.split(",");
         var guid = list[idFolders]['bkmrk'][idBkmrks].guid;
-        window.plugin.bookmarks.addStar(guid, latlng);
+        var lbl = list[idFolders]['bkmrk'][idBkmrks].label;
+        window.plugin.bookmarks.addStar(guid, latlng, lbl);
       }
     }
   }
@@ -827,8 +837,9 @@
     window.plugin.bookmarks.addAllStars();
   }
 
-  window.plugin.bookmarks.addStar = function(guid, latlng) {
+  window.plugin.bookmarks.addStar = function(guid, latlng, lbl) {
     var star = L.marker(latlng, {
+      title: lbl,
       icon: L.icon({
         iconUrl: '@@INCLUDEIMAGE:images/marker-star.png@@',
         iconAnchor: [15,40],
@@ -843,9 +854,10 @@
     if(data.target === 'portal') {
       if(data.action === 'add') {
         var guid = window.selectedPortal;
-        var latlng = window.portals[guid]._latlng;
+        var latlng = window.portals[guid].getLatLng();
+        var lbl = window.portals[guid].options.data.title;
         var starInLayer = window.plugin.bookmarks.starLayers[data.guid];
-        window.plugin.bookmarks.addStar(guid, latlng);
+        window.plugin.bookmarks.addStar(guid, latlng, lbl);
       }
       else if(data.action === 'remove') {
         var starInLayer = window.plugin.bookmarks.starLayers[data.guid];
@@ -902,7 +914,6 @@
                         +'<a onclick="window.plugin.bookmarks.optCopy();">Copy/Export Bookmarks</a>'
                         +'<a onclick="window.plugin.bookmarks.optPaste();return false;">Paste/Import Bookmarks</a>'
                         +'<a onclick="window.plugin.bookmarks.optReset();return false;">Reset Bookmarks</a>'
-                        +'<a onclick="window.plugin.bookmarks.optShare();">Share all Bookmarks (IITCm)</a>'
                         +'<a onclick="window.plugin.bookmarks.optBox(\'save\');">Save box position (No IITCm)</a>'
                         +'<a onclick="window.plugin.bookmarks.optBox(\'reset\');">Reset box position (No IITCm)</a>'
                       +'</div>';
@@ -915,7 +926,7 @@
 
     // Fired when a bookmarks/folder is removed, added or sorted, also when a folder is opened/closed.
     if($.inArray('pluginBkmrksEdit', window.VALID_HOOKS) < 0) { window.VALID_HOOKS.push('pluginBkmrksEdit'); }
-    // Fired when the "Bookmarks Options" panell is opened (you can add new options);
+    // Fired when the "Bookmarks Options" panel is opened (you can add new options);
     if($.inArray('pluginBkmrksOpenOpt', window.VALID_HOOKS) < 0) { window.VALID_HOOKS.push('pluginBkmrksOpenOpt'); }
     // Fired when the sync is finished;
     if($.inArray('pluginBkmrksSyncEnd', window.VALID_HOOKS) < 0) { window.VALID_HOOKS.push('pluginBkmrksSyncEnd'); }
@@ -936,8 +947,13 @@
       $("#bookmarksBox #bookmarksMin , #bookmarksBox ul li, #bookmarksBox ul li a, #bookmarksBox ul li a span, #bookmarksBox h5, #bookmarksBox .addForm a").disableSelection();
       $('#bookmarksBox').css({'top':window.plugin.bookmarks.statusBox.pos.x, 'left':window.plugin.bookmarks.statusBox.pos.y});
     }else{
-      $('#portaldetails').before(window.plugin.bookmarks.htmlBoxTrigger + window.plugin.bookmarks.htmlBkmrksBox);
+      $('body').append(window.plugin.bookmarks.htmlBkmrksBox);
+      $('#bookmarksBox').css("display", "none").addClass("mobile");
 
+      if(window.useAndroidPanes())
+        android.addPane("plugin-bookmarks", "Bookmarks", "ic_action_star");
+      window.addHook('paneChanged', window.plugin.bookmarks.onPaneChanged);
+      
       // Remove the star
       window.addHook('portalSelected', function(data) {
         if(data.selectedPortalGuid === null) {

@@ -115,7 +115,7 @@ a:hover {
   padding-left: 8px;
 }
 
-/* hide the usual seperator */
+/* hide the usual separator */
 .leaflet-control-layers-separator {
   display: none;
 }
@@ -650,6 +650,23 @@ h3 {
   top: 0;
 }
 
+.meter.north {
+  overflow: hidden;
+}
+.meter.north:before {
+  content: "";
+  background-color: red;
+  border: 1px solid #000000;
+  border-radius: 100%;
+  display: block;
+  height: 6px;
+  width: 6px;
+  left: 50%;
+  top: -3px;
+  margin-left: -4px;
+  position: absolute;
+}
+
 .meter span {
   display: block;
   height: 14px;
@@ -657,10 +674,12 @@ h3 {
 
 .meter-level {
   position: absolute;
+  left: 0;
+  right: 0;
   top: -2px;
-  left: 50%;
-  margin-left: -6px;
   text-shadow: 0.0em 0.0em 0.3em #808080;
+  text-align: center;
+  word-spacing: 4px; /* to leave some space for the north indicator */
 }
 
 /* links below resos */
@@ -982,6 +1001,15 @@ td + td {
   display: none;
 }
 
+
+/** artifact dialog *****************/
+table.artifact tr > * {
+  background: rgba(8, 48, 78, 0.9);
+}
+
+table.artifact td.info {
+  min-width: 110px;
+}
 
 
 /* leaflet popups - restyle to match the theme of IITC */

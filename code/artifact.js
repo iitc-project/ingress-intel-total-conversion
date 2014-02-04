@@ -20,7 +20,8 @@ window.artifact.setup = function() {
 
   addResumeFunction(artifact.idleResume);
 
-  artifact.requestData();
+  // move the initial data request onto a very short timer. prevents thrown exceptions causing IITC boot failures
+  setTimeout (artifact.requestData, 1);
 
   artifact._layer = new L.LayerGroup();
   addLayerGroup ('Artifacts (Jarvis shards)', artifact._layer, true);
@@ -171,23 +172,27 @@ window.artifact.updateLayer = function() {
   artifact._layer.clearLayers();
 
   $.each(artifact.portalInfo, function(guid,data) {
-    var latlng = L.latLng ([data._entityData.locationE6.latE6/1E6, data._entityData.locationE6.lngE6/1E6]);
+    var latlng = L.latLng ([data._entityData.latE6/1E6, data._entityData.lngE6/1E6]);
 
     // jarvis shard icon
     var iconUrl = undefined;
     var iconSize = 0;
+    var opacity = 1.0;
 
-    if (data.jarvis.fragments) {
-      iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/jarvis_shard.png';
-      iconSize = 60/2; // 60 pixels - half that size works better
-    }
-    if (data.jarvis.target) {
-      // target portal - show the target marker. use the count of fragments at the target to pick the right icon - it has segments that fill up
+    if (data.jarvis) {
+      if (data.jarvis.target) {
+        // target portal - show the target marker. use the count of fragments at the target to pick the right icon - it has segments that fill up
 
-      var count = data.jarvis.fragments ? data.jarvis.fragments.length : 0;
+        var count = data.jarvis.fragments ? data.jarvis.fragments.length : 0;
 
-      iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/jarvis_shard_target_'+count+'.png';
-      iconSize = 100/2; // 100 pixels - half that size works better
+        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/jarvis_shard_target_'+count+'.png';
+        iconSize = 100/2; // 100 pixels - half that size works better
+      } else if (data.jarvis.fragments) {
+        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/jarvis_shard.png';
+        iconSize = 60/2; // 60 pixels - half that size works better
+        opacity = 0.6; // these often hide portals - let's make them semi transparent
+      }
+
     }
 
     if (iconUrl) {
@@ -198,7 +203,7 @@ window.artifact.updateLayer = function() {
         className: 'no-pointer-events'  // the clickable: false below still blocks events going through to the svg underneath
       });
 
-      var marker = L.marker (latlng, {icon: icon, clickable: false, keyboard: false});
+      var marker = L.marker (latlng, {icon: icon, clickable: false, keyboard: false, opacity: opacity });
 
       artifact._layer.addLayer(marker);
     } else {
@@ -220,29 +225,48 @@ window.artifact.showArtifactList = function() {
 
     html += '<hr><div><b>'+types[type]+'</b></div>';
 
-    html += '<table><tr><th>Portal</th><th>Details</th></tr>';
+    html += '<table class="artifact '+type+'">';
+    html += '<tr><th>Portal</th><th>Details</th></tr>';
+
+    var tableRows = [];
 
     $.each(artifact.portalInfo, function(guid, data) {
       if (type in data) {
         // this portal has data for this artifact type - add it to the table
 
-        var onclick = 'zoomToAndShowPortal(\''+guid+'\',['+data._entityData.locationE6.latE6/1E6+','+data._entityData.locationE6.lngE6/1E6+'])';
-        html += '<tr><td><a onclick="'+onclick+'" title="'+escapeHtmlSpecialChars(data._entityData.portalV2.descriptiveText.ADDRESS||'')+'">'+escapeHtmlSpecialChars(data._entityData.portalV2.descriptiveText.TITLE)+'</a></td>';
+        var sortVal = 0;
 
-        html += '<td>';
+        var onclick = 'zoomToAndShowPortal(\''+guid+'\',['+data._entityData.latE6/1E6+','+data._entityData.lngE6/1E6+'])';
+        var row = '<tr><td class="portal"><a onclick="'+onclick+'">'+escapeHtmlSpecialChars(data._entityData.title)+'</a></td>';
+
+        row += '<td class="info">';
 
         if (data[type].target) {
-          html += '<span class="'+TEAM_TO_CSS[data[type].target]+'">'+(data[type].target==TEAM_RES?'Resistance':'Enlightened')+' target</span> ';
+          row += '<span class="target '+TEAM_TO_CSS[data[type].target]+'">'+(data[type].target==TEAM_RES?'Resistance':'Enlightened')+' target</span> ';
+          sortVal = 100000+data[type].target;
         }
 
         if (data[type].fragments) {
-          html += '<span class="fragments">Shard: #'+data[type].fragments.join(', #')+'</span> ';
+          if (data[type].target) {
+            row += '<br>';
+          }
+          row += '<span class="fragments'+(data[type].target?' '+TEAM_TO_CSS[data[type].target]:'')+'">Shard: #'+data[type].fragments.join(', #')+'</span> ';
+          sortVal = Math.min.apply(null, data[type].fragments); // use min shard number at portal as sort key
         }
 
-        html += '</td></tr>';
+        row += '</td></tr>';
 
+        tableRows.push ( [sortVal, row] );
       }
     });
+
+    // sort the rows
+    tableRows.sort(function(a,b) {
+      return a[0]-b[0];
+    });
+
+    // and add them to the table
+    html += tableRows.map(function(a){return a[1];}).join('');
 
     html += '</table>';
   });

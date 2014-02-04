@@ -66,40 +66,53 @@ window.runOnSmartphonesBeforeBoot = function() {
 }
 
 window.smartphoneInfo = function(data) {
-  var d = data.portalDetails;
-  var lvl = Math.floor(getPortalLevel(d));
-  if(lvl == 0)
-    var t = '<span class="portallevel">L' + lvl + '</span>';
+  var guid = data.selectedPortalGuid;
+  if(!window.portals[guid]) return;
+
+  var data = window.portals[selectedPortal].options.data;
+  var details = window.portalDetail.get(guid);
+
+  var lvl = data.level;
+  if(data.team === "NEUTRAL")
+    var t = '<span class="portallevel">L0</span>';
   else
     var t = '<span class="portallevel" style="background: '+COLORS_LVL[lvl]+';">L' + lvl + '</span>';
-  var percentage = '0%';
-  var totalEnergy = getTotalPortalEnergy(d);
-  if(getTotalPortalEnergy(d) > 0) {
-    percentage = Math.floor((getCurrentPortalEnergy(d) / getTotalPortalEnergy(d) * 100)) + '%';
+
+  var percentage = data.health;
+  if(details) {
+    var totalEnergy = getTotalPortalEnergy(details);
+    if(getTotalPortalEnergy(details) > 0) {
+      percentage = Math.floor(getCurrentPortalEnergy(details) / totalEnergy * 100);
+    }
   }
-  t += ' ' + percentage + ' ';
-  t += d.portalV2.descriptiveText.TITLE;
+  t += ' ' + percentage + '% ';
+  t += data.title;
 
-  var l,v,max,perc;
-  for(var i=0;i<8;i++)
-  {
-    var reso = d.resonatorArray.resonators[i];
-    if(reso) {
-      l = parseInt(reso.level);
-      v = parseInt(reso.energyTotal);
-      max = RESO_NRG[l];
-      perc = v/max*100;
-    }
-    else {
-      l = 0;
-      v = 0;
-      max = 0;
-      perc = 0;
-    }
+  if(details) {
+    var l,v,max,perc;
+    for(var i=0;i<8;i++)
+    {
+      var className = TEAM_TO_CSS[getTeam(details)];
+      if(OCTANTS[i] === 'N')
+        className += ' north'
+      var reso = details.resonatorArray.resonators[i];
+      if(reso) {
+        l = parseInt(reso.level);
+        v = parseInt(reso.energyTotal);
+        max = RESO_NRG[l];
+        perc = v/max*100;
+      }
+      else {
+        l = 0;
+        v = 0;
+        max = 0;
+        perc = 0;
+      }
 
-    t += '<div class="resonator '+TEAM_TO_CSS[getTeam(d)]+'" style="border-top-color: '+COLORS_LVL[l]+';left: '+(100*i/8.0)+'%;">';
-    t += '<div class="filllevel" style="width:'+perc+'%;"></div>';
-    t += '</div>'
+      t += '<div class="resonator '+className+'" style="border-top-color: '+COLORS_LVL[l]+';left: '+(100*i/8.0)+'%;">';
+      t += '<div class="filllevel" style="width:'+perc+'%;"></div>';
+      t += '</div>'
+    }
   }
 
   $('#mobileinfo').html(t);
@@ -113,7 +126,7 @@ window.runOnSmartphonesAfterBoot = function() {
 
   // add a div/hook for updating mobile info
   $('#updatestatus').prepend('<div id="mobileinfo" onclick="show(\'info\')"></div>');
-  window.addHook('portalDetailsUpdated', window.smartphoneInfo);
+  window.addHook('portalSelected', window.smartphoneInfo);
   // init msg of status bar. hint for the user that a tap leads to the info screen
   $('#mobileinfo').html('<div style="text-align: center"><b>tap here for info screen</b></div>');
 
@@ -130,9 +143,6 @@ window.runOnSmartphonesAfterBoot = function() {
   if (typeof android !== 'undefined' && android && android.spinnerEnabled) {
     $("body").on("click", "select", function() {
       android.spinnerEnabled(true);
-    });
-    $("body").on("focus", "select", function() {
-      android.spinnerEnabled(false);
     });
   }
 
@@ -151,9 +161,53 @@ window.runOnSmartphonesAfterBoot = function() {
     });
   });
 
+  if(typeof android !== 'undefined' && android && android.setPermalink) {
+    window.map.on('moveend', window.setAndroidPermalink);
+    addHook('portalSelected', window.setAndroidPermalink);
+  }
+
   // Force lower render limits for mobile
   window.VIEWPORT_PAD_RATIO = 0.1;
   window.MAX_DRAWN_PORTALS = 500;
   window.MAX_DRAWN_LINKS = 200;
   window.MAX_DRAWN_FIELDS = 100;
 }
+
+window.setAndroidPermalink = function() {
+  var c = window.map.getCenter();
+  var lat = Math.round(c.lat*1E6)/1E6;
+  var lng = Math.round(c.lng*1E6)/1E6;
+
+  var href = '/intel?ll='+lat+','+lng+'&z=' + map.getZoom();
+
+  if(window.selectedPortal && window.portals[window.selectedPortal]) {
+    var p = window.portals[window.selectedPortal].getLatLng();
+    lat = Math.round(p.lat*1E6)/1E6;
+    lng = Math.round(p.lng*1E6)/1E6;
+    href += '&pll='+lat+','+lng;
+  }
+
+  href = $('<a>').prop('href',  href).prop('href'); // to get absolute URI
+  android.setPermalink(href);
+}
+
+window.useAndroidPanes = function() {
+  // isSmartphone is important to disable panes in desktop mode
+  return (typeof android !== 'undefined' && android && android.addPane && window.isSmartphone());
+}
+
+if(typeof android !== 'undefined' && android && android.getFileRequestUrlPrefix) {
+  window.requestFile = function(callback) {
+    do {
+      var funcName = "onFileSelected" + parseInt(Math.random()*0xFFFF).toString(16);
+    } while(window[funcName] !== undefined)
+
+    window[funcName] = function(filename, content) {
+      callback(decodeURIComponent(filename), atob(content));
+    };
+    var script = document.createElement('script');
+    script.src = android.getFileRequestUrlPrefix() + funcName;
+    (document.body || document.head || document.documentElement).appendChild(script);
+  };
+}
+

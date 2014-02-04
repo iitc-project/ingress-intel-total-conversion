@@ -4,3 +4,4 @@ localbuildsettings.py
 *.swp
 *~
 *.bak
+Thumbs.db

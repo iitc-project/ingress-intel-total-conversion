@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Highlight unclaimed portals with no recent activity. Shades of red from one week to one month, then tinted to purple for longer. (May also highlight captured portals that are stuck and fail to decay every 24 hours)
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Use the portal fill color to denote if the portal is unclaimed with no recent activity. Shades of red from one week to one month, then tinted to purple for longer. May also highlight captured portals that are stuck and fail to decay every 24 hours.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -19,9 +19,9 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.portalHighligherInactive = function() {};
+window.plugin.portalHighlighterInactive = function() {};
 
-window.plugin.portalHighligherInactive.highlight = function(data) {
+window.plugin.portalHighlighterInactive.highlight = function(data) {
 
   var daysUnmodified = (new Date().getTime() - data.portal.options.timestamp) / (24*60*60*1000);
 
@@ -41,7 +41,7 @@ window.plugin.portalHighligherInactive.highlight = function(data) {
 }
 
 var setup =  function() {
-  window.addPortalHighlighter('Inactive Portals', window.plugin.portalHighligherInactive.highlight);
+  window.addPortalHighlighter('Inactive Portals', window.plugin.portalHighlighterInactive.highlight);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

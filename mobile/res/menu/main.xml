@@ -1,49 +1,52 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:id="@+id/menu_search"
-          android:title="@string/menu_search"
-          android:icon="@drawable/action_search"
-          android:orderInCategory="10"
-          android:showAsAction="ifRoom|collapseActionView"
-          android:actionViewClass="android.widget.SearchView" />
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_search"
+        android:actionViewClass="android.widget.SearchView"
+        android:icon="@drawable/ic_action_search"
+        android:orderInCategory="10"
+        android:showAsAction="ifRoom|collapseActionView"
+        android:title="@string/menu_search"/>
     <item
         android:id="@+id/locate"
-        android:icon="@drawable/device_access_location_found"
+        android:icon="@drawable/ic_action_location_found"
         android:orderInCategory="100"
         android:showAsAction="ifRoom"
-        android:title="@string/locate">
-    </item>
+        android:title="@string/locate"/>
     <item
         android:id="@+id/layer_chooser"
-        android:icon="@drawable/ic_layer_chooser"
+        android:icon="@drawable/ic_action_add_to_queue"
         android:orderInCategory="105"
         android:showAsAction="ifRoom"
-        android:title="@string/layer_chooser">
-    </item>
-    <item
-        android:id="@+id/reload_button"
-        android:icon="@drawable/navigation_refresh"
-        android:orderInCategory="110"
-        android:showAsAction="never"
-        android:title="@string/reload">
-    </item>
+        android:title="@string/layer_chooser"/>
     <item
         android:id="@+id/toggle_fullscreen"
-        android:icon="@drawable/av_full_screen"
+        android:icon="@drawable/ic_action_full_screen"
+        android:orderInCategory="110"
+        android:showAsAction="ifRoom"
+        android:title="@string/toggle_fullscreen"/>
+    <item
+        android:id="@+id/reload_button"
+        android:icon="@drawable/ic_action_refresh"
         android:orderInCategory="120"
         android:showAsAction="ifRoom"
-        android:title="@string/toggle_fullscreen">
-    </item>
+        android:title="@string/reload"/>
     <item
         android:id="@+id/menu_clear_cookies"
         android:orderInCategory="130"
         android:showAsAction="never"
-        android:title="@string/menu_clear_cookies">
-    </item>
+        android:title="@string/menu_clear_cookies"/>
     <item
         android:id="@+id/action_settings"
-        android:icon="@drawable/action_settings"
         android:orderInCategory="200"
         android:showAsAction="never"
-        android:title="@string/action_settings">
-    </item>
+        android:title="@string/action_settings"/>
+    <item
+        android:id="@+id/menu_debug"
+        android:checkable="true"
+        android:icon="@drawable/ic_action_error"
+        android:orderInCategory="190"
+        android:showAsAction="never"
+        android:title="@string/menu_debug"/>
+
 </menu>

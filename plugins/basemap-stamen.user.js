@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Adds the 'Toner' and 'Watercolor' map layers from maps.stamen.com
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Add the 'Toner' and 'Watercolor' map layers from maps.stamen.com.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -27,9 +27,9 @@ window.plugin.mapTileStamen.addLayer = function() {
 
   var types = {
     'toner': [ 'Toner', 'png', 0, 20 ],
-//    'toner-hybrid': [ ' Toner Hybrid', 'png', 0, 20 ],  // transparent layer. could be usefun over satelliate imagery or similar
-//    'toner-labels': [ 'Toner Labels', 'png', 0, 20 ],  // transparent layer. could be usefun over satelliate imagery or similar
-//    'toner-lines': [ 'Toner Lines', 'png', 0, 20 ],  // transparent layer. could be usefun over satelliate imagery or similar
+//    'toner-hybrid': [ ' Toner Hybrid', 'png', 0, 20 ],  // transparent layer. could be useful over satellite imagery or similar
+//    'toner-labels': [ 'Toner Labels', 'png', 0, 20 ],  // transparent layer. could be useful over satellite imagery or similar
+//    'toner-lines': [ 'Toner Lines', 'png', 0, 20 ],  // transparent layer. could be useful over satellite imagery or similar
     'toner-background': [ 'Toner Background', 'png', 0, 20 ],
     'toner-lite': [ 'Toner Lite', 'png', 0, 20 ],
     'watercolor': [ 'Watercolor', 'jpg', 1, 16 ],

@@ -3,10 +3,6 @@
 // created a basic framework. All of these functions should only ever
 // be run once.
 
-// Used to disable on multitouch devices
-window.showZoom = true;
-window.showLayerChooser = true;
-
 window.setupLargeImagePreview = function() {
   $('#portaldetails').on('click', '.imgpreview', function() {
     var img = $(this).find('img')[0];
@@ -111,12 +107,25 @@ window.setupMap = function() {
   var mqMapOpt = {attribution: osmAttribution+', Tiles Courtesy of MapQuest', maxZoom: 18, subdomains: mqSubdomains};
   var mqMap = new L.TileLayer(mqTileUrlPrefix+'/tiles/1.0.0/map/{z}/{x}/{y}.jpg',mqMapOpt);
   //MapQuest satellite coverage outside of the US is rather limited - so not really worth having as we have google as an option
-  //var mqSatOpt = {attribution: 'Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency', mazZoom: 18, subdomains: mqSubdomains};
+  //var mqSatOpt = {attribution: 'Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency', maxZoom: 18, subdomains: mqSubdomains};
   //var mqSat = new L.TileLayer('http://{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg',mqSatOpt);
+
+  var ingressGMapOptions = {
+    backgroundColor: '#0e3d4e', //or #dddddd ? - that's the Google tile layer default
+    styles: [
+        { featureType:"all", elementType:"all",
+          stylers: [{visibility:"on"}, {hue:"#131c1c"}, {saturation:"-50"}, {invert_lightness:true}] },
+        { featureType:"water", elementType:"all",
+          stylers: [{visibility:"on"}, {hue:"#005eff"}, {invert_lightness:true}] },
+        { featureType:"poi", stylers:[{visibility:"off"}]},
+        { featureType:"transit", elementType:"all", stylers:[{visibility:"off"}] }
+      ]
+  };
+
 
   var views = [
     /*0*/ mqMap,
-    /*1*/ new L.Google('INGRESS',{maxZoom:20}),
+    /*1*/ new L.Google('ROADMAP',{maxZoom:20, mapOptions:ingressGMapOptions}),
     /*2*/ new L.Google('ROADMAP',{maxZoom:20}),
     /*3*/ new L.Google('SATELLITE',{maxZoom:20}),
     /*4*/ new L.Google('HYBRID',{maxZoom:20}),
@@ -124,7 +133,12 @@ window.setupMap = function() {
   ];
 
   // proper initial position is now delayed until all plugins are loaded and the base layer is set
-  window.map = new L.Map('map', {center: [0,0], zoom: 1, zoomControl: window.showZoom, minZoom: 1});
+  window.map = new L.Map('map', {
+    center: [0,0],
+    zoom: 1,
+    zoomControl: (typeof android !== 'undefined' && android && android.showZoom) ? android.showZoom() : true,
+    minZoom: 1
+  });
 
   // add empty div to leaflet control areas - to force other leaflet controls to move around IITC UI elements
   // TODO? move the actual IITC DOM into the leaflet control areas, so dummy <div>s aren't needed
@@ -163,9 +177,9 @@ window.setupMap = function() {
   if(!isLayerGroupDisplayed('Links', true)) hiddenLayer.push(linksLayer);
 
   // faction-specific layers
-  // these layers don't actually contain any data. instead, everytime they're added/removed from the map,
+  // these layers don't actually contain any data. instead, every time they're added/removed from the map,
   // the matching sub-layers within the above portals/fields/links are added/removed from their parent with
-  // the below 'onoverlayadd/onoverlayremovve' events
+  // the below 'onoverlayadd/onoverlayremove' events
   var factionLayers = [L.layerGroup(), L.layerGroup(), L.layerGroup()];
   for (var fac in factionLayers) {
     map.addLayer (factionLayers[fac]);
@@ -238,7 +252,7 @@ window.setupMap = function() {
 
   map.on('moveend', function(e) {
     // two limits on map position
-    // we wrap longitude (the L.LatLng 'wrap' method) - so we don't find outselves looking beyond +-180 degrees
+    // we wrap longitude (the L.LatLng 'wrap' method) - so we don't find ourselves looking beyond +-180 degrees
     // then latitude is clamped with the clampLatLng function (to the 85 deg north/south limits)
     var newPos = clampLatLng(map.getCenter().wrap());
     if (!map.getCenter().equals(newPos)) {
@@ -274,7 +288,7 @@ window.setupMap = function() {
   window.mapDataRequest.start();
 
   // start the refresh process with a small timeout, so the first data request happens quickly
-  // (the code originally called the request function directly, and triggered a normal delay for the nxt refresh.
+  // (the code originally called the request function directly, and triggered a normal delay for the next refresh.
   //  however, the moveend/zoomend gets triggered on map load, causing a duplicate refresh. this helps prevent that
   window.startRefreshTimeout(ON_MOVE_REFRESH*1000);
 };
@@ -325,7 +339,6 @@ window.setMapBaseLayer = function() {
 // included as inline script in the original site, the data is static
 // and cannot be updated.
 window.setupPlayerStat = function() {
-  PLAYER.guid = playerNameToGuid(PLAYER.nickname);
   var level;
   var ap = parseInt(PLAYER.ap);
   for(level = 0; level < MIN_AP_FOR_LEVEL.length; level++) {
@@ -416,7 +429,7 @@ window.setupQRLoadLib = function() {
 
 window.setupLayerChooserApi = function() {
   // hide layer chooser on mobile devices running desktop mode
-  if (!window.showLayerChooser) {
+  if (typeof android !== 'undefined' && android && android.setLayers) {
     $('.leaflet-control-layers').hide();
   }
 
@@ -493,7 +506,9 @@ window.setupLayerChooserApi = function() {
 // BOOTING ///////////////////////////////////////////////////////////
 
 function boot() {
-  window.debug.console.overwriteNativeIfRequired();
+ try { //EXPERIMENTAL TEST
+  if(!isSmartphone()) // TODO remove completely?
+    window.debug.console.overwriteNativeIfRequired();
 
   console.log('loading done, booting. Built: @@BUILDDATE@@');
   if(window.deviceID) console.log('Your device ID: ' + window.deviceID);
@@ -518,7 +533,6 @@ function boot() {
   window.setupTaphold();
   window.setupStyles();
   window.setupDialogs();
-  window.setupPlayerNameCache();
   window.setupMap();
   window.setupGeosearch();
   window.setupRedeem();
@@ -529,6 +543,7 @@ function boot() {
   window.setupPlayerStat();
   window.setupTooltips();
   window.chat.setup();
+  window.portalDetail.setup();
   window.setupQRLoadLib();
   window.setupLayerChooserSelectOne();
   window.setupLayerChooserStatusRecorder();
@@ -547,14 +562,46 @@ function boot() {
 
   $('#sidebar').show();
 
-  if(window.bootPlugins)
-    $.each(window.bootPlugins, function(ind, ref) {
-      try {
-        ref();
-      } catch(err) {
-        console.error("error starting plugin: index "+ind+", error: "+err);
+  if(window.bootPlugins) {
+    // check to see if a known 'bad' plugin is installed. If so, alert the user, and don't boot any plugins
+    var badPlugins = {
+      'arc': 'Contains hidden code to report private data to a 3rd party server: <a href="https://plus.google.com/105383756361375410867/posts/4b2EjP3Du42">details here</a>',
+    };
+
+    // remove entries from badPlugins which are not installed
+    $.each(badPlugins, function(name,desc) {
+      if (!(window.plugin && window.plugin[name])) {
+        // not detected: delete from the list
+        delete badPlugins[name];
       }
     });
+
+    // if any entries remain in the list, report this to the user and don't boot ANY plugins
+    // (why not any? it's tricky to know which of the plugin boot entries were safe/unsafe)
+    if (Object.keys(badPlugins).length > 0) {
+      var warning = 'One or more known unsafe plugins were detected. For your safety, IITC has disabled all plugins.<ul>';
+      $.each(badPlugins,function(name,desc) {
+        warning += '<li><b>'+name+'</b>: '+desc+'</li>';
+      });
+      warning += '</ul><p>Please uninstall the problem plugins and reload the page. See this <a href="http://iitc.jonatkins.com/?page=faq#uninstall">FAQ entry</a> for help.</p><p><i>Note: It is tricky for IITC to safely disable just problem plugins</i></p>';
+
+      dialog({
+        title: 'Plugin Warning',
+        html: warning,
+        width: 400
+      });
+    } else {
+      // no known unsafe plugins detected - boot all plugins
+      $.each(window.bootPlugins, function(ind, ref) {
+        try {
+          ref();
+        } catch(err) {
+          console.error("error starting plugin: index "+ind+", error: "+err);
+          debugger;
+        }
+      });
+    }
+  }
 
   window.setMapBaseLayer();
   window.setupLayerChooserApi();
@@ -567,10 +614,29 @@ function boot() {
   window.iitcLoaded = true;
   window.runHooks('iitcLoaded');
 
+  if (!haveDetectedMungeSet()) {
+    dialog({
+      title:'IITC unavailable',
+      html:'<p>IITC failed to detect the appropriate network protocol "munge" parameters from the standard intel site. '
+          +'This can happen when Niantic make changes to the standard intel site.</p>'
+          +'<p>The IITC developers are made aware of these problems and will be working on a fix. Please see the following for news/updates.</p>'
+          +'<ul><li><a href="http://iitc.jonatkins.com/" target="_blank">IITC Home Page</a></li>'
+          +'<li><a href="https://plus.google.com/105383756361375410867/posts" target="_blank">IITC G+ Page</a></li>'
+          +'<li><a href="https://plus.google.com/communities/105647403088015055797" target="_blank">IITC G+ Community</a></li></ol>'
+    });
+  }
+
   if (typeof android !== 'undefined' && android && android.bootFinished) {
     android.bootFinished();
   }
 
+ //EXPERIMENTAL TEST
+ } catch(e) {
+    console.log('Exception caught in IITC boot function - will fail to start');
+    console.log(e);
+    debugger;
+    throw e;
+ }
 }
 
 
@@ -581,14 +647,14 @@ try { console.log('Loading included JS now'); } catch(e) {}
 @@INCLUDERAW:external/L.Geodesic.js@@
 // modified version of https://github.com/shramov/leaflet-plugins. Also
 // contains the default Ingress map style.
-@@INCLUDERAW:external/leaflet_google.js@@
+@@INCLUDERAW:external/Google.js@@
 @@INCLUDERAW:external/autolink.js@@
 
 try { console.log('done loading included JS'); } catch(e) {}
 
 //note: no protocol - so uses http or https as used on the current page
-var JQUERY = '//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js';
-var JQUERYUI = '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js';
+var JQUERY = '//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js';
+var JQUERYUI = '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js';
 
 // after all scripts have loaded, boot the actual app
 load(JQUERY).then(JQUERYUI).thenRun(boot);

@@ -3,10 +3,11 @@
 // gives user feedback about pending operations. Draws current status
 // to website. Updates info in layer chooser.
 window.renderUpdateStatus = function() {
+  var progress = 1;
 
   // portal level display
   var t = '<span class="help portallevel" title="Indicates portal levels displayed.  Zoom in to display lower level portals.">';
-  if(!window.isSmartphone()) // space is valueable
+  if(!window.isSmartphone()) // space is valuable
     t += '<b>portals</b>: ';
   var minlvl = getMinPortalLevel();
   if(minlvl === 0)
@@ -20,19 +21,21 @@ window.renderUpdateStatus = function() {
   t += ' <span class="map"><b>map</b>: ';
 
   if (window.mapDataRequest) {
-
     var status = window.mapDataRequest.getStatus();
 
     // status.short - short description of status
     // status.long - longer description, for tooltip (optional)
-    // status.progress - fractional progress (from 0 to 1) of current state (optional)
+    // status.progress - fractional progress (from 0 to 1; -1 for indeterminate) of current state (optional)
     if (status.long)
       t += '<span class="help" title="'+status.long+'">'+status.short+'</span>';
     else
       t += '<span>'+status.short+'</span>';
 
-    if (status.progress !== undefined)
-      t += ' '+Math.floor(status.progress*100)+'%';
+    if (status.progress !== undefined) {
+      if(status.progress !== -1)
+        t += ' '+Math.floor(status.progress*100)+'%';
+      progress = status.progress;
+    }
   } else {
     // no mapDataRequest object - no status known
     t += '...unknown...';
@@ -82,4 +85,7 @@ window.renderUpdateStatus = function() {
   $('#innerstatus').html(t);
   //$('#updatestatus').click(function() { startRefreshTimeout(10); });
   //. <a style="cursor: pointer" onclick="startRefreshTimeout(10)" title="Refresh">⟳</a>';
+
+  if (typeof android !== 'undefined' && android && android.setProgress)
+    android.setProgress(progress);
 }

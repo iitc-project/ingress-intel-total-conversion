@@ -6,28 +6,26 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
 import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
 import com.cradle.iitc_mobile.share.ShareActivity;
 
-import java.util.Locale;
-
 // provide communication between IITC script and android app
 public class IITC_JSInterface {
     // context of main activity
     private final IITC_Mobile mIitc;
 
-    IITC_JSInterface(IITC_Mobile iitc) {
+    IITC_JSInterface(final IITC_Mobile iitc) {
         mIitc = iitc;
     }
 
     // open dialog to send geo intent for navigation apps like gmaps or waze etc...
     @JavascriptInterface
-    public void intentPosLink(double lat, double lng, int zoom, String title, boolean isPortal) {
-        Intent intent = new Intent(mIitc, ShareActivity.class);
+    public void intentPosLink(
+            final double lat, final double lng, final int zoom, final String title, final boolean isPortal) {
+        final Intent intent = new Intent(mIitc, ShareActivity.class);
         intent.putExtra("lat", lat);
         intent.putExtra("lng", lng);
         intent.putExtra("zoom", zoom);
@@ -38,8 +36,8 @@ public class IITC_JSInterface {
 
     // share a string to the IITC share activity. only uses the share tab.
     @JavascriptInterface
-    public void shareString(String str) {
-        Intent intent = new Intent(mIitc, ShareActivity.class);
+    public void shareString(final String str) {
+        final Intent intent = new Intent(mIitc, ShareActivity.class);
         intent.putExtra("shareString", str);
         intent.putExtra("onlyShare", true);
         mIitc.startActivity(intent);
@@ -48,17 +46,15 @@ public class IITC_JSInterface {
     // disable javascript injection while spinner is enabled
     // prevent the spinner from closing automatically
     @JavascriptInterface
-    public void spinnerEnabled(boolean en) {
-        Log.d("iitcm", "disableJS? " + en);
+    public void spinnerEnabled(final boolean en) {
         mIitc.getWebView().disableJS(en);
     }
 
     // copy link to specific portal to android clipboard
     @JavascriptInterface
-    public void copy(String s) {
-        ClipboardManager clipboard = (ClipboardManager) mIitc
-                .getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("Copied Text ", s);
+    public void copy(final String s) {
+        final ClipboardManager clipboard = (ClipboardManager) mIitc.getSystemService(Context.CLIPBOARD_SERVICE);
+        final ClipData clip = ClipData.newPlainText("Copied Text ", s);
         clipboard.setPrimaryClip(clip);
         Toast.makeText(mIitc, "copied to clipboard", Toast.LENGTH_SHORT).show();
     }
@@ -67,11 +63,10 @@ public class IITC_JSInterface {
     public int getVersionCode() {
         int versionCode = 0;
         try {
-            PackageInfo pInfo = mIitc.getPackageManager()
-                    .getPackageInfo(mIitc.getPackageName(), 0);
+            final PackageInfo pInfo = mIitc.getPackageManager().getPackageInfo(mIitc.getPackageName(), 0);
             versionCode = pInfo.versionCode;
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+        } catch (final PackageManager.NameNotFoundException e) {
+            Log.w(e);
         }
         return versionCode;
     }
@@ -79,12 +74,12 @@ public class IITC_JSInterface {
     @JavascriptInterface
     public String getVersionName() {
         String buildVersion = "unknown";
-        PackageManager pm = mIitc.getPackageManager();
+        final PackageManager pm = mIitc.getPackageManager();
         try {
-            PackageInfo info = pm.getPackageInfo(mIitc.getPackageName(), 0);
+            final PackageInfo info = pm.getPackageInfo(mIitc.getPackageName(), 0);
             buildVersion = info.versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+        } catch (final PackageManager.NameNotFoundException e) {
+            Log.w(e);
         }
         return buildVersion;
     }
@@ -96,8 +91,8 @@ public class IITC_JSInterface {
             public void run() {
                 Pane pane;
                 try {
-                    pane = Pane.valueOf(id.toUpperCase(Locale.getDefault()));
-                } catch (IllegalArgumentException e) {
+                    pane = mIitc.getNavigationHelper().getPane(id);
+                } catch (final IllegalArgumentException e) {
                     pane = Pane.MAP;
                 }
 
@@ -107,18 +102,18 @@ public class IITC_JSInterface {
     }
 
     @JavascriptInterface
-    public void dialogFocused(String id) {
+    public void dialogFocused(final String id) {
         mIitc.setFocusedDialog(id);
     }
 
     @JavascriptInterface
-    public void dialogOpened(String id, boolean open) {
+    public void dialogOpened(final String id, final boolean open) {
         mIitc.dialogOpened(id, open);
     }
 
     @JavascriptInterface
     public void bootFinished() {
-        Log.d("iitcm", "...boot finished");
+        Log.d("...boot finished");
 
         mIitc.runOnUiThread(new Runnable() {
             @Override
@@ -169,5 +164,72 @@ public class IITC_JSInterface {
                 mIitc.updateIitc(fileUrl);
             }
         });
+    }
+
+    @JavascriptInterface
+    public void addPane(final String name, final String label, final String icon) {
+        mIitc.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mIitc.getNavigationHelper().addPane(name, label, icon);
+            }
+        });
+    }
+
+    // some plugins may have no specific icons...add a default icon
+    @JavascriptInterface
+    public void addPane(final String name, final String label) {
+        mIitc.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mIitc.getNavigationHelper().addPane(name, label, "ic_action_new_event");
+            }
+        });
+    }
+
+    @JavascriptInterface
+    public boolean showZoom() {
+        final PackageManager pm = mIitc.getPackageManager();
+        final boolean hasMultitouch = pm.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH);
+        final boolean forcedZoom = mIitc.getPrefs().getBoolean("pref_user_zoom", false);
+        return forcedZoom || !hasMultitouch;
+    }
+
+    @JavascriptInterface
+    public void setFollowMode(final boolean follow) {
+        mIitc.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mIitc.getUserLocation().setFollowMode(follow);
+            }
+        });
+    }
+
+    @JavascriptInterface
+    public void setProgress(final double progress) {
+        mIitc.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (progress != -1) {
+                    // maximum for setProgress is 10,000
+                    mIitc.setProgressBarIndeterminate(false);
+                    mIitc.setProgress((int) Math.round(progress * 10000));
+                }
+                else {
+                    mIitc.setProgressBarIndeterminate(true);
+                    mIitc.setProgress(1);
+                }
+            }
+        });
+    }
+
+    @JavascriptInterface
+    public String getFileRequestUrlPrefix() {
+        return mIitc.getFileManager().getFileRequestPrefix();
+    }
+
+    @JavascriptInterface
+    public void setPermalink(final String href) {
+        mIitc.setPermalink(href);
     }
 }

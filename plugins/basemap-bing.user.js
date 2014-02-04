@@ -1,13 +1,12 @@
 // ==UserScript==
-// ==UserScript==
 // @id             iitc-plugin-bing-maps
 // @name           IITC plugin: Bing maps
 // @category       Map Tiles
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Add the maps.bing.com map layers (
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Add the maps.bing.com map layers.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -22,129 +21,9 @@
 window.plugin.mapBing = function() {};
 
 window.plugin.mapBing.setupBingLeaflet = function() {
-//---------------------------------------------------------------------
-// https://github.com/shramov/leaflet-plugins/blob/master/layer/tile/Bing.js
-L.BingLayer = L.TileLayer.extend({
-	options: {
-		subdomains: [0, 1, 2, 3],
-		type: 'Aerial',
-		attribution: 'Bing',
-		culture: ''
-	},
-
-	initialize: function(key, options) {
-		L.Util.setOptions(this, options);
-
-		this._key = key;
-		this._url = null;
-		this.meta = {};
-		this.loadMetadata();
-	},
-
-	tile2quad: function(x, y, z) {
-		var quad = '';
-		for (var i = z; i > 0; i--) {
-			var digit = 0;
-			var mask = 1 << (i - 1);
-			if ((x & mask) != 0) digit += 1;
-			if ((y & mask) != 0) digit += 2;
-			quad = quad + digit;
-		}
-		return quad;
-	},
-
-	getTileUrl: function(p, z) {
-		var z = this._getZoomForUrl();
-		var subdomains = this.options.subdomains,
-			s = this.options.subdomains[Math.abs((p.x + p.y) % subdomains.length)];
-		return this._url.replace('{subdomain}', s)
-				.replace('{quadkey}', this.tile2quad(p.x, p.y, z))
-				.replace('{culture}', this.options.culture);
-	},
-
-	loadMetadata: function() {
-		// TODO? modify this to cache the metadata in - say - sessionStorage? localStorage?
-		var _this = this;
-		var cbid = '_bing_metadata_' + L.Util.stamp(this);
-		window[cbid] = function (meta) {
-			_this.meta = meta;
-			window[cbid] = undefined;
-			var e = document.getElementById(cbid);
-			e.parentNode.removeChild(e);
-			if (meta.errorDetails) {
-				alert("Got metadata" + meta.errorDetails);
-				return;
-			}
-			_this.initMetadata();
-		};
-		var url = "//dev.virtualearth.net/REST/v1/Imagery/Metadata/" + this.options.type + "?include=ImageryProviders&jsonp=" + cbid + "&key=" + this._key;
-		var script = document.createElement("script");
-		script.type = "text/javascript";
-		script.src = url;
-		script.id = cbid;
-		document.getElementsByTagName("head")[0].appendChild(script);
-	},
-
-	initMetadata: function() {
-		var r = this.meta.resourceSets[0].resources[0];
-		this.options.subdomains = r.imageUrlSubdomains;
-		this._url = r.imageUrl;
-		this._providers = [];
-		for (var i = 0; i < r.imageryProviders.length; i++) {
-			var p = r.imageryProviders[i];
-			for (var j = 0; j < p.coverageAreas.length; j++) {
-				var c = p.coverageAreas[j];
-				var coverage = {zoomMin: c.zoomMin, zoomMax: c.zoomMax, active: false};
-				var bounds = new L.LatLngBounds(
-						new L.LatLng(c.bbox[0]+0.01, c.bbox[1]+0.01),
-						new L.LatLng(c.bbox[2]-0.01, c.bbox[3]-0.01)
-				);
-				coverage.bounds = bounds;
-				coverage.attrib = p.attribution;
-				this._providers.push(coverage);
-			}
-		}
-		this._update();
-	},
-
-	_update: function() {
-		if (this._url == null || !this._map) return;
-		this._update_attribution();
-		L.TileLayer.prototype._update.apply(this, []);
-	},
-
-	_update_attribution: function() {
-		var bounds = this._map.getBounds();
-		var zoom = this._map.getZoom();
-		for (var i = 0; i < this._providers.length; i++) {
-			var p = this._providers[i];
-			if ((zoom <= p.zoomMax && zoom >= p.zoomMin) &&
-					bounds.intersects(p.bounds)) {
-				if (!p.active)
-					this._map.attributionControl.addAttribution(p.attrib);
-				p.active = true;
-			} else {
-				if (p.active)
-					this._map.attributionControl.removeAttribution(p.attrib);
-				p.active = false;
-			}
-		}
-	},
-
-	onRemove: function(map) {
-		for (var i = 0; i < this._providers.length; i++) {
-			var p = this._providers[i];
-			if (p.active) {
-				this._map.attributionControl.removeAttribution(p.attrib);
-				p.active = false;
-			}
-		}
-        	L.TileLayer.prototype.onRemove.apply(this, [map]);
-	}
-});
-//---------------------------------------------------------------------
+@@INCLUDERAW:external/Bing.js@@
 }
-	
+
 
 window.plugin.mapBing.setup = function() {
   window.plugin.mapBing.setupBingLeaflet();
@@ -158,11 +37,34 @@ window.plugin.mapBing.setup = function() {
     'AerialWithLabels': "Aerial with labels",
   };
 
+  // bing maps has an annual usage limit, which will likely be hit in 6 months at this time.
+  // it seems that the usage is counted on initialising the L.BingLayer, when the metadata is retrieved.
+  // so, we'll create some dummy layers and add those to the map, then, the first time a layer is added,
+  // create the L.BingLayer. This will eliminate all usage for users who install but don't use the map,
+  // and only create usage for the map layers actually selected in use
+
+  var bingMapContainers = [];
+
   for (type in bingTypes) {
     var name = bingTypes[type];
-    var bingMap = new L.BingLayer(bingApiKey, {type: type, maxZoom:20});
-    layerChooser.addBaseLayer(bingMap, 'Bing '+name);
+
+    bingMapContainers[type] = new L.LayerGroup();
+    layerChooser.addBaseLayer(bingMapContainers[type], 'Bing '+name);
   }
+
+  // now a leaflet event to catch base layer changes and create a L.BingLayer when needed
+  map.on('baselayerchange', function(e) {
+    for (type in bingMapContainers) {
+      if (e.layer == bingMapContainers[type]) {
+        if (bingMapContainers[type].getLayers().length == 0) {
+          // dummy layer group is empty - create the bing layer
+          console.log('basemap-bing: creating '+type+' layer');
+          var bingMap = new L.BingLayer (bingApiKey, {type: type, maxZoom:20});
+          bingMapContainers[type].addLayer(bingMap);
+        }
+      }
+    }
+  });
 
 };
 

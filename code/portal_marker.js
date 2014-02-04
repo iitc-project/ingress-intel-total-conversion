@@ -2,7 +2,10 @@
 // code to create and update a portal marker
 
 
-
+window.portalMarkerScale = function() {
+  var zoom = map.getZoom();
+  return zoom >= 14 ? 1 : zoom >= 11 ? 0.8 : zoom >= 8 ? 0.65 : 0.5;
+}
 
 // create a new marker. 'data' contain the IITC-specific entity data to be stored in the object options
 window.createMarker = function(latlng, data) {
@@ -35,11 +38,13 @@ window.setMarkerStyle = function(marker, selected) {
 
 
 window.getMarkerStyleOptions = function(details) {
-  var lvlWeight = Math.max(2, Math.floor(details.level) / 1.5);
-  var lvlRadius = details.team === window.TEAM_NONE ? 7 : Math.floor(details.level) + 4;
+  var scale = window.portalMarkerScale();
+
+  var lvlWeight = Math.max(2, Math.floor(details.level) / 1.5) * scale;
+  var lvlRadius = (details.team === window.TEAM_NONE ? 7 : Math.floor(details.level) + 4) * scale;
 
   var options = {
-    radius: lvlRadius + (L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE : 0),
+    radius: lvlRadius + (L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE*scale : 0),
     stroke: true,
     color: COLORS[details.team],
     weight: lvlWeight,

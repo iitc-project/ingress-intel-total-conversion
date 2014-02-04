@@ -7,7 +7,7 @@ window.Render = function() {
 
   // when there are lots of portals close together, we only add some of them to the map
   // the idea is to keep the impression of the dense set of portals, without rendering them all
-  this.CLUSTER_SIZE = L.Browser.mobile ? 16 : 8;  // the map is divited into squares of this size in pixels for clustering purposes. mobile uses larger markers, so therefore larger clustering areas
+  this.CLUSTER_SIZE = L.Browser.mobile ? 10 : 4;  // the map is divided into squares of this size in pixels for clustering purposes. mobile uses larger markers, so therefore larger clustering areas
   this.CLUSTER_PORTAL_LIMIT = 4; // no more than this many portals are drawn in each cluster square
 
   // link length, in pixels, to be visible. use the portal cluster size, as shorter than this is likely hidden
@@ -15,6 +15,8 @@ window.Render = function() {
   this.LINK_VISIBLE_PIXEL_LENGTH = this.CLUSTER_SIZE;
 
   this.entityVisibilityZoom = undefined;
+
+  this.portalMarkerScale = undefined;
 }
 
 
@@ -104,22 +106,37 @@ window.Render.prototype.processDeletedGameEntityGuids = function(deleted) {
 }
 
 window.Render.prototype.processGameEntities = function(entities) {
-  var portalGuids = [];
+
+  // we loop through the entities three times - for fields, links and portals separately
+  // this is a reasonably efficient work-around for leafletjs limitations on svg render order
+
 
   for (var i in entities) {
     var ent = entities[i];
 
-    // don't create entities in the 'deleted' list
-    if (!(ent[0] in this.deletedGuid)) {
-      this.createEntity(ent);
-      if ('portalV2' in ent[2]) portalGuids.push(ent[0]);
+    if (ent[2].type == 'region' && !(ent[0] in this.deletedGuid)) {
+      this.createFieldEntity(ent);
     }
   }
 
-  // now reconstruct links 'optimised' out of the data from the portal link data
-  for (var i in portalGuids) {
-    this.createLinksFromPortalData(portalGuids[i]);
+  for (var i in entities) {
+    var ent = entities[i];
+
+    if (ent[2].type == 'edge' && !(ent[0] in this.deletedGuid)) {
+      this.createLinkEntity(ent);
+    }
   }
+
+  for (var i in entities) {
+    var ent = entities[i];
+
+    if (ent[2].type == 'portal' && !(ent[0] in this.deletedGuid)) {
+      this.createPortalEntity(ent);
+    }
+  }
+
+
+
 }
 
 
@@ -127,9 +144,10 @@ window.Render.prototype.processGameEntities = function(entities) {
 // is considered complete
 window.Render.prototype.endRenderPass = function() {
 
-  // check to see if there's eny entities we haven't seen. if so, delete them
+  // check to see if there are any entities we haven't seen. if so, delete them
   for (var guid in window.portals) {
     // special case for selected portal - it's kept even if not seen
+    // artifact (e.g. jarvis shard) portals are also kept - but they're always 'seen'
     if (!(guid in this.seenPortalsGuid) && guid !== selectedPortal) {
       this.deletePortalEntity(guid);
     }
@@ -214,53 +232,18 @@ window.Render.prototype.deleteFieldEntity = function(guid) {
     var f = window.fields[guid];
     var fd = f.options.details;
 
-    var deletePortalLinkedField = function(pguid) {
-      if (pguid in window.portals) {
-        var pd = window.portals[pguid].options.details;
-        if (pd.portalV2.linkedFields) {
-          var i = pd.portalV2.linkedFields.indexOf(guid);
-          if (i >= 0) {
-            pd.portalV2.linkedFields.splice(i,1);
-          }
-        }
-      }
-    }
-
-    deletePortalLinkedField (fd.capturedRegion.vertexA.guid);
-    deletePortalLinkedField (fd.capturedRegion.vertexB.guid);
-    deletePortalLinkedField (fd.capturedRegion.vertexC.guid);
-
     fieldsFactionLayers[f.options.team].removeLayer(f);
     delete window.fields[guid];
   }
 }
 
 
-window.Render.prototype.createEntity = function(ent) {
-
-  // ent[0] == guid
-  // ent[1] == mtime
-  // ent[2] == data
-
-
-  // logic on detecting entity type based on the stock site javascript.
-  if ("portalV2" in ent[2]) {
-    this.createPortalEntity(ent);
-  } else if ("capturedRegion" in ent[2]) {
-    this.createFieldEntity(ent);
-  } else if ("edge" in ent[2]) {
-    this.createLinkEntity(ent);
-  } else {
-    console.warn("Unknown entity found: "+JSON.stringify(ent));
-  }
-
-}
 
 
 window.Render.prototype.createPortalEntity = function(ent) {
   this.seenPortalsGuid[ent[0]] = true;  // flag we've seen it
 
-  var previousDetails = undefined;
+  var previousData = undefined;
 
   // check if entity already exists
   if (ent[0] in window.portals) {
@@ -275,21 +258,17 @@ window.Render.prototype.createPortalEntity = function(ent) {
 
     // remember the old details, for the callback
 
-    previousDetails = p.options.details;
+    previousData = p.options.data;
 
     this.deletePortalEntity(ent[0]);
   }
 
-  var portalLevel = getPortalLevel(ent[2]);
-  var team = getTeam(ent[2]);
+  var portalLevel = parseInt(ent[2].level);
+  var team = teamStringToId(ent[2].team);
+  // the data returns unclaimed portals as level 1 - but IITC wants them treated as level 0
+  if (team == TEAM_NONE) portalLevel = 0;
 
-  var latlng = L.latLng(ent[2].locationE6.latE6/1E6, ent[2].locationE6.lngE6/1E6);
-
-//TODO: move marker creation, style setting, etc into a separate class
-//(as it's called from elsewhere - e.g. selecting/deselecting portals)
-
-//ALSO: change API for highlighters - make them return the updated style rather than directly calling setStyle on the portal marker
-//(can this be done in a backwardly-compatable way??)
+  var latlng = L.latLng(ent[2].latE6/1E6, ent[2].lngE6/1E6);
 
   var dataOptions = {
     level: portalLevel,
@@ -297,24 +276,8 @@ window.Render.prototype.createPortalEntity = function(ent) {
     ent: ent,  // LEGACY - TO BE REMOVED AT SOME POINT! use .guid, .timestamp and .details instead
     guid: ent[0],
     timestamp: ent[1],
-    details: ent[2]
+    data: ent[2]
   };
-
-  // Javascript uses references for objects. For now, at least, we need to modify the data within
-  // the options.details.portalV2 (to add in linkedFields). To avoid tainting the original data (which may be cached)
-  // we'll shallow-copy these items
-  dataOptions.details = $.extend({}, dataOptions.details);
-  dataOptions.details.portalV2 = $.extend({}, dataOptions.details.portalV2);
-
-
-  // create a linkedFields entry and add it to details - various bits of code assumes it will exist
-  for (var fguid in window.fields) {
-    var fd = window.fields[fguid].options.details;
-    if ( fd.capturedRegion.vertexA.guid == ent[0] || fd.capturedRegion.vertexB.guid == ent[0] || fd.capturedRegion.vertexC.guid == ent[0]) {
-      if (!dataOptions.details.portalV2.linkedFields) dataOptions.details.portalV2.linkedFields = [];
-      dataOptions.details.portalV2.linkedFields.push(fguid);
-    }
-  }
 
   var marker = createMarker(latlng, dataOptions);
 
@@ -322,7 +285,7 @@ window.Render.prototype.createPortalEntity = function(ent) {
   marker.on('dblclick', function() { window.renderPortalDetails(ent[0]); window.map.setView(latlng, 17); });
 
 
-  window.runHooks('portalAdded', {portal: marker, previousDetails: previousDetails});
+  window.runHooks('portalAdded', {portal: marker, previousData: previousData});
 
   window.portals[ent[0]] = marker;
 
@@ -370,12 +333,11 @@ window.Render.prototype.createFieldEntity = function(ent) {
     this.deleteFieldEntity(ent[0]); // option 2, for now
   }
 
-  var team = getTeam(ent[2]);
-  var reg = ent[2].capturedRegion;
+  var team = teamStringToId(ent[2].team);
   var latlngs = [
-    L.latLng(reg.vertexA.location.latE6/1E6, reg.vertexA.location.lngE6/1E6),
-    L.latLng(reg.vertexB.location.latE6/1E6, reg.vertexB.location.lngE6/1E6),
-    L.latLng(reg.vertexC.location.latE6/1E6, reg.vertexC.location.lngE6/1E6)
+    L.latLng(ent[2].points[0].latE6/1E6, ent[2].points[0].lngE6/1E6),
+    L.latLng(ent[2].points[1].latE6/1E6, ent[2].points[1].lngE6/1E6),
+    L.latLng(ent[2].points[2].latE6/1E6, ent[2].points[2].lngE6/1E6)
   ];
 
   var poly = L.geodesicPolygon(latlngs, {
@@ -387,26 +349,8 @@ window.Render.prototype.createFieldEntity = function(ent) {
     team: team,
     guid: ent[0],
     timestamp: ent[1],
-    details: ent[2],
-    // LEGACY FIELDS: these duplicate data available via .details, as IITC previously stored it in data and vertices
     data: ent[2],
-    vertices: ent[2].capturedRegion
   });
-
-
-  // now fill in any references portals linkedFields data
-  var addPortalLinkedField = function(pguid) {
-    if (pguid in window.portals) {
-      var pd = window.portals[pguid].options.details;
-      if (!pd.portalV2.linkedFields) pd.portalV2.linkedFields = [];
-      if (pd.portalV2.linkedFields.indexOf(pguid) <0 ) {
-        pd.portalV2.linkedFields.push (ent[0]);
-      }
-    }
-  }
-  addPortalLinkedField(ent[2].capturedRegion.vertexA.guid);
-  addPortalLinkedField(ent[2].capturedRegion.vertexB.guid);
-  addPortalLinkedField(ent[2].capturedRegion.vertexC.guid);
 
   runHooks('fieldAdded',{field: poly});
 
@@ -433,11 +377,10 @@ window.Render.prototype.createLinkEntity = function(ent,faked) {
     this.deleteLinkEntity(ent[0]); // option 2 - for now
   }
 
-  var team = getTeam(ent[2]);
-  var edge = ent[2].edge;
+  var team = teamStringToId(ent[2].team);
   var latlngs = [
-    L.latLng(edge.originPortalLocation.latE6/1E6, edge.originPortalLocation.lngE6/1E6),
-    L.latLng(edge.destinationPortalLocation.latE6/1E6, edge.destinationPortalLocation.lngE6/1E6)
+    L.latLng(ent[2].oLatE6/1E6, ent[2].oLngE6/1E6),
+    L.latLng(ent[2].dLatE6/1E6, ent[2].dLngE6/1E6)
   ];
   var poly = L.geodesicPolyline(latlngs, {
     color: COLORS[team],
@@ -448,8 +391,6 @@ window.Render.prototype.createLinkEntity = function(ent,faked) {
     team: team,
     guid: ent[0],
     timestamp: ent[1],
-    details: ent[2],
-    // LEGACY FIELDS: these duplicate data available via .details, as IITC previously stored it in data and vertices
     data: ent[2]
   });
 
@@ -465,56 +406,6 @@ window.Render.prototype.createLinkEntity = function(ent,faked) {
 }
 
 
-window.Render.prototype.createLinksFromPortalData = function(portalGuid) {
-
-  var sourcePortal = portals[portalGuid];
-
-  for (var sourceLinkIndex in sourcePortal.options.details.portalV2.linkedEdges||[]) {
-    var sourcePortalLinkInfo = sourcePortal.options.details.portalV2.linkedEdges[sourceLinkIndex];
-
-    // portals often contain details for edges that don't exist. so only consider faking an edge if this
-    // is the origin portal
-    if (sourcePortalLinkInfo.isOrigin) {
-
-      // ... and the other porta has matching link information. 
-      if (sourcePortalLinkInfo.otherPortalGuid in portals) {
-
-        var targetPortal = portals[sourcePortalLinkInfo.otherPortalGuid];
-
-        for (var targetLinkIndex in targetPortal.options.details.portalV2.linkedEdges||[]) {
-          var targetPortalLinkInfo = targetPortal.options.details.portalV2.linkedEdges[targetLinkIndex];
-
-          if (targetPortalLinkInfo.edgeGuid == sourcePortalLinkInfo.edgeGuid) {
-            // yes - edge in both portals. create it
-
-            var fakeEnt = [
-              sourcePortalLinkInfo.edgeGuid,
-              0,  // mtime for entity data - unknown when faking it, so zero will be the oldest possible
-              {
-                controllingTeam: sourcePortal.options.details.controllingTeam,
-                edge: {
-                  originPortalGuid: portalGuid,
-                  originPortalLocation: sourcePortal.options.details.locationE6,
-                  destinationPortalGuid: sourcePortalLinkInfo.otherPortalGuid,
-                  destinationPortalLocation: targetPortal.options.details.locationE6
-                }
-              }
-            ];
-
-            this.createLinkEntity(fakeEnt,true);
-
-
-          }
-
-        }
-
-      }
-      
-    }
-
-  }
-}
-
 
 window.Render.prototype.updateEntityVisibility = function() {
   if (this.entityVisibilityZoom === undefined || this.entityVisibilityZoom != map.getZoom()) {
@@ -522,6 +413,15 @@ window.Render.prototype.updateEntityVisibility = function() {
 
     this.resetPortalClusters();
     this.resetLinkVisibility();
+
+    if (this.portalMarkerScale === undefined || this.portalMarkerScale != portalMarkerScale()) {
+      this.portalMarkerScale = portalMarkerScale();
+
+      console.log('Render: map zoom '+map.getZoom()+' changes portal scale to '+portalMarkerScale()+' - redrawing all portals');
+
+      //NOTE: we're not calling this because it resets highlights - we're calling it as it resets the style (inc size) of all portal markers
+      resetHighlightedPortals();
+    }
   }
 }
 
@@ -543,7 +443,7 @@ window.Render.prototype.resetPortalClusters = function() {
     this.portalClusters[cid].push(p.options.guid);
   }
 
-  // now, for each cluster, sort by some arbitary data (the guid will do), and display the first CLUSTER_PORTAL_LIMIT
+  // now, for each cluster, sort by some arbitrary data (the guid will do), and display the first CLUSTER_PORTAL_LIMIT
   for (var cid in this.portalClusters) {
     var c = this.portalClusters[cid];
 
@@ -567,7 +467,7 @@ window.Render.prototype.resetPortalClusters = function() {
 
 }
 
-// add the portal to the visiable map layer unless we pass the cluster limits
+// add the portal to the visible map layer unless we pass the cluster limits
 window.Render.prototype.addPortalToMapLayer = function(portal) {
 
   var cid = this.getPortalClusterID(portal);
@@ -576,7 +476,7 @@ window.Render.prototype.addPortalToMapLayer = function(portal) {
 
   this.portalClusters[cid].push(portal.options.guid);
 
-  // now, at this point, we could match the above re-clustr code - sorting, and adding/removing as necessary
+  // now, at this point, we could match the above re-cluster code - sorting, and adding/removing as necessary
   // however, it won't make a lot of visible difference compared to just pushing to the end of the list, then
   // adding to the visible layer if the list is below the limit
   if (this.portalClusters[cid].length < this.CLUSTER_PORTAL_LIMIT || portal.options.guid == selectedPortal || artifact.isInterestingPortal(portal.options.guid)) {

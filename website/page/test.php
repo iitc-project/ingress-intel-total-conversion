@@ -6,7 +6,7 @@ needing to build it yourself. Automated scripts should update these builds withi
 <a href="https://github.com/jonatkins/ingress-intel-total-conversion/commits/master">committed</a> to Github.
 </p>
 
-<div class="alert alert-block alert-error">
+<div class="alert alert-block alert-danger">
 Test builds are built automatically. They could be <b>broken at any time</b>. If you have any doubts about using
 unstable software, please use the standard <a href="?page=desktop">desktop</a> or <a href="?page=mobile">mobile</a>
 builds.
@@ -28,7 +28,7 @@ if ( array_key_exists ( 'build', $_REQUEST ) )
 }
 
 if ( $path != "test" )
-	print "<div class=\"alert alert-block alert-error\"><b>NOTE</b>: A non-standard test build, <b>$path</b>, is currently selected. The notes <b>may not apply!</b> <a href=\"?page=test\">Return to the standard test build</a>.</div>";
+	print "<div class=\"alert alert-block alert-danger\"><b>NOTE</b>: A non-standard test build, <b>$path</b>, is currently selected. The notes <b>may not apply!</b> <a href=\"?page=test\">Return to the standard test build</a>.</div>";
 
 
 $timestamp_file = $path . "/.build-timestamp";
@@ -81,7 +81,7 @@ if ( file_exists($apkfile) )
 }
 else
 {
-	print "<div class=\"alert alert-error\">Error: <b>$apkfile</b> not found</div>\n";
+	print "<div class=\"alert alert-danger\">Error: <b>$apkfile</b> not found</div>\n";
 }
 
 

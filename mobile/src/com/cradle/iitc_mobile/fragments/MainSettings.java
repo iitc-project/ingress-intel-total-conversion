@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
@@ -17,6 +18,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import com.cradle.iitc_mobile.IITC_AboutDialogPreference;
+import com.cradle.iitc_mobile.Log;
 import com.cradle.iitc_mobile.R;
 
 public class MainSettings extends PreferenceFragment {
@@ -28,6 +30,7 @@ public class MainSettings extends PreferenceFragment {
 
         // set versions
         String iitcVersion = getArguments().getString("iitc_version");
+
         String buildVersion = "unknown";
 
         PackageManager pm = getActivity().getPackageManager();
@@ -35,25 +38,25 @@ public class MainSettings extends PreferenceFragment {
             PackageInfo info = pm.getPackageInfo(getActivity().getPackageName(), 0);
             buildVersion = info.versionName;
         } catch (NameNotFoundException e) {
-            e.printStackTrace();
+            Log.w(e);
         }
 
         IITC_AboutDialogPreference pref_about = (IITC_AboutDialogPreference) findPreference("pref_about");
         pref_about.setVersions(iitcVersion, buildVersion);
 
-        // set iitc source
-        EditTextPreference pref_iitc_source = (EditTextPreference) findPreference("pref_iitc_source");
-        pref_iitc_source.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+        final ListPreference pref_user_location_mode = (ListPreference) findPreference("pref_user_location_mode");
+        pref_user_location_mode.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                preference.setSummary(getString(R.string.pref_select_iitc_sum) + " " + newValue);
-                // TODO: update mIitcVersion when iitc source has changed
+                int mode = Integer.parseInt((String) newValue);
+                preference.setSummary(getResources().getStringArray(R.array.pref_user_location_titles)[mode]);
                 return true;
             }
         });
-        // first init of summary
-        String pref_iitc_source_sum = getString(R.string.pref_select_iitc_sum) + " " + pref_iitc_source.getText();
-        pref_iitc_source.setSummary(pref_iitc_source_sum);
+
+        String value = getPreferenceManager().getSharedPreferences().getString("pref_user_location_mode", "0");
+        int mode = Integer.parseInt(value);
+        pref_user_location_mode.setSummary(getResources().getStringArray(R.array.pref_user_location_titles)[mode]);
     }
 
     // we want a home button + HomeAsUpEnabled in nested preferences
@@ -77,7 +80,7 @@ public class MainSettings extends PreferenceFragment {
         final Dialog dialog = preferenceScreen.getDialog();
 
         if (dialog != null) {
-            dialog.getActionBar().setDisplayHomeAsUpEnabled(true);
+            if (dialog.getActionBar() != null) dialog.getActionBar().setDisplayHomeAsUpEnabled(true);
 
             View homeBtn = dialog.findViewById(android.R.id.home);
 
