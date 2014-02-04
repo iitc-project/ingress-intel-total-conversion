@@ -36,14 +36,14 @@ window.plugin.sync = function() {};
 
 window.plugin.sync.KEY_UUID = {key: 'plugin-sync-data-uuid', field: 'uuid'};
 
-// Each client has an unique UUID, to identify remote data is udpated by other clients or not
+// Each client has an unique UUID, to identify remote data is updated by other clients or not
 window.plugin.sync.uuid = null;
 
 window.plugin.sync.dialogHTML = null;
 window.plugin.sync.authorizer = null;
 
 // Store registered CollaborativeMap
-window.plugin.sync.registerdPluginsFields = null;
+window.plugin.sync.registeredPluginsFields = null;
 window.plugin.sync.logger = null;
 
 // Other plugin call this function to push update to Google Realtime API
@@ -51,7 +51,7 @@ window.plugin.sync.logger = null;
 // plugin.sync.updateMap('keys', 'keysdata', ['guid1', 'guid2', 'guid3'])
 // Which will push plugin.keys.keysdata['guid1'] etc. to Google Realtime API
 window.plugin.sync.updateMap = function(pluginName, fieldName, keyArray) {
-  var registeredMap = plugin.sync.registerdPluginsFields.get(pluginName, fieldName);
+  var registeredMap = plugin.sync.registeredPluginsFields.get(pluginName, fieldName);
   if(!registeredMap) return false;
   registeredMap.updateMap(keyArray);
 }
@@ -60,7 +60,7 @@ window.plugin.sync.updateMap = function(pluginName, fieldName, keyArray) {
 // example: plugin.sync.registerMapForSync('keys', 'keysdata', plugin.keys.updateCallback, plugin.keys.initializedCallback)
 // which register plugin.keys.keysdata
 //
-// updateCallback function format: function(pluginName, fieldName, eventObejct, fullUpdated)
+// updateCallback function format: function(pluginName, fieldName, eventObject, fullUpdated)
 // updateCallback will be fired when local or remote pushed update to Google Realtime API
 // fullUpdated is true when remote update occur during local client offline, all data is replaced by remote data
 // eventObject is a ValueChangedEvent, is null if fullUpdated is true
@@ -68,7 +68,7 @@ window.plugin.sync.updateMap = function(pluginName, fieldName, keyArray) {
 // detail of ValueChangedEvent refer to following url
 // https://developers.google.com/drive/realtime/reference/gapi.drive.realtime.ValueChangedEvent
 //
-// initializedCallback funciton format: function(pluginName, fieldName)
+// initializedCallback function format: function(pluginName, fieldName)
 // initializedCallback will be fired when the CollaborativeMap finished initialize and good to use
 window.plugin.sync.registerMapForSync = function(pluginName, fieldName, callback, initializedCallback) {
   var options, registeredMap;
@@ -79,7 +79,7 @@ window.plugin.sync.registerMapForSync = function(pluginName, fieldName, callback
                'authorizer': plugin.sync.authorizer,
                'uuid': plugin.sync.uuid};
   registeredMap = new plugin.sync.RegisteredMap(options);
-  plugin.sync.registerdPluginsFields.add(registeredMap);
+  plugin.sync.registeredPluginsFields.add(registeredMap);
 }
 
 
@@ -244,7 +244,7 @@ window.plugin.sync.RegisteredMap.prototype.loadRealtimeDocument = function(callb
     } else if(e.type === gapi.drive.realtime.ErrorType.NOT_FOUND) {
       _this.forceFileSearch = true;
     } else if(e.type === gapi.drive.realtime.ErrorType.CLIENT_ERROR) {
-      // Workaround: if Realtime API open a second docuemnt and the file do not exist, 
+      // Workaround: if Realtime API open a second document and the file do not exist, 
       // it will rasie 'CLIENT_ERROR' instead of 'NOT_FOUND'. So we do a force file search here.
       _this.forceFileSearch = true;
     } else {
@@ -264,16 +264,16 @@ window.plugin.sync.RegisteredMap.prototype.stopSync = function() {
   this.lastUpdateUUID = null;
   this.initializing = false;
   this.initialized = false;
-  plugin.sync.registerdPluginsFields.addToWaitingInitialize(this.pluginName, this.fieldName);
+  plugin.sync.registeredPluginsFields.addToWaitingInitialize(this.pluginName, this.fieldName);
 }
 //// end RegisteredMap
 
 
 
 
-//// RegisterdPluginsFields
+//// RegisteredPluginsFields
 // Store RegisteredMap and handle initialization of RegisteredMap
-window.plugin.sync.RegisterdPluginsFields = function(options) {
+window.plugin.sync.RegisteredPluginsFields = function(options) {
   this.authorizer = options['authorizer'];
   this.pluginsfields = {};
   this.waitingInitialize = {};
@@ -287,7 +287,7 @@ window.plugin.sync.RegisterdPluginsFields = function(options) {
   this.authorizer.addAuthCallback(this.initializeRegistered);
 }
 
-window.plugin.sync.RegisterdPluginsFields.prototype.add = function(registeredMap) {
+window.plugin.sync.RegisteredPluginsFields.prototype.add = function(registeredMap) {
   var pluginName, fieldName;
   pluginName = registeredMap.pluginName;
   fieldName = registeredMap.fieldName;
@@ -301,7 +301,7 @@ window.plugin.sync.RegisterdPluginsFields.prototype.add = function(registeredMap
   this.initializeWorker();
 }
 
-window.plugin.sync.RegisterdPluginsFields.prototype.addToWaitingInitialize = function(pluginName, fieldName) {
+window.plugin.sync.RegisteredPluginsFields.prototype.addToWaitingInitialize = function(pluginName, fieldName) {
   var registeredMap, _this;
   _this = this;
 
@@ -314,12 +314,12 @@ window.plugin.sync.RegisterdPluginsFields.prototype.addToWaitingInitialize = fun
   plugin.sync.logger.log('Retry in 10 sec.: ' +  pluginName + '[' + fieldName + ']');
 }
 
-window.plugin.sync.RegisterdPluginsFields.prototype.get = function(pluginName, fieldName) {
+window.plugin.sync.RegisteredPluginsFields.prototype.get = function(pluginName, fieldName) {
   if(!this.pluginsfields[pluginName]) return;
   return this.pluginsfields[pluginName][fieldName];
 }
 
-window.plugin.sync.RegisterdPluginsFields.prototype.initializeRegistered = function() {
+window.plugin.sync.RegisteredPluginsFields.prototype.initializeRegistered = function() {
   var _this = this;
   if(this.authorizer.isAuthed()) {
     $.each(this.waitingInitialize, function(key, map) {
@@ -330,7 +330,7 @@ window.plugin.sync.RegisterdPluginsFields.prototype.initializeRegistered = funct
   }
 }
 
-window.plugin.sync.RegisterdPluginsFields.prototype.cleanWaitingInitialize = function() {
+window.plugin.sync.RegisteredPluginsFields.prototype.cleanWaitingInitialize = function() {
   var newWaitingInitialize, _this;
   _this = this;
 
@@ -343,7 +343,7 @@ window.plugin.sync.RegisterdPluginsFields.prototype.cleanWaitingInitialize = fun
   this.waitingInitialize = newWaitingInitialize;
 }
 
-window.plugin.sync.RegisterdPluginsFields.prototype.initializeWorker = function() {
+window.plugin.sync.RegisteredPluginsFields.prototype.initializeWorker = function() {
   var _this = this;
 
   this.cleanWaitingInitialize();
@@ -355,7 +355,7 @@ window.plugin.sync.RegisterdPluginsFields.prototype.initializeWorker = function(
     this.timer = setTimeout(function() {_this.initializeWorker()}, 10000);
   }
 }
-//// end RegisterdPluginsFields
+//// end RegisteredPluginsFields
 
 
 
@@ -691,7 +691,7 @@ window.plugin.sync.toggleAuthButton = function() {
 window.plugin.sync.toggleDialogLink = function() {
   var authed, anyFail;
   authed = plugin.sync.authorizer.isAuthed();
-  anyFail = plugin.sync.registerdPluginsFields.anyFail;
+  anyFail = plugin.sync.registeredPluginsFields.anyFail;
 
   $('#sync-show-dialog').toggleClass('sync-show-dialog-error', !authed || anyFail);
 }
@@ -742,7 +742,7 @@ var setup =  function() {
   window.plugin.sync.authorizer = new window.plugin.sync.Authorizer({
     'authCallback': [plugin.sync.toggleAuthButton, plugin.sync.toggleDialogLink]
   });
-  window.plugin.sync.registerdPluginsFields = new window.plugin.sync.RegisterdPluginsFields({
+  window.plugin.sync.registeredPluginsFields = new window.plugin.sync.RegisteredPluginsFields({
     'authorizer': window.plugin.sync.authorizer
   });
 

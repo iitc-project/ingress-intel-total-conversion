@@ -6,7 +6,7 @@
 // tile and a quadkey. Both the bounds and the quadkey are “somewhat”
 // required to get complete data.
 //
-// Convertion functions courtesy of
+// Conversion functions courtesy of
 // http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames
 
 
@@ -38,18 +38,6 @@ window.pointToTileId = function(level, x, y) {
   return level + "_" + x + "_" + y;
 }
 
-// given tile id and bounds, returns the format as required by the
-// Ingress API to request map data.
-window.generateBoundsParams = function(tile_id, minLat, minLng, maxLat, maxLng) {
-  return {
-    id: tile_id,
-    qk: tile_id,
-    minLatE6: Math.round(minLat * 1E6),
-    minLngE6: Math.round(minLng * 1E6),
-    maxLatE6: Math.round(maxLat * 1E6),
-    maxLngE6: Math.round(maxLng * 1E6)
-  };
-}
 
 window.getResonatorLatLng = function(dist, slot, portalLatLng) {
   // offset in meters

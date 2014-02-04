@@ -2,6 +2,8 @@
 <resources>
 
     <string name="app_name">IITC Mobile</string>
+    <string name="toggle_map">Toggle map visibility</string>
+    <string name="debug_run">Run</string>
     <string name="activity_settings">IITC Mobile Settings</string>
     <string name="activity_plugins">IITC Plugins</string>
     <string name="activity_share">Share using…</string>
@@ -16,6 +18,8 @@
     <string name="locate">Get Location</string>
     <string name="local">local</string>
     <string name="close">Close</string>
+    <string name="download_description">Downloading latest intel package…</string>
+
     <string name="pref_about_title">About IITC Mobile</string>
     <!-- Use CDATA to prevent android from parsing html tags....we are doing this with Html.fromHtml() -->
     <string name="pref_about_text">
@@ -24,7 +28,8 @@
         <b>Build Version: %1$s</b><br>
         <b>IITC Version: %2$s</b><br>
         <br>
-        <b>by <a href="https://github.com/leCradle">cradle</a> and contributors</b><br><br>
+        <b>by <a href="https://github.com/leCradle">cradle</a>, <a href="https://github.com/fkloft">fkloft</a> and
+        contributors</b><br><br>
         <b>Icon by <a href="http://www.ludolab.net">Giuseppe Lucido</a></b><br><br>
         IITC Mobile is an optimized mobile browser for the
         Ingress Intel Total Conversion (IITC) userscript by <a href="https://github.com/breunigs"><b>breunigs</b></a>.
@@ -33,9 +38,9 @@
         <h3>Community:</h3>
         • Visit the <a href="http://iitc.jonatkins.com/">IITC website</a> for new releases and the desktop version.<br>
         • Follow the <a href="https://plus.google.com/105383756361375410867">IITC Google+ page</a>
-         for release announcements.<br>
+        for release announcements.<br>
         • Join the <a href="https://plus.google.com/communities/105647403088015055797">IITC Google+ community</a>
-         - a place to ask for help and discuss with other users.
+        - a place to ask for help and discuss with other users.
         <h3>Developers:</h3>
         <a href="https://github.com/jonatkins/ingress-intel-total-conversion">IITC on Github</a>
         <h3>IITC Licence:</h3>
@@ -56,27 +61,54 @@
         PERFORMANCE OF THIS SOFTWARE.
         ]]>
     </string>
-    <string name="notice_drawers">
-        <![CDATA[IITCm recently changed its navigation structure. How to use it:<br><br>
+    <string name="notice_how_to">
+        <![CDATA[<b>How to use IITCm:</b><br><br>
         • Navigation: swipe from the left edge of your screen (or click the app icon) to evoke the Navigation Drawer.
         Click the app icon again to return to the map.<br><br>
         • Layers/Highlights: swipe from the right edge of your screen (or click the layer-chooser icon in the ActionBar)
-        to evoke the Layer Drawer]]>
+        to evoke the Layer Drawer.<br><br>
+        • You can quickly send the current portal link/permalink to another device if both devices support NFC (hold
+        both devices back-to-back and tap the screen to beam the map to the other device).
+        • You can add official plugins in the settings.<br><br>
+        • For external plugins please have a look at the <a href="http://iitc.jonatkins.com/?page=faq#mobile-plugins">FAQ.]]>
     </string>
     <string name="notice_info">
         <![CDATA[Hint: Alternative ways to open the info screen:<br><br>
         • tap and hold a portal for a second<br>
         • tap on the left half of the status bar]]>
     </string>
+    <string name="notice_panes">
+        <![CDATA[Hint:<br><br>
+        Some plugins (e.g. portals list and bookmarks) now appear in the navigation drawer for quick access.<br>
+        They won\'t appear in the info pane any more.<br><br>
+        Swipe from the left edge of your screen (or click the app icon) to seem them.]]>
+    </string>
+    <string name="notice_extplugins">
+        <![CDATA[Hint:<br><br>
+        IITC Mobile is able to load external plugins too!<br><br>
+        • create <b>%1$s</b><br>
+        • move *.user.js files there<br>
+        • plugins should be listed above the official plugins]]>
+    </string>
+    <string name="notice_sharing">
+        <![CDATA[With <em>Share portal</em> you can:<br>
+        • send the portal link to other people<br>
+        • view the selected portal\'s position in another app<br>
+        • open the portal link in a webbrowser<br>
+        <br>
+        Hint: By selecting Google Maps (or any other installed navigation software), you can quickly navigate to the
+        selected portal.<br>
+        <br>
+        These hints also apply for the <em>permalink</em>.]]>
+    </string>
 
     <string name="pref_ui_cat">UI</string>
     <string name="pref_misc_cat">Misc</string>
-    <string name="pref_developer_options_cat">Developer options</string>
     <string name="pref_tweaks_cat">Tweaks</string>
     <string name="pref_plugins">IITC Plugins</string>
+    <string name="pref_plugins_sum">Plugins extend/modify the IITC experience. Most plugins known from desktop IITC can be found here.</string>
     <string name="pref_plugins_title">Available plugins</string>
-    <string name="pref_user_loc">Display user location</string>
-    <string name="pref_user_loc_sum">Show users position on map</string>
+    <string name="pref_user_location">Display user location on map</string>
     <string name="pref_user_zoom">Show zoom control</string>
     <string name="pref_user_zoom_sum">Shows +/- buttons even on multitouch capable devices.</string>
     <string name="pref_fullscreen">Hide in fullscreen mode</string>
@@ -86,12 +118,13 @@
     <string name="pref_force_desktop_sum">Nice for tablets, looks awful on smartphones</string>
     <string name="pref_force_https">Force https</string>
     <string name="pref_force_https_sum">Disabling may improve performance</string>
-    <string name="pref_external_storage">Move cache to external storage</string>
-    <string name="pref_external_storage_sum">Restart required! Write cache to sdCard. Saves internal storage.
+    <string name="pref_external_storage">Move tiles cache to external storage</string>
+    <string name="pref_external_storage_sum">Restart required! Write cache to sdCard.
         External storage has to be mounted.</string>
     <string name="pref_press_twice_to_exit">Press back button twice to exit</string>
     <string name="pref_press_twice_to_exit_sum">Avoids accidental exits</string>
     <string name="pref_advanced_options">Advanced settings</string>
+    <string name="pref_advanced_options_sum">Developer options and advanced tweaks</string>
     <string name="pref_enable_dev_mode">Enable developer mode</string>
     <string name="pref_enable_dev_mode_sum">If enabled, all IITC sources will be loaded from external storage of the Android device.
       Please copy all sources from $IITC_folder/build/mobile/ to /sdcard/IITC_Mobile/dev/.</string>
@@ -102,12 +135,6 @@
     <string name="pref_fake_user_agent">Fake User Agent</string>
     <string name="pref_fake_user_agent_sum">Let IITCm appear as a desktop browser for the intel site.
         Note: If just want to use the desktop mode use the \'force desktop mode\' setting</string>
-    <string name="pref_select_iitc">IITC source</string>
-    <string name="pref_select_iitc_sum">Load IITC main script from url or use local script. Currently used source:</string>
-
-    <string name="pref_caching">Aggressive Caching</string>
-    <string name="pref_caching_sum">Prefer cached values even if they are expired…saves traffic but
-        may result in login issues</string>
 
     <string-array name="pref_hide_fullscreen">
         <item>System Bar</item>
@@ -121,13 +148,12 @@
         <item>8</item>
         <item>16</item>
     </string-array>
-
-    <string-array name="pref_caching_array">
-        <item>Always</item>
-        <item>Mobile data only (default)</item>
-        <item>Never</item>
+    <string-array name="pref_user_location_titles">
+        <item>Don\'t show user position</item>
+        <item>Show user position on map</item>
+        <item>Show user position and orientation on map</item>
     </string-array>
-    <string-array name="pref_caching_array_vals">
+    <string-array name="pref_user_location_values">
         <item>0</item>
         <item>1</item>
         <item>2</item>
@@ -135,15 +161,17 @@
 
     <string name="menu_clear_cookies">Clear Cookies</string>
     <string name="menu_search">Search</string>
+    <string name="menu_debug">Debug</string>
     <string name="choose_account_to_login">Choose account to login</string>
     <string name="login_failed">Login failed.</string>
     <string name="search_hint">Search Locations</string>
     <string name="intent_error">Address could not be opened</string>
     <string name="msg_copied">Copied to clipboard…</string>
+    <string name="notice_do_not_show_again">Do not show again</string>
 
-    <string name="tab_map">Map</string>
+    <string name="tab_map">Locate</string>
     <string name="tab_share">Share</string>
-    <string name="tab_browser">Browser</string>
+    <string name="tab_browser">Intel</string>
 
     <string name="label_highlighter">Highlighter</string>
     <string name="label_base_layer">Base Layer</string>

@@ -10,9 +10,10 @@
  <meta name="author" content="">
 
  <!-- Le styles -->
- <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
- <link href="assets/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+ <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+ <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css" rel="stylesheet">
  <link href="assets/css/style.css" rel="stylesheet">
+ <link href="assets/icomoon/style.css" rel="stylesheet">
 
  <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
  <!--[if lt IE 9]>
@@ -37,22 +38,19 @@ if ( file_exists ( 'tracking.php' ) )
 
 <!-- ******** body ******** -->
 <body>
-<div class="container-fluid">
+<div class="container">
 
  <!-- **** page header **** -->
- <div class="row-fluid">
-  <div class="span12 header well well-small">
-   <div class="media">
-    <a class="pull-left" href="./">
-     <img class="media-object" src="assets/img/logo.png" title="IITC" alt="IITC Logo">
-    </a>
-    <div class="media-body">
-     <h1 class="media-heading">Ingress Intel Total Conversion</h1>
-<!--
-<a href="//plus.google.com/105383756361375410867?prsrc=3" rel="publisher" style="text-decoration:none;">
-<img src="//ssl.gstatic.com/images/icons/gplus-16.png" alt="Google+" style="border:0;width:16px;height:16px;"/></a>
--->
-    </div>
+ <div class="header well">
+  <div class="media">
+   <a class="pull-left" href="./">
+    <img class="media-object" src="assets/img/logo.png" title="IITC" alt="IITC Logo">
+   </a>
+   <div class="media-body">
+    <h1 class="media-heading">Ingress Intel Total Conversion</h1>
+
+<div class="g-plusone" data-annotation="inline" data-width="300" data-href="http://iitc.jonatkins.com/"></div>
+
    </div>
   </div>
  </div>
@@ -61,10 +59,10 @@ if ( file_exists ( 'tracking.php' ) )
  <!-- **** top alert box **** -->
  <div class="alert alert-block alert-info">
   Follow the
-  <b><a href="https://plus.google.com/105383756361375410867">IITC <img src="//ssl.gstatic.com/images/icons/gplus-16.png" alt="Google+" style="border:0;width:16px;height:16px;"/> page</a></b>
+  <b><a href="https://plus.google.com/105383756361375410867"><span class="icon-google-plus"></span> IITC page</a></b>
   for release announcements.
   Join the
-  <b><a href="https://plus.google.com/communities/105647403088015055797">IITC <img src="//ssl.gstatic.com/images/icons/gplus-16.png" alt="Google+" style="border:0;width:16px;height:16px;"/> Community</a></b>
+  <b><a href="https://plus.google.com/communities/105647403088015055797"><span class="icon-google-plus"></span> IITC Community</a></b>
   - a place to ask for help and discuss with other users.
  </div>
 
@@ -73,8 +71,8 @@ if ( file_exists ( 'tracking.php' ) )
  if ( file_exists ( "flag-stock-site-changed.txt" ) )
  {
  ?>
- <div class="alert alert-block alert-error">
-  <b>Note</b>: A change has been detected to the standard intel website. Such changes usually break IITC.
+ <div class="alert alert-block alert-danger">
+  <b>Note</b>: A change has been detected to the standard intel website. Such changes may break IITC.
   The developers have been notified of the update, and will be looking to fix things as soon as possible.
   See the <a href="https://plus.google.com/communities/105647403088015055797">IITC Community</a>
   for the latest details.
@@ -83,31 +81,31 @@ if ( file_exists ( 'tracking.php' ) )
  }
  ?>
 <!--
- <div class="alert alert-block alert-error">
+ <div class="alert alert-block alert-danger">
   <b>IITC has yet again been broken by changes Niantic have made.</b> Further information/discussion on
   <a href="xxxxxxxxxxxxxxxxxxx">this Google+ post</a>.
  </div>
 -->
 
  <!-- **** two column body area **** -->
+ <div class="row">
 
- <div class="row-fluid">
   <!-- **** navigation **** -->
-  <div class="span3 well">
+  <div class="col-md-3">
 
-  <ul class="nav nav-list nowrap">
+   <div class="list-group nowrap">
 <?php
 
 $pages = Array (
-	'home' => '<i class="icon-home"></i> Home',
-	'news' => '<i class="icon-list"></i> News',
-	'faq' => '<i class="icon-question-sign"></i> FAQ',
-	'desktop' => '<i class="icon-chevron-right"></i> Desktop',
-	'mobile' => '<i class="icon-chevron-right"></i> Mobile',
-	'test' => '<i class="icon-wrench"></i> Test Builds',
-	'developer' => '<i class="icon-cog"></i> Developers',
-	'about' => '<i class="icon-info-sign"></i> About',
-	'donate' => '<i class="icon-gift"></i> Donate',
+	'home' => '<span class="icon-house"></span> Home',
+	'news' => '<span class="icon-newspaper"></span> News',
+	'faq' => '<span class="icon-help"></span> FAQ',
+	'desktop' => '<span class="icon-screen"></span> Desktop',
+	'mobile' => '<span class="icon-mobile"></span> Mobile',
+	'test' => '<span class="icon-tools"></span> Test Builds',
+	'developer' => '<span class="icon-cog"></span> Developers',
+	'about' => '<span class="icon-info"></span> About',
+	'donate' => '<span class="icon-arrow-right"></span> Donate',
 );
 
 $page = 'home';
@@ -119,35 +117,39 @@ if ( ! array_key_exists ( $page, $pages ) )
 
 foreach ( $pages as $key => $name )
 {
-	# before 'desktop', add a nav-header
+	# before 'desktop', start a sub-list for the download links
 	if ( $key == 'desktop' )
-		print "<li class=\"nav-header\">Downloads</li>";
+		print "<div class=\"list-group-item\"><div class=\"text-muted\"><span class=\"icon-arrow-right\"></span> Downloads</div><div class=\"list-group\">";
 
 	if ( $key == "home" )
 		$url = "./";
 	else
 		$url = "?page=$key";
 
-	print "<li".($page == $key ? ' class="active"' :'')."><a href=\"$url\">$name</a></li>\n";
+	print "<a class=\"list-group-item".($page == $key ? ' active' :'')."\" href=\"$url\">$name</a>\n";
 
-	# after 'mobile', add a horizontal seperator
+	# after 'test', end the above sub-list
 	if ( $key == 'test' )
-		print "<li class=\"divider\"></li>";
+		print "</div></div>";
 }
 
 ?>
-  </ul> 
+   </div>
   </div>
   <!-- **** end of navigation **** -->
 
 
   <!-- **** page body **** -->
-  <div class="span9 well">
+  <div class="col-md-9">
+    <div class="panel panel-default">
+      <div class="panel-body">
 
 <?php
 include "page/$page.php";
 ?>
 
+      </div>
+    </div>
   </div>
   <!-- **** end of page body **** -->
 
@@ -155,7 +157,8 @@ include "page/$page.php";
 
 
  <!-- **** footer **** -->
- <div class="alert alert-block alert-error">
+ <div class="alert alert-block alert-danger">
+ <span class="icon-warning"></span>
  This site and the scripts are not officially affiliated with Ingress or Niantic Labs at Google.
  Using these scripts is likely to be considered against the Ingress Terms of Service. Any use is at your own risk.
  </div>
@@ -166,7 +169,8 @@ include "page/$page.php";
 <!-- ******** javascript includes ******** -->
 
 <script src="http://code.jquery.com/jquery.js"></script>
-<script src="assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://apis.google.com/js/platform.js"></script>
 
 
 </body>

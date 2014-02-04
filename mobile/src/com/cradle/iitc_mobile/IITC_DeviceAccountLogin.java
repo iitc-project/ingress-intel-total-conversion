@@ -18,10 +18,12 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cradle.iitc_mobile.IITC_Mobile.ResponseHandler;
+
 /**
  * this class manages automatic login using the Google account stored on the device
  */
-public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
+public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle>, ResponseHandler {
     /**
      * Adapter to show available accounts in a ListView. Accounts are read from mAccounts
      */
@@ -32,21 +34,21 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
         }
 
         @Override
-        public Account getItem(int position) {
+        public Account getItem(final int position) {
             return mAccounts[position];
         }
 
         @Override
-        public long getItemId(int position) {
+        public long getItemId(final int position) {
             return position;
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            LayoutInflater inflater = mActivity.getLayoutInflater();
-            View v = inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
+        public View getView(final int position, final View convertView, final ViewGroup parent) {
+            final LayoutInflater inflater = mIitc.getLayoutInflater();
+            final View v = inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
 
-            TextView tv = (TextView) v.findViewById(android.R.id.text1);
+            final TextView tv = (TextView) v.findViewById(android.R.id.text1);
             tv.setText(mAccounts[position].name);
 
             return tv;
@@ -57,7 +59,7 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
     private final AccountAdapter mAccountAdapter;
     private final AccountManager mAccountManager;
     private Account[] mAccounts;
-    private final IITC_Mobile mActivity;
+    private final IITC_Mobile mIitc;
     private String mAuthToken;
     private final AlertDialog mProgressbar;
     private final WebView mWebView;
@@ -69,7 +71,7 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
     private final DialogInterface.OnClickListener onClickListener =
             new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int index) {
+                public void onClick(final DialogInterface dialog, final int index) {
                     if (index >= 0 && index < mAccounts.length) {
                         mAccount = mAccounts[index];
                         startAuthentication();
@@ -78,17 +80,17 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
                 }
             };
 
-    public IITC_DeviceAccountLogin(IITC_Mobile activity, WebView webView,
-                                   WebViewClient webViewClient) {
-        mActivity = activity;
+    public IITC_DeviceAccountLogin(final IITC_Mobile iitc, final WebView webView,
+            final WebViewClient webViewClient) {
+        mIitc = iitc;
         mWebView = webView;
-        mAccountManager = AccountManager.get(activity);
+        mAccountManager = AccountManager.get(iitc);
         mAccountAdapter = new AccountAdapter();
 
         // dialog that serves as a progress bar overlay
-        mProgressbar = new AlertDialog.Builder(mActivity)
+        mProgressbar = new AlertDialog.Builder(mIitc)
                 .setCancelable(false)
-                .setView(mActivity.getLayoutInflater().inflate(R.layout.dialog_progressbar, null))
+                .setView(mIitc.getLayoutInflater().inflate(R.layout.dialog_progressbar, null))
                 .create();
     }
 
@@ -96,20 +98,19 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
      * display all available accounts to the user
      */
     private void displayAccountList() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity)
+        new AlertDialog.Builder(mIitc)
                 .setTitle(R.string.choose_account_to_login)
                 .setSingleChoiceItems(mAccountAdapter, 0, onClickListener)
-                .setNegativeButton(android.R.string.cancel, onClickListener);
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
+                .setNegativeButton(android.R.string.cancel, onClickListener)
+                .create()
+                .show();
     }
 
     /**
      * called when something failed. Shows a toast message. Classic login is still available
      */
     private void onLoginFailed() {
-        Toast.makeText(mActivity, R.string.login_failed, Toast.LENGTH_SHORT).show();
+        Toast.makeText(mIitc, R.string.login_failed, Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -120,16 +121,16 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
     private void startAuthentication() {
         mProgressbar.show();
 
-        mAccountManager.getAuthToken(mAccount, mAuthToken, null, mActivity, this, null);
+        mAccountManager.getAuthToken(mAccount, mAuthToken, null, mIitc, this, null);
     }
 
     /**
      * called by IITC_Mobile when the authentication activity has finished.
      */
-    public void onActivityResult(int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK)
-        // authentication activity succeeded, request token again
-        {
+    @Override
+    public void onActivityResult(final int resultCode, final Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            // authentication activity succeeded, request token again
             startAuthentication();
         } else {
             onLoginFailed();
@@ -140,29 +141,29 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
      * called by AccountManager
      */
     @Override
-    public void run(AccountManagerFuture<Bundle> value) {
+    public void run(final AccountManagerFuture<Bundle> value) {
         mProgressbar.hide();
 
         try {
-            Intent launch = (Intent) value.getResult().get(AccountManager.KEY_INTENT);
+            final Intent launch = (Intent) value.getResult().get(AccountManager.KEY_INTENT);
             if (launch != null) {
                 // There is a reason we need to start the given activity if we want an
                 // authentication token. (Could be user confirmation or something else. Whatever,
                 // we have to start it) IITC_Mobile will call it using startActivityForResult
-                mActivity.startLoginActivity(launch);
+                mIitc.startActivityForResult(launch, this);
                 return;
             }
 
-            String result = value.getResult().getString(AccountManager.KEY_AUTHTOKEN);
+            final String result = value.getResult().getString(AccountManager.KEY_AUTHTOKEN);
             if (result != null) {
-                // authentication succeded, we can load the given url, which will redirect
+                // authentication succeeded, we can load the given url, which will redirect
                 // back to the intel map
                 mWebView.loadUrl(result);
-                mActivity.loginSucceeded();
+                mIitc.loginSucceeded();
             } else {
                 onLoginFailed();
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             onLoginFailed();
         }
     }
@@ -170,21 +171,19 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle> {
     /**
      * start authentication
      * <p/>
-     * if we already have a username (e.g. because the existing login has timed out),
-     * we can directly start authentication if an account with that username is found.
+     * if we already have a username (e.g. because the existing login has timed out), we can directly start
+     * authentication if an account with that username is found.
      */
-    public void startLogin(String realm, String accountName, String args) {
+    public void startLogin(final String realm, final String accountName, final String args) {
         mAccounts = mAccountManager.getAccountsByType(realm);
         mAccountAdapter.notifyDataSetChanged();
         mAuthToken = "weblogin:" + args;
 
-        if (mAccounts.length == 0) {
-            return;
-        }
+        if (mAccounts.length == 0) return;
 
-        for (Account account : mAccounts) {
+        for (final Account account : mAccounts) {
             if (account.name.equals(accountName)) {
-                mAccountManager.getAuthToken(account, mAuthToken, null, mActivity, this, null);
+                mAccountManager.getAuthToken(account, mAuthToken, null, mIitc, this, null);
                 return;
             }
         }

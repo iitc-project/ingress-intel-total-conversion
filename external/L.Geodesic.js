@@ -34,57 +34,77 @@ Modified by qnstie 2013-07-17 to maintain compatibility with Leaflet.draw
       }
     });
   }
-  
-  function geodesicConvertLine(startLatlng, endLatlng, convertedPoints) {
-    var i,
-      R = 6378137, // earth radius in meters (doesn't have to be exact)
-      maxlength = 5000, // meters before splitting
-      d2r = L.LatLng.DEG_TO_RAD,
-      r2d = L.LatLng.RAD_TO_DEG,
-      lat1, lat2, lng1, lng2, dLng, d, segments,
-      f, A, B, x, y, z, fLat, fLng;
-  
-    dLng = (endLatlng.lng - startLatlng.lng) * d2r;
-    lat1 = startLatlng.lat * d2r;
-    lat2 = endLatlng.lat * d2r;
-    lng1 = startLatlng.lng * d2r;
-    lng2 = endLatlng.lng * d2r;
 
-    // http://en.wikipedia.org/wiki/Great-circle_distance
-    d = Math.atan2(Math.sqrt( Math.pow(Math.cos(lat2) * Math.sin(dLng), 2) + Math.pow(Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng), 2) ), Math.sin(lat1) * Math.sin(lat2) + Math.cos(lat1) * Math.cos(lat2) * Math.cos(dLng));
+  // alternative geodesic line intermediate points function
+  // as north/south lines have very little curvature in the projection, we cam use longitude (east/west) seperation
+  // to calculate intermediate points. hopeefully this will avoid the rounding issues seen in the full intermediate
+  // points code that have been seen
+  function geodesicConvertLine(startLatLng, endLatLng, convertedPoints) {
+    var R = 6378137; // earth radius in meters (doesn't have to be exact)
+    var d2r = L.LatLng.DEG_TO_RAD;
+    var r2d = L.LatLng.RAD_TO_DEG;
 
-    segments = Math.ceil(d * R / maxlength);
-    // loop starts at 1 - we don't add the very first point
-    // loop ends before 'segments' is reached - we don't add the very last point here but outside the loop
-    // (this was to fix a bug - https://github.com/jonatkins/ingress-intel-total-conversion/issues/471
-    //  rounding errors? maths bug? not sure - but it solves the issue! and is a slight optimisation)
-    for (i = 1; i < segments; i++) {
-      // http://williams.best.vwh.net/avform.htm#Intermediate
-      // modified to handle longitude above +-180 degrees
-      f = i / segments;
-      A = Math.sin((1-f)*d) / Math.sin(d);
-      B = Math.sin(f*d) / Math.sin(d);
-      x = A * Math.cos(lat1) * Math.cos(0) + B * Math.cos(lat2) * Math.cos(dLng);
-      y = A * Math.cos(lat1) * Math.sin(0) + B * Math.cos(lat2) * Math.sin(dLng);
-      z = A * Math.sin(lat1)               + B * Math.sin(lat2);
-      fLat = r2d * Math.atan2(z, Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)));
-      fLng = r2d * (Math.atan2(y, x)+lng1);
+    // maths based on http://williams.best.vwh.net/avform.htm#Int
 
-      convertedPoints.push(L.latLng([fLat, fLng]));
+    var lat1 = startLatLng.lat * d2r;
+    var lat2 = endLatLng.lat * d2r;
+    var lng1 = startLatLng.lng * d2r;
+    var lng2 = endLatLng.lng * d2r;
+
+    var dLng = lng2-lng1;
+
+    var segments = Math.floor(Math.abs(dLng * R / 5000));
+
+    if (segments > 1) {
+      // pre-calculate some constant values for the loop
+      var sinLat1 = Math.sin(lat1);
+      var sinLat2 = Math.sin(lat2);
+      var cosLat1 = Math.cos(lat1);
+      var cosLat2 = Math.cos(lat2);
+
+      var sinLat1CosLat2 = sinLat1*cosLat2;
+      var sinLat2CosLat1 = sinLat2*cosLat1;
+
+      var cosLat1CosLat2SinDLng = cosLat1*cosLat2*Math.sin(dLng);
+
+      for (var i=1; i < segments; i++) {
+        var iLng = lng1+dLng*(i/segments);
+        var iLat = Math.atan( (sinLat1CosLat2*Math.sin(lng2-iLng) + sinLat2CosLat1*Math.sin(iLng-lng1))
+                              / cosLat1CosLat2SinDLng)
+
+        var point = L.latLng ( [iLat*r2d, iLng*r2d] );
+        convertedPoints.push(point);
+      }
     }
-    // push the final point unmodified
-    convertedPoints.push(L.latLng(endLatlng));
+
+    convertedPoints.push(L.latLng(endLatLng));
   }
 
+
+
   L.geodesicConvertLines = function (latlngs, fill) {
-    var i, j, len, geodesiclatlngs = [];
-    for (i = 0, len = latlngs.length; i < len; i++) {
+    if (latlngs.length == 0) {
+      return [];
+    }
+
+    for (var i = 0, len = latlngs.length; i < len; i++) {
       if (L.Util.isArray(latlngs[i]) && typeof latlngs[i][0] !== 'number') {
         return;
       }
       latlngs[i] = L.latLng(latlngs[i]);
     }
-    
+
+    // geodesic calculations have issues when crossing the anti-meridian. so offset the points
+    // so this isn't an issue, then add back the offset afterwards
+    // a center longitude would be ideal - but the start point longitude will be 'good enough'
+    var lngOffset = latlngs[0].lng;
+
+    // points are wrapped after being offset relative to the first point coordinate, so they're
+    // within +-180 degrees
+    latlngs = latlngs.map(function(a){ return L.latLng(a.lat, a.lng-lngOffset).wrap(); });
+
+    var geodesiclatlngs = [];
+
     if(!fill) {
       geodesiclatlngs.push(latlngs[0]);
     }
@@ -94,6 +114,12 @@ Modified by qnstie 2013-07-17 to maintain compatibility with Leaflet.draw
     if(fill) {
       geodesicConvertLine(latlngs[len], latlngs[0], geodesiclatlngs);
     }
+
+    // now add back the offset subtracted above. no wrapping here - the drawing code handles
+    // things better when there's no sudden jumps in coordinates. yes, lines will extend
+    // beyond +-180 degrees - but they won't be 'broken'
+    geodesiclatlngs = geodesiclatlngs.map(function(a){ return L.latLng(a.lat, a.lng+lngOffset); });
+
     return geodesiclatlngs;
   }
   
@@ -181,7 +207,7 @@ Modified by qnstie 2013-07-17 to maintain compatibility with Leaflet.draw
       }
 
 
-      var segments = Math.max(32,Math.floor(this._mRadius/1000));
+      var segments = Math.max(48,Math.floor(this._mRadius/1000));
 //console.log(" (drawing circle as "+segments+" lines)");
       var points = [];
       for (var i=0; i<segments; i++) {

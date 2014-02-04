@@ -15,8 +15,10 @@ window.MapDataRequest = function() {
   this.idle = false;
 
 
-  // no more than this many requests in parallel
-  this.MAX_REQUESTS = 4;
+  // no more than this many requests in parallel. stock site seems to rely on browser limits (6, usually), sending
+  // many requests at once.
+  // using our own queue limit ensures that other requests (e.g. chat, portal details) don't get delayed
+  this.MAX_REQUESTS = 5;
 
   // no more than this many tiles in one request
   // as of 2013-11-11, or possibly the release before that, the stock site was changed to only request four tiles at a time
@@ -26,8 +28,8 @@ window.MapDataRequest = function() {
   // try to maintain at least this may tiles in each request, by reducing the number of requests as needed
   this.MIN_TILES_PER_REQUEST = 4;
 
-  // number of times to retty a tile after a 'bad' error (i.e. not a timeout)
-  this.MAX_TILE_RETRIES = 3;
+  // number of times to retry a tile after a 'bad' error (i.e. not a timeout)
+  this.MAX_TILE_RETRIES = 2;
 
   // refresh timers
   this.MOVE_REFRESH = 1; //time, after a map move (pan/zoom) before starting the refresh processing
@@ -43,10 +45,10 @@ window.MapDataRequest = function() {
   // this gives a chance of other requests finishing, allowing better grouping of retries in new requests
   this.RUN_QUEUE_DELAY = 0.5;
 
-  // delay before re-queueing tiles in failed requests
-  this.BAD_REQUEST_REQUEUE_DELAY = 5; // longer delay before retrying a completely failed request - as in this case the servers are struggling
+  // delay before requeuing tiles in failed requests
+  this.BAD_REQUEST_REQUEUE_DELAY = 10; // longer delay before retrying a completely failed request - as in this case the servers are struggling
 
-  // a delay before processing the queue after requeueing tiles. this gives a chance for other requests to finish
+  // a delay before processing the queue after requeuing tiles. this gives a chance for other requests to finish
   // or other requeue actions to happen before the queue is processed, allowing better grouping of requests
   // however, the queue may be processed sooner if a previous timeout was set
   this.REQUEUE_DELAY = 1;
@@ -57,7 +59,7 @@ window.MapDataRequest = function() {
   this.FETCH_TO_REFRESH_FACTOR = 2;  //refresh time is based on the time to complete a data fetch, times this value
 
   // ensure we have some initial map status
-  this.setStatus ('startup');
+  this.setStatus ('startup', undefined, -1);
 }
 
 
@@ -74,7 +76,7 @@ window.MapDataRequest.prototype.start = function() {
 
   // then set a timeout to start the first refresh
   this.refreshOnTimeout (this.STARTUP_REFRESH);
-  this.setStatus ('refreshing');
+  this.setStatus ('refreshing', undefined, -1);
 
   this.cache && this.cache.startExpireInterval (15);
 }
@@ -90,7 +92,7 @@ window.MapDataRequest.prototype.mapMoveStart = function() {
 
 window.MapDataRequest.prototype.mapMoveEnd = function() {
   var bounds = clampLatLngBounds(map.getBounds());
-  var zoom = getPortalDataZoom();
+  var zoom = map.getZoom();
 
   if (this.fetchedDataParams) {
     // we have fetched (or are fetching) data...
@@ -108,7 +110,7 @@ window.MapDataRequest.prototype.mapMoveEnd = function() {
     }
   }
 
-  this.setStatus('refreshing');
+  this.setStatus('refreshing', undefined, -1);
   this.refreshOnTimeout(this.MOVE_REFRESH);
 }
 
@@ -118,7 +120,7 @@ window.MapDataRequest.prototype.idleResume = function() {
   if (this.idle) {
     console.log('refresh map idle resume');
     this.idle = false;
-    this.setStatus('idle restart');
+    this.setStatus('idle restart', undefined, -1);
     this.refreshOnTimeout(this.IDLE_RESUME_REFRESH);
   }
 }
@@ -175,11 +177,14 @@ window.MapDataRequest.prototype.refresh = function() {
   this.tileErrorCount = {};
 
   // the 'set' of requested tile QKs
+  // NOTE: javascript does not guarantee any order to properties of an object. however, in all major implementations
+  // properties retain the order they are added in. IITC uses this to control the tile fetch order. if browsers change
+  // then fetch order isn't optimal, but it won't break things.
   this.queuedTiles = {};
 
 
   var bounds = clampLatLngBounds(map.getBounds());
-  var zoom = getPortalDataZoom();
+  var zoom = map.getZoom();
   var minPortalLevel = getMinPortalLevelForZoom(zoom);
 
 //DEBUG: resize the bounds so we only retrieve some data
@@ -226,6 +231,11 @@ window.MapDataRequest.prototype.refresh = function() {
   this.failedTileCount = 0;
   this.staleTileCount = 0;
 
+  var tilesToFetchDistance = {};
+
+  // map center point - for fetching center tiles first
+  var mapCenterPoint = map.project(map.getCenter(), zoom);
+
   // y goes from left to right
   for (var y = y1; y <= y2; y++) {
     // x goes from bottom to top(?)
@@ -253,20 +263,44 @@ window.MapDataRequest.prototype.refresh = function() {
           this.render.processTileData (old_data);
         }
 
-        // queue a request
-        this.queuedTiles[tile_id] = tile_id;
+        // tile needed. calculate the distance from the centre of the screen, to optimise the load order
+
+        var latCenter = (latNorth+latSouth)/2;
+        var lngCenter = (lngEast+lngWest)/2;
+        var tileLatLng = L.latLng(latCenter,lngCenter);
+
+        var tilePoint = map.project(tileLatLng, zoom);
+
+        var delta = mapCenterPoint.subtract(tilePoint);
+        var distanceSquared = delta.x*delta.x + delta.y*delta.y;
+
+        tilesToFetchDistance[tile_id] = distanceSquared;
         this.requestedTileCount += 1;
       }
     }
   }
 
-  this.setStatus ('loading');
+  // re-order the tile list by distance from the centre of the screen. this should load more relevant data first
+  var tilesToFetch = Object.keys(tilesToFetchDistance);
+  tilesToFetch.sort(function(a,b) {
+    return tilesToFetchDistance[a]-tilesToFetchDistance[b];
+  });
+
+  for (var i in tilesToFetch) {
+    var qk = tilesToFetch[i];
+
+    this.queuedTiles[qk] = qk;
+  }
+
+
+
+  this.setStatus ('loading', undefined, -1);
 
   // technically a request hasn't actually finished - however, displayed portal data has been refreshed
   // so as far as plugins are concerned, it should be treated as a finished request
   window.runHooks('requestFinished', {success: true});
 
-  console.log ('done request preperation (cleared out-of-bounds and invalid for zoom, and rendered cached data)');
+  console.log ('done request preparation (cleared out-of-bounds and invalid for zoom, and rendered cached data)');
 
   if (Object.keys(this.queuedTiles).length > 0) {
     // queued requests - don't start processing the download queue immediately - start it after a short delay
@@ -390,7 +424,7 @@ window.MapDataRequest.prototype.sendTileRequest = function(tiles) {
   var savedThis = this;
 
   // NOTE: don't add the request with window.request.add, as we don't want the abort handling to apply to map data any more
-  window.postAjax('getThinnedEntitiesV4', data, 
+  window.postAjax('getThinnedEntities', data, 
     function(data, textStatus, jqXHR) { savedThis.handleResponse (data, tiles, true); },  // request successful callback
     function() { savedThis.handleResponse (undefined, tiles, false); }  // request failed callback
   );
@@ -450,7 +484,7 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
   var timeoutTiles = [];
 
   if (!success || !data || !data.result) {
-    console.warn("Request.handleResponse: request failed - requeing...");
+    console.warn("Request.handleResponse: request failed - requeuing...");
 
     //request failed - requeue all the tiles(?)
 

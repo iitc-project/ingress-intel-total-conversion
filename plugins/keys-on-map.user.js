@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Show the manually entered key counts from keys plugin on the map.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Show the manually entered key counts from the 'keys' plugin on the map.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -22,7 +22,6 @@
 window.plugin.keysOnMap = function() {};
 
 window.plugin.keysOnMap.keyLayers = {};
-window.plugin.keysOnMap.keyLayerGroup = new L.LayerGroup();
 
 // Use portal add and remove event to control render of keys
 window.plugin.keysOnMap.portalAdded = function(data) {
@@ -112,6 +111,7 @@ window.plugin.keysOnMap.setupCSS = function() {
 }
 
 window.plugin.keysOnMap.setupLayer = function() {
+  window.plugin.keysOnMap.keyLayerGroup = new L.LayerGroup();
   window.addLayerGroup('Keys', window.plugin.keysOnMap.keyLayerGroup, false);
 }
 

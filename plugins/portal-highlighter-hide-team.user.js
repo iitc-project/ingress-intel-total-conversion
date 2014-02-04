@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Show all portals as neutral, as if uncaptured. Great for creating plans
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Show all portals as neutral, as if uncaptured. Great for creating plans.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -19,15 +19,17 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.portalHighligherHideOwnership = function() {};
+window.plugin.portalHighlighterHideOwnership = function() {};
 
-window.plugin.portalHighligherHideOwnership.highlight = function(data) {
-  var params = {fillColor: COLORS[TEAM_NONE], color: COLORS[TEAM_NONE], opacity: 1, fillOpacity: 0.5, radius: 7+(L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE : 0), weight: 2};
+window.plugin.portalHighlighterHideOwnership.highlight = function(data) {
+  var scale = window.portalMarkerScale();
+
+  var params = {fillColor: COLORS[TEAM_NONE], color: COLORS[TEAM_NONE], opacity: 1, fillOpacity: 0.5, radius: 7*scale+(L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE*scale : 0), weight: 2};
   data.portal.setStyle(params);
 }
 
 var setup =  function() {
-  window.addPortalHighlighter('Hide portal ownership', window.plugin.portalHighligherHideOwnership.highlight);
+  window.addPortalHighlighter('Hide portal ownership', window.plugin.portalHighlighterHideOwnership.highlight);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

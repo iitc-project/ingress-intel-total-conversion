@@ -1,5 +1,4 @@
 body {
-  background: #000;
   color: #fff;
 }
 
@@ -62,6 +61,20 @@ body {
   -webkit-box-sizing: border-box;
 }
 
+#mobileinfo .resonator.north:before {
+  content: "";
+  background-color: red;
+  border-radius: 100%;
+  display: block;
+  height: 6px;
+  width: 6px;
+  left: 50%;
+  top: -3px; 
+  margin-left: -3px;
+  position: absolute;
+  z-index: -1;
+}
+
 #mobileinfo .filllevel {
   position: absolute;
   bottom: 0;
@@ -81,7 +94,7 @@ body {
 }
 
 #sidebar, #chatcontrols, #chat, #chatinput {
-  background: #0B3351 !important;
+  background: transparent !important;
 }
 
 .leaflet-top .leaflet-control {
@@ -198,20 +211,19 @@ body {
 .linkdetails aside  {
   padding: 5px;
   margin-top: 3px;
-  margin-botton: 3px;
-  border: 2px outset #0e3d4e;
+  margin-bottom: 3px;
+  border: 2px outset #20A8B1;
 }
 
 #toolbox > a {
   padding: 5px;
   margin-top: 3px;
-  margin-botton: 3px;
-  border: 2px outset #0e3d4e;
+  margin-bottom: 3px;
+  border: 2px outset #20A8B1;
 }
 
 #portaldetails .close {
   padding: 4px;
-  border: 1px outset #0e3d4e;
+  border: 1px outset #20A8B1;
   margin-top: 2px;
-  background: #0e3d4e;
 }

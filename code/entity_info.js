@@ -8,8 +8,14 @@
 // given the entity detail data, returns the team the entity belongs
 // to. Uses TEAM_* enum values.
 window.getTeam = function(details) {
+  return teamStringToId(details.controllingTeam.team);
+}
+
+window.teamStringToId = function(teamStr) {
   var team = TEAM_NONE;
-  if(details.controllingTeam.team === 'ALIENS' || details.controllingTeam.team === 'ENLIGHTENED') team = TEAM_ENL;
-  if(details.controllingTeam.team === 'RESISTANCE') team = TEAM_RES;
+  if(teamStr === 'ENLIGHTENED') team = TEAM_ENL;
+  if(teamStr === 'RESISTANCE') team = TEAM_RES;
   return team;
 }
+
+

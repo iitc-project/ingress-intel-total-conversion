@@ -36,7 +36,7 @@ This release contains many small fixes and enhancements. Highlights include the 
 
 ** **
 - Plugin: Highlight Weakened Portals colors have been generally improved. They should now reflect the changes in portal shield handling much better.
-- Plugin: Calulate AP Stats now considers missing resonators when calculating the possible AP gain for either team.
+- Plugin: Calculate AP Stats now considers missing resonators when calculating the possible AP gain for either team.
 - Plugin: Guess Player Level has gained some statistics like average level per faction (by sutepasu).
 - Plugin: Player Tracker would pick up bogus portals sometimes, resulting in awkward lines drawn (fix by vita10gy).
 - Plugin: Player Tracker now stops after zooming out too far. It was eating CPU while not being helpful.
@@ -94,7 +94,7 @@ CHANGES IN 0.7 / 0.7.1
 - Bugfix: portals were not clickable below the sidebar
 - Bugfix: map wasn’t rendered properly sometimes (only a gray area was shown)
 - Bugfix: resonators were duplicated sometimes
-- Bugfix: AP calulation was wrong
+- Bugfix: AP calculation was wrong
 - Bugfix: Permalink gave the wrong zoom level
 - Bugfix: zoom position not saved sometimes
 
@@ -160,7 +160,7 @@ CHANGES IN 0.5 / 0.51
            Ingress
 - Feature: You are now alerted if some of the resources fail to load
 - Change: portal level should now stand out better against more
-          backgrouds (by jonatkins)
+          backgrounds (by jonatkins)
 - Change: increased hack range from 35m to 40m
 - Change: Sidebar now semi-transparent, just like chat (by cmrn)
 - Change: portals are now sized according to their level (by OshiHidra)

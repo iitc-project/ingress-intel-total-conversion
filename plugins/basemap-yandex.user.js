@@ -2,7 +2,7 @@
 // @id             iitc-plugin-basemap-yandex@jonatkins
 // @name           IITC plugin: Yandex maps
 // @category       Map Tiles
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.2.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -22,20 +22,17 @@
 // use own namespace for plugin
 window.plugin.mapTileYandex = function() {};
 
-
-window.plugin.mapTileYandex.setup = function() {
-//a few options on language are available, including en-US. Oddly, the detail available on the maps varies
-//dependong on the language
-  var yandexApiJs = '//api-maps.yandex.ru/2.0-stable/?load=package.standard&lang=ru-RU'
-
-  load(yandexApiJs).thenRun(window.plugin.mapTileYandex.addLayer);
-}
-
-window.plugin.mapTileYandex.addLayer = function() {
+window.plugin.mapTileYandex.leafletSetup = function() {
 
 //include Yandex.js start
 @@INCLUDERAW:external/Yandex.js@@
 //include Yandex.js end
+
+}
+
+
+
+window.plugin.mapTileYandex.setup = function() {
 
   var yStyles = {
     'map': "Map",
@@ -46,14 +43,32 @@ window.plugin.mapTileYandex.addLayer = function() {
   };
 
 
-  var yOpt = {maxZoom: 18};
+  // we can't directly create the L.Yandex object, as we need to async load the yandex map API
+  // so we'll add empty layer groups, then in the callback we can add the yandex layers to the layer groups
+  var layers = {};
 
   $.each(yStyles, function(key,value) {
-    var yMap = new L.Yandex(key, yOpt);
-    layerChooser.addBaseLayer(yMap, 'Yandex '+value);
+    layers[key] = new L.LayerGroup();
+    layerChooser.addBaseLayer(layers[key], 'Yandex '+value);
   });
 
-};
+  var callback = function() {
+    window.plugin.mapTileYandex.leafletSetup();
+    var yOpt = {maxZoom: 18};
+    $.each(layers, function(key,layer) {
+      var yMap = new L.Yandex(key, yOpt);
+      layer.addLayer(yMap);
+    });
+  }
+
+
+//a few options on language are available, including en-US. Oddly, the detail available on the maps varies
+//depending on the language
+  var yandexApiJs = '//api-maps.yandex.ru/2.0-stable/?load=package.standard&lang=ru-RU'
+
+  load(yandexApiJs).thenRun(callback);
+}
+
 
 var setup =  window.plugin.mapTileYandex.setup;
 

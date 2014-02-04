@@ -13,58 +13,39 @@ offers many more features. It is available for
 
 <h3>Latest news</h3>
 
-<h4>11th November 2013</h4>
+<h4>13th January 2014</h4>
 <p>
-IITC 0.15.0 and IITC Mobile 0.9 have just been released. This update fixes things to work with the latest changes
-to the standard intel site. Also
+A new IITC release, 0.16.2 and IITC Mobile 0.10.2 have been released. These are needed to work with a change to the
+standard intel site.
+</p>
+<p>
+Additionally, the 'Compute AP Statistics' plugin has been brought back, the 'blank map' base layer has a new black option
+to go with the white, and the 'Yandex' base map has had some bug fixes. Also, IITC Mobile features some changes to
+the 'show my location' feature. You may need to turn this option on again for it to work.
+</p>
+<p>
+<b>Update 14th January 2014</b>: An updated IITC Mobile, 0.10.3, has been released, to fix a crash issue seen by some.
+Also, a minor update was made to the main IITC script which changes the order the data is loaded, to match a change made to
+the standard intel site.
+</p>
+
+<h4>21st December 2013</h4>
+<p>
+Just in time for the holidays, another IITC update. IITC 0.16.1 and IITC Mobile 0.10.1 have just been released.
+Changes include
+</p>
 <ul>
-<li>Support for Jarvis shards (and other future artifacts)</li>
-<li>New base map plugins - for <a href="http://maps.stamen.com/">maps.stamen.com/</a> and Bing maps.</li>
-</ul>
-</p>
-
-<h4>7th November 2013</h4>
-<p>
-IITC 0.14.6 and IITC Mobile 0.7.7.2 released. Another change needed to match a minor update to the standard intel site.
-</p>
-
-<h4>6th November 2013</h4>
-<p>
-IITC 0.14.5 and IITC Mobile 0.7.7.1 have been released. This contains a fix to work with the latest intel site updates.
-Other than this, it is identical to the 0.14.4/0.7.7 release.
-</p>
-
-<h4>29th October 2013</h4>
-<p>
-IITC 0.14.4 and IITC Mobile 0.7.7 have just been released. A critical update required to work with changes made to the
-standard intel site. Changes include
-<ul>
-<li>Fix to geodesic circle drawing. They were not correctly distorted, leading to incorrect link ranges drawn on the map.</li>
-<li>Bookmarks plugin: add layer and highlighter to indicate bookmarked portals</li>
-<li>Player tracker plugin: markers fade for older activity, and separate layers for each faction</li>
-<li>The 'About IITC' dialog now lists which plugins are installed. This may not work correctly for 3rd party plugins at this time</li>
+<li>Portals list plugin returns - but less data than before due to the Niantic backend changes</li>
+<li>Resonators plugin returns - but only shows the selected portal</li>
 <li>Mobile:
  <ul>
- <li>Custom fullscreen preferences</li>
- <li>Install to SD Card</li>
- <li>Cache move to SD card option (hence the new permissions)</li>
+ <li>Some plugins moved to panes from the left-swipe menu: portals list, portal counts</li>
+ <li>Immersive fullscreen mode on Android 4.4 KitKat</li>
+ <li>Sort apps in share activity - most used at the top</li>
+ <li>Fix links sometimes being badly drawn on mobile</li>
  </ul>
 </li>
-<li>... and, as always, various bugfixes and improvements.</li>
+<li>.. and, as always, other various bug fixes, improvements, etc</li>
 </ul>
-</p>
-<p>
-<b>3RD PARTY PLUGIN AUTHORS</b>: The plugin wrapper code has been modified to pass through the additioal version
-information. While existing plugins should continue to work, I highly recommend updating the wrapper code in your
-scripts to match.
-</p>
 
-<h4>16th October 2013</h4>
-<p>
-IITC 0.14.3 and IITC MObile 0.7.4 have just been released. This is a critical update required to work with the latest
-changes Niantic have made to the standard intel site. Additionally, the draw-tools plugin now snaps points to portals
-when creating lines/polygons/markers (was actually in 0.14.2 release), a bugfix relating to IITC not realising who 
-'you' are, causing some highlighters to break, and a handful of other tweaks/bugfixes.
-</p>
-
-<a class="btn btn-small" href="?page=news">Older news</a>
+<a class="btn btn-default btn-sm" href="?page=news">Older news</a>

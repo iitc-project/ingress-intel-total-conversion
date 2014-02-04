@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.15.1.@@DATETIMEVERSION@@
+// @version        0.16.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -39,8 +39,11 @@ if(!d) {
   // page doesn’t have a script tag with player information.
   if(document.getElementById('header_email')) {
     // however, we are logged in.
-    setTimeout('location.reload();', 3*1000);
-    throw("Page doesn't have player data, but you are logged in. Reloading in 3s.");
+    // it used to be regularly common to get temporary 'account not enabled' messages from the intel site.
+    // however, this is no longer common. more common is users getting account suspended/banned - and this
+    // currently shows the 'not enabled' message. so it's safer to not repeatedly reload in this case
+//    setTimeout('location.reload();', 3*1000);
+    throw("Page doesn't have player data, but you are logged in.");
   }
   // FIXME: handle nia takedown in progress
   throw("Couldn't retrieve player data. Are you logged in?");
@@ -142,7 +145,7 @@ window.CHAT_MIN_RANGE = 6;
 window.VIEWPORT_PAD_RATIO = 0.3;
 
 // how many items to request each query
-window.CHAT_PUBLIC_ITEMS = 200;
+window.CHAT_PUBLIC_ITEMS = 50;
 window.CHAT_FACTION_ITEMS = 50;
 // how many pixels to the top before requesting new data
 window.CHAT_REQUEST_SCROLL_TOP = 200;

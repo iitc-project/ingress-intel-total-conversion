@@ -25,8 +25,9 @@ public class PluginsFragment extends PreferenceFragment {
         if (getArguments() != null) {
             // get plugins category for this fragments and plugins list
             String category = getArguments().getString("category");
+            boolean userPlugin = getArguments().getBoolean("userPlugin");
             ArrayList<IITC_PluginPreference> prefs =
-                    IITC_PluginPreferenceActivity.getPluginPreference(category);
+                    IITC_PluginPreferenceActivity.getPluginPreference(category, userPlugin);
 
             // add plugin checkbox preferences
             for (IITC_PluginPreference pref : prefs) {
@@ -35,7 +36,6 @@ public class PluginsFragment extends PreferenceFragment {
 
             // set action bar stuff
             ActionBar bar = getActivity().getActionBar();
-            category = category.replace(IITC_PluginPreferenceActivity.USER_PLUGIN, "User ");
             bar.setTitle("IITC Plugins: " + category);
             bar.setDisplayHomeAsUpEnabled(true);
         }

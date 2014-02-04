@@ -275,7 +275,7 @@ L.Util.extend(L.KML, {
 		var el = xml.getElementsByTagName('coordinates');
 		var coords = [];
 		for (var j = 0; j < el.length; j++) {
-			// text might span many childnodes
+			// text might span many childNodes
 			coords = coords.concat(this._read_coords(el[j]));
 		}
 		return coords;

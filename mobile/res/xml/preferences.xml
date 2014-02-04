@@ -1,35 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <PreferenceScreen
-        android:key="pref_about_screen"
-        android:persistent="false"
-        android:title="@string/pref_about_title">
-        <com.cradle.iitc_mobile.IITC_AboutDialogPreference
-            android:dialogIcon="@android:drawable/ic_dialog_info"
-            android:key="pref_about"
-            android:title="@string/pref_about_title"/>
-    </PreferenceScreen>
-
     <PreferenceCategory
         android:key="pref_ui_cat"
         android:title="@string/pref_ui_cat">
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_user_loc"
-            android:summary="@string/pref_user_loc_sum"
-            android:title="@string/pref_user_loc"/>
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/pref_user_location_titles"
+            android:entryValues="@array/pref_user_location_values"
+            android:key="pref_user_location_mode"
+            android:title="@string/pref_user_location"/>
+
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_user_zoom"
             android:summary="@string/pref_user_zoom_sum"
             android:title="@string/pref_user_zoom"/>
+
         <MultiSelectListPreference
+            android:entries="@array/pref_hide_fullscreen"
+            android:entryValues="@array/pref_hide_fullscreen_vals"
             android:key="pref_fullscreen"
             android:summary="@string/pref_fullscreen_sum"
-            android:title="@string/pref_fullscreen"
-            android:entries="@array/pref_hide_fullscreen"
-            android:entryValues="@array/pref_hide_fullscreen_vals"/>
+            android:title="@string/pref_fullscreen"/>
+
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_force_desktop"
@@ -37,20 +30,14 @@
             android:title="@string/pref_force_desktop"/>
     </PreferenceCategory>
     <PreferenceCategory
-        android:key="pref_mics"
-        android:title="@string/pref_misc_cat">
-
-        <!-- summary is set in settings fragment -->
-        <EditTextPreference
-            android:defaultValue="local"
-            android:key="pref_iitc_source"
-            android:title="@string/pref_select_iitc"/>
-
+        android:key="pref_tweaks_cat"
+        android:title="@string/pref_tweaks_cat">
         <PreferenceScreen
             android:fragment="com.cradle.iitc_mobile.fragments.PluginsFragment"
             android:key="pref_plugins"
             android:persistent="false"
-            android:title="@string/pref_plugins">
+            android:title="@string/pref_plugins"
+            android:summary="@string/pref_plugins_sum">
             <intent
                 android:targetClass="com.cradle.iitc_mobile.IITC_PluginPreferenceActivity"
                 android:targetPackage="com.cradle.iitc_mobile"/>
@@ -62,29 +49,29 @@
             android:summary="@string/pref_force_https_sum"
             android:title="@string/pref_force_https"/>
         <CheckBoxPreference
+            android:defaultValue="false"
             android:key="pref_external_storage"
-            android:title="@string/pref_external_storage"
             android:summary="@string/pref_external_storage_sum"
-            android:defaultValue="false" />
+            android:title="@string/pref_external_storage"/>
         <CheckBoxPreference
-                android:key="pref_press_twice_to_exit"
-                android:title="@string/pref_press_twice_to_exit"
-                android:summary="@string/pref_press_twice_to_exit_sum"
-                android:defaultValue="false" />
+            android:defaultValue="false"
+            android:key="pref_press_twice_to_exit"
+            android:summary="@string/pref_press_twice_to_exit_sum"
+            android:title="@string/pref_press_twice_to_exit"/>
     </PreferenceCategory>
     <PreferenceCategory
-        android:key="pref_developer_options"
-        android:title="@string/pref_developer_options_cat">
+    android:key="pref_mics"
+    android:title="@string/pref_misc_cat">
         <PreferenceScreen
             android:key="pref_developer_screen"
             android:persistent="false"
-            android:title="@string/pref_advanced_options">
+            android:title="@string/pref_advanced_options"
+            android:summary="@string/pref_advanced_options_sum">
             <CheckBoxPreference
                 android:defaultValue="false"
                 android:key="pref_dev_checkbox"
                 android:summary="@string/pref_enable_dev_mode_sum"
                 android:title="@string/pref_enable_dev_mode"/>
-
             <PreferenceCategory
                 android:key="pref_advanced_ui_cat"
                 android:title="@string/pref_ui_cat">
@@ -101,20 +88,21 @@
             <PreferenceCategory
                 android:key="pref_advanced_tweaks_cat"
                 android:title="@string/pref_tweaks_cat">
-                <ListPreference
-                    android:defaultValue="1"
-                    android:entries="@array/pref_caching_array"
-                    android:entryValues="@array/pref_caching_array_vals"
-                    android:key="pref_caching"
-                    android:summary="@string/pref_caching_sum"
-                    android:title="@string/pref_caching"/>
-
                 <CheckBoxPreference
                     android:defaultValue="false"
                     android:key="pref_fake_user_agent"
                     android:summary="@string/pref_fake_user_agent_sum"
                     android:title="@string/pref_fake_user_agent"/>
             </PreferenceCategory>
+        </PreferenceScreen>
+        <PreferenceScreen
+            android:key="pref_about_screen"
+            android:persistent="false"
+            android:title="@string/pref_about_title">
+            <com.cradle.iitc_mobile.IITC_AboutDialogPreference
+                android:dialogIcon="@android:drawable/ic_dialog_info"
+                android:key="pref_about"
+                android:title="@string/pref_about_title"/>
         </PreferenceScreen>
     </PreferenceCategory>
 
