@@ -35,38 +35,27 @@ window.plugin.drawTools.loadExternals = function() {
 }
 
 window.plugin.drawTools.getMarkerIcon = function(color) {
-
-console.log('getMarkerIcon("' + color + '")');
-  if (typeof(color) === "undefined" || color.search(/^[0-9A-Fa-f]{6}$/) == -1) {
-    // TODO maybe improve error handling here.
+  if (typeof(color) === 'undefined') {
     console.warn('Color is not set or not a valid color. Using default color as fallback.');
-    color = "a24ac3";
+    color = '#a24ac3';
   }
 
-  // As the length of the color string is 6 charaters which translates to 8 base64 encodes characters
-  // and we ensured that the color in the svg template is properly aligned we can construct the
-  // resulting base64 encoded svg by replacing the color inside the base64 encoded template!
-  var svgIcon = 'data:image/svg+xml;base64,' +
-    'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4NCjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIg0KCXZlcnNpb249IjEuMSIgYmFzZVByb2ZpbGU9ImZ1bGwiDQoJd2lkdGg9IjUwcHgiIGhlaWdodD0iODJweCIgdmlld0JveD0iMCAwIDUwIDgyIj4NCg0KCTxwYXRoIGQ9Ik0yLjcyNDgzNjg5NTMsMzcuMzQ5NzYyNDkzNSBBMjUsMjUgMCAxLDEgNDcuMjc1MTYzMTA0NywzNy4zNDk3NjI0OTM1IEwyNSw4MS4wNjcyMzE2MTQ2IFoiIHN0eWxlPSJzdHJva2U6bm9uZTsgICBmaWxsOiAj' +
-    btoa(color) +
-    'OyIgLz4NCgk8cGF0aCBkPSJNMy42MTU4NDM0MTk1LDM2Ljg5NTc3MTk5MzcgQTI0LDI0IDAgMSwxIDQ2LjM4NDE1NjU4MDUsMzYuODk1NzcxOTkzNyBMMjUsNzguODY0NTQyMzUgWiIgc3R5bGU9InN0cm9rZTojMDAwMDAwOyBzdHJva2Utd2lkdGg6MnB4OyBzdHJva2Utb3BhY2l0eTogMC4xNTsgZmlsbDogbm9uZTsiIC8+DQoJPHBhdGggZD0iTTUuODQzMzU5NzMsMzUuNzYwNzk1NzQ0NCBBMjEuNSwyMS41IDAgMSwxIDQ0LjE1NjY0MDI3LDM1Ljc2MDc5NTc0NDQgTDI1LDczLjM1NzgxOTE4ODYgWiIgc3R5bGU9InN0cm9rZTojZmZmZmZmOyBzdHJva2Utd2lkdGg6M3B4OyBzdHJva2Utb3BhY2l0eTogMC4zNTsgZmlsbDogbm9uZTsiIC8+DQoNCgk8cGF0aCBkPSJNMzkuNzIyNDMxODY0MywzNC41IEwyNSw0MyBMMTAuMjc3NTY4MTM1NywzNC41IEwxMC4yNzc1NjgxMzU3LDE3LjUgTDI1LDkgTDM5LjcyMjQzMTg2NDMsMTcuNSBaIE0xNS40NzM3MjA1NTg0LDIwLjUgTDM0LjUyNjI3OTQ0MTYsMjAuNSBMMjUsMzcgWiBNMjUsMjYgTDE1LjQ3MzcyMDU1ODQsMjAuNSBNMjUsMjYgTDM0LjUyNjI3OTQ0MTYsMjAuNSBNMjUsMjYgTDI1LDM3IE0zOS43MjI0MzE4NjQzLDM0LjUgTDMyLjc5NDIyODYzNDEsMzAuNSBNMTAuMjc3NTY4MTM1NywzNC41IEwxNy4yMDU3NzEzNjU5LDMwLjUgTTI1LDkgTDI1LDE3IiBzdHlsZT0ic3Ryb2tlOiNmZmZmZmY7IHN0cm9rZS13aWR0aDoyLjVweDsgc3Ryb2tlLW9wYWNpdHk6IDE7IGZpbGw6IG5vbmU7IiAvPg0KDQoNCjwvc3ZnPg==';
+  var svgIcon = window.plugin.drawTools.markerTemplate.replace(/%COLOR%/g, color);
 
-  // As we have a svg icon, we can use the same icon for the regular and the retina version.
-  return L.icon({
-    iconUrl: svgIcon,
-    iconRetinaUrl: svgIcon,
+  return L.divIcon({
     iconSize: new L.Point(25, 41),
     iconAnchor: new L.Point(12, 41),
-    popupAnchor: new L.Point(1, -34),
-    shadowSize: new L.Point(41, 41),
-    // L.icon does not use the option color, but we store it here to
+    html: svgIcon,
+    className: 'leaflet-iitc-custom-icon',
+    // L.divIcon does not use the option color, but we store it here to
     // be able to simply retrieve the color for serializing markers
-    color: '#' + color
+    color: color
   });
 }
 
 window.plugin.drawTools.currentColor = '#a24ac3';
-window.plugin.drawTools.currentMarker = window.plugin.drawTools.getMarkerIcon('a24ac3');
+window.plugin.drawTools.markerTemplate = '@@INCLUDESTRING:images/marker-icon.svg.template@@';
+window.plugin.drawTools.currentMarker = window.plugin.drawTools.getMarkerIcon(window.plugin.drawTools.currentColor);
 
 window.plugin.drawTools.setOptions = function() {
 
@@ -99,7 +88,7 @@ window.plugin.drawTools.setOptions = function() {
 
 window.plugin.drawTools.setDrawColor = function(color) {
   window.plugin.drawTools.currentColor = color;
-  window.plugin.drawTools.currentMarker = window.plugin.drawTools.getMarkerIcon(color.substr(1));
+  window.plugin.drawTools.currentMarker = window.plugin.drawTools.getMarkerIcon(color);
 
   window.plugin.drawTools.drawControl.setDrawingOptions({
     'polygon': { 'shapeOptions': { color: color } },
@@ -269,7 +258,7 @@ window.plugin.drawTools.import = function(data) {
         break;
       case 'marker':
         var extraMarkerOpt = {};
-        if (item.color) extraMarkerOpt.icon = window.plugin.drawTools.getMarkerIcon(item.color.substr(1));
+        if (item.color) extraMarkerOpt.icon = window.plugin.drawTools.getMarkerIcon(item.color);
         layer = L.marker(item.latLng, L.extend({},window.plugin.drawTools.markerOptions,extraMarkerOpt));
         break;
       default:
