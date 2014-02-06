@@ -144,9 +144,6 @@ window.runOnSmartphonesAfterBoot = function() {
     $("body").on("click", "select", function() {
       android.spinnerEnabled(true);
     });
-    $("body").on("focus", "select", function() {
-      android.spinnerEnabled(false);
-    });
   }
 
   // add event to portals that allows long press to switch to sidebar
@@ -164,6 +161,11 @@ window.runOnSmartphonesAfterBoot = function() {
     });
   });
 
+  if(typeof android !== 'undefined' && android && android.setPermalink) {
+    window.map.on('moveend', window.setAndroidPermalink);
+    addHook('portalSelected', window.setAndroidPermalink);
+  }
+
   // Force lower render limits for mobile
   window.VIEWPORT_PAD_RATIO = 0.1;
   window.MAX_DRAWN_PORTALS = 500;
@@ -171,8 +173,41 @@ window.runOnSmartphonesAfterBoot = function() {
   window.MAX_DRAWN_FIELDS = 100;
 }
 
+window.setAndroidPermalink = function() {
+  var c = window.map.getCenter();
+  var lat = Math.round(c.lat*1E6)/1E6;
+  var lng = Math.round(c.lng*1E6)/1E6;
+
+  var href = '/intel?ll='+lat+','+lng+'&z=' + map.getZoom();
+
+  if(window.selectedPortal && window.portals[window.selectedPortal]) {
+    var p = window.portals[window.selectedPortal].getLatLng();
+    lat = Math.round(p.lat*1E6)/1E6;
+    lng = Math.round(p.lng*1E6)/1E6;
+    href += '&pll='+lat+','+lng;
+  }
+
+  href = $('<a>').prop('href',  href).prop('href'); // to get absolute URI
+  android.setPermalink(href);
+}
+
 window.useAndroidPanes = function() {
   // isSmartphone is important to disable panes in desktop mode
   return (typeof android !== 'undefined' && android && android.addPane && window.isSmartphone());
+}
+
+if(typeof android !== 'undefined' && android && android.getFileRequestUrlPrefix) {
+  window.requestFile = function(callback) {
+    do {
+      var funcName = "onFileSelected" + parseInt(Math.random()*0xFFFF).toString(16);
+    } while(window[funcName] !== undefined)
+
+    window[funcName] = function(filename, content) {
+      callback(decodeURIComponent(filename), atob(content));
+    };
+    var script = document.createElement('script');
+    script.src = android.getFileRequestUrlPrefix() + funcName;
+    (document.body || document.head || document.documentElement).appendChild(script);
+  };
 }
 

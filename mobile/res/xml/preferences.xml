@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <PreferenceScreen
-        android:key="pref_about_screen"
-        android:persistent="false"
-        android:title="@string/pref_about_title">
-        <com.cradle.iitc_mobile.IITC_AboutDialogPreference
-            android:dialogIcon="@android:drawable/ic_dialog_info"
-            android:key="pref_about"
-            android:title="@string/pref_about_title"/>
-    </PreferenceScreen>
-
     <PreferenceCategory
         android:key="pref_ui_cat"
         android:title="@string/pref_ui_cat">
@@ -41,13 +30,14 @@
             android:title="@string/pref_force_desktop"/>
     </PreferenceCategory>
     <PreferenceCategory
-        android:key="pref_mics"
-        android:title="@string/pref_misc_cat">
+        android:key="pref_tweaks_cat"
+        android:title="@string/pref_tweaks_cat">
         <PreferenceScreen
             android:fragment="com.cradle.iitc_mobile.fragments.PluginsFragment"
             android:key="pref_plugins"
             android:persistent="false"
-            android:title="@string/pref_plugins">
+            android:title="@string/pref_plugins"
+            android:summary="@string/pref_plugins_sum">
             <intent
                 android:targetClass="com.cradle.iitc_mobile.IITC_PluginPreferenceActivity"
                 android:targetPackage="com.cradle.iitc_mobile"/>
@@ -70,24 +60,18 @@
             android:title="@string/pref_press_twice_to_exit"/>
     </PreferenceCategory>
     <PreferenceCategory
-        android:key="pref_developer_options"
-        android:title="@string/pref_developer_options_cat">
+    android:key="pref_mics"
+    android:title="@string/pref_misc_cat">
         <PreferenceScreen
             android:key="pref_developer_screen"
             android:persistent="false"
-            android:title="@string/pref_advanced_options">
+            android:title="@string/pref_advanced_options"
+            android:summary="@string/pref_advanced_options_sum">
             <CheckBoxPreference
                 android:defaultValue="false"
                 android:key="pref_dev_checkbox"
                 android:summary="@string/pref_enable_dev_mode_sum"
                 android:title="@string/pref_enable_dev_mode"/>
-
-            <!-- summary is set in settings fragment -->
-            <EditTextPreference
-                android:defaultValue="local"
-                android:key="pref_iitc_source"
-                android:title="@string/pref_select_iitc"/>
-
             <PreferenceCategory
                 android:key="pref_advanced_ui_cat"
                 android:title="@string/pref_ui_cat">
@@ -110,6 +94,15 @@
                     android:summary="@string/pref_fake_user_agent_sum"
                     android:title="@string/pref_fake_user_agent"/>
             </PreferenceCategory>
+        </PreferenceScreen>
+        <PreferenceScreen
+            android:key="pref_about_screen"
+            android:persistent="false"
+            android:title="@string/pref_about_title">
+            <com.cradle.iitc_mobile.IITC_AboutDialogPreference
+                android:dialogIcon="@android:drawable/ic_dialog_info"
+                android:key="pref_about"
+                android:title="@string/pref_about_title"/>
         </PreferenceScreen>
     </PreferenceCategory>
 

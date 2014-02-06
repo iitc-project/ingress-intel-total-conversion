@@ -7,7 +7,7 @@ window.Render = function() {
 
   // when there are lots of portals close together, we only add some of them to the map
   // the idea is to keep the impression of the dense set of portals, without rendering them all
-  this.CLUSTER_SIZE = L.Browser.mobile ? 16 : 8;  // the map is divided into squares of this size in pixels for clustering purposes. mobile uses larger markers, so therefore larger clustering areas
+  this.CLUSTER_SIZE = L.Browser.mobile ? 10 : 4;  // the map is divided into squares of this size in pixels for clustering purposes. mobile uses larger markers, so therefore larger clustering areas
   this.CLUSTER_PORTAL_LIMIT = 4; // no more than this many portals are drawn in each cluster square
 
   // link length, in pixels, to be visible. use the portal cluster size, as shorter than this is likely hidden
@@ -15,6 +15,8 @@ window.Render = function() {
   this.LINK_VISIBLE_PIXEL_LENGTH = this.CLUSTER_SIZE;
 
   this.entityVisibilityZoom = undefined;
+
+  this.portalMarkerScale = undefined;
 }
 
 
@@ -105,24 +107,35 @@ window.Render.prototype.processDeletedGameEntityGuids = function(deleted) {
 
 window.Render.prototype.processGameEntities = function(entities) {
 
+  // we loop through the entities three times - for fields, links and portals separately
+  // this is a reasonably efficient work-around for leafletjs limitations on svg render order
+
+
   for (var i in entities) {
     var ent = entities[i];
 
-    // don't create entities in the 'deleted' list
-    if (!(ent[0] in this.deletedGuid)) {
-      this.createEntity(ent);
+    if (ent[2].type == 'region' && !(ent[0] in this.deletedGuid)) {
+      this.createFieldEntity(ent);
     }
   }
 
-//TODO: better method to bring portals to front during rendering
-//as it stands, rendering from cache causes multiple passes through bringToFront - which is a waste
-//possible options:
-//1. add fields, links and portals in the order they should be rendered. will be close to right while rendering, and
-//   a final bringPortalsToFront call can fix up any errors
-//2. run bringPortalsToFront on a short timer, so it's not immediate after render.
+  for (var i in entities) {
+    var ent = entities[i];
 
-//  // reorder portals to be after links/fields
-//  this.bringPortalsToFront();
+    if (ent[2].type == 'edge' && !(ent[0] in this.deletedGuid)) {
+      this.createLinkEntity(ent);
+    }
+  }
+
+  for (var i in entities) {
+    var ent = entities[i];
+
+    if (ent[2].type == 'portal' && !(ent[0] in this.deletedGuid)) {
+      this.createPortalEntity(ent);
+    }
+  }
+
+
 
 }
 
@@ -225,32 +238,6 @@ window.Render.prototype.deleteFieldEntity = function(guid) {
 }
 
 
-window.Render.prototype.createEntity = function(ent) {
-
-  // ent[0] == guid
-  // ent[1] == mtime
-  // ent[2] == data
-
-
-  // logic on detecting entity type based on the stock site javascript.
-  switch (ent[2].type) {
-    case 'portal':
-      this.createPortalEntity(ent);
-      break;
-
-    case 'edge':
-      this.createLinkEntity(ent);
-      break;
-
-    case 'region':
-      this.createFieldEntity(ent);
-      break;
-
-    default:
-      console.warn('unknown entity found: '+JSON.stringify(ent));
-      break;
-  }
-}
 
 
 window.Render.prototype.createPortalEntity = function(ent) {
@@ -426,6 +413,15 @@ window.Render.prototype.updateEntityVisibility = function() {
 
     this.resetPortalClusters();
     this.resetLinkVisibility();
+
+    if (this.portalMarkerScale === undefined || this.portalMarkerScale != portalMarkerScale()) {
+      this.portalMarkerScale = portalMarkerScale();
+
+      console.log('Render: map zoom '+map.getZoom()+' changes portal scale to '+portalMarkerScale()+' - redrawing all portals');
+
+      //NOTE: we're not calling this because it resets highlights - we're calling it as it resets the style (inc size) of all portal markers
+      resetHighlightedPortals();
+    }
   }
 }
 

@@ -2,7 +2,7 @@
 // @id             iitc-plugin-show-address@vita10gy
 // @name           IITC plugin: show portal address in sidebar
 // @category       Portal Info
-// @version        0.2.3.@@DATETIMEVERSION@@
+// @version        0.2.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -25,8 +25,8 @@ window.plugin.portalAddress.portalDetail = function(data) {
   // If there's 4 sets of comma delimited info the last one is the
   // country, so get rid of it. If the country is in the [2] then it
   // doesn't matter because address is usually short enough to fit.
-  var d = data.portalDetails.portalV2;
-  var address = d.descriptiveText.ADDRESS;
+  var d = data.portalDetails;
+  var address = d.descriptiveText.map.ADDRESS;
   if (address) {
     address = address.split(',').splice(0,3).join(',');
     $('.imgpreview').append('<div id="address">'+address+'</div>');

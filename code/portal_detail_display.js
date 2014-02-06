@@ -41,7 +41,7 @@ window.renderPortalDetails = function(guid) {
  
 
   var img = fixPortalImageUrl(details ? details.imageByUrl && details.imageByUrl.imageUrl : data.image);
-  var title = details ? details.portalV2.descriptiveText.TITLE : data.title;
+  var title = data.title;
 
   var lat = data.latE6/1E6;
   var lng = data.lngE6/1E6;
@@ -75,16 +75,16 @@ window.renderPortalDetails = function(guid) {
     if(portalDetailObj.description) {
       portalDetailedDescription += '<tr class="padding-top"><th>Description:</th><td>' + escapeHtmlSpecialChars(portalDetailObj.description) + '</td></tr>';
     }
-//    if(d.portalV2.descriptiveText.ADDRESS) {
-//      portalDetailedDescription += '<tr><th>Address:</th><td>' + escapeHtmlSpecialChars(d.portalV2.descriptiveText.ADDRESS) + '</td></tr>';
+//    if(d.descriptiveText.map.ADDRESS) {
+//      portalDetailedDescription += '<tr><th>Address:</th><td>' + escapeHtmlSpecialChars(d.descriptiveText.map.ADDRESS) + '</td></tr>';
 //    }
 
     portalDetailedDescription += '</table>';
   }
 
   // portal level. start with basic data - then extend with fractional info in tooltip if available
-  var levelInt = portal.options.level;
-  var levelDetails = portal.options.level;
+  var levelInt = (teamStringToId(data.team) == TEAM_NONE) ? 0 : data.level;
+  var levelDetails = levelInt;
   if (details) {
     levelDetails = getPortalLevel(details);
     if(levelDetails != 8) {
@@ -125,7 +125,7 @@ window.renderPortalDetails = function(guid) {
 
   $('#portaldetails')
     .html('') //to ensure it's clear
-    .attr('class', TEAM_TO_CSS[portal.options.team])
+    .attr('class', TEAM_TO_CSS[teamStringToId(data.team)])
     .append(
       $('<h3>').attr({class:'title'}).text(data.title),
 

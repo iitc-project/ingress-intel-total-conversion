@@ -2,7 +2,7 @@
 // @id             iitc-plugin-compute-ap-stats@Hollow011
 // @name           IITC plugin: Compute AP statistics
 // @category       Info
-// @version        0.4.0.@@DATETIMEVERSION@@
+// @version        0.4.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -36,11 +36,22 @@ window.plugin.compAPStats.setupCallback = function() {
 }
 
 window.plugin.compAPStats.mapDataRefreshEnd = function() {
+  if (window.plugin.compAPStats.timer) {
+    clearTimeout(window.plugin.compAPStats.timer);
+    window.plugin.compAPStats.timer = undefined;
+  }
+
   window.plugin.compAPStats.update(true);
 }
 
 window.plugin.compAPStats.requestFinished = function() {
-  window.plugin.compAPStats.update(false);
+  // process on a short delay, so if multiple requests finish in a short time we only calculate once
+  if (window.plugin.compAPStats.timer === undefined) {
+    window.plugin.compAPStats.timer = setTimeout( function() {
+      window.plugin.compAPStats.timer = undefined;
+      window.plugin.compAPStats.update(false);
+    }, 0.75*1000);
+  }
 }
 
 window.plugin.compAPStats.update = function(hasFinished) {

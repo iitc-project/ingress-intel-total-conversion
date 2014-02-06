@@ -535,7 +535,7 @@
 
   window.plugin.bookmarks.optCopy = function() {
     if(typeof android !== 'undefined' && android && android.intentPosLink) {
-      return androidCopy(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
+      return android.shareString(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
     } else {
       dialog({
         html: '<p><a onclick="$(\'.ui-dialog-bkmrksSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly>'+localStorage[window.plugin.bookmarks.KEY_STORAGE]+'</textarea>',
@@ -566,14 +566,6 @@
       window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "reset"});
       console.log('BOOKMARKS: reset all bookmarks');
       window.plugin.bookmarks.optAlert('Successful. ');
-    }
-  }
-
-  window.plugin.bookmarks.optShare = function() {
-    if(window.plugin.bookmarks.isAndroid() && android.shareString) {
-      android.shareString(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
-    } else {
-      window.plugin.bookmarks.optAlert('Only IITC mobile. ');
     }
   }
 
@@ -632,7 +624,9 @@
         newItem = L.geodesicPolygon(latlngs, window.plugin.drawTools.polygonOptions);
       }
 
-      $('#bkmrksAutoDrawer a.bkmrk.selected').removeClass('selected');
+      if($("#bkmrkClearSelection").prop("checked"))
+        $('#bkmrksAutoDrawer a.bkmrk.selected').removeClass('selected');
+
       newItem.addTo(window.plugin.drawTools.drawnItems);
       // Save in localStorage
       window.plugin.drawTools.save();
@@ -699,7 +693,13 @@
       element += elemGenericFolder;
 
       // Append all folders and bookmarks
-      r = '<div id="bkmrksAutoDrawer"><p style="color:red;text-align:center;margin-bottom:9px;">You must select 2 or 3 portals.</p>'+element+'</div>';
+      r = '<div id="bkmrksAutoDrawer">'
+        + '<label style="margin-bottom: 9px; display: block;">'
+        + '<input style="vertical-align: middle;" type="checkbox" id="bkmrkClearSelection" checked>'
+        + ' Clear selection after drawing</label>'
+        + '<p style="color:red;text-align:center;margin-bottom:9px;">You must select 2 or 3 portals.</p>'
+        + element
+        + '</div>';
     }
     return r;
   }
@@ -914,7 +914,6 @@
                         +'<a onclick="window.plugin.bookmarks.optCopy();">Copy/Export Bookmarks</a>'
                         +'<a onclick="window.plugin.bookmarks.optPaste();return false;">Paste/Import Bookmarks</a>'
                         +'<a onclick="window.plugin.bookmarks.optReset();return false;">Reset Bookmarks</a>'
-                        +'<a onclick="window.plugin.bookmarks.optShare();">Share all Bookmarks (IITCm)</a>'
                         +'<a onclick="window.plugin.bookmarks.optBox(\'save\');">Save box position (No IITCm)</a>'
                         +'<a onclick="window.plugin.bookmarks.optBox(\'reset\');">Reset box position (No IITCm)</a>'
                       +'</div>';

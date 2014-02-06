@@ -22,7 +22,9 @@
 window.plugin.portalHighlighterHideOwnership = function() {};
 
 window.plugin.portalHighlighterHideOwnership.highlight = function(data) {
-  var params = {fillColor: COLORS[TEAM_NONE], color: COLORS[TEAM_NONE], opacity: 1, fillOpacity: 0.5, radius: 7+(L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE : 0), weight: 2};
+  var scale = window.portalMarkerScale();
+
+  var params = {fillColor: COLORS[TEAM_NONE], color: COLORS[TEAM_NONE], opacity: 1, fillOpacity: 0.5, radius: 7*scale+(L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE*scale : 0), weight: 2};
   data.portal.setStyle(params);
 }
 

@@ -44,20 +44,6 @@ public class MainSettings extends PreferenceFragment {
         IITC_AboutDialogPreference pref_about = (IITC_AboutDialogPreference) findPreference("pref_about");
         pref_about.setVersions(iitcVersion, buildVersion);
 
-        // set iitc source
-        EditTextPreference pref_iitc_source = (EditTextPreference) findPreference("pref_iitc_source");
-        pref_iitc_source.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                preference.setSummary(getString(R.string.pref_select_iitc_sum) + " " + newValue);
-                // TODO: update mIitcVersion when iitc source has changed
-                return true;
-            }
-        });
-        // first init of summary
-        String pref_iitc_source_sum = getString(R.string.pref_select_iitc_sum) + " " + pref_iitc_source.getText();
-        pref_iitc_source.setSummary(pref_iitc_source_sum);
-
         final ListPreference pref_user_location_mode = (ListPreference) findPreference("pref_user_location_mode");
         pref_user_location_mode.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
             @Override

@@ -14,6 +14,10 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcEvent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -42,10 +46,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Stack;
+import java.util.Vector;
 
-public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeListener {
-
-    private static final int REQUEST_LOGIN = 1;
+public class IITC_Mobile extends Activity
+        implements OnSharedPreferenceChangeListener, NfcAdapter.CreateNdefMessageCallback {
     private static final String mIntelUrl = "https://www.ingress.com/intel";
 
     private SharedPreferences mSharedPrefs;
@@ -55,6 +59,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     private IITC_NavigationHelper mNavigationHelper;
     private IITC_MapSettings mMapSettings;
     private IITC_DeviceAccountLogin mLogin;
+    private final Vector<ResponseHandler> mResponseHandlers = new Vector<ResponseHandler>();
     private boolean mDesktopMode = false;
     private boolean mAdvancedMenu = false;
     private MenuItem mSearchMenuItem;
@@ -68,6 +73,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     private boolean mIsLoading = true;
     private boolean mShowMapInDebug = false;
     private final Stack<String> mDialogStack = new Stack<String>();
+    private String mPermalink = null;
 
     // Used for custom back stack handling
     private final Stack<Pane> mBackStack = new Stack<IITC_NavigationHelper.Pane>();
@@ -76,13 +82,13 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(final Context context, final Intent intent) {
             ((IITC_Mobile) context).installIitcUpdate();
         }
     };
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // enable progress bar above action bar
@@ -97,11 +103,11 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         mEditCommand = (EditText) findViewById(R.id.editCommand);
         mEditCommand.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+            public boolean onEditorAction(final TextView v, final int actionId, final KeyEvent event) {
                 if (EditorInfo.IME_ACTION_GO == actionId) {
                     onBtnRunCodeClick(v);
 
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 
                     return true;
@@ -142,16 +148,19 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         // afterwards install iitc update
         registerReceiver(mBroadcastReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 
+        final NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
+        if (nfc != null) nfc.setNdefPushMessageCallback(this, this);
+
         handleIntent(getIntent(), true);
     }
 
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
         if (key.equals("pref_force_desktop")) {
             mDesktopMode = sharedPreferences.getBoolean("pref_force_desktop", false);
             mNavigationHelper.onPrefChanged();
         } else if (key.equals("pref_user_location_mode")) {
-            int mode = Integer.parseInt(mSharedPrefs.getString("pref_user_location_mode", "0"));
+            final int mode = Integer.parseInt(mSharedPrefs.getString("pref_user_location_mode", "0"));
             if (mUserLocation.setLocationMode(mode))
                 mReloadNeeded = true;
             return;
@@ -179,23 +188,23 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
+    protected void onNewIntent(final Intent intent) {
         setIntent(intent);
         handleIntent(intent, false);
     }
 
-    private void handleIntent(Intent intent, boolean onCreate) {
+    private void handleIntent(final Intent intent, final boolean onCreate) {
         // load new iitc web view with ingress intel page
-        String action = intent.getAction();
-        if (Intent.ACTION_VIEW.equals(action)) {
-            Uri uri = intent.getData();
+        final String action = intent.getAction();
+        if (Intent.ACTION_VIEW.equals(action) || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
+            final Uri uri = intent.getData();
             Log.d("intent received url: " + uri.toString());
 
             if (uri.getScheme().equals("http") || uri.getScheme().equals("https")) {
                 if (uri.getHost() != null
                         && (uri.getHost().equals("ingress.com") || uri.getHost().endsWith(".ingress.com"))) {
                     Log.d("loading url...");
-                    this.loadUrl(uri.toString());
+                    loadUrl(uri.toString());
                     return;
                 }
             }
@@ -204,14 +213,14 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                 try {
                     handleGeoUri(uri);
                     return;
-                } catch (URISyntaxException e) {
+                } catch (final URISyntaxException e) {
                     Log.w(e);
                     new AlertDialog.Builder(this)
                             .setTitle(R.string.intent_error)
                             .setMessage(e.getReason())
                             .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                 @Override
-                                public void onClick(DialogInterface dialog, int which) {
+                                public void onClick(final DialogInterface dialog, final int which) {
                                     dialog.dismiss();
                                 }
                             })
@@ -235,38 +244,37 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         }
 
         if (onCreate) {
-            this.loadUrl(mIntelUrl);
+            loadUrl(mIntelUrl);
         }
     }
 
-    private void handleGeoUri(Uri uri) throws URISyntaxException {
-        String[] parts = uri.getSchemeSpecificPart().split("\\?", 2);
+    private void handleGeoUri(final Uri uri) throws URISyntaxException {
+        final String[] parts = uri.getSchemeSpecificPart().split("\\?", 2);
         Double lat, lon;
         Integer z = null;
 
         // parts[0] may contain an 'uncertainty' parameter, delimited by a semicolon
-        String[] pos = parts[0].split(";", 2)[0].split(",", 2);
-        if (pos.length != 2) {
-            throw new URISyntaxException(uri.toString(), "URI does not contain a valid position");
-        }
+        final String[] pos = parts[0].split(";", 2)[0].split(",", 2);
+        if (pos.length != 2) throw new URISyntaxException(uri.toString(), "URI does not contain a valid position");
 
         try {
             lat = Double.valueOf(pos[0]);
             lon = Double.valueOf(pos[1]);
-        } catch (NumberFormatException e) {
-            URISyntaxException use = new URISyntaxException(uri.toString(), "position could not be parsed");
+        } catch (final NumberFormatException e) {
+            final URISyntaxException use = new URISyntaxException(uri.toString(), "position could not be parsed");
             use.initCause(e);
             throw use;
         }
 
         if (parts.length > 1) { // query string present
             // search for z=
-            for (String param : parts[1].split("&")) {
+            for (final String param : parts[1].split("&")) {
                 if (param.startsWith("z=")) {
                     try {
                         z = Integer.valueOf(param.substring(2));
-                    } catch (NumberFormatException e) {
-                        URISyntaxException use = new URISyntaxException(uri.toString(), "could not parse zoom level");
+                    } catch (final NumberFormatException e) {
+                        final URISyntaxException use = new URISyntaxException(
+                                uri.toString(), "could not parse zoom level");
                         use.initCause(e);
                         throw use;
                     }
@@ -279,7 +287,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         if (z != null) {
             url += "&z=" + z;
         }
-        this.loadUrl(url);
+        loadUrl(url);
     }
 
     @Override
@@ -330,7 +338,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(final Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
         mNavigationHelper.onConfigurationChanged(newConfig);
@@ -341,7 +349,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     }
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
+    protected void onPostCreate(final Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         mNavigationHelper.onPostCreate(savedInstanceState);
     }
@@ -363,7 +371,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
         // kill all open iitc dialogs
         if (!mDialogStack.isEmpty()) {
-            String id = mDialogStack.pop();
+            final String id = mDialogStack.pop();
             mIitcWebView.loadUrl("javascript: " +
                     "var selector = $(window.DIALOGS['" + id + "']); " +
                     "selector.dialog('close'); " +
@@ -400,16 +408,18 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
             mBackStack.push(Pane.MAP);
         }
 
-        Pane pane = mBackStack.pop();
+        final Pane pane = mBackStack.pop();
         switchToPane(pane);
     }
 
-    public void setCurrentPane(Pane pane) {
+    public void setCurrentPane(final Pane pane) {
         // ensure no double adds
         if (pane == mCurrentPane) return;
 
         // map pane is top-lvl. clear stack.
-        if (pane == Pane.MAP) mBackStack.clear();
+        if (pane == Pane.MAP) {
+            mBackStack.clear();
+        }
         // don't push current pane to backstack if this method was called via back button
         else if (!mBackButtonPressed) mBackStack.push(mCurrentPane);
 
@@ -418,16 +428,16 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         mNavigationHelper.switchTo(pane);
     }
 
-    public void switchToPane(Pane pane) {
+    public void switchToPane(final Pane pane) {
         mIitcWebView.loadUrl("javascript: window.show('" + pane.name + "');");
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         // Get the SearchView and set the searchable configuration
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        final SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         mSearchMenuItem = menu.findItem(R.id.menu_search);
         final SearchView searchView =
                 (SearchView) mSearchMenuItem.getActionView();
@@ -438,13 +448,13 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+    public boolean onPrepareOptionsMenu(final Menu menu) {
         boolean visible = false;
         if (mNavigationHelper != null)
             visible = !mNavigationHelper.isDrawerOpened();
 
         for (int i = 0; i < menu.size(); i++) {
-            MenuItem item = menu.getItem(i);
+            final MenuItem item = menu.getItem(i);
 
             switch (item.getItemId()) {
                 case R.id.action_settings:
@@ -476,10 +486,8 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (mNavigationHelper.onOptionsItemSelected(item)) {
-            return true;
-        }
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        if (mNavigationHelper.onOptionsItemSelected(item)) return true;
 
         // Handle item selection
         final int itemId = item.getItemId();
@@ -509,17 +517,17 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
                 }
                 return true;
             case R.id.action_settings: // start settings activity
-                Intent intent = new Intent(this, IITC_PreferenceActivity.class);
+                final Intent intent = new Intent(this, IITC_PreferenceActivity.class);
                 try {
                     intent.putExtra("iitc_version", mFileManager.getIITCVersion());
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     Log.w(e);
                     return true;
                 }
                 startActivity(intent);
                 return true;
             case R.id.menu_clear_cookies:
-                CookieManager cm = CookieManager.getInstance();
+                final CookieManager cm = CookieManager.getInstance();
                 cm.removeAllCookie();
                 return true;
             case R.id.menu_debug:
@@ -552,7 +560,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     }
 
     // vp=f enables mDesktopMode mode...vp=m is the default mobile view
-    private String addUrlParam(String url) {
+    private String addUrlParam(final String url) {
         if (mDesktopMode) {
             return (url + "?vp=f");
         } else {
@@ -569,34 +577,44 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     }
 
     public IITC_WebView getWebView() {
-        return this.mIitcWebView;
+        return mIitcWebView;
     }
 
-    /**
-     * It can occur that in order to authenticate, an external activity has to be launched.
-     * (This could for example be a confirmation dialog.)
-     */
-    public void startLoginActivity(Intent launch) {
-        startActivityForResult(launch, REQUEST_LOGIN); // REQUEST_LOGIN is to recognize the result
+    public void startActivityForResult(final Intent launch, final ResponseHandler handler) {
+        int index = mResponseHandlers.indexOf(handler);
+        if (index == -1) {
+            mResponseHandlers.add(handler);
+            index = mResponseHandlers.indexOf(handler);
+        }
+
+        startActivityForResult(launch, RESULT_FIRST_USER + index);
+    }
+
+    public void deleteResponseHandler(final ResponseHandler handler) {
+        final int index = mResponseHandlers.indexOf(handler);
+        if (index != -1) {
+            // set value to null to enable garbage collection, but don't remove it to keep indexes
+            mResponseHandlers.set(index, null);
+        }
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case REQUEST_LOGIN:
-                // authentication activity has returned. mLogin will continue authentication
-                mLogin.onActivityResult(resultCode, data);
-                break;
-            default:
-                super.onActivityResult(requestCode, resultCode, data);
+    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        final int index = requestCode - RESULT_FIRST_USER;
+
+        try {
+            final ResponseHandler handler = mResponseHandlers.get(index);
+            handler.onActivityResult(resultCode, data);
+        } catch (final ArrayIndexOutOfBoundsException e) {
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
     /**
      * called by IITC_WebViewClient when the Google login form is opened.
      */
-    public void onReceivedLoginRequest(IITC_WebViewClient client, WebView view,
-            String realm, String account, String args) {
+    public void onReceivedLoginRequest(final IITC_WebViewClient client, final WebView view, final String realm,
+            final String account, final String args) {
         mLogin = new IITC_DeviceAccountLogin(this, view, client);
         mLogin.startLogin(realm, account, args);
     }
@@ -613,14 +631,14 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     // remove dialog and add it back again
     // to ensure it is the last element of the list
     // focused dialogs should be closed first
-    public void setFocusedDialog(String id) {
+    public void setFocusedDialog(final String id) {
         Log.d("Dialog " + id + " focused");
         mDialogStack.remove(id);
         mDialogStack.push(id);
     }
 
     // called by the javascript interface
-    public void dialogOpened(String id, boolean open) {
+    public void dialogOpened(final String id, final boolean open) {
         if (open) {
             Log.d("Dialog " + id + " added");
             mDialogStack.push(id);
@@ -630,7 +648,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         }
     }
 
-    public void setLoadingState(boolean isLoading) {
+    public void setLoadingState(final boolean isLoading) {
         mIsLoading = isLoading;
 
         mNavigationHelper.onLoadingStateChanged();
@@ -652,7 +670,7 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
             }
         } else {
             // if the debug container is invisible (and we are about to show it), select the text box
-            boolean select = mViewDebug.getVisibility() != View.VISIBLE;
+            final boolean select = mViewDebug.getVisibility() != View.VISIBLE;
 
             mImageLoading.setVisibility(View.GONE); // never show splash screen while debugging
             mViewDebug.setVisibility(View.VISIBLE);
@@ -674,18 +692,18 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
         }
     }
 
-    public void onBtnRunCodeClick(View v) {
-        String code = mEditCommand.getText().toString();
-        JSONObject obj = new JSONObject();
+    public void onBtnRunCodeClick(final View v) {
+        final String code = mEditCommand.getText().toString();
+        final JSONObject obj = new JSONObject();
         try {
             obj.put("code", code);
-        } catch (JSONException e) {
+        } catch (final JSONException e) {
             Log.w(e);
             return;
         }
 
         // throwing an exception will be reported by WebView
-        String js = "(function(obj){var result;" +
+        final String js = "(function(obj){var result;" +
                 "console.log('>>> ' + obj.code);" +
                 "try{result=eval(obj.code);}catch(e){if(e.stack) console.error(e.stack);throw e;}" +
                 "if(result!==undefined) console.log(result.toString());" +
@@ -697,34 +715,34 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
     /**
      * onClick handler for R.id.btnToggleMapVisibility, assigned in activity_main.xml
      */
-    public void onToggleMapVisibility(View v)
+    public void onToggleMapVisibility(final View v)
     {
         mShowMapInDebug = !mShowMapInDebug;
         updateViews();
     }
 
     private void deleteUpdateFile() {
-        File file = new File(getExternalFilesDir(null).toString() + "/iitcUpdate.apk");
+        final File file = new File(getExternalFilesDir(null).toString() + "/iitcUpdate.apk");
         if (file != null) file.delete();
     }
 
-    public void updateIitc(String url) {
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+    public void updateIitc(final String url) {
+        final DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
         request.setDescription(getString(R.string.download_description));
         request.setTitle("IITCm Update");
         request.allowScanningByMediaScanner();
-        Uri fileUri = Uri.parse("file://" + getExternalFilesDir(null).toString() + "/iitcUpdate.apk");
+        final Uri fileUri = Uri.parse("file://" + getExternalFilesDir(null).toString() + "/iitcUpdate.apk");
         request.setDestinationUri(fileUri);
         // remove old update file...we don't want to spam the external storage
         deleteUpdateFile();
         // get download service and enqueue file
-        DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        final DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         manager.enqueue(request);
     }
 
     private void installIitcUpdate() {
-        String iitcUpdatePath = getExternalFilesDir(null).toString() + "/iitcUpdate.apk";
-        Intent intent = new Intent(Intent.ACTION_VIEW);
+        final String iitcUpdatePath = getExternalFilesDir(null).toString() + "/iitcUpdate.apk";
+        final Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setDataAndType(Uri.fromFile(new File(iitcUpdatePath)), "application/vnd.android.package-archive");
         startActivity(intent);
         // finish app, because otherwise it gets killed on update
@@ -763,5 +781,29 @@ public class IITC_Mobile extends Activity implements OnSharedPreferenceChangeLis
 
     public IITC_UserLocation getUserLocation() {
         return mUserLocation;
+    }
+
+    public interface ResponseHandler {
+        void onActivityResult(int resultCode, Intent data);
+    }
+
+    public void setPermalink(final String href) {
+        mPermalink = href;
+    }
+
+    @Override
+    public NdefMessage createNdefMessage(final NfcEvent event) {
+        NdefRecord[] records;
+        if (mPermalink == null) { // no permalink yet, just provide AAR
+            records = new NdefRecord[] {
+                    NdefRecord.createApplicationRecord(getPackageName())
+            };
+        } else {
+            records = new NdefRecord[] {
+                    NdefRecord.createUri(mPermalink),
+                    NdefRecord.createApplicationRecord(getPackageName())
+            };
+        }
+        return new NdefMessage(records);
     }
 }

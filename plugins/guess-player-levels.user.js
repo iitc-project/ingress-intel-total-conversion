@@ -119,7 +119,7 @@ window.plugin.guessPlayerLevels.setupChatNickHelper = function() {
 }
 
 window.plugin.guessPlayerLevels.extractPortalData = function(data) {
-  if(!data.success) return;
+  if(!data.success || !data.details.portalV2) return;
 
   var r = data.details.resonatorArray.resonators;
 

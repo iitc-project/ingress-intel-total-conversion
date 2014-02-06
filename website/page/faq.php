@@ -188,7 +188,7 @@ connected to WiFi. If you still want to prefetch tiles, go on reading:
   <li>A custom build including MapQuest tiles as default can be found <a href="http://iitcm.code-noobs.org/jTileDownloader-0-6-1-iitc.jar">here</a></li>
   </ul>
 <li>The easiest way is choosing a Bounding Box (Lat/Lon) via the Slippy Map chooser</li>
-<li>On your smartphone, search for your providers tile directory. Mapquest should be in <home directory>/Android/data/com.cradle.iitc_mobile/tiles/mpcdn.com/1.0.0/map/</li>
+<li>On your smartphone, search for your providers tile directory. Mapquest should be in &lsaquo;home directory&rsaquo;/Android/data/com.cradle.iitc_mobile/tiles/mpcdn.com/1.0.0/map/</li>
 <li>Finally, copy the content of JTileDownloaders output folder to the appropriate directory on your smartphone</li>
 </ul>
 END
