@@ -15,7 +15,7 @@
 }
 
 #bookmarksBox{
-	display:block !important;
+	display:block;
 	position:absolute !important;
 	z-index:4001;
 	top:100px;
@@ -421,7 +421,8 @@
 	margin: 0 !important;
 	padding: 0 !important;
 	border: 0 !important;
-	background: transparent !important;;
+	background: transparent !important;
+	overflow:auto !important;
 }
 #bookmarksBox.mobile .bookmarkList ul,
 #bookmarksBox.mobile .bookmarkList ul li,
