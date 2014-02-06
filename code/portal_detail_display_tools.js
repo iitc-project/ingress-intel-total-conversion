@@ -24,7 +24,7 @@ window.getRangeText = function(d) {
 
 // generates description text from details for portal
 window.getPortalDescriptionFromDetails = function(details) {
-  var descObj = details.portalV2.descriptiveText;
+  var descObj = details.descriptiveText.map;
   // FIXME: also get real description?
   var desc = descObj.TITLE;
   if(descObj.ADDRESS)
@@ -37,7 +37,7 @@ window.getPortalDescriptionFromDetails = function(details) {
 // Grabs more info, including the submitter name for the current main
 // portal image
 window.getPortalDescriptionFromDetailsExtended = function(details) {
-  var descObj = details.portalV2.descriptiveText;
+  var descObj = details.descriptiveText.map;
   var photoStreamObj = details.photoStreamInfo;
 
   var submitterObj = new Object();

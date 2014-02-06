@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.cradle.iitc_mobile"
     android:installLocation="auto"
-    android:versionCode="64"
-    android:versionName="0.10.3">
+    android:versionCode="65"
+    android:versionName="0.10.4">
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -20,13 +20,13 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
-        android:name=".IITC_Application"
+        android:name="com.cradle.iitc_mobile.IITC_Application"
         android:allowBackup="true"
         android:icon="@drawable/ic_iitcm"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".IITC_Mobile"
+            android:name="com.cradle.iitc_mobile.IITC_Mobile"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize|uiMode"
             android:label="@string/app_name"
             android:launchMode="singleTop">
@@ -79,25 +79,25 @@
         </activity>
 
         <activity
-            android:name=".IITC_PreferenceActivity"
+            android:name="com.cradle.iitc_mobile.IITC_PreferenceActivity"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
             android:label="@string/activity_settings"/>
         <activity
-            android:name=".IITC_PluginPreferenceActivity"
+            android:name="com.cradle.iitc_mobile.IITC_PluginPreferenceActivity"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
             android:label="@string/activity_plugins"/>
         <activity
-            android:name=".share.ShareActivity"
+            android:name="com.cradle.iitc_mobile.share.ShareActivity"
             android:label="@string/activity_share"
             android:noHistory="true"
-            android:parentActivityName=".IITC_Mobile">
+            android:parentActivityName="com.cradle.iitc_mobile.IITC_Mobile">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".IITC_Mobile"/>
+                android:value="com.cradle.iitc_mobile.IITC_Mobile"/>
         </activity>
 
         <activity
-            android:name=".share.SendToClipboard"
+            android:name="com.cradle.iitc_mobile.share.SendToClipboard"
             android:enabled="true"
             android:excludeFromRecents="true"
             android:exported="false"
@@ -136,7 +136,7 @@
         <!-- Points to searchable activity so the whole app can invoke search. -->
         <meta-data
             android:name="android.app.default_searchable"
-            android:value=".IITC_Mobile"/>
+            android:value="com.cradle.iitc_mobile.IITC_Mobile"/>
     </application>
 
 </manifest>
