@@ -15,12 +15,14 @@
 }
 
 #bookmarksBox{
-	display:block;
+	display:block !important;
 	position:absolute !important;
 	z-index:4001;
 	top:100px;
 	left:100px;
 	width:231px;
+	height:auto;
+	overflow:hidden;
 }
 #bookmarksBox .addForm,
 #bookmarksBox #bookmarksTypeBar,
@@ -40,7 +42,6 @@
 	float:left !important;
 }
 #bookmarksBox .handle{
-/*	text-indent:-20px;*/
 	width:80%;
 	text-align:center;
 	color:#fff;
@@ -213,7 +214,7 @@
 #bookmarksBox ul .bookmarkFolder{
 	border-top-width:1px;
 }
-#bookmarksBox,
+
 #bookmarksBox #topBar,
 #bookmarksBox #bookmarksTypeBar,
 #bookmarksBox .addForm,
@@ -242,13 +243,15 @@
 	border-left-width:0;
 }
 #bkmrksTrigger{
-	display:none;
+	display:block !important;
 	position:absolute;
+	overflow:hidden;
 	top:0;
 	left:277px;
 	width:47px;
 	margin-top:-36px;
 	height:64px;
+	height:0;
 	cursor:pointer;
 	z-index:2999;
 	background-position:center bottom;
@@ -483,7 +486,6 @@
 #bookmarksBox.mobile .bookmarkList li.bookmarkFolder a.bookmarksAnchor,
 #bookmarksBox.mobile .bookmarkList li.bkmrk a.bookmarksLink{
 	text-indent:10px;
-/*	width:85%;*/
 	height:36px;
 	line-height:24px;
 	overflow:hidden;
@@ -493,7 +495,6 @@
 }
 #bookmarksBox.mobile .bookmarkList > ul{
 	border-bottom:1px solid #20a8b1 !important;
-/*	border-right:1px solid #20a8b1 !important;*/
 }
 
 #bookmarksBox.mobile .bookmarkList .bookmarkFolder.othersBookmarks  ul{

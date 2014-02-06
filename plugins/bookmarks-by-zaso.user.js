@@ -151,18 +151,11 @@
     }
 
     if(newStatus === 1) {
-      $('#bookmarksBox').show();
-      $('#bkmrksTrigger').hide();
+      $('#bookmarksBox').css('height', 'auto');
+      $('#bkmrksTrigger').css('height', '0');
     } else {
-      $('#bookmarksBox').hide();
-      $('#bkmrksTrigger').show();
-    }
-
-    if(window.plugin.bookmarks.isSmart) {
-      var button = $('#bkmrksTrigger');
-      button.toggleClass('open');
-      if(button.hasClass('open')) { button.text('[-] Bookmarks'); }
-      else{ button.text('[+] Bookmarks'); }
+      $('#bkmrksTrigger').css('height', '64px');
+      $('#bookmarksBox').css('height', '0');
     }
 
     window.plugin.bookmarks.statusBox['show'] = newStatus;
@@ -919,6 +912,7 @@
                               +'<a class="newFolder" onclick="window.plugin.bookmarks.addElement(this, \'folder\');return false;">+ Folder</a>'
                             +'</div>'
                           +'</div>'
+                          +'<div style="border-bottom-width:1px;"></div>'
                         +'</div>';
 
     plugin.bookmarks.htmlDisabledMessage = '<div title="Your browser do not support localStorage">Plugin Bookmarks disabled*.</div>';
