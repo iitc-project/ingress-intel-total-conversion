@@ -6,6 +6,7 @@
 // - shards: move between portals (along links) each hour. more than one can be at a portal
 // - targets: specific portals - one per team
 // the artifact data includes details for the specific portals, so can be useful
+// 2014-02-06: intel site updates hint at new 'amar artifacts', likely following the same system as above
 
 
 window.artifact = function() {}
@@ -179,6 +180,7 @@ window.artifact.updateLayer = function() {
     var iconSize = 0;
     var opacity = 1.0;
 
+    // redundant as of 2014-02-05 - jarvis shards removed
     if (data.jarvis) {
       if (data.jarvis.target) {
         // target portal - show the target marker. use the count of fragments at the target to pick the right icon - it has segments that fill up
@@ -189,6 +191,22 @@ window.artifact.updateLayer = function() {
         iconSize = 100/2; // 100 pixels - half that size works better
       } else if (data.jarvis.fragments) {
         iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/jarvis_shard.png';
+        iconSize = 60/2; // 60 pixels - half that size works better
+        opacity = 0.6; // these often hide portals - let's make them semi transparent
+      }
+
+    }
+    // 2014-02-06: a guess at whats needed for the new artifacts
+    if (data.amar) {
+      if (data.amar.target) {
+        // target portal - show the target marker. use the count of fragments at the target to pick the right icon - it has segments that fill up
+
+        var count = data.amar.fragments ? data.amar.fragments.length : 0;
+
+        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/amar_shard_target_'+count+'.png';
+        iconSize = 100/2; // 100 pixels - half that size works better
+      } else if (data.amar.fragments) {
+        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/amar_shard.png';
         iconSize = 60/2; // 60 pixels - half that size works better
         opacity = 0.6; // these often hide portals - let's make them semi transparent
       }
@@ -217,11 +235,16 @@ window.artifact.updateLayer = function() {
 window.artifact.showArtifactList = function() {
 
 
-  var html = '<div><b>Artifact portals</b></div>';
+  var html = '';
 
-  var types = { 'jarvis': 'Jarvis Shards' };
+  var typeNames = { 'jarvis': 'Jarvis Shards', 'amar': 'Amar Artifacts' };
 
-  $.each(types, function(type, name) {
+  if (Object.keys(artifact.artifactTypes).length == 0) {
+    html += '<i>No artifacts at this time</i>';
+  }
+
+  $.each(artifact.artifactTypes, function(type,type2) {
+    var name = typeNames[type] || ('New artifact type: '+type);
 
     html += '<hr><div><b>'+types[type]+'</b></div>';
 
