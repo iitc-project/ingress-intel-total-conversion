@@ -41,7 +41,7 @@ window.renderPortalDetails = function(guid) {
  
 
   var img = fixPortalImageUrl(details ? details.imageByUrl && details.imageByUrl.imageUrl : data.image);
-  var title = details ? details.portalV2.descriptiveText.TITLE : data.title;
+  var title = data.title;
 
   var lat = data.latE6/1E6;
   var lng = data.lngE6/1E6;
@@ -75,8 +75,8 @@ window.renderPortalDetails = function(guid) {
     if(portalDetailObj.description) {
       portalDetailedDescription += '<tr class="padding-top"><th>Description:</th><td>' + escapeHtmlSpecialChars(portalDetailObj.description) + '</td></tr>';
     }
-//    if(d.portalV2.descriptiveText.ADDRESS) {
-//      portalDetailedDescription += '<tr><th>Address:</th><td>' + escapeHtmlSpecialChars(d.portalV2.descriptiveText.ADDRESS) + '</td></tr>';
+//    if(d.descriptiveText.map.ADDRESS) {
+//      portalDetailedDescription += '<tr><th>Address:</th><td>' + escapeHtmlSpecialChars(d.descriptiveText.map.ADDRESS) + '</td></tr>';
 //    }
 
     portalDetailedDescription += '</table>';

@@ -327,7 +327,7 @@ window.getPortalSummaryData = function(d) {
 
   return {
     level: level,
-    title: d.portalV2.descriptiveText.TITLE,
+    title: d.descriptiveText.map.TITLE,
     image: d.imageByUrl && d.imageByUrl.imageUrl,
     resCount: resCount,
     latE6: d.locationE6.latE6,
