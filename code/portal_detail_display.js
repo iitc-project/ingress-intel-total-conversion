@@ -202,21 +202,27 @@ window.getPortalMiscDetails = function(guid,d) {
 
     // artifact details
 
-    //niantic hard-code the fact it's just jarvis shards/targets - so until more examples exist, we'll do the same
-    //(at some future point we can iterate through all the artifact types and add rows as needed)
-    var jarvisArtifact = artifact.getPortalData (guid, 'jarvis');
-    if (jarvisArtifact) {
-      // the genFourColumnTable function below doesn't handle cases where one column is null and the other isn't - so default to *something* in both columns
-      var target = ['',''], shards = ['shards','(none)'];
-      if (jarvisArtifact.target) {
-        target = ['target', '<span class="'+TEAM_TO_CSS[jarvisArtifact.target]+'">'+(jarvisArtifact.target==TEAM_RES?'Resistance':'Enlightened')+'</span>'];
-      }
-      if (jarvisArtifact.fragments) {
-        shards = [jarvisArtifact.fragments.length>1?'shards':'shard', '#'+jarvisArtifact.fragments.join(', #')];
-      }
+    // 2014-02-06: stock site changed from supporting 'jarvis shards' to 'amar artifacts'(?) - so let's see what we can do to be generic...
+    var artifactTypes = {
+      'jarvis': { 'name': 'Jarvis', 'fragmentName': 'shard(s)' },
+      'amar': { 'name': 'Amar', 'fragmentName': 'artifact(s)' },
+    };
 
-      randDetailsData.push (target, shards);
-    }
+    $.each(artifactTypes,function(type,details) {
+      var artdata = artifact.getPortalData (guid, type);
+      if (artdata) {
+        // the genFourColumnTable function below doesn't handle cases where one column is null and the other isn't - so default to *something* in both columns
+        var target = ['',''], shards = [details.fragmentName,'(none)'];
+        if (artdata.target) {
+          target = ['target', '<span class="'+TEAM_TO_CSS[artdata.target]+'">'+(artdata.target==TEAM_RES?'Resistance':'Enlightened')+'</span>'];
+        }
+        if (artdata.fragments) {
+          shards = [details.fragmentName, '#'+artdata.fragments.join(', #')];
+        }
+
+        randDetailsData.push (target, shards);
+      }
+    });
 
     randDetails = '<table id="randdetails">' + genFourColumnTable(randDetailsData) + '</table>';
 
