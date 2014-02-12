@@ -25,9 +25,9 @@ window.artifact.setup = function() {
   setTimeout (artifact.requestData, 1);
 
   artifact._layer = new L.LayerGroup();
-  addLayerGroup ('Artifacts (Jarvis shards)', artifact._layer, true);
+  addLayerGroup ('Artifacts', artifact._layer, true);
 
-  $('#toolbox').append(' <a onclick="window.artifact.showArtifactList()" title="Show artifact portal list (jarvis shards and targets)">Artifacts</a>');
+  $('#toolbox').append(' <a onclick="window.artifact.showArtifactList()" title="Show artifact portal list">Artifacts</a>');
 
 }
 
@@ -246,9 +246,9 @@ window.artifact.showArtifactList = function() {
   $.each(artifact.artifactTypes, function(type,type2) {
     var name = typeNames[type] || ('New artifact type: '+type);
 
-    html += '<hr><div><b>'+types[type]+'</b></div>';
+    html += '<hr><div><b>'+name+'</b></div>';
 
-    html += '<table class="artifact '+type+'">';
+    html += '<table class="artifact artifact-'+type+'">';
     html += '<tr><th>Portal</th><th>Details</th></tr>';
 
     var tableRows = [];
