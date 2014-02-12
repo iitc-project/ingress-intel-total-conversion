@@ -1,18 +1,21 @@
 package com.cradle.iitc_mobile;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.preference.PreferenceActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cradle.iitc_mobile.fragments.PluginsFragment;
 
@@ -29,6 +32,8 @@ import java.util.TreeMap;
 
 public class IITC_PluginPreferenceActivity extends PreferenceActivity {
 
+    private final static int COPY_PLUGIN_REQUEST = 1;
+
     private List<Header> mHeaders;
     // we use a tree map to have a map with alphabetical order
     // don't initialize the asset plugin map, because it tells us if the settings are started the first time
@@ -38,6 +43,8 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
     private static final TreeMap<String, ArrayList<IITC_PluginPreference>> sUserPlugins =
             new TreeMap<String, ArrayList<IITC_PluginPreference>>();
     private static int mDeletedPlugins = 0;
+
+    private IITC_FileManager mFileManager;
 
     @Override
     public void setListAdapter(final ListAdapter adapter) {
@@ -78,6 +85,13 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
             getIntent()
                     .putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, PluginsFragment.class.getName());
         }
+
+        mFileManager = new IITC_FileManager(this);
+
+        final String uri = getIntent().getStringExtra("url");
+        if (uri != null) {
+            mFileManager.installPlugin(uri, true);
+        }
         super.onCreate(savedInstanceState);
     }
 
@@ -104,13 +118,49 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.plugins, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home: // exit settings when home button (iitc icon) is pressed
                 onBackPressed();
                 return true;
+            case R.id.menu_plugins_add:
+                // create the chooser Intent
+                final Intent target = new Intent(Intent.ACTION_GET_CONTENT);
+                // iitcm only parses *.user.js scripts
+                target.setType("file/*");
+                target.addCategory(Intent.CATEGORY_OPENABLE);
+
+                try {
+                    startActivityForResult(Intent.createChooser(target, "Choose file"), COPY_PLUGIN_REQUEST);
+                } catch (final ActivityNotFoundException e) {
+                    Toast.makeText(this, "No activity to select a file found." +
+                            "Please install a file browser of your choice!", Toast.LENGTH_LONG).show();
+                }
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch(requestCode) {
+            case COPY_PLUGIN_REQUEST:
+                if (data != null && data.getData() != null) {
+                    String filePath = data.getData().getPath();
+                    mFileManager.installPlugin("file://" + filePath, true);
+                    return;
+                }
+                break;
+            default:
+                super.onActivityResult(requestCode, resultCode, data);
+                break;
+
         }
     }
 
@@ -141,9 +191,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
     }
 
     private File[] getUserPlugins() {
-        final String iitc_path = Environment.getExternalStorageDirectory().getPath()
-                + "/IITC_Mobile/";
-        final File directory = new File(iitc_path + "plugins/");
+        final File directory = new File(IITC_FileManager.PLUGINS_PATH);
         File[] files = directory.listFiles();
         if (files == null) {
             files = new File[0];
@@ -164,6 +212,8 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         if ((userPlugins.length + officialPlugins.length) != (numPlugins + mDeletedPlugins)) {
             Log.d("new or less plugins found since last start, rebuild preferences");
             sAssetPlugins.clear();
+            sUserPlugins.clear();
+            mDeletedPlugins = 0;
             setUpPluginPreferenceScreen();
         }
     }

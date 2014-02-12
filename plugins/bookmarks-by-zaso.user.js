@@ -2,7 +2,7 @@
 // @id             iitc-plugin-bookmarks@ZasoGD
 // @name           IITC plugin: Bookmarks for maps and portals
 // @category       Controls
-// @version        0.2.7.@@DATETIMEVERSION@@
+// @version        0.2.8.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -151,18 +151,11 @@
     }
 
     if(newStatus === 1) {
-      $('#bookmarksBox').show();
-      $('#bkmrksTrigger').hide();
+      $('#bookmarksBox').css('height', 'auto');
+      $('#bkmrksTrigger').css('height', '0');
     } else {
-      $('#bookmarksBox').hide();
-      $('#bkmrksTrigger').show();
-    }
-
-    if(window.plugin.bookmarks.isSmart) {
-      var button = $('#bkmrksTrigger');
-      button.toggleClass('open');
-      if(button.hasClass('open')) { button.text('[-] Bookmarks'); }
-      else{ button.text('[+] Bookmarks'); }
+      $('#bkmrksTrigger').css('height', '64px');
+      $('#bookmarksBox').css('height', '0');
     }
 
     window.plugin.bookmarks.statusBox['show'] = newStatus;
@@ -433,6 +426,11 @@
     }
   }
 
+  window.plugin.bookmarks.deleteMode = function() {
+    $('#bookmarksBox').toggleClass('deleteMode');
+  }
+
+
 /***************************************************************************************************************************************************************/
 
   // Saved the new sort of the folders (in the localStorage)
@@ -489,6 +487,7 @@
       items:"li.bookmarkFolder:not(.othersBookmarks)",
       handle:".bookmarksAnchor",
       placeholder:"sortable-placeholder",
+      helper:'clone', // fix accidental click in firefox
       forcePlaceholderSize:true,
       update:function(event, ui) {
         var typeList = $('#'+ui.item.context.id).parent().parent('.bookmarkList').attr('id');
@@ -501,6 +500,7 @@
       connectWith:".bookmarkList ul ul",
       handle:".bookmarksLink",
       placeholder:"sortable-placeholder",
+      helper:'clone', // fix accidental click in firefox
       forcePlaceholderSize:true,
       update:function(event, ui) {
         var typeList = $('#'+ui.item.context.id).parent().parent().parent().parent('.bookmarkList').attr('id');
@@ -548,17 +548,22 @@
   window.plugin.bookmarks.optPaste = function() {
     var promptAction = prompt('Press CTRL+V to paste it.', '');
     if(promptAction !== null && promptAction !== '') {
-      localStorage[window.plugin.bookmarks.KEY_STORAGE] = promptAction;
-      window.plugin.bookmarks.refreshBkmrks();
-      window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
-      console.log('BOOKMARKS: reset and imported bookmarks');
-      window.plugin.bookmarks.optAlert('Successful. ');
+      try {
+        localStorage[window.plugin.bookmarks.KEY_STORAGE] = promptAction;
+        window.plugin.bookmarks.refreshBkmrks();
+        window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
+        console.log('BOOKMARKS: reset and imported bookmarks');
+        window.plugin.bookmarks.optAlert('Successful. ');
+      } catch(e) {
+        console.warn('BOOKMARKS: failed to import data: '+e);
+        window.plugin.bookmarks.optAlert('<span style="color: #f88">Import failed </span>');
+      }
     }
   }
 
   window.plugin.bookmarks.optReset = function() {
-    var promptAction = prompt('All bookmarks will be deleted. Are you sure? [Y/N]', '');
-    if(promptAction !== null && (promptAction === 'Y' || promptAction === 'y')) {
+    var promptAction = confirm('All bookmarks will be deleted. Are you sure?', '');
+    if(promptAction) {
       delete localStorage[window.plugin.bookmarks.KEY_STORAGE];
       window.plugin.bookmarks.createStorage();
       window.plugin.bookmarks.loadStorage();
@@ -618,6 +623,8 @@
     if(latlngs.length >= 2 && latlngs.length <= 3) {
       // TODO: add an API to draw-tools rather than assuming things about it's internals
       var newItem;
+      window.plugin.drawTools.setOptions();
+
       if(latlngs.length == 2) {
         newItem = L.geodesicPolyline(latlngs, window.plugin.drawTools.lineOptions);
       } else {
@@ -885,6 +892,7 @@
                           +'<div id="topBar">'
                             +'<a id="bookmarksMin" class="btn" onclick="window.plugin.bookmarks.switchStatusBkmrksBox(0);return false;" title="Minimize">-</a>'
                             +'<div class="handle">...</div>'
+                            +'<a id="bookmarksDel" class="btn" onclick="window.plugin.bookmarks.deleteMode();return false;" title="Show/Hide \'X\' button">Show/Hide "X" button</a>'
                           +'</div>'
                           +'<div id="bookmarksTypeBar">'
                             +'<h5 class="bkmrk_maps current" onclick="window.plugin.bookmarks.switchPageBkmrksBox(this, 0);return false">Maps</h5>'
@@ -904,6 +912,7 @@
                               +'<a class="newFolder" onclick="window.plugin.bookmarks.addElement(this, \'folder\');return false;">+ Folder</a>'
                             +'</div>'
                           +'</div>'
+                          +'<div style="border-bottom-width:1px;"></div>'
                         +'</div>';
 
     plugin.bookmarks.htmlDisabledMessage = '<div title="Your browser do not support localStorage">Plugin Bookmarks disabled*.</div>';
