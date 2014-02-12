@@ -3,6 +3,7 @@ package com.cradle.iitc_mobile;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -87,6 +88,7 @@ public class IITC_FileManager {
         // get a list of key-value
         final String[] attributes = header.split("  +");
         // add default values
+        map.put("id", "unknown");
         map.put("version", "not found");
         map.put("name", "unknown");
         map.put("description", "");
@@ -94,6 +96,9 @@ public class IITC_FileManager {
         // add parsed values
         for (int i = 0; i < attributes.length; i++) {
             // search for attributes and use the value
+            if (attributes[i].equals("@id")) {
+                map.put("id", attributes[i + 1]);
+            }
             if (attributes[i].equals("@version")) {
                 map.put("version", attributes[i + 1]);
             }
@@ -240,7 +245,7 @@ public class IITC_FileManager {
         return EMPTY;
     }
 
-    public void installPlugin(final String uri, final boolean invalidateHeaders) {
+    public void installPlugin(final Uri uri, final boolean invalidateHeaders) {
         if (uri != null) {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
 
@@ -274,15 +279,27 @@ public class IITC_FileManager {
         }
     }
 
-    private void copyPlugin(final String uri, final boolean invalidateHeaders) {
+    private void copyPlugin(final Uri uri, final boolean invalidateHeaders) {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    final URL url = new URL(uri);
-                    final URLConnection conn = url.openConnection();
-                    final String fileName = uri.substring( uri.lastIndexOf('/')+1, uri.length() );
-                    final InputStream is = conn.getInputStream();
+                    final String url = uri.toString();
+                    String fileName = url.substring( url.lastIndexOf('/')+1, url.length() );
+                    // we need 2 stream since an inputStream is useless after read once
+                    // we read it twice because we first need the script ID for the fileName and
+                    // afterwards reading it again while copying
+                    InputStream is, isCopy;
+                    if (uri.getScheme().contains("http")) {
+                        URLConnection conn = new URL(url).openConnection();
+                        URLConnection connCopy = new URL(url).openConnection();
+                        is = conn.getInputStream();
+                        isCopy = connCopy.getInputStream();
+                    } else {
+                        is = mActivity.getContentResolver().openInputStream(uri);
+                        isCopy = mActivity.getContentResolver().openInputStream(uri);
+                    }
+                    fileName = getScriptInfo(isCopy).get("id") + ".user.js";
                     // create IITCm external plugins directory if it doesn't already exist
                     final File pluginsDirectory = new File(PLUGINS_PATH);
                     pluginsDirectory.mkdirs();

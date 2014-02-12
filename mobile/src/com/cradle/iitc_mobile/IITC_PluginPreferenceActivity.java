@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.text.TextUtils;
@@ -88,7 +89,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
 
         mFileManager = new IITC_FileManager(this);
 
-        final String uri = getIntent().getStringExtra("url");
+        final Uri uri = getIntent().getData();
         if (uri != null) {
             mFileManager.installPlugin(uri, true);
         }
@@ -152,8 +153,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         switch(requestCode) {
             case COPY_PLUGIN_REQUEST:
                 if (data != null && data.getData() != null) {
-                    String filePath = data.getData().getPath();
-                    mFileManager.installPlugin("file://" + filePath, true);
+                    mFileManager.installPlugin(data.getData(), true);
                     return;
                 }
                 break;

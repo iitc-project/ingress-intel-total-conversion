@@ -229,11 +229,10 @@ public class IITC_Mobile extends Activity
                 }
             }
 
-            if (uri.getPath().endsWith(".user.js")) {
+            if (uri.getPath().endsWith(".user.js") || intent.getType().contains("javascript")) {
                 final Intent prefIntent = new Intent(this, IITC_PluginPreferenceActivity.class);
-                prefIntent.putExtra("url", uri.toString());
+                prefIntent.setDataAndType(uri, intent.getType());
                 startActivity(prefIntent);
-                // TODO receive intent, start dialog if user want to install $plugin, reload IITC
             }
         }
 
