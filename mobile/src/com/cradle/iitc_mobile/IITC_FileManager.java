@@ -1,7 +1,9 @@
 package com.cradle.iitc_mobile;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
@@ -22,11 +24,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.HashMap;
 
@@ -118,15 +123,17 @@ public class IITC_FileManager {
     }
 
     private final AssetManager mAssetManager;
-    private final IITC_Mobile mIitc;
+    private final Activity mActivity;
     private final String mIitcPath;
     private final SharedPreferences mPrefs;
+    public static final String PLUGINS_PATH = Environment.getExternalStorageDirectory().getPath()
+            + "/IITC_Mobile/plugins/";
 
-    public IITC_FileManager(final IITC_Mobile iitc) {
-        mIitc = iitc;
-        mIitcPath = Environment.getExternalStorageDirectory().getPath() + "/IITC_Mobile/";
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(iitc);
-        mAssetManager = mIitc.getAssets();
+    public IITC_FileManager(final Activity activity) {
+        mActivity = activity;
+        mIitcPath = Environment.getExternalStorageDirectory().getPath() + "/Activity/";
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
+        mAssetManager = mActivity.getAssets();
     }
 
     private InputStream getAssetFile(final String filename) throws IOException {
@@ -135,10 +142,10 @@ public class IITC_FileManager {
             try {
                 return new FileInputStream(file);
             } catch (final FileNotFoundException e) {
-                mIitc.runOnUiThread(new Runnable() {
+                mActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(mIitc, "File " + mIitcPath +
+                        Toast.makeText(mActivity, "File " + mIitcPath +
                                 "dev/" + filename + " not found. " +
                                 "Disable developer mode or add iitc files to the dev folder.",
                                 Toast.LENGTH_SHORT).show();
@@ -233,6 +240,73 @@ public class IITC_FileManager {
         return EMPTY;
     }
 
+    public void installPlugin(final String uri, final boolean invalidateHeaders) {
+        if (uri != null) {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
+
+            // set title
+            alertDialogBuilder.setTitle(mActivity.getString(R.string.install_dialog_top));
+
+            // set dialog message
+            String text = mActivity.getString(R.string.install_dialog_msg);
+            text = String.format(text, uri);
+            alertDialogBuilder
+                    .setMessage(text)
+                    .setCancelable(true)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            copyPlugin(uri, invalidateHeaders);
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+
+            // create alert dialog
+            AlertDialog alertDialog = alertDialogBuilder.create();
+
+            // show it
+            alertDialog.show();
+        }
+    }
+
+    private void copyPlugin(final String uri, final boolean invalidateHeaders) {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final URL url = new URL(uri);
+                    final URLConnection conn = url.openConnection();
+                    final String fileName = uri.substring( uri.lastIndexOf('/')+1, uri.length() );
+                    final InputStream is = conn.getInputStream();
+                    // create IITCm external plugins directory if it doesn't already exist
+                    final File pluginsDirectory = new File(PLUGINS_PATH);
+                    pluginsDirectory.mkdirs();
+
+                    // create in and out streams and copy plugin
+                    File outFile = new File(pluginsDirectory + "/" + fileName);
+                    OutputStream os = new FileOutputStream(outFile);
+                    IITC_FileManager.copyStream(is, os, true);
+                } catch (IOException e) {
+                    Log.w(e);
+                }
+            }
+        });
+        thread.start();
+        if (invalidateHeaders) {
+            try {
+                thread.join();
+                ((IITC_PluginPreferenceActivity) mActivity).invalidateHeaders();
+            } catch (InterruptedException e) {
+                Log.w(e);
+            }
+        }
+    }
+
     private class FileRequest extends WebResourceResponse implements ResponseHandler, Runnable {
         private Intent mData;
         private final String mFunctionName;
@@ -258,16 +332,18 @@ public class IITC_FileManager {
             target.addCategory(Intent.CATEGORY_OPENABLE);
 
             try {
-                mIitc.startActivityForResult(Intent.createChooser(target, "Choose file"), this);
+                final IITC_Mobile iitc = (IITC_Mobile) mActivity;
+                iitc.startActivityForResult(Intent.createChooser(target, "Choose file"), this);
             } catch (final ActivityNotFoundException e) {
-                Toast.makeText(mIitc, "No activity to select a file found." +
+                Toast.makeText(mActivity, "No activity to select a file found." +
                         "Please install a file browser of your choice!", Toast.LENGTH_LONG).show();
             }
         }
 
         @Override
         public void onActivityResult(final int resultCode, final Intent data) {
-            mIitc.deleteResponseHandler(this); // to enable garbage collection
+            final IITC_Mobile iitc = (IITC_Mobile) mActivity;
+            iitc.deleteResponseHandler(this); // to enable garbage collection
 
             mResultCode = resultCode;
             mData = data;

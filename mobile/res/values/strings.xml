@@ -177,4 +177,9 @@
     <string name="label_base_layer">Base Layer</string>
     <string name="label_overlay_layers">Overlay Layers</string>
 
+    <string name="install_dialog_top">Install external plugin?</string>
+    <string name="install_dialog_msg">
+        IITCm was requested to install the following plugin:\n\n%1$s\n\nDo you want to proceed?
+    </string>
+
 </resources>

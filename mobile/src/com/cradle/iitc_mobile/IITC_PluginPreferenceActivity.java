@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.preference.PreferenceActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -23,10 +22,8 @@ import com.cradle.iitc_mobile.fragments.PluginsFragment;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +43,8 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
     private static final TreeMap<String, ArrayList<IITC_PluginPreference>> sUserPlugins =
             new TreeMap<String, ArrayList<IITC_PluginPreference>>();
     private static int mDeletedPlugins = 0;
+
+    private IITC_FileManager mFileManager;
 
     @Override
     public void setListAdapter(final ListAdapter adapter) {
@@ -85,6 +84,13 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         if (onIsMultiPane()) {
             getIntent()
                     .putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, PluginsFragment.class.getName());
+        }
+
+        mFileManager = new IITC_FileManager(this);
+
+        final String uri = getIntent().getStringExtra("url");
+        if (uri != null) {
+            mFileManager.installPlugin(uri, true);
         }
         super.onCreate(savedInstanceState);
     }
@@ -147,7 +153,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
             case COPY_PLUGIN_REQUEST:
                 if (data != null && data.getData() != null) {
                     String filePath = data.getData().getPath();
-                    copyPlugin(filePath);
+                    mFileManager.installPlugin("file://" + filePath, true);
                     return;
                 }
                 break;
@@ -155,28 +161,6 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
                 super.onActivityResult(requestCode, resultCode, data);
                 break;
 
-        }
-    }
-
-    private void copyPlugin(String pluginPath) {
-        try {
-            File inFile = new File(pluginPath);
-            // create IITCm external plugins directory if it doesn't already exist
-            File pluginsDirectory = getUserPluginsDirectory();
-            pluginsDirectory.mkdirs();
-
-            // create in and out streams and copy plugin
-            File outFile = new File(pluginsDirectory.getPath() + "/" + inFile.getName());
-            InputStream is = new FileInputStream(inFile);
-            OutputStream os = new FileOutputStream(outFile);
-            IITC_FileManager.copyStream(is, os, true);
-
-            // invalidate headers to build a fresh preference screen with the new plugin listed
-            invalidateHeaders();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -206,15 +190,8 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         return asset_array;
     }
 
-    private File getUserPluginsDirectory() {
-        final String iitc_path = Environment.getExternalStorageDirectory().getPath()
-                + "/IITC_Mobile/";
-        final File directory = new File(iitc_path + "plugins/");
-        return directory;
-    }
-
     private File[] getUserPlugins() {
-        final File directory = getUserPluginsDirectory();
+        final File directory = new File(IITC_FileManager.PLUGINS_PATH);
         File[] files = directory.listFiles();
         if (files == null) {
             files = new File[0];
