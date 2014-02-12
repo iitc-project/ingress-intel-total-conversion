@@ -1,26 +1,32 @@
 package com.cradle.iitc_mobile;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cradle.iitc_mobile.fragments.PluginsFragment;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +34,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class IITC_PluginPreferenceActivity extends PreferenceActivity {
+
+    private final static int COPY_PLUGIN_REQUEST = 1;
 
     private List<Header> mHeaders;
     // we use a tree map to have a map with alphabetical order
@@ -104,13 +112,71 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.plugins, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home: // exit settings when home button (iitc icon) is pressed
                 onBackPressed();
                 return true;
+            case R.id.menu_plugins_add:
+                // create the chooser Intent
+                final Intent target = new Intent(Intent.ACTION_GET_CONTENT);
+                // iitcm only parses *.user.js scripts
+                target.setType("file/*");
+                target.addCategory(Intent.CATEGORY_OPENABLE);
+
+                try {
+                    startActivityForResult(Intent.createChooser(target, "Choose file"), COPY_PLUGIN_REQUEST);
+                } catch (final ActivityNotFoundException e) {
+                    Toast.makeText(this, "No activity to select a file found." +
+                            "Please install a file browser of your choice!", Toast.LENGTH_LONG).show();
+                }
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch(requestCode) {
+            case COPY_PLUGIN_REQUEST:
+                if (data != null && data.getData() != null) {
+                    String filePath = data.getData().getPath();
+                    copyPlugin(filePath);
+                    return;
+                }
+                break;
+            default:
+                super.onActivityResult(requestCode, resultCode, data);
+                break;
+
+        }
+    }
+
+    private void copyPlugin(String pluginPath) {
+        try {
+            File inFile = new File(pluginPath);
+            // create IITCm external plugins directory if it doesn't already exist
+            File pluginsDirectory = getUserPluginsDirectory();
+            pluginsDirectory.mkdirs();
+
+            // create in and out streams and copy plugin
+            File outFile = new File(pluginsDirectory.getPath() + "/" + inFile.getName());
+            InputStream is = new FileInputStream(inFile);
+            OutputStream os = new FileOutputStream(outFile);
+            IITC_FileManager.copyStream(is, os, true);
+
+            // invalidate headers to build a fresh preference screen with the new plugin listed
+            invalidateHeaders();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -140,10 +206,15 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         return asset_array;
     }
 
-    private File[] getUserPlugins() {
+    private File getUserPluginsDirectory() {
         final String iitc_path = Environment.getExternalStorageDirectory().getPath()
                 + "/IITC_Mobile/";
         final File directory = new File(iitc_path + "plugins/");
+        return directory;
+    }
+
+    private File[] getUserPlugins() {
+        final File directory = getUserPluginsDirectory();
         File[] files = directory.listFiles();
         if (files == null) {
             files = new File[0];
@@ -164,6 +235,8 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         if ((userPlugins.length + officialPlugins.length) != (numPlugins + mDeletedPlugins)) {
             Log.d("new or less plugins found since last start, rebuild preferences");
             sAssetPlugins.clear();
+            sUserPlugins.clear();
+            mDeletedPlugins = 0;
             setUpPluginPreferenceScreen();
         }
     }
