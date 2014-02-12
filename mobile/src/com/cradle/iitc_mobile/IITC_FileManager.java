@@ -11,6 +11,7 @@ import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.text.Html;
 import android.util.Base64;
 import android.util.Base64OutputStream;
 import android.webkit.WebResourceResponse;
@@ -256,7 +257,7 @@ public class IITC_FileManager {
             String text = mActivity.getString(R.string.install_dialog_msg);
             text = String.format(text, uri);
             alertDialogBuilder
-                    .setMessage(text)
+                    .setMessage(Html.fromHtml(text))
                     .setCancelable(true)
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
