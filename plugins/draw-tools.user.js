@@ -285,7 +285,7 @@ window.plugin.drawTools.manualOpt = function() {
            + '<a onclick="window.plugin.drawTools.optPaste();return false;">Paste Drawn Items</a>'
            + (window.requestFile != undefined
              ? '<a onclick="window.plugin.drawTools.optImport();return false;">Import Drawn Items</a>' : '')
-           + ((typeof android !== 'undefined' && android && android.saveFile) // saveFile only exists on Kitkat+!
+           + ((typeof android !== 'undefined' && android && android.saveFile)
              ? '<a onclick="window.plugin.drawTools.optExport();return false;">Export Drawn Items</a>' : '')
            + '<a onclick="window.plugin.drawTools.optReset();return false;">Reset Drawn Items</a>'
            + '</div>';
@@ -332,7 +332,7 @@ window.plugin.drawTools.optCopy = function() {
 }
 
 window.plugin.drawTools.optExport = function() {
-  if(typeof android !== 'undefined' && android && android.saveFile) { // saveFile only exists on Kitkat+!
+  if(typeof android !== 'undefined' && android && android.saveFile) {
     android.saveFile('IITC-drawn-items.json', 'application/json', localStorage['plugin-draw-tools-layer']);
   }
 }
