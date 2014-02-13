@@ -541,7 +541,7 @@
   }
 
   window.plugin.bookmarks.optExport = function() {
-    if(typeof android !== 'undefined' && android && android.saveFile) { // saveFile only exists on Kitkat+!
+    if(typeof android !== 'undefined' && android && android.saveFile) {
       android.saveFile("IITC-bookmarks.json", "application/json", localStorage[window.plugin.bookmarks.KEY_STORAGE]);
     }
   }
@@ -946,8 +946,7 @@
 
     if(plugin.bookmarks.isAndroid()) {
       actions += '<a onclick="window.plugin.bookmarks.optImport();return false;">Import bookmarks</a>';
-      if(typeof android !== 'undefined' && android && android.saveFile) // saveFile only exists on Kitkat+!
-        actions += '<a onclick="window.plugin.bookmarks.optExport();return false;">Export bookmarks</a>';
+      actions += '<a onclick="window.plugin.bookmarks.optExport();return false;">Export bookmarks</a>';
     } else {
       actions += '<a onclick="window.plugin.bookmarks.optBox(\'save\');return false;">Save box position</a>';
       actions += '<a onclick="window.plugin.bookmarks.optBox(\'reset\');return false;">Reset box position</a>';
