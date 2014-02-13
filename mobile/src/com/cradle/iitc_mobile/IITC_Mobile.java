@@ -104,7 +104,9 @@ public class IITC_Mobile extends Activity
         mEditCommand.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(final TextView v, final int actionId, final KeyEvent event) {
-                if (EditorInfo.IME_ACTION_GO == actionId) {
+                if (EditorInfo.IME_ACTION_GO == actionId ||
+                        EditorInfo.IME_ACTION_SEND == actionId ||
+                        EditorInfo.IME_ACTION_DONE == actionId) {
                     onBtnRunCodeClick(v);
 
                     final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
