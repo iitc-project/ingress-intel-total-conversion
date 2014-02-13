@@ -55,7 +55,6 @@ window.plugin.drawTools.getMarkerIcon = function(color) {
 
 window.plugin.drawTools.currentColor = '#a24ac3';
 window.plugin.drawTools.markerTemplate = '@@INCLUDESTRING:images/marker-icon.svg.template@@';
-window.plugin.drawTools.currentMarker = window.plugin.drawTools.getMarkerIcon(window.plugin.drawTools.currentColor);
 
 window.plugin.drawTools.setOptions = function() {
 
@@ -282,8 +281,12 @@ window.plugin.drawTools.manualOpt = function() {
 //TODO: add line style choosers: thickness, maybe dash styles?
            + '</div>'
            + '<div class="drawtoolsSetbox">'
-           + '<a onclick="window.plugin.drawTools.optCopy();">Copy/Export Drawn Items</a>'
-           + '<a onclick="window.plugin.drawTools.optPaste();return false;">Paste/Import Drawn Items</a>'
+           + '<a onclick="window.plugin.drawTools.optCopy();">Copy Drawn Items</a>'
+           + '<a onclick="window.plugin.drawTools.optPaste();return false;">Paste Drawn Items</a>'
+           + (window.requestFile != undefined
+             ? '<a onclick="window.plugin.drawTools.optImport();return false;">Import Drawn Items</a>' : '')
+           + ((typeof android !== 'undefined' && android && android.saveFile) // saveFile only exists on Kitkat+!
+             ? '<a onclick="window.plugin.drawTools.optExport();return false;">Export Drawn Items</a>' : '')
            + '<a onclick="window.plugin.drawTools.optReset();return false;">Reset Drawn Items</a>'
            + '</div>';
 
@@ -328,6 +331,12 @@ window.plugin.drawTools.optCopy = function() {
     }
 }
 
+window.plugin.drawTools.optExport = function() {
+  if(typeof android !== 'undefined' && android && android.saveFile) { // saveFile only exists on Kitkat+!
+    android.saveFile('IITC-drawn-items.json', 'application/json', localStorage['plugin-draw-tools-layer']);
+  }
+}
+
 window.plugin.drawTools.optPaste = function() {
   var promptAction = prompt('Press CTRL+V to paste it.', '');
   if(promptAction !== null && promptAction !== '') {
@@ -344,8 +353,26 @@ window.plugin.drawTools.optPaste = function() {
       console.warn('DRAWTOOLS: failed to import data: '+e);
       window.plugin.drawTools.optAlert('<span style="color: #f88">Import failed</span>');
     }
-
   }
+}
+
+window.plugin.drawTools.optImport = function() {
+  if (window.requestFile === undefined) return;
+  window.requestFile(function(filename, content) {
+    try {
+      var data = JSON.parse(content);
+      window.plugin.drawTools.drawnItems.clearLayers();
+      window.plugin.drawTools.import(data);
+      console.log('DRAWTOOLS: reset and imported drawn tiems');
+      window.plugin.drawTools.optAlert('Import Successful.');
+
+      // to write back the data to localStorage
+      window.plugin.drawTools.save();
+    } catch(e) {
+      console.warn('DRAWTOOLS: failed to import data: '+e);
+      window.plugin.drawTools.optAlert('<span style="color: #f88">Import failed</span>');
+    }
+  });
 }
 
 window.plugin.drawTools.optReset = function() {
@@ -360,6 +387,8 @@ window.plugin.drawTools.optReset = function() {
 }
 
 window.plugin.drawTools.boot = function() {
+  window.plugin.drawTools.currentMarker = window.plugin.drawTools.getMarkerIcon(window.plugin.drawTools.currentColor);
+
   window.plugin.drawTools.setOptions();
 
   //create a leaflet FeatureGroup to hold drawn items
