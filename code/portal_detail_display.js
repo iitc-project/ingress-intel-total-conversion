@@ -72,8 +72,11 @@ window.renderPortalDetails = function(guid) {
                                 + escapeHtmlSpecialChars(portalDetailObj.submitter.link) + '">' + escapeHtmlSpecialChars(portalDetailObj.submitter.link) + '</a></td></tr>';
     }
 
+// Portal descriptions from the monument database often have html tags, which
+// can make reading the description difficult. Use jQuery's text() function to
+// remove these first, then encode any html entitites that remain.
     if(portalDetailObj.description) {
-      portalDetailedDescription += '<tr class="padding-top"><th>Description:</th><td>' + escapeHtmlSpecialChars(portalDetailObj.description) + '</td></tr>';
+      portalDetailedDescription += '<tr class="padding-top"><th>Description:</th><td>' + escapeHtmlSpecialChars($(portalDetailObj.description).text()) + '</td></tr>';
     }
 //    if(d.descriptiveText.map.ADDRESS) {
 //      portalDetailedDescription += '<tr><th>Address:</th><td>' + escapeHtmlSpecialChars(d.descriptiveText.map.ADDRESS) + '</td></tr>';
