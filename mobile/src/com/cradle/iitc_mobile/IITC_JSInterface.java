@@ -13,7 +13,6 @@ import android.widget.Toast;
 import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
 import com.cradle.iitc_mobile.share.ShareActivity;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -243,12 +242,14 @@ public class IITC_JSInterface {
     public void saveFile(final String filename, final String type, final String content) {
         try {
             final File outFile = new File(Environment.getExternalStorageDirectory().getPath() +
-                    "/IITC_Mobile/drawn_items/" + filename);
+                    "/IITC_Mobile/export/" + filename);
             outFile.getParentFile().mkdirs();
+
             final FileOutputStream outStream = new FileOutputStream(outFile);
-            IITC_FileManager.copyStream(new ByteArrayInputStream(content.getBytes("UTF-8")), outStream, true);
-            Toast.makeText(mIitc, "Drawn items exported to " + outFile.getPath(), Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
+            outStream.write(content.getBytes("UTF-8"));
+            outStream.close();
+            Toast.makeText(mIitc, "File exported to " + outFile.getPath(), Toast.LENGTH_SHORT).show();
+        } catch (final IOException e) {
             e.printStackTrace();
         }
     }

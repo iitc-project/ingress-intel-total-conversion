@@ -12,7 +12,6 @@ public class IITC_JSInterfaceKitkat extends IITC_JSInterface {
     @JavascriptInterface
     @Override
     public void saveFile(final String filename, final String type, final String content) {
-
         mIitc.getFileManager().new FileSaveRequest(filename, type, content);
     }
 }
