@@ -168,7 +168,7 @@ Yes it is!
 Note:
 <ul>
 <li>The filename has to end with *.user.js.</li>
-<li>You need a file explorer app installed to add external plugins</li>
+<li>You can also trigger installation by clicking on http(s) links pointing to a plugin, selecting plugins with a file explorer, opening javascript e-mail attachments etc...
 </ul>
 END
 ),
