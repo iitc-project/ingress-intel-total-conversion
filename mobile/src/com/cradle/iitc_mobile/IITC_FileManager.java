@@ -3,7 +3,6 @@ package com.cradle.iitc_mobile;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
-import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -248,68 +247,61 @@ public class IITC_FileManager {
 
     public void installPlugin(final Uri uri, final boolean invalidateHeaders) {
         if (uri != null) {
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
-
-            // set title
-            alertDialogBuilder.setTitle(mActivity.getString(R.string.install_dialog_top));
-
-            // set dialog message
             String text = mActivity.getString(R.string.install_dialog_msg);
             text = String.format(text, uri);
-            alertDialogBuilder
+
+            // create alert dialog
+            new AlertDialog.Builder(mActivity)
+                    .setTitle(mActivity.getString(R.string.install_dialog_top))
                     .setMessage(Html.fromHtml(text))
                     .setCancelable(true)
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                        public void onClick(final DialogInterface dialog, final int which) {
                             copyPlugin(uri, invalidateHeaders);
                         }
                     })
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                        public void onClick(final DialogInterface dialog, final int which) {
                             dialog.cancel();
                         }
-                    });
-
-            // create alert dialog
-            AlertDialog alertDialog = alertDialogBuilder.create();
-
-            // show it
-            alertDialog.show();
+                    })
+                    .create()
+                    .show();
         }
     }
 
     private void copyPlugin(final Uri uri, final boolean invalidateHeaders) {
-        Thread thread = new Thread(new Runnable() {
+        final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     final String url = uri.toString();
-                    String fileName = url.substring( url.lastIndexOf('/')+1, url.length() );
                     // we need 2 stream since an inputStream is useless after read once
                     // we read it twice because we first need the script ID for the fileName and
                     // afterwards reading it again while copying
                     InputStream is, isCopy;
                     if (uri.getScheme().contains("http")) {
-                        URLConnection conn = new URL(url).openConnection();
-                        URLConnection connCopy = new URL(url).openConnection();
+                        final URLConnection conn = new URL(url).openConnection();
+                        final URLConnection connCopy = new URL(url).openConnection();
                         is = conn.getInputStream();
                         isCopy = connCopy.getInputStream();
                     } else {
                         is = mActivity.getContentResolver().openInputStream(uri);
                         isCopy = mActivity.getContentResolver().openInputStream(uri);
                     }
-                    fileName = getScriptInfo(isCopy).get("id") + ".user.js";
+                    final String fileName = getScriptInfo(isCopy).get("id") + ".user.js";
+
                     // create IITCm external plugins directory if it doesn't already exist
                     final File pluginsDirectory = new File(PLUGINS_PATH);
                     pluginsDirectory.mkdirs();
 
                     // create in and out streams and copy plugin
-                    File outFile = new File(pluginsDirectory + "/" + fileName);
-                    OutputStream os = new FileOutputStream(outFile);
+                    final File outFile = new File(pluginsDirectory, fileName);
+                    final OutputStream os = new FileOutputStream(outFile);
                     IITC_FileManager.copyStream(is, os, true);
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     Log.w(e);
                 }
             }
@@ -319,7 +311,7 @@ public class IITC_FileManager {
             try {
                 thread.join();
                 ((IITC_PluginPreferenceActivity) mActivity).invalidateHeaders();
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 Log.w(e);
             }
         }
