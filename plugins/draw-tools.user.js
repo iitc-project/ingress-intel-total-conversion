@@ -55,7 +55,6 @@ window.plugin.drawTools.getMarkerIcon = function(color) {
 
 window.plugin.drawTools.currentColor = '#a24ac3';
 window.plugin.drawTools.markerTemplate = '@@INCLUDESTRING:images/marker-icon.svg.template@@';
-window.plugin.drawTools.currentMarker = window.plugin.drawTools.getMarkerIcon(window.plugin.drawTools.currentColor);
 
 window.plugin.drawTools.setOptions = function() {
 
@@ -360,6 +359,8 @@ window.plugin.drawTools.optReset = function() {
 }
 
 window.plugin.drawTools.boot = function() {
+  window.plugin.drawTools.currentMarker = window.plugin.drawTools.getMarkerIcon(window.plugin.drawTools.currentColor);
+
   window.plugin.drawTools.setOptions();
 
   //create a leaflet FeatureGroup to hold drawn items
