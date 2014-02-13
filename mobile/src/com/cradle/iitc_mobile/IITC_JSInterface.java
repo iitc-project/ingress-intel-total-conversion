@@ -15,7 +15,7 @@ import com.cradle.iitc_mobile.share.ShareActivity;
 // provide communication between IITC script and android app
 public class IITC_JSInterface {
     // context of main activity
-    private final IITC_Mobile mIitc;
+    protected final IITC_Mobile mIitc;
 
     IITC_JSInterface(final IITC_Mobile iitc) {
         mIitc = iitc;

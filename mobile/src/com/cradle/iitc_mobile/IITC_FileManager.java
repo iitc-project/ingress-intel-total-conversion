@@ -1,5 +1,6 @@
 package com.cradle.iitc_mobile;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
@@ -9,6 +10,7 @@ import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.Base64;
@@ -337,12 +339,12 @@ public class IITC_FileManager {
             mFunctionName = uri.getPathSegments().get(0);
 
             // create the chooser Intent
-            final Intent target = new Intent(Intent.ACTION_GET_CONTENT);
-            target.setType("file/*");
-            target.addCategory(Intent.CATEGORY_OPENABLE);
+            final Intent target = new Intent(Intent.ACTION_GET_CONTENT)
+                    .setType("*/*")
+                    .addCategory(Intent.CATEGORY_OPENABLE);
+            final IITC_Mobile iitc = (IITC_Mobile) mActivity;
 
             try {
-                final IITC_Mobile iitc = (IITC_Mobile) mActivity;
                 iitc.startActivityForResult(Intent.createChooser(target, "Choose file"), this);
             } catch (final ActivityNotFoundException e) {
                 Toast.makeText(mActivity, "No activity to select a file found." +
@@ -367,18 +369,18 @@ public class IITC_FileManager {
             try {
                 if (mResultCode == Activity.RESULT_OK && mData != null) {
                     final Uri uri = mData.getData();
-                    final File file = new File(uri.getPath());
 
                     // now create a resource that basically looks like:
                     // someFunctionName('<url encoded filename>', '<base64 encoded content>');
 
-                    mStreamOut.write(
-                            (mFunctionName + "('" + URLEncoder.encode(file.getName(), "UTF-8") + "', '").getBytes());
+                    final String filename = uri.getLastPathSegment();
+                    final String call = mFunctionName + "('" + URLEncoder.encode(filename, "UTF-8") + "', '";
+                    mStreamOut.write(call.getBytes());
 
                     final Base64OutputStream encoder =
                             new Base64OutputStream(mStreamOut, Base64.NO_CLOSE | Base64.NO_WRAP | Base64.DEFAULT);
 
-                    final FileInputStream fileinput = new FileInputStream(file);
+                    final InputStream fileinput = mActivity.getContentResolver().openInputStream(uri);
 
                     copyStream(fileinput, encoder, true);
 
@@ -393,6 +395,58 @@ public class IITC_FileManager {
                     mStreamOut.close();
                 } catch (final IOException e1) {
                 }
+            }
+        }
+    }
+
+    @TargetApi(19)
+    public class FileSaveRequest implements ResponseHandler, Runnable {
+        private Intent mData;
+        private final IITC_Mobile mIitc;
+        private final String mContent;
+
+        public FileSaveRequest(final String filename, final String type, final String content) {
+            final Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT)
+                    .setType(type)
+                    .addCategory(Intent.CATEGORY_OPENABLE)
+                    .putExtra(Intent.EXTRA_TITLE, filename);
+
+            mContent = content;
+            mIitc = (IITC_Mobile) mActivity;
+            mIitc.startActivityForResult(intent, this);
+        }
+
+        @Override
+        public void onActivityResult(final int resultCode, final Intent data) {
+            mIitc.deleteResponseHandler(this);
+
+            if (resultCode != Activity.RESULT_OK) return;
+
+            mData = data;
+
+            new Thread(this, "FileSaveRequest").start();
+        }
+
+        @Override
+        public void run() {
+            if (mData == null) return;
+
+            final Uri uri = mData.getData();
+            OutputStream os = null;
+
+            try {
+                final ParcelFileDescriptor fd = mIitc.getContentResolver().openFileDescriptor(uri, "w");
+
+                try {
+                    os = new FileOutputStream(fd.getFileDescriptor());
+                    os.write(mContent.getBytes());
+                    os.close();
+                } catch (final IOException e) {
+                    Log.w("Could not save file!", e);
+                }
+                fd.close();
+            } catch (final IOException e) {
+                Log.w("Could not save file!", e);
             }
         }
     }
