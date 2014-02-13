@@ -520,11 +520,6 @@
       title: 'Bookmarks Options'
     });
 
-    if(window.plugin.bookmarks.isAndroid()) {
-      $('a:contains(\'Save box\'), a:contains(\'Reset box\')').addClass('disabled');
-    } else {
-      $('a:contains(\'Share all\')').addClass('disabled');
-    }
     window.runHooks('pluginBkmrksOpenOpt');
   }
 
@@ -534,7 +529,7 @@
   }
 
   window.plugin.bookmarks.optCopy = function() {
-    if(typeof android !== 'undefined' && android && android.intentPosLink) {
+    if(typeof android !== 'undefined' && android && android.shareString) {
       return android.shareString(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
     } else {
       dialog({
@@ -545,10 +540,17 @@
     }
   }
 
+  window.plugin.bookmarks.optExport = function() {
+    if(typeof android !== 'undefined' && android && android.saveFile) { // saveFile only exists on Kitkat+!
+      android.saveFile("IITC-bookmarks.json", "application/json", localStorage[window.plugin.bookmarks.KEY_STORAGE]);
+    }
+  }
+
   window.plugin.bookmarks.optPaste = function() {
     var promptAction = prompt('Press CTRL+V to paste it.', '');
     if(promptAction !== null && promptAction !== '') {
       try {
+        JSON.parse(promptAction); // try to parse JSON first
         localStorage[window.plugin.bookmarks.KEY_STORAGE] = promptAction;
         window.plugin.bookmarks.refreshBkmrks();
         window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
@@ -559,6 +561,23 @@
         window.plugin.bookmarks.optAlert('<span style="color: #f88">Import failed </span>');
       }
     }
+  }
+
+  window.plugin.bookmarks.optImport = function() {
+    if (window.requestFile === undefined) return;
+    window.requestFile(function(filename, content) {
+      try {
+        JSON.parse(content); // try to parse JSON first
+        localStorage[window.plugin.bookmarks.KEY_STORAGE] = content;
+        window.plugin.bookmarks.refreshBkmrks();
+        window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
+        console.log('BOOKMARKS: reset and imported bookmarks');
+        window.plugin.bookmarks.optAlert('Successful. ');
+      } catch(e) {
+        console.warn('BOOKMARKS: failed to import data: '+e);
+        window.plugin.bookmarks.optAlert('<span style="color: #f88">Import failed </span>');
+      }
+    });
   }
 
   window.plugin.bookmarks.optReset = function() {
@@ -919,13 +938,21 @@
     plugin.bookmarks.htmlStar = '<a class="bkmrksStar" onclick="window.plugin.bookmarks.switchStarPortal();return false;" title="Save this portal in your bookmarks"><span></span></a>';
     plugin.bookmarks.htmlCalldrawBox = '<a onclick="window.plugin.bookmarks.dialogDrawer();return false;" title="Draw lines/triangles between bookmarked portals">Auto draw</a>';
     plugin.bookmarks.htmlCallSetBox = '<a onclick="window.plugin.bookmarks.manualOpt();return false;">Bookmarks Opt</a>';
-    plugin.bookmarks.htmlSetbox = '<div id="bkmrksSetbox">'
-                        +'<a onclick="window.plugin.bookmarks.optCopy();">Copy/Export Bookmarks</a>'
-                        +'<a onclick="window.plugin.bookmarks.optPaste();return false;">Paste/Import Bookmarks</a>'
-                        +'<a onclick="window.plugin.bookmarks.optReset();return false;">Reset Bookmarks</a>'
-                        +'<a onclick="window.plugin.bookmarks.optBox(\'save\');">Save box position (No IITCm)</a>'
-                        +'<a onclick="window.plugin.bookmarks.optBox(\'reset\');">Reset box position (No IITCm)</a>'
-                      +'</div>';
+
+    var actions = '';
+    actions += '<a onclick="window.plugin.bookmarks.optReset();return false;">Reset bookmarks</a>';
+    actions += '<a onclick="window.plugin.bookmarks.optCopy();return false;">Copy bookmarks</a>';
+    actions += '<a onclick="window.plugin.bookmarks.optPaste();return false;">Paste bookmarks</a>';
+
+    if(plugin.bookmarks.isAndroid()) {
+      actions += '<a onclick="window.plugin.bookmarks.optImport();return false;">Import bookmarks</a>';
+      if(typeof android !== 'undefined' && android && android.saveFile) // saveFile only exists on Kitkat+!
+        actions += '<a onclick="window.plugin.bookmarks.optExport();return false;">Export bookmarks</a>';
+    } else {
+      actions += '<a onclick="window.plugin.bookmarks.optBox(\'save\');return false;">Save box position</a>';
+      actions += '<a onclick="window.plugin.bookmarks.optBox(\'reset\');return false;">Reset box position</a>';
+    }
+    plugin.bookmarks.htmlSetbox = '<div id="bkmrksSetbox">' + actions + '</div>';
   }
 
 /***************************************************************************************************************************************************************/
