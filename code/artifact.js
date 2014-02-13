@@ -283,6 +283,11 @@ window.artifact.showArtifactList = function() {
       }
     });
 
+    // check for no rows, and add a note to the table instead
+    if (tableRows.length == 0) {
+      html += '<tr><td colspan="2"><i>No portals at this time</i></td></tr>';
+    }
+
     // sort the rows
     tableRows.sort(function(a,b) {
       return a[0]-b[0];
@@ -290,6 +295,7 @@ window.artifact.showArtifactList = function() {
 
     // and add them to the table
     html += tableRows.map(function(a){return a[1];}).join('');
+
 
     html += '</table>';
   });
