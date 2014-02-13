@@ -283,18 +283,17 @@ public class IITC_FileManager {
                     // we need 2 stream since an inputStream is useless after read once
                     // we read it twice because we first need the script ID for the fileName and
                     // afterwards reading it again while copying
-                    InputStream is, isCopy;
+                    InputStream is;
+                    String fileName;
                     if (uri.getScheme().contains("http")) {
-                        final URLConnection conn = new URL(url).openConnection();
-                        final URLConnection connCopy = new URL(url).openConnection();
+                        URLConnection conn = new URL(url).openConnection();
                         is = conn.getInputStream();
-                        isCopy = connCopy.getInputStream();
+                        fileName = uri.getLastPathSegment();
                     } else {
                         is = mActivity.getContentResolver().openInputStream(uri);
-                        isCopy = mActivity.getContentResolver().openInputStream(uri);
+                        final InputStream isCopy = mActivity.getContentResolver().openInputStream(uri);
+                        fileName = getScriptInfo(isCopy).get("id") + ".user.js";
                     }
-                    final String fileName = getScriptInfo(isCopy).get("id") + ".user.js";
-
                     // create IITCm external plugins directory if it doesn't already exist
                     final File pluginsDirectory = new File(PLUGINS_PATH);
                     pluginsDirectory.mkdirs();
