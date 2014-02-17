@@ -76,7 +76,7 @@ window.renderPortalDetails = function(guid) {
 // can make reading the description difficult. Use jQuery's text() function to
 // remove these first, then encode any html entitites that remain.
     if(portalDetailObj.description) {
-      portalDetailedDescription += '<tr class="padding-top"><th>Description:</th><td>' + escapeHtmlSpecialChars($(portalDetailObj.description).text()) + '</td></tr>';
+      portalDetailedDescription += '<tr class="padding-top"><th>Description:</th><td>' + escapeHtmlSpecialChars($('<div>' + portalDetailObj.description).text() + '</div>') + '</td></tr>';
     }
 //    if(d.descriptiveText.map.ADDRESS) {
 //      portalDetailedDescription += '<tr><th>Address:</th><td>' + escapeHtmlSpecialChars(d.descriptiveText.map.ADDRESS) + '</td></tr>';
