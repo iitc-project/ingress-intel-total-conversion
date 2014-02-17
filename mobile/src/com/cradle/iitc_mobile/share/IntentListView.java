@@ -86,6 +86,14 @@ public class IntentListView extends ListView {
         }
     }
 
+    private static final HashSet<String> GEOLABEL_WHITELIST = new HashSet<String>();
+
+    static {
+        if (GEOLABEL_WHITELIST.isEmpty()) {
+            GEOLABEL_WHITELIST.add("com.google.android.apps.maps");
+        }
+    }
+
     private HashMap<ComponentName, Intent> mActivities = new HashMap<ComponentName, Intent>();
 
     private IntentAdapter mAdapter;
@@ -163,6 +171,16 @@ public class IntentListView extends ListView {
             for (int i = 0; i < activityList.size(); i++) {
                 ResolveInfo info = activityList.get(i);
                 ActivityInfo activity = info.activityInfo;
+
+                // remove all apps that don't support a geo intent like geo:0,0?q=lat,lng(label)
+                // they'll receive a default geo intent like geo:lat,lng
+                if (intent.getData() != null &&
+                        "geo:0,0?q=".regionMatches(false, 0, intent.getData().toString(), 0, 10) &&
+                        !GEOLABEL_WHITELIST.contains(activity.packageName)) {
+                    activityList.remove(i);
+                    i--;
+                    continue;
+                }
 
                 // fix bug in PackageManager - a replaced package name might cause non-exported intents to appear
                 if (!activity.exported && !activity.packageName.equals(packageName)) {

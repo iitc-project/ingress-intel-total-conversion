@@ -66,13 +66,17 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
     private void setupIntents() {
         setupShareIntent(getUrl());
 
-        // we merge gmaps intents with geo intents since it is not possible
-        // anymore to set a labeled marker on geo intents
+        // gmaps supports labeled markers via geo intent...most other navigation apps don't
+        // so provide two different geo intents and filter them in IntentListView
         ArrayList<Intent> intents = new ArrayList<Intent>();
         String gMapsUri;
         try {
+            /*
+             * doesn't work anymore since gmaps v7.6.1
             gMapsUri = "http://maps.google.com/?q=loc:" + mLl
                     + "%20(" + URLEncoder.encode(mTitle, "UTF-8") + ")&z=" + mZoom;
+            */
+            gMapsUri = "geo:0,0?q=" + mLl + "%20(" + URLEncoder.encode(mTitle, "UTF-8") + ")";
         } catch (UnsupportedEncodingException e) {
             gMapsUri = "http://maps.google.com/?ll=" + mLl + "&z=" + mZoom;
             Log.w(e);
