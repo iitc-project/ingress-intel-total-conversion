@@ -62,6 +62,15 @@ window.runOnSmartphonesBeforeBoot = function() {
     } else {
       x.addClass('fullimg').appendTo('#sidebar');
     }
+
+    $('#mobileDesc').remove();
+    var details = portalDetail.get(data.guid);
+    var portalDetailObj = details ? window.getPortalDescriptionFromDetailsExtended(data.portalDetails) : undefined;
+    if (portalDetailObj.description) {
+        var t = '<div id="mobileDesc"><table description="Portal Photo Details" class="portal_details">';
+        t += '<tr class="padding-top"><th>Description:</th><td>' + escapeHtmlSpecialChars($('<div>' + portalDetailObj.description + '</div>').text()) + '</td></tr></table></div>';
+        $(t).appendTo('#sidebar');
+    }
   });
 }
 
