@@ -81,7 +81,7 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
 
                 <data android:mimeType="application/x-javascript" />
-                <data android:mimeType="text/*" />
+                <data android:mimeType="text/javascript" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
