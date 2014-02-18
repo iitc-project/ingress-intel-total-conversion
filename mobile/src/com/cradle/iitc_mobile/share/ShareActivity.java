@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 public class ShareActivity extends FragmentActivity implements ActionBar.TabListener {
     private IntentComparator mComparator;
-    private IntentFragmentAdapter mFragmentAdapter;
+    private FragmentAdapter mFragmentAdapter;
     private IntentGenerator mGenerator;
     private boolean mIsPortal;
     private String mLl;
@@ -27,7 +27,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
     private int mZoom;
 
     private void addTab(final ArrayList<Intent> intents, final int label, final int icon) {
-        final IntentFragment fragment = new IntentFragment();
+        final IntentListFragment fragment = new IntentListFragment();
         final Bundle args = new Bundle();
         args.putParcelableArrayList("intents", intents);
         args.putString("title", getString(label));
@@ -62,7 +62,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         mComparator = new IntentComparator(this);
         mGenerator = new IntentGenerator(this);
 
-        mFragmentAdapter = new IntentFragmentAdapter(getSupportFragmentManager());
+        mFragmentAdapter = new FragmentAdapter(getSupportFragmentManager());
 
         final ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -107,7 +107,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         });
 
         for (int i = 0; i < mFragmentAdapter.getCount(); i++) {
-            final IntentFragment fragment = (IntentFragment) mFragmentAdapter.getItem(i);
+            final IntentListFragment fragment = (IntentListFragment) mFragmentAdapter.getItem(i);
 
             actionBar.addTab(actionBar
                     .newTab()

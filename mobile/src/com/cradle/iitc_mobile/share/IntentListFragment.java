@@ -14,7 +14,7 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-public class IntentFragment extends Fragment implements OnScrollListener, OnItemClickListener {
+public class IntentListFragment extends Fragment implements OnScrollListener, OnItemClickListener {
     private ArrayList<Intent> mIntents;
     private IntentAdapter mAdapter;
     private int mScrollIndex, mScrollTop;
