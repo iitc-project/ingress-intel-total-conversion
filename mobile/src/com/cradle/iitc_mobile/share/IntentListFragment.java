@@ -38,6 +38,7 @@ public class IntentListFragment extends Fragment implements OnScrollListener, On
         mAdapter.setIntents(mIntents);
 
         mListView = new ListView(getActivity());
+        mListView.setAdapter(mAdapter);
         if (mScrollIndex != -1 && mScrollTop != -1) {
             mListView.setSelectionFromTop(mScrollIndex, mScrollTop);
         }
