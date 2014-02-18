@@ -27,8 +27,8 @@ public class IntentFragment extends Fragment implements OnScrollListener, OnItem
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Bundle args = getArguments();
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
+        final Bundle args = getArguments();
 
         mIntents = args.getParcelableArrayList("intents");
         mListView = new IntentListView(getActivity());
@@ -43,23 +43,22 @@ public class IntentFragment extends Fragment implements OnScrollListener, OnItem
     }
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        ((ShareActivity) getActivity()).getIntentComparator().trackIntentSelection(mListView.getItem(position));
+    public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
+        final Intent intent = mListView.getItem(position);
+        ((ShareActivity) getActivity()).getIntentComparator().trackIntentSelection(intent);
 
-        Intent intent = mListView.getTargetIntent(position);
         startActivity(intent);
-
         getActivity().finish();
     }
 
     @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+    public void onScroll(final AbsListView lv, final int firstItem, final int visibleItems, final int totalItems) {
         mScrollIndex = mListView.getFirstVisiblePosition();
-        View v = mListView.getChildAt(0);
+        final View v = mListView.getChildAt(0);
         mScrollTop = (v == null) ? 0 : v.getTop();
     }
 
     @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
+    public void onScrollStateChanged(final AbsListView view, final int scrollState) {
     }
 }
