@@ -140,6 +140,13 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         return mComparator;
     }
 
+    public void launch(final Intent intent) {
+        mComparator.trackIntentSelection(intent);
+        mGenerator.cleanup(intent);
+        startActivity(intent);
+        finish();
+    }
+
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {

@@ -92,6 +92,11 @@ public class IntentGenerator {
         return list;
     }
 
+    public void cleanup(final Intent intent) {
+        intent.removeExtra(EXTRA_FLAG_IS_DEFAULT);
+        intent.removeExtra(EXTRA_FLAG_TITLE);
+    }
+
     public ArrayList<Intent> getBrowserIntents(final String title, final String url) {
         final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url))
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
