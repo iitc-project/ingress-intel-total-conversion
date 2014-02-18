@@ -10,13 +10,15 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
 
 import java.util.ArrayList;
 
 public class IntentFragment extends Fragment implements OnScrollListener, OnItemClickListener {
     private ArrayList<Intent> mIntents;
-    private IntentListView mListView;
+    private IntentAdapter mAdapter;
     private int mScrollIndex, mScrollTop;
+    private ListView mListView;
 
     public int getIcon() {
         return getArguments().getInt("icon");
@@ -31,8 +33,11 @@ public class IntentFragment extends Fragment implements OnScrollListener, OnItem
         final Bundle args = getArguments();
 
         mIntents = args.getParcelableArrayList("intents");
-        mListView = new IntentListView(getActivity());
-        mListView.setIntents(mIntents);
+
+        mAdapter = new IntentAdapter(getActivity());
+        mAdapter.setIntents(mIntents);
+
+        mListView = new ListView(getActivity());
         if (mScrollIndex != -1 && mScrollTop != -1) {
             mListView.setSelectionFromTop(mScrollIndex, mScrollTop);
         }
@@ -44,7 +49,7 @@ public class IntentFragment extends Fragment implements OnScrollListener, OnItem
 
     @Override
     public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
-        final Intent intent = mListView.getItem(position);
+        final Intent intent = mAdapter.getItem(position);
         ((ShareActivity) getActivity()).getIntentComparator().trackIntentSelection(intent);
 
         startActivity(intent);
