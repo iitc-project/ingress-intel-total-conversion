@@ -15,10 +15,10 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 public class IntentListFragment extends Fragment implements OnScrollListener, OnItemClickListener {
-    private ArrayList<Intent> mIntents;
     private IntentAdapter mAdapter;
-    private int mScrollIndex, mScrollTop;
+    private ArrayList<Intent> mIntents;
     private ListView mListView;
+    private int mScrollIndex, mScrollTop;
 
     public int getIcon() {
         return getArguments().getInt("icon");
@@ -38,6 +38,7 @@ public class IntentListFragment extends Fragment implements OnScrollListener, On
         mAdapter.setIntents(mIntents);
 
         mListView = new ListView(getActivity());
+        mListView.setAdapter(mAdapter);
         if (mScrollIndex != -1 && mScrollTop != -1) {
             mListView.setSelectionFromTop(mScrollIndex, mScrollTop);
         }
@@ -49,11 +50,7 @@ public class IntentListFragment extends Fragment implements OnScrollListener, On
 
     @Override
     public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
-        final Intent intent = mAdapter.getItem(position);
-        ((ShareActivity) getActivity()).getIntentComparator().trackIntentSelection(intent);
-
-        startActivity(intent);
-        getActivity().finish();
+        ((ShareActivity) getActivity()).launch(mAdapter.getItem(position));
     }
 
     @Override
