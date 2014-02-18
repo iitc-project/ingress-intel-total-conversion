@@ -47,6 +47,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Stack;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class IITC_Mobile extends Activity
         implements OnSharedPreferenceChangeListener, NfcAdapter.CreateNdefMessageCallback {
@@ -74,6 +76,7 @@ public class IITC_Mobile extends Activity
     private boolean mShowMapInDebug = false;
     private final Stack<String> mDialogStack = new Stack<String>();
     private String mPermalink = null;
+    private String mSearchTerm = null;
 
     // Used for custom back stack handling
     private final Stack<Pane> mBackStack = new Stack<IITC_NavigationHelper.Pane>();
@@ -258,20 +261,20 @@ public class IITC_Mobile extends Activity
 
     private void handleGeoUri(final Uri uri) throws URISyntaxException {
         final String[] parts = uri.getSchemeSpecificPart().split("\\?", 2);
-        Double lat, lon;
+        Double lat = null, lon = null;
         Integer z = null;
+        String search = null;
 
         // parts[0] may contain an 'uncertainty' parameter, delimited by a semicolon
         final String[] pos = parts[0].split(";", 2)[0].split(",", 2);
-        if (pos.length != 2) throw new URISyntaxException(uri.toString(), "URI does not contain a valid position");
-
-        try {
-            lat = Double.valueOf(pos[0]);
-            lon = Double.valueOf(pos[1]);
-        } catch (final NumberFormatException e) {
-            final URISyntaxException use = new URISyntaxException(uri.toString(), "position could not be parsed");
-            use.initCause(e);
-            throw use;
+        if (pos.length == 2) {
+            try {
+                lat = Double.valueOf(pos[0]);
+                lon = Double.valueOf(pos[1]);
+            } catch (final NumberFormatException e) {
+                lat = null;
+                lon = null;
+            }
         }
 
         if (parts.length > 1) { // query string present
@@ -281,21 +284,47 @@ public class IITC_Mobile extends Activity
                     try {
                         z = Integer.valueOf(param.substring(2));
                     } catch (final NumberFormatException e) {
-                        final URISyntaxException use = new URISyntaxException(
-                                uri.toString(), "could not parse zoom level");
-                        use.initCause(e);
-                        throw use;
                     }
-                    break;
+                }
+                if (param.startsWith("q=")) {
+                    search = param.substring(2);
+                    final Pattern pattern = Pattern.compile("^(-?\\d+(\\.\\d+)?),(-?\\d+(\\.\\d+)?)\\s*\\(.+\\)");
+                    final Matcher matcher = pattern.matcher(search);
+                    if (matcher.matches()) {
+                        try {
+                            lat = Double.valueOf(matcher.group(1));
+                            lon = Double.valueOf(matcher.group(3));
+                            search = null; // if we have a position, we don't need the search term
+                        } catch (final NumberFormatException e) {
+                            lat = null;
+                            lon = null;
+                        }
+                    }
                 }
             }
         }
 
-        String url = "http://www.ingress.com/intel?ll=" + lat + "," + lon;
-        if (z != null) {
-            url += "&z=" + z;
+        if (lat != null && lon != null) {
+            String url = mIntelUrl + "?ll=" + lat + "," + lon;
+            if (z != null) {
+                url += "&z=" + z;
+            }
+            loadUrl(url);
+            return;
         }
-        loadUrl(url);
+
+        if (search != null) {
+            if (mIsLoading) {
+                mSearchTerm = search;
+                loadUrl(mIntelUrl);
+            } else {
+                switchToPane(Pane.MAP);
+                mIitcWebView.loadUrl("javascript:search('" + search + "');");
+            }
+            return;
+        }
+
+        throw new URISyntaxException(uri.toString(), "position could not be parsed");
     }
 
     @Override
@@ -447,8 +476,7 @@ public class IITC_Mobile extends Activity
         // Get the SearchView and set the searchable configuration
         final SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         mSearchMenuItem = menu.findItem(R.id.menu_search);
-        final SearchView searchView =
-                (SearchView) mSearchMenuItem.getActionView();
+        final SearchView searchView = (SearchView) mSearchMenuItem.getActionView();
         // Assumes current activity is the searchable activity
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
@@ -458,8 +486,8 @@ public class IITC_Mobile extends Activity
     @Override
     public boolean onPrepareOptionsMenu(final Menu menu) {
         boolean visible = false;
-        if (mNavigationHelper != null)
-            visible = !mNavigationHelper.isDrawerOpened();
+        if (mNavigationHelper != null) visible = !mNavigationHelper.isDrawerOpened();
+        if (mIsLoading) visible = false;
 
         for (int i = 0; i < menu.size(); i++) {
             final MenuItem item = menu.getItem(i);
@@ -475,6 +503,7 @@ public class IITC_Mobile extends Activity
 
                 case R.id.locate:
                     item.setVisible(visible);
+                    item.setEnabled(!mIsLoading);
                     item.setIcon(mUserLocation.isFollowing()
                             ? R.drawable.ic_action_location_follow
                             : R.drawable.ic_action_location_found);
@@ -658,10 +687,20 @@ public class IITC_Mobile extends Activity
 
     public void setLoadingState(final boolean isLoading) {
         mIsLoading = isLoading;
-
         mNavigationHelper.onLoadingStateChanged();
-
+        invalidateOptionsMenu();
         updateViews();
+
+        if (mSearchTerm != null && !isLoading) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    // switchToPane(Pane.MAP);
+                    mIitcWebView.loadUrl("javascript:search('" + mSearchTerm + "');");
+                    mSearchTerm = null;
+                }
+            }, 5000);
+        }
     }
 
     private void updateViews() {
