@@ -198,9 +198,12 @@ public class IITC_Mobile extends Activity
         handleIntent(intent, false);
     }
 
+    // handles ingress intel url intents, search intents, geo intents and javascript file intents
     private void handleIntent(final Intent intent, final boolean onCreate) {
-        // load new iitc web view with ingress intel page
         final String action = intent.getAction();
+        // intent MIME type may be null
+        final String type = intent.getType() == null ? "" : intent.getType();
+
         if (Intent.ACTION_VIEW.equals(action) || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
             final Uri uri = intent.getData();
             Log.d("intent received url: " + uri.toString());
@@ -234,7 +237,7 @@ public class IITC_Mobile extends Activity
                 }
             }
 
-            if (uri.getPath().endsWith(".user.js") || intent.getType().contains("javascript")) {
+            if (uri.getPath().endsWith(".user.js") || type.contains("javascript")) {
                 final Intent prefIntent = new Intent(this, IITC_PluginPreferenceActivity.class);
                 prefIntent.setDataAndType(uri, intent.getType());
                 startActivity(prefIntent);
