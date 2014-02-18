@@ -280,9 +280,6 @@ public class IITC_FileManager {
             public void run() {
                 try {
                     final String url = uri.toString();
-                    // we need 2 stream since an inputStream is useless after read once
-                    // we read it twice because we first need the script ID for the fileName and
-                    // afterwards reading it again while copying
                     InputStream is;
                     String fileName;
                     if (uri.getScheme().contains("http")) {
@@ -290,6 +287,9 @@ public class IITC_FileManager {
                         is = conn.getInputStream();
                         fileName = uri.getLastPathSegment();
                     } else {
+                        // we need 2 streams since an inputStream is useless after read once
+                        // we read it twice because we first need the script ID for the fileName and
+                        // afterwards reading it again while copying
                         is = mActivity.getContentResolver().openInputStream(uri);
                         final InputStream isCopy = mActivity.getContentResolver().openInputStream(uri);
                         fileName = getScriptInfo(isCopy).get("id") + ".user.js";

@@ -95,7 +95,7 @@ public class IITC_WebViewClient extends WebViewClient {
     public void onReceivedLoginRequest(final WebView view, final String realm, final String account, final String args) {
         mIitcInjected = false;
         // Log.d("iitcm", "Login requested: " + realm + " " + account + " " + args);
-        // ((IITC_Mobile) mContext).onReceivedLoginRequest(this, view, realm, account, args);
+        // mIitc.onReceivedLoginRequest(this, view, realm, account, args);
     }
 
     /**
