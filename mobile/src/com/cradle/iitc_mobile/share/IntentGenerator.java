@@ -106,7 +106,7 @@ public class IntentGenerator {
 
     public ArrayList<Intent> getGeoIntents(final String title, final String mLl, final int mZoom) {
         final Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
-                Uri.parse(String.format("geo:%s&z=%d", mLl, mZoom)))
+                Uri.parse(String.format("geo:%s?z=%d", mLl, mZoom)))
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 
         final ArrayList<Intent> targets = resolveTargets(intent);
