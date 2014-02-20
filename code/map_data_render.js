@@ -440,14 +440,20 @@ window.Render.prototype.resetPortalClusters = function() {
 
     if (!(cid in this.portalClusters)) this.portalClusters[cid] = [];
 
-    this.portalClusters[cid].push(p.options.guid);
+    this.portalClusters[cid].push(pguid);
   }
 
-  // now, for each cluster, sort by some arbitrary data (the guid will do), and display the first CLUSTER_PORTAL_LIMIT
+  // now, for each cluster, sort by some arbitrary data (the level+guid will do), and display the first CLUSTER_PORTAL_LIMIT
   for (var cid in this.portalClusters) {
     var c = this.portalClusters[cid];
 
-    c.sort();
+    c.sort(function(a,b) {
+      var ka = (8-portals[a].options.level)+a;
+      var kb = (8-portals[b].options.level)+b;
+      if (ka<kb) return -1;
+      else if (ka>kb) return 1;
+      else return 0;
+    });
 
     for (var i=0; i<c.length; i++) {
       var guid = c[i];

@@ -72,6 +72,45 @@
                 <data android:scheme="geo"/>
             </intent-filter>
 
+            <!-- Handles external user plugins -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <data android:mimeType="application/x-javascript" />
+                <data android:mimeType="text/javascript" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <data
+                    android:host="*"
+                    android:scheme="file"
+                    android:pathPattern=".*\\.user.js"/>
+
+                <data
+                    android:host="*"
+                    android:scheme="content"
+                    android:pathPattern=".*\\.user.js"/>
+
+                <data
+                    android:host="*"
+                    android:scheme="http"
+                    android:pathPattern=".*\\.user.js"/>
+
+                <data
+                    android:host="*"
+                    android:scheme="https"
+                    android:pathPattern=".*\\.user.js"/>
+            </intent-filter>
+
             <!-- Points to searchable meta data. -->
             <meta-data
                 android:name="android.app.searchable"

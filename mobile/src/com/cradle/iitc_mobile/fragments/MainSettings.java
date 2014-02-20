@@ -5,7 +5,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
@@ -23,39 +22,39 @@ import com.cradle.iitc_mobile.R;
 
 public class MainSettings extends PreferenceFragment {
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         addPreferencesFromResource(R.xml.preferences);
 
         // set versions
-        String iitcVersion = getArguments().getString("iitc_version");
+        final String iitcVersion = getArguments().getString("iitc_version");
 
         String buildVersion = "unknown";
 
-        PackageManager pm = getActivity().getPackageManager();
+        final PackageManager pm = getActivity().getPackageManager();
         try {
-            PackageInfo info = pm.getPackageInfo(getActivity().getPackageName(), 0);
+            final PackageInfo info = pm.getPackageInfo(getActivity().getPackageName(), 0);
             buildVersion = info.versionName;
-        } catch (NameNotFoundException e) {
+        } catch (final NameNotFoundException e) {
             Log.w(e);
         }
 
-        IITC_AboutDialogPreference pref_about = (IITC_AboutDialogPreference) findPreference("pref_about");
+        final IITC_AboutDialogPreference pref_about = (IITC_AboutDialogPreference) findPreference("pref_about");
         pref_about.setVersions(iitcVersion, buildVersion);
 
         final ListPreference pref_user_location_mode = (ListPreference) findPreference("pref_user_location_mode");
         pref_user_location_mode.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
             @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                int mode = Integer.parseInt((String) newValue);
+            public boolean onPreferenceChange(final Preference preference, final Object newValue) {
+                final int mode = Integer.parseInt((String) newValue);
                 preference.setSummary(getResources().getStringArray(R.array.pref_user_location_titles)[mode]);
                 return true;
             }
         });
 
-        String value = getPreferenceManager().getSharedPreferences().getString("pref_user_location_mode", "0");
-        int mode = Integer.parseInt(value);
+        final String value = getPreferenceManager().getSharedPreferences().getString("pref_user_location_mode", "0");
+        final int mode = Integer.parseInt(value);
         pref_user_location_mode.setSummary(getResources().getStringArray(R.array.pref_user_location_titles)[mode]);
     }
 
@@ -64,7 +63,7 @@ public class MainSettings extends PreferenceFragment {
     // so we need some additional hacks...
     // thx to http://stackoverflow.com/a/16800527/2638486 !!
     @Override
-    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+    public boolean onPreferenceTreeClick(final PreferenceScreen preferenceScreen, final Preference preference) {
         if (preference.getTitle().toString().equals(getString(R.string.pref_advanced_options))
                 || preference.getTitle().toString().equals(getString(R.string.pref_about_title))) {
             initializeActionBar((PreferenceScreen) preference);
@@ -76,27 +75,27 @@ public class MainSettings extends PreferenceFragment {
     // because PreferenceScreens are dialogs which swallow
     // events instead of passing to the activity
     // Related Issue: https://code.google.com/p/android/issues/detail?id=4611
-    public static void initializeActionBar(PreferenceScreen preferenceScreen) {
+    public static void initializeActionBar(final PreferenceScreen preferenceScreen) {
         final Dialog dialog = preferenceScreen.getDialog();
 
         if (dialog != null) {
             if (dialog.getActionBar() != null) dialog.getActionBar().setDisplayHomeAsUpEnabled(true);
 
-            View homeBtn = dialog.findViewById(android.R.id.home);
+            final View homeBtn = dialog.findViewById(android.R.id.home);
 
             if (homeBtn != null) {
-                View.OnClickListener dismissDialogClickListener = new View.OnClickListener() {
+                final View.OnClickListener dismissDialogClickListener = new View.OnClickListener() {
                     @Override
-                    public void onClick(View v) {
+                    public void onClick(final View v) {
                         dialog.dismiss();
                     }
                 };
 
-                ViewParent homeBtnContainer = homeBtn.getParent();
+                final ViewParent homeBtnContainer = homeBtn.getParent();
 
                 // The home button is an ImageView inside a FrameLayout
                 if (homeBtnContainer instanceof FrameLayout) {
-                    ViewGroup containerParent = (ViewGroup) homeBtnContainer.getParent();
+                    final ViewGroup containerParent = (ViewGroup) homeBtnContainer.getParent();
 
                     if (containerParent instanceof LinearLayout) {
                         // This view also contains the title text, set the whole view as clickable

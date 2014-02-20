@@ -56,7 +56,13 @@ public class IITC_WebView extends WebView {
         mSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
         mSettings.setAppCachePath(getContext().getCacheDir().getAbsolutePath());
         mSettings.setDatabasePath(getContext().getApplicationInfo().dataDir + "/databases/");
-        mJsInterface = new IITC_JSInterface(mIitc);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            mJsInterface = new IITC_JSInterfaceKitkat(mIitc);
+        } else {
+            mJsInterface = new IITC_JSInterface(mIitc);
+        }
+
         addJavascriptInterface(mJsInterface, "android");
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(mIitc);
         mDefaultUserAgent = mSettings.getUserAgentString();
