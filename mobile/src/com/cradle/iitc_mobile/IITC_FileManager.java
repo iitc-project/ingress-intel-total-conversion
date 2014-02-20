@@ -1,13 +1,18 @@
 package com.cradle.iitc_mobile;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
+import android.text.Html;
 import android.util.Base64;
 import android.util.Base64OutputStream;
 import android.webkit.WebResourceResponse;
@@ -22,11 +27,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.HashMap;
 
@@ -82,6 +90,7 @@ public class IITC_FileManager {
         // get a list of key-value
         final String[] attributes = header.split("  +");
         // add default values
+        map.put("id", "unknown");
         map.put("version", "not found");
         map.put("name", "unknown");
         map.put("description", "");
@@ -89,6 +98,9 @@ public class IITC_FileManager {
         // add parsed values
         for (int i = 0; i < attributes.length; i++) {
             // search for attributes and use the value
+            if (attributes[i].equals("@id")) {
+                map.put("id", attributes[i + 1]);
+            }
             if (attributes[i].equals("@version")) {
                 map.put("version", attributes[i + 1]);
             }
@@ -118,15 +130,17 @@ public class IITC_FileManager {
     }
 
     private final AssetManager mAssetManager;
-    private final IITC_Mobile mIitc;
+    private final Activity mActivity;
     private final String mIitcPath;
     private final SharedPreferences mPrefs;
+    public static final String PLUGINS_PATH = Environment.getExternalStorageDirectory().getPath()
+            + "/IITC_Mobile/plugins/";
 
-    public IITC_FileManager(final IITC_Mobile iitc) {
-        mIitc = iitc;
-        mIitcPath = Environment.getExternalStorageDirectory().getPath() + "/IITC_Mobile/";
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(iitc);
-        mAssetManager = mIitc.getAssets();
+    public IITC_FileManager(final Activity activity) {
+        mActivity = activity;
+        mIitcPath = Environment.getExternalStorageDirectory().getPath() + "/Activity/";
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
+        mAssetManager = mActivity.getAssets();
     }
 
     private InputStream getAssetFile(final String filename) throws IOException {
@@ -135,10 +149,10 @@ public class IITC_FileManager {
             try {
                 return new FileInputStream(file);
             } catch (final FileNotFoundException e) {
-                mIitc.runOnUiThread(new Runnable() {
+                mActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(mIitc, "File " + mIitcPath +
+                        Toast.makeText(mActivity, "File " + mIitcPath +
                                 "dev/" + filename + " not found. " +
                                 "Disable developer mode or add iitc files to the dev folder.",
                                 Toast.LENGTH_SHORT).show();
@@ -233,6 +247,77 @@ public class IITC_FileManager {
         return EMPTY;
     }
 
+    public void installPlugin(final Uri uri, final boolean invalidateHeaders) {
+        if (uri != null) {
+            String text = mActivity.getString(R.string.install_dialog_msg);
+            text = String.format(text, uri);
+
+            // create alert dialog
+            new AlertDialog.Builder(mActivity)
+                    .setTitle(mActivity.getString(R.string.install_dialog_top))
+                    .setMessage(Html.fromHtml(text))
+                    .setCancelable(true)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(final DialogInterface dialog, final int which) {
+                            copyPlugin(uri, invalidateHeaders);
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(final DialogInterface dialog, final int which) {
+                            dialog.cancel();
+                        }
+                    })
+                    .create()
+                    .show();
+        }
+    }
+
+    private void copyPlugin(final Uri uri, final boolean invalidateHeaders) {
+        final Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final String url = uri.toString();
+                    InputStream is;
+                    String fileName;
+                    if (uri.getScheme().contains("http")) {
+                        URLConnection conn = new URL(url).openConnection();
+                        is = conn.getInputStream();
+                        fileName = uri.getLastPathSegment();
+                    } else {
+                        // we need 2 streams since an inputStream is useless after read once
+                        // we read it twice because we first need the script ID for the fileName and
+                        // afterwards reading it again while copying
+                        is = mActivity.getContentResolver().openInputStream(uri);
+                        final InputStream isCopy = mActivity.getContentResolver().openInputStream(uri);
+                        fileName = getScriptInfo(isCopy).get("id") + ".user.js";
+                    }
+                    // create IITCm external plugins directory if it doesn't already exist
+                    final File pluginsDirectory = new File(PLUGINS_PATH);
+                    pluginsDirectory.mkdirs();
+
+                    // create in and out streams and copy plugin
+                    final File outFile = new File(pluginsDirectory, fileName);
+                    final OutputStream os = new FileOutputStream(outFile);
+                    IITC_FileManager.copyStream(is, os, true);
+                } catch (final IOException e) {
+                    Log.w(e);
+                }
+            }
+        });
+        thread.start();
+        if (invalidateHeaders) {
+            try {
+                thread.join();
+                ((IITC_PluginPreferenceActivity) mActivity).invalidateHeaders();
+            } catch (final InterruptedException e) {
+                Log.w(e);
+            }
+        }
+    }
+
     private class FileRequest extends WebResourceResponse implements ResponseHandler, Runnable {
         private Intent mData;
         private final String mFunctionName;
@@ -253,21 +338,23 @@ public class IITC_FileManager {
             mFunctionName = uri.getPathSegments().get(0);
 
             // create the chooser Intent
-            final Intent target = new Intent(Intent.ACTION_GET_CONTENT);
-            target.setType("file/*");
-            target.addCategory(Intent.CATEGORY_OPENABLE);
+            final Intent target = new Intent(Intent.ACTION_GET_CONTENT)
+                    .setType("*/*")
+                    .addCategory(Intent.CATEGORY_OPENABLE);
+            final IITC_Mobile iitc = (IITC_Mobile) mActivity;
 
             try {
-                mIitc.startActivityForResult(Intent.createChooser(target, "Choose file"), this);
+                iitc.startActivityForResult(Intent.createChooser(target, "Choose file"), this);
             } catch (final ActivityNotFoundException e) {
-                Toast.makeText(mIitc, "No activity to select a file found." +
+                Toast.makeText(mActivity, "No activity to select a file found." +
                         "Please install a file browser of your choice!", Toast.LENGTH_LONG).show();
             }
         }
 
         @Override
         public void onActivityResult(final int resultCode, final Intent data) {
-            mIitc.deleteResponseHandler(this); // to enable garbage collection
+            final IITC_Mobile iitc = (IITC_Mobile) mActivity;
+            iitc.deleteResponseHandler(this); // to enable garbage collection
 
             mResultCode = resultCode;
             mData = data;
@@ -281,18 +368,18 @@ public class IITC_FileManager {
             try {
                 if (mResultCode == Activity.RESULT_OK && mData != null) {
                     final Uri uri = mData.getData();
-                    final File file = new File(uri.getPath());
 
                     // now create a resource that basically looks like:
                     // someFunctionName('<url encoded filename>', '<base64 encoded content>');
 
-                    mStreamOut.write(
-                            (mFunctionName + "('" + URLEncoder.encode(file.getName(), "UTF-8") + "', '").getBytes());
+                    final String filename = uri.getLastPathSegment();
+                    final String call = mFunctionName + "('" + URLEncoder.encode(filename, "UTF-8") + "', '";
+                    mStreamOut.write(call.getBytes());
 
                     final Base64OutputStream encoder =
                             new Base64OutputStream(mStreamOut, Base64.NO_CLOSE | Base64.NO_WRAP | Base64.DEFAULT);
 
-                    final FileInputStream fileinput = new FileInputStream(file);
+                    final InputStream fileinput = mActivity.getContentResolver().openInputStream(uri);
 
                     copyStream(fileinput, encoder, true);
 
@@ -307,6 +394,58 @@ public class IITC_FileManager {
                     mStreamOut.close();
                 } catch (final IOException e1) {
                 }
+            }
+        }
+    }
+
+    @TargetApi(19)
+    public class FileSaveRequest implements ResponseHandler, Runnable {
+        private Intent mData;
+        private final IITC_Mobile mIitc;
+        private final String mContent;
+
+        public FileSaveRequest(final String filename, final String type, final String content) {
+            final Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT)
+                    .setType(type)
+                    .addCategory(Intent.CATEGORY_OPENABLE)
+                    .putExtra(Intent.EXTRA_TITLE, filename);
+
+            mContent = content;
+            mIitc = (IITC_Mobile) mActivity;
+            mIitc.startActivityForResult(intent, this);
+        }
+
+        @Override
+        public void onActivityResult(final int resultCode, final Intent data) {
+            mIitc.deleteResponseHandler(this);
+
+            if (resultCode != Activity.RESULT_OK) return;
+
+            mData = data;
+
+            new Thread(this, "FileSaveRequest").start();
+        }
+
+        @Override
+        public void run() {
+            if (mData == null) return;
+
+            final Uri uri = mData.getData();
+            OutputStream os = null;
+
+            try {
+                final ParcelFileDescriptor fd = mIitc.getContentResolver().openFileDescriptor(uri, "w");
+
+                try {
+                    os = new FileOutputStream(fd.getFileDescriptor());
+                    os.write(mContent.getBytes());
+                    os.close();
+                } catch (final IOException e) {
+                    Log.w("Could not save file!", e);
+                }
+                fd.close();
+            } catch (final IOException e) {
+                Log.w("Could not save file!", e);
             }
         }
     }

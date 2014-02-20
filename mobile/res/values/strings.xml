@@ -86,9 +86,8 @@
     <string name="notice_extplugins">
         <![CDATA[Hint:<br><br>
         IITC Mobile is able to load external plugins too!<br><br>
-        • create <b>%1$s</b><br>
-        • move *.user.js files there<br>
-        • plugins should be listed above the official plugins]]>
+        Add them by clicking the (+) icon at the top right.
+        The plugin files have to end with \'.user.js\' and are copied to <b>%1$s</b><br>]]>
     </string>
     <string name="notice_sharing">
         <![CDATA[With <em>Share portal</em> you can:<br>
@@ -162,6 +161,7 @@
     <string name="menu_clear_cookies">Clear Cookies</string>
     <string name="menu_search">Search</string>
     <string name="menu_debug">Debug</string>
+    <string name="menu_plugins_add">Add external plugins</string>
     <string name="choose_account_to_login">Choose account to login</string>
     <string name="login_failed">Login failed.</string>
     <string name="search_hint">Search Locations</string>
@@ -176,5 +176,12 @@
     <string name="label_highlighter">Highlighter</string>
     <string name="label_base_layer">Base Layer</string>
     <string name="label_overlay_layers">Overlay Layers</string>
+
+    <string name="install_dialog_top">Install external plugin?</string>
+    <string name="install_dialog_msg">
+        <![CDATA[IITCm was requested to install the following javascript file:<br><br>%1$s<br><br>
+        <b>Be careful:</b> Javascript from external sources may contain harmful code (spyware etc.)!<br><br>
+        Are you sure you want to proceed?]]>
+    </string>
 
 </resources>
