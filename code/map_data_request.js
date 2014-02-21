@@ -253,10 +253,10 @@ window.MapDataRequest.prototype.refresh = function() {
         // no fresh data
 
         // render the cached stale data, if we have it. this ensures *something* appears quickly when possible
-        var old_data = this.cache && this.cache.get(tile_id);
-        if (old_data) {
-          this.render.processTileData (old_data);
-        }
+//        var old_data = this.cache && this.cache.get(tile_id);
+//        if (old_data) {
+//          this.render.processTileData (old_data);
+//        }
 
         // tile needed. calculate the distance from the centre of the screen, to optimise the load order
 
