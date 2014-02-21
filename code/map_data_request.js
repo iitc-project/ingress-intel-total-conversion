@@ -20,13 +20,8 @@ window.MapDataRequest = function() {
   // using our own queue limit ensures that other requests (e.g. chat, portal details) don't get delayed
   this.MAX_REQUESTS = 5;
 
-  // no more than this many tiles in one request
-  // as of 2013-11-11, or possibly the release before that, the stock site was changed to only request four tiles at a time
-  // (which matches the number successfully returned for a *long* time!)
-  this.MAX_TILES_PER_REQUEST = 4;
-
-  // try to maintain at least this may tiles in each request, by reducing the number of requests as needed
-  this.MIN_TILES_PER_REQUEST = 4;
+  // this many tiles in one request
+  this.NUM_TILES_PER_REQUEST = 4;
 
   // number of times to retry a tile after a 'bad' error (i.e. not a timeout)
   this.MAX_TILE_RETRIES = 2;
@@ -363,26 +358,13 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
   var requestBuckets = this.MAX_REQUESTS - this.activeRequestCount;
   if (pendingTiles.length > 0 && requestBuckets > 0) {
 
-    // the stock site calculates bucket grouping with the simplistic <8 tiles: 1 bucket, otherwise 4 buckets
-    var maxBuckets = Math.ceil(pendingTiles.length/this.MIN_TILES_PER_REQUEST);
-
-    requestBuckets = Math.min (maxBuckets, requestBuckets);
-
-    var lastTileIndex = Math.min(requestBuckets*this.MAX_TILES_PER_REQUEST, pendingTiles.length);
-
-    for (var bucket=0; bucket<requestBuckets; bucket++) {
-      // create each request by taking tiles interleaved from the request
-
-      var tiles = [];
-      for (var i=bucket; i<lastTileIndex; i+=requestBuckets) {
-        tiles.push (pendingTiles[i]);
-      }
-
+    for (var bucket=0; bucket < requestBuckets; bucket++) {
+      var tiles = pendingTiles.splice(0, this.NUM_TILES_PER_REQUEST);
       if (tiles.length > 0) {
-//        console.log('-- new request: '+tiles.length+' tiles');
         this.sendTileRequest(tiles);
       }
     }
+
   }
 
 
