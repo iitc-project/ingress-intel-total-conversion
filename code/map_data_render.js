@@ -10,9 +10,6 @@ window.Render = function() {
   this.CLUSTER_SIZE = L.Browser.mobile ? 10 : 4;  // the map is divided into squares of this size in pixels for clustering purposes. mobile uses larger markers, so therefore larger clustering areas
   this.CLUSTER_PORTAL_LIMIT = 4; // no more than this many portals are drawn in each cluster square
 
-  // link length, in pixels, to be visible. use the portal cluster size, as shorter than this is likely hidden
-  // under the portals
-  this.LINK_VISIBLE_PIXEL_LENGTH = this.CLUSTER_SIZE;
 
   this.entityVisibilityZoom = undefined;
 
@@ -398,11 +395,7 @@ window.Render.prototype.createLinkEntity = function(ent,faked) {
 
   window.links[ent[0]] = poly;
 
-  // only add the link to the layer if it's long enough to be seen
-
-  if (this.linkVisible(poly)) {
-    linksFactionLayers[poly.options.team].addLayer(poly);
-  }
+  linksFactionLayers[poly.options.team].addLayer(poly);
 }
 
 
@@ -412,7 +405,6 @@ window.Render.prototype.updateEntityVisibility = function() {
     this.entityVisibilityZoom = map.getZoom();
 
     this.resetPortalClusters();
-    this.resetLinkVisibility();
 
     if (this.portalMarkerScale === undefined || this.portalMarkerScale != portalMarkerScale()) {
       this.portalMarkerScale = portalMarkerScale();
@@ -544,24 +536,3 @@ window.Render.prototype.getLinkPixelLength = function(link) {
 }
 
 
-window.Render.prototype.linkVisible = function(link) {
-  var length = this.getLinkPixelLength (link);
-
-  return length >= this.LINK_VISIBLE_PIXEL_LENGTH;
-}
-
-
-window.Render.prototype.resetLinkVisibility = function() {
-
-  for (var guid in window.links) {
-    var link = window.links[guid];
-
-    var visible = this.linkVisible(link);
-
-    if (visible) {
-      if (!linksFactionLayers[link.options.team].hasLayer(link)) linksFactionLayers[link.options.team].addLayer(link);
-    } else {
-      if (linksFactionLayers[link.options.team].hasLayer(link)) linksFactionLayers[link.options.team].removeLayer(link);
-    }
-  }
-}
