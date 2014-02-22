@@ -150,13 +150,13 @@ window.plugin.portalNames.updatePortalLabels = function() {
 
 // ass calculating portal marker visibility can take some time when there's lots of portals shown, we'll do it on
 // a short timer. this way it doesn't get repeated so much
-window.plugin.portalNames.delayedUpdatePortalLabels = function() {
+window.plugin.portalNames.delayedUpdatePortalLabels = function(wait) {
 
   if (window.plugin.portalNames.timer === undefined) {
     window.plugin.portalNames.timer = setTimeout ( function() {
       window.plugin.portalNames.timer = undefined;
       window.plugin.portalNames.updatePortalLabels();
-    }, 0.5*1000);
+    }, wait*1000);
 
   }
 }
@@ -168,9 +168,9 @@ var setup = function() {
   window.plugin.portalNames.labelLayerGroup = new L.LayerGroup();
   window.addLayerGroup('Portal Names', window.plugin.portalNames.labelLayerGroup, true);
 
-  window.addHook('requestFinished', window.plugin.portalNames.delayedUpdatePortalLabels);
-  window.addHook('mapDataRefreshEnd', window.plugin.portalNames.delayedUpdatePortalLabels);
-  window.map.on('overlayadd overlayremove', window.plugin.portalNames.delayedUpdatePortalLabels);
+  window.addHook('requestFinished', function() { setTimeout(function(){window.plugin.portalNames.delayedUpdatePortalLabels(3.0);},1); });
+  window.addHook('mapDataRefreshEnd', function() { window.plugin.portalNames.delayedUpdatePortalLabels(0.5); });
+  window.map.on('overlayadd overlayremove', function() { setTimeout(function(){window.plugin.portalNames.delayedUpdatePortalLabels(1.0);},1); });
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

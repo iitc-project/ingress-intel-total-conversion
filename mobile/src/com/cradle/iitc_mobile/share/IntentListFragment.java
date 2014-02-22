@@ -10,12 +10,14 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
 
 import java.util.ArrayList;
 
-public class IntentFragment extends Fragment implements OnScrollListener, OnItemClickListener {
+public class IntentListFragment extends Fragment implements OnScrollListener, OnItemClickListener {
+    private IntentAdapter mAdapter;
     private ArrayList<Intent> mIntents;
-    private IntentListView mListView;
+    private ListView mListView;
     private int mScrollIndex, mScrollTop;
 
     public int getIcon() {
@@ -27,12 +29,16 @@ public class IntentFragment extends Fragment implements OnScrollListener, OnItem
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Bundle args = getArguments();
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
+        final Bundle args = getArguments();
 
         mIntents = args.getParcelableArrayList("intents");
-        mListView = new IntentListView(getActivity());
-        mListView.setIntents(mIntents);
+
+        mAdapter = new IntentAdapter(getActivity());
+        mAdapter.setIntents(mIntents);
+
+        mListView = new ListView(getActivity());
+        mListView.setAdapter(mAdapter);
         if (mScrollIndex != -1 && mScrollTop != -1) {
             mListView.setSelectionFromTop(mScrollIndex, mScrollTop);
         }
@@ -43,23 +49,18 @@ public class IntentFragment extends Fragment implements OnScrollListener, OnItem
     }
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        ((ShareActivity) getActivity()).getIntentComparator().trackIntentSelection(mListView.getItem(position));
-
-        Intent intent = mListView.getTargetIntent(position);
-        startActivity(intent);
-
-        getActivity().finish();
+    public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
+        ((ShareActivity) getActivity()).launch(mAdapter.getItem(position));
     }
 
     @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+    public void onScroll(final AbsListView lv, final int firstItem, final int visibleItems, final int totalItems) {
         mScrollIndex = mListView.getFirstVisiblePosition();
-        View v = mListView.getChildAt(0);
+        final View v = mListView.getChildAt(0);
         mScrollTop = (v == null) ? 0 : v.getTop();
     }
 
     @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
+    public void onScrollStateChanged(final AbsListView view, final int scrollState) {
     }
 }

@@ -3,7 +3,7 @@
 // @name           IITC plugin: Favorite Portals
 // @category  Deleted
 // @version        0.2.0.@@DATETIMEVERSION@@
-// @description   PLUGIN CURRENTLY UNAVAILABLE
+// @description    Plugin replaced by the "Bookmarks for maps and portals" plugin
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@

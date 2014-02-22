@@ -34,8 +34,27 @@ window.plugin.drawTools.loadExternals = function() {
   $('head').append('<style>@@INCLUDESTRING:external/spectrum/spectrum.css@@</style>');
 }
 
-window.plugin.drawTools.currentColor = '#a24ac3';
+window.plugin.drawTools.getMarkerIcon = function(color) {
+  if (typeof(color) === 'undefined') {
+    console.warn('Color is not set or not a valid color. Using default color as fallback.');
+    color = '#a24ac3';
+  }
 
+  var svgIcon = window.plugin.drawTools.markerTemplate.replace(/%COLOR%/g, color);
+
+  return L.divIcon({
+    iconSize: new L.Point(25, 41),
+    iconAnchor: new L.Point(12, 41),
+    html: svgIcon,
+    className: 'leaflet-iitc-custom-icon',
+    // L.divIcon does not use the option color, but we store it here to
+    // be able to simply retrieve the color for serializing markers
+    color: color
+  });
+}
+
+window.plugin.drawTools.currentColor = '#a24ac3';
+window.plugin.drawTools.markerTemplate = '@@INCLUDESTRING:images/marker-icon.svg.template@@';
 
 window.plugin.drawTools.setOptions = function() {
 
@@ -60,7 +79,7 @@ window.plugin.drawTools.setOptions = function() {
   delete window.plugin.drawTools.editOptions.color;
 
   window.plugin.drawTools.markerOptions = {
-    icon: new L.Icon.Default(),
+    icon: window.plugin.drawTools.currentMarker,
     zIndexOffset: 2000
   };
 
@@ -68,11 +87,13 @@ window.plugin.drawTools.setOptions = function() {
 
 window.plugin.drawTools.setDrawColor = function(color) {
   window.plugin.drawTools.currentColor = color;
+  window.plugin.drawTools.currentMarker = window.plugin.drawTools.getMarkerIcon(color);
 
   window.plugin.drawTools.drawControl.setDrawingOptions({
     'polygon': { 'shapeOptions': { color: color } },
     'polyline': { 'shapeOptions': { color: color } },
     'circle': { 'shapeOptions': { color: color } },
+    'marker': { 'icon': window.plugin.drawTools.currentMarker },
   });
 }
 
@@ -113,14 +134,15 @@ window.plugin.drawTools.addDrawControl = function() {
         snapPoint: window.plugin.drawTools.getSnapLatLng,
       },
 
-      marker: {
+      // Options for marker (icon, zIndexOffset) are not set via shapeOptions,
+      // so we have merge them here!
+      marker: L.extend({}, window.plugin.drawTools.markerOptions, {
         title: 'Add a marker.\n\n'
           + 'Click on the button, then click on the map where\n'
           + 'you want the marker to appear.',
-        shapeOptions: window.plugin.drawTools.markerOptions,
         snapPoint: window.plugin.drawTools.getSnapLatLng,
-        repeatMode: true,
-      },
+        repeatMode: true
+      }),
 
     },
 
@@ -190,6 +212,7 @@ window.plugin.drawTools.save = function() {
     } else if (layer instanceof L.Marker) {
       item.type = 'marker';
       item.latLng = layer.getLatLng();
+      item.color = layer.options.icon.options.color;
     } else {
       console.warn('Unknown layer type when saving draw tools layer');
       return; //.eachLayer 'continue'
@@ -233,7 +256,9 @@ window.plugin.drawTools.import = function(data) {
         layer = L.geodesicCircle(item.latLng, item.radius, L.extend({},window.plugin.drawTools.polygonOptions,extraOpt));
         break;
       case 'marker':
-        layer = L.marker(item.latLng, window.plugin.drawTools.markerOptions);
+        var extraMarkerOpt = {};
+        if (item.color) extraMarkerOpt.icon = window.plugin.drawTools.getMarkerIcon(item.color);
+        layer = L.marker(item.latLng, L.extend({},window.plugin.drawTools.markerOptions,extraMarkerOpt));
         break;
       default:
         console.warn('unknown layer type "'+item.type+'" when loading draw tools layer');
@@ -256,8 +281,12 @@ window.plugin.drawTools.manualOpt = function() {
 //TODO: add line style choosers: thickness, maybe dash styles?
            + '</div>'
            + '<div class="drawtoolsSetbox">'
-           + '<a onclick="window.plugin.drawTools.optCopy();">Copy/Export Drawn Items</a>'
-           + '<a onclick="window.plugin.drawTools.optPaste();return false;">Paste/Import Drawn Items</a>'
+           + '<a onclick="window.plugin.drawTools.optCopy();">Copy Drawn Items</a>'
+           + '<a onclick="window.plugin.drawTools.optPaste();return false;">Paste Drawn Items</a>'
+           + (window.requestFile != undefined
+             ? '<a onclick="window.plugin.drawTools.optImport();return false;">Import Drawn Items</a>' : '')
+           + ((typeof android !== 'undefined' && android && android.saveFile)
+             ? '<a onclick="window.plugin.drawTools.optExport();return false;">Export Drawn Items</a>' : '')
            + '<a onclick="window.plugin.drawTools.optReset();return false;">Reset Drawn Items</a>'
            + '</div>';
 
@@ -302,6 +331,12 @@ window.plugin.drawTools.optCopy = function() {
     }
 }
 
+window.plugin.drawTools.optExport = function() {
+  if(typeof android !== 'undefined' && android && android.saveFile) {
+    android.saveFile('IITC-drawn-items.json', 'application/json', localStorage['plugin-draw-tools-layer']);
+  }
+}
+
 window.plugin.drawTools.optPaste = function() {
   var promptAction = prompt('Press CTRL+V to paste it.', '');
   if(promptAction !== null && promptAction !== '') {
@@ -318,8 +353,26 @@ window.plugin.drawTools.optPaste = function() {
       console.warn('DRAWTOOLS: failed to import data: '+e);
       window.plugin.drawTools.optAlert('<span style="color: #f88">Import failed</span>');
     }
-
   }
+}
+
+window.plugin.drawTools.optImport = function() {
+  if (window.requestFile === undefined) return;
+  window.requestFile(function(filename, content) {
+    try {
+      var data = JSON.parse(content);
+      window.plugin.drawTools.drawnItems.clearLayers();
+      window.plugin.drawTools.import(data);
+      console.log('DRAWTOOLS: reset and imported drawn tiems');
+      window.plugin.drawTools.optAlert('Import Successful.');
+
+      // to write back the data to localStorage
+      window.plugin.drawTools.save();
+    } catch(e) {
+      console.warn('DRAWTOOLS: failed to import data: '+e);
+      window.plugin.drawTools.optAlert('<span style="color: #f88">Import failed</span>');
+    }
+  });
 }
 
 window.plugin.drawTools.optReset = function() {
@@ -334,6 +387,8 @@ window.plugin.drawTools.optReset = function() {
 }
 
 window.plugin.drawTools.boot = function() {
+  window.plugin.drawTools.currentMarker = window.plugin.drawTools.getMarkerIcon(window.plugin.drawTools.currentColor);
+
   window.plugin.drawTools.setOptions();
 
   //create a leaflet FeatureGroup to hold drawn items

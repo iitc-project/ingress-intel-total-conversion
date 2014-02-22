@@ -6,16 +6,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Environment;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
 import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
 import com.cradle.iitc_mobile.share.ShareActivity;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 // provide communication between IITC script and android app
 public class IITC_JSInterface {
     // context of main activity
-    private final IITC_Mobile mIitc;
+    protected final IITC_Mobile mIitc;
 
     IITC_JSInterface(final IITC_Mobile iitc) {
         mIitc = iitc;
@@ -231,5 +236,21 @@ public class IITC_JSInterface {
     @JavascriptInterface
     public void setPermalink(final String href) {
         mIitc.setPermalink(href);
+    }
+
+    @JavascriptInterface
+    public void saveFile(final String filename, final String type, final String content) {
+        try {
+            final File outFile = new File(Environment.getExternalStorageDirectory().getPath() +
+                    "/IITC_Mobile/export/" + filename);
+            outFile.getParentFile().mkdirs();
+
+            final FileOutputStream outStream = new FileOutputStream(outFile);
+            outStream.write(content.getBytes("UTF-8"));
+            outStream.close();
+            Toast.makeText(mIitc, "File exported to " + outFile.getPath(), Toast.LENGTH_SHORT).show();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
     }
 }

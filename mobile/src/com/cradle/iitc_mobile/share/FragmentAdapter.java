@@ -7,16 +7,16 @@ import android.support.v4.app.FragmentPagerAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IntentFragmentAdapter extends FragmentPagerAdapter {
-    private final List<IntentFragment> mTabs;
+public class FragmentAdapter extends FragmentPagerAdapter {
+    private final List<IntentListFragment> mTabs;
 
-    public IntentFragmentAdapter(FragmentManager fm) {
+    public FragmentAdapter(final FragmentManager fm) {
         super(fm);
 
-        mTabs = new ArrayList<IntentFragment>();
+        mTabs = new ArrayList<IntentListFragment>();
     }
 
-    public void add(IntentFragment fragment) {
+    public void add(final IntentListFragment fragment) {
         mTabs.add(fragment);
     }
 
@@ -26,12 +26,12 @@ public class IntentFragmentAdapter extends FragmentPagerAdapter {
     }
 
     @Override
-    public Fragment getItem(int position) {
+    public Fragment getItem(final int position) {
         return mTabs.get(position);
     }
 
     @Override
-    public CharSequence getPageTitle(int position) {
+    public CharSequence getPageTitle(final int position) {
         return mTabs.get(position).getTitle();
     }
 }
