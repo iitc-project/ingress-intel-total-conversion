@@ -279,16 +279,10 @@ window.androidPermalink = function() {
 }
 
 
-window.getMinPortalLevelForZoom = function(z) {
-  var ZOOM_TO_LEVEL = [8, 8, 8, 8, 7, 7, 7, 6, 6, 5, 4, 4, 3, 2, 2, 1, 1];
-
-  return ZOOM_TO_LEVEL[z] || 0;
-}
-
 
 window.getMinPortalLevel = function() {
   var z = map.getZoom();
-  return getMinPortalLevelForZoom(z);
+  return getMapZoomTileParameters(z).level;
 }
 
 // returns number of pixels left to scroll down before reaching the

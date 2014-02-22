@@ -10,34 +10,42 @@
 // http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames
 
 
-window.zoomToTilesPerEdge = function(zoom) {
-//  var LEVEL_TO_TILES_PER_EDGE = [65536, 65536, 16384, 16384, 4096, 1536, 1024, 256, 32];
-//  return LEVEL_TO_TILES_PER_EDGE[level];
+window.getMapZoomTileParameters = function(zoom) {
+  // these arrays/constants are based on those in the stock intel site. it's essential we keep them in sync with their code
+  // (it may be worth reading the values from their code rather than using our own copies? it's a case of either
+  //  breaking if they rename their variables if we do, or breaking if they change the values if we don't)
   var ZOOM_TO_TILES_PER_EDGE = [32, 32, 32, 32, 256, 256, 256, 1024, 1024, 1536, 4096, 4096, 16384, 16384, 16384];
-  return ZOOM_TO_TILES_PER_EDGE[zoom] || 65536;
+  var MAX_TILES_PER_EDGE = 65536;
+  var ZOOM_TO_LEVEL = [8, 8, 8, 8, 7, 7, 7, 6, 6, 5, 4, 4, 3, 2, 2, 1, 1];
+
+  return {
+    level: ZOOM_TO_LEVEL[zoom] || 0,  // default to level 0 (all portals) if not in array
+    tilesPerEdge: ZOOM_TO_TILES_PER_EDGE[zoom] || MAX_TILES_PER_EDGE,
+    zoom: zoom  // include the zoom level, for reference
+  };
 }
 
 
-window.lngToTile = function(lng, zoom) {
-  return Math.floor((lng + 180) / 360 * zoomToTilesPerEdge(zoom));
+window.lngToTile = function(lng, params) {
+  return Math.floor((lng + 180) / 360 * params.tilesPerEdge);
 }
 
-window.latToTile = function(lat, zoom) {
+window.latToTile = function(lat, params) {
   return Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) +
-    1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * zoomToTilesPerEdge(zoom));
+    1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * params.tilesPerEdge);
 }
 
-window.tileToLng = function(x, zoom) {
-  return x / zoomToTilesPerEdge(zoom) * 360 - 180;
+window.tileToLng = function(x, params) {
+  return x / params.tilesPerEdge * 360 - 180;
 }
 
-window.tileToLat = function(y, zoom) {
-  var n = Math.PI - 2 * Math.PI * y / zoomToTilesPerEdge(zoom);
+window.tileToLat = function(y, params) {
+  var n = Math.PI - 2 * Math.PI * y / params.tilesPerEdge;
   return 180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
 }
 
-window.pointToTileId = function(zoom, x, y) {
-  return zoom + "_" + x + "_" + y;
+window.pointToTileId = function(params, x, y) {
+  return params.zoom + "_" + x + "_" + y;
 }
 
 

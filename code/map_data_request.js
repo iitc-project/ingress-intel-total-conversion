@@ -180,8 +180,8 @@ window.MapDataRequest.prototype.refresh = function() {
 
   var bounds = clampLatLngBounds(map.getBounds());
   var zoom = map.getZoom();
-//TODO: fix this: the API now takes zoom (again) rather than portal level, so we need to go back to more like the old API
-  var minPortalLevel = getMinPortalLevelForZoom(zoom);
+
+  var tileParams = getMapZoomTileParameters(zoom);
 
 //DEBUG: resize the bounds so we only retrieve some data
 //bounds = bounds.pad(-0.4);
@@ -189,36 +189,34 @@ window.MapDataRequest.prototype.refresh = function() {
 //var debugrect = L.rectangle(bounds,{color: 'red', fill: false, weight: 4, opacity: 0.8}).addTo(map);
 //setTimeout (function(){ map.removeLayer(debugrect); }, 10*1000);
 
-  var x1 = lngToTile(bounds.getWest(), zoom);
-  var x2 = lngToTile(bounds.getEast(), zoom);
-  var y1 = latToTile(bounds.getNorth(), zoom);
-  var y2 = latToTile(bounds.getSouth(), zoom);
+  var x1 = lngToTile(bounds.getWest(), tileParams);
+  var x2 = lngToTile(bounds.getEast(), tileParams);
+  var y1 = latToTile(bounds.getNorth(), tileParams);
+  var y2 = latToTile(bounds.getSouth(), tileParams);
 
   // calculate the full bounds for the data - including the part of the tiles off the screen edge
   var dataBounds = L.latLngBounds([
-    [tileToLat(y2+1,zoom), tileToLng(x1,zoom)],
-    [tileToLat(y1,zoom), tileToLng(x2+1,zoom)]
+    [tileToLat(y2+1,tileParams), tileToLng(x1,tileParams)],
+    [tileToLat(y1,tileParams), tileToLng(x2+1,tileParams)]
   ]);
 //var debugrect2 = L.rectangle(dataBounds,{color: 'magenta', fill: false, weight: 4, opacity: 0.8}).addTo(map);
 //setTimeout (function(){ map.removeLayer(debugrect2); }, 10*1000);
 
   // store the parameters used for fetching the data. used to prevent unneeded refreshes after move/zoom
-  this.fetchedDataParams = { bounds: dataBounds, mapZoom: map.getZoom(), minPortalLevel: minPortalLevel, zoom: zoom };
+  this.fetchedDataParams = { bounds: dataBounds, mapZoom: map.getZoom(), zoom: zoom };
 
 
-  window.runHooks ('mapDataRefreshStart', {bounds: bounds, zoom: zoom, minPortalLevel: minPortalLevel, tileBounds: dataBounds});
+  window.runHooks ('mapDataRefreshStart', {bounds: bounds, zoom: zoom, minPortalLevel: tileParams.level, tileBounds: dataBounds});
 
   this.render.startRenderPass();
-  this.render.clearPortalsBelowLevel(minPortalLevel);
-
-
+  this.render.clearPortalsBelowLevel(tileParams.level);
   this.render.clearEntitiesOutsideBounds(dataBounds);
 
   this.render.updateEntityVisibility();
 
   this.render.processGameEntities(artifact.getArtifactEntities());
 
-  console.log('requesting data tiles at zoom '+zoom+' (L'+minPortalLevel+'+ portals), map zoom is '+map.getZoom());
+  console.log('requesting data tiles at zoom '+zoom+' (L'+tileParams.level+'+ portals, '+tileParams.tilesPerEdge+' tiles per global edge), map zoom is '+map.getZoom());
 
 
   this.cachedTileCount = 0;
@@ -236,11 +234,11 @@ window.MapDataRequest.prototype.refresh = function() {
   for (var y = y1; y <= y2; y++) {
     // x goes from bottom to top(?)
     for (var x = x1; x <= x2; x++) {
-      var tile_id = pointToTileId(zoom, x, y);
-      var latNorth = tileToLat(y,zoom);
-      var latSouth = tileToLat(y+1,zoom);
-      var lngWest = tileToLng(x,zoom);
-      var lngEast = tileToLng(x+1,zoom);
+      var tile_id = pointToTileId(tileParams, x, y);
+      var latNorth = tileToLat(y,tileParams);
+      var latSouth = tileToLat(y+1,tileParams);
+      var lngWest = tileToLng(x,tileParams);
+      var lngEast = tileToLng(x+1,tileParams);
 
       this.debugTiles.create(tile_id,[[latSouth,lngWest],[latNorth,lngEast]]);
 
