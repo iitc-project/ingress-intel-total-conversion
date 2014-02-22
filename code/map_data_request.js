@@ -20,13 +20,8 @@ window.MapDataRequest = function() {
   // using our own queue limit ensures that other requests (e.g. chat, portal details) don't get delayed
   this.MAX_REQUESTS = 5;
 
-  // no more than this many tiles in one request
-  // as of 2013-11-11, or possibly the release before that, the stock site was changed to only request four tiles at a time
-  // (which matches the number successfully returned for a *long* time!)
-  this.MAX_TILES_PER_REQUEST = 4;
-
-  // try to maintain at least this may tiles in each request, by reducing the number of requests as needed
-  this.MIN_TILES_PER_REQUEST = 4;
+  // this many tiles in one request
+  this.NUM_TILES_PER_REQUEST = 4;
 
   // number of times to retry a tile after a 'bad' error (i.e. not a timeout)
   this.MAX_TILE_RETRIES = 2;
@@ -185,6 +180,7 @@ window.MapDataRequest.prototype.refresh = function() {
 
   var bounds = clampLatLngBounds(map.getBounds());
   var zoom = map.getZoom();
+//TODO: fix this: the API now takes zoom (again) rather than portal level, so we need to go back to more like the old API
   var minPortalLevel = getMinPortalLevelForZoom(zoom);
 
 //DEBUG: resize the bounds so we only retrieve some data
@@ -193,21 +189,21 @@ window.MapDataRequest.prototype.refresh = function() {
 //var debugrect = L.rectangle(bounds,{color: 'red', fill: false, weight: 4, opacity: 0.8}).addTo(map);
 //setTimeout (function(){ map.removeLayer(debugrect); }, 10*1000);
 
-  var x1 = lngToTile(bounds.getWest(), minPortalLevel);
-  var x2 = lngToTile(bounds.getEast(), minPortalLevel);
-  var y1 = latToTile(bounds.getNorth(), minPortalLevel);
-  var y2 = latToTile(bounds.getSouth(), minPortalLevel);
+  var x1 = lngToTile(bounds.getWest(), zoom);
+  var x2 = lngToTile(bounds.getEast(), zoom);
+  var y1 = latToTile(bounds.getNorth(), zoom);
+  var y2 = latToTile(bounds.getSouth(), zoom);
 
   // calculate the full bounds for the data - including the part of the tiles off the screen edge
   var dataBounds = L.latLngBounds([
-    [tileToLat(y2+1,minPortalLevel), tileToLng(x1,minPortalLevel)],
-    [tileToLat(y1,minPortalLevel), tileToLng(x2+1,minPortalLevel)]
+    [tileToLat(y2+1,zoom), tileToLng(x1,zoom)],
+    [tileToLat(y1,zoom), tileToLng(x2+1,zoom)]
   ]);
 //var debugrect2 = L.rectangle(dataBounds,{color: 'magenta', fill: false, weight: 4, opacity: 0.8}).addTo(map);
 //setTimeout (function(){ map.removeLayer(debugrect2); }, 10*1000);
 
   // store the parameters used for fetching the data. used to prevent unneeded refreshes after move/zoom
-  this.fetchedDataParams = { bounds: dataBounds, mapZoom: map.getZoom(), minPortalLevel: minPortalLevel };
+  this.fetchedDataParams = { bounds: dataBounds, mapZoom: map.getZoom(), minPortalLevel: minPortalLevel, zoom: zoom };
 
 
   window.runHooks ('mapDataRefreshStart', {bounds: bounds, zoom: zoom, minPortalLevel: minPortalLevel, tileBounds: dataBounds});
@@ -240,11 +236,11 @@ window.MapDataRequest.prototype.refresh = function() {
   for (var y = y1; y <= y2; y++) {
     // x goes from bottom to top(?)
     for (var x = x1; x <= x2; x++) {
-      var tile_id = pointToTileId(minPortalLevel, x, y);
-      var latNorth = tileToLat(y,minPortalLevel);
-      var latSouth = tileToLat(y+1,minPortalLevel);
-      var lngWest = tileToLng(x,minPortalLevel);
-      var lngEast = tileToLng(x+1,minPortalLevel);
+      var tile_id = pointToTileId(zoom, x, y);
+      var latNorth = tileToLat(y,zoom);
+      var latSouth = tileToLat(y+1,zoom);
+      var lngWest = tileToLng(x,zoom);
+      var lngEast = tileToLng(x+1,zoom);
 
       this.debugTiles.create(tile_id,[[latSouth,lngWest],[latNorth,lngEast]]);
 
@@ -258,10 +254,10 @@ window.MapDataRequest.prototype.refresh = function() {
         // no fresh data
 
         // render the cached stale data, if we have it. this ensures *something* appears quickly when possible
-        var old_data = this.cache && this.cache.get(tile_id);
-        if (old_data) {
-          this.render.processTileData (old_data);
-        }
+//        var old_data = this.cache && this.cache.get(tile_id);
+//        if (old_data) {
+//          this.render.processTileData (old_data);
+//        }
 
         // tile needed. calculate the distance from the centre of the screen, to optimise the load order
 
@@ -363,26 +359,13 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
   var requestBuckets = this.MAX_REQUESTS - this.activeRequestCount;
   if (pendingTiles.length > 0 && requestBuckets > 0) {
 
-    // the stock site calculates bucket grouping with the simplistic <8 tiles: 1 bucket, otherwise 4 buckets
-    var maxBuckets = Math.ceil(pendingTiles.length/this.MIN_TILES_PER_REQUEST);
-
-    requestBuckets = Math.min (maxBuckets, requestBuckets);
-
-    var lastTileIndex = Math.min(requestBuckets*this.MAX_TILES_PER_REQUEST, pendingTiles.length);
-
-    for (var bucket=0; bucket<requestBuckets; bucket++) {
-      // create each request by taking tiles interleaved from the request
-
-      var tiles = [];
-      for (var i=bucket; i<lastTileIndex; i+=requestBuckets) {
-        tiles.push (pendingTiles[i]);
-      }
-
+    for (var bucket=0; bucket < requestBuckets; bucket++) {
+      var tiles = pendingTiles.splice(0, this.NUM_TILES_PER_REQUEST);
       if (tiles.length > 0) {
-//        console.log('-- new request: '+tiles.length+' tiles');
         this.sendTileRequest(tiles);
       }
     }
+
   }
 
 
