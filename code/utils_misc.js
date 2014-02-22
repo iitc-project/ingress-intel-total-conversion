@@ -282,6 +282,7 @@ window.androidPermalink = function() {
 
 window.getMinPortalLevel = function() {
   var z = map.getZoom();
+  z = getDataZoomForMapZoom(z);
   return getMapZoomTileParameters(z).level;
 }
 

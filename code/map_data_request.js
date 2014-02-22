@@ -179,9 +179,12 @@ window.MapDataRequest.prototype.refresh = function() {
 
 
   var bounds = clampLatLngBounds(map.getBounds());
-  var zoom = map.getZoom();
+  var mapZoom = map.getZoom();
 
-  var tileParams = getMapZoomTileParameters(zoom);
+  var dataZoom = getDataZoomForMapZoom(mapZoom);
+
+  var tileParams = getMapZoomTileParameters(dataZoom);
+
 
 //DEBUG: resize the bounds so we only retrieve some data
 //bounds = bounds.pad(-0.4);
@@ -203,10 +206,10 @@ window.MapDataRequest.prototype.refresh = function() {
 //setTimeout (function(){ map.removeLayer(debugrect2); }, 10*1000);
 
   // store the parameters used for fetching the data. used to prevent unneeded refreshes after move/zoom
-  this.fetchedDataParams = { bounds: dataBounds, mapZoom: map.getZoom(), zoom: zoom };
+  this.fetchedDataParams = { bounds: dataBounds, mapZoom: mapZoom, dataZoom: dataZoom };
 
 
-  window.runHooks ('mapDataRefreshStart', {bounds: bounds, zoom: zoom, minPortalLevel: tileParams.level, tileBounds: dataBounds});
+  window.runHooks ('mapDataRefreshStart', {bounds: bounds, mapZoom: mapZoom, dataZoom: dataZoom, minPortalLevel: tileParams.level, tileBounds: dataBounds});
 
   this.render.startRenderPass();
   this.render.clearPortalsBelowLevel(tileParams.level);
@@ -216,7 +219,7 @@ window.MapDataRequest.prototype.refresh = function() {
 
   this.render.processGameEntities(artifact.getArtifactEntities());
 
-  console.log('requesting data tiles at zoom '+zoom+' (L'+tileParams.level+'+ portals, '+tileParams.tilesPerEdge+' tiles per global edge), map zoom is '+map.getZoom());
+  console.log('requesting data tiles at zoom '+dataZoom+' (L'+tileParams.level+'+ portals, '+tileParams.tilesPerEdge+' tiles per global edge), map zoom is '+mapZoom);
 
 
   this.cachedTileCount = 0;
@@ -228,7 +231,7 @@ window.MapDataRequest.prototype.refresh = function() {
   var tilesToFetchDistance = {};
 
   // map center point - for fetching center tiles first
-  var mapCenterPoint = map.project(map.getCenter(), zoom);
+  var mapCenterPoint = map.project(map.getCenter(), mapZoom);
 
   // y goes from left to right
   for (var y = y1; y <= y2; y++) {
@@ -263,7 +266,7 @@ window.MapDataRequest.prototype.refresh = function() {
         var lngCenter = (lngEast+lngWest)/2;
         var tileLatLng = L.latLng(latCenter,lngCenter);
 
-        var tilePoint = map.project(tileLatLng, zoom);
+        var tilePoint = map.project(tileLatLng, mapZoom);
 
         var delta = mapCenterPoint.subtract(tilePoint);
         var distanceSquared = delta.x*delta.x + delta.y*delta.y;

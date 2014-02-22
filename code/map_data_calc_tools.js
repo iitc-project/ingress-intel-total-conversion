@@ -26,6 +26,83 @@ window.getMapZoomTileParameters = function(zoom) {
 }
 
 
+window.getDataZoomForMapZoom = function(zoom) {
+  // we can fetch data at a zoom level different to the map zoom.
+
+  //NOTE: the specifics of this are tightly coupled with the above ZOOM_TO_LEVEL and ZOOM_TO_TILES_PER_EDGE arrays
+
+  // firstly, some of IITCs zoom levels, depending on base map layer, can be higher than stock. limit zoom level
+  if (zoom > 18) {
+    zoom = 18;
+  }
+
+  if (!window.CONFIG_ZOOM_DEFAULT_DETAIL_LEVEL) {
+    // some reasonable optimisations of data retreival
+
+    switch(zoom) {
+      case 2:
+      case 3:
+        // L8 portals - fall back to the furthest out view. less detail, faster retreival. cache advantages when zooming
+        // (note: iitc + stock both limited so zoom 0 never possible)
+        zoom = 1;
+        break;
+
+      case 4:
+        // default is L7 - but this is a crazy number of tiles. fall back to L8 (but higher detail than above)
+        // (the back-end does, unfortunately, rarely (never?) returns large fields with L8-only portals
+        zoom = 3;
+        break;
+
+      case 5:
+      case 6:
+        // default L7 - pull out to furthest L7 zoom
+        zoom = 4;
+        break;
+
+      case 8:
+        // default L6 - pull back to highest L6 zoom
+        zoom = 7;
+        break;
+
+      // L5 portals - only one zoom level
+
+      case 11:
+        // default L4 - pull back to lower detail L4
+        zoom = 10;
+        break;
+
+      // L3 portals - only one zoom level
+
+      case 14:
+        // L2 portals - pull back to furthest
+        zoom = 13;
+        break;
+
+      case 16:
+        // L1 portals - pull back to furthest zoom
+        zoom = 15;
+        break;
+
+      default:
+        if (zoom >= 18) {
+          // all portals - pull back to furthest zoom
+          zoom = 17;
+        }
+        break;
+    }
+  }
+
+  if (window.CONFIG_ZOOM_SHOW_MORE_PORTALS) {
+    if (zoom >= 15) {
+      //L1+ and closer zooms. the 'all portals' zoom uses the same tile size, so it's no harm to request things at that zoom level
+      zoom = 17;
+    }
+  }
+
+  return zoom;
+}
+
+
 window.lngToTile = function(lng, params) {
   return Math.floor((lng + 180) / 360 * params.tilesPerEdge);
 }
