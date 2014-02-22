@@ -2,7 +2,7 @@
 // @id             iitc-plugin-default-intel-detail@jonatkins
 // @name           IITC plugin: Default intel detail level
 // @category       Tweaks
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -24,22 +24,22 @@ window.plugin.defaultIntelDetail = function() {};
 
 window.plugin.defaultIntelDetail.setup  = function() {
 
-  var stockIntelDetail = nemesis.dashboard.zoomlevel.ZOOM_TO_LOD_;
-
-  // save the original function - so we can chain to it for levels we don't modify
-  var origGetMinPortalLevelForZoom = window.getMinPortalLevelForZoom;
-
-  // replace the window.getMinPortalLevelForZoom function - modify behaviour when L1+ or L3+ portals are shown
-
-  window.getMinPortalLevelForZoom = function(z) {
-    // for the further out zoom levels, use the stock intel site detail levels
-    if (z <= 11) {
-      return stockIntelDetail[z];
-    }
-    // for the closer zoom levels, stock intel and IITC default is the same. falling back
-    // in this case allows this plugin to work alongside show-more-portals
-    return origGetMinPortalLevelForZoom(z);
-  }
+//  var stockIntelDetail = nemesis.dashboard.zoomlevel.ZOOM_TO_LOD_;
+//
+//  // save the original function - so we can chain to it for levels we don't modify
+//  var origGetMinPortalLevelForZoom = window.getMinPortalLevelForZoom;
+//
+//  // replace the window.getMinPortalLevelForZoom function - modify behaviour when L1+ or L3+ portals are shown
+//
+//  window.getMinPortalLevelForZoom = function(z) {
+//    // for the further out zoom levels, use the stock intel site detail levels
+//    if (z <= 11) {
+//      return stockIntelDetail[z];
+//    }
+//    // for the closer zoom levels, stock intel and IITC default is the same. falling back
+//    // in this case allows this plugin to work alongside show-more-portals
+//    return origGetMinPortalLevelForZoom(z);
+//  }
 
 
 };
