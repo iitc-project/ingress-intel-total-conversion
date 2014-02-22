@@ -1,5 +1,16 @@
 <h2>News</h2>
 
+<h4>22nd February 2014</h4>
+<p>
+IITC 0.16.5 and IITC Mobile 0.10.5 have just been released. This version is required to work with a change made to the
+standard intel site. Also, the following changes have been made:
+</p>
+<ul>
+<li>The new Artifacts are now supported</li>
+<li>Bookmarks plugin updated</li>
+<li>Draw tools plugin: markers updated to also support colours</li>
+</ul>
+
 <h4>6th February 2014</h4>
 <p>
 IITC 0.16.4 and IITC Mobile 0.10.4 have just been released. This version is required to fix a bug with showing portal details
