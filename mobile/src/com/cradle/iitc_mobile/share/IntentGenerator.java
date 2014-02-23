@@ -9,6 +9,7 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 
 import com.cradle.iitc_mobile.Log;
+import com.cradle.iitc_mobile.R;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -146,11 +147,9 @@ public class IntentGenerator {
 
         if (!containsCopyIntent(targets)) {
             // add SendToClipboard intent in case Drive is not installed
-            Intent copyToClipboardIntent = new Intent(intent);
-            copyToClipboardIntent.setComponent(new ComponentName(mContext, SendToClipboard.class));
-            ResolveInfo activity = mPackageManager.resolveActivity(copyToClipboardIntent, 0);
-            copyToClipboardIntent.putExtra(EXTRA_FLAG_TITLE, activity.loadLabel(mPackageManager));
-            targets.add(copyToClipboardIntent);
+            targets.add(new Intent(intent)
+                    .setComponent(new ComponentName(mContext, SendToClipboard.class))
+                    .putExtra(EXTRA_FLAG_TITLE, mContext.getString(R.string.activity_share_to_clipboard)));
         }
 
         return targets;
