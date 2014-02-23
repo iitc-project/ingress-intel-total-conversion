@@ -73,8 +73,8 @@ public class IntentGenerator {
             final ActivityInfo activity = resolveInfo.activityInfo;
             final ComponentName component = new ComponentName(activity.packageName, activity.name);
 
-            // remove IITCm and IITCm test from list
-            if (activity.packageName.contains(packageName)) continue;
+            // remove IITCm from list
+            if (activity.packageName.equals(packageName)) continue;
 
             final Intent targetIntent = new Intent(intent)
                     .setComponent(component)
