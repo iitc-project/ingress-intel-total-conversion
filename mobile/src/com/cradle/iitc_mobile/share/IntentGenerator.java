@@ -146,7 +146,11 @@ public class IntentGenerator {
 
         if (!containsCopyIntent(targets)) {
             // add SendToClipboard intent in case Drive is not installed
-            targets.add(new Intent(intent).setComponent(new ComponentName(mContext, SendToClipboard.class)));
+            Intent copyToClipboardIntent = new Intent(intent);
+            copyToClipboardIntent.setComponent(new ComponentName(mContext, SendToClipboard.class));
+            ResolveInfo activity = mPackageManager.resolveActivity(copyToClipboardIntent, 0);
+            copyToClipboardIntent.putExtra(EXTRA_FLAG_TITLE, activity.loadLabel(mPackageManager));
+            targets.add(copyToClipboardIntent);
         }
 
         return targets;
