@@ -73,8 +73,13 @@ public class IntentGenerator {
             final ActivityInfo activity = resolveInfo.activityInfo;
             final ComponentName component = new ComponentName(activity.packageName, activity.name);
 
-            // remove IITCm from list
+            // remove IITCm from list (we only want other apps)
             if (activity.packageName.equals(packageName)) continue;
+
+            // bug in package manager. not exported activities shouldn't even appear here
+            // (usually you would have to compare the package name as well, but since we ignore our own activities,
+            // this isn't necessary)
+            if (!activity.exported) continue;
 
             final Intent targetIntent = new Intent(intent)
                     .setComponent(component)
