@@ -469,6 +469,7 @@ public class IITC_Mobile extends Activity
     }
 
     public void switchToPane(final Pane pane) {
+        if (mDesktopMode) return;
         mIitcWebView.loadUrl("javascript: window.show('" + pane.name + "');");
     }
 
