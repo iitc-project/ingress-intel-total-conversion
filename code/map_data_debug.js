@@ -4,7 +4,7 @@
 
 window.RenderDebugTiles = function() {
   this.debugTileLayer = L.layerGroup();
-  window.addLayerGroup("DEBUG Data Tiles", this.debugTileLayer);
+  window.addLayerGroup("DEBUG Data Tiles", this.debugTileLayer, false);
 
   this.debugTileToRectangle = {};
 }
