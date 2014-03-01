@@ -55,7 +55,6 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
     private FragmentAdapter mFragmentAdapter;
     private IntentGenerator mGenerator;
     private SharedPreferences mSharedPrefs = null;
-    private String mTitle;
     private ViewPager mViewPager;
 
     private void addTab(final ArrayList<Intent> intents, final int label, final int icon) {
@@ -115,34 +114,33 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         final String type = intent.getStringExtra(EXTRA_TYPE);
         // from portallinks/permalinks we build 3 intents (share / geo / vanilla-intel-link)
         if (TYPE_PERMALINK.equals(type) || TYPE_PORTAL_LINK.equals(type)) {
-            mTitle = intent.getStringExtra("title");
+            final String title = intent.getStringExtra("title");
             final String ll = intent.getDoubleExtra("lat", 0) + "," + intent.getDoubleExtra("lng", 0);
             final int zoom = intent.getIntExtra("zoom", 0);
             final String url = getIntelUrl(ll, zoom, TYPE_PORTAL_LINK.equals(type));
 
-            actionBar.setTitle(mTitle);
+            actionBar.setTitle(title);
 
-            addTab(mGenerator.getShareIntents(mTitle, url),
+            addTab(mGenerator.getShareIntents(title, url),
                     R.string.tab_share,
                     R.drawable.ic_action_share);
-            addTab(mGenerator.getGeoIntents(mTitle, ll, zoom),
+            addTab(mGenerator.getGeoIntents(title, ll, zoom),
                     R.string.tab_map,
                     R.drawable.ic_action_place);
-            addTab(mGenerator.getBrowserIntents(mTitle, url),
+            addTab(mGenerator.getBrowserIntents(title, url),
                     R.string.tab_browser,
                     R.drawable.ic_action_web_site);
         } else if (TYPE_STRING.equals(type)) {
-            mTitle = getString(R.string.app_name);
+            final String title = getString(R.string.app_name);
             final String shareString = intent.getStringExtra("shareString");
 
-            addTab(mGenerator.getShareIntents(mTitle, shareString), R.string.tab_share, R.drawable.ic_action_share);
+            addTab(mGenerator.getShareIntents(title, shareString), R.string.tab_share, R.drawable.ic_action_share);
         } else if (TYPE_FILE.equals(type)) {
-            mTitle = "Screenshot";
 
             final Uri uri = intent.getParcelableExtra("uri");
             final String mime = intent.getStringExtra("type");
 
-            addTab(mGenerator.getShareIntents(mTitle, uri, mime), R.string.tab_share, R.drawable.ic_action_share);
+            addTab(mGenerator.getShareIntents(uri, mime), R.string.tab_share, R.drawable.ic_action_share);
         } else {
             Log.w("Unknown sharing type: " + type);
             setResult(RESULT_CANCELED);

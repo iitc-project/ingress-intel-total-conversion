@@ -8,6 +8,7 @@
     <string name="activity_plugins">IITC Plugins</string>
     <string name="activity_share">Share using…</string>
     <string name="activity_share_to_clipboard">Copy to clipboard</string>
+    <string name="activity_save_to_file">Save to file</string>
     <string name="action_settings">Settings</string>
     <string name="drawer_open">Show navigation menu</string>
     <string name="drawer_close">Hide navigation menu</string>

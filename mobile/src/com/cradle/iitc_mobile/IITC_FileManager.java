@@ -63,8 +63,7 @@ public class IITC_FileManager {
      * @throws IOException
      */
     public static void copyStream(final InputStream inStream, final OutputStream outStream, final boolean closeOutput)
-            throws IOException
-    {
+            throws IOException {
         // in case Android includes Apache commons IO in the future, this function should be replaced by IOUtils.copy
         final int bufferSize = 4096;
         final byte[] buffer = new byte[bufferSize];
@@ -94,20 +93,20 @@ public class IITC_FileManager {
         map.put("name", "unknown");
         map.put("description", "");
         map.put("category", "Misc");
-        BufferedReader reader = new BufferedReader(new StringReader(header));
+        final BufferedReader reader = new BufferedReader(new StringReader(header));
         String headerLine;
         try {
             while ((headerLine = reader.readLine()) != null) {
                 if (headerLine.matches("//.*@.*")) {
                     // get start of key name (first @ in line)
-                    String[] keyStart = headerLine.split("@", 2);
+                    final String[] keyStart = headerLine.split("@", 2);
                     // split key value
-                    String[] keyValue = keyStart[1].split(" ", 2);
+                    final String[] keyValue = keyStart[1].split(" ", 2);
                     // remove whitespaces from string begin and end and push to map
                     map.put(keyValue[0].trim(), keyValue[1].trim());
                 }
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             Log.w(e);
         }
         return map;
@@ -279,7 +278,7 @@ public class IITC_FileManager {
                     InputStream is;
                     String fileName;
                     if (uri.getScheme().contains("http")) {
-                        URLConnection conn = new URL(url).openConnection();
+                        final URLConnection conn = new URL(url).openConnection();
                         is = conn.getInputStream();
                         fileName = uri.getLastPathSegment();
                     } else {
