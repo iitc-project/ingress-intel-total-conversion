@@ -863,7 +863,12 @@ public class IITC_Mobile extends Activity
                 // quality is ignored by PNG
                 throw new IOException("Could not compress bitmap!");
             }
-            startActivity(ShareActivity.forFile(this, file, "image/png"));
+            startActivityForResult(ShareActivity.forFile(this, file, "image/png"), new ResponseHandler() {
+                @Override
+                public void onActivityResult(final int resultCode, final Intent data) {
+                    file.delete();
+                }
+            });
         } catch (final IOException e) {
             Log.e("Could not generate screenshot", e);
         }

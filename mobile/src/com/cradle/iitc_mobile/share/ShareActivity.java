@@ -21,6 +21,7 @@ import java.util.ArrayList;
 
 public class ShareActivity extends FragmentActivity implements ActionBar.TabListener {
     private static final String EXTRA_TYPE = "share-type";
+    private static final int REQUEST_START_INTENT = 1;
     private static final String TYPE_FILE = "file";
     private static final String TYPE_PERMALINK = "permalink";
     private static final String TYPE_PORTAL_LINK = "portal_link";
@@ -86,6 +87,18 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
     }
 
     @Override
+    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        if (REQUEST_START_INTENT == requestCode) {
+            setResult(resultCode, data);
+            // parent activity can now clean up
+            finish();
+            return;
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share);
@@ -132,6 +145,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
             addTab(mGenerator.getShareIntents(mTitle, uri, mime), R.string.tab_share, R.drawable.ic_action_share);
         } else {
             Log.w("Unknown sharing type: " + type);
+            setResult(RESULT_CANCELED);
             finish();
             return;
         }
@@ -186,8 +200,9 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
     public void launch(final Intent intent) {
         mComparator.trackIntentSelection(intent);
         mGenerator.cleanup(intent);
-        startActivity(intent);
-        finish();
+
+        // we should wait for the new intent to be finished so the calling activity (IITC_Mobile) can clean up
+        startActivityForResult(intent, REQUEST_START_INTENT);
     }
 
     @Override
