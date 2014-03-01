@@ -850,16 +850,25 @@ public class IITC_Mobile extends Activity
     }
 
     private void sendScreenshot() {
-        mIitcWebView.setDrawingCacheEnabled(true);
-        final Bitmap bitmap = mIitcWebView.getDrawingCache();
+        Bitmap bitmap = mIitcWebView.getDrawingCache();
         if (bitmap == null) {
-            Log.e("getDrawingCache() returned null!");
-            return;
+            mIitcWebView.buildDrawingCache();
+            bitmap = mIitcWebView.getDrawingCache();
+            if (bitmap == null) {
+                Log.e("could not get bitmap!");
+                return;
+            }
+            bitmap = Bitmap.createBitmap(bitmap);
+            if (!mIitcWebView.isDrawingCacheEnabled()) mIitcWebView.destroyDrawingCache();
         }
+        else {
+            bitmap = Bitmap.createBitmap(bitmap);
+        }
+
         try {
             final File cache = getExternalCacheDir();
             final File file = File.createTempFile("IITC screenshot", ".png", cache);
-            if (!Bitmap.createBitmap(bitmap).compress(CompressFormat.PNG, 100, new FileOutputStream(file))) {
+            if (!bitmap.compress(CompressFormat.PNG, 100, new FileOutputStream(file))) {
                 // quality is ignored by PNG
                 throw new IOException("Could not compress bitmap!");
             }
