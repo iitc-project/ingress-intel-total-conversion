@@ -140,8 +140,8 @@ public class IntentGenerator {
         final Intent intent = new Intent(Intent.ACTION_SEND)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET)
                 .setType("text/plain")
-                .putExtra(Intent.EXTRA_TEXT, text)
-                .putExtra(Intent.EXTRA_SUBJECT, title);
+                .putExtra(Intent.EXTRA_SUBJECT, title)
+                .putExtra(Intent.EXTRA_TEXT, text);
 
         final ArrayList<Intent> targets = resolveTargets(intent);
 
@@ -153,5 +153,13 @@ public class IntentGenerator {
         }
 
         return targets;
+    }
+
+    public ArrayList<Intent> getShareIntents(final String title, final Uri uri, final String type) {
+        return resolveTargets(new Intent(Intent.ACTION_SEND)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET)
+                .setType(type)
+                .putExtra(Intent.EXTRA_SUBJECT, title)
+                .putExtra(Intent.EXTRA_STREAM, uri));
     }
 }

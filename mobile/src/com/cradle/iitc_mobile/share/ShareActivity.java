@@ -2,8 +2,10 @@ package com.cradle.iitc_mobile.share;
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
@@ -11,20 +13,49 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.view.MenuItem;
 
+import com.cradle.iitc_mobile.Log;
 import com.cradle.iitc_mobile.R;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class ShareActivity extends FragmentActivity implements ActionBar.TabListener {
+    private static final String EXTRA_TYPE = "share-type";
+    private static final String TYPE_FILE = "file";
+    private static final String TYPE_PERMALINK = "permalink";
+    private static final String TYPE_PORTAL_LINK = "portal_link";
+    private static final String TYPE_STRING = "string";
+
+    public static Intent forFile(final Context context, final File file, final String type) {
+        return new Intent(context, ShareActivity.class)
+                .putExtra(EXTRA_TYPE, TYPE_FILE)
+                .putExtra("uri", Uri.fromFile(file))
+                .putExtra("type", type);
+    }
+
+    public static Intent forPosition(final Context context, final double lat, final double lng, final int zoom,
+            final String title, final boolean isPortal) {
+        return new Intent(context, ShareActivity.class)
+                .putExtra(EXTRA_TYPE, isPortal ? TYPE_PORTAL_LINK : TYPE_PERMALINK)
+                .putExtra("lat", lat)
+                .putExtra("lng", lng)
+                .putExtra("zoom", zoom)
+                .putExtra("title", title)
+                .putExtra("isPortal", isPortal);
+    }
+
+    public static Intent forString(final Context context, final String str) {
+        return new Intent(context, ShareActivity.class)
+                .putExtra(EXTRA_TYPE, TYPE_STRING)
+                .putExtra("shareString", str);
+    }
+
     private IntentComparator mComparator;
     private FragmentAdapter mFragmentAdapter;
     private IntentGenerator mGenerator;
-    private boolean mIsPortal;
-    private String mLl;
     private SharedPreferences mSharedPrefs = null;
     private String mTitle;
     private ViewPager mViewPager;
-    private int mZoom;
 
     private void addTab(final ArrayList<Intent> intents, final int label, final int icon) {
         final IntentListFragment fragment = new IntentListFragment();
@@ -36,10 +67,10 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         mFragmentAdapter.add(fragment);
     }
 
-    private String getIntelUrl() {
-        String url = "http://www.ingress.com/intel?ll=" + mLl + "&z=" + mZoom;
-        if (mIsPortal) {
-            url += "&pll=" + mLl;
+    private String getIntelUrl(final String ll, final int zoom, final boolean isPortal) {
+        String url = "http://www.ingress.com/intel?ll=" + ll + "&z=" + zoom;
+        if (isPortal) {
+            url += "&pll=" + ll;
         }
         return url;
     }
@@ -68,29 +99,41 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         final Intent intent = getIntent();
+        final String type = intent.getStringExtra(EXTRA_TYPE);
         // from portallinks/permalinks we build 3 intents (share / geo / vanilla-intel-link)
-        if (!intent.getBooleanExtra("onlyShare", false)) {
+        if (TYPE_PERMALINK.equals(type) || TYPE_PORTAL_LINK.equals(type)) {
             mTitle = intent.getStringExtra("title");
-            mLl = intent.getDoubleExtra("lat", 0) + "," + intent.getDoubleExtra("lng", 0);
-            mZoom = intent.getIntExtra("zoom", 0);
-            mIsPortal = intent.getBooleanExtra("isPortal", false);
+            final String ll = intent.getDoubleExtra("lat", 0) + "," + intent.getDoubleExtra("lng", 0);
+            final int zoom = intent.getIntExtra("zoom", 0);
+            final String url = getIntelUrl(ll, zoom, TYPE_PORTAL_LINK.equals(type));
 
             actionBar.setTitle(mTitle);
 
-            addTab(mGenerator.getShareIntents(mTitle, getIntelUrl()),
+            addTab(mGenerator.getShareIntents(mTitle, url),
                     R.string.tab_share,
                     R.drawable.ic_action_share);
-            addTab(mGenerator.getGeoIntents(mTitle, mLl, mZoom),
+            addTab(mGenerator.getGeoIntents(mTitle, ll, zoom),
                     R.string.tab_map,
                     R.drawable.ic_action_place);
-            addTab(mGenerator.getBrowserIntents(mTitle, getIntelUrl()),
+            addTab(mGenerator.getBrowserIntents(mTitle, url),
                     R.string.tab_browser,
                     R.drawable.ic_action_web_site);
-        } else {
+        } else if (TYPE_STRING.equals(type)) {
             mTitle = getString(R.string.app_name);
             final String shareString = intent.getStringExtra("shareString");
 
             addTab(mGenerator.getShareIntents(mTitle, shareString), R.string.tab_share, R.drawable.ic_action_share);
+        } else if (TYPE_FILE.equals(type)) {
+            mTitle = "Screenshot";
+
+            final Uri uri = intent.getParcelableExtra("uri");
+            final String mime = intent.getStringExtra("type");
+
+            addTab(mGenerator.getShareIntents(mTitle, uri, mime), R.string.tab_share, R.drawable.ic_action_share);
+        } else {
+            Log.w("Unknown sharing type: " + type);
+            finish();
+            return;
         }
 
         mViewPager = (ViewPager) findViewById(R.id.pager);

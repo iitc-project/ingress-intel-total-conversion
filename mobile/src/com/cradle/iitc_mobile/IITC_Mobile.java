@@ -13,6 +13,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -38,11 +40,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
+import com.cradle.iitc_mobile.share.ShareActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Stack;
@@ -571,6 +575,9 @@ public class IITC_Mobile extends Activity
                 final CookieManager cm = CookieManager.getInstance();
                 cm.removeAllCookie();
                 return true;
+            case R.id.menu_send_screenshot:
+                sendScreenshot();
+                return true;
             case R.id.menu_debug:
                 mDebugging = !mDebugging;
                 updateViews();
@@ -840,6 +847,26 @@ public class IITC_Mobile extends Activity
 
     public void setPermalink(final String href) {
         mPermalink = href;
+    }
+
+    private void sendScreenshot() {
+        mIitcWebView.setDrawingCacheEnabled(true);
+        final Bitmap bitmap = mIitcWebView.getDrawingCache();
+        if (bitmap == null) {
+            Log.e("getDrawingCache() returned null!");
+            return;
+        }
+        try {
+            final File cache = getExternalCacheDir();
+            final File file = File.createTempFile("IITC screenshot", ".png", cache);
+            if (!Bitmap.createBitmap(bitmap).compress(CompressFormat.PNG, 100, new FileOutputStream(file))) {
+                // quality is ignored by PNG
+                throw new IOException("Could not compress bitmap!");
+            }
+            startActivity(ShareActivity.forFile(this, file, "image/png"));
+        } catch (final IOException e) {
+            Log.e("Could not generate screenshot", e);
+        }
     }
 
     @Override
