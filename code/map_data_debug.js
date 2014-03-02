@@ -3,15 +3,20 @@
 
 
 window.RenderDebugTiles = function() {
+  this.CLEAR_CHECK_TIME = 2; // check for tiles to clear every 2 seconds
+
   this.debugTileLayer = L.layerGroup();
   window.addLayerGroup("DEBUG Data Tiles", this.debugTileLayer, false);
 
   this.debugTileToRectangle = {};
+  this.debugTileClearTimes = {};
+  this.timer();
 }
 
 window.RenderDebugTiles.prototype.reset = function() {
   this.debugTileLayer.clearLayers();
   this.debugTileToRectangle = {};
+  this.debugTileClearTimes = {};
 }
 
 window.RenderDebugTiles.prototype.create = function(id,bounds) {
@@ -36,11 +41,12 @@ window.RenderDebugTiles.prototype.setColour = function(id,bordercol,fillcol) {
 window.RenderDebugTiles.prototype.setState = function(id,state) {
   var col = '#f0f';
   var fill = '#f0f';
+  var clearDelay = -1;
   switch(state) {
-    case 'ok': col='#0f0'; fill='#0f0'; break;
-    case 'error': col='#f00'; fill='#f00'; break;
-    case 'cache-fresh': col='#0f0'; fill='#ff0'; break;
-    case 'cache-stale': col='#f00'; fill='#ff0'; break;
+    case 'ok': col='#0f0'; fill='#0f0'; clearDelay = 2; break;
+    case 'error': col='#f00'; fill='#f00'; clearDelay = 30; break;
+    case 'cache-fresh': col='#0f0'; fill='#ff0'; clearDelay = 2; break;
+    case 'cache-stale': col='#f00'; fill='#ff0'; clearDelay = 10; break;
     case 'requested': col='#66f'; fill='#66f'; break;
     case 'retrying': col='#666'; fill='#666'; break;
     case 'request-fail': col='#a00'; fill='#666'; break;
@@ -48,15 +54,23 @@ window.RenderDebugTiles.prototype.setState = function(id,state) {
     case 'tile-timeout': col='#ff0'; fill='#666'; break;
   }
   this.setColour (id, col, fill);
+  if (clearDelay >= 0) {
+    var clearAt = Date.now() + clearDelay*1000;
+    this.debugTileClearTimes[id] = clearAt;
+  }
 }
 
 
-window.RenderDebugTiles.prototype.removeOkTiles = function() {
-  var _this = this;
-  $.each(this.debugTileToRectangle, function(id,layer) {
-    if (layer.options.color == '#0f0' && layer.options.color == '#0f0') {
-      _this.debugTileLayer.removeLayer(layer);
-      delete _this.debugTileToRectangle[id];
+window.RenderDebugTiles.prototype.timer = function() {
+
+  var now = Date.now();
+  for (var id in this.debugTileClearTimes) {
+    if (this.debugTileClearTimes[id] <= now) {
+      this.debugTileLayer.removeLayer(this.debugTileToRectangle[id]);
+      delete this.debugTileClearTimes[id];
     }
-  });
+  }
+
+  var _this = this;
+  setTimeout ( function() { _this.timer(); }, this.CLEAR_CHECK_TIME*1000 );
 }
