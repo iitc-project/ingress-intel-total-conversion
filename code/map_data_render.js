@@ -7,7 +7,7 @@ window.Render = function() {
 
   // when there are lots of portals close together, we only add some of them to the map
   // the idea is to keep the impression of the dense set of portals, without rendering them all
-  this.CLUSTER_SIZE = L.Browser.mobile ? 10 : 4;  // the map is divided into squares of this size in pixels for clustering purposes. mobile uses larger markers, so therefore larger clustering areas
+  this.CLUSTER_SIZE = L.Browser.mobile ? 16 : 8;  // the map is divided into squares of this size in pixels for clustering purposes. mobile uses larger markers, so therefore larger clustering areas
   this.CLUSTER_PORTAL_LIMIT = 4; // no more than this many portals are drawn in each cluster square
 
 
@@ -167,6 +167,7 @@ window.Render.prototype.endRenderPass = function() {
 }
 
 window.Render.prototype.bringPortalsToFront = function() {
+return;
   for (var lvl in portalsFactionLayers) {
     // portals are stored in separate layers per faction
     // to avoid giving weight to one faction or another, we'll push portals to front based on GUID order
