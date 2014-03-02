@@ -49,3 +49,14 @@ window.RenderDebugTiles.prototype.setState = function(id,state) {
   }
   this.setColour (id, col, fill);
 }
+
+
+window.RenderDebugTiles.prototype.removeOkTiles = function() {
+  var _this = this;
+  $.each(this.debugTileToRectangle, function(id,layer) {
+    if (layer.options.color == '#0f0' && layer.options.color == '#0f0') {
+      _this.debugTileLayer.removeLayer(layer);
+      delete _this.debugTileToRectangle[id];
+    }
+  });
+}

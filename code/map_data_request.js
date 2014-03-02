@@ -323,6 +323,7 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
   if (Object.keys(this.queuedTiles).length == 0) {
 
     this.render.endRenderPass();
+    this.debugTiles.removeOkTiles();
 
     var endTime = new Date().getTime();
     var duration = (endTime - this.refreshStartTime)/1000;
