@@ -7,6 +7,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.Build;
 
 import com.cradle.iitc_mobile.Log;
 import com.cradle.iitc_mobile.R;
@@ -136,12 +137,20 @@ public class IntentGenerator {
         return targets;
     }
 
+    /**
+     * get a list of intents capable of sharing a plain text string
+     * 
+     * @param title
+     *            description of the shared string
+     * @param text
+     *            the string to be shared
+     */
     public ArrayList<Intent> getShareIntents(final String title, final String text) {
         final Intent intent = new Intent(Intent.ACTION_SEND)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET)
                 .setType("text/plain")
-                .putExtra(Intent.EXTRA_TEXT, text)
-                .putExtra(Intent.EXTRA_SUBJECT, title);
+                .putExtra(Intent.EXTRA_SUBJECT, title)
+                .putExtra(Intent.EXTRA_TEXT, text);
 
         final ArrayList<Intent> targets = resolveTargets(intent);
 
@@ -150,6 +159,32 @@ public class IntentGenerator {
             targets.add(new Intent(intent)
                     .setComponent(new ComponentName(mContext, SendToClipboard.class))
                     .putExtra(EXTRA_FLAG_TITLE, mContext.getString(R.string.activity_share_to_clipboard)));
+        }
+
+        return targets;
+    }
+
+    /**
+     * get a list of intents capable of sharing the given content
+     * 
+     * @param uri
+     *            URI of a file to share
+     * @param type
+     *            MIME type of the file
+     */
+    public ArrayList<Intent> getShareIntents(final Uri uri, final String type) {
+        final Intent intent = new Intent(Intent.ACTION_SEND)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET)
+                .setType(type)
+                .putExtra(Intent.EXTRA_SUBJECT, uri.getLastPathSegment())
+                .putExtra(Intent.EXTRA_STREAM, uri);
+
+        final ArrayList<Intent> targets = resolveTargets(intent);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            targets.add(new Intent(intent)
+                    .setComponent(new ComponentName(mContext, SaveToFile.class))
+                    .putExtra(EXTRA_FLAG_TITLE, mContext.getString(R.string.activity_save_to_file)));
         }
 
         return targets;

@@ -3,7 +3,6 @@ package com.cradle.iitc_mobile;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Environment;
@@ -30,22 +29,13 @@ public class IITC_JSInterface {
     @JavascriptInterface
     public void intentPosLink(
             final double lat, final double lng, final int zoom, final String title, final boolean isPortal) {
-        final Intent intent = new Intent(mIitc, ShareActivity.class);
-        intent.putExtra("lat", lat);
-        intent.putExtra("lng", lng);
-        intent.putExtra("zoom", zoom);
-        intent.putExtra("title", title);
-        intent.putExtra("isPortal", isPortal);
-        mIitc.startActivity(intent);
+        mIitc.startActivity(ShareActivity.forPosition(mIitc, lat, lng, zoom, title, isPortal));
     }
 
     // share a string to the IITC share activity. only uses the share tab.
     @JavascriptInterface
     public void shareString(final String str) {
-        final Intent intent = new Intent(mIitc, ShareActivity.class);
-        intent.putExtra("shareString", str);
-        intent.putExtra("onlyShare", true);
-        mIitc.startActivity(intent);
+        mIitc.startActivity(ShareActivity.forString(mIitc, str));
     }
 
     // disable javascript injection while spinner is enabled

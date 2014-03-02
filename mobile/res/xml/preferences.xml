@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
     <PreferenceCategory
         android:key="pref_ui_cat"
         android:title="@string/pref_ui_cat">
@@ -36,8 +37,8 @@
             android:fragment="com.cradle.iitc_mobile.fragments.PluginsFragment"
             android:key="pref_plugins"
             android:persistent="false"
-            android:title="@string/pref_plugins"
-            android:summary="@string/pref_plugins_sum">
+            android:summary="@string/pref_plugins_sum"
+            android:title="@string/pref_plugins">
             <intent
                 android:targetClass="com.cradle.iitc_mobile.IITC_PluginPreferenceActivity"
                 android:targetPackage="com.cradle.iitc_mobile"/>
@@ -60,18 +61,19 @@
             android:title="@string/pref_press_twice_to_exit"/>
     </PreferenceCategory>
     <PreferenceCategory
-    android:key="pref_mics"
-    android:title="@string/pref_misc_cat">
+        android:key="pref_mics"
+        android:title="@string/pref_misc_cat">
         <PreferenceScreen
             android:key="pref_developer_screen"
             android:persistent="false"
-            android:title="@string/pref_advanced_options"
-            android:summary="@string/pref_advanced_options_sum">
+            android:summary="@string/pref_advanced_options_sum"
+            android:title="@string/pref_advanced_options">
             <CheckBoxPreference
                 android:defaultValue="false"
                 android:key="pref_dev_checkbox"
                 android:summary="@string/pref_enable_dev_mode_sum"
                 android:title="@string/pref_enable_dev_mode"/>
+
             <PreferenceCategory
                 android:key="pref_advanced_ui_cat"
                 android:title="@string/pref_ui_cat">
