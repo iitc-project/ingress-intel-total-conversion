@@ -49,6 +49,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -67,7 +69,7 @@ public class IITC_Mobile extends Activity
     private IITC_DeviceAccountLogin mLogin;
     private final Vector<ResponseHandler> mResponseHandlers = new Vector<ResponseHandler>();
     private boolean mDesktopMode = false;
-    private boolean mAdvancedMenu = false;
+    private Set<String> mAdvancedMenu;
     private MenuItem mSearchMenuItem;
     private View mImageLoading;
     private ListView mLvDebug;
@@ -135,7 +137,7 @@ public class IITC_Mobile extends Activity
         mDesktopMode = mSharedPrefs.getBoolean("pref_force_desktop", false);
 
         // enable/disable advance menu
-        mAdvancedMenu = mSharedPrefs.getBoolean("pref_advanced_menu", false);
+        mAdvancedMenu = mSharedPrefs.getStringSet("pref_android_menu", new HashSet<String>());
 
         // get fullscreen status from settings
         mIitcWebView.updateFullscreenStatus();
@@ -177,9 +179,9 @@ public class IITC_Mobile extends Activity
             mIitcWebView.updateFullscreenStatus();
             mNavigationHelper.onPrefChanged();
             return;
-        } else if (key.equals("pref_advanced_menu")) {
-            mAdvancedMenu = sharedPreferences.getBoolean("pref_advanced_menu", false);
-            mNavigationHelper.setDebugMode(mAdvancedMenu);
+        } else if (key.equals("pref_android_menu")) {
+            mAdvancedMenu = mSharedPrefs.getStringSet("pref_android_menu", new HashSet<String>());
+            mNavigationHelper.setDebugMode(mAdvancedMenu.contains(R.string.menu_debug));
             invalidateOptionsMenu();
             // no reload needed
             return;
@@ -505,12 +507,8 @@ public class IITC_Mobile extends Activity
                     item.setVisible(true);
                     break;
 
-                case R.id.menu_clear_cookies:
-                    item.setVisible(mAdvancedMenu && visible);
-                    break;
-
                 case R.id.locate:
-                    item.setVisible(visible);
+                    item.setVisible(mAdvancedMenu.contains(item.getTitle()) && visible);
                     item.setEnabled(!mIsLoading);
                     item.setIcon(mUserLocation.isFollowing()
                             ? R.drawable.ic_action_location_follow
@@ -518,12 +516,12 @@ public class IITC_Mobile extends Activity
                     break;
 
                 case R.id.menu_debug:
-                    item.setVisible(mAdvancedMenu && visible);
+                    item.setVisible(mAdvancedMenu.contains(item.getTitle()) && visible);
                     item.setChecked(mDebugging);
                     break;
 
                 default:
-                    item.setVisible(visible);
+                    item.setVisible(mAdvancedMenu.contains(item.getTitle()) && visible);
             }
         }
 
