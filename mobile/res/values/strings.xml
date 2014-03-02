@@ -12,11 +12,7 @@
     <string name="action_settings">Settings</string>
     <string name="drawer_open">Show navigation menu</string>
     <string name="drawer_close">Hide navigation menu</string>
-    <string name="reload">Reload IITC</string>
     <string name="version">Print Version</string>
-    <string name="toggle_fullscreen">Toggle fullscreen</string>
-    <string name="layer_chooser">Layer Chooser</string>
-    <string name="locate">Get Location</string>
     <string name="local">local</string>
     <string name="close">Close</string>
     <string name="download_description">Downloading latest intel package…</string>
@@ -182,6 +178,10 @@
         <item>2</item>
     </string-array>
 
+    <string name="menu_reload">Reload IITC</string>
+    <string name="menu_toggle_fullscreen">Toggle fullscreen</string>
+    <string name="menu_layer_chooser">Layer Chooser</string>
+    <string name="menu_locate">Get Location</string>
     <string name="menu_clear_cookies">Clear Cookies</string>
     <string name="menu_search">Search</string>
     <string name="menu_debug">Debug</string>
