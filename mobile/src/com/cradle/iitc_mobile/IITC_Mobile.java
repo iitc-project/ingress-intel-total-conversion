@@ -505,6 +505,7 @@ public class IITC_Mobile extends Activity
 
         for (int i = 0; i < menu.size(); i++) {
             final MenuItem item = menu.getItem(i);
+            final boolean enabled = mAdvancedMenu.contains(item.getTitle());
 
             switch (item.getItemId()) {
                 case R.id.action_settings:
@@ -512,7 +513,7 @@ public class IITC_Mobile extends Activity
                     break;
 
                 case R.id.locate:
-                    item.setVisible(mAdvancedMenu.contains(item.getTitle()) && visible);
+                    item.setVisible(enabled && visible);
                     item.setEnabled(!mIsLoading);
                     item.setIcon(mUserLocation.isFollowing()
                             ? R.drawable.ic_action_location_follow
@@ -520,12 +521,12 @@ public class IITC_Mobile extends Activity
                     break;
 
                 case R.id.menu_debug:
-                    item.setVisible(mAdvancedMenu.contains(item.getTitle()) && visible);
+                    item.setVisible(enabled && visible);
                     item.setChecked(mDebugging);
                     break;
 
                 default:
-                    item.setVisible(mAdvancedMenu.contains(item.getTitle()) && visible);
+                    item.setVisible(enabled && visible);
             }
         }
 
