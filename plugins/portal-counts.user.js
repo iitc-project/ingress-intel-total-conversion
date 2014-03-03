@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portals-count@yenky
 // @name           IITC plugin: Show total counts of portals
 // @category       Info
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -178,8 +178,14 @@ window.plugin.portalcounts.getPortals = function (){
     }
 
     counts += $("<div>").append(svg).html();
-  } else
+  } else {
     counts += '<p>No Portals in range!</p>';
+  }
+
+  // I've only seen the backend reduce the portals returned for L4+ or further out zoom levels - but this could change
+  if (getMinPortalLevel() >= 4) {
+   counts += '<p class="help" title="To reduce data usage and speed up map display, the backend servers only return some portals in dense areas."><b>Warning</b>: Portal counts can be inaccurate when zoomed out</p>';
+  }
 
   var total = self.enlP + self.resP + self.neuP;
   var title = total + ' ' + (total == 1 ? 'portal' : 'portals');
