@@ -217,10 +217,6 @@ public class IITC_WebView extends WebView {
         final Set<String> entries = mSharedPrefs.getStringSet("pref_fullscreen", new HashSet<String>());
         mFullscreenStatus &= FS_ENABLED;
 
-        // default values...android has no nice way to add default values to multiSelectListPreferences
-        if (entries.isEmpty()) {
-            mFullscreenStatus += FS_ACTIONBAR | FS_SYSBAR;
-        }
         for (final String entry : entries) {
             mFullscreenStatus += Integer.parseInt(entry);
         }
