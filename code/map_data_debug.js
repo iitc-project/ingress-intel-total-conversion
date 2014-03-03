@@ -3,14 +3,15 @@
 
 
 window.RenderDebugTiles = function() {
-  this.CLEAR_CHECK_TIME = 2; // check for tiles to clear every 2 seconds
+  this.CLEAR_CHECK_TIME = 0.25;
+  this.FADE_TIME = 2.0;
 
   this.debugTileLayer = L.layerGroup();
   window.addLayerGroup("DEBUG Data Tiles", this.debugTileLayer, false);
 
   this.debugTileToRectangle = {};
   this.debugTileClearTimes = {};
-  this.timer();
+  this.timer = undefined;
 }
 
 window.RenderDebugTiles.prototype.reset = function() {
@@ -57,20 +58,39 @@ window.RenderDebugTiles.prototype.setState = function(id,state) {
   if (clearDelay >= 0) {
     var clearAt = Date.now() + clearDelay*1000;
     this.debugTileClearTimes[id] = clearAt;
+
+    if (!this.timer) {
+      this.startTimer(clearDelay*1000);
+    }
   }
 }
 
 
-window.RenderDebugTiles.prototype.timer = function() {
+window.RenderDebugTiles.prototype.startTimer = function(waitTime) {
+  var _this = this;
+  if (!this.timer) {
+    this.timer = setTimeout ( function() { _this.timer = undefined; _this.runClearPass(); }, waitTime );
+  }
+}
+
+window.RenderDebugTiles.prototype.runClearPass = function() {
 
   var now = Date.now();
   for (var id in this.debugTileClearTimes) {
-    if (this.debugTileClearTimes[id] <= now) {
-      this.debugTileLayer.removeLayer(this.debugTileToRectangle[id]);
-      delete this.debugTileClearTimes[id];
+    var diff = now - this.debugTileClearTimes[id];
+    if (diff > 0) {
+      if (diff > this.FADE_TIME*1000) {
+        this.debugTileLayer.removeLayer(this.debugTileToRectangle[id]);
+        delete this.debugTileClearTimes[id];
+      } else {
+        var fade = 1.0 - (diff / (this.FADE_TIME*1000));
+
+        this.debugTileToRectangle[id].setStyle ({ opacity: 0.4*fade, fillOpacity: 0.1*fade });
+      }
     }
   }
 
-  var _this = this;
-  setTimeout ( function() { _this.timer(); }, this.CLEAR_CHECK_TIME*1000 );
+  if (Object.keys(this.debugTileClearTimes).length > 0) {
+    this.startTimer(this.CLEAR_CHECK_TIME*1000);
+  }
 }
