@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.cradle.iitc_mobile.async.CheckHttpResponse;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -214,7 +215,9 @@ public class IITC_WebView extends WebView {
     }
 
     void updateFullscreenStatus() {
-        final Set<String> entries = mSharedPrefs.getStringSet("pref_fullscreen", new HashSet<String>());
+        final String[] fullscreenDefaults = getResources().getStringArray(R.array.pref_hide_fullscreen_defaults);
+        final Set<String> entries = mSharedPrefs.getStringSet("pref_fullscreen",
+                new HashSet<String>(Arrays.asList(fullscreenDefaults)));
         mFullscreenStatus &= FS_ENABLED;
 
         for (final String entry : entries) {

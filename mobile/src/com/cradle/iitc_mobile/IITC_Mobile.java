@@ -49,6 +49,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
@@ -137,7 +138,8 @@ public class IITC_Mobile extends Activity
         mDesktopMode = mSharedPrefs.getBoolean("pref_force_desktop", false);
 
         // enable/disable advance menu
-        mAdvancedMenu = mSharedPrefs.getStringSet("pref_android_menu", new HashSet<String>());
+        final String[] menuDefaults = getResources().getStringArray(R.array.pref_android_menu_default);
+        mAdvancedMenu = mSharedPrefs.getStringSet("pref_android_menu", new HashSet<String>(Arrays.asList(menuDefaults)));
 
         // get fullscreen status from settings
         mIitcWebView.updateFullscreenStatus();
@@ -180,7 +182,9 @@ public class IITC_Mobile extends Activity
             mNavigationHelper.onPrefChanged();
             return;
         } else if (key.equals("pref_android_menu")) {
-            mAdvancedMenu = mSharedPrefs.getStringSet("pref_android_menu", new HashSet<String>());
+            final String[] menuDefaults = getResources().getStringArray(R.array.pref_android_menu_default);
+            mAdvancedMenu = mSharedPrefs.getStringSet("pref_android_menu",
+                    new HashSet<String>(Arrays.asList(menuDefaults)));
             mNavigationHelper.setDebugMode(mAdvancedMenu.contains(R.string.menu_debug));
             invalidateOptionsMenu();
             // no reload needed
