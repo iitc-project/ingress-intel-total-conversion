@@ -1060,3 +1060,10 @@ table.artifact td.info {
 .no-pointer-events {
   pointer-events: none;
 }
+
+
+.layer_off_warning {
+  color: #FFCE00;
+  margin: 8px;
+  text-align: center;
+}
