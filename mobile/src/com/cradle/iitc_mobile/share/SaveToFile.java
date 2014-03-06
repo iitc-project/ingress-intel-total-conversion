@@ -24,12 +24,11 @@ public class SaveToFile extends Activity implements Runnable {
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         if (requestCode == REQUEST_SAVE_FILE) {
-            mData = data.getData();
-            if (resultCode != Activity.RESULT_OK || mData == null) {
+            if (resultCode != Activity.RESULT_OK || data == null) {
                 finish();
                 return;
             }
-
+            mData = data.getData();
             (new Thread(this)).start();
         }
 
