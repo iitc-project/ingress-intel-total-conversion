@@ -414,7 +414,7 @@ public class IITC_FileManager {
         public void onActivityResult(final int resultCode, final Intent data) {
             mIitc.deleteResponseHandler(this);
 
-            if (resultCode != Activity.RESULT_OK) return;
+            if (resultCode != Activity.RESULT_OK || data == null) return;
 
             mData = data;
 
