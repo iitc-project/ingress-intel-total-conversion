@@ -245,6 +245,10 @@ window.MapDataRequest.prototype.refresh = function() {
 
       this.debugTiles.create(tile_id,[[latSouth,lngWest],[latNorth,lngEast]]);
 
+//TODO: with recent backend changes there are now multiple zoom levels of data that is identical except perhaps for some
+// reduction of detail when zoomed out. to take good advantage of the cache, a check for cached data at a closer zoom
+// but otherwise the same parameters (min portal level, tiles per edge) will mean less downloads when zooming out
+
       if (this.cache && this.cache.isFresh(tile_id) ) {
         // data is fresh in the cache - just render it
         this.debugTiles.setState(tile_id, 'cache-fresh');
