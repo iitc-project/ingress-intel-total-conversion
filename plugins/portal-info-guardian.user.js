@@ -20,7 +20,7 @@
 
 // use own namespace for plugin
 window.plugin.guardianInfo = function() {};
-window.plugin.guardianInfo.guardianTxt = 'Not Initialized.';
+window.plugin.guardianInfo.guardianTxt = '<br />Not Initialized.';
 window.plugin.guardianInfo.owner = '';
 window.plugin.guardianInfo.capturedDisplay = '';
 window.plugin.guardianInfo.portalTitle = '';
@@ -36,7 +36,7 @@ window.plugin.guardianInfo.portalDetail = function(data)
     var capturedTS = d.captured.capturedTime;
 
     window.plugin.guardianInfo.owner = d.captured.capturingPlayerId;
-    window.plugin.guardianInfo.portalTitle = d.portalV2.descriptiveText.TITLE;
+    window.plugin.guardianInfo.portalTitle = d.descriptiveText.map.TITLE;
     window.plugin.guardianInfo.capturedDisplay = unixTimeToDateTimeString(capturedTS, false);
     window.plugin.guardianInfo.capturedAge = formatInterval(Math.floor((curDate - capturedTS)/1000), 3);
 	window.plugin.guardianInfo.guardianTxt = '';
