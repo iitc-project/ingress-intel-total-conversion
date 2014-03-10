@@ -177,6 +177,54 @@ window.plugin.portalcounts.getPortals = function (){
         .appendTo(g);
     }
 
+    //Add a new group for the percentage text values
+	  var g2 = $("<g>")
+        .attr({
+          font: "Roboto",
+          fill: "white",
+          "text-anchor": "middle",
+          "font-size": "15"
+    })
+    .appendTo(svg);
+
+    //Calculate the percentages
+    var resPct = self.resP/total*100 | 0;
+    var enlPct = self.enlP/total*100 | 0;
+    var neuPct = self.neuP/total*100 | 0;
+    
+    //Add the Resistance percentage value
+    if(resPct > 0) {
+        $("<text>")
+          .html(resPct + "%")
+          .attr({
+              x: 230,
+              y: resPct + 50 //use the percentage plus a 50px offset to place it horizontally
+          })
+        .appendTo(g2);
+    }
+      
+    //Add the Enlightened percentage value
+    if(enlPct > 0) {
+        $("<text>")
+          .html(enlPct + "%")
+          .attr({
+              x: 165,
+              y: enlPct + 50 //use the percentage plus a 50px offset to place it horizontally
+          })
+        .appendTo(g2);
+    }
+    
+    //Add the Neutral percentage value
+    if(neuPct > 0) {
+        $("<text>")
+        .html("N:" + neuPct + "%")
+          .attr({
+              x: 200,
+              y: 105 //place then neutral value in the middle
+          })
+        .appendTo(g2);
+    }
+
     counts += $("<div>").append(svg).html();
   } else {
     counts += '<p>No Portals in range!</p>';
