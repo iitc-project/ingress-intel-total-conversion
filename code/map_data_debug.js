@@ -29,6 +29,7 @@ window.RenderDebugTiles.prototype.create = function(id,bounds) {
   var l = L.rectangle(bounds,s);
   this.debugTileToRectangle[id] = l;
   this.debugTileLayer.addLayer(l);
+  l.bringToBack();
 }
 
 window.RenderDebugTiles.prototype.setColour = function(id,bordercol,fillcol) {
