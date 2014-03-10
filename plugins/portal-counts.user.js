@@ -104,19 +104,19 @@ window.plugin.portalcounts.getPortals = function (){
       counts += self.neuP;
     counts += '</td></tr></table>';
 
-    var svg = $('<svg width="300" height="200">').css("margin-top", 10);
+    var svg = $('<svg width="300" height="200">').css('margin-top', 10);
 
     var all = self.PortalsRes.map(function(val,i){return val+self.PortalsEnl[i]});
     all[0] = self.neuP;
 
     // bar graphs
-    self.makeBar(self.PortalsEnl, "Enl", COLORS[2], 0                                    ).appendTo(svg);
-    self.makeBar(all            , "All", "#FFFFFF", 1*(self.BAR_WIDTH + self.BAR_PADDING)).appendTo(svg);
-    self.makeBar(self.PortalsRes, "Res", COLORS[1], 2*(self.BAR_WIDTH + self.BAR_PADDING)).appendTo(svg);
+    self.makeBar(self.PortalsEnl, 'Enl', COLORS[2], 0                                    ).appendTo(svg);
+    self.makeBar(all            , 'All', '#FFFFFF', 1*(self.BAR_WIDTH + self.BAR_PADDING)).appendTo(svg);
+    self.makeBar(self.PortalsRes, 'Res', COLORS[1], 2*(self.BAR_WIDTH + self.BAR_PADDING)).appendTo(svg);
 
     // pie graph
-    var g = $("<g>")
-      .attr("transform", self.format("translate(%s,%s)", self.CENTER_X, self.CENTER_Y))
+    var g = $('<g>')
+      .attr('transform', self.format('translate(%s,%s)', self.CENTER_X, self.CENTER_Y))
       .appendTo(svg);
 
     // inner parts - factions
@@ -149,14 +149,14 @@ window.plugin.portalcounts.getPortals = function (){
     }
 
     // black line from center to top
-    $("<line>")
+    $('<line>')
       .attr({
         x1: self.resP<self.enlP ? 0.5 : -0.5,
         y1: 0,
         x2: self.resP<self.enlP ? 0.5 : -0.5,
         y2: -self.RADIUS_OUTER,
-        stroke: "#000",
-        "stroke-width": 1
+        stroke: '#000',
+        'stroke-width': 1
       })
       .appendTo(g);
 
@@ -165,19 +165,19 @@ window.plugin.portalcounts.getPortals = function (){
       var x = Math.sin((0.5 - self.resP/total) * 2 * Math.PI) * self.RADIUS_OUTER;
       var y = Math.cos((0.5 - self.resP/total) * 2 * Math.PI) * self.RADIUS_OUTER;
 
-      $("<line>")
+      $('<line>')
         .attr({
           x1: self.resP<self.enlP ? 0.5 : -0.5,
           y1: 0,
           x2: x,
           y2: y,
-          stroke: "#000",
-          "stroke-width": 1
+          stroke: '#000',
+          'stroke-width': 1
         })
         .appendTo(g);
     }
 
-    counts += $("<div>").append(svg).html();
+    counts += $('<div>').append(svg).html();
   } else {
     counts += '<p>No Portals in range!</p>';
   }
@@ -206,7 +206,7 @@ window.plugin.portalcounts.getPortals = function (){
 
 window.plugin.portalcounts.makeBar = function(portals, text, color, shift) {
   var self = window.plugin.portalcounts;
-  var g = $("<g>").attr("transform", "translate("+shift+",0)");
+  var g = $('<g>').attr('transform', 'translate('+shift+',0)');
   var sum = portals.reduce(function(a,b){ return a+b });
   var top = self.BAR_TOP;
 
@@ -215,7 +215,7 @@ window.plugin.portalcounts.makeBar = function(portals, text, color, shift) {
       if(!portals[i])
         continue;
       var height = self.BAR_HEIGHT * portals[i] / sum;
-      $("<rect>")
+      $('<rect>')
         .attr({
           x: 0,
           y: top,
@@ -234,7 +234,7 @@ window.plugin.portalcounts.makeBar = function(portals, text, color, shift) {
       x: self.BAR_WIDTH * 0.5,
       y: self.BAR_TOP * 0.75,
       fill: color,
-      "text-anchor": "middle"
+      'text-anchor': 'middle'
     })
     .appendTo(g);
 
@@ -242,26 +242,46 @@ window.plugin.portalcounts.makeBar = function(portals, text, color, shift) {
 };
 
 window.plugin.portalcounts.makePie = function(startAngle, endAngle, color) {
+  if(startAngle == endAngle)
+    return $([]); // return empty element query
+
   var self = window.plugin.portalcounts;
   var large_arc = (endAngle - startAngle) > 0.5 ? 1 : 0;
 
+  var labelAngle = (endAngle + startAngle) / 2;
+  var label = Math.round((endAngle - startAngle) * 100) + '%';
+
   startAngle = 0.5 - startAngle;
   endAngle   = 0.5 - endAngle;
+  labelAngle = 0.5 - labelAngle;
 
   var p1x = Math.sin(startAngle * 2 * Math.PI) * self.RADIUS_INNER;
   var p1y = Math.cos(startAngle * 2 * Math.PI) * self.RADIUS_INNER;
   var p2x = Math.sin(endAngle   * 2 * Math.PI) * self.RADIUS_INNER;
   var p2y = Math.cos(endAngle   * 2 * Math.PI) * self.RADIUS_INNER;
+  var lx  = Math.sin(labelAngle * 2 * Math.PI) * self.RADIUS_INNER / 1.5;
+  var ly  = Math.cos(labelAngle * 2 * Math.PI) * self.RADIUS_INNER / 1.5;
 
   // for a full circle, both coordinates would be identical, so no circle would be drawn
   if(startAngle == 0.5 && endAngle == -0.5)
     p2x -= 1E-5;
 
-  return $("<path>")
+  var text = $('<text>')
+    .attr({
+      'text-anchor': 'middle',
+      'dominant-baseline' :'central',
+      x: lx,
+      y: ly
+    })
+    .html(label);
+
+  var path = $('<path>')
     .attr({
       fill: color,
-      d: self.format("M %s,%s A %s,%s 0 %s 1 %s,%s L 0,0 z", p1x,p1y, self.RADIUS_INNER,self.RADIUS_INNER, large_arc, p2x,p2y)
+      d: self.format('M %s,%s A %s,%s 0 %s 1 %s,%s L 0,0 z', p1x,p1y, self.RADIUS_INNER,self.RADIUS_INNER, large_arc, p2x,p2y)
     });
+
+  return path.add(text); // concat path and text
 };
 
 window.plugin.portalcounts.makeRing = function(startAngle, endAngle, color) {
@@ -286,14 +306,14 @@ window.plugin.portalcounts.makeRing = function(startAngle, endAngle, color) {
     p3x -= 1E-5;
   }
 
-  return $("<path>")
+  return $('<path>')
     .attr({
       fill: color,
-      d: self.format("M %s,%s ", p1x, p1y)
-       + self.format("A %s,%s 0 %s 1 %s,%s ", self.RADIUS_OUTER,self.RADIUS_OUTER, large_arc, p2x,p2y)
-       + self.format("L %s,%s ", p3x,p3y)
-       + self.format("A %s,%s 0 %s 0 %s,%s ", self.RADIUS_INNER,self.RADIUS_INNER, large_arc, p4x,p4y)
-       + "Z"
+      d: self.format('M %s,%s ', p1x, p1y)
+       + self.format('A %s,%s 0 %s 1 %s,%s ', self.RADIUS_OUTER,self.RADIUS_OUTER, large_arc, p2x,p2y)
+       + self.format('L %s,%s ', p3x,p3y)
+       + self.format('A %s,%s 0 %s 0 %s,%s ', self.RADIUS_INNER,self.RADIUS_INNER, large_arc, p4x,p4y)
+       + 'Z'
     });
 };
 
@@ -306,16 +326,16 @@ window.plugin.portalcounts.format = function(str) {
 }
 
 window.plugin.portalcounts.onPaneChanged = function(pane) {
-  if(pane == "plugin-portalcounts")
+  if(pane == 'plugin-portalcounts')
     window.plugin.portalcounts.getPortals();
   else
-    $("#portalcounts").remove()
+    $('#portalcounts').remove()
 };
 
 var setup =  function() {
   if(window.useAndroidPanes()) {
-    android.addPane("plugin-portalcounts", "Portal counts", "ic_action_data_usage");
-    addHook("paneChanged", window.plugin.portalcounts.onPaneChanged);
+    android.addPane('plugin-portalcounts', 'Portal counts', 'ic_action_data_usage');
+    addHook('paneChanged', window.plugin.portalcounts.onPaneChanged);
   } else {
     $('#toolbox').append(' <a onclick="window.plugin.portalcounts.getPortals()" title="Display a summary of portals in the current view">Portal counts</a>');
   }
