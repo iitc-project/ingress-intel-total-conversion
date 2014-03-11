@@ -29,7 +29,10 @@ window.RenderDebugTiles.prototype.create = function(id,bounds) {
   var l = L.rectangle(bounds,s);
   this.debugTileToRectangle[id] = l;
   this.debugTileLayer.addLayer(l);
-  l.bringToBack();
+  if (map.hasLayer(this.debugTileLayer)) {
+    // only bring to back if we have the debug layer turned on
+    l.bringToBack();
+  }
 }
 
 window.RenderDebugTiles.prototype.setColour = function(id,bordercol,fillcol) {
