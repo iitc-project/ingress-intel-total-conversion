@@ -11,12 +11,28 @@
 
 
 window.getMapZoomTileParameters = function(zoom) {
-  // these arrays/constants are based on those in the stock intel site. it's essential we keep them in sync with their code
-  // (it may be worth reading the values from their code rather than using our own copies? it's a case of either
-  //  breaking if they rename their variables if we do, or breaking if they change the values if we don't)
-  var ZOOM_TO_TILES_PER_EDGE = [32, 32, 32, 32, 256, 256, 256, 1024, 1024, 1536, 4096, 4096, 16384, 16384, 16384];
-  var MAX_TILES_PER_EDGE = 65536;
-  var ZOOM_TO_LEVEL = [8, 8, 8, 8, 7, 7, 7, 6, 6, 5, 4, 4, 3, 2, 2, 1, 1];
+  // attempt to use the values from the stock site. this way, if they're changed, IITC should continue to work
+  // however, if Niantic rename things, it would fail, so we'll fall back to the current known values
+  var ZOOM_TO_TILES_PER_EDGE, MAX_TILES_PER_EDGE, ZOOM_TO_LEVEL;
+  try {
+    ZOOM_TO_TILES_PER_EDGE = nemesis.dashboard.mercator.Tile.ZOOM_TO_NUM_TILES_PER_EDGE_;
+    if (ZOOM_TO_TILES_PER_EDGE === undefined) throw('ZOOM_TO_TILES_PER_EDGE not found');
+    MAX_TILES_PER_EDGE = nemesis.dashboard.mercator.Tile.MAX_NUM_TILES_PER_EDGE_;
+    if (MAX_TILES_PER_EDGE === undefined) throw('MAX_TILES_PER_EDGE not found');
+    ZOOM_TO_LEVEL = nemesis.dashboard.zoomlevel.ZOOM_TO_LOD_;
+    if (ZOOM_TO_LEVEL === undefined) throw('ZOOM_TO_LEVEL not found');
+  } catch(e) {
+    console.warn(e);
+
+    // known correct as of 2014-03-11
+    ZOOM_TO_TILES_PER_EDGE = [32, 32, 32, 32, 256, 256, 256, 1024, 1024, 1536, 4096, 4096, 16384, 16384, 16384];
+    MAX_TILES_PER_EDGE = 65536;
+    ZOOM_TO_LEVEL = [8, 8, 8, 8, 7, 7, 7, 6, 6, 5, 4, 4, 3, 2, 2, 1, 1];
+
+    // for developers, let's stop in the debugger
+    debugger;
+  }  
+
 
   return {
     level: ZOOM_TO_LEVEL[zoom] || 0,  // default to level 0 (all portals) if not in array
