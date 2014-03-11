@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <searchable xmlns:android="http://schemas.android.com/apk/res/android"
-            android:label="@string/app_name"
-            android:hint="@string/search_hint"
-            android:voiceSearchMode="showVoiceSearchButton|launchRecognizer"
-            android:voiceLanguageModel="web_search"
-            android:voiceMaxResults="1">
-</searchable>
+    android:hint="@string/search_hint"
+    android:label="@string/app_name"
+    android:voiceLanguageModel="web_search"
+    android:voiceMaxResults="1"
+    android:voiceSearchMode="showVoiceSearchButton|launchRecognizer"/>

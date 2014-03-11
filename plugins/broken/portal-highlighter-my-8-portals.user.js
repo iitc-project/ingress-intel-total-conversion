@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Uses the fill color of the portals to denote portals you have a level 8 on.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Use the portal fill color to denote if the portal has your level 8 on it.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -19,9 +19,9 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.portalHighligherMy8sOnPortals = function() {};
+window.plugin.portalHighlighterMy8sOnPortals = function() {};
 
-window.plugin.portalHighligherMy8sOnPortals.highlight = function(data) {
+window.plugin.portalHighlighterMy8sOnPortals.highlight = function(data) {
   var d = data.portal.options.details;
   var portal_weakness = 0;
   if(getTeam(d) !== 0) {
@@ -44,7 +44,7 @@ window.plugin.portalHighligherMy8sOnPortals.highlight = function(data) {
 var setup =  function() {
   //Don't list it if it isn't applicable yet
   if(PLAYER.level == 8) {
-    window.addPortalHighlighter('My Level 8 Resonators', window.plugin.portalHighligherMy8sOnPortals.highlight);
+    window.addPortalHighlighter('My Level 8 Resonators', window.plugin.portalHighlighterMy8sOnPortals.highlight);
   }
 } 
 

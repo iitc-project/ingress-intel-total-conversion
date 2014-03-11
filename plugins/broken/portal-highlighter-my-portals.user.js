@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Uses the fill color of the portals to denote portals you have a hand in. Orange is just ownership. Yellow is shields. Red is Resonators. Red trumps both, yellow trumps orange.  
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Use the portal fill color to denote if you had a hand in building the portal. Orange: just ownership. Yellow: shields. Red: resonators. Red trumps both, yellow trumps orange.  
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -19,9 +19,9 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.portalHighligherMyPortals = function() {};
+window.plugin.portalHighlighterMyPortals = function() {};
 
-window.plugin.portalHighligherMyPortals.highlight = function(data) {
+window.plugin.portalHighlighterMyPortals.highlight = function(data) {
   var d = data.portal.options.details;
   var portal_weakness = 0;
   if(getTeam(d) !== 0) {
@@ -62,7 +62,7 @@ window.plugin.portalHighligherMyPortals.highlight = function(data) {
 }
 
 var setup =  function() {
-  window.addPortalHighlighter('My Portals', window.plugin.portalHighligherMyPortals.highlight);
+  window.addPortalHighlighter('My Portals', window.plugin.portalHighlighterMyPortals.highlight);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

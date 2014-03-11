@@ -86,13 +86,17 @@ window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
 
   var details = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(nick);
 
-  var text;
+  function getLevel(lvl) {
+    return '<span style="display:inline-block;padding:4px;color:white;background-color:'+COLORS_LVL[lvl]+'">'+lvl+'</span>';
+  }
+
+  var text = '<span style="color: ' + el.css("color") + '">' + nick + '</span>\n';
   if(details.min == 8)
-    text = 'Player level: 8';
+    text += 'Player level: ' + getLevel(8);
   else {
-    text = 'Min player level: ' + details.min;
+    text += 'Min player level: ' + getLevel(details.min);
     if(details.min != details.guessed)
-      text += '\nGuessed player level: ' + details.guessed;
+      text += '\nGuessed player level: ' + getLevel(details.guessed);
   }
   window.setupTooltips(el);
 
@@ -115,7 +119,7 @@ window.plugin.guessPlayerLevels.setupChatNickHelper = function() {
 }
 
 window.plugin.guessPlayerLevels.extractPortalData = function(data) {
-  if(!data.success) return;
+  if(!data.success || !data.details.portalV2) return;
 
   var r = data.details.resonatorArray.resonators;
 

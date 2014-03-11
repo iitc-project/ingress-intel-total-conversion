@@ -77,14 +77,15 @@ window.plugin.portalslist.getPortals = function() {
     }
     var l = window.getPortalLinks(i);
     var f = window.getPortalFields(i);
+    var ap = portalApGainMaths(d.resCount, l.in.length+l.out.length, f.length);
 
     var thisPortal = {
       'portal': portal,
       'guid': i,
-      'teamN': teamN,
+      'teamN': teamN, // TEAM_NONE, TEAM_RES or TEAM_ENL
+      'team': d.team, // "NEUTRAL", "RESISTANCE" or "ENLIGHTENED"
       'name': d.title,
       'nameLower': d.title.toLowerCase(),
-      'team': d.team,
       'level': portal.options.level,
       'health': d.health,
       'resCount': d.resCount,
@@ -92,7 +93,9 @@ window.plugin.portalslist.getPortals = function() {
       'linkCount': l.in.length + l.out.length,
       'link' : l,
       'fieldCount': f.length,
-      'field' : f
+      'field' : f,
+      'enemyAp': ap.enemyAp,
+      'ap': ap,
     };
     window.plugin.portalslist.listPortals.push(thisPortal);
   });
@@ -111,10 +114,10 @@ window.plugin.portalslist.displayPL = function() {
   if (window.plugin.portalslist.getPortals()) {
     html += window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy, window.plugin.portalslist.sortOrder,window.plugin.portalslist.filter);
   } else {
-    html = '<table><tr><td>Nothing to show!</td></tr></table>';
+    html = '<table class="noPortals"><tr><td>Nothing to show!</td></tr></table>';
   };
 
-  if(typeof android !== 'undefined' && android && android.addPane) {
+  if(window.useAndroidPanes()) {
     $('<div id="portalslist" class="mobile">' + html + '</div>').appendTo(document.body);
   } else {
     dialog({
@@ -147,7 +150,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
     } else if (aComp > bComp) {
       retVal = 1;
     } else {
-      // equal - compare GUIDs to ensure consistant (but arbitary) order
+      // equal - compare GUIDs to ensure consistent (but arbitrary) order
       retVal = a.guid < b.guid ? -1 : 1;
     }
 
@@ -158,16 +161,18 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
 
   var sortAttr = window.plugin.portalslist.portalTableHeaderSortAttr;
   var html = window.plugin.portalslist.stats();
-  html += '<table>'
-    + '<tr>'
+  html += '<table class="portals">'
+    + '<tr class="header">'
     + '<th>#</th>'
     + '<th ' + sortAttr('nameLower', sortBy, 1, 'portalTitle') + '>Portal Name</th>'
     + '<th ' + sortAttr('level', sortBy, -1) + '>Level</th>'
     + '<th ' + sortAttr('teamN', sortBy, 1) + '>Team</th>'
     + '<th ' + sortAttr('health', sortBy, -1) + '>Health</th>'
-    + '<th ' + sortAttr('resCount', sortBy, -1) + '>Resonators</th>'
+    + '<th ' + sortAttr('resCount', sortBy, -1) + '>Res</th>'
     + '<th ' + sortAttr('linkCount', sortBy, -1) + '>Links</th>'
     + '<th ' + sortAttr('fieldCount', sortBy, -1) + '>Fields</th>'
+    + '<th ' + sortAttr('enemyAp', sortBy, -1) + '>AP</th>'
+    + '</tr>\n';
 
   var rowNum = 1;
 
@@ -180,10 +185,22 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
         + '<td class="L' + portal.level +'" style="background-color: '+COLORS_LVL[portal.level]+'">' + portal.level + '</td>'
         + '<td style="text-align:center;">' + portal.team.substr(0,3) + '</td>';
 
-      html += '<td style="cursor:help" title="'+ portal.health +'">' + portal.health + '</td>'
+      html += '<td>' + (portal.teamN!=TEAM_NONE?portal.health+'%':'-') + '</td>'
         + '<td>' + portal.resCount + '</td>'
-        + '<td title="In: ' + portal.link.in.length + ' Out: ' + portal.link.out.length + '">' + (portal.linkCount?portal.linkCount:'-') + '</td>'
+        + '<td class="help" title="In: ' + portal.link.in.length + ' Out: ' + portal.link.out.length + '">' + (portal.linkCount?portal.linkCount:'-') + '</td>'
         + '<td>' + (portal.fieldCount?portal.fieldCount:'-') + '</td>';
+
+      var apTitle = '';
+      if (PLAYER.team == portal.team) {
+        apTitle += 'Friendly AP:\t'+portal.ap.friendlyAp+'\n'
+                 + '- deploy '+(8-portal.resCount)+' resonator(s)\n'
+                 + '- upgrades/mods unknown\n';
+      }
+      apTitle += 'Enemy AP:\t'+portal.ap.enemyAp+'\n'
+               + '- Destroy AP:\t'+portal.ap.destroyAp+'\n'
+               + '- Capture AP:\t'+portal.ap.captureAp;
+
+      html += '<td class="help apGain" title="' + apTitle + '">' + digits(portal.ap.enemyAp) + '</td>';
 
       html+= '</tr>';
 
@@ -199,7 +216,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
 }
 
 window.plugin.portalslist.stats = function(sortBy) {
-  var html = '<table><tr>'
+  var html = '<table class="teamFilter"><tr>'
     + '<td class="filterAll" style="cursor:pointer"><a href=""></a>All Portals : (click to filter)</td><td class="filterAll">' + window.plugin.portalslist.listPortals.length + '</td>'
     + '<td class="filterRes" style="cursor:pointer" class="sorted">Resistance Portals : </td><td class="filterRes">' + window.plugin.portalslist.resP +' (' + Math.floor(window.plugin.portalslist.resP/window.plugin.portalslist.listPortals.length*100) + '%)</td>'
     + '<td class="filterEnl" style="cursor:pointer" class="sorted">Enlightened Portals : </td><td class="filterEnl">'+ window.plugin.portalslist.enlP +' (' + Math.floor(window.plugin.portalslist.enlP/window.plugin.portalslist.listPortals.length*100) + '%)</td>'
@@ -229,15 +246,14 @@ window.plugin.portalslist.getPortalLink = function(portal,guid) {
 
   //Use Jquery to create the link, which escape characters in TITLE and ADDRESS of portal
   var a = $('<a>',{
-    "class": 'help',
     text: portal.name,
     title: portal.name,
     href: perma,
     onClick: jsSingleClick,
     onDblClick: jsDoubleClick
   })[0].outerHTML;
-  var div = '<div class="portalTitleTruncate">'+a+'</div>';
-  return div;
+
+  return a;
 }
 
 window.plugin.portalslist.onPaneChanged = function(pane) {
@@ -248,7 +264,7 @@ window.plugin.portalslist.onPaneChanged = function(pane) {
 };
 
 var setup =  function() {
-  if(typeof android !== 'undefined' && android && android.addPane) {
+  if(window.useAndroidPanes()) {
     android.addPane("plugin-portalslist", "Portals list", "ic_action_paste");
     addHook("paneChanged", window.plugin.portalslist.onPaneChanged);
   } else {
@@ -257,22 +273,24 @@ var setup =  function() {
 
   $('head').append('<style>' +
     '#portalslist.mobile {background: transparent; border: 0 none !important; height: 100% !important; width: 100% !important; left: 0 !important; top: 0 !important; position: absolute; overflow: auto; }' +
-    '#portalslist table {margin-top:5px; border-collapse: collapse; empty-cells: show; width:100%; clear: both;}' +
+    '#portalslist table { margin-top:5px; border-collapse: collapse; empty-cells: show; width: 100%; clear: both; }' +
     '#portalslist table td, #portalslist table th {border-bottom: 1px solid #0b314e; padding:3px; color:white; background-color:#1b415e}' +
     '#portalslist table tr.res td { background-color: #005684; }' +
     '#portalslist table tr.enl td { background-color: #017f01; }' +
     '#portalslist table tr.neutral td { background-color: #000000; }' +
-    '#portalslist table th { text-align: center;}' +
-    '#portalslist table td { text-align: center;}' +
+    '#portalslist table th { text-align: center; }' +
+    '#portalslist table td { text-align: center; }' +
+    '#portalslist table.portals td { white-space: nowrap; }' +
     '#portalslist table td.portalTitle { text-align: left;}' +
     '#portalslist table th.sortable { cursor:pointer;}' +
     '#portalslist table th.portalTitle { text-align: left;}' +
+    '#portalslist table .portalTitle { min-width: 120px !important; max-width: 240px !important; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }' +
+    '#portalslist table .apGain { text-align: right !important; }' +
     '#portalslist .sorted { color:#FFCE00; }' +
     '#portalslist .filterAll { margin-top: 10px;}' +
     '#portalslist .filterRes { margin-top: 10px; background-color: #005684  }' +
     '#portalslist .filterEnl { margin-top: 10px; background-color: #017f01  }' +
     '#portalslist .disclaimer { margin-top: 10px; font-size:10px; }' +
-    '#portalslist .portalTitleTruncate { display: inline-block; width: 240px !important; min-width: 240px !important; max-width: 160px !important; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }' +
     '</style>');
 
   // Setup sorting

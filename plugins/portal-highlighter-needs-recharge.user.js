@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Use the fill color of the portals to denote if the portal needs recharging. Colors also indicate severity: yellow: above 85%, orange: above 50%, red: above 15%, magenta: below 15%.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Use the portal fill color to denote if the portal needs recharging and how much. Yellow: above 85%. Orange: above 50%. Red: above 15%. Magenta: below 15%.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -19,9 +19,9 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.portalHighligherNeedsRecharge = function() {};
+window.plugin.portalHighlighterNeedsRecharge = function() {};
 
-window.plugin.portalHighligherNeedsRecharge.highlight = function(data) {
+window.plugin.portalHighlighterNeedsRecharge.highlight = function(data) {
   var d = data.portal.options.data;
   var portal_health = d.health/100;
   if(data.portal.options.team != TEAM_NONE && portal_health < 1) {
@@ -38,7 +38,7 @@ window.plugin.portalHighligherNeedsRecharge.highlight = function(data) {
 }
 
 var setup =  function() {
-  window.addPortalHighlighter('Needs Recharge (Health)', window.plugin.portalHighligherNeedsRecharge.highlight);
+  window.addPortalHighlighter('Needs Recharge (Health)', window.plugin.portalHighlighterNeedsRecharge.highlight);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

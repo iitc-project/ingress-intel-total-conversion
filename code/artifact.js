@@ -6,6 +6,7 @@
 // - shards: move between portals (along links) each hour. more than one can be at a portal
 // - targets: specific portals - one per team
 // the artifact data includes details for the specific portals, so can be useful
+// 2014-02-06: intel site updates hint at new 'amar artifacts', likely following the same system as above
 
 
 window.artifact = function() {}
@@ -24,9 +25,9 @@ window.artifact.setup = function() {
   setTimeout (artifact.requestData, 1);
 
   artifact._layer = new L.LayerGroup();
-  addLayerGroup ('Artifacts (Jarvis shards)', artifact._layer, true);
+  addLayerGroup ('Artifacts', artifact._layer, true);
 
-  $('#toolbox').append(' <a onclick="window.artifact.showArtifactList()" title="Show artifact portal list (jarvis shards and targets)">Artifacts</a>');
+  $('#toolbox').append(' <a onclick="window.artifact.showArtifactList()" title="Show artifact portal list">Artifacts</a>');
 
 }
 
@@ -71,8 +72,9 @@ window.artifact.processData = function(data) {
   artifact.clearData();
 
   $.each (data.artifacts, function(i,artData) {
-    if (artData.artifactId != 'jarvis') {
-      // jarvis artifacts - fragmentInfos and targetInfos
+    // if we have no descriptions for a type, we don't know about it
+    if (!artifact.getArtifactDescriptions(artData.artifactId)) {
+      // jarvis and amar artifacts - fragmentInfos and targetInfos
       // (future types? completely unknown at this time!)
       console.warn('Note: unknown artifactId '+artData.artifactId+' - guessing how to handle it');
     }
@@ -140,6 +142,15 @@ window.artifact.isArtifact = function(type) {
   return type in artifact.artifactTypes;
 }
 
+window.artifact.getArtifactDescriptions = function(type) {
+  var descriptions = {
+    'jarvis': { 'title': "Jarvis Shards", 'fragmentName': "shards" },
+    'amar': { 'title': "Amar Artifacts", 'fragmentName': "artifacts" }
+  };
+
+  return descriptions[type];
+}
+
 // used to render portals that would otherwise be below the visible level
 window.artifact.getArtifactEntities = function() {
   var entities = [];
@@ -179,6 +190,7 @@ window.artifact.updateLayer = function() {
     var iconSize = 0;
     var opacity = 1.0;
 
+    // redundant as of 2014-02-05 - jarvis shards removed
     if (data.jarvis) {
       if (data.jarvis.target) {
         // target portal - show the target marker. use the count of fragments at the target to pick the right icon - it has segments that fill up
@@ -189,6 +201,22 @@ window.artifact.updateLayer = function() {
         iconSize = 100/2; // 100 pixels - half that size works better
       } else if (data.jarvis.fragments) {
         iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/jarvis_shard.png';
+        iconSize = 60/2; // 60 pixels - half that size works better
+        opacity = 0.6; // these often hide portals - let's make them semi transparent
+      }
+
+    }
+    // 2014-02-06: a guess at whats needed for the new artifacts
+    if (data.amar) {
+      if (data.amar.target) {
+        // target portal - show the target marker. use the count of fragments at the target to pick the right icon - it has segments that fill up
+
+        var count = data.amar.fragments ? data.amar.fragments.length : 0;
+
+        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/amar_shard_target_'+count+'.png';
+        iconSize = 100/2; // 100 pixels - half that size works better
+      } else if (data.amar.fragments) {
+        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/amar_shard.png';
         iconSize = 60/2; // 60 pixels - half that size works better
         opacity = 0.6; // these often hide portals - let's make them semi transparent
       }
@@ -217,15 +245,22 @@ window.artifact.updateLayer = function() {
 window.artifact.showArtifactList = function() {
 
 
-  var html = '<div><b>Artifact portals</b></div>';
+  var html = '';
 
-  var types = { 'jarvis': 'Jarvis Shards' };
+  var typeNames = { 'jarvis': 'Jarvis Shards', 'amar': 'Amar Artifacts' };
 
-  $.each(types, function(type, name) {
+  if (Object.keys(artifact.artifactTypes).length == 0) {
+    html += '<i>No artifacts at this time</i>';
+  }
 
-    html += '<hr><div><b>'+types[type]+'</b></div>';
+  $.each(artifact.artifactTypes, function(type,type2) {
+    var description = artifact.getArtifactDescriptions(type);
 
-    html += '<table class="artifact '+type+'">';
+    var name = description ? description.title : ('unknown artifact type: '+type);
+
+    html += '<hr><div><b>'+name+'</b></div>';
+
+    html += '<table class="artifact artifact-'+type+'">';
     html += '<tr><th>Portal</th><th>Details</th></tr>';
 
     var tableRows = [];
@@ -250,7 +285,8 @@ window.artifact.showArtifactList = function() {
           if (data[type].target) {
             row += '<br>';
           }
-          row += '<span class="fragments'+(data[type].target?' '+TEAM_TO_CSS[data[type].target]:'')+'">Shard: #'+data[type].fragments.join(', #')+'</span> ';
+          var fragmentName = description ? description.fragmentName : 'fragment';
+          row += '<span class="fragments'+(data[type].target?' '+TEAM_TO_CSS[data[type].target]:'')+'">'+fragmentName+': #'+data[type].fragments.join(', #')+'</span> ';
           sortVal = Math.min.apply(null, data[type].fragments); // use min shard number at portal as sort key
         }
 
@@ -260,6 +296,11 @@ window.artifact.showArtifactList = function() {
       }
     });
 
+    // check for no rows, and add a note to the table instead
+    if (tableRows.length == 0) {
+      html += '<tr><td colspan="2"><i>No portals at this time</i></td></tr>';
+    }
+
     // sort the rows
     tableRows.sort(function(a,b) {
       return a[0]-b[0];
@@ -267,6 +308,7 @@ window.artifact.showArtifactList = function() {
 
     // and add them to the table
     html += tableRows.map(function(a){return a[1];}).join('');
+
 
     html += '</table>';
   });

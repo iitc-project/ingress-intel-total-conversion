@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Use the fill color of the portals to denote portal level by using the game level colors.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Use the portal fill color to denote the portal level by using the game level colors.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -19,16 +19,16 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.portalHighligherPortalsLevelColor = function() {};
+window.plugin.portalHighlighterPortalsLevelColor = function() {};
 
-window.plugin.portalHighligherPortalsLevelColor.colorLevel = function(data) {
+window.plugin.portalHighlighterPortalsLevelColor.colorLevel = function(data) {
   var portal_level = data.portal.options.data.level;
   var opacity = .6;
   data.portal.setStyle({fillColor: COLORS_LVL[portal_level], fillOpacity: opacity});
 }
 
 var setup =  function() {
-  window.addPortalHighlighter('Level Color', window.plugin.portalHighligherPortalsLevelColor.colorLevel);
+  window.addPortalHighlighter('Level Color', window.plugin.portalHighlighterPortalsLevelColor.colorLevel);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

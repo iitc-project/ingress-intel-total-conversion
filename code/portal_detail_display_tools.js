@@ -24,7 +24,7 @@ window.getRangeText = function(d) {
 
 // generates description text from details for portal
 window.getPortalDescriptionFromDetails = function(details) {
-  var descObj = details.portalV2.descriptiveText;
+  var descObj = details.descriptiveText.map;
   // FIXME: also get real description?
   var desc = descObj.TITLE;
   if(descObj.ADDRESS)
@@ -37,7 +37,7 @@ window.getPortalDescriptionFromDetails = function(details) {
 // Grabs more info, including the submitter name for the current main
 // portal image
 window.getPortalDescriptionFromDetailsExtended = function(details) {
-  var descObj = details.portalV2.descriptiveText;
+  var descObj = details.descriptiveText.map;
   var photoStreamObj = details.photoStreamInfo;
 
   var submitterObj = new Object();
@@ -111,7 +111,7 @@ window.getModDetails = function(d) {
           if (!mod.stats.hasOwnProperty(key)) continue;
           var val = mod.stats[key];
 
-          if (key === 'REMOVAL_STICKINESS' && val == 0) continue;  // stat on all mods recently - unknown meaning, not displayed in stock client
+//          if (key === 'REMOVAL_STICKINESS' && val == 0) continue;  // stat on all mods recently - unknown meaning, not displayed in stock client
 
           // special formatting for known mod stats, where the display of the raw value is less useful
           if (mod.type === 'HEATSINK' && key === 'HACK_SPEED') val = (val/10000)+'%'; // 500000 = 50%
@@ -193,8 +193,13 @@ window.getResonatorDetails = function(d) {
 // slot: which slot this resonator occupies. Starts with 0 (east) and
 // rotates clockwise. So, last one is 7 (southeast).
 window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
+  if(OCTANTS[slot] === 'N')
+    var className = 'meter north';
+  else
+    var className = 'meter';
+
   if(level === 0) {
-    var meter = '<span class="meter" title="octant:\t' + OCTANTS[slot] + ' ' + OCTANTS_ARROW[slot] + '"></span>';
+    var meter = '<span class="' + className + '" title="octant:\t' + OCTANTS[slot] + ' ' + OCTANTS_ARROW[slot] + '"></span>';
   } else {
     var max = RESO_NRG[level];
     var fillGrade = nrg/max*100;
@@ -209,19 +214,19 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
 
     var color = (level < 3 ? "#9900FF" : "#FFFFFF");
 
-    var lbar = '<span class="meter-level" style="color: ' + color + ';"> ' + level + ' </span>';
+    var lbar = '<span class="meter-level" style="color: ' + color + ';"> L ' + level + ' </span>';
 
     var fill  = '<span style="'+style+'"></span>';
 
-    var meter = '<span class="meter" title="'+inf+'">' + fill + lbar + '</span>';
+    var meter = '<span class="' + className + '" title="'+inf+'">' + fill + lbar + '</span>';
   }
   nick = nick ? '<span class="nickname">'+nick+'</span>' : null;
   return [meter, nick || ''];
 }
 
 // calculate AP gain from destroying portal and then capturing it by deploying resonators
-window.getAttackApGainText = function(d) {
-  var breakdown = getAttackApGain(d);
+window.getAttackApGainText = function(d,fieldCount) {
+  var breakdown = getAttackApGain(d,fieldCount);
   var totalGain = breakdown.enemyAp;
 
   function tt(text) {
@@ -268,7 +273,7 @@ window.getMitigationText = function(d) {
   if (mitigationDetails.excess) mitigationShort += ' (+'+mitigationDetails.excess+')';
 
   function tt(text) {
-    var t = 'Mitigation:\t'+mitigationDetails.total+'\n';
+    var t = 'Shielding:\t'+mitigationDetails.total+'\n';
     t += 'Shields:\t'+mitigationDetails.shields+'\n';
     t += 'Links:\t'+mitigationDetails.links+'\n';
     t += 'Excess:\t'+mitigationDetails.excess+'\n';
@@ -276,6 +281,5 @@ window.getMitigationText = function(d) {
     return '<span title="'+t+'">'+text+'</span>';
   }
 
-  // 'mitigation' doesn't quite fit in the space.
-  return [tt('mitig…'), tt(mitigationShort)];
+  return [tt('shielding'), tt(mitigationShort)];
 }

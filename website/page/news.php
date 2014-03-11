@@ -1,5 +1,78 @@
 <h2>News</h2>
 
+<h4>22nd February 2014</h4>
+<p>
+IITC 0.16.5 and IITC Mobile 0.10.5 have just been released. This version is required to work with a change made to the
+standard intel site. Also, the following changes have been made:
+</p>
+<ul>
+<li>The new Artifacts are now supported</li>
+<li>Bookmarks plugin updated</li>
+<li>Draw tools plugin: markers updated to also support colours</li>
+</ul>
+
+<h4>6th February 2014</h4>
+<p>
+IITC 0.16.4 and IITC Mobile 0.10.4 have just been released. This version is required to fix a bug with showing portal details
+due to a change made by Niantic to the intel site protocol. Also, the following changes have been made:
+</p>
+<ul>
+<li>Portal markers are now reduced in size when you zoom out, reducing clutter when viewing large areas of the map</li>
+<li>Blocked a 3rd party plugin, arc, from running - it had spyware features hidden within it
+(<a href="https://plus.google.com/105383756361375410867/posts/4b2EjP3Du42">details here</a>).</li>
+<li>Plugins
+ <ul>
+ <li>add-kml: support for opening files on mobile added</li>
+ <li>regions: new plugin to draw the scoreboard regions on the map. <i>No support for showing scores - this needs Niantic to add it to the standard intel site first</i></li>
+ <li>score-cycle-times: new plugin to show the times of the scoreboard cycles</li>
+ <li>draw-tools: added basic import/export (via copy+paste), and colour choosing options (click on "DrawTools Opt" in the sidebar)</li>
+ <li>compute-ap-stats and portal-names: changed code to reduce the performance impact when a large number of portals are shown</li>
+ </ul>
+</li>
+<li>Mobile:
+ <ul>
+ <li>NFC support for sharing map view/selected portal - app permissions updated for this</li>
+ </ul>
+</li>
+<li>.. plus various minor bugfixes and improvements</li>
+</ul>
+
+<h4>13th January 2014</h4>
+<p>
+A new IITC release, 0.16.2 and IITC Mobile 0.10.2 have been released. These are needed to work with a change to the
+standard intel site.
+</p>
+<p>
+Additionally, the 'Compute AP Statistics' plugin has been brought back, the 'blank map' base layer has a new black option
+to go with the white, and the 'Yandex' base map has had some bug fixes. Also, IITC Mobile features some changes to
+the 'show my location' feature. You may need to turn this option on again for it to work.
+</p>
+<p>
+<b>Update 14th January 2014</b>: An updated IITC Mobile, 0.10.3, has been released, to fix a crash issue seen by some.
+Also, a minor update was made to the main IITC script which changes the order the data is loaded, to match a change made to
+the standard intel site.
+</p>
+
+
+<h4>21st December 2013</h4>
+<p>
+Just in time for the holidays, another IITC update. IITC 0.16.1 and IITC Mobile 0.10.1 have just been released.
+Changes include
+</p>
+<ul>
+<li>Portals list plugin returns - but less data than before due to the Niantic backend changes</li>
+<li>Resonators plugin returns - but only shows the selected portal</li>
+<li>Mobile:
+ <ul>
+ <li>Some plugins moved to panes from the left-swipe menu: portals list, portal counts</li>
+ <li>Immersive fullscreen mode on Android 4.4 KitKat</li>
+ <li>Sort apps in share activity - most used at the top</li>
+ <li>Fix links sometimes being badly drawn on mobile</li>
+ </ul>
+</li>
+<li>.. and, as always, other various bug fixes, improvements, etc</li>
+</ul>
+
 <h4>6th December 2013</h3>
 <p>
 Niantic have just released a minor update to the standard intel site. Good news - recent IITC changes have made it

@@ -10,46 +10,137 @@
 // http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames
 
 
-window.levelToTilesPerEdge = function(level) {
-  var LEVEL_TO_TILES_PER_EDGE = [65536, 65536, 16384, 16384, 4096, 1536, 1024, 256, 32];
-  return LEVEL_TO_TILES_PER_EDGE[level];
+window.getMapZoomTileParameters = function(zoom) {
+  // attempt to use the values from the stock site. this way, if they're changed, IITC should continue to work
+  // however, if Niantic rename things, it would fail, so we'll fall back to the current known values
+  var ZOOM_TO_TILES_PER_EDGE, MAX_TILES_PER_EDGE, ZOOM_TO_LEVEL;
+  try {
+    ZOOM_TO_TILES_PER_EDGE = nemesis.dashboard.mercator.Tile.ZOOM_TO_NUM_TILES_PER_EDGE_;
+    if (ZOOM_TO_TILES_PER_EDGE === undefined) throw('ZOOM_TO_TILES_PER_EDGE not found');
+    MAX_TILES_PER_EDGE = nemesis.dashboard.mercator.Tile.MAX_NUM_TILES_PER_EDGE_;
+    if (MAX_TILES_PER_EDGE === undefined) throw('MAX_TILES_PER_EDGE not found');
+    ZOOM_TO_LEVEL = nemesis.dashboard.zoomlevel.ZOOM_TO_LOD_;
+    if (ZOOM_TO_LEVEL === undefined) throw('ZOOM_TO_LEVEL not found');
+  } catch(e) {
+    console.warn(e);
+
+    // known correct as of 2014-03-11
+    ZOOM_TO_TILES_PER_EDGE = [32, 32, 32, 32, 256, 256, 256, 1024, 1024, 1536, 4096, 4096, 16384, 16384, 16384];
+    MAX_TILES_PER_EDGE = 65536;
+    ZOOM_TO_LEVEL = [8, 8, 8, 8, 7, 7, 7, 6, 6, 5, 4, 4, 3, 2, 2, 1, 1];
+
+    // for developers, let's stop in the debugger
+    debugger;
+  }  
+
+
+  return {
+    level: ZOOM_TO_LEVEL[zoom] || 0,  // default to level 0 (all portals) if not in array
+    tilesPerEdge: ZOOM_TO_TILES_PER_EDGE[zoom] || MAX_TILES_PER_EDGE,
+    zoom: zoom  // include the zoom level, for reference
+  };
 }
 
 
-window.lngToTile = function(lng, level) {
-  return Math.floor((lng + 180) / 360 * levelToTilesPerEdge(level));
+window.getDataZoomForMapZoom = function(zoom) {
+  // we can fetch data at a zoom level different to the map zoom.
+
+  //NOTE: the specifics of this are tightly coupled with the above ZOOM_TO_LEVEL and ZOOM_TO_TILES_PER_EDGE arrays
+
+  // firstly, some of IITCs zoom levels, depending on base map layer, can be higher than stock. limit zoom level
+  if (zoom > 18) {
+    zoom = 18;
+  }
+
+  if (!window.CONFIG_ZOOM_DEFAULT_DETAIL_LEVEL) {
+    // some reasonable optimisations of data retreival
+
+    switch(zoom) {
+      case 2:
+      case 3:
+        // L8 portals - fall back to the furthest out view. less detail, faster retreival. cache advantages when zooming
+        // (note: iitc + stock both limited so zoom 0 never possible)
+        zoom = 1;
+        break;
+
+      case 4:
+        // default is L7 - but this is a crazy number of tiles. fall back to L8 (but higher detail than above)
+        // (the back-end does, unfortunately, rarely (never?) returns large fields with L8-only portals
+        zoom = 3;
+        break;
+
+      case 5:
+      case 6:
+        // default L7 - pull out to furthest L7 zoom
+        zoom = 4;
+        break;
+
+      case 8:
+        // default L6 - pull back to highest L6 zoom
+        zoom = 7;
+        break;
+
+      // L5 portals - only one zoom level
+
+      case 11:
+        // default L4 - pull back to lower detail L4
+        zoom = 10;
+        break;
+
+      // L3 portals - only one zoom level
+
+      case 14:
+        // L2 portals - pull back to furthest
+        zoom = 13;
+        break;
+
+      case 16:
+        // L1 portals - pull back to furthest zoom
+        zoom = 15;
+        break;
+
+      default:
+        if (zoom >= 18) {
+          // all portals - pull back to furthest zoom
+          zoom = 17;
+        }
+        break;
+    }
+  }
+
+  if (window.CONFIG_ZOOM_SHOW_MORE_PORTALS) {
+    if (zoom >= 15) {
+      //L1+ and closer zooms. the 'all portals' zoom uses the same tile size, so it's no harm to request things at that zoom level
+      zoom = 17;
+    }
+  }
+
+  return zoom;
 }
 
-window.latToTile = function(lat, level) {
+
+window.lngToTile = function(lng, params) {
+  return Math.floor((lng + 180) / 360 * params.tilesPerEdge);
+}
+
+window.latToTile = function(lat, params) {
   return Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) +
-    1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * levelToTilesPerEdge(level));
+    1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * params.tilesPerEdge);
 }
 
-window.tileToLng = function(x, level) {
-  return x / levelToTilesPerEdge(level) * 360 - 180;
+window.tileToLng = function(x, params) {
+  return x / params.tilesPerEdge * 360 - 180;
 }
 
-window.tileToLat = function(y, level) {
-  var n = Math.PI - 2 * Math.PI * y / levelToTilesPerEdge(level);
+window.tileToLat = function(y, params) {
+  var n = Math.PI - 2 * Math.PI * y / params.tilesPerEdge;
   return 180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
 }
 
-window.pointToTileId = function(level, x, y) {
-  return level + "_" + x + "_" + y;
+window.pointToTileId = function(params, x, y) {
+  return params.zoom + "_" + x + "_" + y;
 }
 
-// given tile id and bounds, returns the format as required by the
-// Ingress API to request map data.
-window.generateBoundsParams = function(tile_id, minLat, minLng, maxLat, maxLng) {
-  return {
-    id: tile_id,
-    qk: tile_id,
-    minLatE6: Math.round(minLat * 1E6),
-    minLngE6: Math.round(minLng * 1E6),
-    maxLatE6: Math.round(maxLat * 1E6),
-    maxLngE6: Math.round(maxLng * 1E6)
-  };
-}
 
 window.getResonatorLatLng = function(dist, slot, portalLatLng) {
   // offset in meters
