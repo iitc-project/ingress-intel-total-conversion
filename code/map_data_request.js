@@ -57,6 +57,8 @@ window.MapDataRequest = function() {
   this.setStatus ('startup', undefined, -1);
 }
 
+window.MapDataRequest.prototype.DOWNLOAD_MAP_DATA = true;
+window.MapDataRequest.prototype.STATUS_KEY_MAP_DATA = 'iitc-download-map-data';
 
 window.MapDataRequest.prototype.start = function() {
   var savedContext = this;
@@ -74,10 +76,17 @@ window.MapDataRequest.prototype.start = function() {
   this.setStatus ('refreshing', undefined, -1);
 
   this.cache && this.cache.startExpireInterval (15);
+
+  // Initialize data freeze function
+  this.dataFreezeSetup();
 }
 
 
 window.MapDataRequest.prototype.mapMoveStart = function() {
+  // Check if map data download is enabled
+  // if false prevent the switch status to 'paused' during movemente of the map
+  if(!window.MapDataRequest.prototype.DOWNLOAD_MAP_DATA){ this.setStatus('freezed'); this.clearTimeout(); return; }
+
   console.log('refresh map movestart');
 
   this.setStatus('paused');
@@ -86,6 +95,9 @@ window.MapDataRequest.prototype.mapMoveStart = function() {
 }
 
 window.MapDataRequest.prototype.mapMoveEnd = function() {
+  // Check if map data download is enabled
+  if(!window.MapDataRequest.prototype.DOWNLOAD_MAP_DATA){ this.setStatus('freezed'); return;}
+
   var bounds = clampLatLngBounds(map.getBounds());
   var zoom = map.getZoom();
 
@@ -564,4 +576,81 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
 
   //.. should this also be delayed a small amount?
   this.delayProcessRequestQueue(this.RUN_QUEUE_DELAY);
+}
+
+
+window.MapDataRequest.prototype.debugGetMapDataStatus = function() {
+  if(!window.MapDataRequest.prototype.DOWNLOAD_MAP_DATA) {
+    // Stop map data download
+    console.log('Map Data are disabled (freezed)');
+  } else {
+    // Start map data download
+    console.log('Map Data are enabled');
+  }
+}
+
+window.MapDataRequest.prototype.triggerDataFreeze = function() {
+  // Invert value
+  window.MapDataRequest.prototype.DOWNLOAD_MAP_DATA = !window.MapDataRequest.prototype.DOWNLOAD_MAP_DATA;
+  // Storage new value
+  localStorage[this.STATUS_KEY_MAP_DATA] = window.MapDataRequest.prototype.DOWNLOAD_MAP_DATA;
+  // Add/remove CSS class to change button color
+  $('a.dataFreezeBtn').toggleClass('noData');
+
+  this.debugGetMapDataStatus();
+
+  // TO DO: use a function to start download data without move the map
+  // I tryed with this.refreshOnTimeout(); and others functions, but not works.
+  // Console logged "Uncaught TypeError: Cannot call method 'reset' of undefined"
+  // Meanwhile the script moves a bit the map to start/stop data download
+  var ll = map.getCenter();
+  map.setView([ll.lat, ll.lng+0.0001], map.getZoom());
+}
+
+window.MapDataRequest.prototype.dataFreezeCSS = function() {
+  var icon = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARAgMAAABGA69pAAAADFBMVEUAAAAEBAQSEhJKSkpXvLMCAAAABHRSTlMA+JY0Duud2wAAAENJREFUeAFjYLCMZgAC1TA8pNXSsNUMDJyhoREMDEyhoQlAoamhDXA1nBEgkgkoDAQHgNj+////BxhCgcCBYSqQbAAArXcR/2eDpnQAAAAASUVORK5CYII=';
+
+  $('<style>').prop('type', 'text/css').html(''
+    +'.leaflet-dataFreeze a.dataFreezeBtn, .leaflet-dataFreeze a.dataFreezeBtn:hover{outline:none;background:#03DC03 url('+icon+') no-repeat center center;}'
+    +'.leaflet-dataFreeze a.dataFreezeBtn.noData, .leaflet-dataFreeze a.dataFreezeBtn.noData:hover{background-color:#f66;}'
+  ).appendTo('head');
+}
+
+window.MapDataRequest.prototype.dataFreezeSetup = function() {
+  L.Control.Command = L.Control.extend({
+    options:{position: 'topleft'},
+
+    onAdd:function(map) {
+      var controlDiv = L.DomUtil.create('div', 'leaflet-dataFreeze leaflet-control');
+      var controlSubDIV = L.DomUtil.create('div', 'leaflet-bar', controlDiv);
+      var butt = L.DomUtil.create('a', 'dataFreezeBtn', controlSubDIV);
+      butt.title = 'Enable/Disable map data download';
+
+      L.DomEvent
+        .addListener(controlDiv, 'click', L.DomEvent.stopPropagation)
+        .addListener(controlDiv, 'click', L.DomEvent.preventDefault)
+        .addListener(controlDiv, 'dblclick', L.DomEvent.stopPropagation)
+        .addListener(controlDiv, 'dblclick', L.DomEvent.preventDefault)
+        .addListener(butt, 'click', function() {
+          window.MapDataRequest.prototype.triggerDataFreeze();
+        });
+
+      return controlDiv;
+    }
+  });
+  L.control.command = function(options) { return new L.Control.Command(options); };
+  map.addControl(new L.control.command());
+
+  // First boot storage not existing
+  if(localStorage[this.STATUS_KEY_MAP_DATA] === undefined) {
+    localStorage[this.STATUS_KEY_MAP_DATA] = true;
+  }
+  // Restore last status
+  if(localStorage[this.STATUS_KEY_MAP_DATA] === 'false') {
+    window.MapDataRequest.prototype.DOWNLOAD_MAP_DATA = false;
+    this.debugDataStatus();
+    $('a.dataFreezeBtn').addClass('noData');
+  }
+
+  this.dataFreezeCSS();
 }
