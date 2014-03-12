@@ -648,7 +648,7 @@ window.MapDataRequest.prototype.dataFreezeSetup = function() {
   // Restore last status
   if(localStorage[this.STATUS_KEY_MAP_DATA] === 'false') {
     window.MapDataRequest.prototype.DOWNLOAD_MAP_DATA = false;
-    this.debugDataStatus();
+    this.debugGetMapDataStatus();
     $('a.dataFreezeBtn').addClass('noData');
   }
 
