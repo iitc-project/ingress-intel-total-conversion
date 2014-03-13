@@ -181,6 +181,8 @@ window.plugin.guessPlayerLevels.extractPortalData = function(data) {
 window.plugin.guessPlayerLevels.extractChatData = function(data) {
   var attackData = {};
   function addAttackMessage(nick, timestamp, portal) {
+    var details = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(nick);
+    if(details.guessed == 8 || details.min == 8) return; // we wouldn't get better results, so skip the calcula
     if(!attackData[nick]) attackData[nick] = {};
     if(!attackData[nick][timestamp]) attackData[nick][timestamp] = [];
     attackData[nick][timestamp].push(portal);
@@ -288,11 +290,6 @@ window.plugin.guessPlayerLevels.handleAttackData = function(nick, latlngs) {
       circle = window.plugin.guessPlayerLevels.calculateCircleWithAnchor(latlngs.slice(0, i + 1), latlng);
   }
 
-  // don't know under what circumstances, but sometimes the calculation fails. ignore nonsense data
-  if(circle.x == 0 || circle.y == 0) {
-    return;
-  }
-
   // circle.range is useless, because it is calculated in degrees (simplified algorithm!)
   var latlng = L.latLng(circle.y, circle.x);
   var range = 0;
@@ -302,8 +299,9 @@ window.plugin.guessPlayerLevels.handleAttackData = function(nick, latlngs) {
       range = d;
   }
 
-  // same as above. ignore nonsense data
-  if(range > 1000) {
+  // In earlier versions, the algorithm failed. Should be fixed now, but just to be sure, we ignore escalating values...
+  if(circle.x == 0 || circle.y == 0 || range > 1000) {
+    console.warn("ignoring attack data: ", nick, latlngs, circle, range);
     return;
   }
 
@@ -343,12 +341,12 @@ window.plugin.guessPlayerLevels.calculateCircleWithAnchors = function(latlngs, a
   for(var i=0; i<latlngs.length; i++) {
     var c = latlngs[i];
     if(!window.plugin.guessPlayerLevels.isPointInCircle(c, circle)) {
-      var dA = a.x^2 + a.y^2;
-      var dB = b.x^2 + b.y^2;
-      var dC = c.x^2 + c.y^2;
+      var dA = a.x*a.x + a.y*a.y;
+      var dB = b.x*b.x + b.y*b.y;
+      var dC = c.x*c.x + c.y*c.y;
 
-      circle.x =  (dA*(c.y-b.y) + dB*(a.y-c.y) + dC*(b.y-a.y)) / 2*(a.x*(c.y-b.y) + b.x*(a.y-c.y) + c.x*(b.y-a.y));
-      circle.y = -(dA*(c.x-b.x) + dB*(a.x-c.x) + dC*(b.x-a.x)) / 2*(a.x*(c.y-b.y) + b.x*(a.y-c.y) + c.x*(b.y-a.y));
+      circle.x =  (dA*(c.y-b.y) + dB*(a.y-c.y) + dC*(b.y-a.y)) / (2*(a.x*(c.y-b.y) + b.x*(a.y-c.y) + c.x*(b.y-a.y)));
+      circle.y = -(dA*(c.x-b.x) + dB*(a.x-c.x) + dC*(b.x-a.x)) / (2*(a.x*(c.y-b.y) + b.x*(a.y-c.y) + c.x*(b.y-a.y)));
 
       circle.radius = Math.max(
         window.plugin.guessPlayerLevels.getDistance(a, circle),
@@ -361,13 +359,11 @@ window.plugin.guessPlayerLevels.calculateCircleWithAnchors = function(latlngs, a
 }
 
 window.plugin.guessPlayerLevels.calculateCircleFromBisector = function(p, q) {
-  var circle = {
+  return {
     x: (p.x + q.x) / 2,
     y: (p.y + q.y) / 2,
     radius: window.plugin.guessPlayerLevels.getDistance(p, q) / 2
   };
-
-  return circle;
 }
 
 window.plugin.guessPlayerLevels.isPointInCircle = function(point, circle) {
