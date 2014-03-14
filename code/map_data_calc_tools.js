@@ -24,9 +24,9 @@ window.getMapZoomTileParameters = function(zoom) {
   } catch(e) {
     console.warn(e);
 
-    // known correct as of 2014-03-11
-    ZOOM_TO_TILES_PER_EDGE = [32, 32, 32, 32, 256, 256, 256, 1024, 1024, 1536, 4096, 4096, 16384, 16384, 16384];
-    MAX_TILES_PER_EDGE = 65536;
+    // known correct as of 2014-03-14
+    ZOOM_TO_TILES_PER_EDGE = [32, 32, 32, 32, 256, 256, 256, 1024, 1024, 1536, 4096, 4096, 6500, 6500, 6500];
+    MAX_TILES_PER_EDGE = 9000;
     ZOOM_TO_LEVEL = [8, 8, 8, 8, 7, 7, 7, 6, 6, 5, 4, 4, 3, 2, 2, 1, 1];
 
     // for developers, let's stop in the debugger
