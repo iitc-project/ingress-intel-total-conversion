@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
     <PreferenceCategory
         android:key="pref_ui_cat"
         android:title="@string/pref_ui_cat">
@@ -17,9 +18,11 @@
             android:title="@string/pref_user_zoom"/>
 
         <MultiSelectListPreference
+            android:defaultValue="@array/pref_hide_fullscreen_defaults"
             android:entries="@array/pref_hide_fullscreen"
             android:entryValues="@array/pref_hide_fullscreen_vals"
             android:key="pref_fullscreen"
+            android:persistent="true"
             android:summary="@string/pref_fullscreen_sum"
             android:title="@string/pref_fullscreen"/>
 
@@ -36,8 +39,8 @@
             android:fragment="com.cradle.iitc_mobile.fragments.PluginsFragment"
             android:key="pref_plugins"
             android:persistent="false"
-            android:title="@string/pref_plugins"
-            android:summary="@string/pref_plugins_sum">
+            android:summary="@string/pref_plugins_sum"
+            android:title="@string/pref_plugins">
             <intent
                 android:targetClass="com.cradle.iitc_mobile.IITC_PluginPreferenceActivity"
                 android:targetPackage="com.cradle.iitc_mobile"/>
@@ -60,26 +63,30 @@
             android:title="@string/pref_press_twice_to_exit"/>
     </PreferenceCategory>
     <PreferenceCategory
-    android:key="pref_mics"
-    android:title="@string/pref_misc_cat">
+        android:key="pref_mics"
+        android:title="@string/pref_misc_cat">
         <PreferenceScreen
             android:key="pref_developer_screen"
             android:persistent="false"
-            android:title="@string/pref_advanced_options"
-            android:summary="@string/pref_advanced_options_sum">
+            android:summary="@string/pref_advanced_options_sum"
+            android:title="@string/pref_advanced_options">
             <CheckBoxPreference
                 android:defaultValue="false"
                 android:key="pref_dev_checkbox"
                 android:summary="@string/pref_enable_dev_mode_sum"
                 android:title="@string/pref_enable_dev_mode"/>
+
             <PreferenceCategory
                 android:key="pref_advanced_ui_cat"
                 android:title="@string/pref_ui_cat">
-                <CheckBoxPreference
-                    android:defaultValue="false"
-                    android:key="pref_advanced_menu"
-                    android:summary="@string/pref_advanced_menu_sum"
-                    android:title="@string/pref_advanced_menu"/>
+                <MultiSelectListPreference
+                    android:defaultValue="@array/pref_android_menu_default"
+                    android:entries="@array/pref_android_menu_entries"
+                    android:entryValues="@array/pref_android_menu_entries"
+                    android:key="pref_android_menu"
+                    android:persistent="true"
+                    android:summary="@string/pref_android_menu_sum"
+                    android:title="@string/pref_android_menu"/>
                 <CheckBoxPreference
                     android:defaultValue="false"
                     android:key="pref_disable_splash"

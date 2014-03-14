@@ -10,8 +10,8 @@
  <meta name="author" content="">
 
  <!-- Le styles -->
- <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
- <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css" rel="stylesheet">
+ <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+ <link href="assets/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet">
  <link href="assets/css/style.css" rel="stylesheet">
  <link href="assets/icomoon/style.css" rel="stylesheet">
 
@@ -169,7 +169,7 @@ include "page/$page.php";
 <!-- ******** javascript includes ******** -->
 
 <script src="http://code.jquery.com/jquery.js"></script>
-<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+<script src="assets/bootstrap/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="https://apis.google.com/js/platform.js"></script>
 
 

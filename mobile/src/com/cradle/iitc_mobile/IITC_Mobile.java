@@ -13,6 +13,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -38,13 +40,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
+import com.cradle.iitc_mobile.share.ShareActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -63,7 +70,7 @@ public class IITC_Mobile extends Activity
     private IITC_DeviceAccountLogin mLogin;
     private final Vector<ResponseHandler> mResponseHandlers = new Vector<ResponseHandler>();
     private boolean mDesktopMode = false;
-    private boolean mAdvancedMenu = false;
+    private Set<String> mAdvancedMenu;
     private MenuItem mSearchMenuItem;
     private View mImageLoading;
     private ListView mLvDebug;
@@ -131,7 +138,8 @@ public class IITC_Mobile extends Activity
         mDesktopMode = mSharedPrefs.getBoolean("pref_force_desktop", false);
 
         // enable/disable advance menu
-        mAdvancedMenu = mSharedPrefs.getBoolean("pref_advanced_menu", false);
+        final String[] menuDefaults = getResources().getStringArray(R.array.pref_android_menu_default);
+        mAdvancedMenu = mSharedPrefs.getStringSet("pref_android_menu", new HashSet<String>(Arrays.asList(menuDefaults)));
 
         // get fullscreen status from settings
         mIitcWebView.updateFullscreenStatus();
@@ -173,9 +181,11 @@ public class IITC_Mobile extends Activity
             mIitcWebView.updateFullscreenStatus();
             mNavigationHelper.onPrefChanged();
             return;
-        } else if (key.equals("pref_advanced_menu")) {
-            mAdvancedMenu = sharedPreferences.getBoolean("pref_advanced_menu", false);
-            mNavigationHelper.setDebugMode(mAdvancedMenu);
+        } else if (key.equals("pref_android_menu")) {
+            final String[] menuDefaults = getResources().getStringArray(R.array.pref_android_menu_default);
+            mAdvancedMenu = mSharedPrefs.getStringSet("pref_android_menu",
+                    new HashSet<String>(Arrays.asList(menuDefaults)));
+            mNavigationHelper.setDebugMode(mAdvancedMenu.contains(R.string.menu_debug));
             invalidateOptionsMenu();
             // no reload needed
             return;
@@ -469,6 +479,7 @@ public class IITC_Mobile extends Activity
     }
 
     public void switchToPane(final Pane pane) {
+        if (mDesktopMode) return;
         mIitcWebView.loadUrl("javascript: window.show('" + pane.name + "');");
     }
 
@@ -494,18 +505,15 @@ public class IITC_Mobile extends Activity
 
         for (int i = 0; i < menu.size(); i++) {
             final MenuItem item = menu.getItem(i);
+            final boolean enabled = mAdvancedMenu.contains(item.getTitle());
 
             switch (item.getItemId()) {
                 case R.id.action_settings:
                     item.setVisible(true);
                     break;
 
-                case R.id.menu_clear_cookies:
-                    item.setVisible(mAdvancedMenu && visible);
-                    break;
-
                 case R.id.locate:
-                    item.setVisible(visible);
+                    item.setVisible(enabled && visible);
                     item.setEnabled(!mIsLoading);
                     item.setIcon(mUserLocation.isFollowing()
                             ? R.drawable.ic_action_location_follow
@@ -513,12 +521,12 @@ public class IITC_Mobile extends Activity
                     break;
 
                 case R.id.menu_debug:
-                    item.setVisible(mAdvancedMenu && visible);
+                    item.setVisible(enabled && visible);
                     item.setChecked(mDebugging);
                     break;
 
                 default:
-                    item.setVisible(visible);
+                    item.setVisible(enabled && visible);
             }
         }
 
@@ -569,6 +577,9 @@ public class IITC_Mobile extends Activity
             case R.id.menu_clear_cookies:
                 final CookieManager cm = CookieManager.getInstance();
                 cm.removeAllCookie();
+                return true;
+            case R.id.menu_send_screenshot:
+                sendScreenshot();
                 return true;
             case R.id.menu_debug:
                 mDebugging = !mDebugging;
@@ -839,6 +850,40 @@ public class IITC_Mobile extends Activity
 
     public void setPermalink(final String href) {
         mPermalink = href;
+    }
+
+    private void sendScreenshot() {
+        Bitmap bitmap = mIitcWebView.getDrawingCache();
+        if (bitmap == null) {
+            mIitcWebView.buildDrawingCache();
+            bitmap = mIitcWebView.getDrawingCache();
+            if (bitmap == null) {
+                Log.e("could not get bitmap!");
+                return;
+            }
+            bitmap = Bitmap.createBitmap(bitmap);
+            if (!mIitcWebView.isDrawingCacheEnabled()) mIitcWebView.destroyDrawingCache();
+        }
+        else {
+            bitmap = Bitmap.createBitmap(bitmap);
+        }
+
+        try {
+            final File cache = getExternalCacheDir();
+            final File file = File.createTempFile("IITC screenshot", ".png", cache);
+            if (!bitmap.compress(CompressFormat.PNG, 100, new FileOutputStream(file))) {
+                // quality is ignored by PNG
+                throw new IOException("Could not compress bitmap!");
+            }
+            startActivityForResult(ShareActivity.forFile(this, file, "image/png"), new ResponseHandler() {
+                @Override
+                public void onActivityResult(final int resultCode, final Intent data) {
+                    file.delete();
+                }
+            });
+        } catch (final IOException e) {
+            Log.e("Could not generate screenshot", e);
+        }
     }
 
     @Override
