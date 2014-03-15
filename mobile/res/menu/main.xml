@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
@@ -12,30 +13,35 @@
         android:icon="@drawable/ic_action_location_found"
         android:orderInCategory="100"
         android:showAsAction="ifRoom"
-        android:title="@string/locate"/>
+        android:title="@string/menu_locate"/>
     <item
         android:id="@+id/layer_chooser"
         android:icon="@drawable/ic_action_add_to_queue"
         android:orderInCategory="105"
         android:showAsAction="ifRoom"
-        android:title="@string/layer_chooser"/>
+        android:title="@string/menu_layer_chooser"/>
     <item
         android:id="@+id/toggle_fullscreen"
         android:icon="@drawable/ic_action_full_screen"
         android:orderInCategory="110"
         android:showAsAction="ifRoom"
-        android:title="@string/toggle_fullscreen"/>
+        android:title="@string/menu_toggle_fullscreen"/>
     <item
         android:id="@+id/reload_button"
         android:icon="@drawable/ic_action_refresh"
         android:orderInCategory="120"
         android:showAsAction="ifRoom"
-        android:title="@string/reload"/>
+        android:title="@string/menu_reload"/>
     <item
         android:id="@+id/menu_clear_cookies"
         android:orderInCategory="130"
         android:showAsAction="never"
         android:title="@string/menu_clear_cookies"/>
+    <item
+        android:id="@+id/menu_send_screenshot"
+        android:orderInCategory="140"
+        android:showAsAction="never"
+        android:title="@string/menu_send_screenshot"/>
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="200"

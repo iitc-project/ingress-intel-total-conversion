@@ -242,6 +242,20 @@ window.setupMap = function() {
   // Remove the hidden layer after layerChooser built, to avoid messing up ordering of layers 
   $.each(hiddenLayer, function(ind, layer){
     map.removeLayer(layer);
+
+    // as users often become confused if they accidentally switch a standard layer off, display a warning in this case
+    $('#portaldetails').html('<div class="layer_off_warning">'
+                            +'<p><b>Warning</b>: some of the standard layers are turned off. Some portals/links/fields will not be visible.</p>'
+                            +'<a id="enable_standard_layers">Enable standard layers</a>'
+                            +'</div>');
+
+    $('#enable_standard_layers').on('click', function() {
+      $.each(addLayers, function(ind, layer) {
+        if (!map.hasLayer(layer)) map.addLayer(layer);
+      });
+      $('#portaldetails').html('');
+    });
+
   });
 
   map.addControl(window.layerChooser);
