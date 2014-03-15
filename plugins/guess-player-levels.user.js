@@ -2,7 +2,7 @@
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           IITC plugin: guess player level
 // @category       Info
-// @version        0.5.1.@@DATETIMEVERSION@@
+// @version        0.5.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -84,6 +84,7 @@ window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
 
   var el = $(dom);
   var nick = el.text();
+  if (nick[0] == '@') nick = nick.substring(1);
 
   var details = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(nick);
 
