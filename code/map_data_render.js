@@ -167,7 +167,6 @@ window.Render.prototype.endRenderPass = function() {
 }
 
 window.Render.prototype.bringPortalsToFront = function() {
-return;
   for (var lvl in portalsFactionLayers) {
     // portals are stored in separate layers per faction
     // to avoid giving weight to one faction or another, we'll push portals to front based on GUID order
