@@ -13,6 +13,12 @@ offers many more features. It is available for
 
 <h3>Latest news</h3>
 
+<h4>14th March 2014</h4>
+<p>
+IITC 0.16.6 and IITC Mobile 0.10.6 have just been released. This is a critical update required to successfully load
+portals when zoomed in (L3+ or closer) to the map.
+</p>
+
 <h4>22nd February 2014</h4>
 <p>
 IITC 0.16.5 and IITC Mobile 0.10.5 have just been released. This version is required to work with a change made to the
