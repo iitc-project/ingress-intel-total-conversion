@@ -72,8 +72,9 @@ window.artifact.processData = function(data) {
   artifact.clearData();
 
   $.each (data.artifacts, function(i,artData) {
-    if (artData.artifactId != 'jarvis') {
-      // jarvis artifacts - fragmentInfos and targetInfos
+    // if we have no descriptions for a type, we don't know about it
+    if (!artifact.getArtifactDescriptions(artData.artifactId)) {
+      // jarvis and amar artifacts - fragmentInfos and targetInfos
       // (future types? completely unknown at this time!)
       console.warn('Note: unknown artifactId '+artData.artifactId+' - guessing how to handle it');
     }
@@ -139,6 +140,15 @@ window.artifact.getArtifactTypes = function() {
 
 window.artifact.isArtifact = function(type) {
   return type in artifact.artifactTypes;
+}
+
+window.artifact.getArtifactDescriptions = function(type) {
+  var descriptions = {
+    'jarvis': { 'title': "Jarvis Shards", 'fragmentName': "shards" },
+    'amar': { 'title': "Amar Artifacts", 'fragmentName': "artifacts" }
+  };
+
+  return descriptions[type];
 }
 
 // used to render portals that would otherwise be below the visible level
@@ -244,7 +254,9 @@ window.artifact.showArtifactList = function() {
   }
 
   $.each(artifact.artifactTypes, function(type,type2) {
-    var name = typeNames[type] || ('New artifact type: '+type);
+    var description = artifact.getArtifactDescriptions(type);
+
+    var name = description ? description.title : ('unknown artifact type: '+type);
 
     html += '<hr><div><b>'+name+'</b></div>';
 
@@ -273,7 +285,8 @@ window.artifact.showArtifactList = function() {
           if (data[type].target) {
             row += '<br>';
           }
-          row += '<span class="fragments'+(data[type].target?' '+TEAM_TO_CSS[data[type].target]:'')+'">Shard: #'+data[type].fragments.join(', #')+'</span> ';
+          var fragmentName = description ? description.fragmentName : 'fragment';
+          row += '<span class="fragments'+(data[type].target?' '+TEAM_TO_CSS[data[type].target]:'')+'">'+fragmentName+': #'+data[type].fragments.join(', #')+'</span> ';
           sortVal = Math.min.apply(null, data[type].fragments); // use min shard number at portal as sort key
         }
 

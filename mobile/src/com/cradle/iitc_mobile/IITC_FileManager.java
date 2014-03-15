@@ -22,6 +22,7 @@ import com.cradle.iitc_mobile.IITC_Mobile.ResponseHandler;
 
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -33,6 +34,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.StringReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -61,8 +63,7 @@ public class IITC_FileManager {
      * @throws IOException
      */
     public static void copyStream(final InputStream inStream, final OutputStream outStream, final boolean closeOutput)
-            throws IOException
-    {
+            throws IOException {
         // in case Android includes Apache commons IO in the future, this function should be replaced by IOUtils.copy
         final int bufferSize = 4096;
         final byte[] buffer = new byte[bufferSize];
@@ -81,38 +82,32 @@ public class IITC_FileManager {
     public static HashMap<String, String> getScriptInfo(final String js) {
         final HashMap<String, String> map = new HashMap<String, String>();
         String header = "";
+        // get metadata of javascript file
         if (js != null && js.contains("==UserScript==") && js.contains("==/UserScript==")) {
             header = js.substring(js.indexOf("==UserScript=="),
                     js.indexOf("==/UserScript=="));
         }
-        // remove new line comments
-        header = header.replace("\n//", " ");
-        // get a list of key-value
-        final String[] attributes = header.split("  +");
         // add default values
         map.put("id", "unknown");
         map.put("version", "not found");
         map.put("name", "unknown");
         map.put("description", "");
         map.put("category", "Misc");
-        // add parsed values
-        for (int i = 0; i < attributes.length; i++) {
-            // search for attributes and use the value
-            if (attributes[i].equals("@id")) {
-                map.put("id", attributes[i + 1]);
+        final BufferedReader reader = new BufferedReader(new StringReader(header));
+        String headerLine;
+        try {
+            while ((headerLine = reader.readLine()) != null) {
+                if (headerLine.matches("//.*@.*")) {
+                    // get start of key name (first @ in line)
+                    final String[] keyStart = headerLine.split("@", 2);
+                    // split key value
+                    final String[] keyValue = keyStart[1].split(" ", 2);
+                    // remove whitespaces from string begin and end and push to map
+                    map.put(keyValue[0].trim(), keyValue[1].trim());
+                }
             }
-            if (attributes[i].equals("@version")) {
-                map.put("version", attributes[i + 1]);
-            }
-            if (attributes[i].equals("@name")) {
-                map.put("name", attributes[i + 1]);
-            }
-            if (attributes[i].equals("@description")) {
-                map.put("description", attributes[i + 1]);
-            }
-            if (attributes[i].equals("@category")) {
-                map.put("category", attributes[i + 1]);
-            }
+        } catch (final IOException e) {
+            Log.w(e);
         }
         return map;
     }
@@ -283,7 +278,7 @@ public class IITC_FileManager {
                     InputStream is;
                     String fileName;
                     if (uri.getScheme().contains("http")) {
-                        URLConnection conn = new URL(url).openConnection();
+                        final URLConnection conn = new URL(url).openConnection();
                         is = conn.getInputStream();
                         fileName = uri.getLastPathSegment();
                     } else {
@@ -339,7 +334,7 @@ public class IITC_FileManager {
 
             // create the chooser Intent
             final Intent target = new Intent(Intent.ACTION_GET_CONTENT)
-                    .setType("*/*")
+                    .setType("file/*")
                     .addCategory(Intent.CATEGORY_OPENABLE);
             final IITC_Mobile iitc = (IITC_Mobile) mActivity;
 
@@ -419,7 +414,7 @@ public class IITC_FileManager {
         public void onActivityResult(final int resultCode, final Intent data) {
             mIitc.deleteResponseHandler(this);
 
-            if (resultCode != Activity.RESULT_OK) return;
+            if (resultCode != Activity.RESULT_OK || data == null) return;
 
             mData = data;
 

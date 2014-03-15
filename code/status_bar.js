@@ -86,6 +86,11 @@ window.renderUpdateStatus = function() {
   //$('#updatestatus').click(function() { startRefreshTimeout(10); });
   //. <a style="cursor: pointer" onclick="startRefreshTimeout(10)" title="Refresh">⟳</a>';
 
+  if(progress == 1 && window.activeRequests.length > 0) {
+    // we don't know the exact progress, but we have requests (e.g. chat) running, so show it as indeterminate.
+    progress = -1;
+  }
+
   if (typeof android !== 'undefined' && android && android.setProgress)
     android.setProgress(progress);
 }

@@ -8,14 +8,11 @@
     <string name="activity_plugins">IITC Plugins</string>
     <string name="activity_share">Share using…</string>
     <string name="activity_share_to_clipboard">Copy to clipboard</string>
+    <string name="activity_save_to_file">Save to file</string>
     <string name="action_settings">Settings</string>
     <string name="drawer_open">Show navigation menu</string>
     <string name="drawer_close">Hide navigation menu</string>
-    <string name="reload">Reload IITC</string>
     <string name="version">Print Version</string>
-    <string name="toggle_fullscreen">Toggle fullscreen</string>
-    <string name="layer_chooser">Layer Chooser</string>
-    <string name="locate">Get Location</string>
     <string name="local">local</string>
     <string name="close">Close</string>
     <string name="download_description">Downloading latest intel package…</string>
@@ -127,13 +124,12 @@
     <string name="pref_enable_dev_mode">Enable developer mode</string>
     <string name="pref_enable_dev_mode_sum">If enabled, all IITC sources will be loaded from external storage of the Android device.
       Please copy all sources from $IITC_folder/build/mobile/ to /sdcard/IITC_Mobile/dev/.</string>
-    <string name="pref_advanced_menu">Display advanced menu</string>
-    <string name="pref_advanced_menu_sum">In addition to the default IITC buttons the advanced menu
-        contains a debug pane plus an option to clear cookies</string>
     <string name="pref_disable_splash">Disable Splash Screen</string>
     <string name="pref_fake_user_agent">Fake User Agent</string>
     <string name="pref_fake_user_agent_sum">Let IITCm appear as a desktop browser for the intel site.
         Note: If just want to use the desktop mode use the \'force desktop mode\' setting</string>
+    <string name="pref_android_menu">Configure IITCm menu</string>
+    <string name="pref_android_menu_sum">Toggle visibility of IITCm menu entries</string>
 
     <string-array name="pref_hide_fullscreen">
         <item>System Bar</item>
@@ -147,6 +143,30 @@
         <item>8</item>
         <item>16</item>
     </string-array>
+    <string-array name="pref_hide_fullscreen_defaults">
+        <item>2</item>
+        <item>4</item>
+    </string-array>
+
+    <string-array name="pref_android_menu_entries">
+        <item>@string/menu_search</item>
+        <item>@string/menu_locate</item>
+        <item>@string/menu_layer_chooser</item>
+        <item>@string/menu_toggle_fullscreen</item>
+        <item>@string/menu_reload</item>
+        <item>@string/menu_send_screenshot</item>
+        <item>@string/menu_clear_cookies</item>
+        <item>@string/menu_debug</item>
+    </string-array>
+    <string-array name="pref_android_menu_default">
+        <item>@string/menu_search</item>
+        <item>@string/menu_locate</item>
+        <item>@string/menu_layer_chooser</item>
+        <item>@string/menu_toggle_fullscreen</item>
+        <item>@string/menu_reload</item>
+        <item>@string/menu_send_screenshot</item>
+    </string-array>
+
     <string-array name="pref_user_location_titles">
         <item>Don\'t show user position</item>
         <item>Show user position on map</item>
@@ -158,9 +178,14 @@
         <item>2</item>
     </string-array>
 
+    <string name="menu_reload">Reload IITC</string>
+    <string name="menu_toggle_fullscreen">Toggle fullscreen</string>
+    <string name="menu_layer_chooser">Layer Chooser</string>
+    <string name="menu_locate">Get Location</string>
     <string name="menu_clear_cookies">Clear Cookies</string>
     <string name="menu_search">Search</string>
     <string name="menu_debug">Debug</string>
+    <string name="menu_send_screenshot">Send screenshot</string>
     <string name="menu_plugins_add">Add external plugins</string>
     <string name="choose_account_to_login">Choose account to login</string>
     <string name="login_failed">Login failed.</string>

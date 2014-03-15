@@ -77,7 +77,7 @@ public final class Log {
     }
 
     public static void d(final Throwable tr) {
-        d("Unexpected " + tr, tr);
+        d("Unexpected " + tr.getClass().getCanonicalName(), tr);
     }
 
     public static void e(final String msg) {
@@ -107,7 +107,7 @@ public final class Log {
     }
 
     public static void e(final Throwable tr) {
-        e("Unexpected " + tr, tr);
+        e("Unexpected " + tr.getClass().getCanonicalName(), tr);
     }
 
     public static void i(final String msg) {
@@ -137,7 +137,7 @@ public final class Log {
     }
 
     public static void i(final Throwable tr) {
-        i("Unexpected " + tr, tr);
+        i("Unexpected " + tr.getClass().getCanonicalName(), tr);
     }
 
     public static boolean log(final ConsoleMessage message) {
@@ -211,7 +211,7 @@ public final class Log {
     }
 
     public static void v(final Throwable tr) {
-        v("Unexpected " + tr, tr);
+        v("Unexpected " + tr.getClass().getCanonicalName(), tr);
     }
 
     public static void w(final String msg) {
@@ -241,7 +241,7 @@ public final class Log {
     }
 
     public static void w(final Throwable tr) {
-        w("Unexpected " + tr, tr);
+        w("Unexpected " + tr.getClass().getCanonicalName(), tr);
     }
 
     private Log() {

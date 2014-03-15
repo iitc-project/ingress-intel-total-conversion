@@ -203,24 +203,24 @@ window.getPortalMiscDetails = function(guid,d) {
     // artifact details
 
     // 2014-02-06: stock site changed from supporting 'jarvis shards' to 'amar artifacts'(?) - so let's see what we can do to be generic...
-    var artifactTypes = {
-      'jarvis': { 'name': 'Jarvis', 'fragmentName': 'shard(s)' },
-      'amar': { 'name': 'Amar', 'fragmentName': 'artifact(s)' },
-    };
-
-    $.each(artifactTypes,function(type,details) {
+    $.each(artifact.getArtifactTypes(),function(index,type) {
       var artdata = artifact.getPortalData (guid, type);
       if (artdata) {
-        // the genFourColumnTable function below doesn't handle cases where one column is null and the other isn't - so default to *something* in both columns
-        var target = ['',''], shards = [details.fragmentName,'(none)'];
-        if (artdata.target) {
-          target = ['target', '<span class="'+TEAM_TO_CSS[artdata.target]+'">'+(artdata.target==TEAM_RES?'Resistance':'Enlightened')+'</span>'];
-        }
-        if (artdata.fragments) {
-          shards = [details.fragmentName, '#'+artdata.fragments.join(', #')];
-        }
+        var details = artifact.getArtifactDescriptions(type);
+        if (details) {
+          // the genFourColumnTable function below doesn't handle cases where one column is null and the other isn't - so default to *something* in both columns
+          var target = ['',''], shards = [details.fragmentName,'(none)'];
+          if (artdata.target) {
+            target = ['target', '<span class="'+TEAM_TO_CSS[artdata.target]+'">'+(artdata.target==TEAM_RES?'Resistance':'Enlightened')+'</span>'];
+          }
+          if (artdata.fragments) {
+            shards = [details.fragmentName, '#'+artdata.fragments.join(', #')];
+          }
 
-        randDetailsData.push (target, shards);
+          randDetailsData.push (target, shards);
+        } else {
+          console.warn('Unknown artifact type '+type+': no names, so cannot display');
+        }
       }
     });
 

@@ -27,8 +27,8 @@ window.plugin.scaleBar.setup  = function() {
   // are worse than Internet Explorer 6 whirring fans combined. Upgrade to the metric
   // system already.
   if (window.isSmartphone()) {
-      $('head').append('<style>.leaflet-control-scale { position: absolute; bottom: 15px; left: 0px; margin-bottom: 20px !important; } </style>');
-      window.map.addControl(new L.Control.Scale({position: 'bottomleft', imperial: false, maxWidth: 100}));
+      $('head').append('<style>.leaflet-control-scale { position: absolute; bottom: 15px; right: 0px; margin-bottom: 20px !important; } </style>');
+      window.map.addControl(new L.Control.Scale({position: 'bottomright', imperial: false, maxWidth: 100}));
   } else {
       $('head').append('<style>.leaflet-control-scale { position: absolute; top: 2px; left: 40px; } </style>');
       window.map.addControl(new L.Control.Scale({position: 'topleft', imperial: false, maxWidth: 200}));
