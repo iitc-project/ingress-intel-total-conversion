@@ -72,8 +72,11 @@ window.RenderDebugTiles.prototype.setState = function(id,state) {
 
 window.RenderDebugTiles.prototype.startTimer = function(waitTime) {
   var _this = this;
-  if (!this.timer) {
-    this.timer = setTimeout ( function() { _this.timer = undefined; _this.runClearPass(); }, waitTime );
+  if (!_this.timer) {
+    // a timeout of 0 firing the actual timeout - helps things run smoother
+    _this.timer = setTimeout ( function() {
+      _this.timer = setTimeout ( function() { _this.timer = undefined; _this.runClearPass(); }, waitTime );
+    }, 0);
   }
 }
 
