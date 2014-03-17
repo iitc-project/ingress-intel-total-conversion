@@ -23,7 +23,6 @@ window.iitcBuildDate = '@@BUILDDATE@@';
 window.onload = function() {};
 document.body.onload = function() {};
 
-
 // rescue user data from original page
 var scr = document.getElementsByTagName('script');
 for(var x in scr) {
@@ -114,6 +113,16 @@ function wrapper(info) {
 // a cut-down version of GM_info is passed as a parameter to the script
 // (not the full GM_info - it contains the ENTIRE script source!)
 window.script_info = info;
+
+// disabling of some cruft left behind by the stock site
+try {
+  goog.events.removeAll();
+  goog.Timer.clear();
+} catch(e) {
+  console.warn('Exception from trying to clear stock site stuff');
+  console.warn(e);
+  debugger; // debugger break
+}
 
 
 // LEAFLET PREFER CANVAS ///////////////////////////////////////////////
