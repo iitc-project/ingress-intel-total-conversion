@@ -38,15 +38,14 @@ window.MapDataRequest = function() {
 
   // a short delay between one request finishing and the queue being run for the next request.
   // this gives a chance of other requests finishing, allowing better grouping of retries in new requests
-  this.RUN_QUEUE_DELAY = 0.5;
+  this.RUN_QUEUE_DELAY = 0.2;
 
-  // delay before requeuing tiles in failed requests
-  this.BAD_REQUEST_REQUEUE_DELAY = 10; // longer delay before retrying a completely failed request - as in this case the servers are struggling
+  // delay before processing the queue after failed requests
+  this.BAD_REQUEST_RUN_QUEUE_DELAY = 10; // longer delay before doing anything after errors (other than TIMEOUT)
 
-  // a delay before processing the queue after requeuing tiles. this gives a chance for other requests to finish
-  // or other requeue actions to happen before the queue is processed, allowing better grouping of requests
-  // however, the queue may be processed sooner if a previous timeout was set
-  this.REQUEUE_DELAY = 1;
+  // delay before processing the queue after error==TIMEOUT requests. this is a less severe error than other errors
+  this.TIMEOUT_REQUEST_RUN_QUEUE_DELAY = 2;
+
 
 
   this.REFRESH_CLOSE = 120;  // refresh time to use for close views z>12 when not idle and not moving
@@ -248,7 +247,8 @@ window.MapDataRequest.prototype.refresh = function() {
 //TODO: with recent backend changes there are now multiple zoom levels of data that is identical except perhaps for some
 // reduction of detail when zoomed out. to take good advantage of the cache, a check for cached data at a closer zoom
 // but otherwise the same parameters (min portal level, tiles per edge) will mean less downloads when zooming out
-
+// (however, the default code in getDataZoomForMapZoom currently reduces the need for this, as it forces the furthest 
+//  out zoom tiles for a detail level)
       if (this.cache && this.cache.isFresh(tile_id) ) {
         // data is fresh in the cache - just render it
         this.debugTiles.setState(tile_id, 'cache-fresh');
@@ -532,9 +532,12 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
     window.runHooks('requestFinished', {success: true});
   }
 
+  // set the queue delay based on any errors or timeouts
+  var nextQueueDelay = errorTiles.length > 0 ? this.BAD_REQUEST_RUN_QUEUE_DELAY :
+                       timeoutTiles.length > 0 ? this.TIMEOUT_REQUEST_RUN_QUEUE_DELAY :
+                       this.RUN_QUEUE_DELAY;
 
-  console.log ('getThinnedEntities status: '+tiles.length+' tiles: '+successTiles.length+' successful, '+timeoutTiles.length+' timed out, '+errorTiles.length+' failed');
-
+  console.log ('getThinnedEntities status: '+tiles.length+' tiles: '+successTiles.length+' successful, '+timeoutTiles.length+' timed out, '+errorTiles.length+' failed. delay '+nextQueueDelay+' seconds');
 
   // requeue any 'timeout' tiles immediately
   if (timeoutTiles.length > 0) {
@@ -545,27 +548,20 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
     }
   }
 
-  // but for other errors, delay before retrying (as the server is having issues)
   if (errorTiles.length > 0) {
-    //setTimeout has no way of passing the 'context' (aka 'this') to it's function
-    var savedContext = this;
-
-    setTimeout (function() {
-      for (var i in errorTiles) {
-        var id = errorTiles[i];
-        delete savedContext.requestedTiles[id];
-        savedContext.requeueTile(id, true);
-      }
-      savedContext.delayProcessRequestQueue(this.REQUEUE_DELAY);
-    }, this.BAD_REQUEST_REQUEUE_DELAY*1000);
+    for (var i in errorTiles) {
+      var id = errorTiles[i];
+      delete this.requestedTiles[id];
+      this.requeueTile(id, true);
+    }
   }
-
 
   for (var i in successTiles) {
     var id = successTiles[i];
     delete this.requestedTiles[id];
   }
 
+
   //.. should this also be delayed a small amount?
-  this.delayProcessRequestQueue(this.RUN_QUEUE_DELAY);
+  this.delayProcessRequestQueue(nextQueueDelay);
 }
