@@ -2,6 +2,8 @@
 
 // gives user feedback about pending operations. Draws current status
 // to website. Updates info in layer chooser.
+window.renderUpdateStatusTimer_ = undefined;
+
 window.renderUpdateStatus = function() {
   var progress = 1;
 
@@ -41,28 +43,6 @@ window.renderUpdateStatus = function() {
     t += '...unknown...';
   }
 
-/*
-  if(mapRunsUserAction)
-    t += '<span class="help" title="Paused due to user interaction">paused</span';
-  else if(isIdle())
-    t += '<span style="color:#888">Idle</span>';
-  else if(window.requests._quickRefreshPending)
-    t += 'refreshing';
-  else if(window.activeRequests.length > 0)
-    t += window.activeRequests.length + ' requests';
-  else {
-    // tooltip with detailed tile counts
-    t += '<span class="help" title="'+window.statusTotalMapTiles+' tiles: '+window.statusCachedMapTiles+' cached, '+window.statusSuccessMapTiles+' successful, '+window.statusStaleMapTiles+' stale, '+window.statusErrorMapTiles+' failed">';
-
-    // basic error/out of date/up to date message
-    if (window.statusErrorMapTiles) t += '<span style="color:#f66">Errors</span>';
-    else if (window.statusStaleMapTiles) t += '<span style="color:#fa6">Out of date</span>';
-    else t += 'Up to date';
-  
-    t += '</span>';
-
-  }
-*/
   t += '</span>';
 
   //request status
@@ -72,16 +52,26 @@ window.renderUpdateStatus = function() {
     t += ' <span style="color:#f66">' + window.failedRequestCount + ' failed</span>'
 
 
+  //it's possible that updating the status bar excessively causes some performance issues. so rather than doing it
+  //immediately, delay it to the next javascript event loop, cancelling any pending update
+  // will also cause any browser-related rendering to occur first, before the status actually updates
 
-  $('#innerstatus').html(t);
-  //$('#updatestatus').click(function() { startRefreshTimeout(10); });
-  //. <a style="cursor: pointer" onclick="startRefreshTimeout(10)" title="Refresh">⟳</a>';
+  if (window.renderUpdateStatusTimer_) clearTimeout(window.renderUpdateStatusTimer_);
 
-  if(progress == 1 && window.activeRequests.length > 0) {
-    // we don't know the exact progress, but we have requests (e.g. chat) running, so show it as indeterminate.
-    progress = -1;
-  }
+  window.renderUpdateStatusTimer_ = setTimeout ( function() {
+    window.renderUpdateStatusTimer_ = undefined;
 
-  if (typeof android !== 'undefined' && android && android.setProgress)
-    android.setProgress(progress);
+    $('#innerstatus').html(t);
+    //$('#updatestatus').click(function() { startRefreshTimeout(10); });
+    //. <a style="cursor: pointer" onclick="startRefreshTimeout(10)" title="Refresh">⟳</a>';
+
+    if(progress == 1 && window.activeRequests.length > 0) {
+      // we don't know the exact progress, but we have requests (e.g. chat) running, so show it as indeterminate.
+      progress = -1;
+    }
+
+    if (typeof android !== 'undefined' && android && android.setProgress)
+      android.setProgress(progress);
+  }, 0);
+
 }
