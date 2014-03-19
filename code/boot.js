@@ -78,6 +78,21 @@ window.setupLayerChooserStatusRecorder = function() {
   });
 }
 
+window.layerChooserSetDisabledStates = function() {
+// layer selector - enable/disable layers that aren't visible due to zoom level
+  var minlvl = getMinPortalLevel();
+  var portalSelection = $('.leaflet-control-layers-overlays label');
+  //it's an array - 0=unclaimed, 1=lvl 1, 2=lvl 2, ..., 8=lvl 8 - 9 relevant entries
+  //mark all levels below (but not at) minlvl as disabled
+  portalSelection.slice(0, minlvl).addClass('disabled').attr('title', 'Zoom in to show those.');
+  //and all from minlvl to 8 as enabled
+  portalSelection.slice(minlvl, 8+1).removeClass('disabled').attr('title', '');
+
+//TODO? some generic mechanism where other layers can have their disabled state marked on/off? a few
+//plugins have code to do it by hand already
+}
+
+
 window.setupStyles = function() {
   $('head').append('<style>' +
     [ '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
@@ -278,6 +293,9 @@ window.setupMap = function() {
   // ensures order of calls
   map.on('movestart', function() { window.mapRunsUserAction = true; window.requests.abort(); window.startRefreshTimeout(-1); });
   map.on('moveend', function() { window.mapRunsUserAction = false; window.startRefreshTimeout(ON_MOVE_REFRESH*1000); });
+
+  map.on('zoomend', function() { window.layerChooserSetDisabledStates(); });
+  window.layerChooserSetDisabledStates();
 
   // on zoomend, check to see the zoom level is an int, and reset the view if not
   // (there's a bug on mobile where zoom levels sometimes end up as fractional levels. this causes the base map to be invisible)

@@ -71,15 +71,6 @@ window.renderUpdateStatus = function() {
   if (window.failedRequestCount > 0)
     t += ' <span style="color:#f66">' + window.failedRequestCount + ' failed</span>'
 
-// layer selector - enable/disable layers that aren't visible due to zoom level
-//FIXME! move this somewhere more suitable!
-
-  var portalSelection = $('.leaflet-control-layers-overlays label');
-  //it's an array - 0=unclaimed, 1=lvl 1, 2=lvl 2, ..., 8=lvl 8 - 9 relevant entries
-  //mark all levels below (but not at) minlvl as disabled
-  portalSelection.slice(0, minlvl).addClass('disabled').attr('title', 'Zoom in to show those.');
-  //and all from minlvl to 8 as enabled
-  portalSelection.slice(minlvl, 8+1).removeClass('disabled').attr('title', '');
 
 
   $('#innerstatus').html(t);
