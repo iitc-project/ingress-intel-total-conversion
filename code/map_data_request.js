@@ -31,13 +31,13 @@ window.MapDataRequest = function() {
   this.MAX_TILE_RETRIES = 2;
 
   // refresh timers
-  this.MOVE_REFRESH = 1; //time, after a map move (pan/zoom) before starting the refresh processing
+  this.MOVE_REFRESH = 3; //time, after a map move (pan/zoom) before starting the refresh processing
   this.STARTUP_REFRESH = 3; //refresh time used on first load of IITC
   this.IDLE_RESUME_REFRESH = 5; //refresh time used after resuming from idle
 
   // after one of the above, there's an additional delay between preparing the refresh (clearing out of bounds,
   // processing cache, etc) and actually sending the first network requests
-  this.DOWNLOAD_DELAY = 3;  //delay after preparing the data download before tile requests are sent
+  this.DOWNLOAD_DELAY = 1;  //delay after preparing the data download before tile requests are sent
 
 
   // a short delay between one request finishing and the queue being run for the next request.
@@ -49,6 +49,11 @@ window.MapDataRequest = function() {
 
   // delay before processing the queue after error==TIMEOUT requests. this is a less severe error than other errors
   this.TIMEOUT_REQUEST_RUN_QUEUE_DELAY = 2;
+
+
+  // render queue
+  // number of items to process in each render pass. there are pros and cons to smaller and larger values
+  this.RENDER_BATCH_SIZE = (typeof android === 'undefined') ? 2000 : 500;
 
   // delay before repeating the render loop. this gives a better chance for user interaction
   this.RENDER_PAUSE = 0.05; //50ms
@@ -600,7 +605,8 @@ window.MapDataRequest.prototype.pauseRenderQueue = function(pause) {
 }
 
 window.MapDataRequest.prototype.processRenderQueue = function() {
-  var drawEntityLimit = 500;//TODO: fine-tune - and mobile/desktop specific values?
+  var drawEntityLimit = this.RENDER_BATCH_SIZE;
+
 
 //TODO: we don't take account of how many of the entities are actually new/removed - they
 // could already be drawn and not changed. will see how it works like this...
