@@ -549,17 +549,13 @@ function boot() {
 
   var iconDefImage = '@@INCLUDEIMAGE:images/marker-icon.png@@';
   var iconDefRetImage = '@@INCLUDEIMAGE:images/marker-icon-2x.png@@';
-  var iconShadowImage = '@@INCLUDEIMAGE:images/marker-shadow.png@@';
 
   L.Icon.Default = L.Icon.extend({options: {
     iconUrl: iconDefImage,
     iconRetinaUrl: iconDefRetImage,
-    shadowUrl: iconShadowImage,
-    shadowRetinaUrl: iconShadowImage,
     iconSize: new L.Point(25, 41),
     iconAnchor: new L.Point(12, 41),
     popupAnchor: new L.Point(1, -34),
-    shadowSize: new L.Point(41, 41)
   }});
 
   window.setupIdle();
