@@ -17,16 +17,21 @@ window.updateGameScore = function(data) {
   // to detect the problem and try a different set is easiest in a place where there's only a single request of that type
   // sent at once, and it has no extra parameters. this method matches those requirements
   if (data.error || (data.indexOf && data.indexOf('"error"') != -1)) {
-    window.updateGameScoreFailCount++;
-    if (window.updateGameScoreFailCount <= window.requestParameterMunges.length) {
-//TODO: methods to try a different munge set?
-//      window.activeRequestMungeSet = (window.activeRequestMungeSet+1) % window.requestParameterMunges.length;
-//      console.warn('IITC munge issue - cycling to set '+window.activeRequestMungeSet);
-
-      updateGameScore();
+    if (data.error == 'missing version') {
+      dialog({
+        title: 'Reload IITC',
+        html: '<p>IITC is using an outdated munge set. This can happen when Niantic update the standard intel site.</p>'
+             +'<p>You need to reload the page to get the updated changes.</p>'
+             +'<p>If you have just reloaded the page, then an old version of the standard site script is cached somewhere.'
+             +'In this case, try clearing your cache, or waiting 15-30 minutes for the stale data to expire.</p>',
+        buttons: {
+          'RELOAD': function() { window.location.reload(); }
+        }
+      });
       return;
+
     } else {
-      console.error('IITC munge issue - and retry limit reached. IITC will likely fail');
+      console.error('game score failed to load');
     }
   }
 
