@@ -12,6 +12,10 @@ window.MapDataRequest = function() {
   this.activeRequestCount = 0;
   this.requestedTiles = {};
 
+  this.renderQueue = [];
+  this.renderQueueTimer = undefined;
+  this.renderQueuePaused = false;
+
   this.idle = false;
 
 
@@ -46,10 +50,12 @@ window.MapDataRequest = function() {
   // delay before processing the queue after error==TIMEOUT requests. this is a less severe error than other errors
   this.TIMEOUT_REQUEST_RUN_QUEUE_DELAY = 2;
 
+  // delay before repeating the render loop. this gives a better chance for user interaction
+  this.RENDER_PAUSE = 0.05; //50ms
 
 
-  this.REFRESH_CLOSE = 120;  // refresh time to use for close views z>12 when not idle and not moving
-  this.REFRESH_FAR = 600;  // refresh time for far views z <= 12
+  this.REFRESH_CLOSE = 300;  // refresh time to use for close views z>12 when not idle and not moving
+  this.REFRESH_FAR = 900;  // refresh time for far views z <= 12
   this.FETCH_TO_REFRESH_FACTOR = 2;  //refresh time is based on the time to complete a data fetch, times this value
 
   // ensure we have some initial map status
@@ -81,7 +87,7 @@ window.MapDataRequest.prototype.mapMoveStart = function() {
 
   this.setStatus('paused');
   this.clearTimeout();
-
+  this.pauseRenderQueue(true);
 }
 
 window.MapDataRequest.prototype.mapMoveEnd = function() {
@@ -99,6 +105,7 @@ window.MapDataRequest.prototype.mapMoveEnd = function() {
       if (remainingTime > this.MOVE_REFRESH) {
         this.setStatus('done','Map moved, but no data updates needed');
         this.refreshOnTimeout(remainingTime);
+        this.pauseRenderQueue(false);
         return;
       }
     }
@@ -135,8 +142,11 @@ window.MapDataRequest.prototype.refreshOnTimeout = function(seconds) {
   console.log('starting map refresh in '+seconds+' seconds');
 
   // 'this' won't be right inside the callback, so save it
-  var savedContext = this;
-  this.timer = setTimeout ( function() { savedContext.timer = undefined; savedContext.refresh(); }, seconds*1000);
+  // also, double setTimeout used to ensure the delay occurs after any browser-related rendering/updating/etc
+  var _this = this;
+  this.timer = setTimeout ( function() {
+    _this.timer = setTimeout ( function() { _this.timer = undefined; _this.refresh(); }, seconds*1000);
+  }, 0);
   this.timerExpectedTimeoutTime = new Date().getTime() + seconds*1000;
 }
 
@@ -166,6 +176,7 @@ window.MapDataRequest.prototype.refresh = function() {
   this.refreshStartTime = new Date().getTime();
 
   this.debugTiles.reset();
+  this.resetRenderQueue();
 
   // a 'set' to keep track of hard failures for tiles
   this.tileErrorCount = {};
@@ -251,18 +262,11 @@ window.MapDataRequest.prototype.refresh = function() {
 //  out zoom tiles for a detail level)
       if (this.cache && this.cache.isFresh(tile_id) ) {
         // data is fresh in the cache - just render it
-        this.debugTiles.setState(tile_id, 'cache-fresh');
-        this.render.processTileData (this.cache.get(tile_id));
+        this.pushRenderQueue(tile_id,this.cache.get(tile_id),'cache-fresh');
         this.cachedTileCount += 1;
       } else {
 
         // no fresh data
-
-        // render the cached stale data, if we have it. this ensures *something* appears quickly when possible
-//        var old_data = this.cache && this.cache.get(tile_id);
-//        if (old_data) {
-//          this.render.processTileData (old_data);
-//        }
 
         // tile needed. calculate the distance from the centre of the screen, to optimise the load order
 
@@ -315,37 +319,19 @@ window.MapDataRequest.prototype.refresh = function() {
 
 window.MapDataRequest.prototype.delayProcessRequestQueue = function(seconds,isFirst) {
   if (this.timer === undefined) {
-    var savedContext = this;
-    this.timer = setTimeout ( function() { savedContext.timer = undefined; savedContext.processRequestQueue(isFirst); }, seconds*1000 );
+    var _this = this;
+    this.timer = setTimeout ( function() {
+      _this.timer = setTimeout ( function() { _this.timer = undefined; _this.processRequestQueue(isFirst); }, seconds*1000 );
+    }, 0);
   }
 }
 
 
 window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
 
-  // if nothing left in the queue, end the render. otherwise, send network requests
+  // if nothing left in the queue, finish
   if (Object.keys(this.queuedTiles).length == 0) {
-
-    this.render.endRenderPass();
-
-    var endTime = new Date().getTime();
-    var duration = (endTime - this.refreshStartTime)/1000;
-
-    console.log('finished requesting data! (took '+duration+' seconds to complete)');
-
-    window.runHooks ('mapDataRefreshEnd', {});
-
-    var longStatus = 'Tiles: ' + this.cachedTileCount + ' cached, ' +
-                 this.successTileCount + ' loaded, ' +
-                 (this.staleTileCount ? this.staleTileCount + ' stale, ' : '') +
-                 (this.failedTileCount ? this.failedTileCount + ' failed, ' : '') +
-                 'in ' + duration + ' seconds';
-
-    // refresh timer based on time to run this pass, with a minimum of REFRESH seconds
-    var minRefresh = map.getZoom()>12 ? this.REFRESH_CLOSE : this.REFRESH_FAR;
-    var refreshTimer = Math.max(minRefresh, duration*this.FETCH_TO_REFRESH_FACTOR);
-    this.refreshOnTimeout(refreshTimer);
-    this.setStatus (this.failedTileCount ? 'errors' : this.staleTileCount ? 'out of date' : 'done', longStatus);
+    // we leave the renderQueue code to handle ending the render pass now
     return;
   }
 
@@ -436,8 +422,7 @@ window.MapDataRequest.prototype.requeueTile = function(id, error) {
       var data = this.cache ? this.cache.get(id) : undefined;
       if (data) {
         // we have cached data - use it, even though it's stale
-        this.debugTiles.setState (id, 'cache-stale');
-        this.render.processTileData (data);
+        this.pushRenderQueue(id,data,'cache-stale');
         this.staleTileCount += 1;
       } else {
         // no cached data
@@ -472,7 +457,7 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
   var timeoutTiles = [];
 
   if (!success || !data || !data.result) {
-    console.warn("Request.handleResponse: request failed - requeuing...");
+    console.warn('Request.handleResponse: request failed - requeuing...'+(data && data.error?' error: '+data.error:''));
 
     //request failed - requeue all the tiles(?)
 
@@ -514,9 +499,8 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
         // if this tile was in the render list, render it
         // (requests aren't aborted when new requests are started, so it's entirely possible we don't want to render it!)
         if (id in this.queuedTiles) {
-          this.debugTiles.setState (id, 'ok');
 
-          this.render.processTileData (val);
+          this.pushRenderQueue(id,val,'ok');
 
           delete this.queuedTiles[id];
           this.successTileCount += 1;
@@ -564,4 +548,110 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
 
   //.. should this also be delayed a small amount?
   this.delayProcessRequestQueue(nextQueueDelay);
+}
+
+
+window.MapDataRequest.prototype.resetRenderQueue = function() {
+  this.renderQueue = [];
+
+  if (this.renderQueueTimer) {
+    clearTimeout(this.renderQueueTimer);
+    this.renderQueueTimer = undefined;
+  }
+  this.renderQueuePaused = false;  
+}
+
+
+window.MapDataRequest.prototype.pushRenderQueue = function (id, data, status) {
+  this.debugTiles.setState(id,'render-queue');
+  this.renderQueue.push({
+    id:id,
+    // the data in the render queue is modified as we go, so we need to copy the values of the arrays. just storing the reference would modify the data in the cache!
+    deleted: (data.deletedGameEntityGuids||[]).slice(0),
+    entities: (data.gameEntities||[]).slice(0),
+    status:status});
+
+  if (!this.renderQueuePaused) {
+    this.startQueueTimer(this.RENDER_PAUSE);
+  }
+}
+
+window.MapDataRequest.prototype.startQueueTimer = function(delay) {
+  if (this.renderQueueTimer === undefined) {
+    var _this = this;
+    this.renderQueueTimer = setTimeout( function() {
+      _this.renderQueueTimer = setTimeout ( function() { _this.renderQueueTimer = undefined; _this.processRenderQueue(); }, (delay||0)*1000 );
+    }, 0);
+  }
+}
+
+window.MapDataRequest.prototype.pauseRenderQueue = function(pause) {
+  this.renderQueuePaused = pause;
+  if (pause) {
+    if (this.renderQueueTimer) {
+      clearTimeout(this.renderQueueTimer);
+      this.renderQueueTimer = undefined;
+    }
+  } else {
+    if (this.renderQueue.length > 0) {
+      this.startQueueTimer(this.RENDER_PAUSE);
+    }
+  }
+}
+
+window.MapDataRequest.prototype.processRenderQueue = function() {
+  var drawEntityLimit = 500;//TODO: fine-tune - and mobile/desktop specific values?
+
+//TODO: we don't take account of how many of the entities are actually new/removed - they
+// could already be drawn and not changed. will see how it works like this...
+  while (drawEntityLimit > 0 && this.renderQueue.length > 0) {
+    var current = this.renderQueue[0];
+
+    if (current.deleted.length > 0) {
+      var deleteThisPass = current.deleted.splice(0,drawEntityLimit);
+      drawEntityLimit -= deleteThisPass.length;
+      this.render.processDeletedGameEntityGuids(deleteThisPass);
+    }
+
+    if (drawEntityLimit > 0 && current.entities.length > 0) {
+      var drawThisPass = current.entities.splice(0,drawEntityLimit);
+      drawEntityLimit -= drawThisPass.length;
+      this.render.processGameEntities(drawThisPass);
+    }
+
+    if (current.deleted.length == 0 && current.entities.length == 0) {
+      this.renderQueue.splice(0,1);
+      this.debugTiles.setState(current.id, current.status);
+    }
+
+
+  }
+
+  if (this.renderQueue.length > 0) {
+    this.startQueueTimer(this.RENDER_PAUSE);
+  } else if (Object.keys(this.queuedTiles).length == 0) {
+
+    this.render.endRenderPass();
+
+    var endTime = new Date().getTime();
+    var duration = (endTime - this.refreshStartTime)/1000;
+
+    console.log('finished requesting data! (took '+duration+' seconds to complete)');
+
+    window.runHooks ('mapDataRefreshEnd', {});
+
+    var longStatus = 'Tiles: ' + this.cachedTileCount + ' cached, ' +
+                 this.successTileCount + ' loaded, ' +
+                 (this.staleTileCount ? this.staleTileCount + ' stale, ' : '') +
+                 (this.failedTileCount ? this.failedTileCount + ' failed, ' : '') +
+                 'in ' + duration + ' seconds';
+
+    // refresh timer based on time to run this pass, with a minimum of REFRESH seconds
+    var minRefresh = map.getZoom()>12 ? this.REFRESH_CLOSE : this.REFRESH_FAR;
+    var refreshTimer = Math.max(minRefresh, duration*this.FETCH_TO_REFRESH_FACTOR);
+    this.refreshOnTimeout(refreshTimer);
+    this.setStatus (this.failedTileCount ? 'errors' : this.staleTileCount ? 'out of date' : 'done', longStatus);
+
+  }
+
 }
