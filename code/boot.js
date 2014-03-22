@@ -665,7 +665,7 @@ function boot() {
 @@INCLUDERAW:external/load.js@@
 
 try { console.log('Loading included JS now'); } catch(e) {}
-@@INCLUDERAW:external/leaflet.js@@
+@@INCLUDERAW:external/leaflet-src.js@@
 @@INCLUDERAW:external/L.Geodesic.js@@
 // modified version of https://github.com/shramov/leaflet-plugins. Also
 // contains the default Ingress map style.
