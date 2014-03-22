@@ -41,9 +41,7 @@ window.chat._oldBBox = null;
 window.chat.genPostData = function(isFaction, storageHash, getOlderMsgs) {
   if(typeof isFaction !== 'boolean') throw('Need to know if public or faction chat.');
 
-  // get window bounds, and extend to the minimum chat radius
-  chat._localRangeCircle.setLatLng(map.getCenter());
-  var b = map.getBounds().extend(chat._localRangeCircle.getBounds());
+  var b = map.getBounds();
 
   // set a current bounding box if none set so far
   if (!chat._oldBBox) chat._oldBBox = b;
@@ -574,8 +572,6 @@ window.chat.keepScrollPosition = function(box, scrollBefore, isOldMsgs) {
 //
 
 window.chat.setup = function() {
-  window.chat._localRangeCircle =  L.circle(map.getCenter(), CHAT_MIN_RANGE*1000);
-
   if (localStorage['iitc-chat-tab']) {
     var t = $('<a>'+localStorage['iitc-chat-tab']+'</a>');
     window.chat.chooseAnchor(t);

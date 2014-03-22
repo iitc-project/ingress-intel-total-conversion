@@ -142,10 +142,6 @@ window.MAX_IDLE_TIME = 4*60; // stop updating map after 4min idling
 window.PRECACHE_PLAYER_NAMES_ZOOM = 17; // zoom level to start pre-resolving player names
 window.HIDDEN_SCROLLBAR_ASSUMED_WIDTH = 20;
 window.SIDEBAR_WIDTH = 300;
-// chat messages are requested for the visible viewport. On high zoom
-// levels this gets pretty pointless, so request messages in at least a
-// X km radius.
-window.CHAT_MIN_RANGE = 6;
 // this controls how far data is being drawn outside the viewport. Set
 // it 0 to only draw entities that intersect the current view. A value
 // of one will render an area twice the size of the viewport (or some-
