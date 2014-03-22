@@ -399,7 +399,9 @@ window.plugin.playerTracker.drawData = function() {
       dashArray: "5,8"
     };
 
-    L.multiPolyline(polyLine, opts).addTo(plugin.playerTracker.drawnTracesEnl);
+    $.each(polyLine,function(ind,poly) {
+      L.polyline(poly, opts).addTo(plugin.playerTracker.drawnTracesEnl);
+    });
   });
   $.each(polyLineByAgeRes, function(i, polyLine) {
     if(polyLine.length === 0) return true;
@@ -412,7 +414,9 @@ window.plugin.playerTracker.drawData = function() {
       dashArray: "5,8"
     };
 
-    L.multiPolyline(polyLine, opts).addTo(plugin.playerTracker.drawnTracesRes);
+    $.each(polyLine, function(ind,poly) {
+      L.polyline(poly, opts).addTo(plugin.playerTracker.drawnTracesRes);
+    });
   });
 }
 
