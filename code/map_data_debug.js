@@ -3,7 +3,7 @@
 
 
 window.RenderDebugTiles = function() {
-  this.CLEAR_CHECK_TIME = 0.5;
+  this.CLEAR_CHECK_TIME = L.Path.CANVAS ? 2.0 : 0.5;
   this.FADE_TIME = 2.0;
 
   this.debugTileLayer = L.layerGroup();
