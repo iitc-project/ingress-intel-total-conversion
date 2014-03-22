@@ -53,7 +53,8 @@ window.MapDataRequest = function() {
 
   // render queue
   // number of items to process in each render pass. there are pros and cons to smaller and larger values
-  this.RENDER_BATCH_SIZE = (typeof android === 'undefined') ? 2000 : 500;
+  // (however, if using leaflet canvas rendering, it makes sense to push as much as possible through every time)
+  this.RENDER_BATCH_SIZE = L.Path.CANVAS ? 1E9 : (typeof android === 'undefined') ? 2000 : 500;
 
   // delay before repeating the render loop. this gives a better chance for user interaction
   this.RENDER_PAUSE = 0.05; //50ms
