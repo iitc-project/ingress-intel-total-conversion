@@ -11,15 +11,21 @@
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
-// @grant          none
+// @grant          unsafeWindow
 // ==/UserScript==
+
+// NON-STANDARD plugin - try and set the variable early, as
+// we need this global variable set before leaflet initialises
+window.L_PREFER_CANVAS = true;
+if (typeof unsafeWindow !== 'undefined') unsafeWindow.L_PREFER_CANVAS = true;  //doesn't actually work... :/
+
 
 @@PLUGINSTART@@
 
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // we need this global variable set before leaflet initialises
-L_PREFER_CANVAS = true;
+window.L_PREFER_CANVAS = true;
 
 // use own namespace for plugin
 window.plugin.canvasRendering = function() {};
