@@ -2,7 +2,7 @@
 // @id             max-links@boombuler
 // @name           IITC plugin: Max Links
 // @category       Layer
-// @version        0.4.2.@@DATETIMEVERSION@@
+// @version        0.4.3.@@DATETIMEVERSION@@
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Calculate how to link the portals to create a reasonably tidy set of links/fields. Enable from the layer chooser. (Max Links is a poor name, but remains for historical reasons.)
@@ -68,11 +68,6 @@ window.plugin.maxLinks.updateLayer = function() {
 
   window.plugin.maxLinks.layer.clearLayers();
 
-  if (Object.keys(window.portals).length > window.plugin.maxLinks.MAX_PORTALS_TO_LINK) {
-    window.plugin.maxLinks.addErrorMarker();
-    return;
-  }
-
   var locations = [];
 
   var bounds = map.getBounds();
@@ -81,8 +76,14 @@ window.plugin.maxLinks.updateLayer = function() {
     if (bounds.contains(ll)) {
       var p = map.project (portal.getLatLng(), window.plugin.maxLinks.PROJECT_ZOOM);
       locations.push(p);
+      if (locations.length > window.plugin.maxLinks.MAX_PORTALS_TO_LINK) return false; //$.each break
     }
   });
+
+  if (locations.length > window.plugin.maxLinks.MAX_PORTALS_TO_LINK) {
+    window.plugin.maxLinks.addErrorMarker();
+    return;
+  }
 
   var triangles = window.delaunay.triangulate(locations);
 
