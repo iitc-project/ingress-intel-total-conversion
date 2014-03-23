@@ -227,11 +227,8 @@ window.MapDataRequest.prototype.refresh = function() {
 
   window.runHooks ('mapDataRefreshStart', {bounds: bounds, mapZoom: mapZoom, dataZoom: dataZoom, minPortalLevel: tileParams.level, tileBounds: dataBounds});
 
-  this.render.startRenderPass();
-  this.render.clearPortalsBelowLevel(tileParams.level);
-  this.render.clearEntitiesOutsideBounds(dataBounds);
+  this.render.startRenderPass(tileParams.level, dataBounds);
 
-  this.render.updateEntityVisibility();
 
   this.render.processGameEntities(artifact.getArtifactEntities());
 
