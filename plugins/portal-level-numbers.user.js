@@ -52,22 +52,24 @@ window.plugin.portalLevelNumbers.removeLabel = function(guid) {
 }
 
 window.plugin.portalLevelNumbers.addLabel = function(guid,latLng) {
-  var previousLayer = window.plugin.portalLevelNumbers.levelLayers[guid];
-  if (!previousLayer) {
 
-    var p = window.portals[guid];
-    var levelNumber = p.options.level;
-    var level = L.marker(latLng, {
-      icon: L.divIcon({
-        className: 'plugin-portal-level-numbers',
-        iconSize: [window.plugin.portalLevelNumbers.ICON_SIZE, window.plugin.portalLevelNumbers.ICON_SIZE],
-        html: levelNumber
-        }),
-      guid: guid
-    });
-    plugin.portalLevelNumbers.levelLayers[guid] = level;
-    level.addTo(plugin.portalLevelNumbers.levelLayerGroup);
-  }
+  // remove old layer before updating
+  var previousLayer = window.plugin.portalLevelNumbers.levelLayers[guid];
+  if (previousLayer) window.plugin.portalLevelNumbers.removeLabel(guid);
+
+  // add portal level to layers
+  var p = window.portals[guid];
+  var levelNumber = p.options.level;
+  var level = L.marker(latLng, {
+    icon: L.divIcon({
+      className: 'plugin-portal-level-numbers',
+      iconSize: [window.plugin.portalLevelNumbers.ICON_SIZE, window.plugin.portalLevelNumbers.ICON_SIZE],
+      html: levelNumber
+      }),
+    guid: guid
+  });
+  plugin.portalLevelNumbers.levelLayers[guid] = level;
+  level.addTo(plugin.portalLevelNumbers.levelLayerGroup);
 }
 
 window.plugin.portalLevelNumbers.updatePortalLabels = function() {
