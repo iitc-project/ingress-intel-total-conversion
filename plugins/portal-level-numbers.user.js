@@ -52,10 +52,8 @@ window.plugin.portalLevelNumbers.removeLabel = function(guid) {
 }
 
 window.plugin.portalLevelNumbers.addLabel = function(guid,latLng) {
-
   // remove old layer before updating
-  var previousLayer = window.plugin.portalLevelNumbers.levelLayers[guid];
-  if (previousLayer) window.plugin.portalLevelNumbers.removeLabel(guid);
+  window.plugin.portalLevelNumbers.removeLabel(guid);
 
   // add portal level to layers
   var p = window.portals[guid];
