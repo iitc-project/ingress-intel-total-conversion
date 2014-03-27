@@ -149,7 +149,7 @@ window.plugin.regions.update = function() {
   // the six cube side boundaries. we cheat by hard-coding the coords as it's simple enough
   var latLngs = [ [45,-180], [35.264389682754654,-135], [35.264389682754654,-45], [35.264389682754654,45], [35.264389682754654,135], [45,180]];
 
-  var globalCellOptions = {color: 'red', weight: 7, opacity: 0.5};
+  var globalCellOptions = {color: 'red', weight: 7, opacity: 0.5, clickable: false };
 
   for (var i=0; i<latLngs.length-1; i++) {
     // the geodesic line code can't handle a line/polyline spanning more than (or close to?) 180 degrees, so we draw
@@ -191,7 +191,7 @@ window.plugin.regions.drawCell = function(cell) {
   // the level 6 cells have noticible errors with non-geodesic lines - and the larger level 4 cells are worse
   // NOTE: we only draw two of the edges. as we draw all cells on screen, the other two edges will either be drawn
   // from the other cell, or be off screen so we don't care
-  var region = L.geodesicPolyline([corners[0],corners[1],corners[2]], {fill: false, color: color, opacity: 0.5, weight: 5, clickable: false});
+  var region = L.geodesicPolyline([corners[0],corners[1],corners[2]], {fill: false, color: color, opacity: 0.5, weight: 5, clickable: false });
 
   window.plugin.regions.regionLayer.addLayer(region);
 
