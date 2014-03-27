@@ -15,6 +15,7 @@ builds.
 <?php
 
 include_once ( "code/desktop-download.php" );
+include_once ( "code/mobile-download.php" );
 
 
 $path = "test";
@@ -42,24 +43,10 @@ else
 {
 }
 
+
+$apkfile = "$path/IITC_Mobile-$path.apk";
+
 ?>
-
-<h3 id="test-desktop">Desktop test build</h3>
-
-<?php
-iitcDesktopDownload ( $path );
-?>
-
-<hr>
-
-
-<h4>Desktop test plugins</h4>
-
-<?php
-iitcDesktopPluginDownloadTable ( $path );
-?>
-
-<hr>
 
 <h3 id="test-mobile">Mobile test build</h3>
 
@@ -69,10 +56,6 @@ Test builds will be called "IITCm Test" - while the regular release builds remai
 </div>
 
 <?php
-
-include_once ( "code/mobile-download.php" );
-
-$apkfile = "$path/IITC_Mobile-$path.apk";
 
 
 if ( file_exists($apkfile) )
@@ -86,6 +69,22 @@ else
 
 
 ?>
+
+<h3 id="test-desktop">Desktop test build</h3>
+
+<?php
+iitcDesktopDownload ( $path );
+?>
+
+<hr>
+
+<h4>Desktop test plugins</h4>
+
+<?php
+iitcDesktopPluginDownloadTable ( $path );
+?>
+
+<hr>
 
 
 
