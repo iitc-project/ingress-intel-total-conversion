@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portals-list@teo96
 // @name           IITC plugin: show list of portals
 // @category       Info
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -84,8 +84,8 @@ window.plugin.portalslist.getPortals = function() {
       'guid': i,
       'teamN': teamN, // TEAM_NONE, TEAM_RES or TEAM_ENL
       'team': d.team, // "NEUTRAL", "RESISTANCE" or "ENLIGHTENED"
-      'name': d.title,
-      'nameLower': d.title.toLowerCase(),
+      'name': d.title || '(untitled)',
+      'nameLower': d.title && d.title.toLowerCase(),
       'level': portal.options.level,
       'health': d.health,
       'resCount': d.resCount,
