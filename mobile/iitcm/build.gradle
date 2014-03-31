@@ -37,10 +37,29 @@ android {
         targetSdkVersion 19
     }
 
+    signingConfigs {
+        /*
+        debug {
+            storeFile file("/absolute/path/to/debug.keystore")
+        }
+
+        release {
+            storeFile file("/absolute/path/to/release.keystore")
+            storePassword "foo"
+            keyAlias "bar"
+            keyPassword "bazz"
+        }
+        */
+    }
+
     buildTypes {
         release {
             runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            // signingConfig signingConfigs.release
+        }
+        debug {
+            // signingConfig signingConfigs.debug
         }
     }
 
@@ -64,7 +83,7 @@ android.applicationVariants.all{ variant ->
             println("Building test-build: replacing package name in rescources...")
             String content = preferenceFile.getText('UTF-8')
             content = content.replaceAll(
-                'targetPackage="com.cradle.iitc_mobile', 'targetPackage="com.cradle.iitc_mobile.test')
+                'targetPackage="com.cradle.iitc_mobile"', 'targetPackage="com.cradle.iitc_mobile.test"')
             preferenceFile.write(content, 'UTF-8')
         }
     }
