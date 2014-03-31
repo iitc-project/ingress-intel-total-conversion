@@ -45,10 +45,27 @@ android {
     }
 
     productFlavors {
-        testing {
+        releaseBuild {
+            packageName "com.cradle.iitc_mobile"
+        }
+        testBuild {
             packageName "com.cradle.iitc_mobile.test"
             versionCode getVersionCode()
             versionName getVersionName()
+        }
+    }
+}
+
+// search and replace package name in preferences when building test builds
+android.applicationVariants.all{ variant ->
+    variant.mergeResources.doLast{
+        if (variant.dirName.contains("testBuild")) {
+            File preferenceFile = file("${buildDir}/res/all/${variant.dirName}/xml/preferences.xml")
+            println("Building test-build: replacing package name in rescources...")
+            String content = preferenceFile.getText('UTF-8')
+            content = content.replaceAll(
+                'targetPackage="com.cradle.iitc_mobile', 'targetPackage="com.cradle.iitc_mobile.test')
+            preferenceFile.write(content, 'UTF-8')
         }
     }
 }
