@@ -242,7 +242,7 @@ window.plugin.portalslist.getPortalLink = function(portal,guid) {
   var latlng = [coord.lat, coord.lng].join();
   var jsSingleClick = 'window.renderPortalDetails(\''+guid+'\');return false';
   var jsDoubleClick = 'window.zoomToAndShowPortal(\''+guid+'\', ['+latlng+']);return false';
-  var perma = '/intel?latE6='+coord.lat+'&lngE6='+coord.lng+'&z=17&pguid='+guid;
+  var perma = '/intel?ll='+coord.lat+','+coord.lng+'&z=17&pll='+coord.lat+','+coord.lng;
 
   //Use Jquery to create the link, which escape characters in TITLE and ADDRESS of portal
   var a = $('<a>',{
