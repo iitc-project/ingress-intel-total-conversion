@@ -30,7 +30,7 @@ def getVersionName = { ->
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.1"
+    buildToolsVersion '19.0.1'
 
     defaultConfig {
         minSdkVersion 14
@@ -76,6 +76,10 @@ android {
 }
 
 // search and replace package name in preferences when building test builds
+// TODO: in the docs, it is mentioned to use android.applicationVariants.each
+// instead of android.applicationVariants.all
+// http://tools.android.com/tech-docs/new-build-system/user-guide#TOC-Manipulating-tasks
+// but this does not seem to work atm...we maybe want to change this later...
 android.applicationVariants.all{ variant ->
     variant.mergeResources.doLast{
         if (variant.dirName.contains("testBuild")) {
@@ -90,5 +94,6 @@ android.applicationVariants.all{ variant ->
 }
 
 dependencies {
+    compile 'com.android.support:support-v4:19.0.+'
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
