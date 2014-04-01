@@ -23,9 +23,9 @@ window.plugin.userLocation = function() {};
 window.plugin.userLocation.follow = false;
 
 window.plugin.userLocation.setup = function() {
-  $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:mobile/iitcm/src/plugins/user-location.css@@').appendTo('head');
+  $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:mobile/plugins/user-location.css@@').appendTo('head');
 
-  $('<div style="position:absolute; left:-9999em; top:-9999em;">').html('@@INCLUDESTRING:mobile/iitcm/src/plugins/user-location.svg@@').prependTo('body');
+  $('<div style="position:absolute; left:-9999em; top:-9999em;">').html('@@INCLUDESTRING:mobile/plugins/user-location.svg@@').prependTo('body');
 
   var cssClass = PLAYER.team === 'RESISTANCE' ? 'res' : 'enl';
 

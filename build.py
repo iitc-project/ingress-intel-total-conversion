@@ -256,7 +256,7 @@ if buildMobile:
 
     # compile the user location script
     fn = "user-location.user.js"
-    script = readfile("mobile/iitcm/src/plugins/" + fn)
+    script = readfile("mobile/plugins/" + fn)
     downloadUrl = distUrlBase and distUrlBase + '/' + fn.replace("\\","/") or 'none'
     updateUrl = distUrlBase and downloadUrl.replace('.user.js', '.meta.js') or 'none'
     script = doReplacements(script, downloadUrl=downloadUrl, updateUrl=updateUrl, pluginName='user-location')
