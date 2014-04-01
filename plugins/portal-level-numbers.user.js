@@ -72,8 +72,8 @@ window.plugin.portalLevelNumbers.addLabel = function(guid,latLng) {
 
 window.plugin.portalLevelNumbers.updatePortalLabels = function() {
 
-  var SQUARE_SIZE = L.Browser.mobile ? (window.plugin.portalLevelNumbers.ICON_SIZE) * window.plugin.portalLevelNumbers.MOBILE_SCALE
-                                     : (window.plugin.portalLevelNumbers.ICON_SIZE);
+  var SQUARE_SIZE = L.Browser.mobile ? (window.plugin.portalLevelNumbers.ICON_SIZE + 3) * window.plugin.portalLevelNumbers.MOBILE_SCALE
+                                     : (window.plugin.portalLevelNumbers.ICON_SIZE + 3);
 
   // as this is called every time layers are toggled, there's no point in doing it when the layer is off
   if (!map.hasLayer(window.plugin.portalLevelNumbers.levelLayerGroup)) {
@@ -96,11 +96,9 @@ window.plugin.portalLevelNumbers.updatePortalLabels = function() {
     var point = portalPoints[guid];
 
     var bucketId = L.point([Math.floor(point.x/(SQUARE_SIZE*2)),Math.floor(point.y/SQUARE_SIZE*2)]);
-    // the guid is added to all eight neighbour buckets. this way, when testing for overlap we don't need to test
+    // the guid is added to four buckets. this way, when testing for overlap we don't need to test
     // all 8 buckets surrounding the one around the particular portal, only the bucket it is in itself
-    var bucketIds = [bucketId, bucketId.add([1,0]), bucketId.add([0,1]), bucketId.add([1,1]),
-        bucketId.subtract([1,0]), bucketId.subtract([0,1]), bucketId.subtract([1,1]),
-        bucketId.add([-1,1]), bucketId.add([1,-1])];
+    var bucketIds = [bucketId, bucketId.add([1,0]), bucketId.add([0,1]), bucketId.add([1,1])];
     for (var i in bucketIds) {
       var b = bucketIds[i].toString();
       if (!buckets[b]) buckets[b] = {};
