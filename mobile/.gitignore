@@ -1,5 +1,5 @@
 .gradle
-/local.properties
-/.idea/workspace.xml
+.idea
+*.iml
+local.properties
 .DS_Store
-/iitcm/src/main/assets/

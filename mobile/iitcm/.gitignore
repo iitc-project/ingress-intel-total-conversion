@@ -1,2 +1,3 @@
 /build
-iitcm.iml
+*.iml
+/src/main/assets/
