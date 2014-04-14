@@ -168,8 +168,8 @@ window.getPortalMiscDetails = function(guid,d) {
       links[link.isOrigin ? 'outgoing' : 'incoming']++;
     });
 
-    function linkExpl(t) { return '<tt title="↳ incoming links\n↴ outgoing links\n• is the portal">'+t+'</tt>'; }
-    var linksText = [linkExpl('links'), linkExpl(' ↳ ' + links.incoming+'&nbsp;&nbsp;•&nbsp;&nbsp;'+links.outgoing+' ↴')];
+    function linkExpl(t) { return '<tt title="'+links.outgoing+' links out (8 max)\n'+links.incoming+' links in\n('+(links.outgoing+links.incoming)+' total)">'+t+'</tt>'; }
+    var linksText = [linkExpl('links'), linkExpl(links.outgoing+' out / '+links.incoming+' in')];
 
     var player = d.captured && d.captured.capturingPlayerId
       ? '<span class="nickname">' + d.captured.capturingPlayerId + '</span>'
