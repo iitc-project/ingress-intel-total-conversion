@@ -12,7 +12,6 @@
     <string name="drawer_open">Show navigation menu</string>
     <string name="drawer_close">Hide navigation menu</string>
     <string name="version">Print Version</string>
-    <string name="local">local</string>
     <string name="close">Close</string>
     <string name="download_description">Downloading latest intel package…</string>
 
@@ -118,7 +117,7 @@
         External storage has to be mounted.</string>
     <string name="pref_press_twice_to_exit">Press back button twice to exit</string>
     <string name="pref_press_twice_to_exit_sum">Avoids accidental exits</string>
-    <string name="pref_advanced_options">Advanced settings</string>
+    <string name="pref_advanced_options">Advanced Settings</string>
     <string name="pref_advanced_options_sum">Developer options and advanced tweaks</string>
     <string name="pref_enable_dev_mode">Enable developer mode</string>
     <string name="pref_enable_dev_mode_sum">If enabled, all IITC sources will be loaded from external storage of the Android device.
@@ -181,14 +180,14 @@
     <string name="menu_toggle_fullscreen">Toggle fullscreen</string>
     <string name="menu_layer_chooser">Layer Chooser</string>
     <string name="menu_locate">Get Location</string>
-    <string name="menu_clear_cookies">Clear Cookies</string>
+    <string name="menu_clear_cookies">Clear cookies</string>
     <string name="menu_search">Search</string>
     <string name="menu_debug">Debug</string>
     <string name="menu_send_screenshot">Send screenshot</string>
     <string name="menu_plugins_add">Add external plugins</string>
     <string name="choose_account_to_login">Choose account to login</string>
     <string name="login_failed">Login failed.</string>
-    <string name="search_hint">Search Locations</string>
+    <string name="search_hint">Search locations</string>
     <string name="intent_error">Address could not be opened</string>
     <string name="msg_copied">Copied to clipboard…</string>
     <string name="notice_do_not_show_again">Do not show again</string>
