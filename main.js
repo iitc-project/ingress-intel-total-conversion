@@ -139,16 +139,8 @@ window.ON_MOVE_REFRESH = 2.5;  //refresh time to use after a movement event
 window.MINIMUM_OVERRIDE_REFRESH = 10; //limit on refresh time since previous refresh, limiting repeated move refresh rate
 window.REFRESH_GAME_SCORE = 15*60; // refresh game score every 15 minutes
 window.MAX_IDLE_TIME = 4*60; // stop updating map after 4min idling
-window.PRECACHE_PLAYER_NAMES_ZOOM = 17; // zoom level to start pre-resolving player names
 window.HIDDEN_SCROLLBAR_ASSUMED_WIDTH = 20;
 window.SIDEBAR_WIDTH = 300;
-// this controls how far data is being drawn outside the viewport. Set
-// it 0 to only draw entities that intersect the current view. A value
-// of one will render an area twice the size of the viewport (or some-
-// thing like that, Leaflet doc isn’t too specific). Setting it too low
-// makes the missing data on move/zoom out more obvious. Setting it too
-// high causes too many items to be drawn, making drag&drop sluggish.
-window.VIEWPORT_PAD_RATIO = 0.3;
 
 // how many items to request each query
 window.CHAT_PUBLIC_ITEMS = 50;
