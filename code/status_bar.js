@@ -18,6 +18,20 @@ window.renderUpdateStatus = function() {
     t+= '<span id="loadlevel" style="background:'+COLORS_LVL[minlvl]+'">L'+minlvl+(minlvl<8?'+':'') + '</span>';
   t +='</span>';
 
+  // array for: L0 = all, L1 = 40 m, L > 2 = 160 * Math.pow(4, minlvl - 1)
+  var linklengths = ['all', '40+ m'];
+  for (i = 2; i < 9; i++) {
+    var minlinklength = 160 * Math.pow(4, i - 1);
+    if (minlinklength <= 1000)
+      linklengths.push(minlinklength + '+ m');
+    else
+      linklengths.push(Math.floor(minlinklength/1000) + '+ km');
+  }
+  t += '<span class="help linklength" title="Indicates link length displayed.  Zoom in to display shorter links.">';
+    if(!window.isSmartphone()) // space is valuable
+    t += '<b>links</b>: ';
+  t += '<span id="loadlength">'+ linklengths[minlvl] +'</span>';
+  t +='</span>';
 
   // map status display
   t += ' <span class="map"><b>map</b>: ';
