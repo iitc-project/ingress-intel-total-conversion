@@ -407,7 +407,7 @@ window.setupPlayerStat = function() {
     + '</div>'
     + '<div id="stats">'
     + '<sup>XM: '+xmRatio+'%</sup>'
-    + '<sub>' + (level < 8 ? 'level: '+lvlApProg+'%' : 'max level') + '</sub>'
+    + '<sub>' + (nextLvlAp > 0 ? 'level: '+lvlApProg+'%' : 'max level') + '</sub>'
     + '</div>'
     + '</h2>'
   );
