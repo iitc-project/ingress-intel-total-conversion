@@ -78,6 +78,21 @@ window.setupLayerChooserStatusRecorder = function() {
   });
 }
 
+window.layerChooserSetDisabledStates = function() {
+// layer selector - enable/disable layers that aren't visible due to zoom level
+  var minlvl = getMinPortalLevel();
+  var portalSelection = $('.leaflet-control-layers-overlays label');
+  //it's an array - 0=unclaimed, 1=lvl 1, 2=lvl 2, ..., 8=lvl 8 - 9 relevant entries
+  //mark all levels below (but not at) minlvl as disabled
+  portalSelection.slice(0, minlvl).addClass('disabled').attr('title', 'Zoom in to show those.');
+  //and all from minlvl to 8 as enabled
+  portalSelection.slice(minlvl, 8+1).removeClass('disabled').attr('title', '');
+
+//TODO? some generic mechanism where other layers can have their disabled state marked on/off? a few
+//plugins have code to do it by hand already
+}
+
+
 window.setupStyles = function() {
   $('head').append('<style>' +
     [ '#largepreview.enl img { border:2px solid '+COLORS[TEAM_ENL]+'; } ',
@@ -137,7 +152,9 @@ window.setupMap = function() {
     center: [0,0],
     zoom: 1,
     zoomControl: (typeof android !== 'undefined' && android && android.showZoom) ? android.showZoom() : true,
-    minZoom: 1
+    minZoom: 1,
+//    zoomAnimation: false,
+    markerZoomAnimation: false
   });
 
   // add empty div to leaflet control areas - to force other leaflet controls to move around IITC UI elements
@@ -279,6 +296,9 @@ window.setupMap = function() {
   map.on('movestart', function() { window.mapRunsUserAction = true; window.requests.abort(); window.startRefreshTimeout(-1); });
   map.on('moveend', function() { window.mapRunsUserAction = false; window.startRefreshTimeout(ON_MOVE_REFRESH*1000); });
 
+  map.on('zoomend', function() { window.layerChooserSetDisabledStates(); });
+  window.layerChooserSetDisabledStates();
+
   // on zoomend, check to see the zoom level is an int, and reset the view if not
   // (there's a bug on mobile where zoom levels sometimes end up as fractional levels. this causes the base map to be invisible)
   map.on('zoomend', function() {
@@ -353,20 +373,20 @@ window.setMapBaseLayer = function() {
 // included as inline script in the original site, the data is static
 // and cannot be updated.
 window.setupPlayerStat = function() {
-  var level;
+  // stock site updated to supply the actual player level, AP requirements and XM capacity values
+  var level = PLAYER.verified_level;
+  PLAYER.level = level; //for historical reasons IITC expects PLAYER.level to contain the current player level
+
   var ap = parseInt(PLAYER.ap);
-  for(level = 0; level < MIN_AP_FOR_LEVEL.length; level++) {
-    if(ap < MIN_AP_FOR_LEVEL[level]) break;
-  }
-  PLAYER.level = level;
+  var thisLvlAp = parseInt(PLAYER.min_ap_for_current_level);
+  var nextLvlAp = parseInt(PLAYER.min_ap_for_next_level);
 
-  var thisLvlAp = MIN_AP_FOR_LEVEL[level-1];
-  var nextLvlAp = MIN_AP_FOR_LEVEL[level] || ap;
-  var lvlUpAp = digits(nextLvlAp-ap);
-  var lvlApProg = Math.round((ap-thisLvlAp)/(nextLvlAp-thisLvlAp)*100);
+  if (nextLvlAp) {
+    var lvlUpAp = digits(nextLvlAp-ap);
+    var lvlApProg = Math.round((ap-thisLvlAp)/(nextLvlAp-thisLvlAp)*100);
+  } // else zero nextLvlAp - so at maximum level(?)
 
-
-  var xmMax = MAX_XM_PER_LEVEL[level];
+  var xmMax = parseInt(PLAYER.xm_capacity);
   var xmRatio = Math.round(PLAYER.energy/xmMax*100);
 
   var cls = PLAYER.team === 'RESISTANCE' ? 'res' : 'enl';
@@ -375,7 +395,7 @@ window.setupPlayerStat = function() {
   var t = 'Level:\t' + level + '\n'
         + 'XM:\t' + PLAYER.energy + ' / ' + xmMax + '\n'
         + 'AP:\t' + digits(ap) + '\n'
-        + (level < 8 ? 'level up in:\t' + lvlUpAp + ' AP' : 'Congrats! (neeeeerd)')
+        + (nextLvlAp > 0 ? 'level up in:\t' + lvlUpAp + ' AP' : 'Maximul level reached(!)')
         + '\n\Invites:\t'+PLAYER.available_invites
         + '\n\nNote: your player stats can only be updated by a full reload (F5)';
 
@@ -387,7 +407,7 @@ window.setupPlayerStat = function() {
     + '</div>'
     + '<div id="stats">'
     + '<sup>XM: '+xmRatio+'%</sup>'
-    + '<sub>' + (level < 8 ? 'level: '+lvlApProg+'%' : 'max level') + '</sub>'
+    + '<sub>' + (nextLvlAp > 0 ? 'level: '+lvlApProg+'%' : 'max level') + '</sub>'
     + '</div>'
     + '</h2>'
   );
@@ -520,7 +540,6 @@ window.setupLayerChooserApi = function() {
 // BOOTING ///////////////////////////////////////////////////////////
 
 function boot() {
- try { //EXPERIMENTAL TEST
   if(!isSmartphone()) // TODO remove completely?
     window.debug.console.overwriteNativeIfRequired();
 
@@ -530,17 +549,13 @@ function boot() {
 
   var iconDefImage = '@@INCLUDEIMAGE:images/marker-icon.png@@';
   var iconDefRetImage = '@@INCLUDEIMAGE:images/marker-icon-2x.png@@';
-  var iconShadowImage = '@@INCLUDEIMAGE:images/marker-shadow.png@@';
 
   L.Icon.Default = L.Icon.extend({options: {
     iconUrl: iconDefImage,
     iconRetinaUrl: iconDefRetImage,
-    shadowUrl: iconShadowImage,
-    shadowRetinaUrl: iconShadowImage,
     iconSize: new L.Point(25, 41),
     iconAnchor: new L.Point(12, 41),
     popupAnchor: new L.Point(1, -34),
-    shadowSize: new L.Point(41, 41)
   }});
 
   window.setupIdle();
@@ -644,20 +659,13 @@ function boot() {
     android.bootFinished();
   }
 
- //EXPERIMENTAL TEST
- } catch(e) {
-    console.log('Exception caught in IITC boot function - will fail to start');
-    console.log(e);
-    debugger;
-    throw e;
- }
 }
 
 
 @@INCLUDERAW:external/load.js@@
 
 try { console.log('Loading included JS now'); } catch(e) {}
-@@INCLUDERAW:external/leaflet.js@@
+@@INCLUDERAW:external/leaflet-src.js@@
 @@INCLUDERAW:external/L.Geodesic.js@@
 // modified version of https://github.com/shramov/leaflet-plugins. Also
 // contains the default Ingress map style.

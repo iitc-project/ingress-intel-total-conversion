@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.16.6.@@DATETIMEVERSION@@
+// @version        0.16.7.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -22,7 +22,6 @@ window.iitcBuildDate = '@@BUILDDATE@@';
 // disable vanilla JS
 window.onload = function() {};
 document.body.onload = function() {};
-
 
 // rescue user data from original page
 var scr = document.getElementsByTagName('script');
@@ -115,12 +114,23 @@ function wrapper(info) {
 // (not the full GM_info - it contains the ENTIRE script source!)
 window.script_info = info;
 
+// disabling of some cruft left behind by the stock site
+try {
+  goog.events.removeAll();
+  goog.Timer.clear();
+} catch(e) {
+  console.warn('Exception from trying to clear stock site stuff');
+  console.warn(e);
+  debugger; // debugger break
+}
+
 
 // LEAFLET PREFER CANVAS ///////////////////////////////////////////////
 // Set to true if Leaflet should draw things using Canvas instead of SVG
 // Disabled for now because it has several bugs: flickering, constant
 // CPU usage and it continuously fires the moveend event.
-L_PREFER_CANVAS = false;
+
+//L_PREFER_CANVAS = false;
 
 // CONFIG OPTIONS ////////////////////////////////////////////////////
 window.REFRESH = 30; // refresh view every 30s (base time)
@@ -129,20 +139,8 @@ window.ON_MOVE_REFRESH = 2.5;  //refresh time to use after a movement event
 window.MINIMUM_OVERRIDE_REFRESH = 10; //limit on refresh time since previous refresh, limiting repeated move refresh rate
 window.REFRESH_GAME_SCORE = 15*60; // refresh game score every 15 minutes
 window.MAX_IDLE_TIME = 4*60; // stop updating map after 4min idling
-window.PRECACHE_PLAYER_NAMES_ZOOM = 17; // zoom level to start pre-resolving player names
 window.HIDDEN_SCROLLBAR_ASSUMED_WIDTH = 20;
 window.SIDEBAR_WIDTH = 300;
-// chat messages are requested for the visible viewport. On high zoom
-// levels this gets pretty pointless, so request messages in at least a
-// X km radius.
-window.CHAT_MIN_RANGE = 6;
-// this controls how far data is being drawn outside the viewport. Set
-// it 0 to only draw entities that intersect the current view. A value
-// of one will render an area twice the size of the viewport (or some-
-// thing like that, Leaflet doc isn’t too specific). Setting it too low
-// makes the missing data on move/zoom out more obvious. Setting it too
-// high causes too many items to be drawn, making drag&drop sluggish.
-window.VIEWPORT_PAD_RATIO = 0.3;
 
 // how many items to request each query
 window.CHAT_PUBLIC_ITEMS = 50;
@@ -182,8 +180,6 @@ window.NOMINATIM = 'http://nominatim.openstreetmap.org/search?format=json&limit=
 // INGRESS CONSTANTS /////////////////////////////////////////////////
 // http://decodeingress.me/2012/11/18/ingress-portal-levels-and-link-range/
 window.RESO_NRG = [0, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 6000];
-window.MAX_XM_PER_LEVEL = [0, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000];
-window.MIN_AP_FOR_LEVEL = [0, 2500, 20000, 70000, 150000, 300000, 600000, 1200000];
 window.HACK_RANGE = 40; // in meters, max. distance from portal to be able to access it
 window.OCTANTS = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
 window.OCTANTS_ARROW = ['→', '↗', '↑', '↖', '←', '↙', '↓', '↘'];

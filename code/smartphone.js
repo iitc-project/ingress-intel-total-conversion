@@ -166,11 +166,6 @@ window.runOnSmartphonesAfterBoot = function() {
     addHook('portalSelected', window.setAndroidPermalink);
   }
 
-  // Force lower render limits for mobile
-  window.VIEWPORT_PAD_RATIO = 0.1;
-  window.MAX_DRAWN_PORTALS = 500;
-  window.MAX_DRAWN_LINKS = 200;
-  window.MAX_DRAWN_FIELDS = 100;
 }
 
 window.setAndroidPermalink = function() {

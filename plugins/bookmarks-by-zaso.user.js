@@ -675,6 +675,35 @@
     }
   }
 
+  window.plugin.bookmarks.autoDrawCalcDistance = function() {
+    var latlngs = [];
+    var uuu = $('#bkmrksAutoDrawer a.bkmrk.selected').each(function(i) {
+      var tt = $(this).data('latlng');
+      latlngs[i] = tt;
+    });
+
+    var distance = null;
+    if(latlngs.length == 2) {
+      distance = L.latLng(latlngs[0]).distanceTo(latlngs[1]);
+    }
+
+    $('#bkmrksAutoDrawerDistance').remove();
+    if(distance !== null) {
+      distance = Math.round(distance);
+
+      var text = 'Distance between portals: ';
+      if(distance > 1000)
+        text += digits(distance / 1000) + 'km';
+      else
+        text += digits(distance) + 'm';
+
+      $('<div>')
+        .html(text)
+        .attr('id', 'bkmrksAutoDrawerDistance')
+        .appendTo('#bkmrksAutoDrawer');
+    }
+  }
+
   window.plugin.bookmarks.dialogLoadList = function() {
     var r = 'The "<a href="http://iitc.jonatkins.com/?page=desktop#plugin-draw-tools" target="_BLANK"><strong>Draw Tools</strong></a>" plugin is required.</span>';
 
@@ -724,7 +753,9 @@
         + '<input style="vertical-align: middle;" type="checkbox" id="bkmrkClearSelection" checked>'
         + ' Clear selection after drawing</label>'
         + '<p style="color:red;text-align:center;margin-bottom:9px;">You must select 2 or 3 portals.</p>'
+        + '<div onclick="window.plugin.bookmarks.autoDrawCalcDistance();return false;">'
         + element
+        + '</div>'
         + '</div>';
     }
     return r;
@@ -872,6 +903,8 @@
         iconSize: [30,40]
       })
     });
+    star.on('click', function() { renderPortalDetails(guid); });
+
     window.plugin.bookmarks.starLayers[guid] = star;
     star.addTo(window.plugin.bookmarks.starLayerGroup);
   }

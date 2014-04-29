@@ -115,7 +115,15 @@ function extractMungeFromStock() {
     foundMunges.quadKeys = result[1] || result[2];
 
     // GET_PAGINATED_PLEXTS
-    var reg = new RegExp('GET_PAGINATED_PLEXTS, [a-z] = [a-z] \\|\\| nemesis.dashboard.BoundsParams.getBoundsParamsForWorld\\(\\), [a-z] = [a-z] \\|\\| -1, [a-z] = [a-z] \\|\\| -1, [a-z] = {'+mungeRegExpLit+'[a-z], '+mungeRegExpLit+'Math.round\\([a-z].bounds.sw.lat\\(\\) \\* 1E6\\), '+mungeRegExpLit+'Math.round\\([a-z].bounds.sw.lng\\(\\) \\* 1E6\\), '+mungeRegExpLit+'Math.round\\([a-z].bounds.ne.lat\\(\\) \\* 1E6\\), '+mungeRegExpLit+'Math.round\\([a-z].bounds.ne.lng\\(\\) \\* 1E6\\), '+mungeRegExpLit+'[a-z], '+mungeRegExpLit+'[a-z]};\n *[a-z]'+mungeRegExpProp+' = [a-z];\n *[a-z] > -1 && \\([a-z]'+mungeRegExpProp+' = true\\);', 'm');
+    var reg = new RegExp('[a-z] = {'+mungeRegExpLit+'[a-z], '
+                        +mungeRegExpLit+'Math.round\\(1E6 \\* [a-z].bounds.sw.lat\\(\\)\\), '
+                        +mungeRegExpLit+'Math.round\\(1E6 \\* [a-z].bounds.sw.lng\\(\\)\\), '
+                        +mungeRegExpLit+'Math.round\\(1E6 \\* [a-z].bounds.ne.lat\\(\\)\\), '
+                        +mungeRegExpLit+'Math.round\\(1E6 \\* [a-z].bounds.ne.lng\\(\\)\\), '
+                        +mungeRegExpLit+'[a-z], '+mungeRegExpLit+'[a-z]};\n'
+                        +' *[a-z]'+mungeRegExpProp+' = [a-z];\n'
+                        +' *-1 < [a-z] && \\([a-z]'+mungeRegExpProp+' = !0\\);', 'm');
+
     var result = reg.exec(nemesis.dashboard.network.PlextStore.prototype.getPlexts.toString());
 
     foundMunges.desiredNumItems = result[1] || result[2];

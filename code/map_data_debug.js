@@ -3,7 +3,7 @@
 
 
 window.RenderDebugTiles = function() {
-  this.CLEAR_CHECK_TIME = 0.25;
+  this.CLEAR_CHECK_TIME = L.Path.CANVAS ? 2.0 : 0.5;
   this.FADE_TIME = 2.0;
 
   this.debugTileLayer = L.layerGroup();
@@ -57,6 +57,7 @@ window.RenderDebugTiles.prototype.setState = function(id,state) {
     case 'request-fail': col='#a00'; fill='#666'; break;
     case 'tile-fail': col='#f00'; fill='#666'; break;
     case 'tile-timeout': col='#ff0'; fill='#666'; break;
+    case 'render-queue': col='#f0f'; fill='#f0f'; break;
   }
   this.setColour (id, col, fill);
   if (clearDelay >= 0) {
@@ -72,8 +73,11 @@ window.RenderDebugTiles.prototype.setState = function(id,state) {
 
 window.RenderDebugTiles.prototype.startTimer = function(waitTime) {
   var _this = this;
-  if (!this.timer) {
-    this.timer = setTimeout ( function() { _this.timer = undefined; _this.runClearPass(); }, waitTime );
+  if (!_this.timer) {
+    // a timeout of 0 firing the actual timeout - helps things run smoother
+    _this.timer = setTimeout ( function() {
+      _this.timer = setTimeout ( function() { _this.timer = undefined; _this.runClearPass(); }, waitTime );
+    }, 0);
   }
 }
 

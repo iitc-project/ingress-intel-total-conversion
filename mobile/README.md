@@ -1,11 +1,13 @@
-ingress intel total conversion mobile (IITCM)
+ingress intel total conversion mobile (IITCm)
 =====================================
 
 The Android App behaves like the desktop version, but uses the mobile view, which is optimized for mobile devices, as default. Furthermore, there are some nice additions:
 
 - it should be much faster than the standard mobile ingress intel map
 
-- plugin support
+- supports all official IITC plugins
+
+- easy installation of unofficial plugins (installation via plugin preference, click on *.user.js file or URL, email attachement etc.)
 
 - show users current location
 
@@ -13,17 +15,13 @@ The Android App behaves like the desktop version, but uses the mobile view, whic
 
 - a geolocate button (you have to enable GPS satellites + location access to use this feature)
 
-- possibility to use a custom IITC script source
-
-- a click on Portal link copies it to clipboard
-
-- in-app layer chooser
-
-- in-app IITC buttons
-
 - in-app search
 
-- support for unofficial plugins. Just copy the *.user.js files to ```<storage_path>/IITC_Mobile/plugins/``` and they should appear at the top of the plugin list. Note: For every option a new persistent database entry is created. If you want to remove a plugin from your external storage you want to ensure that it is disabled in the settings, otherwise IITCM will always try to load it on start-up. If you messed this up you can wipe app data or add the plugin back to storage, disable it and remove it. Another option would be: Do nothing...it should work even so.
+- configurable fullscreen modes (includes immersive mode on Android 4.4+)
+
+- navigation drawers for IITC views, layer chooser and highlighters
+
+- in-app screenshots
 
 - developer mode: all script source will be loaded from ```<storage_path>/IITC_Mobile/dev/```
 

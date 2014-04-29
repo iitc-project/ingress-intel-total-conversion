@@ -28,7 +28,7 @@ window.S2 = {};
 
 
 var LatLngToXYZ = function(latLng) {
-  var d2r = L.LatLng.DEG_TO_RAD;
+  var d2r = Math.PI/180.0;
 
   var phi = latLng.lat*d2r;
   var theta = latLng.lng*d2r;
@@ -39,7 +39,7 @@ var LatLngToXYZ = function(latLng) {
 };
 
 var XYZToLatLng = function(xyz) {
-  var r2d = L.LatLng.RAD_TO_DEG;
+  var r2d = 180.0/Math.PI;
 
   var lat = Math.atan2(xyz[2], Math.sqrt(xyz[0]*xyz[0]+xyz[1]*xyz[1]));
   var lng = Math.atan2(xyz[1], xyz[0]);

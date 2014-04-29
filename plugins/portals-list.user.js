@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portals-list@teo96
 // @name           IITC plugin: show list of portals
 // @category       Info
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -84,8 +84,8 @@ window.plugin.portalslist.getPortals = function() {
       'guid': i,
       'teamN': teamN, // TEAM_NONE, TEAM_RES or TEAM_ENL
       'team': d.team, // "NEUTRAL", "RESISTANCE" or "ENLIGHTENED"
-      'name': d.title,
-      'nameLower': d.title.toLowerCase(),
+      'name': d.title || '(untitled)',
+      'nameLower': d.title && d.title.toLowerCase(),
       'level': portal.options.level,
       'health': d.health,
       'resCount': d.resCount,
@@ -242,7 +242,7 @@ window.plugin.portalslist.getPortalLink = function(portal,guid) {
   var latlng = [coord.lat, coord.lng].join();
   var jsSingleClick = 'window.renderPortalDetails(\''+guid+'\');return false';
   var jsDoubleClick = 'window.zoomToAndShowPortal(\''+guid+'\', ['+latlng+']);return false';
-  var perma = '/intel?latE6='+coord.lat+'&lngE6='+coord.lng+'&z=17&pguid='+guid;
+  var perma = '/intel?ll='+coord.lat+','+coord.lng+'&z=17&pll='+coord.lat+','+coord.lng;
 
   //Use Jquery to create the link, which escape characters in TITLE and ADDRESS of portal
   var a = $('<a>',{

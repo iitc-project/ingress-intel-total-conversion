@@ -1,9 +1,8 @@
 How does this basically work?
 -----------------------------
 
-At the moment, the Android App is a WebView which renders the normal web page. The IITC script is injected by calling ```iitc_view.loadIITC_JS(Context)```. The app uses a local version of the script, which is located in the assets folder, if no external source is given (see "pref\_iitc\_source").
-
-Communication from app to script is handled by loading Javascript function calls. For example: ```iitc_view.loadUrl("javascript: window.goBack();");```
+At the moment, the Android App is a WebView which renders the normal web page. The IITC script is injected by calling ```iitc_view.loadIITC_JS(Context)```. The app uses a local version of the script, which is located in the assets folder.
+Communication from app to script is handled by loading Javascript function calls. For example: ```iitc_view.loadUrl("javascript: window.alert('foo');");```
 
 Communication from script to app is handled by the JavascriptInterface (see /mobile/src/com/cradle/iitc\_mobile/IITC_JSInterface.java). If a method ```foo(String)``` is defined in JSInterface, it can be called by ```android.foo("Hello World")``` in the IITC script.
 
