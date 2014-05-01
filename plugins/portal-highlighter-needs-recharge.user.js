@@ -1,6 +1,6 @@
 // ==UserScript==
 // @id             iitc-plugin-highlight-needs-recharge@vita10gy
-// @name           IITC plugin: hightlight portals that need recharging
+// @name           IITC plugin: highlight portals that need recharging
 // @category       Highlighter
 // @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion

@@ -1,6 +1,6 @@
 // ==UserScript==
 // @id             iitc-plugin-highlight-forgotten@jonatkins
-// @name           IITC plugin: Inactive portals. Hightlight unclaimed portals with no recent activity
+// @name           IITC plugin: Inactive portals. Highlight unclaimed portals with no recent activity
 // @category       Highlighter
 // @version        0.1.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
