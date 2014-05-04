@@ -4,7 +4,10 @@
 
 window.portalMarkerScale = function() {
   var zoom = map.getZoom();
-  return zoom >= 14 ? 1 : zoom >= 11 ? 0.8 : zoom >= 8 ? 0.65 : 0.5;
+  if (L.Browser.mobile)
+    return zoom >= 16 ? 1 : zoom >= 14 ? 0.8 : zoom >= 11 ? 0.65 : zoom >= 8 ? 0.5 : 0.35;
+  else
+    return zoom >= 14 ? 1 : zoom >= 11 ? 0.8 : zoom >= 8 ? 0.65 : 0.5;
 }
 
 // create a new marker. 'data' contain the IITC-specific entity data to be stored in the object options
