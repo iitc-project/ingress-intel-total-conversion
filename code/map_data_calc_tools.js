@@ -48,8 +48,9 @@ window.getDataZoomForMapZoom = function(zoom) {
   //NOTE: the specifics of this are tightly coupled with the above ZOOM_TO_LEVEL and ZOOM_TO_TILES_PER_EDGE arrays
 
   // firstly, some of IITCs zoom levels, depending on base map layer, can be higher than stock. limit zoom level
-  if (zoom > 18) {
-    zoom = 18;
+  // (stock site max zoom may vary depending on google maps detail in the area - 20 or 21 max is common)
+  if (zoom > 20) {
+    zoom = 20;
   }
 
   if (!window.CONFIG_ZOOM_DEFAULT_DETAIL_LEVEL) {
@@ -109,7 +110,7 @@ window.getDataZoomForMapZoom = function(zoom) {
   }
 
   if (window.CONFIG_ZOOM_SHOW_MORE_PORTALS) {
-    if (zoom >= 15) {
+    if (zoom >= 15 && zoom <= 16) {
       //L1+ and closer zooms. the 'all portals' zoom uses the same tile size, so it's no harm to request things at that zoom level
       zoom = 17;
     }
