@@ -440,16 +440,6 @@
 	display:none !important;
 }
 
-#bookmarksBox.mobile #topBar #bookmarksDel{
-	width:100%;
-	height:34px !important;
-	font-size:13px;
-	color:#fff;
-	font-weight:normal;
-	padding-top:11px;
-	text-indent:0;
-}
-
 #bookmarksBox.mobile #bookmarksTypeBar h5{
 	cursor:pointer;
 	text-align:center;
@@ -664,4 +654,63 @@
 	width:96%;
 	height:120px;
 	resize:vertical;
+}
+
+
+/*--- Other Opt css ---*/
+#bookmarksBox.mobile a.bookmarksMoveIn{
+	display:none !important;
+}
+
+#bookmarksBox.mobile .bookmarkList ul li ul li.bkmrk a.bookmarksMoveIn{
+	background:none !important;
+	text-align:center;
+	color:#fff;
+	box-shadow: inset 0 1px 0 #20A8B1,inset -1px 0 0 #20A8B1 !important;
+	width:10%;
+}
+
+#bookmarksBox.mobile.moveMode a.bookmarksMoveIn{
+	display:block !important;
+}
+
+#bookmarksBox.moveMode ul .bookmarksLink,
+#bookmarksBox.moveMode ul .othersBookmarks .bookmarksLink{
+	width:90% !important;
+}
+.bookmarksDialog h3{
+	text-transform:capitalize;margin-top:10px;
+}
+.bookmarksDialog .bookmarkFolder{
+	margin-bottom:4px;
+	border:1px solid #20a8b1;
+	background:#069;
+	padding:4px 10px;
+	color:#fff;
+	cursor:pointer;
+}
+.bookmarksDialog .bookmarkFolder:hover{
+	text-decoration:underline;
+}
+
+#bookmarksBox.mobile #topBar .btn{
+	width:100%;height:45px !important;
+	font-size:13px;
+	color:#fff;
+	font-weight:normal;
+	padding-top:17px;
+	text-indent:0 !important;
+}
+#bookmarksBox.mobile .btn{
+	width:50% !important;
+	background:#222;
+}
+#bookmarksBox.mobile .btn.left{
+	border-right:1px solid #20a8b1 !important;
+}
+#bookmarksBox.mobile .btn#bookmarksMove{
+	background:#B42E2E;
+}
+#bkmrksSetbox{
+	text-align:center;
 }
