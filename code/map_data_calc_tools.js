@@ -139,7 +139,10 @@ window.tileToLat = function(y, params) {
 }
 
 window.pointToTileId = function(params, x, y) {
-  return params.zoom + "_" + x + "_" + y;
+//change to quadkey construction
+//as of 2014-05-06: zoom_x_y_minlvl_maxlvl_maxhealth
+
+  return params.zoom + "_" + x + "_" + y + "_" + params.level + "_8_100";
 }
 
 
