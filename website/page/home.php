@@ -13,6 +13,12 @@ offers many more features. It is available for
 
 <h3>Latest news</h3>
 
+<h4>6th May 2014</h4>
+<p>
+IITC 0.16.8 and IITC Mobile 0.10.8 have just been released. This is a critical update that is needed for IITC to correctly
+load the map data.
+</p>
+
 <h4>29th April 2014</h4>
 <p>
 IITC 0.16.7 and IITC Mobile 0.10.7 have been released, to fix things to work with the latest Niantic changes.
