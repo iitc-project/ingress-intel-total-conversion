@@ -37,7 +37,8 @@ window.updateGameScore = function(data) {
 
   window.updateGameScoreFailCount = 0;
 
-  var r = parseInt(data.result.resistanceScore), e = parseInt(data.result.enlightenedScore);
+  var e = parseInt(data[0]); //enlightened score in data[0]
+  var r = parseInt(data[1]); //resistance score in data[1]
   var s = r+e;
   var rp = r/s*100, ep = e/s*100;
   r = digits(r), e = digits(e);
