@@ -79,7 +79,7 @@ window.chat.genPostData = function(isFaction, storageHash, getOlderMsgs) {
     maxLngE6: Math.round(ne.lng*1E6),
     minTimestampMs: -1,
     maxTimestampMs: -1,
-    chatTab: isFaction ? 'faction' : 'all'
+    chatTabGet: isFaction ? 'faction' : 'all'
   }
 
   if(getOlderMsgs) {
@@ -689,10 +689,10 @@ window.chat.postMsg = function() {
   var publik = c === 'public';
   var latlng = map.getCenter();
 
-  var data = {message: msg,
-              latE6: Math.round(latlng.lat*1E6),
-              lngE6: Math.round(latlng.lng*1E6),
-              chatTab: publik ? 'all' : 'faction'};
+  var data = {messageSendPlext: msg,
+              latE6SendPlext: Math.round(latlng.lat*1E6),
+              lngE6SendPlext: Math.round(latlng.lng*1E6),
+              chatTabSendPlext: publik ? 'all' : 'faction'};
 
   var errMsg = 'Your message could not be delivered. You can copy&' +
                'paste it here and try again if you want:\n\n' + msg;
