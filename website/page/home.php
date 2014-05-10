@@ -13,6 +13,14 @@ offers many more features. It is available for
 
 <h3>Latest news</h3>
 
+<h4>10th May 2014</h4>
+<p>
+Another critical IITC update - IITC 0.16.9 and IITC Mobile 0.10.9 have just been released. This fixes the munge error at startup.
+</p>
+<p>
+Also, the bookmarks plugin received an update. This has had minimal testing, so please report any issues.
+</p>
+
 <h4>6th May 2014</h4>
 <p>
 IITC 0.16.8 and IITC Mobile 0.10.8 have just been released. This is a critical update that is needed for IITC to correctly
