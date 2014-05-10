@@ -84,8 +84,8 @@ function extractMungeFromStock() {
     foundMunges['dashboard.getPaginatedPlexts'] = nemesis.dashboard.requests.MethodName.GET_PAGINATED_PLEXTS.toString();
     foundMunges['dashboard.getThinnedEntities'] = nemesis.dashboard.requests.MethodName.GET_THINNED_ENTITIES.toString();
     foundMunges['dashboard.getPortalDetails'] = nemesis.dashboard.requests.MethodName.GET_PORTAL_DETAILS.toString();
-    foundMunges['dashboard.redeemReward'] = nemesis.dashboard.requests.MethodName.REDEEM_REWARD.toString();
-    foundMunges['dashboard.sendInviteEmail'] = nemesis.dashboard.requests.MethodName.SEND_INVITE_EMAIL.toString();
+//    foundMunges['dashboard.redeemReward'] = nemesis.dashboard.requests.MethodName.REDEEM_REWARD.toString();
+//    foundMunges['dashboard.sendInviteEmail'] = nemesis.dashboard.requests.MethodName.SEND_INVITE_EMAIL.toString();
     foundMunges['dashboard.sendPlext'] = nemesis.dashboard.requests.MethodName.SEND_PLEXT.toString();
 
     // the rest are trickier - we need to parse the functions of the stock site. these break very often
@@ -95,6 +95,9 @@ function extractMungeFromStock() {
     var mungeRegExpProp = '(?:\\.([a-z][a-z0-9]{15})|\\["([0-9][a-z0-9]{15})"\\])';
     // and one to match members of object literal initialisation - {abcdef123456wxyz: or {"123456abcdefwxyz":
     var mungeRegExpLit = '(?:([a-z][a-z0-9]{15})|"([0-9][a-z0-9]{15})"):';
+
+    // some cases don't munge now?!?! odd!
+    var mungeRegExpLitOrUnmunged = '(?:((?:[a-z][a-z0-9]{15})|message|latE6|lngE6|tab)|"([0-9][a-z0-9]{15})"):';
 
     // common parameters - method, version, version_parameter - currently found in the 
     // nemesis.dashboard.network.XhrController.prototype.doSendRequest_ function
@@ -110,7 +113,8 @@ function extractMungeFromStock() {
     foundMunges.version_parameter = result[5];
 
     // GET_THINNED_ENTITIES parameters
-    var reg = new RegExp('GET_THINNED_ENTITIES, nemesis.dashboard.network.XhrController.Priority.[A-Z]+, {'+mungeRegExpLit+'[a-z]');
+    var reg = new RegExp('GET_THINNED_ENTITIES, nemesis.dashboard.network.XhrController.Priority.[A-Z]+, {'
+             +mungeRegExpLit+'[a-z]');
     var result = reg.exec(nemesis.dashboard.network.DataFetcher.prototype.getGameEntities.toString());
     foundMunges.quadKeys = result[1] || result[2];
 
@@ -134,27 +138,31 @@ function extractMungeFromStock() {
     foundMunges.maxLngE6 = result[9] || result[10];
     foundMunges.minTimestampMs = result[11] || result[12];
     foundMunges.maxTimestampMs = result[13] || result[14];
-    foundMunges.chatTab = result[15] || result[16];  //guessed parameter name - only seen munged
+    foundMunges.chatTabGet = result[15] || result[16];  //guessed parameter name - only seen munged
     foundMunges.ascendingTimestampOrder = result[17] || result[18];
 
     // SEND_PLEXT
-    var reg = new RegExp('SEND_PLEXT, nemesis.dashboard.network.XhrController.Priority.[A-Z]+, {'+mungeRegExpLit+'[a-z], '+mungeRegExpLit+'[a-z], '+mungeRegExpLit+'[a-z], '+mungeRegExpLit+'[a-z]}');
+    var reg = new RegExp('SEND_PLEXT, nemesis.dashboard.network.XhrController.Priority.[A-Z]+, {'
+             +mungeRegExpLitOrUnmunged+'[a-z], '
+             +mungeRegExpLitOrUnmunged+'[a-z], '
+             +mungeRegExpLitOrUnmunged+'[a-z], '
+             +mungeRegExpLitOrUnmunged+'[a-z]}');
     var result = reg.exec(nemesis.dashboard.network.PlextStore.prototype.sendPlext.toString());
 
-    foundMunges.message = result[1] || result[2];
-    foundMunges.latE6 = result[3] || result[4];
-    foundMunges.lngE6 = result[5] || result[6];
-    var chatTab = result[7] || result[8];
-    if (chatTab != foundMunges.chatTab) throw 'Error: inconsistent munge parsing for chatTab';
+    foundMunges.messageSendPlext = result[1] || result[2];
+    foundMunges.latE6SendPlext = result[3] || result[4];
+    foundMunges.lngE6SendPlext = result[5] || result[6];
+    foundMunges.chatTabSendPlext = result[7] || result[8];
+//    if (chatTab != foundMunges.chatTab) throw 'Error: inconsistent munge parsing for chatTab';
 
     // GET_PORTAL_DETAILS
     var reg = new RegExp('GET_PORTAL_DETAILS, nemesis.dashboard.network.XhrController.Priority.[A-Z]+, {'+mungeRegExpLit+'a}');
     var result = reg.exec(nemesis.dashboard.network.DataFetcher.prototype.getPortalDetails.toString());
     foundMunges.guid = result[1] || result[2];
 
-    // SEND_INVITE_EMAIL
-    var reg = new RegExp('SEND_INVITE_EMAIL, nemesis.dashboard.network.XhrController.Priority.[A-Z]+, {'+mungeRegExpLit+'b}');
-    foundMunges.inviteeEmailAddress = result[1] || result[2];
+//    // SEND_INVITE_EMAIL
+//    var reg = new RegExp('SEND_INVITE_EMAIL, nemesis.dashboard.network.XhrController.Priority.[A-Z]+, {'+mungeRegExpLit+'b}');
+//    foundMunges.inviteeEmailAddress = result[1] || result[2];
 
     return foundMunges;
   } catch(e) {
