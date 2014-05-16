@@ -19,6 +19,7 @@ import android.webkit.WebResourceResponse;
 import android.widget.Toast;
 
 import com.cradle.iitc_mobile.IITC_Mobile.ResponseHandler;
+import com.cradle.iitc_mobile.async.UpdateScript;
 
 import org.json.JSONObject;
 
@@ -199,6 +200,7 @@ public class IITC_FileManager {
 
         final InputStream data = prepareUserScript(stream);
 
+        new UpdateScript(mActivity).execute(uri.getPath());
         return new WebResourceResponse("application/x-javascript", "UTF-8", data);
     }
 

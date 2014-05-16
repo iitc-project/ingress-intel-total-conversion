@@ -7,7 +7,7 @@ The Android App behaves like the desktop version, but uses the mobile view, whic
 
 - supports all official IITC plugins
 
-- easy installation of unofficial plugins (installation via plugin preference, click on *.user.js file or URL, email attachement etc.)
+- easy installation and update of unofficial plugins (installation via plugin preference, click on *.user.js file or URL, email attachement etc.)
 
 - show users current location
 
@@ -19,7 +19,7 @@ The Android App behaves like the desktop version, but uses the mobile view, whic
 
 - configurable fullscreen modes (includes immersive mode on Android 4.4+)
 
-- navigation drawers for IITC views, layer chooser and highlighters
+- navigation drawers for IITC panes, layer chooser and highlighters
 
 - in-app screenshots
 
