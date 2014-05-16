@@ -97,7 +97,7 @@ function extractMungeFromStock() {
     var mungeRegExpLit = '(?:([a-z][a-z0-9]{15})|"([0-9][a-z0-9]{15})"):';
 
     // some cases don't munge now?!?! odd!
-    var mungeRegExpLitOrUnmunged = '(?:((?:[a-z][a-z0-9]{15})|message|latE6|lngE6|tab)|"([0-9][a-z0-9]{15})"):';
+    var mungeRegExpLitOrUnmunged = '(?:((?:[a-z][a-z0-9]{15})|message|latE6|lngE6|tab|guid)|"([0-9][a-z0-9]{15})"):';
 
     // common parameters - method, version, version_parameter - currently found in the 
     // nemesis.dashboard.network.XhrController.prototype.doSendRequest_ function
@@ -156,7 +156,8 @@ function extractMungeFromStock() {
 //    if (chatTab != foundMunges.chatTab) throw 'Error: inconsistent munge parsing for chatTab';
 
     // GET_PORTAL_DETAILS
-    var reg = new RegExp('GET_PORTAL_DETAILS, nemesis.dashboard.network.XhrController.Priority.[A-Z]+, {'+mungeRegExpLit+'a}');
+    var reg = new RegExp('GET_PORTAL_DETAILS, nemesis.dashboard.network.XhrController.Priority.[A-Z]+, {'
+                        +mungeRegExpLitOrUnmunged+'a}');
     var result = reg.exec(nemesis.dashboard.network.DataFetcher.prototype.getPortalDetails.toString());
     foundMunges.guid = result[1] || result[2];
 
