@@ -28,7 +28,9 @@ window.renderPortalDetails = function(guid) {
 
   // details and data can get out of sync. if we have details, construct a matching 'data'
   if (details) {
-    data = getPortalSummaryData(details);
+    // the details had the team removed(!) - so we have to use the team in the summary data
+    // however - this can easily be out of date in areas of heavy activity - so could be just plain wrong!
+    data = getPortalSummaryData(details, data && data.team);
   }
 
 
