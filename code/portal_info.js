@@ -162,7 +162,7 @@ window.potentialPortalLevel = function(d) {
   var current_level = getPortalLevel(d);
   var potential_level = current_level;
   
-  if(PLAYER.team === d.controllingTeam.team) {
+  if(d.controllingTeam && PLAYER.team === d.controllingTeam.team) {
     var resonators_on_portal = d.resonatorArray.resonators;
     var resonator_levels = new Array();
     // figure out how many of each of these resonators can be placed by the player
@@ -311,10 +311,12 @@ window.getPortalHackDetails = function(d) {
 }
 
 // given a detailed portal structure, return summary portal data, as seen in the map tile data
-window.getPortalSummaryData = function(d) {
+window.getPortalSummaryData = function(d,probableTeamStr) {
 
   // NOTE: the summary data reports unclaimed portals as level 1 - not zero as elsewhere in IITC
-  var level = d.controllingTeam.team == "NEUTRAL" ? 1 : parseInt(getPortalLevel(d));
+  var level = parseInt(getPortalLevel(d));
+  if (level == 0) level = 1; //niantic returns neutral portals as level 1, not 0 as used throughout IITC elsewhere
+
   var resCount = 0;
   if (d.resonatorArray && d.resonatorArray.resonators) {
     for (var x in d.resonatorArray.resonators) {
@@ -332,7 +334,7 @@ window.getPortalSummaryData = function(d) {
     resCount: resCount,
     latE6: d.locationE6.latE6,
     health: health,
-    team: d.controllingTeam.team,
+    team: d.controllingTeam ? d.controllingTeam.team : probableTeamStr,
     lngE6: d.locationE6.lngE6,
     type: 'portal'
   };
