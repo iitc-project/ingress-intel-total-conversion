@@ -1,5 +1,10 @@
 <h2>News</h2>
 
+<h4>16th May 2014</h4>
+<p>
+Yet another cricical IITC Update - IITC 0.16.10 and IITC Mobile 0.10.10 have just been released. This fixes the munge error at startup
+</p>
+
 <h4>10th May 2014</h4>
 <p>
 Another critical IITC update - IITC 0.16.9 and IITC Mobile 0.10.9 have just been released. This fixes the munge error at startup.
