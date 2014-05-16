@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
 import com.cradle.iitc_mobile.IITC_FileManager;
+import com.cradle.iitc_mobile.IITC_Mobile;
 import com.cradle.iitc_mobile.Log;
 
 import java.io.File;
@@ -20,8 +21,6 @@ import java.net.URL;
 public class UpdateScript extends AsyncTask<String, Void, Boolean> {
 
     private final Activity mActivity;
-    // update interval is 2 days
-    private final long updateInterval = 1000*60*60*24*2;
     private String mFilePath;
     private String mScript;
 
@@ -33,18 +32,6 @@ public class UpdateScript extends AsyncTask<String, Void, Boolean> {
     protected Boolean doInBackground(final String... urls) {
         try {
             mFilePath = urls[0];
-            // check last script update
-            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mActivity);
-            final long lastUpdated = prefs.getLong(mFilePath + "-update", 0);
-            final long now = System.currentTimeMillis();
-
-            // return if no update wanted
-            if (now - lastUpdated < updateInterval) return false;
-            prefs
-                    .edit()
-                    .putLong(mFilePath + "-update", now)
-                    .commit();
-
             // get local script meta information
             mScript = IITC_FileManager.readStream(new FileInputStream(new File(mFilePath)));
             final String updateURL = IITC_FileManager.getScriptInfo(mScript).get("updateURL");
@@ -77,10 +64,17 @@ public class UpdateScript extends AsyncTask<String, Void, Boolean> {
                     .setTitle("Plugin updated")
                     .setMessage(name)
                     .setCancelable(true)
-                    .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.cancel();
+                        }
+                    })
+                    .setNegativeButton("Reload", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                            ((IITC_Mobile) mActivity).reloadIITC();
                         }
                     })
                     .create()

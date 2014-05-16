@@ -40,6 +40,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class IITC_FileManager {
     private static final WebResourceResponse EMPTY =
@@ -50,6 +52,8 @@ public class IITC_FileManager {
                     + "(document.body || document.head || document.documentElement).appendChild(script);";
 
     public static final String DOMAIN = ".iitcm.localhost";
+    // update interval is 2 days by default
+    public static long updateInterval = 1000*60*60*24*2;
 
     /**
      * copies the contents of a stream into another stream and (optionally) closes the output stream afterwards
@@ -200,7 +204,6 @@ public class IITC_FileManager {
 
         final InputStream data = prepareUserScript(stream);
 
-        new UpdateScript(mActivity).execute(uri.getPath());
         return new WebResourceResponse("application/x-javascript", "UTF-8", data);
     }
 
@@ -313,6 +316,31 @@ public class IITC_FileManager {
                 Log.w(e);
             }
         }
+    }
+
+    public void updatePlugins(boolean force) {
+        // check last script update
+        final long lastUpdated = mPrefs.getLong("pref_last_plugin_update", 0);
+        final long now = System.currentTimeMillis();
+
+        // return if no update wanted
+        if (!force && (now - lastUpdated < updateInterval)) return;
+        // get the plugin preferences
+        final TreeMap<String, ?> all_prefs = new TreeMap<String, Object>(mPrefs.getAll());
+
+        // iterate through all plugins
+        for (final Map.Entry<String, ?> entry : all_prefs.entrySet()) {
+            final String plugin = entry.getKey();
+            if (plugin.endsWith(".user.js") && entry.getValue().toString().equals("true")) {
+                if (plugin.startsWith(PLUGINS_PATH)) {
+                    new UpdateScript(mActivity).execute(plugin);
+                }
+            }
+        }
+        mPrefs
+                .edit()
+                .putLong("pref_last_plugin_update", now)
+                .commit();
     }
 
     private class FileRequest extends WebResourceResponse implements ResponseHandler, Runnable {

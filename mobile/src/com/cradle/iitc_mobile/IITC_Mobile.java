@@ -191,6 +191,10 @@ public class IITC_Mobile extends Activity
             return;
         } else if (key.equals("pref_fake_user_agent")) {
             mIitcWebView.setUserAgent();
+        } else if (key.equals("pref_last_plugin_update")) {
+            Long forceUpdate = sharedPreferences.getLong("pref_last_plugin_update", 0);
+            if (forceUpdate == 0) mFileManager.updatePlugins(true);
+            return;
         } else if (key.equals("pref_press_twice_to_exit")
                 || key.equals("pref_share_selected_tab")
                 || key.equals("pref_messages")
@@ -704,6 +708,7 @@ public class IITC_Mobile extends Activity
         mNavigationHelper.onLoadingStateChanged();
         invalidateOptionsMenu();
         updateViews();
+        if (!isLoading) mFileManager.updatePlugins(false);
 
         if (mSearchTerm != null && !isLoading) {
             new Handler().postDelayed(new Runnable() {

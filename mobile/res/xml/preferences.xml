@@ -93,6 +93,14 @@
                     android:title="@string/pref_disable_splash"/>
             </PreferenceCategory>
             <PreferenceCategory
+                android:key="pref_update_plugins"
+                android:title="@string/pref_update_plugins_cat">
+                <com.cradle.iitc_mobile.IITC_ForceUpdatePreference
+                    android:key="pref_force_plugin_update"
+                    android:title="@string/pref_force_plugin_update"
+                    android:summary="@string/pref_force_plugin_update_sum"/>
+            </PreferenceCategory>
+            <PreferenceCategory
                 android:key="pref_advanced_tweaks_cat"
                 android:title="@string/pref_tweaks_cat">
                 <CheckBoxPreference
