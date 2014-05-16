@@ -42,7 +42,7 @@
             android:summary="@string/pref_plugins_sum"
             android:title="@string/pref_plugins">
             <intent
-                android:targetClass="com.cradle.iitc_mobile.PluginPreferenceActivity"
+                android:targetClass="com.cradle.iitc_mobile.prefs.PluginPreferenceActivity"
                 android:targetPackage="com.cradle.iitc_mobile"/>
         </PreferenceScreen>
 
