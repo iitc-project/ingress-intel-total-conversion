@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.cradle.iitc_mobile.IITC_Mobile.ResponseHandler;
 import com.cradle.iitc_mobile.async.UpdateScript;
+import com.cradle.iitc_mobile.prefs.PluginPreferenceActivity;
 
 import org.json.JSONObject;
 
@@ -312,7 +313,7 @@ public class IITC_FileManager {
         if (invalidateHeaders) {
             try {
                 thread.join();
-                ((IITC_PluginPreferenceActivity) mActivity).invalidateHeaders();
+                ((PluginPreferenceActivity) mActivity).invalidateHeaders();
             } catch (final InterruptedException e) {
                 Log.w(e);
             }

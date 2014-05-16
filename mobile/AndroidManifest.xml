@@ -115,11 +115,11 @@
         </activity>
 
         <activity
-            android:name="com.cradle.iitc_mobile.IITC_PreferenceActivity"
+            android:name="com.cradle.iitc_mobile.prefs.PreferenceActivity"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
             android:label="@string/activity_settings"/>
         <activity
-            android:name="com.cradle.iitc_mobile.IITC_PluginPreferenceActivity"
+            android:name="com.cradle.iitc_mobile.prefs.PluginPreferenceActivity"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
             android:label="@string/activity_plugins"/>
         <activity
