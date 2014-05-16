@@ -40,6 +40,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
+import com.cradle.iitc_mobile.prefs.PluginPreferenceActivity;
+import com.cradle.iitc_mobile.prefs.PreferenceActivity;
 import com.cradle.iitc_mobile.share.ShareActivity;
 
 import org.json.JSONException;
@@ -145,6 +147,7 @@ public class IITC_Mobile extends Activity
         mIitcWebView.updateFullscreenStatus();
 
         mFileManager = new IITC_FileManager(this);
+        mFileManager.setUpdateInterval(Integer.parseInt(mSharedPrefs.getString("pref_update_plugins_interval", "7")));
 
         mUserLocation = new IITC_UserLocation(this);
         mUserLocation.setLocationMode(Integer.parseInt(mSharedPrefs.getString("pref_user_location_mode", "0")));
@@ -191,6 +194,14 @@ public class IITC_Mobile extends Activity
             return;
         } else if (key.equals("pref_fake_user_agent")) {
             mIitcWebView.setUserAgent();
+        } else if (key.equals("pref_last_plugin_update")) {
+            Long forceUpdate = sharedPreferences.getLong("pref_last_plugin_update", 0);
+            if (forceUpdate == 0) mFileManager.updatePlugins(true);
+            return;
+        } else if (key.equals("pref_update_plugins_interval")) {
+            final int interval = Integer.parseInt(mSharedPrefs.getString("pref_update_plugins_interval", "7"));
+            mFileManager.setUpdateInterval(interval);
+            return;
         } else if (key.equals("pref_press_twice_to_exit")
                 || key.equals("pref_share_selected_tab")
                 || key.equals("pref_messages")
@@ -248,7 +259,7 @@ public class IITC_Mobile extends Activity
             final String type = intent.getType() == null ? "" : intent.getType();
             final String path = uri.getPath() == null ? "" : uri.getPath();
             if (path.endsWith(".user.js") || type.contains("javascript")) {
-                final Intent prefIntent = new Intent(this, IITC_PluginPreferenceActivity.class);
+                final Intent prefIntent = new Intent(this, PluginPreferenceActivity.class);
                 prefIntent.setDataAndType(uri, intent.getType());
                 startActivity(prefIntent);
             }
@@ -565,7 +576,7 @@ public class IITC_Mobile extends Activity
                 }
                 return true;
             case R.id.action_settings: // start settings activity
-                final Intent intent = new Intent(this, IITC_PreferenceActivity.class);
+                final Intent intent = new Intent(this, PreferenceActivity.class);
                 try {
                     intent.putExtra("iitc_version", mFileManager.getIITCVersion());
                 } catch (final IOException e) {
@@ -704,6 +715,7 @@ public class IITC_Mobile extends Activity
         mNavigationHelper.onLoadingStateChanged();
         invalidateOptionsMenu();
         updateViews();
+        if (!isLoading) mFileManager.updatePlugins(false);
 
         if (mSearchTerm != null && !isLoading) {
             new Handler().postDelayed(new Runnable() {

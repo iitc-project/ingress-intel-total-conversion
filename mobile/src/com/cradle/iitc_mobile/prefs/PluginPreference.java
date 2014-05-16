@@ -1,4 +1,4 @@
-package com.cradle.iitc_mobile;
+package com.cradle.iitc_mobile.prefs;
 
 import android.content.Context;
 import android.preference.CheckBoxPreference;
@@ -7,9 +7,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 // multiline checkbox preference
-public class IITC_PluginPreference extends CheckBoxPreference {
+public class PluginPreference extends CheckBoxPreference {
 
-    public IITC_PluginPreference(Context context) {
+    public PluginPreference(Context context) {
         super(context);
     }
 

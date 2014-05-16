@@ -16,9 +16,9 @@ import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import com.cradle.iitc_mobile.IITC_AboutDialogPreference;
 import com.cradle.iitc_mobile.Log;
 import com.cradle.iitc_mobile.R;
+import com.cradle.iitc_mobile.prefs.AboutDialogPreference;
 
 public class MainSettings extends PreferenceFragment {
     @Override
@@ -40,7 +40,7 @@ public class MainSettings extends PreferenceFragment {
             Log.w(e);
         }
 
-        final IITC_AboutDialogPreference pref_about = (IITC_AboutDialogPreference) findPreference("pref_about");
+        final AboutDialogPreference pref_about = (AboutDialogPreference) findPreference("pref_about");
         pref_about.setVersions(iitcVersion, buildVersion);
 
         final ListPreference pref_user_location_mode = (ListPreference) findPreference("pref_user_location_mode");
