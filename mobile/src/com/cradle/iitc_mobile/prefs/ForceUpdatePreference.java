@@ -1,27 +1,22 @@
-package com.cradle.iitc_mobile;
+package com.cradle.iitc_mobile.prefs;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
-import android.view.View;
-import android.view.ViewGroup;
 
-import com.cradle.iitc_mobile.IITC_FileManager;
-import com.cradle.iitc_mobile.IITC_Mobile;
+import com.cradle.iitc_mobile.R;
 
 /**
  * The OptionDialogPreference will display a dialog, and will persist the
  * <code>true</code> when pressing the positive button and <code>false</code>
  * otherwise. It will persist to the android:key specified in xml-preference.
  */
-public class IITC_ForceUpdatePreference extends Preference {
+public class ForceUpdatePreference extends Preference {
 
-    public IITC_ForceUpdatePreference(Context context, AttributeSet attrs) {
+    public ForceUpdatePreference(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 

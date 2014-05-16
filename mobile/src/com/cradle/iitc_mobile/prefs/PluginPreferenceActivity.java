@@ -1,4 +1,4 @@
-package com.cradle.iitc_mobile;
+package com.cradle.iitc_mobile.prefs;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -18,6 +18,10 @@ import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cradle.iitc_mobile.IITC_FileManager;
+import com.cradle.iitc_mobile.IITC_NotificationHelper;
+import com.cradle.iitc_mobile.Log;
+import com.cradle.iitc_mobile.R;
 import com.cradle.iitc_mobile.fragments.PluginsFragment;
 
 import java.io.File;
@@ -31,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class IITC_PluginPreferenceActivity extends PreferenceActivity {
+public class PluginPreferenceActivity extends PreferenceActivity {
 
     private final static int COPY_PLUGIN_REQUEST = 1;
 
@@ -39,10 +43,10 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
     // we use a tree map to have a map with alphabetical order
     // don't initialize the asset plugin map, because it tells us if the settings are started the first time
     // and we have to parse plugins to build the preference screen
-    private static TreeMap<String, ArrayList<IITC_PluginPreference>> sAssetPlugins = null;
+    private static TreeMap<String, ArrayList<PluginPreference>> sAssetPlugins = null;
     // user plugins can be initialized.
-    private static final TreeMap<String, ArrayList<IITC_PluginPreference>> sUserPlugins =
-            new TreeMap<String, ArrayList<IITC_PluginPreference>>();
+    private static final TreeMap<String, ArrayList<PluginPreference>> sUserPlugins =
+            new TreeMap<String, ArrayList<PluginPreference>>();
     private static int mDeletedPlugins = 0;
 
     private IITC_FileManager mFileManager;
@@ -69,7 +73,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         // it is enough to parse the plugin only on first start.
         if (sAssetPlugins == null) {
             Log.d("opened plugin prefs the first time since app start -> parse plugins");
-            sAssetPlugins = new TreeMap<String, ArrayList<IITC_PluginPreference>>();
+            sAssetPlugins = new TreeMap<String, ArrayList<PluginPreference>>();
             setUpPluginPreferenceScreen();
         } else {
             checkForNewPlugins();
@@ -170,7 +174,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
     }
 
     // called by Plugins Fragment
-    public static ArrayList<IITC_PluginPreference> getPluginPreference(final String key, final boolean userPlugin) {
+    public static ArrayList<PluginPreference> getPluginPreference(final String key, final boolean userPlugin) {
         if (userPlugin) return sUserPlugins.get(key);
 
         return sAssetPlugins.get(key);
@@ -203,10 +207,10 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         final File[] userPlugins = getUserPlugins();
         final String[] officialPlugins = getAssetPlugins();
         int numPlugins = 0;
-        for (final Map.Entry<String, ArrayList<IITC_PluginPreference>> entry : sUserPlugins.entrySet()) {
+        for (final Map.Entry<String, ArrayList<PluginPreference>> entry : sUserPlugins.entrySet()) {
             numPlugins += entry.getValue().size();
         }
-        for (final Map.Entry<String, ArrayList<IITC_PluginPreference>> entry : sAssetPlugins.entrySet()) {
+        for (final Map.Entry<String, ArrayList<PluginPreference>> entry : sAssetPlugins.entrySet()) {
             numPlugins += entry.getValue().size();
         }
         if ((userPlugins.length + officialPlugins.length) != (numPlugins + mDeletedPlugins)) {
@@ -267,24 +271,24 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
         // first check if we need a new category
         if (userPlugin) {
             if (!sUserPlugins.containsKey(plugin_cat)) {
-                sUserPlugins.put(plugin_cat, new ArrayList<IITC_PluginPreference>());
+                sUserPlugins.put(plugin_cat, new ArrayList<PluginPreference>());
                 Log.d("create " + plugin_cat + " and add " + plugin_name);
             }
         } else {
             if (!sAssetPlugins.containsKey(plugin_cat)) {
-                sAssetPlugins.put(plugin_cat, new ArrayList<IITC_PluginPreference>());
+                sAssetPlugins.put(plugin_cat, new ArrayList<PluginPreference>());
                 Log.d("create " + plugin_cat + " and add " + plugin_name);
             }
         }
 
         // now build a new checkable preference for the plugin
-        final IITC_PluginPreference plugin_pref = new IITC_PluginPreference(this);
+        final PluginPreference plugin_pref = new PluginPreference(this);
         plugin_pref.setKey(plugin_key);
         plugin_pref.setTitle(plugin_name);
         plugin_pref.setSummary(plugin_desc);
         plugin_pref.setDefaultValue(false);
         plugin_pref.setPersistent(true);
-        final ArrayList<IITC_PluginPreference> list =
+        final ArrayList<PluginPreference> list =
                 userPlugin ? sUserPlugins.get(plugin_cat) : sAssetPlugins.get(plugin_cat);
         list.add(plugin_pref);
     }
@@ -294,7 +298,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
             final Header category = new Header();
             category.title = "User Plugins";
             mHeaders.add(category);
-            for (final Map.Entry<String, ArrayList<IITC_PluginPreference>> entry : sUserPlugins.entrySet()) {
+            for (final Map.Entry<String, ArrayList<PluginPreference>> entry : sUserPlugins.entrySet()) {
                 addHeader(entry.getKey(), true);
             }
         }
@@ -302,7 +306,7 @@ public class IITC_PluginPreferenceActivity extends PreferenceActivity {
             final Header category = new Header();
             category.title = "Official Plugins";
             mHeaders.add(category);
-            for (final Map.Entry<String, ArrayList<IITC_PluginPreference>> entry : sAssetPlugins.entrySet()) {
+            for (final Map.Entry<String, ArrayList<PluginPreference>> entry : sAssetPlugins.entrySet()) {
                 addHeader(entry.getKey(), false);
             }
         }
