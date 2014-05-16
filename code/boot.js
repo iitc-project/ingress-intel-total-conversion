@@ -373,20 +373,20 @@ window.setMapBaseLayer = function() {
 // included as inline script in the original site, the data is static
 // and cannot be updated.
 window.setupPlayerStat = function() {
-  var level;
+  // stock site updated to supply the actual player level, AP requirements and XM capacity values
+  var level = PLAYER.verified_level;
+  PLAYER.level = level; //for historical reasons IITC expects PLAYER.level to contain the current player level
+
   var ap = parseInt(PLAYER.ap);
-  for(level = 0; level < MIN_AP_FOR_LEVEL.length; level++) {
-    if(ap < MIN_AP_FOR_LEVEL[level]) break;
-  }
-  PLAYER.level = level;
+  var thisLvlAp = parseInt(PLAYER.min_ap_for_current_level);
+  var nextLvlAp = parseInt(PLAYER.min_ap_for_next_level);
 
-  var thisLvlAp = MIN_AP_FOR_LEVEL[level-1];
-  var nextLvlAp = MIN_AP_FOR_LEVEL[level] || ap;
-  var lvlUpAp = digits(nextLvlAp-ap);
-  var lvlApProg = Math.round((ap-thisLvlAp)/(nextLvlAp-thisLvlAp)*100);
+  if (nextLvlAp) {
+    var lvlUpAp = digits(nextLvlAp-ap);
+    var lvlApProg = Math.round((ap-thisLvlAp)/(nextLvlAp-thisLvlAp)*100);
+  } // else zero nextLvlAp - so at maximum level(?)
 
-
-  var xmMax = MAX_XM_PER_LEVEL[level];
+  var xmMax = parseInt(PLAYER.xm_capacity);
   var xmRatio = Math.round(PLAYER.energy/xmMax*100);
 
   var cls = PLAYER.team === 'RESISTANCE' ? 'res' : 'enl';
@@ -395,7 +395,7 @@ window.setupPlayerStat = function() {
   var t = 'Level:\t' + level + '\n'
         + 'XM:\t' + PLAYER.energy + ' / ' + xmMax + '\n'
         + 'AP:\t' + digits(ap) + '\n'
-        + (level < 8 ? 'level up in:\t' + lvlUpAp + ' AP' : 'Congrats! (neeeeerd)')
+        + (nextLvlAp > 0 ? 'level up in:\t' + lvlUpAp + ' AP' : 'Maximul level reached(!)')
         + '\n\Invites:\t'+PLAYER.available_invites
         + '\n\nNote: your player stats can only be updated by a full reload (F5)';
 
@@ -407,7 +407,7 @@ window.setupPlayerStat = function() {
     + '</div>'
     + '<div id="stats">'
     + '<sup>XM: '+xmRatio+'%</sup>'
-    + '<sub>' + (level < 8 ? 'level: '+lvlApProg+'%' : 'max level') + '</sub>'
+    + '<sub>' + (nextLvlAp > 0 ? 'level: '+lvlApProg+'%' : 'max level') + '</sub>'
     + '</div>'
     + '</h2>'
   );

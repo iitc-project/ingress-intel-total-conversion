@@ -19,6 +19,8 @@ import android.webkit.WebResourceResponse;
 import android.widget.Toast;
 
 import com.cradle.iitc_mobile.IITC_Mobile.ResponseHandler;
+import com.cradle.iitc_mobile.async.UpdateScript;
+import com.cradle.iitc_mobile.prefs.PluginPreferenceActivity;
 
 import org.json.JSONObject;
 
@@ -39,6 +41,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class IITC_FileManager {
     private static final WebResourceResponse EMPTY =
@@ -48,7 +52,10 @@ public class IITC_FileManager {
             "script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));\n"
                     + "(document.body || document.head || document.documentElement).appendChild(script);";
 
+    private long mUpdateInterval = 1000*60*60*24*7;
+
     public static final String DOMAIN = ".iitcm.localhost";
+    // update interval is 2 days by default
 
     /**
      * copies the contents of a stream into another stream and (optionally) closes the output stream afterwards
@@ -306,11 +313,42 @@ public class IITC_FileManager {
         if (invalidateHeaders) {
             try {
                 thread.join();
-                ((IITC_PluginPreferenceActivity) mActivity).invalidateHeaders();
+                ((PluginPreferenceActivity) mActivity).invalidateHeaders();
             } catch (final InterruptedException e) {
                 Log.w(e);
             }
         }
+    }
+
+    public void updatePlugins(boolean force) {
+        // do nothing if updates are disabled
+        if (mUpdateInterval == 0 && !force) return;
+        // check last script update
+        final long lastUpdated = mPrefs.getLong("pref_last_plugin_update", 0);
+        final long now = System.currentTimeMillis();
+
+        // return if no update wanted
+        if ((now - lastUpdated < mUpdateInterval) && !force) return;
+        // get the plugin preferences
+        final TreeMap<String, ?> all_prefs = new TreeMap<String, Object>(mPrefs.getAll());
+
+        // iterate through all plugins
+        for (final Map.Entry<String, ?> entry : all_prefs.entrySet()) {
+            final String plugin = entry.getKey();
+            if (plugin.endsWith(".user.js") && entry.getValue().toString().equals("true")) {
+                if (plugin.startsWith(PLUGINS_PATH)) {
+                    new UpdateScript(mActivity).execute(plugin);
+                }
+            }
+        }
+        mPrefs
+                .edit()
+                .putLong("pref_last_plugin_update", now)
+                .commit();
+    }
+
+    public void setUpdateInterval(int interval) {
+        mUpdateInterval = 1000*60*60*24 * interval;
     }
 
     private class FileRequest extends WebResourceResponse implements ResponseHandler, Runnable {
@@ -334,7 +372,7 @@ public class IITC_FileManager {
 
             // create the chooser Intent
             final Intent target = new Intent(Intent.ACTION_GET_CONTENT)
-                    .setType("file/*")
+                    .setType("text/*")
                     .addCategory(Intent.CATEGORY_OPENABLE);
             final IITC_Mobile iitc = (IITC_Mobile) mActivity;
 

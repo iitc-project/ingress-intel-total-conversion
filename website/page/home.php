@@ -13,39 +13,27 @@ offers many more features. It is available for
 
 <h3>Latest news</h3>
 
-<h4>14th March 2014</h4>
+<h4>10th May 2014</h4>
 <p>
-IITC 0.16.6 and IITC Mobile 0.10.6 have just been released. This is a critical update required to successfully load
-portals when zoomed in (L3+ or closer) to the map. Changes include:
+Another critical IITC update - IITC 0.16.9 and IITC Mobile 0.10.9 have just been released. This fixes the munge error at startup.
 </p>
-<ul>
-<li>debug tiles fade for completed tiles</li>
-<li>warning in sidebar when standard layers are turned off</li>
-<li>player level: fixed AP values for L2/L3</li>
-<li>Plugins:
-<ul>
-<li>portal-counts: percentage in pie chart</li>
-<li>guess-player-levels: guess level based on portal attacks (attack range as calculated from log)</li>
-</ul></li>
-<li>Mobile:
-<ul>
-<li>send screenshot from menu</li>
-<li>fixed sharing interface (caused crash on some devices)</li>
-<li>show loading indicator while log is being loaded</li>
-<li>configurable menu</li>
-</ul></li>
-</ul>
-
-<h4>22nd February 2014</h4>
 <p>
-IITC 0.16.5 and IITC Mobile 0.10.5 have just been released. This version is required to work with a change made to the
-standard intel site. Also, the following changes have been made:
+Also, the bookmarks plugin received an update. This has had minimal testing, so please report any issues.
 </p>
-<ul>
-<li>The new Artifacts are now supported</li>
-<li>Bookmarks plugin updated</li>
-<li>Draw tools plugin: markers updated to also support colours</li>
-</ul>
 
+<h4>6th May 2014</h4>
+<p>
+IITC 0.16.8 and IITC Mobile 0.10.8 have just been released. This is a critical update that is needed for IITC to correctly
+load the map data.
+</p>
+
+<h4>29th April 2014</h4>
+<p>
+IITC 0.16.7 and IITC Mobile 0.10.7 have been released, to fix things to work with the latest Niantic changes.
+</p>
+<p>
+There have also been a few tweaks to improve performance, and an optional alternative rendering mode
+that might give a good performance boost in some cases when there's lots of portals on screen.
+</p>
 
 <a class="btn btn-default btn-sm" href="?page=news">Older news</a>

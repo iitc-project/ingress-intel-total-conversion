@@ -42,7 +42,7 @@
             android:summary="@string/pref_plugins_sum"
             android:title="@string/pref_plugins">
             <intent
-                android:targetClass="com.cradle.iitc_mobile.IITC_PluginPreferenceActivity"
+                android:targetClass="com.cradle.iitc_mobile.PluginPreferenceActivity"
                 android:targetPackage="com.cradle.iitc_mobile"/>
         </PreferenceScreen>
 
@@ -93,6 +93,21 @@
                     android:title="@string/pref_disable_splash"/>
             </PreferenceCategory>
             <PreferenceCategory
+                android:key="pref_update_plugins"
+                android:title="@string/pref_update_plugins_cat">
+                <ListPreference
+                    android:defaultValue="7"
+                    android:entries="@array/pref_update_plugins_interval_titles"
+                    android:entryValues="@array/pref_update_plugins_interval_values"
+                    android:key="pref_update_plugins_interval"
+                    android:title="@string/pref_update_plugins_interval"
+                    android:summary="@string/pref_update_plugins_interval_sum"/>
+                <com.cradle.iitc_mobile.prefs.ForceUpdatePreference
+                    android:key="pref_force_plugin_update"
+                    android:title="@string/pref_force_plugin_update"
+                    android:summary="@string/pref_force_plugin_update_sum"/>
+            </PreferenceCategory>
+            <PreferenceCategory
                 android:key="pref_advanced_tweaks_cat"
                 android:title="@string/pref_tweaks_cat">
                 <CheckBoxPreference
@@ -106,7 +121,7 @@
             android:key="pref_about_screen"
             android:persistent="false"
             android:title="@string/pref_about_title">
-            <com.cradle.iitc_mobile.IITC_AboutDialogPreference
+            <com.cradle.iitc_mobile.prefs.AboutDialogPreference
                 android:dialogIcon="@android:drawable/ic_dialog_info"
                 android:key="pref_about"
                 android:title="@string/pref_about_title"/>
