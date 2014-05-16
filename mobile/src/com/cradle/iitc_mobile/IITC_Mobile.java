@@ -145,6 +145,7 @@ public class IITC_Mobile extends Activity
         mIitcWebView.updateFullscreenStatus();
 
         mFileManager = new IITC_FileManager(this);
+        mFileManager.setUpdateInterval(Integer.parseInt(mSharedPrefs.getString("pref_update_plugins_interval", "7")));
 
         mUserLocation = new IITC_UserLocation(this);
         mUserLocation.setLocationMode(Integer.parseInt(mSharedPrefs.getString("pref_user_location_mode", "0")));
@@ -194,6 +195,10 @@ public class IITC_Mobile extends Activity
         } else if (key.equals("pref_last_plugin_update")) {
             Long forceUpdate = sharedPreferences.getLong("pref_last_plugin_update", 0);
             if (forceUpdate == 0) mFileManager.updatePlugins(true);
+            return;
+        } else if (key.equals("pref_update_plugins_interval")) {
+            final int interval = Integer.parseInt(mSharedPrefs.getString("pref_update_plugins_interval", "7"));
+            mFileManager.setUpdateInterval(interval);
             return;
         } else if (key.equals("pref_press_twice_to_exit")
                 || key.equals("pref_share_selected_tab")

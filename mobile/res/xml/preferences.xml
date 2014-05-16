@@ -95,6 +95,13 @@
             <PreferenceCategory
                 android:key="pref_update_plugins"
                 android:title="@string/pref_update_plugins_cat">
+                <ListPreference
+                    android:defaultValue="7"
+                    android:entries="@array/pref_update_plugins_interval_titles"
+                    android:entryValues="@array/pref_update_plugins_interval_values"
+                    android:key="pref_update_plugins_interval"
+                    android:title="@string/pref_update_plugins_interval"
+                    android:summary="@string/pref_update_plugins_interval_sum"/>
                 <com.cradle.iitc_mobile.IITC_ForceUpdatePreference
                     android:key="pref_force_plugin_update"
                     android:title="@string/pref_force_plugin_update"

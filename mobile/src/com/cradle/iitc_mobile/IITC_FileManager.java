@@ -51,9 +51,10 @@ public class IITC_FileManager {
             "script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));\n"
                     + "(document.body || document.head || document.documentElement).appendChild(script);";
 
+    private long mUpdateInterval = 1000*60*60*24*7;
+
     public static final String DOMAIN = ".iitcm.localhost";
     // update interval is 2 days by default
-    public static long updateInterval = 1000*60*60*24*2;
 
     /**
      * copies the contents of a stream into another stream and (optionally) closes the output stream afterwards
@@ -319,12 +320,14 @@ public class IITC_FileManager {
     }
 
     public void updatePlugins(boolean force) {
+        // do nothing if updates are disabled
+        if (mUpdateInterval == 0 && !force) return;
         // check last script update
         final long lastUpdated = mPrefs.getLong("pref_last_plugin_update", 0);
         final long now = System.currentTimeMillis();
 
         // return if no update wanted
-        if (!force && (now - lastUpdated < updateInterval)) return;
+        if ((now - lastUpdated < mUpdateInterval) && !force) return;
         // get the plugin preferences
         final TreeMap<String, ?> all_prefs = new TreeMap<String, Object>(mPrefs.getAll());
 
@@ -341,6 +344,10 @@ public class IITC_FileManager {
                 .edit()
                 .putLong("pref_last_plugin_update", now)
                 .commit();
+    }
+
+    public void setUpdateInterval(int interval) {
+        mUpdateInterval = 1000*60*60*24 * interval;
     }
 
     private class FileRequest extends WebResourceResponse implements ResponseHandler, Runnable {
