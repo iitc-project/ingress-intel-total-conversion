@@ -41,11 +41,17 @@ public class UpdateScript extends AsyncTask<String, Void, Boolean> {
             final String downloadURL = mScriptInfo.get("downloadURL");
             if (updateURL == null) updateURL = downloadURL;
 
+            // check for https protocol
+            final URL url = new URL(updateURL);
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mActivity);
+            Boolean secureUpdates = prefs.getBoolean("pref_secure_updates", true);
+            if (!url.getProtocol().equals("https") && secureUpdates) return false;
+
             // get remote script meta information
-            final File local_file = new File(mFilePath);
-            final InputStream is = new URL(updateURL).openStream();
-            final String local_version = mScriptInfo.get("version");
+            final InputStream is = url.openStream();
             final String remote_version = IITC_FileManager.getScriptInfo(IITC_FileManager.readStream(is)).get("version");
+            final File local_file = new File(mFilePath);
+            final String local_version = mScriptInfo.get("version");
 
             // update script if neccessary
             if (local_version.compareTo(remote_version) < 0) {
