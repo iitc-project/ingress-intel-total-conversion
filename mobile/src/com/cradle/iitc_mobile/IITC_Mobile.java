@@ -205,6 +205,7 @@ public class IITC_Mobile extends Activity
         } else if (key.equals("pref_press_twice_to_exit")
                 || key.equals("pref_share_selected_tab")
                 || key.equals("pref_messages")
+                || key.equals("pref_secure_updates")
                 || key.equals("pref_external_storage")) {
             // no reload needed
             return;

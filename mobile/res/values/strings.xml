@@ -135,6 +135,8 @@
     <string name="pref_update_plugins_interval_sum">How often IITCm should search for new plugin versions</string>
     <string name="pref_force_plugin_update">Force plugin update</string>
     <string name="pref_force_plugin_update_sum">Update all enabled user plugins</string>
+    <string name="pref_secure_updates">Require secure updates</string>
+    <string name="pref_secure_updates_sum">If enabled, only https updates are handled</string>
 
     <string-array name="pref_hide_fullscreen">
         <item>System Bar</item>

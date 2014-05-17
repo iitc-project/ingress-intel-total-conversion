@@ -17,12 +17,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.HashMap;
 
 public class UpdateScript extends AsyncTask<String, Void, Boolean> {
 
     private final Activity mActivity;
     private String mFilePath;
     private String mScript;
+    private HashMap<String, String> mScriptInfo;
 
     public UpdateScript(final Activity activity) {
         mActivity = activity;
@@ -34,20 +36,28 @@ public class UpdateScript extends AsyncTask<String, Void, Boolean> {
             mFilePath = urls[0];
             // get local script meta information
             mScript = IITC_FileManager.readStream(new FileInputStream(new File(mFilePath)));
-            final String updateURL = IITC_FileManager.getScriptInfo(mScript).get("updateURL");
-            final String downloadURL = IITC_FileManager.getScriptInfo(mScript).get("downloadURL");
+            mScriptInfo = IITC_FileManager.getScriptInfo(mScript);
+            String updateURL = mScriptInfo.get("updateURL");
+            final String downloadURL = mScriptInfo.get("downloadURL");
+            if (updateURL == null) updateURL = downloadURL;
+
+            // check for https protocol
+            final URL url = new URL(updateURL);
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mActivity);
+            Boolean secureUpdates = prefs.getBoolean("pref_secure_updates", true);
+            if (!url.getProtocol().equals("https") && secureUpdates) return false;
 
             // get remote script meta information
-            final File file_old = new File(mFilePath);
-            final InputStream is = new URL(updateURL).openStream();
-            final String old_version = IITC_FileManager.getScriptInfo(mScript).get("version");
-            final String new_version = IITC_FileManager.getScriptInfo(IITC_FileManager.readStream(is)).get("version");
+            final InputStream is = url.openStream();
+            final String remote_version = IITC_FileManager.getScriptInfo(IITC_FileManager.readStream(is)).get("version");
+            final File local_file = new File(mFilePath);
+            final String local_version = mScriptInfo.get("version");
 
             // update script if neccessary
-            if (old_version.compareTo(new_version) < 0) {
-                Log.d("plugin " + mFilePath + " outdated\n" + old_version + " vs " + new_version);
+            if (local_version.compareTo(remote_version) < 0) {
+                Log.d("plugin " + mFilePath + " outdated\n" + local_version + " vs " + remote_version);
                 Log.d("updating file....");
-                IITC_FileManager.copyStream(new URL(downloadURL).openStream(), new FileOutputStream(file_old), true);
+                IITC_FileManager.copyStream(new URL(downloadURL).openStream(), new FileOutputStream(local_file), true);
                 Log.d("...done");
                 return true;
             }
