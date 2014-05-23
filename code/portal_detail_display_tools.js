@@ -24,20 +24,22 @@ window.getRangeText = function(d) {
 
 // generates description text from details for portal
 window.getPortalDescriptionFromDetails = function(details) {
-  var descObj = details.descriptiveText.map;
-  // FIXME: also get real description?
-  var desc = descObj.TITLE;
-  if(descObj.ADDRESS)
-    desc += '\n' + descObj.ADDRESS;
-//  if(descObj.ATTRIBUTION)
-//    desc += '\nby '+descObj.ATTRIBUTION+' ('+descObj.ATTRIBUTION_LINK+')';
-  return desc;
+  return details.title || '(untitled)';
+
+//  var descObj = details.descriptiveText.map;
+//  // FIXME: also get real description?
+//  var desc = descObj.TITLE;
+//  if(descObj.ADDRESS)
+//    desc += '\n' + descObj.ADDRESS;
+////  if(descObj.ATTRIBUTION)
+////    desc += '\nby '+descObj.ATTRIBUTION+' ('+descObj.ATTRIBUTION_LINK+')';
+//  return desc;
 }
 
 // Grabs more info, including the submitter name for the current main
 // portal image
 window.getPortalDescriptionFromDetailsExtended = function(details) {
-  var descObj = details.descriptiveText.map;
+  var descObj = details.title;
   var photoStreamObj = details.photoStreamInfo;
 
   var submitterObj = new Object();
@@ -79,7 +81,7 @@ window.getModDetails = function(d) {
   var mods = [];
   var modsTitle = [];
   var modsColor = [];
-  $.each(d.portalV2.linkedModArray, function(ind, mod) {
+  $.each(d.mods, function(ind, mod) {
     var modName = '';
     var modTooltip = '';
     var modColor = '#000';
@@ -88,13 +90,7 @@ window.getModDetails = function(d) {
       // all mods seem to follow the same pattern for the data structure
       // but let's try and make this robust enough to handle possible future differences
 
-      if (mod.displayName) {
-        modName = mod.displayName;
-      } else if (mod.type) {
-        modName = mod.type;
-      } else {
-        modName = '(unknown mod)';
-      }
+      modName = mod.name || '(unknown mod)';
 
       if (mod.rarity) {
         modName = mod.rarity.capitalize().replace(/_/g,' ') + ' ' + modName;
@@ -137,10 +133,12 @@ window.getModDetails = function(d) {
     modsColor.push(modColor);
   });
 
-  var t = '<span'+(modsTitle[0].length ? ' title="'+modsTitle[0]+'"' : '')+' style="color:'+modsColor[0]+'">'+mods[0]+'</span>'
-        + '<span'+(modsTitle[1].length ? ' title="'+modsTitle[1]+'"' : '')+' style="color:'+modsColor[1]+'">'+mods[1]+'</span>'
-        + '<span'+(modsTitle[2].length ? ' title="'+modsTitle[2]+'"' : '')+' style="color:'+modsColor[2]+'">'+mods[2]+'</span>'
-        + '<span'+(modsTitle[3].length ? ' title="'+modsTitle[3]+'"' : '')+' style="color:'+modsColor[3]+'">'+mods[3]+'</span>'
+
+  var t = '';
+  for (var i=0; i<mods.length; i++) {
+    t += '<span'+(modsTitle[i].length ? ' title="'+modsTitle[i]+'"' : '')+' style="color:'+modsColor[i]+'">'+mods[i]+'</span>'
+  }
+
 
   return t;
 }
@@ -153,10 +151,6 @@ window.getEnergyText = function(d) {
   return ['energy', '<tt title="'+inf+'">' + fill + '</tt>'];
 }
 
-window.getAvgResoDistText = function(d) {
-  var avgDist = Math.round(10*getAvgResoDist(d))/10;
-  return ['res dist', avgDist + ' m'];
-}
 
 window.getResonatorDetails = function(d) {
   var resoDetails = [];
@@ -168,7 +162,7 @@ window.getResonatorDetails = function(d) {
   //  SW    S
 
   $.each([2, 1, 3, 0, 4, 7, 5, 6], function(ind, slot) {
-    var reso = d.resonatorArray.resonators[slot];
+    var reso = d.resonators[slot];
     if(!reso) {
       resoDetails.push(renderResonatorDetails(slot, 0, 0, null, null));
       return true;
@@ -176,13 +170,12 @@ window.getResonatorDetails = function(d) {
 
     var l = parseInt(reso.level);
     var v = parseInt(reso.energyTotal);
-    var nick = reso.ownerGuid;
-    var dist = reso.distanceToPortal;
+    var nick = reso.owner;
     // if array order and slot order drift apart, at least the octant
     // naming will still be correct.
-    slot = parseInt(reso.slot);
+    slot = ind;
 
-    resoDetails.push(renderResonatorDetails(slot, l, v, dist, nick));
+    resoDetails.push(renderResonatorDetails(slot, l, v, null, nick));
   });
   return '<table id="resodetails">' + genFourColumnTable(resoDetails) + '</table>';
 
@@ -231,7 +224,7 @@ window.getAttackApGainText = function(d,fieldCount) {
 
   function tt(text) {
     var t = '';
-    if (d.controllingTeam && PLAYER.team == d.controllingTeam.team) {
+    if (PLAYER.team == d.team) {
       totalGain = breakdown.friendlyAp;
       t += 'Friendly AP:\t' + breakdown.friendlyAp + '\n';
       t += '  Deploy ' + breakdown.deployCount + ', ';
@@ -266,8 +259,8 @@ window.getHackDetailsText = function(d) {
 }
 
 
-window.getMitigationText = function(d) {
-  var mitigationDetails = getPortalMitigationDetails(d);
+window.getMitigationText = function(d,linkCount) {
+  var mitigationDetails = getPortalMitigationDetails(d,linkCount);
 
   var mitigationShort = mitigationDetails.total;
   if (mitigationDetails.excess) mitigationShort += ' (+'+mitigationDetails.excess+')';

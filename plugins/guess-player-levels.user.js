@@ -134,7 +134,7 @@ window.plugin.guessPlayerLevels.extractPortalData = function(data) {
 
   var owner = data.details.captured && data.details.captured.capturingPlayerId || "";
   var ownerModCount = 0;
-  data.details.portalV2.linkedModArray.forEach(function(mod) {
+  data.details.mods.forEach(function(mod) {
     if(mod && mod.installingUser == owner)
       ownerModCount++;
   });
@@ -144,12 +144,12 @@ window.plugin.guessPlayerLevels.extractPortalData = function(data) {
   $.each(r, function(ind, reso) {
     if(!reso) return true;
 
-    if(!players[reso.ownerGuid]) players[reso.ownerGuid] = [];
+    if(!players[reso.owner]) players[reso.owner] = [];
 
-    if(players[reso.ownerGuid][reso.level] === undefined)
-      players[reso.ownerGuid][reso.level] = 1
+    if(players[reso.owner][reso.level] === undefined)
+      players[reso.owner][reso.level] = 1
     else
-      players[reso.ownerGuid][reso.level]++;
+      players[reso.owner][reso.level]++;
   });
 
   for(nickname in players) {
@@ -422,7 +422,7 @@ window.plugin.guessPlayerLevels.guess = function() {
       var r = details.resonatorArray.resonators;
       $.each(r, function(ind, reso) {
         if(!reso) return true;
-        var nick = reso.ownerGuid;
+        var nick = reso.owner;
         if(isSystemPlayer(nick)) return true;
 
         var lvl = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(nick).min;

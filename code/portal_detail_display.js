@@ -28,9 +28,7 @@ window.renderPortalDetails = function(guid) {
 
   // details and data can get out of sync. if we have details, construct a matching 'data'
   if (details) {
-    // the details had the team removed(!) - so we have to use the team in the summary data
-    // however - this can easily be out of date in areas of heavy activity - so could be just plain wrong!
-    data = getPortalSummaryData(details, data && data.team);
+    data = getPortalSummaryData(details);
   }
 
 
@@ -42,7 +40,7 @@ window.renderPortalDetails = function(guid) {
   var statusDetails = details ? '' : '<div id="portalStatus">Loading details...</div>';
  
 
-  var img = fixPortalImageUrl(details ? details.imageByUrl && details.imageByUrl.imageUrl : data.image);
+  var img = fixPortalImageUrl(details ? details.image : data.image);
   var title = data.title;
 
   var lat = data.latE6/1E6;
@@ -165,10 +163,8 @@ window.getPortalMiscDetails = function(guid,d) {
   if (d) {
 
     // collect some random data that’s not worth to put in an own method
-    var links = {incoming: 0, outgoing: 0};
-    $.each(d.portalV2.linkedEdges||[], function(ind, link) {
-      links[link.isOrigin ? 'outgoing' : 'incoming']++;
-    });
+    var linkInfo = getPortalLinks(guid);
+    var links = {incoming: linkInfo.in.length, outgoing: linkInfo.out.length};
 
     function linkExpl(t) { return '<tt title="'+links.outgoing+' links out (8 max)\n'+links.incoming+' links in\n('+(links.outgoing+links.incoming)+' total)">'+t+'</tt>'; }
     var linksText = [linkExpl('links'), linkExpl(links.outgoing+' out / '+links.incoming+' in')];
@@ -189,6 +185,8 @@ window.getPortalMiscDetails = function(guid,d) {
 
     var linkedFields = ['fields', fieldCount];
 
+    var linkCount = getPortalLinksCount(guid);
+
     // collect and html-ify random data
     var randDetailsData = [];
     if (playerText && sinceText) {
@@ -197,9 +195,9 @@ window.getPortalMiscDetails = function(guid,d) {
 
     randDetailsData.push (
       getRangeText(d), getEnergyText(d),
-      linksText, getAvgResoDistText(d),
-      linkedFields, getAttackApGainText(d,fieldCount),
-      getHackDetailsText(d), getMitigationText(d)
+      linksText, ['-','-'],
+      linkedFields, getAttackApGainText(d,fieldCount,linkCount),
+      getHackDetailsText(d), getMitigationText(d,linkCount)
     );
 
     // artifact details

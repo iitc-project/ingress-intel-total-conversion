@@ -2,7 +2,7 @@
 // @id             iitc-plugin-show-linked-portals@fstopienski
 // @name           IITC plugin: Show linked portals
 // @category       Portal Info
-// @version        0.1.2.@@DATETIMEVERSION@@
+// @version        0.2.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -41,11 +41,17 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
 //    if (data.portalDetails.controllingTeam.team == 'NEUTRAL')
 //        return;
 
-    var d = data.portalDetails.portalV2,
-        c = 1;
-    //get linked portals
-    $(d.linkedEdges).each(function () {
-        var portalInfo = window.plugin.showLinkedPortal.getPortalByGuid(this.otherPortalGuid, this.isOrigin);
+    var portalLinks = getPortalLinks(data.guid);
+
+    var c = 1;
+
+    $(portalLinks.out).each(function () {
+        var portalInfo = window.plugin.showLinkedPortal.getPortalByGuid(this.otherPortalGuid, true);
+        $('#portaldetails').append('<div class="showLinkedPortalLink showLinkedPortalLink' + c + '" id="showLinkedPortalLink_' + c + '" data-guid="' + this.otherPortalGuid + '">' + portalInfo + '</div>');
+        c = c + 1;
+    });
+    $(portalLinks.in).each(function () {
+        var portalInfo = window.plugin.showLinkedPortal.getPortalByGuid(this.otherPortalGuid, false);
         $('#portaldetails').append('<div class="showLinkedPortalLink showLinkedPortalLink' + c + '" id="showLinkedPortalLink_' + c + '" data-guid="' + this.otherPortalGuid + '">' + portalInfo + '</div>');
         c = c + 1;
     });

@@ -2,7 +2,7 @@
 // @id             iitc-plugin-ipas-link@graphracer
 // @name           IITC Plugin: simulate an attack on portal
 // @category       Portal Info
-// @version        0.2.1.@@DATETIMEVERSION@@
+// @version        0.2.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/xosofox/IPAS
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -35,14 +35,14 @@ window.plugin.ipasLink.getHash = function (p) {
   var hashParts = [];
   $.each(details.resonatorArray.resonators, function (ind, reso) {
     if (reso)
-      hashParts.push(reso.level + "," + reso.distanceToPortal + "," + reso.energyTotal);
+      hashParts.push(reso.level + ",-1," + reso.energyTotal);
     else
       hashParts.push("1,20,0");
   });
   var resos = hashParts.join(";");
 
   hashParts = [];
-  $.each(details.portalV2.linkedModArray, function (ind, mod) {
+  $.each(details.mods, function (ind, mod) {
     // s - shields
     // h - heat sink
     // i - intentionally left in
