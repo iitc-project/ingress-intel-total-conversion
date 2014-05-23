@@ -2,7 +2,7 @@
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           IITC plugin: guess player level
 // @category       Info
-// @version        0.5.2.@@DATETIMEVERSION@@
+// @version        0.5.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -189,7 +189,7 @@ window.plugin.guessPlayerLevels.extractChatData = function(data) {
     attackData[nick][timestamp].push(portal);
   }
 
-  data.raw.result.forEach(function(msg) {
+  data.raw.success.forEach(function(msg) {
     var plext = msg[2].plext;
 
     // search for "x deployed an Ly Resonator on z"

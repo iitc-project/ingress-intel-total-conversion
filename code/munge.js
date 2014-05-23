@@ -91,13 +91,14 @@ function extractMungeFromStock() {
     // the rest are trickier - we need to parse the functions of the stock site. these break very often
     // on site updates
 
-    // regular expression - to match either x.abcdef123456wxyz or x["123456abcdefwxyz"] format for property access
-    var mungeRegExpProp = '(?:\\.([a-z][a-z0-9]{15})|\\["([0-9][a-z0-9]{15})"\\])';
-    // and one to match members of object literal initialisation - {abcdef123456wxyz: or {"123456abcdefwxyz":
-    var mungeRegExpLit = '(?:([a-z][a-z0-9]{15})|"([0-9][a-z0-9]{15})"):';
+//    // regular expression - to match either x.abcdef123456wxyz or x["123456abcdefwxyz"] format for property access
+//    var mungeRegExpProp = '(?:\\.([a-z][a-z0-9]{15})|\\["([0-9][a-z0-9]{15})"\\])';
+//    // and one to match members of object literal initialisation - {abcdef123456wxyz: or {"123456abcdefwxyz":
+//    var mungeRegExpLit = '(?:([a-z][a-z0-9]{15})|"([0-9][a-z0-9]{15})"):';
 
     // some cases don't munge now?!?! odd!
-    var mungeRegExpLitOrUnmunged = '(?:((?:[a-z][a-z0-9]{15})|message|latE6|lngE6|tab|guid)|"([0-9][a-z0-9]{15})"):';
+    var mungeRegExpProp = '(?:\\.([a-z][a-z0-9]{15}|[a-z][a-zA-Z0-9]*)|\\["([0-9][a-z0-9]{15})"\\])';
+    var mungeRegExpLit = '(?:((?:[a-z][a-z0-9]{15})|[a-z][a-zA-Z0-9]*)|"([0-9][a-z0-9]{15})"):';
 
     // common parameters - method, version, version_parameter - currently found in the 
     // nemesis.dashboard.network.XhrController.prototype.doSendRequest_ function
@@ -119,8 +120,7 @@ function extractMungeFromStock() {
     foundMunges.quadKeys = result[1] || result[2];
 
     // GET_PAGINATED_PLEXTS
-    var reg = new RegExp('[a-z] = {'+mungeRegExpLit+'[a-z], '
-                        +mungeRegExpLit+'Math.round\\(1E6 \\* [a-z].bounds.sw.lat\\(\\)\\), '
+    var reg = new RegExp('[a-z] = {'+mungeRegExpLit+'Math.round\\(1E6 \\* [a-z].bounds.sw.lat\\(\\)\\), '
                         +mungeRegExpLit+'Math.round\\(1E6 \\* [a-z].bounds.sw.lng\\(\\)\\), '
                         +mungeRegExpLit+'Math.round\\(1E6 \\* [a-z].bounds.ne.lat\\(\\)\\), '
                         +mungeRegExpLit+'Math.round\\(1E6 \\* [a-z].bounds.ne.lng\\(\\)\\), '
@@ -130,23 +130,23 @@ function extractMungeFromStock() {
 
     var result = reg.exec(nemesis.dashboard.network.PlextStore.prototype.getPlexts.toString());
 
-    foundMunges.desiredNumItems = result[1] || result[2];
+//    foundMunges.desiredNumItems = result[1] || result[2];
 
-    foundMunges.minLatE6 = result[3] || result[4];
-    foundMunges.minLngE6 = result[5] || result[6];
-    foundMunges.maxLatE6 = result[7] || result[8];
-    foundMunges.maxLngE6 = result[9] || result[10];
-    foundMunges.minTimestampMs = result[11] || result[12];
-    foundMunges.maxTimestampMs = result[13] || result[14];
-    foundMunges.chatTabGet = result[15] || result[16];  //guessed parameter name - only seen munged
-    foundMunges.ascendingTimestampOrder = result[17] || result[18];
+    foundMunges.minLatE6 = result[1] || result[2];
+    foundMunges.minLngE6 = result[3] || result[4];
+    foundMunges.maxLatE6 = result[5] || result[6];
+    foundMunges.maxLngE6 = result[7] || result[8];
+    foundMunges.minTimestampMs = result[9] || result[10];
+    foundMunges.maxTimestampMs = result[11] || result[12];
+    foundMunges.chatTabGet = result[13] || result[14];  //guessed parameter name - only seen munged
+    foundMunges.ascendingTimestampOrder = result[15] || result[16];
 
     // SEND_PLEXT
     var reg = new RegExp('SEND_PLEXT, nemesis.dashboard.network.XhrController.Priority.[A-Z]+, {'
-             +mungeRegExpLitOrUnmunged+'[a-z], '
-             +mungeRegExpLitOrUnmunged+'[a-z], '
-             +mungeRegExpLitOrUnmunged+'[a-z], '
-             +mungeRegExpLitOrUnmunged+'[a-z]}');
+             +mungeRegExpLit+'[a-z], '
+             +mungeRegExpLit+'[a-z], '
+             +mungeRegExpLit+'[a-z], '
+             +mungeRegExpLit+'[a-z]}');
     var result = reg.exec(nemesis.dashboard.network.PlextStore.prototype.sendPlext.toString());
 
     foundMunges.messageSendPlext = result[1] || result[2];
@@ -157,7 +157,7 @@ function extractMungeFromStock() {
 
     // GET_PORTAL_DETAILS
     var reg = new RegExp('GET_PORTAL_DETAILS, nemesis.dashboard.network.XhrController.Priority.[A-Z]+, {'
-                        +mungeRegExpLitOrUnmunged+'a}');
+                        +mungeRegExpLit+'a}');
     var result = reg.exec(nemesis.dashboard.network.DataFetcher.prototype.getPortalDetails.toString());
     foundMunges.guid = result[1] || result[2];
 

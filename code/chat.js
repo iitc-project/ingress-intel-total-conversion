@@ -72,7 +72,7 @@ window.chat.genPostData = function(isFaction, storageHash, getOlderMsgs) {
   var ne = b.getNorthEast();
   var sw = b.getSouthWest();
   var data = {
-    desiredNumItems: isFaction ? CHAT_FACTION_ITEMS : CHAT_PUBLIC_ITEMS ,
+//    desiredNumItems: isFaction ? CHAT_FACTION_ITEMS : CHAT_PUBLIC_ITEMS ,
     minLatE6: Math.round(sw.lat*1E6),
     minLngE6: Math.round(sw.lng*1E6),
     maxLatE6: Math.round(ne.lat*1E6),
@@ -141,12 +141,12 @@ window.chat._faction = {data:{}, oldestTimestamp:-1, newestTimestamp:-1};
 window.chat.handleFaction = function(data, olderMsgs) {
   chat._requestFactionRunning = false;
 
-  if(!data || !data.result) {
+  if(!data || !data.success) {
     window.failedRequestCount++;
     return console.warn('faction chat error. Waiting for next auto-refresh.');
   }
 
-  if(data.result.length === 0) return;
+  if(data.success.length === 0) return;
 
   var old = chat._faction.oldestTimestamp;
   chat.writeDataToHash(data, chat._faction, false, olderMsgs);
@@ -156,7 +156,7 @@ window.chat.handleFaction = function(data, olderMsgs) {
 
   window.chat.renderFaction(oldMsgsWereAdded);
 
-  if(data.result.length >= CHAT_FACTION_ITEMS) chat.needMoreMessages();
+  if(data.success.length >= CHAT_FACTION_ITEMS) chat.needMoreMessages();
 }
 
 window.chat.renderFaction = function(oldMsgsWereAdded) {
@@ -191,12 +191,12 @@ window.chat._public = {data:{}, oldestTimestamp:-1, newestTimestamp:-1};
 window.chat.handlePublic = function(data, olderMsgs) {
   chat._requestPublicRunning = false;
 
-  if(!data || !data.result) {
+  if(!data || !data.success) {
     window.failedRequestCount++;
     return console.warn('public chat error. Waiting for next auto-refresh.');
   }
 
-  if(data.result.length === 0) return;
+  if(data.success.length === 0) return;
 
   var old = chat._public.oldestTimestamp;
   chat.writeDataToHash(data, chat._public, true, olderMsgs);
@@ -210,7 +210,7 @@ window.chat.handlePublic = function(data, olderMsgs) {
     case 'full': window.chat.renderFull(oldMsgsWereAdded); break;
   }
 
-  if(data.result.length >= CHAT_PUBLIC_ITEMS) chat.needMoreMessages();
+  if(data.success.length >= CHAT_PUBLIC_ITEMS) chat.needMoreMessages();
 }
 
 window.chat.renderPublic = function(oldMsgsWereAdded) {
@@ -258,7 +258,7 @@ window.chat.nicknameClicked = function(event, nickname) {
 }
 
 window.chat.writeDataToHash = function(newData, storageHash, isPublicChannel, isOlderMsgs) {
-  $.each(newData.result, function(ind, json) {
+  $.each(newData.success, function(ind, json) {
     // avoid duplicates
     if(json[0] in storageHash.data) return true;
 
