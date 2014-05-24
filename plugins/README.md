@@ -27,4 +27,4 @@ If you have external dependencies put them into `external/` and add a version nu
 Available Hooks
 ---------------
 
-Available hooks are documented in the code. Please refer to the [boilerplate explanation in `hooks.js`](https://raw.github.com/jonatkins/ingress-intel-total-conversion/gh-pages/code/hooks.js) to see which are available and how to listen for them. If you need additional hooks, open bug reports (preferably with patches attached).
+Available hooks are documented in the code. Please refer to the [boilerplate explanation in `hooks.js`](https://raw.githubusercontent.com/jonatkins/ingress-intel-total-conversion/master/code/hooks.js) to see which are available and how to listen for them. If you need additional hooks, open bug reports (preferably with patches attached).
