@@ -202,7 +202,6 @@ window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
 
     var inf = 'energy:\t' + nrg   + ' / ' + max + ' (' + Math.round(fillGrade) + '%)\n'
             + 'level:\t'  + level + '\n'
-            + 'distance:\t' + dist  + 'm\n'
             + 'owner:\t'  + nick  + '\n'
             + 'octant:\t' + OCTANTS[slot] + ' ' + OCTANTS_ARROW[slot];
 
