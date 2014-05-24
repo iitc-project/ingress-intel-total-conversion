@@ -138,7 +138,10 @@ window.getModDetails = function(d) {
   for (var i=0; i<mods.length; i++) {
     t += '<span'+(modsTitle[i].length ? ' title="'+modsTitle[i]+'"' : '')+' style="color:'+modsColor[i]+'">'+mods[i]+'</span>'
   }
-
+  // and add blank entries if we have less than 4 mods (as the server no longer returns all mod slots, but just the filled ones)
+  for (var i=mods.length; i<4; i++) {
+    t += '<span style="color:#000"></span>'
+  }
 
   return t;
 }
