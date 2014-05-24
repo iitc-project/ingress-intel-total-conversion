@@ -98,7 +98,7 @@ window.smartphoneInfo = function(data) {
       var reso = details.resonators[i];
       if(reso) {
         l = parseInt(reso.level);
-        v = parseInt(reso.energyTotal);
+        v = parseInt(reso.energy);
         max = RESO_NRG[l];
         perc = v/max*100;
       }

@@ -33,7 +33,7 @@ window.getCurrentPortalEnergy = function(d) {
   var nrg = 0;
   $.each(d.resonators, function(ind, reso) {
     if(!reso) return true;
-    nrg += parseInt(reso.energyTotal);
+    nrg += parseInt(reso.energy);
   });
   return nrg;
 }
@@ -201,11 +201,7 @@ window.fixPortalImageUrl = function(url) {
 window.getPortalModsByType = function(d, type) {
   var mods = [];
 
-  $.each(d.mods || [], function(i,mod) {
-    if (mod && mod.type == type) mods.push(mod);
-  });
-
-  var sortKey = {
+  var typeToStat = {
     RES_SHIELD: 'MITIGATION',
     FORCE_AMP: 'FORCE_AMPLIFIER',
     TURRET: 'HIT_BONUS',  // and/or ATTACK_FREQUENCY??
@@ -214,23 +210,17 @@ window.getPortalModsByType = function(d, type) {
     LINK_AMPLIFIER: 'LINK_RANGE_MULTIPLIER'
   };
 
-  // prefer to sort mods by stat - so if stats change (as they have for shields and turrets) we still put the highest first
-  if (sortKey[type]) {
-    // we have a stat type to sort by
-    var key = sortKey[type];
+  var stat = typeToStat[type];
 
-    mods.sort (function(a,b) {
-      return b.stats[key] - a.stats[key];
-    });
-  } else {
-    // no known stat type - sort by rarity
-    mods.sort (function(a,b) {
-      // rarity values are COMMON, RARE and VERY_RARE. handy, as that's alphabetical order!
-      if (a.rarity < b.rarity) return -1;
-      if (a.rarity > b.rarity) return 1;
-      return 0;
-    });
-  }
+  $.each(d.mods || [], function(i,mod) {
+    if (mod && mod.stats.hasOwnProperty(stat)) mods.push(mod);
+  });
+
+
+  // sorting mods by the stat keeps code simpler, when calculating combined mod effects
+  mods.sort (function(a,b) {
+    return b.stats[stat] - a.stats[stat];
+  });
 
   return mods;
 }

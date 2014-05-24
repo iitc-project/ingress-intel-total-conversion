@@ -132,7 +132,7 @@ window.plugin.guessPlayerLevels.extractPortalData = function(data) {
      Hint: This can only happen to the owner of the portal, so resonators by other players can be used to determine
      their minimal level */
 
-  var owner = data.details.captured && data.details.captured.capturingPlayerId || "";
+  var owner = data.details.owner && data.details.owner || "";
   var ownerModCount = 0;
   data.details.mods.forEach(function(mod) {
     if(mod && mod.installingUser == owner)
@@ -435,7 +435,7 @@ window.plugin.guessPlayerLevels.guess = function() {
       });
 
       if(details.captured) {
-        var nick = details.captured.capturingPlayerId
+        var nick = details.owner;
         if(isSystemPlayer(nick)) return true;
         var lvl = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(nick).min;
         if(!lvl) return true;

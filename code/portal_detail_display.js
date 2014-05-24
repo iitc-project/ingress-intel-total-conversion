@@ -169,15 +169,15 @@ window.getPortalMiscDetails = function(guid,d) {
     function linkExpl(t) { return '<tt title="'+links.outgoing+' links out (8 max)\n'+links.incoming+' links in\n('+(links.outgoing+links.incoming)+' total)">'+t+'</tt>'; }
     var linksText = [linkExpl('links'), linkExpl(links.outgoing+' out / '+links.incoming+' in')];
 
-    var player = d.captured && d.captured.capturingPlayerId
-      ? '<span class="nickname">' + d.captured.capturingPlayerId + '</span>'
+    var player = d.owner
+      ? '<span class="nickname">' + d.owner + '</span>'
       : null;
     var playerText = player ? ['owner', player] : null;
 
-    var time = d.captured
-      ? '<span title="' + unixTimeToDateTimeString(d.captured.capturedTime, false) + '\n'
-                        + formatInterval(Math.floor((Date.now()-d.captured.capturedTime)/1000), 2) + ' ago">'
-        +  unixTimeToString(d.captured.capturedTime) + '</span>'
+    var time = d.capturedTime
+      ? '<span title="' + unixTimeToDateTimeString(d.capturedTime, false) + '\n'
+                        + formatInterval(Math.floor((Date.now()-d.capturedTime)/1000), 2) + ' ago">'
+        +  unixTimeToString(d.capturedTime) + '</span>'
       : null;
     var sinceText  = time ? ['since', time] : null;
 
