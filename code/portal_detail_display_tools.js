@@ -97,8 +97,8 @@ window.getModDetails = function(d) {
       }
 
       modTooltip = modName + '\n';
-      if (mod.installingUser) {
-        modTooltip += 'Installed by: '+ mod.installingUser + '\n';
+      if (mod.owner) {
+        modTooltip += 'Installed by: '+ mod.owner + '\n';
       }
 
       if (mod.stats) {

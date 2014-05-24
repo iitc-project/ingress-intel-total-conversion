@@ -2,7 +2,7 @@
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           IITC plugin: guess player level
 // @category       Info
-// @version        0.5.3.@@DATETIMEVERSION@@
+// @version        0.5.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -135,7 +135,7 @@ window.plugin.guessPlayerLevels.extractPortalData = function(data) {
   var owner = data.details.owner && data.details.owner || "";
   var ownerModCount = 0;
   data.details.mods.forEach(function(mod) {
-    if(mod && mod.installingUser == owner)
+    if(mod && mod.owner == owner)
       ownerModCount++;
   });
 
