@@ -45,14 +45,18 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
 
     var c = 1;
 
-    $(portalLinks.out).each(function () {
-        var portalInfo = window.plugin.showLinkedPortal.getPortalByGuid(this.otherPortalGuid, true);
-        $('#portaldetails').append('<div class="showLinkedPortalLink showLinkedPortalLink' + c + '" id="showLinkedPortalLink_' + c + '" data-guid="' + this.otherPortalGuid + '">' + portalInfo + '</div>');
+    $.each(portalLinks.out, function(index,linkGuid) {
+        // outgoing links - so the other portal is the destination
+        var otherPortalGuid = window.links[linkGuid].options.data.dGuid;
+        var portalInfo = window.plugin.showLinkedPortal.getPortalByGuid(otherPortalGuid, true);
+        $('#portaldetails').append('<div class="showLinkedPortalLink showLinkedPortalLink' + c + '" id="showLinkedPortalLink_' + c + '" data-guid="' + otherPortalGuid + '">' + portalInfo + '</div>');
         c = c + 1;
     });
-    $(portalLinks.in).each(function () {
-        var portalInfo = window.plugin.showLinkedPortal.getPortalByGuid(this.otherPortalGuid, false);
-        $('#portaldetails').append('<div class="showLinkedPortalLink showLinkedPortalLink' + c + '" id="showLinkedPortalLink_' + c + '" data-guid="' + this.otherPortalGuid + '">' + portalInfo + '</div>');
+    $.each(portalLinks.in, function(index,linkGuid) {
+        // incoming link - so the other portal is the origin
+        var otherPortalGuid = window.links[linkGuid].options.data.oGuid;
+        var portalInfo = window.plugin.showLinkedPortal.getPortalByGuid(otherPortalGuid, false);
+        $('#portaldetails').append('<div class="showLinkedPortalLink showLinkedPortalLink' + c + '" id="showLinkedPortalLink_' + c + '" data-guid="' + otherPortalGuid + '">' + portalInfo + '</div>');
         c = c + 1;
     });
 
