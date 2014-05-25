@@ -90,26 +90,34 @@ window.smartphoneInfo = function(data) {
 
   if(details) {
     var l,v,max,perc;
-    for(var i=0;i<8;i++)
+    var eastAnticlockwiseToNorthClockwise = [2,1,0,7,6,5,4,3];
+
+    for(var ind=0;ind<8;ind++)
     {
+      if (details.resonators.length == 8) {
+        var slot = eastAnticlockwiseToNorthClockwise[ind];
+        var reso = details.resonators[slot];
+      } else {
+        var slot = null;
+        var reso = ind < details.resonators.length ? details.resonators[ind] : null;
+      }
+
       var className = TEAM_TO_CSS[getTeam(details)];
-      if(OCTANTS[i] === 'N')
+      if(slot !== null && OCTANTS[slot] === 'N')
         className += ' north'
-      var reso = details.resonators[i];
       if(reso) {
         l = parseInt(reso.level);
         v = parseInt(reso.energy);
         max = RESO_NRG[l];
         perc = v/max*100;
-      }
-      else {
+      } else {
         l = 0;
         v = 0;
         max = 0;
         perc = 0;
       }
 
-      t += '<div class="resonator '+className+'" style="border-top-color: '+COLORS_LVL[l]+';left: '+(100*i/8.0)+'%;">';
+      t += '<div class="resonator '+className+'" style="border-top-color: '+COLORS_LVL[l]+';left: '+(100*ind/8.0)+'%;">';
       t += '<div class="filllevel" style="width:'+perc+'%;"></div>';
       t += '</div>'
     }

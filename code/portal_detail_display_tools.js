@@ -159,27 +159,40 @@ window.getResonatorDetails = function(d) {
   var resoDetails = [];
   // octant=slot: 0=E, 1=NE, 2=N, 3=NW, 4=W, 5=SW, 6=S, SE=7
   // resos in the display should be ordered like this:
-  //   N    NE         Since the view is displayed in columns, they
-  //  NW    E          need to be ordered like this: N, NW, W, SW, NE,
-  //   W    SE         E, SE, S, i.e. 2 3 4 5 1 0 7 6
+  //   N    NE         Since the view is displayed in rows, they
+  //  NW    E          need to be ordered like this: N NE NW E W SE SW S
+  //   W    SE         i.e. 2 1 3 0 4 7 5 6
   //  SW    S
+  // note: as of 2014-05-23 update, this is not true for portals with empty slots!
 
-  $.each([2, 1, 3, 0, 4, 7, 5, 6], function(ind, slot) {
-    var reso = d.resonators[slot];
-    if(!reso) {
-      resoDetails.push(renderResonatorDetails(slot, 0, 0, null, null));
-      return true;
+  var processResonatorSlot = function(reso,slot) {
+    var lvl=0, nrg=0, owner=null;
+
+    if (reso) {
+      lvl = parseInt(reso.level);
+      nrg = parseInt(reso.energy);
+      owner = reso.owner;
     }
 
-    var l = parseInt(reso.level);
-    var v = parseInt(reso.energy);
-    var nick = reso.owner;
-    // if array order and slot order drift apart, at least the octant
-    // naming will still be correct.
-    slot = ind;
+    resoDetails.push(renderResonatorDetails(slot, lvl, nrg, owner));
+  };
 
-    resoDetails.push(renderResonatorDetails(slot, l, v, null, nick));
-  });
+
+  // if all 8 resonators are deployed, we know which is in which slot
+
+  if (d.resonators.length == 8) {
+    // fully deployed - we can make assumptions about deployment slots
+    $.each([2, 1, 3, 0, 4, 7, 5, 6], function(ind, slot) {
+      processResonatorSlot(d.resonators[slot],slot);
+    });
+  } else {
+    // partially deployed portal - we can no longer find out which resonator is in which slot
+    for(var ind=0; ind<8; ind++) {
+      processResonatorSlot(ind < d.resonators.length ? d.resonators[ind] : null, null);
+    }
+
+  }
+
   return '<table id="resodetails">' + genFourColumnTable(resoDetails) + '</table>';
 
 }
@@ -188,33 +201,31 @@ window.getResonatorDetails = function(d) {
 // not work with raw details-hash. Needs digested infos instead:
 // slot: which slot this resonator occupies. Starts with 0 (east) and
 // rotates clockwise. So, last one is 7 (southeast).
-window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
+window.renderResonatorDetails = function(slot, level, nrg, nick) {
   if(OCTANTS[slot] === 'N')
     var className = 'meter north';
   else
     var className = 'meter';
 
-  if(level === 0) {
-    var meter = '<span class="' + className + '" title="octant:\t' + OCTANTS[slot] + ' ' + OCTANTS_ARROW[slot] + '"></span>';
-  } else {
-    var max = RESO_NRG[level];
-    var fillGrade = nrg/max*100;
+  var max = RESO_NRG[level];
+  var fillGrade = level > 0 ? nrg/max*100 : 0;
 
-    var inf = 'energy:\t' + nrg   + ' / ' + max + ' (' + Math.round(fillGrade) + '%)\n'
-            + 'level:\t'  + level + '\n'
-            + 'owner:\t'  + nick  + '\n'
-            + 'octant:\t' + OCTANTS[slot] + ' ' + OCTANTS_ARROW[slot];
+  var inf = (level > 0 ? 'energy:\t' + nrg   + ' / ' + max + ' (' + Math.round(fillGrade) + '%)\n'
+                        +'level:\t'  + level + '\n'
+                        +'owner:\t'  + nick  + '\n'
+                       : '')
+          + (slot !== null ? 'octant:\t' + OCTANTS[slot] + ' ' + OCTANTS_ARROW[slot]:'');
 
-    var style = 'width:'+fillGrade+'%; background:'+COLORS_LVL[level]+';';
+  var style = fillGrade ? 'width:'+fillGrade+'%; background:'+COLORS_LVL[level]+';':'';
 
-    var color = (level < 3 ? "#9900FF" : "#FFFFFF");
+  var color = (level < 3 ? "#9900FF" : "#FFFFFF");
 
-    var lbar = '<span class="meter-level" style="color: ' + color + ';"> L ' + level + ' </span>';
+  var lbar = level > 0 ? '<span class="meter-level" style="color: ' + color + ';"> L ' + level + ' </span>' : '';
 
-    var fill  = '<span style="'+style+'"></span>';
+  var fill  = '<span style="'+style+'"></span>';
 
-    var meter = '<span class="' + className + '" title="'+inf+'">' + fill + lbar + '</span>';
-  }
+  var meter = '<span class="' + className + '" title="'+inf+'">' + fill + lbar + '</span>';
+
   nick = nick ? '<span class="nickname">'+nick+'</span>' : null;
   return [meter, nick || ''];
 }
