@@ -16,6 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class IITC_WebViewClient extends WebViewClient {
 
@@ -57,11 +58,9 @@ public class IITC_WebViewClient extends WebViewClient {
     private void loadScripts(final IITC_WebView view) {
         final List<String> scripts = new LinkedList<String>();
 
-        scripts.add("script" + DOMAIN + "/total-conversion-build.user.js");
-
         // get the plugin preferences
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mIitc);
-        final Map<String, ?> all_prefs = sharedPref.getAll();
+        final TreeMap<String, ?> all_prefs = new TreeMap<String, Object>(sharedPref.getAll());
 
         // iterate through all plugins
         for (final Map.Entry<String, ?> entry : all_prefs.entrySet()) {
@@ -79,6 +78,8 @@ public class IITC_WebViewClient extends WebViewClient {
         if (Integer.parseInt(sharedPref.getString("pref_user_location_mode", "0")) != 0) {
             scripts.add("script" + DOMAIN + "/user-location.user.js");
         }
+
+        scripts.add("script" + DOMAIN + "/total-conversion-build.user.js");
 
         final String js = "(function(){['" + TextUtils.join("','", scripts) + "'].forEach(function(src) {" +
                 "var script = document.createElement('script');script.src = '//'+src;" +

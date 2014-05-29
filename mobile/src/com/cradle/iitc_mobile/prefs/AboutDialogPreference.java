@@ -1,4 +1,4 @@
-package com.cradle.iitc_mobile;
+package com.cradle.iitc_mobile.prefs;
 
 import android.content.Context;
 import android.preference.Preference;
@@ -9,11 +9,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-public class IITC_AboutDialogPreference extends Preference {
+import com.cradle.iitc_mobile.R;
+
+public class AboutDialogPreference extends Preference {
     private String mBuildVersion = "";
     private String mIitcVersion = "";
 
-    public IITC_AboutDialogPreference(Context context, AttributeSet attrs) {
+    public AboutDialogPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 

@@ -1,4 +1,4 @@
-package com.cradle.iitc_mobile;
+package com.cradle.iitc_mobile.prefs;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -6,7 +6,7 @@ import android.view.MenuItem;
 
 import com.cradle.iitc_mobile.fragments.MainSettings;
 
-public class IITC_PreferenceActivity extends Activity {
+public class PreferenceActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

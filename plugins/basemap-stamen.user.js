@@ -52,7 +52,8 @@ window.plugin.mapTileStamen.addLayer = function() {
       layer: layer,
       type: type,
       minZoom: minZoom,
-      maxZoom: maxZoom
+      maxNativeZoom: maxZoom,
+      maxZoom: 21
     });
 
     layerChooser.addBaseLayer(mapLayer,'Stamen '+name);

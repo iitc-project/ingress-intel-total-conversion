@@ -2,7 +2,7 @@
 // @id             iitc-plugin-nokia-ovi-maps
 // @name           IITC plugin: Nokia OVI maps
 // @category       Map Tiles
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -23,20 +23,21 @@ window.plugin.mapNokiaOvi = function() {};
 window.plugin.mapNokiaOvi.setup = function() {
   //the list of styles you'd like to see
   var oviStyles = {
-    'normal.day': "Normal",
-    'normal.day.grey': "Normal (grey)",
-    'normal.day.transit': "Normal (transit)",
-    'satellite.day': "Satellite",
-    'terrain.day': "Terrain",
+    'normal.day': { name: "Normal", type: 'png8' },
+    'normal.day.grey': { name: "Normal (grey)", type: 'png8' },
+    'normal.day.transit': { name: "Normal (transit)", type: 'png8' },
+    'satellite.day': { name: "Satellite", type: 'jpg' },
+    'terrain.day': { name: "Terrain", type: 'png8' } //would jpg be better?
   };
 
 
-  var oviOpt = {attribution: 'Imagery © Nokia OVI', maxZoom: 20};
+  var oviOpt = {attribution: 'Imagery © Nokia OVI', maxNativeZoom: 20, maxZoom: 21};
 
-  $.each(oviStyles, function(key,value) {
-    oviOpt['style'] = key;
-    var oviMap = new L.TileLayer('http://maptile.maps.svc.ovi.com/maptiler/maptile/newest/{style}/{z}/{x}/{y}/256/png8', oviOpt);
-    layerChooser.addBaseLayer(oviMap, 'Nokia OVI '+value);
+  $.each(oviStyles, function(style,data) {
+    oviOpt['style'] = style;
+    oviOpt['type'] = data.type;
+    var oviMap = new L.TileLayer('http://{s}.maptile.maps.svc.ovi.com/maptiler/maptile/newest/{style}/{z}/{x}/{y}/256/{type}', oviOpt);
+    layerChooser.addBaseLayer(oviMap, 'Nokia OVI '+data.name);
   });
 
 };

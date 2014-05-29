@@ -8,7 +8,7 @@
 // given the entity detail data, returns the team the entity belongs
 // to. Uses TEAM_* enum values.
 window.getTeam = function(details) {
-  return teamStringToId(details.controllingTeam.team);
+  return teamStringToId(details.team);
 }
 
 window.teamStringToId = function(teamStr) {

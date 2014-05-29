@@ -5072,10 +5072,35 @@ L.Path = (L.Path.SVG && !window.L_PREFER_CANVAS) || !L.Browser.canvas ? L.Path :
 		return this;
 	},
 
+	onAdd: function (map) {
+		this._map = map;
+
+		if (!this._container) {
+			this._initElements();
+			this._initEvents();
+		}
+
+		this.projectLatlngs();
+		this._updatePath();
+
+		if (this._container) {
+			this._map._pathRoot.appendChild(this._container);
+		}
+
+		this.fire('add');
+
+		map.on({
+			'viewreset': this.projectLatlngs,
+			'moveend': this._updatePath,
+			'canvasredraw': this._updatePath
+		}, this);
+	},
+
 	onRemove: function (map) {
 		map
 		    .off('viewreset', this.projectLatlngs, this)
-		    .off('moveend', this._updatePath, this);
+		    .off('moveend', this._updatePath, this)
+		    .off('canvasredraw', this._updatePath, this);
 
 		if (this.options.clickable) {
 			this._map.off('click', this._onClick, this);
@@ -5089,13 +5114,13 @@ L.Path = (L.Path.SVG && !window.L_PREFER_CANVAS) || !L.Browser.canvas ? L.Path :
 
 	_requestUpdate: function () {
 		if (this._map && !L.Path._updateRequest) {
-			L.Path._updateRequest = L.Util.requestAnimFrame(this._fireMapMoveEnd, this._map);
+			L.Path._updateRequest = L.Util.requestAnimFrame(this._fireCanvasRedraw, this._map);
 		}
 	},
 
-	_fireMapMoveEnd: function () {
+	_fireCanvasRedraw: function () {
 		L.Path._updateRequest = null;
-		this.fire('moveend');
+		this.fire('canvasredraw');
 	},
 
 	_initElements: function () {
@@ -5215,6 +5240,7 @@ L.Map.include((L.Path.SVG && !window.L_PREFER_CANVAS) || !L.Browser.canvas ? {} 
 				this.on('zoomend', this._endPathZoom);
 			}
 			this.on('moveend', this._updateCanvasViewport);
+			this.on('canvasredraw', this._updateCanvasViewport);
 			this._updateCanvasViewport();
 		}
 	},

@@ -2,7 +2,7 @@
 // @id             iitc-plugin-player-tracker@breunigs
 // @name           IITC Plugin: Player tracker
 // @category       Layer
-// @version        0.10.2.@@DATETIMEVERSION@@
+// @version        0.10.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -144,7 +144,7 @@ window.plugin.playerTracker.eventHasLatLng = function(ev, lat, lng) {
 
 window.plugin.playerTracker.processNewData = function(data) {
   var limit = plugin.playerTracker.getLimit();
-  $.each(data.raw.result, function(ind, json) {
+  $.each(data.raw.success, function(ind, json) {
     // skip old data
     if(json[1] < limit) return true;
 
@@ -399,7 +399,9 @@ window.plugin.playerTracker.drawData = function() {
       dashArray: "5,8"
     };
 
-    L.multiPolyline(polyLine, opts).addTo(plugin.playerTracker.drawnTracesEnl);
+    $.each(polyLine,function(ind,poly) {
+      L.polyline(poly, opts).addTo(plugin.playerTracker.drawnTracesEnl);
+    });
   });
   $.each(polyLineByAgeRes, function(i, polyLine) {
     if(polyLine.length === 0) return true;
@@ -412,7 +414,9 @@ window.plugin.playerTracker.drawData = function() {
       dashArray: "5,8"
     };
 
-    L.multiPolyline(polyLine, opts).addTo(plugin.playerTracker.drawnTracesRes);
+    $.each(polyLine, function(ind,poly) {
+      L.polyline(poly, opts).addTo(plugin.playerTracker.drawnTracesRes);
+    });
   });
 }
 

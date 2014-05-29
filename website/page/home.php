@@ -13,16 +13,15 @@ offers many more features. It is available for
 
 <h3>Latest news</h3>
 
-<h4>22nd February 2014</h4>
+<h4>24th May 2014</h4>
 <p>
-IITC 0.16.5 and IITC Mobile 0.10.5 have just been released. This version is required to work with a change made to the
-standard intel site. Also, the following changes have been made:
+And another IITC update, IITC 0.16.12 and IITC Mobile 0.11.0 have just been released, to fix things after the most recent
+update to the standard intel site.
 </p>
-<ul>
-<li>The new Artifacts are now supported</li>
-<li>Bookmarks plugin updated</li>
-<li>Draw tools plugin: markers updated to also support colours</li>
-</ul>
-
+<p>
+Note that Niantich have trimmed down the data a bit more, removing things not used by the standard intel site. In particular,
+we no longer know the resonator deployment distance, the portal address, and the portal description.
+Due to this, the 'show-address' and 'draw-resonators' plugins are no longer available. 
+</p>
 
 <a class="btn btn-default btn-sm" href="?page=news">Older news</a>

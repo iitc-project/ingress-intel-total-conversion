@@ -2,7 +2,7 @@
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           IITC plugin: guess player level
 // @category       Info
-// @version        0.5.1.@@DATETIMEVERSION@@
+// @version        0.5.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -20,6 +20,7 @@
 
 // use own namespace for plugin
 window.plugin.guessPlayerLevels = function() {};
+window.plugin.guessPlayerLevels.BURSTER_RANGES = [0, 42, 48, 58, 72, 90, 112, 138, 168];
 
 // we prepend a hash sign (#) in front of the player name in storage in order to prevent accessing a pre-defined property
 // (like constructor, __defineGetter__, etc.
@@ -83,6 +84,7 @@ window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
 
   var el = $(dom);
   var nick = el.text();
+  if (nick[0] == '@') nick = nick.substring(1);
 
   var details = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(nick);
 
@@ -130,10 +132,10 @@ window.plugin.guessPlayerLevels.extractPortalData = function(data) {
      Hint: This can only happen to the owner of the portal, so resonators by other players can be used to determine
      their minimal level */
 
-  var owner = data.details.captured && data.details.captured.capturingPlayerId || "";
+  var owner = data.details.owner && data.details.owner || "";
   var ownerModCount = 0;
-  data.details.portalV2.linkedModArray.forEach(function(mod) {
-    if(mod && mod.installingUser == owner)
+  data.details.mods.forEach(function(mod) {
+    if(mod && mod.owner == owner)
       ownerModCount++;
   });
 
@@ -142,12 +144,12 @@ window.plugin.guessPlayerLevels.extractPortalData = function(data) {
   $.each(r, function(ind, reso) {
     if(!reso) return true;
 
-    if(!players[reso.ownerGuid]) players[reso.ownerGuid] = [];
+    if(!players[reso.owner]) players[reso.owner] = [];
 
-    if(players[reso.ownerGuid][reso.level] === undefined)
-      players[reso.ownerGuid][reso.level] = 1
+    if(players[reso.owner][reso.level] === undefined)
+      players[reso.owner][reso.level] = 1
     else
-      players[reso.ownerGuid][reso.level]++;
+      players[reso.owner][reso.level]++;
   });
 
   for(nickname in players) {
@@ -178,14 +180,24 @@ window.plugin.guessPlayerLevels.extractPortalData = function(data) {
 }
 
 window.plugin.guessPlayerLevels.extractChatData = function(data) {
-  data.raw.result.forEach(function(msg) {
+  var attackData = {};
+  function addAttackMessage(nick, timestamp, portal) {
+    var details = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(nick);
+    if(details.guessed == 8 || details.min == 8) return; // we wouldn't get better results, so skip the calcula
+    if(!attackData[nick]) attackData[nick] = {};
+    if(!attackData[nick][timestamp]) attackData[nick][timestamp] = [];
+    attackData[nick][timestamp].push(portal);
+  }
+
+  data.raw.success.forEach(function(msg) {
     var plext = msg[2].plext;
+
+    // search for "x deployed an Ly Resonator on z"
     if(plext.plextType == 'SYSTEM_BROADCAST'
     && plext.markup.length==5
     && plext.markup[0][0] == 'PLAYER'
     && plext.markup[1][0] == 'TEXT'
     && plext.markup[1][1].plain == ' deployed an '
-    && plext.markup[2][0] == 'TEXT'
     && plext.markup[2][0] == 'TEXT'
     && plext.markup[3][0] == 'TEXT'
     && plext.markup[3][1].plain == ' Resonator on ') {
@@ -193,8 +205,178 @@ window.plugin.guessPlayerLevels.extractChatData = function(data) {
       var lvl = parseInt(plext.markup[2][1].plain.substr(1));
       window.plugin.guessPlayerLevels.savePlayerLevel(nick, lvl, true);
     }
+
+    // search for "x destroyed an Ly Resonator on z"
+    if(plext.plextType == 'SYSTEM_BROADCAST'
+    && plext.markup.length==5
+    && plext.markup[0][0] == 'PLAYER'
+    && plext.markup[1][0] == 'TEXT'
+    && plext.markup[1][1].plain == ' destroyed an '
+    && plext.markup[2][0] == 'TEXT'
+    && plext.markup[3][0] == 'TEXT'
+    && plext.markup[3][1].plain == ' Resonator on ') {
+      var nick = plext.markup[0][1].plain;
+      var portal = plext.markup[4][1];
+      addAttackMessage(nick, msg[1], portal)
+    }
+
+    // search for "Your Lx Resonator on y was destroyed by z"
+    if(plext.plextType == 'SYSTEM_NARROWCAST'
+    && plext.markup.length==6
+    && plext.markup[0][0] == 'TEXT'
+    && plext.markup[0][1].plain == 'Your '
+    && plext.markup[1][0] == 'TEXT'
+    && plext.markup[2][0] == 'TEXT'
+    && plext.markup[2][1].plain == ' Resonator on '
+    && plext.markup[3][0] == 'PORTAL'
+    && plext.markup[4][0] == 'TEXT'
+    && plext.markup[4][1].plain == ' was destroyed by '
+    && plext.markup[5][0] == 'PLAYER') {
+      var nick = plext.markup[5][1].plain;
+      var portal = plext.markup[3][1];
+      addAttackMessage(nick, msg[1], portal)
+    }
+
+    // search for "Your Portal x neutralized by y"
+    // search for "Your Portal x is under attack by y"
+    if(plext.plextType == 'SYSTEM_NARROWCAST'
+    && plext.markup.length==4
+    && plext.markup[0][0] == 'TEXT'
+    && plext.markup[0][1].plain == 'Your Portal '
+    && plext.markup[1][0] == 'PORTAL'
+    && plext.markup[2][0] == 'TEXT'
+    && (plext.markup[2][1].plain == ' neutralized by ' || plext.markup[2][1].plain == ' is under attack by ')
+    && plext.markup[3][0] == 'PLAYER') {
+      var nick = plext.markup[3][1].plain;
+      var portal = plext.markup[1][1];
+      addAttackMessage(nick, msg[1], portal)
+    }
   });
+
+  for(nick in attackData) {
+    for(timestamp in attackData[nick]) {
+      // remove duplicates
+      var latlngs = [];
+      var portals = {};
+      attackData[nick][timestamp].forEach(function(portal) {
+        if(portals.hasOwnProperty(portal.guid))
+          return;
+        portals[portal.guid] = 1;
+        latlngs.push({x: portal.lngE6/1E6, y:portal.latE6/1E6});
+      });
+      if(latlngs.length < 2) // we need at least 2 portals to calculate burster range
+        continue;
+
+      window.plugin.guessPlayerLevels.handleAttackData(nick, latlngs);
+    }
+  }
 };
+
+window.plugin.guessPlayerLevels.handleAttackData = function(nick, latlngs) {
+  /*
+    This is basically the smallest enclosing circle problem. The algorithm is for points on a plane, but for our ranges
+    (X8 has 168m) this should work.
+    http://www.cs.uu.nl/docs/vakken/ga/slides4b.pdf
+    http://nayuki.eigenstate.org/page/smallest-enclosing-circle
+    http://everything2.com/title/Circumcenter
+  */
+  var circle = {
+    x: latlngs[0].x,
+    y: latlngs[0].y,
+    radius: 0
+  };
+  for(var i=1; i<latlngs.length; i++) {
+    var latlng = latlngs[i];
+    if(!window.plugin.guessPlayerLevels.isPointInCircle(latlng, circle))
+      circle = window.plugin.guessPlayerLevels.calculateCircleWithAnchor(latlngs.slice(0, i + 1), latlng);
+  }
+
+  // circle.range is useless, because it is calculated in degrees (simplified algorithm!)
+  var latlng = L.latLng(circle.y, circle.x);
+  var range = 0;
+  for(var i=0; i<latlngs.length; i++) {
+    var d = latlng.distanceTo([latlngs[i].y, latlngs[i].x]);
+    if(d > range)
+      range = d;
+  }
+
+  // In earlier versions, the algorithm failed. Should be fixed now, but just to be sure, we ignore escalating values...
+  if(circle.x == 0 || circle.y == 0 || range > 1000) {
+    console.warn("ignoring attack data: ", nick, latlngs, circle, range);
+    return;
+  }
+
+  var burster = window.plugin.guessPlayerLevels.BURSTER_RANGES;
+  for(var i=1; i<burster.length; i++) {
+    if(range > burster[i]) {
+      window.plugin.guessPlayerLevels.savePlayerLevel(nick, Math.min(i+1, MAX_PORTAL_LEVEL), false);
+    }
+  }
+
+  //L.circle(latlng, range, {
+  //  weight:1,
+  //  title: nick + ", " + range + "m"
+  //}).addTo(map);
+}
+
+window.plugin.guessPlayerLevels.calculateCircleWithAnchor = function(latlngs, anchor) {
+  var circle = {
+    x: anchor.x,
+    y: anchor.y,
+    radius: 0
+  };
+  for(var i=0; i<latlngs.length; i++) {
+    var p = latlngs[i];
+    if(!window.plugin.guessPlayerLevels.isPointInCircle(p, circle)) {
+      if(circle.radius == 0) // for the first two points
+        circle = window.plugin.guessPlayerLevels.calculateCircleFromBisector(p, anchor);
+      else
+        circle = window.plugin.guessPlayerLevels.calculateCircleWithAnchors(latlngs.slice(0, i + 1), anchor, p);
+    }
+  }
+  return circle;
+}
+
+window.plugin.guessPlayerLevels.calculateCircleWithAnchors = function(latlngs, a, b) {
+  var circle = window.plugin.guessPlayerLevels.calculateCircleFromBisector(a, b);
+  for(var i=0; i<latlngs.length; i++) {
+    var c = latlngs[i];
+    if(!window.plugin.guessPlayerLevels.isPointInCircle(c, circle)) {
+      var dA = a.x*a.x + a.y*a.y;
+      var dB = b.x*b.x + b.y*b.y;
+      var dC = c.x*c.x + c.y*c.y;
+
+      circle.x =  (dA*(c.y-b.y) + dB*(a.y-c.y) + dC*(b.y-a.y)) / (2*(a.x*(c.y-b.y) + b.x*(a.y-c.y) + c.x*(b.y-a.y)));
+      circle.y = -(dA*(c.x-b.x) + dB*(a.x-c.x) + dC*(b.x-a.x)) / (2*(a.x*(c.y-b.y) + b.x*(a.y-c.y) + c.x*(b.y-a.y)));
+
+      circle.radius = Math.max(
+        window.plugin.guessPlayerLevels.getDistance(a, circle),
+        window.plugin.guessPlayerLevels.getDistance(b, circle),
+        window.plugin.guessPlayerLevels.getDistance(c, circle)
+      );
+    }
+  }
+  return circle;
+}
+
+window.plugin.guessPlayerLevels.calculateCircleFromBisector = function(p, q) {
+  return {
+    x: (p.x + q.x) / 2,
+    y: (p.y + q.y) / 2,
+    radius: window.plugin.guessPlayerLevels.getDistance(p, q) / 2
+  };
+}
+
+window.plugin.guessPlayerLevels.isPointInCircle = function(point, circle) {
+  var d = window.plugin.guessPlayerLevels.getDistance(point, circle);
+  return (d - 1E-10) <= circle.radius; // subtract a small epsilon to return true even if point is on the edge
+}
+
+window.plugin.guessPlayerLevels.getDistance = function(a, b) {
+  var dx = a.x - b.x;
+  var dy = a.y - b.y;
+  return Math.sqrt(dx*dx + dy*dy);
+}
 
 window.plugin.guessPlayerLevels.savePlayerLevel = function(nick, level, certain) {
   var cache = window.plugin.guessPlayerLevels._loadLevels();
@@ -240,7 +422,7 @@ window.plugin.guessPlayerLevels.guess = function() {
       var r = details.resonatorArray.resonators;
       $.each(r, function(ind, reso) {
         if(!reso) return true;
-        var nick = reso.ownerGuid;
+        var nick = reso.owner;
         if(isSystemPlayer(nick)) return true;
 
         var lvl = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(nick).min;
@@ -253,7 +435,7 @@ window.plugin.guessPlayerLevels.guess = function() {
       });
 
       if(details.captured) {
-        var nick = details.captured.capturingPlayerId
+        var nick = details.owner;
         if(isSystemPlayer(nick)) return true;
         var lvl = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(nick).min;
         if(!lvl) return true;

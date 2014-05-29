@@ -2,7 +2,7 @@
 // @id             iitc-plugin-basemap-openstreetpam@jonatkins
 // @name           IITC plugin: OpenStreetMap.org map tiles
 // @category       Map Tiles
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -28,7 +28,7 @@ window.plugin.mapTileOpenStreetMap.addLayer = function() {
   // "Heavy use (e.g. distributing an app that uses tiles from openstreetmap.org) is forbidden without prior permission from the System Administrators"
 
   osmAttribution = 'Map data © OpenStreetMap contributors';
-  var osmOpt = {attribution: osmAttribution, maxZoom: 18};
+  var osmOpt = {attribution: osmAttribution, maxNativeZoom: 18, maxZoom: 21};
   var osm = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', osmOpt);
 
   layerChooser.addBaseLayer(osm, "OpenStreetMap");

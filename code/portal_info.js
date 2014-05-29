@@ -7,7 +7,7 @@
 window.getPortalLevel = function(d) {
   var lvl = 0;
   var hasReso = false;
-  $.each(d.resonatorArray.resonators, function(ind, reso) {
+  $.each(d.resonators, function(ind, reso) {
     if(!reso) return true;
     lvl += parseInt(reso.level);
     hasReso = true;
@@ -17,7 +17,7 @@ window.getPortalLevel = function(d) {
 
 window.getTotalPortalEnergy = function(d) {
   var nrg = 0;
-  $.each(d.resonatorArray.resonators, function(ind, reso) {
+  $.each(d.resonators, function(ind, reso) {
     if(!reso) return true;
     var level = parseInt(reso.level);
     var max = RESO_NRG[level];
@@ -31,9 +31,9 @@ window.getPortalEnergy = window.getTotalPortalEnergy;
 
 window.getCurrentPortalEnergy = function(d) {
   var nrg = 0;
-  $.each(d.resonatorArray.resonators, function(ind, reso) {
+  $.each(d.resonators, function(ind, reso) {
     if(!reso) return true;
-    nrg += parseInt(reso.energyTotal);
+    nrg += parseInt(reso.energy);
   });
   return nrg;
 }
@@ -44,7 +44,7 @@ window.getPortalRange = function(d) {
 
   var lvl = 0;
   var resoMissing = false;
-  $.each(d.resonatorArray.resonators, function(ind, reso) {
+  $.each(d.resonators, function(ind, reso) {
     if(!reso) {
       resoMissing = true;
       return;
@@ -88,19 +88,7 @@ window.getLinkAmpRangeBoost = function(d) {
 }
 
 
-window.getAvgResoDist = function(d) {
-  var sum = 0, resos = 0;
-  $.each(d.resonatorArray.resonators, function(ind, reso) {
-    if(!reso) return true;
-    var resDist = parseInt(reso.distanceToPortal);
-    if (resDist == 0) resDist = 0.01; // set a non-zero but very small distance for zero deployment distance. allows the return value to distinguish between zero deployment distance average and zero resonators
-    sum += resDist;
-    resos++;
-  });
-  return resos ? sum/resos : 0;
-}
-
-window.getAttackApGain = function(d,fieldCount) {
+window.getAttackApGain = function(d,fieldCount,linkCount) {
   if (!fieldCount) fieldCount = 0;
 
   var resoCount = 0;
@@ -110,13 +98,12 @@ window.getAttackApGain = function(d,fieldCount) {
   for(var n = PLAYER.level + 1; n < 9; n++) {
     maxResonators[n] = 0;
   }
-  $.each(d.resonatorArray.resonators, function(ind, reso) {
+  $.each(d.resonators, function(ind, reso) {
     if(!reso)
       return true;
     resoCount += 1;
     var reslevel=parseInt(reso.level);
-    // NOTE: reso.ownerGuid is actually the name - no player GUIDs are visible in the protocol any more
-    if(reso.ownerGuid === PLAYER.nickname) {
+    if(reso.owner === PLAYER.nickname) {
       if(maxResonators[reslevel] > 0) {
         maxResonators[reslevel] -= 1;
       }
@@ -124,8 +111,6 @@ window.getAttackApGain = function(d,fieldCount) {
       curResonators[reslevel] += 1;
     }
   });
-
-  var linkCount = d.portalV2.linkedEdges ? d.portalV2.linkedEdges.length : 0;
 
 
   var resoAp = resoCount * DESTROY_RESONATOR;
@@ -162,8 +147,8 @@ window.potentialPortalLevel = function(d) {
   var current_level = getPortalLevel(d);
   var potential_level = current_level;
   
-  if(PLAYER.team === d.controllingTeam.team) {
-    var resonators_on_portal = d.resonatorArray.resonators;
+  if(PLAYER.team === d.team) {
+    var resonators_on_portal = d.resonators;
     var resonator_levels = new Array();
     // figure out how many of each of these resonators can be placed by the player
     var player_resontators = new Array();
@@ -171,8 +156,7 @@ window.potentialPortalLevel = function(d) {
       player_resontators[i] = i > PLAYER.level ? 0 : MAX_RESO_PER_PLAYER[i];
     }
     $.each(resonators_on_portal, function(ind, reso) {
-      // NOTE: reso.ownerGuid is actually the player name - GUIDs are not in the protocol any more
-      if(reso !== null && reso.ownerGuid === window.PLAYER.nickname) {
+      if(reso !== null && reso.owner === window.PLAYER.nickname) {
         player_resontators[reso.level]--;
       }
       resonator_levels.push(reso === null ? 0 : reso.level);  
@@ -217,11 +201,7 @@ window.fixPortalImageUrl = function(url) {
 window.getPortalModsByType = function(d, type) {
   var mods = [];
 
-  $.each(d.portalV2.linkedModArray || [], function(i,mod) {
-    if (mod && mod.type == type) mods.push(mod);
-  });
-
-  var sortKey = {
+  var typeToStat = {
     RES_SHIELD: 'MITIGATION',
     FORCE_AMP: 'FORCE_AMPLIFIER',
     TURRET: 'HIT_BONUS',  // and/or ATTACK_FREQUENCY??
@@ -230,23 +210,17 @@ window.getPortalModsByType = function(d, type) {
     LINK_AMPLIFIER: 'LINK_RANGE_MULTIPLIER'
   };
 
-  // prefer to sort mods by stat - so if stats change (as they have for shields and turrets) we still put the highest first
-  if (sortKey[type]) {
-    // we have a stat type to sort by
-    var key = sortKey[type];
+  var stat = typeToStat[type];
 
-    mods.sort (function(a,b) {
-      return b.stats[key] - a.stats[key];
-    });
-  } else {
-    // no known stat type - sort by rarity
-    mods.sort (function(a,b) {
-      // rarity values are COMMON, RARE and VERY_RARE. handy, as that's alphabetical order!
-      if (a.rarity < b.rarity) return -1;
-      if (a.rarity > b.rarity) return 1;
-      return 0;
-    });
-  }
+  $.each(d.mods || [], function(i,mod) {
+    if (mod && mod.stats.hasOwnProperty(stat)) mods.push(mod);
+  });
+
+
+  // sorting mods by the stat keeps code simpler, when calculating combined mod effects
+  mods.sort (function(a,b) {
+    return b.stats[stat] - a.stats[stat];
+  });
 
   return mods;
 }
@@ -264,16 +238,15 @@ window.getPortalShieldMitigation = function(d) {
   return mitigation;
 }
 
-window.getPortalLinksMitigation = function(d) {
-  var links = (d.portalV2.linkedEdges||[]).length;
-  var mitigation = Math.round(400/9*Math.atan(links/Math.E));
+window.getPortalLinksMitigation = function(linkCount) {
+  var mitigation = Math.round(400/9*Math.atan(linkCount/Math.E));
   return mitigation;
 }
 
-window.getPortalMitigationDetails = function(d) {
+window.getPortalMitigationDetails = function(d,linkCount) {
   var mitigation = {
     shields: getPortalShieldMitigation(d),
-    links: getPortalLinksMitigation(d)
+    links: getPortalLinksMitigation(linkCount)
   };
 
   // mitigation is limited to 95% (as confirmed by Brandon Badger on G+)
@@ -314,11 +287,13 @@ window.getPortalHackDetails = function(d) {
 window.getPortalSummaryData = function(d) {
 
   // NOTE: the summary data reports unclaimed portals as level 1 - not zero as elsewhere in IITC
-  var level = d.controllingTeam.team == "NEUTRAL" ? 1 : parseInt(getPortalLevel(d));
+  var level = parseInt(getPortalLevel(d));
+  if (level == 0) level = 1; //niantic returns neutral portals as level 1, not 0 as used throughout IITC elsewhere
+
   var resCount = 0;
-  if (d.resonatorArray && d.resonatorArray.resonators) {
-    for (var x in d.resonatorArray.resonators) {
-      if (d.resonatorArray.resonators[x]) resCount++;
+  if (d.resonators) {
+    for (var x in d.resonators) {
+      if (d.resonators[x]) resCount++;
     }
   }
   var maxEnergy = getTotalPortalEnergy(d);
@@ -327,13 +302,13 @@ window.getPortalSummaryData = function(d) {
 
   return {
     level: level,
-    title: d.descriptiveText.map.TITLE,
-    image: d.imageByUrl && d.imageByUrl.imageUrl,
+    title: d.title,
+    image: d.image,
     resCount: resCount,
-    latE6: d.locationE6.latE6,
+    latE6: d.latE6,
     health: health,
-    team: d.controllingTeam.team,
-    lngE6: d.locationE6.lngE6,
+    team: d.team,
+    lngE6: d.lngE6,
     type: 'portal'
   };
 }

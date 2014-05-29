@@ -66,10 +66,13 @@ window.plugin.userLocation.setup = function() {
 };
 
 window.plugin.userLocation.onZoomEnd = function() {
-  if(window.map.getZoom() < 16)
-    window.plugin.userLocation.locationLayer.removeLayer(window.plugin.userLocation.circle);
-  else
-    window.plugin.userLocation.locationLayer.addLayer(window.plugin.userLocation.circle);
+  if(window.map.getZoom() < 16 || L.Path.CANVAS) {
+    if (window.plugin.userLocation.locationLayer.hasLayer(window.plugin.userLocation.circle))
+      window.plugin.userLocation.locationLayer.removeLayer(window.plugin.userLocation.circle);
+  } else {
+    if (!window.plugin.userLocation.locationLayer.hasLayer(window.plugin.userLocation.circle))
+      window.plugin.userLocation.locationLayer.addLayer(window.plugin.userLocation.circle);
+  }
 };
 
 window.plugin.userLocation.locate = function(lat, lng, accuracy) {

@@ -61,7 +61,7 @@ window.findPortalLatLng = function(guid) {
   // not found in portals - try the cached (and possibly stale) details - good enough for location
   var details = portalDetail.get(guid);
   if (details) {
-    return L.latLng (details.locationE6.latE6/1E6, details.locationE6.lngE6/1E6);
+    return L.latLng (details.latE6/1E6, details.lngE6/1E6);
   }
 
   // now try searching through fields

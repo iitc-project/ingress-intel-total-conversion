@@ -40,7 +40,7 @@ window.renderPortalDetails = function(guid) {
   var statusDetails = details ? '' : '<div id="portalStatus">Loading details...</div>';
  
 
-  var img = fixPortalImageUrl(details ? details.imageByUrl && details.imageByUrl.imageUrl : data.image);
+  var img = fixPortalImageUrl(details ? details.image : data.image);
   var title = data.title;
 
   var lat = data.latE6/1E6;
@@ -163,29 +163,29 @@ window.getPortalMiscDetails = function(guid,d) {
   if (d) {
 
     // collect some random data that’s not worth to put in an own method
-    var links = {incoming: 0, outgoing: 0};
-    $.each(d.portalV2.linkedEdges||[], function(ind, link) {
-      links[link.isOrigin ? 'outgoing' : 'incoming']++;
-    });
+    var linkInfo = getPortalLinks(guid);
+    var links = {incoming: linkInfo.in.length, outgoing: linkInfo.out.length};
 
-    function linkExpl(t) { return '<tt title="↳ incoming links\n↴ outgoing links\n• is the portal">'+t+'</tt>'; }
-    var linksText = [linkExpl('links'), linkExpl(' ↳ ' + links.incoming+'&nbsp;&nbsp;•&nbsp;&nbsp;'+links.outgoing+' ↴')];
+    function linkExpl(t) { return '<tt title="'+links.outgoing+' links out (8 max)\n'+links.incoming+' links in\n('+(links.outgoing+links.incoming)+' total)">'+t+'</tt>'; }
+    var linksText = [linkExpl('links'), linkExpl(links.outgoing+' out / '+links.incoming+' in')];
 
-    var player = d.captured && d.captured.capturingPlayerId
-      ? '<span class="nickname">' + d.captured.capturingPlayerId + '</span>'
+    var player = d.owner
+      ? '<span class="nickname">' + d.owner + '</span>'
       : null;
     var playerText = player ? ['owner', player] : null;
 
-    var time = d.captured
-      ? '<span title="' + unixTimeToDateTimeString(d.captured.capturedTime, false) + '\n'
-                        + formatInterval(Math.floor((Date.now()-d.captured.capturedTime)/1000), 2) + ' ago">'
-        +  unixTimeToString(d.captured.capturedTime) + '</span>'
+    var time = d.capturedTime
+      ? '<span title="' + unixTimeToDateTimeString(d.capturedTime, false) + '\n'
+                        + formatInterval(Math.floor((Date.now()-d.capturedTime)/1000), 2) + ' ago">'
+        +  unixTimeToString(d.capturedTime) + '</span>'
       : null;
     var sinceText  = time ? ['since', time] : null;
 
     var fieldCount = getPortalFieldsCount(guid);
 
     var linkedFields = ['fields', fieldCount];
+
+    var linkCount = getPortalLinksCount(guid);
 
     // collect and html-ify random data
     var randDetailsData = [];
@@ -195,9 +195,9 @@ window.getPortalMiscDetails = function(guid,d) {
 
     randDetailsData.push (
       getRangeText(d), getEnergyText(d),
-      linksText, getAvgResoDistText(d),
-      linkedFields, getAttackApGainText(d,fieldCount),
-      getHackDetailsText(d), getMitigationText(d)
+      linksText, ['-','-'],
+      linkedFields, getAttackApGainText(d,fieldCount,linkCount),
+      getHackDetailsText(d), getMitigationText(d,linkCount)
     );
 
     // artifact details

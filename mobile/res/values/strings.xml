@@ -130,6 +130,13 @@
         Note: If just want to use the desktop mode use the \'force desktop mode\' setting</string>
     <string name="pref_android_menu">Configure IITCm menu</string>
     <string name="pref_android_menu_sum">Toggle visibility of IITCm menu entries</string>
+    <string name="pref_update_plugins_cat">User plugin updates</string>
+    <string name="pref_update_plugins_interval">Configure plugin update interval</string>
+    <string name="pref_update_plugins_interval_sum">How often IITCm should search for new plugin versions</string>
+    <string name="pref_force_plugin_update">Force plugin update</string>
+    <string name="pref_force_plugin_update_sum">Update all enabled user plugins</string>
+    <string name="pref_secure_updates">Require secure updates</string>
+    <string name="pref_secure_updates_sum">If enabled, only https updates are handled</string>
 
     <string-array name="pref_hide_fullscreen">
         <item>System Bar</item>
@@ -176,6 +183,22 @@
         <item>0</item>
         <item>1</item>
         <item>2</item>
+    </string-array>
+
+    <string-array name="pref_update_plugins_interval_titles">
+        <item>Disable</item>
+        <item>1 day</item>
+        <item>2 days</item>
+        <item>1 week</item>
+        <item>2 weeks</item>
+    </string-array>
+
+    <string-array name="pref_update_plugins_interval_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>7</item>
+        <item>14</item>
     </string-array>
 
     <string name="menu_reload">Reload IITC</string>
