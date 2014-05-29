@@ -2,7 +2,7 @@
 // @id             iitc-plugin-basemap-opencyclepam@jonatkins
 // @name           IITC plugin: OpenCycleMap.org map tiles
 // @category       Map Tiles
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -27,7 +27,7 @@ window.plugin.mapTileOpenCycleMap.addLayer = function() {
   //the Thunderforest (OpenCycleMap) tiles are free to use - http://www.thunderforest.com/terms/
 
   osmAttribution = 'Map data © OpenStreetMap';
-  var ocmOpt = {attribution: 'Tiles © OpenCycleMap, '+osmAttribution, maxZoom: 18};
+  var ocmOpt = {attribution: 'Tiles © OpenCycleMap, '+osmAttribution, maxNativeZoom: 18, maxZoom: 21};
   var ocmCycle = new L.TileLayer('http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png', ocmOpt);
   var ocmTransport = new L.TileLayer('http://{s}.tile2.opencyclemap.org/transport/{z}/{x}/{y}.png', ocmOpt);
   var ocmLandscape = new L.TileLayer('http://{s}.tile3.opencyclemap.org/landscape/{z}/{x}/{y}.png', ocmOpt);

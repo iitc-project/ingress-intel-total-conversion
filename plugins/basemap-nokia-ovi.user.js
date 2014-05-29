@@ -2,7 +2,7 @@
 // @id             iitc-plugin-nokia-ovi-maps
 // @name           IITC plugin: Nokia OVI maps
 // @category       Map Tiles
-// @version        0.1.1.@@DATETIMEVERSION@@
+// @version        0.1.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -31,7 +31,7 @@ window.plugin.mapNokiaOvi.setup = function() {
   };
 
 
-  var oviOpt = {attribution: 'Imagery © Nokia OVI', maxZoom: 20};
+  var oviOpt = {attribution: 'Imagery © Nokia OVI', maxNativeZoom: 20, maxZoom: 21};
 
   $.each(oviStyles, function(style,data) {
     oviOpt['style'] = style;
