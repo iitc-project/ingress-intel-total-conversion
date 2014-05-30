@@ -140,19 +140,13 @@ window.digits = function(d) {
 // error: see above. Additionally it is logged if the request failed.
 window.postAjax = function(action, data, success, error) {
 
-  var methodName = 'dashboard.'+action;
-  var versionStr = 'version_parameter';
+  var versionStr = nemesis.dashboard.config.CURRENT_VERSION;
+  var post_data = JSON.stringify($.extend({}, data, {v: versionStr}));
 
-  // munging of the method name - seen in Set 2 onwards
-  methodName = mungeOneString(methodName);
-  // and of the 'version' parameter (we assume it's a version - if missing/wrong that's what the error refers to)
-  versionStr = mungeOneString(versionStr);
-
-  var post_data = JSON.stringify(window.requestDataMunge($.extend({}, data, {method: methodName, version: versionStr})));
   var remove = function(data, textStatus, jqXHR) { window.requests.remove(jqXHR); };
   var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
   var result = $.ajax({
-    url: '/r/'+methodName,
+    url: '/r/'+action,
     type: 'POST',
     data: post_data,
     context: data,

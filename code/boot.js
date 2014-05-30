@@ -640,17 +640,6 @@ function boot() {
   window.iitcLoaded = true;
   window.runHooks('iitcLoaded');
 
-  if (!haveDetectedMungeSet()) {
-    dialog({
-      title:'IITC unavailable',
-      html:'<p>IITC failed to detect the appropriate network protocol "munge" parameters from the standard intel site. '
-          +'This can happen when Niantic make changes to the standard intel site.</p>'
-          +'<p>The IITC developers are made aware of these problems and will be working on a fix. Please see the following for news/updates.</p>'
-          +'<ul><li><a href="http://iitc.jonatkins.com/" target="_blank">IITC Home Page</a></li>'
-          +'<li><a href="https://plus.google.com/105383756361375410867/posts" target="_blank">IITC G+ Page</a></li>'
-          +'<li><a href="https://plus.google.com/communities/105647403088015055797" target="_blank">IITC G+ Community</a></li></ol>'
-    });
-  }
 
   if (typeof android !== 'undefined' && android && android.bootFinished) {
     android.bootFinished();
