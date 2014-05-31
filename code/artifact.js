@@ -35,7 +35,7 @@ window.artifact.requestData = function() {
   if (isIdle()) {
     artifact.idle = true;
   } else {
-    window.postAjax('getArtifactInfo', {}, artifact.handleSuccess, artifact.handleError);
+    window.postAjax('artifacts', {}, artifact.handleSuccess, artifact.handleError);
   }
 }
 
