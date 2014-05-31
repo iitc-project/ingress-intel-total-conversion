@@ -28,7 +28,62 @@ function wrapper(plugin_info) {
     
     // PLUGIN START //
 
-	
+	   
+    // use own namespace for plugin
+    window.plugin.scoreboard = function() {};
+    
+    
+    
+    
+    
+    //gets data of all the visible portals on the screen
+    window.plugin.scoreboard.getPortals = function() {
+        
+        var retval=false;
+        
+        var displayBounds = map.getBounds();
+        
+        
+        window.plugin.scoreboard.enlP = 0;
+        window.plugin.scoreboard.resP = 0;
+        window.plugin.scoreboard.enlPorLevels = 0;
+        window.plugin.scoreboard.resPorLevels = 0;
+           
+        
+        
+        
+        $.each(window.portals, function(i, portal) {
+            // eliminate offscreen portals (selected, and in padding)
+            if(!displayBounds.contains(portal.getLatLng())) return true;
+            
+            retval=true;
+            var d = portal.options.data;
+            var teamN = portal.options.team;
+            
+            switch (teamN) {   
+                case TEAM_RES:
+                    
+                    window.plugin.scoreboard.resP++;
+                    window.plugin.scoreboard.resPorLevels = window.plugin.scoreboard.resPorLevels + portal.options.level;
+                    
+                    break;
+                case TEAM_ENL:
+                    
+                    window.plugin.scoreboard.enlP++;
+                    window.plugin.scoreboard.enlPorLevels = window.plugin.scoreboard.enlPorLevels + portal.options.level;
+                    
+                    break;
+            }
+            
+            
+            
+            
+            
+            
+        });
+        
+        return retval;
+    } 
 	
 	
 	var setup =  function() {
