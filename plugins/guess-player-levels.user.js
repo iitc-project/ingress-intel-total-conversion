@@ -2,7 +2,7 @@
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           IITC plugin: guess player level
 // @category       Info
-// @version        0.5.3.@@DATETIMEVERSION@@
+// @version        0.5.5.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -121,9 +121,9 @@ window.plugin.guessPlayerLevels.setupChatNickHelper = function() {
 }
 
 window.plugin.guessPlayerLevels.extractPortalData = function(data) {
-  if(!data.success || !data.details.portalV2) return;
+  if(!data.success) return;
 
-  var r = data.details.resonatorArray.resonators;
+  var r = data.details.resonators;
 
   /* Due to the Jarvis Virus/ADA Refactor it's possible for a player to own resonators on a portal at a higher level
      than the player themselves. It is not possible to detect for sure when this has happened, but in many cases it will
@@ -135,7 +135,7 @@ window.plugin.guessPlayerLevels.extractPortalData = function(data) {
   var owner = data.details.owner && data.details.owner || "";
   var ownerModCount = 0;
   data.details.mods.forEach(function(mod) {
-    if(mod && mod.installingUser == owner)
+    if(mod && mod.owner == owner)
       ownerModCount++;
   });
 
@@ -419,7 +419,7 @@ window.plugin.guessPlayerLevels.guess = function() {
   $.each(window.portals, function(guid,p) {
     var details = portalDetail.get(guid);
     if(details) {
-      var r = details.resonatorArray.resonators;
+      var r = details.resonators;
       $.each(r, function(ind, reso) {
         if(!reso) return true;
         var nick = reso.owner;

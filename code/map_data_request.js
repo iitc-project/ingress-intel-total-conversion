@@ -394,14 +394,14 @@ window.MapDataRequest.prototype.sendTileRequest = function(tiles) {
     }
   }
 
-  var data = { quadKeys: tilesList };
+  var data = { tileKeys: tilesList };
 
   this.activeRequestCount += 1;
 
   var savedThis = this;
 
   // NOTE: don't add the request with window.request.add, as we don't want the abort handling to apply to map data any more
-  window.postAjax('getThinnedEntities', data, 
+  window.postAjax('getEntities', data, 
     function(data, textStatus, jqXHR) { savedThis.handleResponse (data, tiles, true); },  // request successful callback
     function() { savedThis.handleResponse (undefined, tiles, false); }  // request failed callback
   );
