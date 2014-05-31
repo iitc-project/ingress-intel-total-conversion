@@ -1,5 +1,21 @@
 <h2>News</h2>
 
+<h4>31st May 2014</h4>
+<p>
+Another critical update, due to more changes by Niantic. Hopefully the last one for a while - all recent breaking changes
+were caused by Niantic removing the obsfucation of data requests one bit at a time - the final piece has been removed now.
+<p>
+<p>
+<b>Lost bookmarks? Drawn items?<b> In the latest Niantic site update they changed the server to always go to the
+<code>http<b>s</b></code> version. It is possible to copy your data to the new location - further details
+<i>coming soon</i>
+</p>
+<p>
+Additionally, a few bugs were fixed since the previous release, and now most map layers support zooming in closer than before.
+<b>Note</b>: There can be issues on Chrome when zooming beyond zoom level 18 (the previous default maximum for several maps).
+Just zoom out again if the zoom/layer controls, or the COMM panel, disappear.
+</p>
+
 <h4>24th May 2014</h4>
 <p>
 And another IITC update, IITC 0.16.12 and IITC Mobile 0.11.0 have just been released, to fix things after the most recent
