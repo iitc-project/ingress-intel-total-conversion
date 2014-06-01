@@ -2,7 +2,7 @@
 // @id             iitc-plugin-draw-tools@breunigs
 // @name           IITC plugin: draw tools
 // @category       Layer
-// @version        0.6.0.@@DATETIMEVERSION@@
+// @version        0.6.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -194,7 +194,6 @@ window.plugin.drawTools.save = function() {
   var data = [];
 
   window.plugin.drawTools.drawnItems.eachLayer( function(layer) {
-    console.log(layer);
     var item = {};
     if (layer instanceof L.GeodesicCircle || layer instanceof L.Circle) {
       item.type = 'circle';
