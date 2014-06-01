@@ -44,12 +44,16 @@ window.getPortalRange = function(d) {
 
   var lvl = 0;
   var resoMissing = false;
+  // currently we get a short resonator array when some are missing
+  if (d.resonators.length < 8) {
+    resoMissing = true;
+  }
+  // but in the past we used to always get an array of 8, but will 'null' objects for some entries. maybe that will return?
   $.each(d.resonators, function(ind, reso) {
     if(!reso) {
       resoMissing = true;
       return;
     }
-    lvl += parseInt(reso.level);
   });
 
   var range = {
