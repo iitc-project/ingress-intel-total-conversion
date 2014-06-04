@@ -42,7 +42,7 @@ function wrapper(plugin_info) {
         
         var displayBounds = map.getBounds();
         
-        //variable declaration and set to zero
+        
         window.plugin.scoreboard.enlP = 0;
         window.plugin.scoreboard.resP = 0;
         window.plugin.scoreboard.enlEightLevelP = 0;
@@ -55,7 +55,7 @@ function wrapper(plugin_info) {
         window.plugin.scoreboard.healthRes = 0;   
         
         
-        //get all portals on screen
+         //get all portals on screen
         $.each(window.portals, function(i, portal) {
             // eliminate offscreen portals (selected, and in padding)
             if(!displayBounds.contains(portal.getLatLng())) return true;
@@ -64,18 +64,19 @@ function wrapper(plugin_info) {
 			
 			//variable that contains portal data
             var d = portal.options.data;
+			
 			//variable that contains each portal's team value
             var teamN = portal.options.team;
             
             switch (teamN) {   
-                case TEAM_RES:   //if the portal is captured by the resistance,increase each counter's value for resistance counters
+                case TEAM_RES:  //if the portal is captured by the resistance,increase each counter's value for resistance counters
                     window.plugin.scoreboard.healthRes += d.health;
                     window.plugin.scoreboard.resP++;
                     window.plugin.scoreboard.resPorLevels = window.plugin.scoreboard.resPorLevels + portal.options.level;
                     if(portal.options.level===8){window.plugin.scoreboard.resEightLevelP++;}
                     if(portal.options.level>window.plugin.scoreboard.maxRes){window.plugin.scoreboard.maxRes = portal.options.level;}
                     break;
-                case TEAM_ENL:  //if the portal is captured by the enlightened,increase each counter's value for resistance counters
+                case TEAM_ENL: //if the portal is captured by the enlightened,increase each counter's value for enlightened counters
                     window.plugin.scoreboard.healthEnl += d.health;
                     window.plugin.scoreboard.enlP++;
                     window.plugin.scoreboard.enlPorLevels = window.plugin.scoreboard.enlPorLevels + portal.options.level;
@@ -93,9 +94,11 @@ function wrapper(plugin_info) {
         
         return retval;
     } 
-	
-	
-	//---- function that gets all visible enlightened links on screen
+    
+    
+    
+    
+    //---- function that gets all visible enlightened links on screen
     
     window.plugin.scoreboard.getEnlLinks = function() {
         var displayBounds = map.getBounds();
@@ -112,8 +115,7 @@ function wrapper(plugin_info) {
         });
         return window.plugin.scoreboard.enlL;
     }
-    
-	//----function that gets all visible resistance links on screen
+    //----function that gets all visible resistance links on screen
     
     window.plugin.scoreboard.getResLinks = function() {
         var displayBounds = map.getBounds();
@@ -134,7 +136,7 @@ function wrapper(plugin_info) {
     
     
     
-	//----function that gets all visible enlightened fields on screen
+    //----function that gets all visible enlightened fields on screen
     
     window.plugin.scoreboard.getEnlFields = function() {
         var displayBounds = map.getBounds();
@@ -153,7 +155,7 @@ function wrapper(plugin_info) {
     }
     
     
-	//----function that gets all visible resistance fields on screen
+    //----function that gets all visible resistance fields on screen
     
     window.plugin.scoreboard.getResFields = function() {
         var displayBounds = map.getBounds();
@@ -171,10 +173,80 @@ function wrapper(plugin_info) {
         return window.plugin.scoreboard.resF;
     }
     
-    //-----------------------------------------------------------
+    // A function that creates the html code for the scoreboard table
+    
 	
-	var setup =  function() {
-        if(window.useAndroidPanes()) { // use android panes,texture and style
+	window.plugin.scoreboard.portalTable = function() { 
+        
+
+        // html variable declaration
+        var html = "";
+		// Create the header
+        html += '<table class="portals">'
+        + '<tr class="header">'
+        + '<th class="firstColumn">Metrics</th>'
+        + '<th class="enl" >Enlightened</th>'
+        + '<th class="res" >Resistance</th>'
+        + '</tr>\n';
+        
+		// if block to avoid division by zero
+        if(window.plugin.scoreboard.enlP!=0){
+            var avgEnl = window.plugin.scoreboard.enlPorLevels/window.plugin.scoreboard.enlP;
+                avgEnl = avgEnl.toFixed(1);
+            var avgHealthEnl = window.plugin.scoreboard.healthEnl/window.plugin.scoreboard.enlP;
+                avgHealthEnl = avgHealthEnl.toFixed(1) }
+        else{
+        var avgEnl = '-';
+        var avgHealthEnl = '0';
+            }
+        
+        if(window.plugin.scoreboard.resP!=0){
+            var avgRes = window.plugin.scoreboard.resPorLevels/window.plugin.scoreboard.resP;
+                avgRes = avgRes.toFixed(1);
+            var avgHealthRes = window.plugin.scoreboard.healthRes/window.plugin.scoreboard.resP;
+                avgHealthRes =  avgHealthRes.toFixed(1);
+        } 
+        else{
+        var avgRes = '-';
+        var avgHealthRes = '0';
+            }
+        
+        
+        // Get field-link count and assign them to variables
+        var enlCountOfLinks= window.plugin.scoreboard.getEnlLinks();
+        var resCountOfLinks= window.plugin.scoreboard.getResLinks();
+        var enlCountOfFields= window.plugin.scoreboard.getEnlFields();
+        var resCountOfFields= window.plugin.scoreboard.getResFields();
+        
+		// Creation of the html code
+        html += '<tr><td class="firstColumn" style="text-align:center;">Number of Portals</td>'+'<td class="enl" style="text-align:center;">'
+        +window.plugin.scoreboard.enlP+'</td>'+'<td class="res" style="text-align:center;">'+window.plugin.scoreboard.resP+'</td></tr>'
+        +'<tr><td class="firstColumn" style="text-align:center;">Average Portal Level</td>'+'<td class="enl" style="text-align:center;">'
+        +avgEnl+'</td>'+'<td class="res" style="text-align:center;">'+avgRes+'</td></tr>'
+        +'<tr><td class="firstColumn" style="text-align:center;">Number of Level 8 Portals</td>'+'<td class="enl" style="text-align:center;">'
+        +window.plugin.scoreboard.enlEightLevelP+'</td>'+'<td class="res" style="text-align:center;">'+window.plugin.scoreboard.resEightLevelP+'</td></tr>'
+        +'<tr><td class="firstColumn" style="text-align:center;">Max Portal Level</td>'+'<td class="enl" style="text-align:center;">'
+        +window.plugin.scoreboard.maxEnl+'</td>'+'<td class="res" style="text-align:center;">'+window.plugin.scoreboard.maxRes+'</td></tr>'
+        +'<tr><td class="firstColumn" style="text-align:center;">Number of Links</td>'+'<td class="enl" style="text-align:center;">'
+        +enlCountOfLinks+'</td>'+'<td class="res" style="text-align:center;">'+resCountOfLinks+'</td></tr>'
+        +'<tr><td class="firstColumn" style="text-align:center;">Number of Fields</td>'+'<td class="enl" style="text-align:center;">'
+        +enlCountOfFields+'</td>'+'<td class="res" style="text-align:center;">'+resCountOfFields+'</td></tr>'
+        +'<tr><td class="firstColumn" style="text-align:center;">Average portal Health</td>'+'<td class="enl" style="text-align:center;">'
+        +avgHealthEnl+'%</td>'+'<td class="res" style="text-align:center;">'+avgHealthRes+'%</td></tr>';
+        
+        
+        
+        html += '</table>';
+        
+        html += '<div class="disclaimer"><b>Zoom in for a more accurate scoreboard!</b></div>';
+        
+        return html;
+    }
+    
+    
+    
+    var setup =  function() {
+        if(window.useAndroidPanes()) {  // use android panes,texture and style
             android.addPane("plugin-Scoreboard", "Scoreboard", "ic_action_paste");
             addHook("paneChanged", window.plugin.scoreboard.onPaneChanged);
         } else {
@@ -217,4 +289,3 @@ var info = {};
 if (typeof GM_info !== 'undefined' && GM_info && GM_info.script) info.script = { version: GM_info.script.version, name: GM_info.script.name, description: GM_info.script.description };
 script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
 (document.body || document.head || document.documentElement).appendChild(script);
-    
