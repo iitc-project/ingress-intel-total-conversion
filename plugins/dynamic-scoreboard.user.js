@@ -1,11 +1,11 @@
 // ==UserScript==
-// @id             iitc-plugin-Dynamic-Scoreboard@Costaspap
+// @id             iitc-plugin-dynamic-scoreboard@Costaspap
 // @name           IITC plugin: Create a local scoreboard
 // @category       Info
 // @version        0.1.0.20140524.214738
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
-// @updateURL      https://secure.jonatkins.com/iitc/release/total-conversion-build.meta.js
-// @downloadURL    https://secure.jonatkins.com/iitc/release/total-conversion-build.user.js
+// @updateURL      https://secure.jonatkins.com/iitc/release/plugins/dynamic-scoreboard.meta.js
+// @downloadURL    https://secure.jonatkins.com/iitc/release/plugins/dynamic-scoreboard.user.js
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -23,7 +23,7 @@ function wrapper(plugin_info) {
     //(leaving them in place might break the 'About IITC' page or break update checks)
     plugin_info.buildName = 'jonatkins';
     plugin_info.dateTimeVersion = '20140524.214738';
-    plugin_info.pluginId = 'Dynamic Scoreboard';
+    plugin_info.pluginId = 'dynamic-scoreboard';
     //END PLUGIN AUTHORS NOTE
     
     // PLUGIN START //
