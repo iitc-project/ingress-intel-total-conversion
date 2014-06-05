@@ -95,11 +95,33 @@ function wrapper(plugin_info) {
         return retval;
     } 
     
+	// The final function that displays the scoreboard by calling the portalTable function
+    window.plugin.scoreboard.displayScoreboard = function() {
+        var html = '';
+        
+        // If there are not portals on screen,display "Nothing to show!"
+        if (window.plugin.scoreboard.getPortals()) {
+            html += window.plugin.scoreboard.portalTable();
+        } else {
+            html = '<table><tr><td>Nothing to show!</td></tr></table>';
+        };
+        
+        if(window.useAndroidPanes()) {
+            $('<div id="scoreboard" class="mobile">' + html + '</div>').appendTo(document.body);
+        } else {
+            dialog({
+                html: '<div id="scoreboard">' + html + '</div>',
+                dialogClass: 'ui-dialog-scoreboard',
+                title: 'Scoreboard',
+                id: 'Scoreboard',
+                width: 700
+            });
+        }
+    }
     
     
     
     //---- function that gets all visible enlightened links on screen
-    
     window.plugin.scoreboard.getEnlLinks = function() {
         var displayBounds = map.getBounds();
         window.plugin.scoreboard.enlL=0;
@@ -115,8 +137,9 @@ function wrapper(plugin_info) {
         });
         return window.plugin.scoreboard.enlL;
     }
-    //----function that gets all visible resistance links on screen
     
+	
+    //----function that gets all visible resistance links on screen
     window.plugin.scoreboard.getResLinks = function() {
         var displayBounds = map.getBounds();
         window.plugin.scoreboard.resL=0;
@@ -136,8 +159,8 @@ function wrapper(plugin_info) {
     
     
     
-    //----function that gets all visible enlightened fields on screen
     
+    //----function that gets all visible enlightened fields on screen
     window.plugin.scoreboard.getEnlFields = function() {
         var displayBounds = map.getBounds();
         window.plugin.scoreboard.enlF=0;
@@ -155,8 +178,8 @@ function wrapper(plugin_info) {
     }
     
     
-    //----function that gets all visible resistance fields on screen
     
+    //----function that gets all visible resistance fields on screen
     window.plugin.scoreboard.getResFields = function() {
         var displayBounds = map.getBounds();
         window.plugin.scoreboard.resF=0;
@@ -173,9 +196,9 @@ function wrapper(plugin_info) {
         return window.plugin.scoreboard.resF;
     }
     
-    // A function that creates the html code for the scoreboard table
     
-	
+    
+	// A function that creates the html code for the scoreboard table
 	window.plugin.scoreboard.portalTable = function() { 
         
 
@@ -183,13 +206,13 @@ function wrapper(plugin_info) {
         var html = "";
 		// Create the header
         html += '<table class="portals">'
-        + '<tr class="header">'
+        + '<tr>'
         + '<th class="firstColumn">Metrics</th>'
         + '<th class="enl" >Enlightened</th>'
         + '<th class="res" >Resistance</th>'
         + '</tr>\n';
         
-		// if block to avoid division by zero
+		// if blocks to avoid division by zero
         if(window.plugin.scoreboard.enlP!=0){
             var avgEnl = window.plugin.scoreboard.enlPorLevels/window.plugin.scoreboard.enlP;
                 avgEnl = avgEnl.toFixed(1);
@@ -259,15 +282,9 @@ function wrapper(plugin_info) {
                          '#scoreboard table td, #scoreboard table th {border-bottom: 1px solid #0b314e; padding:3px; color:white; background-color:#1b415e}' +
                          '#scoreboard table tr.res td { background-color: #005684; }' +
                          '#scoreboard table tr.enl td { background-color: #017f01; }' +
-                         '#scoreboard table tr.neutral td { background-color: #000000; }' +
                          '#scoreboard table th { text-align: center; }' +
                          '#scoreboard table td { text-align: center; }' +
                          '#scoreboard table.portals td { white-space: nowrap; }' +
-                         '#scoreboard table td.portalTitle { text-align: left;}' +
-                         '#scoreboard table th.sortable { cursor:pointer;}' +
-                         '#scoreboard table th.portalTitle { text-align: left;}' +
-                         '#scoreboard table .portalTitle { min-width: 120px !important; max-width: 240px !important; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }' +
-                         '#scoreboard table .apGain { text-align: right !important; }' +
                          '#scoreboard .firstColumn { margin-top: 10px;}' +
                          '#scoreboard .disclaimer { margin-top: 10px; font-size:10px; }' +
                          '</style>');
@@ -289,3 +306,4 @@ var info = {};
 if (typeof GM_info !== 'undefined' && GM_info && GM_info.script) info.script = { version: GM_info.script.version, name: GM_info.script.name, description: GM_info.script.description };
 script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
 (document.body || document.head || document.documentElement).appendChild(script);
+    
