@@ -6,6 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      https://secure.jonatkins.com/iitc/release/plugins/dynamic-scoreboard.meta.js
 // @downloadURL    https://secure.jonatkins.com/iitc/release/plugins/dynamic-scoreboard.user.js
+// @description    Display a scoreboard about all visible portals with statistics about both teams,like average portal level,link & field counts etc.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
