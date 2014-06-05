@@ -27,6 +27,7 @@ window.plugin.flyLinks.MAX_PORTALS_TO_LINK = 100;
 window.plugin.flyLinks.PROJECT_ZOOM = 16;
 
 window.plugin.flyLinks.locked = false;
+window.plugin.flyLinks.drawToolsIntegration = true;
 
 window.plugin.flyLinks.linksLayerGroup = null;
 window.plugin.flyLinks.fieldsLayerGroup = null;
@@ -56,6 +57,16 @@ window.plugin.flyLinks.updateLayer = function() {
     poly.addTo(window.plugin.flyLinks.fieldsLayerGroup);
   }
     
+  var isPointInPoly = function(poly, pt) {
+    var c = false, i = -1, l = poly.length, j = l - 1;
+    for(; ++i < l; j = i){
+      if (((poly[i].lng <= pt.lng && pt.lng < poly[j].lng) || (poly[j].lng <= pt.lng && pt.lng < poly[i].lng))
+      && (pt.lat < (poly[j].lat - poly[i].lat) * (pt.lng - poly[i].lng) / (poly[j].lng - poly[i].lng) + poly[i].lat))
+        c = !c;
+    }
+    return c;
+  }
+    
   if(!window.plugin.flyLinks.locked || !window.plugin.flyLinks.triangulation){
   var ctrl = [$('.leaflet-control-layers-selector + span:contains("Fly links")').parent(), 
               $('.leaflet-control-layers-selector + span:contains("Fly fields")').parent()];
@@ -65,13 +76,34 @@ window.plugin.flyLinks.updateLayer = function() {
   }
   
   var locations = [];
+      
+  // Find drawn polygons
+  var polys = [];
+  if(window.plugin.drawTools && window.plugin.flyLinks.drawToolsIntegration){
+    $.each(window.plugin.drawTools.drawnItems._layers, function (name, layer) {
+      if (layer instanceof L.Polygon) {
+        var poly = layer._latlngs;
+        polys.push(poly);
+      }
+    });
+  }
 
   var bounds = map.getBounds();
   $.each(window.portals, function(guid, portal) {
     var ll = portal.getLatLng();
-    if (bounds.contains(ll)) {
-      var p = map.project(portal.getLatLng(), window.plugin.flyLinks.PROJECT_ZOOM);
-      locations.push(p);
+    if (bounds.contains(ll)) {        
+      var inpoly = false;
+      for (var p = 0; p < polys.length; p++) {
+        if (isPointInPoly(polys[p], ll)) {
+          inpoly = true;
+          break;
+        }
+      }
+
+      if (polys.length == 0 || inpoly) {
+        var p = map.project(portal.getLatLng(), window.plugin.flyLinks.PROJECT_ZOOM);
+        locations.push(p);
+      }
     }
   });
 
@@ -282,7 +314,9 @@ window.plugin.flyLinks.Triangle = function(a, b, c, depth) {
 
 window.plugin.flyLinks.showOptions = function () {
     dialog({
-        html: '<div>Lock plan: <input type="checkbox" style="height:inherit" onclick="window.plugin.flyLinks.setOption(\'locked\', this.checked)" ' + (window.plugin.flyLinks.locked ? 'checked="checked"' : '') + ' /></div>',
+        html: '<div>Lock plan: <input type="checkbox" style="height:inherit" onclick="window.plugin.flyLinks.setOption(\'locked\', this.checked)" ' + (window.plugin.flyLinks.locked ? 'checked="checked"' : '') + ' /></br>' +
+            'Draw Tools integration: <input type="checkbox" style="height:inherit" onclick="window.plugin.flyLinks.setOption(\'drawToolsIntegration\', this.checked)" ' + (window.plugin.flyLinks.drawToolsIntegration ? 'checked="checked"' : '') + ' />' +
+            '</div>',
         title: 'Fly Links Options'
     });
 }
@@ -290,6 +324,7 @@ window.plugin.flyLinks.showOptions = function () {
 window.plugin.flyLinks.setOption = function (name, value) {
     switch (name) {
         case 'locked': window.plugin.flyLinks.locked = value; break;
+        case 'drawToolsIntegration': window.plugin.flyLinks.drawToolsIntegration = value; break;
     }
     window.plugin.flyLinks.updateLayer();
 }
@@ -309,6 +344,20 @@ window.plugin.flyLinks.setup = function() {
   window.addLayerGroup('Fly links', window.plugin.flyLinks.linksLayerGroup, false);
   window.addLayerGroup('Fly fields', window.plugin.flyLinks.fieldsLayerGroup, false);
     
+  // When somwthing has been drawn in drawTools, update graph    
+  map.on('draw:created', function (e) {
+      // Draw Tools hasn't necessarily added the layer yet, so let that trigger fire before doing the update (thus the setTimeout)
+      setTimeout(function () {
+          window.plugin.flyLinks.updateLayer();
+      }, 0);
+  });
+  map.on('draw:deleted', function (e) {
+      window.plugin.flyLinks.updateLayer();
+  });
+  map.on('draw:edited', function (e) {
+      window.plugin.flyLinks.updateLayer();
+  });
+
   // Add options menu
   $('#toolbox').append('<a onclick="window.plugin.flyLinks.showOptions();return false;">FlyLinks</a>');
 }
