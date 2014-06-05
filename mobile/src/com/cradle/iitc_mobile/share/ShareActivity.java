@@ -68,7 +68,8 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
     }
 
     private String getIntelUrl(final String ll, final int zoom, final boolean isPortal) {
-        String url = "http://www.ingress.com/intel?ll=" + ll + "&z=" + zoom;
+        final String scheme = mSharedPrefs.getBoolean("pref_force_https", true) ? "https" : "http";
+        String url = scheme + "://www.ingress.com/intel?ll=" + ll + "&z=" + zoom;
         if (isPortal) {
             url += "&pll=" + ll;
         }
@@ -106,6 +107,8 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         mGenerator = new IntentGenerator(this);
 
         mFragmentAdapter = new FragmentAdapter(getSupportFragmentManager());
+
+        mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         final ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -175,7 +178,6 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         }
 
-        mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         final int selected = mSharedPrefs.getInt("pref_share_selected_tab", 0);
         if (selected < mFragmentAdapter.getCount()) {
             mViewPager.setCurrentItem(selected);
