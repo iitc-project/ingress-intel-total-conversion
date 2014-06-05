@@ -218,8 +218,8 @@ function wrapper(plugin_info) {
             var avgEnl = window.plugin.scoreboard.enlPorLevels/window.plugin.scoreboard.enlP;
                 avgEnl = avgEnl.toFixed(1);
             var avgHealthEnl = window.plugin.scoreboard.healthEnl/window.plugin.scoreboard.enlP;
-                avgHealthEnl = avgHealthEnl.toFixed(1) }
-        else{
+                avgHealthEnl = avgHealthEnl.toFixed(1) 
+        } else{
         var avgEnl = '-';
         var avgHealthEnl = '0';
             }
@@ -229,11 +229,11 @@ function wrapper(plugin_info) {
                 avgRes = avgRes.toFixed(1);
             var avgHealthRes = window.plugin.scoreboard.healthRes/window.plugin.scoreboard.resP;
                 avgHealthRes =  avgHealthRes.toFixed(1);
-        } 
-        else{
+        } else {
         var avgRes = '-';
         var avgHealthRes = '0';
             }
+        
         
         
         // Get field-link count and assign them to variables
