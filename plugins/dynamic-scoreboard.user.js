@@ -131,7 +131,7 @@ function wrapper(plugin_info) {
             // only consider links that start/end on-screen
             var points = link.getLatLngs();
             if (displayBounds.contains(points[0]) || displayBounds.contains(points[1])) {
-                if (link.options.team == TEAM_ENL) {
+                if (link.options.team === TEAM_ENL) {
                     window.plugin.scoreboard.enlL++;
                 } 
             }
@@ -149,7 +149,7 @@ function wrapper(plugin_info) {
             // only consider links that start/end on-screen
             var points = link.getLatLngs();
             if (displayBounds.contains(points[0]) || displayBounds.contains(points[1])) {// boroume na kanoume ta 2 if ena
-                if (link.options.team == TEAM_RES) {
+                if (link.options.team === TEAM_RES) {
                     window.plugin.scoreboard.resL++;
                 } 
             }
@@ -170,7 +170,7 @@ function wrapper(plugin_info) {
             // only consider fields with at least one vertex on screen
             var points = field.getLatLngs();
             if (displayBounds.contains(points[0]) || displayBounds.contains(points[1]) || displayBounds.contains(points[2])) {
-                if (field.options.team == TEAM_ENL) {
+                if (field.options.team === TEAM_ENL) {
                     window.plugin.scoreboard.enlF++;
                 } 
             }
@@ -189,7 +189,7 @@ function wrapper(plugin_info) {
             // only consider fields with at least one vertex on screen
             var points = field.getLatLngs();
             if (displayBounds.contains(points[0]) || displayBounds.contains(points[1]) || displayBounds.contains(points[2])) {
-                if (field.options.team == TEAM_RES) {
+                if (field.options.team === TEAM_RES) {
                     window.plugin.scoreboard.resF++;
                 } 
             }
