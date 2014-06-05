@@ -2,7 +2,7 @@
 // @id             fly-links@fly
 // @name           IITC plugin: Fly Links
 // @category       Layer
-// @version        0.2.1.@@DATETIMEVERSION@@
+// @version        0.2.2.@@DATETIMEVERSION@@
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Calculate how to link the portals to create the largest tidy set of nested fields. Enable from the layer chooser.
@@ -26,6 +26,7 @@ window.plugin.flyLinks.MAX_PORTALS_TO_LINK = 100;
 // zoom level used for projecting points between latLng and pixel coordinates. may affect precision of triangulation
 window.plugin.flyLinks.PROJECT_ZOOM = 16;
 
+window.plugin.flyLinks.locked = false;
 
 window.plugin.flyLinks.linksLayerGroup = null;
 window.plugin.flyLinks.fieldsLayerGroup = null;
@@ -37,6 +38,25 @@ window.plugin.flyLinks.updateLayer = function() {
 
   window.plugin.flyLinks.linksLayerGroup.clearLayers();
   window.plugin.flyLinks.fieldsLayerGroup.clearLayers();
+
+  var drawLink = function(a, b, style) {
+    var alatlng = map.unproject(a, window.plugin.flyLinks.PROJECT_ZOOM);
+    var blatlng = map.unproject(b, window.plugin.flyLinks.PROJECT_ZOOM);
+
+    var poly = L.polyline([alatlng, blatlng], style);
+    poly.addTo(window.plugin.flyLinks.linksLayerGroup);
+  }
+  
+  var drawField = function(a, b, c, style) {
+    var alatlng = map.unproject(a, window.plugin.flyLinks.PROJECT_ZOOM);
+    var blatlng = map.unproject(b, window.plugin.flyLinks.PROJECT_ZOOM);
+    var clatlng = map.unproject(c, window.plugin.flyLinks.PROJECT_ZOOM);
+    
+    var poly = L.polygon([alatlng, blatlng, clatlng], style);
+    poly.addTo(window.plugin.flyLinks.fieldsLayerGroup);
+  }
+    
+  if(!window.plugin.flyLinks.locked || !window.plugin.flyLinks.triangulation){
   var ctrl = [$('.leaflet-control-layers-selector + span:contains("Fly links")').parent(), 
               $('.leaflet-control-layers-selector + span:contains("Fly fields")').parent()];
   if (Object.keys(window.portals).length > window.plugin.flyLinks.MAX_PORTALS_TO_OBSERVE) {
@@ -58,23 +78,6 @@ window.plugin.flyLinks.updateLayer = function() {
   var distance = function(a, b) {
     return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
   };
-
-  var drawLink = function(a, b, style) {
-    var alatlng = map.unproject(a, window.plugin.flyLinks.PROJECT_ZOOM);
-    var blatlng = map.unproject(b, window.plugin.flyLinks.PROJECT_ZOOM);
-
-    var poly = L.polyline([alatlng, blatlng], style);
-    poly.addTo(window.plugin.flyLinks.linksLayerGroup);
-  }
-  
-  var drawField = function(a, b, c, style) {
-    var alatlng = map.unproject(a, window.plugin.flyLinks.PROJECT_ZOOM);
-    var blatlng = map.unproject(b, window.plugin.flyLinks.PROJECT_ZOOM);
-    var clatlng = map.unproject(c, window.plugin.flyLinks.PROJECT_ZOOM);
-    
-    var poly = L.polygon([alatlng, blatlng, clatlng], style);
-    poly.addTo(window.plugin.flyLinks.fieldsLayerGroup);
-  }
   
   if (locations.length > window.plugin.flyLinks.MAX_PORTALS_TO_LINK) {
     $.each(ctrl, function(guid, ctl) {ctl.addClass('disabled').attr('title', 'Too many portals (linked/observed): ' + locations.length + '/' + Object.keys(window.portals).length);});
@@ -237,9 +240,10 @@ window.plugin.flyLinks.updateLayer = function() {
     return {edges: edges, triangles: triangles};
   }
   
-  var triangulation = triangulate(index, locations);
-  var edges = triangulation.edges;
-  var triangles = triangulation.triangles;
+    window.plugin.flyLinks.triangulation = triangulate(index, locations);
+  }
+  var edges = window.plugin.flyLinks.triangulation.edges;
+  var triangles = window.plugin.flyLinks.triangulation.triangles;
 
   $.each(edges, function(idx, edge) {
     drawLink(edge.a, edge.b, {
@@ -276,6 +280,20 @@ window.plugin.flyLinks.Triangle = function(a, b, c, depth) {
   this.depth = depth;
 }
 
+window.plugin.flyLinks.showOptions = function () {
+    dialog({
+        html: '<div>Lock plan: <input type="checkbox" style="height:inherit" onclick="window.plugin.flyLinks.setOption(\'locked\', this.checked)" ' + (window.plugin.flyLinks.locked ? 'checked="checked"' : '') + ' /></div>',
+        title: 'Fly Links Options'
+    });
+}
+
+window.plugin.flyLinks.setOption = function (name, value) {
+    switch (name) {
+        case 'locked': window.plugin.flyLinks.locked = value; break;
+    }
+    window.plugin.flyLinks.updateLayer();
+}
+
 window.plugin.flyLinks.setup = function() {
   window.plugin.flyLinks.linksLayerGroup = new L.LayerGroup();
   window.plugin.flyLinks.fieldsLayerGroup = new L.LayerGroup();
@@ -290,6 +308,9 @@ window.plugin.flyLinks.setup = function() {
 
   window.addLayerGroup('Fly links', window.plugin.flyLinks.linksLayerGroup, false);
   window.addLayerGroup('Fly fields', window.plugin.flyLinks.fieldsLayerGroup, false);
+    
+  // Add options menu
+  $('#toolbox').append('<a onclick="window.plugin.flyLinks.showOptions();return false;">FlyLinks</a>');
 }
 var setup = window.plugin.flyLinks.setup;
 
