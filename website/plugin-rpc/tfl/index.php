@@ -31,6 +31,28 @@ function load_csv_callback($filename,$callback) {
 }
 
 
+function format_stop($row) {
+
+  $easting = (int)$row['Location_Easting'];
+  $northing = (int)$row['Location_Northing'];
+
+  $os = new OSRef($easting, $northing);
+  $latlng = $os->toLatLng();
+  $latlng->OSGB36ToWGS84();
+
+  $stop = Array (
+    'bus_stop_code' => $row['Bus_Stop_Code'],
+    'stop_name' => ucwords(strtolower($row['Stop_Name'])),
+    'location_os' => Array('easting'=>$easting,'northing'=>$northing),
+    'location' => Array('lat' => $latlng->lat, 'lng' => $latlng->lng),
+    'heading' => (int)$row['Heading'],
+    'virtual_bus_stop' => (int)$row['Virtual_Bus_Stop']
+  );
+
+  return $stop;
+}
+
+
 class Routes {
   var $routes = Array();
 
@@ -38,11 +60,22 @@ class Routes {
     $rt = $row['Route'];
     $run = (int)$row['Run'];
 
-    if (!isset($this->routes[$rt]))
+    if (!isset($this->routes[$rt])) {
       $this->routes[$rt] = Array();
+    }
 
-    if (!in_array($run,$this->routes[$rt],TRUE))
-      array_push($this->routes[$rt], $run);
+    if (!isset($run,$this->routes[$rt][$run])) {
+      $this->routes[$rt][$run] = Array ( 'start' => format_stop($row) );
+      // initial bounding box from start lat/lng
+      $this->routes[$rt][$run]['bbox'] = Array ( 'sw'=> $this->routes[$rt][$run]['start']['location'], 'ne' => $this->routes[$rt][$run]['start']['location'] );
+    }
+    $this->routes[$rt][$run]['end'] = format_stop($row);
+    //extend bounding box by end point lat/lng
+    $this->routes[$rt][$run]['bbox']['sw']['lat'] = min ( $this->routes[$rt][$run]['bbox']['sw']['lat'], $this->routes[$rt][$run]['end']['location']['lat'] );
+    $this->routes[$rt][$run]['bbox']['sw']['lng'] = min ( $this->routes[$rt][$run]['bbox']['sw']['lng'], $this->routes[$rt][$run]['end']['location']['lng'] );
+
+    $this->routes[$rt][$run]['bbox']['ne']['lat'] = max ( $this->routes[$rt][$run]['bbox']['ne']['lat'], $this->routes[$rt][$run]['end']['location']['lat'] );
+    $this->routes[$rt][$run]['bbox']['ne']['lng'] = max ( $this->routes[$rt][$run]['bbox']['ne']['lng'], $this->routes[$rt][$run]['end']['location']['lng'] );
   }
 
 }
@@ -60,21 +93,7 @@ class Stops {
 
   function add_stop($row) {
     if ($row['Route'] == $this->route && $row['Run'] == $this->run) {
-
-      $easting = (int)$row['Location_Easting'];
-      $northing = (int)$row['Location_Northing'];
-
-      $os = new OSRef($easting, $northing);
-      $latlng = $os->toLatLng();
-
-      $stop = Array (
-        'bus_stop_code' => $row['Bus_Stop_Code'],
-        'stop_name' => $row['Stop_Name'],
-        'location_os' => Array('easting'=>$easting,'northing'=>$northing),
-        'location' => Array('lat' => $latlng->lat, 'lng' => $latlng->lng),
-        'heading' => (int)$row['Heading'],
-        'virtual_bus_stop' => (int)$row['Virtual_Bus_Stop']
-      );
+      $stop = format_stop($row);
 
       array_push($this->stops, $stop);
     }
