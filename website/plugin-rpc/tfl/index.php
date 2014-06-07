@@ -2,6 +2,8 @@
 
 include "phpcoord/phpcoord-2.3.php";
 
+$cachedir = "/dev/shm";
+
 header("Content-Type: text/plain");
 
 function load_csv_callback($filename,$callback) {
@@ -101,33 +103,66 @@ class Stops {
 
 };
 
-$result = Array();
+
+function cache_file_ok($cachefile,$datafile) {
+  if ( file_exists($cachefile) ) {
+    $cachetime = filemtime($cachefile);
+
+    // the file is downloaded with 'wget' - this preserves server timestamps, so 'wrong' from a cache point of view
+    $datatime = max (filemtime($datafile), filectime($datafile));
+
+    if ($cachetime > $datatime) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+$result = NULL;
 
 switch ($_REQUEST['method']) {
 
   case 'bus-routes':
-    $routes = new Routes();
+    $cachefile = "$cachedir/iitc-rpc-bus-routes.json";
 
-    load_csv_callback("bus-sequences.csv", Array($routes,'add_route'));
+    if ( cache_file_ok($cachefile,"bus-sequences.csv") ) {
+      $result = file_get_contents($cachefile);
+    } else {
+      $routes = new Routes();
 
-    $result = Array('bus-routes'=>$routes->routes);
+      load_csv_callback("bus-sequences.csv", Array($routes,'add_route'));
 
+      $result = json_encode(Array('bus-routes'=>$routes->routes));
+
+      $tmpfile = tempnam($cachedir,"iitc-rpc");
+      file_put_contents($tmpfile,$result) && rename($tmpfile, $cachefile);
+    }
     break;
 
   case 'bus-stops':
     $route = $_REQUEST['route'];
     $run = (int)$_REQUEST['run'];
-    $stops = new Stops();
-    $stops->route_run($route, $run);
 
-    load_csv_callback("bus-sequences.csv", Array($stops,'add_stop'));
+    $cachefile = "$cachedir/iitc-rpc-bus-stops-$route-$run.json";
 
-    $result = Array('route' => $route, 'run' => $run, 'stops' => $stops->stops);
+    if ( cache_file_ok($cachefile,"bus-sequences.csv") ) {
+      $result = file_get_contents($cachefile);
+    } else {
 
+      $stops = new Stops();
+      $stops->route_run($route, $run);
+
+      load_csv_callback("bus-sequences.csv", Array($stops,'add_stop'));
+
+      $result = json_encode(Array('route' => $route, 'run' => $run, 'stops' => $stops->stops));
+
+      $tmpfile = tempnam($cachedir,"iitc-rpc");
+      file_put_contents($tmpfile,$result) && rename($tmpfile, $cachefile);
+    }
     break;
 
   default:
-    $result = Array('error'=>'Method not found');
+    $result = json_encode(Array('error'=>'Method not found'));
     break;
 }
 
@@ -141,7 +176,7 @@ else
 if (isset($_REQUEST['jsonp']))
   print($_REQUEST['jsonp']."(");
 
-print json_encode($result);
+print $result;
 
 if (isset($_REQUEST['jsonp']))
   print(");");
