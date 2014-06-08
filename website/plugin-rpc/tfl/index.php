@@ -68,16 +68,7 @@ class Routes {
 
     if (!isset($run,$this->routes[$rt][$run])) {
       $this->routes[$rt][$run] = Array ( 'start' => format_stop($row) );
-      // initial bounding box from start lat/lng
-      $this->routes[$rt][$run]['bbox'] = Array ( 'sw'=> $this->routes[$rt][$run]['start']['location'], 'ne' => $this->routes[$rt][$run]['start']['location'] );
     }
-    $this->routes[$rt][$run]['end'] = format_stop($row);
-    //extend bounding box by end point lat/lng
-    $this->routes[$rt][$run]['bbox']['sw']['lat'] = min ( $this->routes[$rt][$run]['bbox']['sw']['lat'], $this->routes[$rt][$run]['end']['location']['lat'] );
-    $this->routes[$rt][$run]['bbox']['sw']['lng'] = min ( $this->routes[$rt][$run]['bbox']['sw']['lng'], $this->routes[$rt][$run]['end']['location']['lng'] );
-
-    $this->routes[$rt][$run]['bbox']['ne']['lat'] = max ( $this->routes[$rt][$run]['bbox']['ne']['lat'], $this->routes[$rt][$run]['end']['location']['lat'] );
-    $this->routes[$rt][$run]['bbox']['ne']['lng'] = max ( $this->routes[$rt][$run]['bbox']['ne']['lng'], $this->routes[$rt][$run]['end']['location']['lng'] );
   }
 
 }
