@@ -18,12 +18,7 @@
 
 // PLUGIN START ////////////////////////////////////////////////////////
 
-// use own namespace for plugin
 window.plugin.crossLinks = function() {};
-
-window.plugin.crossLinks.STYLE_LINECOLLISION = {color: '#f22', weight: 4};
-window.plugin.crossLinks.STYLE_INSIDEPOLY = {color: '#ff2', weight: 4};
-
 
 // Great Circle Arc Intersection
 // http://geospatialmethods.org/spheres/GCAIntersect.html
@@ -164,6 +159,8 @@ window.plugin.crossLinks.testPolygons = function (polygons, link) {
   }
 
 window.plugin.crossLinks.onLinkAdded = function (data) {
+  	if (window.plugin.crossLinks.disabled) return;
+    window.plugin.crossLinks.linkLayer.bringToFront(); // FIXME: workaround to keep it on above the link-layer
 
     var link = data.link;
 
@@ -172,7 +169,7 @@ window.plugin.crossLinks.onLinkAdded = function (data) {
            latlngs = layer.getLatLngs();
            latlngs.push(latlngs[0]);
            if (window.plugin.crossLinks.testPolyLine(latlngs, link.getLatLngs())) {
-               link.setStyle (window.plugin.crossLinks.STYLE_LINECOLLISION);
+               plugin.crossLinks.showLink(link.getLatLngs());
            }
           // TODO: rework inside-polygons
 /*
@@ -184,31 +181,32 @@ window.plugin.crossLinks.onLinkAdded = function (data) {
         } else if (layer instanceof L.GeodesicPolyline) {
 
             if (window.plugin.crossLinks.testPolyLine(layer.getLatLngs(), link.getLatLngs())) {
-                link.setStyle (window.plugin.crossLinks.STYLE_LINECOLLISION);
+                plugin.crossLinks.showLink(link.getLatLngs());
             }
         }
     });
 }
 
 window.plugin.crossLinks.checkAllLinks = function() {
-  console.debug("Cross-Links: checking links");
+  	console.debug("Cross-Links: checking links");
+    if (window.plugin.crossLinks.disabled) return;
 
-  // check all links
-  $.each(window.links, function(guid, link) {
+	plugin.crossLinks.linkLayer.clearLayers();
 
-      link.setStyle ({color: COLORS[link.options.team], weight: 2});
+	// check all links
+  	$.each(window.links, function(guid, link) {
 
       window.plugin.drawTools.drawnItems.eachLayer( function(layer) {
          if (layer instanceof L.GeodesicPolyline) {
             if (window.plugin.crossLinks.testPolyLine(layer.getLatLngs(), link.getLatLngs())) {
-    	       link.setStyle(window.plugin.crossLinks.STYLE_LINECOLLISION);
+    	       plugin.crossLinks.showLink(link.getLatLngs());
                return false;
             }
          } else if (layer instanceof L.GeodesicPolygon) {
            latlngs = layer.getLatLngs();
            latlngs.push(latlngs[0]);
            if (window.plugin.crossLinks.testPolyLine(latlngs, link.getLatLngs())) {
-               link.setStyle (window.plugin.crossLinks.STYLE_LINECOLLISION);
+               plugin.crossLinks.showLink(link.getLatLngs());
            }
           // TODO: rework inside-polygons
          }
@@ -216,6 +214,17 @@ window.plugin.crossLinks.checkAllLinks = function() {
     });
 }
 
+window.plugin.crossLinks.showLink = function(latlngs) {
+
+  var poly = L.geodesicPolyline(latlngs, {
+    color: '#f11',
+    opacity: 0.7,
+    weight: 4,
+    clickable: false,
+  });
+
+  poly.addTo(plugin.crossLinks.linkLayer);
+};
 
 window.plugin.crossLinks.drawTools_save = function() {
   window.plugin.crossLinks.ori_drawTools_save();
@@ -228,12 +237,33 @@ window.plugin.crossLinks.drawTools_load = function() {
  }
 
 
+window.plugin.crossLinks.createLayer = function() {
+    window.plugin.crossLinks.linkLayer = new L.FeatureGroup(); //LayerGroup(); FIXME: need to be a FeatureGroup to bring it to front
+  	window.addLayerGroup('Cross Links', window.plugin.crossLinks.linkLayer, true);
+	window.plugin.crossLinks.linkLayer.bringToFront();
+
+  	//hide the draw tools when the 'drawn items' layer is off, show it when on
+  	map.on('layeradd', function(obj) {
+	    if(obj.layer === window.plugin.crossLinks.linkLayer) {
+    	    window.plugin.crossLinks.disabled = undefined;
+        	window.plugin.crossLinks.checkAllLinks();
+    	}
+  	});
+  	map.on('layerremove', function(obj) {
+    	if(obj.layer === window.plugin.crossLinks.linkLayer) {
+        	window.plugin.crossLinks.disabled = true;
+    	}
+  	});
+}
+
 var setup = function() {
   console.debug("Cross-Links: init");
   if (window.plugin.drawTools === undefined) {
       alert("'Cross-Links' requires 'draw-tools'");
       return;
   }
+
+  window.plugin.crossLinks.createLayer();
 
   // hook 'drawTools'
   window.plugin.crossLinks.ori_drawTools_save = window.plugin.drawTools.save;
