@@ -1018,8 +1018,7 @@
         iconSize: [30,40]
       })
     });
-    window.oms.addMarker(star);
-    star.on('remove', function() { window.oms.removeMarker(star); });
+    window.registerMarkerForOMS(star);
     star.on('spiderfiedclick', function() { renderPortalDetails(guid); });
 
     window.plugin.bookmarks.starLayers[guid] = star;

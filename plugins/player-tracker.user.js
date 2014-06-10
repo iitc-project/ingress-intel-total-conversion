@@ -373,7 +373,7 @@ window.plugin.playerTracker.drawData = function() {
     }
 
     m.addTo(playerData.team === 'RESISTANCE' ? plugin.playerTracker.drawnTracesRes : plugin.playerTracker.drawnTracesEnl);
-    window.oms.addMarker(m);
+    window.registerMarkerForOMS(m);
 
     // jQueryUI doesn’t automatically notice the new markers
     if (!isTouchDev) {
@@ -420,15 +420,6 @@ window.plugin.playerTracker.handleData = function(data) {
   plugin.playerTracker.discardOldData();
   plugin.playerTracker.processNewData(data);
   if (!window.isTouchDevice()) plugin.playerTracker.closeIconTooltips();
-
-  plugin.playerTracker.drawnTracesEnl.eachLayer(function(feature) {
-    if(feature instanceof L.Marker)
-      window.oms.removeMarker(feature);
-  });
-  plugin.playerTracker.drawnTracesRes.eachLayer(function(feature) {
-    if(feature instanceof L.Marker)
-      window.oms.removeMarker(feature);
-  });
 
   plugin.playerTracker.drawnTracesEnl.clearLayers();
   plugin.playerTracker.drawnTracesRes.clearLayers();
