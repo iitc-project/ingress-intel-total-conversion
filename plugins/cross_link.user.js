@@ -25,52 +25,113 @@ window.plugin.crossLinks.STYLE_LINECOLLISION = {color: '#f22', weight: 4};
 window.plugin.crossLinks.STYLE_INSIDEPOLY = {color: '#ff2', weight: 4};
 
 
-function relativeCCW(x1,y1,x2,y2, px, py) {
-   // code from java.awt
-         x2 -= x1;
-         y2 -= y1;
-         px -= x1;
-         py -= y1;
+// Great Circle Arc Intersection
+// http://geospatialmethods.org/spheres/GCAIntersect.html
+function intersect(a, b) {
+    var PI = Math.PI,
+        radians = PI / 180,
+        ε = 1e-6;
 
-         var ccw = px * y2 - py * x2;
+  var λ0 = a[0][0],
+      λ1 = a[1][0],
+      λ2 = b[0][0],
+      λ3 = b[1][0],
+      δλ0 = λ1 - λ0,
+      δλ1 = λ3 - λ2,
+      aδλ0 = Math.abs(δλ0),
+      aδλ1 = Math.abs(δλ1),
+      sλ0 = aδλ0 > 180,
+      sλ1 = aδλ1 > 180,
+      φ0 = a[0][1] * radians,
+      φ1 = a[1][1] * radians,
+      φ2 = b[0][1] * radians,
+      φ3 = b[1][1] * radians,
+      t;
 
-         if (ccw == 0.0) {
-             ccw = px * x2 + py * y2;
+  // Ensure λ0 ≤ λ1 and λ2 ≤ λ3.
+  if (δλ0 < 0) t = λ0, λ0 = λ1, λ1 = t, t = φ0, φ0 = φ1, φ1 = t;
+  if (δλ1 < 0) t = λ2, λ2 = λ3, λ3 = t, t = φ2, φ2 = φ3, φ3 = t;
 
-             if (ccw > 0.0) {
-                 px -= x2;
-                 py -= y2;
-                 ccw = px * x2 + py * y2;
+  // Check if longitude ranges overlap.
+  // TODO handle antimeridian crossings.
+  if (!sλ0 && !sλ1 && (λ0 > λ3 || λ2 > λ1)) return;
 
-                 if (ccw < 0.0) {
-                     ccw = 0.0;
-                 }
-             }
-         }
-         return (ccw < 0.0) ? -1 : ((ccw > 0.0) ? 1 : 0);
-     }
+  // Check for polar endpoints.
+  if (Math.abs(Math.abs(φ0) - PI / 2) < ε) λ0 = λ1, aδλ0 = δλ0 = 0, sλ0 = false;
+  if (Math.abs(Math.abs(φ1) - PI / 2) < ε) λ1 = λ0, aδλ0 = δλ0 = 0, sλ0 = false;
+  if (Math.abs(Math.abs(φ2) - PI / 2) < ε) λ2 = λ3, aδλ1 = δλ1 = 0, sλ1 = false;
+  if (Math.abs(Math.abs(φ3) - PI / 2) < ε) λ3 = λ2, aδλ1 = δλ1 = 0, sλ1 = false;
 
-function linesIntersect(x1,y1,x2,y2,x3,y3,x4,y4) {
-   // code from java.awt
-   return (    (relativeCCW(x1, y1, x2, y2, x3, y3) * relativeCCW(x1, y1, x2, y2, x4, y4) <= 0)
-            && (relativeCCW(x3, y3, x4, y4, x1, y1) * relativeCCW(x3, y3, x4, y4, x2, y2) <= 0));
+  // Check for arcs along meridians.
+  var m0 = aδλ0 < ε || Math.abs(aδλ0 - 180) < ε,
+      m1 = aδλ1 < ε || Math.abs(aδλ1 - 180) < ε;
+
+  λ0 *= radians, λ1 *= radians, λ2 *= radians, λ3 *= radians;
+
+  // Intersect two great circles and check the two intersection points against
+  // the longitude ranges.  The intersection points are simply the cross
+  // product of the great-circle normals ±n1⨯n2.
+
+  // First plane.
+  var cosφ,
+      x0 = (cosφ = Math.cos(φ0)) * Math.cos(λ0),
+      y0 = cosφ * Math.sin(λ0),
+      z0 = Math.sin(φ0),
+      x1 = (cosφ = Math.cos(φ1)) * Math.cos(λ1),
+      y1 = cosφ * Math.sin(λ1),
+      z1 = Math.sin(φ1),
+      n0x = y0 * z1 - z0 * y1,
+      n0y = z0 * x1 - x0 * z1,
+      n0z = x0 * y1 - y0 * x1,
+      m = length(n0x, n0y, n0z);
+
+  n0x /= m, n0y /= m, n0z /= m;
+
+  // Second plane.
+  var x2 = (cosφ = Math.cos(φ2)) * Math.cos(λ2),
+      y2 = cosφ * Math.sin(λ2),
+      z2 = Math.sin(φ2),
+      x3 = (cosφ = Math.cos(φ3)) * Math.cos(λ3),
+      y3 = cosφ * Math.sin(λ3),
+      z3 = Math.sin(φ3),
+      n1x = y2 * z3 - z2 * y3,
+      n1y = z2 * x3 - x2 * z3,
+      n1z = x2 * y3 - y2 * x3,
+      m = length(n1x, n1y, n1z);
+
+  n1x /= m, n1y /= m, n1z /= m;
+
+  var Nx = n0y * n1z - n0z * n1y,
+      Ny = n0z * n1x - n0x * n1z,
+      Nz = n0x * n1y - n0y * n1x;
+
+  if (length(Nx, Ny, Nz) < ε) return;
+
+  var λ = Math.atan2(Ny, Nx);
+  if ((sλ0 ^ (λ0 <= λ && λ <= λ1) || m0 && Math.abs(λ - λ0) < ε) && (sλ1 ^ (λ2 <= λ && λ <= λ3) || m1 && Math.abs(λ - λ2) < ε) || (Nz = -Nz,
+      (sλ0 ^ (λ0 <= (λ = (λ + 2 * PI) % (2 * PI) - PI) && λ <= λ1) || m0 && Math.abs(λ - λ0) < ε) && (sλ1 ^ (λ2 <= λ && λ <= λ3) || m1 && Math.abs(λ - λ2) < ε))) {
+    var φ = Math.asin(Nz / length(Nx, Ny, Nz));
+    if (m0 || m1) {
+      if (m1) φ0 = φ2, φ1 = φ3, λ0 = λ2, λ1 = λ3, aδλ0 = aδλ1;
+      if (aδλ0 > ε) return φ0 + φ1 > 0 ^ φ < (Math.abs(λ - λ0) < ε ? φ0 : φ1) ? [λ / radians, φ / radians] : null;
+      // Ensure φ0 ≤ φ1.
+      if (φ1 < φ0) t = φ0, φ0 = φ1, φ1 = t;
+      return Math.abs(λ - (m0 ? λ0 : λ2)) < ε && φ0 <= φ && φ <= φ1 ? [λ / radians, φ / radians] : null;
+    }
+    return [λ / radians, φ / radians];
+  }
 }
 
-function isCrossing(p1,p2,q1,q2) {
-    return linesIntersect( p1.lat,p1.lng,p2.lat,p2.lng,
-                           q1.lat,q1.lng,q2.lat,q2.lng);
+function length(x, y, z) {
+  return Math.sqrt(x * x + y * y + z * z);
 }
 
-window.plugin.crossLinks.testLine = function (drawline, link) {
+window.plugin.crossLinks.testPolyLine = function (polyline, link) {
+    var a= [[link[0].lat,link[0].lng],[link[1].lat,link[1].lng]];
+    for (var i=0;i<polyline.length-1;++i) {
 
-    var linkline= L.geodesicConvertLines(link._latlngs,0);
-
-    for (var j=0;j<linkline.length-1;++j) {
-      for (var i=0;i<drawline.length-1;++i) {
-        if (isCrossing(linkline[j],linkline[j+1], drawline[i],drawline[i+1])) {
-            return true;
-        }
-      }
+        var b= [[polyline[i].lat,polyline[i].lng],[polyline[i+1].lat,polyline[i+1].lng]];
+        if (intersect(a,b)) return true;
     }
 
     return false;
@@ -108,17 +169,21 @@ window.plugin.crossLinks.onLinkAdded = function (data) {
 
     window.plugin.drawTools.drawnItems.eachLayer( function(layer) {
        if (layer instanceof L.GeodesicPolygon) {
-            var drawline  = L.geodesicConvertLines(layer.getLatLngs(),true);
-            drawline.push(drawline[0]);
+           latlngs = layer.getLatLngs();
+           latlngs.push(latlngs[0]);
+           if (window.plugin.crossLinks.testPolyLine(latlngs, link.getLatLngs())) {
+               link.setStyle (window.plugin.crossLinks.STYLE_LINECOLLISION);
+           }
+          // TODO: rework inside-polygons
+/*
             var polyline= [drawline];
-            if (window.plugin.crossLinks.testLine(drawline, link)) {
-                link.setStyle (window.plugin.crossLinks.STYLE_LINECOLLISION);
             } else if (window.plugin.crossLinks.testPolygons([drawline], link)) {
                 link.setStyle (window.plugin.crossLinks.STYLE_INSIDEPOLY);
             }
+*/
         } else if (layer instanceof L.GeodesicPolyline) {
-            var drawline  = L.geodesicConvertLines(layer.getLatLngs(),false);
-            if (window.plugin.crossLinks.testLine(drawline, link)) {
+
+            if (window.plugin.crossLinks.testPolyLine(layer.getLatLngs(), link.getLatLngs())) {
                 link.setStyle (window.plugin.crossLinks.STYLE_LINECOLLISION);
             }
         }
@@ -127,33 +192,29 @@ window.plugin.crossLinks.onLinkAdded = function (data) {
 
 window.plugin.crossLinks.checkAllLinks = function() {
   console.debug("Cross-Links: checking links");
-  
-  // get all lines
-  var drawpolygons = [];
-  var drawlines = [];
-  window.plugin.drawTools.drawnItems.eachLayer( function(layer) {
-      if (layer instanceof L.GeodesicPolyline) {
-          var newlines  = L.geodesicConvertLines(layer.getLatLngs(),false);
-          drawlines = drawlines.concat(newlines);
-      } else if (layer instanceof L.GeodesicPolygon) {
-          var newlines  = L.geodesicConvertLines(layer.getLatLngs(),true);
-          newlines.push(newlines[0]);
-          drawlines = drawlines.concat(newlines);
-          drawpolygons.push(newlines);
-      }
-  });
 
   // check all links
   $.each(window.links, function(guid, link) {
-      if (window.plugin.crossLinks.testLine(drawlines, link)) {
-	    link.setStyle (window.plugin.crossLinks.STYLE_LINECOLLISION);
-      } else if (window.plugin.crossLinks.testPolygons(drawpolygons, link)) {
-	    link.setStyle (window.plugin.crossLinks.STYLE_INSIDEPOLY);
-      } else {
-        link.setStyle ({color: COLORS[link.options.team], weight: 2});
-      }
+
+      link.setStyle ({color: COLORS[link.options.team], weight: 2});
+
+      window.plugin.drawTools.drawnItems.eachLayer( function(layer) {
+         if (layer instanceof L.GeodesicPolyline) {
+            if (window.plugin.crossLinks.testPolyLine(layer.getLatLngs(), link.getLatLngs())) {
+    	       link.setStyle(window.plugin.crossLinks.STYLE_LINECOLLISION);
+               return false;
+            }
+         } else if (layer instanceof L.GeodesicPolygon) {
+           latlngs = layer.getLatLngs();
+           latlngs.push(latlngs[0]);
+           if (window.plugin.crossLinks.testPolyLine(latlngs, link.getLatLngs())) {
+               link.setStyle (window.plugin.crossLinks.STYLE_LINECOLLISION);
+           }
+          // TODO: rework inside-polygons
+         }
+      });
     });
-  }
+}
 
 
 window.plugin.crossLinks.drawTools_save = function() {
