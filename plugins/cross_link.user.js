@@ -18,204 +18,179 @@
 
 // PLUGIN START ////////////////////////////////////////////////////////
 
+
 window.plugin.crossLinks = function() {};
 
-// Great Circle Arc Intersection
-// http://geospatialmethods.org/spheres/GCAIntersect.html
-function intersect(a, b) {
-    var PI = Math.PI,
-        radians = PI / 180,
-        ε = 1e-6;
+/* Great Circle Arc Intersection
+    Conecpt in short:
+       - build a plane of each arc (p1,p2,center)
+       - find intersection line and intersection points on sphere
+       - check if a point are on both arcs
+    see: http://geospatialmethods.org/spheres/GCAIntersect.html
+*/
+var PI = Math.PI;
+var radians = PI / 180;
+var near_0 = 1e-6;
 
-  var λ0 = a[0][0],
-      λ1 = a[1][0],
-      λ2 = b[0][0],
-      λ3 = b[1][0],
-      δλ0 = λ1 - λ0,
-      δλ1 = λ3 - λ2,
-      aδλ0 = Math.abs(δλ0),
-      aδλ1 = Math.abs(δλ1),
-      sλ0 = aδλ0 > 180,
-      sλ1 = aδλ1 > 180,
-      φ0 = a[0][1] * radians,
-      φ1 = a[1][1] * radians,
-      φ2 = b[0][1] * radians,
-      φ3 = b[1][1] * radians,
-      t;
+function greatCircleArcIntersect(a0,a1,b0,b1) {
 
-  // Ensure λ0 ≤ λ1 and λ2 ≤ λ3.
-  if (δλ0 < 0) t = λ0, λ0 = λ1, λ1 = t, t = φ0, φ0 = φ1, φ1 = t;
-  if (δλ1 < 0) t = λ2, λ2 = λ3, λ3 = t, t = φ2, φ2 = φ3, φ3 = t;
+    // Order points
+    if (a1.lat < a0.lat) { var t=a1;a1=a0;a0=t;}
+    if (b1.lat < b0.lat) { var t=b1;b1=b0;b0=t;}
 
-  // Check if longitude ranges overlap.
-  // TODO handle antimeridian crossings.
-  if (!sλ0 && !sλ1 && (λ0 > λ3 || λ2 > λ1)) return;
+    var λ0 = a0.lat,
+        λ1 = a1.lat,
+        λ2 = b0.lat,
+        λ3 = b1.lat,
+        δλ0 = λ1 - λ0,
+        δλ1 = λ3 - λ2,
+        sλ0 = δλ0 > 180,
+        sλ1 = δλ1 > 180,
+        φ0 = a0.lng * radians,
+        φ1 = a1.lng * radians,
+        φ2 = b0.lng * radians,
+        φ3 = b1.lng * radians,
+        t;
 
-  // Check for polar endpoints.
-  if (Math.abs(Math.abs(φ0) - PI / 2) < ε) λ0 = λ1, aδλ0 = δλ0 = 0, sλ0 = false;
-  if (Math.abs(Math.abs(φ1) - PI / 2) < ε) λ1 = λ0, aδλ0 = δλ0 = 0, sλ0 = false;
-  if (Math.abs(Math.abs(φ2) - PI / 2) < ε) λ2 = λ3, aδλ1 = δλ1 = 0, sλ1 = false;
-  if (Math.abs(Math.abs(φ3) - PI / 2) < ε) λ3 = λ2, aδλ1 = δλ1 = 0, sλ1 = false;
+    // Check if longitude ranges overlap.
+    // TODO handle antimeridian crossings.
+    if (!sλ0 && !sλ1 && (λ0 > λ3 || λ2 > λ1)) return;
 
-  // Check for arcs along meridians.
-  var m0 = aδλ0 < ε || Math.abs(aδλ0 - 180) < ε,
-      m1 = aδλ1 < ε || Math.abs(aδλ1 - 180) < ε;
+    // Check for polar endpoints.
+    if (Math.abs(Math.abs(φ0) - PI / 2) < near_0) λ0 = λ1, δλ0 = 0, sλ0 = false;
+    if (Math.abs(Math.abs(φ1) - PI / 2) < near_0) λ1 = λ0, δλ0 = 0, sλ0 = false;
+    if (Math.abs(Math.abs(φ2) - PI / 2) < near_0) λ2 = λ3, δλ1 = 0, sλ1 = false;
+    if (Math.abs(Math.abs(φ3) - PI / 2) < near_0) λ3 = λ2, δλ1 = 0, sλ1 = false;
 
-  λ0 *= radians, λ1 *= radians, λ2 *= radians, λ3 *= radians;
+    // Check for arcs along meridians.
+    var m0 = δλ0 < near_0 || Math.abs(δλ0 - 180) < near_0,
+        m1 = δλ1 < near_0 || Math.abs(δλ1 - 180) < near_0;
 
-  // Intersect two great circles and check the two intersection points against
-  // the longitude ranges.  The intersection points are simply the cross
-  // product of the great-circle normals ±n1⨯n2.
+    λ0 *= radians, λ1 *= radians, λ2 *= radians, λ3 *= radians;
 
-  // First plane.
-  var cosφ,
-      x0 = (cosφ = Math.cos(φ0)) * Math.cos(λ0),
-      y0 = cosφ * Math.sin(λ0),
-      z0 = Math.sin(φ0),
-      x1 = (cosφ = Math.cos(φ1)) * Math.cos(λ1),
-      y1 = cosφ * Math.sin(λ1),
-      z1 = Math.sin(φ1),
-      n0x = y0 * z1 - z0 * y1,
-      n0y = z0 * x1 - x0 * z1,
-      n0z = x0 * y1 - y0 * x1,
-      m = length(n0x, n0y, n0z);
+    // Intersect two great circles and check the two intersection points against
+    // the longitude ranges.  The intersection points are simply the cross
+    // product of the great-circle normals ±n1⨯n2.
 
-  n0x /= m, n0y /= m, n0z /= m;
+    // First plane.
+    var cosφ,
+        x0 = (cosφ = Math.cos(φ0)) * Math.cos(λ0),
+        y0 = cosφ * Math.sin(λ0),
+        z0 = Math.sin(φ0),
+        x1 = (cosφ = Math.cos(φ1)) * Math.cos(λ1),
+        y1 = cosφ * Math.sin(λ1),
+        z1 = Math.sin(φ1),
+        n0x = y0 * z1 - z0 * y1,
+        n0y = z0 * x1 - x0 * z1,
+        n0z = x0 * y1 - y0 * x1,
+        m = length(n0x, n0y, n0z);
 
-  // Second plane.
-  var x2 = (cosφ = Math.cos(φ2)) * Math.cos(λ2),
-      y2 = cosφ * Math.sin(λ2),
-      z2 = Math.sin(φ2),
-      x3 = (cosφ = Math.cos(φ3)) * Math.cos(λ3),
-      y3 = cosφ * Math.sin(λ3),
-      z3 = Math.sin(φ3),
-      n1x = y2 * z3 - z2 * y3,
-      n1y = z2 * x3 - x2 * z3,
-      n1z = x2 * y3 - y2 * x3,
-      m = length(n1x, n1y, n1z);
+    n0x /= m, n0y /= m, n0z /= m;
 
-  n1x /= m, n1y /= m, n1z /= m;
+    // Second plane.
+    var x2 = (cosφ = Math.cos(φ2)) * Math.cos(λ2),
+        y2 = cosφ * Math.sin(λ2),
+        z2 = Math.sin(φ2),
+        x3 = (cosφ = Math.cos(φ3)) * Math.cos(λ3),
+        y3 = cosφ * Math.sin(λ3),
+        z3 = Math.sin(φ3),
+        n1x = y2 * z3 - z2 * y3,
+        n1y = z2 * x3 - x2 * z3,
+        n1z = x2 * y3 - y2 * x3,
+        m = length(n1x, n1y, n1z);
 
-  var Nx = n0y * n1z - n0z * n1y,
-      Ny = n0z * n1x - n0x * n1z,
-      Nz = n0x * n1y - n0y * n1x;
+    n1x /= m, n1y /= m, n1z /= m;
 
-  if (length(Nx, Ny, Nz) < ε) return;
+    var Nx = n0y * n1z - n0z * n1y,
+        Ny = n0z * n1x - n0x * n1z,
+        Nz = n0x * n1y - n0y * n1x;
 
-  var λ = Math.atan2(Ny, Nx);
-  if ((sλ0 ^ (λ0 <= λ && λ <= λ1) || m0 && Math.abs(λ - λ0) < ε) && (sλ1 ^ (λ2 <= λ && λ <= λ3) || m1 && Math.abs(λ - λ2) < ε) || (Nz = -Nz,
-      (sλ0 ^ (λ0 <= (λ = (λ + 2 * PI) % (2 * PI) - PI) && λ <= λ1) || m0 && Math.abs(λ - λ0) < ε) && (sλ1 ^ (λ2 <= λ && λ <= λ3) || m1 && Math.abs(λ - λ2) < ε))) {
-    var φ = Math.asin(Nz / length(Nx, Ny, Nz));
-    if (m0 || m1) {
-      if (m1) φ0 = φ2, φ1 = φ3, λ0 = λ2, λ1 = λ3, aδλ0 = aδλ1;
-      if (aδλ0 > ε) return φ0 + φ1 > 0 ^ φ < (Math.abs(λ - λ0) < ε ? φ0 : φ1) ? [λ / radians, φ / radians] : null;
-      // Ensure φ0 ≤ φ1.
-      if (φ1 < φ0) t = φ0, φ0 = φ1, φ1 = t;
-      return Math.abs(λ - (m0 ? λ0 : λ2)) < ε && φ0 <= φ && φ <= φ1 ? [λ / radians, φ / radians] : null;
+    if (length(Nx, Ny, Nz) < near_0) return;
+
+    var λ = Math.atan2(Ny, Nx);
+    if ( (sλ0 ^ (λ0 <= λ && λ <= λ1) || m0 && Math.abs(λ - λ0) < near_0) && (sλ1 ^ (λ2 <= λ && λ <= λ3) || m1 && Math.abs(λ - λ2) < near_0) || (Nz = -Nz,
+         (sλ0 ^ (λ0 <= (λ = (λ + 2 * PI) % (2 * PI) - PI) && λ <= λ1) || m0 && Math.abs(λ - λ0) < near_0) && (sλ1 ^ (λ2 <= λ && λ <= λ3) || m1 && Math.abs(λ - λ2) < near_0))) {
+
+        var φ = Math.asin(Nz / length(Nx, Ny, Nz));
+
+        if (m0 || m1) {
+          if (m1) φ0 = φ2, φ1 = φ3, λ0 = λ2, λ1 = λ3, δλ0 = δλ1;
+
+          if (δλ0 > near_0)
+            return (φ0 + φ1 > 0 ^ φ < (Math.abs(λ - λ0) < near_0 ? φ0 : φ1)) ? [λ / radians, φ / radians] : null;
+
+          // Ensure φ0 ≤ φ1.
+          if (φ1 < φ0) t = φ0, φ0 = φ1, φ1 = t;
+          return (Math.abs(λ - (m0 ? λ0 : λ2)) < near_0 && φ0 <= φ && φ <= φ1) ? [λ / radians, φ / radians] : null;
+        }
+
+        return [λ / radians, φ / radians];
     }
-    return [λ / radians, φ / radians];
-  }
 }
 
 function length(x, y, z) {
   return Math.sqrt(x * x + y * y + z * z);
 }
 
-window.plugin.crossLinks.testPolyLine = function (polyline, link) {
-    var a= [[link[0].lat,link[0].lng],[link[1].lat,link[1].lng]];
-    for (var i=0;i<polyline.length-1;++i) {
+/*
+ smallCircleIntersect
+ idea:
+  - build the plane of the small circle: normalvector (center) and p=center+radian // E:n1*x+n2*y+n3*z=n1*p1+n2*p2+n3*p3
+  - calc distance to both points // d=(n1*x+n2*y+n3*z- (n1*p1+n2*p2+n3*p3)) / length(n)
+  - both >0 = inside ; one >0 = collision
+*/
 
-        var b= [[polyline[i].lat,polyline[i].lng],[polyline[i+1].lat,polyline[i+1].lng]];
-        if (intersect(a,b)) return true;
+window.plugin.crossLinks.testPolyLine = function (polyline, link,closed) {
+
+    var a = link.getLatLngs();
+    var b = polyline.getLatLngs();
+
+    for (var i=0;i<b.length-1;++i) {
+        if (greatCircleArcIntersect(a[0],a[1],b[i],b[i+1])) return true;
+    }
+
+    if (closed) {
+        if (greatCircleArcIntersect(a[0],a[1],b[b.length],b[0])) return true;
     }
 
     return false;
 }
-
-function isPointInPolygon(poly, point)  {
-    // src: http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
-    var c = false;
-    var p2 = poly[0];
-    for (var i = 1; i < poly.length; ++i) {
-        var p1 = poly[i];
-        if ( ((p1.lng > point.lng) != (p2.lng>point.lng)) &&
-             (point.lat < (p2.lat - p1.lat)*(point.lng-p1.lng) / (p2.lng-p1.lng) + p1.lat))
-                c = !c;
-
-        p2 = p1;
-  }
-  return c;
-}
-
-window.plugin.crossLinks.testPolygons = function (polygons, link) {
-
-    var linkline= L.geodesicConvertLines(link._latlngs,0);
-
-    for (var pidx=0;pidx<polygons.length;++pidx) {
-        if (isPointInPolygon(polygons[pidx],linkline[0])) return true;
-    }
-
-    return false;
-  }
 
 window.plugin.crossLinks.onLinkAdded = function (data) {
   	if (window.plugin.crossLinks.disabled) return;
 
-    var link = data.link;
+    plugin.crossLinks.testLink(data.link);
+}
 
+window.plugin.crossLinks.checkAllLinks = function() {
+    if (window.plugin.crossLinks.disabled) return;
+
+  	console.debug("Cross-Links: checking all links");
+	plugin.crossLinks.linkLayer.clearLayers();
+
+  	$.each(window.links, function(guid, link) {
+        plugin.crossLinks.testLink(link);
+    });
+}
+
+window.plugin.crossLinks.testLink = function (link) {
     window.plugin.drawTools.drawnItems.eachLayer( function(layer) {
        if (layer instanceof L.GeodesicPolygon) {
-           latlngs = layer.getLatLngs();
-           latlngs.push(latlngs[0]);
-           if (window.plugin.crossLinks.testPolyLine(latlngs, link.getLatLngs())) {
-               plugin.crossLinks.showLink(link.getLatLngs());
+           if (window.plugin.crossLinks.testPolyLine(layer, link,true)) {
+               plugin.crossLinks.showLink(link);
            }
-          // TODO: rework inside-polygons
-/*
-            var polyline= [drawline];
-            } else if (window.plugin.crossLinks.testPolygons([drawline], link)) {
-                link.setStyle (window.plugin.crossLinks.STYLE_INSIDEPOLY);
-            }
-*/
         } else if (layer instanceof L.GeodesicPolyline) {
-
-            if (window.plugin.crossLinks.testPolyLine(layer.getLatLngs(), link.getLatLngs())) {
-                plugin.crossLinks.showLink(link.getLatLngs());
+            if (window.plugin.crossLinks.testPolyLine(layer, link)) {
+                plugin.crossLinks.showLink(link);
             }
         }
     });
 }
 
-window.plugin.crossLinks.checkAllLinks = function() {
-  	console.debug("Cross-Links: checking links");
-    if (window.plugin.crossLinks.disabled) return;
 
-	plugin.crossLinks.linkLayer.clearLayers();
+window.plugin.crossLinks.showLink = function(link) {
 
-	// check all links
-  	$.each(window.links, function(guid, link) {
-
-      window.plugin.drawTools.drawnItems.eachLayer( function(layer) {
-         if (layer instanceof L.GeodesicPolyline) {
-            if (window.plugin.crossLinks.testPolyLine(layer.getLatLngs(), link.getLatLngs())) {
-    	       plugin.crossLinks.showLink(link.getLatLngs());
-               return false;
-            }
-         } else if (layer instanceof L.GeodesicPolygon) {
-           latlngs = layer.getLatLngs();
-           latlngs.push(latlngs[0]);
-           if (window.plugin.crossLinks.testPolyLine(latlngs, link.getLatLngs())) {
-               plugin.crossLinks.showLink(link.getLatLngs());
-           }
-          // TODO: rework inside-polygons
-         }
-      });
-    });
-}
-
-window.plugin.crossLinks.showLink = function(latlngs) {
-
-  var poly = L.geodesicPolyline(latlngs, {
+  var poly = L.geodesicPolyline(link.getLatLngs(), {
     color: '#f11',
     opacity: 0.7,
     weight: 4,
@@ -223,7 +198,7 @@ window.plugin.crossLinks.showLink = function(latlngs) {
   });
 
   poly.addTo(plugin.crossLinks.linkLayer);
-};
+}
 
 window.plugin.crossLinks.onMapDataRefreshEnd = function () {
     if (window.plugin.crossLinks.reorderLinkLayer) {
