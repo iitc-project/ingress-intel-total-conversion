@@ -160,7 +160,6 @@ window.plugin.crossLinks.testPolygons = function (polygons, link) {
 
 window.plugin.crossLinks.onLinkAdded = function (data) {
   	if (window.plugin.crossLinks.disabled) return;
-    window.plugin.crossLinks.linkLayer.bringToFront(); // FIXME: workaround to keep it on above the link-layer
 
     var link = data.link;
 
@@ -226,6 +225,13 @@ window.plugin.crossLinks.showLink = function(latlngs) {
   poly.addTo(plugin.crossLinks.linkLayer);
 };
 
+window.plugin.crossLinks.onMapDataRefreshEnd = function () {
+    if (window.plugin.crossLinks.reorderLinkLayer) {
+        window.plugin.crossLinks.linkLayer.bringToFront();
+        delete window.plugin.crossLinks.reorderLinkLayer;
+    }
+}
+
 window.plugin.crossLinks.drawTools_save = function() {
   window.plugin.crossLinks.ori_drawTools_save();
   window.plugin.crossLinks.checkAllLinks();
@@ -238,11 +244,10 @@ window.plugin.crossLinks.drawTools_load = function() {
 
 
 window.plugin.crossLinks.createLayer = function() {
-    window.plugin.crossLinks.linkLayer = new L.FeatureGroup(); //LayerGroup(); FIXME: need to be a FeatureGroup to bring it to front
+    window.plugin.crossLinks.linkLayer = new L.FeatureGroup();
   	window.addLayerGroup('Cross Links', window.plugin.crossLinks.linkLayer, true);
-	window.plugin.crossLinks.linkLayer.bringToFront();
+	window.plugin.crossLinks.reorderLinkLayer = true;
 
-  	//hide the draw tools when the 'drawn items' layer is off, show it when on
   	map.on('layeradd', function(obj) {
 	    if(obj.layer === window.plugin.crossLinks.linkLayer) {
     	    window.plugin.crossLinks.disabled = undefined;
@@ -272,6 +277,7 @@ var setup = function() {
   window.plugin.drawTools.load = window.plugin.crossLinks.drawTools_load;
 
   window.addHook('linkAdded', window.plugin.crossLinks.onLinkAdded);
+  window.addHook('mapDataRefreshEnd', window.plugin.crossLinks.onMapDataRefreshEnd);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////
