@@ -180,6 +180,8 @@ window.getPortalMiscDetails = function(guid,d) {
         +  unixTimeToString(d.capturedTime) + '</span>'
       : null;
     var sinceText  = time ? ['since', time] : null;
+    
+    var ageText = time ? ['age',formatInterval(Math.floor((Date.now()-d.capturedTime)/1000), 2)] : null;
 
     var fieldCount = getPortalFieldsCount(guid);
 
@@ -194,8 +196,8 @@ window.getPortalMiscDetails = function(guid,d) {
     }
 
     randDetailsData.push (
-      getRangeText(d), getEnergyText(d),
-      linksText, ['-','-'],
+      getRangeText(d), ageText,
+      getEnergyText(d), linksText,
       linkedFields, getAttackApGainText(d,fieldCount,linkCount),
       getHackDetailsText(d), getMitigationText(d,linkCount)
     );
