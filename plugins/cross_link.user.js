@@ -167,6 +167,7 @@ window.plugin.crossLinks.checkAllLinks = function() {
 
   	console.debug("Cross-Links: checking all links");
 	plugin.crossLinks.linkLayer.clearLayers();
+    plugin.crossLinks.linkLayerGuids = {};
 
   	$.each(window.links, function(guid, link) {
         plugin.crossLinks.testLink(link);
@@ -174,30 +175,38 @@ window.plugin.crossLinks.checkAllLinks = function() {
 }
 
 window.plugin.crossLinks.testLink = function (link) {
-    window.plugin.drawTools.drawnItems.eachLayer( function(layer) {
+    if (plugin.crossLinks.linkLayerGuids[link.options.guid]) return;
+
+    for (var i in plugin.drawTools.drawnItems._layers) { // leaflet don't support breaking out of the loop
+       var layer = plugin.drawTools.drawnItems._layers[i];
        if (layer instanceof L.GeodesicPolygon) {
-           if (window.plugin.crossLinks.testPolyLine(layer, link,true)) {
+           if (plugin.crossLinks.testPolyLine(layer, link,true)) {
                plugin.crossLinks.showLink(link);
+               break;
            }
         } else if (layer instanceof L.GeodesicPolyline) {
-            if (window.plugin.crossLinks.testPolyLine(layer, link)) {
+            if (plugin.crossLinks.testPolyLine(layer, link)) {
                 plugin.crossLinks.showLink(link);
+                break;
             }
         }
-    });
+    };
 }
 
 
 window.plugin.crossLinks.showLink = function(link) {
 
-  var poly = L.geodesicPolyline(link.getLatLngs(), {
-    color: '#f11',
-    opacity: 0.7,
-    weight: 4,
-    clickable: false,
-  });
+    var poly = L.geodesicPolyline(link.getLatLngs(), {
+       color: '#f11',
+       opacity: 0.7,
+       weight: 4,
+       clickable: false,
 
-  poly.addTo(plugin.crossLinks.linkLayer);
+       guid: link.options.guid
+    });
+
+    poly.addTo(plugin.crossLinks.linkLayer);
+    plugin.crossLinks.linkLayerGuids[link.options.guid]=poly;
 }
 
 window.plugin.crossLinks.onMapDataRefreshEnd = function () {
@@ -205,16 +214,30 @@ window.plugin.crossLinks.onMapDataRefreshEnd = function () {
         window.plugin.crossLinks.linkLayer.bringToFront();
         delete window.plugin.crossLinks.reorderLinkLayer;
     }
+
+    window.plugin.crossLinks.testForDeletedLinks();
+}
+
+window.plugin.crossLinks.testForDeletedLinks = function () {
+    window.plugin.crossLinks.linkLayer.eachLayer( function(layer) {
+        var guid = layer.options.guid;
+        if (!this.seenLinksGuid[guid]) {
+            console.log("link removed");
+            plugin.crossLinks.linkLayer.removeLayer(layer);
+            delete plugin.crossLinks.linkLayerGuids[guid];
+        }
+    });
 }
 
 window.plugin.crossLinks.createLayer = function() {
     window.plugin.crossLinks.linkLayer = new L.FeatureGroup();
+    window.plugin.crossLinks.linkLayerGuids={};
   	window.addLayerGroup('Cross Links', window.plugin.crossLinks.linkLayer, true);
 	window.plugin.crossLinks.reorderLinkLayer = true;
 
   	map.on('layeradd', function(obj) {
 	    if(obj.layer === window.plugin.crossLinks.linkLayer) {
-    	    window.plugin.crossLinks.disabled = undefined;
+    	    delete window.plugin.crossLinks.disabled;
         	window.plugin.crossLinks.checkAllLinks();
     	}
   	});
