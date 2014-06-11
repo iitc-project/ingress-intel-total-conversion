@@ -207,17 +207,6 @@ window.plugin.crossLinks.onMapDataRefreshEnd = function () {
     }
 }
 
-window.plugin.crossLinks.drawTools_save = function() {
-  window.plugin.crossLinks.ori_drawTools_save();
-  window.plugin.crossLinks.checkAllLinks();
- }
-
-window.plugin.crossLinks.drawTools_load = function() {
-  window.plugin.crossLinks.ori_drawTools_load();
-  window.plugin.crossLinks.checkAllLinks();
- }
-
-
 window.plugin.crossLinks.createLayer = function() {
     window.plugin.crossLinks.linkLayer = new L.FeatureGroup();
   	window.addLayerGroup('Cross Links', window.plugin.crossLinks.linkLayer, true);
@@ -237,22 +226,20 @@ window.plugin.crossLinks.createLayer = function() {
 }
 
 var setup = function() {
-  console.debug("Cross-Links: init");
-  if (window.plugin.drawTools === undefined) {
-      alert("'Cross-Links' requires 'draw-tools'");
-      return;
-  }
+    if (window.plugin.drawTools === undefined) {
+       alert("'Cross-Links' requires 'draw-tools'");
+       return;
+    }
 
-  window.plugin.crossLinks.createLayer();
+    window.plugin.crossLinks.createLayer();
 
-  // hook 'drawTools'
-  window.plugin.crossLinks.ori_drawTools_save = window.plugin.drawTools.save;
-  window.plugin.drawTools.save = window.plugin.crossLinks.drawTools_save;
-  window.plugin.crossLinks.ori_drawTools_load = window.plugin.drawTools.load;
-  window.plugin.drawTools.load = window.plugin.crossLinks.drawTools_load;
+    // events
+    map.on('draw:created', function(e) {window.plugin.crossLinks.checkAllLinks(); });
+    map.on('draw:deleted', function(e) {window.plugin.crossLinks.checkAllLinks(); });
+    map.on('draw:edited', function(e) {window.plugin.crossLinks.checkAllLinks();});
 
-  window.addHook('linkAdded', window.plugin.crossLinks.onLinkAdded);
-  window.addHook('mapDataRefreshEnd', window.plugin.crossLinks.onMapDataRefreshEnd);
+    window.addHook('linkAdded', window.plugin.crossLinks.onLinkAdded);
+    window.addHook('mapDataRefreshEnd', window.plugin.crossLinks.onMapDataRefreshEnd);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////
