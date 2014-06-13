@@ -2,7 +2,7 @@
 // @id             iitc-plugin-bookmarks@ZasoGD
 // @name           IITC plugin: Bookmarks for maps and portals
 // @category       Controls
-// @version        0.2.9.@@DATETIMEVERSION@@
+// @version        0.2.10.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -1018,7 +1018,8 @@
         iconSize: [30,40]
       })
     });
-    star.on('click', function() { renderPortalDetails(guid); });
+    window.registerMarkerForOMS(star);
+    star.on('spiderfiedclick', function() { renderPortalDetails(guid); });
 
     window.plugin.bookmarks.starLayers[guid] = star;
     star.addTo(window.plugin.bookmarks.starLayerGroup);

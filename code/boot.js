@@ -560,6 +560,7 @@ function boot() {
   window.setupStyles();
   window.setupDialogs();
   window.setupMap();
+  window.setupOMS();
   window.setupGeosearch();
   window.setupRedeem();
   window.setupLargeImagePreview();
@@ -657,6 +658,7 @@ try { console.log('Loading included JS now'); } catch(e) {}
 // contains the default Ingress map style.
 @@INCLUDERAW:external/Google.js@@
 @@INCLUDERAW:external/autolink.js@@
+@@INCLUDERAW:external/oms.min.js@@
 
 try { console.log('done loading included JS'); } catch(e) {}
 
