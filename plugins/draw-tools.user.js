@@ -258,6 +258,7 @@ window.plugin.drawTools.import = function(data) {
         var extraMarkerOpt = {};
         if (item.color) extraMarkerOpt.icon = window.plugin.drawTools.getMarkerIcon(item.color);
         layer = L.marker(item.latLng, L.extend({},window.plugin.drawTools.markerOptions,extraMarkerOpt));
+        window.registerMarkerForOMS(layer);
         break;
       default:
         console.warn('unknown layer type "'+item.type+'" when loading draw tools layer');
@@ -425,6 +426,10 @@ window.plugin.drawTools.boot = function() {
     var layer=e.layer;
     window.plugin.drawTools.drawnItems.addLayer(layer);
     window.plugin.drawTools.save();
+
+    if(layer instanceof L.Marker) {
+      window.registerMarkerForOMS(layer);
+    }
   });
 
   map.on('draw:deleted', function(e) {

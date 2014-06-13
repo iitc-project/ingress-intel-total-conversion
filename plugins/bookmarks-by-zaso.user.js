@@ -1018,7 +1018,8 @@
         iconSize: [30,40]
       })
     });
-    star.on('click', function() { renderPortalDetails(guid); });
+    window.registerMarkerForOMS(star);
+    star.on('spiderfiedclick', function() { renderPortalDetails(guid); });
 
     window.plugin.bookmarks.starLayers[guid] = star;
     star.addTo(window.plugin.bookmarks.starLayerGroup);
