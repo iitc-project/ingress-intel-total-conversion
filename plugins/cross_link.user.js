@@ -221,7 +221,7 @@ window.plugin.crossLinks.onMapDataRefreshEnd = function () {
 window.plugin.crossLinks.testForDeletedLinks = function () {
     window.plugin.crossLinks.linkLayer.eachLayer( function(layer) {
         var guid = layer.options.guid;
-        if (!this.seenLinksGuid[guid]) {
+        if (!window.mapDataRequest.render.seenLinksGuid[guid]) {
             console.log("link removed");
             plugin.crossLinks.linkLayer.removeLayer(layer);
             delete plugin.crossLinks.linkLayerGuids[guid];
