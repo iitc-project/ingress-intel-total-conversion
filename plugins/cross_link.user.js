@@ -218,6 +218,25 @@ window.plugin.crossLinks.onMapDataRefreshEnd = function () {
     window.plugin.crossLinks.testForDeletedLinks();
 }
 
+window.plugin.crossLinks.testAllLinksAgainstLayer = function (layer) {
+    if (window.plugin.crossLinks.disabled) return;
+
+  	$.each(window.links, function(guid, link) {
+        if (!plugin.crossLinks.linkLayerGuids[link.options.guid])
+        {
+            if (layer instanceof L.GeodesicPolygon) {
+                if (plugin.crossLinks.testPolyLine(layer, link,true)) {
+                    plugin.crossLinks.showLink(link);
+                }
+            } else if (layer instanceof L.GeodesicPolyline) {
+                if (plugin.crossLinks.testPolyLine(layer, link)) {
+                    plugin.crossLinks.showLink(link);
+                }
+            }
+        }
+    });
+}
+
 window.plugin.crossLinks.testForDeletedLinks = function () {
     window.plugin.crossLinks.linkLayer.eachLayer( function(layer) {
         var guid = layer.options.guid;
@@ -257,7 +276,7 @@ var setup = function() {
     window.plugin.crossLinks.createLayer();
 
     // events
-    map.on('draw:created', function(e) {window.plugin.crossLinks.checkAllLinks(); });
+    map.on('draw:created', function(e) { window.plugin.crossLinks.testAllLinksAgainstLayer(e.layer);});
     map.on('draw:deleted', function(e) {window.plugin.crossLinks.checkAllLinks(); });
     map.on('draw:edited', function(e) {window.plugin.crossLinks.checkAllLinks();});
 
