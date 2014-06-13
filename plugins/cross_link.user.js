@@ -210,10 +210,7 @@ window.plugin.crossLinks.showLink = function(link) {
 }
 
 window.plugin.crossLinks.onMapDataRefreshEnd = function () {
-    if (window.plugin.crossLinks.reorderLinkLayer) {
-        window.plugin.crossLinks.linkLayer.bringToFront();
-        delete window.plugin.crossLinks.reorderLinkLayer;
-    }
+    window.plugin.crossLinks.linkLayer.bringToFront();
 
     window.plugin.crossLinks.testForDeletedLinks();
 }
@@ -252,7 +249,6 @@ window.plugin.crossLinks.createLayer = function() {
     window.plugin.crossLinks.linkLayer = new L.FeatureGroup();
     window.plugin.crossLinks.linkLayerGuids={};
   	window.addLayerGroup('Cross Links', window.plugin.crossLinks.linkLayer, true);
-	window.plugin.crossLinks.reorderLinkLayer = true;
 
   	map.on('layeradd', function(obj) {
 	    if(obj.layer === window.plugin.crossLinks.linkLayer) {
