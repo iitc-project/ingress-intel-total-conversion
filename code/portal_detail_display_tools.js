@@ -279,10 +279,12 @@ window.getMitigationText = function(d,linkCount) {
   if (mitigationDetails.excess) mitigationShort += ' (+'+mitigationDetails.excess+')';
 
   function tt(text) {
-    var t = 'Shielding:\t'+mitigationDetails.total+'\n';
-    t += 'Shields:\t'+mitigationDetails.shields+'\n';
-    t += 'Links:\t'+mitigationDetails.links+'\n';
-    t += 'Excess:\t'+mitigationDetails.excess+'\n';
+    var t = 'Total shielding:\t'+(mitigationDetails.shields+mitigationDetails.links)+'\n'
+          + '- active:\t'+mitigationDetails.total+'\n'
+          + '- excess:\t'+mitigationDetails.excess+'\n'
+          + 'From\n'
+          + '- shields:\t'+mitigationDetails.shields+'\n'
+          + '- links:\t'+mitigationDetails.links;
 
     return '<span title="'+t+'">'+text+'</span>';
   }
