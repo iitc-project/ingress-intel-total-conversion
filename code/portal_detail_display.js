@@ -189,8 +189,8 @@ window.getPortalMiscDetails = function(guid,d) {
 
     // collect and html-ify random data
     var randDetailsData = [];
-    if (playerText && sinceText) {
-      randDetailsData.push (playerText, sinceText);
+    if (playerText || sinceText) {
+      randDetailsData.push (playerText || ['-','-'], sinceText || ['-','-']);
     }
 
     randDetailsData.push (
