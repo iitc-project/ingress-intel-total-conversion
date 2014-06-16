@@ -185,7 +185,7 @@ window.getPortalMiscDetails = function(guid,d) {
 
     // collect and html-ify random data
     var randDetailsData = [];
-    if (d.owner) {
+    if (true) {  // or "if (d.owner) {" ...? but this makes the info panel look rather empty for unclaimed portals
       // these pieces of data are only relevant when the portal is captured
       randDetailsData.push (
         playerText, getRangeText(d),
