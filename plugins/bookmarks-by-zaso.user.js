@@ -2,7 +2,7 @@
 // @id             iitc-plugin-bookmarks@ZasoGD
 // @name           IITC plugin: Bookmarks for maps and portals
 // @category       Controls
-// @version        0.2.10.@@DATETIMEVERSION@@
+// @version        0.2.11.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -657,6 +657,79 @@
     }
   }
 
+  window.plugin.bookmarks.optBookmarkVisible = function(command) {
+    console.log('BOOKMARKS: ' + command);
+    var displayBounds = map.getBounds();
+    var list = window.plugin.bookmarks.bkmrksObj['portals'];
+    var ids = [];  // Track ids in use
+
+    var counts = {'skip': 0, 'add': 0, 'delete': 0};
+    var total = 0;
+
+    // Find ids in use so we don't reuse them.
+    for(var idFolders in list) {
+      ids.push(idFolders);
+      for(var idBkmrk in list[idFolders]['bkmrk']) {
+        ids.push(idBkmrk);
+      }
+    }
+
+    $.each(portals, function(guid, portal) {
+      // Only care about portals actually visible on the screen
+      if(displayBounds.contains(portal.getLatLng()) && portal._map) {
+        // Find out what we really need to do
+        var op = 'skip';
+        total++;
+        var bkmrkData = window.plugin.bookmarks.findByGuid(guid);
+        if(bkmrkData && (command === 'off' || command === 'toggle')) {
+          op = 'delete';
+        } else if(!bkmrkData && (command === 'on' || command === 'toggle')) {
+          op = 'add';
+        }
+        counts[op]++;
+
+        // Do what we really need to do
+        switch(op) {
+          case 'skip':
+            break;
+
+          case 'add':
+            var d = portal.options.data;
+            var label = d.title;
+            var lat = portal.getLatLng().lat;
+            var lng = portal.getLatLng().lng;
+            var latlng = lat+','+lng;
+            // TODO: check ID for uniqueness, easily clashes
+            var ID = window.plugin.bookmarks.generateID();
+
+            // generateID() can easily collide, so retry
+            while(ids.indexOf(ID) > -1) {
+              console.log('BOOKMARKS: id collision: ' + ID);
+              ID = window.plugin.bookmarks.generateID();
+            }
+            ids.push(ID);
+
+            window.plugin.bookmarks.bkmrksObj['portals'][window.plugin.bookmarks.KEY_OTHER_BKMRK]['bkmrk'][ID] = {'guid': guid, 'latlng': latlng, 'label': label};
+            break;
+
+          case 'delete':
+            delete list[bkmrkData['id_folder']]['bkmrk'][bkmrkData['id_bookmark']];
+            break;
+        } // switch
+      }  // really visiblt
+    }  // portal loop
+    );
+    if(total) {
+      window.plugin.bookmarks.saveStorage();
+      window.plugin.bookmarks.refreshBkmrks();
+      window.plugin.bookmarks.updateStarPortal();
+      // TODO: make a new bulk action?
+      window.runHooks('pluginBkmrksEdit',
+                      {'target': 'all', 'action': 'import'});
+      console.log('BOOKMARKS: ' + JSON.stringify(counts));
+    }
+  }
+
   window.plugin.bookmarks.dialogLoadListFolders = function(idBox, clickAction, showOthersF, scanType/*0 = maps&portals; 1 = maps; 2 = portals*/) {
     var list = JSON.parse(localStorage['plugin-bookmarks']);
     var listHTML = '';
@@ -1103,6 +1176,9 @@
       actions += '<a onclick="window.plugin.bookmarks.optBox(\'save\');return false;">Save box position</a>';
       actions += '<a onclick="window.plugin.bookmarks.optBox(\'reset\');return false;">Reset box position</a>';
     }
+    actions += '<a onclick="window.plugin.bookmarks.optBookmarkVisible(\'on\');return false;">Star all visible</a>'
+    actions += '<a onclick="window.plugin.bookmarks.optBookmarkVisible(\'off\');return false;">Unstar all visible</a>'
+    actions += '<a onclick="window.plugin.bookmarks.optBookmarkVisible(\'toggle\');return false;">Toggle star on all visible</a>'
     plugin.bookmarks.htmlSetbox = '<div id="bkmrksSetbox">' + actions + '</div>';
   }
 
