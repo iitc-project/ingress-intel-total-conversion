@@ -41,8 +41,7 @@ window.MapDataRequest = function() {
 
 
   // a short delay between one request finishing and the queue being run for the next request.
-  // this gives a chance of other requests finishing, allowing better grouping of retries in new requests
-  this.RUN_QUEUE_DELAY = 0.2;
+  this.RUN_QUEUE_DELAY = 0.05;
 
   // delay before processing the queue after failed requests
   this.BAD_REQUEST_RUN_QUEUE_DELAY = 10; // longer delay before doing anything after errors (other than TIMEOUT)
