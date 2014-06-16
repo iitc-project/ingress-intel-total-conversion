@@ -29,6 +29,10 @@ window.MapDataRequest = function() {
 
   // number of times to retry a tile after a 'bad' error (i.e. not a timeout)
   this.MAX_TILE_RETRIES = 2;
+  try {
+    // stock has a variable for this - try to use it
+    this.MAX_TILE_RETRIES = nemesis.dashboard.DataManager.MAX_QUADKEY_RETRY_ATTEMPTS_;
+  } catch(e) {}
 
   // refresh timers
   this.MOVE_REFRESH = 3; //time, after a map move (pan/zoom) before starting the refresh processing
