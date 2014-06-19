@@ -756,21 +756,24 @@
 
     if(latlngs.length >= 2 && latlngs.length <= 3) {
       // TODO: add an API to draw-tools rather than assuming things about it's internals
-      var newItem;
       window.plugin.drawTools.setOptions();
 
+      var layer, layerType;
       if(latlngs.length == 2) {
-        newItem = L.geodesicPolyline(latlngs, window.plugin.drawTools.lineOptions);
+        layer = L.geodesicPolyline(latlngs, window.plugin.drawTools.lineOptions);
+        layerType = 'polyline';
       } else {
-        newItem = L.geodesicPolygon(latlngs, window.plugin.drawTools.polygonOptions);
+        layer = L.geodesicPolygon(latlngs, window.plugin.drawTools.polygonOptions);
+        layerType = 'polygon';
       }
 
-      if($("#bkmrkClearSelection").prop("checked"))
-        $('#bkmrksAutoDrawer a.bkmrk.selected').removeClass('selected');
+      map.fire('draw:created', {
+        layer: layer,
+        layerType: layerType
+      });
 
-      newItem.addTo(window.plugin.drawTools.drawnItems);
-      // Save in localStorage
-      window.plugin.drawTools.save();
+      if($('#bkmrkClearSelection').prop('checked'))
+        $('#bkmrksAutoDrawer a.bkmrk.selected').removeClass('selected');
 
       if(window.plugin.bookmarks.isSmart) {
         window.show('map');
