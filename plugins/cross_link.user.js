@@ -177,7 +177,7 @@ window.plugin.crossLinks.showLink = function(link) {
 
     var poly = L.geodesicPolyline(link.getLatLngs(), {
        color: '#f11',
-       opacity: 0.5,
+       opacity: 0.7,
        weight: 5,
        clickable: false,
        dashArray: [8,8],
