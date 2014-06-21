@@ -34,6 +34,10 @@ var near_0 = 1e-6;
 
 function greatCircleArcIntersect(a0,a1,b0,b1) {
 
+    function length(x, y, z) {
+        return Math.sqrt(x * x + y * y + z * z);
+    }
+
     // Order points
     if (a1.lat < a0.lat) { var t=a1;a1=a0;a0=t;}
     if (b1.lat < b0.lat) { var t=b1;b1=b0;b0=t;}
@@ -128,17 +132,7 @@ function greatCircleArcIntersect(a0,a1,b0,b1) {
     }
 }
 
-function length(x, y, z) {
-  return Math.sqrt(x * x + y * y + z * z);
-}
 
-/*
- smallCircleIntersect
- idea:
-  - build the plane of the small circle: normalvector (center) and p=center+radian // E:n1*x+n2*y+n3*z=n1*p1+n2*p2+n3*p3
-  - calc distance to both points // d=(n1*x+n2*y+n3*z- (n1*p1+n2*p2+n3*p3)) / length(n)
-  - both >0 = inside ; one >0 = collision
-*/
 
 window.plugin.crossLinks.testPolyLine = function (polyline, link,closed) {
 
@@ -150,14 +144,14 @@ window.plugin.crossLinks.testPolyLine = function (polyline, link,closed) {
     }
 
     if (closed) {
-        if (greatCircleArcIntersect(a[0],a[1],b[b.length],b[0])) return true;
+        if (greatCircleArcIntersect(a[0],a[1],b[b.length-1],b[0])) return true;
     }
 
     return false;
 }
 
 window.plugin.crossLinks.onLinkAdded = function (data) {
-  	if (window.plugin.crossLinks.disabled) return;
+    if (window.plugin.crossLinks.disabled) return;
 
     plugin.crossLinks.testLink(data.link);
 }
@@ -165,11 +159,11 @@ window.plugin.crossLinks.onLinkAdded = function (data) {
 window.plugin.crossLinks.checkAllLinks = function() {
     if (window.plugin.crossLinks.disabled) return;
 
-  	console.debug("Cross-Links: checking all links");
-	plugin.crossLinks.linkLayer.clearLayers();
+    console.debug("Cross-Links: checking all links");
+    plugin.crossLinks.linkLayer.clearLayers();
     plugin.crossLinks.linkLayerGuids = {};
 
-  	$.each(window.links, function(guid, link) {
+    $.each(window.links, function(guid, link) {
         plugin.crossLinks.testLink(link);
     });
 }
@@ -198,9 +192,10 @@ window.plugin.crossLinks.showLink = function(link) {
 
     var poly = L.geodesicPolyline(link.getLatLngs(), {
        color: '#f11',
-       opacity: 0.7,
-       weight: 4,
+       opacity: 0.5,
+       weight: 5,
        clickable: false,
+       dashArray: [8,8],
 
        guid: link.options.guid
     });
@@ -218,7 +213,7 @@ window.plugin.crossLinks.onMapDataRefreshEnd = function () {
 window.plugin.crossLinks.testAllLinksAgainstLayer = function (layer) {
     if (window.plugin.crossLinks.disabled) return;
 
-  	$.each(window.links, function(guid, link) {
+    $.each(window.links, function(guid, link) {
         if (!plugin.crossLinks.linkLayerGuids[link.options.guid])
         {
             if (layer instanceof L.GeodesicPolygon) {
@@ -248,19 +243,19 @@ window.plugin.crossLinks.testForDeletedLinks = function () {
 window.plugin.crossLinks.createLayer = function() {
     window.plugin.crossLinks.linkLayer = new L.FeatureGroup();
     window.plugin.crossLinks.linkLayerGuids={};
-  	window.addLayerGroup('Cross Links', window.plugin.crossLinks.linkLayer, true);
+    window.addLayerGroup('Cross Links', window.plugin.crossLinks.linkLayer, true);
 
-  	map.on('layeradd', function(obj) {
-	    if(obj.layer === window.plugin.crossLinks.linkLayer) {
-    	    delete window.plugin.crossLinks.disabled;
-        	window.plugin.crossLinks.checkAllLinks();
-    	}
-  	});
-  	map.on('layerremove', function(obj) {
-    	if(obj.layer === window.plugin.crossLinks.linkLayer) {
-        	window.plugin.crossLinks.disabled = true;
-    	}
-  	});
+    map.on('layeradd', function(obj) {
+      if(obj.layer === window.plugin.crossLinks.linkLayer) {
+        delete window.plugin.crossLinks.disabled;
+        window.plugin.crossLinks.checkAllLinks();
+      }
+    });
+    map.on('layerremove', function(obj) {
+      if(obj.layer === window.plugin.crossLinks.linkLayer) {
+        window.plugin.crossLinks.disabled = true;
+      }
+    });
 }
 
 var setup = function() {
