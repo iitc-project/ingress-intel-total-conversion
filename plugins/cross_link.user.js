@@ -2,7 +2,7 @@
 // @id             iitc-plugin-cross-links@mcben
 // @name           IITC plugin: cross links
 // @category       Layer
-// @version        1.0.0.@@DATETIMEVERSION@@
+// @version        1.1.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -21,115 +21,100 @@
 
 window.plugin.crossLinks = function() {};
 
-/* Great Circle Arc Intersection
-    Conecpt in short:
-       - build a plane of each arc (p1,p2,center)
-       - find intersection line and intersection points on sphere
-       - check if a point are on both arcs
-    see: http://geospatialmethods.org/spheres/GCAIntersect.html
-*/
-var PI = Math.PI;
-var radians = PI / 180;
-var near_0 = 1e-6;
 
-function greatCircleArcIntersect(a0,a1,b0,b1) {
+window.plugin.crossLinks.greatCircleArcIntersect = function(a0,a1,b0,b1) {
+  // based on the formula at http://williams.best.vwh.net/avform.htm#Int
 
-    function length(x, y, z) {
-        return Math.sqrt(x * x + y * y + z * z);
-    }
+  // method:
+  // check to ensure no line segment is zero length - if so, cannot cross
+  // check to see if either of the lines start/end at the same point. if so, then they cannot cross
+  // check to see if the line segments overlap in longitude. if not, no crossing
+  // if overlap, clip each line to the overlapping longitudes, then see if latitudes cross 
 
-    // Order points
-    if (a1.lat < a0.lat) { var t=a1;a1=a0;a0=t;}
-    if (b1.lat < b0.lat) { var t=b1;b1=b0;b0=t;}
+  // anti-meridian handling. this code will not sensibly handle a case where one point is
+  // close to -180 degrees and the other +180 degrees. unwrap coordinates in this case, so one point
+  // is beyond +-180 degrees. this is already true in IITC
+  // FIXME? if the two lines have been 'unwrapped' differently - one positive, one negative - it will fail
 
-    var λ0 = a0.lat,
-        λ1 = a1.lat,
-        λ2 = b0.lat,
-        λ3 = b1.lat,
-        δλ0 = λ1 - λ0,
-        δλ1 = λ3 - λ2,
-        sλ0 = δλ0 > 180,
-        sλ1 = δλ1 > 180,
-        φ0 = a0.lng * radians,
-        φ1 = a1.lng * radians,
-        φ2 = b0.lng * radians,
-        φ3 = b1.lng * radians,
-        t;
+  // zero length line tests
+  if (a0.equals(a1)) return false;
+  if (b0.equals(b1)) return false;
 
-    // Check if longitude ranges overlap.
-    // TODO handle antimeridian crossings.
-    if (!sλ0 && !sλ1 && (λ0 > λ3 || λ2 > λ1)) return;
+  // lines have a common point
+  if (a0.equals(b0) || a0.equals(b1)) return false;
+  if (a1.equals(b0) || a1.equals(b1)) return false;
 
-    // Check for polar endpoints.
-    if (Math.abs(Math.abs(φ0) - PI / 2) < near_0) λ0 = λ1, δλ0 = 0, sλ0 = false;
-    if (Math.abs(Math.abs(φ1) - PI / 2) < near_0) λ1 = λ0, δλ0 = 0, sλ0 = false;
-    if (Math.abs(Math.abs(φ2) - PI / 2) < near_0) λ2 = λ3, δλ1 = 0, sλ1 = false;
-    if (Math.abs(Math.abs(φ3) - PI / 2) < near_0) λ3 = λ2, δλ1 = 0, sλ1 = false;
 
-    // Check for arcs along meridians.
-    var m0 = δλ0 < near_0 || Math.abs(δλ0 - 180) < near_0,
-        m1 = δλ1 < near_0 || Math.abs(δλ1 - 180) < near_0;
+  // check for 'horizontal' overlap in lngitude
+  if (Math.min(a0.lng,a1.lng) > Math.max(b0.lng,b1.lng)) return false;
+  if (Math.max(a0.lng,a1.lng) < Math.min(b0.lng,b1.lng)) return false;
 
-    λ0 *= radians, λ1 *= radians, λ2 *= radians, λ3 *= radians;
 
-    // Intersect two great circles and check the two intersection points against
-    // the longitude ranges.  The intersection points are simply the cross
-    // product of the great-circle normals ±n1⨯n2.
+  // ok, our two lines have some horizontal overlap in longitude
+  // 1. calculate the overlapping min/max longitude
+  // 2. calculate each line latitude at each point
+  // 3. if latitudes change place between overlapping range, the lines cross
 
-    // First plane.
-    var cosφ,
-        x0 = (cosφ = Math.cos(φ0)) * Math.cos(λ0),
-        y0 = cosφ * Math.sin(λ0),
-        z0 = Math.sin(φ0),
-        x1 = (cosφ = Math.cos(φ1)) * Math.cos(λ1),
-        y1 = cosφ * Math.sin(λ1),
-        z1 = Math.sin(φ1),
-        n0x = y0 * z1 - z0 * y1,
-        n0y = z0 * x1 - x0 * z1,
-        n0z = x0 * y1 - y0 * x1,
-        m = length(n0x, n0y, n0z);
 
-    n0x /= m, n0y /= m, n0z /= m;
+  // class to hold the pre-calculated maths for a geodesic line
+  // TODO: move this outside this function, so it can be pre-calculated once for each line we test
+  var GeodesicLine = function(start,end) {
+    var R = 6378137; // earth radius in meters (doesn't have to be exact)
+    var d2r = Math.PI/180.0;
+    var r2d = 180.0/Math.PI;
 
-    // Second plane.
-    var x2 = (cosφ = Math.cos(φ2)) * Math.cos(λ2),
-        y2 = cosφ * Math.sin(λ2),
-        z2 = Math.sin(φ2),
-        x3 = (cosφ = Math.cos(φ3)) * Math.cos(λ3),
-        y3 = cosφ * Math.sin(λ3),
-        z3 = Math.sin(φ3),
-        n1x = y2 * z3 - z2 * y3,
-        n1y = z2 * x3 - x2 * z3,
-        n1z = x2 * y3 - y2 * x3,
-        m = length(n1x, n1y, n1z);
+    // maths based on http://williams.best.vwh.net/avform.htm#Int
 
-    n1x /= m, n1y /= m, n1z /= m;
+    // only the variables needed to calculate a latitude for a given longitude are stored in 'this'
+    var lat1 = start.lat * d2r;
+    var lat2 = end.lat * d2r;
+    this.lng1 = start.lng * d2r;
+    this.lng2 = end.lng * d2r;
 
-    var Nx = n0y * n1z - n0z * n1y,
-        Ny = n0z * n1x - n0x * n1z,
-        Nz = n0x * n1y - n0y * n1x;
+    var dLng = this.lng2-this.lng1;
 
-    if (length(Nx, Ny, Nz) < near_0) return;
+    var sinLat1 = Math.sin(lat1);
+    var sinLat2 = Math.sin(lat2);
+    var cosLat1 = Math.cos(lat1);
+    var cosLat2 = Math.cos(lat2);
 
-    var λ = Math.atan2(Ny, Nx);
-    if ( (sλ0 ^ (λ0 <= λ && λ <= λ1) || m0 && Math.abs(λ - λ0) < near_0) && (sλ1 ^ (λ2 <= λ && λ <= λ3) || m1 && Math.abs(λ - λ2) < near_0) || (Nz = -Nz,
-         (sλ0 ^ (λ0 <= (λ = (λ + 2 * PI) % (2 * PI) - PI) && λ <= λ1) || m0 && Math.abs(λ - λ0) < near_0) && (sλ1 ^ (λ2 <= λ && λ <= λ3) || m1 && Math.abs(λ - λ2) < near_0))) {
+    this.sinLat1CosLat2 = sinLat1*cosLat2;
+    this.sinLat2CosLat1 = sinLat2*cosLat1;
 
-        var φ = Math.asin(Nz / length(Nx, Ny, Nz));
+    this.cosLat1CosLat2SinDLng = cosLat1*cosLat2*Math.sin(dLng);
+  }
 
-        if (m0 || m1) {
-          if (m1) φ0 = φ2, φ1 = φ3, λ0 = λ2, λ1 = λ3, δλ0 = δλ1;
+  GeodesicLine.prototype.latAtLng = function(lng) {
+    lng = lng * Math.PI / 180; //to radians
 
-          if (δλ0 > near_0)
-            return (φ0 + φ1 > 0 ^ φ < (Math.abs(λ - λ0) < near_0 ? φ0 : φ1)) ? [λ / radians, φ / radians] : null;
+    var lat = Math.atan ( (this.sinLat1CosLat2*Math.sin(this.lng2-lng) + this.sinLat2CosLat1*Math.sin(lng-this.lng1))
+                          / this.cosLat1CosLat2SinDLng);
 
-          // Ensure φ0 ≤ φ1.
-          if (φ1 < φ0) t = φ0, φ0 = φ1, φ1 = t;
-          return (Math.abs(λ - (m0 ? λ0 : λ2)) < near_0 && φ0 <= φ && φ <= φ1) ? [λ / radians, φ / radians] : null;
-        }
+    return lat * 180 / Math.PI; // return value in degrees
+  }
 
-        return [λ / radians, φ / radians];
-    }
+
+  // calculate the longitude of the overlapping region
+  var leftLng = Math.max( Math.min(a0.lng,a1.lng), Math.min(b0.lng,b1.lng) );
+  var rightLng = Math.min( Math.max(a0.lng,a1.lng), Math.max(b0.lng,b1.lng) );
+
+  // prepare geodesic line maths
+  var aGeo = new GeodesicLine(a0,a1);
+  var bGeo = new GeodesicLine(b0,b1);
+
+  // calculate the latitudes for each line at left + right points
+  var aLeftLat = aGeo.latAtLng(leftLng);
+  var aRightLat = aGeo.latAtLng(rightLng);
+
+  var bLeftLat = bGeo.latAtLng(leftLng);
+  var bRightLat = bGeo.latAtLng(rightLng);
+
+  // if both a are less or greater than both b, then lines do not cross
+  if (aLeftLat < bLeftLat && aRightLat < bRightLat) return false;
+  if (aLeftLat > bLeftLat && aRightLat > bRightLat) return false;
+
+  // latitudes cross between left and right - so geodesic lines cross
+  return true;
 }
 
 
@@ -140,11 +125,11 @@ window.plugin.crossLinks.testPolyLine = function (polyline, link,closed) {
     var b = polyline.getLatLngs();
 
     for (var i=0;i<b.length-1;++i) {
-        if (greatCircleArcIntersect(a[0],a[1],b[i],b[i+1])) return true;
+        if (window.plugin.crossLinks.greatCircleArcIntersect(a[0],a[1],b[i],b[i+1])) return true;
     }
 
     if (closed) {
-        if (greatCircleArcIntersect(a[0],a[1],b[b.length-1],b[0])) return true;
+        if (window.plugin.crossLinks.greatCircleArcIntersect(a[0],a[1],b[b.length-1],b[0])) return true;
     }
 
     return false;
