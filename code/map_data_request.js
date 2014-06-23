@@ -57,10 +57,10 @@ window.MapDataRequest = function() {
   // render queue
   // number of items to process in each render pass. there are pros and cons to smaller and larger values
   // (however, if using leaflet canvas rendering, it makes sense to push as much as possible through every time)
-  this.RENDER_BATCH_SIZE = L.Path.CANVAS ? 1E9 : (typeof android === 'undefined') ? 200 : 100;
+  this.RENDER_BATCH_SIZE = L.Path.CANVAS ? 1E9 : 500;
 
   // delay before repeating the render loop. this gives a better chance for user interaction
-  this.RENDER_PAUSE = 0.1; //100ms
+  this.RENDER_PAUSE = (typeof android === 'undefined') ? 0.1 : 0.2; //100ms desktop, 200ms mobile
 
 
   this.REFRESH_CLOSE = 300;  // refresh time to use for close views z>12 when not idle and not moving
