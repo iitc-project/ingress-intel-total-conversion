@@ -59,24 +59,27 @@ window.plugin.crossLinks.greatCircleArcIntersect = function(a0,a1,b0,b1) {
   // class to hold the pre-calculated maths for a geodesic line
   // TODO: move this outside this function, so it can be pre-calculated once for each line we test
   var GeodesicLine = function(start,end) {
-    var R = 6378137; // earth radius in meters (doesn't have to be exact)
     var d2r = Math.PI/180.0;
     var r2d = 180.0/Math.PI;
 
     // maths based on http://williams.best.vwh.net/avform.htm#Int
 
+    if (start.lng == end.lng) {
+      throw 'Error: cannot calculate latitude for meridians';
+    }
+
     // only the variables needed to calculate a latitude for a given longitude are stored in 'this'
-    var lat1 = start.lat * d2r;
-    var lat2 = end.lat * d2r;
+    this.lat1 = start.lat * d2r;
+    this.lat2 = end.lat * d2r;
     this.lng1 = start.lng * d2r;
     this.lng2 = end.lng * d2r;
 
-    var dLng = this.lng2-this.lng1;
+    var dLng = this.lng1-this.lng2;
 
-    var sinLat1 = Math.sin(lat1);
-    var sinLat2 = Math.sin(lat2);
-    var cosLat1 = Math.cos(lat1);
-    var cosLat2 = Math.cos(lat2);
+    var sinLat1 = Math.sin(this.lat1);
+    var sinLat2 = Math.sin(this.lat2);
+    var cosLat1 = Math.cos(this.lat1);
+    var cosLat2 = Math.cos(this.lat2);
 
     this.sinLat1CosLat2 = sinLat1*cosLat2;
     this.sinLat2CosLat1 = sinLat2*cosLat1;
@@ -84,12 +87,25 @@ window.plugin.crossLinks.greatCircleArcIntersect = function(a0,a1,b0,b1) {
     this.cosLat1CosLat2SinDLng = cosLat1*cosLat2*Math.sin(dLng);
   }
 
+  GeodesicLine.prototype.isMeridian = function() {
+    return this.lng1 == this.lng2;
+  }
+
   GeodesicLine.prototype.latAtLng = function(lng) {
     lng = lng * Math.PI / 180; //to radians
 
-    var lat = Math.atan ( (this.sinLat1CosLat2*Math.sin(this.lng2-lng) + this.sinLat2CosLat1*Math.sin(lng-this.lng1))
-                          / this.cosLat1CosLat2SinDLng);
-
+    var lat;
+    // if we're testing the start/end point, return that directly rather than calculating
+    // 1. this may be fractionally faster, no complex maths
+    // 2. there's odd rounding issues that occur on some browsers (noticed on IITC MObile) for very short links - this may help
+    if (lng == this.lng1) {
+      lat = this.lat1;
+    } else if (lng == this.lng2) {
+      lat = this.lat2;
+    } else {
+      lat = Math.atan ( (this.sinLat1CosLat2*Math.sin(lng-this.lng2) - this.sinLat2CosLat1*Math.sin(lng-this.lng1))
+                       / this.cosLat1CosLat2SinDLng);
+    }
     return lat * 180 / Math.PI; // return value in degrees
   }
 
@@ -98,20 +114,35 @@ window.plugin.crossLinks.greatCircleArcIntersect = function(a0,a1,b0,b1) {
   var leftLng = Math.max( Math.min(a0.lng,a1.lng), Math.min(b0.lng,b1.lng) );
   var rightLng = Math.min( Math.max(a0.lng,a1.lng), Math.max(b0.lng,b1.lng) );
 
-  // prepare geodesic line maths
-  var aGeo = new GeodesicLine(a0,a1);
-  var bGeo = new GeodesicLine(b0,b1);
+  // calculate the latitudes for each line at left + right longitudes
+  // NOTE: need a special case for meridians - as GeodesicLine.latAtLng method is invalid in that case
+  var aLeftLat, aRightLat;
+  if (a0.lng == a1.lng) {
+    // 'left' and 'right' now become 'top' and 'bottom' (in some order) - which is fine for the below intersection code
+    aLeftLat = a0.lat;
+    aRightLat = a1.lat;
+  } else {
+    var aGeo = new GeodesicLine(a0,a1);
+    aLeftLat = aGeo.latAtLng(leftLng);
+    aRightLat = aGeo.latAtLng(rightLng);
+  }
 
-  // calculate the latitudes for each line at left + right points
-  var aLeftLat = aGeo.latAtLng(leftLng);
-  var aRightLat = aGeo.latAtLng(rightLng);
-
-  var bLeftLat = bGeo.latAtLng(leftLng);
-  var bRightLat = bGeo.latAtLng(rightLng);
+  var bLeftLat, bRightLat;
+  if (b0.lng == b1.lng) {
+    // 'left' and 'right' now become 'top' and 'bottom' (in some order) - which is fine for the below intersection code
+    bLeftLat = b0.lat;
+    bRightLat = b1.lat;
+  } else {
+    var bGeo = new GeodesicLine(b0,b1);
+    bLeftLat = bGeo.latAtLng(leftLng);
+    bRightLat = bGeo.latAtLng(rightLng);
+  }
 
   // if both a are less or greater than both b, then lines do not cross
-  if (aLeftLat < bLeftLat && aRightLat < bRightLat) return false;
-  if (aLeftLat > bLeftLat && aRightLat > bRightLat) return false;
+
+  var margin = 0;  //FIXME? include a small margin of error, to help ensure rounding errors don't prodice false negatives?
+  if (aLeftLat+margin < bLeftLat && aRightLat+margin < bRightLat) return false;
+  if (aLeftLat-margin > bLeftLat && aRightLat-margin > bRightLat) return false;
 
   // latitudes cross between left and right - so geodesic lines cross
   return true;
