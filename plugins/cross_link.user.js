@@ -110,6 +110,7 @@ window.plugin.crossLinks.greatCircleArcIntersect = function(a0,a1,b0,b1) {
   }
 
 
+
   // calculate the longitude of the overlapping region
   var leftLng = Math.max( Math.min(a0.lng,a1.lng), Math.min(b0.lng,b1.lng) );
   var rightLng = Math.min( Math.max(a0.lng,a1.lng), Math.max(b0.lng,b1.lng) );
@@ -140,9 +141,8 @@ window.plugin.crossLinks.greatCircleArcIntersect = function(a0,a1,b0,b1) {
 
   // if both a are less or greater than both b, then lines do not cross
 
-  var margin = 0;  //FIXME? include a small margin of error, to help ensure rounding errors don't prodice false negatives?
-  if (aLeftLat+margin < bLeftLat && aRightLat+margin < bRightLat) return false;
-  if (aLeftLat-margin > bLeftLat && aRightLat-margin > bRightLat) return false;
+  if (aLeftLat < bLeftLat && aRightLat < bRightLat) return false;
+  if (aLeftLat > bLeftLat && aRightLat > bRightLat) return false;
 
   // latitudes cross between left and right - so geodesic lines cross
   return true;
