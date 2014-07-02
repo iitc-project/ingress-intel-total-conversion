@@ -470,7 +470,7 @@ window.plugin.drawTools.boot = function() {
     window.plugin.drawTools.save();
   });
   //add options menu
-  $('#toolbox').append('<a onclick="window.plugin.drawTools.manualOpt();return false;">DrawTools Opt</a>');
+  $('#toolbox').append('<a onclick="window.plugin.drawTools.manualOpt();return false;" accesskey="x">DrawTools Opt</a>');
 
   $('head').append('<style>' +
         '.drawtoolsSetbox > a { display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:80%; text-align:center; background:rgba(8,48,78,.9); }'+
