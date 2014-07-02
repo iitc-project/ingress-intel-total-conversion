@@ -165,7 +165,37 @@ window.plugin.drawTools.addDrawControl = function() {
   window.plugin.drawTools.drawControl = drawControl;
 
   map.addControl(drawControl);
-//  plugin.drawTools.addCustomButtons();
+  //plugin.drawTools.addCustomButtons();
+
+  window.plugin.drawTools.setAccessKeys();
+  for (var toolbarId in drawControl._toolbars) {
+    if (drawControl._toolbars[toolbarId] instanceof L.Toolbar) {
+      drawControl._toolbars[toolbarId].on('enable', function() {
+        setTimeout(window.plugin.drawTools.setAccessKeys, 10);
+      });
+    }
+  }
+}
+
+window.plugin.drawTools.setAccessKeys = function() {
+  console.log("accesskeys",arguments[0]);
+  // there is no API to add accesskeys, so have to dig in the DOM
+  // must be same order as in markup. Note that each toolbar has a container for save/cancel
+  var accessKeys = [
+    'l', 'p', 'o', 'm', // line, polygon, circle, marker
+    'a',                // cancel (_abort)
+    'e', 'd',           // edit, delete
+    's', 'a',           // save, cancel
+  ];
+  var buttons = window.plugin.drawTools.drawControl._container.getElementsByTagName('a');
+  for(var i=0;i<buttons.length;i++) {
+    if(!buttons[i].offsetParent) { // element hidden, delete accessKey (so other elements can use it)
+      buttons[i].accessKey = '';
+    } else if(accessKeys[i]) {
+      buttons[i].accessKey = accessKeys[i];
+    }
+  }
+  console.info(Array.prototype.map.call(document.querySelectorAll("[accesskey]"), function(a){return a.accessKey}))
 }
 
 
