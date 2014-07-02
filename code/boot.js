@@ -151,7 +151,8 @@ window.setupMap = function() {
     zoomControl: (typeof android !== 'undefined' && android && android.showZoom) ? android.showZoom() : true,
     minZoom: 1,
 //    zoomAnimation: false,
-    markerZoomAnimation: false
+    markerZoomAnimation: false,
+    bounceAtZoomLimits: false
   });
 
   // add empty div to leaflet control areas - to force other leaflet controls to move around IITC UI elements
