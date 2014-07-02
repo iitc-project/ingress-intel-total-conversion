@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portals-list@teo96
 // @name           IITC plugin: show list of portals
 // @category       Info
-// @version        0.1.1.@@DATETIMEVERSION@@
+// @version        0.1.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -247,7 +247,7 @@ window.plugin.portalslist.getPortalLink = function(portal,guid) {
   //Use Jquery to create the link, which escape characters in TITLE and ADDRESS of portal
   var a = $('<a>',{
     text: portal.name,
-    title: portal.name,
+//    title: portal.name,
     href: perma,
     onClick: jsSingleClick,
     onDblClick: jsDoubleClick
