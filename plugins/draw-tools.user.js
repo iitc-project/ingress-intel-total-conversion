@@ -311,13 +311,13 @@ window.plugin.drawTools.manualOpt = function() {
 //TODO: add line style choosers: thickness, maybe dash styles?
            + '</div>'
            + '<div class="drawtoolsSetbox">'
-           + '<a onclick="window.plugin.drawTools.optCopy();">Copy Drawn Items</a>'
-           + '<a onclick="window.plugin.drawTools.optPaste();return false;">Paste Drawn Items</a>'
+           + '<a onclick="window.plugin.drawTools.optCopy();" tabindex="0">Copy Drawn Items</a>'
+           + '<a onclick="window.plugin.drawTools.optPaste();return false;" tabindex="0">Paste Drawn Items</a>'
            + (window.requestFile != undefined
-             ? '<a onclick="window.plugin.drawTools.optImport();return false;">Import Drawn Items</a>' : '')
+             ? '<a onclick="window.plugin.drawTools.optImport();return false;" tabindex="0">Import Drawn Items</a>' : '')
            + ((typeof android !== 'undefined' && android && android.saveFile)
-             ? '<a onclick="window.plugin.drawTools.optExport();return false;">Export Drawn Items</a>' : '')
-           + '<a onclick="window.plugin.drawTools.optReset();return false;">Reset Drawn Items</a>'
+             ? '<a onclick="window.plugin.drawTools.optExport();return false;" tabindex="0">Export Drawn Items</a>' : '')
+           + '<a onclick="window.plugin.drawTools.optReset();return false;" tabindex="0">Reset Drawn Items</a>'
            + '</div>';
 
   dialog({
