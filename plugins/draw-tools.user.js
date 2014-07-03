@@ -178,7 +178,6 @@ window.plugin.drawTools.addDrawControl = function() {
 }
 
 window.plugin.drawTools.setAccessKeys = function() {
-  console.log("accesskeys",arguments[0]);
   // there is no API to add accesskeys, so have to dig in the DOM
   // must be same order as in markup. Note that each toolbar has a container for save/cancel
   var accessKeys = [
@@ -195,7 +194,6 @@ window.plugin.drawTools.setAccessKeys = function() {
       buttons[i].accessKey = accessKeys[i];
     }
   }
-  console.info(Array.prototype.map.call(document.querySelectorAll("[accesskey]"), function(a){return a.accessKey}))
 }
 
 
