@@ -284,12 +284,21 @@ var setup = function() {
        return;
     }
 
+    // this plugin also needs to create the draw-tools hook, in case it is initialised before draw-tools
+    window.pluginCreateHook('pluginDrawTools');
+
     window.plugin.crossLinks.createLayer();
 
     // events
-    map.on('draw:created', function(e) { window.plugin.crossLinks.testAllLinksAgainstLayer(e.layer);});
-    map.on('draw:deleted', function(e) {window.plugin.crossLinks.checkAllLinks(); });
-    map.on('draw:edited', function(e) {window.plugin.crossLinks.checkAllLinks();});
+    window.addHook('pluginDrawTools',function(e) {
+        if (e.event == 'layerCreated') {
+            // we can just test the new layer in this case
+            window.plugin.crossLinks.testAllLinksAgainstLayer(e.layer);
+        } else {
+            // all other event types - assume anything could have been modified and re-check all links
+            window.plugin.crossLinks.checkAllLinks();
+        }
+    });
 
     window.addHook('linkAdded', window.plugin.crossLinks.onLinkAdded);
     window.addHook('mapDataRefreshEnd', window.plugin.crossLinks.onMapDataRefreshEnd);
