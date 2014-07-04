@@ -296,6 +296,9 @@ window.plugin.drawTools.import = function(data) {
       window.plugin.drawTools.drawnItems.addLayer(layer);
     }
   });
+
+  runHooks('pluginDrawTools', {event: 'import'});
+
 }
 
 
@@ -411,10 +414,14 @@ window.plugin.drawTools.optReset = function() {
     window.plugin.drawTools.load();
     console.log('DRAWTOOLS: reset all drawn items');
     window.plugin.drawTools.optAlert('Reset Successful. ');
+    runHooks('pluginDrawTools', {event: 'clear'});
   }
 }
 
 window.plugin.drawTools.boot = function() {
+  // add a custom hook for draw tools to share it's activity with other plugins
+  pluginCreateHook('pluginDrawTools');
+
   window.plugin.drawTools.currentMarker = window.plugin.drawTools.getMarkerIcon(window.plugin.drawTools.currentColor);
 
   window.plugin.drawTools.setOptions();
@@ -458,14 +465,18 @@ window.plugin.drawTools.boot = function() {
     if(layer instanceof L.Marker) {
       window.registerMarkerForOMS(layer);
     }
+
+    runHooks('pluginDrawTools',{event:'layerCreated',layer:layer});
   });
 
   map.on('draw:deleted', function(e) {
     window.plugin.drawTools.save();
+    runHooks('pluginDrawTools',{event:'layersDeleted'});
   });
 
   map.on('draw:edited', function(e) {
     window.plugin.drawTools.save();
+    runHooks('pluginDrawTools',{event:'layersEdited'});
   });
   //add options menu
   $('#toolbox').append('<a onclick="window.plugin.drawTools.manualOpt();return false;" accesskey="x">DrawTools Opt</a>');
