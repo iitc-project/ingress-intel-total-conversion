@@ -159,7 +159,8 @@ window.setupMap = function() {
   // TODO? move the actual IITC DOM into the leaflet control areas, so dummy <div>s aren't needed
   if(!isSmartphone()) {
     // chat window area
-    $(window.map._controlCorners['bottomleft']).append($('<div>').width(708).height(108).addClass('leaflet-control').css('margin','0'));
+    $(window.map._controlCorners['bottomleft']).append(
+      $('<div>').width(708).height(108).addClass('leaflet-control').css({'pointer-events': 'none', 'margin': '0'}));
   }
 
   var addLayers = {};
