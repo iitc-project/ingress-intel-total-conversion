@@ -221,6 +221,8 @@ window.plugin.crossLinks.showLink = function(link) {
 }
 
 window.plugin.crossLinks.onMapDataRefreshEnd = function () {
+    if (window.plugin.crossLinks.disabled) return;
+
     window.plugin.crossLinks.linkLayer.bringToFront();
 
     window.plugin.crossLinks.testForDeletedLinks();
@@ -270,6 +272,8 @@ window.plugin.crossLinks.createLayer = function() {
     map.on('layerremove', function(obj) {
       if(obj.layer === window.plugin.crossLinks.linkLayer) {
         window.plugin.crossLinks.disabled = true;
+        window.plugin.crossLinks.linkLayer.clearLayers();
+        plugin.crossLinks.linkLayerGuids = {};
       }
     });
 }
