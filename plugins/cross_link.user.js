@@ -207,7 +207,7 @@ window.plugin.crossLinks.testLink = function (link) {
 window.plugin.crossLinks.showLink = function(link) {
 
     var poly = L.geodesicPolyline(link.getLatLngs(), {
-       color: '#f11',
+       color: '#d22',
        opacity: 0.7,
        weight: 5,
        clickable: false,
