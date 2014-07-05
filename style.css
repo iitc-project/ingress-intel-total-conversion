@@ -102,9 +102,12 @@ a:hover {
 }
 
 
+
 /* base layer selection - first column */
 .leaflet-control-layers-base {
   float: left;
+  overflow-y: auto;
+  max-height: 600px;
 }
 
 /* overlays layer selection - 2nd column */
@@ -113,6 +116,8 @@ a:hover {
   margin-left: 8px;
   border-left: 1px solid #DDDDDD;
   padding-left: 8px;
+  overflow-y: auto;
+  max-height: 600px;
 }
 
 /* hide the usual separator */

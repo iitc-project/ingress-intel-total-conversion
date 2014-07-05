@@ -490,16 +490,14 @@ window.Render.prototype.getPortalClusterID = function(portal) {
 
 
 window.Render.prototype.linkVisible = function(link) {
-  // server now culls short links - so no point in IITC also doing it
-  return true;
 
-//  if (!this.bounds.intersects(link.getBounds())) {
-//    return false;
-//  }
+  if (!this.bounds.intersects(link.getBounds())) {
+    return false;
+  }
 
-//  var lengthSquared = this.getLinkPixelLengthSquared (link);
+  var lengthSquared = this.getLinkPixelLengthSquared (link);
 
-//  return lengthSquared >= this.LINK_VISIBLE_PIXEL_LENGTH*this.LINK_VISIBLE_PIXEL_LENGTH;
+  return lengthSquared >= this.LINK_VISIBLE_PIXEL_LENGTH*this.LINK_VISIBLE_PIXEL_LENGTH;
 }
 
 
