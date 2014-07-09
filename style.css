@@ -1,11 +1,24 @@
 /* general rules ******************************************************/
 
+/* for printing directly from the browser, hide all UI components
+ * NOTE: @media needs to be first?
+ */
+@media print {
+  .leaflet-control-container { display: none !important; }
+  #chatcontrols, #chat, #chatinput { display: none !important; }
+  #sidebartoggle, #sidebar { display: none !important; }
+  #updatestatus { display: none !important; }
+  #portal_highlight_select { display: none !important; }
+}
+
+
 html, body, #map {
   height: 100%;
   width: 100%;
   overflow: hidden; /* workaround for #373 */
   background: #0e3d4e;
 }
+
 
 body {
   font-size: 14px;
