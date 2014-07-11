@@ -129,7 +129,12 @@ window.renderPortalDetails = function(guid) {
     .append(
       $('<h3>').attr({class:'title'}).text(data.title),
 
-      $('<span>').attr({class:'close', onclick:'renderPortalDetails(null); if(isSmartphone()) show("map");',title:'Close'}).text('X'),
+      $('<span>').attr({
+        class: 'close',
+        title: 'Close',
+        onclick:'renderPortalDetails(null); if(isSmartphone()) show("map");',
+        accesskey: 'w'
+      }).text('X'),
 
       // help cursor via ".imgpreview img"
       $('<div>')
