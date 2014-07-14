@@ -141,6 +141,11 @@ window.Render.prototype.endRenderPass = function() {
   this.bringPortalsToFront();
 
   this.isRendering = false;
+
+  // re-select the selected portal, to re-render the side-bar. ensures that any data calculated from the map data is up to date
+  if (selectedPortal) {
+    renderPortalDetails (selectedPortal);
+  }
 }
 
 window.Render.prototype.bringPortalsToFront = function() {
