@@ -219,6 +219,23 @@
     <string name="msg_copied">Copied to clipboard…</string>
     <string name="notice_do_not_show_again">Do not show again</string>
 
+    <!-- Sign-in dialog -->
+    <string name="sign_in_to">Sign in to %1$s %2$s"</string>
+    <!-- Prompt for an input box that allows the user to enter their login name -->
+    <string name="username">Name</string>
+    <!-- Prompt for an input box that allows the user to enter their password -->
+    <string name="password">Password</string>
+    <!-- The label on the "sign in" button -->
+    <string name="action">Sign in</string>
+    <!-- The name of the add bookmark page activity.-->
+    <string name="bookmarks_add_page">Save bookmark</string>
+    <!-- The name of the bookmarks and history search suggestion source. -->
+    <string name="bookmarks_search">Browser</string>
+    <!-- Label for a cancel button. It is used for multiple cancel buttons in different contexts -->
+    <string name="cancel">Cancel</string>
+    <!-- Label for a confirm button. Used in multiple contexts. -->
+    <string name="ok">OK</string>
+
     <string name="tab_map">Locate</string>
     <string name="tab_share">Share</string>
     <string name="tab_browser">Intel</string>
