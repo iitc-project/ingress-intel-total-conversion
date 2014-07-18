@@ -54,6 +54,11 @@
 //              this only selects the current chat pane; on mobile, it
 //              also switches between map, info and other panes defined
 //              by plugins
+// chatPreRender: called prior to rendering a chat line
+//              {message, highlight}
+//              message contains the message about to be rendered
+//              if highlight is set true the line will be highlighted
+//
 
 window._hooks = {}
 window.VALID_HOOKS = [
@@ -64,8 +69,8 @@ window.VALID_HOOKS = [
   'publicChatDataAvailable', 'factionChatDataAvailable',
   'requestFinished', 'nicknameClicked',
   'geoSearch', 'iitcLoaded',
-  'portalDetailLoaded', 'paneChanged'];
-
+  'portalDetailLoaded', 'paneChanged',
+'chatPreRender'];
 window.runHooks = function(event, data) {
   if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);
 

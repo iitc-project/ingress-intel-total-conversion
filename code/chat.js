@@ -398,6 +398,9 @@ window.chat.renderDivider = function(text) {
 
 
 window.chat.renderMsg = function(msg, nick, time, team, msgToPlayer, systemNarrowcast) {
+  var hookData = {message: msg, highlight: msgToPlayer};
+  runHooks('chatPreRender', hookData);
+
   var ta = unixTimeToHHmm(time);
   var tb = unixTimeToDateTimeString(time, true);
   //add <small> tags around the milliseconds
@@ -405,7 +408,7 @@ window.chat.renderMsg = function(msg, nick, time, team, msgToPlayer, systemNarro
 
   // help cursor via “#chat time”
   var t = '<time title="'+tb+'" data-timestamp="'+time+'">'+ta+'</time>';
-  if ( msgToPlayer )
+  if (msgToPlayer || hookData.highlight)
   {
     t = '<div class="pl_nudge_date">' + t + '</div><div class="pl_nudge_pointy_spacer"></div>';
   }
