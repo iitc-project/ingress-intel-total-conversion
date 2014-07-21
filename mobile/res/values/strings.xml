@@ -223,7 +223,6 @@
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="sign_in_action">Sign in</string>
-    <string name="cancel">Cancel</string>
 
     <string name="tab_map">Locate</string>
     <string name="tab_share">Share</string>

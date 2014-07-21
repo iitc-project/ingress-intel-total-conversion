@@ -1,5 +1,6 @@
 package com.cradle.iitc_mobile;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -10,7 +11,6 @@ import android.net.http.SslError;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.HttpAuthHandler;
 import android.webkit.SslErrorHandler;
@@ -176,17 +176,15 @@ public class IITC_WebViewClient extends WebViewClient {
     }
 
     @Override
-    public void onReceivedHttpAuthRequest(WebView view, final HttpAuthHandler handler,
-                                          final String host, final String realm) {
+    public void onReceivedHttpAuthRequest(final WebView view, final HttpAuthHandler handler, final String host,
+            final String realm) {
         String username = null;
         String password = null;
 
-
-        final boolean reuseHttpAuthUsernamePassword
-                = handler.useHttpAuthUsernamePassword();
+        final boolean reuseHttpAuthUsernamePassword = handler.useHttpAuthUsernamePassword();
 
         if (reuseHttpAuthUsernamePassword && view != null) {
-            String[] credentials = view.getHttpAuthUsernamePassword(host, realm);
+            final String[] credentials = view.getHttpAuthUsernamePassword(host, realm);
             if (credentials != null && credentials.length == 2) {
                 username = credentials[0];
                 password = credentials[1];
@@ -196,33 +194,47 @@ public class IITC_WebViewClient extends WebViewClient {
         if (username != null && password != null) {
             handler.proceed(username, password);
         } else {
-            createSignInDialog(handler, host, realm).show();
+            createSignInDialog(handler, host, realm, username, password).show();
         }
     }
 
-    public Dialog createSignInDialog(final HttpAuthHandler handler, final String host, final String realm) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(mIitc);
-        final LayoutInflater inflater = mIitc.getLayoutInflater();
+    @SuppressLint("InflateParams")
+    // no other way for AlertDialog
+    public Dialog createSignInDialog(final HttpAuthHandler handler, final String host, final String realm,
+            final String username, final String password) {
+        final View v = mIitc.getLayoutInflater().inflate(R.layout.dialog_http_authentication, null);
+        final TextView tvUsername = (TextView) v.findViewById(R.id.username);
+        final TextView tvPassword = (TextView) v.findViewById(R.id.password);
+        final String title = String.format(mIitc.getString(R.string.sign_in_to), host, realm);
 
-        final View v = inflater.inflate(R.layout.http_authentication, null);
-        final TextView user = (TextView) v.findViewById(R.id.username);
-        final TextView pass = (TextView) v.findViewById(R.id.password);
-        final String title = String.format(mIitc.getResources().getString(R.string.sign_in_to), host, realm);
+        if (username != null)
+            tvUsername.setText(username);
+        if (password != null)
+            tvPassword.setText(password);
 
-        builder.setView(v)
-           .setTitle(title)
-           .setPositiveButton(R.string.sign_in_action, new DialogInterface.OnClickListener() {
-               @Override
-               public void onClick(DialogInterface dialog, int id) {
-                   handler.proceed(user.getText().toString(), pass.getText().toString());
-               }
-           })
-           .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-               public void onClick(DialogInterface dialog, int id) {
-                   handler.cancel();
-               }
-           });
-        return builder.create();
+        return new AlertDialog.Builder(mIitc)
+                .setView(v)
+                .setTitle(title)
+                .setCancelable(true)
+                .setPositiveButton(R.string.sign_in_action, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        handler.proceed(tvUsername.getText().toString(), tvPassword.getText().toString());
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        dialog.cancel();
+                    }
+                })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(final DialogInterface dialog) {
+                        handler.cancel();
+                    }
+                })
+                .create();
     }
 
     public void reset() {
