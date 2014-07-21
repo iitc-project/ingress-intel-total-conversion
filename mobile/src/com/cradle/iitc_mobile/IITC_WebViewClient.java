@@ -1,6 +1,8 @@
 package com.cradle.iitc_mobile;
 
-import android.app.ActionBar;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -8,11 +10,14 @@ import android.net.http.SslError;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.webkit.HttpAuthHandler;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.TextView;
 
 import java.io.ByteArrayInputStream;
 import java.util.LinkedList;
@@ -176,7 +181,8 @@ public class IITC_WebViewClient extends WebViewClient {
         String username = null;
         String password = null;
 
-        boolean reuseHttpAuthUsernamePassword
+
+        final boolean reuseHttpAuthUsernamePassword
                 = handler.useHttpAuthUsernamePassword();
 
         if (reuseHttpAuthUsernamePassword && view != null) {
@@ -190,22 +196,33 @@ public class IITC_WebViewClient extends WebViewClient {
         if (username != null && password != null) {
             handler.proceed(username, password);
         } else {
-            HttpAuthenticationDialog dialog = new HttpAuthenticationDialog(mIitc, host, realm);
-
-            dialog.setOkListener(new HttpAuthenticationDialog.OkListener() {
-                public void onOk(String host, String realm, String username, String password) {
-                    handler.proceed(username, password);
-                }
-            });
-
-            dialog.setCancelListener(new HttpAuthenticationDialog.CancelListener() {
-                public void onCancel() {
-                    handler.cancel();
-                }
-            });
-
-            dialog.show();
+            createSignInDialog(handler, host, realm).show();
         }
+    }
+
+    public Dialog createSignInDialog(final HttpAuthHandler handler, final String host, final String realm) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(mIitc);
+        final LayoutInflater inflater = mIitc.getLayoutInflater();
+
+        final View v = inflater.inflate(R.layout.http_authentication, null);
+        final TextView user = (TextView) v.findViewById(R.id.username);
+        final TextView pass = (TextView) v.findViewById(R.id.password);
+        final String title = String.format(mIitc.getResources().getString(R.string.sign_in_to), host, realm);
+
+        builder.setView(v)
+           .setTitle(title)
+           .setPositiveButton(R.string.sign_in_action, new DialogInterface.OnClickListener() {
+               @Override
+               public void onClick(DialogInterface dialog, int id) {
+                   handler.proceed(user.getText().toString(), pass.getText().toString());
+               }
+           })
+           .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+               public void onClick(DialogInterface dialog, int id) {
+                   handler.cancel();
+               }
+           });
+        return builder.create();
     }
 
     public void reset() {
