@@ -1,18 +1,18 @@
-//==UserScript==
-//@id             iitc-plugin-uniques@3ch01c
-//@name           IITC plugin: Uniques
-//@category       Misc
-//@version        0.2.0.@@DATETIMEVERSION@@
-//@namespace      https://github.com/3ch01c/ingress-intel-total-conversion
-//@updateURL      @@UPDATEURL@@
-//@downloadURL    @@DOWNLOADURL@@
-//@description    [@@BUILDNAME@@-@@BUILDDATE@@] Allow manual entry of portals visited/captured. Use the 'highlighter-uniques' plugin to show the uniques on the map, and 'sync' to share between multiple browsers or desktop/mobile.
-//@include        https://www.ingress.com/intel*
-//@include        http://www.ingress.com/intel*
-//@match          https://www.ingress.com/intel*
-//@match          http://www.ingress.com/intel*
-//@grant          none
-//==/UserScript==
+// ==UserScript==
+// @id             iitc-plugin-uniques@3ch01c
+// @name           IITC plugin: Uniques
+// @category       Misc
+// @version        0.2.1.@@DATETIMEVERSION@@
+// @namespace      https://github.com/3ch01c/ingress-intel-total-conversion
+// @updateURL      @@UPDATEURL@@
+// @downloadURL    @@DOWNLOADURL@@
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Allow manual entry of portals visited/captured. Use the 'highlighter-uniques' plugin to show the uniques on the map, and 'sync' to share between multiple browsers or desktop/mobile.
+// @include        https://www.ingress.com/intel*
+// @include        http://www.ingress.com/intel*
+// @match          https://www.ingress.com/intel*
+// @match          http://www.ingress.com/intel*
+// @grant          none
+// ==/UserScript==
 
 @@PLUGINSTART@@
 //PLUGIN START ////////////////////////////////////////////////////////
