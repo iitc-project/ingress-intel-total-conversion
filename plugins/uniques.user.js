@@ -66,6 +66,81 @@ window.plugin.uniques.onPortalDetailsUpdated = function() {
 	plugin.uniques.updateChecked();
 }
 
+window.plugin.uniques.onPublicChatDataAvailable = function(data) {
+	var nick = window.PLAYER.nickname;
+	data.raw.success.forEach(function(msg) {
+		var plext = msg[2].plext,
+			markup = plext.markup;
+
+		// search for "x deployed an Ly Resonator on z"
+		if(plext.plextType == 'SYSTEM_BROADCAST'
+		&& markup.length==5
+		&& markup[0][0] == 'PLAYER'
+		&& markup[0][1].plain == nick
+		&& markup[1][0] == 'TEXT'
+		&& markup[1][1].plain == ' deployed an '
+		&& markup[2][0] == 'TEXT'
+		&& markup[3][0] == 'TEXT'
+		&& markup[3][1].plain == ' Resonator on '
+		&& markup[4][0] == 'PORTAL') {
+			plugin.uniques.setPortalVisited(markup[4][1].guid);
+		}
+
+		// search for "x captured y"
+		if(plext.plextType == 'SYSTEM_BROADCAST'
+		&& markup.length==3
+		&& markup[0][0] == 'PLAYER'
+		&& markup[0][1].plain == nick
+		&& markup[1][0] == 'TEXT'
+		&& markup[1][1].plain == ' captured '
+		&& markup[2][0] == 'PORTAL') {
+			plugin.uniques.setPortalCaptured(markup[2][1].guid);
+		}
+
+		// search for "x linked y to z"
+		if(plext.plextType == 'SYSTEM_BROADCAST'
+		&& markup.length==5
+		&& markup[0][0] == 'PLAYER'
+		&& markup[0][1].plain == nick
+		&& markup[1][0] == 'TEXT'
+		&& markup[1][1].plain == ' linked '
+		&& markup[2][0] == 'PORTAL'
+		&& markup[3][0] == 'TEXT'
+		&& markup[3][1].plain == ' to '
+		&& markup[4][0] == 'PORTAL') {
+			plugin.uniques.setPortalCaptured(markup[2][1].guid);
+		}
+
+		// search for "Your Lx Resonator on y was destroyed by z"
+		if(plext.plextType == 'SYSTEM_NARROWCAST'
+		&& markup.length==6
+		&& markup[0][0] == 'TEXT'
+		&& markup[0][1].plain == 'Your '
+		&& markup[1][0] == 'TEXT'
+		&& markup[2][0] == 'TEXT'
+		&& markup[2][1].plain == ' Resonator on '
+		&& markup[3][0] == 'PORTAL'
+		&& markup[4][0] == 'TEXT'
+		&& markup[4][1].plain == ' was destroyed by '
+		&& markup[5][0] == 'PLAYER') {
+			plugin.uniques.setPortalVisited(markup[3][1].guid);
+		}
+
+		// search for "Your Portal x neutralized by y"
+		// search for "Your Portal x is under attack by y"
+		if(plext.plextType == 'SYSTEM_NARROWCAST'
+		&& markup.length==4
+		&& markup[0][0] == 'TEXT'
+		&& markup[0][1].plain == 'Your Portal '
+		&& markup[1][0] == 'PORTAL'
+		&& markup[2][0] == 'TEXT'
+		&& (markup[2][1].plain == ' neutralized by ' || markup[2][1].plain == ' is under attack by ')
+		&& markup[3][0] == 'PLAYER') {
+			plugin.uniques.setPortalVisited(markup[1][1].guid);
+		}
+	});
+}
+
 window.plugin.uniques.updateChecked = function() {
 	var guid = window.selectedPortal,
 		uniqueInfo = plugin.uniques.uniques[guid];
@@ -74,6 +149,41 @@ window.plugin.uniques.updateChecked = function() {
 	$('#visited').prop('checked', visited);
 	$('#captured').prop('checked', captured);
 	plugin.uniques.highlight({portal: portals[guid]});
+}
+
+window.plugin.uniques.setPortalVisited = function(guid) {
+	var uniqueInfo = plugin.uniques.uniques[guid];
+	if (uniqueInfo) {
+		uniqueInfo.visited = true;
+	} else {
+		plugin.uniques.uniques[guid] = {
+			visited: true,
+			captured: false
+		};
+	}
+
+	plugin.uniques.updateChecked();
+	plugin.uniques.storeLocal(plugin.uniques.KEY);
+	plugin.uniques.storeLocal(plugin.uniques.UPDATE_QUEUE);
+	plugin.uniques.delaySync();
+}
+
+window.plugin.uniques.setPortalCaptured = function(guid) {
+	var uniqueInfo = plugin.uniques.uniques[guid];
+	if (uniqueInfo) {
+		uniqueInfo.visited = true;
+		uniqueInfo.captured = true;
+	} else {
+		plugin.uniques.uniques[guid] = {
+			visited: true,
+			captured: true
+		};
+	}
+
+	plugin.uniques.updateChecked();
+	plugin.uniques.storeLocal(plugin.uniques.KEY);
+	plugin.uniques.storeLocal(plugin.uniques.UPDATE_QUEUE);
+	plugin.uniques.delaySync();
 }
 
 window.plugin.uniques.updateVisited = function(visited) {
@@ -241,6 +351,7 @@ var setup = function() {
 	window.plugin.uniques.setupContent();
 	window.plugin.uniques.loadLocal(window.plugin.uniques.KEY);
 	window.addHook('portalDetailsUpdated', window.plugin.uniques.onPortalDetailsUpdated);
+	window.addHook('publicChatDataAvailable', window.plugin.uniques.onPublicChatDataAvailable);
 	window.addHook('iitcLoaded', window.plugin.uniques.registerFieldForSyncing);
     window.addPortalHighlighter('Uniques', window.plugin.uniques.highlight);
 }
