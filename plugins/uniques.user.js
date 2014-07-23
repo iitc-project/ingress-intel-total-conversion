@@ -38,10 +38,28 @@ window.plugin.uniques.enableSync = false;
 window.plugin.uniques.disabledMessage = null;
 window.plugin.uniques.contentHTML = null;
 
-window.plugin.uniques.addToSidebar = function() {
+window.plugin.uniques.onPortalDetailsUpdated = function() {
 	if(typeof(Storage) === "undefined") {
 		$('#portaldetails > .imgpreview').after(plugin.uniques.disabledMessage);
 		return;
+	}
+
+	var guid = window.selectedPortal,
+		details = portalDetail.get(guid),
+		nickname = window.PLAYER.nickname;
+	if(details) {
+		if(details.owner == nickname) {
+			plugin.uniques.updateCaptured(true);
+			// no further logic required
+		} else {
+			function installedByPlayer(entity) {
+				return entity && entity.owner == nickname;
+			}
+			
+			if(details.resonators.some(installedByPlayer) || details.mods.some(installedByPlayer)) {
+				plugin.uniques.updateVisited(true);
+			}
+		}
 	}
 
 	$('#portaldetails > .imgpreview').after(plugin.uniques.contentHTML);
@@ -222,7 +240,7 @@ var setup = function() {
 	window.plugin.uniques.setupCSS();
 	window.plugin.uniques.setupContent();
 	window.plugin.uniques.loadLocal(window.plugin.uniques.KEY);
-	window.addHook('portalDetailsUpdated', window.plugin.uniques.addToSidebar);
+	window.addHook('portalDetailsUpdated', window.plugin.uniques.onPortalDetailsUpdated);
 	window.addHook('iitcLoaded', window.plugin.uniques.registerFieldForSyncing);
     window.addPortalHighlighter('Uniques', window.plugin.uniques.highlight);
 }
