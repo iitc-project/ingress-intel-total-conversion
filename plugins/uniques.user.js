@@ -110,7 +110,7 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[3][0] == 'TEXT'
 		&& markup[3][1].plain == ' to '
 		&& markup[4][0] == 'PORTAL') {
-			plugin.uniques.setPortalCaptured(markup[2][1].guid);
+			plugin.uniques.setPortalVisited(markup[2][1].guid);
 		}
 
 		// search for "Your Lx Resonator on y was destroyed by z"
@@ -151,7 +151,9 @@ window.plugin.uniques.updateChecked = function() {
 	$('#visited').prop('checked', visited);
 	$('#captured').prop('checked', captured);
 	if (window.plugin.uniques.isHighlightActive) {
-		plugin.uniques.highlight({portal: portals[guid]});
+		if (portals[guid]) {
+			plugin.uniques.highlight({portal: portals[guid]});
+		}
 	}
 }
 
