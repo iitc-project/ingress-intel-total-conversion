@@ -65,7 +65,7 @@ window.plugin.uniques.onPortalDetailsUpdated = function() {
 	}
 
 	$('#portaldetails > .imgpreview').after(plugin.uniques.contentHTML);
-	plugin.uniques.updateChecked();
+	plugin.uniques.updateCheckedAndHighlight(guid);
 }
 
 window.plugin.uniques.onPublicChatDataAvailable = function(data) {
@@ -143,19 +143,23 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 	});
 }
 
-window.plugin.uniques.updateChecked = function() {
-	var guid = window.selectedPortal,
-		uniqueInfo = plugin.uniques.uniques[guid];
-		visited = (uniqueInfo && uniqueInfo.visited) || false,
-		captured = (uniqueInfo && uniqueInfo.captured) || false;
-	$('#visited').prop('checked', visited);
-	$('#captured').prop('checked', captured);
+window.plugin.uniques.updateCheckedAndHighlight = function(guid) {
+	if (guid == window.selectedPortal) {
+
+		var uniqueInfo = plugin.uniques.uniques[guid];
+			visited = (uniqueInfo && uniqueInfo.visited) || false,
+			captured = (uniqueInfo && uniqueInfo.captured) || false;
+		$('#visited').prop('checked', visited);
+		$('#captured').prop('checked', captured);
+	}
+
 	if (window.plugin.uniques.isHighlightActive) {
 		if (portals[guid]) {
 			plugin.uniques.highlight({portal: portals[guid]});
 		}
 	}
 }
+
 
 window.plugin.uniques.setPortalVisited = function(guid) {
 	var uniqueInfo = plugin.uniques.uniques[guid];
@@ -168,7 +172,7 @@ window.plugin.uniques.setPortalVisited = function(guid) {
 		};
 	}
 
-	plugin.uniques.updateChecked();
+	plugin.uniques.updateCheckedAndHighlight(guid);
 	plugin.uniques.storeLocal(plugin.uniques.KEY);
 	plugin.uniques.storeLocal(plugin.uniques.UPDATE_QUEUE);
 	plugin.uniques.delaySync();
@@ -186,7 +190,7 @@ window.plugin.uniques.setPortalCaptured = function(guid) {
 		};
 	}
 
-	plugin.uniques.updateChecked();
+	plugin.uniques.updateCheckedAndHighlight(guid);
 	plugin.uniques.storeLocal(plugin.uniques.KEY);
 	plugin.uniques.storeLocal(plugin.uniques.UPDATE_QUEUE);
 	plugin.uniques.delaySync();
@@ -209,7 +213,7 @@ window.plugin.uniques.updateVisited = function(visited) {
 		uniqueInfo.captured = false;
 	}
 
-	plugin.uniques.updateChecked();
+	plugin.uniques.updateCheckedAndHighlight(guid);
 	plugin.uniques.storeLocal(plugin.uniques.KEY);
 	plugin.uniques.storeLocal(plugin.uniques.UPDATE_QUEUE);
 	plugin.uniques.delaySync();
@@ -232,7 +236,7 @@ window.plugin.uniques.updateCaptured = function(captured) {
 		uniqueInfo.captured = false;
 	}
 
-	plugin.uniques.updateChecked();
+	plugin.uniques.updateCheckedAndHighlight(guid);
 	plugin.uniques.storeLocal(plugin.uniques.KEY);
 	plugin.uniques.storeLocal(plugin.uniques.UPDATE_QUEUE);
 	plugin.uniques.delaySync();
@@ -273,7 +277,15 @@ window.plugin.uniques.syncCallback = function(pluginName, fieldName, e, fullUpda
 		// offline,
 		// fire 'pluginUniquesRefreshAll' to notify a full update
 		if(fullUpdated) {
-			plugin.uniques.updateChecked();
+			// a full update - update the selected portal sidebar
+			if (window.selectedPortal) {
+				plugin.uniques.updateCheckedAndHighlight(window.selectedPortal);
+			}
+			// and also update all highlights, if needed
+			if (window.plugin.uniques.isHighlightActive) {
+				resetHighlightedPortals();
+			}
+
 			window.runHooks('pluginUniquesRefreshAll');
 			return;
 		}
@@ -286,7 +298,7 @@ window.plugin.uniques.syncCallback = function(pluginName, fieldName, e, fullUpda
 			// Remote update
 			delete plugin.uniques.updateQueue[e.property];
 			plugin.uniques.storeLocal(plugin.uniques.UPDATE_QUEUE);
-			plugin.uniques.updateChecked();
+			plugin.uniques.updateCheckedAndHighlight(e.property);
 			window.runHooks('pluginUniquesUpdateUniques', {guid: e.property});
 		}
 	}
