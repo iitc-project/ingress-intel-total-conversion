@@ -474,7 +474,7 @@ window.setupQRLoadLib = function() {
 }
 
 window.setupLayerChooserApi = function() {
-  // hide layer chooser on mobile devices running desktop mode
+  // hide layer chooser if booted with the iitcm android app
   if (typeof android !== 'undefined' && android && android.setLayers) {
     $('.leaflet-control-layers').hide();
   }
