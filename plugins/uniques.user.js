@@ -6,7 +6,7 @@
 //@namespace      https://github.com/3ch01c/ingress-intel-total-conversion
 //@updateURL      @@UPDATEURL@@
 //@downloadURL    @@DOWNLOADURL@@
-//@description    [@@BUILDNAME@@-@@BUILDDATE@@] Allow manual entry of portals hacked/captured. Use the 'highlighter-uniques' plugin to show the uniques on the map, and 'sync' to share between multiple browsers or desktop/mobile.
+//@description    [@@BUILDNAME@@-@@BUILDDATE@@] Allow manual entry of portals visited/captured. Use the 'highlighter-uniques' plugin to show the uniques on the map, and 'sync' to share between multiple browsers or desktop/mobile.
 //@include        https://www.ingress.com/intel*
 //@include        http://www.ingress.com/intel*
 //@match          https://www.ingress.com/intel*
@@ -50,24 +50,24 @@ window.plugin.uniques.addToSidebar = function() {
 
 window.plugin.uniques.updateChecked = function() {
 	var guid = window.selectedPortal,
-		hacked = (plugin.uniques.uniques[guid] && plugin.uniques.uniques[guid].hacked) || false,
+		visited = (plugin.uniques.uniques[guid] && plugin.uniques.uniques[guid].visited) || false,
 		captured = (plugin.uniques.uniques[guid] && plugin.uniques.uniques[guid].captured) || false;
-	$('#hacked').prop('checked', hacked);
+	$('#visited').prop('checked', visited);
 	$('#captured').prop('checked', captured);
 }
 
-window.plugin.uniques.updateHacked = function(hacked) {
+window.plugin.uniques.updateVisited = function(visited) {
 	var guid = window.selectedPortal;
-	if (hacked) {
+	if (visited) {
 		// add entry
-		if (guid in plugin.uniques.uniques) { plugin.uniques.uniques[guid].hacked = true; }
-		else { plugin.uniques.uniques[guid] = {hacked: true}; }
-		if (guid in plugin.uniques.updateQueue) { plugin.uniques.updateQueue[guid].hacked = true; }
-		else { plugin.uniques.updateQueue[guid] = {hacked: true}; }
+		if (guid in plugin.uniques.uniques) { plugin.uniques.uniques[guid].visited = true; }
+		else { plugin.uniques.uniques[guid] = {visited: true}; }
+		if (guid in plugin.uniques.updateQueue) { plugin.uniques.updateQueue[guid].visited = true; }
+		else { plugin.uniques.updateQueue[guid] = {visited: true}; }
 	} else if (guid in plugin.uniques.uniques) {
 		// remove entry
 		if (plugin.uniques.uniques[guid].captured === undefined) { delete plugin.uniques.uniques[guid]; }
-		else { delete plugin.uniques.uniques[guid].hacked; }
+		else { delete plugin.uniques.uniques[guid].visited; }
 	}
 	plugin.uniques.storeLocal(plugin.uniques.KEY);
 	plugin.uniques.storeLocal(plugin.uniques.UPDATE_QUEUE);
@@ -174,9 +174,9 @@ window.plugin.uniques.loadLocal = function(mapping) {
 window.plugin.uniques.highlight = function(data) {
 	var guid = data.portal.options.ent[0];
 	if((uniqueInfo = window.plugin.uniques.uniques[guid]) !== undefined) {
-		if (!uniqueInfo.hacked && !uniqueInfo.captured) { data.portal.setStyle({fillColor:'magenta', fillOpacity:1}); }
-		else if (uniqueInfo.captured && !uniqueInfo.hacked) { data.portal.setStyle({fillColor:'red', fillOpacity:.75}); }
-		else if (uniqueInfo.hacked && !uniqueInfo.captured) { data.portal.setStyle({fillColor:'yellow', fillOpacity:.5}); }
+		if (!uniqueInfo.visited && !uniqueInfo.captured) { data.portal.setStyle({fillColor:'magenta', fillOpacity:1}); }
+		else if (uniqueInfo.captured && !uniqueInfo.visited) { data.portal.setStyle({fillColor:'red', fillOpacity:.75}); }
+		else if (uniqueInfo.visited && !uniqueInfo.captured) { data.portal.setStyle({fillColor:'yellow', fillOpacity:.5}); }
 	} else {
 		data.portal.setStyle({fillColor:'magenta', fillOpacity:1});
 	}
@@ -185,14 +185,14 @@ window.plugin.uniques.highlight = function(data) {
 window.plugin.uniques.setupCSS = function() {
 	$("<style>")
 	.prop("type", "text/css")
-	.html("@@INCLUDESTRING:plugins/unique.css@@")
+	.html("@@INCLUDESTRING:plugins/uniques.css@@")
 	.appendTo("head");
 }
 
 window.plugin.uniques.setupContent = function() {
 	plugin.uniques.contentHTML = '<div id="uniques-content-outer">'
 		+ '<div id="uniques-label">'
-		+ 'Hacked <input type="checkbox" id="hacked" style="vertical-align: middle;" onclick="window.plugin.uniques.updateHacked($(this).prop(\'checked\'))">'
+		+ 'Visited <input type="checkbox" id="visited" style="vertical-align: middle;" onclick="window.plugin.uniques.updateVisited($(this).prop(\'checked\'))">'
 		+ 'Captured <input type="checkbox" id="captured" style="vertical-align: middle;" onclick="window.plugin.uniques.updateCaptured($(this).prop(\'checked\'))">'
 		+ '</div></div>';
 	plugin.uniques.disabledMessage = '<div id="uniques-content-outer" title="Your browser does not support localStorage">Plugin Uniques disabled</div>';
