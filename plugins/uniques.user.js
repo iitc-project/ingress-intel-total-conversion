@@ -50,25 +50,32 @@ window.plugin.uniques.addToSidebar = function() {
 
 window.plugin.uniques.updateChecked = function() {
 	var guid = window.selectedPortal,
-		visited = (plugin.uniques.uniques[guid] && plugin.uniques.uniques[guid].visited) || false,
-		captured = (plugin.uniques.uniques[guid] && plugin.uniques.uniques[guid].captured) || false;
+		uniqueInfo = plugin.uniques.uniques[guid];
+		visited = (uniqueInfo && uniqueInfo.visited) || false,
+		captured = (uniqueInfo && uniqueInfo.captured) || false;
 	$('#visited').prop('checked', visited);
 	$('#captured').prop('checked', captured);
+	plugin.uniques.highlight({portal: portals[guid]});
 }
 
 window.plugin.uniques.updateVisited = function(visited) {
 	var guid = window.selectedPortal;
-	if (visited) {
-		// add entry
-		if (guid in plugin.uniques.uniques) { plugin.uniques.uniques[guid].visited = true; }
-		else { plugin.uniques.uniques[guid] = {visited: true}; }
-		if (guid in plugin.uniques.updateQueue) { plugin.uniques.updateQueue[guid].visited = true; }
-		else { plugin.uniques.updateQueue[guid] = {visited: true}; }
-	} else if (guid in plugin.uniques.uniques) {
-		// remove entry
-		if (plugin.uniques.uniques[guid].captured === undefined) { delete plugin.uniques.uniques[guid]; }
-		else { delete plugin.uniques.uniques[guid].visited; }
+	var uniqueInfo = plugin.uniques.uniques[guid];
+	if (!uniqueInfo) {
+		plugin.uniques.uniques[guid] = uniqueInfo = {
+			visited: false,
+			captured: false
+		};
 	}
+
+	if (visited) {
+		uniqueInfo.visited = true;
+	} else { // not visited --> not captured
+		uniqueInfo.visited = false;
+		uniqueInfo.captured = false;
+	}
+
+	plugin.uniques.updateChecked();
 	plugin.uniques.storeLocal(plugin.uniques.KEY);
 	plugin.uniques.storeLocal(plugin.uniques.UPDATE_QUEUE);
 	plugin.uniques.delaySync();
@@ -76,17 +83,22 @@ window.plugin.uniques.updateVisited = function(visited) {
 
 window.plugin.uniques.updateCaptured = function(captured) {
 	var guid = window.selectedPortal;
-	if (captured) {
-		// add entry
-		if (guid in plugin.uniques.uniques) { plugin.uniques.uniques[guid].captured = true; }
-		else { plugin.uniques.uniques[guid] = {captured: true}; }
-		if (guid in plugin.uniques.updateQueue) { plugin.uniques.updateQueue[guid].captured = true; }
-		else { plugin.uniques.updateQueue[guid] = {captured: true}; }
-	} else if (guid in plugin.uniques.uniques) {
-		// remove entry
-		if (plugin.uniques.uniques[guid].captured === undefined) { delete plugin.uniques.uniques[guid]; }
-		else { delete plugin.uniques.uniques[guid].captured; }
+	var uniqueInfo = plugin.uniques.uniques[guid];
+	if (!uniqueInfo) {
+		plugin.uniques.uniques[guid] = uniqueInfo = {
+			visited: false,
+			captured: false
+		};
 	}
+
+	if (captured) { // captured --> visited
+		uniqueInfo.captured = true;
+		uniqueInfo.visited = true;
+	} else {
+		uniqueInfo.captured = false;
+	}
+
+	plugin.uniques.updateChecked();
 	plugin.uniques.storeLocal(plugin.uniques.KEY);
 	plugin.uniques.storeLocal(plugin.uniques.UPDATE_QUEUE);
 	plugin.uniques.delaySync();
@@ -173,13 +185,18 @@ window.plugin.uniques.loadLocal = function(mapping) {
 /***************************************************************************************************************************************************************/
 window.plugin.uniques.highlight = function(data) {
 	var guid = data.portal.options.ent[0];
+	
+	var fillColor = '#F00'; // not visited
+	
 	if((uniqueInfo = window.plugin.uniques.uniques[guid]) !== undefined) {
-		if (!uniqueInfo.visited && !uniqueInfo.captured) { data.portal.setStyle({fillColor:'magenta', fillOpacity:1}); }
-		else if (uniqueInfo.captured && !uniqueInfo.visited) { data.portal.setStyle({fillColor:'red', fillOpacity:.75}); }
-		else if (uniqueInfo.visited && !uniqueInfo.captured) { data.portal.setStyle({fillColor:'yellow', fillOpacity:.5}); }
-	} else {
-		data.portal.setStyle({fillColor:'magenta', fillOpacity:1});
+		if(uniqueInfo.captured) {
+			fillColor = '#0F0';
+		} else if (uniqueInfo.visited) {
+			fillColor = '#FF0';
+		}
 	}
+
+	data.portal.setStyle({fillColor: fillColor, fillOpacity: 0.75});
 }
 
 window.plugin.uniques.setupCSS = function() {
@@ -190,12 +207,11 @@ window.plugin.uniques.setupCSS = function() {
 }
 
 window.plugin.uniques.setupContent = function() {
-	plugin.uniques.contentHTML = '<div id="uniques-content-outer">'
-		+ '<div id="uniques-label">'
-		+ 'Visited <input type="checkbox" id="visited" style="vertical-align: middle;" onclick="window.plugin.uniques.updateVisited($(this).prop(\'checked\'))">'
-		+ 'Captured <input type="checkbox" id="captured" style="vertical-align: middle;" onclick="window.plugin.uniques.updateCaptured($(this).prop(\'checked\'))">'
-		+ '</div></div>';
-	plugin.uniques.disabledMessage = '<div id="uniques-content-outer" title="Your browser does not support localStorage">Plugin Uniques disabled</div>';
+	plugin.uniques.contentHTML = '<div id="uniques-container">'
+		+ '<label><input type="checkbox" id="visited" onclick="window.plugin.uniques.updateVisited($(this).prop(\'checked\'))"> Visited</label>'
+		+ '<label><input type="checkbox" id="captured" onclick="window.plugin.uniques.updateCaptured($(this).prop(\'checked\'))"> Captured</label>'
+		+ '</div>';
+	plugin.uniques.disabledMessage = '<div id="uniques-container" class="help" title="Your browser does not support localStorage">Plugin Uniques disabled</div>';
 }
 
 var setup = function() {

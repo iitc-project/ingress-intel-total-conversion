@@ -1,17 +1,13 @@
-#uniques-content-outer {
-  display: table;
-  width: 100%;
-  height: 26px;
+#uniques-container {
+  display: block;
   text-align: center;
-}
-
-#uniques-content-outer > div{
-  display: inline-block;
-  vertical-align: middle;
   margin: 6px 3px 1px 3px;
+  padding: 0 4px;
+}
+#uniques-container label {
+  margin: 0 0.5em;
+}
+#uniques-container input {
+  vertical-align: middle;
 }
 
-#uniques-label {
-  padding: 0 4px;
-  cursor: help;
-}
