@@ -38,6 +38,8 @@ window.plugin.uniques.enableSync = false;
 window.plugin.uniques.disabledMessage = null;
 window.plugin.uniques.contentHTML = null;
 
+window.plugin.uniques.isHighlightActive = false;
+
 window.plugin.uniques.onPortalDetailsUpdated = function() {
 	if(typeof(Storage) === "undefined") {
 		$('#portaldetails > .imgpreview').after(plugin.uniques.disabledMessage);
@@ -148,7 +150,9 @@ window.plugin.uniques.updateChecked = function() {
 		captured = (uniqueInfo && uniqueInfo.captured) || false;
 	$('#visited').prop('checked', visited);
 	$('#captured').prop('checked', captured);
-	plugin.uniques.highlight({portal: portals[guid]});
+	if (window.plugin.uniques.isHighlightActive) {
+		plugin.uniques.highlight({portal: portals[guid]});
+	}
 }
 
 window.plugin.uniques.setPortalVisited = function(guid) {
@@ -327,6 +331,11 @@ window.plugin.uniques.highlight = function(data) {
 	data.portal.setStyle({fillColor: fillColor, fillOpacity: 0.75});
 }
 
+window.plugin.uniques.highlightActive = function(active) {
+	window.plugin.uniques.isHighlightActive = active;
+}
+
+
 window.plugin.uniques.setupCSS = function() {
 	$("<style>")
 	.prop("type", "text/css")
@@ -353,7 +362,7 @@ var setup = function() {
 	window.addHook('portalDetailsUpdated', window.plugin.uniques.onPortalDetailsUpdated);
 	window.addHook('publicChatDataAvailable', window.plugin.uniques.onPublicChatDataAvailable);
 	window.addHook('iitcLoaded', window.plugin.uniques.registerFieldForSyncing);
-    window.addPortalHighlighter('Uniques', window.plugin.uniques.highlight);
+    window.addPortalHighlighter('Uniques', {highlight:window.plugin.uniques.highlight,setSelected:window.plugin.uniques.highlightActive});
 }
 
 //PLUGIN END //////////////////////////////////////////////////////////
