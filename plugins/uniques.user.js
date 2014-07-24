@@ -6,7 +6,7 @@
 // @namespace      https://github.com/3ch01c/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Allow manual entry of portals visited/captured. Use the 'highlighter-uniques' plugin to show the uniques on the map, and 'sync' to share between multiple browsers or desktop/mobile.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Allow manual entry of portals visited/captured. Use the 'highlighter-uniques' plugin to show the uniques on the map, and 'sync' to share between multiple browsers or desktop/mobile. It will try and guess which portals you have captured from COMM/portal details, but this will not catch every case.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -155,7 +155,7 @@ window.plugin.uniques.updateCheckedAndHighlight = function(guid) {
 
 	if (window.plugin.uniques.isHighlightActive) {
 		if (portals[guid]) {
-			plugin.uniques.highlight({portal: portals[guid]});
+			window.setMarkerStyle (portals[guid], guid == selectedPortal);
 		}
 	}
 }
@@ -331,18 +331,30 @@ window.plugin.uniques.loadLocal = function(mapping) {
 /***************************************************************************************************************************************************************/
 window.plugin.uniques.highlight = function(data) {
 	var guid = data.portal.options.ent[0];
-	
-	var fillColor = '#F00'; // not visited
-	
-	if((uniqueInfo = window.plugin.uniques.uniques[guid]) !== undefined) {
-		if(uniqueInfo.captured) {
-			fillColor = '#0F0';
+	var uniqueInfo = window.plugin.uniques.uniques[guid];
+
+	var style = {};
+
+	if (uniqueInfo) {
+		if (uniqueInfo.captured) {
+			// captured (and, implied, visited too) - no highlights
+
 		} else if (uniqueInfo.visited) {
-			fillColor = '#FF0';
+			style.fillColor = 'yellow';
+			style.fillOpacity = 0.6;
+		} else {
+			// we have an 'uniqueInfo' entry for the portal, but it's not set visited or captured?
+			// could be used to flag a portal you don't plan to visit, so use a less opaque red
+			style.fillColor = 'red';
+			style.fillOpacity = 0.5;
 		}
+	} else {
+		// no visit data at all
+		style.fillColor = 'red';
+		style.fillOpacity = 0.7;
 	}
 
-	data.portal.setStyle({fillColor: fillColor, fillOpacity: 0.75});
+	data.portal.setStyle(style);
 }
 
 window.plugin.uniques.highlightActive = function(active) {
