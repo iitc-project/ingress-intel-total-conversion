@@ -357,7 +357,8 @@ window.plugin.uniques.highlight = function(data) {
 	data.portal.setStyle(style);
 }
 
-window.plugin.uniques.highlightActive = function(active) {
+// Called by IITC when the selected highlighter changes. Must not be renamed
+window.plugin.uniques.setSelected = function(active) {
 	window.plugin.uniques.isHighlightActive = active;
 }
 
@@ -388,7 +389,7 @@ var setup = function() {
 	window.addHook('portalDetailsUpdated', window.plugin.uniques.onPortalDetailsUpdated);
 	window.addHook('publicChatDataAvailable', window.plugin.uniques.onPublicChatDataAvailable);
 	window.addHook('iitcLoaded', window.plugin.uniques.registerFieldForSyncing);
-    window.addPortalHighlighter('Uniques', {highlight:window.plugin.uniques.highlight,setSelected:window.plugin.uniques.highlightActive});
+    window.addPortalHighlighter('Uniques', window.plugin.uniques);
 }
 
 //PLUGIN END //////////////////////////////////////////////////////////
