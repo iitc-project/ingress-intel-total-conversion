@@ -191,6 +191,19 @@ window.plugin.keys.setupContent = function() {
   plugin.keys.disabledMessage = '<div id="keys-content-outer" title="Your browser do not support localStorage">Plugin Keys disabled</div>';
 }
 
+window.plugin.keys.setupKeyShortcuts = function () {
+  document.addEventListener('keypress', function (e) {
+    //if we have a portal selected, and we aren't typing in an input field
+    if (window.selectedPortal && e.target.nodeName != 'INPUT') {
+      if (e.which == 91) { // 91 = '['
+        plugin.keys.addKey(-1);
+      } else if (e.which == 93) { // 93 = ']'
+        plugin.keys.addKey(1);
+      }
+    }
+  });
+};
+
 var setup =  function() {
   if($.inArray('pluginKeysUpdateKey', window.VALID_HOOKS) < 0)
     window.VALID_HOOKS.push('pluginKeysUpdateKey');
@@ -199,6 +212,7 @@ var setup =  function() {
 
   window.plugin.keys.setupCSS();
   window.plugin.keys.setupContent();
+  window.plugin.keys.setupKeyShortcuts();
   window.plugin.keys.loadLocal(plugin.keys.UPDATE_QUEUE);
   window.plugin.keys.loadKeys();
   window.addHook('portalDetailsUpdated', window.plugin.keys.addToSidebar);
