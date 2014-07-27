@@ -329,37 +329,38 @@ window.plugin.uniques.loadLocal = function(mapping) {
 /***************************************************************************************************************************************************************/
 /** HIGHLIGHTER ************************************************************************************************************************************************/
 /***************************************************************************************************************************************************************/
-window.plugin.uniques.highlight = function(data) {
-	var guid = data.portal.options.ent[0];
-	var uniqueInfo = window.plugin.uniques.uniques[guid];
+window.plugin.uniques.highlighter = {
+	highlight: function(data) {
+		var guid = data.portal.options.ent[0];
+		var uniqueInfo = window.plugin.uniques.uniques[guid];
 
-	var style = {};
+		var style = {};
 
-	if (uniqueInfo) {
-		if (uniqueInfo.captured) {
-			// captured (and, implied, visited too) - no highlights
+		if (uniqueInfo) {
+			if (uniqueInfo.captured) {
+				// captured (and, implied, visited too) - no highlights
 
-		} else if (uniqueInfo.visited) {
-			style.fillColor = 'yellow';
-			style.fillOpacity = 0.6;
+			} else if (uniqueInfo.visited) {
+				style.fillColor = 'yellow';
+				style.fillOpacity = 0.6;
+			} else {
+				// we have an 'uniqueInfo' entry for the portal, but it's not set visited or captured?
+				// could be used to flag a portal you don't plan to visit, so use a less opaque red
+				style.fillColor = 'red';
+				style.fillOpacity = 0.5;
+			}
 		} else {
-			// we have an 'uniqueInfo' entry for the portal, but it's not set visited or captured?
-			// could be used to flag a portal you don't plan to visit, so use a less opaque red
+			// no visit data at all
 			style.fillColor = 'red';
-			style.fillOpacity = 0.5;
+			style.fillOpacity = 0.7;
 		}
-	} else {
-		// no visit data at all
-		style.fillColor = 'red';
-		style.fillOpacity = 0.7;
+
+		data.portal.setStyle(style);
+	},
+
+	setSelected: function(active) {
+		window.plugin.uniques.isHighlightActive = active;
 	}
-
-	data.portal.setStyle(style);
-}
-
-// Called by IITC when the selected highlighter changes. Must not be renamed
-window.plugin.uniques.setSelected = function(active) {
-	window.plugin.uniques.isHighlightActive = active;
 }
 
 
@@ -389,7 +390,7 @@ var setup = function() {
 	window.addHook('portalDetailsUpdated', window.plugin.uniques.onPortalDetailsUpdated);
 	window.addHook('publicChatDataAvailable', window.plugin.uniques.onPublicChatDataAvailable);
 	window.addHook('iitcLoaded', window.plugin.uniques.registerFieldForSyncing);
-    window.addPortalHighlighter('Uniques', window.plugin.uniques);
+    window.addPortalHighlighter('Uniques', window.plugin.uniques.highlighter);
 }
 
 //PLUGIN END //////////////////////////////////////////////////////////
