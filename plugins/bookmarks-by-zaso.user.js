@@ -572,17 +572,34 @@
       $('.bkrmks-alert').delay(2500).fadeOut();
   }
 
-  window.plugin.bookmarks.optCopy = function() {
-    if(typeof android !== 'undefined' && android && android.shareString) {
-      return android.shareString(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
-    } else {
-      dialog({
-        html: '<p><a onclick="$(\'.ui-dialog-bkmrksSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly>'+localStorage[window.plugin.bookmarks.KEY_STORAGE]+'</textarea>',
-        dialogClass: 'ui-dialog-bkmrksSet-copy',
-        title: 'Bookmarks Export'
-      });
-    }
-  }
+  window.plugin.bookmarks.optPickFolder = function() {
+		dialog({
+			html: '<p>Enter the name of the folder to export:</p><input type="text" id="copyFolder"></input><button type="button" onclick="window.plugin.bookmarks.optCopy($(\'#copyFolder\').val())">Export</button>',
+			dialogClass: 'ui-dialog-bkmrksSet-copy',
+			title: 'Bookmarks Export'
+		});
+}
+
+  window.plugin.bookmarks.optCopy = function(folder) {
+		var json = null;
+		if (folder !== null) {
+			json = {portals: {}};
+			var portalFolders = $.parseJSON(localStorage[window.plugin.bookmarks.KEY_STORAGE]).portals;
+			for (var id in portalFolders) {
+				if (portalFolders[id].label === folder) { json.portals[id] = portalFolders[id]; }
+			}
+		} else { json = $.parseJSON(localStorage[window.plugin.bookmarks.KEY_STORAGE]); }
+		json = JSON.stringify(json);
+	    if(typeof android !== 'undefined' && android && android.shareString) {
+	      return android.shareString(json);
+	    } else {
+	      dialog({
+	        html: '<p><a onclick="$(\'.ui-dialog-bkmrksSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly>'+json+'</textarea>',
+	        dialogClass: 'ui-dialog-bkmrksSet-copy',
+	        title: 'Bookmarks Export'
+	      });
+	    }
+	  }
 
   window.plugin.bookmarks.optExport = function() {
     if(typeof android !== 'undefined' && android && android.saveFile) {
@@ -591,21 +608,38 @@
   }
 
   window.plugin.bookmarks.optPaste = function() {
-    var promptAction = prompt('Press CTRL+V to paste it.', '');
-    if(promptAction !== null && promptAction !== '') {
-      try {
-        JSON.parse(promptAction); // try to parse JSON first
-        localStorage[window.plugin.bookmarks.KEY_STORAGE] = promptAction;
-        window.plugin.bookmarks.refreshBkmrks();
-        window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
-        console.log('BOOKMARKS: reset and imported bookmarks');
-        window.plugin.bookmarks.optAlert('Successful. ');
-      } catch(e) {
-        console.warn('BOOKMARKS: failed to import data: '+e);
-        window.plugin.bookmarks.optAlert('<span style="color: #f88">Import failed </span>');
-      }
-    }
-  }
+	    var promptAction = prompt('Press CTRL+V to paste it.', '');
+	    if(promptAction !== null && promptAction !== '') {
+	      try {
+	        var newKeys = $.parseJSON(promptAction), // try to parse JSON first
+	        	currKeys = $.parseJSON(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
+	        for (var id in newKeys.portals) { // only checks portals for now
+	        	if (id in currKeys.portals) {
+	        		// add new bookmarks to folder
+	        		for (var bkmrkId in newKeys.portals[id].bkmrk) {
+	        			if (bkmrkId in currKeys.portals[id].bkmrk) {
+	        				// do nothing
+	        			} else {
+	        				// add bookmark
+	        				currKeys.portals[id].bkmrk[bkmrkId] = newKeys.portals[id].bkmrk[bkmrkId];
+	        			}
+	        		}
+	        	} else {
+	        		// add folder
+	            	currKeys.portals[id] = newKeys.portals[id]; 
+	        	}
+	        }
+	        localStorage[window.plugin.bookmarks.KEY_STORAGE] = JSON.stringify(currKeys);
+	        window.plugin.bookmarks.refreshBkmrks();
+	        window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
+	        console.log('BOOKMARKS: reset and imported bookmarks');
+	        window.plugin.bookmarks.optAlert('Successful. ');
+	      } catch(e) {
+	        console.warn('BOOKMARKS: failed to import data: '+e);
+	        window.plugin.bookmarks.optAlert('<span style="color: #f88">Import failed </span>');
+	      }
+	    }
+	  }
 
   window.plugin.bookmarks.optImport = function() {
     if (window.requestFile === undefined) return;
@@ -1090,7 +1124,8 @@
 
     var actions = '';
     actions += '<a onclick="window.plugin.bookmarks.optReset();return false;">Reset bookmarks</a>';
-    actions += '<a onclick="window.plugin.bookmarks.optCopy();return false;">Copy bookmarks</a>';
+    actions += '<a onclick="window.plugin.bookmarks.optPickFolder();return false;">Copy bookmarks</a>';
+//    actions += '<a onclick="window.plugin.bookmarks.optCopy();return false;">Copy bookmarks</a>';
     actions += '<a onclick="window.plugin.bookmarks.optPaste();return false;">Paste bookmarks</a>';
 
     if(plugin.bookmarks.isAndroid()) {
