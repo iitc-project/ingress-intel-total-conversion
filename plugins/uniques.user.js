@@ -128,6 +128,20 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 			plugin.uniques.setPortalVisited(markup[3][1].guid);
 		}
 
+		// search for "Your Lx Resonator on y has decayed"
+		if(plext.plextType == 'SYSTEM_NARROWCAST'
+		&& markup.length==5
+		&& markup[0][0] == 'TEXT'
+		&& markup[0][1].plain == 'Your '
+		&& markup[1][0] == 'TEXT'
+		&& markup[2][0] == 'TEXT'
+		&& markup[2][1].plain == ' Resonator on '
+		&& markup[3][0] == 'PORTAL'
+		&& markup[4][0] == 'TEXT'
+		&& markup[4][1].plain == ' has decayed') {
+			plugin.uniques.setPortalVisited(markup[3][1].guid);
+		}
+
 		// search for "Your Portal x neutralized by y"
 		// search for "Your Portal x is under attack by y"
 		if(plext.plextType == 'SYSTEM_NARROWCAST'
