@@ -12,15 +12,14 @@ window.updateGameScore = function(data) {
   }
 
   // hacky - but here is as good as any for a location
-  // the niantic servers have attempted to obfuscate the client/server protocol, by munging the request parameters
-  // detecting which munge set should be used is tricky - even the stock site gets it wrong sometimes
-  // to detect the problem and try a different set is easiest in a place where there's only a single request of that type
-  // sent at once, and it has no extra parameters. this method matches those requirements
+  // tne niantic servers include a 'version' parameter with the requests. this is changed for any site update they
+  // roll out, even when the protocol has no changes at all. (and sometimes when there's no other client javascript
+  // changes of any kind!)
   if (data.error || (data.indexOf && data.indexOf('"error"') != -1)) {
-    if (data.error == 'missing version') {
+    if (data.error == 'out of date') {
       dialog({
         title: 'Reload IITC',
-        html: '<p>IITC is using an outdated munge set. This can happen when Niantic update the standard intel site.</p>'
+        html: '<p>IITC is using an outdated version code. This will happen when Niantic update the standard intel site.</p>'
              +'<p>You need to reload the page to get the updated changes.</p>'
              +'<p>If you have just reloaded the page, then an old version of the standard site script is cached somewhere.'
              +'In this case, try clearing your cache, or waiting 15-30 minutes for the stale data to expire.</p>',
