@@ -1,11 +1,24 @@
 /* general rules ******************************************************/
 
+/* for printing directly from the browser, hide all UI components
+ * NOTE: @media needs to be first?
+ */
+@media print {
+  .leaflet-control-container { display: none !important; }
+  #chatcontrols, #chat, #chatinput { display: none !important; }
+  #sidebartoggle, #sidebar { display: none !important; }
+  #updatestatus { display: none !important; }
+  #portal_highlight_select { display: none !important; }
+}
+
+
 html, body, #map {
   height: 100%;
   width: 100%;
   overflow: hidden; /* workaround for #373 */
   background: #0e3d4e;
 }
+
 
 body {
   font-size: 14px;
@@ -102,9 +115,12 @@ a:hover {
 }
 
 
+
 /* base layer selection - first column */
 .leaflet-control-layers-base {
   float: left;
+  overflow-y: auto;
+  max-height: 600px;
 }
 
 /* overlays layer selection - 2nd column */
@@ -113,6 +129,8 @@ a:hover {
   margin-left: 8px;
   border-left: 1px solid #DDDDDD;
   padding-left: 8px;
+  overflow-y: auto;
+  max-height: 600px;
 }
 
 /* hide the usual separator */

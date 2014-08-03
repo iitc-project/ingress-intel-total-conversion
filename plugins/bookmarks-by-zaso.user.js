@@ -2,7 +2,7 @@
 // @id             iitc-plugin-bookmarks@ZasoGD
 // @name           IITC plugin: Bookmarks for maps and portals
 // @category       Controls
-// @version        0.2.11.@@DATETIMEVERSION@@
+// @version        0.2.13.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -829,21 +829,24 @@
 
     if(latlngs.length >= 2 && latlngs.length <= 3) {
       // TODO: add an API to draw-tools rather than assuming things about it's internals
-      var newItem;
       window.plugin.drawTools.setOptions();
 
+      var layer, layerType;
       if(latlngs.length == 2) {
-        newItem = L.geodesicPolyline(latlngs, window.plugin.drawTools.lineOptions);
+        layer = L.geodesicPolyline(latlngs, window.plugin.drawTools.lineOptions);
+        layerType = 'polyline';
       } else {
-        newItem = L.geodesicPolygon(latlngs, window.plugin.drawTools.polygonOptions);
+        layer = L.geodesicPolygon(latlngs, window.plugin.drawTools.polygonOptions);
+        layerType = 'polygon';
       }
 
-      if($("#bkmrkClearSelection").prop("checked"))
-        $('#bkmrksAutoDrawer a.bkmrk.selected').removeClass('selected');
+      map.fire('draw:created', {
+        layer: layer,
+        layerType: layerType
+      });
 
-      newItem.addTo(window.plugin.drawTools.drawnItems);
-      // Save in localStorage
-      window.plugin.drawTools.save();
+      if($('#bkmrkClearSelection').prop('checked'))
+        $('#bkmrksAutoDrawer a.bkmrk.selected').removeClass('selected');
 
       if(window.plugin.bookmarks.isSmart) {
         window.show('map');
@@ -1125,10 +1128,7 @@
   }
 
   window.plugin.bookmarks.setupContent = function() {
-    var ttt = '\'switch\'';
-    if(!window.plugin.bookmarks.isSmart) { ttt = 1; }
-
-    plugin.bookmarks.htmlBoxTrigger = '<a id="bkmrksTrigger" class="open" onclick="window.plugin.bookmarks.switchStatusBkmrksBox('+ttt+');return false;">[-] Bookmarks</a>';
+    plugin.bookmarks.htmlBoxTrigger = '<a id="bkmrksTrigger" class="open" onclick="window.plugin.bookmarks.switchStatusBkmrksBox(\'switch\');return false;" accesskey="v">[-] Bookmarks</a>';
     plugin.bookmarks.htmlBkmrksBox = '<div id="bookmarksBox">'
                           +'<div id="topBar">'
                             +'<a id="bookmarksMin" class="btn" onclick="window.plugin.bookmarks.switchStatusBkmrksBox(0);return false;" title="Minimize">-</a>'
@@ -1157,8 +1157,8 @@
                         +'</div>';
 
     plugin.bookmarks.htmlDisabledMessage = '<div title="Your browser do not support localStorage">Plugin Bookmarks disabled*.</div>';
-    plugin.bookmarks.htmlStar = '<a class="bkmrksStar" onclick="window.plugin.bookmarks.switchStarPortal();return false;" title="Save this portal in your bookmarks"><span></span></a>';
-    plugin.bookmarks.htmlCalldrawBox = '<a onclick="window.plugin.bookmarks.dialogDrawer();return false;" title="Draw lines/triangles between bookmarked portals">Auto draw</a>';
+    plugin.bookmarks.htmlStar = '<a class="bkmrksStar" accesskey="b" onclick="window.plugin.bookmarks.switchStarPortal();return false;" title="Save this portal in your bookmarks"><span></span></a>';
+    plugin.bookmarks.htmlCalldrawBox = '<a onclick="window.plugin.bookmarks.dialogDrawer();return false;" accesskey="q" title="Draw lines/triangles between bookmarked portals">Auto draw</a>';
     plugin.bookmarks.htmlCallSetBox = '<a onclick="window.plugin.bookmarks.manualOpt();return false;">Bookmarks Opt</a>';
     plugin.bookmarks.htmlMoveBtn = '<a id="bookmarksMove" class="btn" onclick="window.plugin.bookmarks.moveMode();return false;">Show/Hide "Move" button</a>'
 

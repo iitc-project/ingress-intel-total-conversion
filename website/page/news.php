@@ -1,5 +1,24 @@
 <h2>News</h2>
 
+<h4>5th July 2014</h4>
+<p>
+IITC 0.17.3 and IITC Mobile 0.11.3 have just been released. Changes include:
+</p>
+<ul>
+<li>Leaflet updated: some bugfixes for the map engine IITC uses.</li>
+<li>Keyboard shortcuts: limited testing so far, so considered experimental. More details in 
+<a href="https://plus.google.com/116983602532788146323/posts/7omuVsv3c1g">this post</a>.</li>
+<li>New plugin "Cross Links". This works with the "draw tools" plugin, highlighting any existing links that cross
+drawn lines/polygons. Very useful to see what needs clearing when planning large fields.</li>
+<li>and, as always, other minor tweaks and bugfixes</li>
+</ul>
+
+<h4>16th June 2014</h4>
+<p>
+IITC 0.17.2 and IITC Mobile 0.11.2 have just been release. This is to fix the display of portal details - in particular,
+the 'owner' field - after Niantic removed the capture date from the standard site and data.
+</p>
+
 <h4>31st May 2014</h4>
 <p>
 IITC 0.17.1 and IITC Mobile 0.11.1 have just been released.

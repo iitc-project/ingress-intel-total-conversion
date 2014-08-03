@@ -83,6 +83,7 @@ public class IITC_Mobile extends Activity
     private boolean mReloadNeeded = false;
     private boolean mIsLoading = true;
     private boolean mShowMapInDebug = false;
+    private boolean mPersistentZoom = false;
     private final Stack<String> mDialogStack = new Stack<String>();
     private String mPermalink = null;
     private String mSearchTerm = null;
@@ -143,6 +144,8 @@ public class IITC_Mobile extends Activity
         final String[] menuDefaults = getResources().getStringArray(R.array.pref_android_menu_default);
         mAdvancedMenu = mSharedPrefs.getStringSet("pref_android_menu", new HashSet<String>(Arrays.asList(menuDefaults)));
 
+        mPersistentZoom = mSharedPrefs.getBoolean("pref_persistent_zoom", false);
+
         // get fullscreen status from settings
         mIitcWebView.updateFullscreenStatus();
 
@@ -179,6 +182,9 @@ public class IITC_Mobile extends Activity
             final int mode = Integer.parseInt(mSharedPrefs.getString("pref_user_location_mode", "0"));
             if (mUserLocation.setLocationMode(mode))
                 mReloadNeeded = true;
+            return;
+        } else if (key.equals("pref_persistent_zoom")) {
+            mPersistentZoom = mSharedPrefs.getBoolean("pref_persistent_zoom", false);
             return;
         } else if (key.equals("pref_fullscreen")) {
             mIitcWebView.updateFullscreenStatus();
@@ -570,10 +576,11 @@ public class IITC_Mobile extends Activity
 
                 if (mUserLocation.hasCurrentLocation()) {
                     // if gps location is displayed we can use a better location without any costs
-                    mUserLocation.locate();
+                    mUserLocation.locate(mPersistentZoom);
                 } else {
                     // get location from network by default
-                    mIitcWebView.loadUrl("javascript: window.map.locate({setView : true});");
+                    mIitcWebView.loadUrl("javascript: window.map.locate({setView : true" +
+                            (mPersistentZoom ? ", maxZoom : map.getZoom()" : "") + "});");
                 }
                 return true;
             case R.id.action_settings: // start settings activity

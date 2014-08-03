@@ -102,10 +102,6 @@ body {
   margin-left: 5px !important;
 }
 
-.leaflet-control-layers {
-  display: none;    /* hide layer control - it's now handled by an in-app option */
-}
-
 #geosearch {
   width: 100%;
 }

@@ -145,7 +145,8 @@ window.artifact.isArtifact = function(type) {
 window.artifact.getArtifactDescriptions = function(type) {
   var descriptions = {
     'jarvis': { 'title': "Jarvis Shards", 'fragmentName': "shards" },
-    'amar': { 'title': "Amar Artifacts", 'fragmentName': "artifacts" }
+    'amar': { 'title': "Amar Artifacts", 'fragmentName': "artifacts" },
+    'helios': { 'title': "Helios Artifacts", 'fragmentName': "artifacts" },
   };
 
   return descriptions[type];
@@ -223,6 +224,23 @@ window.artifact.updateLayer = function() {
 
     }
 
+    // 2014-07-28 - another guess, for the upcoming 'helios' artifacts
+    if (data.helios) {
+      if (data.helios.target) {
+        // target portal - show the target marker. use the count of fragments at the target to pick the right icon - it has segments that fill up
+
+        var count = data.helios.fragments ? data.helios.fragments.length : 0;
+
+        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/helios_shard_target_'+count+'.png';
+        iconSize = 100/2; // 100 pixels - half that size works better
+      } else if (data.helios.fragments) {
+        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/helios_shard.png';
+        iconSize = 60/2; // 60 pixels - half that size works better
+        opacity = 0.6; // these often hide portals - let's make them semi transparent
+      }
+
+    }
+
     if (iconUrl) {
       var icon = L.icon({
         iconUrl: iconUrl,
@@ -243,11 +261,7 @@ window.artifact.updateLayer = function() {
 
 
 window.artifact.showArtifactList = function() {
-
-
   var html = '';
-
-  var typeNames = { 'jarvis': 'Jarvis Shards', 'amar': 'Amar Artifacts' };
 
   if (Object.keys(artifact.artifactTypes).length == 0) {
     html += '<i>No artifacts at this time</i>';
