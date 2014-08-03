@@ -716,7 +716,7 @@
             delete list[bkmrkData['id_folder']]['bkmrk'][bkmrkData['id_bookmark']];
             break;
         } // switch
-      }  // really visiblt
+      }  // really visible
     }  // portal loop
     );
     if(total) {
