@@ -22,6 +22,20 @@
 // use own namespace for plugin
 window.plugin.drawTools = function() {};
 
+window.plugin.drawTools.SYNC_DELAY = 10000;
+window.plugin.drawTools.KEY_STORAGE = 'plugin-draw-tools-data';
+
+window.plugin.drawTools.KEY = {key: window.plugin.drawTools.KEY_STORAGE, field: 'drawnItemsData'};
+window.plugin.drawTools.UPDATE_QUEUE = {key: 'plugin-draw-tools-data-queue', field: 'updateQueue'};
+window.plugin.drawTools.UPDATING_QUEUE = {key: 'plugin-draw-tools-data-updating-queue', field: 'updatingQueue'};
+
+window.plugin.drawTools.drawnItemsData = {'itemArray':[]};
+window.plugin.drawTools.updateQueue = {};
+window.plugin.drawTools.updatingQueue = {};
+
+window.plugin.drawTools.enableSync = false;
+window.plugin.drawTools.syncInProgress = false;
+
 window.plugin.drawTools.loadExternals = function() {
   try { console.log('Loading leaflet.draw JS now'); } catch(e) {}
   @@INCLUDERAW:external/leaflet.draw.js@@
@@ -217,10 +231,33 @@ window.plugin.drawTools.getSnapLatLng = function(unsnappedLatLng) {
   return candidates[0][1];
 }
 
+/***************************************************************************************************************************************************************/
+/** LOAD/SAVE **************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************/
 
-window.plugin.drawTools.save = function() {
+window.plugin.drawTools.upgradeStorage = function(){
+  if (localStorage['plugin-draw-tools-layer']){
+    var oldStor = JSON.parse(localStorage['plugin-draw-tools-layer']);
+    window.plugin.drawTools.drawnItemsData.itemArray = oldStor;
+    window.plugin.drawTools.saveStorage();
+    localStorage.removeItem('plugin-draw-tools-layer');
+  }
+}
+
+window.plugin.drawTools.loadStorage = function(){
+    var jsonStr = localStorage[window.plugin.drawTools.KEY_STORAGE];
+    if (typeof(jsonStr) === 'undefined'){
+        return;
+    }
+    window.plugin.drawTools.drawnItemsData = JSON.parse(jsonStr);
+}
+
+window.plugin.drawTools.saveStorage = function(){
+    localStorage[window.plugin.drawTools.KEY_STORAGE] = JSON.stringify(window.plugin.drawTools.drawnItemsData);
+}
+
+window.plugin.drawTools.getDrawnItemsArray = function() {
   var data = [];
-
   window.plugin.drawTools.drawnItems.eachLayer( function(layer) {
     var item = {};
     if (layer instanceof L.GeodesicCircle || layer instanceof L.Circle) {
@@ -247,24 +284,25 @@ window.plugin.drawTools.save = function() {
 
     data.push(item);
   });
-
-  localStorage['plugin-draw-tools-layer'] = JSON.stringify(data);
-
-  console.log('draw-tools: saved to localStorage');
+  return data;
 }
 
-window.plugin.drawTools.load = function() {
-  try {
-    var dataStr = localStorage['plugin-draw-tools-layer'];
-    if (dataStr === undefined) return;
-
-    var data = JSON.parse(dataStr);
-    window.plugin.drawTools.import(data);
-
-  } catch(e) {
-    console.warn('draw-tools: failed to load data from localStorage: '+e);
-  }
+window.plugin.drawTools.save = function(){
+    window.plugin.drawTools.drawnItemsData.itemArray = window.plugin.drawTools.getDrawnItemsArray();
+    window.plugin.drawTools.saveStorage();
 }
+
+
+window.plugin.drawTools.load = function(){
+    window.plugin.drawTools.loadStorage();
+    window.plugin.drawTools.drawnItems.clearLayers();
+    if (!window.plugin.drawTools.drawnItemsData.itemArray.length){
+        return;
+    }
+    window.plugin.drawTools.import(window.plugin.drawTools.drawnItemsData.itemArray);
+}
+
+/***************************************************************************************************************************************************************/
 
 window.plugin.drawTools.import = function(data) {
   $.each(data, function(index,item) {
@@ -296,9 +334,6 @@ window.plugin.drawTools.import = function(data) {
       window.plugin.drawTools.drawnItems.addLayer(layer);
     }
   });
-
-  runHooks('pluginDrawTools', {event: 'import'});
-
 }
 
 
@@ -373,16 +408,19 @@ window.plugin.drawTools.optPaste = function() {
   if(promptAction !== null && promptAction !== '') {
     try {
       var data = JSON.parse(promptAction);
-      window.plugin.drawTools.drawnItems.clearLayers();
-      window.plugin.drawTools.import(data);
+      window.plugin.drawTools.drawnItemsData.itemArray = data;
+      window.plugin.drawTools.load();
       console.log('DRAWTOOLS: reset and imported drawn tiems');
       window.plugin.drawTools.optAlert('Import Successful.');
 
       // to write back the data to localStorage
-      window.plugin.drawTools.save();
+      window.plugin.drawTools.saveStorage();
+      runHooks('pluginDrawTools', {event: 'paste'})
     } catch(e) {
       console.warn('DRAWTOOLS: failed to import data: '+e);
       window.plugin.drawTools.optAlert('<span style="color: #f88">Import failed</span>');
+      window.plugin.drawTools.drawnItemsData.itemArray = [];
+      window.plugin.drawTools.saveStorage();
     }
   }
 }
@@ -392,16 +430,19 @@ window.plugin.drawTools.optImport = function() {
   window.requestFile(function(filename, content) {
     try {
       var data = JSON.parse(content);
-      window.plugin.drawTools.drawnItems.clearLayers();
-      window.plugin.drawTools.import(data);
+      window.plugin.drawTools.drawnItemsData.itemArray = data;
+      window.plugin.drawTools.load();
       console.log('DRAWTOOLS: reset and imported drawn tiems');
       window.plugin.drawTools.optAlert('Import Successful.');
 
       // to write back the data to localStorage
-      window.plugin.drawTools.save();
+      window.plugin.drawTools.saveStorage();
+      runHooks('pluginDrawTools', {event: 'import'})
     } catch(e) {
       console.warn('DRAWTOOLS: failed to import data: '+e);
       window.plugin.drawTools.optAlert('<span style="color: #f88">Import failed</span>');
+      window.plugin.drawTools.drawnItemsData.itemArray = [];
+      window.plugin.drawTools.saveStorage();
     }
   });
 }
@@ -409,8 +450,8 @@ window.plugin.drawTools.optImport = function() {
 window.plugin.drawTools.optReset = function() {
   var promptAction = confirm('All drawn items will be deleted. Are you sure?', '');
   if(promptAction) {
-    delete localStorage['plugin-draw-tools-layer'];
-    window.plugin.drawTools.drawnItems.clearLayers();
+    window.plugin.drawTools.drawnItemsData.itemArray = [];
+    window.plugin.drawTools.saveStorage();
     window.plugin.drawTools.load();
     console.log('DRAWTOOLS: reset all drawn items');
     window.plugin.drawTools.optAlert('Reset Successful. ');
@@ -418,9 +459,109 @@ window.plugin.drawTools.optReset = function() {
   }
 }
 
+/***************************************************************************************************************************************************************/
+/** SYNC *******************************************************************************************************************************************************/
+/***************************************************************************************************************************************************************/
+
+// Delay the syncing to group a few updates in a single request
+window.plugin.drawTools.delaySync = function() {
+  if(!window.plugin.drawTools.enableSync) return;
+  clearTimeout(window.plugin.drawTools.delaySync.timer);
+  window.plugin.drawTools.delaySync.timer = setTimeout(function() {
+      window.plugin.drawTools.delaySync.timer = null;
+      window.plugin.drawTools.syncNow();
+    }, window.plugin.drawTools.SYNC_DELAY);
+}
+
+// Store the updateQueue in updatingQueue and upload
+window.plugin.drawTools.syncNow = function() {
+  if(!window.plugin.drawTools.enableSync) return;
+  $.extend(window.plugin.drawTools.updatingQueue, window.plugin.drawTools.updateQueue);
+  window.plugin.drawTools.updateQueue = {};
+  window.plugin.drawTools.storeLocal(window.plugin.drawTools.UPDATING_QUEUE);
+  window.plugin.drawTools.storeLocal(window.plugin.drawTools.UPDATE_QUEUE);
+  console.log('drawTools sync - pushing update');
+  window.plugin.sync.updateMap('drawTools', window.plugin.drawTools.KEY.field, Object.keys(window.plugin.drawTools.updatingQueue));
+}
+
+// Call after local or remote change uploaded
+window.plugin.drawTools.syncCallback = function(pluginName, fieldName, e, fullUpdated) {
+  if(fieldName === window.plugin.drawTools.KEY.field) {
+    window.plugin.drawTools.storeLocal(window.plugin.drawTools.KEY);
+    // All data is replaced if other client update the data during this client offline,
+    if(fullUpdated) {
+      console.log('drawTools sync - full update... refreshing');
+      window.plugin.drawTools.load();
+      return;
+    }
+
+    if(!e) return;
+    if(e.isLocal) {
+      // Update pushed successfully, remove it from updatingQueue
+      console.log('drawTools sync - pushed successfully');
+      delete window.plugin.drawTools.updatingQueue[e.property];
+    } else {
+      // Remote update
+      delete window.plugin.drawTools.updateQueue[e.property];
+      console.log('drawTools sync - received remote update');
+      window.plugin.drawTools.syncInProgress = true;
+      window.plugin.drawTools.storeLocal(window.plugin.drawTools.UPDATE_QUEUE);
+      window.plugin.drawTools.load();
+      window.plugin.drawTools.syncInProgress = false;
+    }
+  }
+}
+
+// Call after IITC and all plugin loaded
+window.plugin.drawTools.registerFieldForSyncing = function() {
+  if(!window.plugin.sync) return;
+  window.plugin.sync.registerMapForSync('drawTools', window.plugin.drawTools.KEY.field, window.plugin.drawTools.syncCallback, window.plugin.drawTools.syncInitialed);
+}
+
+// syncing of the field is initialed, upload all queued update
+window.plugin.drawTools.syncInitialed = function(pluginName, fieldName) {
+  if(fieldName === window.plugin.drawTools.KEY.field) {
+    window.plugin.drawTools.enableSync = true;
+      if(Object.keys(window.plugin.drawTools.updateQueue).length > 0) {
+        window.plugin.drawTools.delaySync();
+      }
+  }
+}
+
+window.plugin.drawTools.storeLocal = function(mapping) {
+  if(typeof(window.plugin.drawTools[mapping.field]) !== 'undefined' && window.plugin.drawTools[mapping.field] !== null) {
+    localStorage[mapping.key] = JSON.stringify(window.plugin.drawTools[mapping.field]);
+  } else {
+    localStorage.removeItem(mapping.key);
+  }
+}
+
+window.plugin.drawTools.loadLocal = function(mapping) {
+  var objectJSON = localStorage[mapping.key];
+  if(!objectJSON) return;
+  window.plugin.drawTools[mapping.field] = mapping.convertFunc
+                            ? mapping.convertFunc(JSON.parse(objectJSON))
+                            : JSON.parse(objectJSON);
+}
+
+window.plugin.drawTools.syncItems = function(data){
+  if(window.plugin.drawTools.syncInProgress) return;
+  var watchedEvents = ['layerCreated', 'layersEdited', 'layersDeleted', 'paste', 'import', 'clear'];
+  // No need to update from localStorage since it's already been done after these events are triggered
+  if(data.event && watchedEvents.indexOf(data.event) != -1){
+    window.plugin.drawTools.updateQueue = window.plugin.drawTools.drawnItemsData;
+    window.plugin.drawTools.storeLocal(window.plugin.drawTools.UPDATE_QUEUE);
+    window.plugin.drawTools.delaySync();
+  }
+}
+
+/***************************************************************************************************************************************************************/
+
 window.plugin.drawTools.boot = function() {
   // add a custom hook for draw tools to share it's activity with other plugins
-  pluginCreateHook('pluginDrawTools');
+  //pluginCreateHook('pluginDrawTools');
+
+  if($.inArray('pluginDrawTools', window.VALID_HOOKS) < 0) { window.VALID_HOOKS.push('pluginDrawTools'); }
 
   window.plugin.drawTools.currentMarker = window.plugin.drawTools.getMarkerIcon(window.plugin.drawTools.currentColor);
 
@@ -429,11 +570,14 @@ window.plugin.drawTools.boot = function() {
   //create a leaflet FeatureGroup to hold drawn items
   window.plugin.drawTools.drawnItems = new L.FeatureGroup();
 
+  window.plugin.drawTools.loadLocal(window.plugin.drawTools.UPDATE_QUEUE);
+
   //load any previously saved items
-  plugin.drawTools.load();
+  window.plugin.drawTools.upgradeStorage();
+  window.plugin.drawTools.load();
 
   //add the draw control - this references the above FeatureGroup for editing purposes
-  plugin.drawTools.addDrawControl();
+  window.plugin.drawTools.addDrawControl();
 
   //start off hidden. if the layer is enabled, the below addLayerGroup will add it, triggering a 'show'
   $('.leaflet-draw-section').hide();
@@ -485,9 +629,9 @@ window.plugin.drawTools.boot = function() {
         '.drawtoolsSetbox > a { display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:80%; text-align:center; background:rgba(8,48,78,.9); }'+
         '.ui-dialog-drawtoolsSet-copy textarea { width:96%; height:250px; resize:vertical; }'+
         '</style>');
-
+  window.addHook('pluginDrawTools', window.plugin.drawTools.syncItems);
+  window.addHook('iitcLoaded', window.plugin.drawTools.registerFieldForSyncing);
 }
-
 
 var setup =  window.plugin.drawTools.loadExternals;
 
