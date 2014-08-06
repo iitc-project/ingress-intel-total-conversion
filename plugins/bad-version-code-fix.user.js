@@ -2,7 +2,7 @@
 // @id             iitc-plugin-fix-bad-version-code@jonatkins
 // @name           IITC plugin: Fix bad version codes
 // @category       Tweaks
-// @version        0.2.0.@@DATETIMEVERSION@@
+// @version        0.2.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -28,17 +28,16 @@ window.plugin.badVersionCodeFix.setup  = function() {
   var fixes = {
     // 2014-08-02 - broken for 24h+
     '81ad679ab5bc219ef3bcf7ca9b760e917cf0c558': 'afdb91368730a906bae38b2837cc411f880350fa',
-
   };
 
 
   var fixed = fixes[nemesis.dashboard.config.CURRENT_VERSION];
 
-  if (fixed) {
-    console.warn('IITC VersionCodeFixer: bad nemesis.dashboard.config.CURRENT_VERSION: is '+nemesis.dashboard.config.CURRENT_VERSION+', should be '+fixed);
+  if (fixed !== undefined) {
+    console.warn('IITC VersionCodeFixer: bad nemesis.dashboard.config.CURRENT_VERSION is "'+nemesis.dashboard.config.CURRENT_VERSION+'", should be "'+fixed+'"');
     nemesis.dashboard.config.CURRENT_VERSION = fixed;
   } else {
-    console.log('IITC VersionCodeFixer: no known fixes needed');
+    console.log('IITC VersionCodeFixer: no known fixes needed, current nemesis.dashboard.config.CURRENT_VERSION is "'+nemesis.dashboard.config.CURRENT_VERSION+'"');
   }
 
 
