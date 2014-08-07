@@ -572,9 +572,9 @@
       $('.bkrmks-alert').delay(2500).fadeOut();
   }
 
-  window.plugin.bookmarks.optPickFolder = function() {
+  window.plugin.bookmarks.optPickFolder = function(opt) {
 		dialog({
-			html: '<p>Enter the name of the folder to export:</p><input type="text" id="copyFolder"></input><button type="button" onclick="window.plugin.bookmarks.optCopy($(\'#copyFolder\').val())">Export</button>',
+			html: '<p>Enter the name of the folder to export (or leave blank to copy all):</p><input type="text" id="copyFolder"></input><button type="button" onclick="window.plugin.bookmarks.opt' + opt + '($(\'#copyFolder\').val())">Export</button>',
 			dialogClass: 'ui-dialog-bkmrksSet-copy',
 			title: 'Bookmarks Export'
 		});
@@ -582,7 +582,9 @@
 
   window.plugin.bookmarks.optCopy = function(folder) {
 		var json = null;
-		if (folder !== null) {
+		if (folder !== '') {
+			// NOTE: can only export portal folders
+			// TODO: export map folders
 			json = {portals: {}};
 			var portalFolders = $.parseJSON(localStorage[window.plugin.bookmarks.KEY_STORAGE]).portals;
 			for (var id in portalFolders) {
@@ -601,42 +603,80 @@
 	    }
 	  }
 
-  window.plugin.bookmarks.optExport = function() {
+  window.plugin.bookmarks.optExport = function(folder) {
     if(typeof android !== 'undefined' && android && android.saveFile) {
-      android.saveFile("IITC-bookmarks.json", "application/json", localStorage[window.plugin.bookmarks.KEY_STORAGE]);
+      if (folder !== '') {
+    	  // NOTE: can only export portal folders
+    	  // TODO: export map folders
+          json = {portals: {}};
+          var portalFolders = $.parseJSON(localStorage[window.plugin.bookmarks.KEY_STORAGE]).portals;
+          for (var id in portalFolders) {
+        	  if (portalFolders[id].label === folder) { json.portals[id] = portalFolders[id]; }
+          }
+          android.saveFile("IITC-bookmarks-" + folder + ".json", "application/json", JSON.stringify(json));
+      } else { android.saveFile("IITC-bookmarks.json", "application/json", localStorage[window.plugin.bookmarks.KEY_STORAGE]); }
     }
   }
 
+  window.plugin.bookmarks.importData = function (imported) {
+	try {
+	  var existing = $.parseJSON(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
+      for (var folderId in imported.portals) {
+      	// add portal folder to existing bookmarks
+      	if (folderId in existing.portals) {
+      		// add portals to existing folder
+      		for (var bkmrkId in imported.portals[folderId].bkmrk) {
+      			if (bkmrkId in existing.portals[folderId].bkmrk) {
+      				// skip. portal already exists
+      				continue;
+      			} else {
+      				// add portal
+      				existing.portals[folderId].bkmrk[bkmrkId] = imported.portals[folderId].bkmrk[bkmrkId];
+      			}
+      		}
+      	} else {
+      		// add the whole folder
+          	existing.portals[folderId] = imported.portals[folderId]; 
+      	}
+      }
+      for (var folderId in imported.maps) {
+      	// add map folder to existing bookmarks
+      	if (folderId in existing.maps) {
+      		// add new maps to existing folder
+      		for (var bkmrkId in imported.maps[folderId].bkmrk) {
+      			if (bkmrkId in existing.maps[folderId].bkmrk) {
+      				// skip. map already exists
+      				continue;
+      			} else {
+      				// add map
+      				existing.maps[folderId].bkmrk[bkmrkId] = imported.portals[folderId].bkmrk[bkmrkId];
+      			}
+      		}
+      	} else {
+      		// add map folder
+      		existing.maps[folderId] = imported.maps[folderId];
+      	}
+      }
+      localStorage[window.plugin.bookmarks.KEY_STORAGE] = JSON.stringify(existing);
+      window.plugin.bookmarks.refreshBkmrks();
+      window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
+      console.log('BOOKMARKS: reset and imported bookmarks');
+      window.plugin.bookmarks.optAlert('Successful. ');
+    } catch(e) {
+      console.warn('BOOKMARKS: failed to import data: '+e);
+      window.plugin.bookmarks.optAlert('<span style="color: #f88">Import failed </span>');
+    }
+  }
+  
   window.plugin.bookmarks.optPaste = function() {
 	    var promptAction = prompt('Press CTRL+V to paste it.', '');
 	    if(promptAction !== null && promptAction !== '') {
 	      try {
-	        var newKeys = $.parseJSON(promptAction), // try to parse JSON first
-	        	currKeys = $.parseJSON(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
-	        for (var id in newKeys.portals) { // only checks portals for now
-	        	if (id in currKeys.portals) {
-	        		// add new bookmarks to folder
-	        		for (var bkmrkId in newKeys.portals[id].bkmrk) {
-	        			if (bkmrkId in currKeys.portals[id].bkmrk) {
-	        				// do nothing
-	        			} else {
-	        				// add bookmark
-	        				currKeys.portals[id].bkmrk[bkmrkId] = newKeys.portals[id].bkmrk[bkmrkId];
-	        			}
-	        		}
-	        	} else {
-	        		// add folder
-	            	currKeys.portals[id] = newKeys.portals[id]; 
-	        	}
-	        }
-	        localStorage[window.plugin.bookmarks.KEY_STORAGE] = JSON.stringify(currKeys);
-	        window.plugin.bookmarks.refreshBkmrks();
-	        window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
-	        console.log('BOOKMARKS: reset and imported bookmarks');
-	        window.plugin.bookmarks.optAlert('Successful. ');
-	      } catch(e) {
-	        console.warn('BOOKMARKS: failed to import data: '+e);
-	        window.plugin.bookmarks.optAlert('<span style="color: #f88">Import failed </span>');
+	        var imported = $.parseJSON(promptAction);
+	        window.plugin.bookmarks.importData(imported);
+	      } catch (e) {
+	          console.warn('BOOKMARKS: failed to import data: '+e);
+	          window.plugin.bookmarks.optAlert('<span style="color: #f88">Import failed </span>');
 	      }
 	    }
 	  }
@@ -645,12 +685,8 @@
     if (window.requestFile === undefined) return;
     window.requestFile(function(filename, content) {
       try {
-        JSON.parse(content); // try to parse JSON first
-        localStorage[window.plugin.bookmarks.KEY_STORAGE] = content;
-        window.plugin.bookmarks.refreshBkmrks();
-        window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
-        console.log('BOOKMARKS: reset and imported bookmarks');
-        window.plugin.bookmarks.optAlert('Successful. ');
+        var imported = $.parseJSON(content);
+        window.plugin.bookmarks.importData(imported);
       } catch(e) {
         console.warn('BOOKMARKS: failed to import data: '+e);
         window.plugin.bookmarks.optAlert('<span style="color: #f88">Import failed </span>');
@@ -1125,13 +1161,12 @@
 
     var actions = '';
     actions += '<a onclick="window.plugin.bookmarks.optReset();return false;">Reset bookmarks</a>';
-    actions += '<a onclick="window.plugin.bookmarks.optPickFolder();return false;">Copy bookmarks</a>';
-//    actions += '<a onclick="window.plugin.bookmarks.optCopy();return false;">Copy bookmarks</a>';
+    actions += '<a onclick="window.plugin.bookmarks.optPickFolder(\'Copy\');return false;">Copy bookmarks</a>';
     actions += '<a onclick="window.plugin.bookmarks.optPaste();return false;">Paste bookmarks</a>';
 
     if(plugin.bookmarks.isAndroid()) {
       actions += '<a onclick="window.plugin.bookmarks.optImport();return false;">Import bookmarks</a>';
-      actions += '<a onclick="window.plugin.bookmarks.optExport();return false;">Export bookmarks</a>';
+      actions += '<a onclick="window.plugin.bookmarks.optPickFolder(\'Export\');return false;">Export bookmarks</a>';
     }
     actions += '<a onclick="window.plugin.bookmarks.optRenameF();return false;">Rename Folder</a>'
     if(!plugin.bookmarks.isAndroid()) {
