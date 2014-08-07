@@ -105,6 +105,8 @@
     <string name="pref_plugins_sum">Plugins extend/modify the IITC experience. Most plugins known from desktop IITC can be found here.</string>
     <string name="pref_plugins_title">Available plugins</string>
     <string name="pref_user_location">Display user location on map</string>
+    <string name="pref_persistent_zoom">Persistent zoom level</string>
+    <string name="pref_persistent_zoom_sum">Don\'t change zoom level when locate button is pressed</string>
     <string name="pref_user_zoom">Show zoom control</string>
     <string name="pref_user_zoom_sum">Shows +/- buttons even on multitouch capable devices.</string>
     <string name="pref_fullscreen">Hide in fullscreen mode</string>
@@ -216,6 +218,11 @@
     <string name="intent_error">Address could not be opened</string>
     <string name="msg_copied">Copied to clipboard…</string>
     <string name="notice_do_not_show_again">Do not show again</string>
+
+    <string name="sign_in_to">Sign in to %1$s %2$s"</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="sign_in_action">Sign in</string>
 
     <string name="tab_map">Locate</string>
     <string name="tab_share">Share</string>

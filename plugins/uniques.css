@@ -1,0 +1,13 @@
+#uniques-container {
+  display: block;
+  text-align: center;
+  margin: 6px 3px 1px 3px;
+  padding: 0 4px;
+}
+#uniques-container label {
+  margin: 0 0.5em;
+}
+#uniques-container input {
+  vertical-align: middle;
+}
+

@@ -10,7 +10,7 @@
 (function(){
 
 var cache;
-
+var requestQueue = {};
 
 window.portalDetail = function() {};
 
@@ -30,6 +30,7 @@ window.portalDetail.isFresh = function(guid) {
 
 
 var handleResponse = function(guid, data, success) {
+  delete requestQueue[guid];
 
   if (success) {
     cache.store(guid,data);
@@ -45,11 +46,15 @@ var handleResponse = function(guid, data, success) {
 }
 
 window.portalDetail.request = function(guid) {
+  if (!requestQueue[guid]) {
+    requestQueue[guid] = true;
 
-  window.postAjax('getPortalDetails', {guid:guid},
-    function(data,textStatus,jqXHR) { handleResponse(guid, data, true); },
-    function() { handleResponse(guid, undefined, false); }
-  );
+    window.postAjax('getPortalDetails', {guid:guid},
+      function(data,textStatus,jqXHR) { handleResponse(guid, data, true); },
+      function() { handleResponse(guid, undefined, false); }
+    );
+  }
+
 }
 
 

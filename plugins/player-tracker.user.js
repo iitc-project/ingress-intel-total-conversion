@@ -2,7 +2,7 @@
 // @id             iitc-plugin-player-tracker@breunigs
 // @name           IITC Plugin: Player tracker
 // @category       Layer
-// @version        0.10.3.@@DATETIMEVERSION@@
+// @version        0.10.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -27,10 +27,6 @@ window.PLAYER_TRACKER_LINE_COLOUR = '#FF00FD';
 window.plugin.playerTracker = function() {};
 
 window.plugin.playerTracker.setup = function() {
-  try { console.log('Loading OverlappingMarkerSpiderfier JS now'); } catch(e) {}
-  @@INCLUDERAW:external/oms.min.js@@
-  try { console.log('done loading OverlappingMarkerSpiderfier JS'); } catch(e) {}
-
   var iconEnlImage = '@@INCLUDEIMAGE:images/marker-green.png@@';
   var iconEnlRetImage = '@@INCLUDEIMAGE:images/marker-green-2x.png@@';
   var iconResImage = '@@INCLUDEIMAGE:images/marker-blue.png@@';
@@ -62,22 +58,8 @@ window.plugin.playerTracker.setup = function() {
       });
     }
   });
-  plugin.playerTracker.oms = new OverlappingMarkerSpiderfier(map, {keepSpiderfied: true, legWeight: 3.5});
-  plugin.playerTracker.oms.legColors = {'usual': '#FFFF00', 'highlighted': '#FF0000'};
 
-  var playerPopup = new L.Popup({offset: L.point([1,-34])});
-  plugin.playerTracker.oms.addListener('click', function(player) {
-    window.renderPortalDetails(player.options.referenceToPortal);
-    if (player.options.desc) {
-      playerPopup.setContent(player.options.desc);
-      playerPopup.setLatLng(player.getLatLng());
-      map.openPopup(playerPopup);
-    }
-  });
-  plugin.playerTracker.oms.addListener('spiderfy', function(markers) {
-    map.closePopup();
-  });
-
+  plugin.playerTracker.playerPopup = new L.Popup({offset: L.point([1,-34])});
 
   addHook('publicChatDataAvailable', window.plugin.playerTracker.handleData);
 
@@ -90,6 +72,16 @@ window.plugin.playerTracker.setup = function() {
 }
 
 window.plugin.playerTracker.stored = {};
+
+plugin.playerTracker.onClickListener = function(event) {
+  var marker = event.target;
+  window.renderPortalDetails(marker.options.referenceToPortal);
+  if (marker.options.desc) {
+    plugin.playerTracker.playerPopup.setContent(marker.options.desc);
+    plugin.playerTracker.playerPopup.setLatLng(marker.getLatLng());
+    map.openPopup(plugin.playerTracker.playerPopup);
+  }
+};
 
 // force close all open tooltips before markers are cleared
 window.plugin.playerTracker.closeIconTooltips = function() {
@@ -371,6 +363,8 @@ window.plugin.playerTracker.drawData = function() {
 // as per OverlappingMarkerSpiderfier docs, click events (popups, etc) must be handled via it rather than the standard
 // marker click events. so store the popup text in the options, then display it in the oms click handler
     var m = L.marker(gllfe(last), {icon: icon, referenceToPortal: closestPortal, opacity: absOpacity, desc: popup, title: tooltip});
+    m.addEventListener('spiderfiedclick', plugin.playerTracker.onClickListener);
+
 //    m.bindPopup(title);
 
     if (tooltip) {
@@ -379,7 +373,7 @@ window.plugin.playerTracker.drawData = function() {
     }
 
     m.addTo(playerData.team === 'RESISTANCE' ? plugin.playerTracker.drawnTracesRes : plugin.playerTracker.drawnTracesEnl);
-    plugin.playerTracker.oms.addMarker(m);
+    window.registerMarkerForOMS(m);
 
     // jQueryUI doesn’t automatically notice the new markers
     if (!isTouchDev) {
@@ -426,7 +420,7 @@ window.plugin.playerTracker.handleData = function(data) {
   plugin.playerTracker.discardOldData();
   plugin.playerTracker.processNewData(data);
   if (!window.isTouchDevice()) plugin.playerTracker.closeIconTooltips();
-  plugin.playerTracker.oms.clearMarkers();
+
   plugin.playerTracker.drawnTracesEnl.clearLayers();
   plugin.playerTracker.drawnTracesRes.clearLayers();
   plugin.playerTracker.drawData();

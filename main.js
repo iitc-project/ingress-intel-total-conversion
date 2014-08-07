@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.17.2.@@DATETIMEVERSION@@
+// @version        0.17.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -70,8 +70,8 @@ document.getElementsByTagName('head')[0].innerHTML = ''
 document.getElementsByTagName('body')[0].innerHTML = ''
   + '<div id="map">Loading, please wait</div>'
   + '<div id="chatcontrols" style="display:none">'
-  + '  <a><span class="toggle expand"></span></a>'
-  +   '<a>full</a><a>compact</a><a>public</a><a class="active">faction</a>'
+  + '  <a accesskey="0"><span class="toggle expand"></span></a>'
+  +   '<a accesskey="1">full</a><a accesskey="2">compact</a><a accesskey="3">public</a><a accesskey="4" class="active">faction</a>'
   + '</div>'
   + '<div id="chat" style="display:none">'
   + '  <div id="chatfaction"></div>'
@@ -82,15 +82,15 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '<form id="chatinput" style="display:none"><table><tr>'
   + '  <td><time></time></td>'
   + '  <td><mark>tell faction:</mark></td>'
-  + '  <td><input id="chattext" type="text" maxlength="256" /></td>'
+  + '  <td><input id="chattext" type="text" maxlength="256" accesskey="c" /></td>'
   + '</tr></table></form>'
-  + '<a id="sidebartoggle"><span class="toggle close"></span></a>'
+  + '<a id="sidebartoggle" accesskey="i"><span class="toggle close"></span></a>'
   + '<div id="scrollwrapper">' // enable scrolling for small screens
   + '  <div id="sidebar" style="display: none">'
   + '    <div id="playerstat">t</div>'
   + '    <div id="gamestat">&nbsp;loading global control stats</div>'
   + '    <div id="geosearchwrapper">'
-  + '      <input id="geosearch" placeholder="Search location…" type="text"/>'
+  + '      <input id="geosearch" placeholder="Search location…" type="text" accesskey="f"/>'
   + '      <img src="@@INCLUDEIMAGE:images/current-location.png@@"/ title="Current Location">'
   + '    </div>'
   + '    <div id="portaldetails"></div>'
@@ -175,7 +175,7 @@ window.PORTAL_RADIUS_ENLARGE_MOBILE = 5;
 
 
 window.DEFAULT_PORTAL_IMG = '//commondatastorage.googleapis.com/ingress.com/img/default-portal-image.png';
-window.NOMINATIM = 'http://nominatim.openstreetmap.org/search?format=json&limit=1&q=';
+window.NOMINATIM = '//nominatim.openstreetmap.org/search?format=json&limit=1&q=';
 
 // INGRESS CONSTANTS /////////////////////////////////////////////////
 // http://decodeingress.me/2012/11/18/ingress-portal-levels-and-link-range/

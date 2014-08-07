@@ -29,6 +29,10 @@ window.MapDataRequest = function() {
 
   // number of times to retry a tile after a 'bad' error (i.e. not a timeout)
   this.MAX_TILE_RETRIES = 2;
+  try {
+    // stock has a variable for this - try to use it
+    this.MAX_TILE_RETRIES = nemesis.dashboard.DataManager.MAX_QUADKEY_RETRY_ATTEMPTS_;
+  } catch(e) {}
 
   // refresh timers
   this.MOVE_REFRESH = 3; //time, after a map move (pan/zoom) before starting the refresh processing
@@ -41,8 +45,7 @@ window.MapDataRequest = function() {
 
 
   // a short delay between one request finishing and the queue being run for the next request.
-  // this gives a chance of other requests finishing, allowing better grouping of retries in new requests
-  this.RUN_QUEUE_DELAY = 0.2;
+  this.RUN_QUEUE_DELAY = 0.05;
 
   // delay before processing the queue after failed requests
   this.BAD_REQUEST_RUN_QUEUE_DELAY = 10; // longer delay before doing anything after errors (other than TIMEOUT)
@@ -54,10 +57,10 @@ window.MapDataRequest = function() {
   // render queue
   // number of items to process in each render pass. there are pros and cons to smaller and larger values
   // (however, if using leaflet canvas rendering, it makes sense to push as much as possible through every time)
-  this.RENDER_BATCH_SIZE = L.Path.CANVAS ? 1E9 : (typeof android === 'undefined') ? 2000 : 500;
+  this.RENDER_BATCH_SIZE = L.Path.CANVAS ? 1E9 : 500;
 
   // delay before repeating the render loop. this gives a better chance for user interaction
-  this.RENDER_PAUSE = 0.05; //50ms
+  this.RENDER_PAUSE = (typeof android === 'undefined') ? 0.1 : 0.2; //100ms desktop, 200ms mobile
 
 
   this.REFRESH_CLOSE = 300;  // refresh time to use for close views z>12 when not idle and not moving

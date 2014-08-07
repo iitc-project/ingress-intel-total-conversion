@@ -151,14 +151,29 @@ window.setupMap = function() {
     zoomControl: (typeof android !== 'undefined' && android && android.showZoom) ? android.showZoom() : true,
     minZoom: 1,
 //    zoomAnimation: false,
-    markerZoomAnimation: false
+    markerZoomAnimation: false,
+    bounceAtZoomLimits: false
   });
+
+  if (L.Path.CANVAS) {
+    // for canvas, 2% overdraw only - to help performance
+    L.Path.CLIP_PADDING = 0.02;
+  } else if (L.Path.SVG) {
+    if (L.Browser.mobile) {
+      // mobile SVG - 10% ovredraw. might help performance?
+      L.Path.CLIP_PADDING = 0.1;
+    } else {
+      // for svg, 100% overdraw - so we have a full screen worth in all directions
+      L.Path.CLIP_PADDING = 1.0;
+    }
+  }
 
   // add empty div to leaflet control areas - to force other leaflet controls to move around IITC UI elements
   // TODO? move the actual IITC DOM into the leaflet control areas, so dummy <div>s aren't needed
   if(!isSmartphone()) {
     // chat window area
-    $(window.map._controlCorners['bottomleft']).append($('<div>').width(708).height(108).addClass('leaflet-control').css('margin','0'));
+    $(window.map._controlCorners['bottomleft']).append(
+      $('<div>').width(708).height(108).addClass('leaflet-control').css({'pointer-events': 'none', 'margin': '0'}));
   }
 
   var addLayers = {};
@@ -459,7 +474,7 @@ window.setupQRLoadLib = function() {
 }
 
 window.setupLayerChooserApi = function() {
-  // hide layer chooser on mobile devices running desktop mode
+  // hide layer chooser if booted with the iitcm android app
   if (typeof android !== 'undefined' && android && android.setLayers) {
     $('.leaflet-control-layers').hide();
   }
@@ -560,6 +575,7 @@ function boot() {
   window.setupStyles();
   window.setupDialogs();
   window.setupMap();
+  window.setupOMS();
   window.setupGeosearch();
   window.setupRedeem();
   window.setupLargeImagePreview();
@@ -657,12 +673,13 @@ try { console.log('Loading included JS now'); } catch(e) {}
 // contains the default Ingress map style.
 @@INCLUDERAW:external/Google.js@@
 @@INCLUDERAW:external/autolink.js@@
+@@INCLUDERAW:external/oms.min.js@@
 
 try { console.log('done loading included JS'); } catch(e) {}
 
 //note: no protocol - so uses http or https as used on the current page
-var JQUERY = '//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js';
-var JQUERYUI = '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js';
+var JQUERY = '//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js';
+var JQUERYUI = '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js';
 
 // after all scripts have loaded, boot the actual app
 load(JQUERY).then(JQUERYUI).thenRun(boot);
