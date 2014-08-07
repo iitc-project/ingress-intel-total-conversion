@@ -67,6 +67,7 @@ window.artifact.processData = function(data) {
 
   if (data.error || !data.artifacts) {
     console.warn('Failed to find artifacts in artifact response');
+    return;
   }
 
   artifact.clearData();
