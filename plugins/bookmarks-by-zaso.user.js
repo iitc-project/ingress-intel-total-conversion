@@ -1,12 +1,12 @@
 // ==UserScript==
-// @id             iitc-plugin-bookmarks@ZasoGD
-// @name           IITC plugin: Bookmarks for maps and portals
+// @id             iitc-plugin-bookmarks@ZasoGD@Umer936
+// @name           IITC plugin: Bookmarks for maps and portals MOD: Google Map Transfer
 // @category       Controls
-// @version        0.2.7.@@DATETIMEVERSION@@
+// @version        0.2.7.@@DATETIMEVERSION@@.1.1
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Save your favorite Maps and Portals and move the intel map with a click. Now with sync.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Save your favorite Maps and Portals and move the Intel Map with a click. Works with sync. MODDED by Umer936: Send to Google Maps
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -230,6 +230,9 @@
       // Create a folder
       elementTemp = '<li class="bookmarkFolder'+active+'" id="'+idFolders+'">'+folderLabel+'<ul>';
 
+	  //Open array of portal locations
+	  var alllats = [];
+	  
       // For each bookmark
       var fold = folders['bkmrk'];
       for(var idBkmrk in fold) {
@@ -249,11 +252,26 @@
           var guid = bkmrk['guid'];
           var btn_link = '<a class="bookmarksLink" onclick="$(\'a.bookmarksLink.selected\').removeClass(\'selected\');'+returnToMap+'window.zoomToAndShowPortal(\''+guid+'\', ['+latlng+']);return false;">'+label+'</a>';
         }
+		
+		// Add each portal to array
+		alllats.push(latlng);
+		
         // Create the bookmark
         elementTemp += '<li class="bkmrk" id="'+idBkmrk+'">'+btn_remove+btn_link+'</li>';
       }
-      elementTemp += '</li></ul>';
+      
 
+	  // Print link with portal locations 
+            text = "https://www.google.com/maps/dir/Current+Location/";
+            var i;
+            for (i = 0; i < alllats.length; i++) {
+                text += alllats[i] + "/";
+            }
+            
+            elementTemp += '</li><a target="_blank" href="'+text+'">MapIt!</a></ul>';
+
+	  
+	  
       // Add folder 'Others' in last position
       if(idFolders != window.plugin.bookmarks.KEY_OTHER_BKMRK) { element += elementTemp; }
       else{ elementExc = elementTemp; }
@@ -671,7 +689,8 @@
         // Create a folder
         elementTemp = '<div class="bookmarkFolder" id="'+idFolders+'">'+folderLabel+'<div>';
 
-        // For each bookmark
+		
+		// For each bookmark
         var fold = folders['bkmrk'];
         for(var idBkmrk in fold) {
           var bkmrk = fold[idBkmrk];
