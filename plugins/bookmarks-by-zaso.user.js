@@ -2,7 +2,7 @@
 // @id             iitc-plugin-bookmarks@ZasoGD@Umer936
 // @name           IITC plugin: Bookmarks for maps and portals MOD: Google Map Transfer
 // @category       Controls
-// @version        0.2.7.@@DATETIMEVERSION@@.1.1
+// @version        0.2.12.@@DATETIMEVERSION@@.1.1
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
