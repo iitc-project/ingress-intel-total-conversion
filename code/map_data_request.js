@@ -26,6 +26,10 @@ window.MapDataRequest = function() {
 
   // this many tiles in one request
   this.NUM_TILES_PER_REQUEST = 4;
+  try {
+    // try and use the value from the stock site, if available
+    this.NUM_TILES_PER_REQUEST = nemesis.dashboard.config.TILES_PER_REQUEST_CACHE_EXP || 4;
+  } catch(e) {}
 
   // number of times to retry a tile after a 'bad' error (i.e. not a timeout)
   this.MAX_TILE_RETRIES = 2;
