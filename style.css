@@ -943,7 +943,8 @@ td + td {
   font-size: 14px;
 }
 .redeemReward .itemlevel {
-  padding: 0 0.2em;
+  font-weight: bold;
+  text-shadow: 0 0 1px #000; /* L8 is hard to read on blue background */
 }
 /*
 .redeem-result-table {
