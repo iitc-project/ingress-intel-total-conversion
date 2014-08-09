@@ -936,6 +936,16 @@ td + td {
 }
 
 /* redeem results *****************************************************/
+.redeemReward {
+  font-family: Inconsolata, Consolas, Menlo, "Courier New", monospace;
+  list-style-type: none;
+  padding: 0;
+  font-size: 14px;
+}
+.redeemReward .itemlevel {
+  padding: 0 0.2em;
+}
+/*
 .redeem-result-table {
   font-size: 14px;
   table-layout: fixed;
@@ -949,6 +959,7 @@ td + td {
 .redeem-result-html {
   font-family: Inconsolata, Consolas, Menlo, "Courier New", monospace;
 }
+*/
 
 .pl_nudge_date {
   background-color: #724510;

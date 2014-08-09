@@ -2,6 +2,8 @@
 // Heuristic passcode redemption that tries to guess unknown items /
 ////////////////////////////////////////////////////////////////////
 
+// TODO remove lots of unused code from the old redeeming method
+
 /* Abbreviates redemption items.
  * Example: VERY_RARE => VR
  */
@@ -194,151 +196,54 @@ window.REDEEM_ENCOURAGEMENT = [
 ];
 
 window.handleRedeemResponse = function(data, textStatus, jqXHR) {
-  var passcode = this.passcode, to_dialog, to_log, dialog_title, dialog_buttons;
+  var passcode = this.passcode, to_dialog, dialog_title;
 
   if(data.error) {
-    // What to display
-    to_dialog = '<strong>' + data.error + '</strong><br />' + (window.REDEEM_ERRORS[data.error] || 'There was a problem redeeming the passcode. Try again?');
-    to_log    = '[ERROR] ' + data.error;
-
-    // Dialog options
-    dialog_title   = 'Error: ' + passcode;
-    dialog_buttons = {};
-  } else if(data.result) {
-    var encouragement = window.REDEEM_ENCOURAGEMENT[Math.floor(Math.random() * window.REDEEM_ENCOURAGEMENT.length)];
-    var payload = {};
-    var inferred = [];
-    var results = {
-      'table' : ['<th colspan="2" style="text-align: left;"><strong>' + encouragement + '</strong></th>'],
-      'html'  : [],
-      'plain' : []
-    };
-
-    // Track frequencies and levels of items
-    $.each(data.result.inventoryAward, function (award_idx, award) {
-      var acquired = award[2], handler, type, resource, key, str;
-
-      // The "what the heck is this item" heuristic
-      $.each(acquired, function (taxonomy, attribute) {
-        if('resourceType' in attribute) {
-          if(taxonomy in window.REDEEM_HANDLERS) {
-            // Cool. We know how to directly handle this item.
-            handler = {
-              functions: window.REDEEM_HANDLERS[taxonomy],
-              taxonomy: taxonomy,
-              processed_as: taxonomy
-            };
-          } else {
-            // Let's see if we can get a hint for how we should handle this.
-            $.each(attribute, function (attribute_key, attribute_value) {
-              if(attribute_key in window.REDEEM_HINTS) {
-                // We're not sure what this item is, but we can process it like another item
-                handler = {
-                  functions: (window.REDEEM_HANDLERS[window.REDEEM_HINTS[attribute_key]] || window.REDEEM_HANDLERS.resource),
-                  taxonomy: taxonomy,
-                  processed_as: window.REDEEM_HINTS[attribute_key]
-                };
-                return false;
-              }
-            });
-
-            // Fall back to the default handler if necessary
-            handler = handler || {
-              functions: window.REDEEM_HANDLERS.resource,
-              taxonomy: taxonomy,
-              processed_as: 'resource'
-            };
-          }
-
-          // Grab the type
-          type = attribute.resourceType;
-
-          // Prefer the resource's native format, falling back to a generic version that applies to an entire taxonomy
-          resource = $.extend({format: function(acquired) {return {long: type, short: type[0]};}}, window.REDEEM_RESOURCES[type] || {});
-
-          // Get strings pertaining to this item, using server overrides for the item name if possible
-          str = $.extend(resource.format(acquired),
-                         acquired.displayName && acquired.displayName.displayName ? {
-                           long: attribute.displayName || acquired.displayName.displayName
-                         } : {});
-
-          // Get the primary key. Once again, prefer the resource's native format, but use the generic version if we don't have one.
-          key  = (resource.decode || handler.functions.decode)(type, acquired, handler.taxonomy);
-
-          // Decide if we inferred this resource
-          if(!(type in window.REDEEM_RESOURCES) || handler.taxonomy !== handler.processed_as) {
-            str.long  += '*';
-            str.short += '*';
-            inferred.push({type: type, key: key, handler: handler});
-          }
-          return false;
-        }
-      });
-
-      // Update frequencies
-      payload[type] = payload[type] || {};
-      payload[type][key] = payload[type][key] || {};
-      payload[type][key].handler = payload[type][key].handler || handler;
-      payload[type][key].type = payload[type][key].type || type;
-      payload[type][key].str = payload[type][key].str || str;
-      payload[type][key].count = payload[type][key].count || 0;
-      payload[type][key].count += 1;
+    dialog({
+      title: 'Error: ' + passcode,
+      html: '<strong>' + data.error + '</strong>'
     });
-
-    // Get AP and XM.
-    $.each([{label: 'AP', award: parseInt(data.result.apAward)}, {label: 'XM', award: parseInt(data.result.xmAward)}], function(idx, val) {
-      if(val.award > 0) {
-        results.table.push('<td>+</td><td>' + digits(val.award) + ' ' + val.label + '</td>');
-        results.html.push(val.award + ' ' + val.label);
-        results.plain.push(val.award + ' ' + val.label);
-      }
-    });
-
-    // Build the formatted results alphabetically
-    $.each(Object.keys(payload).sort(), function(type_idx, type) {
-      $.each(Object.keys(payload[type]).sort(), function(key_idx, key) {
-        var acquired = payload[type][key];
-        $.each(acquired.handler.functions.format(acquired, key), function(format, string) {
-          results[format].push(string);
-        });
-      });
-    });
-
-    // Let the user know if we had to guess
-    if(inferred.length > 0) {
-      results.table.push('<td>*</td><td>Guessed (check console)</td>');
-      $.each(inferred, function (idx, val) {
-        console.log(passcode +
-                    ' => [INFERRED] ' + val.type + ':' + val.key + ' :: ' +
-                    val.handler.taxonomy + ' =~ ' + val.handler.processed_as);
-      });
-      console.log(passcode + ' => [RESPONSE] ' + JSON.stringify(data));
-    }
-
-    // Display formatted versions in a table, plaintext, and the console log
-    to_dialog = '<table class="redeem-result-table">' +
-                results.table.map(function(a) {return '<tr>' + a + '</tr>';}).join("\n") +
-                '</table>';
-    to_log    = '[SUCCESS] ' + results.plain.join('/');
-
-    dialog_title   = 'Passcode: ' + passcode;
-    dialog_buttons = {
-      'PLAINTEXT' : function() {
-        dialog({
-          title: 'Rewards: ' + passcode,
-          html: '<span class="redeem-result-html">' + results.html.join('/') + '</span>'
-        });
-      }
-    }
+    return;
   }
+
+  var encouragement = window.REDEEM_ENCOURAGEMENT[Math.floor(Math.random() * window.REDEEM_ENCOURAGEMENT.length)];
+
+  var html = '<p><strong>' + encouragement + '</strong></p><ul class="redeemReward">';
+
+  if(0 < data.xm)
+    html += '<li>' + window.escapeHtmlSpecialChars(data.xm) + ' XM</li>';
+  if(0 < data.ap)
+    html += '<li>' + window.escapeHtmlSpecialChars(data.ap) + ' AP</li>';
+
+  if(data.other) {
+    data.other.forEach(function(item) {
+      html += '<li>' + window.escapeHtmlSpecialChars(item) + '</li>';
+    });
+  }
+
+  if(data.inventory) {
+    data.inventory.forEach(function(type) {
+      type.awards.forEach(function(item) {
+        html += '<li>' + item.count + ' ';
+        
+        var l = item.level;
+        if(0 < l) {
+          l = parseInt(l);
+          html += '<span class="itemlevel" style="background:' + COLORS_LVL[l] + '">L' + l + '</span> ';
+        }
+
+        html += window.escapeHtmlSpecialChars(type.name) + '</li>';
+      });
+    });
+  }
+
+  html += '</ul>';
 
   // Display it
   dialog({
-    title: dialog_title,
-    buttons: dialog_buttons,
-    html: to_dialog
+    title: 'Passcode: ' + passcode,
+    html: html
   });
-  console.log(passcode + ' => ' + to_log);
 };
 
 window.setupRedeem = function() {
