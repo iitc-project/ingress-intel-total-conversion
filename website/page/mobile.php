@@ -48,7 +48,7 @@ if ( file_exists($apkfile) )
 }
 else
 {
-	print "<div class=\"alert alert-error\">Error: <b>$apkfile</b> not found</div>\n";
+	print "<div class=\"alert alert-danger\">Error: <b>$apkfile</b> not found</div>\n";
 }
 
 ?>

@@ -2,11 +2,11 @@
 // @id             iitc-plugin-bookmarks@ZasoGD
 // @name           IITC plugin: Bookmarks for maps and portals
 // @category       Controls
-// @version        0.2.7.@@DATETIMEVERSION@@
+// @version        0.2.12.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Save your favorite Maps and Portals and move the intel map with a click. Now with sync.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Save your favorite Maps and Portals and move the intel map with a click. Works with sync.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -151,22 +151,22 @@
     }
 
     if(newStatus === 1) {
-      $('#bookmarksBox').show();
-      $('#bkmrksTrigger').hide();
+      $('#bookmarksBox').css('height', 'auto');
+      $('#bkmrksTrigger').css('height', '0');
     } else {
-      $('#bookmarksBox').hide();
-      $('#bkmrksTrigger').show();
-    }
-
-    if(window.plugin.bookmarks.isSmart) {
-      var button = $('#bkmrksTrigger');
-      button.toggleClass('open');
-      if(button.hasClass('open')) { button.text('[-] Bookmarks'); }
-      else{ button.text('[+] Bookmarks'); }
+      $('#bkmrksTrigger').css('height', '64px');
+      $('#bookmarksBox').css('height', '0');
     }
 
     window.plugin.bookmarks.statusBox['show'] = newStatus;
     window.plugin.bookmarks.saveStorageBox();
+  }
+
+  window.plugin.bookmarks.onPaneChanged = function(pane) {
+    if(pane == "plugin-bookmarks")
+      $('#bookmarksBox').css("display", "");
+    else
+      $('#bookmarksBox').css("display", "none");
   }
 
   // Switch list (maps/portals)
@@ -219,7 +219,7 @@
 
       // Create a label and a anchor for the sortable
       var folderDelete = '<span class="folderLabel"><a class="bookmarksRemoveFrom" onclick="window.plugin.bookmarks.removeElement(this, \'folder\');return false;" title="Remove this folder">X</a>';
-      var folderName = '<a class="bookmarksAnchor" onclick="window.plugin.bookmarks.openFolder(this);return false"><span></span>'+folders['label']+'</a><span><span></span></span></span>';
+      var folderName = '<a class="bookmarksAnchor" onclick="window.plugin.bookmarks.openFolder(this);return false"><span></span>'+folders['label']+'</a></span>';//<span><span></span></span>';
       var folderLabel = folderDelete+folderName;
 
       if(folders['state']) { active = ' open'; }
@@ -235,6 +235,12 @@
       for(var idBkmrk in fold) {
         var btn_link;
         var btn_remove = '<a class="bookmarksRemoveFrom" onclick="window.plugin.bookmarks.removeElement(this, \''+typeList+'\');return false;" title="Remove from bookmarks">X</a>';
+
+        var btn_move = '';
+        if(window.plugin.bookmarks.isSmart) {
+          btn_move = '<a class="bookmarksMoveIn" onclick="window.plugin.bookmarks.dialogMobileSort(\''+typeList+'\', this);return false;">=</a>';
+        }
+
         var bkmrk = fold[idBkmrk];
         var label = bkmrk['label'];
         var latlng = bkmrk['latlng'];
@@ -250,7 +256,7 @@
           var btn_link = '<a class="bookmarksLink" onclick="$(\'a.bookmarksLink.selected\').removeClass(\'selected\');'+returnToMap+'window.zoomToAndShowPortal(\''+guid+'\', ['+latlng+']);return false;">'+label+'</a>';
         }
         // Create the bookmark
-        elementTemp += '<li class="bkmrk" id="'+idBkmrk+'">'+btn_remove+btn_link+'</li>';
+        elementTemp += '<li class="bkmrk" id="'+idBkmrk+'">'+btn_remove+btn_move+btn_link+'</li>';
       }
       elementTemp += '</li></ul>';
 
@@ -426,6 +432,49 @@
     }
   }
 
+  window.plugin.bookmarks.deleteMode = function() {
+    $('#bookmarksBox').removeClass('moveMode').toggleClass('deleteMode');
+  }
+
+  window.plugin.bookmarks.moveMode = function() {
+    $('#bookmarksBox').removeClass('deleteMode').toggleClass('moveMode');
+  }
+
+  window.plugin.bookmarks.mobileSortIDb = '';
+  window.plugin.bookmarks.mobileSortIDf = '';
+  window.plugin.bookmarks.dialogMobileSort = function(type, elem){
+    window.plugin.bookmarks.mobileSortIDb = $(elem).parent('li.bkmrk').attr('id');
+    window.plugin.bookmarks.mobileSortIDf = $(elem).parent('li.bkmrk').parent('ul').parent('li.bookmarkFolder').attr('id');
+
+    if(type === 'maps'){ type = 1; }
+    else if(type === 'portals'){ type = 2; }
+
+    dialog({
+      html: window.plugin.bookmarks.dialogLoadListFolders('bookmarksDialogMobileSort', 'window.plugin.bookmarks.mobileSort', true, type),
+      dialogClass: 'ui-dialog-bkmrksSet-copy',
+      title: 'Bookmarks - Move Bookmark'
+    });
+  }
+
+  window.plugin.bookmarks.mobileSort = function(elem){
+    var type = $(elem).data('type');
+    var idBkmrk = window.plugin.bookmarks.mobileSortIDb;
+    var newFold = $(elem).data('id');
+    var oldFold = window.plugin.bookmarks.mobileSortIDf;
+
+    var Bkmrk = window.plugin.bookmarks.bkmrksObj[type][oldFold].bkmrk[idBkmrk];
+
+    delete window.plugin.bookmarks.bkmrksObj[type][oldFold].bkmrk[idBkmrk];
+
+    window.plugin.bookmarks.bkmrksObj[type][newFold].bkmrk[idBkmrk] = Bkmrk;
+
+    window.plugin.bookmarks.saveStorage();
+    window.plugin.bookmarks.refreshBkmrks();
+    window.runHooks('pluginBkmrksEdit', {"target": "bookmarks", "action": "sort"});
+    window.plugin.bookmarks.mobileSortIDf = newFold;
+    console.log('Move Bookmarks '+type+' ID:'+idBkmrk+' from folder ID:'+oldFold+' to folder ID:'+newFold);
+  }
+
 /***************************************************************************************************************************************************************/
 
   // Saved the new sort of the folders (in the localStorage)
@@ -482,6 +531,7 @@
       items:"li.bookmarkFolder:not(.othersBookmarks)",
       handle:".bookmarksAnchor",
       placeholder:"sortable-placeholder",
+      helper:'clone', // fix accidental click in firefox
       forcePlaceholderSize:true,
       update:function(event, ui) {
         var typeList = $('#'+ui.item.context.id).parent().parent('.bookmarkList').attr('id');
@@ -494,6 +544,7 @@
       connectWith:".bookmarkList ul ul",
       handle:".bookmarksLink",
       placeholder:"sortable-placeholder",
+      helper:'clone', // fix accidental click in firefox
       forcePlaceholderSize:true,
       update:function(event, ui) {
         var typeList = $('#'+ui.item.context.id).parent().parent().parent().parent('.bookmarkList').attr('id');
@@ -513,11 +564,6 @@
       title: 'Bookmarks Options'
     });
 
-    if(window.plugin.bookmarks.isAndroid()) {
-      $('a:contains(\'Save box\'), a:contains(\'Reset box\')').addClass('disabled');
-    } else {
-      $('a:contains(\'Share all\')').addClass('disabled');
-    }
     window.runHooks('pluginBkmrksOpenOpt');
   }
 
@@ -527,31 +573,60 @@
   }
 
   window.plugin.bookmarks.optCopy = function() {
-    if(typeof android !== 'undefined' && android && android.intentPosLink) {
-      return androidCopy(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
+    if(typeof android !== 'undefined' && android && android.shareString) {
+      return android.shareString(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
     } else {
       dialog({
-        html: '<p><a onclick="$(\'.ui-dialog-bkmrksSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea disabled>'+localStorage[window.plugin.bookmarks.KEY_STORAGE]+'</textarea>',
+        html: '<p><a onclick="$(\'.ui-dialog-bkmrksSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly>'+localStorage[window.plugin.bookmarks.KEY_STORAGE]+'</textarea>',
         dialogClass: 'ui-dialog-bkmrksSet-copy',
         title: 'Bookmarks Export'
       });
     }
   }
 
-  window.plugin.bookmarks.optPaste = function() {
-    var promptAction = prompt('Press CTRL+V to paste it.', '');
-    if(promptAction !== null && promptAction !== '') {
-      localStorage[window.plugin.bookmarks.KEY_STORAGE] = promptAction;
-      window.plugin.bookmarks.refreshBkmrks();
-      window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
-      console.log('BOOKMARKS: reset and imported bookmarks');
-      window.plugin.bookmarks.optAlert('Successful. ');
+  window.plugin.bookmarks.optExport = function() {
+    if(typeof android !== 'undefined' && android && android.saveFile) {
+      android.saveFile("IITC-bookmarks.json", "application/json", localStorage[window.plugin.bookmarks.KEY_STORAGE]);
     }
   }
 
+  window.plugin.bookmarks.optPaste = function() {
+    var promptAction = prompt('Press CTRL+V to paste it.', '');
+    if(promptAction !== null && promptAction !== '') {
+      try {
+        JSON.parse(promptAction); // try to parse JSON first
+        localStorage[window.plugin.bookmarks.KEY_STORAGE] = promptAction;
+        window.plugin.bookmarks.refreshBkmrks();
+        window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
+        console.log('BOOKMARKS: reset and imported bookmarks');
+        window.plugin.bookmarks.optAlert('Successful. ');
+      } catch(e) {
+        console.warn('BOOKMARKS: failed to import data: '+e);
+        window.plugin.bookmarks.optAlert('<span style="color: #f88">Import failed </span>');
+      }
+    }
+  }
+
+  window.plugin.bookmarks.optImport = function() {
+    if (window.requestFile === undefined) return;
+    window.requestFile(function(filename, content) {
+      try {
+        JSON.parse(content); // try to parse JSON first
+        localStorage[window.plugin.bookmarks.KEY_STORAGE] = content;
+        window.plugin.bookmarks.refreshBkmrks();
+        window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
+        console.log('BOOKMARKS: reset and imported bookmarks');
+        window.plugin.bookmarks.optAlert('Successful. ');
+      } catch(e) {
+        console.warn('BOOKMARKS: failed to import data: '+e);
+        window.plugin.bookmarks.optAlert('<span style="color: #f88">Import failed </span>');
+      }
+    });
+  }
+
   window.plugin.bookmarks.optReset = function() {
-    var promptAction = prompt('All bookmarks will be deleted. Are you sure? [Y/N]', '');
-    if(promptAction !== null && (promptAction === 'Y' || promptAction === 'y')) {
+    var promptAction = confirm('All bookmarks will be deleted. Are you sure?', '');
+    if(promptAction) {
       delete localStorage[window.plugin.bookmarks.KEY_STORAGE];
       window.plugin.bookmarks.createStorage();
       window.plugin.bookmarks.loadStorage();
@@ -559,14 +634,6 @@
       window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "reset"});
       console.log('BOOKMARKS: reset all bookmarks');
       window.plugin.bookmarks.optAlert('Successful. ');
-    }
-  }
-
-  window.plugin.bookmarks.optShare = function() {
-    if(window.plugin.bookmarks.isAndroid() && android.shareString) {
-      android.shareString(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
-    } else {
-      window.plugin.bookmarks.optAlert('Only IITC mobile. ');
     }
   }
 
@@ -588,6 +655,77 @@
     } else {
       window.plugin.bookmarks.optAlert('Only IITC desktop. ');
     }
+  }
+
+  window.plugin.bookmarks.dialogLoadListFolders = function(idBox, clickAction, showOthersF, scanType/*0 = maps&portals; 1 = maps; 2 = portals*/) {
+    var list = JSON.parse(localStorage['plugin-bookmarks']);
+    var listHTML = '';
+    var foldHTML = '';
+    var elemGenericFolder = '';
+
+    // For each type and folder
+    for(var type in list){
+      if(scanType === 0 || (scanType === 1 && type === 'maps') || (scanType === 2 && type === 'portals')){
+        listHTML += '<h3>'+type+':</h3>';
+
+        for(var idFolders in list[type]) {
+          var label = list[type][idFolders]['label'];
+
+          // Create a folder
+          foldHTML = '<div class="bookmarkFolder" id="'+idFolders+'" data-type="'+type+'" data-id="'+idFolders+'" onclick="'+clickAction+'(this)";return false;">'+label+'</div>';
+
+          if(idFolders !== window.plugin.bookmarks.KEY_OTHER_BKMRK) {
+            listHTML += foldHTML;
+          } else {
+            if(showOthersF === true){
+              elemGenericFolder = foldHTML;
+            }
+          }
+        }
+      }
+      listHTML += elemGenericFolder;
+      elemGenericFolder = '';
+    }
+
+    // Append all folders
+    var r = '<div class="bookmarksDialog" id="'+idBox+'">'
+      + listHTML
+      + '</div>';
+
+    return r;
+  }
+
+  window.plugin.bookmarks.renameFolder = function(elem){
+    var type = $(elem).data('type');
+    var idFold = $(elem).data('id');
+
+    var promptAction = prompt('Insert a new name.', '');
+    if(promptAction !== null && promptAction !== '') {
+      try {
+        var newName = window.plugin.bookmarks.escapeHtml(promptAction);
+
+        window.plugin.bookmarks.bkmrksObj[type][idFold].label = newName;
+        $('#bookmarksDialogRenameF #'+idFold).text(newName);
+        window.plugin.bookmarks.saveStorage();
+        window.plugin.bookmarks.refreshBkmrks();
+        window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
+
+        console.log('BOOKMARKS: renamed bookmarks folder');
+        window.plugin.bookmarks.optAlert('Successful. ');
+      } catch(e) {
+        console.warn('BOOKMARKS: failed to rename folder: '+e);
+        window.plugin.bookmarks.optAlert('<span style="color: #f88">Rename failed </span>');
+        return;
+      }
+    }
+  }
+
+  window.plugin.bookmarks.optRenameF = function() {
+    dialog({
+      html: window.plugin.bookmarks.dialogLoadListFolders('bookmarksDialogRenameF', 'window.plugin.bookmarks.renameFolder', false, 0),
+      dialogClass: 'ui-dialog-bkmrksSet-copy',
+      title: 'Bookmarks Rename Folder'
+    });
   }
 
 /***************************************************************************************************************************************************************/
@@ -618,17 +756,24 @@
 
     if(latlngs.length >= 2 && latlngs.length <= 3) {
       // TODO: add an API to draw-tools rather than assuming things about it's internals
-      var newItem;
+      window.plugin.drawTools.setOptions();
+
+      var layer, layerType;
       if(latlngs.length == 2) {
-        newItem = L.geodesicPolyline(latlngs, window.plugin.drawTools.lineOptions);
+        layer = L.geodesicPolyline(latlngs, window.plugin.drawTools.lineOptions);
+        layerType = 'polyline';
       } else {
-        newItem = L.geodesicPolygon(latlngs, window.plugin.drawTools.polygonOptions);
+        layer = L.geodesicPolygon(latlngs, window.plugin.drawTools.polygonOptions);
+        layerType = 'polygon';
       }
 
-      $('#bkmrksAutoDrawer a.bkmrk.selected').removeClass('selected');
-      newItem.addTo(window.plugin.drawTools.drawnItems);
-      // Save in localStorage
-      window.plugin.drawTools.save();
+      map.fire('draw:created', {
+        layer: layer,
+        layerType: layerType
+      });
+
+      if($('#bkmrkClearSelection').prop('checked'))
+        $('#bkmrksAutoDrawer a.bkmrk.selected').removeClass('selected');
 
       if(window.plugin.bookmarks.isSmart) {
         window.show('map');
@@ -645,6 +790,35 @@
     }
     else{
       $('#bkmrksAutoDrawer p').toggle().delay('2500').fadeOut('500');
+    }
+  }
+
+  window.plugin.bookmarks.autoDrawCalcDistance = function() {
+    var latlngs = [];
+    var uuu = $('#bkmrksAutoDrawer a.bkmrk.selected').each(function(i) {
+      var tt = $(this).data('latlng');
+      latlngs[i] = tt;
+    });
+
+    var distance = null;
+    if(latlngs.length == 2) {
+      distance = L.latLng(latlngs[0]).distanceTo(latlngs[1]);
+    }
+
+    $('#bkmrksAutoDrawerDistance').remove();
+    if(distance !== null) {
+      distance = Math.round(distance);
+
+      var text = 'Distance between portals: ';
+      if(distance > 1000)
+        text += digits(distance / 1000) + 'km';
+      else
+        text += digits(distance) + 'm';
+
+      $('<div>')
+        .html(text)
+        .attr('id', 'bkmrksAutoDrawerDistance')
+        .appendTo('#bkmrksAutoDrawer');
     }
   }
 
@@ -692,7 +866,15 @@
       element += elemGenericFolder;
 
       // Append all folders and bookmarks
-      r = '<div id="bkmrksAutoDrawer"><p style="color:red;text-align:center;margin-bottom:9px;">You must select 2 or 3 portals.</p>'+element+'</div>';
+      r = '<div id="bkmrksAutoDrawer">'
+        + '<label style="margin-bottom: 9px; display: block;">'
+        + '<input style="vertical-align: middle;" type="checkbox" id="bkmrkClearSelection" checked>'
+        + ' Clear selection after drawing</label>'
+        + '<p style="color:red;text-align:center;margin-bottom:9px;">You must select 2 or 3 portals.</p>'
+        + '<div onclick="window.plugin.bookmarks.autoDrawCalcDistance();return false;">'
+        + element
+        + '</div>'
+        + '</div>';
     }
     return r;
   }
@@ -815,7 +997,8 @@
       for(var idBkmrks in list[idFolders]['bkmrk']) {
         var latlng = list[idFolders]['bkmrk'][idBkmrks].latlng.split(",");
         var guid = list[idFolders]['bkmrk'][idBkmrks].guid;
-        window.plugin.bookmarks.addStar(guid, latlng);
+        var lbl = list[idFolders]['bkmrk'][idBkmrks].label;
+        window.plugin.bookmarks.addStar(guid, latlng, lbl);
       }
     }
   }
@@ -829,14 +1012,18 @@
     window.plugin.bookmarks.addAllStars();
   }
 
-  window.plugin.bookmarks.addStar = function(guid, latlng) {
+  window.plugin.bookmarks.addStar = function(guid, latlng, lbl) {
     var star = L.marker(latlng, {
+      title: lbl,
       icon: L.icon({
         iconUrl: '@@INCLUDEIMAGE:images/marker-star.png@@',
         iconAnchor: [15,40],
         iconSize: [30,40]
       })
     });
+    window.registerMarkerForOMS(star);
+    star.on('spiderfiedclick', function() { renderPortalDetails(guid); });
+
     window.plugin.bookmarks.starLayers[guid] = star;
     star.addTo(window.plugin.bookmarks.starLayerGroup);
   }
@@ -845,9 +1032,10 @@
     if(data.target === 'portal') {
       if(data.action === 'add') {
         var guid = window.selectedPortal;
-        var latlng = window.portals[guid]._latlng;
+        var latlng = window.portals[guid].getLatLng();
+        var lbl = window.portals[guid].options.data.title;
         var starInLayer = window.plugin.bookmarks.starLayers[data.guid];
-        window.plugin.bookmarks.addStar(guid, latlng);
+        window.plugin.bookmarks.addStar(guid, latlng, lbl);
       }
       else if(data.action === 'remove') {
         var starInLayer = window.plugin.bookmarks.starLayers[data.guid];
@@ -867,14 +1055,12 @@
   }
  
   window.plugin.bookmarks.setupContent = function() {
-    var ttt = '\'switch\'';
-    if(!window.plugin.bookmarks.isSmart) { ttt = 1; }
-
-    plugin.bookmarks.htmlBoxTrigger = '<a id="bkmrksTrigger" class="open" onclick="window.plugin.bookmarks.switchStatusBkmrksBox('+ttt+');return false;">[-] Bookmarks</a>';
+    plugin.bookmarks.htmlBoxTrigger = '<a id="bkmrksTrigger" class="open" onclick="window.plugin.bookmarks.switchStatusBkmrksBox(\'switch\');return false;" accesskey="v">[-] Bookmarks</a>';
     plugin.bookmarks.htmlBkmrksBox = '<div id="bookmarksBox">'
                           +'<div id="topBar">'
                             +'<a id="bookmarksMin" class="btn" onclick="window.plugin.bookmarks.switchStatusBkmrksBox(0);return false;" title="Minimize">-</a>'
                             +'<div class="handle">...</div>'
+                            +'<a id="bookmarksDel" class="btn" onclick="window.plugin.bookmarks.deleteMode();return false;" title="Show/Hide \'X\' button">Show/Hide "X" button</a>'
                           +'</div>'
                           +'<div id="bookmarksTypeBar">'
                             +'<h5 class="bkmrk_maps current" onclick="window.plugin.bookmarks.switchPageBkmrksBox(this, 0);return false">Maps</h5>'
@@ -894,20 +1080,30 @@
                               +'<a class="newFolder" onclick="window.plugin.bookmarks.addElement(this, \'folder\');return false;">+ Folder</a>'
                             +'</div>'
                           +'</div>'
+                          +'<div style="border-bottom-width:1px;"></div>'
                         +'</div>';
 
     plugin.bookmarks.htmlDisabledMessage = '<div title="Your browser do not support localStorage">Plugin Bookmarks disabled*.</div>';
-    plugin.bookmarks.htmlStar = '<a class="bkmrksStar" onclick="window.plugin.bookmarks.switchStarPortal();return false;" title="Save this portal in your bookmarks"><span></span></a>';
-    plugin.bookmarks.htmlCalldrawBox = '<a onclick="window.plugin.bookmarks.dialogDrawer();return false;" title="Draw lines/triangles between bookmarked portals">Auto draw</a>';
+    plugin.bookmarks.htmlStar = '<a class="bkmrksStar" accesskey="b" onclick="window.plugin.bookmarks.switchStarPortal();return false;" title="Save this portal in your bookmarks"><span></span></a>';
+    plugin.bookmarks.htmlCalldrawBox = '<a onclick="window.plugin.bookmarks.dialogDrawer();return false;" accesskey="q" title="Draw lines/triangles between bookmarked portals">Auto draw</a>';
     plugin.bookmarks.htmlCallSetBox = '<a onclick="window.plugin.bookmarks.manualOpt();return false;">Bookmarks Opt</a>';
-    plugin.bookmarks.htmlSetbox = '<div id="bkmrksSetbox">'
-                        +'<a onclick="window.plugin.bookmarks.optCopy();">Copy/Export Bookmarks</a>'
-                        +'<a onclick="window.plugin.bookmarks.optPaste();return false;">Paste/Import Bookmarks</a>'
-                        +'<a onclick="window.plugin.bookmarks.optReset();return false;">Reset Bookmarks</a>'
-                        +'<a onclick="window.plugin.bookmarks.optShare();">Share all Bookmarks (IITCm)</a>'
-                        +'<a onclick="window.plugin.bookmarks.optBox(\'save\');">Save box position (No IITCm)</a>'
-                        +'<a onclick="window.plugin.bookmarks.optBox(\'reset\');">Reset box position (No IITCm)</a>'
-                      +'</div>';
+    plugin.bookmarks.htmlMoveBtn = '<a id="bookmarksMove" class="btn" onclick="window.plugin.bookmarks.moveMode();return false;">Show/Hide "Move" button</a>'
+
+    var actions = '';
+    actions += '<a onclick="window.plugin.bookmarks.optReset();return false;">Reset bookmarks</a>';
+    actions += '<a onclick="window.plugin.bookmarks.optCopy();return false;">Copy bookmarks</a>';
+    actions += '<a onclick="window.plugin.bookmarks.optPaste();return false;">Paste bookmarks</a>';
+
+    if(plugin.bookmarks.isAndroid()) {
+      actions += '<a onclick="window.plugin.bookmarks.optImport();return false;">Import bookmarks</a>';
+      actions += '<a onclick="window.plugin.bookmarks.optExport();return false;">Export bookmarks</a>';
+    }
+    actions += '<a onclick="window.plugin.bookmarks.optRenameF();return false;">Rename Folder</a>'
+    if(!plugin.bookmarks.isAndroid()) {
+      actions += '<a onclick="window.plugin.bookmarks.optBox(\'save\');return false;">Save box position</a>';
+      actions += '<a onclick="window.plugin.bookmarks.optBox(\'reset\');return false;">Reset box position</a>';
+    }
+    plugin.bookmarks.htmlSetbox = '<div id="bkmrksSetbox">' + actions + '</div>';
   }
 
 /***************************************************************************************************************************************************************/
@@ -938,8 +1134,13 @@
       $("#bookmarksBox #bookmarksMin , #bookmarksBox ul li, #bookmarksBox ul li a, #bookmarksBox ul li a span, #bookmarksBox h5, #bookmarksBox .addForm a").disableSelection();
       $('#bookmarksBox').css({'top':window.plugin.bookmarks.statusBox.pos.x, 'left':window.plugin.bookmarks.statusBox.pos.y});
     }else{
-      $('#portaldetails').before(window.plugin.bookmarks.htmlBoxTrigger + window.plugin.bookmarks.htmlBkmrksBox);
+      $('body').append(window.plugin.bookmarks.htmlBkmrksBox);
+      $('#bookmarksBox').css("display", "none").addClass("mobile");
 
+      if(window.useAndroidPanes())
+        android.addPane("plugin-bookmarks", "Bookmarks", "ic_action_star");
+      window.addHook('paneChanged', window.plugin.bookmarks.onPaneChanged);
+      
       // Remove the star
       window.addHook('portalSelected', function(data) {
         if(data.selectedPortalGuid === null) {
@@ -948,6 +1149,11 @@
       });
     }
     $('#toolbox').append(window.plugin.bookmarks.htmlCallSetBox+window.plugin.bookmarks.htmlCalldrawBox);
+
+    if(window.plugin.bookmarks.isSmart) {
+//      $('#bookmarksBox.mobile #topBar').prepend(window.plugin.bookmarks.htmlCallSetBox+window.plugin.bookmarks.htmlCalldrawBox); // wonk in progress
+      $('#bookmarksBox.mobile #topBar').append(plugin.bookmarks.htmlMoveBtn);
+    }
 
     window.plugin.bookmarks.loadList('maps');
     window.plugin.bookmarks.loadList('portals');

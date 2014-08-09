@@ -85,10 +85,18 @@ window.runHooks = function(event, data) {
   return !interrupted;
 }
 
+// helper method to allow plugins to create new hooks
+window.pluginCreateHook = function(event) {
+  if($.inArray(event, window.VALID_HOOKS) < 0) {
+    window.VALID_HOOKS.push(event);
+  }
+}
+
 
 window.addHook = function(event, callback) {
   if(VALID_HOOKS.indexOf(event) === -1) {
     console.error('addHook: Unknown event type: ' + event + ' - ignoring');
+    debugger;
     return;
   }
 

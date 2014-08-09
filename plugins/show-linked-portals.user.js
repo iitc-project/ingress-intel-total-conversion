@@ -2,7 +2,7 @@
 // @id             iitc-plugin-show-linked-portals@fstopienski
 // @name           IITC plugin: Show linked portals
 // @category       Portal Info
-// @version        0.1.1.@@DATETIMEVERSION@@
+// @version        0.2.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -38,15 +38,25 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
 
     // don't render linked portal data if portal is neutral.
     // (the data can remain sometimes - when a portal decays?)
-    if (data.portalDetails.controllingTeam.team == 'NEUTRAL')
-        return;
+//    if (data.portalDetails.controllingTeam.team == 'NEUTRAL')
+//        return;
 
-    var d = data.portalDetails.portalV2,
-        c = 1;
-    //get linked portals
-    $(d.linkedEdges).each(function () {
-        var portalInfo = window.plugin.showLinkedPortal.getPortalByGuid(this.otherPortalGuid, this.isOrigin);
-        $('#portaldetails').append('<div class="showLinkedPortalLink showLinkedPortalLink' + c + '" id="showLinkedPortalLink_' + c + '" data-guid="' + this.otherPortalGuid + '">' + portalInfo + '</div>');
+    var portalLinks = getPortalLinks(data.guid);
+
+    var c = 1;
+
+    $.each(portalLinks.out, function(index,linkGuid) {
+        // outgoing links - so the other portal is the destination
+        var otherPortalGuid = window.links[linkGuid].options.data.dGuid;
+        var portalInfo = window.plugin.showLinkedPortal.getPortalByGuid(otherPortalGuid, true);
+        $('#portaldetails').append('<div class="showLinkedPortalLink showLinkedPortalLink' + c + '" id="showLinkedPortalLink_' + c + '" data-guid="' + otherPortalGuid + '">' + portalInfo + '</div>');
+        c = c + 1;
+    });
+    $.each(portalLinks.in, function(index,linkGuid) {
+        // incoming link - so the other portal is the origin
+        var otherPortalGuid = window.links[linkGuid].options.data.oGuid;
+        var portalInfo = window.plugin.showLinkedPortal.getPortalByGuid(otherPortalGuid, false);
+        $('#portaldetails').append('<div class="showLinkedPortalLink showLinkedPortalLink' + c + '" id="showLinkedPortalLink_' + c + '" data-guid="' + otherPortalGuid + '">' + portalInfo + '</div>');
         c = c + 1;
     });
 

@@ -19,27 +19,27 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.resoEnergyPctInPortalDetal = function() {};
+window.plugin.resoEnergyPctInPortalDetail = function() {};
 
-window.plugin.resoEnergyPctInPortalDetal.updateMeter = function(data) {
-  var meterLevel = $("span.meter-level");
-  meterLevel
-    .css('top','0px')
-    .css('left','5px')
-    .css('margin-left','0px')
-    .css('font-size','80%')
-    .css('line-height','18px');
-  meterLevel.each(function() {
-    var matchResult = $(this).parent().attr('title').match(/\((\d*\%)\)/);
-    if(matchResult) {
-      var newMeterContent = 'L' + $(this).html() + '&nbsp;&nbsp;' + matchResult[1];
-      $(this).html(newMeterContent);
-    }
-  });
+window.plugin.resoEnergyPctInPortalDetail.updateMeter = function(data) {
+  $("span.meter-level")
+    .css({
+      "word-spacing": "-1px",
+      "text-align": "left",
+      "font-size": "90%",
+      "padding-left": "2px",
+    })
+    .each(function() {
+      var matchResult = $(this).parent().attr('title').match(/\((\d*\%)\)/);
+      if(matchResult) {
+        var html = $(this).html() + '<div style="position:absolute;right:0;top:0">' + matchResult[1] + '</div>';
+        $(this).html(html);
+      }
+    });
 }
 
 var setup =  function() {
-  window.addHook('portalDetailsUpdated', window.plugin.resoEnergyPctInPortalDetal.updateMeter);
+  window.addHook('portalDetailsUpdated', window.plugin.resoEnergyPctInPortalDetail.updateMeter);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.16.1.@@DATETIMEVERSION@@
+// @version        0.17.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -22,7 +22,6 @@ window.iitcBuildDate = '@@BUILDDATE@@';
 // disable vanilla JS
 window.onload = function() {};
 document.body.onload = function() {};
-
 
 // rescue user data from original page
 var scr = document.getElementsByTagName('script');
@@ -71,8 +70,8 @@ document.getElementsByTagName('head')[0].innerHTML = ''
 document.getElementsByTagName('body')[0].innerHTML = ''
   + '<div id="map">Loading, please wait</div>'
   + '<div id="chatcontrols" style="display:none">'
-  + '  <a><span class="toggle expand"></span></a>'
-  +   '<a>full</a><a>compact</a><a>public</a><a class="active">faction</a>'
+  + '  <a accesskey="0"><span class="toggle expand"></span></a>'
+  +   '<a accesskey="1">full</a><a accesskey="2">compact</a><a accesskey="3">public</a><a accesskey="4" class="active">faction</a>'
   + '</div>'
   + '<div id="chat" style="display:none">'
   + '  <div id="chatfaction"></div>'
@@ -83,20 +82,19 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '<form id="chatinput" style="display:none"><table><tr>'
   + '  <td><time></time></td>'
   + '  <td><mark>tell faction:</mark></td>'
-  + '  <td><input id="chattext" type="text" maxlength="256" /></td>'
+  + '  <td><input id="chattext" type="text" maxlength="256" accesskey="c" /></td>'
   + '</tr></table></form>'
-  + '<a id="sidebartoggle"><span class="toggle close"></span></a>'
+  + '<a id="sidebartoggle" accesskey="i"><span class="toggle close"></span></a>'
   + '<div id="scrollwrapper">' // enable scrolling for small screens
   + '  <div id="sidebar" style="display: none">'
   + '    <div id="playerstat">t</div>'
   + '    <div id="gamestat">&nbsp;loading global control stats</div>'
   + '    <div id="geosearchwrapper">'
-  + '      <input id="geosearch" placeholder="Search location…" type="text"/>'
+  + '      <input id="geosearch" placeholder="Search location…" type="text" accesskey="f"/>'
   + '      <img src="@@INCLUDEIMAGE:images/current-location.png@@"/ title="Current Location">'
   + '    </div>'
   + '    <div id="portaldetails"></div>'
-// redeeming removed from stock site, so commented out for now. it may return...
-//  + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
+  + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
   + '    <div id="toolbox">'
   + '      <a onmouseover="setPermaLink(this)" onclick="setPermaLink(this);return androidPermalink()" title="URL link to this map view">Permalink</a>'
   + '      <a onclick="window.aboutIITC()" style="cursor: help">About IITC</a>'
@@ -115,12 +113,23 @@ function wrapper(info) {
 // (not the full GM_info - it contains the ENTIRE script source!)
 window.script_info = info;
 
+// disabling of some cruft left behind by the stock site
+try {
+  goog.events.removeAll();
+  goog.Timer.clear();
+} catch(e) {
+  console.warn('Exception from trying to clear stock site stuff');
+  console.warn(e);
+  debugger; // debugger break
+}
+
 
 // LEAFLET PREFER CANVAS ///////////////////////////////////////////////
 // Set to true if Leaflet should draw things using Canvas instead of SVG
 // Disabled for now because it has several bugs: flickering, constant
 // CPU usage and it continuously fires the moveend event.
-L_PREFER_CANVAS = false;
+
+//L_PREFER_CANVAS = false;
 
 // CONFIG OPTIONS ////////////////////////////////////////////////////
 window.REFRESH = 30; // refresh view every 30s (base time)
@@ -129,20 +138,8 @@ window.ON_MOVE_REFRESH = 2.5;  //refresh time to use after a movement event
 window.MINIMUM_OVERRIDE_REFRESH = 10; //limit on refresh time since previous refresh, limiting repeated move refresh rate
 window.REFRESH_GAME_SCORE = 15*60; // refresh game score every 15 minutes
 window.MAX_IDLE_TIME = 4*60; // stop updating map after 4min idling
-window.PRECACHE_PLAYER_NAMES_ZOOM = 17; // zoom level to start pre-resolving player names
 window.HIDDEN_SCROLLBAR_ASSUMED_WIDTH = 20;
 window.SIDEBAR_WIDTH = 300;
-// chat messages are requested for the visible viewport. On high zoom
-// levels this gets pretty pointless, so request messages in at least a
-// X km radius.
-window.CHAT_MIN_RANGE = 6;
-// this controls how far data is being drawn outside the viewport. Set
-// it 0 to only draw entities that intersect the current view. A value
-// of one will render an area twice the size of the viewport (or some-
-// thing like that, Leaflet doc isn’t too specific). Setting it too low
-// makes the missing data on move/zoom out more obvious. Setting it too
-// high causes too many items to be drawn, making drag&drop sluggish.
-window.VIEWPORT_PAD_RATIO = 0.3;
 
 // how many items to request each query
 window.CHAT_PUBLIC_ITEMS = 50;
@@ -177,13 +174,11 @@ window.PORTAL_RADIUS_ENLARGE_MOBILE = 5;
 
 
 window.DEFAULT_PORTAL_IMG = '//commondatastorage.googleapis.com/ingress.com/img/default-portal-image.png';
-window.NOMINATIM = 'http://nominatim.openstreetmap.org/search?format=json&limit=1&q=';
+window.NOMINATIM = '//nominatim.openstreetmap.org/search?format=json&limit=1&q=';
 
 // INGRESS CONSTANTS /////////////////////////////////////////////////
 // http://decodeingress.me/2012/11/18/ingress-portal-levels-and-link-range/
 window.RESO_NRG = [0, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 6000];
-window.MAX_XM_PER_LEVEL = [0, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000];
-window.MIN_AP_FOR_LEVEL = [0, 10000, 30000, 70000, 150000, 300000, 600000, 1200000];
 window.HACK_RANGE = 40; // in meters, max. distance from portal to be able to access it
 window.OCTANTS = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
 window.OCTANTS_ARROW = ['→', '↗', '↑', '↖', '←', '↙', '↓', '↘'];

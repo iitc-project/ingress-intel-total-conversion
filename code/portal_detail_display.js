@@ -26,6 +26,11 @@ window.renderPortalDetails = function(guid) {
   var data = portal.options.data;
   var details = portalDetail.get(guid);
 
+  // details and data can get out of sync. if we have details, construct a matching 'data'
+  if (details) {
+    data = getPortalSummaryData(details);
+  }
+
 
   var modDetails = details ? '<div class="mods">'+getModDetails(details)+'</div>' : '';
   var miscDetails = details ? getPortalMiscDetails(guid,details) : '';
@@ -35,8 +40,8 @@ window.renderPortalDetails = function(guid) {
   var statusDetails = details ? '' : '<div id="portalStatus">Loading details...</div>';
  
 
-  var img = fixPortalImageUrl(details ? details.imageByUrl && details.imageByUrl.imageUrl : data.image);
-  var title = details ? details.portalV2.descriptiveText.TITLE : data.title;
+  var img = fixPortalImageUrl(details ? details.image : data.image);
+  var title = data.title;
 
   var lat = data.latE6/1E6;
   var lng = data.lngE6/1E6;
@@ -70,16 +75,16 @@ window.renderPortalDetails = function(guid) {
     if(portalDetailObj.description) {
       portalDetailedDescription += '<tr class="padding-top"><th>Description:</th><td>' + escapeHtmlSpecialChars(portalDetailObj.description) + '</td></tr>';
     }
-//    if(d.portalV2.descriptiveText.ADDRESS) {
-//      portalDetailedDescription += '<tr><th>Address:</th><td>' + escapeHtmlSpecialChars(d.portalV2.descriptiveText.ADDRESS) + '</td></tr>';
+//    if(d.descriptiveText.map.ADDRESS) {
+//      portalDetailedDescription += '<tr><th>Address:</th><td>' + escapeHtmlSpecialChars(d.descriptiveText.map.ADDRESS) + '</td></tr>';
 //    }
 
     portalDetailedDescription += '</table>';
   }
 
   // portal level. start with basic data - then extend with fractional info in tooltip if available
-  var levelInt = data ? data.level : getPortalLevel(details);
-  var levelDetails = data.level;
+  var levelInt = (teamStringToId(data.team) == TEAM_NONE) ? 0 : data.level;
+  var levelDetails = levelInt;
   if (details) {
     levelDetails = getPortalLevel(details);
     if(levelDetails != 8) {
@@ -109,7 +114,7 @@ window.renderPortalDetails = function(guid) {
 
   } else {
     // non-android - a permalink for the portal
-    var permaHtml = $('<div>').html( $('<a>').attr({href:permalinkUrl, target:'_blank', title:'Create a URL link to this portal'}).text('Portal link') ).html();
+    var permaHtml = $('<div>').html( $('<a>').attr({href:permalinkUrl, title:'Create a URL link to this portal'}).text('Portal link') ).html();
     linkDetails.push ( '<aside>'+permaHtml+'</aside>' );
 
     // and a map link popup dialog
@@ -120,11 +125,16 @@ window.renderPortalDetails = function(guid) {
 
   $('#portaldetails')
     .html('') //to ensure it's clear
-    .attr('class', TEAM_TO_CSS[portal.options.team])
+    .attr('class', TEAM_TO_CSS[teamStringToId(data.team)])
     .append(
       $('<h3>').attr({class:'title'}).text(data.title),
 
-      $('<span>').attr({class:'close', onclick:'renderPortalDetails(null); if(isSmartphone()) show("map");',title:'Close'}).text('X'),
+      $('<span>').attr({
+        class: 'close',
+        title: 'Close',
+        onclick:'renderPortalDetails(null); if(isSmartphone()) show("map");',
+        accesskey: 'w'
+      }).text('X'),
 
       // help cursor via ".imgpreview img"
       $('<div>')
@@ -158,58 +168,65 @@ window.getPortalMiscDetails = function(guid,d) {
   if (d) {
 
     // collect some random data that’s not worth to put in an own method
-    var links = {incoming: 0, outgoing: 0};
-    $.each(d.portalV2.linkedEdges||[], function(ind, link) {
-      links[link.isOrigin ? 'outgoing' : 'incoming']++;
-    });
+    var linkInfo = getPortalLinks(guid);
+    var linkCount = linkInfo.in.length + linkInfo.out.length;
+    var links = {incoming: linkInfo.in.length, outgoing: linkInfo.out.length};
 
-    function linkExpl(t) { return '<tt title="↳ incoming links\n↴ outgoing links\n• is the portal">'+t+'</tt>'; }
-    var linksText = [linkExpl('links'), linkExpl(' ↳ ' + links.incoming+'&nbsp;&nbsp;•&nbsp;&nbsp;'+links.outgoing+' ↴')];
+    function linkExpl(t) { return '<tt title="'+links.outgoing+' links out (8 max)\n'+links.incoming+' links in\n('+(links.outgoing+links.incoming)+' total)">'+t+'</tt>'; }
+    var linksText = [linkExpl('links'), linkExpl(links.outgoing+' out / '+links.incoming+' in')];
 
-    var player = d.captured && d.captured.capturingPlayerId
-      ? '<span class="nickname">' + d.captured.capturingPlayerId + '</span>'
-      : null;
-    var playerText = player ? ['owner', player] : null;
+    var player = d.owner
+      ? '<span class="nickname">' + d.owner + '</span>'
+      : '-';
+    var playerText = ['owner', player];
 
-    var time = d.captured
-      ? '<span title="' + unixTimeToDateTimeString(d.captured.capturedTime, false) + '\n'
-                        + formatInterval(Math.floor((Date.now()-d.captured.capturedTime)/1000), 2) + ' ago">'
-        +  unixTimeToString(d.captured.capturedTime) + '</span>'
-      : null;
-    var sinceText  = time ? ['since', time] : null;
 
-    var linkedFields = ['fields', getPortalFields(guid).length];
+    var fieldCount = getPortalFieldsCount(guid);
+
+    var fieldsText = ['fields', fieldCount];
+
+    var apGainText = getAttackApGainText(d,fieldCount,linkCount);
+
 
     // collect and html-ify random data
     var randDetailsData = [];
-    if (playerText && sinceText) {
-      randDetailsData.push (playerText, sinceText);
+    if (true) {  // or "if (d.owner) {" ...? but this makes the info panel look rather empty for unclaimed portals
+      // these pieces of data are only relevant when the portal is captured
+      randDetailsData.push (
+        playerText, getRangeText(d),
+        linksText, fieldsText,
+        getMitigationText(d,linkCount), getEnergyText(d)
+      );
     }
 
+    // and these have some use, even for uncaptured portals
     randDetailsData.push (
-      getRangeText(d), getEnergyText(d),
-      linksText, getAvgResoDistText(d),
-      linkedFields, getAttackApGainText(d),
-      getHackDetailsText(d), getMitigationText(d)
+      apGainText, getHackDetailsText(d)
     );
 
     // artifact details
 
-    //niantic hard-code the fact it's just jarvis shards/targets - so until more examples exist, we'll do the same
-    //(at some future point we can iterate through all the artifact types and add rows as needed)
-    var jarvisArtifact = artifact.getPortalData (guid, 'jarvis');
-    if (jarvisArtifact) {
-      // the genFourColumnTable function below doesn't handle cases where one column is null and the other isn't - so default to *something* in both columns
-      var target = ['',''], shards = ['shards','(none)'];
-      if (jarvisArtifact.target) {
-        target = ['target', '<span class="'+TEAM_TO_CSS[jarvisArtifact.target]+'">'+(jarvisArtifact.target==TEAM_RES?'Resistance':'Enlightened')+'</span>'];
-      }
-      if (jarvisArtifact.fragments) {
-        shards = [jarvisArtifact.fragments.length>1?'shards':'shard', '#'+jarvisArtifact.fragments.join(', #')];
-      }
+    // 2014-02-06: stock site changed from supporting 'jarvis shards' to 'amar artifacts'(?) - so let's see what we can do to be generic...
+    $.each(artifact.getArtifactTypes(),function(index,type) {
+      var artdata = artifact.getPortalData (guid, type);
+      if (artdata) {
+        var details = artifact.getArtifactDescriptions(type);
+        if (details) {
+          // the genFourColumnTable function below doesn't handle cases where one column is null and the other isn't - so default to *something* in both columns
+          var target = ['',''], shards = [details.fragmentName,'(none)'];
+          if (artdata.target) {
+            target = ['target', '<span class="'+TEAM_TO_CSS[artdata.target]+'">'+(artdata.target==TEAM_RES?'Resistance':'Enlightened')+'</span>'];
+          }
+          if (artdata.fragments) {
+            shards = [details.fragmentName, '#'+artdata.fragments.join(', #')];
+          }
 
-      randDetailsData.push (target, shards);
-    }
+          randDetailsData.push (target, shards);
+        } else {
+          console.warn('Unknown artifact type '+type+': no names, so cannot display');
+        }
+      }
+    });
 
     randDetails = '<table id="randdetails">' + genFourColumnTable(randDetailsData) + '</table>';
 

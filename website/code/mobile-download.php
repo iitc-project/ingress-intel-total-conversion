@@ -40,7 +40,7 @@ function iitcMobileDownload ( $apkfile )
 	$version = getMobileVersion ( $apkfile );
 
 	$apk_version = $version['apk_version'];
-	$iitc_version = preg_replace ( '/^(\d+\.\d+\.\d+)\.(\d{8}\.\d{1,6})/', '\1<small class="muted">.\2</small>', $version['iitc_version'] );
+	$iitc_version = preg_replace ( '/^(\d+\.\d+\.\d+)\.(\d{8}\.\d{1,6})/', '\1<small class="text-muted">.\2</small>', $version['iitc_version'] );
 
 	# we need an absolute link for the QR Code
 	# get the URL of this page itself

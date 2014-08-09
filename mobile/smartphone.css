@@ -61,6 +61,20 @@ body {
   -webkit-box-sizing: border-box;
 }
 
+#mobileinfo .resonator.north:before {
+  content: "";
+  background-color: red;
+  border-radius: 100%;
+  display: block;
+  height: 6px;
+  width: 6px;
+  left: 50%;
+  top: -3px; 
+  margin-left: -3px;
+  position: absolute;
+  z-index: -1;
+}
+
 #mobileinfo .filllevel {
   position: absolute;
   bottom: 0;
@@ -86,10 +100,6 @@ body {
 .leaflet-top .leaflet-control {
   margin-top: 5px !important;
   margin-left: 5px !important;
-}
-
-.leaflet-control-layers {
-  display: none;    /* hide layer control - it's now handled by an in-app option */
 }
 
 #geosearch {

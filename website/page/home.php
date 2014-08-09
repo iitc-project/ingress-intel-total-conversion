@@ -13,46 +13,54 @@ offers many more features. It is available for
 
 <h3>Latest news</h3>
 
-<h4>2nd December 2013</h3>
+
+<h4>5th July 2014</h4>
 <p>
-IITC 0.16.0 and IITC Mobile 0.10.0 have been released. This update is required to work with the latest changes to
-the standard intel site. This update took a fair amount of work due to major changes
-in the network protocol used behind the standard intel website, hence the longer than usual delay for the update.
+IITC 0.17.3 and IITC Mobile 0.11.3 have just been released. Changes include:
 </p>
+<ul>
+<li>Leaflet updated: some bugfixes for the map engine IITC uses.</li>
+<li>Keyboard shortcuts: limited testing so far, so considered experimental. More details in 
+<a href="https://plus.google.com/116983602532788146323/posts/7omuVsv3c1g">this post</a>.</li>
+<li>New plugin "Cross Links". This works with the "draw tools" plugin, highlighting any existing links that cross
+drawn lines/polygons. Very useful to see what needs clearing when planning large fields.</li>
+<li>and, as always, other minor tweaks and bugfixes</li>
+</ul>
+
+<h4>16th June 2014</h4>
 <p>
-As well as IITC itself, nearly every single plugin broke in some way due to these changes. Due to the amount of work
-needed to get everything possible working again, some plugins have been disabled for now. You can see the list of these
-disabled plugins in the download list - they're in the 'Deleted' category with a description of 'PLUGIN CURRENTLY UNAVAILABLE'.
-</p>
-<p>
-Shortly after the Niantic changes that broke IITC, there were reports of IITC users being banned. This seemed strange at
-first, as IITC was not even functioning at this time, so why would people be using it and getting banned. The conclusion
-that was reached was that a few people who tried to use the broken IITC Mobile app triggered either a bug in IITC that
-caused excessive requests, or triggered some kind of alert in the intel servers. Changes have been made to IITC now
-so this unlikely to be an issue again.
+IITC 0.17.2 and IITC Mobile 0.11.2 have just been release. This is to fix the display of portal details - in particular,
+the 'owner' field - after Niantic removed the capture date from the standard site and data.
 </p>
 
-<h4>27th November 2013</h4>
+<h4>31st May 2014</h4>
 <p>
-IITC and IITC Mobile are currently broken, due to changes made to the standard intel website. This is a major change in how
-portal details are sent, with most of the extra data that the standard site didn't use being removed.
+IITC 0.17.1 and IITC Mobile 0.11.1 have just been released.
 </p>
 <p>
-This is not something simple to fix, and will take some time. Also, it severely cripples what IITC can do, as using this
-extra data, not displayed by the standard site, was its big feature.
+Another critical update, due to more changes by Niantic. Hopefully the last one for a while - all recent breaking changes
+were caused by Niantic removing the obsfucation of data requests one bit at a time - the final piece has been removed now.
 </p>
 <p>
-We will look into what can be done to get it working again, but it will take some time. Many plugins won't be practical 
-as the data will not be available.
+<b>Lost bookmarks? Drawn items?</b> In the latest Niantic site update they changed the server to always go to the
+<code>http<b>s</b></code> version. It is possible to copy your data to the new location - further details
+<a href="https://plus.google.com/105383756361375410867/posts/749UX2nQcaP">here</a>.
 </p>
 <p>
-More details, and discussion, available in the
-<a href="https://plus.google.com/105383756361375410867/posts/E65qngRjR2T">Google+ post</a>.
-</p>
-<p>
-<b>Update</b> I've created a 'dummy' version of the desktop plugin that will, for now, disable IITC if you leave it installed.
-This is shown as version 0.15.99. When a fixed build is released, it will be 0.16.something and will update and start working.
-Test versions remain, but broken. Please join the Google+ Community where announcements will be made.
+Additionally, a few bugs were fixed since the previous release, and now most map layers support zooming in closer than before.
+<b>Note</b>: There can be issues on Chrome when zooming beyond zoom level 18 (the previous default maximum for several maps).
+Just zoom out again if the zoom/layer controls, or the COMM panel, disappear.
 </p>
 
-<a class="btn btn-small" href="?page=news">Older news</a>
+<h4>24th May 2014</h4>
+<p>
+And another IITC update, IITC 0.16.12 and IITC Mobile 0.11.0 have just been released, to fix things after the most recent
+update to the standard intel site.
+</p>
+<p>
+Note that Niantich have trimmed down the data a bit more, removing things not used by the standard intel site. In particular,
+we no longer know the resonator deployment distance, the portal address, and the portal description.
+Due to this, the 'show-address' and 'draw-resonators' plugins are no longer available. 
+</p>
+
+<a class="btn btn-default btn-sm" href="?page=news">Older news</a>

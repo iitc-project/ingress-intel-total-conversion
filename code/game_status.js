@@ -12,27 +12,32 @@ window.updateGameScore = function(data) {
   }
 
   // hacky - but here is as good as any for a location
-  // the niantic servers have attempted to obfuscate the client/server protocol, by munging the request parameters
-  // detecting which munge set should be used is tricky - even the stock site gets it wrong sometimes
-  // to detect the problem and try a different set is easiest in a place where there's only a single request of that type
-  // sent at once, and it has no extra parameters. this method matches those requirements
+  // tne niantic servers include a 'version' parameter with the requests. this is changed for any site update they
+  // roll out, even when the protocol has no changes at all. (and sometimes when there's no other client javascript
+  // changes of any kind!)
   if (data.error || (data.indexOf && data.indexOf('"error"') != -1)) {
-    window.updateGameScoreFailCount++;
-    if (window.updateGameScoreFailCount <= window.requestParameterMunges.length) {
-//TODO: methods to try a different munge set?
-//      window.activeRequestMungeSet = (window.activeRequestMungeSet+1) % window.requestParameterMunges.length;
-//      console.warn('IITC munge issue - cycling to set '+window.activeRequestMungeSet);
-
-      updateGameScore();
+    if (data.error == 'out of date') {
+      dialog({
+        title: 'Reload IITC',
+        html: '<p>IITC is using an outdated version code. This will happen when Niantic update the standard intel site.</p>'
+             +'<p>You need to reload the page to get the updated changes.</p>'
+             +'<p>If you have just reloaded the page, then an old version of the standard site script is cached somewhere.'
+             +'In this case, try clearing your cache, or waiting 15-30 minutes for the stale data to expire.</p>',
+        buttons: {
+          'RELOAD': function() { window.location.reload(); }
+        }
+      });
       return;
+
     } else {
-      console.error('IITC munge issue - and retry limit reached. IITC will likely fail');
+      console.error('game score failed to load');
     }
   }
 
   window.updateGameScoreFailCount = 0;
 
-  var r = parseInt(data.result.resistanceScore), e = parseInt(data.result.enlightenedScore);
+  var e = parseInt(data[0]); //enlightened score in data[0]
+  var r = parseInt(data[1]); //resistance score in data[1]
   var s = r+e;
   var rp = r/s*100, ep = e/s*100;
   r = digits(r), e = digits(e);

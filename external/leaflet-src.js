@@ -7,7 +7,7 @@
 var oldL = window.L,
     L = {};
 
-L.version = '0.7';
+L.version = '0.7.3';
 
 // define Leaflet for Node module pattern loaders, including Browserify
 if (typeof module === 'object' && typeof module.exports === 'object') {
@@ -134,21 +134,16 @@ L.Util = {
 		}
 		return ((!existingUrl || existingUrl.indexOf('?') === -1) ? '?' : '&') + params.join('&');
 	},
-
-	compileTemplate: function (str, data) {
-		// based on https://gist.github.com/padolsey/6008842
-		str = str.replace(/"/g, '\\\"');
-		str = str.replace(/\{ *([\w_]+) *\}/g, function (str, key) {
-			return '" + o["' + key + '"]' + (typeof data[key] === 'function' ? '(o)' : '') + ' + "';
-		});
-		// jshint evil: true
-		return new Function('o', 'return "' + str + '";');
-	},
-
 	template: function (str, data) {
-		var cache = L.Util._templateCache = L.Util._templateCache || {};
-		cache[str] = cache[str] || L.Util.compileTemplate(str, data);
-		return cache[str](data);
+		return str.replace(/\{ *([\w_]+) *\}/g, function (str, key) {
+			var value = data[key];
+			if (value === undefined) {
+				throw new Error('No value provided for variable ' + str);
+			} else if (typeof value === 'function') {
+				value = value(data);
+			}
+			return value;
+		});
 	},
 
 	isArray: Array.isArray || function (obj) {
@@ -534,7 +529,7 @@ L.Mixin.Events.fire = L.Mixin.Events.fireEvent;
 
 	    doc = document.documentElement,
 	    ie3d = ie && ('transition' in doc.style),
-	    webkit3d = ('WebKitCSSMatrix' in window) && ('m11' in new window.WebKitCSSMatrix()),
+	    webkit3d = ('WebKitCSSMatrix' in window) && ('m11' in new window.WebKitCSSMatrix()) && !android23,
 	    gecko3d = 'MozPerspective' in doc.style,
 	    opera3d = 'OTransition' in doc.style,
 	    any3d = !window.L_DISABLE_3D && (ie3d || webkit3d || gecko3d || opera3d) && !phantomjs;
@@ -1070,11 +1065,6 @@ L.DomUtil = {
 
 		if (!disable3D && L.Browser.any3d) {
 			el.style[L.DomUtil.TRANSFORM] =  L.DomUtil.getTranslateString(point);
-
-			// workaround for Android 2/3 stability (https://github.com/CloudMade/Leaflet/issues/69)
-			if (L.Browser.mobileWebkit3d) {
-				el.style.WebkitBackfaceVisibility = 'hidden';
-			}
 		} else {
 			el.style.left = point.x + 'px';
 			el.style.top = point.y + 'px';
@@ -1770,6 +1760,8 @@ L.Map = L.Class.extend({
 	},
 
 	invalidateSize: function (options) {
+		if (!this._loaded) { return this; }
+
 		options = L.extend({
 			animate: false,
 			pan: true
@@ -1778,8 +1770,6 @@ L.Map = L.Class.extend({
 		var oldSize = this.getSize();
 		this._sizeChanged = true;
 		this._initialCenter = null;
-
-		if (!this._loaded) { return this; }
 
 		var newSize = this.getSize(),
 		    oldCenter = oldSize.divideBy(2).round(),
@@ -2114,12 +2104,12 @@ L.Map = L.Class.extend({
 		var loading = !this._loaded;
 		this._loaded = true;
 
+		this.fire('viewreset', {hard: !preserveMapOffset});
+
 		if (loading) {
 			this.fire('load');
 			this.eachLayer(this._layerAdd, this);
 		}
-
-		this.fire('viewreset', {hard: !preserveMapOffset});
 
 		this.fire('move');
 
@@ -2857,11 +2847,9 @@ L.TileLayer = L.Class.extend({
 		/*
 		Chrome 20 layouts much faster with top/left (verify with timeline, frames)
 		Android 4 browser has display issues with top/left and requires transform instead
-		Android 2 browser requires top/left or tiles disappear on load or first drag
-		(reappear after zoom) https://github.com/CloudMade/Leaflet/issues/866
 		(other browsers don't currently care) - see debug/hacks/jitter.html for an example
 		*/
-		L.DomUtil.setPosition(tile, tilePos, L.Browser.chrome || L.Browser.android23);
+		L.DomUtil.setPosition(tile, tilePos, L.Browser.chrome);
 
 		this._tiles[tilePoint.x + ':' + tilePoint.y] = tile;
 
@@ -2907,7 +2895,7 @@ L.TileLayer = L.Class.extend({
 	_getWrapTileNum: function () {
 		var crs = this._map.options.crs,
 		    size = crs.getSize(this._map.getZoom());
-		return size.divideBy(this.options.tileSize);
+		return size.divideBy(this._getTileSize())._floor();
 	},
 
 	_adjustTilePoint: function (tilePoint) {
@@ -4481,10 +4469,10 @@ L.FeatureGroup = L.LayerGroup.extend({
 	},
 
 	_propagateEvent: function (e) {
-		e = L.extend({}, e, {
+		e = L.extend({
 			layer: e.target,
 			target: this
-		});
+		}, e);
 		this.fire(e.type, e);
 	}
 });
@@ -5084,10 +5072,35 @@ L.Path = (L.Path.SVG && !window.L_PREFER_CANVAS) || !L.Browser.canvas ? L.Path :
 		return this;
 	},
 
+	onAdd: function (map) {
+		this._map = map;
+
+		if (!this._container) {
+			this._initElements();
+			this._initEvents();
+		}
+
+		this.projectLatlngs();
+		this._updatePath();
+
+		if (this._container) {
+			this._map._pathRoot.appendChild(this._container);
+		}
+
+		this.fire('add');
+
+		map.on({
+			'viewreset': this.projectLatlngs,
+			'moveend': this._updatePath,
+			'canvasredraw': this._updatePath
+		}, this);
+	},
+
 	onRemove: function (map) {
 		map
 		    .off('viewreset', this.projectLatlngs, this)
-		    .off('moveend', this._updatePath, this);
+		    .off('moveend', this._updatePath, this)
+		    .off('canvasredraw', this._updatePath, this);
 
 		if (this.options.clickable) {
 			this._map.off('click', this._onClick, this);
@@ -5095,19 +5108,20 @@ L.Path = (L.Path.SVG && !window.L_PREFER_CANVAS) || !L.Browser.canvas ? L.Path :
 		}
 
 		this._requestUpdate();
-
+		
+		this.fire('remove');
 		this._map = null;
 	},
 
 	_requestUpdate: function () {
 		if (this._map && !L.Path._updateRequest) {
-			L.Path._updateRequest = L.Util.requestAnimFrame(this._fireMapMoveEnd, this._map);
+			L.Path._updateRequest = L.Util.requestAnimFrame(this._fireCanvasRedraw, this._map);
 		}
 	},
 
-	_fireMapMoveEnd: function () {
+	_fireCanvasRedraw: function () {
 		L.Path._updateRequest = null;
-		this.fire('moveend');
+		this.fire('canvasredraw');
 	},
 
 	_initElements: function () {
@@ -5227,6 +5241,7 @@ L.Map.include((L.Path.SVG && !window.L_PREFER_CANVAS) || !L.Browser.canvas ? {} 
 				this.on('zoomend', this._endPathZoom);
 			}
 			this.on('moveend', this._updateCanvasViewport);
+			this.on('canvasredraw', this._updateCanvasViewport);
 			this._updateCanvasViewport();
 		}
 	},
@@ -5255,7 +5270,7 @@ L.Map.include((L.Path.SVG && !window.L_PREFER_CANVAS) || !L.Browser.canvas ? {} 
  * and polylines (clipping, simplification, distances, etc.)
  */
 
-/*jshint bitwise:false */ // allow bitwise oprations for this file
+/*jshint bitwise:false */ // allow bitwise operations for this file
 
 L.LineUtil = {
 
@@ -5988,6 +6003,7 @@ L.CircleMarker = L.Circle.extend({
 		if (this._popup && this._popup._isOpen) {
 			this._popup.setLatLng(latlng);
 		}
+		return this;
 	},
 
 	setRadius: function (radius) {
@@ -6540,26 +6556,15 @@ L.DomEvent = {
 	},
 
 	getMousePosition: function (e, container) {
-		var body = document.body,
-		    docEl = document.documentElement,
-		    //gecko makes scrollLeft more negative as you scroll in rtl, other browsers don't
-			//ref: https://code.google.com/p/closure-library/source/browse/closure/goog/style/bidi.js
-			x = L.DomUtil.documentIsLtr() ?
-					(e.pageX ? e.pageX - body.scrollLeft - docEl.scrollLeft : e.clientX) :
-						(L.Browser.gecko ? e.pageX - body.scrollLeft - docEl.scrollLeft :
-						 e.pageX ? e.pageX - body.scrollLeft + docEl.scrollLeft : e.clientX),
-		    y = e.pageY ? e.pageY - body.scrollTop - docEl.scrollTop: e.clientY,
-		    pos = new L.Point(x, y);
-
 		if (!container) {
-			return pos;
+			return new L.Point(e.clientX, e.clientY);
 		}
 
-		var rect = container.getBoundingClientRect(),
-		    left = rect.left - container.clientLeft,
-		    top = rect.top - container.clientTop;
+		var rect = container.getBoundingClientRect();
 
-		return pos._subtract(new L.Point(left, top));
+		return new L.Point(
+			e.clientX - rect.left - container.clientLeft,
+			e.clientY - rect.top - container.clientTop);
 	},
 
 	getWheelDelta: function (e) {
@@ -6627,12 +6632,12 @@ L.DomEvent = {
 		var timeStamp = (e.timeStamp || e.originalEvent.timeStamp),
 			elapsed = L.DomEvent._lastClick && (timeStamp - L.DomEvent._lastClick);
 
-		// are they closer together than 1000ms yet more than 100ms?
+		// are they closer together than 500ms yet more than 100ms?
 		// Android typically triggers them ~300ms apart while multiple listeners
 		// on the same event should be triggered far faster;
 		// or check if click is simulated on the element, and if it is, reject any non-simulated events
 
-		if ((elapsed && elapsed > 100 && elapsed < 1000) || (e.target._simulatedClick && !e._simulated)) {
+		if ((elapsed && elapsed > 100 && elapsed < 500) || (e.target._simulatedClick && !e._simulated)) {
 			L.DomEvent.stop(e);
 			return;
 		}
@@ -6730,6 +6735,7 @@ L.Draggable = L.Class.extend({
 		    offset = newPoint.subtract(this._startPoint);
 
 		if (!offset.x && !offset.y) { return; }
+		if (L.Browser.touch && Math.abs(offset.x) + Math.abs(offset.y) < 3) { return; }
 
 		L.DomEvent.preventDefault(e);
 
@@ -6740,7 +6746,8 @@ L.Draggable = L.Class.extend({
 			this._startPos = L.DomUtil.getPosition(this._element).subtract(offset);
 
 			L.DomUtil.addClass(document.body, 'leaflet-dragging');
-			L.DomUtil.addClass((e.target || e.srcElement), 'leaflet-drag-target');
+			this._lastTarget = e.target || e.srcElement;
+			L.DomUtil.addClass(this._lastTarget, 'leaflet-drag-target');
 		}
 
 		this._newPos = this._startPos.add(offset);
@@ -6756,9 +6763,13 @@ L.Draggable = L.Class.extend({
 		this.fire('drag');
 	},
 
-	_onUp: function (e) {
+	_onUp: function () {
 		L.DomUtil.removeClass(document.body, 'leaflet-dragging');
-		L.DomUtil.removeClass((e.target || e.srcElement), 'leaflet-drag-target');
+
+		if (this._lastTarget) {
+			L.DomUtil.removeClass(this._lastTarget, 'leaflet-drag-target');
+			this._lastTarget = null;
+		}
 
 		for (var i in L.Draggable.MOVE) {
 			L.DomEvent
@@ -6769,7 +6780,7 @@ L.Draggable = L.Class.extend({
 		L.DomUtil.enableImageDrag();
 		L.DomUtil.enableTextSelection();
 
-		if (this._moved) {
+		if (this._moved && this._moving) {
 			// ensure drag is not fired after dragend
 			L.Util.cancelAnimFrame(this._animRequest);
 
@@ -7413,7 +7424,7 @@ L.Map.TouchZoom = L.Handler.extend({
 		    center = map.layerPointToLatLng(origin),
 		    zoom = map.getScaleZoom(this._scale);
 
-		map._animateZoom(center, zoom, this._startCenter, this._scale, this._delta);
+		map._animateZoom(center, zoom, this._startCenter, this._scale, this._delta, false, true);
 	},
 
 	_onTouchEnd: function () {
@@ -8398,8 +8409,8 @@ L.Control.Layers = L.Control.extend({
 
 	onRemove: function (map) {
 		map
-		    .off('layeradd', this._onLayerChange)
-		    .off('layerremove', this._onLayerChange);
+		    .off('layeradd', this._onLayerChange, this)
+		    .off('layerremove', this._onLayerChange, this);
 	},
 
 	addBaseLayer: function (layer, name) {
@@ -8903,8 +8914,8 @@ if (L.DomUtil.TRANSITION) {
 
 L.Map.include(!L.DomUtil.TRANSITION ? {} : {
 
-	_catchTransitionEnd: function () {
-		if (this._animatingZoom) {
+	_catchTransitionEnd: function (e) {
+		if (this._animatingZoom && e.propertyName.indexOf('transform') >= 0) {
 			this._onZoomTransitionEnd();
 		}
 	},
@@ -8940,9 +8951,11 @@ L.Map.include(!L.DomUtil.TRANSITION ? {} : {
 		return true;
 	},
 
-	_animateZoom: function (center, zoom, origin, scale, delta, backwards) {
+	_animateZoom: function (center, zoom, origin, scale, delta, backwards, forTouchZoom) {
 
-		this._animatingZoom = true;
+		if (!forTouchZoom) {
+			this._animatingZoom = true;
+		}
 
 		// put transform transition on all layers with leaflet-zoom-animated class
 		L.DomUtil.addClass(this._mapPane, 'leaflet-zoom-anim');
@@ -8956,14 +8969,16 @@ L.Map.include(!L.DomUtil.TRANSITION ? {} : {
 			L.Draggable._disabled = true;
 		}
 
-		this.fire('zoomanim', {
-			center: center,
-			zoom: zoom,
-			origin: origin,
-			scale: scale,
-			delta: delta,
-			backwards: backwards
-		});
+		L.Util.requestAnimFrame(function () {
+			this.fire('zoomanim', {
+				center: center,
+				zoom: zoom,
+				origin: origin,
+				scale: scale,
+				delta: delta,
+				backwards: backwards
+			});
+		}, this);
 	},
 
 	_onZoomTransitionEnd: function () {

@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portal-names@zaso
 // @name           IITC plugin: Portal Names
 // @category       Layer
-// @version        0.1.3.@@DATETIMEVERSION@@
+// @version        0.1.5.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -42,14 +42,6 @@ window.plugin.portalNames.setupCSS = function() {
   ).appendTo("head");
 }
 
-window.plugin.portalNames.portalAdded = function(data) {
-  data.portal.on('add', function() {
-    window.plugin.portalNames.addLabel(this.options.guid, this.getLatLng());
-  });
-  data.portal.on('remove', function() {
-    window.plugin.portalNames.removeLabel(this.options.guid);
-  });
-}
 
 window.plugin.portalNames.removeLabel = function(guid) {
   var previousLayer = window.plugin.portalNames.labelLayers[guid];
@@ -80,7 +72,18 @@ window.plugin.portalNames.addLabel = function(guid, latLng) {
   }
 }
 
+window.plugin.portalNames.clearAllPortalLabels = function() {
+  for (var guid in window.plugin.portalNames.labelLayers) {
+    window.plugin.portalNames.removeLabel(guid);
+  }
+}
+
+
 window.plugin.portalNames.updatePortalLabels = function() {
+  // as this is called every time layers are toggled, there's no point in doing it when the leyer is off
+  if (!map.hasLayer(window.plugin.portalNames.labelLayerGroup)) {
+    return;
+  }
 
   var portalPoints = {};
 
@@ -152,6 +155,18 @@ window.plugin.portalNames.updatePortalLabels = function() {
   }
 }
 
+// ass calculating portal marker visibility can take some time when there's lots of portals shown, we'll do it on
+// a short timer. this way it doesn't get repeated so much
+window.plugin.portalNames.delayedUpdatePortalLabels = function(wait) {
+
+  if (window.plugin.portalNames.timer === undefined) {
+    window.plugin.portalNames.timer = setTimeout ( function() {
+      window.plugin.portalNames.timer = undefined;
+      window.plugin.portalNames.updatePortalLabels();
+    }, wait*1000);
+
+  }
+}
 
 
 var setup = function() {
@@ -160,9 +175,11 @@ var setup = function() {
   window.plugin.portalNames.labelLayerGroup = new L.LayerGroup();
   window.addLayerGroup('Portal Names', window.plugin.portalNames.labelLayerGroup, true);
 
-  window.addHook('requestFinished', window.plugin.portalNames.updatePortalLabels);
-  window.addHook('mapDataRefreshEnd', window.plugin.portalNames.updatePortalLabels);
-  window.map.on('overlayadd overlayremove', window.plugin.portalNames.updatePortalLabels);
+  window.addHook('requestFinished', function() { setTimeout(function(){window.plugin.portalNames.delayedUpdatePortalLabels(3.0);},1); });
+  window.addHook('mapDataRefreshEnd', function() { window.plugin.portalNames.delayedUpdatePortalLabels(0.5); });
+  window.map.on('overlayadd overlayremove', function() { setTimeout(function(){window.plugin.portalNames.delayedUpdatePortalLabels(1.0);},1); });
+  window.map.on('zoomend', window.plugin.portalNames.clearAllPortalLabels );
+
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

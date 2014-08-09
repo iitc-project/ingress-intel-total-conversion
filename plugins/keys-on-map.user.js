@@ -22,7 +22,6 @@
 window.plugin.keysOnMap = function() {};
 
 window.plugin.keysOnMap.keyLayers = {};
-window.plugin.keysOnMap.keyLayerGroup = new L.LayerGroup();
 
 // Use portal add and remove event to control render of keys
 window.plugin.keysOnMap.portalAdded = function(data) {
@@ -112,6 +111,7 @@ window.plugin.keysOnMap.setupCSS = function() {
 }
 
 window.plugin.keysOnMap.setupLayer = function() {
+  window.plugin.keysOnMap.keyLayerGroup = new L.LayerGroup();
   window.addLayerGroup('Keys', window.plugin.keysOnMap.keyLayerGroup, false);
 }
 

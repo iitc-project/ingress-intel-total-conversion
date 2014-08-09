@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             iitc-plugin-privacy-view@Scrool
 // @name           IITC plugin: Privacy view on Intel
-// @version        1.0.0.@@DATETIMEVERSION@@
+// @version        1.0.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Hide info from intel which shouldn't leak to players of the other faction.
 // @updateURL      @@UPDATEURL@@
@@ -25,6 +25,8 @@ window.plugin.privacyView.chatExpanded = function() {
 };
 
 window.plugin.privacyView.toggle = function() {
+  if($('#chat').hasClass('expand')) window.plugin.privacyView.wrapChatToggle();
+
   var b = $('body');
   var t = $('#privacycontrols .toggle');
   if(b.hasClass('privacy_active')) {
@@ -40,6 +42,8 @@ window.plugin.privacyView.toggle = function() {
 };
 
 window.plugin.privacyView.wrapChatToggle = function() {
+  if($(document.body).hasClass('privacy_active')) return;
+
   window.chat.toggle();
   var c = $('#chat, #chatcontrols');
   if(c.hasClass('expand')) {
@@ -99,7 +103,7 @@ window.plugin.privacyView.setup = function() {
   $('#chatcontrols a:first').click(window.plugin.privacyView.wrapChatToggle);
 
   $('#chatcontrols').before('<div id="privacycontrols" class="shrinked">' +
-    '  <a><span class="toggle"></span></a>' +
+    '  <a accesskey="9"><span class="toggle"></span></a>' +
     '</div>');
   $('#privacycontrols a').click(window.plugin.privacyView.toggle);
 

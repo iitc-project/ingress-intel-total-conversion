@@ -2,6 +2,7 @@ package com.cradle.iitc_mobile.share;
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -12,25 +13,53 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.view.MenuItem;
 
+import com.cradle.iitc_mobile.Log;
 import com.cradle.iitc_mobile.R;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.io.File;
 import java.util.ArrayList;
 
 public class ShareActivity extends FragmentActivity implements ActionBar.TabListener {
-    private IntentComparator mComparator;
-    private IntentFragmentAdapter mFragmentAdapter;
-    private boolean mIsPortal;
-    private String mLl;
-    private SharedPreferences mSharedPrefs = null;
-    private String mTitle;
-    private ViewPager mViewPager;
-    private int mZoom;
+    private static final String EXTRA_TYPE = "share-type";
+    private static final int REQUEST_START_INTENT = 1;
+    private static final String TYPE_FILE = "file";
+    private static final String TYPE_PERMALINK = "permalink";
+    private static final String TYPE_PORTAL_LINK = "portal_link";
+    private static final String TYPE_STRING = "string";
 
-    private void addTab(ArrayList<Intent> intents, int label, int icon) {
-        IntentFragment fragment = new IntentFragment();
-        Bundle args = new Bundle();
+    public static Intent forFile(final Context context, final File file, final String type) {
+        return new Intent(context, ShareActivity.class)
+                .putExtra(EXTRA_TYPE, TYPE_FILE)
+                .putExtra("uri", Uri.fromFile(file))
+                .putExtra("type", type);
+    }
+
+    public static Intent forPosition(final Context context, final double lat, final double lng, final int zoom,
+            final String title, final boolean isPortal) {
+        return new Intent(context, ShareActivity.class)
+                .putExtra(EXTRA_TYPE, isPortal ? TYPE_PORTAL_LINK : TYPE_PERMALINK)
+                .putExtra("lat", lat)
+                .putExtra("lng", lng)
+                .putExtra("zoom", zoom)
+                .putExtra("title", title)
+                .putExtra("isPortal", isPortal);
+    }
+
+    public static Intent forString(final Context context, final String str) {
+        return new Intent(context, ShareActivity.class)
+                .putExtra(EXTRA_TYPE, TYPE_STRING)
+                .putExtra("shareString", str);
+    }
+
+    private IntentComparator mComparator;
+    private FragmentAdapter mFragmentAdapter;
+    private IntentGenerator mGenerator;
+    private SharedPreferences mSharedPrefs = null;
+    private ViewPager mViewPager;
+
+    private void addTab(final ArrayList<Intent> intents, final int label, final int icon) {
+        final IntentListFragment fragment = new IntentListFragment();
+        final Bundle args = new Bundle();
         args.putParcelableArrayList("intents", intents);
         args.putString("title", getString(label));
         args.putInt("icon", icon);
@@ -38,21 +67,16 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         mFragmentAdapter.add(fragment);
     }
 
-    private void addTab(Intent intent, int label, int icon) {
-        ArrayList<Intent> intents = new ArrayList<Intent>(1);
-        intents.add(intent);
-        addTab(intents, label, icon);
-    }
-
-    private String getUrl() {
-        String url = "http://www.ingress.com/intel?ll=" + mLl + "&z=" + mZoom;
-        if (mIsPortal) {
-            url += "&pll=" + mLl;
+    private String getIntelUrl(final String ll, final int zoom, final boolean isPortal) {
+        final String scheme = mSharedPrefs.getBoolean("pref_force_https", true) ? "https" : "http";
+        String url = scheme + "://www.ingress.com/intel?ll=" + ll + "&z=" + zoom;
+        if (isPortal) {
+            url += "&pll=" + ll;
         }
         return url;
     }
 
-    private void setSelected(int position) {
+    private void setSelected(final int position) {
         // Activity not fully loaded yet (may occur during tab creation)
         if (mSharedPrefs == null) return;
 
@@ -62,64 +86,69 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
                 .apply();
     }
 
-    private void setupIntents() {
-        setupShareIntent(getUrl());
-
-        // we merge gmaps intents with geo intents since it is not possible
-        // anymore to set a labeled marker on geo intents
-        ArrayList<Intent> intents = new ArrayList<Intent>();
-        String gMapsUri;
-        try {
-            gMapsUri = "http://maps.google.com/?q=loc:" + mLl
-                    + "%20(" + URLEncoder.encode(mTitle, "UTF-8") + ")&z=" + mZoom;
-        } catch (UnsupportedEncodingException e) {
-            gMapsUri = "http://maps.google.com/?ll=" + mLl + "&z=" + mZoom;
-            e.printStackTrace();
+    @Override
+    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        if (REQUEST_START_INTENT == requestCode) {
+            setResult(resultCode, data);
+            // parent activity can now clean up
+            finish();
+            return;
         }
-        Intent gMapsIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(gMapsUri));
-        intents.add(gMapsIntent);
-        String geoUri = "geo:" + mLl;
-        Intent geoIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(geoUri));
-        intents.add(geoIntent);
-        addTab(intents, R.string.tab_map, R.drawable.ic_action_map);
 
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getUrl()));
-        addTab(intent, R.string.tab_browser, R.drawable.ic_action_web_site);
-    }
-
-    private void setupShareIntent(String str) {
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, str);
-        intent.putExtra(Intent.EXTRA_SUBJECT, mTitle);
-        addTab(intent, R.string.tab_share, R.drawable.ic_action_share);
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share);
 
         mComparator = new IntentComparator(this);
+        mGenerator = new IntentGenerator(this);
 
-        mFragmentAdapter = new IntentFragmentAdapter(getSupportFragmentManager());
+        mFragmentAdapter = new FragmentAdapter(getSupportFragmentManager());
+
+        mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         final ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        Intent intent = getIntent();
+        final Intent intent = getIntent();
+        final String type = intent.getStringExtra(EXTRA_TYPE);
         // from portallinks/permalinks we build 3 intents (share / geo / vanilla-intel-link)
-        if (!intent.getBooleanExtra("onlyShare", false)) {
-            mTitle = intent.getStringExtra("title");
-            mLl = intent.getDoubleExtra("lat", 0) + "," + intent.getDoubleExtra("lng", 0);
-            mZoom = intent.getIntExtra("zoom", 0);
-            mIsPortal = intent.getBooleanExtra("isPortal", false);
+        if (TYPE_PERMALINK.equals(type) || TYPE_PORTAL_LINK.equals(type)) {
+            final String title = intent.getStringExtra("title");
+            final String ll = intent.getDoubleExtra("lat", 0) + "," + intent.getDoubleExtra("lng", 0);
+            final int zoom = intent.getIntExtra("zoom", 0);
+            final String url = getIntelUrl(ll, zoom, TYPE_PORTAL_LINK.equals(type));
 
-            setupIntents();
+            actionBar.setTitle(title);
+
+            addTab(mGenerator.getShareIntents(title, url),
+                    R.string.tab_share,
+                    R.drawable.ic_action_share);
+            addTab(mGenerator.getGeoIntents(title, ll, zoom),
+                    R.string.tab_map,
+                    R.drawable.ic_action_place);
+            addTab(mGenerator.getBrowserIntents(title, url),
+                    R.string.tab_browser,
+                    R.drawable.ic_action_web_site);
+        } else if (TYPE_STRING.equals(type)) {
+            final String title = getString(R.string.app_name);
+            final String shareString = intent.getStringExtra("shareString");
+
+            addTab(mGenerator.getShareIntents(title, shareString), R.string.tab_share, R.drawable.ic_action_share);
+        } else if (TYPE_FILE.equals(type)) {
+
+            final Uri uri = intent.getParcelableExtra("uri");
+            final String mime = intent.getStringExtra("type");
+
+            addTab(mGenerator.getShareIntents(uri, mime), R.string.tab_share, R.drawable.ic_action_share);
         } else {
-            mTitle = getString(R.string.app_name);
-            setupShareIntent(intent.getStringExtra("shareString"));
+            Log.w("Unknown sharing type: " + type);
+            setResult(RESULT_CANCELED);
+            finish();
+            return;
         }
 
         mViewPager = (ViewPager) findViewById(R.id.pager);
@@ -127,7 +156,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
 
         mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
-            public void onPageSelected(int position) {
+            public void onPageSelected(final int position) {
                 if (actionBar.getNavigationMode() != ActionBar.NAVIGATION_MODE_STANDARD) {
                     actionBar.setSelectedNavigationItem(position);
                 }
@@ -136,7 +165,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         });
 
         for (int i = 0; i < mFragmentAdapter.getCount(); i++) {
-            IntentFragment fragment = (IntentFragment) mFragmentAdapter.getItem(i);
+            final IntentListFragment fragment = (IntentListFragment) mFragmentAdapter.getItem(i);
 
             actionBar.addTab(actionBar
                     .newTab()
@@ -149,8 +178,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         }
 
-        mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        int selected = mSharedPrefs.getInt("pref_share_selected_tab", 0);
+        final int selected = mSharedPrefs.getInt("pref_share_selected_tab", 0);
         if (selected < mFragmentAdapter.getCount()) {
             mViewPager.setCurrentItem(selected);
             if (actionBar.getNavigationMode() != ActionBar.NAVIGATION_MODE_STANDARD) {
@@ -169,8 +197,16 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
         return mComparator;
     }
 
+    public void launch(final Intent intent) {
+        mComparator.trackIntentSelection(intent);
+        mGenerator.cleanup(intent);
+
+        // we should wait for the new intent to be finished so the calling activity (IITC_Mobile) can clean up
+        startActivityForResult(intent, REQUEST_START_INTENT);
+    }
+
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
@@ -180,17 +216,17 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
     }
 
     @Override
-    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+    public void onTabReselected(final ActionBar.Tab tab, final FragmentTransaction fragmentTransaction) {
     }
 
     @Override
-    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        int position = tab.getPosition();
+    public void onTabSelected(final ActionBar.Tab tab, final FragmentTransaction fragmentTransaction) {
+        final int position = tab.getPosition();
         mViewPager.setCurrentItem(position);
         setSelected(position);
     }
 
     @Override
-    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+    public void onTabUnselected(final ActionBar.Tab tab, final FragmentTransaction fragmentTransaction) {
     }
 }

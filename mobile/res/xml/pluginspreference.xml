@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <PreferenceScreen>
-<!-- empty...we will build the prefs in PluginsFragment -->
+
+    <!-- empty...we will build the prefs in PluginsFragment -->
+
 </PreferenceScreen>

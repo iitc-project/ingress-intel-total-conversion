@@ -24,20 +24,22 @@ window.getRangeText = function(d) {
 
 // generates description text from details for portal
 window.getPortalDescriptionFromDetails = function(details) {
-  var descObj = details.portalV2.descriptiveText;
-  // FIXME: also get real description?
-  var desc = descObj.TITLE;
-  if(descObj.ADDRESS)
-    desc += '\n' + descObj.ADDRESS;
-//  if(descObj.ATTRIBUTION)
-//    desc += '\nby '+descObj.ATTRIBUTION+' ('+descObj.ATTRIBUTION_LINK+')';
-  return desc;
+  return details.title || '(untitled)';
+
+//  var descObj = details.descriptiveText.map;
+//  // FIXME: also get real description?
+//  var desc = descObj.TITLE;
+//  if(descObj.ADDRESS)
+//    desc += '\n' + descObj.ADDRESS;
+////  if(descObj.ATTRIBUTION)
+////    desc += '\nby '+descObj.ATTRIBUTION+' ('+descObj.ATTRIBUTION_LINK+')';
+//  return desc;
 }
 
 // Grabs more info, including the submitter name for the current main
 // portal image
 window.getPortalDescriptionFromDetailsExtended = function(details) {
-  var descObj = details.portalV2.descriptiveText;
+  var descObj = details.title;
   var photoStreamObj = details.photoStreamInfo;
 
   var submitterObj = new Object();
@@ -79,7 +81,7 @@ window.getModDetails = function(d) {
   var mods = [];
   var modsTitle = [];
   var modsColor = [];
-  $.each(d.portalV2.linkedModArray, function(ind, mod) {
+  $.each(d.mods, function(ind, mod) {
     var modName = '';
     var modTooltip = '';
     var modColor = '#000';
@@ -88,21 +90,15 @@ window.getModDetails = function(d) {
       // all mods seem to follow the same pattern for the data structure
       // but let's try and make this robust enough to handle possible future differences
 
-      if (mod.displayName) {
-        modName = mod.displayName;
-      } else if (mod.type) {
-        modName = mod.type;
-      } else {
-        modName = '(unknown mod)';
-      }
+      modName = mod.name || '(unknown mod)';
 
       if (mod.rarity) {
         modName = mod.rarity.capitalize().replace(/_/g,' ') + ' ' + modName;
       }
 
       modTooltip = modName + '\n';
-      if (mod.installingUser) {
-        modTooltip += 'Installed by: '+ mod.installingUser + '\n';
+      if (mod.owner) {
+        modTooltip += 'Installed by: '+ mod.owner + '\n';
       }
 
       if (mod.stats) {
@@ -111,14 +107,14 @@ window.getModDetails = function(d) {
           if (!mod.stats.hasOwnProperty(key)) continue;
           var val = mod.stats[key];
 
-          if (key === 'REMOVAL_STICKINESS' && val == 0) continue;  // stat on all mods recently - unknown meaning, not displayed in stock client
+//          if (key === 'REMOVAL_STICKINESS' && val == 0) continue;  // stat on all mods recently - unknown meaning, not displayed in stock client
 
           // special formatting for known mod stats, where the display of the raw value is less useful
-          if (mod.type === 'HEATSINK' && key === 'HACK_SPEED') val = (val/10000)+'%'; // 500000 = 50%
-          else if (mod.type === 'FORCE_AMP' && key === 'FORCE_AMPLIFIER') val = (val/1000)+'x';  // 2000 = 2x
-          else if (mod.type === 'LINK_AMPLIFIER' && key === 'LINK_RANGE_MULTIPLIER') val = (val/1000)+'x' // 2000 = 2x
-          else if (mod.type === 'TURRET' && key === 'HIT_BONUS') val = (val/10000)+'%'; // 2000 = 0.2% (although this seems pretty small to be useful?)
-          else if (mod.type === 'TURRET' && key === 'ATTACK_FREQUENCY') val = (val/1000)+'x' // 2000 = 2x
+          if (key === 'HACK_SPEED') val = (val/10000)+'%'; // 500000 = 50%
+          else if (key === 'FORCE_AMPLIFIER') val = (val/1000)+'x';  // 2000 = 2x
+          else if (key === 'LINK_RANGE_MULTIPLIER') val = (val/1000)+'x' // 2000 = 2x
+          else if (key === 'HIT_BONUS') val = (val/10000)+'%'; // 2000 = 0.2% (although this seems pretty small to be useful?)
+          else if (key === 'ATTACK_FREQUENCY') val = (val/1000)+'x' // 2000 = 2x
           // else display unmodified. correct for shield mitigation and multihack - unknown for future/other mods
 
           modTooltip += '\n+' +  val + ' ' + key.capitalize().replace(/_/g,' ');
@@ -137,10 +133,15 @@ window.getModDetails = function(d) {
     modsColor.push(modColor);
   });
 
-  var t = '<span'+(modsTitle[0].length ? ' title="'+modsTitle[0]+'"' : '')+' style="color:'+modsColor[0]+'">'+mods[0]+'</span>'
-        + '<span'+(modsTitle[1].length ? ' title="'+modsTitle[1]+'"' : '')+' style="color:'+modsColor[1]+'">'+mods[1]+'</span>'
-        + '<span'+(modsTitle[2].length ? ' title="'+modsTitle[2]+'"' : '')+' style="color:'+modsColor[2]+'">'+mods[2]+'</span>'
-        + '<span'+(modsTitle[3].length ? ' title="'+modsTitle[3]+'"' : '')+' style="color:'+modsColor[3]+'">'+mods[3]+'</span>'
+
+  var t = '';
+  for (var i=0; i<mods.length; i++) {
+    t += '<span'+(modsTitle[i].length ? ' title="'+modsTitle[i]+'"' : '')+' style="color:'+modsColor[i]+'">'+mods[i]+'</span>'
+  }
+  // and add blank entries if we have less than 4 mods (as the server no longer returns all mod slots, but just the filled ones)
+  for (var i=mods.length; i<4; i++) {
+    t += '<span style="color:#000"></span>'
+  }
 
   return t;
 }
@@ -153,37 +154,45 @@ window.getEnergyText = function(d) {
   return ['energy', '<tt title="'+inf+'">' + fill + '</tt>'];
 }
 
-window.getAvgResoDistText = function(d) {
-  var avgDist = Math.round(10*getAvgResoDist(d))/10;
-  return ['res dist', avgDist + ' m'];
-}
 
 window.getResonatorDetails = function(d) {
   var resoDetails = [];
   // octant=slot: 0=E, 1=NE, 2=N, 3=NW, 4=W, 5=SW, 6=S, SE=7
   // resos in the display should be ordered like this:
-  //   N    NE         Since the view is displayed in columns, they
-  //  NW    E          need to be ordered like this: N, NW, W, SW, NE,
-  //   W    SE         E, SE, S, i.e. 2 3 4 5 1 0 7 6
+  //   N    NE         Since the view is displayed in rows, they
+  //  NW    E          need to be ordered like this: N NE NW E W SE SW S
+  //   W    SE         i.e. 2 1 3 0 4 7 5 6
   //  SW    S
+  // note: as of 2014-05-23 update, this is not true for portals with empty slots!
 
-  $.each([2, 1, 3, 0, 4, 7, 5, 6], function(ind, slot) {
-    var reso = d.resonatorArray.resonators[slot];
-    if(!reso) {
-      resoDetails.push(renderResonatorDetails(slot, 0, 0, null, null));
-      return true;
+  var processResonatorSlot = function(reso,slot) {
+    var lvl=0, nrg=0, owner=null;
+
+    if (reso) {
+      lvl = parseInt(reso.level);
+      nrg = parseInt(reso.energy);
+      owner = reso.owner;
     }
 
-    var l = parseInt(reso.level);
-    var v = parseInt(reso.energyTotal);
-    var nick = reso.ownerGuid;
-    var dist = reso.distanceToPortal;
-    // if array order and slot order drift apart, at least the octant
-    // naming will still be correct.
-    slot = parseInt(reso.slot);
+    resoDetails.push(renderResonatorDetails(slot, lvl, nrg, owner));
+  };
 
-    resoDetails.push(renderResonatorDetails(slot, l, v, dist, nick));
-  });
+
+  // if all 8 resonators are deployed, we know which is in which slot
+
+  if (d.resonators.length == 8) {
+    // fully deployed - we can make assumptions about deployment slots
+    $.each([2, 1, 3, 0, 4, 7, 5, 6], function(ind, slot) {
+      processResonatorSlot(d.resonators[slot],slot);
+    });
+  } else {
+    // partially deployed portal - we can no longer find out which resonator is in which slot
+    for(var ind=0; ind<8; ind++) {
+      processResonatorSlot(ind < d.resonators.length ? d.resonators[ind] : null, null);
+    }
+
+  }
+
   return '<table id="resodetails">' + genFourColumnTable(resoDetails) + '</table>';
 
 }
@@ -192,41 +201,43 @@ window.getResonatorDetails = function(d) {
 // not work with raw details-hash. Needs digested infos instead:
 // slot: which slot this resonator occupies. Starts with 0 (east) and
 // rotates clockwise. So, last one is 7 (southeast).
-window.renderResonatorDetails = function(slot, level, nrg, dist, nick) {
-  if(level === 0) {
-    var meter = '<span class="meter" title="octant:\t' + OCTANTS[slot] + ' ' + OCTANTS_ARROW[slot] + '"></span>';
-  } else {
-    var max = RESO_NRG[level];
-    var fillGrade = nrg/max*100;
+window.renderResonatorDetails = function(slot, level, nrg, nick) {
+  if(OCTANTS[slot] === 'N')
+    var className = 'meter north';
+  else
+    var className = 'meter';
 
-    var inf = 'energy:\t' + nrg   + ' / ' + max + ' (' + Math.round(fillGrade) + '%)\n'
-            + 'level:\t'  + level + '\n'
-            + 'distance:\t' + dist  + 'm\n'
-            + 'owner:\t'  + nick  + '\n'
-            + 'octant:\t' + OCTANTS[slot] + ' ' + OCTANTS_ARROW[slot];
+  var max = RESO_NRG[level];
+  var fillGrade = level > 0 ? nrg/max*100 : 0;
 
-    var style = 'width:'+fillGrade+'%; background:'+COLORS_LVL[level]+';';
+  var inf = (level > 0 ? 'energy:\t' + nrg   + ' / ' + max + ' (' + Math.round(fillGrade) + '%)\n'
+                        +'level:\t'  + level + '\n'
+                        +'owner:\t'  + nick  + '\n'
+                       : '')
+          + (slot !== null ? 'octant:\t' + OCTANTS[slot] + ' ' + OCTANTS_ARROW[slot]:'');
 
-    var color = (level < 3 ? "#9900FF" : "#FFFFFF");
+  var style = fillGrade ? 'width:'+fillGrade+'%; background:'+COLORS_LVL[level]+';':'';
 
-    var lbar = '<span class="meter-level" style="color: ' + color + ';"> ' + level + ' </span>';
+  var color = (level < 3 ? "#9900FF" : "#FFFFFF");
 
-    var fill  = '<span style="'+style+'"></span>';
+  var lbar = level > 0 ? '<span class="meter-level" style="color: ' + color + ';"> L ' + level + ' </span>' : '';
 
-    var meter = '<span class="meter" title="'+inf+'">' + fill + lbar + '</span>';
-  }
+  var fill  = '<span style="'+style+'"></span>';
+
+  var meter = '<span class="' + className + '" title="'+inf+'">' + fill + lbar + '</span>';
+
   nick = nick ? '<span class="nickname">'+nick+'</span>' : null;
   return [meter, nick || ''];
 }
 
 // calculate AP gain from destroying portal and then capturing it by deploying resonators
-window.getAttackApGainText = function(d) {
-  var breakdown = getAttackApGain(d);
+window.getAttackApGainText = function(d,fieldCount,linkCount) {
+  var breakdown = getAttackApGain(d,fieldCount,linkCount);
   var totalGain = breakdown.enemyAp;
 
   function tt(text) {
     var t = '';
-    if (PLAYER.team == d.controllingTeam.team) {
+    if (PLAYER.team == d.team) {
       totalGain = breakdown.friendlyAp;
       t += 'Friendly AP:\t' + breakdown.friendlyAp + '\n';
       t += '  Deploy ' + breakdown.deployCount + ', ';
@@ -261,21 +272,22 @@ window.getHackDetailsText = function(d) {
 }
 
 
-window.getMitigationText = function(d) {
-  var mitigationDetails = getPortalMitigationDetails(d);
+window.getMitigationText = function(d,linkCount) {
+  var mitigationDetails = getPortalMitigationDetails(d,linkCount);
 
   var mitigationShort = mitigationDetails.total;
   if (mitigationDetails.excess) mitigationShort += ' (+'+mitigationDetails.excess+')';
 
   function tt(text) {
-    var t = 'Mitigation:\t'+mitigationDetails.total+'\n';
-    t += 'Shields:\t'+mitigationDetails.shields+'\n';
-    t += 'Links:\t'+mitigationDetails.links+'\n';
-    t += 'Excess:\t'+mitigationDetails.excess+'\n';
+    var t = 'Total shielding:\t'+(mitigationDetails.shields+mitigationDetails.links)+'\n'
+          + '- active:\t'+mitigationDetails.total+'\n'
+          + '- excess:\t'+mitigationDetails.excess+'\n'
+          + 'From\n'
+          + '- shields:\t'+mitigationDetails.shields+'\n'
+          + '- links:\t'+mitigationDetails.links;
 
     return '<span title="'+t+'">'+text+'</span>';
   }
 
-  // 'mitigation' doesn't quite fit in the space.
-  return [tt('mitig…'), tt(mitigationShort)];
+  return [tt('shielding'), tt(mitigationShort)];
 }

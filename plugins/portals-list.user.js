@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portals-list@teo96
 // @name           IITC plugin: show list of portals
 // @category       Info
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -45,10 +45,11 @@
 window.plugin.portalslist = function() {};
 
 window.plugin.portalslist.listPortals = [];
-window.plugin.portalslist.sortOrder=-1;
+window.plugin.portalslist.sortBy = 'level';
+window.plugin.portalslist.sortOrder = -1;
 window.plugin.portalslist.enlP = 0;
 window.plugin.portalslist.resP = 0;
-window.plugin.portalslist.filter=0;
+window.plugin.portalslist.filter = 0;
 
 //fill the listPortals array with portals avaliable on the map (level filtered portals will not appear in the table)
 window.plugin.portalslist.getPortals = function() {
@@ -64,27 +65,27 @@ window.plugin.portalslist.getPortals = function() {
 
     retval=true;
     var d = portal.options.data;
-    var teamN = window.TEAM_NONE;
+    var teamN = portal.options.team;
 
-    switch (d.team){
-      case 'RESISTANCE' :
+    switch (teamN) {
+      case TEAM_RES:
         window.plugin.portalslist.resP++;
-        teamN = window.TEAM_RES
         break;
-      case 'ENLIGHTENED' :
+      case TEAM_ENL:
         window.plugin.portalslist.enlP++;
-        teamN = window.TEAM_ENL;
         break;
     }
     var l = window.getPortalLinks(i);
     var f = window.getPortalFields(i);
+    var ap = portalApGainMaths(d.resCount, l.in.length+l.out.length, f.length);
 
     var thisPortal = {
       'portal': portal,
       'guid': i,
-      'teamN': teamN,
-      'name': d.title,
-      'team': d.team,
+      'teamN': teamN, // TEAM_NONE, TEAM_RES or TEAM_ENL
+      'team': d.team, // "NEUTRAL", "RESISTANCE" or "ENLIGHTENED"
+      'name': d.title || '(untitled)',
+      'nameLower': d.title && d.title.toLowerCase(),
       'level': portal.options.level,
       'health': d.health,
       'resCount': d.resCount,
@@ -92,7 +93,9 @@ window.plugin.portalslist.getPortals = function() {
       'linkCount': l.in.length + l.out.length,
       'link' : l,
       'fieldCount': f.length,
-      'field' : f
+      'field' : f,
+      'enemyAp': ap.enemyAp,
+      'ap': ap,
     };
     window.plugin.portalslist.listPortals.push(thisPortal);
   });
@@ -102,17 +105,19 @@ window.plugin.portalslist.getPortals = function() {
 
 window.plugin.portalslist.displayPL = function() {
   var html = '';
-  window.plugin.portalslist.sortOrder=-1;
+  window.plugin.portalslist.sortBy = 'level';
+  window.plugin.portalslist.sortOrder = -1;
   window.plugin.portalslist.enlP = 0;
   window.plugin.portalslist.resP = 0;
+  window.plugin.portalslist.filter = 0;
 
   if (window.plugin.portalslist.getPortals()) {
-    html += window.plugin.portalslist.portalTable('level', window.plugin.portalslist.sortOrder,window.plugin.portalslist.filter);
+    html += window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy, window.plugin.portalslist.sortOrder,window.plugin.portalslist.filter);
   } else {
-    html = '<table><tr><td>Nothing to show!</td></tr></table>';
+    html = '<table class="noPortals"><tr><td>Nothing to show!</td></tr></table>';
   };
 
-  if(typeof android !== 'undefined' && android && android.addPane) {
+  if(window.useAndroidPanes()) {
     $('<div id="portalslist" class="mobile">' + html + '</div>').appendTo(document.body);
   } else {
     dialog({
@@ -123,84 +128,108 @@ window.plugin.portalslist.displayPL = function() {
       width: 700
     });
   }
-
-  //run the name resolving process
-  //resolvePlayerNames();
 }
 
 window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
-  // sortOrder <0 ==> desc, >0 ==> asc, i use sortOrder * -1 to change the state
-  window.plugin.portalslist.filter=filter;
+  // save the sortBy/sortOrder/filter
+  window.plugin.portalslist.sortBy = sortBy;
+  window.plugin.portalslist.sortOrder = sortOrder;
+  window.plugin.portalslist.filter = filter;
+
   var portals=window.plugin.portalslist.listPortals;
 
   //Array sort
   window.plugin.portalslist.listPortals.sort(function(a, b) {
     var retVal = 0;
-    switch (sortBy) {
-      case 'names':
-        retVal = a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1;
-        break;
-      default:
-        retVal = b[sortBy] - a[sortBy];
-        break;
+
+    var aComp = a[sortBy];
+    var bComp = b[sortBy];
+
+    if (aComp < bComp) {
+      retVal = -1;
+    } else if (aComp > bComp) {
+      retVal = 1;
+    } else {
+      // equal - compare GUIDs to ensure consistent (but arbitrary) order
+      retVal = a.guid < b.guid ? -1 : 1;
     }
-    if (sortOrder > 0) retVal = -retVal; //thx @jonatkins
+
+    // sortOrder is 1 (normal) or -1 (reversed)
+    retVal = retVal * sortOrder;
     return retVal;
   });
 
-  var sort = window.plugin.portalslist.portalTableSort;
+  var sortAttr = window.plugin.portalslist.portalTableHeaderSortAttr;
   var html = window.plugin.portalslist.stats();
-  html += '<table>'
-    + '<tr><th ' + sort('names', sortBy, -1) + '>Portal</th>'
-    + '<th ' + sort('level', sortBy, -1) + '>Level</th>'
-    + '<th title="Team" ' + sort('teamN', sortBy, -1) + '>Team</th>'
-    + '<th ' + sort('health', sortBy, -1) + '>Health</th>'
-    + '<th ' + sort('resCount', sortBy, -1) + '>Resonator Count</th>'
-    + '<th ' + sort('linkCount', sortBy, -1) + '>Link Count</th>'
-    + '<th ' + sort('fieldCount', sortBy, -1) + '>Field Count</th>'
+  html += '<table class="portals">'
+    + '<tr class="header">'
+    + '<th>#</th>'
+    + '<th ' + sortAttr('nameLower', sortBy, 1, 'portalTitle') + '>Portal Name</th>'
+    + '<th ' + sortAttr('level', sortBy, -1) + '>Level</th>'
+    + '<th ' + sortAttr('teamN', sortBy, 1) + '>Team</th>'
+    + '<th ' + sortAttr('health', sortBy, -1) + '>Health</th>'
+    + '<th ' + sortAttr('resCount', sortBy, -1) + '>Res</th>'
+    + '<th ' + sortAttr('linkCount', sortBy, -1) + '>Links</th>'
+    + '<th ' + sortAttr('fieldCount', sortBy, -1) + '>Fields</th>'
+    + '<th ' + sortAttr('enemyAp', sortBy, -1) + '>AP</th>'
+    + '</tr>\n';
 
+  var rowNum = 1;
 
   $.each(portals, function(ind, portal) {
     if (filter === TEAM_NONE || filter === portal.teamN) {
-      html += '<tr class="' + (portal.teamN === window.TEAM_RES ? 'res' : (portal.teamN === window.TEAM_ENL ? 'enl' : 'neutral')) + '">'
-        + '<td style="">' + window.plugin.portalslist.getPortalLink(portal, portal.guid) + '</td>'
-        + '<td class="L' + Math.floor(portal.level) +'">' + portal.level + '</td>'
-        + '<td style="text-align:center;">' + portal.team + '</td>';
 
-      html += '<td style="cursor:help" title="'+ portal.health +'">' + portal.health + '</td>'
+      html += '<tr class="' + (portal.teamN === window.TEAM_RES ? 'res' : (portal.teamN === window.TEAM_ENL ? 'enl' : 'neutral')) + '">'
+        + '<td>'+rowNum+'</td>'
+        + '<td class="portalTitle" style="">' + window.plugin.portalslist.getPortalLink(portal, portal.guid) + '</td>'
+        + '<td class="L' + portal.level +'" style="background-color: '+COLORS_LVL[portal.level]+'">' + portal.level + '</td>'
+        + '<td style="text-align:center;">' + portal.team.substr(0,3) + '</td>';
+
+      html += '<td>' + (portal.teamN!=TEAM_NONE?portal.health+'%':'-') + '</td>'
         + '<td>' + portal.resCount + '</td>'
-        + '<td title="In: ' + portal.link.in.length + ' Out: ' + portal.link.out.length + '">' + portal.linkCount + '</td>'
-        + '<td>' + portal.fieldCount + '</td>';
+        + '<td class="help" title="In: ' + portal.link.in.length + ' Out: ' + portal.link.out.length + '">' + (portal.linkCount?portal.linkCount:'-') + '</td>'
+        + '<td>' + (portal.fieldCount?portal.fieldCount:'-') + '</td>';
+
+      var apTitle = '';
+      if (PLAYER.team == portal.team) {
+        apTitle += 'Friendly AP:\t'+portal.ap.friendlyAp+'\n'
+                 + '- deploy '+(8-portal.resCount)+' resonator(s)\n'
+                 + '- upgrades/mods unknown\n';
+      }
+      apTitle += 'Enemy AP:\t'+portal.ap.enemyAp+'\n'
+               + '- Destroy AP:\t'+portal.ap.destroyAp+'\n'
+               + '- Capture AP:\t'+portal.ap.captureAp;
+
+      html += '<td class="help apGain" title="' + apTitle + '">' + digits(portal.ap.enemyAp) + '</td>';
 
       html+= '</tr>';
+
+      rowNum++;
     }
   });
   html += '</table>';
 
   html += '<div class="disclaimer">Click on portals table headers to sort by that column. '
-    + 'Click on <b>All Portals, Resistance Portals, Enlightened Portals</b> to filter<br>'
-    + 'Thanks to @vita10gy & @xelio for their IITC plugins who inspired me. A <a href="https://plus.google.com/113965246471577467739">@teo96</a> production. Vive la Résistance !</div>';
+    + 'Click on <b>All Portals, Resistance Portals, Enlightened Portals</b> to filter</div>';
 
-  window.plugin.portalslist.sortOrder = window.plugin.portalslist.sortOrder*-1;
   return html;
 }
 
 window.plugin.portalslist.stats = function(sortBy) {
-  var html = '<table><tr>'
-    + '<td class="filterAll" style="cursor:pointer"  onclick="window.plugin.portalslist.portalTable(\'level\',-1,0)"><a href=""></a>All Portals : (click to filter)</td><td class="filterAll">' + window.plugin.portalslist.listPortals.length + '</td>'
-    + '<td class="filterRes" style="cursor:pointer" class="sorted" onclick="window.plugin.portalslist.portalTable(\'level\',-1,1)">Resistance Portals : </td><td class="filterRes">' + window.plugin.portalslist.resP +' (' + Math.floor(window.plugin.portalslist.resP/window.plugin.portalslist.listPortals.length*100) + '%)</td>'
-    + '<td class="filterEnl" style="cursor:pointer" class="sorted" onclick="window.plugin.portalslist.portalTable(\'level\',-1,2)">Enlightened Portals : </td><td class="filterEnl">'+ window.plugin.portalslist.enlP +' (' + Math.floor(window.plugin.portalslist.enlP/window.plugin.portalslist.listPortals.length*100) + '%)</td>'
+  var html = '<table class="teamFilter"><tr>'
+    + '<td class="filterAll" style="cursor:pointer"><a href=""></a>All Portals : (click to filter)</td><td class="filterAll">' + window.plugin.portalslist.listPortals.length + '</td>'
+    + '<td class="filterRes" style="cursor:pointer" class="sorted">Resistance Portals : </td><td class="filterRes">' + window.plugin.portalslist.resP +' (' + Math.floor(window.plugin.portalslist.resP/window.plugin.portalslist.listPortals.length*100) + '%)</td>'
+    + '<td class="filterEnl" style="cursor:pointer" class="sorted">Enlightened Portals : </td><td class="filterEnl">'+ window.plugin.portalslist.enlP +' (' + Math.floor(window.plugin.portalslist.enlP/window.plugin.portalslist.listPortals.length*100) + '%)</td>'
     + '</tr>'
     + '</table>';
   return html;
 }
 
 // A little helper function so the above isn't so messy
-window.plugin.portalslist.portalTableSort = function(name, by) {
-  var retVal = 'data-sort="' + name + '"';
-  if(name === by) {
-    retVal += ' class="sorted"';
-  }
+window.plugin.portalslist.portalTableHeaderSortAttr = function(name, by, defOrder, extraClass) {
+  // data-sort attr: used by jquery .data('sort') below
+  var retVal = 'data-sort="'+name+'" data-defaultorder="'+defOrder+'" class="'+(extraClass?extraClass+' ':'')+'sortable'+(name==by?' sorted':'')+'"';
+
   return retVal;
 };
 
@@ -213,19 +242,18 @@ window.plugin.portalslist.getPortalLink = function(portal,guid) {
   var latlng = [coord.lat, coord.lng].join();
   var jsSingleClick = 'window.renderPortalDetails(\''+guid+'\');return false';
   var jsDoubleClick = 'window.zoomToAndShowPortal(\''+guid+'\', ['+latlng+']);return false';
-  var perma = '/intel?latE6='+coord.lat+'&lngE6='+coord.lng+'&z=17&pguid='+guid;
+  var perma = '/intel?ll='+coord.lat+','+coord.lng+'&z=17&pll='+coord.lat+','+coord.lng;
 
   //Use Jquery to create the link, which escape characters in TITLE and ADDRESS of portal
   var a = $('<a>',{
-    "class": 'help',
     text: portal.name,
-    title: portal.name,
+//    title: portal.name,
     href: perma,
     onClick: jsSingleClick,
     onDblClick: jsDoubleClick
   })[0].outerHTML;
-  var div = '<div class="portalTitle">'+a+'</div>';
-  return div;
+
+  return a;
 }
 
 window.plugin.portalslist.onPaneChanged = function(pane) {
@@ -236,7 +264,7 @@ window.plugin.portalslist.onPaneChanged = function(pane) {
 };
 
 var setup =  function() {
-  if(typeof android !== 'undefined' && android && android.addPane) {
+  if(window.useAndroidPanes()) {
     android.addPane("plugin-portalslist", "Portals list", "ic_action_paste");
     addHook("paneChanged", window.plugin.portalslist.onPaneChanged);
   } else {
@@ -245,35 +273,42 @@ var setup =  function() {
 
   $('head').append('<style>' +
     '#portalslist.mobile {background: transparent; border: 0 none !important; height: 100% !important; width: 100% !important; left: 0 !important; top: 0 !important; position: absolute; overflow: auto; }' +
-    '#portalslist table {margin-top:5px; border-collapse: collapse; empty-cells: show; width:100%; clear: both;}' +
+    '#portalslist table { margin-top:5px; border-collapse: collapse; empty-cells: show; width: 100%; clear: both; }' +
     '#portalslist table td, #portalslist table th {border-bottom: 1px solid #0b314e; padding:3px; color:white; background-color:#1b415e}' +
     '#portalslist table tr.res td { background-color: #005684; }' +
     '#portalslist table tr.enl td { background-color: #017f01; }' +
     '#portalslist table tr.neutral td { background-color: #000000; }' +
-    '#portalslist table th { text-align: center;}' +
-    '#portalslist table td { text-align: center;}' +
-    '#portalslist table td:nth-child(1) { text-align: left;}' +
-    '#portalslist table th { cursor:pointer;}' +
-    '#portalslist table th:nth-child(1) { text-align: left;}' +
-    '#portalslist table th.sorted { color:#FFCE00; }' +
+    '#portalslist table th { text-align: center; }' +
+    '#portalslist table td { text-align: center; }' +
+    '#portalslist table.portals td { white-space: nowrap; }' +
+    '#portalslist table td.portalTitle { text-align: left;}' +
+    '#portalslist table th.sortable { cursor:pointer;}' +
+    '#portalslist table th.portalTitle { text-align: left;}' +
+    '#portalslist table .portalTitle { min-width: 120px !important; max-width: 240px !important; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }' +
+    '#portalslist table .apGain { text-align: right !important; }' +
+    '#portalslist .sorted { color:#FFCE00; }' +
     '#portalslist .filterAll { margin-top: 10px;}' +
     '#portalslist .filterRes { margin-top: 10px; background-color: #005684  }' +
     '#portalslist .filterEnl { margin-top: 10px; background-color: #017f01  }' +
     '#portalslist .disclaimer { margin-top: 10px; font-size:10px; }' +
-    '#portalslist .portalTitle { display: inline-block; width: 160px !important; min-width: 160px !important; max-width: 160px !important; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }' +
     '</style>');
+
   // Setup sorting
-  $(document).on('click.portalslist', '#portalslist table th', function() {
-    $('#portalslist').html(window.plugin.portalslist.portalTable($(this).data('sort'),window.plugin.portalslist.sortOrder,window.plugin.portalslist.filter));
+  $(document).on('click.portalslist', '#portalslist table th.sortable', function() {
+    var sortBy = $(this).data('sort');
+    // if this is the currently selected column, toggle the sort order - otherwise use the columns default sort order
+    var sortOrder = sortBy == window.plugin.portalslist.sortBy ? window.plugin.portalslist.sortOrder*-1 : parseInt($(this).data('defaultorder'));
+    $('#portalslist').html(window.plugin.portalslist.portalTable(sortBy,sortOrder,window.plugin.portalslist.filter));
   });
+
   $(document).on('click.portalslist', '#portalslist .filterAll', function() {
-    $('#portalslist').html(window.plugin.portalslist.portalTable($(this).data('sort'),window.plugin.portalslist.sortOrder,0));
+    $('#portalslist').html(window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy,window.plugin.portalslist.sortOrder,0));
   });
   $(document).on('click.portalslist', '#portalslist .filterRes', function() {
-    $('#portalslist').html(window.plugin.portalslist.portalTable($(this).data('sort'),window.plugin.portalslist.sortOrder,1));
+    $('#portalslist').html(window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy,window.plugin.portalslist.sortOrder,1));
   });
   $(document).on('click.portalslist', '#portalslist .filterEnl', function() {
-    $('#portalslist').html(window.plugin.portalslist.portalTable($(this).data('sort'),window.plugin.portalslist.sortOrder,2));
+    $('#portalslist').html(window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy,window.plugin.portalslist.sortOrder,2));
   });
 }
 

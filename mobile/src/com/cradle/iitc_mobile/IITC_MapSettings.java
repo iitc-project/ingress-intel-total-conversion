@@ -231,7 +231,7 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
             base_layers = new JSONArray(base_layer);
             overlay_layers = new JSONArray(overlay_layer);
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.w(e);
             return;
         }
 
@@ -255,7 +255,7 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
 
                 mBaseLayers.add(layer);
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.w(e);
             }
         }
         mBaseLayers.notifyDataSetChanged();
@@ -274,7 +274,7 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
 
                 mOverlayLayers.add(layer);
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.w(e);
             }
         }
         mOverlayLayers.notifyDataSetChanged();
