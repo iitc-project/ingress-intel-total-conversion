@@ -67,6 +67,14 @@ document.getElementsByTagName('head')[0].innerHTML = ''
 //note: smartphone.css injection moved into code/smartphone.js
   + '<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:100,100italic,300,300italic,400,400italic,500,500italic,700,700italic&subset=latin,cyrillic-ext,greek-ext,greek,vietnamese,latin-ext,cyrillic"/>';
 
+var enableRedeem = true;
+try {
+  enableRedeem = nemesis.dashboard.config.ENABLE_PASSCODE_REDEMPTION;
+} catch(e) {
+  console.warn('failed to check for stock intel nemesis.dashboard.config.ENABLE_PASSCODE_REDEMPTION');
+}
+
+
 document.getElementsByTagName('body')[0].innerHTML = ''
   + '<div id="map">Loading, please wait</div>'
   + '<div id="chatcontrols" style="display:none">'
@@ -94,8 +102,7 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '      <img src="@@INCLUDEIMAGE:images/current-location.png@@"/ title="Current Location">'
   + '    </div>'
   + '    <div id="portaldetails"></div>'
-// redeeming removed from stock site, so commented out for now. it may return...
-//  + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
+  + (enableRedeem?'    <input id="redeem" placeholder="Redeem code…" type="text"/>':'')
   + '    <div id="toolbox">'
   + '      <a onmouseover="setPermaLink(this)" onclick="setPermaLink(this);return androidPermalink()" title="URL link to this map view">Permalink</a>'
   + '      <a onclick="window.aboutIITC()" style="cursor: help">About IITC</a>'

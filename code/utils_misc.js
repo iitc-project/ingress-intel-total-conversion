@@ -141,7 +141,7 @@ window.digits = function(d) {
 window.postAjax = function(action, data, success, error) {
 
   var versionStr = nemesis.dashboard.config.CURRENT_VERSION;
-  var post_data = JSON.stringify($.extend({}, data, {v: versionStr}));
+  var post_data = JSON.stringify($.extend({}, data, {v: versionStr, b: "", c: ""}));
 
   var remove = function(data, textStatus, jqXHR) { window.requests.remove(jqXHR); };
   var errCnt = function(jqXHR) { window.failedRequestCount++; window.requests.remove(jqXHR); };
