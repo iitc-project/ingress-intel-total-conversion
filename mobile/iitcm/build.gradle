@@ -1,0 +1,103 @@
+apply plugin: 'android'
+import com.android.builder.DefaultManifestParser
+
+def getVersionCode = { ->
+    def git = 'git rev-list HEAD --count'
+
+    def proc = git.execute()
+    proc.waitFor()
+    def desc = "${proc.in.text}".trim()
+
+    if (desc.isEmpty()) {
+        println "ERROR setting version code"
+        return -1
+    }
+    return Integer.parseInt(desc)
+}
+
+def getVersionName = { ->
+    def git = 'git rev-parse --short HEAD'
+
+    def proc = git.execute()
+    proc.waitFor()
+    def desc = "${proc.in.text}".trim()
+
+    if (desc.isEmpty()) {
+        println "ERROR setting version name"
+        return "0"
+    }
+    def manifestParser = new DefaultManifestParser()
+    String versionName = manifestParser.getVersionName(android.sourceSets.main.manifest.srcFile)
+    String testVersionName = versionName + "." + desc
+    return testVersionName
+}
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion '19.0.1'
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 19
+    }
+
+    signingConfigs {
+        /*
+        debug {
+            storeFile file("/absolute/path/to/debug.keystore")
+        }
+
+        release {
+            storeFile file("/absolute/path/to/release.keystore")
+            storePassword "foo"
+            keyAlias "bar"
+            keyPassword "bazz"
+        }
+        */
+    }
+
+    buildTypes {
+        release {
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            // signingConfig signingConfigs.release
+        }
+        debug {
+            // signingConfig signingConfigs.debug
+        }
+    }
+
+    productFlavors {
+        releaseBuild {
+            packageName "com.cradle.iitc_mobile"
+        }
+        testBuild {
+            packageName "com.cradle.iitc_mobile.test"
+            versionCode getVersionCode()
+            versionName getVersionName()
+        }
+    }
+}
+
+// search and replace package name in preferences when building test builds
+// TODO: in the docs, it is mentioned to use android.applicationVariants.each
+// instead of android.applicationVariants.all
+// http://tools.android.com/tech-docs/new-build-system/user-guide#TOC-Manipulating-tasks
+// but this does not seem to work atm...we maybe want to change this later...
+android.applicationVariants.all{ variant ->
+    variant.mergeResources.doLast{
+        if (variant.dirName.contains("testBuild")) {
+            File preferenceFile = file("${buildDir}/res/all/${variant.dirName}/xml/preferences.xml")
+            println("Building test-build: replacing package name in rescources...")
+            String content = preferenceFile.getText('UTF-8')
+            content = content.replaceAll(
+                'targetPackage="com.cradle.iitc_mobile"', 'targetPackage="com.cradle.iitc_mobile.test"')
+            preferenceFile.write(content, 'UTF-8')
+        }
+    }
+}
+
+dependencies {
+    compile 'com.android.support:support-v4:19.0.+'
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+}
