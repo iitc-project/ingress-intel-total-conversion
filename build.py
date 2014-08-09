@@ -265,18 +265,18 @@ if buildMobile:
 
     # copy the IITC script into the mobile folder. create the folder if needed
     try:
-        os.makedirs("mobile/assets")
+        os.makedirs("mobile/iitcm/src/main/assets")
     except:
         pass
-    shutil.copy(os.path.join(outDir,"total-conversion-build.user.js"), "mobile/assets/total-conversion-build.user.js")
+    shutil.copy(os.path.join(outDir,"total-conversion-build.user.js"), "mobile/iitcm/src/main/assets/total-conversion-build.user.js")
     # copy the user location script into the mobile folder.
-    shutil.copy(os.path.join(outDir,"user-location.user.js"), "mobile/assets/user-location.user.js")
+    shutil.copy(os.path.join(outDir,"user-location.user.js"), "mobile/iitcm/src/main/assets/user-location.user.js")
     # also copy plugins
     try:
-        shutil.rmtree("mobile/assets/plugins")
+        shutil.rmtree("mobile/iitcm/src/main/assets/plugins")
     except:
         pass
-    shutil.copytree(os.path.join(outDir,"plugins"), "mobile/assets/plugins",
+    shutil.copytree(os.path.join(outDir,"plugins"), "mobile/iitcm/src/main/assets/plugins",
             # do not include desktop-only plugins to mobile assets
             ignore=shutil.ignore_patterns('*.meta.js',
             'force-https*', 'privacy-view*', 'speech-search*',
@@ -284,14 +284,15 @@ if buildMobile:
 
 
     if buildMobile != 'copyonly':
-        # now launch 'ant' to build the mobile project
-        retcode = os.system("ant %s -buildfile %s %s" % (antOptions, antBuildFile, buildMobile))
+       os.system("cd mobile && ./gradlew assembleDebug");
+       # # now launch 'ant' to build the mobile project
+       # retcode = os.system("ant %s -buildfile %s %s" % (antOptions, antBuildFile, buildMobile))
 
-        if retcode != 0:
-            print ("Error: mobile app failed to build. ant returned %d" % retcode)
-            exit(1) # ant may return 256, but python seems to allow only values <256
-        else:
-            shutil.copy("mobile/bin/IITC_Mobile-%s.apk" % buildMobile, os.path.join(outDir,"IITC_Mobile-%s.apk" % buildMobile) )
+       # if retcode != 0:
+       #     print ("Error: mobile app failed to build. ant returned %d" % retcode)
+       #     exit(1) # ant may return 256, but python seems to allow only values <256
+       # else:
+       #     shutil.copy("mobile/bin/IITC_Mobile-%s.apk" % buildMobile, os.path.join(outDir,"IITC_Mobile-%s.apk" % buildMobile) )
 
 
 # run any postBuild commands
