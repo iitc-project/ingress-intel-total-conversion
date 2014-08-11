@@ -2,7 +2,7 @@
 // @id             iitc-plugin-cross-links@mcben
 // @name           IITC plugin: cross links
 // @category       Layer
-// @version        1.1.1.@@DATETIMEVERSION@@
+// @version        1.1.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -276,6 +276,11 @@ window.plugin.crossLinks.createLayer = function() {
         plugin.crossLinks.linkLayerGuids = {};
       }
     });
+
+    // ensure 'disabled' flag is initialised
+    if (!map.hasLayer(window.plugin.crossLinks.linkLayer)) {
+        window.plugin.crossLinks.disabled = true;
+    }
 }
 
 var setup = function() {
@@ -302,6 +307,8 @@ var setup = function() {
 
     window.addHook('linkAdded', window.plugin.crossLinks.onLinkAdded);
     window.addHook('mapDataRefreshEnd', window.plugin.crossLinks.onMapDataRefreshEnd);
+
+    
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////
