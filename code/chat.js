@@ -132,8 +132,6 @@ window.chat.requestFaction = function(getOlderMsgs, isRetry) {
       ? function() { window.chat._requestFactionRunning = false; }
       : function() { window.chat.requestFaction(getOlderMsgs, true) }
   );
-
-  requests.add(r);
 }
 
 
@@ -183,8 +181,6 @@ window.chat.requestPublic = function(getOlderMsgs, isRetry) {
       ? function() { window.chat._requestPublicRunning = false; }
       : function() { window.chat.requestPublic(getOlderMsgs, true) }
   );
-
-  requests.add(r);
 }
 
 window.chat._public = {data:{}, oldestTimestamp:-1, newestTimestamp:-1};
