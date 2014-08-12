@@ -2,7 +2,7 @@
 // @id             iitc-plugin-update-check@jonatkins
 // @name           IITC plugin: Check for updates
 // @category       Misc
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -26,8 +26,8 @@ window.plugin.updateCheck.versionDataLoading = false;
 
 
 window.plugin.updateCheck.getUrl = function(callback) {
-
-  var url = 'http://iitc.jonatkins.com/versioncheck.php'
+  var base = window.location.protocol == 'https:' ? 'https://secure.jonatkins.com/iitc' : 'http://iitc.jonatkins.com';
+  var url = base+'/versioncheck.php'
           + '?build=@@BUILDNAME@@'
           + '&mobile='+((typeof android !== 'undefined' && android)?'1':'0')
           + '&ts='+Date.now();  // append timestamp - ensures no caching of old data, even on mobile with the aggressive cache code
