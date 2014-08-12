@@ -178,6 +178,7 @@ window.plugin.drawTools.addDrawControl = function() {
 }
 
 window.plugin.drawTools.setAccessKeys = function() {
+  var expr = /\s*\[\w+\]$/;
   // there is no API to add accesskeys, so have to dig in the DOM
   // must be same order as in markup. Note that each toolbar has a container for save/cancel
   var accessKeys = [
@@ -188,11 +189,20 @@ window.plugin.drawTools.setAccessKeys = function() {
   ];
   var buttons = window.plugin.drawTools.drawControl._container.getElementsByTagName('a');
   for(var i=0;i<buttons.length;i++) {
-    if(!buttons[i].offsetParent) { // element hidden, delete accessKey (so other elements can use it)
-      buttons[i].accessKey = '';
+    var button = buttons[i];
+
+    var title = button.title;
+    var index = title.search(expr);
+    if(index !== -1) title = title.substr(0, index);
+
+    if(!button.offsetParent) { // element hidden, delete accessKey (so other elements can use it)
+      button.accessKey = '';
     } else if(accessKeys[i]) {
-      buttons[i].accessKey = accessKeys[i];
+      button.accessKey = accessKeys[i];
+      if(title === "") title = "[" + accessKeys[i] + "]";
+      else title += " [" + accessKeys[i] + "]";
     }
+    button.title = title;
   }
 }
 
@@ -479,7 +489,7 @@ window.plugin.drawTools.boot = function() {
     runHooks('pluginDrawTools',{event:'layersEdited'});
   });
   //add options menu
-  $('#toolbox').append('<a onclick="window.plugin.drawTools.manualOpt();return false;" accesskey="x">DrawTools Opt</a>');
+  $('#toolbox').append('<a onclick="window.plugin.drawTools.manualOpt();return false;" accesskey="x" title="[x]">DrawTools Opt</a>');
 
   $('head').append('<style>' +
         '.drawtoolsSetbox > a { display:block; color:#ffce00; border:1px solid #ffce00; padding:3px 0; margin:10px auto; width:80%; text-align:center; background:rgba(8,48,78,.9); }'+

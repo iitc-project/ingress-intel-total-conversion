@@ -131,7 +131,7 @@ window.renderPortalDetails = function(guid) {
 
       $('<span>').attr({
         class: 'close',
-        title: 'Close',
+        title: 'Close [w]',
         onclick:'renderPortalDetails(null); if(isSmartphone()) show("map");',
         accesskey: 'w'
       }).text('X'),
