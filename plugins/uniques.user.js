@@ -360,21 +360,25 @@ window.plugin.uniques.highlighter = {
 
 		if (uniqueInfo) {
 			if (uniqueInfo.captured) {
-				// captured (and, implied, visited too) - no highlights
-
+				// captured (and, implied, visited too) - no highlights, low opacity
+				style.opacity = 0.2;
+				style.fillOpacity = 0.15;
 			} else if (uniqueInfo.visited) {
 				style.fillColor = 'yellow';
 				style.fillOpacity = 0.6;
+				style.weight = 2;
 			} else {
 				// we have an 'uniqueInfo' entry for the portal, but it's not set visited or captured?
 				// could be used to flag a portal you don't plan to visit, so use a less opaque red
 				style.fillColor = 'red';
 				style.fillOpacity = 0.5;
+				style.weight = 2;
 			}
 		} else {
 			// no visit data at all
 			style.fillColor = 'red';
 			style.fillOpacity = 0.7;
+			style.weight = 2;
 		}
 
 		data.portal.setStyle(style);
