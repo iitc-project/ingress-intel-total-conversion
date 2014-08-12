@@ -6,3 +6,5 @@ localbuildsettings.py
 *.bak
 *.project
 .pydevproject
+assets/Thumbs.db
+screenshots/Thumbs.db
