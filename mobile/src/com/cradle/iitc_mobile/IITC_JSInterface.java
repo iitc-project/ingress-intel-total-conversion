@@ -243,4 +243,25 @@ public class IITC_JSInterface {
             e.printStackTrace();
         }
     }
+
+    @JavascriptInterface
+    public void reloadIITC() {
+        mIitc.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mIitc.reloadIITC();
+            }
+        });
+    }
+
+    @JavascriptInterface
+    public void reloadIITC(final boolean clearCache) {
+        mIitc.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (clearCache) mIitc.getWebView().clearCache(true);
+                mIitc.reloadIITC();
+            }
+        });
+    }
 }
