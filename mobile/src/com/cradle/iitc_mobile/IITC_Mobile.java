@@ -370,7 +370,7 @@ public class IITC_Mobile extends Activity
             if (findViewById(R.id.imageLoading).getVisibility() == View.GONE) {
                 // enough idle...let's do some work
                 Log.d("resuming...reset idleTimer");
-                mIitcWebView.loadUrl("javascript: window.idleReset();");
+                mIitcWebView.loadJS("(function(){if(window.idleReset) window.idleReset();})();");
             }
         }
 

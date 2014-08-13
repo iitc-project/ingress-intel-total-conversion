@@ -416,7 +416,7 @@ window.clampLatLngBounds = function(bounds) {
 
 // avoid error in stock JS
 if(goog && goog.style) {
-  goog.style.showElement = function(a, b) {
+  goog.style.setElementShown = goog.style.showElement = function(a, b) {
     if(a && a.style)
       a.style.display = b ? "" : "none"
   };
