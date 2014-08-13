@@ -49,6 +49,16 @@
                 android:onClick="onToggleMapVisibility"
                 android:src="@drawable/ic_action_map"/>
 
+            <ImageButton
+                android:id="@+id/btnClearLog"
+                android:layout_width="@dimen/button_size"
+                android:layout_height="@dimen/button_size"
+                android:layout_gravity="bottom"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/clear_log"
+                android:onClick="onClearLog"
+                android:src="@drawable/ic_action_discard"/>
+
             <EditText
                 android:id="@+id/editCommand"
                 android:layout_width="0dp"

@@ -142,7 +142,8 @@ public class IITC_Mobile extends Activity
 
         // enable/disable advance menu
         final String[] menuDefaults = getResources().getStringArray(R.array.pref_android_menu_default);
-        mAdvancedMenu = mSharedPrefs.getStringSet("pref_android_menu", new HashSet<String>(Arrays.asList(menuDefaults)));
+        mAdvancedMenu = mSharedPrefs
+                .getStringSet("pref_android_menu", new HashSet<String>(Arrays.asList(menuDefaults)));
 
         mPersistentZoom = mSharedPrefs.getBoolean("pref_persistent_zoom", false);
 
@@ -201,7 +202,7 @@ public class IITC_Mobile extends Activity
         } else if (key.equals("pref_fake_user_agent")) {
             mIitcWebView.setUserAgent();
         } else if (key.equals("pref_last_plugin_update")) {
-            Long forceUpdate = sharedPreferences.getLong("pref_last_plugin_update", 0);
+            final Long forceUpdate = sharedPreferences.getLong("pref_last_plugin_update", 0);
             if (forceUpdate == 0) mFileManager.updatePlugins(true);
             return;
         } else if (key.equals("pref_update_plugins_interval")) {
@@ -539,7 +540,7 @@ public class IITC_Mobile extends Activity
                     break;
 
                 case R.id.menu_debug:
-                    item.setVisible(enabled && visible);
+                    item.setVisible(enabled);
                     item.setChecked(mDebugging);
                     break;
 
@@ -800,6 +801,14 @@ public class IITC_Mobile extends Activity
     {
         mShowMapInDebug = !mShowMapInDebug;
         updateViews();
+    }
+
+    /**
+     * onClick handler for R.id.btnClearLog, assigned in activity_main.xml
+     */
+    public void onClearLog(final View v)
+    {
+        ((IITC_LogAdapter) mLvDebug.getAdapter()).clear();
     }
 
     private void deleteUpdateFile() {
