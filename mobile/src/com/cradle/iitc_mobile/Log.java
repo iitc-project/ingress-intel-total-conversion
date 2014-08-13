@@ -1,8 +1,12 @@
 package com.cradle.iitc_mobile;
 
+import android.annotation.SuppressLint;
 import android.webkit.ConsoleMessage;
 import android.webkit.ConsoleMessage.MessageLevel;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -12,6 +16,8 @@ import java.util.regex.Pattern;
 
 public final class Log {
     private static final HashMap<ConsoleMessage.MessageLevel, Integer> CONSOLE_MAPPING;
+    @SuppressLint("SimpleDateFormat")
+    private static final SimpleDateFormat FORMATTER = new SimpleDateFormat("HH:mm:ss.SSS");
     private static final List<Receiver> RECEIVERS = new LinkedList<Log.Receiver>();
     private static final Pattern URL_PATTERN;
 
@@ -268,6 +274,10 @@ public final class Log {
             return mDate;
         }
 
+        public String getDateString() {
+            return FORMATTER.format(mDate);
+        }
+
         public String getMsg() {
             return mMsg;
         }
@@ -282,6 +292,46 @@ public final class Log {
 
         public Throwable getTr() {
             return mTr;
+        }
+
+        @Override
+        public String toString() {
+            String priority;
+            switch (mPriority) {
+                case Log.ASSERT:
+                    priority = "ASSERT";
+                    break;
+                case Log.DEBUG:
+                    priority = "DEBUG";
+                    break;
+                case Log.ERROR:
+                    priority = "ERROR";
+                    break;
+                case Log.INFO:
+                    priority = "INFO";
+                case Log.WARN:
+                    priority = "WARN";
+                    break;
+                case Log.VERBOSE:
+                    priority = "VERBOSE";
+                    break;
+                default:
+                    priority = "UNKNOWN";
+            }
+
+            String msg = mMsg;
+            if (mTr != null) {
+                final StringWriter sw = new StringWriter();
+                final PrintWriter pw = new PrintWriter(sw);
+                mTr.printStackTrace(pw);
+
+                if (msg == null || msg.isEmpty())
+                    msg = sw.toString();
+                else
+                    msg += "\n" + sw.toString();
+            }
+
+            return getDateString() + " " + priority + " " + getTag() + "\n" + msg;
         }
     }
 

@@ -32,9 +32,12 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -60,7 +63,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class IITC_Mobile extends Activity
-        implements OnSharedPreferenceChangeListener, NfcAdapter.CreateNdefMessageCallback {
+        implements OnSharedPreferenceChangeListener, NfcAdapter.CreateNdefMessageCallback, OnItemLongClickListener {
     private static final String mIntelUrl = "https://www.ingress.com/intel";
 
     private SharedPreferences mSharedPrefs;
@@ -132,6 +135,7 @@ public class IITC_Mobile extends Activity
         });
 
         mLvDebug.setAdapter(new IITC_LogAdapter(this));
+        mLvDebug.setOnItemLongClickListener(this);
 
         // do something if user changed something in the settings
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -929,5 +933,34 @@ public class IITC_Mobile extends Activity
             };
         }
         return new NdefMessage(records);
+    }
+
+    @Override
+    public boolean onItemLongClick(final AdapterView<?> parent, final View view, final int position, final long id) {
+        if (parent == mLvDebug) {
+            final IITC_LogAdapter adapter = ((IITC_LogAdapter) parent.getAdapter());
+            final Log.Message item = adapter.getItem(position);
+
+            final PopupMenu popupMenu = new PopupMenu(this, view);
+            popupMenu.getMenuInflater().inflate(R.menu.debug, popupMenu.getMenu());
+
+            popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(final MenuItem menuitem) {
+                    switch (menuitem.getItemId()) {
+                        case R.id.menu_copy:
+                            mIitcWebView.getJSInterface().copy(item.toString());
+                            return true;
+                        case R.id.menu_delete:
+                            adapter.remove(item);
+                            return true;
+                    }
+                    return false;
+                }
+            });
+
+            popupMenu.show();
+        }
+        return false;
     }
 }
