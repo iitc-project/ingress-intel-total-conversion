@@ -24,19 +24,25 @@ public class CheckHttpResponse extends AsyncTask<String, Void, Boolean> {
 
     private final IITC_Mobile mIitc;
 
-    public CheckHttpResponse(IITC_Mobile iitc) {
+    public CheckHttpResponse(final IITC_Mobile iitc) {
         mIitc = iitc;
     }
 
     @Override
-    protected Boolean doInBackground(String... urls) {
+    protected Boolean doInBackground(final String... urls) {
         // check http responses and disable splash screen on error
-        HttpGet httpRequest = new HttpGet(urls[0]);
-        HttpClient httpclient = new DefaultHttpClient();
+        HttpGet httpRequest = null;
+        try {
+            httpRequest = new HttpGet(urls[0]);
+        } catch (final IllegalArgumentException e) {
+            Log.w(e);
+            return false;
+        }
+        final HttpClient httpclient = new DefaultHttpClient();
         HttpResponse response = null;
         try {
             response = httpclient.execute(httpRequest);
-            int code = response.getStatusLine().getStatusCode();
+            final int code = response.getStatusLine().getStatusCode();
             if (code != HttpStatus.SC_OK) {
                 Log.d("received error code: " + code);
                 mIitc.runOnUiThread(new Runnable() {
@@ -46,11 +52,9 @@ public class CheckHttpResponse extends AsyncTask<String, Void, Boolean> {
                     }
                 });
                 // TODO: remove when google login issue is fixed
-                if (urls[0].contains("uberauth=WILL_NOT_SIGN_IN")) {
-                    return true;
-                }
+                if (urls[0].contains("uberauth=WILL_NOT_SIGN_IN")) { return true; }
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             Log.w(e);
         }
         return false;
@@ -60,10 +64,10 @@ public class CheckHttpResponse extends AsyncTask<String, Void, Boolean> {
      * TEMPORARY WORKAROUND for Google login fail
      */
     @Override
-    protected void onPostExecute(Boolean aBoolean) {
+    protected void onPostExecute(final Boolean aBoolean) {
         if (aBoolean) {
             Log.d("google auth error, redirecting to work-around page");
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mIitc);
+            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mIitc);
 
             // set title
             alertDialogBuilder.setTitle("LOGIN FAILED!");
@@ -79,14 +83,14 @@ public class CheckHttpResponse extends AsyncTask<String, Void, Boolean> {
                     .setCancelable(true)
                     .setNeutralButton("Reload now", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                        public void onClick(final DialogInterface dialog, final int which) {
                             dialog.cancel();
                             mIitc.reloadIITC();
                         }
                     });
 
             // create alert dialog
-            AlertDialog alertDialog = alertDialogBuilder.create();
+            final AlertDialog alertDialog = alertDialogBuilder.create();
 
             // show it
             alertDialog.show();
