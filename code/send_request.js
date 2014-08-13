@@ -100,7 +100,13 @@ window.outOfDateUserPrompt = function()
            +'<p>If you have just reloaded the page, then an old version of the standard site script is cached somewhere.'
            +'In this case, try clearing your cache, or waiting 15-30 minutes for the stale data to expire.</p>',
       buttons: {
-        'RELOAD': function() { window.location.reload(); }
+        'RELOAD': function() {
+          if (typeof android !== 'undefined' && android && android.reloadIITC()) {
+            android.reloadIITC();
+          } else {
+            window.location.reload();
+          }
+        }
       },
       close: function(event, ui) {
         delete window.blockOutOfDateRequests;
