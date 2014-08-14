@@ -174,11 +174,14 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
                     .setTabListener(this));
         }
 
+        // read the selected tab from prefs before enabling tab mode
+        // setNavigationMode calls our OnPageChangeListener, resetting the pref to 0
+        final int selected = mSharedPrefs.getInt("pref_share_selected_tab", 0);
+
         if (mFragmentAdapter.getCount() > 1) {
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         }
 
-        final int selected = mSharedPrefs.getInt("pref_share_selected_tab", 0);
         if (selected < mFragmentAdapter.getCount()) {
             mViewPager.setCurrentItem(selected);
             if (actionBar.getNavigationMode() != ActionBar.NAVIGATION_MODE_STANDARD) {

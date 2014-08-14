@@ -3,6 +3,7 @@
 
     <string name="app_name">IITC Mobile</string>
     <string name="toggle_map">Toggle map visibility</string>
+    <string name="clear_log">Clear log</string>
     <string name="debug_run">Run</string>
     <string name="activity_settings">IITC Mobile Settings</string>
     <string name="activity_plugins">IITC Plugins</string>
@@ -212,6 +213,8 @@
     <string name="menu_debug">Debug</string>
     <string name="menu_send_screenshot">Send screenshot</string>
     <string name="menu_plugins_add">Add external plugins</string>
+    <string name="menu_copy">Copy</string>
+    <string name="menu_delete">Delete</string>
     <string name="choose_account_to_login">Choose account to login</string>
     <string name="login_failed">Login failed.</string>
     <string name="search_hint">Search Locations</string>

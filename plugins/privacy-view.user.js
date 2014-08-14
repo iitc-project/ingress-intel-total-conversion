@@ -103,7 +103,7 @@ window.plugin.privacyView.setup = function() {
   $('#chatcontrols a:first').click(window.plugin.privacyView.wrapChatToggle);
 
   $('#chatcontrols').before('<div id="privacycontrols" class="shrinked">' +
-    '  <a accesskey="9"><span class="toggle"></span></a>' +
+    '  <a accesskey="9" title="[9]"><span class="toggle"></span></a>' +
     '</div>');
   $('#privacycontrols a').click(window.plugin.privacyView.toggle);
 
