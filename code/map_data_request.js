@@ -26,17 +26,9 @@ window.MapDataRequest = function() {
 
   // this many tiles in one request
   this.NUM_TILES_PER_REQUEST = 4;
-  try {
-    // try and use the value from the stock site, if available
-    this.NUM_TILES_PER_REQUEST = nemesis.dashboard.config.TILES_PER_REQUEST_CACHE_EXP || 4;
-  } catch(e) {}
 
   // number of times to retry a tile after an error (including "error: TIMEOUT" now - as stock intel does)
-  this.MAX_TILE_RETRIES = 4;
-  try {
-    // stock has a variable for this - try to use it
-    this.MAX_TILE_RETRIES = nemesis.dashboard.DataManager.MAX_QUADKEY_RETRY_ATTEMPTS_;
-  } catch(e) {}
+  this.MAX_TILE_RETRIES = 5;
 
   // refresh timers
   this.MOVE_REFRESH = 3; //time, after a map move (pan/zoom) before starting the refresh processing
