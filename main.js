@@ -122,15 +122,7 @@ function wrapper(info) {
 // (not the full GM_info - it contains the ENTIRE script source!)
 window.script_info = info;
 
-// disabling of some cruft left behind by the stock site
-try {
-  goog.events.removeAll();
-  goog.Timer.clear();
-} catch(e) {
-  console.warn('Exception from trying to clear stock site stuff');
-  console.warn(e);
-  debugger; // debugger break
-}
+
 
 
 // LEAFLET PREFER CANVAS ///////////////////////////////////////////////
