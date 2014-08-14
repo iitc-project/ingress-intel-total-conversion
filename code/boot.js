@@ -155,6 +155,19 @@ window.setupMap = function() {
     bounceAtZoomLimits: false
   });
 
+  if (L.Path.CANVAS) {
+    // for canvas, 2% overdraw only - to help performance
+    L.Path.CLIP_PADDING = 0.02;
+  } else if (L.Path.SVG) {
+    if (L.Browser.mobile) {
+      // mobile SVG - 10% ovredraw. might help performance?
+      L.Path.CLIP_PADDING = 0.1;
+    } else {
+      // for svg, 100% overdraw - so we have a full screen worth in all directions
+      L.Path.CLIP_PADDING = 1.0;
+    }
+  }
+
   // add empty div to leaflet control areas - to force other leaflet controls to move around IITC UI elements
   // TODO? move the actual IITC DOM into the leaflet control areas, so dummy <div>s aren't needed
   if(!isSmartphone()) {
@@ -461,7 +474,7 @@ window.setupQRLoadLib = function() {
 }
 
 window.setupLayerChooserApi = function() {
-  // hide layer chooser on mobile devices running desktop mode
+  // hide layer chooser if booted with the iitcm android app
   if (typeof android !== 'undefined' && android && android.setLayers) {
     $('.leaflet-control-layers').hide();
   }

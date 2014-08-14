@@ -1,11 +1,24 @@
 /* general rules ******************************************************/
 
+/* for printing directly from the browser, hide all UI components
+ * NOTE: @media needs to be first?
+ */
+@media print {
+  .leaflet-control-container { display: none !important; }
+  #chatcontrols, #chat, #chatinput { display: none !important; }
+  #sidebartoggle, #sidebar { display: none !important; }
+  #updatestatus { display: none !important; }
+  #portal_highlight_select { display: none !important; }
+}
+
+
 html, body, #map {
   height: 100%;
   width: 100%;
   overflow: hidden; /* workaround for #373 */
   background: #0e3d4e;
 }
+
 
 body {
   font-size: 14px;
@@ -923,6 +936,17 @@ td + td {
 }
 
 /* redeem results *****************************************************/
+.redeemReward {
+  font-family: Inconsolata, Consolas, Menlo, "Courier New", monospace;
+  list-style-type: none;
+  padding: 0;
+  font-size: 14px;
+}
+.redeemReward .itemlevel {
+  font-weight: bold;
+  text-shadow: 0 0 1px #000; /* L8 is hard to read on blue background */
+}
+/*
 .redeem-result-table {
   font-size: 14px;
   table-layout: fixed;
@@ -936,6 +960,7 @@ td + td {
 .redeem-result-html {
   font-family: Inconsolata, Consolas, Menlo, "Courier New", monospace;
 }
+*/
 
 .pl_nudge_date {
   background-color: #724510;
