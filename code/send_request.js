@@ -63,7 +63,7 @@ window.postAjax = function(action, data, successCallback, errorCallback) {
     return;
   }
 
-  var versionStr = nemesis.dashboard.config.CURRENT_VERSION;
+  var versionStr = niantic_params.CURRENT_VERSION;
   var post_data = JSON.stringify($.extend({}, data, {v: versionStr, b: "", c: ""}));
 
   var result = $.ajax({
