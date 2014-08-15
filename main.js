@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.17.4.@@DATETIMEVERSION@@
+// @version        0.17.6.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -67,13 +67,6 @@ document.getElementsByTagName('head')[0].innerHTML = ''
 //note: smartphone.css injection moved into code/smartphone.js
   + '<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:100,100italic,300,300italic,400,400italic,500,500italic,700,700italic&subset=latin,cyrillic-ext,greek-ext,greek,vietnamese,latin-ext,cyrillic"/>';
 
-var enableRedeem = true;
-try {
-  enableRedeem = nemesis.dashboard.config.ENABLE_PASSCODE_REDEMPTION;
-} catch(e) {
-  console.warn('failed to check for stock intel nemesis.dashboard.config.ENABLE_PASSCODE_REDEMPTION');
-}
-
 
 document.getElementsByTagName('body')[0].innerHTML = ''
   + '<div id="map">Loading, please wait</div>'
@@ -103,7 +96,7 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '      <img src="@@INCLUDEIMAGE:images/current-location.png@@"/ title="Current Location">'
   + '    </div>'
   + '    <div id="portaldetails"></div>'
-  + (enableRedeem?'    <input id="redeem" placeholder="Redeem code…" type="text"/>':'')
+  + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
   + '    <div id="toolbox">'
   + '      <a onmouseover="setPermaLink(this)" onclick="setPermaLink(this);return androidPermalink()" title="URL link to this map view">Permalink</a>'
   + '      <a onclick="window.aboutIITC()" style="cursor: help">About IITC</a>'
@@ -122,15 +115,7 @@ function wrapper(info) {
 // (not the full GM_info - it contains the ENTIRE script source!)
 window.script_info = info;
 
-// disabling of some cruft left behind by the stock site
-try {
-  goog.events.removeAll();
-  goog.Timer.clear();
-} catch(e) {
-  console.warn('Exception from trying to clear stock site stuff');
-  console.warn(e);
-  debugger; // debugger break
-}
+
 
 
 // LEAFLET PREFER CANVAS ///////////////////////////////////////////////
@@ -166,7 +151,7 @@ window.FIELD_MU_DISPLAY_POINT_TOLERANCE = 60
 window.COLOR_SELECTED_PORTAL = '#f0f';
 window.COLORS = ['#FF9900', '#0088FF', '#03DC03']; // none, res, enl
 window.COLORS_LVL = ['#000', '#FECE5A', '#FFA630', '#FF7315', '#E40000', '#FD2992', '#EB26CD', '#C124E0', '#9627F4'];
-window.COLORS_MOD = {VERY_RARE: '#F78AF6', RARE: '#AD8AFF', COMMON: '#84FBBD'};
+window.COLORS_MOD = {VERY_RARE: '#b08cff', RARE: '#73a8ff', COMMON: '#8cffbf'};
 
 
 window.MOD_TYPE = {RES_SHIELD:'Shield', MULTIHACK:'Multi-hack', FORCE_AMP:'Force Amp', HEATSINK:'Heat Sink', TURRET:'Turret', LINK_AMPLIFIER: 'Link Amp'};

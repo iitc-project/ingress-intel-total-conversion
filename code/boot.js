@@ -570,6 +570,7 @@ function boot() {
     popupAnchor: new L.Point(1, -34),
   }});
 
+  window.extractFromStock();
   window.setupIdle();
   window.setupTaphold();
   window.setupStyles();

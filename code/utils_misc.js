@@ -414,13 +414,6 @@ window.clampLatLngBounds = function(bounds) {
   return new L.LatLngBounds ( clampLatLng(bounds.getSouthWest()), clampLatLng(bounds.getNorthEast()) );
 }
 
-// avoid error in stock JS
-if(goog && goog.style) {
-  goog.style.setElementShown = goog.style.showElement = function(a, b) {
-    if(a && a.style)
-      a.style.display = b ? "" : "none"
-  };
-}
 
 // Fix Leaflet: handle touchcancel events in Draggable
 L.Draggable.prototype._onDownOrig = L.Draggable.prototype._onDown;
