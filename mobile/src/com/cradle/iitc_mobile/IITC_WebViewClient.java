@@ -232,12 +232,11 @@ public class IITC_WebViewClient extends WebViewClient {
                 Log.d("should be an internal clicked position link...reload script for: " + url);
                 mIitc.loadUrl(url);
             }
-            return false;
         } else {
             Log.d("no ingress intel link, start external app to load url: " + url);
             final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             mIitc.startActivity(intent);
-            return true;
         }
+        return true;
     }
 }
