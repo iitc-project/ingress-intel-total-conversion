@@ -40,13 +40,12 @@ buildSettings = {
     # create a localbuildsettings.py file containing something similar to this
     # note: Firefox+Greasemonkey require the distUrlBase to be "https" - they won't check for updates on regular "http" URLs
     #'example': {
-    #    'resourceBaseUrl': 'http://www.example.com/iitc/dist',
-    #    'distUrlBase': 'https://secure.example.com/iitc/dist',
+    #   'resourceBaseUrl': 'http://www.example.com/iitc/dist',
+    #   'distUrlBase': 'https://secure.example.com/iitc/dist',
     #},
 
 
 }
-
 
 
 # defaultBuild - the name of the default build to use if none is specified on the build.py command line

@@ -1,21 +1,22 @@
 #!/usr/bin/env python
+# vim: ai si ts=4 sw=4 sts=4 et
 
-import glob
-import time
-import re
-import io
 import base64
-import sys
-import os
-import shutil
-import json
-import shelve
+import glob
 import hashlib
+import io
+import json
+import os
+import re
+import shelve
+import shutil
+import sys
+import time
 
 try:
-  import urllib2
+    import urllib2
 except ImportError:
-  import urllib.request as urllib2
+    import urllib.request as urllib2
 
 # load settings file
 from buildsettings import buildSettings
@@ -37,7 +38,7 @@ except ImportError:
 buildName = defaultBuild
 
 # build name from command line
-if len(sys.argv) == 2:	# argv[0] = program, argv[1] = buildname, len=2
+if len(sys.argv) == 2:  # argv[0] = program, argv[1] = buildname, len=2
     buildName = sys.argv[1]
 
 
@@ -51,16 +52,16 @@ settings = buildSettings[buildName]
 # set up vars used for replacements
 
 utcTime = time.gmtime()
-buildDate = time.strftime('%Y-%m-%d-%H%M%S',utcTime)
-# userscripts have specific specifications for version numbers - the above date format doesn't match
-dateTimeVersion = time.strftime('%Y%m%d.',utcTime) + time.strftime('%H%M%S',utcTime).lstrip('0')
+buildDate = time.strftime('%Y-%m-%d-%H%M%S', utcTime)
+# userscripts have specific specifications for version numbers - the above date format does not match
+dateTimeVersion = time.strftime('%Y%m%d.', utcTime) + time.strftime('%H%M%S', utcTime).lstrip('0')
 
 # extract required values from the settings entry
 resourceUrlBase = settings.get('resourceUrlBase')
 distUrlBase = settings.get('distUrlBase')
 buildMobile = settings.get('buildMobile')
-antOptions = settings.get('antOptions','')
-antBuildFile = settings.get('antBuildFile', 'mobile/build.xml');
+antOptions = settings.get('antOptions', '')
+antBuildFile = settings.get('antBuildFile', 'mobile/build.xml')
 
 
 # plugin wrapper code snippets. handled as macros, to ensure that
@@ -101,58 +102,62 @@ def readfile(fn):
     with io.open(fn, 'Ur', encoding='utf8') as f:
         return f.read()
 
+
 def loaderString(var):
     fn = var.group(1)
     return readfile(fn).replace('\n', '\\n').replace('\'', '\\\'')
 
+
 def loaderRaw(var):
     fn = var.group(1)
     return readfile(fn)
+
 
 def loaderMD(var):
     fn = var.group(1)
     # use different MD.dat's for python 2 vs 3 incase user switches versions, as they are not compatible
     db = shelve.open('build/MDv' + str(sys.version_info[0]) + '.dat')
     if 'files' in db:
-      files = db['files']
+        files = db['files']
     else:
-      files = {}
+        files = {}
     file = readfile(fn)
     filemd5 = hashlib.md5(file.encode('utf8')).hexdigest()
     # check if file has already been parsed by the github api
     if fn in files and filemd5 in files[fn]:
-      # use the stored copy if nothing has changed to avoid hitting the api more then the 60/hour when not signed in
-      db.close()
-      return files[fn][filemd5]
+        # use the stored copy if nothing has changed to avoid hitting the api more then the 60/hour when not signed in
+        db.close()
+        return files[fn][filemd5]
     else:
-      url = 'https://api.github.com/markdown'
-      payload = {'text': file, 'mode': 'markdown'}
-      headers = {'Content-Type': 'application/json'}
-      req = urllib2.Request(url, json.dumps(payload).encode('utf8'), headers)
-      md = urllib2.urlopen(req).read().decode('utf8').replace('\n', '\\n').replace('\'', '\\\'')
-      files[fn] = {}
-      files[fn][filemd5] = md
-      db['files'] = files
-      db.close()
-      return md
+        url = 'https://api.github.com/markdown'
+        payload = {'text': file, 'mode': 'markdown'}
+        headers = {'Content-Type': 'application/json'}
+        req = urllib2.Request(url, json.dumps(payload).encode('utf8'), headers)
+        md = urllib2.urlopen(req).read().decode('utf8').replace('\n', '\\n').replace('\'', '\\\'')
+        files[fn] = {}
+        files[fn][filemd5] = md
+        db['files'] = files
+        db.close()
+        return md
+
 
 def loaderImage(var):
     fn = var.group(1)
     return 'data:image/png;base64,{0}'.format(base64.encodestring(open(fn, 'rb').read()).decode('utf8').replace('\n', ''))
+
 
 def loadCode(ignore):
     return '\n\n;\n\n'.join(map(readfile, sorted(glob.glob('code/*.js'))))
 
 
 def extractUserScriptMeta(var):
-    m = re.search ( r"//[ \t]*==UserScript==\n.*?//[ \t]*==/UserScript==\n", var, re.MULTILINE|re.DOTALL )
+    m = re.search(r"//[ \t]*==UserScript==\n.*?//[ \t]*==/UserScript==\n", var, re.MULTILINE | re.DOTALL)
     return m.group(0)
 
 
+def doReplacements(script, updateUrl, downloadUrl, pluginName=None):
 
-def doReplacements(script,updateUrl,downloadUrl,pluginName=None):
-
-    script = re.sub('@@INJECTCODE@@',loadCode,script)
+    script = re.sub('@@INJECTCODE@@', loadCode, script)
 
     script = script.replace('@@PLUGINSTART@@', pluginWrapperStart)
     script = script.replace('@@PLUGINEND@@', pluginWrapperEnd)
@@ -177,16 +182,16 @@ def doReplacements(script,updateUrl,downloadUrl,pluginName=None):
     script = script.replace('@@DOWNLOADURL@@', downloadUrl)
 
     if (pluginName):
-        script = script.replace('@@PLUGINNAME@@', pluginName);
+        script = script.replace('@@PLUGINNAME@@', pluginName)
 
     return script
 
 
-def saveScriptAndMeta(script,ourDir,filename,oldDir=None):
+def saveScriptAndMeta(script, ourDir, filename, oldDir=None):
     # TODO: if oldDir is set, compare files. if only data/time-based version strings are different
     # copy from there instead of saving a new file
 
-    fn = os.path.join(outDir,filename)
+    fn = os.path.join(outDir, filename)
     with io.open(fn, 'w', encoding='utf8') as f:
         f.write(script)
 
@@ -205,7 +210,7 @@ outDir = os.path.join('build', buildName)
 # first, delete any existing build - but keep it in a temporary folder for now
 oldDir = None
 if os.path.exists(outDir):
-    oldDir = outDir+'~';
+    oldDir = outDir + '~'
     if os.path.exists(oldDir):
         shutil.rmtree(oldDir)
     os.rename(outDir, oldDir)
@@ -222,8 +227,8 @@ else:
 
 
 # run any preBuild commands
-for cmd in settings.get('preBuild',[]):
-    os.system ( cmd )
+for cmd in settings.get('preBuild', []):
+    os.system(cmd)
 
 
 # load main.js, parse, and create main total-conversion-build.user.js
@@ -231,18 +236,18 @@ main = readfile('main.js')
 
 downloadUrl = distUrlBase and distUrlBase + '/total-conversion-build.user.js' or 'none'
 updateUrl = distUrlBase and distUrlBase + '/total-conversion-build.meta.js' or 'none'
-main = doReplacements(main,downloadUrl=downloadUrl,updateUrl=updateUrl)
+main = doReplacements(main, downloadUrl=downloadUrl, updateUrl=updateUrl)
 
 saveScriptAndMeta(main, outDir, 'total-conversion-build.user.js', oldDir)
 
 
 # for each plugin, load, parse, and save output
-os.mkdir(os.path.join(outDir,'plugins'))
+os.mkdir(os.path.join(outDir, 'plugins'))
 
 for fn in glob.glob("plugins/*.user.js"):
     script = readfile(fn)
 
-    downloadUrl = distUrlBase and distUrlBase + '/' + fn.replace("\\","/") or 'none'
+    downloadUrl = distUrlBase and distUrlBase + '/' + fn.replace("\\", "/") or 'none'
     updateUrl = distUrlBase and downloadUrl.replace('.user.js', '.meta.js') or 'none'
     pluginName = os.path.splitext(os.path.splitext(os.path.basename(fn))[0])[0]
     script = doReplacements(script, downloadUrl=downloadUrl, updateUrl=updateUrl, pluginName=pluginName)
@@ -251,13 +256,13 @@ for fn in glob.glob("plugins/*.user.js"):
 
 # if we're building mobile too
 if buildMobile:
-    if buildMobile not in ['debug','release','copyonly']:
+    if buildMobile not in ['debug', 'release', 'copyonly']:
         raise Exception("Error: buildMobile must be 'debug' or 'release' or 'copyonly'")
 
     # compile the user location script
     fn = "user-location.user.js"
     script = readfile("mobile/plugins/" + fn)
-    downloadUrl = distUrlBase and distUrlBase + '/' + fn.replace("\\","/") or 'none'
+    downloadUrl = distUrlBase and distUrlBase + '/' + fn.replace("\\", "/") or 'none'
     updateUrl = distUrlBase and downloadUrl.replace('.user.js', '.meta.js') or 'none'
     script = doReplacements(script, downloadUrl=downloadUrl, updateUrl=updateUrl, pluginName='user-location')
 
@@ -268,20 +273,21 @@ if buildMobile:
         os.makedirs("mobile/assets")
     except:
         pass
-    shutil.copy(os.path.join(outDir,"total-conversion-build.user.js"), "mobile/assets/total-conversion-build.user.js")
+    shutil.copy(os.path.join(outDir, "total-conversion-build.user.js"), "mobile/assets/total-conversion-build.user.js")
     # copy the user location script into the mobile folder.
-    shutil.copy(os.path.join(outDir,"user-location.user.js"), "mobile/assets/user-location.user.js")
+    shutil.copy(os.path.join(outDir, "user-location.user.js"), "mobile/assets/user-location.user.js")
     # also copy plugins
     try:
         shutil.rmtree("mobile/assets/plugins")
     except:
         pass
-    shutil.copytree(os.path.join(outDir,"plugins"), "mobile/assets/plugins",
-            # do not include desktop-only plugins to mobile assets
-            ignore=shutil.ignore_patterns('*.meta.js',
-            'force-https*', 'privacy-view*', 'speech-search*',
+    shutil.copytree(
+        os.path.join(outDir, "plugins"),
+        "mobile/assets/plugins",
+        # do not include desktop-only plugins to mobile assets
+        ignore=shutil.ignore_patterns(
+            '*.meta.js', 'force-https*', 'privacy-view*', 'speech-search*',
             'basemap-cloudmade*', 'scroll-wheel-zoom-disable*'))
-
 
     if buildMobile != 'copyonly':
         # now launch 'ant' to build the mobile project
@@ -289,14 +295,11 @@ if buildMobile:
 
         if retcode != 0:
             print ("Error: mobile app failed to build. ant returned %d" % retcode)
-            exit(1) # ant may return 256, but python seems to allow only values <256
+            exit(1)  # ant may return 256, but python seems to allow only values <256
         else:
-            shutil.copy("mobile/bin/IITC_Mobile-%s.apk" % buildMobile, os.path.join(outDir,"IITC_Mobile-%s.apk" % buildMobile) )
+            shutil.copy("mobile/bin/IITC_Mobile-%s.apk" % buildMobile, os.path.join(outDir, "IITC_Mobile-%s.apk" % buildMobile))
 
 
 # run any postBuild commands
-for cmd in settings.get('postBuild',[]):
-    os.system ( cmd )
-
-
-# vim: ai si ts=4 sw=4 sts=4 et
+for cmd in settings.get('postBuild', []):
+    os.system(cmd)
