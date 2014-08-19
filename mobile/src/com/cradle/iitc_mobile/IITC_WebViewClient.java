@@ -227,7 +227,6 @@ public class IITC_WebViewClient extends WebViewClient {
         if (url.contains("conflogin") || url.contains("ServiceLogin") || url.contains("appengine.google.com")) {
             mIitcInjected = false;
             Log.d("Google login");
-            view.loadUrl(url);
             return false;
         }
         else if (url.contains("ingress.com")) {
