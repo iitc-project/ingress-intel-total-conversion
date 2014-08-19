@@ -228,7 +228,7 @@ public class IITC_WebViewClient extends WebViewClient {
             Log.d("Google login");
             return false;
         }
-        else if (url.contains("ingress.com")) {
+        else if (url.contains("ingress.com/intel")) {
             Log.d("intel link requested, reset app and load " + url);
             mIitc.reset();
             mIitc.setLoadingState(true);
