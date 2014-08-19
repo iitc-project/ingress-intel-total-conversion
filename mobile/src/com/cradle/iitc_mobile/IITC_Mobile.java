@@ -632,15 +632,19 @@ public class IITC_Mobile extends Activity
         return url + (url.contains("?") ? '&' : '?') + "vp=" + (mDesktopMode ? 'f' : 'm');
     }
 
-    // inject the iitc-script and load the intel url
-    // plugins are injected onPageFinished
-    public void loadUrl(String url) {
+    public void reset() {
         mNavigationHelper.reset();
         mMapSettings.reset();
         mUserLocation.reset();
         mIitcWebView.getWebViewClient().reset();
         mBackStack.clear();
         mCurrentPane = Pane.MAP;
+    }
+
+    // inject the iitc-script and load the intel url
+    // plugins are injected onPageFinished
+    public void loadUrl(String url) {
+        reset();
         setLoadingState(true);
         url = addUrlParam(url);
         mIitcWebView.loadUrl(url);

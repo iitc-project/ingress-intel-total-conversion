@@ -225,13 +225,14 @@ public class IITC_WebViewClient extends WebViewClient {
     @Override
     public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
         if (url.contains("conflogin") || url.contains("ServiceLogin") || url.contains("appengine.google.com")) {
-            mIitcInjected = false;
             Log.d("Google login");
             return false;
         }
         else if (url.contains("ingress.com")) {
-            if (!mIitcInjected) return false;
-            mIitc.loadUrl(url);
+            Log.d("intel link requested, reset app and load " + url);
+            mIitc.reset();
+            mIitc.setLoadingState(true);
+            return false;
         } else {
             Log.d("no ingress intel link, start external app to load url: " + url);
             final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
