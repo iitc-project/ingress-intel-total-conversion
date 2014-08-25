@@ -61,6 +61,11 @@
             android:key="pref_press_twice_to_exit"
             android:summary="@string/pref_press_twice_to_exit_sum"
             android:title="@string/pref_press_twice_to_exit"/>
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_persistent_zoom"
+            android:summary="@string/pref_persistent_zoom_sum"
+            android:title="@string/pref_persistent_zoom"/>
     </PreferenceCategory>
     <PreferenceCategory
         android:key="pref_mics"
@@ -106,6 +111,11 @@
                     android:key="pref_force_plugin_update"
                     android:title="@string/pref_force_plugin_update"
                     android:summary="@string/pref_force_plugin_update_sum"/>
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="pref_secure_updates"
+                    android:summary="@string/pref_secure_updates_sum"
+                    android:title="@string/pref_secure_updates"/>
             </PreferenceCategory>
             <PreferenceCategory
                 android:key="pref_advanced_tweaks_cat"

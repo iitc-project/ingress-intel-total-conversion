@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Boost the detail level of portals shown so that unclaimed portals are visible when normally L1+ portals would be shown, and L2+ are visible when normally L3+ are shown. Recent protocol changes by Niantic means this no longer sends more requests than the standard intel site, and can mean fewer requests.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Boost the detail level of portals shown so that unclaimed portals are visible when normally L1+ portals would be shown. Recent protocol changes by Niantic means this no longer sends more requests than the standard intel site, and can mean fewer requests.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*

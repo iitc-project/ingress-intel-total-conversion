@@ -75,6 +75,11 @@ END
 'less-data' => Array ( "IITC does not show as much data, many plugins are not available",
 <<<'END'
 <p>
+<b>Update</b>: as of 24th May 2014, Niantic have removed further details from the sent data. The data available
+to IITC now is no more than available on the standard intel site. No more details on resonator deployment distances,
+portal descriptions, and, as of 16th June 2014, no more portal capture data (it's been removed from the standard site too).
+</p>
+<p>
 On 27th November 2013 Niantic made a major change to the protocol used by the intel map to display portals. Before this
 date, the full data for every portal on the map was sent to the browser, so IITC could take advantage of it and provide
 various features - resonator search, mitigation highlighters, portal age lists, many highlighters, etc.

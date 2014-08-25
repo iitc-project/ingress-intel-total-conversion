@@ -2,7 +2,7 @@
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           IITC plugin: guess player level
 // @category       Info
-// @version        0.5.2.@@DATETIMEVERSION@@
+// @version        0.5.5.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -121,9 +121,9 @@ window.plugin.guessPlayerLevels.setupChatNickHelper = function() {
 }
 
 window.plugin.guessPlayerLevels.extractPortalData = function(data) {
-  if(!data.success || !data.details.portalV2) return;
+  if(!data.success) return;
 
-  var r = data.details.resonatorArray.resonators;
+  var r = data.details.resonators;
 
   /* Due to the Jarvis Virus/ADA Refactor it's possible for a player to own resonators on a portal at a higher level
      than the player themselves. It is not possible to detect for sure when this has happened, but in many cases it will
@@ -132,10 +132,10 @@ window.plugin.guessPlayerLevels.extractPortalData = function(data) {
      Hint: This can only happen to the owner of the portal, so resonators by other players can be used to determine
      their minimal level */
 
-  var owner = data.details.captured && data.details.captured.capturingPlayerId || "";
+  var owner = data.details.owner && data.details.owner || "";
   var ownerModCount = 0;
-  data.details.portalV2.linkedModArray.forEach(function(mod) {
-    if(mod && mod.installingUser == owner)
+  data.details.mods.forEach(function(mod) {
+    if(mod && mod.owner == owner)
       ownerModCount++;
   });
 
@@ -144,12 +144,12 @@ window.plugin.guessPlayerLevels.extractPortalData = function(data) {
   $.each(r, function(ind, reso) {
     if(!reso) return true;
 
-    if(!players[reso.ownerGuid]) players[reso.ownerGuid] = [];
+    if(!players[reso.owner]) players[reso.owner] = [];
 
-    if(players[reso.ownerGuid][reso.level] === undefined)
-      players[reso.ownerGuid][reso.level] = 1
+    if(players[reso.owner][reso.level] === undefined)
+      players[reso.owner][reso.level] = 1
     else
-      players[reso.ownerGuid][reso.level]++;
+      players[reso.owner][reso.level]++;
   });
 
   for(nickname in players) {
@@ -189,7 +189,7 @@ window.plugin.guessPlayerLevels.extractChatData = function(data) {
     attackData[nick][timestamp].push(portal);
   }
 
-  data.raw.result.forEach(function(msg) {
+  data.raw.success.forEach(function(msg) {
     var plext = msg[2].plext;
 
     // search for "x deployed an Ly Resonator on z"
@@ -419,10 +419,10 @@ window.plugin.guessPlayerLevels.guess = function() {
   $.each(window.portals, function(guid,p) {
     var details = portalDetail.get(guid);
     if(details) {
-      var r = details.resonatorArray.resonators;
+      var r = details.resonators;
       $.each(r, function(ind, reso) {
         if(!reso) return true;
-        var nick = reso.ownerGuid;
+        var nick = reso.owner;
         if(isSystemPlayer(nick)) return true;
 
         var lvl = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(nick).min;
@@ -435,7 +435,7 @@ window.plugin.guessPlayerLevels.guess = function() {
       });
 
       if(details.captured) {
-        var nick = details.captured.capturingPlayerId
+        var nick = details.owner;
         if(isSystemPlayer(nick)) return true;
         var lvl = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(nick).min;
         if(!lvl) return true;

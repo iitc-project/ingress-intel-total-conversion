@@ -40,7 +40,7 @@ window.renderPortalDetails = function(guid) {
   var statusDetails = details ? '' : '<div id="portalStatus">Loading details...</div>';
  
 
-  var img = fixPortalImageUrl(details ? details.imageByUrl && details.imageByUrl.imageUrl : data.image);
+  var img = fixPortalImageUrl(details ? details.image : data.image);
   var title = data.title;
 
   var lat = data.latE6/1E6;
@@ -129,7 +129,12 @@ window.renderPortalDetails = function(guid) {
     .append(
       $('<h3>').attr({class:'title'}).text(data.title),
 
-      $('<span>').attr({class:'close', onclick:'renderPortalDetails(null); if(isSmartphone()) show("map");',title:'Close'}).text('X'),
+      $('<span>').attr({
+        class: 'close',
+        title: 'Close [w]',
+        onclick:'renderPortalDetails(null); if(isSmartphone()) show("map");',
+        accesskey: 'w'
+      }).text('X'),
 
       // help cursor via ".imgpreview img"
       $('<div>')
@@ -163,41 +168,40 @@ window.getPortalMiscDetails = function(guid,d) {
   if (d) {
 
     // collect some random data that’s not worth to put in an own method
-    var links = {incoming: 0, outgoing: 0};
-    $.each(d.portalV2.linkedEdges||[], function(ind, link) {
-      links[link.isOrigin ? 'outgoing' : 'incoming']++;
-    });
+    var linkInfo = getPortalLinks(guid);
+    var linkCount = linkInfo.in.length + linkInfo.out.length;
+    var links = {incoming: linkInfo.in.length, outgoing: linkInfo.out.length};
 
     function linkExpl(t) { return '<tt title="'+links.outgoing+' links out (8 max)\n'+links.incoming+' links in\n('+(links.outgoing+links.incoming)+' total)">'+t+'</tt>'; }
     var linksText = [linkExpl('links'), linkExpl(links.outgoing+' out / '+links.incoming+' in')];
 
-    var player = d.captured && d.captured.capturingPlayerId
-      ? '<span class="nickname">' + d.captured.capturingPlayerId + '</span>'
-      : null;
-    var playerText = player ? ['owner', player] : null;
+    var player = d.owner
+      ? '<span class="nickname">' + d.owner + '</span>'
+      : '-';
+    var playerText = ['owner', player];
 
-    var time = d.captured
-      ? '<span title="' + unixTimeToDateTimeString(d.captured.capturedTime, false) + '\n'
-                        + formatInterval(Math.floor((Date.now()-d.captured.capturedTime)/1000), 2) + ' ago">'
-        +  unixTimeToString(d.captured.capturedTime) + '</span>'
-      : null;
-    var sinceText  = time ? ['since', time] : null;
 
     var fieldCount = getPortalFieldsCount(guid);
 
-    var linkedFields = ['fields', fieldCount];
+    var fieldsText = ['fields', fieldCount];
+
+    var apGainText = getAttackApGainText(d,fieldCount,linkCount);
+
 
     // collect and html-ify random data
     var randDetailsData = [];
-    if (playerText && sinceText) {
-      randDetailsData.push (playerText, sinceText);
+    if (true) {  // or "if (d.owner) {" ...? but this makes the info panel look rather empty for unclaimed portals
+      // these pieces of data are only relevant when the portal is captured
+      randDetailsData.push (
+        playerText, getRangeText(d),
+        linksText, fieldsText,
+        getMitigationText(d,linkCount), getEnergyText(d)
+      );
     }
 
+    // and these have some use, even for uncaptured portals
     randDetailsData.push (
-      getRangeText(d), getEnergyText(d),
-      linksText, getAvgResoDistText(d),
-      linkedFields, getAttackApGainText(d,fieldCount),
-      getHackDetailsText(d), getMitigationText(d)
+      apGainText, getHackDetailsText(d)
     );
 
     // artifact details

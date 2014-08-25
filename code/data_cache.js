@@ -2,7 +2,6 @@
 // cache for map data tiles. 
 
 window.DataCache = function() {
-  // stock site nemesis.dashboard.DataManager.CACHE_EXPIRY_MS_ = 18E4 - 3 minutes
   this.REQUEST_CACHE_FRESH_AGE = 3*60;  // if younger than this, use data in the cache rather than fetching from the server
 
   this.REQUEST_CACHE_MAX_AGE = 15*60;  // maximum cache age. entries are deleted from the cache after this time

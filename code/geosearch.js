@@ -32,7 +32,7 @@ window.search = function(search) {
       var southWest = new L.LatLng(b[0], b[2]),
           northEast = new L.LatLng(b[1], b[3]),
           bounds = new L.LatLngBounds(southWest, northEast);
-      window.map.fitBounds(bounds);
+      window.map.fitBounds(bounds, {maxZoom: 17});
       if(window.isSmartphone()) window.show('map');
     });
 }

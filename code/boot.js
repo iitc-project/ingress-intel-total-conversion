@@ -119,11 +119,8 @@ window.setupMap = function() {
   //their usage policy has no limits (except required notification above 4000 tiles/sec - we're perhaps at 50 tiles/sec based on CloudMade stats)
   var mqSubdomains = [ 'otile1','otile2', 'otile3', 'otile4' ];
   var mqTileUrlPrefix = window.location.protocol !== 'https:' ? 'http://{s}.mqcdn.com' : 'https://{s}-s.mqcdn.com';
-  var mqMapOpt = {attribution: osmAttribution+', Tiles Courtesy of MapQuest', maxZoom: 18, subdomains: mqSubdomains};
+  var mqMapOpt = {attribution: osmAttribution+', Tiles Courtesy of MapQuest', maxNativeZoom: 18, maxZoom: 21, subdomains: mqSubdomains};
   var mqMap = new L.TileLayer(mqTileUrlPrefix+'/tiles/1.0.0/map/{z}/{x}/{y}.jpg',mqMapOpt);
-  //MapQuest satellite coverage outside of the US is rather limited - so not really worth having as we have google as an option
-  //var mqSatOpt = {attribution: 'Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency', maxZoom: 18, subdomains: mqSubdomains};
-  //var mqSat = new L.TileLayer('http://{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg',mqSatOpt);
 
   var ingressGMapOptions = {
     backgroundColor: '#0e3d4e', //or #dddddd ? - that's the Google tile layer default
@@ -140,10 +137,10 @@ window.setupMap = function() {
 
   var views = [
     /*0*/ mqMap,
-    /*1*/ new L.Google('ROADMAP',{maxZoom:20, mapOptions:ingressGMapOptions}),
-    /*2*/ new L.Google('ROADMAP',{maxZoom:20}),
-    /*3*/ new L.Google('SATELLITE',{maxZoom:20}),
-    /*4*/ new L.Google('HYBRID',{maxZoom:20}),
+    /*1*/ new L.Google('ROADMAP',{maxZoom:21, mapOptions:ingressGMapOptions}),
+    /*2*/ new L.Google('ROADMAP',{maxZoom:21}),
+    /*3*/ new L.Google('SATELLITE',{maxZoom:21}),
+    /*4*/ new L.Google('HYBRID',{maxZoom:21}),
     /*5*/ new L.Google('TERRAIN',{maxZoom:15})
   ];
 
@@ -154,14 +151,29 @@ window.setupMap = function() {
     zoomControl: (typeof android !== 'undefined' && android && android.showZoom) ? android.showZoom() : true,
     minZoom: 1,
 //    zoomAnimation: false,
-    markerZoomAnimation: false
+    markerZoomAnimation: false,
+    bounceAtZoomLimits: false
   });
+
+  if (L.Path.CANVAS) {
+    // for canvas, 2% overdraw only - to help performance
+    L.Path.CLIP_PADDING = 0.02;
+  } else if (L.Path.SVG) {
+    if (L.Browser.mobile) {
+      // mobile SVG - 10% ovredraw. might help performance?
+      L.Path.CLIP_PADDING = 0.1;
+    } else {
+      // for svg, 100% overdraw - so we have a full screen worth in all directions
+      L.Path.CLIP_PADDING = 1.0;
+    }
+  }
 
   // add empty div to leaflet control areas - to force other leaflet controls to move around IITC UI elements
   // TODO? move the actual IITC DOM into the leaflet control areas, so dummy <div>s aren't needed
   if(!isSmartphone()) {
     // chat window area
-    $(window.map._controlCorners['bottomleft']).append($('<div>').width(708).height(108).addClass('leaflet-control').css('margin','0'));
+    $(window.map._controlCorners['bottomleft']).append(
+      $('<div>').width(708).height(108).addClass('leaflet-control').css({'pointer-events': 'none', 'margin': '0'}));
   }
 
   var addLayers = {};
@@ -462,7 +474,7 @@ window.setupQRLoadLib = function() {
 }
 
 window.setupLayerChooserApi = function() {
-  // hide layer chooser on mobile devices running desktop mode
+  // hide layer chooser if booted with the iitcm android app
   if (typeof android !== 'undefined' && android && android.setLayers) {
     $('.leaflet-control-layers').hide();
   }
@@ -558,11 +570,13 @@ function boot() {
     popupAnchor: new L.Point(1, -34),
   }});
 
+  window.extractFromStock();
   window.setupIdle();
   window.setupTaphold();
   window.setupStyles();
   window.setupDialogs();
   window.setupMap();
+  window.setupOMS();
   window.setupGeosearch();
   window.setupRedeem();
   window.setupLargeImagePreview();
@@ -643,17 +657,6 @@ function boot() {
   window.iitcLoaded = true;
   window.runHooks('iitcLoaded');
 
-  if (!haveDetectedMungeSet()) {
-    dialog({
-      title:'IITC unavailable',
-      html:'<p>IITC failed to detect the appropriate network protocol "munge" parameters from the standard intel site. '
-          +'This can happen when Niantic make changes to the standard intel site.</p>'
-          +'<p>The IITC developers are made aware of these problems and will be working on a fix. Please see the following for news/updates.</p>'
-          +'<ul><li><a href="http://iitc.jonatkins.com/" target="_blank">IITC Home Page</a></li>'
-          +'<li><a href="https://plus.google.com/105383756361375410867/posts" target="_blank">IITC G+ Page</a></li>'
-          +'<li><a href="https://plus.google.com/communities/105647403088015055797" target="_blank">IITC G+ Community</a></li></ol>'
-    });
-  }
 
   if (typeof android !== 'undefined' && android && android.bootFinished) {
     android.bootFinished();
@@ -671,12 +674,13 @@ try { console.log('Loading included JS now'); } catch(e) {}
 // contains the default Ingress map style.
 @@INCLUDERAW:external/Google.js@@
 @@INCLUDERAW:external/autolink.js@@
+@@INCLUDERAW:external/oms.min.js@@
 
 try { console.log('done loading included JS'); } catch(e) {}
 
 //note: no protocol - so uses http or https as used on the current page
-var JQUERY = '//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js';
-var JQUERYUI = '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js';
+var JQUERY = '//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js';
+var JQUERYUI = '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js';
 
 // after all scripts have loaded, boot the actual app
 load(JQUERY).then(JQUERYUI).thenRun(boot);

@@ -1,3 +1,9 @@
+/* hide when printing */
+@media print {
+	#bkmrksTrigger { display: none !important; }
+}
+
+
 #bookmarksBox *{
 	display:block;
 	padding:0;
@@ -243,7 +249,7 @@
 	border-left-width:0;
 }
 #bkmrksTrigger{
-	display:block !important;
+	display:block;
 	position:absolute;
 	overflow:hidden;
 	top:0;

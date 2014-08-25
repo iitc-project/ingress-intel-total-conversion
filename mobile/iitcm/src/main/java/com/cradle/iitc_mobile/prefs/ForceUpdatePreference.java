@@ -9,11 +9,6 @@ import android.util.AttributeSet;
 
 import com.cradle.iitc_mobile.R;
 
-/**
- * The OptionDialogPreference will display a dialog, and will persist the
- * <code>true</code> when pressing the positive button and <code>false</code>
- * otherwise. It will persist to the android:key specified in xml-preference.
- */
 public class ForceUpdatePreference extends Preference {
 
     public ForceUpdatePreference(Context context, AttributeSet attrs) {

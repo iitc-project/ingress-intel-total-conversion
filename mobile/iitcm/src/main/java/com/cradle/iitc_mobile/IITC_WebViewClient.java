@@ -1,5 +1,9 @@
 package com.cradle.iitc_mobile;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -7,10 +11,13 @@ import android.net.http.SslError;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.view.View;
+import android.webkit.HttpAuthHandler;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.TextView;
 
 import java.io.ByteArrayInputStream;
 import java.util.LinkedList;
@@ -20,15 +27,15 @@ import java.util.TreeMap;
 
 public class IITC_WebViewClient extends WebViewClient {
 
+    private static final String DOMAIN = IITC_FileManager.DOMAIN;
+    private static final ByteArrayInputStream EMPTY = new ByteArrayInputStream("".getBytes());
     private static final ByteArrayInputStream STYLE = new ByteArrayInputStream(
             "body, #dashboard_container, #map_canvas { background: #000 !important; }"
                     .getBytes());
-    private static final ByteArrayInputStream EMPTY = new ByteArrayInputStream("".getBytes());
-    private static final String DOMAIN = IITC_FileManager.DOMAIN;
 
-    private final String mIitcPath;
-    private boolean mIitcInjected = false;
     private final IITC_Mobile mIitc;
+    private boolean mIitcInjected = false;
+    private final String mIitcPath;
     private final IITC_TileManager mTileManager;
 
     public IITC_WebViewClient(final IITC_Mobile iitc) {
@@ -37,22 +44,43 @@ public class IITC_WebViewClient extends WebViewClient {
         mIitcPath = Environment.getExternalStorageDirectory().getPath() + "/IITC_Mobile/";
     }
 
-    // enable https
-    @Override
-    public void onReceivedSslError(final WebView view, final SslErrorHandler handler, final SslError error) {
-        handler.proceed();
-    }
+    @SuppressLint("InflateParams")
+    // no other way for AlertDialog
+    private Dialog createSignInDialog(final HttpAuthHandler handler, final String host, final String realm,
+            final String username, final String password) {
+        final View v = mIitc.getLayoutInflater().inflate(R.layout.dialog_http_authentication, null);
+        final TextView tvUsername = (TextView) v.findViewById(R.id.username);
+        final TextView tvPassword = (TextView) v.findViewById(R.id.password);
+        final String title = String.format(mIitc.getString(R.string.sign_in_to), host, realm);
 
-    @Override
-    public void onPageFinished(final WebView view, final String url) {
-        if (url.startsWith("http://www.ingress.com/intel")
-                || url.startsWith("https://www.ingress.com/intel")) {
-            if (mIitcInjected) return;
-            Log.d("injecting iitc..");
-            loadScripts((IITC_WebView) view);
-            mIitcInjected = true;
-        }
-        super.onPageFinished(view, url);
+        if (username != null)
+            tvUsername.setText(username);
+        if (password != null)
+            tvPassword.setText(password);
+
+        return new AlertDialog.Builder(mIitc)
+                .setView(v)
+                .setTitle(title)
+                .setCancelable(true)
+                .setPositiveButton(R.string.sign_in_action, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        handler.proceed(tvUsername.getText().toString(), tvPassword.getText().toString());
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        dialog.cancel();
+                    }
+                })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(final DialogInterface dialog) {
+                        handler.cancel();
+                    }
+                })
+                .create();
     }
 
     private void loadScripts(final IITC_WebView view) {
@@ -89,14 +117,58 @@ public class IITC_WebViewClient extends WebViewClient {
         view.loadJS(js);
     }
 
+    @Override
+    public void onPageFinished(final WebView view, final String url) {
+        if (url.startsWith("http://www.ingress.com/intel")
+                || url.startsWith("https://www.ingress.com/intel")) {
+            if (mIitcInjected) return;
+            Log.d("injecting iitc..");
+            loadScripts((IITC_WebView) view);
+            mIitcInjected = true;
+        }
+        super.onPageFinished(view, url);
+    }
+
+    @Override
+    public void onReceivedHttpAuthRequest(final WebView view, final HttpAuthHandler handler, final String host,
+            final String realm) {
+        String username = null;
+        String password = null;
+
+        final boolean reuseHttpAuthUsernamePassword = handler.useHttpAuthUsernamePassword();
+
+        if (reuseHttpAuthUsernamePassword && view != null) {
+            final String[] credentials = view.getHttpAuthUsernamePassword(host, realm);
+            if (credentials != null && credentials.length == 2) {
+                username = credentials[0];
+                password = credentials[1];
+            }
+        }
+
+        if (username != null && password != null) {
+            handler.proceed(username, password);
+        } else {
+            createSignInDialog(handler, host, realm, username, password).show();
+        }
+    }
+
     /**
      * this method is called automatically when the Google login form is opened.
      */
     @Override
     public void onReceivedLoginRequest(final WebView view, final String realm, final String account, final String args) {
-        mIitcInjected = false;
         // Log.d("iitcm", "Login requested: " + realm + " " + account + " " + args);
         // mIitc.onReceivedLoginRequest(this, view, realm, account, args);
+    }
+
+    // enable https
+    @Override
+    public void onReceivedSslError(final WebView view, final SslErrorHandler handler, final SslError error) {
+        handler.proceed();
+    }
+
+    public void reset() {
+        mIitcInjected = false;
     }
 
     /**
@@ -152,23 +224,20 @@ public class IITC_WebViewClient extends WebViewClient {
     // start non-ingress-intel-urls in another app...
     @Override
     public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
-        if (url.contains("ingress.com") || url.contains("appengine.google.com")) {
-            // reload iitc if a poslink is clicked inside the app
-            if (url.contains("intel?ll=")
-                    || (url.contains("latE6") && url.contains("lngE6"))) {
-                Log.d("should be an internal clicked position link...reload script for: " + url);
-                mIitc.loadUrl(url);
-            }
+        if (url.contains("conflogin") || url.contains("ServiceLogin") || url.contains("appengine.google.com")) {
+            Log.d("Google login");
+            return false;
+        }
+        else if (url.contains("ingress.com/intel")) {
+            Log.d("intel link requested, reset app and load " + url);
+            mIitc.reset();
+            mIitc.setLoadingState(true);
             return false;
         } else {
             Log.d("no ingress intel link, start external app to load url: " + url);
             final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             mIitc.startActivity(intent);
-            return true;
         }
-    }
-
-    public void reset() {
-        mIitcInjected = false;
+        return true;
     }
 }
