@@ -59,6 +59,7 @@ window.plugin.uniques.onPortalDetailsUpdated = function() {
 				return entity && entity.owner == nickname;
 			}
 			
+			plugin.uniques.resetCaptured(guid);
 			if(details.resonators.some(installedByPlayer) || details.mods.some(installedByPlayer)) {
 				plugin.uniques.updateVisited(true);
 			}
@@ -73,6 +74,7 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 	var nick = window.PLAYER.nickname;
 	data.raw.success.forEach(function(msg) {
 		var plext = msg[2].plext,
+			time = msg[1],
 			markup = plext.markup;
 
 		// search for "x deployed an Ly Resonator on z"
@@ -97,7 +99,7 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[1][0] == 'TEXT'
 		&& markup[1][1].plain == ' captured '
 		&& markup[2][0] == 'PORTAL') {
-			plugin.uniques.setPortalCaptured(markup[2][1].guid);
+			plugin.uniques.setPortalCaptured(markup[2][1].guid, time);
 		}
 
 		// search for "x linked y to z"
@@ -153,19 +155,35 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[2][0] == 'TEXT'
 		&& (markup[2][1].plain == ' neutralized by ' || markup[2][1].plain == ' is under attack by ')
 		&& markup[3][0] == 'PLAYER') {
-			plugin.uniques.setPortalVisited(markup[1][1].guid);
+			plugin.uniques.setPortalVisited(markup[1][1].guid); //TODO: maybe even captured?
+			if (markup[2][1].plain == ' neutralized by ')
+			    plugin.uniques.resetCaptured(markup[1][1].guid);
 		}
 	});
 };
+
+function timeDiff(time) {
+	var d = (Date.now() - time) / 3600000;
+	if (d < 24)
+		return d.toFixed(1) + ' hours';
+	d /= 24;
+	return d.toFixed(1) + ' days';
+}
 
 window.plugin.uniques.updateCheckedAndHighlight = function(guid) {
 	if (guid == window.selectedPortal) {
 
 		var uniqueInfo = plugin.uniques.uniques[guid];
 			visited = (uniqueInfo && uniqueInfo.visited) || false,
-			captured = (uniqueInfo && uniqueInfo.captured) || false;
+			captured = (uniqueInfo && uniqueInfo.captured) || false,
+			since = (uniqueInfo && uniqueInfo.captured && uniqueInfo.since) || 0;
+		console.log('XXX-display', uniqueInfo);
 		$('#visited').prop('checked', visited);
 		$('#captured').prop('checked', captured);
+		if (since)
+			$('#capturedSince').text(' (' + timeDiff(since) + ')');
+		else
+			$('#capturedSince').empty();
 	}
 
 	if (window.plugin.uniques.isHighlightActive) {
@@ -174,7 +192,6 @@ window.plugin.uniques.updateCheckedAndHighlight = function(guid) {
 		}
 	}
 };
-
 
 window.plugin.uniques.setPortalVisited = function(guid) {
 	var uniqueInfo = plugin.uniques.uniques[guid];
@@ -191,17 +208,33 @@ window.plugin.uniques.setPortalVisited = function(guid) {
 	plugin.uniques.sync(guid);
 };
 
-window.plugin.uniques.setPortalCaptured = function(guid) {
+window.plugin.uniques.setPortalCaptured = function(guid, since) {
 	var uniqueInfo = plugin.uniques.uniques[guid];
+	console.log('XXX-setCaptured-1', JSON.stringify(uniqueInfo));
 	if (uniqueInfo) {
 		uniqueInfo.visited = true;
 		uniqueInfo.captured = true;
+		uniqueInfo.since = since || uniqueInfo.since || Date.now();
 	} else {
 		plugin.uniques.uniques[guid] = {
 			visited: true,
-			captured: true
+			captured: true,
+			since: since || Date.now()
 		};
 	}
+	console.log('XXX-setCaptured-2', JSON.stringify(plugin.uniques.uniques[guid]));
+
+	plugin.uniques.updateCheckedAndHighlight(guid);
+	plugin.uniques.sync(guid);
+};
+
+window.plugin.uniques.resetCaptured = function(guid) {
+	var uniqueInfo = plugin.uniques.uniques[guid];
+	console.log('XXX-resetCaptured-1', JSON.stringify(uniqueInfo));
+	if (!uniqueInfo || !uniqueInfo.since)
+		return;
+	delete uniqueInfo.since;
+	console.log('XXX-resetCaptured-2', JSON.stringify(uniqueInfo));
 
 	plugin.uniques.updateCheckedAndHighlight(guid);
 	plugin.uniques.sync(guid);
@@ -222,15 +255,17 @@ window.plugin.uniques.updateVisited = function(visited) {
 	} else { // not visited --> not captured
 		uniqueInfo.visited = false;
 		uniqueInfo.captured = false;
+		delete uniqueInfo.since;
 	}
 
 	plugin.uniques.updateCheckedAndHighlight(guid);
 	plugin.uniques.sync(guid);
-};
+}
 
 window.plugin.uniques.updateCaptured = function(captured) {
 	var guid = window.selectedPortal;
 	var uniqueInfo = plugin.uniques.uniques[guid];
+	console.log('XXX-updateCaptured-1', JSON.stringify(uniqueInfo));
 	if (!uniqueInfo) {
 		plugin.uniques.uniques[guid] = uniqueInfo = {
 			visited: false,
@@ -241,9 +276,12 @@ window.plugin.uniques.updateCaptured = function(captured) {
 	if (captured) { // captured --> visited
 		uniqueInfo.captured = true;
 		uniqueInfo.visited = true;
+		uniqueInfo.since = uniqueInfo.since || Date.now();
 	} else {
 		uniqueInfo.captured = false;
+		delete uniqueInfo.since;
 	}
+	console.log('XXX-updateCaptured-2', JSON.stringify(uniqueInfo));
 
 	plugin.uniques.updateCheckedAndHighlight(guid);
 	plugin.uniques.sync(guid);
