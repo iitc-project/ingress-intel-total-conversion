@@ -67,7 +67,7 @@ window.plugin.uniques.onPortalDetailsUpdated = function() {
 
 	$('#portaldetails > .imgpreview').after(plugin.uniques.contentHTML);
 	plugin.uniques.updateCheckedAndHighlight(guid);
-}
+};
 
 window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 	var nick = window.PLAYER.nickname;
@@ -156,7 +156,7 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 			plugin.uniques.setPortalVisited(markup[1][1].guid);
 		}
 	});
-}
+};
 
 window.plugin.uniques.updateCheckedAndHighlight = function(guid) {
 	if (guid == window.selectedPortal) {
@@ -173,7 +173,7 @@ window.plugin.uniques.updateCheckedAndHighlight = function(guid) {
 			window.setMarkerStyle (portals[guid], guid == selectedPortal);
 		}
 	}
-}
+};
 
 
 window.plugin.uniques.setPortalVisited = function(guid) {
@@ -189,7 +189,7 @@ window.plugin.uniques.setPortalVisited = function(guid) {
 
 	plugin.uniques.updateCheckedAndHighlight(guid);
 	plugin.uniques.sync(guid);
-}
+};
 
 window.plugin.uniques.setPortalCaptured = function(guid) {
 	var uniqueInfo = plugin.uniques.uniques[guid];
@@ -205,7 +205,7 @@ window.plugin.uniques.setPortalCaptured = function(guid) {
 
 	plugin.uniques.updateCheckedAndHighlight(guid);
 	plugin.uniques.sync(guid);
-}
+};
 
 window.plugin.uniques.updateVisited = function(visited) {
 	var guid = window.selectedPortal;
@@ -226,7 +226,7 @@ window.plugin.uniques.updateVisited = function(visited) {
 
 	plugin.uniques.updateCheckedAndHighlight(guid);
 	plugin.uniques.sync(guid);
-}
+};
 
 window.plugin.uniques.updateCaptured = function(captured) {
 	var guid = window.selectedPortal;
@@ -247,7 +247,7 @@ window.plugin.uniques.updateCaptured = function(captured) {
 
 	plugin.uniques.updateCheckedAndHighlight(guid);
 	plugin.uniques.sync(guid);
-}
+};
 
 // stores the gived GUID for sync
 plugin.uniques.sync = function(guid) {
@@ -255,7 +255,7 @@ plugin.uniques.sync = function(guid) {
 	plugin.uniques.storeLocal('uniques');
 	plugin.uniques.storeLocal('updateQueue');
 	plugin.uniques.syncQueue();
-}
+};
 
 // sync the queue, but delay the actual sync to group a few updates in a single request
 window.plugin.uniques.syncQueue = function() {
@@ -273,13 +273,13 @@ window.plugin.uniques.syncQueue = function() {
 
 		plugin.sync.updateMap('uniques', 'uniques', Object.keys(plugin.uniques.updatingQueue));
 	}, plugin.uniques.SYNC_DELAY);
-}
+};
 
 //Call after IITC and all plugin loaded
 window.plugin.uniques.registerFieldForSyncing = function() {
 	if(!window.plugin.sync) return;
 	window.plugin.sync.registerMapForSync('uniques', 'uniques', window.plugin.uniques.syncCallback, window.plugin.uniques.syncInitialed);
-}
+};
 
 //Call after local or remote change uploaded
 window.plugin.uniques.syncCallback = function(pluginName, fieldName, e, fullUpdated) {
@@ -314,7 +314,7 @@ window.plugin.uniques.syncCallback = function(pluginName, fieldName, e, fullUpda
 			window.runHooks('pluginUniquesUpdateUniques', {guid: e.property});
 		}
 	}
-}
+};
 
 //syncing of the field is initialed, upload all queued update
 window.plugin.uniques.syncInitialed = function(pluginName, fieldName) {
@@ -324,7 +324,7 @@ window.plugin.uniques.syncInitialed = function(pluginName, fieldName) {
 			plugin.uniques.syncQueue();
 		}
 	}
-}
+};
 
 window.plugin.uniques.storeLocal = function(name) {
 	var key = window.plugin.uniques.FIELDS[name];
@@ -337,7 +337,7 @@ window.plugin.uniques.storeLocal = function(name) {
 	} else {
 		localStorage.removeItem(key);
 	}
-}
+};
 
 window.plugin.uniques.loadLocal = function(name) {
 	var key = window.plugin.uniques.FIELDS[name];
@@ -346,7 +346,7 @@ window.plugin.uniques.loadLocal = function(name) {
 	if(localStorage[key] !== undefined) {
 		plugin.uniques[name] = JSON.parse(localStorage[key]);
 	}
-}
+};
 
 /***************************************************************************************************************************************************************/
 /** HIGHLIGHTER ************************************************************************************************************************************************/
@@ -383,7 +383,7 @@ window.plugin.uniques.highlighter = {
 	setSelected: function(active) {
 		window.plugin.uniques.isHighlightActive = active;
 	}
-}
+};
 
 
 window.plugin.uniques.setupCSS = function() {
@@ -391,7 +391,7 @@ window.plugin.uniques.setupCSS = function() {
 	.prop("type", "text/css")
 	.html("@@INCLUDESTRING:plugins/uniques.css@@")
 	.appendTo("head");
-}
+};
 
 window.plugin.uniques.setupContent = function() {
 	plugin.uniques.contentHTML = '<div id="uniques-container">'
@@ -399,7 +399,7 @@ window.plugin.uniques.setupContent = function() {
 		+ '<label><input type="checkbox" id="captured" onclick="window.plugin.uniques.updateCaptured($(this).prop(\'checked\'))"> Captured</label>'
 		+ '</div>';
 	plugin.uniques.disabledMessage = '<div id="uniques-container" class="help" title="Your browser does not support localStorage">Plugin Uniques disabled</div>';
-}
+};
 
 var setup = function() {
 	if($.inArray('pluginUniquesUpdateUniques', window.VALID_HOOKS) < 0)
@@ -413,7 +413,7 @@ var setup = function() {
 	window.addHook('publicChatDataAvailable', window.plugin.uniques.onPublicChatDataAvailable);
 	window.addHook('iitcLoaded', window.plugin.uniques.registerFieldForSyncing);
 		window.addPortalHighlighter('Uniques', window.plugin.uniques.highlighter);
-}
+};
 
 //PLUGIN END //////////////////////////////////////////////////////////
 
