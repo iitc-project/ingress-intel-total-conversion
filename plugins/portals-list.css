@@ -94,3 +94,12 @@
   font-size: 10px;
 }
 
+#portalslist.mobile table.filter tr {
+  display: block;
+  text-align: center;
+}
+#portalslist.mobile table.filter th, #portalslist.mobile table.filter td {
+  display: inline-block;
+  width: 22%;
+}
+
