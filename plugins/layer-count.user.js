@@ -78,7 +78,6 @@ plugin.layerCount.pnpoly = function(latlngs, point) {
 }
 
 plugin.layerCount.calculate = function(ev) {
-	// TODO: find a geodesic implementation
 	var point = ev.latlng;
 	var fields = window.fields;
 	var layersRes = layersEnl = 0;
@@ -86,6 +85,8 @@ plugin.layerCount.calculate = function(ev) {
 	for(var guid in fields) {
 		var field = fields[guid];
 
+		// we don't need to check the field's bounds first. pnpoly is pretty simple math. the bounds is about 50 times
+		// slower than just using pnpoly
 		if(plugin.layerCount.pnpoly(field._latlngs, point)) {
 			if(field.options.team == TEAM_ENL)
 				layersEnl++;
