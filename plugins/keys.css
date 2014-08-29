@@ -64,3 +64,19 @@
   margin: 6px 3px 1px 20px !important;
   cursor: help;
 }
+
+.portal-list-keys button {
+  font-family: monospace;
+  font-size: 0.9em;
+  text-align: center;
+  vertical-align: middle;
+  min-width: 0;
+  padding: 0;
+  width: 1.5em;
+  margin: -0.5em 0;
+}
+.portal-list-keys .plus {
+  margin-left: 0.3em;
+  margin-right: -1px;
+}
+
