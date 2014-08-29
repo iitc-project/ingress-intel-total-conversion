@@ -87,9 +87,9 @@ plugin.layerCount.calculate = function(ev) {
 		var field = fields[guid];
 
 		if(plugin.layerCount.pnpoly(field._latlngs, point)) {
-			if(field.options.data.team == "ENLIGHTENED")
+			if(field.options.team == TEAM_ENL)
 				layersEnl++;
-			else
+			else if(field.options.team == TEAM_RES)
 				layersRes++;
 		}
 	}
