@@ -34,11 +34,13 @@ window.plugin.portalslist.filter = 0;
  * title: String
  *     Name of the column. Required.
  * value: function(portal)
- *     The raw value of this field. Can by anything. Required, but can be dummy implementation if sortValue and format are implemented.
+ *     The raw value of this field. Can by anything. Required, but can be dummy implementation if sortValue and format
+ *     are implemented.
  * sortValue: function(value, portal)
  *     The value to sort by. Optional, uses value if omitted. The raw value is passed as first argument.
  * sort: function(valueA, valueB, portalA, portalB)
- *     Custom sorting function. See Array.sort() for details on return value. Both the raw values and the portal objects are passed as arguments. Optional.
+ *     Custom sorting function. See Array.sort() for details on return value. Both the raw values and the portal objects
+ *     are passed as arguments. Optional. Set to null to disable sorting
  * format: function(cell, portal, value)
  *     Used to fill and format the cell, which is given as a DOM node. If omitted, the raw value is put in the cell.
  * defaultOrder: -1|1
