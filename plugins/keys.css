@@ -73,7 +73,11 @@
   min-width: 0;
   padding: 0;
   width: 1.5em;
-  margin: -0.5em 0;
+  margin: -6px 0 -3px;
+}
+#portalslist.mobile .portal-list-keys button {
+  width: 3em;
+  height: 1.5em;
 }
 .portal-list-keys .plus {
   margin-left: 0.3em;

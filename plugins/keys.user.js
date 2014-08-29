@@ -216,7 +216,7 @@ window.plugin.keys.setupPortalsList = function() {
     },
     format: function(cell, portal, guid) {
       $(cell)
-        .addClass("alignR portal-list-keys")
+        .addClass("alignR portal-list-keys ui-dialog-buttonset") // ui-dialog-buttonset for proper button styles
         .append($('<span>')
           .text(plugin.keys.keys[guid] || 0)
           .attr({
