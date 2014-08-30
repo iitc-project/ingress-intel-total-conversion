@@ -123,7 +123,7 @@ Sometimes this is caused by server issues, and no amount of reloading will fix i
 </p>
 <p>
 However, another reason for this message is your account being blocked/suspended by Niantic. There
-are no (known) cases of this happening due to IITC use, but any use of bots, unofficial clients (e.g. iPhone, broot),
+are no (known) cases of this happening due to IITC use, but any use of bots, unofficial clients (e.g. broot),
 or other ingress mods (auto-drop/pickup apps) could lead to this. In this case, the scanner app will also fail
 to work correctly ("Scan failed" error message).
 </p>
@@ -132,7 +132,26 @@ END
 
 'broken' => Array ( "No portals are displayed on the map/some portals are missing",
 <<<'END'
-Common reasons.
+<p>
+There is a known issue with the Niantic servers, where sometimes the occasional portal is not shown. Additionally,
+due to differences between IITC and standard intel by default, it can appear differently in IITC.
+</p>
+<p>
+It is usually easy to find the same zoom level on the standard intel map which causes the problem portal to vanish
+there too - usually you just need to zoom out once or twice. To make IITC behaviour match the standard intel site:
+</p>
+<ul>
+<li>Disable the 'show more portals' plugin</li>
+<li>Install/enable the 'default intel detail level' plugin</li>
+</ul>
+<p>
+Some community posts discussing this issue are
+<a href="https://plus.google.com/115049949416134175118/posts/ZVjk7cR1nfT">here</a>, and
+<a href="https://plus.google.com/110237353326976863775/posts/UCMk1VvoHMg">here</a>.
+</p>
+<p>
+Other reasons.
+</p>
 <ol>
 <li>You have some portal layers turned off in the layer chooser</li>
 <li>Niantic have released a site update that broke IITC. Reloading the page might fix it.
