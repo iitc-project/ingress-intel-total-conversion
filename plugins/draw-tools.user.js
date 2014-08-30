@@ -307,9 +307,11 @@ window.plugin.drawTools.load = function(){
     window.plugin.drawTools.loadStorage();
     window.plugin.drawTools.drawnItems.clearLayers();
     if (!window.plugin.drawTools.drawnItemsData.itemArray.length){
+        runHooks('pluginDrawTools',{event:'clear'});
         return;
     }
     window.plugin.drawTools.import(window.plugin.drawTools.drawnItemsData.itemArray);
+    runHooks('pluginDrawTools',{event:'dataLoaded'});
 }
 
 /***************************************************************************************************************************************************************/
@@ -465,7 +467,6 @@ window.plugin.drawTools.optReset = function() {
     window.plugin.drawTools.load();
     console.log('DRAWTOOLS: reset all drawn items');
     window.plugin.drawTools.optAlert('Reset Successful. ');
-    runHooks('pluginDrawTools', {event: 'clear'});
   }
 }
 
