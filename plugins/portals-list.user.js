@@ -356,20 +356,21 @@ window.plugin.portalslist.getPortalLink = function(portal) {
   var coord = portal.getLatLng();
   var perma = '/intel?ll='+coord.lat+','+coord.lng+'&z=17&pll='+coord.lat+','+coord.lng;
 
-  //Use Jquery to create the link, which escape characters in TITLE of portal
-  return $('<a>')
-    .text(portal.options.data.title)
-    .attr('href', perma)
-    .click(function(ev) {
-      renderPortalDetails(portal.options.guid);
-      ev.preventDefault();
-      return false;
-    })
-    .dblclick(function(ev) {
-      zoomToAndShowPortal(portal.options.guid, [coord.lat, coord.lng]);
-      ev.preventDefault();
-      return false;
-    });
+  // jQuery's event handlers seem to be removed when the nodes are remove from the DOM
+  var link = document.createElement("a");
+  link.textContent = portal.options.data.title;
+  link.href = perma;
+  link.addEventListener("click", function(ev) {
+    renderPortalDetails(portal.options.guid);
+    ev.preventDefault();
+    return false;
+  }, false);
+  link.addEventListener("dblclick", function(ev) {
+    zoomToAndShowPortal(portal.options.guid, [coord.lat, coord.lng]);
+    ev.preventDefault();
+    return false;
+  });
+  return link;
 }
 
 window.plugin.portalslist.onPaneChanged = function(pane) {
