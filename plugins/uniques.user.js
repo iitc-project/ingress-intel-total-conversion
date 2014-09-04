@@ -95,11 +95,13 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		if(plext.plextType == 'SYSTEM_BROADCAST'
 		&& markup.length==3
 		&& markup[0][0] == 'PLAYER'
-		&& markup[0][1].plain == nick
 		&& markup[1][0] == 'TEXT'
 		&& markup[1][1].plain == ' captured '
 		&& markup[2][0] == 'PORTAL') {
-			plugin.uniques.setPortalCaptured(markup[2][1].guid, time);
+			if (markup[0][1].plain == nick)
+				plugin.uniques.setPortalCaptured(markup[2][1].guid, time);
+			else
+				plugin.uniques.resetCaptured(markup[2][1].guid);
 		}
 
 		// search for "x linked y to z"
@@ -157,7 +159,7 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[3][0] == 'PLAYER') {
 			plugin.uniques.setPortalVisited(markup[1][1].guid); //TODO: maybe even captured?
 			if (markup[2][1].plain == ' neutralized by ')
-			    plugin.uniques.resetCaptured(markup[1][1].guid);
+				plugin.uniques.resetCaptured(markup[1][1].guid);
 		}
 	});
 };
