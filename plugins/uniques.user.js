@@ -398,8 +398,11 @@ window.plugin.uniques.highlighter = {
 
 		if (uniqueInfo) {
 			if (uniqueInfo.captured) {
+				if (uniqueInfo.since) {
+					style.fillColor = 'white';
+					style.fillOpacity = 0.7;
+				}
 				// captured (and, implied, visited too) - no highlights
-
 			} else if (uniqueInfo.visited) {
 				style.fillColor = 'yellow';
 				style.fillOpacity = 0.6;
