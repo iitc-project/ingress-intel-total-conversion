@@ -107,3 +107,17 @@ window.addHook = function(event, callback) {
   else
     _hooks[event].push(callback);
 }
+
+window.removeHook = function (event, callback) {
+  if(VALID_HOOKS.indexOf(event) === -1) {
+    console.error('removeHook: Unknown event type: ' + event + ' - ignoring');
+    debugger;
+    return;
+  }
+
+  var eventHooks = _hooks[event];
+  if(eventHooks)
+    _hooks[event] = eventHooks.filter(function (hook) { // filter will delete all occurrences of a hook if it was added several times
+      return hook != callback;
+    });
+}
