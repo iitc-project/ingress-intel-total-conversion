@@ -157,7 +157,6 @@ public class IITC_WebViewClient extends WebViewClient {
      */
     @Override
     public void onReceivedLoginRequest(final WebView view, final String realm, final String account, final String args) {
-        mIitcInjected = false;
         // Log.d("iitcm", "Login requested: " + realm + " " + account + " " + args);
         // mIitc.onReceivedLoginRequest(this, view, realm, account, args);
     }
@@ -225,19 +224,20 @@ public class IITC_WebViewClient extends WebViewClient {
     // start non-ingress-intel-urls in another app...
     @Override
     public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
-        if (url.contains("ingress.com") || url.contains("appengine.google.com")) {
-            // reload iitc if a poslink is clicked inside the app
-            if (url.contains("intel?ll=")
-                    || (url.contains("latE6") && url.contains("lngE6"))) {
-                Log.d("should be an internal clicked position link...reload script for: " + url);
-                mIitc.loadUrl(url);
-            }
+        if (url.contains("conflogin") || url.contains("ServiceLogin") || url.contains("appengine.google.com")) {
+            Log.d("Google login");
+            return false;
+        }
+        else if (url.contains("ingress.com/intel")) {
+            Log.d("intel link requested, reset app and load " + url);
+            mIitc.reset();
+            mIitc.setLoadingState(true);
             return false;
         } else {
             Log.d("no ingress intel link, start external app to load url: " + url);
             final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             mIitc.startActivity(intent);
-            return true;
         }
+        return true;
     }
 }

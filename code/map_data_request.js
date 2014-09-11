@@ -27,12 +27,8 @@ window.MapDataRequest = function() {
   // this many tiles in one request
   this.NUM_TILES_PER_REQUEST = 4;
 
-  // number of times to retry a tile after a 'bad' error (i.e. not a timeout)
-  this.MAX_TILE_RETRIES = 2;
-  try {
-    // stock has a variable for this - try to use it
-    this.MAX_TILE_RETRIES = nemesis.dashboard.DataManager.MAX_QUADKEY_RETRY_ATTEMPTS_;
-  } catch(e) {}
+  // number of times to retry a tile after an error (including "error: TIMEOUT" now - as stock intel does)
+  this.MAX_TILE_RETRIES = 5;
 
   // refresh timers
   this.MOVE_REFRESH = 3; //time, after a map move (pan/zoom) before starting the refresh processing
@@ -51,7 +47,7 @@ window.MapDataRequest = function() {
   this.BAD_REQUEST_RUN_QUEUE_DELAY = 10; // longer delay before doing anything after errors (other than TIMEOUT)
 
   // delay before processing the queue after error==TIMEOUT requests. this is a less severe error than other errors
-  this.TIMEOUT_REQUEST_RUN_QUEUE_DELAY = 2;
+  this.TIMEOUT_REQUEST_RUN_QUEUE_DELAY = 0.5;
 
 
   // render queue
@@ -65,7 +61,7 @@ window.MapDataRequest = function() {
 
   this.REFRESH_CLOSE = 300;  // refresh time to use for close views z>12 when not idle and not moving
   this.REFRESH_FAR = 900;  // refresh time for far views z <= 12
-  this.FETCH_TO_REFRESH_FACTOR = 2;  //refresh time is based on the time to complete a data fetch, times this value
+  this.FETCH_TO_REFRESH_FACTOR = 2;  //minumum refresh time is based on the time to complete a data fetch, times this value
 
   // ensure we have some initial map status
   this.setStatus ('startup', undefined, -1);
@@ -338,6 +334,11 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
   // if nothing left in the queue, finish
   if (Object.keys(this.queuedTiles).length == 0) {
     // we leave the renderQueue code to handle ending the render pass now
+    // (but we need to make sure it's not left without it's timer running!)
+    if (!this.renderQueuePaused) {
+      this.startQueueTimer(this.RENDER_PAUSE);
+    }
+
     return;
   }
 
@@ -352,12 +353,27 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
 
 //  console.log('- request state: '+Object.keys(this.requestedTiles).length+' tiles in '+this.activeRequestCount+' active requests, '+pendingTiles.length+' tiles queued');
 
-
   var requestBuckets = this.MAX_REQUESTS - this.activeRequestCount;
   if (pendingTiles.length > 0 && requestBuckets > 0) {
 
     for (var bucket=0; bucket < requestBuckets; bucket++) {
-      var tiles = pendingTiles.splice(0, this.NUM_TILES_PER_REQUEST);
+
+      // if the tiles for this request have had several retries, use smaller requests
+      // maybe some of the tiles caused all the others to error? no harm anyway, and it may help...
+      var numTilesThisRequest = Math.min(this.NUM_TILES_PER_REQUEST,pendingTiles.length);
+
+      var id = pendingTiles[0];
+      var retryTotal = (this.tileErrorCount[id]||0);
+      for (var i=1; i<numTilesThisRequest; i++) {
+        id = pendingTiles[i];
+        retryTotal += (this.tileErrorCount[id]||0);
+        if (retryTotal > this.MAX_TILE_RETRIES) {
+          numTilesThisRequest = i;
+          break;
+        }
+      }
+
+      var tiles = pendingTiles.splice(0, numTilesThisRequest);
       if (tiles.length > 0) {
         this.sendTileRequest(tiles);
       }
@@ -488,7 +504,7 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
         // server returned an error for this individual data tile
 
         if (val.error == "TIMEOUT") {
-          // TIMEOUT errors for individual tiles are 'expected'(!) - and result in a silent unlimited retries
+          // TIMEOUT errors for individual tiles are quite common. used to be unlimited retries, but not any more
           timeoutTiles.push (id);
         } else {
           console.warn('map data tile '+id+' failed: error=='+val.error);
@@ -534,7 +550,8 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
     for (var i in timeoutTiles) {
       var id = timeoutTiles[i];
       delete this.requestedTiles[id];
-      this.requeueTile(id, false);
+
+      this.requeueTile(id, true);
     }
   }
 
@@ -552,7 +569,6 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
   }
 
 
-  //.. should this also be delayed a small amount?
   this.delayProcessRequestQueue(nextQueueDelay);
 }
 

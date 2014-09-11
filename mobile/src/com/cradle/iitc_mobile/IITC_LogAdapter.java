@@ -1,6 +1,5 @@
 package com.cradle.iitc_mobile;
 
-import android.annotation.SuppressLint;
 import android.database.DataSetObserver;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,50 +11,52 @@ import com.cradle.iitc_mobile.Log.Message;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.SimpleDateFormat;
 
 public class IITC_LogAdapter extends ArrayAdapter<Log.Message> implements Log.Receiver {
-    @SuppressLint("SimpleDateFormat")
-    private static final SimpleDateFormat FORMATTER = new SimpleDateFormat("HH:mm:ss.SSS");
-
+    private final IITC_Mobile mIitc;
     private int mObservers = 0;
-    private IITC_Mobile mIitc;
 
-    public IITC_LogAdapter(IITC_Mobile iitc) {
+    public IITC_LogAdapter(final IITC_Mobile iitc) {
         super(iitc, 0);
         mIitc = iitc;
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        Message item = getItem(position);
-        View v = mIitc.getLayoutInflater().inflate(R.layout.view_log_msg, parent, false);
+    public View getView(final int position, View v, final ViewGroup parent) {
+        final Message item = getItem(position);
 
-        ImageView iv = (ImageView) v.findViewById(R.id.log_type);
+        ViewHolder holder;
+        if (v != null && v.getTag() != null && v.getTag() instanceof ViewHolder) {
+            holder = (ViewHolder) v.getTag();
+        } else {
+            v = mIitc.getLayoutInflater().inflate(R.layout.view_log_msg, parent, false);
+            holder = new ViewHolder();
+            holder.icon = (ImageView) v.findViewById(R.id.log_type);
+            holder.tag = (TextView) v.findViewById(R.id.log_tag);
+            holder.time = (TextView) v.findViewById(R.id.log_time);
+            holder.msg = (TextView) v.findViewById(R.id.log_msg);
+            v.setTag(holder);
+        }
+
         switch (item.getPriority()) {
             case Log.ASSERT:
             case Log.ERROR:
-                iv.setImageResource(R.drawable.ic_action_error_red);
+                holder.icon.setImageResource(R.drawable.ic_action_error_red);
                 break;
             case Log.WARN:
-                iv.setImageResource(R.drawable.ic_action_warning_yellow);
+                holder.icon.setImageResource(R.drawable.ic_action_warning_yellow);
                 break;
             default:
-                iv.setImageResource(R.drawable.ic_action_about);
+                holder.icon.setImageResource(R.drawable.ic_action_about);
         }
 
-        TextView tv;
-
-        tv = (TextView) v.findViewById(R.id.log_tag);
-        tv.setText(item.getTag());
-
-        tv = (TextView) v.findViewById(R.id.log_time);
-        tv.setText(FORMATTER.format(item.getDate()));
+        holder.tag.setText(item.getTag());
+        holder.time.setText(item.getDateString());
 
         String msg = item.getMsg();
         if (item.getTr() != null) {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
+            final StringWriter sw = new StringWriter();
+            final PrintWriter pw = new PrintWriter(sw);
             item.getTr().printStackTrace(pw);
 
             if (msg == null || msg.isEmpty())
@@ -64,8 +65,7 @@ public class IITC_LogAdapter extends ArrayAdapter<Log.Message> implements Log.Re
                 msg += "\n" + sw.toString();
         }
 
-        tv = (TextView) v.findViewById(R.id.log_msg);
-        tv.setText(msg);
+        holder.msg.setText(msg);
 
         return v;
     }
@@ -76,18 +76,17 @@ public class IITC_LogAdapter extends ArrayAdapter<Log.Message> implements Log.Re
     }
 
     @Override
-    public void unregisterDataSetObserver(DataSetObserver observer) {
-        super.unregisterDataSetObserver(observer);
-        mObservers--;
-
-        if (mObservers < 1) {
-            clear();
-            Log.removeReceiver(this);
-        }
+    public void handle(final Message message) {
+        mIitc.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                insert(message, 0);
+            }
+        });
     }
 
     @Override
-    public void registerDataSetObserver(DataSetObserver observer) {
+    public void registerDataSetObserver(final DataSetObserver observer) {
         super.registerDataSetObserver(observer);
 
         if (mObservers < 1)
@@ -97,12 +96,20 @@ public class IITC_LogAdapter extends ArrayAdapter<Log.Message> implements Log.Re
     }
 
     @Override
-    public void handle(final Message message) {
-        mIitc.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                insert(message, 0);
-            }
-        });
+    public void unregisterDataSetObserver(final DataSetObserver observer) {
+        super.unregisterDataSetObserver(observer);
+        mObservers--;
+
+        if (mObservers < 1) {
+            clear();
+            Log.removeReceiver(this);
+        }
+    }
+
+    private class ViewHolder {
+        private ImageView icon;
+        private TextView msg;
+        private TextView tag;
+        private TextView time;
     }
 }

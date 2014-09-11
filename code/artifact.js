@@ -67,6 +67,7 @@ window.artifact.processData = function(data) {
 
   if (data.error || !data.artifacts) {
     console.warn('Failed to find artifacts in artifact response');
+    return;
   }
 
   artifact.clearData();
@@ -224,14 +225,11 @@ window.artifact.updateLayer = function() {
 
     }
 
-    // 2014-07-28 - another guess, for the upcoming 'helios' artifacts
+    // 2014-08-09 - helios artifacts. original guess was slightly wrong
     if (data.helios) {
       if (data.helios.target) {
-        // target portal - show the target marker. use the count of fragments at the target to pick the right icon - it has segments that fill up
-
-        var count = data.helios.fragments ? data.helios.fragments.length : 0;
-
-        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/helios_shard_target_'+count+'.png';
+        // target portal - show the target marker. helios target marker doesn't fill like the earlier jarvis/amar targets
+        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/helios_shard_target.png';
         iconSize = 100/2; // 100 pixels - half that size works better
       } else if (data.helios.fragments) {
         iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/helios_shard.png';
