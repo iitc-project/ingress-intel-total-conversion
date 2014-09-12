@@ -398,8 +398,11 @@ window.plugin.uniques.highlighter = {
 
 		var style = {};
 
+		console.log(data.portal.options.ent[2].team);
 		if (uniqueInfo) {
 			if (uniqueInfo.captured) {
+				if (uniqueInfo.since && data.portal.options.ent[2].team != window.PLAYER.team)
+					plugin.uniques.resetCaptured(guid);
 				if (uniqueInfo.since) {
 					style.fillColor = 'white';
 					style.fillOpacity = 0.7;
