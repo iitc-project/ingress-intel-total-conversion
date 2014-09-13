@@ -2,7 +2,7 @@
 // @id             finish-fields@finish
 // @name           IITC plugin: Finish Fields
 // @category       Layer
-// @version        0.2.1.20140815.141737
+// @version        0.0.1.20140815.141737
 // @updateURL      https://secure.jonatkins.com/iitc/release/plugins/complete-fields.meta.js
 // @downloadURL    https://secure.jonatkins.com/iitc/release/plugins/complete-fields.user.js
 // @description    [jonatkins-2014-08-15-141737] Find links that would finish fields with only two out of three links
@@ -20,9 +20,9 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
-plugin_info.buildName = 'jonatkins';
-plugin_info.dateTimeVersion = '20140815.141737';
-plugin_info.pluginId = 'finish-fields';
+//plugin_info.buildName = 'jonatkins';
+//plugin_info.dateTimeVersion = '20140815.141737';
+//plugin_info.pluginId = 'finish-fields';
 //END PLUGIN AUTHORS NOTE
 
 
