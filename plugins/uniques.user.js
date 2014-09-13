@@ -2,7 +2,7 @@
 // @id             iitc-plugin-uniques@3ch01c
 // @name           IITC plugin: Uniques
 // @category       Misc
-// @version        0.2.1.@@DATETIMEVERSION@@
+// @version        0.2.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/3ch01c/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
