@@ -3,8 +3,8 @@
 // @name           IITC plugin: Finish Fields
 // @category       Layer
 // @version        0.0.1.20140815.141737
-// @updateURL      https://secure.jonatkins.com/iitc/release/plugins/complete-fields.meta.js
-// @downloadURL    https://secure.jonatkins.com/iitc/release/plugins/complete-fields.user.js
+// @updateURL      https://secure.jonatkins.com/iitc/release/plugins/finish-fields.meta.js
+// @downloadURL    https://secure.jonatkins.com/iitc/release/plugins/finish-fields.user.js
 // @description    [jonatkins-2014-08-15-141737] Find links that would finish fields with only two out of three links
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
@@ -15,281 +15,292 @@
 
 
 function wrapper(plugin_info) {
-// ensure plugin framework is there, even if iitc is not yet loaded
-if(typeof window.plugin !== 'function') window.plugin = function() {};
-
-//PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
-//(leaving them in place might break the 'About IITC' page or break update checks)
-//plugin_info.buildName = 'jonatkins';
-//plugin_info.dateTimeVersion = '20140815.141737';
-//plugin_info.pluginId = 'finish-fields';
-//END PLUGIN AUTHORS NOTE
-
-
-
-// PLUGIN START ////////////////////////////////////////////////////////
-
-// use own namespace for plugin
-window.plugin.finishFields = function() {};
-
-// const values
-window.plugin.finishFields.MAX_PORTALS_TO_OBSERVE = 1000;
-window.plugin.finishFields.MAX_PORTALS_TO_LINK = 100;
-// zoom level used for projecting points between latLng and pixel coordinates. may affect precision of triangulation
-window.plugin.finishFields.PROJECT_ZOOM = 16;
-
-
-window.plugin.finishFields.layerGroup = null;
-
-window.plugin.finishFields.updateLayer = function() {
-  if (window.map.hasLayer(window.plugin.finishFields.layerGroup))
-    return;
-
-  window.plugin.finishFields.layerGroup.clearLayers();
-  var ctrl = [$('.leaflet-control-layers-selector + span:contains("Finish fields")').parent()];
-  if (Object.keys(window.portals).length > window.plugin.finishFields.MAX_PORTALS_TO_OBSERVE) {
-    $.each(ctrl, function(guid, ctl) {ctl.addClass('disabled').attr('title', 'Too many portals: ' + Object.keys(window.portals).length);});
-    return;
-  }
-alert(Object.keys(window.portals).length);
-return;
-  
-  var locations = [];
-
-  var bounds = map.getBounds();
-  $.each(window.portals, function(guid, portal) {
-    var ll = portal.getLatLng();
-    if (bounds.contains(ll)) {
-      var p = map.project(portal.getLatLng(), window.plugin.finishFields.PROJECT_ZOOM);
-      locations.push(p);
-    }
-  });
-
-  var distance = function(a, b) {
-    return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
-  };
-
-  var drawLink = function(a, b, style) {
-    var alatlng = map.unproject(a, window.plugin.finishFields.PROJECT_ZOOM);
-    var blatlng = map.unproject(b, window.plugin.finishFields.PROJECT_ZOOM);
-
-    var poly = L.polyline([alatlng, blatlng], style);
-    poly.addTo(window.plugin.finishFields.layerGroup);
-  }
-  
-  if (locations.length > window.plugin.finishFields.MAX_PORTALS_TO_LINK) {
-    $.each(ctrl, function(guid, ctl) {ctl.addClass('disabled').attr('title', 'Too many portals (linked/observed): ' + locations.length + '/' + Object.keys(window.portals).length);});
-    return;
-  }
-  $.each(ctrl, function(guid, ctl) {ctl.removeClass('disabled').attr('title', 'portals (linked/observed): ' + locations.length + '/' + Object.keys(window.portals).length);});
-  
-  var EPS = 1e-9;
-  var det = function(a, b, c) {
-    return a.x * b.y - a.y * b.x + b.x * c.y - b.y * c.x + c.x * a.y - c.y * a.x;
-  }
-  
-  var convexHull = function(points) {
-    if (points.length < 3)
-      return [];
-    var result = [];
-    var func = function _func(ai, bi, index) {
-      var maxd = 0;
-      var maxdi = -1;
-      var a = points[ai];
-      var b = points[bi];
-      var _index = [];
-      for (var i = 0; i < index.length; ++i) {
-        var c = points[index[i]];
-        var d = -det(a, b, c);
-        if (d > EPS) {
-            _index.push(index[i]);
+    // ensure plugin framework is there, even if iitc is not yet loaded
+    if(typeof window.plugin !== 'function') window.plugin = function() {};
+    
+    //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
+    //(leaving them in place might break the 'About IITC' page or break update checks)
+    //plugin_info.buildName = 'jonatkins';
+    //plugin_info.dateTimeVersion = '20140815.141737';
+    //plugin_info.pluginId = 'finish-fields';
+    //END PLUGIN AUTHORS NOTE
+    
+    
+    
+    // PLUGIN START ////////////////////////////////////////////////////////
+    
+    // use own namespace for plugin
+    window.plugin.finishFields = function() {};
+    
+    // const values
+    window.plugin.finishFields.MAX_PORTALS_TO_OBSERVE = 1000;
+    window.plugin.finishFields.MAX_PORTALS_TO_LINK = 100;
+    // zoom level used for projecting points between latLng and pixel coordinates. may affect precision of triangulation
+    window.plugin.finishFields.PROJECT_ZOOM = 16;
+    
+    window.plugin.finishFields.LINE_STYLE = {
+        color: '#f0f',
+        opacity: 1,
+        weight: 2,
+        clickable: false,
+        smoothFactor: 10,
+        dashArray: [8,8],
+    };
+    
+    
+    window.plugin.finishFields.layerGroup = null;
+    
+    window.plugin.finishFields.updateLayer = function() {
+        if (! window.map.hasLayer(window.plugin.finishFields.layerGroup))
+            return;
+        
+        window.plugin.finishFields.layerGroup.clearLayers();
+        var ctrl = [$('.leaflet-control-layers-selector + span:contains("Finish fields")').parent()];
+        if (Object.keys(window.portals).length > window.plugin.finishFields.MAX_PORTALS_TO_OBSERVE) {
+            $.each(ctrl, function(guid, ctl) {ctl.addClass('disabled').attr('title', 'Too many portals: ' + Object.keys(window.portals).length);});
+            return;
         }
-        if (maxd < d - EPS) {
-          maxd = d;
-          maxdi = index[i];
-        }
-      }
-      if (maxdi != -1) {
-        _func(ai, maxdi, _index);
-        _func(maxdi, bi, _index);
-      } else {
-        result.push(ai);
-      }
-    }
-    var minxi = 0;
-    var maxxi = 0;
-    var index = [];
-    for (var i = 0; i < points.length; ++i) {
-      index.push(i);
-      if (points[minxi].x > points[i].x)
-        minxi = i;
-      if (points[maxxi].x < points[i].x)
-        maxxi = i;
-    }
-    func(minxi, maxxi, index);
-    func(maxxi, minxi, index);
-    return result;
-  }
-  
-  var index = convexHull(locations);
-  
-  var triangulate = function(index, locations) {
-    if (index.length == 0)
-      return {edges: [], triangles: []};
-    var data = [];
-    var subtriangulate = function _subtriangulate(ai, bi, ci, index) {
-      var _i = [ai, bi, ci].sort(function(a,b){return a-b;});
-      if (data[_i[0]] === undefined)
-        data[_i[0]] = [];
-      if (data[_i[0]][_i[1]-_i[0]] === undefined)
-        data[_i[0]][_i[1]-_i[0]] = [];
-      if (data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]] === undefined) {
-        var _index = [];
-        for (var i = 0; i < index.length; ++i) {
-          var detc = det(locations[ai], locations[bi], locations[index[i]]);
-          var deta = det(locations[bi], locations[ci], locations[index[i]]);
-          var detb = det(locations[ci], locations[ai], locations[index[i]]);
-          if (deta > EPS && detb > EPS && detc > EPS) {
-            _index.push(index[i]);
-          }
-        }
-        var besth = 0;
-        var besthi = -1;
-        if (_index.length == 0) {
-          var a = locations[ai];
-          var b = locations[bi];
-          var c = locations[ci];
-          var s = Math.abs(det(a, b, c));
-          var ch = s / distance(a, b);
-          var ah = s / distance(b, c);
-          var bh = s / distance(c, a);
-          besth = Math.min(ah, bh, ch);
-          besthi = -1;
-        } else {
-          var besths = 0;
-          for (var i = 0; i < _index.length; ++i) {
-            var ch = _subtriangulate(ai, bi, _index[i], _index);
-            var ah = _subtriangulate(bi, ci, _index[i], _index);
-            var bh = _subtriangulate(ci, ai, _index[i], _index);
-            var _besth = Math.min(ah, bh, ch);
-            var _besths = ah + bh + ch;
-            if (besth < _besth || Math.abs(besth - _besth) <= EPS && besths < _besths) {
-              besth = _besth;
-              besths = _besths;
-              besthi = _index[i];
-            }
-          }
-        }
-        data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]] = {height: besth, index: besthi};
-      }
-      return data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]].height;
-    }
-    var subindex = [];
-    for (var i = 0; i < locations.length; ++i) {
-      subindex.push(i);
-    }
-    var best = [];
-    for (var len = 1; len <= index.length - 1; ++len) {
-      best[len] = [];
-      for (var k = 0; k < index.length - len; ++k) {
-        var t = 0;
-        var tlen = -1;
-        for (var _len = 1; _len <= len - 1; ++_len) {
-          var _t = 0;
-          $.each([best[_len][k].height, best[len-_len][k+_len].height, subtriangulate(index[k], index[k+_len], index[k+len], subindex)], function(guid, __t) {
-            if (__t == 0)
-              return;
-            if (_t == 0 || _t > __t)
-              _t = __t;
-          });
-          if (t == 0 || t < _t) {
-            t = _t;
-            tlen = _len;
-          }
-        }
-        best[len][k] = {height: t, length: tlen};
-      }
+        
+        // portalLinkMap will be a two-level hash of portal guids to the link guid ([originPortalGuid][destinationPortalGuid] = linkGuid)
+        var portalLinkMap = {};
+        $.each(window.links, function(idx, link) {
+            if (link.options.data.team != PLAYER.team) return true; // skip this link if its the wrong faction
+            var guid = link.options.guid;
+            var d = link.options.data;
+            if (!portalLinkMap[d.oGuid]) portalLinkMap[d.oGuid] = {};
+            if (!portalLinkMap[d.dGuid]) portalLinkMap[d.dGuid] = {};
+            portalLinkMap[d.oGuid][d.dGuid] = guid;
+            portalLinkMap[d.dGuid][d.oGuid] = guid;
+        });
+        
+        var now = Date.now();
+        var count = 0;
+        var newLinks = [];        
+        $.each(portalLinkMap, function(guid, map) {
+            if (newLinks.length > window.plugin.finishFields.MAX_PORTALS_TO_LINK)
+                return;
+            // get the list of all portal guids linked to this portal
+            var guids = Object.keys(map).sort();
+            if (guids.length < 2) return; // ignore any portal with less than 2 links (we want to highlight only the 3 link so need 2 existing links)
+            //console.debug('Found a portal with more than 2 links', guid, guids, guids.length);
+            
+            // now we have to look at ALL pairs of linked portals since any two might allow for a field
+            $.each(guids, function(idx1, guid1) {
+                if (newLinks.length > window.plugin.finishFields.MAX_PORTALS_TO_LINK)
+                    return;
+                
+                $.each(guids, function(idx2, guid2) {                 
+                    if (newLinks.length > window.plugin.finishFields.MAX_PORTALS_TO_LINK)
+                        return;
+                    
+                    // order doesn't matter so arbitrarily choose to do them in ascending order
+                    if (guid2 <= guid1) return;
+                    // skip if there is already a link between these two
+                    if (portalLinkMap[guid1][guid2]) return;
+                    //console.debug('Found a potential pair: ', guid1, guid2);
+                    
+                    // now get coordinates for these two
+                    var fpll = findPortalLatLng;
+                    var a = fpll(guid1);
+                    var b = fpll(guid2);
+                    if (typeof a === 'undefined' || typeof b === 'undefined') {
+                        //console.debug('Unable to find coordinates for both portals: ', a, b);
+                        return true;
+                    }
+                    
+                    // try to find titles for nicer debugging messages
+                    var p1 = portals[guid1] || portalDetail.get(guid1);
+                    var p2 = portals[guid2] || portalDetail.get(guid2);
+                    var t1 = p1 ? p1.options ? p1.options.data.title : p1.title : guid1;
+                    var t2 = p2 ? p2.options ? p2.options.data.title : p2.title : guid2;
+                    //console.debug('Checking potential link from ' + t1 + ' to ' + t2);
+                    
+                    // test that potential link does not cross any existing links
+                    var skip = false;
+                    $.each(window.links, function(guid, link) {
+                        var lll = link.getLatLngs();
+                        count++;
+                        skip = window.plugin.finishFields.greatCircleArcIntersect(a, b, lll[0], lll[1]);
+                        //console.debug("existing link check: " + skip);
+                        return ! skip;
+                    });
+                    // test that potential link does not cross any of our new suggested links
+                    if (! skip) {
+                        $.each(newLinks, function(idx, newLink) {
+                            count++;
+                            skip = window.plugin.finishFields.greatCircleArcIntersect(a, b, newLink[0], newLink[1]);
+                            //console.debug("new link check: " + skip);
+                            return ! skip;
+                        });
+                    }
+                    if (skip) {
+                        //console.debug('Skipping potential link from ' + t1 + ' to ' + t2);
+                        return true;
+                    }
+                    
+                    
+                    //console.debug('Drawing new link from ' + t1 + ' to ' + t2);
+                    var poly = L.geodesicPolyline([a, b], window.plugin.finishFields.LINE_STYLE);
+                                                  poly.addTo(window.plugin.finishFields.layerGroup);
+                    newLinks.push([a, b]);
+                });
+            });
+        });
+        var elapsed = Date.now();
+        //console.log('Refresh resulted in ' + Object.keys(window.portals).length + ' portals and ' + Object.keys(window.links).length + ' links and we made ' + count + ' intersection checks and created ' + newLinks.length + ' new links in ' + (elapsed - now) + 'ms');
     }
     
-    var edges = [];
-    var triangles = [];
-    var makesubtriangulation = function _makesubtriangulation(ai, bi, ci, depth) {
-      var _i = [ai, bi, ci].sort(function(a,b){return a-b;});
-      if (data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]].index == -1) {
-        triangles.push(new window.plugin.finishFields.Triangle(locations[ai], locations[bi], locations[ci], depth));
-      } else {
-        _makesubtriangulation(ai, bi, data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]].index, depth+1);
-        _makesubtriangulation(bi, ci, data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]].index, depth+1);
-        _makesubtriangulation(ci, ai, data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]].index, depth+1);
-        edges.push(new window.plugin.finishFields.Edge(locations[ai], locations[data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]].index], depth));
-        edges.push(new window.plugin.finishFields.Edge(locations[bi], locations[data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]].index], depth));
-        edges.push(new window.plugin.finishFields.Edge(locations[ci], locations[data[_i[0]][_i[1]-_i[0]][_i[2]-_i[1]].index], depth));
-      }
+    // stolen from crossLinks plugin
+    window.plugin.finishFields.greatCircleArcIntersect = function(a0,a1,b0,b1) {
+        // based on the formula at http://williams.best.vwh.net/avform.htm#Int
+        
+        // method:
+        // check to ensure no line segment is zero length - if so, cannot cross
+        // check to see if either of the lines start/end at the same point. if so, then they cannot cross
+        // check to see if the line segments overlap in longitude. if not, no crossing
+        // if overlap, clip each line to the overlapping longitudes, then see if latitudes cross 
+        
+        // anti-meridian handling. this code will not sensibly handle a case where one point is
+        // close to -180 degrees and the other +180 degrees. unwrap coordinates in this case, so one point
+        // is beyond +-180 degrees. this is already true in IITC
+        // FIXME? if the two lines have been 'unwrapped' differently - one positive, one negative - it will fail
+        
+        // zero length line tests
+        if (a0.equals(a1)) return false;
+        if (b0.equals(b1)) return false;
+        
+        // lines have a common point
+        if (a0.equals(b0) || a0.equals(b1)) return false;
+        if (a1.equals(b0) || a1.equals(b1)) return false;
+        
+        
+        // check for 'horizontal' overlap in lngitude
+        if (Math.min(a0.lng,a1.lng) > Math.max(b0.lng,b1.lng)) return false;
+        if (Math.max(a0.lng,a1.lng) < Math.min(b0.lng,b1.lng)) return false;
+        
+        
+        // ok, our two lines have some horizontal overlap in longitude
+        // 1. calculate the overlapping min/max longitude
+        // 2. calculate each line latitude at each point
+        // 3. if latitudes change place between overlapping range, the lines cross
+        
+        
+        // class to hold the pre-calculated maths for a geodesic line
+        // TODO: move this outside this function, so it can be pre-calculated once for each line we test
+        var GeodesicLine = function(start,end) {
+            var d2r = Math.PI/180.0;
+            var r2d = 180.0/Math.PI;
+            
+            // maths based on http://williams.best.vwh.net/avform.htm#Int
+            
+            if (start.lng == end.lng) {
+                throw 'Error: cannot calculate latitude for meridians';
+            }
+            
+            // only the variables needed to calculate a latitude for a given longitude are stored in 'this'
+            this.lat1 = start.lat * d2r;
+            this.lat2 = end.lat * d2r;
+            this.lng1 = start.lng * d2r;
+            this.lng2 = end.lng * d2r;
+            
+            var dLng = this.lng1-this.lng2;
+            
+            var sinLat1 = Math.sin(this.lat1);
+            var sinLat2 = Math.sin(this.lat2);
+            var cosLat1 = Math.cos(this.lat1);
+            var cosLat2 = Math.cos(this.lat2);
+            
+            this.sinLat1CosLat2 = sinLat1*cosLat2;
+            this.sinLat2CosLat1 = sinLat2*cosLat1;
+            
+            this.cosLat1CosLat2SinDLng = cosLat1*cosLat2*Math.sin(dLng);
+        }
+        
+        GeodesicLine.prototype.isMeridian = function() {
+            return this.lng1 == this.lng2;
+        }
+        
+        GeodesicLine.prototype.latAtLng = function(lng) {
+            lng = lng * Math.PI / 180; //to radians
+            
+            var lat;
+            // if we're testing the start/end point, return that directly rather than calculating
+            // 1. this may be fractionally faster, no complex maths
+            // 2. there's odd rounding issues that occur on some browsers (noticed on IITC MObile) for very short links - this may help
+            if (lng == this.lng1) {
+                lat = this.lat1;
+            } else if (lng == this.lng2) {
+                lat = this.lat2;
+            } else {
+                lat = Math.atan ( (this.sinLat1CosLat2*Math.sin(lng-this.lng2) - this.sinLat2CosLat1*Math.sin(lng-this.lng1))
+                                 / this.cosLat1CosLat2SinDLng);
+            }
+            return lat * 180 / Math.PI; // return value in degrees
+        }
+        
+        
+        
+        // calculate the longitude of the overlapping region
+        var leftLng = Math.max( Math.min(a0.lng,a1.lng), Math.min(b0.lng,b1.lng) );
+        var rightLng = Math.min( Math.max(a0.lng,a1.lng), Math.max(b0.lng,b1.lng) );
+        
+        // calculate the latitudes for each line at left + right longitudes
+        // NOTE: need a special case for meridians - as GeodesicLine.latAtLng method is invalid in that case
+        var aLeftLat, aRightLat;
+        if (a0.lng == a1.lng) {
+            // 'left' and 'right' now become 'top' and 'bottom' (in some order) - which is fine for the below intersection code
+            aLeftLat = a0.lat;
+            aRightLat = a1.lat;
+        } else {
+            var aGeo = new GeodesicLine(a0,a1);
+            aLeftLat = aGeo.latAtLng(leftLng);
+            aRightLat = aGeo.latAtLng(rightLng);
+        }
+        
+        var bLeftLat, bRightLat;
+        if (b0.lng == b1.lng) {
+            // 'left' and 'right' now become 'top' and 'bottom' (in some order) - which is fine for the below intersection code
+            bLeftLat = b0.lat;
+            bRightLat = b1.lat;
+        } else {
+            var bGeo = new GeodesicLine(b0,b1);
+            bLeftLat = bGeo.latAtLng(leftLng);
+            bRightLat = bGeo.latAtLng(rightLng);
+        }
+        
+        // if both a are less or greater than both b, then lines do not cross
+        
+        if (aLeftLat < bLeftLat && aRightLat < bRightLat) return false;
+        if (aLeftLat > bLeftLat && aRightLat > bRightLat) return false;
+        
+        // latitudes cross between left and right - so geodesic lines cross
+        return true;
     }
-    var maketriangulation = function _maketriangulation(len, a) {
-      edges.push(new window.plugin.finishFields.Edge(locations[index[a]], locations[index[a+len]], 0));
-      if (best[len][a].length == -1)
-        return;
-      makesubtriangulation(index[a], index[a+best[len][a].length], index[a+len], 1);
-      _maketriangulation(best[len][a].length, a);
-      _maketriangulation(len - best[len][a].length, a + best[len][a].length);
+    
+    
+    window.plugin.finishFields.setup = function() {
+        window.plugin.finishFields.layerGroup = new L.LayerGroup();
+        
+        window.addHook('mapDataRefreshEnd', function(e) {
+            window.plugin.finishFields.updateLayer();
+        });
+        
+        window.map.on('moveend', function() {
+            window.plugin.finishFields.updateLayer();
+        });
+        
+        window.addLayerGroup('Finish fields', window.plugin.finishFields.layerGroup, false);
     }
-    maketriangulation(index.length - 1, 0);
-    return {edges: edges, triangles: triangles};
-  }
-  
-  var triangulation = triangulate(index, locations);
-  var edges = triangulation.edges;
-  var triangles = triangulation.triangles;
-
-  $.each(edges, function(idx, edge) {
-    drawLink(edge.a, edge.b, {
-      color: '#FF0000',
-      opacity: 1,
-      weight: 1.5,
-      clickable: false,
-      smoothFactor: 10,
-      dashArray: [6, 4],
-    });
-  });
-}
-
-window.plugin.finishFields.Edge = function(a, b, depth) {
-  this.a = a;
-  this.b = b;
-  this.depth = depth;
-}
-
-window.plugin.finishFields.Triangle = function(a, b, c, depth) {
-  this.a = a;
-  this.b = b;
-  this.c = c;
-  this.depth = depth;
-}
-
-window.plugin.finishFields.setup = function() {
-  window.plugin.finishFields.layerGroup = new L.LayerGroup();
-  
-  window.addHook('mapDataRefreshEnd', function(e) {
-    window.plugin.finishFields.updateLayer();
-  });
-
-  window.map.on('moveend', function() {
-    window.plugin.finishFields.updateLayer();
-  });
-
-  window.addLayerGroup('Finish fields', window.plugin.finishFields.layerGroup, false);
-}
-var setup = window.plugin.finishFields.setup;
-
-// PLUGIN END //////////////////////////////////////////////////////////
-
-
-setup.info = plugin_info; //add the script info data to the function as a property
-if(!window.bootPlugins) window.bootPlugins = [];
-window.bootPlugins.push(setup);
-// if IITC has already booted, immediately run the 'setup' function
-if(window.iitcLoaded && typeof setup === 'function') setup();
+    var setup = window.plugin.finishFields.setup;
+    
+    // PLUGIN END //////////////////////////////////////////////////////////
+    
+    
+    setup.info = plugin_info; //add the script info data to the function as a property
+    if(!window.bootPlugins) window.bootPlugins = [];
+    window.bootPlugins.push(setup);
+    // if IITC has already booted, immediately run the 'setup' function
+    if(window.iitcLoaded && typeof setup === 'function') setup();
 } // wrapper end
 // inject code into site context
 var script = document.createElement('script');
@@ -297,5 +308,3 @@ var info = {};
 if (typeof GM_info !== 'undefined' && GM_info && GM_info.script) info.script = { version: GM_info.script.version, name: GM_info.script.name, description: GM_info.script.description };
 script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));
 (document.body || document.head || document.documentElement).appendChild(script);
-
-
