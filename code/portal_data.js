@@ -98,8 +98,32 @@ window.findPortalLatLng = function(guid) {
 
   window.findPortalGuidByPositionE6 = function(latE6, lngE6) {
     var item = cache[latE6+","+lngE6];
-    if(!item) return null;
-    return item[0];
+    if(item) return item[0];
+
+    // now try searching through currently rendered portals
+    for(var guid in window.portals) {
+      var data = window.portals[guid].options.data;
+      if(data.latE6 == latE6 && data.lngE6 == lngE6) return guid;
+    }
+
+    // now try searching through fields
+    for(var fguid in window.fields) {
+      var points = window.fields[fguid].options.data.points;
+
+      for(var i in points) {
+        var point = points[i];
+        if(point.latE6 == latE6 && point.lngE6 == lngE6) return point.guid;
+      }
+    }
+
+    // and finally search through links
+    for(var lguid in window.links) {
+      var l = window.links[lguid].options.data;
+      if(l.oLatE6 == latE6 && l.oLngE6 == lngE6) return l.oGuid;
+      if(l.dLatE6 == latE6 && l.dLngE6 == lngE6) return l.dGuid;
+    }
+
+    return null;
   };
 
   window.pushPortalGuidPositionCache = function(guid, latE6, lngE6) {
