@@ -86,7 +86,9 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[3][0] == 'TEXT'
 		&& markup[3][1].plain == ' Resonator on '
 		&& markup[4][0] == 'PORTAL') {
-			plugin.uniques.setPortalVisited(markup[4][1].guid);
+			var portal = markup[4][1];
+			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
+			if(guid) plugin.uniques.setPortalVisited(guid);
 		}
 
 		// search for "x captured y"
@@ -97,7 +99,9 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[1][0] == 'TEXT'
 		&& markup[1][1].plain == ' captured '
 		&& markup[2][0] == 'PORTAL') {
-			plugin.uniques.setPortalCaptured(markup[2][1].guid);
+			var portal = markup[2][1];
+			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
+			if(guid) plugin.uniques.setPortalVisited(guid);
 		}
 
 		// search for "x linked y to z"
@@ -111,7 +115,9 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[3][0] == 'TEXT'
 		&& markup[3][1].plain == ' to '
 		&& markup[4][0] == 'PORTAL') {
-			plugin.uniques.setPortalVisited(markup[2][1].guid);
+			var portal = markup[2][1];
+			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
+			if(guid) plugin.uniques.setPortalVisited(guid);
 		}
 
 		// search for "Your Lx Resonator on y was destroyed by z"
@@ -126,7 +132,9 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[4][0] == 'TEXT'
 		&& markup[4][1].plain == ' was destroyed by '
 		&& markup[5][0] == 'PLAYER') {
-			plugin.uniques.setPortalVisited(markup[3][1].guid);
+			var portal = markup[3][1];
+			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
+			if(guid) plugin.uniques.setPortalVisited(guid);
 		}
 
 		// search for "Your Lx Resonator on y has decayed"
@@ -140,7 +148,9 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[3][0] == 'PORTAL'
 		&& markup[4][0] == 'TEXT'
 		&& markup[4][1].plain == ' has decayed') {
-			plugin.uniques.setPortalVisited(markup[3][1].guid);
+			var portal = markup[3][1];
+			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
+			if(guid) plugin.uniques.setPortalVisited(guid);
 		}
 
 		// search for "Your Portal x neutralized by y"
@@ -153,7 +163,9 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[2][0] == 'TEXT'
 		&& (markup[2][1].plain == ' neutralized by ' || markup[2][1].plain == ' is under attack by ')
 		&& markup[3][0] == 'PLAYER') {
-			plugin.uniques.setPortalVisited(markup[1][1].guid);
+			var portal = markup[1][1];
+			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
+			if(guid) plugin.uniques.setPortalVisited(guid);
 		}
 	});
 }
