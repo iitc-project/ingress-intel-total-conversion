@@ -259,6 +259,8 @@ window.plugin.guessPlayerLevels.extractChatData = function(data) {
       var latlngs = [];
       var portals = {};
       attackData[nick][timestamp].forEach(function(portal) {
+        // no GUID in the data any more - but we need some unique string. use the latE6,lngE6
+        markup[1].latE6+","+markup[1].lngE6;
         if(portals.hasOwnProperty(portal.guid))
           return;
         portals[portal.guid] = 1;
