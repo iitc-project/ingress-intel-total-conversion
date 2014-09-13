@@ -30,7 +30,7 @@
   // use own namespace for plugin
   window.plugin.bookmarks = function() {};
 
-  window.plugin.bookmarks.SYNC_DELAY = 5000;
+  window.plugin.bookmarks.SYNC_DELAY = 5;
 
   window.plugin.bookmarks.KEY_OTHER_BKMRK = 'idOthers';
   window.plugin.bookmarks.KEY_STORAGE = 'plugin-bookmarks';
@@ -322,12 +322,12 @@
   }
 
   // Switch the status of the star
-  window.plugin.bookmarks.switchStarPortal = function() {
-    var guid = window.selectedPortal;
+  window.plugin.bookmarks.switchStarPortal = function(guid) {
+    if(guid == undefined) guid = window.selectedPortal;
 
     // If portal is saved in bookmarks: Remove this bookmark
-    if($('.bkmrksStar').hasClass('favorite')) {
-      var bkmrkData = window.plugin.bookmarks.findByGuid(guid);
+    var bkmrkData = window.plugin.bookmarks.findByGuid(guid);
+    if(bkmrkData) {
       var list = window.plugin.bookmarks.bkmrksObj['portals'];
       delete list[bkmrkData['id_folder']]['bkmrk'][bkmrkData['id_bookmark']];
       $('.bkmrk#'+bkmrkData['id_bookmark']+'').remove();
@@ -342,22 +342,21 @@
     else{
       // Get portal name and coordinates
       var p = window.portals[guid];
-      var d = p.options.data;
-      var label = d.title;
-      var lat = p.getLatLng().lat;
-      var lng = p.getLatLng().lng;
-      var latlng = lat+','+lng;
-
-      var ID = window.plugin.bookmarks.generateID();
-
-      // Add bookmark in the localStorage
-      window.plugin.bookmarks.bkmrksObj['portals'][window.plugin.bookmarks.KEY_OTHER_BKMRK]['bkmrk'][ID] = {"guid":guid,"latlng":latlng,"label":label};
-
-      window.plugin.bookmarks.saveStorage();
-      window.plugin.bookmarks.refreshBkmrks();
-      window.runHooks('pluginBkmrksEdit', {"target": "portal", "action": "add", "id": ID});
-      console.log('BOOKMARKS: added portal '+ID);
+      var ll = p.getLatLng();
+      plugin.bookmarks.addPortalBookmark(guid, ll.lat+','+ll.lng, p.options.data.title);
     }
+  }
+
+  plugin.bookmarks.addPortalBookmark = function(guid, latlng, label) {
+    var ID = window.plugin.bookmarks.generateID();
+
+    // Add bookmark in the localStorage
+    window.plugin.bookmarks.bkmrksObj['portals'][window.plugin.bookmarks.KEY_OTHER_BKMRK]['bkmrk'][ID] = {"guid":guid,"latlng":latlng,"label":label};
+
+    window.plugin.bookmarks.saveStorage();
+    window.plugin.bookmarks.refreshBkmrks();
+    window.runHooks('pluginBkmrksEdit', {"target": "portal", "action": "add", "id": ID, "guid": guid});
+    console.log('BOOKMARKS: added portal '+ID);
   }
 
   // Add BOOKMARK/FOLDER
@@ -1031,7 +1030,7 @@
   window.plugin.bookmarks.editStar = function(data) {
     if(data.target === 'portal') {
       if(data.action === 'add') {
-        var guid = window.selectedPortal;
+        var guid = data.guid;
         var latlng = window.portals[guid].getLatLng();
         var lbl = window.portals[guid].options.data.title;
         var starInLayer = window.plugin.bookmarks.starLayers[data.guid];
@@ -1053,7 +1052,61 @@
   window.plugin.bookmarks.setupCSS = function() {
     $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:plugins/bookmarks-css.css@@').appendTo('head');
   }
- 
+
+  window.plugin.bookmarks.setupPortalsList = function() {
+    function onBookmarkChanged(data) {
+      console.log(data, data.target, data.guid);
+
+      if(data.target == "portal" && data.guid) {
+        if(plugin.bookmarks.findByGuid(data.guid))
+          $('[data-list-bookmark="'+data.guid+'"]').addClass("favorite");
+        else
+          $('[data-list-bookmark="'+data.guid+'"]').removeClass("favorite");
+      } else {
+        $('[data-list-bookmark]').each(function(i, element) {
+          var guid = element.getAttribute("data-list-bookmark");
+          if(plugin.bookmarks.findByGuid(guid))
+            $(element).addClass("favorite");
+          else
+            $(element).removeClass("favorite");
+        });
+      }
+    }
+
+    window.addHook('pluginBkmrksEdit', onBookmarkChanged);
+    window.addHook('pluginBkmrksSyncEnd', onBookmarkChanged);
+
+    window.plugin.portalslist.fields.unshift({ // insert at first column
+      title: "",
+      value: function(portal) { return portal.options.guid; }, // we store the guid, but implement a custom comparator so the list does sort properly without closing and reopening the dialog
+      sort: function(guidA, guidB) {
+        var infoA = plugin.bookmarks.findByGuid(guidA);
+        var infoB = plugin.bookmarks.findByGuid(guidB);
+        if(infoA && !infoB) return 1;
+        if(infoB && !infoA) return -1;
+        return 0;
+      },
+      format: function(cell, portal, guid) {
+        $(cell)
+          .addClass("portal-list-bookmark")
+          .attr("data-list-bookmark", guid);
+
+        // for some reason, jQuery removes event listeners when the list is sorted. Therefore we use DOM's addEventListener
+        $('<span>').appendTo(cell)[0].addEventListener("click", function() {
+          if(window.plugin.bookmarks.findByGuid(guid)) {
+            window.plugin.bookmarks.switchStarPortal(guid);
+          } else {
+            var ll = portal.getLatLng();
+            plugin.bookmarks.addPortalBookmark(guid, ll.lat+','+ll.lng, portal.options.data.title);
+          }
+        }, false);
+
+        if(plugin.bookmarks.findByGuid(guid))
+          cell.className += " favorite";
+      },
+    });
+  }
+
   window.plugin.bookmarks.setupContent = function() {
     plugin.bookmarks.htmlBoxTrigger = '<a id="bkmrksTrigger" class="open" onclick="window.plugin.bookmarks.switchStatusBkmrksBox(\'switch\');return false;" accesskey="v" title="[v]">[-] Bookmarks</a>';
     plugin.bookmarks.htmlBkmrksBox = '<div id="bookmarksBox">'
@@ -1179,6 +1232,15 @@
     window.plugin.bookmarks.addAllStars();
     window.addHook('pluginBkmrksEdit', window.plugin.bookmarks.editStar);
     window.addHook('pluginBkmrksSyncEnd', window.plugin.bookmarks.resetAllStars);
+
+    if(window.plugin.portalslist) {
+      window.plugin.bookmarks.setupPortalsList();
+    } else {
+      setTimeout(function() {
+        if(window.plugin.portalslist)
+          window.plugin.bookmarks.setupPortalsList();
+      }, 500);
+    }
   }
 
 // PLUGIN END //////////////////////////////////////////////////////////
