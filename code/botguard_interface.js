@@ -195,12 +195,14 @@ iitc_bg.get_request_data = function(method) {
   // server, so we stick with the same string rather than something more sensibly named
   var data = "mkxd";
 
-  if (iitc_bg.botguard[group] && iitc_bg.botguard[group].length > 0) {
-    var instance = iitc_bg.botguard[group].shift();
+  if (iitc_bg.instance_queue[group] && iitc_bg.instance_queue[group].length > 0) {
+    var instance = iitc_bg.instance_queue[group].shift();
     instance.invoke(function(a) { data=a; });
   };
 
+  iitc_bg.process_queue(group);
 
+  return data;
 };
 
 // stock site - 'dummy' botguard object
