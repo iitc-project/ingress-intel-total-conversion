@@ -111,6 +111,7 @@ iitc_bg.process_key = function(key,serverEval) {
       // server wants us to eval some code! risky, and impossible to be certain we can do it safely
       // however... reports say that it only interacts with the botguard.bg code, so we might be fine just running it
       try {
+debugger;
         eval(serverEval);
       } catch(e) {
         caught = true;
@@ -123,7 +124,8 @@ iitc_bg.process_key = function(key,serverEval) {
 };
 
 
-
+//convert a method name to the group-[ab]-actions value, or return 'undefined' for no group
+//NOTE: the stock code separates the 'in any group' and 'which group' test, but it's cleaner to combine them
 iitc_bg.get_method_group = function(method) {
 //stock site
 //function wd(a) {
@@ -143,23 +145,6 @@ iitc_bg.get_method_group = function(method) {
   return undefined;
 };
 
-
-// stock site code - called to create the 'c' parameter for each request
-//function Cd(a, b) {
-//  if (-1 == a.gd.indexOf(b)) return "";
-//  var c = "mxkd", d = wd(b);
-//  a.ya[d] && 0 < a.ya[d].length && a.ya[d].shift().invoke(function(a) {
-//    c = a;
-//  });
-//  zd(a, d);
-//  return c;
-//}
-//... also
-//function Sf() {}
-//
-//Sf.prototype.invoke = function(a) {
-//  a("dkxm");
-//};
 
 
 
@@ -213,8 +198,9 @@ iitc_bg.get_request_data = function(method) {
   
 iitc_bg.dummy_botguard = function() {};
 iitc_bg.dummy_botguard.prototype.invoke = function(callback) {
+debugger;
   callback("dkxm");
-}
+};
 
 
 iitc_bg.process_queue = function(group) {
@@ -245,4 +231,48 @@ iitc_bg.process_queue = function(group) {
     iitc_bg.instance_queue[group].push(obj);
   }
 
+};
+
+
+iitc_bg.process_response_params = function(method,data) {
+// stock site: response processing
+//rd.prototype.Xg = function(a, b) {
+//  var c = b.target;
+//  if (Yc(c)) {
+//    this.Rb.reset();
+//    var d = a.df, e = JSON.parse($c(c)), f = ud.g(), g = a.getMethodName(), k = e.a, l = e.b, q = e.c;
+////e==json response, f==singleton, g==method name, k==response.a, l==response.b, q=responce.c
+//    -1 != f.gd.indexOf(g) && (l && k && vd(f, l, k), g = wd(g), q && l && xd(f, g, new yd(q, l)), f.ya[g] && 0 != f.ya[g].length || zd(f, g));
+//    "error" in e && "out of date" == e.error ? (d = J.g(), Ad(!1), d.Ne = !0, Bd("Please refresh for the latest version.")) : n.setTimeout(ma(d, e), 0);
+//  } else this.Rb.ac = !0, d = a.Ze, u(d) && (e = {
+//    error: Zc(c) || "unknown",
+//    respStatus: c.getStatus()
+//  }, n.setTimeout(ma(d, e), 0));
+//  d = this.Vd;
+//  d.oa.remove(c) && d.Wb(c);
+//};
+
+
+  var group = iitc_bg.get_method_group(method);
+
+  if (group) {
+    if (data.b && data.a) {
+      // NOTE: in this case, we *EVAL* the 'data.a' string returned by the server
+      // there is the risk this is not safe to do in IITC, or will otherwise just fail to run usefully
+      iitc_bg.process_key(data.b, data.a);
+    }
+    if (data.c && data.b) {
+      iitc_bg.push_queue(group, data.c, data.b);
+    }
+    if (iitc_bg.instance_queue[group].length == 0) {
+      iitc_bg.process_queue(group);
+    }
+
+  }
+
+  // finally, the rest of IITC won't expect these strange a/b/c params in the response data
+  // (e.g. it's pointless to keep in the cache, etc), so clear them
+  delete data.a;
+  delete data.b;
+  delete data.c;
 };
