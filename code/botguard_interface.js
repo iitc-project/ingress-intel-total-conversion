@@ -40,7 +40,7 @@ iitc_bg.init = function() {
   // B - a key(?). set in the main web page HTML, name isn't changed on site updates
   // CS - initialisation data for botguard - again in the main page, again name is constant
   // a list of method names to protect. varies on site updates (sometimes) - in window.niantic_params.botguard_protected_methods
-  // a (smaller) list of methods for group a - in window.niantic_params.botguard_group_methods
+  // a (smaller) list of methods for group a - in window.niantic_params.botguard_group_a_methods
 
 
   var botguard_key = B;
@@ -111,9 +111,14 @@ iitc_bg.process_key = function(key,serverEval) {
       // server wants us to eval some code! risky, and impossible to be certain we can do it safely
       // however... reports say that it only interacts with the botguard.bg code, so we might be fine just running it
       try {
+        console.warn('Server-generated javascript eval requested:\n'+serverExec);
 debugger;
+if (!confirm('The server asked IITC to run (eval) some javascript. This may or may not be safe. Run and continue?\n\nScript:\n'+serverEval)) { console.error('server javascript eval cancelled') } else
         eval(serverEval);
+console.log('Server-generated javascript ran OK');
       } catch(e) {
+console.warn('Server-generated javascript - threw an exception');
+console.warn(e);
         caught = true;
       }
     }
@@ -135,7 +140,7 @@ iitc_bg.get_method_group = function(method) {
 // undefined for no group
 
   if (window.niantic_params.botguard_protected_methods.indexOf(method) != -1) {
-    if (window.niantic_params.botguard_group_methods.indexOf(method) != -1) {
+    if (window.niantic_params.botguard_group_a_methods.indexOf(method) != -1) {
       return "group-a-actions";
     } else {
       return "group-b-actions";
@@ -198,7 +203,6 @@ iitc_bg.get_request_data = function(method) {
   
 iitc_bg.dummy_botguard = function() {};
 iitc_bg.dummy_botguard.prototype.invoke = function(callback) {
-debugger;
   callback("dkxm");
 };
 

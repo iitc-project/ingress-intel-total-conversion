@@ -451,8 +451,14 @@ window.chat.toggle = function() {
 
 window.chat.request = function() {
   console.log('refreshing chat');
-  chat.requestFaction(false);
-  chat.requestPublic(false);
+  var tab = chat.getActive();
+//TODO: add 'alerts' tab, and add the matching case in here
+  if (tab == 'faction') {
+    chat.requestFaction(false);
+  } else {
+    // the 'public', 'full' and 'compact' tabs are all based off the 'public' COMM data
+    chat.requestPublic(false);
+  }
 }
 
 
