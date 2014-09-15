@@ -398,10 +398,10 @@ window.plugin.drawTools.optAlert = function(message) {
 
 window.plugin.drawTools.optCopy = function() {
     if (typeof android !== 'undefined' && android && android.shareString) {
-        android.shareString(localStorage['plugin-draw-tools-layer']);
+        android.shareString(localStorage[window.plugin.drawTools.KEY_STORAGE]);
     } else {
       dialog({
-        html: '<p><a onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">'+localStorage['plugin-draw-tools-layer']+'</textarea>',
+        html: '<p><a onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">'+localStorage[window.plugin.drawTools.KEY_STORAGE]+'</textarea>',
         width: 600,
         dialogClass: 'ui-dialog-drawtoolsSet-copy',
         title: 'Draw Tools Export'
@@ -411,7 +411,7 @@ window.plugin.drawTools.optCopy = function() {
 
 window.plugin.drawTools.optExport = function() {
   if(typeof android !== 'undefined' && android && android.saveFile) {
-    android.saveFile('IITC-drawn-items.json', 'application/json', localStorage['plugin-draw-tools-layer']);
+    android.saveFile('IITC-drawn-items.json', 'application/json', localStorage[window.plugin.drawTools.KEY_STORAGE]);
   }
 }
 
