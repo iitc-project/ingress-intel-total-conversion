@@ -75,7 +75,11 @@ window.plugin.playerTracker.stored = {};
 
 plugin.playerTracker.onClickListener = function(event) {
   var marker = event.target;
-  window.renderPortalDetails(marker.options.referenceToPortal);
+
+  var ll = marker.options.referenceToPortal.split(",");
+  var guid = window.findPortalGuidByPositionE6(ll[0], ll[1]);
+  if(guid) window.renderPortalDetails(guid);
+
   if (marker.options.desc) {
     plugin.playerTracker.playerPopup.setContent(marker.options.desc);
     plugin.playerTracker.playerPopup.setLatLng(marker.getLatLng());
@@ -141,7 +145,7 @@ window.plugin.playerTracker.processNewData = function(data) {
     if(json[1] < limit) return true;
 
     // find player and portal information
-    var plrname, lat, lng, guid, name, address;
+    var plrname, lat, lng, id=null, name, address;
     var skipThisMessage = false;
     $.each(json[2].plext.markup, function(ind, markup) {
       switch(markup[0]) {
@@ -165,8 +169,8 @@ window.plugin.playerTracker.processNewData = function(data) {
         lat = lat ? lat : markup[1].latE6/1E6;
         lng = lng ? lng : markup[1].lngE6/1E6;
 
-	// no GUID in the data any more - but we need some unique string. use the latE6,lngE6
-        guid = guid ? guid : markup[1].latE6+","+markup[1].lngE6;
+        // no GUID in the data any more - but we need some unique string. use the latE6,lngE6
+        id = markup[1].latE6+","+markup[1].lngE6;
 
         name = name ? name : markup[1].name;
         address = address ? address : markup[1].address;
@@ -175,11 +179,11 @@ window.plugin.playerTracker.processNewData = function(data) {
     });
 
     // skip unusable events
-    if(!plrname || !lat || !lng || !guid || skipThisMessage) return true;
+    if(!plrname || !lat || !lng || !id || skipThisMessage) return true;
 
     var newEvent = {
       latlngs: [[lat, lng]],
-      guids: [guid],
+      ids: [id],
       time: json[1],
       name: name,
       address: address
@@ -211,7 +215,7 @@ window.plugin.playerTracker.processNewData = function(data) {
     // this is multiple resos destroyed at the same time.
     if(evts[cmp].time === json[1]) {
       evts[cmp].latlngs.push([lat, lng]);
-      evts[cmp].guids.push(guid);
+      evts[cmp].ids.push(id);
       plugin.playerTracker.stored[plrname].events = evts;
       return true;
     }
@@ -345,15 +349,15 @@ window.plugin.playerTracker.drawData = function() {
     var eventPortal = []
     var closestPortal;
     var mostPortals = 0;
-    $.each(last.guids, function(i, guid) {
-      if(eventPortal[guid]) {
-        eventPortal[guid]++;
+    $.each(last.ids, function(i, id) {
+      if(eventPortal[id]) {
+        eventPortal[id]++;
       } else {
-        eventPortal[guid] = 1;
+        eventPortal[id] = 1;
       }
-      if(eventPortal[guid] > mostPortals) {
-        mostPortals = eventPortal[guid];
-        closestPortal = guid;
+      if(eventPortal[id] > mostPortals) {
+        mostPortals = eventPortal[id];
+        closestPortal = id;
       }
     });
 

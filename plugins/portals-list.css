@@ -1,0 +1,105 @@
+#portalslist.mobile {
+  background: transparent;
+  border: 0 none !important;
+  height: 100% !important;
+  width: 100% !important;
+  left: 0 !important;
+  top: 0 !important;
+  position: absolute;
+  overflow: auto;
+}
+
+#portalslist table {
+  margin-top: 5px;
+  border-collapse: collapse;
+  empty-cells: show;
+  width: 100%;
+  clear: both;
+}
+
+#portalslist table td, #portalslist table th {
+  background-color: #1b415e;
+  border-bottom: 1px solid #0b314e;
+  color: white;
+  padding: 3px;
+}
+
+#portalslist table th {
+  text-align: center;
+}
+
+#portalslist table .alignR {
+  text-align: right;
+}
+
+#portalslist table.portals td {
+  white-space: nowrap;
+}
+
+#portalslist table th.sortable {
+  cursor: pointer;
+}
+
+#portalslist table .portalTitle {
+  min-width: 120px !important;
+  max-width: 240px !important;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#portalslist .sorted {
+  color: #FFCE00;
+}
+
+#portalslist table.filter {
+  table-layout: fixed;
+  cursor: pointer;
+  border-collapse: separate;
+  border-spacing: 1px;
+}
+
+#portalslist table.filter th {
+  text-align: left;
+  padding-left: 0.3em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#portalslist table.filter td {
+  text-align: right;
+  padding-right: 0.3em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#portalslist .filterNeu {
+  background-color: #666;
+}
+
+#portalslist table tr.res td, #portalslist .filterRes {
+  background-color: #005684;
+}
+
+#portalslist table tr.enl td, #portalslist .filterEnl {
+  background-color: #017f01;
+}
+
+#portalslist table tr.none td {
+  background-color: #000;
+}
+
+#portalslist .disclaimer {
+  margin-top: 10px;
+  font-size: 10px;
+}
+
+#portalslist.mobile table.filter tr {
+  display: block;
+  text-align: center;
+}
+#portalslist.mobile table.filter th, #portalslist.mobile table.filter td {
+  display: inline-block;
+  width: 22%;
+}
+

@@ -2,7 +2,7 @@
 // @id             iitc-plugin-keys@xelio
 // @name           IITC plugin: Keys
 // @category       Keys
-// @version        0.2.0.@@DATETIMEVERSION@@
+// @version        0.3.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -55,8 +55,9 @@ window.plugin.keys.updateDisplayCount = function() {
   $('#keys-count').html(count);
 }
 
-window.plugin.keys.addKey = function(addCount) {
-  var guid = window.selectedPortal;
+window.plugin.keys.addKey = function(addCount, guid) {
+  if(guid == undefined) guid = window.selectedPortal;
+
   var oldCount = plugin.keys.keys[guid];
   var newCount = Math.max((oldCount || 0) + addCount, 0);
   if(oldCount !== newCount) {
@@ -169,7 +170,7 @@ window.plugin.keys.setupCSS = function() {
   $("<style>")
     .prop("type", "text/css")
     .html("@@INCLUDESTRING:plugins/keys.css@@")
-  .appendTo("head");
+    .appendTo("head");
 }
 
 window.plugin.keys.setupContent = function() {
@@ -191,6 +192,52 @@ window.plugin.keys.setupContent = function() {
   plugin.keys.disabledMessage = '<div id="keys-content-outer" title="Your browser do not support localStorage">Plugin Keys disabled</div>';
 }
 
+window.plugin.keys.setupPortalsList = function() {
+  if(!window.plugin.portalslist) return;
+
+  window.addHook('pluginKeysUpdateKey', function(data) {
+    $('[data-list-keycount="'+data.guid+'"]').text(data.count);
+  });
+
+  window.addHook('pluginKeysRefreshAll', function() {
+    $('[data-list-keycount]').each(function(i, element) {
+      var guid = element.getAttribute("data-list-keycount");
+      $(element).text(plugin.keys.keys[guid] || 0);
+    });
+  });
+
+  window.plugin.portalslist.fields.push({
+    title: "Keys",
+    value: function(portal) { return portal.options.guid; }, // we store the guid, but implement a custom comparator so the list does sort properly without closing and reopening the dialog
+    sort: function(guidA, guidB) {
+      var keysA = plugin.keys.keys[guidA] || 0;
+      var keysB = plugin.keys.keys[guidB] || 0;
+      return keysA - keysB;
+    },
+    format: function(cell, portal, guid) {
+      $(cell)
+        .addClass("alignR portal-list-keys ui-dialog-buttonset") // ui-dialog-buttonset for proper button styles
+        .append($('<span>')
+          .text(plugin.keys.keys[guid] || 0)
+          .attr({
+            "class": "value",
+            "data-list-keycount": guid
+          }));
+      // for some reason, jQuery removes event listeners when the list is sorted. Therefore we use DOM's addEventListener
+      $('<button>')
+        .text('+')
+        .addClass("plus")
+        .appendTo(cell)
+        [0].addEventListener("click", function() { window.plugin.keys.addKey(1, guid); }, false);
+      $('<button>')
+        .text('-')
+        .addClass("minus")
+        .appendTo(cell)
+        [0].addEventListener("click", function() { window.plugin.keys.addKey(-1, guid); }, false);
+    },
+  });
+}
+
 var setup =  function() {
   if($.inArray('pluginKeysUpdateKey', window.VALID_HOOKS) < 0)
     window.VALID_HOOKS.push('pluginKeysUpdateKey');
@@ -203,6 +250,15 @@ var setup =  function() {
   window.plugin.keys.loadKeys();
   window.addHook('portalDetailsUpdated', window.plugin.keys.addToSidebar);
   window.addHook('iitcLoaded', window.plugin.keys.registerFieldForSyncing);
+
+  if(window.plugin.portalslist) {
+    window.plugin.keys.setupPortalsList();
+  } else {
+    setTimeout(function() {
+      if(window.plugin.portalslist)
+        window.plugin.keys.setupPortalsList();
+    }, 500);
+  }
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////
