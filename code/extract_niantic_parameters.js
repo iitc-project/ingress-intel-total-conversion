@@ -72,7 +72,7 @@ window.extractFromStock = function() {
   // botguard group-a or group-b, while the others is just a list of those in one group
 
   window.niantic_params.botguard_protected_methods = [];
-  window.niantic_params.botguard_group_methods = [];
+  window.niantic_params.botguard_group_a_methods = [];
 
   var countMethods = function(arr) {
     var methods = ['artifacts', 'getGameScore', 'getPlexts', 'getPortalDetails', 'redeemReward', 'sendInviteEmail', 'sendPlext'];
@@ -92,12 +92,12 @@ window.extractFromStock = function() {
     var arr = arrays[i];
     var arrCount = countMethods(arr);
 
-    // now store the longest in niantic_params.botguard_protected_methods, and 2nd longest in .niantic_params.botguard_group_methods
+    // now store the longest in niantic_params.botguard_protected_methods, and 2nd longest in .niantic_params.botguard_group_a_methods
 
     if (arrCount > protectedMethodsCount) {
       // longest found - copy any existing longest to the 2nd longest
 
-      window.niantic_params.botguard_group_methods = window.niantic_params.botguard_protected_methods;
+      window.niantic_params.botguard_group_a_methods = window.niantic_params.botguard_protected_methods;
       groupMethodsCount = protectedMethodsCount;
 
       //... and set the longest
@@ -106,14 +106,14 @@ window.extractFromStock = function() {
 
     } else if (arrCount > groupMethodsCount) {
       // 2nd longest - store
-      window.niantic_params.botguard_group_methods = arr;
+      window.niantic_params.botguard_group_a_methods = arr;
       groupMethodsCount = arrCount;
     }
 
   }
 
 
-  if (niantic_params.CURRENT_VERSION === undefined || window.niantic_params.botguard_protected_methods.length == 0 || window.niantic_params.botguard_group_methods == 0) {
+  if (niantic_params.CURRENT_VERSION === undefined || window.niantic_params.botguard_protected_methods.length == 0 || window.niantic_params.botguard_group_a_methods == 0) {
     dialog({
       title: 'IITC Broken',
       html: '<p>IITC failed to extract the required parameters from the intel site</p>'
