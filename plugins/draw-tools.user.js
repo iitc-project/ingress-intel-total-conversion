@@ -420,7 +420,8 @@ window.plugin.drawTools.optPaste = function() {
   if(promptAction !== null && promptAction !== '') {
     try {
       var data = JSON.parse(promptAction);
-      window.plugin.drawTools.drawnItemsData.itemArray = data;
+      window.plugin.drawTools.drawnItemsData = data;
+      window.plugin.drawTools.saveStorage();
       window.plugin.drawTools.load();
       console.log('DRAWTOOLS: reset and imported drawn tiems');
       window.plugin.drawTools.optAlert('Import Successful.');
@@ -442,7 +443,7 @@ window.plugin.drawTools.optImport = function() {
   window.requestFile(function(filename, content) {
     try {
       var data = JSON.parse(content);
-      window.plugin.drawTools.drawnItemsData.itemArray = data;
+      window.plugin.drawTools.drawnItemsData = data;
       window.plugin.drawTools.load();
       console.log('DRAWTOOLS: reset and imported drawn tiems');
       window.plugin.drawTools.optAlert('Import Successful.');
