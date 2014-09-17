@@ -273,7 +273,16 @@
 #sidebar #portaldetails h3.title{
 	width:auto;
 }
-#bkmrksTrigger, .bkmrksStar span{
+.portal-list-bookmark span {
+	display:inline-block;
+	margin: -3px;
+	width:16px;
+	height:15px;
+	overflow:hidden;
+	background-repeat:no-repeat;
+	cursor:pointer;
+}
+#bkmrksTrigger, .bkmrksStar span, .portal-list-bookmark span {
 	background-image:url(@@INCLUDEIMAGE:plugins/bookmarks-img.png@@);
 }
 .bkmrksStar span{
@@ -288,7 +297,7 @@
 .bkmrksStar span, .bkmrksStar.favorite:focus span{
 	background-position:left top;
 }
-.bkmrksStar:focus span, .bkmrksStar.favorite span{
+.bkmrksStar:focus span, .bkmrksStar.favorite span, .portal-list-bookmark.favorite span{
 	background-position:right top;
 }
 #bookmarksBox .bookmarkList .bookmarkFolder{
