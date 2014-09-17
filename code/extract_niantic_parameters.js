@@ -19,6 +19,7 @@ window.extractFromStock = function() {
       // a minified object - check for minified prototype entries
 
       if (window[topLevel] && window[topLevel].prototype) {
+
         // the object has a prototype - iterate through the properties of that
         for (var secLevel in window[topLevel].prototype) {
           if (minified.test(secLevel)) {
@@ -42,7 +43,8 @@ window.extractFromStock = function() {
           }
         }
 
-      }
+      } //end 'if .prototype'
+
 
       // finding the required method names for the botguard interface code
       if (window[topLevel] && Object.prototype.toString.call(window[topLevel]) == "[object Array]") {
