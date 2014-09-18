@@ -258,6 +258,8 @@ window.Render.prototype.createPortalEntity = function(ent) {
     data: ent[2]
   };
 
+  window.pushPortalGuidPositionCache(ent[0], ent[2].latE6, ent[2].lngE6);
+
   var marker = createMarker(latlng, dataOptions);
 
   marker.on('click', function() { window.renderPortalDetails(ent[0]); });
