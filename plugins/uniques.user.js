@@ -97,13 +97,17 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		if(plext.plextType == 'SYSTEM_BROADCAST'
 		&& markup.length==3
 		&& markup[0][0] == 'PLAYER'
-		&& markup[0][1].plain == nick
 		&& markup[1][0] == 'TEXT'
 		&& markup[1][1].plain == ' captured '
 		&& markup[2][0] == 'PORTAL') {
 			var portal = markup[2][1];
 			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
-			if(guid) plugin.uniques.setPortalCaptured(guid, time);
+			if(guid) {
+				if (markup[0][1].plain == nick)
+					plugin.uniques.setPortalCaptured(guid, time);
+				else
+					plugin.uniques.resetCaptured(guid);
+			}
 		}
 
 		// search for "x linked y to z"
@@ -168,9 +172,9 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 			var portal = markup[1][1];
 			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
 			if(guid) {
-			    plugin.uniques.setPortalVisited(guid);
-			    if (markup[2][1].plain == ' neutralized by ')
-				plugin.uniques.resetCaptured(markup[1][1].guid);
+				plugin.uniques.setPortalVisited(guid); //TODO: maybe even captured?
+				if (markup[2][1].plain == ' neutralized by ')
+					plugin.uniques.resetCaptured(guid);
 			}
 		}
 	});
@@ -414,8 +418,11 @@ window.plugin.uniques.highlighter = {
 
 		var style = {};
 
+		console.log(data.portal.options.ent[2].team);
 		if (uniqueInfo) {
 			if (uniqueInfo.captured) {
+				if (uniqueInfo.since && data.portal.options.ent[2].team != window.PLAYER.team)
+					plugin.uniques.resetCaptured(guid);
 				if (uniqueInfo.since) {
 					style.fillColor = 'white';
 					style.fillOpacity = 0.7;
