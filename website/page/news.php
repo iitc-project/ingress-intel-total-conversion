@@ -1,5 +1,18 @@
 <h2>News</h2>
 
+<h4>17th September 2014</h4>
+<p>
+IITC 0.18.0 and IITC Mobile 0.11.6 have just been released. This is an important update required to fix a few
+problems caused in recent Niantic site updates.
+</p>
+<p>Changes include:</p>
+<ul>
+<li>New plugin: layer count. Counts the number of overlapping layers on the map at the selected point</li>
+<li>Portals list plugin: A major update, including integration with the bookmarks and uniques plugins</li>
+<li>COMM bugfixes: only load the visible tab (in preperation for adding the 'alerts' tab), and fix COMM not loading on global map view</li>
+<li>plus other tweaks and bugfixes...</li>
+</ul>
+
 <h4>15th August 2014</h4>
 <p>
 IITC 0.17.5 and IITC Mobile 0.11.5 have just been released. This is a critical update required to work
