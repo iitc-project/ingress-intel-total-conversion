@@ -462,7 +462,7 @@ window.plugin.uniques.setupCSS = function() {
 window.plugin.uniques.setupContent = function() {
 	plugin.uniques.contentHTML = '<div id="uniques-container">'
 		+ '<label><input type="checkbox" id="visited" onclick="window.plugin.uniques.updateVisited($(this).prop(\'checked\'))"> Visited</label>'
-		+ '<label><input type="checkbox" id="captured" onclick="window.plugin.uniques.updateCaptured($(this).prop(\'checked\'))"> Captured</label>'
+		+ '<label><input type="checkbox" id="captured" onclick="window.plugin.uniques.updateCaptured($(this).prop(\'checked\'))"> Captured<span id="capturedSince"></span></label>'
 		+ '</div>';
 	plugin.uniques.disabledMessage = '<div id="uniques-container" class="help" title="Your browser does not support localStorage">Plugin Uniques disabled</div>';
 };
