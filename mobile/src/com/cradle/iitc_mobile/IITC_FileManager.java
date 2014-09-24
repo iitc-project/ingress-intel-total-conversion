@@ -144,7 +144,7 @@ public class IITC_FileManager {
 
     public IITC_FileManager(final Activity activity) {
         mActivity = activity;
-        mIitcPath = Environment.getExternalStorageDirectory().getPath() + "/Activity/";
+        mIitcPath = Environment.getExternalStorageDirectory().getPath() + "/IITC_Mobile/";
         mPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
         mAssetManager = mActivity.getAssets();
     }
