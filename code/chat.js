@@ -41,7 +41,7 @@ window.chat._oldBBox = null;
 window.chat.genPostData = function(isFaction, storageHash, getOlderMsgs) {
   if(typeof isFaction !== 'boolean') throw('Need to know if public or faction chat.');
 
-  var b = map.getBounds();
+  var b = clampLatLngBounds(map.getBounds());
 
   // set a current bounding box if none set so far
   if (!chat._oldBBox) chat._oldBBox = b;
@@ -430,6 +430,13 @@ window.chat.getActive = function() {
   return $('#chatcontrols .active').text();
 }
 
+window.chat.tabToChannel = function(tab) {
+  if (tab == 'faction') return 'faction';
+  if (tab == 'alerts') return 'alerts';
+  return 'public'; //for 'full', 'compact' and 'public'
+};
+
+
 
 window.chat.toggle = function() {
   var c = $('#chat, #chatcontrols');
@@ -451,8 +458,14 @@ window.chat.toggle = function() {
 
 window.chat.request = function() {
   console.log('refreshing chat');
-  chat.requestFaction(false);
-  chat.requestPublic(false);
+  var tab = chat.getActive();
+//TODO: add 'alerts' tab, and add the matching case in here
+  if (tab == 'faction') {
+    chat.requestFaction(false);
+  } else {
+    // the 'public', 'full' and 'compact' tabs are all based off the 'public' COMM data
+    chat.requestPublic(false);
+  }
 }
 
 
@@ -475,9 +488,13 @@ window.chat.needMoreMessages = function() {
     chat.requestFaction(true);
   else
     chat.requestPublic(true);
-}
+};
+
 
 window.chat.chooseAnchor = function(t) {
+  var oldTab = chat.getActive();
+  var oldChannel = chat.tabToChannel(oldTab);
+
   var tt = t.text();
 
   localStorage['iitc-chat-tab'] = tt;
@@ -487,6 +504,9 @@ window.chat.chooseAnchor = function(t) {
 
   $('#chatcontrols .active').removeClass('active');
   $("#chatcontrols a:contains('" + tt + "')").addClass('active');
+
+  var newChannel = chat.tabToChannel(tt);
+  if (newChannel != oldChannel) setTimeout(chat.request,1);
 
   $('#chat > div').hide();
 

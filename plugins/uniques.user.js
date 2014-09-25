@@ -2,7 +2,7 @@
 // @id             iitc-plugin-uniques@3ch01c
 // @name           IITC plugin: Uniques
 // @category       Misc
-// @version        0.2.2.@@DATETIMEVERSION@@
+// @version        0.2.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/3ch01c/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -101,7 +101,7 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[2][0] == 'PORTAL') {
 			var portal = markup[2][1];
 			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
-			if(guid) plugin.uniques.setPortalVisited(guid);
+			if(guid) plugin.uniques.setPortalCaptured(guid);
 		}
 
 		// search for "x linked y to z"
@@ -503,7 +503,7 @@ var setup = function() {
 	window.plugin.uniques.setupContent();
 	window.plugin.uniques.loadLocal('uniques');
 	window.addHook('portalDetailsUpdated', window.plugin.uniques.onPortalDetailsUpdated);
-	//window.addHook('publicChatDataAvailable', window.plugin.uniques.onPublicChatDataAvailable);
+	window.addHook('publicChatDataAvailable', window.plugin.uniques.onPublicChatDataAvailable);
 	window.addHook('iitcLoaded', window.plugin.uniques.registerFieldForSyncing);
 		window.addPortalHighlighter('Uniques', window.plugin.uniques.highlighter);
 
