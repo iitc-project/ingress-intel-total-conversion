@@ -584,6 +584,7 @@ function boot() {
   window.setupSidebarToggle();
   window.updateGameScore();
   window.artifact.setup();
+  window.ornaments.setup();
   window.setupPlayerStat();
   window.setupTooltips();
   window.chat.setup();
