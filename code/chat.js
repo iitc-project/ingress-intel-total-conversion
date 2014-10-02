@@ -433,7 +433,7 @@ window.chat.getActive = function() {
 window.chat.tabToChannel = function(tab) {
   if (tab == 'faction') return 'faction';
   if (tab == 'alerts') return 'alerts';
-  return 'public'; //for 'full', 'compact' and 'public'
+  return 'all'; //for 'full', 'compact' and 'public'
 };
 
 
@@ -458,11 +458,11 @@ window.chat.toggle = function() {
 
 window.chat.request = function() {
   console.log('refreshing chat');
-  var tab = chat.getActive();
-//TODO: add 'alerts' tab, and add the matching case in here
-  if (tab == 'faction') {
+  var channel = chat.tabToChannel(chat.getActive());
+  if (channel == 'faction') {
     chat.requestFaction(false);
-  } else {
+  }
+  if (channel == 'all') {
     // the 'public', 'full' and 'compact' tabs are all based off the 'public' COMM data
     chat.requestPublic(false);
   }
@@ -506,7 +506,7 @@ window.chat.chooseAnchor = function(t) {
   $("#chatcontrols a:contains('" + tt + "')").addClass('active');
 
   var newChannel = chat.tabToChannel(tt);
-  if (newChannel != oldChannel) setTimeout(chat.request,1);
+  if (newChannel != oldChannel) startRefreshTimeout(0.1*1000); //only chat uses the refresh timer stuff, so a perfect way of forcing an early refresh after a tab change
 
   $('#chat > div').hide();
 

@@ -141,7 +141,7 @@ public class IITC_WebView extends WebView {
 
     @TargetApi(19)
     public void loadJS(final String js) {
-        boolean classicWebView = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+        boolean classicWebView = Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT;
         if (!classicWebView) {
             // some strange Android 4.4+ custom ROMs are using the classic webview
             try {
