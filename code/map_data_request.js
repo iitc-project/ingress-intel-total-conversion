@@ -25,9 +25,10 @@ window.MapDataRequest = function() {
   this.MAX_REQUESTS = 5;
 
   // this many tiles in one request
-  this.NUM_TILES_PER_REQUEST = 4;
+  this.NUM_TILES_PER_REQUEST = 10;
 
   // number of times to retry a tile after an error (including "error: TIMEOUT" now - as stock intel does)
+  // TODO? different retry counters for TIMEOUT vs other errors..?
   this.MAX_TILE_RETRIES = 5;
 
   // refresh timers
