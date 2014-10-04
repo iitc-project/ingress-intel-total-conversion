@@ -456,13 +456,38 @@ window.chat.toggle = function() {
 }
 
 
+// called by plugins (or other things?) that need to monitor COMM data streams when the user is not viewing them
+// instance: a unique string identifying the plugin requesting background COMM
+// channel: either 'all', 'faction' or (soon) 'alerts' - others possible in the future
+// flag: true for data wanted, false for not wanted
+window.chat.backgroundChannelData = function(instance,channel,flag) {
+  //first, store the state for this instance
+  if (!window.chat.backgroundInstanceChannel) window.chat.backgroundInstanceChannel = {};
+  if (!window.chat.backgroundInstanceChannel[instance]) window.chat.backgroundInstanceChannel[instance] = {};
+  window.chat.backgroundInstanceChannel[instance][channel] = flag;
+
+  //now, to simplify the request code, merge the flags for all instances into one
+  // 1. clear existing overall flags
+  window.chat.backgroundChannels = {};
+  // 2. for each instance monitoring COMM...
+  $.each(window.chat.backgroundInstanceChannel, function(instance,channels) {
+    // 3. and for each channel monitored by this instance...
+    $.each(window.chat.backgroundInstanceChannel[instance],function(channel,flag) {
+      // 4. if it's monitored, set the channel flag
+      if (flag) window.chat.backgroundChannels[channel] = true;
+    });
+  });
+
+}
+
+
 window.chat.request = function() {
   console.log('refreshing chat');
   var channel = chat.tabToChannel(chat.getActive());
-  if (channel == 'faction') {
+  if (channel == 'faction' || (window.chat.backgroundChannels && window.chat.backgroundChannels['faction'])) {
     chat.requestFaction(false);
   }
-  if (channel == 'all') {
+  if (channel == 'all' || (window.chat.backgroundChannels && window.chat.backgroundChannels['all'])) {
     // the 'public', 'full' and 'compact' tabs are all based off the 'public' COMM data
     chat.requestPublic(false);
   }
