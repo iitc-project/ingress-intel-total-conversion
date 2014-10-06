@@ -13,6 +13,17 @@ offers many more features. It is available for
 
 <h3>Latest news</h3>
 
+<h4>6th October 2014</h4>
+<p>
+IITC 0.18.1 and IITC Mobile 0.11.7 have just been released. Changes include
+</p>
+<ul>
+<li>Added support for 'ornaments' - per-portal markers sent from the server, currently used for anomaly portals.</li>
+<li>Player tracker plugin - fix player tracker when faction COMM is viewed.</li>
+<li>Passcodes - fix displaying results from passcode redemption.</li>
+<li>Other minor tweaks and bugfixes.</li>
+</ul>
+
 <h4>17th September 2014</h4>
 <p>
 IITC 0.18.0 and IITC Mobile 0.11.6 have just been released. This is an important update required to fix a few
