@@ -1,8 +1,6 @@
 // REDEEMING ///////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////
 
-// TODO remove lots of unused code from the old redeeming method
-
 window.REDEEM_SHORT_NAMES = {
   'portal shield':'S',
   'force amp':'FA',
@@ -27,14 +25,28 @@ window.REDEEM_STATUSES = {
 };
 
 window.handleRedeemResponse = function(data, textStatus, jqXHR) {
-  var passcode = this.passcode;
+  var passcode = jqXHR.passcode;
 
   if(data.error) {
+    console.error('Error redeeming passcode "'+passcode+'": ' + data.error)
     dialog({
       title: 'Error: ' + passcode,
       html: '<strong>' + data.error + '</strong>'
     });
     return;
+  }
+  if(!data.rewards) {
+    console.error('Error redeeming passcode "'+passcode+'": ', data)
+    dialog({
+      title: 'Error: ' + passcode,
+      html: '<strong>An unexpected error occured</strong>'
+    });
+    return;
+  }
+
+  if(data.playerData) {
+    window.PLAYER = data.playerData;
+    window.setupPlayerStat();
   }
 
   var format = "long";
@@ -49,9 +61,8 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
   if(!formatHandlers[format])
     format = "long";
 
-  var html = formatHandlers[format](data);
+  var html = formatHandlers[format](data.rewards);
 
-  var that = this;
   var buttons = {};
   Object.keys(formatHandlers).forEach(function(label) {
     if(label == format) return;
@@ -59,7 +70,7 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
     buttons[label.toUpperCase()] = function() {
       $(this).dialog("close");
       localStorage["iitc-passcode-format"] = label;
-      handleRedeemResponse.call(that, data, textStatus, jqXHR);
+      handleRedeemResponse(data, textStatus, jqXHR);
     }
   });
 
@@ -154,21 +165,23 @@ window.formatPasscodeShort = function(data) {
 
 window.setupRedeem = function() {
   $("#redeem").keypress(function(e) {
-    if((e.keyCode ? e.keyCode : e.which) !== 13 || !$(this).val()) return;
-    var data = {passcode: $(this).val()};
+    if((e.keyCode ? e.keyCode : e.which) !== 13) return;
 
-    window.postAjax('redeemReward', data, window.handleRedeemResponse,
-      function(response) {
-        var extra = '';
-        if(response.status) {
-          extra = (window.REDEEM_STATUSES[response.status] || 'The server indicated an error.') + ' (HTTP ' + response.status + ')';
-        } else {
-          extra = 'No status code was returned.';
-        }
-        dialog({
-          title: 'Request failed: ' + data.passcode,
-          html: '<strong>The HTTP request failed.</strong> ' + extra
-        });
+    var passcode = $(this).val();
+    if(!passcode) return;
+
+    var jqXHR = window.postAjax('redeemReward', {passcode:passcode}, window.handleRedeemResponse, function(response) {
+      var extra = '';
+      if(response.status) {
+        extra = (window.REDEEM_STATUSES[response.status] || 'The server indicated an error.') + ' (HTTP ' + response.status + ')';
+      } else {
+        extra = 'No status code was returned.';
+      }
+      dialog({
+        title: 'Request failed: ' + data.passcode,
+        html: '<strong>The HTTP request failed.</strong> ' + extra
       });
+    });
+    jqXHR.passcode = passcode;
   });
 };

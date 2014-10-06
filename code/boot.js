@@ -389,6 +389,9 @@ window.setupPlayerStat = function() {
   var level = PLAYER.verified_level;
   PLAYER.level = level; //for historical reasons IITC expects PLAYER.level to contain the current player level
 
+  var n = window.PLAYER.nickname;
+  PLAYER.nickMatcher = new RegExp('\\b('+n+')\\b', 'ig');
+
   var ap = parseInt(PLAYER.ap);
   var thisLvlAp = parseInt(PLAYER.min_ap_for_current_level);
   var nextLvlAp = parseInt(PLAYER.min_ap_for_next_level);
@@ -584,6 +587,7 @@ function boot() {
   window.setupSidebarToggle();
   window.updateGameScore();
   window.artifact.setup();
+  window.ornaments.setup();
   window.setupPlayerStat();
   window.setupTooltips();
   window.chat.setup();
@@ -599,10 +603,6 @@ function boot() {
     urlPortalLL = [parseFloat(urlPortalLL[0]) || 0.0, parseFloat(urlPortalLL[1]) || 0.0];
   }
   urlPortal = getURLParam('pguid');
-
-  // load only once
-  var n = window.PLAYER['nickname'];
-  window.PLAYER['nickMatcher'] = new RegExp('\\b('+n+')\\b', 'ig');
 
   $('#sidebar').show();
 
@@ -653,7 +653,7 @@ function boot() {
   window.runOnSmartphonesAfterBoot();
 
   // workaround for #129. Not sure why this is required.
-//  setTimeout('window.map.invalidateSize(false);', 500);
+  // setTimeout('window.map.invalidateSize(false);', 500);
 
   window.iitcLoaded = true;
   window.runHooks('iitcLoaded');

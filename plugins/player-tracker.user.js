@@ -2,7 +2,7 @@
 // @id             iitc-plugin-player-tracker@breunigs
 // @name           IITC Plugin: Player tracker
 // @category       Layer
-// @version        0.10.5.@@DATETIMEVERSION@@
+// @version        0.11.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -104,8 +104,12 @@ window.plugin.playerTracker.zoomListener = function() {
     plugin.playerTracker.drawnTracesEnl.clearLayers();
     plugin.playerTracker.drawnTracesRes.clearLayers();
     ctrl.addClass('disabled').attr('title', 'Zoom in to show those.');
+    //note: zoomListener is also called at init time to set up things, so we only need to do this in here
+    window.chat.backgroundChannelData('plugin.playerTracker', 'all', false);   //disable this plugin's interest in 'all' COMM
   } else {
     ctrl.removeClass('disabled').attr('title', '');
+    //note: zoomListener is also called at init time to set up things, so we only need to do this in here
+    window.chat.backgroundChannelData('plugin.playerTracker', 'all', true);    //enable this plugin's interest in 'all' COMM
   }
 }
 
@@ -194,7 +198,6 @@ window.plugin.playerTracker.processNewData = function(data) {
     // short-path if this is a new player
     if(!playerData || playerData.events.length === 0) {
       plugin.playerTracker.stored[plrname] = {
-         // this always resolves, as the chat delivers this data
         nick: plrname,
         team: json[2].plext.team,
         events: [newEvent]
