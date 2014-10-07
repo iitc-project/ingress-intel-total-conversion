@@ -2,7 +2,7 @@
 // @id             iitc-plugin-draw-tools@breunigs
 // @name           IITC plugin: draw tools
 // @category       Layer
-// @version        0.6.4.@@DATETIMEVERSION@@
+// @version        0.6.5.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -329,6 +329,7 @@ window.plugin.drawTools.manualOpt = function() {
            + ((typeof android !== 'undefined' && android && android.saveFile)
              ? '<a onclick="window.plugin.drawTools.optExport();return false;" tabindex="0">Export Drawn Items</a>' : '')
            + '<a onclick="window.plugin.drawTools.optReset();return false;" tabindex="0">Reset Drawn Items</a>'
+           + '<a onclick="window.plugin.drawTools.snapToPortals();return false;" tabindex="0">Snap to portals</a>'
            + '</div>';
 
   dialog({
@@ -426,6 +427,98 @@ window.plugin.drawTools.optReset = function() {
     window.plugin.drawTools.optAlert('Reset Successful. ');
     runHooks('pluginDrawTools', {event: 'clear'});
   }
+}
+
+window.plugin.drawTools.snapToPortals = function() {
+  var dataParams = getMapZoomTileParameters(getDataZoomForMapZoom(map.getZoom()));
+  if (dataParams.level > 0) {
+    if (!confirm('Not all portals are visible on the map. Snap to portals may move valid points to the wrong place. Continue?')) {
+      return;
+    }
+  }
+
+  if (mapDataRequest.status.short != 'done') {
+    if (!confirm('Map data has not completely loaded, so some portals may be missing. Do you want to continue?')) {
+      return;
+    }
+  }
+
+  var visibleBounds = map.getBounds();
+
+  // let's do all the distance calculations in screen space. 2d is much easier, should be faster, and is more than good enough
+  // we'll pre-project all the on-screen portals too, to save repeatedly doing it
+  var visiblePortals = {};
+  $.each(window.portals, function(guid,portal) {
+    var ll = portal.getLatLng();
+    if (visibleBounds.contains(ll)) {
+      visiblePortals[guid] = map.project(ll);
+    }
+  });
+
+  if (Object.keys(visiblePortals).length == 0) {
+    alert('Error: No portals visible in this view - nothing to snap points to!');
+    return;
+  }
+
+  var findClosestPortalLatLng = function(latlng) {
+    var testpoint = map.project(latlng);
+
+    var minDistSquared = undefined;
+    var minGuid = undefined;
+    for (var guid in visiblePortals) {
+      var p = visiblePortals[guid];
+      var distSquared = (testpoint.x-p.x)*(testpoint.x-p.x) + (testpoint.y-p.y)*(testpoint.y-p.y);
+      if (minDistSquared == undefined || minDistSquared > distSquared) {
+        minDistSquared = distSquared;
+        minGuid = guid;
+      }
+    }
+    return minGuid ? portals[minGuid].getLatLng() : undefined; //should never hit 'undefined' case - as we abort when the list is empty
+  };
+
+
+  var changedCount = 0;
+  var testCount = 0;
+
+  window.plugin.drawTools.drawnItems.eachLayer(function(layer) {
+    if (layer.getLatLng) {
+      //circles and markers - a single point to snap
+      var ll = layer.getLatLng();
+      if (visibleBounds.contains(ll)) {
+        testCount++;
+        var newll = findClosestPortalLatLng(ll);
+        if (!newll.equals(ll)) {
+          layer.setLatLng(newll);
+          changedCount++;
+        }
+      }
+    } else if (layer.getLatLngs) {
+      var lls = layer.getLatLngs();
+      var layerChanged = false;
+      for (var i=0; i<lls.length; i++) {
+        if (visibleBounds.contains(lls[i])) {
+          testCount++;
+          var newll = findClosestPortalLatLng(lls[i]);
+          if (!newll.equals(lls[i])) {
+            lls[i] = newll;
+            changedCount++;
+            layerChanged = true;
+          }
+        }
+      }
+      if (layerChanged) {
+        layer.setLatLngs(lls);
+      }
+    }
+  });
+
+  if(changedCount > 0) {
+    runHooks('pluginDrawTools',{event:'layersSnappedToPortals'}); //or should we send 'layersEdited'? as that's effectively what's happened...
+  }
+
+  alert('Tested '+testCount+' points, and moved '+changedCount+' onto portal coordinates');
+
+  window.plugin.drawTools.save();
 }
 
 window.plugin.drawTools.boot = function() {
