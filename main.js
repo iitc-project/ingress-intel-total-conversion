@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.18.1.@@DATETIMEVERSION@@
+// @version        0.18.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -203,8 +203,6 @@ window.DEG2RAD = Math.PI / 180;
 // getters/setters, but if you are careful enough, this works.
 window.refreshTimeout = undefined;
 window.urlPortal = null;
-window.playersToResolve = [];
-window.playersInResolving = [];
 window.selectedPortal = null;
 window.portalRangeIndicator = null;
 window.portalAccessIndicator = null;

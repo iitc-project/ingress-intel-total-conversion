@@ -389,6 +389,9 @@ window.setupPlayerStat = function() {
   var level = PLAYER.verified_level;
   PLAYER.level = level; //for historical reasons IITC expects PLAYER.level to contain the current player level
 
+  var n = window.PLAYER.nickname;
+  PLAYER.nickMatcher = new RegExp('\\b('+n+')\\b', 'ig');
+
   var ap = parseInt(PLAYER.ap);
   var thisLvlAp = parseInt(PLAYER.min_ap_for_current_level);
   var nextLvlAp = parseInt(PLAYER.min_ap_for_next_level);
@@ -601,10 +604,6 @@ function boot() {
   }
   urlPortal = getURLParam('pguid');
 
-  // load only once
-  var n = window.PLAYER['nickname'];
-  window.PLAYER['nickMatcher'] = new RegExp('\\b('+n+')\\b', 'ig');
-
   $('#sidebar').show();
 
   if(window.bootPlugins) {
@@ -654,7 +653,7 @@ function boot() {
   window.runOnSmartphonesAfterBoot();
 
   // workaround for #129. Not sure why this is required.
-//  setTimeout('window.map.invalidateSize(false);', 500);
+  // setTimeout('window.map.invalidateSize(false);', 500);
 
   window.iitcLoaded = true;
   window.runHooks('iitcLoaded');

@@ -77,7 +77,7 @@ iitc_bg.push_queue = function(group, data, key) {
 
   if (data == "dkxm" || botguard_instance) {
     // NOTE: we pre-create empty per-group arrays on init
-    iitc_bg.data_queue[group].push( {data: data, key: key} );
+    iitc_bg.data_queue[group].push( {data: data, key: key, time: Date.now()} );
   }
 };
 
@@ -210,29 +210,37 @@ iitc_bg.dummy_botguard.prototype.invoke = function(callback) {
 iitc_bg.process_queue = function(group) {
 //stock site
 //function zd(a, b) {
-//// a==this, b==group
-//  if (a.lb[b] && 0 < a.lb[b].length) {
-//    var c = a.lb[b].shift(), d = c.gf, c = "dkxm" == d ? new Sf : new a.qc[c.cb](d);
-//    a.ya[b] || (a.ya[b] = []);
-//    a.ya[b].push(c);
+////a==singleton, b==group
+//  if (a.lb[b]) for (; 0 < a.lb[b].length; ) {
+//    var c = a.lb[b].shift(), d = c.gf, e = c.kh + 7195e3, f;
+//    "dkxm" == d ? f = new Sf : x() < e && (f = new a.qc[c.cb](d));
+//    if (f) {
+//      c = a;
+//      d = b;
+//      c.ya[d] || (c.ya[d] = []);
+//      c.ya[d].push(f);
+//      break;
+//    }
 //  }
 //}
 
 // processes an entry in the queue for the specified group
 
-  if (iitc_bg.data_queue[group] && iitc_bg.data_queue[group].length > 0) {
+  while (iitc_bg.data_queue[group] && iitc_bg.data_queue[group].length > 0) {
     var item = iitc_bg.data_queue[group].shift();
     var obj = undefined;
 
     if (item.data == "dkxm") {
       obj = new iitc_bg.dummy_botguard;
-    } else {
-
+    } else if (Date.now() < item.time + 7195000) {
       obj = new iitc_bg.botguard[item.key](item.data);
     }
 
     // note: we pre-create empty per-group arrays on init
-    iitc_bg.instance_queue[group].push(obj);
+    if (obj) {
+      iitc_bg.instance_queue[group].push(obj);
+      break;
+    }
   }
 
 };
@@ -266,7 +274,10 @@ iitc_bg.process_response_params = function(method,data) {
       iitc_bg.process_key(data.b, data.a);
     }
     if (data.c && data.b) {
-      iitc_bg.push_queue(group, data.c, data.b);
+      //c is an ARRAY of entries to push. do them all
+      for (var i=0; i<data.c.length; i++) {
+        iitc_bg.push_queue(group, data.c[i], data.b);
+      }
     }
     if (iitc_bg.instance_queue[group].length == 0) {
       iitc_bg.process_queue(group);
