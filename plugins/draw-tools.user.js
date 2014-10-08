@@ -304,11 +304,14 @@ window.plugin.drawTools.import = function(data) {
     }
     if (layer) {
       window.plugin.drawTools.drawnItems.addLayer(layer);
+      map.fireEvent('draw:created', { // will trigger 'layerCreated'
+        layer: layer,
+        layerType: item.type
+      }); 
     }
   });
 
   runHooks('pluginDrawTools', {event: 'import'});
-
 }
 
 
@@ -386,7 +389,7 @@ window.plugin.drawTools.optPaste = function() {
       var data = JSON.parse(promptAction);
       window.plugin.drawTools.drawnItems.clearLayers();
       window.plugin.drawTools.import(data);
-      console.log('DRAWTOOLS: reset and imported drawn tiems');
+      console.log('DRAWTOOLS: reset and pasted drawn items');
       window.plugin.drawTools.optAlert('Import Successful.');
 
       // to write back the data to localStorage
@@ -418,15 +421,16 @@ window.plugin.drawTools.optImport = function() {
 }
 
 window.plugin.drawTools.optReset = function() {
-  var promptAction = confirm('All drawn items will be deleted. Are you sure?', '');
-  if(promptAction) {
-    delete localStorage['plugin-draw-tools-layer'];
-    window.plugin.drawTools.drawnItems.clearLayers();
-    window.plugin.drawTools.load();
-    console.log('DRAWTOOLS: reset all drawn items');
-    window.plugin.drawTools.optAlert('Reset Successful. ');
-    runHooks('pluginDrawTools', {event: 'clear'});
-  }
+  if(!confirm('All drawn items will be deleted. Are you sure?', '')) return;
+
+  map.fireEvent('draw:deleted', {layers: L.layerGroup(window.plugin.drawTools.drawnItems.getLayers())});
+
+  delete localStorage['plugin-draw-tools-layer'];
+  window.plugin.drawTools.drawnItems.clearLayers();
+  window.plugin.drawTools.load();
+  console.log('DRAWTOOLS: reset all drawn items');
+  window.plugin.drawTools.optAlert('Reset Successful. ');
+  runHooks('pluginDrawTools', {event: 'clear'});
 }
 
 window.plugin.drawTools.snapToPortals = function() {
@@ -477,6 +481,7 @@ window.plugin.drawTools.snapToPortals = function() {
   };
 
 
+  var changedLayers = L.layerGroup();
   var changedCount = 0;
   var testCount = 0;
 
@@ -488,8 +493,9 @@ window.plugin.drawTools.snapToPortals = function() {
         testCount++;
         var newll = findClosestPortalLatLng(ll);
         if (!newll.equals(ll)) {
-          layer.setLatLng(newll);
+          layer.setLatLng(newll.wrap()); // create a copy
           changedCount++;
+          changedLayers.addLayer(layer);
         }
       }
     } else if (layer.getLatLngs) {
@@ -500,7 +506,7 @@ window.plugin.drawTools.snapToPortals = function() {
           testCount++;
           var newll = findClosestPortalLatLng(lls[i]);
           if (!newll.equals(lls[i])) {
-            lls[i] = newll;
+            lls[i] = newll.wrap(); // create a copy
             changedCount++;
             layerChanged = true;
           }
@@ -508,17 +514,16 @@ window.plugin.drawTools.snapToPortals = function() {
       }
       if (layerChanged) {
         layer.setLatLngs(lls);
+        changedLayers.addLayer(layer);
       }
     }
   });
 
   if(changedCount > 0) {
-    runHooks('pluginDrawTools',{event:'layersSnappedToPortals'}); //or should we send 'layersEdited'? as that's effectively what's happened...
+    map.fireEvent('draw:edited', {layers: changedLayers}); // will trigger 'layersEdited'
   }
 
   alert('Tested '+testCount+' points, and moved '+changedCount+' onto portal coordinates');
-
-  window.plugin.drawTools.save();
 }
 
 window.plugin.drawTools.boot = function() {
