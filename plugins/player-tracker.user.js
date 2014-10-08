@@ -198,7 +198,6 @@ window.plugin.playerTracker.processNewData = function(data) {
     // short-path if this is a new player
     if(!playerData || playerData.events.length === 0) {
       plugin.playerTracker.stored[plrname] = {
-         // this always resolves, as the chat delivers this data
         nick: plrname,
         team: json[2].plext.team,
         events: [newEvent]
