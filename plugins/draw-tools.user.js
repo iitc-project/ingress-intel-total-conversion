@@ -266,8 +266,9 @@ window.plugin.drawTools.saveStorage = function(){
     localStorage[window.plugin.drawTools.KEY_STORAGE] = JSON.stringify(window.plugin.drawTools.drawnItemsData);
 }
 
-window.plugin.drawTools.getDrawnItemsArray = function() {
+window.plugin.drawTools.save = function() {
   var data = [];
+
   window.plugin.drawTools.drawnItems.eachLayer( function(layer) {
     var item = {};
     if (layer instanceof L.GeodesicCircle || layer instanceof L.Circle) {
@@ -294,16 +295,15 @@ window.plugin.drawTools.getDrawnItemsArray = function() {
 
     data.push(item);
   });
-  return data;
+  window.plugin.drawTools.drawnItemsData = data;
+  window.plugin.drawTools.saveStorage();
+
+  localStorage['plugin-draw-tools-layer'] = JSON.stringify(data);
+
+  console.log('draw-tools: saved to localStorage');
 }
 
-window.plugin.drawTools.save = function(){
-    window.plugin.drawTools.drawnItemsData.itemArray = window.plugin.drawTools.getDrawnItemsArray();
-    window.plugin.drawTools.saveStorage();
-}
-
-
-window.plugin.drawTools.load = function(){
+window.plugin.drawTools.load = function() {
     window.plugin.drawTools.loadStorage();
     window.plugin.drawTools.drawnItems.clearLayers();
     if (!window.plugin.drawTools.drawnItemsData.itemArray.length){
@@ -346,6 +346,9 @@ window.plugin.drawTools.import = function(data) {
       window.plugin.drawTools.drawnItems.addLayer(layer);
     }
   });
+
+  runHooks('pluginDrawTools', {event: 'import'});
+
 }
 
 
@@ -468,6 +471,7 @@ window.plugin.drawTools.optReset = function() {
     window.plugin.drawTools.load();
     console.log('DRAWTOOLS: reset all drawn items');
     window.plugin.drawTools.optAlert('Reset Successful. ');
+    runHooks('pluginDrawTools', {event: 'clear'});
   }
 }
 
@@ -645,8 +649,10 @@ window.plugin.drawTools.boot = function() {
   window.addHook('iitcLoaded', window.plugin.drawTools.registerFieldForSyncing);
 }
 
+
 var setup =  window.plugin.drawTools.loadExternals;
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
 @@PLUGINEND@@
+
