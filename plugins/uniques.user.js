@@ -21,7 +21,7 @@
 window.plugin.uniques = function() {};
 
 //delay in ms
-window.plugin.uniques.SYNC_DELAY = 10000;
+window.plugin.uniques.SYNC_DELAY = 5000;
 
 // maps the JS property names to localStorage keys
 window.plugin.uniques.FIELDS = {

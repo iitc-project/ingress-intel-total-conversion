@@ -30,7 +30,7 @@
   // use own namespace for plugin
   window.plugin.bookmarks = function() {};
 
-  window.plugin.bookmarks.SYNC_DELAY = 5;
+  window.plugin.bookmarks.SYNC_DELAY = 5000;
 
   window.plugin.bookmarks.KEY_OTHER_BKMRK = 'idOthers';
   window.plugin.bookmarks.KEY_STORAGE = 'plugin-bookmarks';
