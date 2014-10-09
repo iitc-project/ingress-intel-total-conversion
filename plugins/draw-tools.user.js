@@ -266,8 +266,9 @@ window.plugin.drawTools.saveStorage = function(){
     localStorage[window.plugin.drawTools.KEY_STORAGE] = JSON.stringify(window.plugin.drawTools.drawnItemsData);
 }
 
-window.plugin.drawTools.getDrawnItemsArray = function() {
+window.plugin.drawTools.save = function() {
   var data = [];
+
   window.plugin.drawTools.drawnItems.eachLayer( function(layer) {
     var item = {};
     if (layer instanceof L.GeodesicCircle || layer instanceof L.Circle) {
@@ -294,16 +295,15 @@ window.plugin.drawTools.getDrawnItemsArray = function() {
 
     data.push(item);
   });
-  return data;
+  window.plugin.drawTools.drawnItemsData = data;
+  window.plugin.drawTools.saveStorage();
+
+  localStorage['plugin-draw-tools-layer'] = JSON.stringify(data);
+
+  console.log('draw-tools: saved to localStorage');
 }
 
-window.plugin.drawTools.save = function(){
-    window.plugin.drawTools.drawnItemsData.itemArray = window.plugin.drawTools.getDrawnItemsArray();
-    window.plugin.drawTools.saveStorage();
-}
-
-
-window.plugin.drawTools.load = function(){
+window.plugin.drawTools.load = function() {
     window.plugin.drawTools.loadStorage();
     window.plugin.drawTools.drawnItems.clearLayers();
     if (!window.plugin.drawTools.drawnItemsData.itemArray.length){
@@ -372,7 +372,6 @@ window.plugin.drawTools.manualOpt = function() {
            + ((typeof android !== 'undefined' && android && android.saveFile)
              ? '<a onclick="window.plugin.drawTools.optExport();return false;" tabindex="0">Export Drawn Items</a>' : '')
            + '<a onclick="window.plugin.drawTools.optReset();return false;" tabindex="0">Reset Drawn Items</a>'
-           + '<a onclick="window.plugin.drawTools.snapToPortals();return false;" tabindex="0">Snap to portals</a>'
            + '</div>';
 
   dialog({
@@ -439,6 +438,8 @@ window.plugin.drawTools.optPaste = function() {
     } catch(e) {
       console.warn('DRAWTOOLS: failed to import data: '+e);
       window.plugin.drawTools.optAlert('<span style="color: #f88">Import failed</span>');
+      window.plugin.drawTools.drawnItemsData.itemArray = [];
+      window.plugin.drawTools.saveStorage();
     }
   }
 }
