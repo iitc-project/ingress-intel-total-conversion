@@ -372,6 +372,7 @@ window.plugin.drawTools.manualOpt = function() {
            + ((typeof android !== 'undefined' && android && android.saveFile)
              ? '<a onclick="window.plugin.drawTools.optExport();return false;" tabindex="0">Export Drawn Items</a>' : '')
            + '<a onclick="window.plugin.drawTools.optReset();return false;" tabindex="0">Reset Drawn Items</a>'
+           + '<a onclick="window.plugin.drawTools.snapToPortals();return false;" tabindex="0">Snap to portals</a>'
            + '</div>';
 
   dialog({
@@ -426,20 +427,16 @@ window.plugin.drawTools.optPaste = function() {
   if(promptAction !== null && promptAction !== '') {
     try {
       var data = JSON.parse(promptAction);
-      window.plugin.drawTools.drawnItemsData = data;
-      window.plugin.drawTools.saveStorage();
-      window.plugin.drawTools.load();
+      window.plugin.drawTools.drawnItems.clearLayers();
+      window.plugin.drawTools.import(data);
       console.log('DRAWTOOLS: reset and pasted drawn items');
       window.plugin.drawTools.optAlert('Import Successful.');
 
       // to write back the data to localStorage
-      window.plugin.drawTools.saveStorage();
-      runHooks('pluginDrawTools', {event: 'paste'})
+      window.plugin.drawTools.save();
     } catch(e) {
       console.warn('DRAWTOOLS: failed to import data: '+e);
       window.plugin.drawTools.optAlert('<span style="color: #f88">Import failed</span>');
-      window.plugin.drawTools.drawnItemsData.itemArray = [];
-      window.plugin.drawTools.saveStorage();
     }
   }
 }
@@ -449,19 +446,16 @@ window.plugin.drawTools.optImport = function() {
   window.requestFile(function(filename, content) {
     try {
       var data = JSON.parse(content);
-      window.plugin.drawTools.drawnItemsData = data;
-      window.plugin.drawTools.load();
+      window.plugin.drawTools.drawnItems.clearLayers();
+      window.plugin.drawTools.import(data);
       console.log('DRAWTOOLS: reset and imported drawn tiems');
       window.plugin.drawTools.optAlert('Import Successful.');
 
       // to write back the data to localStorage
-      window.plugin.drawTools.saveStorage();
-      runHooks('pluginDrawTools', {event: 'import'})
+      window.plugin.drawTools.save();
     } catch(e) {
       console.warn('DRAWTOOLS: failed to import data: '+e);
       window.plugin.drawTools.optAlert('<span style="color: #f88">Import failed</span>');
-      window.plugin.drawTools.drawnItemsData.itemArray = [];
-      window.plugin.drawTools.saveStorage();
     }
   });
 }
@@ -471,8 +465,8 @@ window.plugin.drawTools.optReset = function() {
 
   map.fireEvent('draw:deleted', {layers: L.layerGroup(window.plugin.drawTools.drawnItems.getLayers())});
 
-  window.plugin.drawTools.drawnItemsData.itemArray = [];
-  window.plugin.drawTools.saveStorage();
+  delete localStorage['plugin-draw-tools-layer'];
+  window.plugin.drawTools.drawnItems.clearLayers();
   window.plugin.drawTools.load();
   console.log('DRAWTOOLS: reset all drawn items');
   window.plugin.drawTools.optAlert('Reset Successful. ');
