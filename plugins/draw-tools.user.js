@@ -352,6 +352,7 @@ window.plugin.drawTools.import = function(data) {
   });
 
   runHooks('pluginDrawTools', {event: 'import'});
+
 }
 
 
