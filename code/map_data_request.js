@@ -544,7 +544,7 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
                        timeoutTiles.length > 0 ? this.TIMEOUT_REQUEST_RUN_QUEUE_DELAY :
                        this.RUN_QUEUE_DELAY;
 
-  console.log ('getThinnedEntities status: '+tiles.length+' tiles: '+successTiles.length+' successful, '+timeoutTiles.length+' timed out, '+errorTiles.length+' failed. delay '+nextQueueDelay+' seconds');
+  console.log ('getEntities status: '+tiles.length+' tiles: '+successTiles.length+' successful, '+timeoutTiles.length+' timed out, '+errorTiles.length+' failed. delay '+nextQueueDelay+' seconds');
 
   // requeue any 'timeout' tiles immediately
   if (timeoutTiles.length > 0) {
