@@ -149,7 +149,7 @@ window.FIELD_MU_DISPLAY_AREA_ZOOM_RATIO = 0.001;
 window.FIELD_MU_DISPLAY_POINT_TOLERANCE = 60
 
 window.COLOR_SELECTED_PORTAL = '#f0f';
-window.COLORS = ['#FF9900', '#0088FF', '#03DC03']; // none, res, enl
+window.COLORS = ['#FF6600', '#0088FF', '#03DC03']; // none, res, enl
 window.COLORS_LVL = ['#000', '#FECE5A', '#FFA630', '#FF7315', '#E40000', '#FD2992', '#EB26CD', '#C124E0', '#9627F4'];
 window.COLORS_MOD = {VERY_RARE: '#b08cff', RARE: '#73a8ff', COMMON: '#8cffbf'};
 
