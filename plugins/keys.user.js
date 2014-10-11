@@ -22,7 +22,7 @@
 window.plugin.keys = function() {};
 
 // delay in ms
-window.plugin.keys.SYNC_DELAY = 10000;
+window.plugin.keys.SYNC_DELAY = 5000;
 
 window.plugin.keys.LOCAL_STORAGE_KEY = 'plugin-keys-data';
 
