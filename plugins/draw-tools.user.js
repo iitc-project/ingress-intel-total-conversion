@@ -2,7 +2,7 @@
 // @id             iitc-plugin-draw-tools@breunigs
 // @name           IITC plugin: draw tools
 // @category       Layer
-// @version        0.6.5.@@DATETIMEVERSION@@
+// @version        0.6.6.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -224,7 +224,7 @@ window.plugin.drawTools.getSnapLatLng = function(unsnappedLatLng) {
 
   if(candidates.length === 0) return unsnappedLatLng;
   candidates = candidates.sort(function(a, b) { return a[0]-b[0]; });
-  return candidates[0][1];
+  return new L.LatLng(candidates[0][1].lat, candidates[0][1].lng);  //return a clone of the portal location
 }
 
 
@@ -488,7 +488,7 @@ window.plugin.drawTools.snapToPortals = function() {
         testCount++;
         var newll = findClosestPortalLatLng(ll);
         if (!newll.equals(ll)) {
-          layer.setLatLng(newll);
+          layer.setLatLng(new L.LatLng(newll.lat,newll.lng));
           changedCount++;
         }
       }
@@ -500,7 +500,7 @@ window.plugin.drawTools.snapToPortals = function() {
           testCount++;
           var newll = findClosestPortalLatLng(lls[i]);
           if (!newll.equals(lls[i])) {
-            lls[i] = newll;
+            lls[i] = new L.LatLng(newll.lat,newll.lng);
             changedCount++;
             layerChanged = true;
           }
