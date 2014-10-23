@@ -25,7 +25,7 @@ window.MapDataRequest = function() {
   this.MAX_REQUESTS = 5;
 
   // this many tiles in one request
-  this.NUM_TILES_PER_REQUEST = 10;
+  this.NUM_TILES_PER_REQUEST = 25;
 
   // number of times to retry a tile after an error (including "error: TIMEOUT" now - as stock intel does)
   // TODO? different retry counters for TIMEOUT vs other errors..?
@@ -232,7 +232,15 @@ window.MapDataRequest.prototype.refresh = function() {
 
   this.render.processGameEntities(artifact.getArtifactEntities());
 
-  console.log('requesting data tiles at zoom '+dataZoom+' (L'+tileParams.level+'+ portals, '+tileParams.tilesPerEdge+' tiles per global edge), map zoom is '+mapZoom);
+  var logMessage = 'requesting data tiles at zoom '+dataZoom;
+  if (tileParams.level != tileParams.maxLevel) {
+    logMessage += ' (L'+tileParams.level+'+ portals - could have doneug L'+tileParams.maxLevel+'+';
+  } else {
+    logMessage += ' (L'+tileParams.level+'+ portals';
+  }
+  logMessage += ', '+tileParams.tilesPerEdge+' tiles per global edge), map zoom is '+mapZoom;
+
+  console.log(logMessage);
 
 
   this.cachedTileCount = 0;
