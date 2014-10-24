@@ -13,13 +13,40 @@
 window.getMapZoomTileParameters = function(zoom) {
 
   // known correct as of 2014-08-14
-  ZOOM_TO_TILES_PER_EDGE = [64, 64, 64, 64, 256, 256, 256, 1024, 1024, 1536, 4096, 4096, 6500, 6500, 6500];
+  ZOOM_TO_TILES_PER_EDGE = [64, 64, 128, 128, 256, 256, 256, 1024, 1024, 1536, 4096, 4096, 6500, 6500, 6500];
   MAX_TILES_PER_EDGE = 9000;
   ZOOM_TO_LEVEL = [8, 8, 8, 8, 7, 7, 7, 6, 6, 5, 4, 4, 3, 2, 2, 1, 1];
 
+  // the current API allows the client to request a minimum portal level. the ZOOM_TO_LEVEL list are minimums
+  // however, in my view, this can return excessive numbers of portals in many cases. let's try an optional reduction
+  // of detail level at some zoom levels
+
+  var level = ZOOM_TO_LEVEL[zoom] || 0;  // default to level 0 (all portals) if not in array
+
+  if (window.CONFIG_ZOOM_SHOW_LESS_PORTALS_ZOOMED_OUT) {
+    switch(level) {
+      case 7:
+        // usually L7+ portals - switch to L8 only
+        level = 8;
+        break;
+      case 6:
+        // usually L6+ portals - switch to L7+
+        level = 7;
+        break;
+
+      case 5:
+      case 4:
+        // level 4+ and 5+ - switch to L6+
+        level = 6;
+        break;
+
+      // no modifications for lower levels
+    }
+  }
 
   return {
-    level: ZOOM_TO_LEVEL[zoom] || 0,  // default to level 0 (all portals) if not in array
+    level: level,
+    maxLevel: ZOOM_TO_LEVEL[zoom] || 0,  // for reference, for log purposes, etc
     tilesPerEdge: ZOOM_TO_TILES_PER_EDGE[zoom] || MAX_TILES_PER_EDGE,
     zoom: zoom  // include the zoom level, for reference
   };
@@ -37,63 +64,31 @@ window.getDataZoomForMapZoom = function(zoom) {
     zoom = 20;
   }
 
+  var origTileParams = getMapZoomTileParameters(zoom);
+
   if (!window.CONFIG_ZOOM_DEFAULT_DETAIL_LEVEL) {
-    // some reasonable optimisations of data retreival
 
-    switch(zoom) {
-      case 2:
-      case 3:
-        // L8 portals - fall back to the furthest out view. less detail, faster retreival. cache advantages when zooming
-        // (note: iitc + stock both limited so zoom 0 never possible)
-        zoom = 1;
+    // to improve the cacheing performance, we try and limit the number of zoom levels we retrieve data for
+    // to avoid impacting server load, we keep ourselves restricted to a zoom level with the sane numbre
+    // of tilesPerEdge and portal levels visible
+
+    while (zoom > 1) {
+      var newTileParams = getMapZoomTileParameters(zoom-1);
+      if (newTileParams.tilesPerEdge != origTileParams.tilesPerEdge || newTileParams.level != origTileParams.level) {
+        // switching to zoom-1 would result in a different detail level - so we abort changing things
         break;
-
-      case 4:
-        // default is L7 - but this is a crazy number of tiles. fall back to L8 (but higher detail than above)
-        // (the back-end does, unfortunately, rarely (never?) returns large fields with L8-only portals
-        zoom = 3;
-        break;
-
-      case 5:
-      case 6:
-        // default L7 - pull out to furthest L7 zoom
-        zoom = 4;
-        break;
-
-      case 8:
-        // default L6 - pull back to highest L6 zoom
-        zoom = 7;
-        break;
-
-      // L5 portals - only one zoom level
-
-      case 11:
-        // default L4 - pull back to lower detail L4
-        zoom = 10;
-        break;
-
-      // L3 portals - only one zoom level
-
-      case 14:
-        // L2 portals - pull back to furthest
-        zoom = 13;
-        break;
-
-      case 16:
-        // L1 portals - pull back to furthest zoom
-        zoom = 15;
-        break;
-
-      default:
-        if (zoom >= 18) {
-          // all portals - pull back to furthest zoom
-          zoom = 17;
-        }
-        break;
+      } else {
+        // changing to zoom = zoom-1 results in identical tile parameters - so we can safely step back
+        // with no increase in either server load or number of requests
+        zoom = zoom-1;
+      }
     }
+
   }
 
   if (window.CONFIG_ZOOM_SHOW_MORE_PORTALS) {
+    // this is, in theory, slightly 'unfriendly' to the servers. in practice, this isn't the case - and it can even be nicer
+    // as it vastly improves cacheing in IITC and also reduces the amount of panning/zooming a user would do
     if (zoom >= 15 && zoom <= 16) {
       //L1+ and closer zooms. the 'all portals' zoom uses the same tile size, so it's no harm to request things at that zoom level
       zoom = 17;

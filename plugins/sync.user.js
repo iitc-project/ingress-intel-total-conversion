@@ -440,7 +440,7 @@ window.plugin.sync.FileSearcher.prototype.initFile = function(assignIdCallback, 
   };
 
   searchCallback = function(resp) {
-    if(resp.items) {
+    if(resp.items && resp.items[0]) {
       handleFileId(resp.items[0].id);// file found
     } else if(!resp.error) {
       _this.createFileOrFolder(createCallback); // file not found, create file
