@@ -47,8 +47,8 @@ window.MapDataRequest = function() {
   // delay before processing the queue after failed requests
   this.BAD_REQUEST_RUN_QUEUE_DELAY = 10; // longer delay before doing anything after errors (other than TIMEOUT)
 
-  // delay before processing the queue after error==TIMEOUT requests. this is a less severe error than other errors
-  this.TIMEOUT_REQUEST_RUN_QUEUE_DELAY = 0.5;
+  // delay before processing the queue after error==TIMEOUT requests. this is 'expected', so minimal extra delay over the regular RUN_QUEUE_DELAY
+  this.TIMEOUT_REQUEST_RUN_QUEUE_DELAY = 0.1;
 
 
   // render queue
