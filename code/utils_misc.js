@@ -204,7 +204,7 @@ window.showPortalPosLinks = function(lat, lng, name) {
   } else {
     var qrcode = '<div id="qrcode"></div>';
     var script = '<script>$(\'#qrcode\').qrcode({text:\'GEO:'+lat+','+lng+'\'});</script>';
-    var gmaps = '<a href="https://maps.google.com/maps?ll='+lat+','+lng+'&q='+lat+','+lng+'%20('+encoded_name+')">Google Maps</a>';
+    var gmaps = '<a href="http://google.com/maps/@' + lat + ',' + lng + ',19z">Google Maps</a>';
     var bingmaps = '<a href="http://www.bing.com/maps/?v=2&cp='+lat+'~'+lng+'&lvl=16&sp=Point.'+lat+'_'+lng+'_'+encoded_name+'___">Bing Maps</a>';
     var osm = '<a href="http://www.openstreetmap.org/?mlat='+lat+'&mlon='+lng+'&zoom=16">OpenStreetMap</a>';
     var latLng = '<span>&lt;' + lat + ',' + lng +'&gt;</span>';
