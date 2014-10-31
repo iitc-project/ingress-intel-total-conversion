@@ -26,9 +26,9 @@ window.plugin.mapTileKartverketMap.addLayer = function() {
 
   // Map data from Kartverket (http://statkart.no/en/)
   kartverketAttribution = 'Map data © Kartverket';
-  var kartverketOpt = {attribution: kartverketAttribution, maxNativeZoom: 18, maxZoom: 21};
-  var kartverketTopo2 = new L.TileLayer('http://opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo2&zoom={z}&x={x}&y={y}', kartverketOpt);
-  var kartverketTopo2Grayscale = new L.TileLayer('http://opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo2graatone&zoom={z}&x={x}&y={y}', kartverketOpt);
+  var kartverketOpt = {attribution: kartverketAttribution, maxNativeZoom: 18, maxZoom: 21, subdomains: ['opencache', 'opencache2', 'opencache3']};
+  var kartverketTopo2 = new L.TileLayer('http://{s}.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo2&zoom={z}&x={x}&y={y}', kartverketOpt);
+  var kartverketTopo2Grayscale = new L.TileLayer('http://{s}.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo2graatone&zoom={z}&x={x}&y={y}', kartverketOpt);
 
   layerChooser.addBaseLayer(kartverketTopo2, "Norway Topo");
   layerChooser.addBaseLayer(kartverketTopo2Grayscale, "Norway Topo Grayscale");
