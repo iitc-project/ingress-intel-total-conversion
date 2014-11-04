@@ -15,9 +15,6 @@
 //            required to successfully boot the plugin.
 //
 // Here’s more specific information about each event:
-// playerNameResolved: called when unresolved player name get resolved.
-//              Argument is {names: object} which names[guid] is the
-//              resolved player name.
 // portalSelected: called when portal on map is selected/unselected.
 //              Provide guid of selected and unselected portal.
 // mapDataRefreshStart: called when we start refreshing map data
@@ -57,10 +54,9 @@
 
 window._hooks = {}
 window.VALID_HOOKS = [
-  'playerNameResolved', 'portalSelected',
+  'portalSelected', 'portalDetailsUpdated',
   'mapDataRefreshStart', 'mapDataRefreshEnd',
   'portalAdded', 'linkAdded', 'fieldAdded',
-  'portalDetailsUpdated',
   'publicChatDataAvailable', 'factionChatDataAvailable',
   'requestFinished', 'nicknameClicked',
   'geoSearch', 'iitcLoaded',
@@ -83,6 +79,13 @@ window.runHooks = function(event, data) {
     }
   });
   return !interrupted;
+}
+
+// helper method to allow plugins to create new hooks
+window.pluginCreateHook = function(event) {
+  if($.inArray(event, window.VALID_HOOKS) < 0) {
+    window.VALID_HOOKS.push(event);
+  }
 }
 
 

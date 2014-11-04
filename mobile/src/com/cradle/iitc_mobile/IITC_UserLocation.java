@@ -100,7 +100,7 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
         return mFollowing;
     }
 
-    public void locate() {
+    public void locate(final boolean persistentZoom) {
         // do not touch the javascript while iitc boots
         if (mIitc.isLoading()) return;
 
@@ -109,7 +109,8 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
 
         mIitc.getWebView().loadJS("if(window.plugin && window.plugin.userLocation)"
                 + "window.plugin.userLocation.locate("
-                + location.getLatitude() + ", " + location.getLongitude() + ", " + location.getAccuracy() + ");");
+                + location.getLatitude() + ", " + location.getLongitude() + ", "
+                + location.getAccuracy() + ", " + persistentZoom + ");");
     }
 
     public void onStart() {

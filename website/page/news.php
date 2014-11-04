@@ -1,5 +1,71 @@
 <h2>News</h2>
 
+<h4>6th October 2014</h4>
+<p>
+IITC 0.18.1 and IITC Mobile 0.11.7 have just been released. Changes include
+</p>
+<ul>
+<li>Added support for 'ornaments' - per-portal markers sent from the server, currently used for anomaly portals.</li>
+<li>Player tracker plugin - fix player tracker when faction COMM is viewed.</li>
+<li>Passcodes - fix displaying results from passcode redemption.</li>
+<li>Other minor tweaks and bugfixes.</li>
+</ul>
+
+<h4>17th September 2014</h4>
+<p>
+IITC 0.18.0 and IITC Mobile 0.11.6 have just been released. This is an important update required to fix a few
+problems caused in recent Niantic site updates.
+</p>
+<p>Changes include:</p>
+<ul>
+<li>New plugin: layer count. Counts the number of overlapping layers on the map at the selected point</li>
+<li>Portals list plugin: A major update, including integration with the bookmarks and uniques plugins</li>
+<li>COMM bugfixes: only load the visible tab (in preperation for adding the 'alerts' tab), and fix COMM not loading on global map view</li>
+<li>plus other tweaks and bugfixes...</li>
+</ul>
+
+<h4>15th August 2014</h4>
+<p>
+IITC 0.17.5 and IITC Mobile 0.11.5 have just been released. This is a critical update required to work
+with the latest changes to the standard intel site.
+</p>
+<p>
+Along with the fixes needed to work with the Niantic changes, the only other change since the previous
+release is a minor colour scheme change for mods, to match the standard intel site. Rare is now a
+shade of blue (rather than purple), and very rare is now purple (rather than pink).
+</p>
+
+<h4>14th August 2014</h4>
+<p>
+IITC 0.17.4 and IITC Mobile 0.11.4 have just been released. Changes include:
+</p>
+<ul>
+<li>Support for the Helios artifacts</li>
+<li>New plugin: 'uniques' - allows manual and partial automatic tracking of unique portals visited/captured</li>
+<li>Passcodes can be redeemed - enter them in the box below the portal details in the sidebar</li>
+<li>Big improvements in network error handling - including a new prompt when IITC needs a reload after a Niantic site update</li>
+<li>and, as usual, other tweaks and bugfixes</li>
+</ul>
+
+<h4>5th July 2014</h4>
+<p>
+IITC 0.17.3 and IITC Mobile 0.11.3 have just been released. Changes include:
+</p>
+<ul>
+<li>Leaflet updated: some bugfixes for the map engine IITC uses.</li>
+<li>Keyboard shortcuts: limited testing so far, so considered experimental. More details in 
+<a href="https://plus.google.com/116983602532788146323/posts/7omuVsv3c1g">this post</a>.</li>
+<li>New plugin "Cross Links". This works with the "draw tools" plugin, highlighting any existing links that cross
+drawn lines/polygons. Very useful to see what needs clearing when planning large fields.</li>
+<li>and, as always, other minor tweaks and bugfixes</li>
+</ul>
+
+<h4>16th June 2014</h4>
+<p>
+IITC 0.17.2 and IITC Mobile 0.11.2 have just been release. This is to fix the display of portal details - in particular,
+the 'owner' field - after Niantic removed the capture date from the standard site and data.
+</p>
+
 <h4>31st May 2014</h4>
 <p>
 IITC 0.17.1 and IITC Mobile 0.11.1 have just been released.

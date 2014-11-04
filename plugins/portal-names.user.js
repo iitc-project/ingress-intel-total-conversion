@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portal-names@zaso
 // @name           IITC plugin: Portal Names
 // @category       Layer
-// @version        0.1.4.@@DATETIMEVERSION@@
+// @version        0.1.5.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -71,6 +71,13 @@ window.plugin.portalNames.addLabel = function(guid, latLng) {
     label.addTo(window.plugin.portalNames.labelLayerGroup);
   }
 }
+
+window.plugin.portalNames.clearAllPortalLabels = function() {
+  for (var guid in window.plugin.portalNames.labelLayers) {
+    window.plugin.portalNames.removeLabel(guid);
+  }
+}
+
 
 window.plugin.portalNames.updatePortalLabels = function() {
   // as this is called every time layers are toggled, there's no point in doing it when the leyer is off
@@ -171,6 +178,8 @@ var setup = function() {
   window.addHook('requestFinished', function() { setTimeout(function(){window.plugin.portalNames.delayedUpdatePortalLabels(3.0);},1); });
   window.addHook('mapDataRefreshEnd', function() { window.plugin.portalNames.delayedUpdatePortalLabels(0.5); });
   window.map.on('overlayadd overlayremove', function() { setTimeout(function(){window.plugin.portalNames.delayedUpdatePortalLabels(1.0);},1); });
+  window.map.on('zoomend', window.plugin.portalNames.clearAllPortalLabels );
+
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

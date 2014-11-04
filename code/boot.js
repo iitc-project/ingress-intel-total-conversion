@@ -151,14 +151,29 @@ window.setupMap = function() {
     zoomControl: (typeof android !== 'undefined' && android && android.showZoom) ? android.showZoom() : true,
     minZoom: 1,
 //    zoomAnimation: false,
-    markerZoomAnimation: false
+    markerZoomAnimation: false,
+    bounceAtZoomLimits: false
   });
+
+  if (L.Path.CANVAS) {
+    // for canvas, 2% overdraw only - to help performance
+    L.Path.CLIP_PADDING = 0.02;
+  } else if (L.Path.SVG) {
+    if (L.Browser.mobile) {
+      // mobile SVG - 10% ovredraw. might help performance?
+      L.Path.CLIP_PADDING = 0.1;
+    } else {
+      // for svg, 100% overdraw - so we have a full screen worth in all directions
+      L.Path.CLIP_PADDING = 1.0;
+    }
+  }
 
   // add empty div to leaflet control areas - to force other leaflet controls to move around IITC UI elements
   // TODO? move the actual IITC DOM into the leaflet control areas, so dummy <div>s aren't needed
   if(!isSmartphone()) {
     // chat window area
-    $(window.map._controlCorners['bottomleft']).append($('<div>').width(708).height(108).addClass('leaflet-control').css('margin','0'));
+    $(window.map._controlCorners['bottomleft']).append(
+      $('<div>').width(708).height(108).addClass('leaflet-control').css({'pointer-events': 'none', 'margin': '0'}));
   }
 
   var addLayers = {};
@@ -374,6 +389,9 @@ window.setupPlayerStat = function() {
   var level = PLAYER.verified_level;
   PLAYER.level = level; //for historical reasons IITC expects PLAYER.level to contain the current player level
 
+  var n = window.PLAYER.nickname;
+  PLAYER.nickMatcher = new RegExp('\\b('+n+')\\b', 'ig');
+
   var ap = parseInt(PLAYER.ap);
   var thisLvlAp = parseInt(PLAYER.min_ap_for_current_level);
   var nextLvlAp = parseInt(PLAYER.min_ap_for_next_level);
@@ -459,7 +477,7 @@ window.setupQRLoadLib = function() {
 }
 
 window.setupLayerChooserApi = function() {
-  // hide layer chooser on mobile devices running desktop mode
+  // hide layer chooser if booted with the iitcm android app
   if (typeof android !== 'undefined' && android && android.setLayers) {
     $('.leaflet-control-layers').hide();
   }
@@ -555,17 +573,21 @@ function boot() {
     popupAnchor: new L.Point(1, -34),
   }});
 
+  window.extractFromStock();
+  window.iitc_bg.init(); //NOTE: needs to be early (before any requests sent), but after extractFromStock()
   window.setupIdle();
   window.setupTaphold();
   window.setupStyles();
   window.setupDialogs();
   window.setupMap();
+  window.setupOMS();
   window.setupGeosearch();
   window.setupRedeem();
   window.setupLargeImagePreview();
   window.setupSidebarToggle();
   window.updateGameScore();
   window.artifact.setup();
+  window.ornaments.setup();
   window.setupPlayerStat();
   window.setupTooltips();
   window.chat.setup();
@@ -581,10 +603,6 @@ function boot() {
     urlPortalLL = [parseFloat(urlPortalLL[0]) || 0.0, parseFloat(urlPortalLL[1]) || 0.0];
   }
   urlPortal = getURLParam('pguid');
-
-  // load only once
-  var n = window.PLAYER['nickname'];
-  window.PLAYER['nickMatcher'] = new RegExp('\\b('+n+')\\b', 'ig');
 
   $('#sidebar').show();
 
@@ -635,7 +653,7 @@ function boot() {
   window.runOnSmartphonesAfterBoot();
 
   // workaround for #129. Not sure why this is required.
-//  setTimeout('window.map.invalidateSize(false);', 500);
+  // setTimeout('window.map.invalidateSize(false);', 500);
 
   window.iitcLoaded = true;
   window.runHooks('iitcLoaded');
@@ -657,12 +675,13 @@ try { console.log('Loading included JS now'); } catch(e) {}
 // contains the default Ingress map style.
 @@INCLUDERAW:external/Google.js@@
 @@INCLUDERAW:external/autolink.js@@
+@@INCLUDERAW:external/oms.min.js@@
 
 try { console.log('done loading included JS'); } catch(e) {}
 
 //note: no protocol - so uses http or https as used on the current page
-var JQUERY = '//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js';
-var JQUERYUI = '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js';
+var JQUERY = '//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js';
+var JQUERYUI = '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js';
 
 // after all scripts have loaded, boot the actual app
 load(JQUERY).then(JQUERYUI).thenRun(boot);

@@ -2,7 +2,7 @@
 // @id             iitc-plugin-nokia-ovi-maps
 // @name           IITC plugin: Nokia OVI maps
 // @category       Map Tiles
-// @version        0.1.2.@@DATETIMEVERSION@@
+// @version        0.1.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -27,7 +27,8 @@ window.plugin.mapNokiaOvi.setup = function() {
     'normal.day.grey': { name: "Normal (grey)", type: 'png8' },
     'normal.day.transit': { name: "Normal (transit)", type: 'png8' },
     'satellite.day': { name: "Satellite", type: 'jpg' },
-    'terrain.day': { name: "Terrain", type: 'png8' } //would jpg be better?
+    'terrain.day': { name: "Terrain", type: 'png8' }, //would jpg be better?
+    'normal.night.grey': { name: "Normal Night (grey)", type: 'png8' },
   };
 
 

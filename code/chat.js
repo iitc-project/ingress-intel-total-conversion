@@ -41,7 +41,7 @@ window.chat._oldBBox = null;
 window.chat.genPostData = function(isFaction, storageHash, getOlderMsgs) {
   if(typeof isFaction !== 'boolean') throw('Need to know if public or faction chat.');
 
-  var b = map.getBounds();
+  var b = clampLatLngBounds(map.getBounds());
 
   // set a current bounding box if none set so far
   if (!chat._oldBBox) chat._oldBBox = b;
@@ -132,8 +132,6 @@ window.chat.requestFaction = function(getOlderMsgs, isRetry) {
       ? function() { window.chat._requestFactionRunning = false; }
       : function() { window.chat.requestFaction(getOlderMsgs, true) }
   );
-
-  requests.add(r);
 }
 
 
@@ -183,8 +181,6 @@ window.chat.requestPublic = function(getOlderMsgs, isRetry) {
       ? function() { window.chat._requestPublicRunning = false; }
       : function() { window.chat.requestPublic(getOlderMsgs, true) }
   );
-
-  requests.add(r);
 }
 
 window.chat._public = {data:{}, oldestTimestamp:-1, newestTimestamp:-1};
@@ -434,6 +430,13 @@ window.chat.getActive = function() {
   return $('#chatcontrols .active').text();
 }
 
+window.chat.tabToChannel = function(tab) {
+  if (tab == 'faction') return 'faction';
+  if (tab == 'alerts') return 'alerts';
+  return 'all'; //for 'full', 'compact' and 'public'
+};
+
+
 
 window.chat.toggle = function() {
   var c = $('#chat, #chatcontrols');
@@ -453,10 +456,41 @@ window.chat.toggle = function() {
 }
 
 
+// called by plugins (or other things?) that need to monitor COMM data streams when the user is not viewing them
+// instance: a unique string identifying the plugin requesting background COMM
+// channel: either 'all', 'faction' or (soon) 'alerts' - others possible in the future
+// flag: true for data wanted, false for not wanted
+window.chat.backgroundChannelData = function(instance,channel,flag) {
+  //first, store the state for this instance
+  if (!window.chat.backgroundInstanceChannel) window.chat.backgroundInstanceChannel = {};
+  if (!window.chat.backgroundInstanceChannel[instance]) window.chat.backgroundInstanceChannel[instance] = {};
+  window.chat.backgroundInstanceChannel[instance][channel] = flag;
+
+  //now, to simplify the request code, merge the flags for all instances into one
+  // 1. clear existing overall flags
+  window.chat.backgroundChannels = {};
+  // 2. for each instance monitoring COMM...
+  $.each(window.chat.backgroundInstanceChannel, function(instance,channels) {
+    // 3. and for each channel monitored by this instance...
+    $.each(window.chat.backgroundInstanceChannel[instance],function(channel,flag) {
+      // 4. if it's monitored, set the channel flag
+      if (flag) window.chat.backgroundChannels[channel] = true;
+    });
+  });
+
+}
+
+
 window.chat.request = function() {
   console.log('refreshing chat');
-  chat.requestFaction(false);
-  chat.requestPublic(false);
+  var channel = chat.tabToChannel(chat.getActive());
+  if (channel == 'faction' || (window.chat.backgroundChannels && window.chat.backgroundChannels['faction'])) {
+    chat.requestFaction(false);
+  }
+  if (channel == 'all' || (window.chat.backgroundChannels && window.chat.backgroundChannels['all'])) {
+    // the 'public', 'full' and 'compact' tabs are all based off the 'public' COMM data
+    chat.requestPublic(false);
+  }
 }
 
 
@@ -479,9 +513,13 @@ window.chat.needMoreMessages = function() {
     chat.requestFaction(true);
   else
     chat.requestPublic(true);
-}
+};
+
 
 window.chat.chooseAnchor = function(t) {
+  var oldTab = chat.getActive();
+  var oldChannel = chat.tabToChannel(oldTab);
+
   var tt = t.text();
 
   localStorage['iitc-chat-tab'] = tt;
@@ -491,6 +529,9 @@ window.chat.chooseAnchor = function(t) {
 
   $('#chatcontrols .active').removeClass('active');
   $("#chatcontrols a:contains('" + tt + "')").addClass('active');
+
+  var newChannel = chat.tabToChannel(tt);
+  if (newChannel != oldChannel) startRefreshTimeout(0.1*1000); //only chat uses the refresh timer stuff, so a perfect way of forcing an early refresh after a tab change
 
   $('#chat > div').hide();
 

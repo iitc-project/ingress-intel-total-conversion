@@ -52,10 +52,10 @@ public class IITC_FileManager {
             "script.appendChild(document.createTextNode('('+ wrapper +')('+JSON.stringify(info)+');'));\n"
                     + "(document.body || document.head || document.documentElement).appendChild(script);";
 
-    private long mUpdateInterval = 1000*60*60*24*7;
+    // update interval is 2 days by default
+    private long mUpdateInterval = 1000 * 60 * 60 * 24 * 7;
 
     public static final String DOMAIN = ".iitcm.localhost";
-    // update interval is 2 days by default
 
     /**
      * copies the contents of a stream into another stream and (optionally) closes the output stream afterwards
@@ -119,6 +119,10 @@ public class IITC_FileManager {
         return map;
     }
 
+    public static String readFile(final File file) throws IOException {
+        return readStream(new FileInputStream(file));
+    }
+
     public static String readStream(final InputStream stream) {
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
 
@@ -140,7 +144,7 @@ public class IITC_FileManager {
 
     public IITC_FileManager(final Activity activity) {
         mActivity = activity;
-        mIitcPath = Environment.getExternalStorageDirectory().getPath() + "/Activity/";
+        mIitcPath = Environment.getExternalStorageDirectory().getPath() + "/IITC_Mobile/";
         mPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
         mAssetManager = mActivity.getAssets();
     }
@@ -320,7 +324,7 @@ public class IITC_FileManager {
         }
     }
 
-    public void updatePlugins(boolean force) {
+    public void updatePlugins(final boolean force) {
         // do nothing if updates are disabled
         if (mUpdateInterval == 0 && !force) return;
         // check last script update
@@ -347,8 +351,8 @@ public class IITC_FileManager {
                 .commit();
     }
 
-    public void setUpdateInterval(int interval) {
-        mUpdateInterval = 1000*60*60*24 * interval;
+    public void setUpdateInterval(final int interval) {
+        mUpdateInterval = 1000 * 60 * 60 * 24 * interval;
     }
 
     private class FileRequest extends WebResourceResponse implements ResponseHandler, Runnable {

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30">
+	<g style="fill:#000000;fill-opacity:0.4;stroke:none">
+		<path d="M 6,24 24,24 15,6 z"/>
+		<path d="M 6,24 24,24 15,12 z"/>
+		<path d="M 6,24 24,24 15,18 z"/>
+	</g>
+</svg>

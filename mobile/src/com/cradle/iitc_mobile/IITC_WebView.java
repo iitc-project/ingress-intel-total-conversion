@@ -141,9 +141,18 @@ public class IITC_WebView extends WebView {
 
     @TargetApi(19)
     public void loadJS(final String js) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            evaluateJavascript(js, null);
-        } else {
+        boolean classicWebView = Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT;
+        if (!classicWebView) {
+            // some strange Android 4.4+ custom ROMs are using the classic webview
+            try {
+                evaluateJavascript(js, null);
+            } catch (final IllegalStateException e) {
+                Log.e(e);
+                Log.d("Classic WebView detected: use old injection method");
+                classicWebView = true;
+            }
+        }
+        if (classicWebView) {
             // if in edit text mode, don't load javascript otherwise the keyboard closes.
             final HitTestResult testResult = getHitTestResult();
             if (testResult != null && testResult.getType() == HitTestResult.EDIT_TEXT_TYPE) {
