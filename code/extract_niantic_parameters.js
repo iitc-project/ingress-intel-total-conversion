@@ -73,7 +73,7 @@ window.extractFromStock = function() {
   // there are two. both contain a list of method names - one is the list of methods protected by either
   // botguard group-a or group-b, while the others is just a list of those in one group
 
-  window.niantic_params.botguard_protected_methods = [];
+//  window.niantic_params.botguard_protected_methods = [];
   window.niantic_params.botguard_group_a_methods = [];
 
   var countMethods = function(arr) {
@@ -87,26 +87,25 @@ window.extractFromStock = function() {
     return count;
   }
 
-  var protectedMethodsCount = 0;
+//  var protectedMethodsCount = 0;
   var groupMethodsCount = 0;
 
   for (var i in arrays) {
     var arr = arrays[i];
     var arrCount = countMethods(arr);
 
-    // now store the longest in niantic_params.botguard_protected_methods, and 2nd longest in .niantic_params.botguard_group_a_methods
-
-    if (arrCount > protectedMethodsCount) {
-      // longest found - copy any existing longest to the 2nd longest
-
-      window.niantic_params.botguard_group_a_methods = window.niantic_params.botguard_protected_methods;
-      groupMethodsCount = protectedMethodsCount;
-
-      //... and set the longest
-      window.niantic_params.botguard_protected_methods = arr;
-      protectedMethodsCount = arrCount;
-
-    } else if (arrCount > groupMethodsCount) {
+//    if (arrCount > protectedMethodsCount) {
+//      // longest found - copy any existing longest to the 2nd longest
+//
+//      window.niantic_params.botguard_group_a_methods = window.niantic_params.botguard_protected_methods;
+//      groupMethodsCount = protectedMethodsCount;
+//
+//      //... and set the longest
+//      window.niantic_params.botguard_protected_methods = arr;
+//      protectedMethodsCount = arrCount;
+//
+//    } else
+    if (arrCount > groupMethodsCount) {
       // 2nd longest - store
       window.niantic_params.botguard_group_a_methods = arr;
       groupMethodsCount = arrCount;
@@ -115,7 +114,7 @@ window.extractFromStock = function() {
   }
 
 
-  if (niantic_params.CURRENT_VERSION === undefined || window.niantic_params.botguard_protected_methods.length == 0) {
+  if (niantic_params.CURRENT_VERSION === undefined || window.niantic_params.botguard_group_a_methods.length == 0) {
     dialog({
       title: 'IITC Broken',
       html: '<p>IITC failed to extract the required parameters from the intel site</p>'
