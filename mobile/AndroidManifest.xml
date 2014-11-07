@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.cradle.iitc_mobile"
     android:installLocation="auto"
-    android:versionCode="82"
-    android:versionName="0.11.9">
+    android:versionCode="83"
+    android:versionName="0.11.10">
 
     <uses-sdk
         android:minSdkVersion="14"
