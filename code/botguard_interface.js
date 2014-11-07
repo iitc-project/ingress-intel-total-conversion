@@ -139,15 +139,15 @@ iitc_bg.get_method_group = function(method) {
 //NOTE: stock site has separate test for 'is any group' - IITC combines it into this one function that returns
 // undefined for no group
 
-  if (window.niantic_params.botguard_protected_methods.indexOf(method) != -1) {
+//  if (window.niantic_params.botguard_protected_methods.indexOf(method) != -1) {
     if (window.niantic_params.botguard_group_a_methods.indexOf(method) != -1) {
       return "group-a-actions";
     } else {
       return "group-b-actions";
     }
-  }
-  // method is not of any group
-  return undefined;
+//  }
+//  // method is not of any group
+//  return undefined;
 };
 
 
