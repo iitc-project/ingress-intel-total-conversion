@@ -115,7 +115,7 @@ window.extractFromStock = function() {
   }
 
 
-  if (niantic_params.CURRENT_VERSION === undefined || window.niantic_params.botguard_protected_methods.length == 0 || window.niantic_params.botguard_group_a_methods == 0) {
+  if (niantic_params.CURRENT_VERSION === undefined || window.niantic_params.botguard_protected_methods.length == 0) {
     dialog({
       title: 'IITC Broken',
       html: '<p>IITC failed to extract the required parameters from the intel site</p>'
