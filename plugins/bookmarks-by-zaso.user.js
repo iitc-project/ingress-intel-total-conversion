@@ -68,7 +68,7 @@
     return ID;
   }
 
-  // Format the string 
+  // Format the string
   window.plugin.bookmarks.escapeHtml = function(text) {
     return text
         .replace(/&/g, "&amp;")
@@ -984,7 +984,7 @@
   window.plugin.bookmarks.syncCallback = function(pluginName, fieldName, e, fullUpdated) {
     if(fieldName === window.plugin.bookmarks.KEY.field) {
       window.plugin.bookmarks.storeLocal(window.plugin.bookmarks.KEY);
-      // All data is replaced if other client update the data during this client offline, 
+      // All data is replaced if other client update the data during this client offline,
       if(fullUpdated) {
         window.plugin.bookmarks.refreshBkmrks();
         return;
@@ -1268,7 +1268,7 @@
       if(window.useAndroidPanes())
         android.addPane("plugin-bookmarks", "Bookmarks", "ic_action_star");
       window.addHook('paneChanged', window.plugin.bookmarks.onPaneChanged);
-      
+
       // Remove the star
       window.addHook('portalSelected', function(data) {
         if(data.selectedPortalGuid === null) {
