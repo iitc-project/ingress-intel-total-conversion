@@ -85,11 +85,11 @@ window.plugin.doneLinks.testLink = function (link) {
 window.plugin.doneLinks.showLink = function(link) {
 
     var poly = L.geodesicPolyline(link.getLatLngs(), {
-       color: '#FB0',
-       opacity: 0.9,
+       color: COLORS[link.options.team],
+       opacity: 0.8,
        weight: 6,
        clickable: false,
-       dashArray: [8,12],
+       dashArray: [6,12],
 
        guid: link.options.guid
     });
