@@ -1,5 +1,15 @@
 <h2>News</h2>
 
+
+<h4>7th November 2014</h4>
+<p>
+IITC 0.18.3 / IITC Mobile 0.11.9 released.
+</p>
+<p>
+This is a critical update, required to fix IITC after a change to the standard intel site.
+No other significant changes have been made.
+</p>
+
 <h4>24th October 2014</h4>
 <p>
 IITC 0.18.2 / IITC Mobile 0.11.8 released.
