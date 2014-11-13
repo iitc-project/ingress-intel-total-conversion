@@ -25,9 +25,10 @@ window.MapDataRequest = function() {
   this.MAX_REQUESTS = 5;
 
   // this many tiles in one request
-  this.NUM_TILES_PER_REQUEST = 4;
+  this.NUM_TILES_PER_REQUEST = 25;
 
   // number of times to retry a tile after an error (including "error: TIMEOUT" now - as stock intel does)
+  // TODO? different retry counters for TIMEOUT vs other errors..?
   this.MAX_TILE_RETRIES = 5;
 
   // refresh timers
@@ -46,8 +47,8 @@ window.MapDataRequest = function() {
   // delay before processing the queue after failed requests
   this.BAD_REQUEST_RUN_QUEUE_DELAY = 10; // longer delay before doing anything after errors (other than TIMEOUT)
 
-  // delay before processing the queue after error==TIMEOUT requests. this is a less severe error than other errors
-  this.TIMEOUT_REQUEST_RUN_QUEUE_DELAY = 0.5;
+  // delay before processing the queue after error==TIMEOUT requests. this is 'expected', so minimal extra delay over the regular RUN_QUEUE_DELAY
+  this.TIMEOUT_REQUEST_RUN_QUEUE_DELAY = 0.1;
 
 
   // render queue
@@ -231,7 +232,15 @@ window.MapDataRequest.prototype.refresh = function() {
 
   this.render.processGameEntities(artifact.getArtifactEntities());
 
-  console.log('requesting data tiles at zoom '+dataZoom+' (L'+tileParams.level+'+ portals, '+tileParams.tilesPerEdge+' tiles per global edge), map zoom is '+mapZoom);
+  var logMessage = 'requesting data tiles at zoom '+dataZoom;
+  if (tileParams.level != tileParams.maxLevel) {
+    logMessage += ' (L'+tileParams.level+'+ portals - could have doneug L'+tileParams.maxLevel+'+';
+  } else {
+    logMessage += ' (L'+tileParams.level+'+ portals';
+  }
+  logMessage += ', '+tileParams.tilesPerEdge+' tiles per global edge), map zoom is '+mapZoom;
+
+  console.log(logMessage);
 
 
   this.cachedTileCount = 0;
@@ -543,7 +552,7 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
                        timeoutTiles.length > 0 ? this.TIMEOUT_REQUEST_RUN_QUEUE_DELAY :
                        this.RUN_QUEUE_DELAY;
 
-  console.log ('getThinnedEntities status: '+tiles.length+' tiles: '+successTiles.length+' successful, '+timeoutTiles.length+' timed out, '+errorTiles.length+' failed. delay '+nextQueueDelay+' seconds');
+  console.log ('getEntities status: '+tiles.length+' tiles: '+successTiles.length+' successful, '+timeoutTiles.length+' timed out, '+errorTiles.length+' failed. delay '+nextQueueDelay+' seconds');
 
   // requeue any 'timeout' tiles immediately
   if (timeoutTiles.length > 0) {

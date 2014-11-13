@@ -259,9 +259,11 @@ window.plugin.guessPlayerLevels.extractChatData = function(data) {
       var latlngs = [];
       var portals = {};
       attackData[nick][timestamp].forEach(function(portal) {
-        if(portals.hasOwnProperty(portal.guid))
+        // no GUID in the data any more - but we need some unique string. use the latE6,lngE6
+        var id = portal.latE6+","+portal.lngE6;
+        if(portals.hasOwnProperty(id))
           return;
-        portals[portal.guid] = 1;
+        portals[id] = 1;
         latlngs.push({x: portal.lngE6/1E6, y:portal.latE6/1E6});
       });
       if(latlngs.length < 2) // we need at least 2 portals to calculate burster range

@@ -88,7 +88,56 @@ window.findPortalLatLng = function(guid) {
 
   // no luck finding portal lat/lng
   return undefined;
-}
+};
+
+
+(function() {
+  var cache = {};
+  var GC_LIMIT = 5000; // run garbage collector when cache has more that 5000 items
+  var GC_KEEP  = 4000; // keep the 4000 most recent items
+
+  window.findPortalGuidByPositionE6 = function(latE6, lngE6) {
+    var item = cache[latE6+","+lngE6];
+    if(item) return item[0];
+
+    // now try searching through currently rendered portals
+    for(var guid in window.portals) {
+      var data = window.portals[guid].options.data;
+      if(data.latE6 == latE6 && data.lngE6 == lngE6) return guid;
+    }
+
+    // now try searching through fields
+    for(var fguid in window.fields) {
+      var points = window.fields[fguid].options.data.points;
+
+      for(var i in points) {
+        var point = points[i];
+        if(point.latE6 == latE6 && point.lngE6 == lngE6) return point.guid;
+      }
+    }
+
+    // and finally search through links
+    for(var lguid in window.links) {
+      var l = window.links[lguid].options.data;
+      if(l.oLatE6 == latE6 && l.oLngE6 == lngE6) return l.oGuid;
+      if(l.dLatE6 == latE6 && l.dLngE6 == lngE6) return l.dGuid;
+    }
+
+    return null;
+  };
+
+  window.pushPortalGuidPositionCache = function(guid, latE6, lngE6) {
+    cache[latE6+","+lngE6] = [guid, Date.now()];
+
+    if(Object.keys(cache).length > GC_LIMIT) {
+      Object.keys(cache) // get all latlngs
+        .map(function(latlng) { return [latlng, cache[latlng][1]]; })  // map them to [latlng, timestamp]
+        .sort(function(a,b) { return b[1] - a[1]; }) // sort them
+        .slice(GC_KEEP) // drop the MRU
+        .forEach(function(item) { delete cache[item[0]] }); // delete the rest
+    }
+  }
+})();
 
 
 // get the AP gains from a portal, based only on the brief summary data from portals, links and fields

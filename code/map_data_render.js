@@ -44,7 +44,7 @@ window.Render.prototype.clearPortalsBelowLevel = function(level) {
   for (var guid in window.portals) {
     var p = portals[guid];
     // clear portals below specified level - unless it's the selected portal, or it's relevant to artifacts
-    if (parseInt(p.options.level) < level && guid !== selectedPortal && !artifact.isInterestingPortal(guid)) {
+    if (parseInt(p.options.level) < level && guid !== selectedPortal && !artifact.isInterestingPortal(guid) && !ornaments.isInterestingPortal(p)) {
       this.deletePortalEntity(guid);
       count++;
     }
@@ -258,6 +258,8 @@ window.Render.prototype.createPortalEntity = function(ent) {
     data: ent[2]
   };
 
+  window.pushPortalGuidPositionCache(ent[0], ent[2].latE6, ent[2].lngE6);
+
   var marker = createMarker(latlng, dataOptions);
 
   marker.on('click', function() { window.renderPortalDetails(ent[0]); });
@@ -431,7 +433,7 @@ window.Render.prototype.resetPortalClusters = function() {
       var guid = c[i];
       var p = window.portals[guid];
       var layerGroup = portalsFactionLayers[parseInt(p.options.level)][p.options.team];
-      if ((i<this.CLUSTER_PORTAL_LIMIT || p.options.guid == selectedPortal || artifact.isInterestingPortal(p.options.guid)) && this.bounds.contains(p.getLatLng())) {
+      if ((i<this.CLUSTER_PORTAL_LIMIT || p.options.guid == selectedPortal || artifact.isInterestingPortal(p.options.guid) || ornaments.isInterestingPortal(p)) && this.bounds.contains(p.getLatLng())) {
         if (!layerGroup.hasLayer(p)) {
           layerGroup.addLayer(p);
         }
@@ -454,10 +456,15 @@ window.Render.prototype.addPortalToMapLayer = function(portal) {
 
   this.portalClusters[cid].push(portal.options.guid);
 
+  window.ornaments.addPortal(portal);
+
   // now, at this point, we could match the above re-cluster code - sorting, and adding/removing as necessary
   // however, it won't make a lot of visible difference compared to just pushing to the end of the list, then
   // adding to the visible layer if the list is below the limit
-  if (this.portalClusters[cid].length < this.CLUSTER_PORTAL_LIMIT || portal.options.guid == selectedPortal || artifact.isInterestingPortal(portal.options.guid)) {
+  if(this.portalClusters[cid].length < this.CLUSTER_PORTAL_LIMIT
+  || portal.options.guid == selectedPortal
+  || artifact.isInterestingPortal(portal.options.guid)
+  || ornaments.isInterestingPortal(portal)) {
     if (this.bounds.contains(portal.getLatLng())) {
       portalsFactionLayers[parseInt(portal.options.level)][portal.options.team].addLayer(portal);
     }
@@ -468,6 +475,8 @@ window.Render.prototype.removePortalFromMapLayer = function(portal) {
 
   //remove it from the portalsLevels layer
   portalsFactionLayers[parseInt(portal.options.level)][portal.options.team].removeLayer(portal);
+
+  window.ornaments.removePortal(portal);
 
   // and ensure there's no mention of the portal in the cluster list
   var cid = this.getPortalClusterID(portal);

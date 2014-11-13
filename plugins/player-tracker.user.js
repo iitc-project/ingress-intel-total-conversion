@@ -2,7 +2,7 @@
 // @id             iitc-plugin-player-tracker@breunigs
 // @name           IITC Plugin: Player tracker
 // @category       Layer
-// @version        0.10.4.@@DATETIMEVERSION@@
+// @version        0.11.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -75,7 +75,11 @@ window.plugin.playerTracker.stored = {};
 
 plugin.playerTracker.onClickListener = function(event) {
   var marker = event.target;
-  window.renderPortalDetails(marker.options.referenceToPortal);
+
+  var ll = marker.options.referenceToPortal.split(",");
+  var guid = window.findPortalGuidByPositionE6(ll[0], ll[1]);
+  if(guid) window.renderPortalDetails(guid);
+
   if (marker.options.desc) {
     plugin.playerTracker.playerPopup.setContent(marker.options.desc);
     plugin.playerTracker.playerPopup.setLatLng(marker.getLatLng());
@@ -100,8 +104,12 @@ window.plugin.playerTracker.zoomListener = function() {
     plugin.playerTracker.drawnTracesEnl.clearLayers();
     plugin.playerTracker.drawnTracesRes.clearLayers();
     ctrl.addClass('disabled').attr('title', 'Zoom in to show those.');
+    //note: zoomListener is also called at init time to set up things, so we only need to do this in here
+    window.chat.backgroundChannelData('plugin.playerTracker', 'all', false);   //disable this plugin's interest in 'all' COMM
   } else {
     ctrl.removeClass('disabled').attr('title', '');
+    //note: zoomListener is also called at init time to set up things, so we only need to do this in here
+    window.chat.backgroundChannelData('plugin.playerTracker', 'all', true);    //enable this plugin's interest in 'all' COMM
   }
 }
 
@@ -111,15 +119,15 @@ window.plugin.playerTracker.getLimit = function() {
 
 window.plugin.playerTracker.discardOldData = function() {
   var limit = plugin.playerTracker.getLimit();
-  $.each(plugin.playerTracker.stored, function(pguid, player) {
+  $.each(plugin.playerTracker.stored, function(plrname, player) {
     var i;
     var ev = player.events;
     for(i = 0; i < ev.length; i++) {
       if(ev[i].time >= limit) break;
     }
     if(i === 0) return true;
-    if(i === ev.length) return delete plugin.playerTracker.stored[pguid];
-    plugin.playerTracker.stored[pguid].events.splice(0, i);
+    if(i === ev.length) return delete plugin.playerTracker.stored[plrname];
+    plugin.playerTracker.stored[plrname].events.splice(0, i);
   });
 }
 
@@ -141,7 +149,7 @@ window.plugin.playerTracker.processNewData = function(data) {
     if(json[1] < limit) return true;
 
     // find player and portal information
-    var pguid, lat, lng, guid, name, address;
+    var plrname, lat, lng, id=null, name, address;
     var skipThisMessage = false;
     $.each(json[2].plext.markup, function(ind, markup) {
       switch(markup[0]) {
@@ -157,14 +165,17 @@ window.plugin.playerTracker.processNewData = function(data) {
         }
         break;
       case 'PLAYER':
-        pguid = markup[1].plain;
+        plrname = markup[1].plain;
         break;
       case 'PORTAL':
         // link messages are “player linked X to Y” and the player is at
         // X.
         lat = lat ? lat : markup[1].latE6/1E6;
         lng = lng ? lng : markup[1].lngE6/1E6;
-        guid = guid ? guid : markup[1].guid;
+
+        // no GUID in the data any more - but we need some unique string. use the latE6,lngE6
+        id = markup[1].latE6+","+markup[1].lngE6;
+
         name = name ? name : markup[1].name;
         address = address ? address : markup[1].address;
         break;
@@ -172,23 +183,22 @@ window.plugin.playerTracker.processNewData = function(data) {
     });
 
     // skip unusable events
-    if(!pguid || !lat || !lng || !guid || skipThisMessage) return true;
+    if(!plrname || !lat || !lng || !id || skipThisMessage) return true;
 
     var newEvent = {
       latlngs: [[lat, lng]],
-      guids: [guid],
+      ids: [id],
       time: json[1],
       name: name,
       address: address
     };
 
-    var playerData = window.plugin.playerTracker.stored[pguid];
+    var playerData = window.plugin.playerTracker.stored[plrname];
 
     // short-path if this is a new player
     if(!playerData || playerData.events.length === 0) {
-      plugin.playerTracker.stored[pguid] = {
-         // this always resolves, as the chat delivers this data
-        nick: pguid,
+      plugin.playerTracker.stored[plrname] = {
+        nick: plrname,
         team: json[2].plext.team,
         events: [newEvent]
       };
@@ -208,8 +218,8 @@ window.plugin.playerTracker.processNewData = function(data) {
     // this is multiple resos destroyed at the same time.
     if(evts[cmp].time === json[1]) {
       evts[cmp].latlngs.push([lat, lng]);
-      evts[cmp].guids.push(guid);
-      plugin.playerTracker.stored[pguid].events = evts;
+      evts[cmp].ids.push(id);
+      plugin.playerTracker.stored[plrname].events = evts;
       return true;
     }
 
@@ -234,7 +244,7 @@ window.plugin.playerTracker.processNewData = function(data) {
     }
 
     // update player data
-    plugin.playerTracker.stored[pguid].events = evts;
+    plugin.playerTracker.stored[plrname].events = evts;
   });
 }
 
@@ -271,9 +281,9 @@ window.plugin.playerTracker.drawData = function() {
 
   var split = PLAYER_TRACKER_MAX_TIME / 4;
   var now = new Date().getTime();
-  $.each(plugin.playerTracker.stored, function(pguid, playerData) {
+  $.each(plugin.playerTracker.stored, function(plrname, playerData) {
     if(!playerData || playerData.events.length === 0) {
-      console.warn('broken player data for pguid=' + pguid);
+      console.warn('broken player data for plrname=' + plrname);
       return true;
     }
 
@@ -309,7 +319,7 @@ window.plugin.playerTracker.drawData = function() {
       }
       popup += '<span style="font-weight:bold;margin-left:10px;">';
 
-      var playerLevelDetails = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(pguid);
+      var playerLevelDetails = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(plrname);
       if(playerLevelDetails.min == 8) {
         popup += 'Level ' + getLevel(8);
       } else {
@@ -342,15 +352,15 @@ window.plugin.playerTracker.drawData = function() {
     var eventPortal = []
     var closestPortal;
     var mostPortals = 0;
-    $.each(last.guids, function(i, guid) {
-      if(eventPortal[guid]) {
-        eventPortal[guid]++;
+    $.each(last.ids, function(i, id) {
+      if(eventPortal[id]) {
+        eventPortal[id]++;
       } else {
-        eventPortal[guid] = 1;
+        eventPortal[id] = 1;
       }
-      if(eventPortal[guid] > mostPortals) {
-        mostPortals = eventPortal[guid];
-        closestPortal = guid;
+      if(eventPortal[id] > mostPortals) {
+        mostPortals = eventPortal[id];
+        closestPortal = id;
       }
     });
 
@@ -429,7 +439,7 @@ window.plugin.playerTracker.handleData = function(data) {
 window.plugin.playerTracker.findUserPosition = function(nick) {
   nick = nick.toLowerCase();
   var foundPlayerData = undefined;
-  $.each(plugin.playerTracker.stored, function(pguid, playerData) {
+  $.each(plugin.playerTracker.stored, function(plrname, playerData) {
     if (playerData.nick.toLowerCase() === nick) {
       foundPlayerData = playerData;
       return false;

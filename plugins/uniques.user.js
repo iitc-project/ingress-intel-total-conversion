@@ -2,7 +2,7 @@
 // @id             iitc-plugin-uniques@3ch01c
 // @name           IITC plugin: Uniques
 // @category       Misc
-// @version        0.2.1.@@DATETIMEVERSION@@
+// @version        0.2.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/3ch01c/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -21,7 +21,7 @@
 window.plugin.uniques = function() {};
 
 //delay in ms
-window.plugin.uniques.SYNC_DELAY = 10000;
+window.plugin.uniques.SYNC_DELAY = 5000;
 
 // maps the JS property names to localStorage keys
 window.plugin.uniques.FIELDS = {
@@ -86,7 +86,9 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[3][0] == 'TEXT'
 		&& markup[3][1].plain == ' Resonator on '
 		&& markup[4][0] == 'PORTAL') {
-			plugin.uniques.setPortalVisited(markup[4][1].guid);
+			var portal = markup[4][1];
+			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
+			if(guid) plugin.uniques.setPortalVisited(guid);
 		}
 
 		// search for "x captured y"
@@ -97,7 +99,9 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[1][0] == 'TEXT'
 		&& markup[1][1].plain == ' captured '
 		&& markup[2][0] == 'PORTAL') {
-			plugin.uniques.setPortalCaptured(markup[2][1].guid);
+			var portal = markup[2][1];
+			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
+			if(guid) plugin.uniques.setPortalCaptured(guid);
 		}
 
 		// search for "x linked y to z"
@@ -111,7 +115,9 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[3][0] == 'TEXT'
 		&& markup[3][1].plain == ' to '
 		&& markup[4][0] == 'PORTAL') {
-			plugin.uniques.setPortalVisited(markup[2][1].guid);
+			var portal = markup[2][1];
+			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
+			if(guid) plugin.uniques.setPortalVisited(guid);
 		}
 
 		// search for "Your Lx Resonator on y was destroyed by z"
@@ -126,7 +132,9 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[4][0] == 'TEXT'
 		&& markup[4][1].plain == ' was destroyed by '
 		&& markup[5][0] == 'PLAYER') {
-			plugin.uniques.setPortalVisited(markup[3][1].guid);
+			var portal = markup[3][1];
+			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
+			if(guid) plugin.uniques.setPortalVisited(guid);
 		}
 
 		// search for "Your Lx Resonator on y has decayed"
@@ -140,7 +148,9 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[3][0] == 'PORTAL'
 		&& markup[4][0] == 'TEXT'
 		&& markup[4][1].plain == ' has decayed') {
-			plugin.uniques.setPortalVisited(markup[3][1].guid);
+			var portal = markup[3][1];
+			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
+			if(guid) plugin.uniques.setPortalVisited(guid);
 		}
 
 		// search for "Your Portal x neutralized by y"
@@ -153,12 +163,16 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[2][0] == 'TEXT'
 		&& (markup[2][1].plain == ' neutralized by ' || markup[2][1].plain == ' is under attack by ')
 		&& markup[3][0] == 'PLAYER') {
-			plugin.uniques.setPortalVisited(markup[1][1].guid);
+			var portal = markup[1][1];
+			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
+			if(guid) plugin.uniques.setPortalVisited(guid);
 		}
 	});
 }
 
 window.plugin.uniques.updateCheckedAndHighlight = function(guid) {
+	runHooks('pluginUniquesUpdateUniques', { guid: guid });
+
 	if (guid == window.selectedPortal) {
 
 		var uniqueInfo = plugin.uniques.uniques[guid];
@@ -207,8 +221,9 @@ window.plugin.uniques.setPortalCaptured = function(guid) {
 	plugin.uniques.sync(guid);
 }
 
-window.plugin.uniques.updateVisited = function(visited) {
-	var guid = window.selectedPortal;
+window.plugin.uniques.updateVisited = function(visited, guid) {
+	if(guid == undefined) guid = window.selectedPortal;
+
 	var uniqueInfo = plugin.uniques.uniques[guid];
 	if (!uniqueInfo) {
 		plugin.uniques.uniques[guid] = uniqueInfo = {
@@ -228,8 +243,9 @@ window.plugin.uniques.updateVisited = function(visited) {
 	plugin.uniques.sync(guid);
 }
 
-window.plugin.uniques.updateCaptured = function(captured) {
-	var guid = window.selectedPortal;
+window.plugin.uniques.updateCaptured = function(captured, guid) {
+	if(guid == undefined) guid = window.selectedPortal;
+
 	var uniqueInfo = plugin.uniques.uniques[guid];
 	if (!uniqueInfo) {
 		plugin.uniques.uniques[guid] = uniqueInfo = {
@@ -401,6 +417,83 @@ window.plugin.uniques.setupContent = function() {
 	plugin.uniques.disabledMessage = '<div id="uniques-container" class="help" title="Your browser does not support localStorage">Plugin Uniques disabled</div>';
 }
 
+window.plugin.uniques.setupPortalsList = function() {
+	if(!window.plugin.portalslist) return;
+
+	window.addHook('pluginUniquesUpdateUniques', function(data) {
+		var info = plugin.uniques.uniques[data.guid];
+		if(!info) info = { visited: false, captured: false };
+
+		$('[data-list-uniques="'+data.guid+'"].visited').prop('checked', !!info.visited);
+		$('[data-list-uniques="'+data.guid+'"].captured').prop('checked', !!info.captured);
+	});
+
+	window.addHook('pluginUniquesRefreshAll', function() {
+		$('[data-list-uniques]').each(function(i, element) {
+			var guid = element.getAttribute("data-list-uniques");
+
+			var info = plugin.uniques.uniques[guid];
+			if(!info) info = { visited: false, captured: false };
+
+			var e = $(element);
+			if(e.hasClass('visited')) e.prop('checked', !!info.visited);
+			if(e.hasClass('captured')) e.prop('checked', !!info.captured);
+		});
+	});
+
+	function uniqueValue(guid) {
+		var info = plugin.uniques.uniques[guid];
+		if(!info) return 0;
+
+		if(info.visited && info.captured) return 2;
+		if(info.visited) return 1;
+	}
+
+	window.plugin.portalslist.fields.push({
+		title: "Visit",
+		value: function(portal) { return portal.options.guid; }, // we store the guid, but implement a custom comparator so the list does sort properly without closing and reopening the dialog
+		sort: function(guidA, guidB) {
+			return uniqueValue(guidA) - uniqueValue(guidB);
+		},
+		format: function(cell, portal, guid) {
+			var info = plugin.uniques.uniques[guid];
+			if(!info) info = { visited: false, captured: false };
+
+			$(cell).addClass("portal-list-uniques");
+
+			// for some reason, jQuery removes event listeners when the list is sorted. Therefore we use DOM's addEventListener
+			$('<input>')
+				.prop({
+					type: "checkbox",
+					className: "visited",
+					title: "Portal visited?",
+					checked: !!info.visited,
+				})
+				.attr("data-list-uniques", guid)
+				.appendTo(cell)
+				[0].addEventListener("change", function(ev) {
+					window.plugin.uniques.updateVisited(this.checked, guid);
+					ev.preventDefault();
+					return false;
+				}, false);
+			$('<input>')
+				.prop({
+					type: "checkbox",
+					className: "captured",
+					title: "Portal captured?",
+					checked: !!info.captured,
+				})
+				.attr("data-list-uniques", guid)
+				.appendTo(cell)
+				[0].addEventListener("change", function(ev) {
+					window.plugin.uniques.updateCaptured(this.checked, guid);
+					ev.preventDefault();
+					return false;
+				}, false);
+		},
+	});
+}
+
 var setup = function() {
 	if($.inArray('pluginUniquesUpdateUniques', window.VALID_HOOKS) < 0)
 		window.VALID_HOOKS.push('pluginUniquesUpdateUniques');
@@ -413,6 +506,15 @@ var setup = function() {
 	window.addHook('publicChatDataAvailable', window.plugin.uniques.onPublicChatDataAvailable);
 	window.addHook('iitcLoaded', window.plugin.uniques.registerFieldForSyncing);
 		window.addPortalHighlighter('Uniques', window.plugin.uniques.highlighter);
+
+	if(window.plugin.portalslist) {
+		window.plugin.uniques.setupPortalsList();
+	} else {
+		setTimeout(function() {
+			if(window.plugin.portalslist)
+				window.plugin.uniques.setupPortalsList();
+		}, 500);
+	}
 }
 
 //PLUGIN END //////////////////////////////////////////////////////////
