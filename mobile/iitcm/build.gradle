@@ -1,5 +1,5 @@
 apply plugin: 'android'
-import com.android.builder.DefaultManifestParser
+import com.android.builder.core.DefaultManifestParser
 
 def getVersionCode = { ->
     def git = 'git rev-list HEAD --count'
@@ -33,12 +33,12 @@ def getVersionName = { ->
 }
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion '19.0.1'
+    compileSdkVersion 21
+    buildToolsVersion '21.1.1'
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 19
+        targetSdkVersion 21
     }
 
     signingConfigs {
@@ -69,10 +69,10 @@ android {
 
     productFlavors {
         releaseBuild {
-            packageName "com.cradle.iitc_mobile"
+            applicationId "com.cradle.iitc_mobile"
         }
         testBuild {
-            packageName "com.cradle.iitc_mobile.test"
+            applicationId "com.cradle.iitc_mobile.test"
             versionCode getVersionCode()
             versionName getVersionName()
         }
@@ -87,7 +87,7 @@ android {
 android.applicationVariants.all{ variant ->
     variant.mergeResources.doLast{
         if (variant.dirName.contains("testBuild")) {
-            File preferenceFile = file("${buildDir}/res/all/${variant.dirName}/xml/preferences.xml")
+            File preferenceFile = file("${buildDir}/intermediates/res/${variant.dirName}/xml/preferences.xml")
             println("Building test-build: replacing package name in rescources...")
             String content = preferenceFile.getText('UTF-8')
             content = content.replaceAll(
@@ -98,6 +98,6 @@ android.applicationVariants.all{ variant ->
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:19.0.+'
+    compile 'com.android.support:appcompat-v7:21.0.0'
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
