@@ -10,6 +10,14 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/iitc_toolbar"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:background="?attr/colorPrimary"
+            android:minHeight="?attr/actionBarSize" />
+
+
         <com.cradle.iitc_mobile.IITC_WebView
             android:id="@+id/iitc_webview"
             android:layout_width="match_parent"
@@ -87,6 +95,7 @@
         android:layout_width="180dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:layout_marginTop="?attr/actionBarSize"
         android:background="@color/drawer_background"
         android:choiceMode="singleChoice"
         android:divider="@android:color/transparent"
@@ -99,6 +108,7 @@
         android:layout_width="260dp"
         android:layout_height="match_parent"
         android:layout_gravity="end"
+        android:layout_marginTop="?attr/actionBarSize"
         android:background="@color/drawer_background"
         android:divider="@android:color/transparent"
         android:dividerHeight="0dp"/>

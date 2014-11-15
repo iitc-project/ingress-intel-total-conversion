@@ -1,13 +1,14 @@
 package com.cradle.iitc_mobile;
 
-import android.app.ActionBar;
+import android.support.v7.app.ActionBar;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,9 +45,9 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     private Pane mPane = Pane.MAP;
     private String mHighlighter = null;
 
-    public IITC_NavigationHelper(final IITC_Mobile iitc, final ActionBar bar) {
+    public IITC_NavigationHelper(final IITC_Mobile iitc, final ActionBar bar, Toolbar toolbar) {
         super(iitc, (DrawerLayout) iitc.findViewById(R.id.drawer_layout),
-                R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close);
+                toolbar, R.string.drawer_open, R.string.drawer_close);
 
         mIitc = iitc;
         mActionBar = bar;

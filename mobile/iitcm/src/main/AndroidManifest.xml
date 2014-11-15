@@ -116,14 +116,17 @@
 
         <activity
             android:name="com.cradle.iitc_mobile.prefs.PreferenceActivity"
+            android:theme="@style/AppPrefTheme"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
             android:label="@string/activity_settings"/>
         <activity
             android:name="com.cradle.iitc_mobile.prefs.PluginPreferenceActivity"
+            android:theme="@style/AppPrefTheme"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
             android:label="@string/activity_plugins"/>
         <activity
             android:name="com.cradle.iitc_mobile.share.ShareActivity"
+            android:theme="@style/AppPrefTheme"
             android:label="@string/activity_share"
             android:noHistory="true"
             android:parentActivityName="com.cradle.iitc_mobile.IITC_Mobile">

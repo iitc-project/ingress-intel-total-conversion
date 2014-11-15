@@ -11,9 +11,9 @@ mklocal:
 
 mkmobile:
 	./build.py mobile
-	adb install -r build/mobile/IITC_Mobile-debug.apk
+	adb install -r mobile/iitcm/build/outputs/apk/iitcm-releaseBuild-debug.apk
 	adb shell am start -n com.cradle.iitc_mobile/com.cradle.iitc_mobile.IITC_Mobile
 
 clean:
-	ant -f mobile/build.xml clean
+	cd mobile && ./gradlew clean
 
