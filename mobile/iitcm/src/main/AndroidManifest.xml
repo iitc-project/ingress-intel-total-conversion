@@ -116,7 +116,7 @@
 
         <activity
             android:name="com.cradle.iitc_mobile.prefs.PreferenceActivity"
-            android:theme="@style/AppPrefTheme"
+            android:theme="@style/AppTheme"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
             android:label="@string/activity_settings"/>
         <activity
