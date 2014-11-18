@@ -10,6 +10,7 @@
         <item name="windowActionBar">false</item>
         <item name="colorPrimary">@color/iitc_blue</item>
         <item name="colorPrimaryDark">@color/iitc_blue</item>
+        <item name="colorAccent">@color/iitc_blue</item>
     </style>
 
     <style name="ToolbarBaseTheme" parent="@style/Theme.AppCompat">
