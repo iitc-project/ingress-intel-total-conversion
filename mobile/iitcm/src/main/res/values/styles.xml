@@ -19,7 +19,7 @@
         <item name="colorPrimaryDark">@color/iitc_blue</item>
     </style>
 
-    <color name="iitc_blue">#ff0e3dae</color>
+    <color name="iitc_blue">#ff0e3d4e</color>
 
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
@@ -34,6 +34,6 @@
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 
-    <color name="drawer_background">#99ffffff</color>
+    <color name="drawer_background">#990e3d4e</color>
 
 </resources>

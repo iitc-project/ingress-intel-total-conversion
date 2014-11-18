@@ -47,7 +47,7 @@ public class IITC_LogAdapter extends ArrayAdapter<Log.Message> implements Log.Re
                 holder.icon.setImageResource(R.drawable.ic_action_warning_yellow);
                 break;
             default:
-                holder.icon.setImageResource(R.drawable.ic_action_about);
+                holder.icon.setImageResource(R.drawable.ic_action_about_dark);
         }
 
         holder.tag.setText(item.getTag());

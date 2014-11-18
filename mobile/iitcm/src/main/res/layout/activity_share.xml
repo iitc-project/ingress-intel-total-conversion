@@ -4,4 +4,6 @@
     android:id="@+id/pager"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ShareActivity"/>
+    tools:context=".ShareActivity">
+
+</android.support.v4.view.ViewPager>
