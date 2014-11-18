@@ -9,7 +9,7 @@
         <item name="android:windowSharedElementExitTransition">@android:transition/move</item>
     </style>
 
-    <style name="AppPrefBaseTheme" parent="android:Theme.Material.Light.DarkActionBar">
+    <style name="AppPrefTheme" parent="android:Theme.Material.Light.DarkActionBar">
         <item name="android:colorPrimary">@color/iitc_blue</item>
         <item name="android:colorPrimaryDark">@color/iitc_blue</item>
     </style>

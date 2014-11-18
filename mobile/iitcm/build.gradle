@@ -99,6 +99,5 @@ android.applicationVariants.all{ variant ->
 
 dependencies {
     compile 'com.android.support:appcompat-v7:21.+'
-    compile 'com.android.support:support-v4-preferencefragment:1.0.0@aar' 
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }

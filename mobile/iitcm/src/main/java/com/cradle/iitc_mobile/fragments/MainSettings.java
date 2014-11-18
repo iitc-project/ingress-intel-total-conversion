@@ -7,8 +7,9 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
-import android.support.v4.preference.PreferenceFragment;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -43,7 +44,7 @@ public class MainSettings extends PreferenceFragment {
         pref_about.setVersions(iitcVersion, buildVersion);
 
         final ListPreference pref_user_location_mode = (ListPreference) findPreference("pref_user_location_mode");
-        pref_user_location_mode.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        pref_user_location_mode.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(final Preference preference, final Object newValue) {
                 final int mode = Integer.parseInt((String) newValue);
