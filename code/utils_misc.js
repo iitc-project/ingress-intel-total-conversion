@@ -76,13 +76,19 @@ window.layerGroupLength = function(layerGroup) {
 
 // retrieves parameter from the URL?query=string.
 window.getURLParam = function(param) {
-  var v = document.URL;
-  var i = v.indexOf(param);
-  if(i <= -1) return '';
-  v = v.substr(i);
-  i = v.indexOf("&");
-  if(i >= 0) v = v.substr(0, i);
-  return v.replace(param+"=","");
+  var items = window.location.search.substr(1).split('&');
+  if (items == "") return "";
+
+  for (var i=0; i<items.length; i++) {
+    var item = items[i].split('=');
+
+    if (item[0] == param) {
+      var val = item.length==1 ? '' : decodeURIComponent (item[1].replace(/\+/g,' '));
+      return val;
+    }
+  }
+
+  return '';
 }
 
 // read cookie by name.
