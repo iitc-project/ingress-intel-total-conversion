@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:theme="@style/NavDrawerTheme"
     android:orientation="vertical">
 
     <TextView
@@ -14,6 +15,7 @@
 
     <Spinner
         android:id="@+id/spinnerHighlighter"
+        android:theme="@style/NavDrawerTheme"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
@@ -27,6 +29,7 @@
 
     <Spinner
         android:id="@+id/spinnerBaseLayer"
+        android:theme="@style/NavDrawerTheme"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 

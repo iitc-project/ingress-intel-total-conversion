@@ -5,14 +5,14 @@
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     -->
-    <style name="AppBaseTheme" parent="@style/Theme.AppCompat">
+    <style name="AppBaseTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
         <item name="colorPrimary">@color/iitc_blue</item>
         <item name="colorPrimaryDark">@color/iitc_blue_dark</item>
     </style>
 
-    <style name="ToolbarPopupTheme" parent="@style/Theme.AppCompat.Light">
+    <style name="NavDrawerTheme" parent="@style/Theme.AppCompat">
         <item name="android:windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
         <item name="colorPrimary">@color/iitc_blue</item>

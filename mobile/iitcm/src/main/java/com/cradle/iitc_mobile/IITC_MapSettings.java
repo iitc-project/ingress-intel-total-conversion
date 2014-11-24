@@ -104,7 +104,7 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
 
         mHighlighters = new HighlighterAdapter(R.layout.list_item_narrow);
         mBaseLayers = new LayerAdapter(R.layout.list_item_narrow);
-        mOverlayLayers = new LayerAdapter(android.R.layout.simple_list_item_multiple_choice);
+        mOverlayLayers = new LayerAdapter(R.layout.checked_textview);
 
         mHighlighters.setDropDownViewResource(R.layout.list_item_selectable);
         mBaseLayers.setDropDownViewResource(R.layout.list_item_selectable);
