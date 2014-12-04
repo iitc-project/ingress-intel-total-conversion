@@ -175,7 +175,7 @@ window.plugin.uniques.updateCheckedAndHighlight = function(guid) {
 
 	if (guid == window.selectedPortal) {
 
-		var uniqueInfo = plugin.uniques.uniques[guid];
+		var uniqueInfo = plugin.uniques.uniques[guid],
 			visited = (uniqueInfo && uniqueInfo.visited) || false,
 			captured = (uniqueInfo && uniqueInfo.captured) || false;
 		$('#visited').prop('checked', visited);
