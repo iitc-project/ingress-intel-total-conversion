@@ -174,7 +174,14 @@ window.runOnSmartphonesAfterBoot = function() {
     addHook('portalSelected', window.setAndroidPermalink);
   }
 
+
+  // for some reason, leaflet misses the WebView size being set at startup on IITC Mobile
+  // create a short timer that checks for this issue
+  setTimeout (function() { map.invalidateSize(); }, 0.2*1000);
+
 }
+
+
 
 window.setAndroidPermalink = function() {
   var c = window.map.getCenter();
