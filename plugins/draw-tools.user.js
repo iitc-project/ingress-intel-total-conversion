@@ -386,7 +386,7 @@ window.plugin.drawTools.optPaste = function() {
       var data = JSON.parse(promptAction);
       window.plugin.drawTools.drawnItems.clearLayers();
       window.plugin.drawTools.import(data);
-      console.log('DRAWTOOLS: reset and imported drawn tiems');
+      console.log('DRAWTOOLS: reset and imported drawn items');
       window.plugin.drawTools.optAlert('Import Successful.');
 
       // to write back the data to localStorage
