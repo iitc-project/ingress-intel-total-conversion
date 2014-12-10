@@ -323,7 +323,8 @@ window.plugin.drawTools.manualOpt = function() {
            + '</div>'
            + '<div class="drawtoolsSetbox">'
            + '<a onclick="window.plugin.drawTools.optCopy();" tabindex="0">Copy Drawn Items</a>'
-           + '<a onclick="window.plugin.drawTools.optPaste();return false;" tabindex="0">Paste Drawn Items</a>'
+           + '<a onclick="window.plugin.drawTools.optPaste(false);return false;" tabindex="0">Paste Drawn Items</a>'
+           + '<a onclick="window.plugin.drawTools.optPaste(true);return false;" tabindex="0">Paste and Keep Data</a>'
            + (window.requestFile != undefined
              ? '<a onclick="window.plugin.drawTools.optImport();return false;" tabindex="0">Import Drawn Items</a>' : '')
            + ((typeof android !== 'undefined' && android && android.saveFile)
@@ -379,14 +380,23 @@ window.plugin.drawTools.optExport = function() {
   }
 }
 
-window.plugin.drawTools.optPaste = function() {
+window.plugin.drawTools.optPaste = function(keepExistingData) {
   var promptAction = prompt('Press CTRL+V to paste it.', '');
   if(promptAction !== null && promptAction !== '') {
     try {
       var data = JSON.parse(promptAction);
+
+      if(keepExistingData) {
+        var existingDataStr = localStorage['plugin-draw-tools-layer'];
+        if(existingDataStr !== undefined) {
+          var existingData = JSON.parse(existingDataStr);
+          $.merge( data, existingData );
+        }
+      }
+
       window.plugin.drawTools.drawnItems.clearLayers();
       window.plugin.drawTools.import(data);
-      console.log('DRAWTOOLS: reset and imported drawn tiems');
+      console.log('DRAWTOOLS: imported drawn items');
       window.plugin.drawTools.optAlert('Import Successful.');
 
       // to write back the data to localStorage
