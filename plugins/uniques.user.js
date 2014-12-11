@@ -535,7 +535,7 @@ var setup = function() {
 		window.VALID_HOOKS.push('pluginUniquesRefreshAll');
 	window.plugin.uniques.setupCSS();
 	window.plugin.uniques.setupContent();
-	window.plugin.uniques.setupDialog()
+	window.plugin.uniques.setupDialog();
 	window.plugin.uniques.loadLocal('uniques');
 	window.addHook('portalDetailsUpdated', window.plugin.uniques.onPortalDetailsUpdated);
 	window.addHook('publicChatDataAvailable', window.plugin.uniques.onPublicChatDataAvailable);
