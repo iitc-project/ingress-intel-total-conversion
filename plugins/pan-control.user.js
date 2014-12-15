@@ -93,9 +93,9 @@ window.plugin.panControl.configure = function() {
 }
 
 window.plugin.panControl.registerWidget = function() {
-  // No idea why I have to explicitly override input in the css
+  // No idea why I have to explicitly override select in the css
   var css = '\
-.pan-control-widget input {\
+.pan-control-widget select {\
   font-size: 12px;\
   background-color: #0e3c46;\
   color: #ffce00;\
