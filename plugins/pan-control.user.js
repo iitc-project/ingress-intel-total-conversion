@@ -93,6 +93,19 @@ window.plugin.panControl.configure = function() {
 }
 
 window.plugin.panControl.registerWidget = function() {
+  // No idea why I have to explicitly override input in the css
+  var css = '\
+.pan-control-widget input {\
+  font-size: 12px;\
+  background-color: #0e3c46;\
+  color: #ffce00;\
+}\
+.pan-control-widget input {\
+  width: 4em;\
+}\
+';
+
+  $('head').append('<style>' + css + '</style>');
   $.widget('iitc.pan_control', {
     options: {
       name: null,
@@ -126,7 +139,7 @@ window.plugin.panControl.registerWidget = function() {
       var id = this.uuid;
       var select_id = 'iitc-pan-select-' + id;
       var spinner_id = 'iitc-pan-spinner-' + id;
-      var selectHtml = '<form>'
+      var selectHtml = '<form class="pan-control-widget">'
                      + this.options.name
                      + '  <select id="' + select_id + '">'
                      + '    <option value="absolute">Absolute (pixels)</option>'
