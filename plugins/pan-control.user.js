@@ -92,11 +92,7 @@ window.plugin.panControl.configure = function() {
   });
 }
 
-window.plugin.panControl.setup  = function() {
-  try { console.log('Loading Leaflet.Pancontrol JS now'); } catch(e) {}
-  @@INCLUDERAW:external/L.Control.Pan.js@@
-  try { console.log('done loading Leaflet.Pancontrol JS'); } catch(e) {}
-
+window.plugin.panControl.registerWidget = function() {
   $.widget('iitc.pan_control', {
     options: {
       name: null,
@@ -156,6 +152,14 @@ window.plugin.panControl.setup  = function() {
       window.plugin.panControl.setButtons();
     },
   });
+}
+
+window.plugin.panControl.setup  = function() {
+  try { console.log('Loading Leaflet.Pancontrol JS now'); } catch(e) {}
+  @@INCLUDERAW:external/L.Control.Pan.js@@
+  try { console.log('done loading Leaflet.Pancontrol JS'); } catch(e) {}
+
+  window.plugin.panControl.registerWidget();
 
   // prevent Pancontrol from being activated by default (e.g. in minimap)
   L.Map.mergeOptions({
