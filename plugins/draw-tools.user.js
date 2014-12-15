@@ -2,7 +2,7 @@
 // @id             iitc-plugin-draw-tools@breunigs
 // @name           IITC plugin: draw tools
 // @category       Layer
-// @version        0.6.6.@@DATETIMEVERSION@@
+// @version        0.7.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -364,8 +364,53 @@ window.plugin.drawTools.optCopy = function() {
     if (typeof android !== 'undefined' && android && android.shareString) {
         android.shareString(localStorage['plugin-draw-tools-layer']);
     } else {
+      var stockWarnings = {};
+      var stockLinks = [];
+      window.plugin.drawTools.drawnItems.eachLayer( function(layer) {
+        if (layer instanceof L.GeodesicCircle || layer instanceof L.Circle) {
+          stockWarnings.noCircle = true;
+          return; //.eachLayer 'continue'
+        } else if (layer instanceof L.GeodesicPolygon || layer instanceof L.Polygon) {
+          stockWarnings.polyAsLine = true;
+          // but we can export them
+        } else if (layer instanceof L.GeodesicPolyline || layer instanceof L.Polyline) {
+          // polylines are fine
+        } else if (layer instanceof L.Marker) {
+          stockWarnings.noMarker = true;
+          return; //.eachLayer 'continue'
+        } else {
+          stockWarnings.unknown = true; //should never happen
+          return; //.eachLayer 'continue'
+        }
+        // only polygons and polylines make it through to here
+        var latLngs = layer.getLatLngs();
+        // stock only handles one line segment at a time
+        for (var i=0; i<latLngs.length-1; i++) {
+          stockLinks.push([latLngs[i].lat,latLngs[i].lng,latLngs[i+1].lat,latLngs[i+1].lng]);
+        }
+        // for polygons, we also need a final link from last to first point
+        if (layer instanceof L.GeodesicPolygon || layer instanceof L.Polygon) {
+          stockLinks.push([latLngs[latLngs.length-1].lat,latLngs[latLngs.length-1].lng,latLngs[0].lat,latLngs[0].lng]);
+        }
+      });
+      var stockUrl = 'https://www.ingress.com/intel?ll='+map.getCenter().lat+','+map.getCenter().lng+'&z='+map.getZoom()+'&pls='+stockLinks.map(function(link){return link.join(',');}).join('_');
+      var stockWarnTexts = [];
+      if (stockWarnings.polyAsLine) stockWarnTexts.push('Note: polygons are exported as lines');
+      if (stockLinks.length>40) stockWarnTexts.push('Warning: Stock intel may not work with more than 40 line segments - there are '+stockLinks.length);
+      if (stockWarnings.noCircle) stockWarnTexts.push('Warning: Circles cannot be exported to stock intel');
+      if (stockWarnings.noMarker) stockWarnTexts.push('Warning: Markers cannot be exported to stock intel');
+      if (stockWarnings.unknown) stockWarnTexts.push('Warning: UNKNOWN ITEM TYPE');
+
+      var html = '<p><a onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p>'
+                +'<textarea readonly onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">'+localStorage['plugin-draw-tools-layer']+'</textarea>'
+                +'<p>or, export as a link for the standard intel map (for non IITC users)</p>'
+                +'<input onclick="event.target.select();" type="text" size="90" value="'+stockUrl+'"/>';
+      if (stockWarnTexts.length>0) {
+        html += '<ul><li>'+stockWarnTexts.join('</li><li>')+'</li></ul>';
+      }
+
       dialog({
-        html: '<p><a onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">'+localStorage['plugin-draw-tools-layer']+'</textarea>',
+        html: html,
         width: 600,
         dialogClass: 'ui-dialog-drawtoolsSet-copy',
         title: 'Draw Tools Export'
