@@ -335,6 +335,7 @@ window.plugin.drawTools.manualOpt = function() {
   dialog({
     html: html,
     dialogClass: 'ui-dialog-drawtoolsSet',
+    id: 'plugin-drawtools-options',
     title: 'Draw Tools Options'
   });
 
@@ -368,6 +369,7 @@ window.plugin.drawTools.optCopy = function() {
         html: '<p><a onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">'+localStorage['plugin-draw-tools-layer']+'</textarea>',
         width: 600,
         dialogClass: 'ui-dialog-drawtoolsSet-copy',
+        id: 'plugin-drawtools-export',
         title: 'Draw Tools Export'
         });
     }

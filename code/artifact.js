@@ -328,6 +328,7 @@ window.artifact.showArtifactList = function() {
 
   dialog({
     title: 'Artifacts',
+    id: 'iitc-artifacts',
     html: html,
     width: 400,
     position: {my: 'right center', at: 'center-60 center', of: window, collision: 'fit'}
