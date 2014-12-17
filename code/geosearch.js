@@ -22,6 +22,18 @@ window.search = function(search) {
       return true;
     }
     
+    if(search.split(",").length == 2) {
+      var ll = search.split(",");
+      if(!isNaN(ll[0]) && !isNaN(ll[1])) {
+        ll = [parseFloat(ll[0]), parseFloat(ll[1])];
+        if(ll[0] >= -90 && ll[0] <= 90 && ll[1] >= -180 && ll[1] <= 180) {
+          window.map.setView(L.latLng(ll[0], ll[1]), 17);
+          if(window.isSmartphone()) window.show('map');
+          return true;
+        }
+      }
+    }
+
     $.getJSON(NOMINATIM + encodeURIComponent(search), function(data) {
       if(!data || !data[0]) {
         $('#geosearch').addClass('search_not_found');      
