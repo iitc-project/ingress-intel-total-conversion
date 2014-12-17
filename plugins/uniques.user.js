@@ -58,7 +58,7 @@ window.plugin.uniques.onPortalDetailsUpdated = function() {
 			function installedByPlayer(entity) {
 				return entity && entity.owner == nickname;
 			}
-			
+
 			if(details.resonators.some(installedByPlayer) || details.mods.some(installedByPlayer)) {
 				plugin.uniques.updateVisited(true);
 			}
@@ -266,9 +266,9 @@ plugin.uniques.sync = function(guid) {
 // sync the queue, but delay the actual sync to group a few updates in a single request
 window.plugin.uniques.syncQueue = function() {
 	if(!plugin.uniques.enableSync) return;
-	
+
 	clearTimeout(plugin.uniques.syncTimer);
-	
+
 	plugin.uniques.syncTimer = setTimeout(function() {
 		plugin.uniques.syncTimer = null;
 
@@ -391,6 +391,44 @@ window.plugin.uniques.highlighter = {
 	}
 }
 
+window.plugin.uniques.visitedHighlighter = {
+	highlight: function(data) {
+		var guid = data.portal.options.ent[0];
+		var uniqueInfo = window.plugin.uniques.uniques[guid];
+
+		var style = {};
+		if (uniqueInfo && uniqueInfo.visited) {
+			style.fillOpacity = 0.05;
+			style.opacity = 0.05;
+		}
+
+		data.portal.setStyle(style);
+	},
+
+	setSelected: function(active) {
+		window.plugin.uniques.isHighlightActive = active;
+	}
+}
+
+window.plugin.uniques.capturedHighlighter = {
+	highlight: function(data) {
+		var guid = data.portal.options.ent[0];
+		var uniqueInfo = window.plugin.uniques.uniques[guid];
+
+		var style = {};
+
+		if (uniqueInfo && uniqueInfo.captured) {
+			style.fillOpacity = 0.05;
+			style.opacity = 0.05;
+		}
+
+		data.portal.setStyle(style);
+	},
+
+	setSelected: function(active) {
+		window.plugin.uniques.isHighlightActive = active;
+	}
+}
 
 window.plugin.uniques.setupCSS = function() {
 	$("<style>")
@@ -496,6 +534,8 @@ var setup = function() {
 	window.addHook('publicChatDataAvailable', window.plugin.uniques.onPublicChatDataAvailable);
 	window.addHook('iitcLoaded', window.plugin.uniques.registerFieldForSyncing);
 		window.addPortalHighlighter('Uniques', window.plugin.uniques.highlighter);
+		window.addPortalHighlighter('Hide visited', window.plugin.uniques.visitedHighlighter);
+		window.addPortalHighlighter('Hide captured', window.plugin.uniques.capturedHighlighter);
 
 	if(window.plugin.portalslist) {
 		window.plugin.uniques.setupPortalsList();
