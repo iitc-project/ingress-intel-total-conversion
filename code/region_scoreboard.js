@@ -21,7 +21,7 @@ function regionScoreboardFailure() {
 
 
 function regionScoreboardScoreHistoryChart(result) {
-  // svg area 400x120. graph area 350x100, offset to 40,10
+  // svg area 400x130. graph area 350x100, offset to 40,10
 
   var max = Math.max(result.gameScore[0],result.gameScore[1],10); //NOTE: ensure a min of 10 for the graph
   var items = []; //we'll copy the items to an array indexed by checkpoint number - easier to access!
@@ -30,11 +30,14 @@ function regionScoreboardScoreHistoryChart(result) {
     items[result.scoreHistory[i][0]] = [result.scoreHistory[i][1], result.scoreHistory[i][2]];
   }
 
+  // scale up maximum a little, so graph isn't squashed right against upper edge
+  max *= 1.09;
+
   var scale = function(y) { return 110-y/max*100; };
 
 
   var teamPaths = [[],[]];
-  var circleMarkers = [];
+  var otherSvg = [];
 
   for (var i=0; i<items.length; i++) {
     var x=i*10+40;
@@ -48,13 +51,42 @@ function regionScoreboardScoreHistoryChart(result) {
       // markers
       for (var t=0; t<2; t++) {
         var col = t==0 ? COLORS[TEAM_ENL] : COLORS[TEAM_RES];
-        circleMarkers.push('<circle cx="'+x+'" cy="'+scale(items[i][t])+'" r="3" stroke-width="1" stroke="'+col+'" fill="'+col+'" fill-opacity="0.5" title="'+(t==0?'Enl':'Res')+' CP #'+i+': '+digits(items[i][t])+'" />');
+        otherSvg.push('<circle cx="'+x+'" cy="'+scale(items[i][t])+'" r="3" stroke-width="1" stroke="'+col+'" fill="'+col+'" fill-opacity="0.5" title="'+(t==0?'Enl':'Res')+' CP #'+i+': '+digits(items[i][t])+'" />');
       }
     }
   }
 
 
-  var paths = '';
+  var paths = '<path d="M40,110 L40,10 M40,110 L390,110" stroke="#fff" />';
+
+  // graph tickmarks - horizontal
+  var ticks = [];
+  for (var i=5; i<=35; i+=5) {
+    var x=i*10+40;
+    ticks.push('M'+x+',10 L'+x+',110');
+    otherSvg.push('<text x="'+x+'" y="125" font-size="12" font-family="Roboto, Helvetica, sans-serif" text-anchor="middle" fill="#fff">'+i+'</text>');
+  }
+
+  // vertical
+  // first we calculate the power of 10 that is smaller than the max limit
+  var vtickStep = Math.pow(10,Math.floor(Math.log10(max)));
+  // this could be between 1 and 10 grid lines - so we adjust to give nicer spacings
+  if (vtickStep < (max/5)) {
+    vtickStep *= 2;
+  } else if (vtickStep > (max/2)) {
+    vtickStep /= 2;
+  }
+  for (var i=vtickStep; i<=max; i+=vtickStep) {
+    var y = scale(i);
+
+    ticks.push('M40,'+y+' L390,'+y);
+
+    var istr = i>=1000000000 ? i/1000000000+'B' : i>=1000000 ? i/1000000+'M' : i>=1000 ? i/1000+'k' : i;
+    otherSvg.push('<text x="35" y="'+y+'" font-size="12" font-family="Roboto, Helvetica, sans-serif" text-anchor="end" fill="#fff">'+istr+'</text>');
+  }
+
+  paths += '<path d="'+ticks.join(' ')+'" stroke="#fff" opacity="0.3" />;'
+
   for (var t=0; t<2; t++) {
     var col = t==0 ? COLORS[TEAM_ENL] : COLORS[TEAM_RES];
     if (teamPaths[t].length > 0) {
@@ -65,12 +97,10 @@ function regionScoreboardScoreHistoryChart(result) {
     paths += '<path d="M40,'+y+' L390,'+y+'" stroke="'+col+'" stroke-dasharray="3,2" opacity="0.8" />';
   }
 
-
-  var svg = '<div><svg width="400" height="120">'
-           +'<rect x="0" y="0" width="400" height="120" stroke="#FFCE00" fill="#08304E" />'
-           +'<path d="M40,110 L40,10 M40,110 L390,110" stroke="#fff" />'
+  var svg = '<div><svg width="400" height="130">'
+           +'<rect x="0" y="0" width="400" height="130" stroke="#FFCE00" fill="#08304E" />'
            +paths
-           +circleMarkers.join('')
+           +otherSvg.join('')
            +'</svg></div>';
 
   return svg;
@@ -112,7 +142,7 @@ function regionScoreboardSuccess(data) {
          +regionScoreboardScoreHistoryChart(data.result)
          +'<b>Top agents</b>'
          +agentTable,
-    width: 600
+    width: 450
   });
 
 }
