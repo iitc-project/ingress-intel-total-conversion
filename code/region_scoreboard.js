@@ -69,7 +69,7 @@ function regionScoreboardScoreHistoryChart(result) {
 
   // vertical
   // first we calculate the power of 10 that is smaller than the max limit
-  var vtickStep = Math.pow(10,Math.floor(Math.log10(max)));
+  var vtickStep = Math.pow(10,Math.floor(Math.log(max)/Math.log(10)));
   // this could be between 1 and 10 grid lines - so we adjust to give nicer spacings
   if (vtickStep < (max/5)) {
     vtickStep *= 2;
