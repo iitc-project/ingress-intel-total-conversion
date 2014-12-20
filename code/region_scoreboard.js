@@ -69,7 +69,7 @@ function regionScoreboardScoreHistoryChart(result) {
 
   // vertical
   // first we calculate the power of 10 that is smaller than the max limit
-  var vtickStep = Math.pow(10,Math.floor(Math.log10(max)));
+  var vtickStep = Math.pow(10,Math.floor(Math.log(max)/Math.log(10)));
   // this could be between 1 and 10 grid lines - so we adjust to give nicer spacings
   if (vtickStep < (max/5)) {
     vtickStep *= 2;
@@ -113,15 +113,6 @@ function regionScoreboardSuccess(data) {
   }
 
 
-//  var checkpointTable = '<table><tr><th><span title="Checkpoint number" class="help">#</span></th><th>Enlightened</th><th>Resistance</th></tr>';
-//  for (var i=0; i<data.result.scoreHistory.length; i++) {
-//    checkpointTable += '<tr><td>'+data.result.scoreHistory[i][0]+'</td><td>'+data.result.scoreHistory[i][1]+'</td><td>'+data.result.scoreHistory[i][2]+'</td></tr>';
-//  }
-//  if (data.result.scoreHistory.length == 0) {
-//    checkpointTable += '<tr><td colspan="3"><i>no checkpoint data</td></tr>';
-//  }
-//  checkpointTable += '</table>';
-
 
   var agentTable = '<table><tr><th>#</th><th>Agent</th></tr>';
   for (var i=0; i<data.result.topAgents.length; i++) {
@@ -134,10 +125,23 @@ function regionScoreboardSuccess(data) {
   agentTable += '</table>';
 
 
+  var maxAverage = Math.max(data.result.gameScore[0], data.result.gameScore[1], 1);
+  var teamRow = [];
+  for (var t=0; t<2; t++) {
+    var team = t==0 ? 'Enlightened' : 'Resistance';
+    var teamClass = t==0 ? 'enl' : 'res';
+    var teamCol = t==0 ? COLORS[TEAM_ENL] : COLORS[TEAM_RES];
+    var barSize = Math.round(data.result.gameScore[t]/maxAverage*200);
+    teamRow[t] = '<tr><th class="'+teamClass+'">'+team+'</th><td class="'+teamClass+'">'+digits(data.result.gameScore[t])+'</td><td><div style="background:'+teamCol+'; width: '+barSize+'px; height: 1.3ex; border: 2px outset '+teamCol+'"> </td></tr>';
+
+  }
+
+  var first = PLAYER.team == 'RESISTANCE' ? 1 : 0;
+
   dialog({
     title: 'Region scores for '+data.result.regionName,
     html: '<b>Region scores for '+data.result.regionName+'</b>'
-         +'<table><tr><th class="enl">Enlightened</th><th class="res">Resistance</th></tr><tr><td class="enl">'+digits(data.result.gameScore[0])+'</td><td class="res">'+digits(data.result.gameScore[1])+'</td></tr></table>'
+         +'<table>'+teamRow[first]+teamRow[1-first]+'</table>'
          +'<b>Checkpoint history</b>'
          +regionScoreboardScoreHistoryChart(data.result)
          +'<b>Top agents</b>'
