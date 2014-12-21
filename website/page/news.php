@@ -10,7 +10,7 @@ IITC 0.19.0 / IITC Mobile 0.19.0 released.
 <li>Support for regional scores added</li>
 <li>draw-tools: update the copy+paste import/export process to support links as stock intel URL formats, for exchanging plans with non-IITC users.</li>
 <li>IITC Mobile: sometimes the app wouldn't detect the screen size properly on startup, requiring a reload/screen rotation - fixed<./li>
-<li>Fix URL parameter parsing to hanble commas encoded as %3C</li>
+<li>Fix URL parameter parsing to handle commas encoded as %3C</li>
 <li>New plugin done-links: a companion to cross-links - it highlights any drawn links that already exist.</li>
 <li>Sync plugin: a couple of bugfixes - it may work better now - not sure if it's 100%</li>
 <li>..and other tweaks/bugfixes, as always</li>
