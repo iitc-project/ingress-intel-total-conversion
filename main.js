@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.18.3.@@DATETIMEVERSION@@
+// @version        0.19.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -100,6 +100,7 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '    <div id="toolbox">'
   + '      <a onmouseover="setPermaLink(this)" onclick="setPermaLink(this);return androidPermalink()" title="URL link to this map view">Permalink</a>'
   + '      <a onclick="window.aboutIITC()" style="cursor: help">About IITC</a>'
+  + '      <a onclick="window.regionScoreboard()" title="View regional scoreboard">Region scores</a>'
   + '    </div>'
   + '  </div>'
   + '</div>'
@@ -168,7 +169,8 @@ window.PORTAL_RADIUS_ENLARGE_MOBILE = 5;
 
 
 window.DEFAULT_PORTAL_IMG = '//commondatastorage.googleapis.com/ingress.com/img/default-portal-image.png';
-window.NOMINATIM = '//nominatim.openstreetmap.org/search?format=json&limit=1&q=';
+//window.NOMINATIM = '//nominatim.openstreetmap.org/search?format=json&limit=1&q=';
+window.NOMINATIM = '//open.mapquestapi.com/nominatim/v1/search.php?format=json&limit=1&q=';
 
 // INGRESS CONSTANTS /////////////////////////////////////////////////
 // http://decodeingress.me/2012/11/18/ingress-portal-levels-and-link-range/

@@ -2,7 +2,7 @@
 // @id             iitc-plugin-sync@xelio
 // @name           IITC plugin: Sync
 // @category       Misc
-// @version        0.2.2.@@DATETIMEVERSION@@
+// @version        0.2.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -119,19 +119,24 @@ window.plugin.sync.RegisteredMap.prototype.updateMap = function(keyArray) {
   var _this = this;
   // Use compound operation to ensure update pushed as a batch
   this.model.beginCompoundOperation();
-  // Remove before set text to ensure full text change
-  this.lastUpdateUUID.removeRange(0, this.lastUpdateUUID.length);
-  this.lastUpdateUUID.setText(this.uuid);
-
-  $.each(keyArray, function(ind, key) {
-    var value = window.plugin[_this.pluginName][_this.fieldName][key];
-    if(typeof(value) !== 'undefined') {
-      _this.map.set(key, value);
-    } else {
-      _this.map.delete(key);
-    }
-  });
-  this.model.endCompoundOperation();
+  try {
+    // Remove before set text to ensure full text change
+    if (this.lastUpdateUUID.length > 0)
+      this.lastUpdateUUID.removeRange(0, this.lastUpdateUUID.length);
+    this.lastUpdateUUID.setText(this.uuid);
+  
+    $.each(keyArray, function(ind, key) {
+      var value = window.plugin[_this.pluginName][_this.fieldName][key];
+      if(typeof(value) !== 'undefined') {
+        _this.map.set(key, value);
+      } else {
+        _this.map.delete(key);
+      }
+    });
+  } finally {
+    // Ensure endCompoundOperation is always called (see bug #896)
+    this.model.endCompoundOperation();
+  }
 }
 
 window.plugin.sync.RegisteredMap.prototype.isUpdatedByOthers = function() {
