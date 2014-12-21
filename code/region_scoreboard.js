@@ -8,15 +8,13 @@ window.regionScoreboard = function() {
   var latE6 = Math.round(latLng.lat*1E6);
   var lngE6 = Math.round(latLng.lng*1E6);
 
-  window.postAjax('getRegionScoreDetails', {latE6:latE6,lngE6:lngE6}, regionScoreboardSuccess, regionScoreboardFailure);
+  var dlg = dialog({title:'Region scores',html:'Loading regional scores...',width:450,minHeight:370});
+
+  window.postAjax('getRegionScoreDetails', {latE6:latE6,lngE6:lngE6}, function(res){regionScoreboardSuccess(res,dlg);}, function(){regionScoreboardFailure(dlg);});
 }
 
-function regionScoreboardFailure() {
-  dialog({
-    title: 'Error loading region scores',
-    text: 'Failed to load region scores - try again'
-  });
-
+function regionScoreboardFailure(dlg) {
+  dlg.html('Failed to load region scores - try again');
 }
 
 
@@ -107,9 +105,9 @@ function regionScoreboardScoreHistoryChart(result) {
 }
 
 
-function regionScoreboardSuccess(data) {
+function regionScoreboardSuccess(data,dlg) {
   if (data.result === undefined) {
-    return regionScoreboardFailure();
+    return regionScoreboardFailure(dlg);
   }
 
 
@@ -138,15 +136,11 @@ function regionScoreboardSuccess(data) {
 
   var first = PLAYER.team == 'RESISTANCE' ? 1 : 0;
 
-  dialog({
-    title: 'Region scores for '+data.result.regionName,
-    html: '<b>Region scores for '+data.result.regionName+'</b>'
+  dlg.html('<b>Region scores for '+data.result.regionName+'</b>'
          +'<table>'+teamRow[first]+teamRow[1-first]+'</table>'
          +'<b>Checkpoint history</b>'
          +regionScoreboardScoreHistoryChart(data.result)
          +'<b>Top agents</b>'
-         +agentTable,
-    width: 450
-  });
+         +agentTable);
 
 }
