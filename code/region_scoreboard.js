@@ -47,10 +47,13 @@ function regionScoreboardScoreHistoryChart(result) {
         }
       }
       // markers
+      otherSvg.push('<g title="test" class="checkpoint" data-cp="'+i+'" data-enl="'+items[i][0]+'" data-res="'+items[i][1]+'">');
+      otherSvg.push('<rect x="'+(i*10+35)+'" y="10" width="10" height="100" fill="black" fill-opacity="0" />');
       for (var t=0; t<2; t++) {
         var col = t==0 ? COLORS[TEAM_ENL] : COLORS[TEAM_RES];
-        otherSvg.push('<circle cx="'+x+'" cy="'+scale(items[i][t])+'" r="3" stroke-width="1" stroke="'+col+'" fill="'+col+'" fill-opacity="0.5" title="'+(t==0?'Enl':'Res')+' CP #'+i+': '+digits(items[i][t])+'" />');
+        otherSvg.push('<circle cx="'+x+'" cy="'+scale(items[i][t])+'" r="3" stroke-width="1" stroke="'+col+'" fill="'+col+'" fill-opacity="0.5" />');
       }
+      otherSvg.push('</g>');
     }
   }
 
@@ -143,4 +146,17 @@ function regionScoreboardSuccess(data,dlg) {
          +'<b>Top agents</b>'
          +agentTable);
 
+  $('g.checkpoint', dlg).each(function(i, elem) {
+    elem = $(elem);
+    console.log(elem.children()[0]);
+
+    var tooltip = 'CP:\t'+elem.attr('data-cp')
+      + '\nEnl:\t' + digits(elem.attr('data-enl'))
+      + '\nRes:\t' + digits(elem.attr('data-res'));
+    console.log(tooltip);
+    elem.tooltip({
+      content: convertTextToTableMagic(tooltip),
+      position: {my: "center bottom", at: "center top-10"}
+    });
+  });
 }

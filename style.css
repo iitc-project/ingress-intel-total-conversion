@@ -1097,3 +1097,10 @@ table.artifact td.info {
   margin: 8px;
   text-align: center;
 }
+
+/* region scores */
+g.checkpoint:hover circle {
+  fill-opacity: 1;
+  stroke-width: 2px;
+}
+
