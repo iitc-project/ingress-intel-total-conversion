@@ -8,7 +8,7 @@ window.regionScoreboard = function() {
   var latE6 = Math.round(latLng.lat*1E6);
   var lngE6 = Math.round(latLng.lng*1E6);
 
-  var dlg = dialog({title:'Region scores',html:'Loading regional scores...',width:450,minHeight:370});
+  var dlg = dialog({title:'Region scores',html:'Loading regional scores...',width:450,minHeight:320});
 
   window.postAjax('getRegionScoreDetails', {latE6:latE6,lngE6:lngE6}, function(res){regionScoreboardSuccess(res,dlg);}, function(){regionScoreboardFailure(dlg);});
 }
@@ -107,6 +107,17 @@ function regionScoreboardScoreHistoryChart(result) {
   return svg;
 }
 
+function regionScoreboardScoreHistoryTable(result) {
+  var history = result.scoreHistory;
+  var table = '<table class="checkpoint_table"><thead><tr><th>Checkpoint</th><th>Enlightened</th><th>Resistance</th></tr></thead>';
+
+  for(var i=0; i<history.length; i++) {
+    table += '<tr><td>' + history[i][0] + '</td><td>' + digits(history[i][1]) + '</td><td>' + digits(history[i][2]) + '</td></tr>';
+  }
+
+  table += '</table>';
+  return table;
+}
 
 function regionScoreboardSuccess(data,dlg) {
   if (data.result === undefined) {
@@ -139,12 +150,16 @@ function regionScoreboardSuccess(data,dlg) {
 
   var first = PLAYER.team == 'RESISTANCE' ? 1 : 0;
 
-  dlg.html('<b>Region scores for '+data.result.regionName+'</b>'
-         +'<table>'+teamRow[first]+teamRow[1-first]+'</table>'
-         +'<b>Checkpoint history</b>'
-         +regionScoreboardScoreHistoryChart(data.result)
+  // we need some divs to make the accordion work properly
+  dlg.html('<div class="cellscore">'
+         +'<b>Region scores for '+data.result.regionName+'</b>'
+         +'<div><table>'+teamRow[first]+teamRow[1-first]+'</table>'
+         +regionScoreboardScoreHistoryChart(data.result)+'</div>'
+         +'<b>Checkpoint overview</b>'
+         +'<div>'+regionScoreboardScoreHistoryTable(data.result)+'</div>'
          +'<b>Top agents</b>'
-         +agentTable);
+         +'<div>'+agentTable+'</div>'
+         +'</div>');
 
   $('g.checkpoint', dlg).each(function(i, elem) {
     elem = $(elem);
@@ -158,5 +173,10 @@ function regionScoreboardSuccess(data,dlg) {
       content: convertTextToTableMagic(tooltip),
       position: {my: "center bottom", at: "center top-10"}
     });
+  });
+
+  $('.cellscore', dlg).accordion({
+    header: 'b',
+    heightStyle: "fill",
   });
 }
