@@ -118,7 +118,7 @@ function regionScoreboardSuccess(data,dlg) {
   var agentTable = '<table><tr><th>#</th><th>Agent</th></tr>';
   for (var i=0; i<data.result.topAgents.length; i++) {
     var agent = data.result.topAgents[i];
-    agentTable += '<tr><td>'+(i+1)+'</td><td class="'+(agent.team=='RESISTANCE'?'res':'enl')+'">'+agent.nick+'</td></tr>';
+    agentTable += '<tr><td>'+(i+1)+'</td><td class="nickname '+(agent.team=='RESISTANCE'?'res':'enl')+'">'+agent.nick+'</td></tr>';
   }
   if (data.result.topAgents.length==0) {
     agentTable += '<tr><td colspan="2"><i>no top agents</i></td></tr>';
