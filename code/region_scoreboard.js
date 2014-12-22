@@ -8,7 +8,7 @@ window.regionScoreboard = function() {
   var latE6 = Math.round(latLng.lat*1E6);
   var lngE6 = Math.round(latLng.lng*1E6);
 
-  var dlg = dialog({title:'Region scores',html:'Loading regional scores...',width:450,minHeight:370});
+  var dlg = dialog({title:'Region scores',html:'Loading regional scores...',width:450,minHeight:320});
 
   window.postAjax('getRegionScoreDetails', {latE6:latE6,lngE6:lngE6}, function(res){regionScoreboardSuccess(res,dlg);}, function(){regionScoreboardFailure(dlg);});
 }
@@ -47,10 +47,13 @@ function regionScoreboardScoreHistoryChart(result) {
         }
       }
       // markers
+      otherSvg.push('<g title="test" class="checkpoint" data-cp="'+i+'" data-enl="'+items[i][0]+'" data-res="'+items[i][1]+'">');
+      otherSvg.push('<rect x="'+(i*10+35)+'" y="10" width="10" height="100" fill="black" fill-opacity="0" />');
       for (var t=0; t<2; t++) {
         var col = t==0 ? COLORS[TEAM_ENL] : COLORS[TEAM_RES];
-        otherSvg.push('<circle cx="'+x+'" cy="'+scale(items[i][t])+'" r="3" stroke-width="1" stroke="'+col+'" fill="'+col+'" fill-opacity="0.5" title="'+(t==0?'Enl':'Res')+' CP #'+i+': '+digits(items[i][t])+'" />');
+        otherSvg.push('<circle cx="'+x+'" cy="'+scale(items[i][t])+'" r="3" stroke-width="1" stroke="'+col+'" fill="'+col+'" fill-opacity="0.5" />');
       }
+      otherSvg.push('</g>');
     }
   }
 
@@ -104,6 +107,17 @@ function regionScoreboardScoreHistoryChart(result) {
   return svg;
 }
 
+function regionScoreboardScoreHistoryTable(result) {
+  var history = result.scoreHistory;
+  var table = '<table class="checkpoint_table"><thead><tr><th>Checkpoint</th><th>Enlightened</th><th>Resistance</th></tr></thead>';
+
+  for(var i=0; i<history.length; i++) {
+    table += '<tr><td>' + history[i][0] + '</td><td>' + digits(history[i][1]) + '</td><td>' + digits(history[i][2]) + '</td></tr>';
+  }
+
+  table += '</table>';
+  return table;
+}
 
 function regionScoreboardSuccess(data,dlg) {
   if (data.result === undefined) {
@@ -115,7 +129,7 @@ function regionScoreboardSuccess(data,dlg) {
   var agentTable = '<table><tr><th>#</th><th>Agent</th></tr>';
   for (var i=0; i<data.result.topAgents.length; i++) {
     var agent = data.result.topAgents[i];
-    agentTable += '<tr><td>'+(i+1)+'</td><td class="'+(agent.team=='RESISTANCE'?'res':'enl')+'">'+agent.nick+'</td></tr>';
+    agentTable += '<tr><td>'+(i+1)+'</td><td class="nickname '+(agent.team=='RESISTANCE'?'res':'enl')+'">'+agent.nick+'</td></tr>';
   }
   if (data.result.topAgents.length==0) {
     agentTable += '<tr><td colspan="2"><i>no top agents</i></td></tr>';
@@ -136,11 +150,33 @@ function regionScoreboardSuccess(data,dlg) {
 
   var first = PLAYER.team == 'RESISTANCE' ? 1 : 0;
 
-  dlg.html('<b>Region scores for '+data.result.regionName+'</b>'
-         +'<table>'+teamRow[first]+teamRow[1-first]+'</table>'
-         +'<b>Checkpoint history</b>'
-         +regionScoreboardScoreHistoryChart(data.result)
+  // we need some divs to make the accordion work properly
+  dlg.html('<div class="cellscore">'
+         +'<b>Region scores for '+data.result.regionName+'</b>'
+         +'<div><table>'+teamRow[first]+teamRow[1-first]+'</table>'
+         +regionScoreboardScoreHistoryChart(data.result)+'</div>'
+         +'<b>Checkpoint overview</b>'
+         +'<div>'+regionScoreboardScoreHistoryTable(data.result)+'</div>'
          +'<b>Top agents</b>'
-         +agentTable);
+         +'<div>'+agentTable+'</div>'
+         +'</div>');
 
+  $('g.checkpoint', dlg).each(function(i, elem) {
+    elem = $(elem);
+    console.log(elem.children()[0]);
+
+    var tooltip = 'CP:\t'+elem.attr('data-cp')
+      + '\nEnl:\t' + digits(elem.attr('data-enl'))
+      + '\nRes:\t' + digits(elem.attr('data-res'));
+    console.log(tooltip);
+    elem.tooltip({
+      content: convertTextToTableMagic(tooltip),
+      position: {my: "center bottom", at: "center top-10"}
+    });
+  });
+
+  $('.cellscore', dlg).accordion({
+    header: 'b',
+    heightStyle: "fill",
+  });
 }
