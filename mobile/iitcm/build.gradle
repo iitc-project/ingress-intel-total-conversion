@@ -58,7 +58,7 @@ android {
 
     buildTypes {
         release {
-            runProguard false
+            apply plugin: 'idea'
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
             // signingConfig signingConfigs.release
         }

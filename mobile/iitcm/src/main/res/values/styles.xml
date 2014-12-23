@@ -15,8 +15,6 @@
     <style name="NavDrawerTheme" parent="@style/Theme.AppCompat">
         <item name="android:windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
-        <item name="colorPrimary">@color/iitc_blue</item>
-        <item name="colorPrimaryDark">@color/iitc_blue_dark</item>
     </style>
 
     <color name="iitc_blue">#ff0e3d4e</color>
