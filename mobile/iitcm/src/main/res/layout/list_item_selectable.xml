@@ -4,6 +4,7 @@
     android:layout_height="?android:attr/listPreferredItemHeightSmall"
     android:background="?android:attr/activatedBackgroundIndicator"
     android:theme="@style/NavDrawerTheme"
+    android:textColor="@color/abc_primary_text_material_dark"
     android:drawablePadding="?android:attr/listPreferredItemPaddingLeft"
     android:gravity="center_vertical"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
