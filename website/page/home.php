@@ -11,40 +11,20 @@ offers many more features. It is available for
 <a href="?page=mobile">mobile application</a>.
 </p>
 
-<h3>Latest news</h3>
-
-<h4>7th November 2014</h4>
+<h4>21st December 2014</h4>
 <p>
-IITC 0.18.3 / IITC Mobile 0.11.9 released.
+IITC 0.19.0 / IITC Mobile 0.19.0 released.
 </p>
-<p>
-This is a critical update, required to fix IITC after a change to the standard intel site.
-No other significant changes have been made.
-</p>
-
-
-<h4>24th October 2014</h4>
-<p>
-IITC 0.18.2 / IITC Mobile 0.11.8 released.
-</p>
-<p>
-While previous release continue to work in most situations, this IITC update is highly recommended.
-After seeing recent changes to the stock intel map I've had a rethink about how IITC handles loading and
-optimising requests, particularly when it comes to viewing country-wide regions and above. It made me realise that
-fewer requests sent may not actually mean it's friendlier to the servers, so IITC has been updated to match
-the standard intel site in the number of, and batching, of requests.
-</p>
-<p>
-Fixes
-</p>
+<p>Changes include</p>
 <ul>
-<li>Game score loads correctly, rather than showing 'NaN'</li>
-<li>portals load correctly for large-scale views (US/Europe sized regions)</li>
-<li>draw-tools plugin: new feature in the DrawTools Opt dialog - 'Snap to portal'. This moves line/polygon/markers to the exact center of the closest portal. Best used when zoomed in close to the map, to ensure the right portal is the target.</li>
-<li>show-less-portals-zoomed-out: this plugin has been brought out of retirement, and updated to work in a more sensible way. It now works as if you were using the portal level filter on the standard site, rather than changing the types of requests. If the min portal was L4+ or L5+, it becomes L6+, L6+ becomes L7+, and L7+ becomes L8. I recommend trying this plugin when viewing large areas of the map - fewer portals loaded, but no changes in detail when it comes to links and fields. This plugin can be found in the 'Tweaks' category.</li>
+<li>Version numbers of IITC Mobile have been changed to keep in sync with the main IITC desktop scripts</li>
+<li>Support for regional scores added</li>
+<li>draw-tools: update the copy+paste import/export process to support links as stock intel URL formats, for exchanging plans with non-IITC users.</li>
+<li>IITC Mobile: sometimes the app wouldn't detect the screen size properly on startup, requiring a reload/screen rotation - fixed<./li>
+<li>Fix URL parameter parsing to handle commas encoded as %3C</li>
+<li>New plugin done-links: a companion to cross-links - it highlights any drawn links that already exist.</li>
+<li>Sync plugin: a couple of bugfixes - it may work better now - not sure if it's 100%</li>
+<li>..and other tweaks/bugfixes, as always</li>
 </ul>
-<p>
-Plus, as always, other minor tweaks and bugfixes.
-</p>
 
 <a class="btn btn-default btn-sm" href="?page=news">Older news</a>
