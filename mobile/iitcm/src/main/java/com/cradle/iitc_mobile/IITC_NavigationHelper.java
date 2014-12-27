@@ -68,6 +68,15 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
 
         onPrefChanged(); // also calls updateActionBar()
 
+        // workaround for not working home-button on v7 toolbar
+        setToolbarNavigationClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mIitc.onBackPressed();
+                updateViews();
+            }
+        });
+
         mNotificationHelper.showNotice(IITC_NotificationHelper.NOTICE_HOWTO);
     }
 
@@ -93,14 +102,16 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
                 setDrawerIndicatorEnabled(false);
             } else {
-                mActionBar.setDisplayHomeAsUpEnabled(true); // Show "up" indicator
-                mActionBar.setHomeButtonEnabled(true);// Make icon clickable
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 
                 if (mPane == Pane.MAP || mDrawerLayout.isDrawerOpen(mDrawerLeft)) {
+                    mActionBar.setDisplayHomeAsUpEnabled(false); // Hide"up" indicator
+                    mActionBar.setHomeButtonEnabled(false);// Make icon unclickable
                     setDrawerIndicatorEnabled(true);
                 } else {
                     setDrawerIndicatorEnabled(false);
+                    mActionBar.setHomeButtonEnabled(true);// Make icon clickable
+                    mActionBar.setDisplayHomeAsUpEnabled(true); // Show "up" indicator
                 }
             }
 
