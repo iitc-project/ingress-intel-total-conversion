@@ -72,8 +72,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
         setToolbarNavigationClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mIitc.onBackPressed();
-                updateViews();
+                mIitc.switchToPane(Pane.MAP);
             }
         });
 
