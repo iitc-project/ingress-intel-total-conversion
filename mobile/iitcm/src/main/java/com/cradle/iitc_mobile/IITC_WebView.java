@@ -58,6 +58,11 @@ public class IITC_WebView extends WebView {
         mSettings.setAppCachePath(getContext().getCacheDir().getAbsolutePath());
         mSettings.setDatabasePath(getContext().getApplicationInfo().dataDir + "/databases/");
 
+        // enable mixed content (http on https...needed for some map tiles) mode
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             mJsInterface = new IITC_JSInterfaceKitkat(mIitc);
         } else {
