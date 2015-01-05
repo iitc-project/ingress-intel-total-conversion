@@ -119,7 +119,7 @@ function regionScoreboardScoreHistoryChart(result, logscale) {
            +paths
            +otherSvg.join('')
            +'<foreignObject height="18" width="45" y="111" x="0" class="node"><label title="Logarithmic scale">'
-           +'<input type="checkbox" style="height:auto;padding:0;vertical-align:middle"'+(logscale?' checked':'')+'/>'
+           +'<input type="checkbox" class="logscale" style="height:auto;padding:0;vertical-align:middle"'+(logscale?' checked':'')+'/>'
            +'log</label></foreignObject>'
            +'</svg></div>';
 
@@ -195,7 +195,7 @@ function regionScoreboardSuccess(data,dlg,logscale) {
     heightStyle: "fill",
   });
 
-  $('foreignObject input', dlg).change(function(){
+  $('input.logscale', dlg).change(function(){
     var input = $(this);
     regionScoreboardSuccess(data, dlg, input.prop('checked'));
   });
