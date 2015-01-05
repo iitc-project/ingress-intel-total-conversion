@@ -1,5 +1,5 @@
 // ==UserScript==
-// @id             iitc-plugin-highlight-no-resize@spontifixus
+// @id             iitc-plugin-highlight-no-resize@Luciolinox
 // @name           IITC plugin: Remove Portal Resizing
 // @category       Highlighter
 // @version        0.1.0.@@DATETIMEVERSION@@
