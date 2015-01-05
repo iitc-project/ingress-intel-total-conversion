@@ -221,6 +221,7 @@ public class IITC_WebView extends WebView {
             loadUrl("javascript: $('#updatestatus').show();");
         }
         mIitc.getWindow().setAttributes(attrs);
+        mIitc.invalidateOptionsMenu();
     }
 
     void updateFullscreenStatus() {

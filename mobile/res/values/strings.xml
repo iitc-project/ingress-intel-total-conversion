@@ -205,7 +205,7 @@
     </string-array>
 
     <string name="menu_reload">Reload IITC</string>
-    <string name="menu_toggle_fullscreen">Toggle fullscreen</string>
+    <string name="menu_toggle_fullscreen">Fullscreen</string>
     <string name="menu_layer_chooser">Layer Chooser</string>
     <string name="menu_locate">Get Location</string>
     <string name="menu_clear_cookies">Clear Cookies</string>
