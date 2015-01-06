@@ -22,6 +22,7 @@
         android:title="@string/menu_layer_chooser"/>
     <item
         android:id="@+id/toggle_fullscreen"
+        android:checkable="true"
         android:icon="@drawable/ic_action_full_screen"
         android:orderInCategory="110"
         android:showAsAction="ifRoom"

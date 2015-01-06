@@ -535,6 +535,13 @@ public class IITC_Mobile extends Activity
                     item.setVisible(true);
                     break;
 
+                case R.id.toggle_fullscreen:
+                    item.setChecked(mIitcWebView.isInFullscreen());
+                    item.setIcon(mIitcWebView.isInFullscreen()
+                            ? R.drawable.ic_action_return_from_full_screen
+                            : R.drawable.ic_action_full_screen);
+                    break;
+
                 case R.id.locate:
                     item.setVisible(enabled && visible);
                     item.setEnabled(!mIsLoading);
