@@ -36,7 +36,6 @@ window.Render.prototype.startRenderPass = function(level,bounds) {
   this.resetLinkVisibility();
 
   this.rescalePortalMarkers();
-
 }
 
 window.Render.prototype.clearPortalsBelowLevel = function(level) {
@@ -87,8 +86,7 @@ window.Render.prototype.processGameEntities = function(entities) {
 
   for (var i in entities) {
     var ent = entities[i];
-
-    if (ent[2].type == 'region' && !(ent[0] in this.deletedGuid)) {
+    if (ent[2][0] == 'r' && !(ent[0] in this.deletedGuid)) {
       this.createFieldEntity(ent);
     }
   }
@@ -96,7 +94,7 @@ window.Render.prototype.processGameEntities = function(entities) {
   for (var i in entities) {
     var ent = entities[i];
 
-    if (ent[2].type == 'edge' && !(ent[0] in this.deletedGuid)) {
+    if (ent[2][0] == 'e' && !(ent[0] in this.deletedGuid)) {
       this.createLinkEntity(ent);
     }
   }
@@ -104,7 +102,7 @@ window.Render.prototype.processGameEntities = function(entities) {
   for (var i in entities) {
     var ent = entities[i];
 
-    if (ent[2].type == 'portal' && !(ent[0] in this.deletedGuid)) {
+    if (ent[2][0] == 'p' && !(ent[0] in this.deletedGuid)) {
       this.createPortalEntity(ent);
     }
   }
@@ -242,23 +240,36 @@ window.Render.prototype.createPortalEntity = function(ent) {
     this.deletePortalEntity(ent[0]);
   }
 
-  var portalLevel = parseInt(ent[2].level);
-  var team = teamStringToId(ent[2].team);
+  var portalLevel = parseInt(ent[2][4]);
+  var team = teamStringToId(ent[2][1]);
   // the data returns unclaimed portals as level 1 - but IITC wants them treated as level 0
   if (team == TEAM_NONE) portalLevel = 0;
 
-  var latlng = L.latLng(ent[2].latE6/1E6, ent[2].lngE6/1E6);
+  var latlng = L.latLng(ent[2][2]/1E6, ent[2][3]/1E6);
+
+  var data = {
+    type:      ent[2][0],
+    team:      ent[2][1],
+    latE6:     ent[2][2],
+    lngE6:     ent[2][3],
+    level:     ent[2][4],
+    health:    ent[2][5],
+    resCount:  ent[2][6],
+    image:     ent[2][7],
+    title:     ent[2][8],
+    ornaments: ent[2][9]
+  };
 
   var dataOptions = {
     level: portalLevel,
     team: team,
-    ent: ent,  // LEGACY - TO BE REMOVED AT SOME POINT! use .guid, .timestamp and .details instead
+    ent: ent,  // LEGACY - TO BE REMOVED AT SOME POINT! use .guid, .timestamp and .data instead
     guid: ent[0],
     timestamp: ent[1],
-    data: ent[2]
+    data: data
   };
 
-  window.pushPortalGuidPositionCache(ent[0], ent[2].latE6, ent[2].lngE6);
+  window.pushPortalGuidPositionCache(ent[0], ent[2][3], ent[2][4]);
 
   var marker = createMarker(latlng, dataOptions);
 
@@ -314,11 +325,17 @@ window.Render.prototype.createFieldEntity = function(ent) {
     this.deleteFieldEntity(ent[0]); // option 2, for now
   }
 
-  var team = teamStringToId(ent[2].team);
+  var data = {
+    type: ent[2][0],
+    team: ent[2][1],
+    points: ent[2][2].map(function(arr) { return {guid: arr[0], latE6: arr[1], lngE6: arr[2] }; })
+  };
+
+  var team = teamStringToId(ent[2][1]);
   var latlngs = [
-    L.latLng(ent[2].points[0].latE6/1E6, ent[2].points[0].lngE6/1E6),
-    L.latLng(ent[2].points[1].latE6/1E6, ent[2].points[1].lngE6/1E6),
-    L.latLng(ent[2].points[2].latE6/1E6, ent[2].points[2].lngE6/1E6)
+    L.latLng(data.points[0].latE6/1E6, data.points[0].lngE6/1E6),
+    L.latLng(data.points[1].latE6/1E6, data.points[1].lngE6/1E6),
+    L.latLng(data.points[2].latE6/1E6, data.points[2].lngE6/1E6)
   ];
 
   var poly = L.geodesicPolygon(latlngs, {
@@ -328,9 +345,10 @@ window.Render.prototype.createFieldEntity = function(ent) {
     clickable: false,
 
     team: team,
+    ent: ent,  // LEGACY - TO BE REMOVED AT SOME POINT! use .guid, .timestamp and .data instead
     guid: ent[0],
     timestamp: ent[1],
-    data: ent[2],
+    data: data,
   });
 
   runHooks('fieldAdded',{field: poly});
@@ -358,10 +376,21 @@ window.Render.prototype.createLinkEntity = function(ent,faked) {
     this.deleteLinkEntity(ent[0]); // option 2 - for now
   }
 
-  var team = teamStringToId(ent[2].team);
+  var data = { // TODO add other properties and check correction direction
+    type:   ent[2][0],
+    team:   ent[2][1],
+    oGuid:  ent[2][2],
+    oLatE6: ent[2][3],
+    oLngE6: ent[2][4],
+    dGuid:  ent[2][5],
+    dLatE6: ent[2][6],
+    dLngE6: ent[2][7]
+  };
+
+  var team = teamStringToId(ent[2][1]);
   var latlngs = [
-    L.latLng(ent[2].oLatE6/1E6, ent[2].oLngE6/1E6),
-    L.latLng(ent[2].dLatE6/1E6, ent[2].dLngE6/1E6)
+    L.latLng(data.oLatE6/1E6, data.oLngE6/1E6),
+    L.latLng(data.dLatE6/1E6, data.dLngE6/1E6)
   ];
   var poly = L.geodesicPolyline(latlngs, {
     color: COLORS[team],
@@ -370,9 +399,10 @@ window.Render.prototype.createLinkEntity = function(ent,faked) {
     clickable: false,
 
     team: team,
+    ent: ent,  // LEGACY - TO BE REMOVED AT SOME POINT! use .guid, .timestamp and .data instead
     guid: ent[0],
     timestamp: ent[1],
-    data: ent[2]
+    data: data
   });
 
   runHooks('linkAdded', {link: poly});
