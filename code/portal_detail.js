@@ -77,7 +77,7 @@ var handleResponse = function(guid, data, success) {
     }
   }
 
-  window.runHooks ('portalDetailLoaded', {guid:guid, success:success, details:data.result});
+  window.runHooks ('portalDetailLoaded', {guid:guid, success:success, details:dict});
 }
 
 window.portalDetail.request = function(guid) {
