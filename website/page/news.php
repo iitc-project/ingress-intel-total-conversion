@@ -1,5 +1,15 @@
 <h2>News</h2>
 
+<h4>10th January 2015</h4>
+<p>
+IITC 0.20.0 released. This is a critical update to fix loading of portals/links/fields after a protocol change by Niantic.
+</p>
+<p>Other changes include</p>
+<ul>
+<li>Improvements to the regional scoreboard display</li>
+<li>Two new default map themes, from CartoDB - one dark, one light</li>
+<li>..and other tweaks/bugfixes</li>
+
 <h4>21st December 2014</h4>
 <p>
 IITC 0.19.0 / IITC Mobile 0.19.0 released.
