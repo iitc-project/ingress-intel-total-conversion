@@ -51,12 +51,17 @@ window.plugin.uniques.onPortalDetailsUpdated = function() {
 		details = portalDetail.get(guid),
 		nickname = window.PLAYER.nickname;
 	if(details) {
-		function installedByPlayer(entity) {
-			return entity && entity.owner == nickname;
-		}
-		
-		if(details.resonators.some(installedByPlayer) || details.mods.some(installedByPlayer)) {
-			plugin.uniques.updateVisited(true);
+		if(details.owner == nickname) {
+			plugin.uniques.updateCaptured(true);
+			// no further logic required
+		} else {
+			function installedByPlayer(entity) {
+				return entity && entity.owner == nickname;
+			}
+			
+			if(details.resonators.some(installedByPlayer) || details.mods.some(installedByPlayer)) {
+				plugin.uniques.updateVisited(true);
+			}
 		}
 	}
 
