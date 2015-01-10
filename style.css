@@ -1097,3 +1097,34 @@ table.artifact td.info {
   margin: 8px;
   text-align: center;
 }
+
+/* region scores */
+.cellscore .ui-accordion-header, .cellscore .ui-accordion-content {
+	border: 1px solid #20a8b1;
+	margin-top: -1px;
+	display: block;
+}
+.cellscore .ui-accordion-header {
+	color: #ffce00;
+	outline: none
+}
+.cellscore .ui-accordion-header::before {
+	font-size: 18px;
+	margin-right: 2px;
+	content: "⊞";
+}
+.cellscore .ui-accordion-header-active::before {
+	content: "⊟";
+}
+g.checkpoint:hover circle {
+  fill-opacity: 1;
+  stroke-width: 2px;
+}
+.checkpoint_table {
+	border-collapse: collapse;
+}
+.checkpoint_table td {
+	text-align: right;
+	padding-left: 10px;
+}
+

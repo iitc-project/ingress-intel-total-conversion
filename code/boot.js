@@ -109,8 +109,8 @@ window.setupStyles = function() {
     + '</style>');
 }
 
-window.setupMap = function() {
-  $('#map').text('');
+function createDefaultBaseMapLayers() {
+  var baseLayers = {};
 
   //OpenStreetMap attribution - required by several of the layers
   osmAttribution = 'Map data © OpenStreetMap contributors';
@@ -120,8 +120,18 @@ window.setupMap = function() {
   var mqSubdomains = [ 'otile1','otile2', 'otile3', 'otile4' ];
   var mqTileUrlPrefix = window.location.protocol !== 'https:' ? 'http://{s}.mqcdn.com' : 'https://{s}-s.mqcdn.com';
   var mqMapOpt = {attribution: osmAttribution+', Tiles Courtesy of MapQuest', maxNativeZoom: 18, maxZoom: 21, subdomains: mqSubdomains};
-  var mqMap = new L.TileLayer(mqTileUrlPrefix+'/tiles/1.0.0/map/{z}/{x}/{y}.jpg',mqMapOpt);
+  baseLayers['MapQuest OSM'] = new L.TileLayer(mqTileUrlPrefix+'/tiles/1.0.0/map/{z}/{x}/{y}.jpg',mqMapOpt);
 
+  // cartodb has some nice tiles too - both dark and light subtle maps - http://cartodb.com/basemaps/
+  // (not available over https though - not on the right domain name anyway)
+  var cartoAttr = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>';
+  var cartoUrl = 'http://{s}.basemaps.cartocdn.com/{theme}/{z}/{x}/{y}.png';
+  baseLayers['CartoDB Dark Matter'] = L.tileLayer(cartoUrl,{attribution:cartoAttr,theme:'dark_all'});
+  baseLayers['CartoDB Positron'] = L.tileLayer(cartoUrl,{attribution:cartoAttr,theme:'light_all'});
+
+
+  // we'll include google maps too - in the ingress default style, and a few other standard ones
+  // as the stock intel map already uses the googme maps API, we just hijack their inclusion of the javascript and API key :)
   var ingressGMapOptions = {
     backgroundColor: '#0e3d4e', //or #dddddd ? - that's the Google tile layer default
     styles: [
@@ -133,16 +143,22 @@ window.setupMap = function() {
         { featureType:"transit", elementType:"all", stylers:[{visibility:"off"}] }
       ]
   };
+  baseLayers['Google Default Ingress Map'] = new L.Google('ROADMAP',{maxZoom:21, mapOptions:ingressGMapOptions});
+  baseLayers['Google Roads'] = new L.Google('ROADMAP',{maxZoom:21});
+  baseLayers['Google Satellite'] = new L.Google('SATELLITE',{maxZoom:21});
+  baseLayers['Google Hybrid'] = new L.Google('HYBRID',{maxZoom:21});
+  baseLayers['Google Terrain'] = new L.Google('TERRAIN',{maxZoom:15});
 
 
-  var views = [
-    /*0*/ mqMap,
-    /*1*/ new L.Google('ROADMAP',{maxZoom:21, mapOptions:ingressGMapOptions}),
-    /*2*/ new L.Google('ROADMAP',{maxZoom:21}),
-    /*3*/ new L.Google('SATELLITE',{maxZoom:21}),
-    /*4*/ new L.Google('HYBRID',{maxZoom:21}),
-    /*5*/ new L.Google('TERRAIN',{maxZoom:15})
-  ];
+  return baseLayers;
+}
+
+
+window.setupMap = function() {
+  $('#map').text('');
+
+
+
 
   // proper initial position is now delayed until all plugins are loaded and the base layer is set
   window.map = new L.Map('map', {
@@ -258,15 +274,9 @@ window.setupMap = function() {
     }
   });
 
+  var baseLayers = createDefaultBaseMapLayers();
 
-  window.layerChooser = new L.Control.Layers({
-    'MapQuest OSM': views[0],
-    'Google Default Ingress Map': views[1],
-    'Google Roads':  views[2],
-    'Google Satellite':  views[3],
-    'Google Hybrid':  views[4],
-    'Google Terrain': views[5]
-    }, addLayers);
+  window.layerChooser = new L.Control.Layers(baseLayers, addLayers);
 
   // Remove the hidden layer after layerChooser built, to avoid messing up ordering of layers 
   $.each(hiddenLayer, function(ind, layer){
