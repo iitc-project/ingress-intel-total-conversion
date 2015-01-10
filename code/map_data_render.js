@@ -248,7 +248,7 @@ window.Render.prototype.createPortalEntity = function(ent) {
   var latlng = L.latLng(ent[2][2]/1E6, ent[2][3]/1E6);
 
   var data = {
-    type:      ent[2][0],
+//    type:      ent[2][0],
     team:      ent[2][1],
     latE6:     ent[2][2],
     lngE6:     ent[2][3],
@@ -326,7 +326,7 @@ window.Render.prototype.createFieldEntity = function(ent) {
   }
 
   var data = {
-    type: ent[2][0],
+//    type: ent[2][0],
     team: ent[2][1],
     points: ent[2][2].map(function(arr) { return {guid: arr[0], latE6: arr[1], lngE6: arr[2] }; })
   };
@@ -377,7 +377,7 @@ window.Render.prototype.createLinkEntity = function(ent,faked) {
   }
 
   var data = { // TODO add other properties and check correction direction
-    type:   ent[2][0],
+//    type:   ent[2][0],
     team:   ent[2][1],
     oGuid:  ent[2][2],
     oLatE6: ent[2][3],
