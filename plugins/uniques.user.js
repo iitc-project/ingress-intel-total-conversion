@@ -52,6 +52,7 @@ window.plugin.uniques.onPortalDetailsUpdated = function() {
 		nickname = window.PLAYER.nickname;
 	if(details) {
 		if(details.owner == nickname) {
+			//FIXME: a virus flip will set the owner of the portal, but doesn't count as a unique capture
 			plugin.uniques.updateCaptured(true);
 			// no further logic required
 		} else {
