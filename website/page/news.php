@@ -9,6 +9,7 @@ IITC 0.20.0 released. This is a critical update to fix loading of portals/links/
 <li>Improvements to the regional scoreboard display</li>
 <li>Two new default map themes, from CartoDB - one dark, one light</li>
 <li>..and other tweaks/bugfixes</li>
+</ul>
 
 <h4>21st December 2014</h4>
 <p>
