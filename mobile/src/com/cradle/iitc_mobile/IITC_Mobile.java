@@ -266,15 +266,6 @@ public class IITC_Mobile extends Activity
                             .show();
                 }
             }
-
-            // intent MIME type and uri path may be null
-            final String type = intent.getType() == null ? "" : intent.getType();
-            final String path = uri.getPath() == null ? "" : uri.getPath();
-            if (path.endsWith(".user.js") || type.contains("javascript")) {
-                final Intent prefIntent = new Intent(this, PluginPreferenceActivity.class);
-                prefIntent.setDataAndType(uri, intent.getType());
-                startActivity(prefIntent);
-            }
         }
 
         if (Intent.ACTION_SEARCH.equals(action)) {
