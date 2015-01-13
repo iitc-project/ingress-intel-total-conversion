@@ -87,7 +87,6 @@
         <activity
             android:name="com.cradle.iitc_mobile.prefs.PluginPreferenceActivity"
             android:theme="@style/AppPrefTheme"
-            android:launchMode="singleTop"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
             android:label="@string/activity_plugins">
             <!-- Handles external user plugins -->
