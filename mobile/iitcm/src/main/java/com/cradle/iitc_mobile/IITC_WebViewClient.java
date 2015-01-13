@@ -237,6 +237,8 @@ public class IITC_WebViewClient extends WebViewClient {
         } else {
             Log.d("no ingress intel link, start external app to load url: " + url);
             final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            // make new activity independent from iitcm
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mIitc.startActivity(intent);
         }
         return true;
