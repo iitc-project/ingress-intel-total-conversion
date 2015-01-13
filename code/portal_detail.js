@@ -32,8 +32,43 @@ window.portalDetail.isFresh = function(guid) {
 var handleResponse = function(guid, data, success) {
   delete requestQueue[guid];
 
+  function parseMod(arr) {
+    if(arr == null) { return null; }
+    return {
+      owner: arr[0],
+      name: arr[1],
+      rarity: arr[2],
+      stats: arr[3],
+    };
+  }
+  function parseResonator(arr) {
+    if(arr == null) { return null; }
+    return {
+      owner: arr[0],
+      level: arr[1],
+      energy: arr[2],
+    };
+  }
+
+  var dict = {
+    raw:       data.result,
+    type:      data.result[0],
+    team:      data.result[1],
+    latE6:     data.result[2],
+    lngE6:     data.result[3],
+    level:     data.result[4],
+    health:    data.result[5],
+    resCount:  data.result[6],
+    image:     data.result[7],
+    title:     data.result[8],
+    ornaments: data.result[9],
+    mods:      data.result[10].map(parseMod),
+    resonators:data.result[11].map(parseResonator),
+    owner:     data.result[12],
+  };
+
   if (success) {
-    cache.store(guid,data);
+    cache.store(guid,dict);
 
     //FIXME..? better way of handling sidebar refreshing...
 
@@ -42,7 +77,7 @@ var handleResponse = function(guid, data, success) {
     }
   }
 
-  window.runHooks ('portalDetailLoaded', {guid:guid, success:success, details:data});
+  window.runHooks ('portalDetailLoaded', {guid:guid, success:success, details:dict});
 }
 
 window.portalDetail.request = function(guid) {
