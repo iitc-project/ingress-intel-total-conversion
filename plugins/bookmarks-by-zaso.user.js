@@ -744,6 +744,7 @@
         }
       }
     });
+    window.plugin.bookmarks.autoDrawOnSelect();
   }
 
   window.plugin.bookmarks.draw = function(view) {
@@ -787,38 +788,42 @@
         map.fitBounds(layer.getBounds());
       }
     }
-    else{
-      $('#bkmrksAutoDrawer p').toggle().delay('2500').fadeOut('500');
-    }
   }
 
-  window.plugin.bookmarks.autoDrawCalcDistance = function() {
+  window.plugin.bookmarks.autoDrawOnSelect = function() {
     var latlngs = [];
     var uuu = $('#bkmrksAutoDrawer a.bkmrk.selected').each(function(i) {
       var tt = $(this).data('latlng');
       latlngs[i] = tt;
     });
 
-    var distance = null;
+    var text = "You must select 2 or 3 portals!";
+    var color = "red";
+
+    function formatDistance(distance) {
+      var text = digits(distance > 10000 ? (distance/1000).toFixed(2) + "km" : (Math.round(distance) + "m"));
+      return distance >= 200000
+        ? '<em title="Long distance link" class="help longdistance">'+text+'</em>'
+        : text;
+    }
+
     if(latlngs.length == 2) {
-      distance = L.latLng(latlngs[0]).distanceTo(latlngs[1]);
+      var distance = L.latLng(latlngs[0]).distanceTo(latlngs[1]);
+      text = 'Distance between portals: ' + formatDistance(distance);
+      color = "";
+    } else if(latlngs.length == 3) {
+      var longdistance = false;
+      var distances = latlngs.map(function(ll1, i, latlngs) {
+        var ll2 = latlngs[(i+1)%3];
+        return formatDistance(L.latLng(ll1).distanceTo(ll2));
+      });
+      text = 'Distances: ' + distances.join(", ");
+      color = "";
     }
 
-    $('#bkmrksAutoDrawerDistance').remove();
-    if(distance !== null) {
-      distance = Math.round(distance);
-
-      var text = 'Distance between portals: ';
-      if(distance > 1000)
-        text += digits(distance / 1000) + 'km';
-      else
-        text += digits(distance) + 'm';
-
-      $('<div>')
-        .html(text)
-        .attr('id', 'bkmrksAutoDrawerDistance')
-        .appendTo('#bkmrksAutoDrawer');
-    }
+    $('#bkmrksAutoDrawer p')
+      .html(text)
+      .css("color", color);
   }
 
   window.plugin.bookmarks.dialogLoadList = function() {
@@ -869,8 +874,8 @@
         + '<label style="margin-bottom: 9px; display: block;">'
         + '<input style="vertical-align: middle;" type="checkbox" id="bkmrkClearSelection" checked>'
         + ' Clear selection after drawing</label>'
-        + '<p style="color:red;text-align:center;margin-bottom:9px;">You must select 2 or 3 portals.</p>'
-        + '<div onclick="window.plugin.bookmarks.autoDrawCalcDistance();return false;">'
+        + '<p style="margin-bottom:9px;color:red">You must select 2 or 3 portals!</p>'
+        + '<div onclick="window.plugin.bookmarks.autoDrawOnSelect();return false;">'
         + element
         + '</div>'
         + '</div>';

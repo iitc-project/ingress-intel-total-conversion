@@ -639,8 +639,12 @@
 	text-indent:10px;
 	padding:2px 0;
 }
-#bkmrksAutoDrawer .bookmarkFolder div,
-#bkmrksAutoDrawer p{
+#bkmrksAutoDrawer .longdistance {
+	color: #FFCC00;
+	font-weight: bold;
+	border-bottom: 1px dashed currentColor;
+}
+#bkmrksAutoDrawer .bookmarkFolder div {
 	display:none;
 }
 #bkmrksAutoDrawer a.bkmrk.selected{
