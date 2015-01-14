@@ -288,21 +288,26 @@
   }
 
   // Append a 'star' flag in sidebar.
-  window.plugin.bookmarks.addStarToSidebar = function() {
-    if(typeof(Storage) === "undefined") {
-      $('#portaldetails > .imgpreview').after(plugin.bookmarks.htmlDisabledMessage);
-      return;
-    }
+  window.plugin.bookmarks.onPortalSelected = function() {
     $('.bkmrksStar').remove();
 
-    // Prepend a star to mobile status-bar
-    if(window.plugin.bookmarks.isSmart) {
-      $('#updatestatus').prepend(plugin.bookmarks.htmlStar);
-      $('#updatestatus .bkmrksStar').attr('title', '');
-    }
+    if(window.selectedPortal == null) return;
 
-    $('#portaldetails > h3.title').before(plugin.bookmarks.htmlStar);
-    window.plugin.bookmarks.updateStarPortal();
+    setTimeout(function() { // the sidebar is constructed after firing the hook
+      if(typeof(Storage) === "undefined") {
+        $('#portaldetails > .imgpreview').after(plugin.bookmarks.htmlDisabledMessage);
+        return;
+      }
+
+      // Prepend a star to mobile status-bar
+      if(window.plugin.bookmarks.isSmart) {
+        $('#updatestatus').prepend(plugin.bookmarks.htmlStar);
+        $('#updatestatus .bkmrksStar').attr('title', '');
+      }
+
+      $('#portaldetails > h3.title').before(plugin.bookmarks.htmlStar);
+      window.plugin.bookmarks.updateStarPortal();
+    }, 0);
   }
 
   // Update the status of the star (when a portal is selected from the map/bookmarks-list)
@@ -1198,13 +1203,6 @@
       if(window.useAndroidPanes())
         android.addPane("plugin-bookmarks", "Bookmarks", "ic_action_star");
       window.addHook('paneChanged', window.plugin.bookmarks.onPaneChanged);
-
-      // Remove the star
-      window.addHook('portalSelected', function(data) {
-        if(data.selectedPortalGuid === null) {
-          $('.bkmrksStar').remove();
-        }
-      });
     }
     $('#toolbox').append(window.plugin.bookmarks.htmlCallSetBox+window.plugin.bookmarks.htmlCalldrawBox);
 
@@ -1220,7 +1218,7 @@
     if(window.plugin.bookmarks.statusBox['show'] === 0) { window.plugin.bookmarks.switchStatusBkmrksBox(0); }
     if(window.plugin.bookmarks.statusBox['page'] === 1) { $('#bookmarksBox h5.bkmrk_portals').trigger('click'); }
 
-    window.addHook('portalDetailsUpdated', window.plugin.bookmarks.addStarToSidebar);
+    window.addHook('portalSelected', window.plugin.bookmarks.onPortalSelected);
 
     // Sync
     window.addHook('pluginBkmrksEdit', window.plugin.bookmarks.syncBkmrks);
