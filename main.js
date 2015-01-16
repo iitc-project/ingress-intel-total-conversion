@@ -205,6 +205,7 @@ window.DEG2RAD = Math.PI / 180;
 // getters/setters, but if you are careful enough, this works.
 window.refreshTimeout = undefined;
 window.urlPortal = null;
+window.urlPortalLL = null;
 window.selectedPortal = null;
 window.portalRangeIndicator = null;
 window.portalAccessIndicator = null;

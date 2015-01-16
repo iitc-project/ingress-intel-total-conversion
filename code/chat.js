@@ -304,7 +304,7 @@ window.chat.writeDataToHash = function(newData, storageHash, isPublicChannel, is
       case 'PORTAL':
         var latlng = [markup[1].latE6/1E6, markup[1].lngE6/1E6];
         var perma = '/intel?ll='+latlng[0]+','+latlng[1]+'&z=17&pll='+latlng[0]+','+latlng[1];
-        var js = 'window.zoomToAndShowPortal(\''+markup[1].guid+'\', ['+latlng[0]+', '+latlng[1]+']);return false';
+        var js = 'window.selectPortalByLatLng('+latlng[0]+', '+latlng[1]+');return false';
 
         msg += '<a onclick="'+js+'"'
           + ' title="'+markup[1].address+'"'
