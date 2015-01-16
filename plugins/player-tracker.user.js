@@ -77,8 +77,7 @@ plugin.playerTracker.onClickListener = function(event) {
   var marker = event.target;
 
   var ll = marker.options.referenceToPortal.split(",");
-  var guid = window.findPortalGuidByPositionE6(ll[0], ll[1]);
-  if(guid) window.renderPortalDetails(guid);
+  window.selectPortalByLatLng(ll[0]/1E6, ll[1]/1E6);
 
   if (marker.options.desc) {
     plugin.playerTracker.playerPopup.setContent(marker.options.desc);
