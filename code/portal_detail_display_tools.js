@@ -237,7 +237,7 @@ window.getAttackApGainText = function(d,fieldCount,linkCount) {
 
   function tt(text) {
     var t = '';
-    if (PLAYER.team == d.team) {
+    if (teamStringToId(PLAYER.team) == teamStringToId(d.team)) {
       totalGain = breakdown.friendlyAp;
       t += 'Friendly AP:\t' + breakdown.friendlyAp + '\n';
       t += '  Deploy ' + breakdown.deployCount + ', ';
