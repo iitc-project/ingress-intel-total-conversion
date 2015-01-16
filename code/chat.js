@@ -273,7 +273,7 @@ window.chat.writeDataToHash = function(newData, storageHash, isPublicChannel, is
     //remove "Your X on Y was destroyed by Z" from the faction channel
     if (systemNarrowcast && !isPublicChannel) return true;
 
-    var msg = '', nick = '', pguid;
+    var msg = '', nick = '';
     $.each(json[2].plext.markup, function(ind, markup) {
       switch(markup[0]) {
       case 'SENDER': // user generated messages
