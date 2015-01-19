@@ -12,7 +12,7 @@ window.getRangeText = function(d) {
   
   if(!range.isLinkable) title += '\nPortal is missing resonators,\nno new links can be made';
   
-  return ['range',
+  return ['<span title="' + title + '">range</span>',
       '<a onclick="window.rangeLinkClick()"'
     + (range.isLinkable ? '' : ' style="text-decoration:line-through;"')
     + ' title="'+title+'">'
