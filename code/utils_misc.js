@@ -270,6 +270,10 @@ window.zoomToAndShowPortal = function(guid, latlng) {
 }
 
 window.selectPortalByLatLng = function(lat, lng) {
+  if(lng === undefined && lat instanceof Array) {
+    lng = lat[1];
+    lat = lat[0];
+  }
   for(var guid in window.portals) {
     var latlng = window.portals[guid].getLatLng();
     if(latlng.lat == lat && latlng.lng == lng) {
