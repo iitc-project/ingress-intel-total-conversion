@@ -187,22 +187,32 @@ window.getPortalMiscDetails = function(guid,d) {
 
     var apGainText = getAttackApGainText(d,fieldCount,linkCount);
 
+    var attackValues = getPortalAttackValues(d);
+
 
     // collect and html-ify random data
-    var randDetailsData = [];
-    if (true) {  // or "if (d.owner) {" ...? but this makes the info panel look rather empty for unclaimed portals
-      // these pieces of data are only relevant when the portal is captured
-      randDetailsData.push (
-        playerText, getRangeText(d),
-        linksText, fieldsText,
-        getMitigationText(d,linkCount), getEnergyText(d)
-      );
-    }
 
-    // and these have some use, even for uncaptured portals
-    randDetailsData.push (
-      apGainText, getHackDetailsText(d)
-    );
+    var randDetailsData = [
+      // these pieces of data are only relevant when the portal is captured
+      // maybe check if portal is captured and remove?
+      // But this makes the info panel look rather empty for unclaimed portals
+      playerText, getRangeText(d),
+      linksText, fieldsText,
+      getMitigationText(d,linkCount), getEnergyText(d),
+      // and these have some use, even for uncaptured portals
+      apGainText, getHackDetailsText(d),
+    ];
+
+    if(attackValues.attack_frequency != 0)
+      randDetailsData.push([
+        '<span title="attack frequency" class="text-overflow-ellipsis">attack frequency</span>',
+        '×'+attackValues.attack_frequency]);
+    if(attackValues.hit_bonus != 0)
+      randDetailsData.push(['hit bonus', attackValues.hit_bonus+'%']);
+    if(attackValues.force_amplifier != 0)
+      randDetailsData.push([
+        '<span title="force amplifier" class="text-overflow-ellipsis">force amplifier</span>',
+        '×'+attackValues.force_amplifier]);
 
     // artifact details
 

@@ -1128,3 +1128,13 @@ g.checkpoint:hover circle {
 	padding-left: 10px;
 }
 
+.text-overflow-ellipsis {
+	display: inline-block;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	vertical-align: top;
+	width: 100%;
+	line-height: 1em;
+}
+
