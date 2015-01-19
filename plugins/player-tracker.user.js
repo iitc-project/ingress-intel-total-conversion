@@ -76,9 +76,6 @@ window.plugin.playerTracker.stored = {};
 plugin.playerTracker.onClickListener = function(event) {
   var marker = event.target;
 
-  var ll = marker.options.referenceToPortal.split(",");
-  window.selectPortalByLatLng(ll[0]/1E6, ll[1]/1E6);
-
   if (marker.options.desc) {
     plugin.playerTracker.playerPopup.setContent(marker.options.desc);
     plugin.playerTracker.playerPopup.setLatLng(marker.getLatLng());
@@ -308,44 +305,73 @@ window.plugin.playerTracker.drawData = function() {
     var tooltip = isTouchDev ? '' : (playerData.nick+', '+ago(last.time, now)+' ago');
 
     // popup for marker
-    var cssClass = playerData.team === 'RESISTANCE' ? 'res' : 'enl';
-    var popup = '<span class="nickname '+cssClass+'" style="font-weight:bold;">' + playerData.nick + '</span>';
+    var popup = $('<div>')
+      .addClass('plugin-player-tracker-popup');
+    $('<span>')
+      .addClass('nickname ' + (playerData.team === 'RESISTANCE' ? 'res' : 'enl'))
+      .css('font-weight', 'bold')
+      .text(playerData.nick)
+      .appendTo(popup);
 
     if(window.plugin.guessPlayerLevels !== undefined &&
        window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer !== undefined) {
       function getLevel(lvl) {
-        return '<span style="padding:4px;color:white;background-color:'+COLORS_LVL[lvl]+'">'+lvl+'</span>';
+        return $('<span>')
+          .css({
+            padding: '4px',
+            color: 'white',
+            backgroundColor: COLORS_LVL[lvl],
+          })
+          .text(lvl);
       }
-      popup += '<span style="font-weight:bold;margin-left:10px;">';
+
+      var level = $('<span>')
+        .css({'font-weight': 'bold', 'margin-left': '10px'})
+        .appendTo(popup);
 
       var playerLevelDetails = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(plrname);
       if(playerLevelDetails.min == 8) {
-        popup += 'Level ' + getLevel(8);
+        level
+          .text('Level ')
+          .append(getLevel(8));
       } else {
-        popup += 'Min level: ' + getLevel(playerLevelDetails.min);
+        level
+          .text('Min level ')
+          .append(getLevel(playerLevelDetails.min));
         if(playerLevelDetails.min != playerLevelDetails.guessed)
-          popup += ', guessed level: ' + getLevel(playerLevelDetails.guessed);
+          level
+            .append(document.createTextNode(', guessed level: '))
+            .append(getLevel(playerLevelDetails.guessed));
       }
-
-      popup += '</span>';
     }
-    
-    popup += '<br>'
-        + ago(last.time, now) + ' ago<br>'
-        + window.chat.getChatPortalName(last);
+
+    popup
+      .append('<br>')
+      .append(document.createTextNode(ago(last.time, now)))
+      .append('<br>')
+      .append(plugin.playerTracker.getPortalLink(last));
+
     // show previous data in popup
     if(evtsLength >= 2) {
-      popup += '<br>&nbsp;<br>previous locations:<br>'
-          + '<table style="border-spacing:0">';
+      popup
+        .append('<br>')
+        .append('<br>')
+        .append(document.createTextNode('previous locations:'))
+        .append('<br>');
+
+      var table = $('<table>')
+        .appendTo(popup)
+        .css('border-spacing', '0');
+      for(var i = evtsLength - 2; i >= 0 && i >= evtsLength - 10; i--) {
+        var ev = playerData.events[i];
+        $('<tr>')
+          .append($('<td>')
+            .text(ago(ev.time, now) + ' ago'))
+          .append($('<td>')
+            .append(plugin.playerTracker.getPortalLink(ev)))
+          .appendTo(table);
+      }
     }
-    for(var i = evtsLength - 2; i >= 0 && i >= evtsLength - 10; i--) {
-      var ev = playerData.events[i];
-      popup += '<tr align="left"><td>' + ago(ev.time, now) + '</td>'
-          + '<td>ago</td>'
-          + '<td>' + window.chat.getChatPortalName(ev) + '</td></tr>';
-    }
-    if(evtsLength >= 2)
-      popup += '</table>';
 
     // calculate the closest portal to the player
     var eventPortal = []
@@ -369,12 +395,12 @@ window.plugin.playerTracker.drawData = function() {
 
     // marker itself
     var icon = playerData.team === 'RESISTANCE' ?  new plugin.playerTracker.iconRes() :  new plugin.playerTracker.iconEnl();
-// as per OverlappingMarkerSpiderfier docs, click events (popups, etc) must be handled via it rather than the standard
-// marker click events. so store the popup text in the options, then display it in the oms click handler
-    var m = L.marker(gllfe(last), {icon: icon, referenceToPortal: closestPortal, opacity: absOpacity, desc: popup, title: tooltip});
+    // as per OverlappingMarkerSpiderfier docs, click events (popups, etc) must be handled via it rather than the standard
+    // marker click events. so store the popup text in the options, then display it in the oms click handler
+    var m = L.marker(gllfe(last), {icon: icon, referenceToPortal: closestPortal, opacity: absOpacity, desc: popup[0], title: tooltip});
     m.addEventListener('spiderfiedclick', plugin.playerTracker.onClickListener);
 
-//    m.bindPopup(title);
+    // m.bindPopup(title);
 
     if (tooltip) {
       // ensure tooltips are closed, sometimes they linger
@@ -421,6 +447,30 @@ window.plugin.playerTracker.drawData = function() {
       L.polyline(poly, opts).addTo(plugin.playerTracker.drawnTracesRes);
     });
   });
+}
+
+window.plugin.playerTracker.getPortalLink = function(data) {
+  var position = data.latlngs[0];
+  var ll = position.join(',');
+  return $('<a>')
+    .addClass('text-overflow-ellipsis')
+    .css('max-width', '15em')
+    .text(window.chat.getChatPortalName(data))
+    .prop({
+      title: window.chat.getChatPortalName(data),
+      href: '/intel?ll=' + ll + '&pll=' + ll,
+    })
+    .click(function(event) {
+      window.selectPortalByLatLng(position);
+      event.preventDefault();
+      return false;
+    })
+    .dblclick(function(event) {
+      map.setView(position, 17)
+      window.selectPortalByLatLng(position);
+      event.preventDefault();
+      return false;
+    });
 }
 
 window.plugin.playerTracker.handleData = function(data) {
@@ -480,6 +530,8 @@ window.plugin.playerTracker.onGeoSearch = function(search) {
 }
 
 window.plugin.playerTracker.setupUserSearch = function() {
+  $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:plugins/player-tracker.css@@').appendTo('head');
+
   addHook('nicknameClicked', window.plugin.playerTracker.onNicknameClicked);
   addHook('geoSearch', window.plugin.playerTracker.onGeoSearch);
   
