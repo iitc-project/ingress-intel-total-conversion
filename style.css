@@ -334,6 +334,7 @@ summary {
   padding: 0 2px;
   background: rgba(8, 48, 78, 0.9);
   width: 708px;
+  height: 23px;
   border: 1px solid #20A8B1;
   z-index: 3001;
   -webkit-box-sizing: border-box;
