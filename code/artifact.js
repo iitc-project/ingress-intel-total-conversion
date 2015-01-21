@@ -265,12 +265,15 @@ window.artifact.showArtifactList = function() {
     html += '<i>No artifacts at this time</i>';
   }
 
+  var first = true;
   $.each(artifact.artifactTypes, function(type,type2) {
     var description = artifact.getArtifactDescriptions(type);
 
     var name = description ? description.title : ('unknown artifact type: '+type);
 
-    html += '<hr><div><b>'+name+'</b></div>';
+    if (!first) html += '<hr>';
+    first = false;
+    html += '<div><b>'+name+'</b></div>';
 
     html += '<table class="artifact artifact-'+type+'">';
     html += '<tr><th>Portal</th><th>Details</th></tr>';

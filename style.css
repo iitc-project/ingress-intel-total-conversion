@@ -711,13 +711,11 @@ h3 {
 .linkdetails aside {
   display: inline-block;
   white-space: nowrap;
-  font-size: 12px;
   margin-left: 5px;
   margin-right: 5px;
 }
 
 #toolbox {
-  font-size: 12px;
   text-align: left;    /* centre didn't look as nice here as it did above in .linkdetails */
 }
 
@@ -1039,7 +1037,11 @@ table.artifact tr > * {
 }
 
 table.artifact td.info {
-  min-width: 110px;
+  min-width: 110px; /* min-width for info column, to ensure really long portal names don't crowd things out */
+}
+
+table.artifact .portal {
+  min-width: 200px; /* min-width for portal names, to ensure really long lists of artifacts don't crowd names out */
 }
 
 
