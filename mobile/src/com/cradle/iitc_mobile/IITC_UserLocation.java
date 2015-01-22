@@ -49,8 +49,6 @@ public class IITC_UserLocation implements CompassListener, LocationListener {
             while (orientation > mOrientation + 180)
                 orientation -= 360;
             mOrientation = orientation;
-        } else {
-            mOrientation = 0;
         }
 
         mIitc.getWebView().loadJS("if(window.plugin && window.plugin.userLocation)"
