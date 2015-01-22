@@ -197,7 +197,8 @@ a:hover {
 #chatcontrols a.active {
   border-color: #FFCE00;
   border-bottom-width:0px;
-  font-weight:bold
+  font-weight:bold;
+  background: rgb(8, 48, 78);1
 }
 
 #chatcontrols a.active + a {
@@ -247,9 +248,6 @@ em {
   top: 25px;
 }
 
-#chatpublic, #chatfull, #chatcompact {
-  display: none;
-}
 
 #chat > div {
   overflow-x:hidden;
