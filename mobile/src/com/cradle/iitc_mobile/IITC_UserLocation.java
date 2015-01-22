@@ -1,42 +1,37 @@
 package com.cradle.iitc_mobile;
 
 import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.Surface;
 
-public class IITC_UserLocation implements LocationListener, SensorEventListener {
-    private static final double SENSOR_DELAY_USER = 100 * 1e6; // 100 milliseconds
+import com.cradle.iitc_mobile.compass.AccMagCompass;
+import com.cradle.iitc_mobile.compass.Compass;
+import com.cradle.iitc_mobile.compass.CompassListener;
+
+public class IITC_UserLocation implements CompassListener, LocationListener {
     private static final int TWO_MINUTES = 1000 * 60 * 2;
 
+    private final Compass mCompass;
     private boolean mFollowing = false;
     private final IITC_Mobile mIitc;
     private Location mLastLocation = null;
-    private long mLastUpdate = 0;
     private final LocationManager mLocationManager;
     private boolean mLocationRegistered = false;
     private int mMode = 0;
     private double mOrientation = 0;
     private boolean mOrientationRegistered = false;
     private boolean mRunning = false;
-    private final Sensor mSensorAccelerometer, mSensorMagnetometer;
-    private SensorManager mSensorManager = null;
-    private float[] mValuesGravity = null, mValuesGeomagnetic = null;
 
     public IITC_UserLocation(final IITC_Mobile iitc) {
         mIitc = iitc;
 
+        mCompass = new AccMagCompass(mIitc);
+
         // Acquire a reference to the Location Manager and Sensor Manager
         mLocationManager = (LocationManager) iitc.getSystemService(Context.LOCATION_SERVICE);
-        mSensorManager = (SensorManager) iitc.getSystemService(Context.SENSOR_SERVICE);
-        mSensorAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mSensorMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
     }
 
     // Checks whether two providers are the same
@@ -64,8 +59,8 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
     }
 
     private void updateListeners() {
-        final boolean useLocation = mRunning && mMode != 0;
-        final boolean useOrientation = mRunning && mMode == 2;
+        final boolean useLocation = mRunning && mMode != 0 && !mIitc.isLoading();
+        final boolean useOrientation = useLocation && mMode == 2;
 
         if (useLocation && !mLocationRegistered) {
             try {
@@ -87,14 +82,12 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
             mLocationRegistered = false;
         }
 
-        if (useOrientation && !mOrientationRegistered && mSensorAccelerometer != null && mSensorMagnetometer != null) {
-            mSensorManager.registerListener(this, mSensorAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-            mSensorManager.registerListener(this, mSensorMagnetometer, SensorManager.SENSOR_DELAY_NORMAL);
+        if (useOrientation && !mOrientationRegistered) {
+            mCompass.registerListener(this);
             mOrientationRegistered = true;
         }
-        if (!useOrientation && mOrientationRegistered && mSensorAccelerometer != null && mSensorMagnetometer != null) {
-            mSensorManager.unregisterListener(this, mSensorAccelerometer);
-            mSensorManager.unregisterListener(this, mSensorMagnetometer);
+        if (!useOrientation && mOrientationRegistered) {
+            mCompass.unregisterListener(this);
             mOrientationRegistered = false;
         }
     }
@@ -170,7 +163,27 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
     }
 
     @Override
-    public void onAccuracyChanged(final Sensor sensor, final int accuracy) {
+    public void onCompassChanged(final float x, final float y, final float z) {
+        double orientation = Math.toDegrees(x);
+
+        final int rotation = mIitc.getWindowManager().getDefaultDisplay().getRotation();
+        switch (rotation) {
+            case Surface.ROTATION_90:
+                orientation += 90;
+                break;
+            case Surface.ROTATION_180:
+                orientation += 180;
+                break;
+            case Surface.ROTATION_270:
+                orientation += 270;
+                break;
+        }
+
+        setOrientation(orientation);
+    }
+
+    public void onLoadingStateChanged() {
+        updateListeners();
     }
 
     @Override
@@ -193,48 +206,6 @@ public class IITC_UserLocation implements LocationListener, SensorEventListener 
 
     @Override
     public void onProviderEnabled(final String provider) {
-    }
-
-    @Override
-    public void onSensorChanged(final SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
-            mValuesGravity = event.values;
-        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
-            mValuesGeomagnetic = event.values;
-
-        // save some battery, 10 updates per second should be enough
-        if ((event.timestamp - mLastUpdate) < SENSOR_DELAY_USER) return;
-        mLastUpdate = event.timestamp;
-
-        // do not touch the javascript while iitc boots
-        if (mIitc.isLoading()) return;
-
-        // wait until both sensors have given us an event
-        if (mValuesGravity == null || mValuesGeomagnetic == null) return;
-
-        final float R[] = new float[9];
-        final float I[] = new float[9];
-        final float orientation[] = new float[3];
-
-        if (!SensorManager.getRotationMatrix(R, I, mValuesGravity, mValuesGeomagnetic)) return;
-        SensorManager.getOrientation(R, orientation);
-
-        double direction = orientation[0] / Math.PI * 180;
-
-        final int rotation = mIitc.getWindowManager().getDefaultDisplay().getRotation();
-        switch (rotation) {
-            case Surface.ROTATION_90:
-                direction += 90;
-                break;
-            case Surface.ROTATION_180:
-                direction += 180;
-                break;
-            case Surface.ROTATION_270:
-                direction += 270;
-                break;
-        }
-
-        setOrientation(direction);
     }
 
     public void onStart() {

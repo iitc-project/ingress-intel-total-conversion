@@ -43,7 +43,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
-import com.cradle.iitc_mobile.prefs.PluginPreferenceActivity;
 import com.cradle.iitc_mobile.prefs.PreferenceActivity;
 import com.cradle.iitc_mobile.share.ShareActivity;
 
@@ -723,6 +722,7 @@ public class IITC_Mobile extends Activity
     public void setLoadingState(final boolean isLoading) {
         mIsLoading = isLoading;
         mNavigationHelper.onLoadingStateChanged();
+        mUserLocation.onLoadingStateChanged();
         invalidateOptionsMenu();
         updateViews();
         if (!isLoading) mFileManager.updatePlugins(false);
