@@ -7,7 +7,6 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.Surface;
 
-import com.cradle.iitc_mobile.compass.AccMagCompass;
 import com.cradle.iitc_mobile.compass.Compass;
 import com.cradle.iitc_mobile.compass.CompassListener;
 
@@ -28,7 +27,7 @@ public class IITC_UserLocation implements CompassListener, LocationListener {
     public IITC_UserLocation(final IITC_Mobile iitc) {
         mIitc = iitc;
 
-        mCompass = new AccMagCompass(mIitc);
+        mCompass = Compass.getDefaultCompass(mIitc);
 
         // Acquire a reference to the Location Manager and Sensor Manager
         mLocationManager = (LocationManager) iitc.getSystemService(Context.LOCATION_SERVICE);
