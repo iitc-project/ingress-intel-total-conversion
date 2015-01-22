@@ -7,9 +7,6 @@
   width: 32px;
           transform-origin: center;
   -webkit-transform-origin: center;
-          transition: all 200ms linear;
-     -moz-transition: all 200ms linear;
-  -webkit-transition: all 200ms linear;
 }
 
 .user-location .container .inner,
