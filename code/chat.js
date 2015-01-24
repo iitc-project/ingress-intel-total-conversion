@@ -563,7 +563,7 @@ window.chat.needMoreMessages = function() {
 
 window.chat.chooseTab = function(tab) {
   if (tab != 'all' && tab != 'faction' && tab != 'alerts') {
-    console.warn('chat tab "'+t+'" requested - but only "all", "faction" and "alerts" are valid - assuming "all" wanted');
+    console.warn('chat tab "'+tab+'" requested - but only "all", "faction" and "alerts" are valid - assuming "all" wanted');
     tab = 'all';
   }
 

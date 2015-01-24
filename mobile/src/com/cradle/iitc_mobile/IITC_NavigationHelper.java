@@ -270,20 +270,18 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
             clear();
 
             add(Pane.INFO);
-            add(Pane.FULL);
-            add(Pane.COMPACT);
-            add(Pane.PUBLIC);
+            add(Pane.ALL);
             add(Pane.FACTION);
+            add(Pane.ALERTS);
         }
     }
 
     public static class Pane {
-        public static final Pane COMPACT = new Pane("compact", "Compact", R.drawable.ic_action_view_as_list_compact);
+        public static final Pane ALL = new Pane("all", "All", R.drawable.ic_action_view_as_list);
         public static final Pane FACTION = new Pane("faction", "Faction", R.drawable.ic_action_cc_bcc);
-        public static final Pane FULL = new Pane("full", "Full", R.drawable.ic_action_view_as_list);
+        public static final Pane ALERTS = new Pane("alerts", "Alerts", R.drawable.ic_action_warning);
         public static final Pane INFO = new Pane("info", "Info", R.drawable.ic_action_about);
         public static final Pane MAP = new Pane("map", "Map", R.drawable.ic_action_map);
-        public static final Pane PUBLIC = new Pane("public", "Public", R.drawable.ic_action_group);
 
         private final int icon;
         public String label;
