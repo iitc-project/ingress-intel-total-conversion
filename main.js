@@ -72,14 +72,14 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '<div id="map">Loading, please wait</div>'
   + '<div id="chatcontrols" style="display:none">'
   + '<a accesskey="0" title="[0]"><span class="toggle expand"></span></a>'
-  + '<a accesskey="1" title="[1]">full</a><a accesskey="2" title="[2]">compact</a>'
-  + '<a accesskey="3" title="[3]">public</a><a accesskey="4" title="[4]" class="active">faction</a>'
+  + '<a accesskey="1" title="[1]">all</a>'
+  + '<a accesskey="2" title="[2]" class="active">faction</a>'
+  + '<a accesskey="3" title="[3]">alerts</a>'
   + '</div>'
   + '<div id="chat" style="display:none">'
   + '  <div id="chatfaction"></div>'
-  + '  <div id="chatpublic"></div>'
-  + '  <div id="chatcompact"></div>'
-  + '  <div id="chatfull"></div>'
+  + '  <div id="chatall"></div>'
+  + '  <div id="chatalerts"></div>'
   + '</div>'
   + '<form id="chatinput" style="display:none"><table><tr>'
   + '  <td><time></time></td>'
@@ -136,9 +136,6 @@ window.MAX_IDLE_TIME = 4*60; // stop updating map after 4min idling
 window.HIDDEN_SCROLLBAR_ASSUMED_WIDTH = 20;
 window.SIDEBAR_WIDTH = 300;
 
-// how many items to request each query
-window.CHAT_PUBLIC_ITEMS = 50;
-window.CHAT_FACTION_ITEMS = 50;
 // how many pixels to the top before requesting new data
 window.CHAT_REQUEST_SCROLL_TOP = 200;
 window.CHAT_SHRINKED = 60;
@@ -205,6 +202,7 @@ window.DEG2RAD = Math.PI / 180;
 // getters/setters, but if you are careful enough, this works.
 window.refreshTimeout = undefined;
 window.urlPortal = null;
+window.urlPortalLL = null;
 window.selectedPortal = null;
 window.portalRangeIndicator = null;
 window.portalAccessIndicator = null;
