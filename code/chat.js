@@ -142,6 +142,7 @@ window.chat.requestFaction = function(getOlderMsgs, isRetry) {
   if(chat._requestFactionRunning && !isRetry) return;
   if(isIdle()) return renderUpdateStatus();
   chat._requestFactionRunning = true;
+  $("#chatcontrols a:contains('faction')").addClass('loading');
 
   var d = chat.genPostData('faction', chat._faction, getOlderMsgs);
   var r = window.postAjax(
@@ -158,6 +159,7 @@ window.chat.requestFaction = function(getOlderMsgs, isRetry) {
 window.chat._faction = {data:{}, oldestTimestamp:-1, newestTimestamp:-1};
 window.chat.handleFaction = function(data, olderMsgs) {
   chat._requestFactionRunning = false;
+  $("#chatcontrols a:contains('faction')").removeClass('loading');
 
   if(!data || !data.success) {
     window.failedRequestCount++;
@@ -189,6 +191,7 @@ window.chat.requestPublic = function(getOlderMsgs, isRetry) {
   if(chat._requestPublicRunning && !isRetry) return;
   if(isIdle()) return renderUpdateStatus();
   chat._requestPublicRunning = true;
+  $("#chatcontrols a:contains('all')").addClass('loading');
 
   var d = chat.genPostData('all', chat._public, getOlderMsgs);
   var r = window.postAjax(
@@ -204,6 +207,7 @@ window.chat.requestPublic = function(getOlderMsgs, isRetry) {
 window.chat._public = {data:{}, oldestTimestamp:-1, newestTimestamp:-1};
 window.chat.handlePublic = function(data, olderMsgs) {
   chat._requestPublicRunning = false;
+  $("#chatcontrols a:contains('all')").removeClass('loading');
 
   if(!data || !data.success) {
     window.failedRequestCount++;
@@ -236,6 +240,7 @@ window.chat.requestAlerts = function(getOlderMsgs, isRetry) {
   if(chat._requestAlertsRunning && !isRetry) return;
   if(isIdle()) return renderUpdateStatus();
   chat._requestAlertsRunning = true;
+  $("#chatcontrols a:contains('alerts')").addClass('loading');
 
   var d = chat.genPostData('alerts', chat._alerts, getOlderMsgs);
   var r = window.postAjax(
@@ -252,6 +257,7 @@ window.chat.requestAlerts = function(getOlderMsgs, isRetry) {
 window.chat._alerts = {data:{}, oldestTimestamp:-1, newestTimestamp:-1};
 window.chat.handleAlerts = function(data, olderMsgs) {
   chat._requestAlertsRunning = false;
+  $("#chatcontrols a:contains('alerts')").removeClass('loading');
 
   if(!data || !data.success) {
     window.failedRequestCount++;

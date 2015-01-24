@@ -198,7 +198,7 @@ a:hover {
   border-color: #FFCE00;
   border-bottom-width:0px;
   font-weight:bold;
-  background: rgb(8, 48, 78);1
+  background: rgb(8, 48, 78);
 }
 
 #chatcontrols a.active + a {
@@ -219,6 +219,32 @@ a:hover {
 #chatcontrols .shrink {
   border-top: 10px solid #FFCE00;
 }
+
+#chatcontrols .loading {
+  background-color: rgba(255,0,0,0.3);
+  -webkit-animation: chatloading 1.2s infinite linear;
+  -moz-animation: chatloading 1.2s infinite linear;
+  animation: chatloading 1.2s infinite linear;
+}
+
+@-webkit-keyframes chatloading {
+    0% { background-color: rgba(255,0,0,0.4) }
+   50% { background-color: rgba(255,0,0,0.1) }
+  100% { background-color: rgba(255,0,0,0.4) }
+}
+
+@-moz-keyframes chatloading {
+    0% { background-color: rgba(255,0,0,0.4) }
+   50% { background-color: rgba(255,0,0,0.1) }
+  100% { background-color: rgba(255,0,0,0.4) }
+}
+
+@keyframes chatloading {
+    0% { background-color: rgba(255,0,0,0.4) }
+   50% { background-color: rgba(255,0,0,0.1) }
+  100% { background-color: rgba(255,0,0,0.4) }
+}
+
 
 
 #chat {
