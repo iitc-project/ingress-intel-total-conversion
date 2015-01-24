@@ -530,7 +530,6 @@ window.chat.request = function() {
     chat.requestFaction(false);
   }
   if (channel == 'all' || (window.chat.backgroundChannels && window.chat.backgroundChannels['all'])) {
-    // the 'public', 'full' and 'compact' tabs are all based off the 'public' COMM data
     chat.requestPublic(false);
   }
   if (channel == 'alerts' || (window.chat.backgroundChannels && window.chat.backgroundChannels['alerts'])) {
