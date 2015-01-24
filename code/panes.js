@@ -7,10 +7,9 @@ window.show = function(id) {
 
   switch(id) {
     case 'all':
-      window.chat.show('all');
-      break;
     case 'faction':
-      window.chat.show('faction');
+    case 'alerts':
+      window.chat.show(id);
       break;
     case 'alerts':
       window.chat.show('alerts');
