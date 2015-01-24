@@ -16,10 +16,9 @@ public abstract class Compass
             return new GyroCompass(context);
         else
             return new AccMagCompass(context);
-
     }
-    private final ArrayList<CompassListener> mListeners = new ArrayList<CompassListener>();
 
+    private final ArrayList<CompassListener> mListeners = new ArrayList<CompassListener>();
     private boolean mStarted = false;
 
     protected abstract void onStart();
