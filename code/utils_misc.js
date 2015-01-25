@@ -269,6 +269,23 @@ window.zoomToAndShowPortal = function(guid, latlng) {
     urlPortal = guid;
 }
 
+window.selectPortalByLatLng = function(lat, lng) {
+  if(lng === undefined && lat instanceof Array) {
+    lng = lat[1];
+    lat = lat[0];
+  }
+  for(var guid in window.portals) {
+    var latlng = window.portals[guid].getLatLng();
+    if(latlng.lat == lat && latlng.lng == lng) {
+      renderPortalDetails(guid);
+      return;
+    }
+  }
+
+  // not currently visible
+  urlPortalLL = [lat, lng];
+  map.setView(urlPortalLL, 17);
+};
 
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();

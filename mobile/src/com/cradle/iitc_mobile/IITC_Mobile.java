@@ -43,7 +43,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
-import com.cradle.iitc_mobile.prefs.PluginPreferenceActivity;
 import com.cradle.iitc_mobile.prefs.PreferenceActivity;
 import com.cradle.iitc_mobile.share.ShareActivity;
 
@@ -265,15 +264,6 @@ public class IITC_Mobile extends Activity
                             .create()
                             .show();
                 }
-            }
-
-            // intent MIME type and uri path may be null
-            final String type = intent.getType() == null ? "" : intent.getType();
-            final String path = uri.getPath() == null ? "" : uri.getPath();
-            if (path.endsWith(".user.js") || type.contains("javascript")) {
-                final Intent prefIntent = new Intent(this, PluginPreferenceActivity.class);
-                prefIntent.setDataAndType(uri, intent.getType());
-                startActivity(prefIntent);
             }
         }
 
@@ -732,6 +722,7 @@ public class IITC_Mobile extends Activity
     public void setLoadingState(final boolean isLoading) {
         mIsLoading = isLoading;
         mNavigationHelper.onLoadingStateChanged();
+        mUserLocation.onLoadingStateChanged();
         invalidateOptionsMenu();
         updateViews();
         if (!isLoading) mFileManager.updatePlugins(false);

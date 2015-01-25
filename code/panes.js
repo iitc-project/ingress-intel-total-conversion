@@ -6,17 +6,10 @@ window.show = function(id) {
   runHooks("paneChanged", id);
 
   switch(id) {
-    case 'full':
-      window.chat.show('full');
-      break;
-    case 'compact':
-      window.chat.show('compact');
-      break;
-    case 'public':
-      window.chat.show('public');
-      break;
+    case 'all':
     case 'faction':
-      window.chat.show('faction');
+    case 'alerts':
+      window.chat.show(id);
       break;
     case 'debug':
       window.debug.console.show();

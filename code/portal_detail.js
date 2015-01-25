@@ -50,24 +50,24 @@ var handleResponse = function(guid, data, success) {
     };
   }
 
-  var dict = {
-    raw:       data.result,
-    type:      data.result[0],
-    team:      data.result[1],
-    latE6:     data.result[2],
-    lngE6:     data.result[3],
-    level:     data.result[4],
-    health:    data.result[5],
-    resCount:  data.result[6],
-    image:     data.result[7],
-    title:     data.result[8],
-    ornaments: data.result[9],
-    mods:      data.result[10].map(parseMod),
-    resonators:data.result[11].map(parseResonator),
-    owner:     data.result[12],
-  };
-
   if (success) {
+    var dict = {
+      raw:       data.result,
+      type:      data.result[0],
+      team:      data.result[1],
+      latE6:     data.result[2],
+      lngE6:     data.result[3],
+      level:     data.result[4],
+      health:    data.result[5],
+      resCount:  data.result[6],
+      image:     data.result[7],
+      title:     data.result[8],
+      ornaments: data.result[9],
+      mods:      data.result[10].map(parseMod),
+      resonators:data.result[11].map(parseResonator),
+      owner:     data.result[12],
+    };
+
     cache.store(guid,dict);
 
     //FIXME..? better way of handling sidebar refreshing...
