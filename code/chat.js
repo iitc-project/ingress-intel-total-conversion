@@ -604,7 +604,7 @@ window.chat.chooseTab = function(tab) {
       input.css('cssText', 'color: #bbb !important');
       mark.text('tell Jarvis:');
 
-      //chat.renderAlerts(false);
+      chat.renderAlerts(false);
       break;
 
     default:
