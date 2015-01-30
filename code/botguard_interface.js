@@ -144,9 +144,9 @@ iitc_bg.get_method_group = function(method) {
 //}
 
   if (window.niantic_params.botguard_group_a_methods.indexOf(method) != -1) {
-    return "group-a-actions";
+    return "ingress-a-actions";
   } else {
-    return "group-b-actions";
+    return "ingress-b-actions";
   }
 };
 

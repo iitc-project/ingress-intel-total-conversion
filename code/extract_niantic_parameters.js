@@ -12,7 +12,7 @@ window.extractFromStock = function() {
   // we also extract all top-level arrays of strings, for botguard
   var arrays = [];
 
-  var minified = new RegExp('^[a-zA-Z][a-zA-Z0-9]$');
+  var minified = new RegExp('^[a-zA-Z$][a-zA-Z$0-9]$');
 
   for (var topLevel in window) {
     if (minified.test(topLevel)) {
