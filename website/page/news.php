@@ -1,5 +1,13 @@
 <h2>News</h2>
 
+<h4>30th January 2015</h4>
+<p>
+IITC 0.21.0 has just been released. This is a critical update needed to fix things after a Niantic site update.
+</p>
+<p>
+Also, a few bug fixes are included since the previous release, but no major updates.
+</p>
+
 <h4>25th January 2015</h4>
 <p>
 IITC 0.20.1 has been released. This is an important release that changes how the COMM tabs work,
