@@ -50,6 +50,10 @@ var handleResponse = function(guid, data, success) {
     };
   }
 
+  if (data.error || !data.result) {
+    success = false;
+  }
+
   if (success) {
     var dict = {
       raw:       data.result,
@@ -75,9 +79,18 @@ var handleResponse = function(guid, data, success) {
     if (guid == selectedPortal) {
       renderPortalDetails(guid);
     }
+
+    window.runHooks ('portalDetailLoaded', {guid:guid, success:success, details:dict});
+
+  } else {
+    if (data.error == "RETRY") {
+      // server asked us to try again
+      portalDetail.request(guid);
+    } else {
+      window.runHooks ('portalDetailLoaded', {guid:guid, success:success});
+    }
   }
 
-  window.runHooks ('portalDetailLoaded', {guid:guid, success:success, details:dict});
 }
 
 window.portalDetail.request = function(guid) {
