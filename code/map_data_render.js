@@ -5,15 +5,6 @@
 
 window.Render = function() {
 
-  // when there are lots of portals close together, we only add some of them to the map
-  // the idea is to keep the impression of the dense set of portals, without rendering them all
-  this.CLUSTER_SIZE = L.Browser.mobile ? 16 : 8;  // the map is divided into squares of this size in pixels for clustering purposes. mobile uses larger markers, so therefore larger clustering areas
-  this.CLUSTER_PORTAL_LIMIT = 4; // no more than this many portals are drawn in each cluster square
-
-  // link length, in pixels, to be visible. use the portal cluster size, as shorter than this is likely hidden
-  // under the portals
-  this.LINK_VISIBLE_PIXEL_LENGTH = this.CLUSTER_SIZE;
-
   this.portalMarkerScale = undefined;
 }
 
@@ -31,9 +22,6 @@ window.Render.prototype.startRenderPass = function(level,bounds) {
   this.bounds = bounds;
 
   this.clearPortalsBelowLevel(level);
-
-  this.resetPortalClusters();
-  this.resetLinkVisibility();
 
   this.rescalePortalMarkers();
 }
@@ -188,6 +176,7 @@ window.Render.prototype.deleteEntity = function(guid) {
 window.Render.prototype.deletePortalEntity = function(guid) {
   if (guid in window.portals) {
     var p = window.portals[guid];
+    window.ornaments.removePortal(p);
     this.removePortalFromMapLayer(p);
     delete window.portals[guid];
   }
@@ -196,9 +185,7 @@ window.Render.prototype.deletePortalEntity = function(guid) {
 window.Render.prototype.deleteLinkEntity = function(guid) {
   if (guid in window.links) {
     var l = window.links[guid];
-    if (linksFactionLayers[l.options.team].hasLayer(l)) {
-      linksFactionLayers[l.options.team].removeLayer(l);
-    }
+    linksFactionLayers[l.options.team].removeLayer(l);
     delete window.links[guid];
   }
 }
@@ -301,6 +288,8 @@ window.Render.prototype.createPortalEntity = function(ent) {
     console.log('portal guid '+ent[0]+' is the selected portal - re-rendering portal details');
     renderPortalDetails (selectedPortal);
   }
+
+  window.ornaments.addPortal(marker);
 
   //TODO? postpone adding to the map layer
   this.addPortalToMapLayer(marker);
@@ -409,10 +398,7 @@ window.Render.prototype.createLinkEntity = function(ent,faked) {
 
   window.links[ent[0]] = poly;
 
-  // only add the link to the layer if it's long enough to be seen
-  if (this.linkVisible(poly)) {
-    linksFactionLayers[poly.options.team].addLayer(poly);
-  }
+  linksFactionLayers[poly.options.team].addLayer(poly);
 }
 
 
@@ -431,152 +417,14 @@ window.Render.prototype.rescalePortalMarkers = function() {
 
 
 
-// portal clustering functionality
-
-window.Render.prototype.resetPortalClusters = function() {
-
-  this.portalClusters = {};
-
-  // first, place the portals into the clusters
-  for (var pguid in window.portals) {
-    var p = window.portals[pguid];
-    var cid = this.getPortalClusterID(p);
-
-    if (!(cid in this.portalClusters)) this.portalClusters[cid] = [];
-
-    this.portalClusters[cid].push(pguid);
-  }
-
-  // now, for each cluster, sort by some arbitrary data (the level+guid will do), and display the first CLUSTER_PORTAL_LIMIT
-  for (var cid in this.portalClusters) {
-    var c = this.portalClusters[cid];
-
-    c.sort(function(a,b) {
-      var ka = (8-portals[a].options.level)+a;
-      var kb = (8-portals[b].options.level)+b;
-      if (ka<kb) return -1;
-      else if (ka>kb) return 1;
-      else return 0;
-    });
-
-    for (var i=0; i<c.length; i++) {
-      var guid = c[i];
-      var p = window.portals[guid];
-      var layerGroup = portalsFactionLayers[parseInt(p.options.level)][p.options.team];
-      if ((i<this.CLUSTER_PORTAL_LIMIT || p.options.guid == selectedPortal || artifact.isInterestingPortal(p.options.guid) || ornaments.isInterestingPortal(p)) && this.bounds.contains(p.getLatLng())) {
-        if (!layerGroup.hasLayer(p)) {
-          layerGroup.addLayer(p);
-        }
-      } else {
-        if (layerGroup.hasLayer(p)) {
-          layerGroup.removeLayer(p);
-        }
-      }
-    }
-  }
-
-}
-
-// add the portal to the visible map layer unless we pass the cluster limits
+// add the portal to the visible map layer
 window.Render.prototype.addPortalToMapLayer = function(portal) {
-
-  var cid = this.getPortalClusterID(portal);
-
-  if (!(cid in this.portalClusters)) this.portalClusters[cid] = [];
-
-  this.portalClusters[cid].push(portal.options.guid);
-
-  window.ornaments.addPortal(portal);
-
-  // now, at this point, we could match the above re-cluster code - sorting, and adding/removing as necessary
-  // however, it won't make a lot of visible difference compared to just pushing to the end of the list, then
-  // adding to the visible layer if the list is below the limit
-  if(this.portalClusters[cid].length < this.CLUSTER_PORTAL_LIMIT
-  || portal.options.guid == selectedPortal
-  || artifact.isInterestingPortal(portal.options.guid)
-  || ornaments.isInterestingPortal(portal)) {
-    if (this.bounds.contains(portal.getLatLng())) {
-      portalsFactionLayers[parseInt(portal.options.level)][portal.options.team].addLayer(portal);
-    }
-  }
+  portalsFactionLayers[parseInt(portal.options.level)][portal.options.team].addLayer(portal);
 }
 
 window.Render.prototype.removePortalFromMapLayer = function(portal) {
-
   //remove it from the portalsLevels layer
   portalsFactionLayers[parseInt(portal.options.level)][portal.options.team].removeLayer(portal);
-
-  window.ornaments.removePortal(portal);
-
-  // and ensure there's no mention of the portal in the cluster list
-  var cid = this.getPortalClusterID(portal);
-
-  if (cid in this.portalClusters) {
-    var index = this.portalClusters[cid].indexOf(portal.options.guid);
-    if (index >= 0) {
-      this.portalClusters[cid].splice(index,1);
-      // FIXME? if this portal was in on the screen (in the first 10), and we still have 10+ portals, add the new 10th to the screen?
-    }
-  }
-}
-
-window.Render.prototype.getPortalClusterID = function(portal) {
-  // project the lat/lng into absolute map pixels
-  var z = map.getZoom();
-
-  var point = map.project(portal.getLatLng(), z);
-
-  var clusterpoint = point.divideBy(this.CLUSTER_SIZE).round();
-
-  return z+":"+clusterpoint.x+":"+clusterpoint.y;
 }
 
 
-
-window.Render.prototype.linkVisible = function(link) {
-
-  if (!this.bounds.intersects(link.getBounds())) {
-    return false;
-  }
-
-  var lengthSquared = this.getLinkPixelLengthSquared (link);
-
-  return lengthSquared >= this.LINK_VISIBLE_PIXEL_LENGTH*this.LINK_VISIBLE_PIXEL_LENGTH;
-}
-
-
-window.Render.prototype.resetLinkVisibility = function() {
-
-  for (var guid in window.links) {
-    var link = window.links[guid];
-
-    var visible = this.linkVisible(link);
-
-    if (visible) {
-      if (!linksFactionLayers[link.options.team].hasLayer(link)) linksFactionLayers[link.options.team].addLayer(link);
-    } else {
-      if (linksFactionLayers[link.options.team].hasLayer(link)) linksFactionLayers[link.options.team].removeLayer(link);
-    }
-  }
-}
-
-
-window.Render.prototype.getLinkPixelLengthSquared = function(link) {
-  var z = map.getZoom();
-
-  var latLngs = link.getLatLngs();
-  if (latLngs.length != 2) {
-    console.warn ('Link had '+latLngs.length+' points - expected 2!');
-    return undefined;
-  }
-
-  var point0 = map.project(latLngs[0]);
-  var point1 = map.project(latLngs[1]);
-
-  var dx = point0.x - point1.x;
-  var dy = point0.y - point1.y;
-
-  var lengthSquared = (dx*dx)+(dy*dy);
-
-  return lengthSquared;
-}
