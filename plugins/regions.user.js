@@ -2,7 +2,7 @@
 // @id             iitc-plugin-regions@jonatkins
 // @name           IITC plugin: Show the local score regions
 // @category       Layer
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -205,10 +205,11 @@ window.plugin.regions.drawCell = function(cell) {
 
       var newpos = L.latLng(newlat,newlng);
 
-      // ensure the new centre point is within the corners
-      var cornerbounds = L.latLngBounds([corners[0],corners[1]]).extend(corners[2]).extend(corners[3]);
-
-      if (cornerbounds.contains(newpos)) center=newpos;
+      // ensure the new position is still within the same cell
+      var newposcell = S2.S2Cell.FromLatLng ( newpos, 6 );
+      if ( newposcell.toString() == cell.toString() ) {
+        center=newpos;
+      }
       // else we leave the name where it was - offscreen
     }
   }
