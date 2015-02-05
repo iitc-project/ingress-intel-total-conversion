@@ -486,7 +486,10 @@ h2 sup, h2 sub {
 
 
 /* geosearch input, and others */
-input:not([type]), input[type="text"] {
+input:not([type]), .input,
+input[type="text"], input[type="password"],
+input[type="number"], input[type="email"],
+input[type="search"], input[type="url"] {
   background-color: rgba(0, 0, 0, 0.3);
   color: #ffce00;
   height: 24px;
