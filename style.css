@@ -486,7 +486,7 @@ h2 sup, h2 sub {
 
 
 /* geosearch input, and others */
-input {
+input:not([type]), input[type="text"] {
   background-color: rgba(0, 0, 0, 0.3);
   color: #ffce00;
   height: 24px;
