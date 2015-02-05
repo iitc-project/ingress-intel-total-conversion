@@ -880,6 +880,7 @@ h3 {
   cursor: pointer;
   border: 1px solid rgb(32, 168, 177);
   background-color: rgba(0, 0, 0, 0);
+  padding: 0;
 }
 
 .ui-dialog-titlebar-button:active {
@@ -899,7 +900,34 @@ h3 {
 }
 
 .ui-dialog-titlebar-button-collapse-collapsed {
-   background-color: rgb(32, 168, 177);
+  background-color: rgb(32, 168, 177);
+}
+
+.ui-dialog-titlebar-button-collapse::after,
+.ui-dialog-titlebar-button-close::after,
+.ui-dialog-titlebar-button-close::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  width: 11px;
+  margin-left: -6px;
+  height: 0;
+  border-top: 2px solid rgb(32, 168, 177);
+}
+.ui-dialog-titlebar-button-close::after {
+  transform: translateY(3.5px) rotate(45deg);
+}
+.ui-dialog-titlebar-button-close::before {
+  transform: translateY(3.5px) rotate(-45deg);
+}
+.ui-dialog-titlebar-button.ui-state-active::after,
+.ui-dialog-titlebar-button.ui-state-active::before,
+.ui-dialog-titlebar-button.ui-dialog-titlebar-button-collapse-collapsed::after,
+.ui-dialog-titlebar-button.ui-dialog-titlebar-button-collapse-collapsed::before,
+.ui-dialog-titlebar-button:active::after,
+.ui-dialog-titlebar-button:active::before {
+  border-top-color: rgba(8, 60, 78, 0.9);
 }
 
 .ui-dialog-content {
