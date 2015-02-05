@@ -156,7 +156,7 @@ window.plugin.linkShowDirection.showDialog = function() {
 };
 
 window.plugin.linkShowDirection.setup  = function() {
-  $('#toolbox').append(' <a onclick="window.plugin.linkShowDirection.showDialog()">link direction</a>');
+  $('#toolbox').append(' <a onclick="window.plugin.linkShowDirection.showDialog()">LinkDirection Opt</a>');
 
   addHook('linkAdded', function(data) { window.plugin.linkShowDirection.addLinkStyle(data.link); });
 
