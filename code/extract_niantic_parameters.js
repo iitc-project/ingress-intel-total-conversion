@@ -4,7 +4,9 @@
 
 window.extractFromStock = function() {
   window.niantic_params = {}
+  window.niantic_params.botguard_group_a_methods = [];
 
+  var methods = ['artifacts', 'getGameScore', 'getPlexts', 'getPortalDetails', 'redeemReward', 'sendInviteEmail', 'sendPlext'];
 
   // extract the former nemesis.dashboard.config.CURRENT_VERSION from the code
   var reVersion = new RegExp('[a-z]=[a-z].getData\\(\\);[a-z].v="([a-f0-9]{40})";');
@@ -14,19 +16,31 @@ window.extractFromStock = function() {
 
   var minified = new RegExp('^[a-zA-Z$][a-zA-Z$0-9]$');
 
+  // required for botguard
+  var requestPrototype = (function() {
+    for(var topLevel in window) {
+      if(!window[topLevel]) continue;
+      // need an example for a request object
+      for(var property in window[topLevel]) {
+        if(window[topLevel][property] == "getRegionScoreDetails") {
+          return Object.getPrototypeOf(window[topLevel]);
+        }
+      }
+    }
+  })();
+
   for (var topLevel in window) {
     if (minified.test(topLevel)) {
       // a minified object - check for minified prototype entries
 
-      if (window[topLevel] && window[topLevel].prototype) {
+      var topObject = window[topLevel];
+      if (topObject && topObject.prototype) {
 
         // the object has a prototype - iterate through the properties of that
-        for (var secLevel in window[topLevel].prototype) {
+        for (var secLevel in topObject.prototype) {
           if (minified.test(secLevel)) {
-
             // looks like we've found an object of the format "XX.prototype.YY"...
-
-            var item = window[topLevel].prototype[secLevel];
+            var item = topObject.prototype[secLevel];
 
             if (item && typeof(item) == "function") {
               // a function - test it against the relevant regular expressions
@@ -37,63 +51,74 @@ window.extractFromStock = function() {
                 console.log('Found former CURRENT_VERSION in '+topLevel+'.prototype.'+secLevel);
                 niantic_params.CURRENT_VERSION = match[1];
               }
-
             }
-
           }
         }
-
       } //end 'if .prototype'
 
-
+      
       // finding the required method names for the botguard interface code
-      if (window[topLevel] && Object.prototype.toString.call(window[topLevel]) == "[object Array]") {
-        // look for all arrays in the top-level namespace
+      if(topObject && Object.getPrototypeOf(topObject) == requestPrototype) {
+        var methodKey = Object
+          .keys(topObject)
+          .filter(function(key) { return typeof key == "string"; })[0];
 
-        var arr = window[topLevel];
-        var onlyStrings = true;
-        if (arr.length > 0) {
-          for (var i in arr) {
-            if (Object.prototype.toString.call(arr[i]) != "[object String]") {
-              onlyStrings = false;
-              break;
-            }
+        for(var secLevel in topObject) {
+          if(typeof topObject[secLevel] == "boolean" && topObject[secLevel]) {
+            window.niantic_params.botguard_group_a_methods.push(topObject[methodKey]);
           }
-          if (onlyStrings) {
-            arrays.push(arr);
+          if(typeof topObject[secLevel] == "boolean" && !topObject[secLevel]) {
+            console.info("b-action:", topObject[methodKey]);
           }
         }
-
       }
+
+      // if (window[topLevel] && Object.prototype.toString.call(window[topLevel]) == "[object Array]") {
+      //   // look for all arrays in the top-level namespace
+
+      //   var arr = window[topLevel];
+      //   var onlyStrings = true;
+      //   if (arr.length > 0) {
+      //     for (var i in arr) {
+      //       if (Object.prototype.toString.call(arr[i]) != "[object String]") {
+      //         onlyStrings = false;
+      //         break;
+      //       }
+      //     }
+      //     if (onlyStrings) {
+      //       arrays.push(arr);
+      //     }
+      //   }
+
+      // }
 
     }
   }
+
 
   // we extracted a list of string arrays. now, we need to find which ones we want to use
   // there are two. both contain a list of method names - one is the list of methods protected by either
   // botguard group-a or group-b, while the others is just a list of those in one group
 
 //  window.niantic_params.botguard_protected_methods = [];
-  window.niantic_params.botguard_group_a_methods = [];
 
-  var countMethods = function(arr) {
-    var methods = ['artifacts', 'getGameScore', 'getPlexts', 'getPortalDetails', 'redeemReward', 'sendInviteEmail', 'sendPlext'];
-    var count = 0;
-    for (var j in arr) {
-      if (methods.indexOf(arr[j]) != -1) {
-        count++;
-      }
-    }
-    return count;
-  }
+  //var countMethods = function(arr) {
+  //  var count = 0;
+  //  for (var j in arr) {
+  //    if (methods.indexOf(arr[j]) != -1) {
+  //      count++;
+  //    }
+  //  }
+  //  return count;
+  //}
 
 //  var protectedMethodsCount = 0;
-  var groupMethodsCount = 0;
-
-  for (var i in arrays) {
-    var arr = arrays[i];
-    var arrCount = countMethods(arr);
-
+//  var groupMethodsCount = 0;
+//
+//  for (var i in arrays) {
+//    var arr = arrays[i];
+//    var arrCount = countMethods(arr);
+//
 //    if (arrCount > protectedMethodsCount) {
 //      // longest found - copy any existing longest to the 2nd longest
 //
@@ -105,13 +130,13 @@ window.extractFromStock = function() {
 //      protectedMethodsCount = arrCount;
 //
 //    } else
-    if (arrCount > groupMethodsCount) {
-      // 2nd longest - store
-      window.niantic_params.botguard_group_a_methods = arr;
-      groupMethodsCount = arrCount;
-    }
-
-  }
+//    if (arrCount > groupMethodsCount) {
+//      // 2nd longest - store
+//      window.niantic_params.botguard_group_a_methods = arr;
+//      groupMethodsCount = arrCount;
+//    }
+//
+//  }
 
 
   if (niantic_params.CURRENT_VERSION === undefined || window.niantic_params.botguard_group_a_methods.length == 0) {
