@@ -58,7 +58,7 @@ window.extractFromStock = function() {
 
       
       // finding the required method names for the botguard interface code
-      if(topObject && Object.getPrototypeOf(topObject) == requestPrototype) {
+      if(topObject && typeof topObject == "object" && Object.getPrototypeOf(topObject) == requestPrototype) {
         var methodKey = Object
           .keys(topObject)
           .filter(function(key) { return typeof key == "string"; })[0];
