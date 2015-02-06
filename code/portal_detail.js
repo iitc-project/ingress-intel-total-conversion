@@ -67,9 +67,10 @@ var handleResponse = function(guid, data, success) {
       image:     data.result[7],
       title:     data.result[8],
       ornaments: data.result[9],
-      mods:      data.result[10].map(parseMod),
-      resonators:data.result[11].map(parseResonator),
-      owner:     data.result[12],
+      // what's [10]?
+      mods:      data.result[11].map(parseMod),
+      resonators:data.result[12].map(parseResonator),
+      owner:     data.result[13],
     };
 
     cache.store(guid,dict);
