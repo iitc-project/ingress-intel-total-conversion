@@ -41,8 +41,6 @@ iitc_bg.init = function() {
   // to initialise, we need four things
   // B - a key(?). set in the main web page HTML, name isn't changed on site updates
   // CS - initialisation data for botguard - again in the main page, again name is constant
-  // a list of method names to protect. varies on site updates (sometimes) - in window.niantic_params.botguard_protected_methods
-  // a (smaller) list of methods for group a - in window.niantic_params.botguard_group_a_methods
 
 
   var botguard_key = B;
@@ -143,7 +141,11 @@ iitc_bg.get_method_group = function(method) {
 //  return -1 != ig.indexOf(a) ? "group-a-actions" : "group-b-actions";
 //}
 
-  if (window.niantic_params.botguard_group_a_methods.indexOf(method) != -1) {
+  if (window.niantic_params.botguard_method_group_flag[method] === undefined) {
+    throw 'Error: method '+method+' not found in the botguard_method_group_flag object';
+  }
+
+  if (window.niantic_params.botguard_method_group_flag[method]) {
     return "ingress-a-actions";
   } else {
     return "ingress-b-actions";

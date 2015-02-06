@@ -4,9 +4,8 @@
 
 window.extractFromStock = function() {
   window.niantic_params = {}
-  window.niantic_params.botguard_group_a_methods = [];
 
-  var methods = ['artifacts', 'getGameScore', 'getPlexts', 'getPortalDetails', 'redeemReward', 'sendInviteEmail', 'sendPlext'];
+  window.niantic_params.botguard_method_group_flag = {};
 
   // extract the former nemesis.dashboard.config.CURRENT_VERSION from the code
   var reVersion = new RegExp('[a-z]=[a-z].getData\\(\\);[a-z].v="([a-f0-9]{40})";');
@@ -56,90 +55,25 @@ window.extractFromStock = function() {
         }
       } //end 'if .prototype'
 
-      
       // finding the required method names for the botguard interface code
-      if(topObject && Object.getPrototypeOf(topObject) == requestPrototype) {
+      if(topObject && typeof topObject == "object" && Object.getPrototypeOf(topObject) == requestPrototype) {
         var methodKey = Object
           .keys(topObject)
           .filter(function(key) { return typeof key == "string"; })[0];
 
         for(var secLevel in topObject) {
-          if(typeof topObject[secLevel] == "boolean" && topObject[secLevel]) {
-            window.niantic_params.botguard_group_a_methods.push(topObject[methodKey]);
-          }
-          if(typeof topObject[secLevel] == "boolean" && !topObject[secLevel]) {
-            console.info("b-action:", topObject[methodKey]);
+          if(typeof topObject[secLevel] == "boolean") {
+            window.niantic_params.botguard_method_group_flag[topObject[methodKey]] = topObject[secLevel];
           }
         }
       }
 
-      // if (window[topLevel] && Object.prototype.toString.call(window[topLevel]) == "[object Array]") {
-      //   // look for all arrays in the top-level namespace
-
-      //   var arr = window[topLevel];
-      //   var onlyStrings = true;
-      //   if (arr.length > 0) {
-      //     for (var i in arr) {
-      //       if (Object.prototype.toString.call(arr[i]) != "[object String]") {
-      //         onlyStrings = false;
-      //         break;
-      //       }
-      //     }
-      //     if (onlyStrings) {
-      //       arrays.push(arr);
-      //     }
-      //   }
-
-      // }
 
     }
   }
 
 
-  // we extracted a list of string arrays. now, we need to find which ones we want to use
-  // there are two. both contain a list of method names - one is the list of methods protected by either
-  // botguard group-a or group-b, while the others is just a list of those in one group
-
-//  window.niantic_params.botguard_protected_methods = [];
-
-  //var countMethods = function(arr) {
-  //  var count = 0;
-  //  for (var j in arr) {
-  //    if (methods.indexOf(arr[j]) != -1) {
-  //      count++;
-  //    }
-  //  }
-  //  return count;
-  //}
-
-//  var protectedMethodsCount = 0;
-//  var groupMethodsCount = 0;
-//
-//  for (var i in arrays) {
-//    var arr = arrays[i];
-//    var arrCount = countMethods(arr);
-//
-//    if (arrCount > protectedMethodsCount) {
-//      // longest found - copy any existing longest to the 2nd longest
-//
-//      window.niantic_params.botguard_group_a_methods = window.niantic_params.botguard_protected_methods;
-//      groupMethodsCount = protectedMethodsCount;
-//
-//      //... and set the longest
-//      window.niantic_params.botguard_protected_methods = arr;
-//      protectedMethodsCount = arrCount;
-//
-//    } else
-//    if (arrCount > groupMethodsCount) {
-//      // 2nd longest - store
-//      window.niantic_params.botguard_group_a_methods = arr;
-//      groupMethodsCount = arrCount;
-//    }
-//
-//  }
-
-
-  if (niantic_params.CURRENT_VERSION === undefined || window.niantic_params.botguard_group_a_methods.length == 0) {
+  if (niantic_params.CURRENT_VERSION === undefined || Object.keys(window.niantic_params.botguard_method_group_flag).length == 0) {
     dialog({
       title: 'IITC Broken',
       html: '<p>IITC failed to extract the required parameters from the intel site</p>'
