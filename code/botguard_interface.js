@@ -114,8 +114,8 @@ iitc_bg.process_key = function(key,serverEval) {
       // (but this is only when we don't send the correct params to the server? no reports of this code triggering yet...)
       try {
         console.warn('botguard: Server-generated javascript eval requested:\n'+serverEval);
-//debugger;
-//if (!confirm('The server asked IITC to run (eval) some javascript. This may or may not be safe. Run and continue?\n\nScript:\n'+serverEval)) { console.error('server javascript eval cancelled') } else
+debugger;
+if (!confirm('The server asked IITC to run (eval) some javascript. This may or may not be safe. Run and continue?\n\nScript:\n'+serverEval)) { console.error('server javascript eval cancelled') } else
         iitc_bg.evalFunc(serverEval);
         console.log('botguard: Server-generated javascript ran OK');
       } catch(e) {
