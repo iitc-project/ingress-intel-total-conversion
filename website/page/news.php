@@ -1,5 +1,11 @@
 <h2>News</h2>
 
+<h4>7th Febuarh 2015</h4>
+<p>
+IITC 0.21.1 has just been released. This is (yet another) critical update required to work with internal changes to the
+stock intel site.
+</p>
+
 <h4>30th January 2015</h4>
 <p>
 IITC 0.21.0 has just been released. This is a critical update needed to fix things after a Niantic site update.
