@@ -35,3 +35,6 @@ local.properties
 
 # Proguard logs
 proguard_logs/
+
+# Gradle runtime
+.gradle

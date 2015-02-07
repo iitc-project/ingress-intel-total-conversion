@@ -59,8 +59,8 @@ dateTimeVersion = time.strftime('%Y%m%d.',utcTime) + time.strftime('%H%M%S',utcT
 resourceUrlBase = settings.get('resourceUrlBase')
 distUrlBase = settings.get('distUrlBase')
 buildMobile = settings.get('buildMobile')
-antOptions = settings.get('antOptions','')
-antBuildFile = settings.get('antBuildFile', 'mobile/build.xml');
+gradleOptions = settings.get('gradleOptions','')
+gradleBuildFile = settings.get('gradleBuildFile', 'mobile/build.gradle');
 
 
 # plugin wrapper code snippets. handled as macros, to ensure that
@@ -278,20 +278,21 @@ if buildMobile:
         pass
     shutil.copytree(os.path.join(outDir,"plugins"), "mobile/assets/plugins",
             # do not include desktop-only plugins to mobile assets
-            ignore=shutil.ignore_patterns('*.meta.js',
+            ignore = shutil.ignore_patterns('*.meta.js',
             'force-https*', 'speech-search*', 'basemap-cloudmade*',
             'scroll-wheel-zoom-disable*'))
 
 
     if buildMobile != 'copyonly':
         # now launch 'ant' to build the mobile project
-        retcode = os.system("ant %s -buildfile %s %s" % (antOptions, antBuildFile, buildMobile))
+        buildAction = "assemble" + buildMobile.capitalize()
+        retcode = os.system("mobile/gradlew %s -b %s %s" % (gradleOptions, gradleBuildFile, buildAction))
 
         if retcode != 0:
-            print ("Error: mobile app failed to build. ant returned %d" % retcode)
+            print ("Error: mobile app failed to build. gradlew returned %d" % retcode)
             exit(1) # ant may return 256, but python seems to allow only values <256
         else:
-            shutil.copy("mobile/bin/IITC_Mobile-%s.apk" % buildMobile, os.path.join(outDir,"IITC_Mobile-%s.apk" % buildMobile) )
+            shutil.copy("mobile/app/build/outputs/apk/app-%s.apk" % buildMobile, os.path.join(outDir,"IITC_Mobile-%s.apk" % buildMobile) )
 
 
 # run any postBuild commands
