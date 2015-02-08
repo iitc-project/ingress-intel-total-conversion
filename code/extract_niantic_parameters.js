@@ -21,8 +21,12 @@ window.extractFromStock = function() {
       if(!window[topLevel]) continue;
       // need an example for a request object
       for(var property in window[topLevel]) {
-        if(window[topLevel][property] == "getRegionScoreDetails") {
-          return Object.getPrototypeOf(window[topLevel]);
+        try {
+          if(window[topLevel][property] == "getRegionScoreDetails") {
+            return Object.getPrototypeOf(window[topLevel]);
+          }
+        } catch(e) { // might throw SecurityError or others (noticed on top.opener, which might be cross-origin)
+          continue;
         }
       }
     }
