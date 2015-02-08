@@ -1,6 +1,12 @@
 <h2>News</h2>
 
-<h4>7th Febuarh 2015</h4>
+<h4>8th Febuary 2015</h4>
+<p>
+IITC 0.21.2 has been released. This is a simple bugfix over the 0.21.1 release, where for some users IITC would crash
+at startup, being stuck on 'loading'
+</p>
+
+<h4>7th Febuary 2015</h4>
 <p>
 IITC 0.21.1 has just been released. This is (yet another) critical update required to work with internal changes to the
 stock intel site.
