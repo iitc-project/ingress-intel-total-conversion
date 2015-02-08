@@ -23,9 +23,9 @@ Debugging IITC(M) **before** it has booted requires the Android Developer Tools.
 
 Building the APK
 ----------------
-
-- **ant:**
+- **gradle:**
   Set the ANDROID_HOME environment variable:
   ```export ANDROID_HOME=/path/to/android_sdk```
   Then build the app via the build.py script ```./build.py mobile```
-- **Eclipse:** Just import this project and klick the build button. Ensure that you have total-conversion-build.user.js and user-location.user.js in your assets folder. This is automatically created, when executing ```./build.py mobile```. Otherwise, just copy the scripts to the assets folder.
+- **Android Studio:** Just import this project and click the build button. Ensure that you have total-conversion-build.user.js and user-location.user.js in your assets folder. This is automatically created, when executing ```./build.py mobile```. Otherwise, just copy the scripts to the assets folder.
+- **Eclipse:** Just import this project and click the build button. Ensure that you have total-conversion-build.user.js and user-location.user.js in your assets folder. This is automatically created, when executing ```./build.py mobile```. Otherwise, just copy the scripts to the assets folder.
