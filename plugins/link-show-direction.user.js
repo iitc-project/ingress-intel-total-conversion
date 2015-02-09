@@ -2,7 +2,7 @@
 // @id             iitc-plugin-link-show-direction
 // @name           IITC plugin: Show the direction of links on the map
 // @category       Tweaks
-// @version        0.2.0.@@DATETIMEVERSION@@
+// @version        0.2.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -25,7 +25,12 @@ window.plugin.linkShowDirection.ANIMATE_UPDATE_TIME = 1000; // 1000ms = 1s
 
 window.plugin.linkShowDirection.styles = {
   'Disabled': [null],
-  'Static *': ['30,5,15,5,15,5,2,5,2,5,2,5,2,5,30,0'],
+  'Static *': [
+    '30,5,15,5,15,5,2,5,2,5,2,5,2,5,30,0',
+  ],
+  'Static near origin': [
+    '10,5,5,5,5,5,5,5,100%',
+  ],
   'Animate near origin': [
     '10,5,5,5,5,5,5,5,100%',
     '12,5,5,5,5,5,5,3,100%',
@@ -125,7 +130,7 @@ window.plugin.linkShowDirection.showDialog = function() {
   });
 
   div.appendChild(document.createTextNode(
-    ' * Static: 5 segments will indicate each link\'s direction. ' +
+    ' * Static: six segments will indicate each link\'s direction. ' +
     'Two long segments are on the origin\'s side, follow by four short segments on the destination\'s side.'));
 
   if(window.plugin.drawTools) {
