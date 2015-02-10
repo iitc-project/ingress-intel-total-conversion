@@ -312,7 +312,7 @@ window.plugin.guessPlayerLevels.handleAttackData = function(nick, latlngs) {
 
 
   // res can be up to 40m from a portal, so attack notifications for portals, say, 100m apart could
-  // actually be a weapn range as low as 20m. however, typical deployments are a bit less than 40m, and resonators
+  // actually be a weapon range as low as 20m. however, typical deployments are a bit less than 40m, and resonators
   // can only be deployed on the 8 compass points. a value of 40m x 2 would never be wrong
   var reso_range_correction = 40*2;
   // however, the full correction often under-estimates.
