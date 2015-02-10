@@ -18,6 +18,7 @@ window.extractFromStock = function() {
   // required for botguard
   var requestPrototype = (function() {
     for(var topLevel in window) {
+      if(topLevel==='top') continue; // might throw SecurityError (might be cross-origin if IITC is in a frame)
       if(!window[topLevel]) continue;
       // need an example for a request object
       for(var property in window[topLevel]) {
