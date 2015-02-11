@@ -245,6 +245,7 @@ window.Render.prototype.createPortalEntity = function(ent) {
     image:     ent[2][7],
     title:     ent[2][8],
     ornaments: ent[2][9]
+    // and a new ent[2][10] ??? - maybe mission markers for portals?
   };
 
   var dataOptions = {
