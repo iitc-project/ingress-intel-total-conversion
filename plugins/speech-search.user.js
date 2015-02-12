@@ -22,10 +22,10 @@ window.plugin.speechSearch = function() {};
 
 window.plugin.speechSearch.setup = function() {
     // Give the search input the speech attribute
-    $("#geosearch").attr("x-webkit-speech", "");
+    $("#search").attr("x-webkit-speech", "");
     // Immediately search without further input
-    $("#geosearch").bind("webkitspeechchange", function() {
-        $("#geosearch").trigger($.Event("keypress", {keyCode: 13}));
+    $("#search").bind("webkitspeechchange", function() {
+        $("#search").trigger($.Event("keypress", {keyCode: 13}));
     });
 };
 
