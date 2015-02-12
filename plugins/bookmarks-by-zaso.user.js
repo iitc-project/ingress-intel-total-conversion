@@ -479,6 +479,55 @@
     console.log('Move Bookmarks '+type+' ID:'+idBkmrk+' from folder ID:'+oldFold+' to folder ID:'+newFold);
   }
 
+  window.plugin.bookmarks.onSearch = function(query) {
+    var term = query.term.toLowerCase();
+
+    $.each(plugin.bookmarks.bkmrksObj.maps, function(id, folder) {
+      $.each(folder.bkmrk, function(id, bookmark) {
+        if(bookmark.label.toLowerCase().indexOf(term) === -1) return;
+
+        query.addResult({
+          title: bookmark.label,
+          description: 'Map in folder "' + folder.label + '"',
+          icon: '@@INCLUDEIMAGE:images/icon-bookmark-map.png@@',
+          position: L.latLng(bookmark.latlng.split(",")),
+          zoom: bookmark.z,
+          onSelected: window.plugin.bookmarks.onSearchResultSelected,
+        });
+      });
+    });
+
+    $.each(plugin.bookmarks.bkmrksObj.portals, function(id, folder) {
+      $.each(folder.bkmrk, function(id, bookmark) {
+        if(bookmark.label.toLowerCase().indexOf(term) === -1) return;
+
+        query.addResult({
+          title: bookmark.label,
+          description: 'Bookmark in folder "' + folder.label + '"',
+          icon: '@@INCLUDEIMAGE:images/icon-bookmark.png@@',
+          position: L.latLng(bookmark.latlng.split(",")),
+          guid: bookmark.guid,
+          onSelected: window.plugin.bookmarks.onSearchResultSelected,
+        });
+      });
+    });
+  };
+
+  window.plugin.bookmarks.onSearchResultSelected = function(result, event) {
+    if(result.guid) { // portal
+      var guid = result.guid;
+      if(event.type == 'dblclick')
+        zoomToAndShowPortal(guid, result.position);
+      else if(window.portals[guid])
+        renderPortalDetails(guid);
+      else
+        window.selectPortalByLatLng(result.position);
+    } else if(result.zoom) { // map
+      map.setView(result.position, result.zoom);
+    }
+    return true; // prevent default behavior
+  };
+
 /***************************************************************************************************************************************************************/
 
   // Saved the new sort of the folders (in the localStorage)
@@ -1060,7 +1109,7 @@
 /***************************************************************************************************************************************************************/
 
   window.plugin.bookmarks.setupCSS = function() {
-    $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:plugins/bookmarks-css.css@@').appendTo('head');
+    $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:plugins/bookmarks-by-zaso.css@@').appendTo('head');
   }
 
   window.plugin.bookmarks.setupPortalsList = function() {
@@ -1219,6 +1268,7 @@
     if(window.plugin.bookmarks.statusBox['page'] === 1) { $('#bookmarksBox h5.bkmrk_portals').trigger('click'); }
 
     window.addHook('portalSelected', window.plugin.bookmarks.onPortalSelected);
+    window.addHook('search', window.plugin.bookmarks.onSearch);
 
     // Sync
     window.addHook('pluginBkmrksEdit', window.plugin.bookmarks.syncBkmrks);
