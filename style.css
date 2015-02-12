@@ -520,6 +520,10 @@ input[type="search"], input[type="url"] {
   height: auto;
   cursor: pointer;
 }
+.searchquery {
+  max-height: 25em;
+  overflow-y: auto;
+}
 #searchwrapper .ui-accordion-header::before {
   font-size: 18px;
   margin-right: 2px;

@@ -37,7 +37,7 @@ window.search.Query = function(term, confirmed) {
 window.search.Query.prototype.init = function() {
   this.results = [];
 
-  this.container = $('<div>');
+  this.container = $('<div>').addClass('searchquery');
 
   this.header = $('<h3>')
     .text(this.confirmed
