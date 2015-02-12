@@ -190,9 +190,10 @@ window.search.doSearch = function(term, confirmed) {
     return;
 
   if(window.search.lastSearch) window.search.lastSearch.hide();
+  window.search.lastSearch = null;
 
   // clear results
-  if(term == "") return;
+  if(term == '') return;
 
   $("#search").tooltip().tooltip("close");
 
