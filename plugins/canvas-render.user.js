@@ -12,6 +12,7 @@
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
 // @grant          unsafeWindow
+// @run-at         document-start
 // ==/UserScript==
 
 // NON-STANDARD plugin - try and set the variable early, as
