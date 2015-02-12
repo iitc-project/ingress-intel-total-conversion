@@ -274,7 +274,18 @@ addHook('search', function(query) {
         title: item.display_name,
         description: 'Type: ' + item.type,
         position: L.latLng(parseFloat(item.lat), parseFloat(item.lon)),
+        icon: item.icon,
       };
+
+      if(item.geojson) {
+        result.layer = L.geoJson(item.geojson, {
+          clickable: false,
+          color: 'red',
+          opacity: 0.7,
+          weight: 2,
+          fill: false,
+        });
+      }
 
       var b = item.boundingbox;
       if(b) {
