@@ -18,6 +18,7 @@ addHook('search', function(query) {});
 - `bounds`: a L.LatLngBounds object describing the bounds of this result
 - `layer`: a ILayer to be added to the map when the user selects this search result. Will be generated if not set.
   Set to `null` to prevent the result from being added to the map.
+- `icon`: a URL to a icon to display in the result list. Should be 12x12.
 - `onSelected(result, event)`: a handler to be called when the result is selected. May return `true` to prevent the map
   from being repositioned. You may reposition the map yourself or do other work.
 - `onRemove(result)`: a handler to be called when the result is removed from the map (because another result has been
@@ -93,9 +94,14 @@ window.search.Query.prototype.addResult = function(result) {
       }
     });
 
-  $('<a>')
+  var link = $('<a>')
     .text(result.title)
     .appendTo(item);
+
+  if(result.icon) {
+    link.css('background-image', 'url("'+result.icon+'")');
+    item.css('list-style', 'none');
+  }
 
   if(result.description) {
     item
@@ -221,9 +227,12 @@ addHook('search', function(query) {
   var term = query.term.toLowerCase();
   $.each(portals, function(guid, portal) {
     if(portal.options.data.title.toLowerCase().indexOf(term) !== -1) {
+      var team = portal.options.team;
+      var color = team==TEAM_NONE ? '#CCC' : COLORS[team];
       query.addResult({
         title: portal.options.data.title,
         position: portal.getLatLng(),
+        icon: 'data:image/svg+xml;base64,'+btoa('@@INCLUDESTRING:images/icon-portal.svg@@'.replace(/%COLOR%/g, color)),
       });
     }
   });
