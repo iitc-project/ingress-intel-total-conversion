@@ -11,9 +11,6 @@ window.show = function(id) {
     case 'alerts':
       window.chat.show(id);
       break;
-    case 'alerts':
-      window.chat.show('alerts');
-      break;
     case 'debug':
       window.debug.console.show();
       break;

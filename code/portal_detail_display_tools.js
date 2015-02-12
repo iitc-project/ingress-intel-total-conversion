@@ -115,6 +115,7 @@ window.getModDetails = function(d) {
           else if (key === 'ATTACK_FREQUENCY')      val = (val/1000) +'x'; // 2000 = 2x
           else if (key === 'FORCE_AMPLIFIER')       val = (val/1000) +'x'; // 2000 = 2x
           else if (key === 'LINK_RANGE_MULTIPLIER') val = (val/1000) +'x'; // 2000 = 2x
+          else if (key === 'REMOVAL_STICKINESS' && val > 100) val = (val/10000)+'%'; // an educated guess
           // else display unmodified. correct for shield mitigation and multihack - unknown for future/other mods
 
           modTooltip += '\n+' +  val + ' ' + key.capitalize().replace(/_/g,' ');

@@ -485,8 +485,11 @@ h2 sup, h2 sub {
 }
 
 
-/* geosearch input, and others */
-input {
+/* search input, and others */
+input:not([type]), .input,
+input[type="text"], input[type="password"],
+input[type="number"], input[type="email"],
+input[type="search"], input[type="url"] {
   background-color: rgba(0, 0, 0, 0.3);
   color: #ffce00;
   height: 24px;
@@ -499,23 +502,57 @@ input {
   box-sizing: border-box;
 }
 
-#geosearch{
-  width:272px;
-  background-color: transparent;
+#searchwrapper {
+  position: relative;
 }
-#geosearchwrapper {
-  height:25px;  
-  background-color: rgba(0, 0, 0, 0.3);
+#search {
+  width: 100%;
+  padding-right: 24px;
 }
-#geosearchwrapper img{
-  vertical-align: bottom;
-  margin-bottom: 2px;
+#buttongeolocation {
+  position: absolute;
+  top: 2px;
+  right: 2px;
   cursor: pointer;
 }
-
-.search_not_found{
-  color:red;
-  font-style: italic;
+#searchwrapper h3 {
+  font-size: 1em;
+  height: auto;
+  cursor: pointer;
+}
+.searchquery {
+  max-height: 25em;
+  overflow-y: auto;
+}
+#searchwrapper .ui-accordion-header::before {
+  font-size: 18px;
+  margin-right: 2px;
+  font-weight: normal;
+  line-height: 1em;
+  content: "⊞";
+}
+#searchwrapper .ui-accordion-header-active::before {
+  content: "⊟";
+}
+#searchwrapper .ui-accordion-content {
+  margin: 0;
+  overflow: hidden;
+}
+#searchwrapper ul {
+  padding-left: 14px;
+}
+#searchwrapper li {
+  cursor: pointer;
+}
+#searchwrapper li a {
+  margin-left: -14px;
+  padding-left: 14px;
+  background-position: 1px center;
+  background-repeat: no-repeat;
+}
+#searchwrapper li em {
+  color: #ccc;
+  font-size: 0.9em;
 }
 
 ::-webkit-input-placeholder {
@@ -543,7 +580,7 @@ h3 {
   margin:0;
   height: 23px;
   width: 100%;
-  overflow:hidden;
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   -webkit-box-sizing: border-box;
@@ -880,6 +917,7 @@ h3 {
   cursor: pointer;
   border: 1px solid rgb(32, 168, 177);
   background-color: rgba(0, 0, 0, 0);
+  padding: 0;
 }
 
 .ui-dialog-titlebar-button:active {
@@ -899,7 +937,34 @@ h3 {
 }
 
 .ui-dialog-titlebar-button-collapse-collapsed {
-   background-color: rgb(32, 168, 177);
+  background-color: rgb(32, 168, 177);
+}
+
+.ui-dialog-titlebar-button-collapse::after,
+.ui-dialog-titlebar-button-close::after,
+.ui-dialog-titlebar-button-close::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  width: 11px;
+  margin-left: -6px;
+  height: 0;
+  border-top: 2px solid rgb(32, 168, 177);
+}
+.ui-dialog-titlebar-button-close::after {
+  transform: translateY(3.5px) rotate(45deg);
+}
+.ui-dialog-titlebar-button-close::before {
+  transform: translateY(3.5px) rotate(-45deg);
+}
+.ui-dialog-titlebar-button.ui-state-active::after,
+.ui-dialog-titlebar-button.ui-state-active::before,
+.ui-dialog-titlebar-button.ui-dialog-titlebar-button-collapse-collapsed::after,
+.ui-dialog-titlebar-button.ui-dialog-titlebar-button-collapse-collapsed::before,
+.ui-dialog-titlebar-button:active::after,
+.ui-dialog-titlebar-button:active::before {
+  border-top-color: rgba(8, 60, 78, 0.9);
 }
 
 .ui-dialog-content {

@@ -283,7 +283,7 @@ public class IITC_Mobile extends ActionBarActivity
             searchView.clearFocus();
 
             switchToPane(Pane.MAP);
-            mIitcWebView.loadUrl("javascript:search('" + query + "');");
+            mIitcWebView.loadUrl("javascript:if(window.search&&window.search.doSearch){window.search.doSearch('" + query + "',true);window.show('info')}");
             return;
         }
 

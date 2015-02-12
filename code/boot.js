@@ -591,7 +591,7 @@ function boot() {
   window.setupDialogs();
   window.setupMap();
   window.setupOMS();
-  window.setupGeosearch();
+  window.search.setup();
   window.setupRedeem();
   window.setupLargeImagePreview();
   window.setupSidebarToggle();

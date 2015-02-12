@@ -24,24 +24,11 @@ window.getMapZoomTileParameters = function(zoom) {
   var level = ZOOM_TO_LEVEL[zoom] || 0;  // default to level 0 (all portals) if not in array
 
   if (window.CONFIG_ZOOM_SHOW_LESS_PORTALS_ZOOMED_OUT) {
-    switch(level) {
-      case 7:
-        // usually L7+ portals - switch to L8 only
-        level = 8;
-        break;
-      case 6:
-        // usually L6+ portals - switch to L7+
-        level = 7;
-        break;
-
-      case 5:
-      case 4:
-        // level 4+ and 5+ - switch to L6+
-        level = 6;
-        break;
-
-      // no modifications for lower levels
+    if (level <= 7 && level >= 4) {
+      // reduce portal detail level by one - helps reduce clutter
+      level = level+1;
     }
+
   }
 
   return {
