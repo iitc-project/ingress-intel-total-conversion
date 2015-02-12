@@ -226,12 +226,16 @@ window.search.setup = function() {
 
 addHook('search', function(query) {
   var term = query.term.toLowerCase();
+  var teams = ['NEU','RES','ENL'];
+
   $.each(portals, function(guid, portal) {
-    if(portal.options.data.title.toLowerCase().indexOf(term) !== -1) {
+    var data = portal.options.data;
+    if(data.title.toLowerCase().indexOf(term) !== -1) {
       var team = portal.options.team;
       var color = team==TEAM_NONE ? '#CCC' : COLORS[team];
       query.addResult({
-        title: portal.options.data.title,
+        title: data.title,
+        description: teams[team] + ', L' + data.level + ', ' + data.health + '%, ' + data.resCount + ' Resonators',
         position: portal.getLatLng(),
         icon: 'data:image/svg+xml;base64,'+btoa('@@INCLUDESTRING:images/icon-portal.svg@@'.replace(/%COLOR%/g, color)),
         onSelected: function(result, event) {
