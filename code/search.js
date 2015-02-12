@@ -43,7 +43,7 @@ window.search.Query.prototype.init = function() {
     .text(this.confirmed
       ? this.term
       : ((this.term.length > 16
-        ? this.term.substr(0,8) + "…" + this.term.substr(this.term.length-8,8)
+        ? this.term.substr(0,8) + '…' + this.term.substr(this.term.length-8,8)
         : this.term)
         + ' (Return to load more)'))
     .appendTo(this.container);
@@ -76,7 +76,7 @@ window.search.Query.prototype.addResult = function(result) {
   var item = $('<li>')
     .appendTo(this.list)
     .attr('tabindex', '0')
-    .on("click dblclick", function(ev) {
+    .on('click dblclick', function(ev) {
       this.onResultSelected(result, ev);
     }.bind(this))
     .keypress(function(ev) {
@@ -142,7 +142,7 @@ window.search.Query.prototype.onResultSelected = function(result, ev) {
         icon:  L.divIcon({
           iconSize: new L.Point(25, 41),
           iconAnchor: new L.Point(12, 41),
-          html: markerTemplate.replace(/%COLOR%/g, "red"),
+          html: markerTemplate.replace(/%COLOR%/g, 'red'),
           className: 'leaflet-iitc-search-result-icon',
         }),
         title: result.title,
@@ -195,7 +195,7 @@ window.search.doSearch = function(term, confirmed) {
   // clear results
   if(term == '') return;
 
-  $("#search").tooltip().tooltip("close");
+  $('#search').tooltip().tooltip('close');
 
   window.search.lastSearch = new window.search.Query(term, confirmed);
   window.search.lastSearch.show();
@@ -250,8 +250,8 @@ addHook('search', function(query) {
 
 // TODO: recognize 50°31'03.8"N 7°59'05.3"E and similar formats
 addHook('search', function(query) {
-  if(query.term.split(",").length == 2) {
-    var ll = query.term.split(",");
+  if(query.term.split(',').length == 2) {
+    var ll = query.term.split(',');
     if(!isNaN(ll[0]) && !isNaN(ll[1])) {
       query.addResult({
         title: query.term,
