@@ -409,6 +409,8 @@ window.plugin.playerTracker.drawData = function() {
       m.on('mouseout', function() { $(this._icon).tooltip('close'); });
     }
 
+    playerData.marker = m;
+
     m.addTo(playerData.team === 'RESISTANCE' ? plugin.playerTracker.drawnTracesRes : plugin.playerTracker.drawnTracesEnl);
     window.registerMarkerForOMS(m);
 
@@ -487,34 +489,39 @@ window.plugin.playerTracker.handleData = function(data) {
   plugin.playerTracker.drawData();
 }
 
-window.plugin.playerTracker.findUserPosition = function(nick) {
+window.plugin.playerTracker.findUser = function(nick) {
   nick = nick.toLowerCase();
-  var foundPlayerData = undefined;
+  var foundPlayerData = false;
   $.each(plugin.playerTracker.stored, function(plrname, playerData) {
     if (playerData.nick.toLowerCase() === nick) {
       foundPlayerData = playerData;
       return false;
     }
   });
-  
-  if (!foundPlayerData) {
-    return false;
-  }
-  
-  var evtsLength = foundPlayerData.events.length;
-  var last = foundPlayerData.events[evtsLength-1];
+  return foundPlayerData;
+}
+
+window.plugin.playerTracker.findUserPosition = function(nick) {
+  var data = window.plugin.playerTracker.findUser(nick);
+  if (!data) return false;
+
+  var last = data.events[data.events.length - 1];
   return plugin.playerTracker.getLatLngFromEvent(last);
 }
 
 window.plugin.playerTracker.centerMapOnUser = function(nick) {
-  var position = plugin.playerTracker.findUserPosition(nick);
-  
-  if (position === false) {
-    return false;
-  }
-  
+  var data = plugin.playerTracker.findUser(nick);
+  if(!data) return false;
+
+  var last = data.events[data.events.length - 1];
+  var position = plugin.playerTracker.getLatLngFromEvent(last);
+
   if(window.isSmartphone()) window.show('map');
   window.map.setView(position, map.getZoom());
+
+  if(data.marker) {
+    window.plugin.playerTracker.onClickListener({target: data.marker});
+  }
 }
 
 window.plugin.playerTracker.onNicknameClicked = function(info) {
