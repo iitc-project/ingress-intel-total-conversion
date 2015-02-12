@@ -234,6 +234,15 @@ addHook('search', function(query) {
         title: portal.options.data.title,
         position: portal.getLatLng(),
         icon: 'data:image/svg+xml;base64,'+btoa('@@INCLUDESTRING:images/icon-portal.svg@@'.replace(/%COLOR%/g, color)),
+        onSelected: function(result, event) {
+          if(event.type == 'dblclick')
+            zoomToAndShowPortal(guid, portal.getLatLng());
+          else if(window.portals[guid])
+            renderPortalDetails(guid);
+          else
+            window.selectPortalByLatLng(portal.getLatLng());
+          return true; // prevent default behavior
+        },
       });
     }
   });
