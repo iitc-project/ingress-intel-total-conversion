@@ -634,7 +634,6 @@ h3 {
   vertical-align: top;
   white-space: nowrap;
   width: 50%;
-  width: calc(50% - 62px);
 }
 
 #randdetails th, #resodetails th {
