@@ -59,7 +59,7 @@ window.VALID_HOOKS = [
   'portalAdded', 'linkAdded', 'fieldAdded',
   'publicChatDataAvailable', 'factionChatDataAvailable',
   'requestFinished', 'nicknameClicked',
-  'geoSearch', 'iitcLoaded',
+  'geoSearch', 'search', 'iitcLoaded',
   'portalDetailLoaded', 'paneChanged'];
 
 window.runHooks = function(event, data) {
