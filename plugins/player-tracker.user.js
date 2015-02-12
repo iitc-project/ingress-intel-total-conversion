@@ -27,6 +27,8 @@ window.PLAYER_TRACKER_LINE_COLOUR = '#FF00FD';
 window.plugin.playerTracker = function() {};
 
 window.plugin.playerTracker.setup = function() {
+  $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:plugins/player-tracker.css@@').appendTo('head');
+
   var iconEnlImage = '@@INCLUDEIMAGE:images/marker-green.png@@';
   var iconEnlRetImage = '@@INCLUDEIMAGE:images/marker-green-2x.png@@';
   var iconResImage = '@@INCLUDEIMAGE:images/marker-blue.png@@';
@@ -511,7 +513,7 @@ window.plugin.playerTracker.centerMapOnUser = function(nick) {
     return false;
   }
   
-  if(window.isSmartphone()) window.smartphone.mapButton.click();
+  if(window.isSmartphone()) window.show('map');
   window.map.setView(position, map.getZoom());
 }
 
@@ -522,22 +524,39 @@ window.plugin.playerTracker.onNicknameClicked = function(info) {
   }
 }
 
-window.plugin.playerTracker.onGeoSearch = function(search) {
-  if (/^@/.test(search)) {
-    plugin.playerTracker.centerMapOnUser(search.replace(/^@/, ''));
-    return false;
-  }
+window.plugin.playerTracker.onSearchResultSelected = function(result, event) {
+  if(window.isSmartphone()) window.show('map');
+
+  // if the user moved since the search was started, check if we have a new set of data
+  if(false === window.plugin.playerTracker.centerMapOnUser(result.title))
+    map.setView(result.position);
+
+  if(event.type == 'dblclick')
+    map.setZoom(17);
+
+  return true;
+};
+
+window.plugin.playerTracker.onSearch = function(query) {
+  var term = query.term.toLowerCase();
+
+  $.each(plugin.playerTracker.stored, function(nick, data) {
+    if(nick.toLowerCase().indexOf(term) === -1) return;
+
+    var event = data.events[data.events.length - 1];
+
+    query.addResult({
+      title: nick,
+      description: data.team.substr(0,3) + ', last seen ' + unixTimeToDateTimeString(event.time),
+      position: plugin.playerTracker.getLatLngFromEvent(event),
+      onSelected: window.plugin.playerTracker.onSearchResultSelected,
+    });
+  });
 }
 
 window.plugin.playerTracker.setupUserSearch = function() {
-  $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:plugins/player-tracker.css@@').appendTo('head');
-
   addHook('nicknameClicked', window.plugin.playerTracker.onNicknameClicked);
-  addHook('geoSearch', window.plugin.playerTracker.onGeoSearch);
-  
-  var geoSearch = $('#geosearch');
-  var beforeEllipsis = /(.*)…/.exec(geoSearch.attr('placeholder'))[1];
-  geoSearch.attr('placeholder', beforeEllipsis + ' or @player…');
+  addHook('search', window.plugin.playerTracker.onSearch);
 }
 
 
