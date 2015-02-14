@@ -522,20 +522,23 @@ window.plugin.playerTracker.centerMapOnUser = function(nick) {
   if(data.marker) {
     window.plugin.playerTracker.onClickListener({target: data.marker});
   }
+  return true;
 }
 
 window.plugin.playerTracker.onNicknameClicked = function(info) {
   if (info.event.ctrlKey || info.event.metaKey) {
-    plugin.playerTracker.centerMapOnUser(info.nickname);
-    return false;
+    return !plugin.playerTracker.centerMapOnUser(info.nickname);
   }
+  return true; // don't interrupt hook
 }
 
 window.plugin.playerTracker.onSearchResultSelected = function(result, event) {
+  event.stopPropagation(); // prevent chat from handling the click
+
   if(window.isSmartphone()) window.show('map');
 
   // if the user moved since the search was started, check if we have a new set of data
-  if(false === window.plugin.playerTracker.centerMapOnUser(result.title))
+  if(false === window.plugin.playerTracker.centerMapOnUser(result.nickname))
     map.setView(result.position);
 
   if(event.type == 'dblclick')
@@ -553,7 +556,8 @@ window.plugin.playerTracker.onSearch = function(query) {
     var event = data.events[data.events.length - 1];
 
     query.addResult({
-      title: nick,
+      title: '<mark class="nickname help '+TEAM_TO_CSS[getTeam(data)]+'">' + nick + '</mark>',
+      nickname: nick,
       description: data.team.substr(0,3) + ', last seen ' + unixTimeToDateTimeString(event.time),
       position: plugin.playerTracker.getLatLngFromEvent(event),
       onSelected: window.plugin.playerTracker.onSearchResultSelected,
