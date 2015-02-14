@@ -50,13 +50,13 @@ var handleResponse = function(guid, data, success) {
     };
   }
 
-  if (data.error || !data.result) {
+  if (!data || data.error || !data.result) {
     success = false;
   }
 
   if (success) {
     var dict = {
-      raw:       data.result,
+//      raw:       data.result,
       type:      data.result[0],
       team:      data.result[1],
       latE6:     data.result[2],

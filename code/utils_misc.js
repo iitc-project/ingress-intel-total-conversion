@@ -273,6 +273,9 @@ window.selectPortalByLatLng = function(lat, lng) {
   if(lng === undefined && lat instanceof Array) {
     lng = lat[1];
     lat = lat[0];
+  } else if(lng === undefined && lat instanceof L.LatLng) {
+    lng = lat.lng;
+    lat = lat.lat;
   }
   for(var guid in window.portals) {
     var latlng = window.portals[guid].getLatLng();
