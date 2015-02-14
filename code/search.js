@@ -12,8 +12,8 @@ addHook('search', function(query) {});
 - `addResult(result)` can be called to add a result to the query.
 
 `result` may have the following members (`title` is required, as well as one of `position` and `bounds`):
-- `title`: the label for this result
-- `description`: secondary information for this result
+- `title`: the label for this result. Will be interpreted as HTML, so make sure to escape properly.
+- `description`: secondary information for this result. Will be interpreted as HTML, so make sure to escape properly.
 - `position`: a L.LatLng object describing the position of this result
 - `bounds`: a L.LatLngBounds object describing the bounds of this result
 - `layer`: a ILayer to be added to the map when the user selects this search result. Will be generated if not set.
@@ -95,7 +95,7 @@ window.search.Query.prototype.addResult = function(result) {
     });
 
   var link = $('<a>')
-    .text(result.title)
+    .append(result.title)
     .appendTo(item);
 
   if(result.icon) {
@@ -107,7 +107,7 @@ window.search.Query.prototype.addResult = function(result) {
     item
       .append($('<br>'))
       .append($('<em>')
-        .text(result.description));
+        .append(result.description));
   }
 
 };
@@ -253,6 +253,7 @@ addHook('search', function(query) {
 });
 
 // TODO: recognize 50°31'03.8"N 7°59'05.3"E and similar formats
+// TODO: if a portal with these exact coordinates is found, select it
 addHook('search', function(query) {
   if(query.term.split(',').length == 2) {
     var ll = query.term.split(',');
