@@ -2,7 +2,7 @@
 // @id             iitc-plugin-show-linked-portals@fstopienski
 // @name           IITC plugin: Show linked portals
 // @category       Portal Info
-// @version        0.2.0.@@DATETIMEVERSION@@
+// @version        0.3.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -24,72 +24,83 @@ window.plugin.showLinkedPortal = function () {
 
 window.plugin.showLinkedPortal.portalDetail = function (data) {
   var portalLinks = getPortalLinks(data.guid);
+  var length = portalLinks.in.length + portalLinks.out.length
 
   var c = 1;
 
-  $.each(portalLinks.out, function(index,linkGuid) {
-    // outgoing links - so the other portal is the destination
-    var otherPortalGuid = window.links[linkGuid].options.data.dGuid;
-    var portalInfo = window.plugin.showLinkedPortal.getPortalByGuid(otherPortalGuid, true);
-    $('#portaldetails').append('<div class="showLinkedPortalLink showLinkedPortalLink' + c + '" id="showLinkedPortalLink_' + c + '" data-guid="' + otherPortalGuid + '">' + portalInfo + '</div>');
-    c = c + 1;
-  });
-  $.each(portalLinks.in, function(index,linkGuid) {
-    // incoming link - so the other portal is the origin
-    var otherPortalGuid = window.links[linkGuid].options.data.oGuid;
-    var portalInfo = window.plugin.showLinkedPortal.getPortalByGuid(otherPortalGuid, false);
-    $('#portaldetails').append('<div class="showLinkedPortalLink showLinkedPortalLink' + c + '" id="showLinkedPortalLink_' + c + '" data-guid="' + otherPortalGuid + '">' + portalInfo + '</div>');
-    c = c + 1;
-  });
+  function renderLinkedPortal(linkGuid) {
+    if(c > 16) return;
 
-  $('.showLinkedPortalLink:not(.outOfRange)').bind('click', function () {
-    var guid = $(this).attr('data-guid');
-    window.renderPortalDetails(guid);
-    var latlng = findPortalLatLng(guid);
-    if (latlng) {
-      if (!map.getBounds().pad(-0.1).contains(latlng)) {
-        map.panTo(latlng);
-      }
+    var key = this; // passed by Array.prototype.forEach
+    var link = window.links[linkGuid].options.data;
+    var guid = link[key + 'Guid'];
+    var lat = link[key + 'LatE6']/1E6;
+    var lng = link[key + 'LngE6']/1E6;
+
+    var div = $('<div>').addClass('showLinkedPortalLink showLinkedPortalLink' + c);
+
+    var title;
+
+    if(portals[guid]) {
+      var data = portals[guid].options.data;
+
+      title = data.title;
+      div.append($('<img/>').attr({
+        'src': fixPortalImageUrl(data.image),
+        'class': 'minImg',
+        'alt': title,
+      }));
     } else {
-      // no idea where this portal is(!) - so step back one zoom level
-      map.setZoom(map.getZoom()-1);
+      title = 'Go to portal';
+      div
+        .addClass('outOfRange')
+        .append($('<span/>')
+          .text('Portal out of range.'))
     }
 
-  });
+    div
+      .attr({
+        'data-guid': guid,
+        'data-lat': lat,
+        'data-lng': lng,
+        'title': $('<div/>')
+          .append($('<strong/>').text(title))
+          .append($('<br/>'))
+          .append($('<span/>').text(key=='d' ? '↴ outgoing link' : '↳ incoming link'))
+          .html(),
+      })
+      .appendTo('#portaldetails');
+
+    c++;
+  }
+
+  portalLinks.out.forEach(renderLinkedPortal, 'd');
+  portalLinks.in.forEach(renderLinkedPortal, 'o');
+
+  if(length > 16) {
+    $('<div>')
+      .addClass('showLinkedPortalLink showLinkedPortalOverflow')
+      .text(length-16 + ' more')
+      .appendTo('#portaldetails');
+  }
+
+  $('#portaldetails').on('click', '.showLinkedPortalLink', plugin.showLinkedPortal.onLinkedPortalClick);
 }
 
-window.plugin.showLinkedPortal.getPortalByGuid = function (guid,isorigin) {
-    var linkDirection = $('<span/>').text(isorigin?'↴ outgoing link':'↳ incoming link');
+plugin.showLinkedPortal.onLinkedPortalClick = function() {
+  var element = $(this);
+  var guid = element.attr('data-guid');
+  var lat = element.attr('data-lat');
+  var lng = element.attr('data-lng');
 
-    var portalInfoString;
+  if(!guid) return; // overflow
 
-    if (window.portals[guid] !== undefined) {
-        var portalData = window.portals[guid].options.data;
-
-        var portalNameAddressAlt = "'" + portalData.title + "'";
-        var portalNameAddressTitle = $('<div/>').append($('<strong/>').text(portalData.title))
-                                                .append($('<br/>'))
-                                                .append(linkDirection)
-                                                .html();
-        var imageUrl = fixPortalImageUrl(portalData.image);
-        portalInfoString = $('<div/>').html($('<img/>').attr('src', imageUrl)
-                                                       .attr('class', 'minImg')
-                                                       .attr('alt', portalNameAddressAlt)
-                                                       .attr('title', portalNameAddressTitle))
-                                                       .html();
-    } else {
-        var title = $('<div/>').append($('<strong/>').text('Go to portal'))
-                               .append($('<br/>'))
-                               .append(linkDirection)
-                               .html();
-
-        portalInfoString = $('<div/>').html($('<span/>').attr('class','outOfRange')
-                                                        .attr('title',title)
-                                                        .text('Portal out of range.'))
-                                      .html();
-    }
-
-    return portalInfoString;
+  var position = L.latLng(lat, lng);
+  if(!map.getBounds().contains(position)) map.setView(position);
+  if(portals[guid])
+    renderPortalDetails(guid);
+  else
+    zoomToAndShowPortal(guid, position);
 };
 
 var setup = function () {
@@ -97,17 +108,18 @@ var setup = function () {
   $('head').append('<style>' +
     '.showLinkedPortalLink{cursor: pointer; position: absolute; height: 40px; width: 50px; border:solid 1px; overflow: hidden; text-align: center; background: #0e3d4e;}' +
     '.showLinkedPortalLink .minImg{height: 40px;}' +
-    '.showLinkedPortalLink span.outOfRange{font-size: 10px;}' +
+    '.showLinkedPortalLink.outOfRange span{font-size: 10px;}' +
 
     '.showLinkedPortalLink1,.showLinkedPortalLink2,.showLinkedPortalLink3,.showLinkedPortalLink4 {left: 5px}' +
-    '.showLinkedPortalLink5,.showLinkedPortalLink6,.showLinkedPortalLink7,.showLinkedPortalLink8 {right: 11px}' +
+    '.showLinkedPortalLink5,.showLinkedPortalLink6,.showLinkedPortalLink7,.showLinkedPortalLink8 {right: 5px}' +
     '.showLinkedPortalLink9,.showLinkedPortalLink10,.showLinkedPortalLink11,.showLinkedPortalLink12 {left: 59px}' +
-    '.showLinkedPortalLink13,.showLinkedPortalLink14,.showLinkedPortalLink15,.showLinkedPortalLink16 {right: 65px}' +
+    '.showLinkedPortalLink13,.showLinkedPortalLink14,.showLinkedPortalLink15,.showLinkedPortalLink16 {right: 59px}' +
 
-    '.showLinkedPortalLink1,.showLinkedPortalLink5,.showLinkedPortalLink9,.showLinkedPortalLink13 {top: 25px; }' +
-    '.showLinkedPortalLink2,.showLinkedPortalLink6,.showLinkedPortalLink10,.showLinkedPortalLink14 {top: 69px; }' +
-    '.showLinkedPortalLink3,.showLinkedPortalLink7,.showLinkedPortalLink11,.showLinkedPortalLink15 {top: 113px; }' +
-    '.showLinkedPortalLink4,.showLinkedPortalLink8,.showLinkedPortalLink12,.showLinkedPortalLink16 {top: 157px; }' +
+    '.showLinkedPortalLink1,.showLinkedPortalLink5,.showLinkedPortalLink9,.showLinkedPortalLink13 {top: 23px; }' +
+    '.showLinkedPortalLink2,.showLinkedPortalLink6,.showLinkedPortalLink10,.showLinkedPortalLink14 {top: 72px; }' +
+    '.showLinkedPortalLink3,.showLinkedPortalLink7,.showLinkedPortalLink11,.showLinkedPortalLink15 {top: 122px; }' +
+    '.showLinkedPortalLink4,.showLinkedPortalLink8,.showLinkedPortalLink12,.showLinkedPortalLink16,.showLinkedPortalOverflow {top: 171px; }' +
+    '.showLinkedPortalOverflow{left: 50%;margin-left:-25px;cursor: default;}' +
     '#level{text-align: center; margin-right: -0.5em; position: relative; right: 50%; width: 1em;}' +
     '</style>');
 }
