@@ -18,62 +18,44 @@
 
 // PLUGIN START ////////////////////////////////////////////////////////
 
-/*
-* 0.0.1 initial release, show images, names and addresses of linked portal in portal detailview
-* - mouse click of the linked portal image selected the portal and adjust map
-* - click of "Linked Portal is out of range" zoom a step out
-*/
-
 // use own namespace for plugin
 window.plugin.showLinkedPortal = function () {
 };
 
-window.plugin.showLinkedPortal.handleUpdate = function () {
-    if (!requests.isLastRequest('getThinnedEntitiesV4')) {
-        return;
-    }
-}
-
 window.plugin.showLinkedPortal.portalDetail = function (data) {
+  var portalLinks = getPortalLinks(data.guid);
 
-    // don't render linked portal data if portal is neutral.
-    // (the data can remain sometimes - when a portal decays?)
-//    if (data.portalDetails.controllingTeam.team == 'NEUTRAL')
-//        return;
+  var c = 1;
 
-    var portalLinks = getPortalLinks(data.guid);
+  $.each(portalLinks.out, function(index,linkGuid) {
+    // outgoing links - so the other portal is the destination
+    var otherPortalGuid = window.links[linkGuid].options.data.dGuid;
+    var portalInfo = window.plugin.showLinkedPortal.getPortalByGuid(otherPortalGuid, true);
+    $('#portaldetails').append('<div class="showLinkedPortalLink showLinkedPortalLink' + c + '" id="showLinkedPortalLink_' + c + '" data-guid="' + otherPortalGuid + '">' + portalInfo + '</div>');
+    c = c + 1;
+  });
+  $.each(portalLinks.in, function(index,linkGuid) {
+    // incoming link - so the other portal is the origin
+    var otherPortalGuid = window.links[linkGuid].options.data.oGuid;
+    var portalInfo = window.plugin.showLinkedPortal.getPortalByGuid(otherPortalGuid, false);
+    $('#portaldetails').append('<div class="showLinkedPortalLink showLinkedPortalLink' + c + '" id="showLinkedPortalLink_' + c + '" data-guid="' + otherPortalGuid + '">' + portalInfo + '</div>');
+    c = c + 1;
+  });
 
-    var c = 1;
+  $('.showLinkedPortalLink:not(.outOfRange)').bind('click', function () {
+    var guid = $(this).attr('data-guid');
+    window.renderPortalDetails(guid);
+    var latlng = findPortalLatLng(guid);
+    if (latlng) {
+      if (!map.getBounds().pad(-0.1).contains(latlng)) {
+        map.panTo(latlng);
+      }
+    } else {
+      // no idea where this portal is(!) - so step back one zoom level
+      map.setZoom(map.getZoom()-1);
+    }
 
-    $.each(portalLinks.out, function(index,linkGuid) {
-        // outgoing links - so the other portal is the destination
-        var otherPortalGuid = window.links[linkGuid].options.data.dGuid;
-        var portalInfo = window.plugin.showLinkedPortal.getPortalByGuid(otherPortalGuid, true);
-        $('#portaldetails').append('<div class="showLinkedPortalLink showLinkedPortalLink' + c + '" id="showLinkedPortalLink_' + c + '" data-guid="' + otherPortalGuid + '">' + portalInfo + '</div>');
-        c = c + 1;
-    });
-    $.each(portalLinks.in, function(index,linkGuid) {
-        // incoming link - so the other portal is the origin
-        var otherPortalGuid = window.links[linkGuid].options.data.oGuid;
-        var portalInfo = window.plugin.showLinkedPortal.getPortalByGuid(otherPortalGuid, false);
-        $('#portaldetails').append('<div class="showLinkedPortalLink showLinkedPortalLink' + c + '" id="showLinkedPortalLink_' + c + '" data-guid="' + otherPortalGuid + '">' + portalInfo + '</div>');
-        c = c + 1;
-    });
-
-    $('.showLinkedPortalLink:not(.outOfRange)').bind('click', function () {
-        var guid = $(this).attr('data-guid');
-        window.renderPortalDetails(guid);
-        var latlng = findPortalLatLng(guid);
-        if (latlng) {
-            if (!map.getBounds().pad(-0.1).contains(latlng)) {
-                map.panTo(latlng);
-            }
-        } else {
-            // no idea where this portal is(!) - so step back one zoom level
-            map.setZoom(map.getZoom()-1);
-        }
-
-    });
+  });
 }
 
 window.plugin.showLinkedPortal.getPortalByGuid = function (guid,isorigin) {
@@ -84,7 +66,7 @@ window.plugin.showLinkedPortal.getPortalByGuid = function (guid,isorigin) {
     if (window.portals[guid] !== undefined) {
         var portalData = window.portals[guid].options.data;
 
-        var portalNameAddressAlt = "'" + portalData.title + "'";;
+        var portalNameAddressAlt = "'" + portalData.title + "'";
         var portalNameAddressTitle = $('<div/>').append($('<strong/>').text(portalData.title))
                                                 .append($('<br/>'))
                                                 .append(linkDirection)
@@ -110,35 +92,24 @@ window.plugin.showLinkedPortal.getPortalByGuid = function (guid,isorigin) {
     return portalInfoString;
 };
 
-window.plugin.showLinkedPortal.setupCallback = function () {
-    // make the value update when the map data updates
-    var handleDataResponseOrig = window.handleDataResponse;
-    window.handleDataResponse = function (data, textStatus, jqXHR) {
-        handleDataResponseOrig(data, textStatus, jqXHR);
-        window.renderPortalDetails(window.selectedPortal);
-    }
-}
-
 var setup = function () {
-    window.addHook('requestFinished', window.plugin.showLinkedPortal.handleUpdate);
-    window.addHook('portalDetailsUpdated', window.plugin.showLinkedPortal.portalDetail);
-    $('head').append('<style>' +
-        '.showLinkedPortalLink{cursor: pointer; position: absolute; height: 40px; width: 50px; border:solid 1px; overflow: hidden; text-align: center; background: #0e3d4e;}' +
-        '.showLinkedPortalLink .minImg{height: 40px;}' +
-        '.showLinkedPortalLink span.outOfRange{font-size: 10px;}' +
+  window.addHook('portalDetailsUpdated', window.plugin.showLinkedPortal.portalDetail);
+  $('head').append('<style>' +
+    '.showLinkedPortalLink{cursor: pointer; position: absolute; height: 40px; width: 50px; border:solid 1px; overflow: hidden; text-align: center; background: #0e3d4e;}' +
+    '.showLinkedPortalLink .minImg{height: 40px;}' +
+    '.showLinkedPortalLink span.outOfRange{font-size: 10px;}' +
 
-        '.showLinkedPortalLink1,.showLinkedPortalLink2,.showLinkedPortalLink3,.showLinkedPortalLink4 {left: 5px}' +
-        '.showLinkedPortalLink5,.showLinkedPortalLink6,.showLinkedPortalLink7,.showLinkedPortalLink8 {right: 11px}' +
-        '.showLinkedPortalLink9,.showLinkedPortalLink10,.showLinkedPortalLink11,.showLinkedPortalLink12 {left: 59px}' +
-        '.showLinkedPortalLink13,.showLinkedPortalLink14,.showLinkedPortalLink15,.showLinkedPortalLink16 {right: 65px}' +
+    '.showLinkedPortalLink1,.showLinkedPortalLink2,.showLinkedPortalLink3,.showLinkedPortalLink4 {left: 5px}' +
+    '.showLinkedPortalLink5,.showLinkedPortalLink6,.showLinkedPortalLink7,.showLinkedPortalLink8 {right: 11px}' +
+    '.showLinkedPortalLink9,.showLinkedPortalLink10,.showLinkedPortalLink11,.showLinkedPortalLink12 {left: 59px}' +
+    '.showLinkedPortalLink13,.showLinkedPortalLink14,.showLinkedPortalLink15,.showLinkedPortalLink16 {right: 65px}' +
 
-        '.showLinkedPortalLink1,.showLinkedPortalLink5,.showLinkedPortalLink9,.showLinkedPortalLink13 {top: 25px; }' +
-        '.showLinkedPortalLink2,.showLinkedPortalLink6,.showLinkedPortalLink10,.showLinkedPortalLink14 {top: 69px; }' +
-        '.showLinkedPortalLink3,.showLinkedPortalLink7,.showLinkedPortalLink11,.showLinkedPortalLink15 {top: 113px; }' +
-        '.showLinkedPortalLink4,.showLinkedPortalLink8,.showLinkedPortalLink12,.showLinkedPortalLink16 {top: 157px; }' +
-        '#level{text-align: center; margin-right: -0.5em; position: relative; right: 50%; width: 1em;}' +
-        '</style>');
-    window.plugin.showLinkedPortal.setupCallback();
+    '.showLinkedPortalLink1,.showLinkedPortalLink5,.showLinkedPortalLink9,.showLinkedPortalLink13 {top: 25px; }' +
+    '.showLinkedPortalLink2,.showLinkedPortalLink6,.showLinkedPortalLink10,.showLinkedPortalLink14 {top: 69px; }' +
+    '.showLinkedPortalLink3,.showLinkedPortalLink7,.showLinkedPortalLink11,.showLinkedPortalLink15 {top: 113px; }' +
+    '.showLinkedPortalLink4,.showLinkedPortalLink8,.showLinkedPortalLink12,.showLinkedPortalLink16 {top: 157px; }' +
+    '#level{text-align: center; margin-right: -0.5em; position: relative; right: 50%; width: 1em;}' +
+    '</style>');
 }
 // PLUGIN END //////////////////////////////////////////////////////////
 
