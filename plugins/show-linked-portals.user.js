@@ -23,6 +23,8 @@ window.plugin.showLinkedPortal = function () {
 };
 
 window.plugin.showLinkedPortal.portalDetail = function (data) {
+  plugin.showLinkedPortal.removePreview();
+
   var portalLinks = getPortalLinks(data.guid);
   var length = portalLinks.in.length + portalLinks.out.length
 
@@ -84,10 +86,15 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
       .appendTo('#portaldetails');
   }
 
-  $('#portaldetails').on('click', '.showLinkedPortalLink', plugin.showLinkedPortal.onLinkedPortalClick);
+  $('#portaldetails')
+    .on('click', '.showLinkedPortalLink', plugin.showLinkedPortal.onLinkedPortalClick)
+    .on('mouseover', '.showLinkedPortalLink', plugin.showLinkedPortal.onLinkedPortalMouseOver)
+    .on('mouseout', '.showLinkedPortalLink', plugin.showLinkedPortal.onLinkedPortalMouseOut);
 }
 
 plugin.showLinkedPortal.onLinkedPortalClick = function() {
+  plugin.showLinkedPortal.removePreview();
+
   var element = $(this);
   var guid = element.attr('data-guid');
   var lat = element.attr('data-lat');
@@ -101,6 +108,35 @@ plugin.showLinkedPortal.onLinkedPortalClick = function() {
     renderPortalDetails(guid);
   else
     zoomToAndShowPortal(guid, position);
+};
+
+plugin.showLinkedPortal.onLinkedPortalMouseOver = function() {
+  plugin.showLinkedPortal.removePreview();
+
+  var element = $(this);
+  var lat = element.attr('data-lat');
+  var lng = element.attr('data-lng');
+
+  if(!(lat && lng)) return; // overflow
+
+  var position = L.latLng(lat, lng);
+  plugin.showLinkedPortal.preview = L.circleMarker(position, {
+    color: "red",
+    weight: 5,
+    fill: false,
+    dashArray: "1,6",
+    radius: 18,
+  }).addTo(map);
+};
+
+plugin.showLinkedPortal.onLinkedPortalMouseOut = function() {
+  plugin.showLinkedPortal.removePreview();
+};
+
+plugin.showLinkedPortal.removePreview = function() {
+  if(plugin.showLinkedPortal.preview)
+    map.removeLayer(plugin.showLinkedPortal.preview);
+  plugin.showLinkedPortal.preview = null;
 };
 
 var setup = function () {
