@@ -50,7 +50,7 @@ window.search.Query.prototype.init = function() {
 
   this.list = $('<ul>')
     .appendTo(this.container)
-    .append($('<li>').text('No results'));
+    .append($('<li>').text(this.confirmed ? 'No local results, searching online...' : 'No local results.'));
 
   this.container.accordion({
     collapsible: true,
@@ -272,6 +272,15 @@ addHook('search', function(query) {
   if(!query.confirmed) return;
 
   $.getJSON(NOMINATIM + encodeURIComponent(query.term), function(data) {
+    if(data.length == 0) {
+      query.addResult({
+        title: 'No results on OpenStreetMap',
+        icon: '//www.openstreetmap.org/favicon.ico',
+        onSelected: function() {return true;},
+      });
+      return;
+    }
+
     data.forEach(function(item) {
       var result = {
         title: item.display_name,
