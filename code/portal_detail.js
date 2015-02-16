@@ -57,7 +57,7 @@ var handleResponse = function(guid, data, success) {
   if (success) {
     var dict = {
 //      raw:       data.result,
-      type:      data.result[0],
+      // result[0] is type - not needed (always a portal!)
       team:      data.result[1],
       latE6:     data.result[2],
       lngE6:     data.result[3],
@@ -67,7 +67,7 @@ var handleResponse = function(guid, data, success) {
       image:     data.result[7],
       title:     data.result[8],
       ornaments: data.result[9],
-      // what's [10]?
+      unknown_10: data.result[10], // temp name until we know what this value does
       mods:      data.result[11].map(parseMod),
       resonators:data.result[12].map(parseResonator),
       owner:     data.result[13],

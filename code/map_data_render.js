@@ -235,7 +235,7 @@ window.Render.prototype.createPortalEntity = function(ent) {
   var latlng = L.latLng(ent[2][2]/1E6, ent[2][3]/1E6);
 
   var data = {
-//    type:      ent[2][0],
+   // ent[2][0] is type - not needed as we know we're a portal
     team:      ent[2][1],
     latE6:     ent[2][2],
     lngE6:     ent[2][3],
@@ -244,8 +244,8 @@ window.Render.prototype.createPortalEntity = function(ent) {
     resCount:  ent[2][6],
     image:     ent[2][7],
     title:     ent[2][8],
-    ornaments: ent[2][9]
-    // and a new ent[2][10] ??? - maybe mission markers for portals?
+    ornaments: ent[2][9],
+    unknown_10: ent[2][10],  // temp name until we know what this value does
   };
 
   var dataOptions = {
