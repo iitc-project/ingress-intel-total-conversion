@@ -268,21 +268,27 @@ public class IITC_Mobile extends Activity
         }
 
         if (Intent.ACTION_SEARCH.equals(action)) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            query = query.replace("'", "''");
-            final SearchView searchView =
-                    (SearchView) mSearchMenuItem.getActionView();
+            final String query = intent.getStringExtra(SearchManager.QUERY);
+            final SearchView searchView = (SearchView) mSearchMenuItem.getActionView();
             searchView.setQuery(query, false);
             searchView.clearFocus();
 
-            switchToPane(Pane.MAP);
-            mIitcWebView.loadUrl("javascript:if(window.search&&window.search.doSearch){window.search.doSearch('" + query + "',true);window.show('info')}");
+            search(query, true);
+
             return;
         }
 
         if (onCreate) {
             loadUrl(mIntelUrl);
         }
+    }
+
+    private void search(String term, final boolean confirmed) {
+        if (term.isEmpty() && !confirmed) return;
+
+        term = term.replace("'", "\\'");
+        mIitcWebView.loadUrl("javascript:if(window.search&&window.search.doSearch){window.search.doSearch('" + term
+                + "'," + confirmed + ");}");
     }
 
     private void handleGeoUri(final Uri uri) throws URISyntaxException {
@@ -344,8 +350,7 @@ public class IITC_Mobile extends Activity
                 mSearchTerm = search;
                 loadUrl(mIntelUrl);
             } else {
-                switchToPane(Pane.MAP);
-                mIitcWebView.loadUrl("javascript:search('" + search + "');");
+                search(search, true);
             }
             return;
         }
@@ -507,7 +512,41 @@ public class IITC_Mobile extends Activity
         // Assumes current activity is the searchable activity
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(final String query) {
+                search(query, true);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(final String query) {
+                search(query, false);
+                return true;
+            }
+        });
+
+        // the SearchView does not allow submitting an empty query, so we catch the clear button
+        final View buttonClear = searchView.findViewById(
+                getResources().getIdentifier("android:id/search_close_btn", null, null));
+        if (buttonClear != null) buttonClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                searchView.setQuery("", false);
+                search("", true);
+            }
+        });
         return true;
+    }
+
+    @Override
+    public boolean onKeyDown(final int keyCode, final KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_SEARCH) {
+            mSearchMenuItem.expandActionView();
+            mSearchMenuItem.getActionView().requestFocus();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     @Override
@@ -731,8 +770,7 @@ public class IITC_Mobile extends Activity
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    // switchToPane(Pane.MAP);
-                    mIitcWebView.loadUrl("javascript:search('" + mSearchTerm + "');");
+                    search(mSearchTerm, true);
                     mSearchTerm = null;
                 }
             }, 5000);

@@ -195,6 +195,8 @@ window.search.doSearch = function(term, confirmed) {
   // clear results
   if(term == '') return;
 
+  if(useAndroidPanes()) show('info');
+
   $('#search').tooltip().tooltip('close');
 
   window.search.lastSearch = new window.search.Query(term, confirmed);
