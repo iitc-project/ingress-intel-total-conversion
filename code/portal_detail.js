@@ -84,7 +84,7 @@ var handleResponse = function(guid, data, success) {
     window.runHooks ('portalDetailLoaded', {guid:guid, success:success, details:dict});
 
   } else {
-    if (data.error == "RETRY") {
+    if (data && data.error == "RETRY") {
       // server asked us to try again
       portalDetail.request(guid);
     } else {
