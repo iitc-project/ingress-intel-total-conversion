@@ -137,15 +137,8 @@ window.search.Query.prototype.onResultSelected = function(result, ev) {
     result.layer = L.layerGroup();
 
     if(result.position) {
-      var markerTemplate = '@@INCLUDESTRING:images/marker-icon.svg.template@@';
-      L.marker(result.position, {
-        icon:  L.divIcon({
-          iconSize: new L.Point(25, 41),
-          iconAnchor: new L.Point(12, 41),
-          html: markerTemplate.replace(/%COLOR%/g, 'red'),
-          className: 'leaflet-iitc-search-result-icon',
-        }),
-        title: result.title,
+      createGenericMarker(result.position, 'red', {
+        title: result.title
       }).addTo(result.layer);
     }
 

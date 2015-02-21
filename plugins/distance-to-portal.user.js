@@ -85,19 +85,9 @@ window.plugin.distanceToPortal.setLocation = function() {
     window.plugin.distanceToPortal.currentLoc = map.getCenter();
   }
 
+  window.plugin.distanceToPortal.currentLocMarker = createGenericMarker (window.plugin.distanceToPortal.currentLoc,'#444',{draggable:true});
 
-  var markerTemplate = '@@INCLUDESTRING:images/marker-icon.svg.template@@';
-  window.plugin.distanceToPortal.currentLocMarker = L.marker(window.plugin.distanceToPortal.currentLoc,{
-    icon: L.divIcon({
-      iconSize: new L.Point(25, 41),
-      iconAnchor: new L.Point(12, 41),
-      html: markerTemplate.replace(/%COLOR%/g, '#444'),
-      className: 'leaflet-iitc-distance-to-portal-location'
-    }),
-    draggable: true,
-  });
-
-  window.plugin.distanceToPortal.currentLocMarker.on('dragend', function(e) {
+  window.plugin.distanceToPortal.currentLocMarker.on('drag', function(e) {
     window.plugin.distanceToPortal.currentLoc = window.plugin.distanceToPortal.currentLocMarker.getLatLng();
 
     localStorage['plugin-distance-to-portal'] = JSON.stringify({lat:window.plugin.distanceToPortal.currentLoc.lat, lng:window.plugin.distanceToPortal.currentLoc.lng});
