@@ -234,12 +234,14 @@ addHook('search', function(query) {
         position: portal.getLatLng(),
         icon: 'data:image/svg+xml;base64,'+btoa('@@INCLUDESTRING:images/icon-portal.svg@@'.replace(/%COLOR%/g, color)),
         onSelected: function(result, event) {
-          if(event.type == 'dblclick')
+          if(event.type == 'dblclick') {
             zoomToAndShowPortal(guid, portal.getLatLng());
-          else if(window.portals[guid])
+          } else if(window.portals[guid]) {
+            if(!map.getBounds().contains(result.position)) map.setView(result.position);
             renderPortalDetails(guid);
-          else
+          } else {
             window.selectPortalByLatLng(portal.getLatLng());
+          }
           return true; // prevent default behavior
         },
       });
