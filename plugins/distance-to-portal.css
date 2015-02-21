@@ -19,10 +19,14 @@
 	top: 0.15em;
 	left: 0.15em;
 	transform: skewY(-30deg);
+	-moz-transform: skewY(-30deg);
+	-webkit-transform: skewY(-30deg);
 }
 #portal-distance-bearing:after {
 	left: auto;
 	right: 0.15em;
 	transform: scaleX(-1) skewY(-30deg);
+	-moz-transform: scaleX(-1) skewY(-30deg);
+	-webkit-transform: scaleX(-1) skewY(-30deg);
 }
 

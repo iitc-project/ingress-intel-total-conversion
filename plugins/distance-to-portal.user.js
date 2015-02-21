@@ -22,9 +22,24 @@
 // use own namespace for plugin
 window.plugin.distanceToPortal = function() {};
 
-window.plugin.distanceToPortal.addDistance = function(info) {
+window.plugin.distanceToPortal.addDistance = function() {
+  var div = $('<div>')
+    .attr({
+      id: 'portal-distance',
+      title: 'Double-click to set/change current location',
+    })
+    .on('dblclick', window.plugin.distanceToPortal.setLocation);
 
-  var ll = info.portal.getLatLng();
+  $('#resodetails').after(div);
+
+  window.plugin.distanceToPortal.updateDistance();
+};
+
+window.plugin.distanceToPortal.updateDistance = function() {
+  if(!(selectedPortal && portals[selectedPortal])) return;
+  var portal = portals[selectedPortal];
+
+  var ll = portal.getLatLng();
 
   var text;
 
@@ -42,22 +57,19 @@ window.plugin.distanceToPortal.addDistance = function(info) {
     var bearing = window.plugin.distanceToPortal.currentLoc.bearingTo(ll);
     var bearingWord = window.plugin.distanceToPortal.currentLoc.bearingWordTo(ll);
 
-    text = 'Distance: '+dist+' <span id="portal-distance-bearing" style="transform: rotate('+bearing+'deg)"></span> '
-      + zeroPad(bearing, 3) + '° ' + bearingWord;
+    $('#portal-distance')
+      .text('Distance: ' + dist + ' ')
+      .append($('<span>')
+        .attr('id', 'portal-distance-bearing')
+        .css({
+          'transform': 'rotate('+bearing+'deg)',
+          '-moz-transform': 'rotate('+bearing+'deg)',
+          '-webkit-transform': 'rotate('+bearing+'deg)',
+        }))
+      .append(document.createTextNode(' ' + zeroPad(bearing, 3) + '° ' + bearingWord));
   } else {
-    text = 'Location not set';
+    $('#portal-distance').text('Location not set');
   }
-
-  var div = $('<div>')
-    .attr({
-      id: 'portal-distance',
-      title: 'Double-click to set/change current location',
-    })
-    .html(text)
-    .on('dblclick', window.plugin.distanceToPortal.setLocation);
-
-  $('#resodetails').after(div);
-
 };
 
 
@@ -90,8 +102,7 @@ window.plugin.distanceToPortal.setLocation = function() {
 
     localStorage['plugin-distance-to-portal'] = JSON.stringify({lat:window.plugin.distanceToPortal.currentLoc.lat, lng:window.plugin.distanceToPortal.currentLoc.lng});
 
-    // bit nasty, but easiest way of refreshing the distance after marker is moved
-    if (selectedPortal) renderPortalDetails(selectedPortal);
+    if (selectedPortal) window.plugin.distanceToPortal.updateDistance();
   });
 
   map.addLayer(window.plugin.distanceToPortal.currentLocMarker);
