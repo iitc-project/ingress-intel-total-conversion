@@ -22,8 +22,6 @@
 // use own namespace for plugin
 window.plugin.distanceToPortal = function() {};
 
-
-
 window.plugin.distanceToPortal.addDistance = function(info) {
 
   var ll = info.portal.getLatLng();
@@ -41,12 +39,22 @@ window.plugin.distanceToPortal.addDistance = function(info) {
       dist = Math.round(dist)+'m';
     }
 
-    text = 'Distance: '+dist;
+    var bearing = window.plugin.distanceToPortal.currentLoc.bearingTo(ll);
+    var bearingWord = window.plugin.distanceToPortal.currentLoc.bearingWordTo(ll);
+
+    text = 'Distance: '+dist+' <span id="portal-distance-bearing" style="transform: rotate('+bearing+'deg)"></span> '
+      + zeroPad(bearing, 3) + '° ' + bearingWord;
   } else {
     text = 'Location not set';
   }
 
-  var div = $('<div>').addClass('portal-distance').text(text).attr('title','Double-click to set/change current location').on('dblclick',window.plugin.distanceToPortal.setLocation);
+  var div = $('<div>')
+    .attr({
+      id: 'portal-distance',
+      title: 'Double-click to set/change current location',
+    })
+    .html(text)
+    .on('dblclick', window.plugin.distanceToPortal.setLocation);
 
   $('#resodetails').after(div);
 
@@ -91,6 +99,8 @@ window.plugin.distanceToPortal.setLocation = function() {
 
 
 window.plugin.distanceToPortal.setup  = function() {
+  // https://github.com/gregallensworth/Leaflet/
+  @@INCLUDERAW:external/LatLng_Bearings.js@@
 
   try {
     window.plugin.distanceToPortal.currentLoc = L.latLng(JSON.parse(localStorage['plugin-distance-to-portal']));
@@ -100,12 +110,7 @@ window.plugin.distanceToPortal.setup  = function() {
 
   window.plugin.distanceToPortal.currentLocMarker = null;
 
-
-  $('head').append(
-    '<style>'+
-    'div.portal-distance { text-align: center; }'+
-    '</style>'
-  );
+  $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:plugins/distance-to-portal.css@@').appendTo('head');
 
   addHook('portalDetailsUpdated', window.plugin.distanceToPortal.addDistance);
 };
