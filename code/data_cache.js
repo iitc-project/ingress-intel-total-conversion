@@ -31,11 +31,11 @@ window.DataCache.prototype.store = function(qk,data,freshTime) {
   if (freshTime===undefined) freshTime = this.REQUEST_CACHE_FRESH_AGE*1000;
   var expire = time + freshTime;
 
-  this._cache[qk] = { time: time, expire: expire, data: data };
+  this._cache[qk] = { time: time, expire: expire, data: JSON.stringify(data) };
 }
 
 window.DataCache.prototype.get = function(qk) {
-  if (qk in this._cache) return this._cache[qk].data;
+  if (qk in this._cache) return JSON.parse(this._cache[qk].data);
   else return undefined;
 }
 
