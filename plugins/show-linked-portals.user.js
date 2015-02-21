@@ -22,6 +22,15 @@
 window.plugin.showLinkedPortal = function () {
 };
 
+plugin.showLinkedPortal.previewOptions = {
+  color: "#C33",
+  opacity: 1,
+  weight: 5,
+  fill: false,
+  dashArray: "1,6",
+  radius: 18,
+};
+
 window.plugin.showLinkedPortal.portalDetail = function (data) {
   plugin.showLinkedPortal.removePreview();
 
@@ -119,14 +128,16 @@ plugin.showLinkedPortal.onLinkedPortalMouseOver = function() {
 
   if(!(lat && lng)) return; // overflow
 
-  var position = L.latLng(lat, lng);
-  plugin.showLinkedPortal.preview = L.circleMarker(position, {
-    color: "red",
-    weight: 5,
-    fill: false,
-    dashArray: "1,6",
-    radius: 18,
-  }).addTo(map);
+  var remote = L.latLng(lat, lng);
+  var local = portals[selectedPortal].getLatLng();
+
+  plugin.showLinkedPortal.preview = L.layerGroup().addTo(map);
+
+  L.circleMarker(remote, plugin.showLinkedPortal.previewOptions)
+    .addTo(plugin.showLinkedPortal.preview);
+
+  L.geodesicPolyline([local, remote], plugin.showLinkedPortal.previewOptions)
+    .addTo(plugin.showLinkedPortal.preview);
 };
 
 plugin.showLinkedPortal.onLinkedPortalMouseOut = function() {
