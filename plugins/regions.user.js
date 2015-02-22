@@ -25,9 +25,7 @@ window.plugin.regions = function() {};
 window.plugin.regions.setup  = function() {
   @@INCLUDERAW:external/s2geometry.js@@
 
-
   window.plugin.regions.regionLayer = L.layerGroup();
-
 
   $("<style>")
     .prop("type", "text/css")
@@ -52,27 +50,21 @@ window.plugin.regions.setup  = function() {
 };
 
 window.plugin.regions.FACE_NAMES = [ 'AF', 'AS', 'NR', 'PA', 'AM', 'ST' ];
-window.plugin.regions.CODE_WORD = [
-    'ALPHA',
-    'BRAVO',
-    'CHARLIE',
-    'DELTA',
-    'ECHO',
-    'FOXTROT',
-    'GOLF',
-    'HOTEL',
-    'JULIET',
-    'KILO',
-    'LIMA',
-    'MIKE',
-    'NOVEMBER',
-    'PAPA',
-    'ROMEO',
-    'SIERRA'
-  ];
+window.plugin.regions.CODE_WORDS = [
+  'ALPHA',    'BRAVO',   'CHARLIE', 'DELTA',
+  'ECHO',     'FOXTROT', 'GOLF',    'HOTEL',
+  'JULIET',   'KILO',    'LIMA',    'MIKE',
+  'NOVEMBER', 'PAPA',    'ROMEO',   'SIERRA',
+];
+
+// This regexp is quite forgiving. Dashes are allowed between all components, each dash and leading zero is optional.
+// All whitespace is removed in onSearch(). If the first or both the first and second component are omitted, they are
+// replaced with the current cell's coordinates (=the cell which contains the center point of the map). If the last
+// component is ommited, the 4x4 cell group is used.
+window.plugin.regions.REGEXP = new RegExp('^(?:(?:(' + plugin.regions.FACE_NAMES.join('|') + ')-?)?((?:1[0-6])|(?:0?[1-9]))-?)?(' +
+  plugin.regions.CODE_WORDS.join('|') + ')(?:-?((?:1[0-5])|(?:0?\\d)))?$', 'i');
 
 window.plugin.regions.regionName = function(cell) {
-
   // ingress does some odd things with the naming. for some faces, the i and j coords are flipped when converting
   // (and not only the names - but the full quad coords too!). easiest fix is to create a temporary cell with the coords
   // swapped
@@ -88,7 +80,7 @@ window.plugin.regions.regionName = function(cell) {
     var regionI = cell.ij[0] >> (cell.level-4);
     var regionJ = cell.ij[1] >> (cell.level-4);
 
-    name += zeroPad(regionI+1,2)+'-'+window.plugin.regions.CODE_WORD[regionJ];
+    name += zeroPad(regionI+1,2)+'-'+window.plugin.regions.CODE_WORDS[regionJ];
   }
 
   if (cell.level >= 6) {
@@ -103,78 +95,105 @@ window.plugin.regions.regionName = function(cell) {
   return name;
 };
 
-
 window.plugin.regions.search = function(query) {
-  var faces = window.plugin.regions.FACE_NAMES.join('|');
-  var codewords = window.plugin.regions.CODE_WORD.join('|');
-
-  var regExp = new RegExp('('+faces+')([01][0-9])[ -]?('+codewords+')[ -]?([01][0-9])','i');
-
-  var match = regExp.exec(query.term);
-
-  if (match) {
-    var faceId = window.plugin.regions.FACE_NAMES.indexOf(match[1].toUpperCase());
-    var id1 = parseInt(match[2]);
-    var codeWordId = window.plugin.regions.CODE_WORD.indexOf(match[3].toUpperCase());
-    var id2 = parseInt(match[4]);
-
-    if (faceId!=-1 && id1>=1 && id1<=16 && codeWordId!=-1 && id2>=0 && id2<=15) {
-      // looks good. now we need the face/i/j values for this cell
-
-      // face is used as-is
-
-      // id1 is the region 'i' value (first 4 bits), codeword is the 'j' value (first 4 bits)
-      var regionI = id1-1;
-      var regionJ = codeWordId;
-
-      // the final 2 bits of I and J are tricky - easiest way is to try all 16 cells given the 4 bits of I/J we have so far...
-
-      for (var i=0; i<4; i++) {
-        for (var j=0; j<4; j++) {
-
-          var cell = S2.S2Cell.FromFaceIJ(faceId, [regionI*4+i,regionJ*4+j], 6);
-
-          var facequads = cell.getFaceAndQuads();
-          var number = facequads[1][4]*4+facequads[1][5];
-
-          if (number == id2) {
-            // we have a match!
-
-            // as in the name-construction above, for odd numbered faces, the I and J need swapping
-            if (cell.face == 1 || cell.face == 3 || cell.face == 5) {
-              cell = S2.S2Cell.FromFaceIJ ( cell.face, [cell.ij[1], cell.ij[0]], cell.level );
-            }
-
-            var title = window.plugin.regions.FACE_NAMES[faceId]+zeroPad(id1,2)+'-'+window.plugin.regions.CODE_WORD[codeWordId]+'-'+zeroPad(id2,2);
-            var corners = cell.getCornerLatLngs();
-            var layer = L.geodesicPolygon(corners, { fill: false, color: 'red', clickable: false });
-
-            var bounds = L.latLngBounds(corners[0],corners[1]).extend(corners[2]).extend(corners[3]);
-
-            query.addResult({
-              title: title,
-              description: 'Regional score cell',
-              bounds: bounds,
-              layer: layer
-            });
-
-            // we'll only ever match one cell, so return early
-            return;
-
-          }
-
-        }
-      }
-
-      console.log('error: thought we had a region cell search match - but failed to find it!');
-
-
-    }
-
-  }
+  var terms = query.term.replace(/\s+/g, '').split(/[,;]/);
+  var matches = terms.map(function(string) {
+    return string.match(window.plugin.regions.REGEXP);
+  });
+  if(!matches.every(function(match) { return match !== null; })) return;
+  
+  var currentCell = window.plugin.regions.regionName(S2.S2Cell.FromLatLng(map.getCenter(), 6));
+  
+  matches.forEach(function(match) {
+    if(!match[1])
+      match[1] = currentCell.substr(0, 2);
+    else
+      match[1] = match[1].toUpperCase();
+    
+    if(!match[2])
+      match[2] = currentCell.substr(2,2);
+    
+    match[3] = match[3].toUpperCase();
+    
+    var result = window.plugin.regions.getSearchResult(match);
+    if(result) query.addResult(result);
+  });
 }
 
+window.plugin.regions.getSearchResult = function(match) {
+  var faceId = window.plugin.regions.FACE_NAMES.indexOf(match[1]);
+  var id1 = parseInt(match[2]);
+  var codeWordId = window.plugin.regions.CODE_WORDS.indexOf(match[3]);
+  var id2 = match[4] === undefined ? undefined : parseInt(match[4]);
 
+  if(faceId === -1 || id1 < 1 && id1 > 16 || codeWordId === -1 || id2 < 0 || id2 > 15) return;
+
+  // looks good. now we need the face/i/j values for this cell
+
+  // face is used as-is
+
+  // id1 is the region 'i' value (first 4 bits), codeword is the 'j' value (first 4 bits)
+  var regionI = id1-1;
+  var regionJ = codeWordId;
+
+  // the final 2 bits of I and J are tricky - easiest way is to try all 16 cells given the 4 bits of I/J we have so far...
+
+  if(id2 === undefined) { // level 4 cell
+    // as in the name-construction above, for odd numbered faces, the I and J need swapping
+    var cell = (faceId == 1 || faceId == 3 || faceId == 5) ?
+      S2.S2Cell.FromFaceIJ(faceId, [regionJ,regionI], 4) :
+      S2.S2Cell.FromFaceIJ(faceId, [regionI,regionJ], 4) ;
+    var title = window.plugin.regions.FACE_NAMES[faceId] + zeroPad(id1,2) + '-' + window.plugin.regions.CODE_WORDS[codeWordId];
+
+    var corners = cell.getCornerLatLngs();
+    var layer = L.geodesicPolygon(corners, { fill: false, color: 'red', clickable: false });
+
+    var bounds = L.latLngBounds(corners);
+
+    return {
+      title: title,
+      description: 'Regional score cells (cluster of 16 cells)',
+      icon: 'data:image/svg+xml;base64,'+btoa('@@INCLUDESTRING:images/icon-cell.svg@@'.replace(/orange/, 'gold')),
+      bounds: bounds,
+      layer: layer
+    };
+  }
+
+  for(var i=0; i<4; i++) {
+    for(var j=0; j<4; j++) {
+
+      var cell = S2.S2Cell.FromFaceIJ(faceId, [regionI*4+i,regionJ*4+j], 6);
+
+      var facequads = cell.getFaceAndQuads();
+      var number = facequads[1][4]*4+facequads[1][5];
+
+      if (number == id2) {
+        // we have a match!
+
+        // as in the name-construction above, for odd numbered faces, the I and J need swapping
+        if (cell.face == 1 || cell.face == 3 || cell.face == 5) {
+          cell = S2.S2Cell.FromFaceIJ ( cell.face, [cell.ij[1], cell.ij[0]], cell.level );
+        }
+
+        var title = window.plugin.regions.FACE_NAMES[faceId]+zeroPad(id1,2)+'-'+window.plugin.regions.CODE_WORDS[codeWordId]+'-'+zeroPad(id2,2);
+        var corners = cell.getCornerLatLngs();
+        var layer = L.geodesicPolygon(corners, { fill: false, color: 'red', clickable: false });
+
+        var bounds = L.latLngBounds(corners);
+
+        return {
+          title: title,
+          description: 'Regional score cell',
+          icon: 'data:image/svg+xml;base64,'+btoa('@@INCLUDESTRING:images/icon-cell.svg@@'),
+          bounds: bounds,
+          layer: layer
+        };
+      }
+    }
+  }
+
+  console.error('thought we had a region cell search match - but failed to find it!');
+}
 
 window.plugin.regions.update = function() {
 
@@ -241,10 +260,7 @@ window.plugin.regions.update = function() {
     var poly = L.polyline ( [[35.264389682754654,i], [-35.264389682754654,i]], globalCellOptions );
     window.plugin.regions.regionLayer.addLayer(poly);
   }
-
 }
-
-
 
 window.plugin.regions.drawCell = function(cell) {
 
@@ -298,7 +314,6 @@ window.plugin.regions.drawCell = function(cell) {
   });
   window.plugin.regions.regionLayer.addLayer(marker);
 };
-
 
 var setup =  window.plugin.regions.setup;
 
