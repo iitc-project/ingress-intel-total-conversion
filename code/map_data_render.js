@@ -21,22 +21,66 @@ window.Render.prototype.startRenderPass = function(level,bounds) {
 
   this.bounds = bounds;
 
-  this.clearPortalsBelowLevel(level);
+  // we pad the bounds used for clearing a litle bit, as entities are sometimes returned outside of their specified tile boundaries
+  // this will just avoid a few entity removals at start of render when they'll just be added again
+  var paddedBounds = bounds.pad(0.1);
+
+  this.clearPortalsBelowLevelOrOutsideBounds(level,paddedBounds);
+
+  this.clearLinksOutsideBounds(paddedBounds);
+  this.clearFieldsOutsideBounds(paddedBounds);
+
 
   this.rescalePortalMarkers();
 }
 
-window.Render.prototype.clearPortalsBelowLevel = function(level) {
+window.Render.prototype.clearPortalsBelowLevelOrOutsideBounds = function(level,bounds) {
   var count = 0;
   for (var guid in window.portals) {
     var p = portals[guid];
     // clear portals below specified level - unless it's the selected portal, or it's relevant to artifacts
-    if (parseInt(p.options.level) < level && guid !== selectedPortal && !artifact.isInterestingPortal(guid) && !ornaments.isInterestingPortal(p)) {
+    if ((parseInt(p.options.level) < level || !bounds.contains(p.getLatLng())) && guid !== selectedPortal && !artifact.isInterestingPortal(guid)) {
       this.deletePortalEntity(guid);
       count++;
     }
   }
-  console.log('Render: deleted '+count+' portals by level');
+  console.log('Render: deleted '+count+' portals by level/bounds');
+}
+
+window.Render.prototype.clearLinksOutsideBounds = function(bounds) {
+  var count = 0;
+  for (var guid in window.links) {
+    var l = links[guid];
+
+    // NOTE: our geodesic lines can have lots of intermediate points. the bounds calculation hasn't been optimised for this
+    // so can be particularly slow. a simple bounds check based on start+end point will be good enough for this check
+    var lls = l.getLatLngs();
+    var linkBounds = L.latLngBounds(lls);
+
+    if (!bounds.intersects(linkBounds)) {
+      this.deleteLinkEntity(guid);
+      count++;
+    }
+  }
+  console.log('Render: deleted '+count+' links by bounds');
+}
+
+window.Render.prototype.clearFieldsOutsideBounds = function(bounds) {
+  var count = 0;
+  for (var guid in window.fields) {
+    var f = fields[guid];
+
+    // NOTE: our geodesic polys can have lots of intermediate points. the bounds calculation hasn't been optimised for this
+    // so can be particularly slow. a simple bounds check based on corner points will be good enough for this check
+    var lls = f.getLatLngs();
+    var fieldBounds = L.latLngBounds([lls[0],lls[1]]).extend(lls[2]);
+
+    if (!bounds.intersects(fieldBounds)) {
+      this.deleteFieldEntity(guid);
+      count++;
+    }
+  }
+  console.log('Render: deleted '+count+' fields by bounds');
 }
 
 
@@ -103,6 +147,7 @@ window.Render.prototype.processGameEntities = function(entities) {
 // end a render pass. does any cleaning up required, postponed processing of data, etc. called when the render
 // is considered complete
 window.Render.prototype.endRenderPass = function() {
+  var countp=0,countl=0,countf=0;
 
   // check to see if there are any entities we haven't seen. if so, delete them
   for (var guid in window.portals) {
@@ -110,18 +155,23 @@ window.Render.prototype.endRenderPass = function() {
     // artifact (e.g. jarvis shard) portals are also kept - but they're always 'seen'
     if (!(guid in this.seenPortalsGuid) && guid !== selectedPortal) {
       this.deletePortalEntity(guid);
+      countp++;
     }
   }
   for (var guid in window.links) {
     if (!(guid in this.seenLinksGuid)) {
       this.deleteLinkEntity(guid);
+      countl++;
     }
   }
   for (var guid in window.fields) {
     if (!(guid in this.seenFieldsGuid)) {
       this.deleteFieldEntity(guid);
+      countf++;
     }
   }
+
+  console.log('Render: end cleanup: removed '+countp+' portals, '+countl+' links, '+countf+' fields');
 
   // reorder portals to be after links/fields
   this.bringPortalsToFront();
