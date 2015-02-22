@@ -108,7 +108,7 @@ window.plugin.regions.search = function(query) {
   var faces = window.plugin.regions.FACE_NAMES.join('|');
   var codewords = window.plugin.regions.CODE_WORD.join('|');
 
-  var regExp = new RegExp('^('+faces+')([01][0-9])[ -]?('+codewords+')[ -]?([01][0-9])$','i');
+  var regExp = new RegExp('('+faces+')([01][0-9])[ -]?('+codewords+')[ -]?([01][0-9])','i');
 
   var match = regExp.exec(query.term);
 
