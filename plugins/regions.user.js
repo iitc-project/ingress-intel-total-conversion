@@ -2,7 +2,7 @@
 // @id             iitc-plugin-regions@jonatkins
 // @name           IITC plugin: Show the local score regions
 // @category       Layer
-// @version        0.1.1.@@DATETIMEVERSION@@
+// @version        0.1.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -46,13 +46,13 @@ window.plugin.regions.setup  = function() {
 
   map.on('moveend', window.plugin.regions.update);
 
+  addHook('search', window.plugin.regions.search);
+
   window.plugin.regions.update();
 };
 
-
-window.plugin.regions.regionName = function(cell) {
-  var face2name = [ 'AF', 'AS', 'NR', 'PA', 'AM', 'ST' ];
-  var codeWord = [
+window.plugin.regions.FACE_NAMES = [ 'AF', 'AS', 'NR', 'PA', 'AM', 'ST' ];
+window.plugin.regions.CODE_WORD = [
     'ALPHA',
     'BRAVO',
     'CHARLIE',
@@ -71,6 +71,7 @@ window.plugin.regions.regionName = function(cell) {
     'SIERRA'
   ];
 
+window.plugin.regions.regionName = function(cell) {
 
   // ingress does some odd things with the naming. for some faces, the i and j coords are flipped when converting
   // (and not only the names - but the full quad coords too!). easiest fix is to create a temporary cell with the coords
@@ -80,14 +81,14 @@ window.plugin.regions.regionName = function(cell) {
   }
 
   // first component of the name is the face
-  var name = face2name[cell.face];
+  var name = window.plugin.regions.FACE_NAMES[cell.face];
 
   if (cell.level >= 4) {
     // next two components are from the most signifitant four bits of the cell I/J
     var regionI = cell.ij[0] >> (cell.level-4);
     var regionJ = cell.ij[1] >> (cell.level-4);
 
-    name += zeroPad(regionI+1,2)+'-'+codeWord[regionJ];
+    name += zeroPad(regionI+1,2)+'-'+window.plugin.regions.CODE_WORD[regionJ];
   }
 
   if (cell.level >= 6) {
@@ -101,6 +102,79 @@ window.plugin.regions.regionName = function(cell) {
 
   return name;
 };
+
+
+window.plugin.regions.search = function(query) {
+  var faces = window.plugin.regions.FACE_NAMES.join('|');
+  var codewords = window.plugin.regions.CODE_WORD.join('|');
+
+  var regExp = new RegExp('^('+faces+')([01][0-9])[ -]?('+codewords+')[ -]?([01][0-9])$','i');
+
+  var match = regExp.exec(query.term);
+
+  if (match) {
+    var faceId = window.plugin.regions.FACE_NAMES.indexOf(match[1].toUpperCase());
+    var id1 = parseInt(match[2]);
+    var codeWordId = window.plugin.regions.CODE_WORD.indexOf(match[3].toUpperCase());
+    var id2 = parseInt(match[4]);
+
+    if (faceId!=-1 && id1>=1 && id1<=16 && codeWordId!=-1 && id2>=0 && id2<=15) {
+      // looks good. now we need the face/i/j values for this cell
+
+      // face is used as-is
+
+      // id1 is the region 'i' value (first 4 bits), codeword is the 'j' value (first 4 bits)
+      var regionI = id1-1;
+      var regionJ = codeWordId;
+
+      // the final 2 bits of I and J are tricky - easiest way is to try all 16 cells given the 4 bits of I/J we have so far...
+
+      for (var i=0; i<4; i++) {
+        for (var j=0; j<4; j++) {
+
+          var cell = S2.S2Cell.FromFaceIJ(faceId, [regionI*4+i,regionJ*4+j], 6);
+
+          var facequads = cell.getFaceAndQuads();
+          var number = facequads[1][4]*4+facequads[1][5];
+
+          if (number == id2) {
+            // we have a match!
+
+            // as in the name-construction above, for odd numbered faces, the I and J need swapping
+            if (cell.face == 1 || cell.face == 3 || cell.face == 5) {
+              cell = S2.S2Cell.FromFaceIJ ( cell.face, [cell.ij[1], cell.ij[0]], cell.level );
+            }
+
+            var title = window.plugin.regions.FACE_NAMES[faceId]+zeroPad(id1,2)+'-'+window.plugin.regions.CODE_WORD[codeWordId]+'-'+zeroPad(id2,2);
+            var corners = cell.getCornerLatLngs();
+            var layer = L.geodesicPolygon(corners, { fill: false, color: 'red', clickable: false });
+
+            var bounds = L.latLngBounds(corners[0],corners[1]).extend(corners[2]).extend(corners[3]);
+
+            query.addResult({
+              title: title,
+              description: 'Regional score cell',
+              bounds: bounds,
+              layer: layer
+            });
+
+            // we'll only ever match one cell, so return early
+            return;
+
+          }
+
+        }
+      }
+
+      console.log('error: thought we had a region cell search match - but failed to find it!');
+
+
+    }
+
+  }
+}
+
+
 
 window.plugin.regions.update = function() {
 
