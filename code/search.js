@@ -190,7 +190,7 @@ window.search.doSearch = function(term, confirmed) {
 
   if(useAndroidPanes()) show('info');
 
-  $('#search').tooltip().tooltip('close');
+  $('.ui-tooltip').remove();
 
   window.search.lastSearch = new window.search.Query(term, confirmed);
   window.search.lastSearch.show();
