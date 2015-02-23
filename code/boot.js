@@ -453,6 +453,7 @@ window.setupSidebarToggle = function() {
       toggle.html('<span class="toggle close"></span>');
       toggle.css('right', SIDEBAR_WIDTH+1+'px');
     }
+    $('.ui-tooltip').remove();
   });
 }
 
@@ -463,6 +464,7 @@ window.setupTooltips = function(element) {
     show: { effect: "hide", duration: 0 } ,
     hide: false,
     open: function(event, ui) {
+      $(".ui-tooltip").not(ui.tooltip).remove();
       ui.tooltip.delay(300).fadeIn(0);
     },
     content: function() {
