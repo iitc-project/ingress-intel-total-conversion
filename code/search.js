@@ -257,6 +257,7 @@ addHook('search', function(query) {
     if(!isNaN(ll[0]) && !isNaN(ll[1])) {
       query.addResult({
         title: query.term,
+        description: 'geo coordinates',
         position: L.latLng(parseFloat(ll[0]), parseFloat(ll[1])),
       });
     }
