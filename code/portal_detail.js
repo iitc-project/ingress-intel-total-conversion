@@ -68,9 +68,10 @@ var handleResponse = function(guid, data, success) {
       title:     data.result[8],
       ornaments: data.result[9],
       unknown_10: data.result[10], // temp name until we know what this value does
-      mods:      data.result[11].map(parseMod),
-      resonators:data.result[12].map(parseResonator),
-      owner:     data.result[13],
+      unknown_11: data.result[11], // temp name until we know what this value does
+      mods:      data.result[12].map(parseMod),
+      resonators:data.result[13].map(parseResonator),
+      owner:     data.result[14],
     };
 
     cache.store(guid,dict);
