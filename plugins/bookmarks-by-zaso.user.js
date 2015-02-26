@@ -637,24 +637,13 @@
     }
   }
 
-  window.plugin.bookmarks.optCSV = function() {
+  window.plugin.bookmarks.optMaxfield = function() {
     if(typeof android !== 'undefined' && android && android.shareString) {
       return android.shareString(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
     } else {
 
       var portals = JSON.parse(localStorage['plugin-bookmarks']).portals,
-          output = '\n\n*********** INGRESS ROUTE PLANNER ***********\n';
-      for (var key in portals) {
-          if (!portals.hasOwnProperty(key)) {
-              continue;
-          }
-          var bkmrk = portals[key].bkmrk;
-          for (var key in bkmrk) {
-              output += 'https://www.ingress.com/intel?ll=' + bkmrk[key].latlng + '&z=17&pll=' + bkmrk[key].latlng + '\n';
-          }
-      }
-
-      output += '\n\n*********** INGRESS MAX FIELD ***********\n';
+          output = '';
 
       for (var key in portals) {
           if (!portals.hasOwnProperty(key)) {
@@ -668,8 +657,33 @@
 
       dialog({
         html: '<p><a onclick="$(\'.ui-dialog-bkmrksSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly>'+output+'</textarea>',
-        dialogClass: 'ui-dialog-bkmrksSet-csv',
-        title: 'Bookmarks to CSV'
+        dialogClass: 'ui-dialog-bkmrksSet-copy',
+        title: 'Ingress Maxfield'
+      });
+    }
+  }
+
+  window.plugin.bookmarks.optRoutePlanner = function() {
+    if(typeof android !== 'undefined' && android && android.shareString) {
+      return android.shareString(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
+    } else {
+
+      var portals = JSON.parse(localStorage['plugin-bookmarks']).portals,
+          output = '';
+      for (var key in portals) {
+          if (!portals.hasOwnProperty(key)) {
+              continue;
+          }
+          var bkmrk = portals[key].bkmrk;
+          for (var key in bkmrk) {
+              output += 'https://www.ingress.com/intel?ll=' + bkmrk[key].latlng + '&z=17&pll=' + bkmrk[key].latlng + '\n';
+          }
+      }
+
+      dialog({
+        html: '<p><a onclick="$(\'.ui-dialog-bkmrksSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly>'+output+'</textarea>',
+        dialogClass: 'ui-dialog-bkmrksSet-copy',
+        title: 'Ingress Maxfield'
       });
     }
   }
@@ -1241,7 +1255,8 @@
     var actions = '';
     actions += '<a onclick="window.plugin.bookmarks.optReset();return false;">Reset bookmarks</a>';
     actions += '<a onclick="window.plugin.bookmarks.optCopy();return false;">Copy bookmarks</a>';
-    actions += '<a onclick="window.plugin.bookmarks.optCSV();return false;">Bookmarks to CSV</a>';
+    actions += '<a onclick="window.plugin.bookmarks.optMaxfield();return false;">Bookmarks to Maxfield</a>';
+    actions += '<a onclick="window.plugin.bookmarks.optRoutePlanner();return false;">Bookmarks to Route Planner</a>';
     actions += '<a onclick="window.plugin.bookmarks.optPaste();return false;">Paste bookmarks</a>';
 
     if(plugin.bookmarks.isAndroid()) {
