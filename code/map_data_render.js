@@ -296,6 +296,7 @@ window.Render.prototype.createPortalEntity = function(ent) {
     title:     ent[2][8],
     ornaments: ent[2][9],
     unknown_10: ent[2][10],  // temp name until we know what this value does
+    unknown_11: ent[2][11],  // temp name until we know what this value does
   };
 
   var dataOptions = {
