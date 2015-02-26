@@ -683,7 +683,7 @@
       dialog({
         html: '<p><a onclick="$(\'.ui-dialog-bkmrksSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly>'+output+'</textarea>',
         dialogClass: 'ui-dialog-bkmrksSet-copy',
-        title: 'Ingress Maxfield'
+        title: 'Ingress Route Panner'
       });
     }
   }
@@ -1255,9 +1255,9 @@
     var actions = '';
     actions += '<a onclick="window.plugin.bookmarks.optReset();return false;">Reset bookmarks</a>';
     actions += '<a onclick="window.plugin.bookmarks.optCopy();return false;">Copy bookmarks</a>';
+    actions += '<a onclick="window.plugin.bookmarks.optPaste();return false;">Paste bookmarks</a>';
     actions += '<a onclick="window.plugin.bookmarks.optMaxfield();return false;">Bookmarks to Maxfield</a>';
     actions += '<a onclick="window.plugin.bookmarks.optRoutePlanner();return false;">Bookmarks to Route Planner</a>';
-    actions += '<a onclick="window.plugin.bookmarks.optPaste();return false;">Paste bookmarks</a>';
 
     if(plugin.bookmarks.isAndroid()) {
       actions += '<a onclick="window.plugin.bookmarks.optImport();return false;">Import bookmarks</a>';
