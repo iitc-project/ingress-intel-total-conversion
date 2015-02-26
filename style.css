@@ -1200,12 +1200,12 @@ table.artifact .portal {
 	color: #ffce00;
 	outline: none
 }
-.cellscore .ui-accordion-header::before {
+.cellscore .ui-accordion-header:before {
 	font-size: 18px;
 	margin-right: 2px;
 	content: "⊞";
 }
-.cellscore .ui-accordion-header-active::before {
+.cellscore .ui-accordion-header-active:before {
 	content: "⊟";
 }
 g.checkpoint:hover circle {
