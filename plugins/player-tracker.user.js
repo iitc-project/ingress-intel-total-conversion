@@ -2,7 +2,7 @@
 // @id             iitc-plugin-player-tracker@breunigs
 // @name           IITC Plugin: Player tracker
 // @category       Layer
-// @version        0.11.0.@@DATETIMEVERSION@@
+// @version        0.11.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -332,19 +332,13 @@ window.plugin.playerTracker.drawData = function() {
         .appendTo(popup);
 
       var playerLevelDetails = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(plrname);
-      if(playerLevelDetails.min == 8) {
+      level
+        .text('Min level ')
+        .append(getLevel(playerLevelDetails.min));
+      if(playerLevelDetails.min != playerLevelDetails.guessed)
         level
-          .text('Level ')
-          .append(getLevel(8));
-      } else {
-        level
-          .text('Min level ')
-          .append(getLevel(playerLevelDetails.min));
-        if(playerLevelDetails.min != playerLevelDetails.guessed)
-          level
-            .append(document.createTextNode(', guessed level: '))
-            .append(getLevel(playerLevelDetails.guessed));
-      }
+          .append(document.createTextNode(', guessed level: '))
+          .append(getLevel(playerLevelDetails.guessed));
     }
 
     popup
