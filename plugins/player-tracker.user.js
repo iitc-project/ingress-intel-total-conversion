@@ -550,6 +550,8 @@ window.plugin.playerTracker.onSearchResultSelected = function(result, event) {
 window.plugin.playerTracker.onSearch = function(query) {
   var term = query.term.toLowerCase();
 
+  if (term.length && term[0] == '@') term = term.substr(1);
+
   $.each(plugin.playerTracker.stored, function(nick, data) {
     if(nick.toLowerCase().indexOf(term) === -1) return;
 
