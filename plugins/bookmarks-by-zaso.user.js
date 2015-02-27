@@ -487,8 +487,8 @@
         if(bookmark.label.toLowerCase().indexOf(term) === -1) return;
 
         query.addResult({
-          title: bookmark.label,
-          description: 'Map in folder "' + folder.label + '"',
+          title: escapeHtmlSpecialChars(bookmark.label),
+          description: 'Map in folder "' + escapeHtmlSpecialChars(folder.label) + '"',
           icon: '@@INCLUDEIMAGE:images/icon-bookmark-map.png@@',
           position: L.latLng(bookmark.latlng.split(",")),
           zoom: bookmark.z,
@@ -502,8 +502,8 @@
         if(bookmark.label.toLowerCase().indexOf(term) === -1) return;
 
         query.addResult({
-          title: bookmark.label,
-          description: 'Bookmark in folder "' + folder.label + '"',
+          title: escapeHtmlSpecialChars(bookmark.label),
+          description: 'Bookmark in folder "' + escapeHtmlSpecialChars(folder.label) + '"',
           icon: '@@INCLUDEIMAGE:images/icon-bookmark.png@@',
           position: L.latLng(bookmark.latlng.split(",")),
           guid: bookmark.guid,

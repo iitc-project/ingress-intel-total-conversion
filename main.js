@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.21.3.@@DATETIMEVERSION@@
+// @version        0.22.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -167,7 +167,7 @@ window.PORTAL_RADIUS_ENLARGE_MOBILE = 5;
 
 window.DEFAULT_PORTAL_IMG = '//commondatastorage.googleapis.com/ingress.com/img/default-portal-image.png';
 //window.NOMINATIM = '//nominatim.openstreetmap.org/search?format=json&limit=1&q=';
-window.NOMINATIM = '//open.mapquestapi.com/nominatim/v1/search.php?format=json&q=';
+window.NOMINATIM = '//open.mapquestapi.com/nominatim/v1/search.php?format=json&polygon_geojson=1&q=';
 
 // INGRESS CONSTANTS /////////////////////////////////////////////////
 // http://decodeingress.me/2012/11/18/ingress-portal-levels-and-link-range/

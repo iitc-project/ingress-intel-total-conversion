@@ -12,8 +12,8 @@ addHook('search', function(query) {});
 - `addResult(result)` can be called to add a result to the query.
 
 `result` may have the following members (`title` is required, as well as one of `position` and `bounds`):
-- `title`: the label for this result
-- `description`: secondary information for this result
+- `title`: the label for this result. Will be interpreted as HTML, so make sure to escape properly.
+- `description`: secondary information for this result. Will be interpreted as HTML, so make sure to escape properly.
 - `position`: a L.LatLng object describing the position of this result
 - `bounds`: a L.LatLngBounds object describing the bounds of this result
 - `layer`: a ILayer to be added to the map when the user selects this search result. Will be generated if not set.
@@ -50,7 +50,7 @@ window.search.Query.prototype.init = function() {
 
   this.list = $('<ul>')
     .appendTo(this.container)
-    .append($('<li>').text('No results'));
+    .append($('<li>').text(this.confirmed ? 'No local results, searching online...' : 'No local results.'));
 
   this.container.accordion({
     collapsible: true,
@@ -95,7 +95,7 @@ window.search.Query.prototype.addResult = function(result) {
     });
 
   var link = $('<a>')
-    .text(result.title)
+    .append(result.title)
     .appendTo(item);
 
   if(result.icon) {
@@ -107,7 +107,7 @@ window.search.Query.prototype.addResult = function(result) {
     item
       .append($('<br>'))
       .append($('<em>')
-        .text(result.description));
+        .append(result.description));
   }
 
 };
@@ -137,15 +137,8 @@ window.search.Query.prototype.onResultSelected = function(result, ev) {
     result.layer = L.layerGroup();
 
     if(result.position) {
-      var markerTemplate = '@@INCLUDESTRING:images/marker-icon.svg.template@@';
-      L.marker(result.position, {
-        icon:  L.divIcon({
-          iconSize: new L.Point(25, 41),
-          iconAnchor: new L.Point(12, 41),
-          html: markerTemplate.replace(/%COLOR%/g, 'red'),
-          className: 'leaflet-iitc-search-result-icon',
-        }),
-        title: result.title,
+      createGenericMarker(result.position, 'red', {
+        title: result.title
       }).addTo(result.layer);
     }
 
@@ -195,7 +188,9 @@ window.search.doSearch = function(term, confirmed) {
   // clear results
   if(term == '') return;
 
-  $('#search').tooltip().tooltip('close');
+  if(useAndroidPanes()) show('info');
+
+  $('.ui-tooltip').remove();
 
   window.search.lastSearch = new window.search.Query(term, confirmed);
   window.search.lastSearch.show();
@@ -239,12 +234,14 @@ addHook('search', function(query) {
         position: portal.getLatLng(),
         icon: 'data:image/svg+xml;base64,'+btoa('@@INCLUDESTRING:images/icon-portal.svg@@'.replace(/%COLOR%/g, color)),
         onSelected: function(result, event) {
-          if(event.type == 'dblclick')
+          if(event.type == 'dblclick') {
             zoomToAndShowPortal(guid, portal.getLatLng());
-          else if(window.portals[guid])
+          } else if(window.portals[guid]) {
+            if(!map.getBounds().contains(result.position)) map.setView(result.position);
             renderPortalDetails(guid);
-          else
+          } else {
             window.selectPortalByLatLng(portal.getLatLng());
+          }
           return true; // prevent default behavior
         },
       });
@@ -253,12 +250,14 @@ addHook('search', function(query) {
 });
 
 // TODO: recognize 50°31'03.8"N 7°59'05.3"E and similar formats
+// TODO: if a portal with these exact coordinates is found, select it
 addHook('search', function(query) {
   if(query.term.split(',').length == 2) {
     var ll = query.term.split(',');
     if(!isNaN(ll[0]) && !isNaN(ll[1])) {
       query.addResult({
         title: query.term,
+        description: 'geo coordinates',
         position: L.latLng(parseFloat(ll[0]), parseFloat(ll[1])),
       });
     }
@@ -269,12 +268,32 @@ addHook('search', function(query) {
   if(!query.confirmed) return;
 
   $.getJSON(NOMINATIM + encodeURIComponent(query.term), function(data) {
+    if(data.length == 0) {
+      query.addResult({
+        title: 'No results on OpenStreetMap',
+        icon: '//www.openstreetmap.org/favicon.ico',
+        onSelected: function() {return true;},
+      });
+      return;
+    }
+
     data.forEach(function(item) {
       var result = {
         title: item.display_name,
         description: 'Type: ' + item.type,
         position: L.latLng(parseFloat(item.lat), parseFloat(item.lon)),
+        icon: item.icon,
       };
+
+      if(item.geojson) {
+        result.layer = L.geoJson(item.geojson, {
+          clickable: false,
+          color: 'red',
+          opacity: 0.7,
+          weight: 2,
+          fill: false,
+        });
+      }
 
       var b = item.boundingbox;
       if(b) {
