@@ -88,7 +88,7 @@ public class IITC_Mobile extends Activity
     private boolean mPersistentZoom = false;
     private final Stack<String> mDialogStack = new Stack<String>();
     private String mPermalink = null;
-    private String mSearchTerm = null;
+    private String mSearchTerm = "";
 
     // Used for custom back stack handling
     private final Stack<Pane> mBackStack = new Stack<IITC_NavigationHelper.Pane>();
@@ -268,21 +268,27 @@ public class IITC_Mobile extends Activity
         }
 
         if (Intent.ACTION_SEARCH.equals(action)) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            query = query.replace("'", "''");
-            final SearchView searchView =
-                    (SearchView) mSearchMenuItem.getActionView();
+            final String query = intent.getStringExtra(SearchManager.QUERY);
+            final SearchView searchView = (SearchView) mSearchMenuItem.getActionView();
             searchView.setQuery(query, false);
             searchView.clearFocus();
 
-            switchToPane(Pane.MAP);
-            mIitcWebView.loadUrl("javascript:search('" + query + "');");
+            search(query, true);
+
             return;
         }
 
         if (onCreate) {
             loadUrl(mIntelUrl);
         }
+    }
+
+    private void search(String term, final boolean confirmed) {
+        if (term.isEmpty() && !confirmed) return;
+
+        term = term.replace("'", "\\'");
+        mIitcWebView.loadUrl("javascript:if(window.search&&window.search.doSearch){window.search.doSearch('" + term
+                + "'," + confirmed + ");}");
     }
 
     private void handleGeoUri(final Uri uri) throws URISyntaxException {
@@ -344,8 +350,7 @@ public class IITC_Mobile extends Activity
                 mSearchTerm = search;
                 loadUrl(mIntelUrl);
             } else {
-                switchToPane(Pane.MAP);
-                mIitcWebView.loadUrl("javascript:search('" + search + "');");
+                search(search, true);
             }
             return;
         }
@@ -497,6 +502,19 @@ public class IITC_Mobile extends Activity
     }
 
     @Override
+    public boolean onKeyDown(final int keyCode, final KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_SEARCH) {
+            mSearchMenuItem.expandActionView();
+
+            final SearchView tv = (SearchView) mSearchMenuItem.getActionView();
+            tv.setQuery(mSearchTerm, false);
+            tv.requestFocus();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
@@ -507,6 +525,34 @@ public class IITC_Mobile extends Activity
         // Assumes current activity is the searchable activity
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(final String query) {
+                mSearchTerm = query;
+                search(query, true);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(final String query) {
+                if (!query.isEmpty()) {
+                    mSearchTerm = query;
+                    search(query, false);
+                }
+                return true;
+            }
+        });
+
+        // the SearchView does not allow submitting an empty query, so we catch the clear button
+        final View buttonClear = searchView.findViewById(
+                getResources().getIdentifier("android:id/search_close_btn", null, null));
+        if (buttonClear != null) buttonClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                searchView.setQuery("", false);
+                search("", true);
+            }
+        });
         return true;
     }
 
@@ -515,6 +561,8 @@ public class IITC_Mobile extends Activity
         boolean visible = false;
         if (mNavigationHelper != null) visible = !mNavigationHelper.isDrawerOpened();
         if (mIsLoading) visible = false;
+
+        ((SearchView) menu.findItem(R.id.menu_search).getActionView()).setQuery(mSearchTerm, false);
 
         for (int i = 0; i < menu.size(); i++) {
             final MenuItem item = menu.getItem(i);
@@ -720,23 +768,23 @@ public class IITC_Mobile extends Activity
     }
 
     public void setLoadingState(final boolean isLoading) {
+        if (isLoading == mIsLoading) return;
+
+        if (mSearchTerm != null && !mSearchTerm.isEmpty() && mIsLoading && !isLoading) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    search(mSearchTerm, true);
+                }
+            }, 5000);
+        }
+
         mIsLoading = isLoading;
         mNavigationHelper.onLoadingStateChanged();
         mUserLocation.onLoadingStateChanged();
         invalidateOptionsMenu();
         updateViews();
         if (!isLoading) mFileManager.updatePlugins(false);
-
-        if (mSearchTerm != null && !isLoading) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    // switchToPane(Pane.MAP);
-                    mIitcWebView.loadUrl("javascript:search('" + mSearchTerm + "');");
-                    mSearchTerm = null;
-                }
-            }, 5000);
-        }
     }
 
     private void updateViews() {

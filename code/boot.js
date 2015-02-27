@@ -453,6 +453,7 @@ window.setupSidebarToggle = function() {
       toggle.html('<span class="toggle close"></span>');
       toggle.css('right', SIDEBAR_WIDTH+1+'px');
     }
+    $('.ui-tooltip').remove();
   });
 }
 
@@ -463,6 +464,7 @@ window.setupTooltips = function(element) {
     show: { effect: "hide", duration: 0 } ,
     hide: false,
     open: function(event, ui) {
+      $(".ui-tooltip").not(ui.tooltip).remove();
       ui.tooltip.delay(300).fadeIn(0);
     },
     content: function() {
@@ -591,7 +593,7 @@ function boot() {
   window.setupDialogs();
   window.setupMap();
   window.setupOMS();
-  window.setupGeosearch();
+  window.search.setup();
   window.setupRedeem();
   window.setupLargeImagePreview();
   window.setupSidebarToggle();
@@ -690,8 +692,8 @@ try { console.log('Loading included JS now'); } catch(e) {}
 try { console.log('done loading included JS'); } catch(e) {}
 
 //note: no protocol - so uses http or https as used on the current page
-var JQUERY = '//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js';
-var JQUERYUI = '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js';
+var JQUERY = '//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js';
+var JQUERYUI = '//ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js';
 
 // after all scripts have loaded, boot the actual app
 load(JQUERY).then(JQUERYUI).thenRun(boot);

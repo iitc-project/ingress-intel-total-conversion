@@ -2,7 +2,7 @@
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           IITC plugin: guess player level
 // @category       Info
-// @version        0.5.5.@@DATETIMEVERSION@@
+// @version        0.5.6.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -309,9 +309,18 @@ window.plugin.guessPlayerLevels.handleAttackData = function(nick, latlngs) {
   }
 
   var burster = window.plugin.guessPlayerLevels.BURSTER_RANGES;
-  for(var i=1; i<burster.length; i++) {
-    if(range > burster[i]) {
-      window.plugin.guessPlayerLevels.savePlayerLevel(nick, Math.min(i+1, MAX_PORTAL_LEVEL), false);
+
+
+  // res can be up to 40m from a portal, so attack notifications for portals, say, 100m apart could
+  // actually be a weapon range as low as 20m. however, typical deployments are a bit less than 40m, and resonators
+  // can only be deployed on the 8 compass points. a value of 40m x 2 would never be wrong
+  var reso_range_correction = 40*2;
+  // however, the full correction often under-estimates.
+
+  for(var i=burster.length-1; i>=1; i--) {
+    if(range >= (burster[i]+reso_range_correction)) {
+      window.plugin.guessPlayerLevels.savePlayerLevel(nick, Math.min(i+1, MAX_PORTAL_LEVEL), true);
+      break;
     }
   }
 

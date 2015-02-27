@@ -485,7 +485,7 @@ h2 sup, h2 sub {
 }
 
 
-/* geosearch input, and others */
+/* search input, and others */
 input:not([type]), .input,
 input[type="text"], input[type="password"],
 input[type="number"], input[type="email"],
@@ -502,23 +502,61 @@ input[type="search"], input[type="url"] {
   box-sizing: border-box;
 }
 
-#geosearch{
-  width:272px;
-  background-color: transparent;
+#searchwrapper {
+  position: relative;
 }
-#geosearchwrapper {
-  height:25px;  
-  background-color: rgba(0, 0, 0, 0.3);
+#search {
+  width: 100%;
+  padding-right: 24px;
 }
-#geosearchwrapper img{
-  vertical-align: bottom;
-  margin-bottom: 2px;
+#buttongeolocation {
+  position: absolute;
+  top: 2px;
+  right: 2px;
   cursor: pointer;
 }
-
-.search_not_found{
-  color:red;
-  font-style: italic;
+#searchwrapper h3 {
+  font-size: 1em;
+  height: auto;
+  cursor: pointer;
+}
+.searchquery {
+  max-height: 25em;
+  overflow-y: auto;
+}
+#searchwrapper .ui-accordion-header::before {
+  font-size: 18px;
+  margin-right: 2px;
+  font-weight: normal;
+  line-height: 1em;
+  content: "⊞";
+}
+#searchwrapper .ui-accordion-header-active::before {
+  content: "⊟";
+}
+#searchwrapper .ui-accordion-content {
+  margin: 0;
+  overflow: hidden;
+}
+#searchwrapper ul {
+  padding-left: 14px;
+}
+#searchwrapper li {
+  cursor: pointer;
+}
+#searchwrapper li a {
+  margin-left: -14px;
+  padding-left: 14px;
+  background-position: 1px center;
+  background-repeat: no-repeat;
+  background-size: 12px 12px;
+}
+#searchwrapper li:focus a, #searchwrapper li:hover a {
+  text-decoration: underline;
+}
+#searchwrapper li em {
+  color: #ccc;
+  font-size: 0.9em;
 }
 
 ::-webkit-input-placeholder {
@@ -546,7 +584,7 @@ h3 {
   margin:0;
   height: 23px;
   width: 100%;
-  overflow:hidden;
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   -webkit-box-sizing: border-box;
@@ -634,7 +672,6 @@ h3 {
   vertical-align: top;
   white-space: nowrap;
   width: 50%;
-  width: calc(50% - 62px);
 }
 
 #randdetails th, #resodetails th {
@@ -1163,12 +1200,12 @@ table.artifact .portal {
 	color: #ffce00;
 	outline: none
 }
-.cellscore .ui-accordion-header::before {
+.cellscore .ui-accordion-header:before {
 	font-size: 18px;
 	margin-right: 2px;
 	content: "⊞";
 }
-.cellscore .ui-accordion-header-active::before {
+.cellscore .ui-accordion-header-active:before {
 	content: "⊟";
 }
 g.checkpoint:hover circle {

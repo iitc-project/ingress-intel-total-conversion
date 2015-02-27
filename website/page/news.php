@@ -1,6 +1,31 @@
 <h2>News</h2>
 
-<h4>7th Febuarh 2015</h4>
+<h4>27th Febuary 2015</h4>
+<p>
+IITC 0.22.0 has been released. This is a critical update needed to fix loading of portal details after the recent
+Niantic site update.
+</p>
+<p>
+Major update to IITC's search system. Multiple search results are listed and specific results selected.
+Visible portals are also searched, numerical lat/lng search added, and some plugins also integrate with the new
+search feature: player-tracker (player name search), regions (region name search), bookmarks, 
+<p>
+<ul>
+<li>needs-recharge highlighter: colours/opacity tweaked, should be clearer now</li>
+<li>show-linked-portals: fix bugs, and highlight link/target portal on hover</li>
+<li>new plugin: distance-to-portal. Manually set your location, and the distance to the selected portal is shown</li>
+</ul>
+<p>
+...plus other minor bug fixes and optimisations.
+</p>
+
+<h4>8th Febuary 2015</h4>
+<p>
+IITC 0.21.2 has been released. This is a simple bugfix over the 0.21.1 release, where for some users IITC would crash
+at startup, being stuck on 'loading'
+</p>
+
+<h4>7th Febuary 2015</h4>
 <p>
 IITC 0.21.1 has just been released. This is (yet another) critical update required to work with internal changes to the
 stock intel site.
