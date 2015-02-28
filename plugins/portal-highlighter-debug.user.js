@@ -1,5 +1,5 @@
 // ==UserScript==
-// @id             iitc-plugin-highlight-portals-high-level
+// @id             iitc-plugin-highlight-portals-debug
 // @name           IITC plugin: Debug: Highlighers
 // @category       Debug
 // @version        0.1.0.@@DATETIMEVERSION@@
