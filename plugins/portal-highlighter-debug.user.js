@@ -1,0 +1,57 @@
+// ==UserScript==
+// @id             iitc-plugin-highlight-portals-high-level
+// @name           IITC plugin: Debug: Highlighers
+// @category       Debug
+// @version        0.1.0.@@DATETIMEVERSION@@
+// @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
+// @updateURL      @@UPDATEURL@@
+// @downloadURL    @@DOWNLOADURL@@
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Various debug and/or temporary highlighters. Will change over time as needed.
+// @include        https://www.ingress.com/intel*
+// @include        http://www.ingress.com/intel*
+// @match          https://www.ingress.com/intel*
+// @match          http://www.ingress.com/intel*
+// @grant          none
+// ==/UserScript==
+
+@@PLUGINSTART@@
+
+// PLUGIN START ////////////////////////////////////////////////////////
+
+// use own namespace for plugin
+window.plugin.portalHighlighterDebug = function() {};
+
+window.plugin.portalHighlighterDebug.unknown10 = function(data) {
+  var opacity = 0.7;
+  var color = undefined;
+
+  if (data.portal.options.data.unknown_10) {
+    color='red';
+  }
+
+  if (color) {
+    data.portal.setStyle({fillColor: color, fillOpacity: opacity});
+  }
+}
+
+window.plugin.portalHighlighterDebug.unknown11 = function(data) {
+  var opacity = 0.7;
+  var color = undefined;
+
+  if (data.portal.options.data.unknown_11) {
+    color='red';
+  }
+
+  if (color) {
+    data.portal.setStyle({fillColor: color, fillOpacity: opacity});
+  }
+}
+
+var setup =  function() {
+  window.addPortalHighlighter('DEBUG: Unknoen_10 (mission start portals?)', window.plugin.portalHighlighterDebug.unknown10);
+  window.addPortalHighlighter('DEBUG: Unknoen_11', window.plugin.portalHighlighterDebug.unknown11);
+}
+
+// PLUGIN END //////////////////////////////////////////////////////////
+
+@@PLUGINEND@@
