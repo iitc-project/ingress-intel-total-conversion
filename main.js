@@ -160,9 +160,6 @@ window.MOD_TYPE = {RES_SHIELD:'Shield', MULTIHACK:'Multi-hack', FORCE_AMP:'Force
 window.ACCESS_INDICATOR_COLOR = 'orange';
 window.RANGE_INDICATOR_COLOR = 'red'
 
-// by how much pixels should the portal range be expanded on mobile
-// devices. This should make clicking them easier.
-window.PORTAL_RADIUS_ENLARGE_MOBILE = 5;
 
 
 window.DEFAULT_PORTAL_IMG = '//commondatastorage.googleapis.com/ingress.com/img/default-portal-image.png';
