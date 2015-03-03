@@ -49,7 +49,7 @@ window.getMarkerStyleOptions = function(details) {
 
   var level = Math.floor(details.level);
 
-  var lvlWeight = LEVEL_TO_WEIGHT[level] * scale;
+  var lvlWeight = LEVEL_TO_WEIGHT[level] * Math.sqrt(scale);
   var lvlRadius = LEVEL_TO_RADIUS[level] * scale;
 
   var options = {
