@@ -458,15 +458,14 @@ window.chat.renderMsg = function(msg, nick, time, team, msgToPlayer, systemNarro
   var color = COLORS[team];
   if (nick === window.PLAYER.nickname) color = '#fd6';    //highlight things said/done by the player in a unique colour (similar to @player mentions from others in the chat text itself)
   var s = 'style="cursor:pointer; color:'+color+'"';
-  var title = nick.length >= 8 ? 'title="'+nick+'" class="help"' : '';
   var i = ['<span class="invisep">&lt;</span>', '<span class="invisep">&gt;</span>'];
   return '<tr><td>'+t+'</td><td>'+i[0]+'<mark class="nickname" ' + s + '>'+ nick+'</mark>'+i[1]+'</td><td>'+msg+'</td></tr>';
 }
 
-window.chat.addNickname= function(nick){
-    var c = document.getElementById("chattext");
-    c.value = [c.value.trim(), nick].join(" ").trim() + " ";
-    c.focus()
+window.chat.addNickname= function(nick) {
+  var c = document.getElementById("chattext");
+  c.value = [c.value.trim(), nick].join(" ").trim() + " ";
+  c.focus()
 }
 
 
