@@ -87,12 +87,12 @@ plugin.playerTracker.onClickListener = function(event) {
 
 // force close all open tooltips before markers are cleared
 window.plugin.playerTracker.closeIconTooltips = function() {
-    plugin.playerTracker.drawnTracesRes.eachLayer(function(layer) {
-      if ($(layer._icon)) { $(layer._icon).tooltip('close');}
-    });
-    plugin.playerTracker.drawnTracesEnl.eachLayer(function(layer) {
-      if ($(layer._icon)) { $(layer._icon).tooltip('close');}
-    });
+  plugin.playerTracker.drawnTracesRes.eachLayer(function(layer) {
+    if ($(layer._icon)) { $(layer._icon).tooltip('close');}
+  });
+  plugin.playerTracker.drawnTracesEnl.eachLayer(function(layer) {
+    if ($(layer._icon)) { $(layer._icon).tooltip('close');}
+  });
 }
 
 window.plugin.playerTracker.zoomListener = function() {
