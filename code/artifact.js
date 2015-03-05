@@ -148,7 +148,7 @@ window.artifact.getArtifactDescriptions = function(type) {
     'jarvis': { 'title': "Jarvis Shards", 'fragmentName': "shards" },
     'amar': { 'title': "Amar Artifacts", 'fragmentName': "artifacts" },
     'helios': { 'title': "Helios Artifacts", 'fragmentName': "artifacts" },
-    'shonin': { 'title': "Shonin Artifacts", 'fragmentName': "shards" },
+    'shonin': { 'title': "Sh\u014Dnin Shards", 'fragmentName': "shards" },
   };
 
   return descriptions[type];
@@ -240,10 +240,10 @@ window.artifact.updateLayer = function() {
 
     }
 
-    // 2015-03-05 - shonin artifacts
+    // 2015-03-05 - shonin shards
     if (data.shonin) {
       if (data.shonin.target) {
-        // target portal - show the target marker. helios target marker doesn't fill like the earlier jarvis/amar targets
+        // target portal - show the target marker.
         iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/shonin_shard_target.png';
         iconSize = 100/2; // 100 pixels - half that size works better
       } else if (data.shonin.fragments) {
