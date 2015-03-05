@@ -234,7 +234,7 @@ window.MapDataRequest.prototype.refresh = function() {
 
   var logMessage = 'requesting data tiles at zoom '+dataZoom;
   if (tileParams.level != tileParams.maxLevel) {
-    logMessage += ' (L'+tileParams.level+'+ portals - could have doneug L'+tileParams.maxLevel+'+';
+    logMessage += ' (L'+tileParams.level+'+ portals - could have done L'+tileParams.maxLevel+'+';
   } else {
     logMessage += ' (L'+tileParams.level+'+ portals';
   }

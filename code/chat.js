@@ -292,6 +292,10 @@ window.chat.nicknameClicked = function(event, nickname) {
   if (window.runHooks('nicknameClicked', hookData)) {
     window.chat.addNickname('@' + nickname);
   }
+
+  event.preventDefault();
+  event.stopPropagation();
+  return false;
 }
 
 window.chat.writeDataToHash = function(newData, storageHash, isPublicChannel, isOlderMsgs) {
@@ -710,7 +714,7 @@ window.chat.setup = function() {
   $('#chatinput mark').addClass(cls);
 
   $(document).on('click', '.nickname', function(event) {
-    window.chat.nicknameClicked(event, $(this).text());
+    return window.chat.nicknameClicked(event, $(this).text());
   });
 }
 
