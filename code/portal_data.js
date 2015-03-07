@@ -94,8 +94,8 @@ window.findPortalLatLng = function(guid) {
 (function() {
   var cache = {};
   var cache_level = 0;
-  var GC_LIMIT = 5000; // run garbage collector when cache has more that 5000 items
-  var GC_KEEP  = 4000; // keep the 4000 most recent items
+  var GC_LIMIT = 15000; // run garbage collector when cache has more that 5000 items
+  var GC_KEEP  = 10000; // keep the 4000 most recent items
 
   window.findPortalGuidByPositionE6 = function(latE6, lngE6) {
     var item = cache[latE6+","+lngE6];
