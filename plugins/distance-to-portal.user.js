@@ -112,7 +112,7 @@ window.plugin.distanceToPortal.setupPortalsList = function() {
     title: "Dist",
     value: function(portal) { if (window.plugin.distanceToPortal.currentLoc) return window.plugin.distanceToPortal.currentLoc.distanceTo(portal.getLatLng()); else return 0; },
     format: function(cell, portal, dist) {
-      $(cell).addClass('alignR').text(window.plugin.distanceToPortal.formatDistance(dist));
+      $(cell).addClass('alignR').text(dist?window.plugin.distanceToPortal.formatDistance(dist):'-');
     }
   });
 
