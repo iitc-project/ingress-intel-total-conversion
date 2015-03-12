@@ -230,7 +230,7 @@ window.MapDataRequest.prototype.refresh = function() {
   this.render.startRenderPass(tileParams.level, dataBounds);
 
 
-  this.render.processGameEntities(artifact.getArtifactEntities());
+  this.render.processGameEntities(artifact.getArtifactEntities(),true);
 
   var logMessage = 'requesting data tiles at zoom '+dataZoom;
   if (tileParams.level != tileParams.maxLevel) {
