@@ -295,8 +295,8 @@ window.Render.prototype.createPortalEntity = function(ent) {
     image:     ent[2][7],
     title:     ent[2][8],
     ornaments: ent[2][9],
-    unknown_10: ent[2][10],  // temp name until we know what this value does
-    unknown_11: ent[2][11],  // temp name until we know what this value does
+    mission:   ent[2][10],
+    mission50plus: ent[2][11],
   };
 
   var dataOptions = {

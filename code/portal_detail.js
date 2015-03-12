@@ -67,8 +67,8 @@ var handleResponse = function(guid, data, success) {
       image:     data.result[7],
       title:     data.result[8],
       ornaments: data.result[9],
-      unknown_10: data.result[10], // temp name until we know what this value does
-      unknown_11: data.result[11], // temp name until we know what this value does
+      mission:   data.result[10],
+      mission50plus: data.result[11],
       mods:      data.result[12].map(parseMod),
       resonators:data.result[13].map(parseResonator),
       owner:     data.result[14],
