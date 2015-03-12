@@ -40,7 +40,7 @@ Modified by qnstie 2013-07-17 to maintain compatibility with Leaflet.draw
   // to calculate intermediate points. hopeefully this will avoid the rounding issues seen in the full intermediate
   // points code that have been seen
   function geodesicConvertLine(startLatLng, endLatLng, convertedPoints) {
-    var R = 6378137; // earth radius in meters (doesn't have to be exact)
+    var R = 6367000.0; // earth radius in meters (doesn't have to be exact)
     var d2r = Math.PI/180.0;
     var r2d = 180.0/Math.PI;
 
@@ -179,7 +179,7 @@ Modified by qnstie 2013-07-17 to maintain compatibility with Leaflet.draw
 
 
     _calcPoints: function() {
-      var R = 6378137; //earth radius in meters (approx - taken from leaflet source code)
+      var R = 6367000.0; //earth radius in meters (approx - taken from leaflet source code)
       var d2r = Math.PI/180.0;
       var r2d = 180.0/Math.PI;
 //console.log("geodesicCircle: radius = "+this._mRadius+"m, centre "+this._latlng.lat+","+this._latlng.lng);
