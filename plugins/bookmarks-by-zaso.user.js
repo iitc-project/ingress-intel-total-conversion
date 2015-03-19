@@ -637,6 +637,27 @@
     }
   }
 
+    window.plugin.bookmarks.optExportToMaxfield = function() {
+      sExportJSON=localStorage[window.plugin.bookmarks.KEY_STORAGE];
+      sExportMaxfieldCSV='';
+      aoExport = $.parseJSON(sExportJSON);
+      aoPortals=aoExport.portals;
+      $.each(aoPortals,function(name,oFolder){
+        if (oFolder.label.toLowerCase()=='maxfield' || oFolder.label=='Others')
+          {
+            $.each(oFolder.bkmrk,function(name,oBookmark){
+              sExportMaxfieldCSV+=oBookmark.label+';https://www.ingress.com/intel?ll='+oBookmark.latlng+'&z=20&pll='+oBookmark.latlng+';0\r\n';
+            });
+          }
+      });
+      dialog({
+        html: 'All bookmarks were exported that either are not in a folder or in a folder named "maxfield".<p><a onclick="$(\'.ui-dialog-bkmrksSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it - then paste it in the <a href=\'http://www.ingress-maxfield.com\' target=\'blank\'>Maxfield website</a>. Note: The number of keys for each portal defaults to 0. </p><textarea readonly>'+sExportMaxfieldCSV+'</textarea>',
+        dialogClass: 'ui-dialog-bkmrksSet-copy',
+        title: 'Bookmarks Export'
+      });
+    }
+  
+  
   window.plugin.bookmarks.optExport = function() {
     if(typeof android !== 'undefined' && android && android.saveFile) {
       android.saveFile("IITC-bookmarks.json", "application/json", localStorage[window.plugin.bookmarks.KEY_STORAGE]);
@@ -1205,6 +1226,7 @@
     actions += '<a onclick="window.plugin.bookmarks.optReset();return false;">Reset bookmarks</a>';
     actions += '<a onclick="window.plugin.bookmarks.optCopy();return false;">Copy bookmarks</a>';
     actions += '<a onclick="window.plugin.bookmarks.optPaste();return false;">Paste bookmarks</a>';
+    actions += '<a onclick="window.plugin.bookmarks.optExportToMaxfield();return false;">Export to Maxfield</a>';
 
     if(plugin.bookmarks.isAndroid()) {
       actions += '<a onclick="window.plugin.bookmarks.optImport();return false;">Import bookmarks</a>';
