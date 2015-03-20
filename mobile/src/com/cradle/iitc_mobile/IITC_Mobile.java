@@ -83,7 +83,7 @@ public class IITC_Mobile extends Activity
     private EditText mEditCommand;
     private boolean mDebugging = false;
     private boolean mReloadNeeded = false;
-    private boolean mIsLoading = true;
+    private boolean mIsLoading = false;
     private boolean mShowMapInDebug = false;
     private boolean mPersistentZoom = false;
     private final Stack<String> mDialogStack = new Stack<String>();

@@ -8,7 +8,6 @@ window.Render = function() {
   this.portalMarkerScale = undefined;
 }
 
-
 // start a render pass. called as we start to make the batch of data requests to the servers
 window.Render.prototype.startRenderPass = function(level,bounds) {
   this.isRendering = true;
@@ -20,6 +19,7 @@ window.Render.prototype.startRenderPass = function(level,bounds) {
   this.seenFieldsGuid = {};
 
   this.bounds = bounds;
+  this.level = level;
 
   // we pad the bounds used for clearing a litle bit, as entities are sometimes returned outside of their specified tile boundaries
   // this will just avoid a few entity removals at start of render when they'll just be added again
@@ -110,7 +110,7 @@ window.Render.prototype.processDeletedGameEntityGuids = function(deleted) {
 
 }
 
-window.Render.prototype.processGameEntities = function(entities) {
+window.Render.prototype.processGameEntities = function(entities,ignoreLevel) {
 
   // we loop through the entities three times - for fields, links and portals separately
   // this is a reasonably efficient work-around for leafletjs limitations on svg render order
@@ -131,16 +131,27 @@ window.Render.prototype.processGameEntities = function(entities) {
     }
   }
 
+  // 2015-03-12 - Niantic have been returning all mission portals to the client, ignoring portal level
+  // and density filtering usually in use. this makes things unusable when viewing the global view, so we
+  // filter these out
+  var minLevel = ignoreLevel ? 0 : this.level;
+  var ignoredCount = 0;
+
   for (var i in entities) {
     var ent = entities[i];
 
     if (ent[2][0] == 'p' && !(ent[0] in this.deletedGuid)) {
-      this.createPortalEntity(ent);
+      var portalLevel = ent[2][1] == 'N' ? 0 : parseInt(ent[2][4]);
+      if (portalLevel >= minLevel) {
+        this.createPortalEntity(ent);
+      } else {
+        ignoredCount++;
+      }
+
     }
   }
 
-
-
+  if (ignoredCount) console.log('Render: ignored '+ignoredCount+' portals below the level requested from the server');
 }
 
 
@@ -284,20 +295,7 @@ window.Render.prototype.createPortalEntity = function(ent) {
 
   var latlng = L.latLng(ent[2][2]/1E6, ent[2][3]/1E6);
 
-  var data = {
-   // ent[2][0] is type - not needed as we know we're a portal
-    team:      ent[2][1],
-    latE6:     ent[2][2],
-    lngE6:     ent[2][3],
-    level:     ent[2][4],
-    health:    ent[2][5],
-    resCount:  ent[2][6],
-    image:     ent[2][7],
-    title:     ent[2][8],
-    ornaments: ent[2][9],
-    unknown_10: ent[2][10],  // temp name until we know what this value does
-    unknown_11: ent[2][11],  // temp name until we know what this value does
-  };
+  var data = decodeArray.portalSummary(ent[2]);
 
   var dataOptions = {
     level: portalLevel,
