@@ -186,7 +186,7 @@ window.plugin.guessPlayerLevels.extractChatData = function(data) {
     attackData[nick][timestamp].push(portal);
   }
 
-  data.raw.success.forEach(function(msg) {
+  data.result.forEach(function(msg) {
     var plext = msg[2].plext;
 
     // search for "x deployed an Ly Resonator on z"

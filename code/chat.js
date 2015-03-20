@@ -172,7 +172,7 @@ window.chat.handleFaction = function(data, olderMsgs) {
   chat.writeDataToHash(data, chat._faction, false, olderMsgs);
   var oldMsgsWereAdded = old !== chat._faction.oldestTimestamp;
 
-  runHooks('factionChatDataAvailable', {raw: data, processed: chat._faction.data});
+  runHooks('factionChatDataAvailable', {raw: data, result: data.result, processed: chat._faction.data});
 
   window.chat.renderFaction(oldMsgsWereAdded);
 }
@@ -220,7 +220,7 @@ window.chat.handlePublic = function(data, olderMsgs) {
   chat.writeDataToHash(data, chat._public, undefined, olderMsgs);   //NOTE: isPublic passed as undefined - this is the 'all' channel, so not really public or private
   var oldMsgsWereAdded = old !== chat._public.oldestTimestamp;
 
-  runHooks('publicChatDataAvailable', {raw: data, processed: chat._public.data});
+  runHooks('publicChatDataAvailable', {raw: data, result: data.result, processed: chat._public.data});
 
   window.chat.renderPublic(oldMsgsWereAdded);
 
@@ -271,7 +271,7 @@ window.chat.handleAlerts = function(data, olderMsgs) {
   var oldMsgsWereAdded = old !== chat._alerts.oldestTimestamp;
 
 // no hoot for alerts - API change planned here...
-//  runHooks('alertsChatDataAvailable', {raw: data, processed: chat._alerts.data});
+//  runHooks('alertsChatDataAvailable', {raw: data, result: data.result, processed: chat._alerts.data});
 
   window.chat.renderAlerts(oldMsgsWereAdded);
 }

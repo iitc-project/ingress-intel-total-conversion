@@ -72,7 +72,7 @@ window.plugin.uniques.onPortalDetailsUpdated = function() {
 
 window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 	var nick = window.PLAYER.nickname;
-	data.raw.success.forEach(function(msg) {
+	data.result.forEach(function(msg) {
 		var plext = msg[2].plext,
 			markup = plext.markup;
 
