@@ -161,12 +161,12 @@ window.chat.handleFaction = function(data, olderMsgs) {
   chat._requestFactionRunning = false;
   $("#chatcontrols a:contains('faction')").removeClass('loading');
 
-  if(!data || !data.success) {
+  if(!data || !data.result) {
     window.failedRequestCount++;
     return console.warn('faction chat error. Waiting for next auto-refresh.');
   }
 
-  if(data.success.length === 0) return;
+  if(data.result.length === 0) return;
 
   var old = chat._faction.oldestTimestamp;
   chat.writeDataToHash(data, chat._faction, false, olderMsgs);
@@ -209,12 +209,12 @@ window.chat.handlePublic = function(data, olderMsgs) {
   chat._requestPublicRunning = false;
   $("#chatcontrols a:contains('all')").removeClass('loading');
 
-  if(!data || !data.success) {
+  if(!data || !data.result) {
     window.failedRequestCount++;
     return console.warn('public chat error. Waiting for next auto-refresh.');
   }
 
-  if(data.success.length === 0) return;
+  if(data.result.length === 0) return;
 
   var old = chat._public.oldestTimestamp;
   chat.writeDataToHash(data, chat._public, undefined, olderMsgs);   //NOTE: isPublic passed as undefined - this is the 'all' channel, so not really public or private
@@ -259,12 +259,12 @@ window.chat.handleAlerts = function(data, olderMsgs) {
   chat._requestAlertsRunning = false;
   $("#chatcontrols a:contains('alerts')").removeClass('loading');
 
-  if(!data || !data.success) {
+  if(!data || !data.result) {
     window.failedRequestCount++;
     return console.warn('alerts chat error. Waiting for next auto-refresh.');
   }
 
-  if(data.success.length === 0) return;
+  if(data.result.length === 0) return;
 
   var old = chat._alerts.oldestTimestamp;
   chat.writeDataToHash(data, chat._alerts, undefined, olderMsgs); //NOTE: isPublic passed as undefined - it's nether public or private!
@@ -299,7 +299,7 @@ window.chat.nicknameClicked = function(event, nickname) {
 }
 
 window.chat.writeDataToHash = function(newData, storageHash, isPublicChannel, isOlderMsgs) {
-  $.each(newData.success, function(ind, json) {
+  $.each(newData.result, function(ind, json) {
     // avoid duplicates
     if(json[0] in storageHash.data) return true;
 
