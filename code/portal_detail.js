@@ -32,47 +32,12 @@ window.portalDetail.isFresh = function(guid) {
 var handleResponse = function(guid, data, success) {
   delete requestQueue[guid];
 
-  function parseMod(arr) {
-    if(arr == null) { return null; }
-    return {
-      owner: arr[0],
-      name: arr[1],
-      rarity: arr[2],
-      stats: arr[3],
-    };
-  }
-  function parseResonator(arr) {
-    if(arr == null) { return null; }
-    return {
-      owner: arr[0],
-      level: arr[1],
-      energy: arr[2],
-    };
-  }
-
   if (!data || data.error || !data.result) {
     success = false;
   }
 
   if (success) {
-    var dict = {
-//      raw:       data.result,
-      // result[0] is type - not needed (always a portal!)
-      team:      data.result[1],
-      latE6:     data.result[2],
-      lngE6:     data.result[3],
-      level:     data.result[4],
-      health:    data.result[5],
-      resCount:  data.result[6],
-      image:     data.result[7],
-      title:     data.result[8],
-      ornaments: data.result[9],
-      mission:   data.result[10],
-      mission50plus: data.result[11],
-      mods:      data.result[12].map(parseMod),
-      resonators:data.result[13].map(parseResonator),
-      owner:     data.result[14],
-    };
+    var dict = decodeArray.portalDetail(data.result);
 
     cache.store(guid,dict);
 
