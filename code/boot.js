@@ -461,11 +461,11 @@ window.setupTooltips = function(element) {
   element = element || $(document);
   element.tooltip({
     // disable show/hide animation
-    show: { effect: "hide", duration: 0 } ,
+    show: { effect: 'none', duration: 0, delay: 350 },
     hide: false,
     open: function(event, ui) {
+      // ensure all other tooltips are closed
       $(".ui-tooltip").not(ui.tooltip).remove();
-      ui.tooltip.delay(300).fadeIn(0);
     },
     content: function() {
       var title = $(this).attr('title');
