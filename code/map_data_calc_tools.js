@@ -19,6 +19,11 @@ window.getMapZoomTileParameters = function(zoom) {
 //  var ZOOM_TO_LEVEL = [8, 8, 8, 8, 7, 7, 7, 6, 6, 5, 4, 4, 3, 2, 2, 1, 1];
   var ZOOM_TO_LEVEL = [8, 8, 8, 8, 8, 8, 7, 7, 6, 6, 5, 4, 3, 2, 2, 1, 1];
 
+  if (niantic_params.ZOOM_TO_LEVEL && niantic_params.TILES_PER_EDGE) {
+    ZOOM_TO_LEVEL = niantic_params.ZOOM_TO_LEVEL;
+    ZOOM_TO_TILES_PER_EDGE = niantic_params.TILES_PER_EDGE;
+  }
+
   // the current API allows the client to request a minimum portal level. the ZOOM_TO_LEVEL list are minimums
   // however, in my view, this can return excessive numbers of portals in many cases. let's try an optional reduction
   // of detail level at some zoom levels
