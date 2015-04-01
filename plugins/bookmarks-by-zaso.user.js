@@ -813,7 +813,9 @@
       window.plugin.drawTools.setOptions();
 
       var layer, layerType;
-      if(latlngs.length == 2) {
+      if(latlngs.length == 2 || $('#bkmrkDrawAsPolylines').prop('checked')) {
+        if (latlngs.length > 2)
+          latlngs.push(latlngs[0]);
         layer = L.geodesicPolyline(latlngs, window.plugin.drawTools.lineOptions);
         layerType = 'polyline';
       } else {
@@ -925,9 +927,12 @@
 
       // Append all folders and bookmarks
       r = '<div id="bkmrksAutoDrawer">'
-        + '<label style="margin-bottom: 9px; display: block;">'
+        + '<label style="display: block;">'
         + '<input style="vertical-align: middle;" type="checkbox" id="bkmrkClearSelection" checked>'
         + ' Clear selection after drawing</label>'
+        + '<label style="margin-bottom: 9px; display: block;">'
+        + '<input style="vertical-align: middle;" type="checkbox" id="bkmrkDrawAsPolylines">'
+        + ' Draw field as polylines</label>'
         + '<p style="margin-bottom:9px;color:red">You must select 2 or 3 portals!</p>'
         + '<div onclick="window.plugin.bookmarks.autoDrawOnSelect();return false;">'
         + element
