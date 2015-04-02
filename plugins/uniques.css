@@ -1,14 +1,24 @@
 #uniques-container {
   display: block;
+  width: 100%;
   text-align: center;
-  margin: 6px 3px 1px 3px;
+  margin-top: 6px;
+  margin-bottom: 1px;
+  margin-left: auto !important;
+  margin-right: auto !important;
   padding: 0 4px;
 }
+
 #uniques-container label {
   margin: 0 0.5em;
 }
+
 #uniques-container input {
   vertical-align: middle;
+}
+
+td.portal-list-uniques {
+    text-align: center;
 }
 
 .portal-list-uniques input[type='checkbox'] {

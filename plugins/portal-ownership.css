@@ -1,0 +1,31 @@
+/* Based on the css of the uniques-plugin */
+
+#ownership-container {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 6px;
+    margin-bottom: 1px;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding: 0 4px;
+}
+
+#ownership-container label {
+  margin: 0 0.5em;
+}
+
+#ownership-container input {
+  vertical-align: middle;
+}
+
+td.portal-list-ownership {
+    text-align: center;
+}
+
+.portal-list-ownership input[type='checkbox'] {
+  padding: 0;
+  height: auto;
+  margin-top: -5px;
+  margin-bottom: -5px;
+}
