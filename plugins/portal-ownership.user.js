@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Allow manual entry of currently owned portals. Sync-enabled and owned portal data will be shared between browsers/mobile. Will try to guess portal ownership if COMM is available.  Highlights owned/unowned portals. Works with/without the uniques plugin, on which it is based.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Allow manual entry of currently owned portals. Sync-enabled and owned portal data will be shared between browsers/mobile. Will try to guess portal ownership if COMM is available.  Highlights owned/unowned portals. Works with/without the uniques plugin, on which it is based. Also provides a list of owned portals, through which the length of ownership can be modified.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -664,8 +664,7 @@ window.plugin.ownership.portalTable = function(sortBy, sortOrder) {
 }
 
 // Constructs a link to the given portal.
-// If the portal is within the current view, it displays its details,
-// otherwise moves the map to the portal location and displays its details.
+// Always moves the map to the portal location and displays its details.
 // based on code from getPortalLink function by xelio from iitc: AP List - https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/ap-list.user.js
 window.plugin.ownership.getPortalLink = function(guid, portal) {
   // jQuery's event handlers seem to be removed when the nodes are remove from the DOM
