@@ -305,22 +305,24 @@ window.plugin.ownership.setupContent = function() {
 }
 
 window.plugin.ownership.setupPortalsList = function() {
-	if(!window.plugin.portalslist) 
-        return;
+  if(!window.plugin.portalslist) 
+    return;
 
-	window.addHook('pluginOwnershipUpdateOwnership', function(data) {
-		var info = plugin.ownership.ownership[data.guid];
-		if(!info) info = { owned: false };
+  window.addHook('pluginOwnershipUpdateOwnership', function(data) {
+    var info = plugin.ownership.ownership[data.guid];
+    if(!info)
+      info = { owned: false };
 
-		$('[data-list-ownership="'+data.guid+'"].owned').prop('checked', info.owned);
-	});
+    $('[data-list-ownership="'+data.guid+'"].owned').prop('checked', info.owned);
+  });
 
 	window.addHook('pluginOwnershipRefreshAll', function() {
 		$('[data-list-ownership]').each(function(i, element) {
 			var guid = element.getAttribute("data-list-ownership");
 
 			var info = plugin.ownership.ownership[guid];
-			if(!info) info = { owned: false };
+			if(!info)
+        info = { owned: false };
 
 			var e = $(element);
 			if(e.hasClass('owned')) e.prop('checked', info.owned);
@@ -331,78 +333,369 @@ window.plugin.ownership.setupPortalsList = function() {
 		var info = plugin.ownership.ownership[guid];
 
 		if(info && info.owned) 
-            return 1;
-        return 0;
+      return 1;
+    return 0;
 	}
 
-    var ownershipField = {
-		title: "Owner",
-		value: function(portal) { return portal.options.guid; }, // we store the guid, but implement a custom comparator so the list does sort properly without closing and reopening the dialog
-		sort: function(guidA, guidB) {
-			return uniqueValue(guidA) - uniqueValue(guidB);
-		},
-		format: function(cell, portal, guid) {
-			var info = plugin.ownership.ownership[guid];
-			if(!info) info = { owned: false };
+  var ownershipField = {
+    title: "Owner",
+    value: function(portal) { return portal.options.guid; }, // we store the guid, but implement a custom comparator so the list does sort properly without closing and reopening the dialog
+    sort: function(guidA, guidB) {
+      return uniqueValue(guidA) - uniqueValue(guidB);
+    },
+    format: function(cell, portal, guid) {
+      var info = plugin.ownership.ownership[guid];
+      if(!info)
+        info = { owned: false };
 
-			$(cell).addClass("portal-list-ownership");
+      $(cell).addClass("portal-list-ownership");
 
-			// for some reason, jQuery removes event listeners when the list is sorted. Therefore we use DOM's addEventListener
-			$('<input>')
-				.prop({
-					type: "checkbox",
-					className: "owned",
-					title: "Portal owned?",
-					checked: info.owned,
-				})
-				.attr("data-list-ownership", guid)
-				.appendTo(cell)
-				[0].addEventListener("change", function(ev) {
-					window.plugin.ownership.updateOwned(this.checked, guid);
-					ev.preventDefault();
-					return false;
-				}, false);
-		},
-	}
+      // for some reason, jQuery removes event listeners when the list is sorted. Therefore we use DOM's addEventListener
+      $('<input>')
+        .prop({
+          type: "checkbox",
+          className: "owned",
+          title: "Portal owned?",
+          checked: info.owned,
+        })
+        .attr("data-list-ownership", guid)
+        .appendTo(cell)
+        [0].addEventListener("change", function(ev) {
+          window.plugin.ownership.updateOwned(this.checked, guid);
+          ev.preventDefault();
+          return false;
+        }, false);
+      },
+    }
 
     // Ensure that the ownership field appears after the uniques field.
     if(window.plugin.uniques) {
-        var uniqueField = window.plugin.portalslist.fields.filter(function(element) {
-            return (element.title == "Visit");
-        })[0];
-        var uniqueFieldIndex = window.plugin.portalslist.fields.indexOf(uniqueField);
-        // Uniques field is last field or not in the set of fields yet
-        if(uniqueFieldIndex < 0 || uniqueFieldIndex == (window.plugin.portalslist.fields.length - 1)) 
-            window.plugin.portalslist.fields.push(ownershipField);
-        else // Uniques appears somewhere in the list of fields, splice in after it.
-            window.plugin.portalslist.fields.splice(uniqueFieldIndex+1, 0, ownershipField);
+      var uniqueField = window.plugin.portalslist.fields.filter(function(element) {
+          return (element.title == "Visit");
+      })[0];
+      var uniqueFieldIndex = window.plugin.portalslist.fields.indexOf(uniqueField);
+      // Uniques field is last field or not in the set of fields yet
+      if(uniqueFieldIndex < 0 || uniqueFieldIndex == (window.plugin.portalslist.fields.length - 1)) 
+        window.plugin.portalslist.fields.push(ownershipField);
+      else // Uniques appears somewhere in the list of fields, splice in after it.
+        window.plugin.portalslist.fields.splice(uniqueFieldIndex+1, 0, ownershipField);
     }
     else // Uniques isn't defined (yet?)
-        window.plugin.portalslist.fields.push(ownershipField);
+      window.plugin.portalslist.fields.push(ownershipField);
 }
 
+// Owned Portal List Begin
+window.plugin.ownership.listPortals = [];
+window.plugin.ownership.sortBy = 4; // Sort by Days Owned, Descending
+window.plugin.ownership.sortOrder = -1;
+
+/*
+ * plugins may add fields by appending their specifiation to the following list. The following members are supported:
+ * title: String
+ *     Name of the column. Required.
+ * value: function(portal)
+ *     The raw value of this field. Can by anything. Required, but can be dummy implementation if sortValue and format
+ *     are implemented.
+ * sortValue: function(value, portal)
+ *     The value to sort by. Optional, uses value if omitted. The raw value is passed as first argument.
+ * sort: function(valueA, valueB, portalA, portalB)
+ *     Custom sorting function. See Array.sort() for details on return value. Both the raw values and the portal objects
+ *     are passed as arguments. Optional. Set to null to disable sorting
+ * format: function(cell, portal, value)
+ *     Used to fill and format the cell, which is given as a DOM node. If omitted, the raw value is put in the cell.
+ * defaultOrder: -1|1
+ *     Which order should by default be used for this column. -1 means descending. Default: 1
+ */
+
+
+window.plugin.ownership.fields = [
+  {
+    title: "Portal Name",
+    value: function(portal) { return portal.title; },
+    sortValue: function(value, portal) { return value.toLowerCase(); },
+    format: function(cell, portalGUID, portal, value) {
+      $(cell)
+        .append(plugin.ownership.getPortalLink(portalGUID, portal))
+        .addClass("portalTitle");
+    }
+  },
+  {
+    title: "Level",
+    value: function(portal) { return portal.level; },
+    format: function(cell, portal, value) {
+      $(cell)
+        .css('background-color', COLORS_LVL[value])
+        .text('L' + value);
+    },
+    defaultOrder: -1,
+  },
+  {
+    title: "Health",
+    value: function(portal) { return portal.health; },
+    sortValue: function(value, portal) { return value; },
+    format: function(cell, portal, value) {
+      $(cell)
+        .addClass("alignR")
+        .text(value+'%');
+    },
+    defaultOrder: -1,
+  },
+  {
+    title: "Resonators",
+    value: function(portal) { return portal.resonatorCount; },
+    format: function(cell, portal, value) {
+      $(cell)
+        .addClass("alignR")
+        .text(value);
+    },
+    defaultOrder: -1,
+  },
+  {
+    title: "Days Owned",
+    value: function(portal) { return Math.round((Date.now() - portal.recordedDate) / 86400000)},
+    format: function(cell, guid, portal, value) {
+      $(cell).addClass("alignR").text(value);
+      cell.addEventListener("dblclick", function(ev) {
+        var actualNumberOfDays = prompt("How many days have you owned " + portal.title + "?","");
+        var parsedNumberOfDays = parseInt(actualNumberOfDays);
+        if (!isNaN(parsedNumberOfDays) && parsedNumberOfDays >= 0) {
+          var ownershipInfo = window.plugin.ownership.ownership[guid];
+          if (ownershipInfo) {
+            ownershipInfo.recordedDate = Date.now() - parsedNumberOfDays * 86400000;
+            plugin.ownership.sync(guid);
+            window.plugin.ownership.getPortals();
+            $('#ownershiplist').empty().append(window.plugin.ownership.portalTable(window.plugin.ownership.sortBy, window.plugin.ownership.sortOrder));
+          }
+        }
+        ev.preventDefault();
+        return false;
+      });
+    },
+    defaultOrder: -1,
+  },
+];
+
+// Construct the set of portals to be used, based on data obtained from the set of 'owned' portals.
+window.plugin.ownership.getPortals = function() {
+
+  window.plugin.ownership.listPortals = [];
+  // Iterate through each known owned portal.
+  $.each(Object.keys(window.plugin.ownership.ownership), function(i, portalGUID) {
+    var portal = window.plugin.ownership.ownership[portalGUID];
+    if(portal && portal.owned) {
+      // Cache of values for presentation and sorting
+      var obj = { portal: portal, values: [], sortValues: [] };
+
+      // Create the row, background color adjusted for team
+      var row = document.createElement('tr');
+      row.className = window.PLAYER.team == 'RESISTANCE' ? 'res' : 'enl';
+      obj.row = row;
+
+      // Cell for portal number
+      var cell = row.insertCell(-1);
+      cell.className = 'alignR';
+
+      // Populate a cell for each field created previously
+      window.plugin.ownership.fields.forEach(function(field, i) {
+        // Create a cell for this field
+        cell = row.insertCell(-1);
+
+        // Get the value to be used in this field
+        var value = field.value(portal);
+        obj.values.push(value);
+
+        // Create set of values to use when sorting based on this field
+        obj.sortValues.push(field.sortValue ? field.sortValue(value, portal) : value);
+
+        // If the value is formatted, use that, otherwise just the value
+        if(field.format)
+          if(field.title == "Portal Name" || field.title == "Days Owned")
+            field.format(cell, portalGUID, portal, value);
+          else
+            field.format(cell, portal, value);
+        else
+          cell.textContent = value;
+      });
+
+      window.plugin.ownership.listPortals.push(obj);
+    }
+  });
+
+  return window.plugin.ownership.listPortals.length > 0; // Used to decide whether or not to display the list.
+}
+
+window.plugin.ownership.displayPL = function() {
+  var list;
+  // plugins (e.g. bookmarks) can insert fields before the standard ones - so we need to search for the 'Days Owned' column
+  window.plugin.ownership.sortBy = window.plugin.ownership.fields.map(function(f){return f.title;}).indexOf('Days Owned');
+  window.plugin.ownership.sortOrder = -1;
+
+  if (window.plugin.ownership.getPortals())
+    list = window.plugin.ownership.portalTable(window.plugin.ownership.sortBy, window.plugin.ownership.sortOrder);
+  else
+    list = $('<table class="noPortals"><tr><td>No currently owned portals are known!</td></tr></table>');
+
+  if(window.useAndroidPanes())
+    $('<div id="ownershiplist" class="mobile">').append(list).appendTo(document.body);
+  else {
+    dialog({
+      html: $('<div id="ownershiplist">').append(list),
+      dialogClass: 'ui-dialog-ownershiplist',
+      title: 'Portal list: ' + window.plugin.ownership.listPortals.length + ' ' + (window.plugin.ownership.listPortals.length == 1 ? 'portal' : 'portals'),
+      id: 'portal-list',
+      width: 700
+    });
+  }
+}
+
+window.plugin.ownership.portalTable = function(sortBy, sortOrder) {
+  window.plugin.ownership.sortBy = sortBy;
+  window.plugin.ownership.sortOrder = sortOrder;
+
+  var portals = window.plugin.ownership.listPortals;
+  var sortField = window.plugin.ownership.fields[sortBy];
+
+  // Sort the set of functions according to the saved column & order
+  portals.sort(function(a, b) {
+    var valueA = a.sortValues[sortBy];
+    var valueB = b.sortValues[sortBy];
+
+    if(sortField.sort)
+      return sortOrder * sortField.sort(valueA, valueB, a.portal, b.portal);
+
+    //FIXME: sort isn't stable, should be based on guids or something stable.
+    return sortOrder * ((valueA < valueB) ? -1 : ((valueA > valueB) ?  1 : 0));
+  });
+
+  // Create table & container
+  var table, row, cell;
+  var container = $('<div>');
+
+  table = document.createElement('table');
+  table.className = 'portals';
+  container.append(table);
+
+  // Create header with first row
+  var thead = table.appendChild(document.createElement('thead'));
+  row = thead.insertRow(-1);
+
+  // Set up column for portal numbers
+  cell = row.appendChild(document.createElement('th'));
+  cell.textContent = '#';
+
+  // Set up column headers for presentation and enable 'click-to-sort'
+  window.plugin.ownership.fields.forEach(function(field, i) {
+    // Add column header
+    cell = row.appendChild(document.createElement('th'));
+    cell.textContent = field.title;
+
+    // Format the header based on its content
+    if (field.title == "Portal Name" || field.title == "Level")
+      cell.classList.add('alignL');
+    else
+      cell.classList.add('alignR');
+
+    // Format cell based on sortability and if it is sorted
+    if(field.sort !== null) {
+      cell.classList.add("sortable");
+      if(i == window.plugin.ownership.sortBy)
+        cell.classList.add("sorted");
+
+      // Add a listener to sort if the header is clicked
+      $(cell).click(function() {
+        var order;
+        if(i == sortBy)
+          order = -sortOrder;
+        else
+          order = field.defaultOrder < 0 ? -1 : 1;
+
+        // Repopulate the table if freshly sorted
+        $('#ownershiplist').empty().append(window.plugin.ownership.portalTable(i, order));
+      });
+    }
+  });
+
+  // Add rows for each portal
+  portals.forEach(function(obj, i) {
+    var row = obj.row
+    if(row.parentNode) row.parentNode.removeChild(row);
+
+    // Add portal number & add row to table
+    row.cells[0].textContent = i+1;
+    table.appendChild(row);
+  });
+
+  container.append('<div class="information">Information generated from the latest known data (the last time the portal detail was shown). <br>'
+    + 'Visit portals to update information.<br>'
+    + 'Click on portals table headers to sort by that column.<br>'
+    + 'Double click on the number of days owned for a portal to adjust manually</div>');
+
+  return container;
+}
+
+// Constructs a link to the given portal.
+// If the portal is within the current view, it displays its details,
+// otherwise moves the map to the portal location and displays its details.
+// based on code from getPortalLink function by xelio from iitc: AP List - https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/ap-list.user.js
+window.plugin.ownership.getPortalLink = function(guid, portal) {
+  // jQuery's event handlers seem to be removed when the nodes are remove from the DOM
+  var link = document.createElement("a");
+  link.textContent = portal.title;
+  link.href = '/intel?latE6='+portal.latE6+'&lngE6='+portal.lngE6+'&z=17';
+  link.addEventListener("click", function(ev) {
+    if(portals[guid])
+      renderPortalDetails(guid);
+    else
+      zoomToAndShowPortal(guid, [portal.latE6/1E6, portal.lngE6/1E6]);
+    ev.preventDefault();
+    return false;
+  }, false);
+  return link;
+}
+
+window.plugin.ownership.onPaneChanged = function(pane) {
+  if(pane == "plugin-ownership")
+    window.plugin.ownership.displayPL();
+  else
+    $("#ownershiplist").remove()
+};
+
+// Owned Portal List End
+
 var setup = function() {
-	if($.inArray('pluginOwnershipUpdateOwnership', window.VALID_HOOKS) < 0)
-		window.VALID_HOOKS.push('pluginOwnershipUpdateOwnership');
-	if($.inArray('pluginOwnershipRefreshAll', window.VALID_HOOKS) < 0)
-		window.VALID_HOOKS.push('pluginOwnershipRefreshAll');
-    window.plugin.ownership.setupCSS();
-	window.plugin.ownership.setupContent();
-	window.plugin.ownership.loadLocal('ownership');
+  if($.inArray('pluginOwnershipUpdateOwnership', window.VALID_HOOKS) < 0)
+    window.VALID_HOOKS.push('pluginOwnershipUpdateOwnership');
+  if($.inArray('pluginOwnershipRefreshAll', window.VALID_HOOKS) < 0)
+    window.VALID_HOOKS.push('pluginOwnershipRefreshAll');
+  window.plugin.ownership.setupCSS();
+  window.plugin.ownership.setupContent();
+  window.plugin.ownership.loadLocal('ownership');
 
-	window.addHook('portalDetailsUpdated', window.plugin.ownership.onPortalDetailsUpdated);
-	window.addHook('publicChatDataAvailable', window.plugin.ownership.onPublicChatDataAvailable);
-	window.addHook('iitcLoaded', window.plugin.ownership.registerFieldForSyncing);
-    window.addPortalHighlighter('Owned Portals', window.plugin.ownership.highlighter);
+  window.addHook('portalDetailsUpdated', window.plugin.ownership.onPortalDetailsUpdated);
+  window.addHook('publicChatDataAvailable', window.plugin.ownership.onPublicChatDataAvailable);
+  window.addHook('iitcLoaded', window.plugin.ownership.registerFieldForSyncing);
+  window.addPortalHighlighter('Owned Portals', window.plugin.ownership.highlighter);
 
-	if(window.plugin.portalslist) {
-		window.plugin.ownership.setupPortalsList();
-	} else {
-		setTimeout(function() {
-			if(window.plugin.portalslist)
-				window.plugin.ownership.setupPortalsList();
-		}, 500);
-	}
+  if(window.plugin.portalslist)
+    window.plugin.ownership.setupPortalsList();
+  else {
+    setTimeout(function() {
+      if(window.plugin.portalslist)
+        window.plugin.ownership.setupPortalsList();
+    }, 500);
+  }
+
+  if(window.useAndroidPanes()) {
+    android.addPane("plugin-ownership", "Portals list", "ic_action_paste");
+    addHook("paneChanged", window.plugin.ownership.onPaneChanged);
+  } else {
+    $('#toolbox').append('<a onclick="window.plugin.ownership.displayPL()" title="Display a list of portals in the current view [g]" accesskey="g">Owned Portals List</a>');
+  }
+
+  $("<style>")
+    .prop("type", "text/css")
+    .html("@@INCLUDESTRING:plugins/portals-list.css@@")
+    .appendTo("head");
 }
 
 //PLUGIN END //////////////////////////////////////////////////////////
