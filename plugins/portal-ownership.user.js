@@ -318,6 +318,13 @@ window.plugin.ownership.setupPortalsList = function() {
       info = { owned: false };
 
     $('[data-list-ownership="'+data.guid+'"].owned').prop('checked', info.owned);
+
+    // Update the owned portal list information as it is encountered
+    if (info.level && info.health && info.resonatorCount) {
+      $('[ownership-dialog-level="'+data.guid+'"]').css('background-color', COLORS_LVL[info.level]).text("L" + info.level);
+      $('[ownership-dialog-health="'+data.guid+'"]').text(info.health + "%");
+      $('[ownership-dialog-resonatorCount="'+data.guid+'"]').text(info.resonatorCount);
+    }
   });
 
   window.addHook('pluginOwnershipRefreshAll', function() {
@@ -329,15 +336,22 @@ window.plugin.ownership.setupPortalsList = function() {
         info = { owned: false };
 
       var e = $(element);
-      if(e.hasClass('owned')) 
+      if(e.hasClass('owned'))
         e.prop('checked', info.owned);
+
+      // Update the owned portal list information as it is encountered
+      if (info.level && info.health && info.resonatorCount) {
+        $('[ownership-dialog-level="'+guid+'"]').css('background-color', COLORS_LVL[info.level]).text("L" + info.level);
+        $('[ownership-dialog-health="'+guid+'"]').text(info.health + "%");
+        $('[ownership-dialog-resonatorCount="'+guid+'"]').text(info.resonatorCount);
+      }
     });
   });
 
   function uniqueValue(guid) {
     var info = plugin.ownership.ownership[guid];
 
-    if(info && info.owned) 
+    if(info && info.owned)
       return 1;
     return 0;
 	}
@@ -427,8 +441,9 @@ window.plugin.ownership.fields = [
   {
     title: "Level",
     value: function(portal) { return portal.level; },
-    format: function(cell, portal, value) {
+    format: function(cell, portalGUID, portal, value) {
       $(cell)
+        .attr('ownership-dialog-level', portalGUID)
         .css('background-color', COLORS_LVL[value])
         .text('L' + value);
     },
@@ -438,8 +453,9 @@ window.plugin.ownership.fields = [
     title: "Health",
     value: function(portal) { return portal.health; },
     sortValue: function(value, portal) { return value; },
-    format: function(cell, portal, value) {
+    format: function(cell, portalGUID, portal, value) {
       $(cell)
+        .attr('ownership-dialog-health', portalGUID)
         .addClass("alignR")
         .text(value+'%');
     },
@@ -448,8 +464,9 @@ window.plugin.ownership.fields = [
   {
     title: "Resonators",
     value: function(portal) { return portal.resonatorCount; },
-    format: function(cell, portal, value) {
+    format: function(cell, portalGUID, portal, value) {
       $(cell)
+        .attr('ownership-dialog-resonatorCount', portalGUID)
         .addClass("alignR")
         .text(value);
     },
@@ -514,10 +531,7 @@ window.plugin.ownership.getPortals = function() {
 
         // If the value is formatted, use that, otherwise just the value
         if(field.format)
-          if(field.title == "Portal Name" || field.title == "Days Owned")
-            field.format(cell, portalGUID, portal, value);
-          else
-            field.format(cell, portal, value);
+          field.format(cell, portalGUID, portal, value);
         else
           cell.textContent = value;
       });
