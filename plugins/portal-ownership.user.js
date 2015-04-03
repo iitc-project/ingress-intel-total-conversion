@@ -156,9 +156,13 @@ window.plugin.ownership.updateOwned = function(owned, guid, portal) {
       }
       else { // One that is already owned and has information
         // Update with most recently known information
-        ownershipInfo.health = portal.health;
-        ownershipInfo.resonatorCount = portal.resCount;
-        ownershipInfo.level = portal.level;
+        // Only update if the portal has provided informations (i.e. not just from a capture)
+        // This presents overwriting of previously known information with 'undefined's
+        if (portal.health && portal.resCount && portal.level) {
+          ownershipInfo.health = portal.health;
+          ownershipInfo.resonatorCount = portal.resCount;
+          ownershipInfo.level = portal.level;
+        }
       }
     }
   }
@@ -669,10 +673,7 @@ window.plugin.ownership.getPortalLink = function(guid, portal) {
   link.textContent = portal.title;
   link.href = '/intel?latE6='+portal.latE6+'&lngE6='+portal.lngE6+'&z=17';
   link.addEventListener("click", function(ev) {
-    if(portals[guid])
-      renderPortalDetails(guid);
-    else
-      zoomToAndShowPortal(guid, [portal.latE6/1E6, portal.lngE6/1E6]);
+    zoomToAndShowPortal(guid, [portal.latE6/1E6, portal.lngE6/1E6]);
     ev.preventDefault();
     return false;
   }, false);
