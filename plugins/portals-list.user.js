@@ -147,6 +147,16 @@ window.plugin.portalslist.fields = [
     },
     defaultOrder: -1,
   },
+  {
+    title: "LatLng",
+    value: function(portal) { return portal.getLatLng().lat + ',' + portal.getLatLng().lng; },
+    format: function(cell, portal, value) {
+      $(cell)
+        .addClass("alignR")
+        .text(value);
+    },
+    defaultOrder: -1,
+  },
 ];
 
 //fill the listPortals array with portals avaliable on the map (level filtered portals will not appear in the table)
