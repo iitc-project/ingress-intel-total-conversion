@@ -591,6 +591,7 @@ function boot() {
   window.setupTaphold();
   window.setupStyles();
   window.setupDialogs();
+  window.setupDataTileParams();
   window.setupMap();
   window.setupOMS();
   window.search.setup();
