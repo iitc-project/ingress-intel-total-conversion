@@ -442,10 +442,11 @@ window.plugin.ownership.fields = [
     title: "Level",
     value: function(portal) { return portal.level; },
     format: function(cell, portalGUID, portal, value) {
+      var text = value ? ('L' + value) : '-';
       $(cell)
         .attr('ownership-dialog-level', portalGUID)
         .css('background-color', COLORS_LVL[value])
-        .text('L' + value);
+        .text(text);
     },
     defaultOrder: -1,
   },
@@ -454,10 +455,11 @@ window.plugin.ownership.fields = [
     value: function(portal) { return portal.health; },
     sortValue: function(value, portal) { return value; },
     format: function(cell, portalGUID, portal, value) {
+      var text = value ? (value + "%") : "-";
       $(cell)
         .attr('ownership-dialog-health', portalGUID)
         .addClass("alignR")
-        .text(value+'%');
+        .text(text);
     },
     defaultOrder: -1,
   },
@@ -465,10 +467,11 @@ window.plugin.ownership.fields = [
     title: "Resonators",
     value: function(portal) { return portal.resonatorCount; },
     format: function(cell, portalGUID, portal, value) {
+      var text = value ? value : "-";
       $(cell)
         .attr('ownership-dialog-resonatorCount', portalGUID)
         .addClass("alignR")
-        .text(value);
+        .text(text);
     },
     defaultOrder: -1,
   },
