@@ -705,10 +705,10 @@ var setup = function() {
   }
 
   if(window.useAndroidPanes()){
-    android.addPane("plugin-ownership", "Portals list", "ic_action_paste");
+    android.addPane("plugin-ownership", "Owned Portals", "ic_action_paste");
     addHook("paneChanged", window.plugin.ownership.onPaneChanged);
   } else {
-    $('#toolbox').append('<a onclick="window.plugin.ownership.displayPL()" title="Display a list of portals in the current view [g]" accesskey="g">Owned Portals List</a>');
+    $('#toolbox').append('<a onclick="window.plugin.ownership.displayPL()" title="Display a list of portals in the current view [g]" accesskey="g">Owned Portals</a>');
   }
 
   $("<style>")
