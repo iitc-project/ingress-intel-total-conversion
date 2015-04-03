@@ -476,7 +476,11 @@ window.plugin.ownership.fields = [
     title: "Days Owned",
     value: function(portal) { return Math.round((Date.now() - portal.recordedDate) / 86400000)},
     format: function(cell, guid, portal, value) {
-      $(cell).addClass("alignR").text(value);
+      $(cell)
+        .addClass("alignR")
+        .addClass("help")
+        .attr('title', 'Double-click to modify.')
+        .text(value);
       cell.addEventListener("dblclick", function(ev) {
         var actualNumberOfDays = prompt("How many days have you owned " + portal.title + "?","");
         var parsedNumberOfDays = parseInt(actualNumberOfDays);
