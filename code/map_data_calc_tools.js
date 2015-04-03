@@ -10,14 +10,11 @@
 // http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames
 
 
+
 window.getMapZoomTileParameters = function(zoom) {
 
-//  var ZOOM_TO_TILES_PER_EDGE = [64, 64, 128, 128, 256, 256, 256, 1024, 1024, 1536, 4096, 4096, 6500, 6500, 6500];
-//  var ZOOM_TO_TILES_PER_EDGE = [256, 256, 256, 256, 512, 512, 512, 2048, 2048, 2048, 4096, 4096, 6500, 6500, 6500];
-  var ZOOM_TO_TILES_PER_EDGE = [256, 256, 256, 256, 512, 2048, 2048, 4096, 4096, 4096, 4096, 4096, 6500, 6500, 6500];;
-  var MAX_TILES_PER_EDGE = 9000;
-//  var ZOOM_TO_LEVEL = [8, 8, 8, 8, 7, 7, 7, 6, 6, 5, 4, 4, 3, 2, 2, 1, 1];
-  var ZOOM_TO_LEVEL = [8, 8, 8, 8, 8, 8, 7, 7, 6, 6, 5, 4, 3, 2, 2, 1, 1];
+  var ZOOM_TO_TILES_PER_EDGE = [256, 256, 256, 256, 512, 512, 512, 2048, 2048, 2048, 4096, 4096, 6500, 6500, 6500, 18e3, 18e3, 36e3];
+  var ZOOM_TO_LEVEL = [ 8, 8, 8, 8, 7, 7, 7, 6, 6, 5, 4, 4, 3, 2, 2, 1, 1 ];
 
   if (niantic_params.ZOOM_TO_LEVEL && niantic_params.TILES_PER_EDGE) {
     ZOOM_TO_LEVEL = niantic_params.ZOOM_TO_LEVEL;
@@ -35,13 +32,14 @@ window.getMapZoomTileParameters = function(zoom) {
       // reduce portal detail level by one - helps reduce clutter
       level = level+1;
     }
-
   }
+
+  var maxTilesPerEdge = ZOOM_TO_TILES_PER_EDGE[ZOOM_TO_TILES_PER_EDGE.length-1];
 
   return {
     level: level,
     maxLevel: ZOOM_TO_LEVEL[zoom] || 0,  // for reference, for log purposes, etc
-    tilesPerEdge: ZOOM_TO_TILES_PER_EDGE[zoom] || MAX_TILES_PER_EDGE,
+    tilesPerEdge: ZOOM_TO_TILES_PER_EDGE[zoom] || maxTilesPerEdge,
     zoom: zoom  // include the zoom level, for reference
   };
 }
@@ -66,7 +64,7 @@ window.getDataZoomForMapZoom = function(zoom) {
     // to avoid impacting server load, we keep ourselves restricted to a zoom level with the sane numbre
     // of tilesPerEdge and portal levels visible
 
-    while (zoom > 5) {
+    while (zoom > MIN_ZOOM) {
       var newTileParams = getMapZoomTileParameters(zoom-1);
       if (newTileParams.tilesPerEdge != origTileParams.tilesPerEdge || newTileParams.level != origTileParams.level) {
         // switching to zoom-1 would result in a different detail level - so we abort changing things
