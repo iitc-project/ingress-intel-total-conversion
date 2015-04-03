@@ -76,7 +76,7 @@ window.extractFromStock = function() {
               // a reasonable array length for tile parameters
               // need to find two types:
               // a. portal level limits. decreasing numbers, starting at 8
-              // b. tiles per edge. increasing numbers. current max is 36000, 9000 was the previous value
+              // b. tiles per edge. increasing numbers. current max is 36000, 9000 was the previous value - 18000 is a likely possibility too
 
               if (topObject[0] == 8) {
                 // check for tile levels
@@ -93,7 +93,7 @@ window.extractFromStock = function() {
                 }
               } // end if (topObject[0] == 8)
 
-              if (topObject[topObject.length-1] == 36000 || topObject[topObject.length-1] == 9000) {
+              if (topObject[topObject.length-1] == 36000 || topObject[topObject.length-1] == 18000 || topObject[topObject.length-1] == 9000) {
                 var increasing = true;
                 for (var i=1; i<topObject.length; i++) {
                   if (topObject[i-1] > topObject[i]) {
