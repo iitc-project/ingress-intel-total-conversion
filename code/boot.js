@@ -165,7 +165,7 @@ window.setupMap = function() {
     center: [0,0],
     zoom: 1,
     zoomControl: (typeof android !== 'undefined' && android && android.showZoom) ? android.showZoom() : true,
-    minZoom: 5,
+    minZoom: MIN_ZOOM,
 //    zoomAnimation: false,
     markerZoomAnimation: false,
     bounceAtZoomLimits: false
@@ -591,6 +591,7 @@ function boot() {
   window.setupTaphold();
   window.setupStyles();
   window.setupDialogs();
+  window.setupDataTileParams();
   window.setupMap();
   window.setupOMS();
   window.search.setup();
