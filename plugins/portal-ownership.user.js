@@ -65,8 +65,8 @@ window.plugin.ownership.onPortalDetailsUpdated = function() {
       details = portalDetail.get(guid),
       nickname = window.PLAYER.nickname;
 
-  if(details && (details.owner == nickname))
-    plugin.ownership.updateOwned(true);
+  if(details)
+    plugin.ownership.updateOwned(details.owner == nickname);
 
   if($('#uniques-container').length) // If iitc-plugin-uniques is enabled, embed ownership data alongside unique data
     $('#uniques-container > label:first').before(plugin.ownership.labelContentHTML);
@@ -320,6 +320,15 @@ window.plugin.ownership.setupPortalsList = function() {
     var info = plugin.ownership.ownership[data.guid];
     if(!info)
       info = { owned: false };
+
+    // Update the owned portals list neccessary
+    var shouldRemove = !info.owned && $('[ownership-dialog-level="'+data.guid+'"]').length > 0;
+    var shouldAdd = info.owned && $('[ownership-dialog-level="'+data.guid+'"]').length == 0;
+
+    if (shouldAdd || shouldRemove) {
+      window.plugin.ownership.getPortals();
+      $('#ownershiplist').empty().append(window.plugin.ownership.portalTable(window.plugin.ownership.sortBy, window.plugin.ownership.sortOrder));
+    }
 
     $('[data-list-ownership="'+data.guid+'"].owned').prop('checked', info.owned);
 
