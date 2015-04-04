@@ -1,5 +1,10 @@
 <h2>News</h2>
 
+<h4>4th April 2015</h4>
+<p>
+IITC 0.22.2 has been released. This is a critical update needed to fix portal loading at some zoom levels.
+</p>
+
 <h4>20th March 2015</h4>
 <p>
 IITC 0.22.1 has been released. This is a critical update needed to fix COMM after a recent Niantic site update.
