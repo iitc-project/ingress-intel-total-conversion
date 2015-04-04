@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.22.1.@@DATETIMEVERSION@@
+// @version        0.22.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -160,7 +160,8 @@ window.MOD_TYPE = {RES_SHIELD:'Shield', MULTIHACK:'Multi-hack', FORCE_AMP:'Force
 window.ACCESS_INDICATOR_COLOR = 'orange';
 window.RANGE_INDICATOR_COLOR = 'red'
 
-
+// min zoom for intel map - should match that used by stock intel
+window.MIN_ZOOM = 3;
 
 window.DEFAULT_PORTAL_IMG = '//commondatastorage.googleapis.com/ingress.com/img/default-portal-image.png';
 //window.NOMINATIM = '//nominatim.openstreetmap.org/search?format=json&limit=1&q=';
