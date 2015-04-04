@@ -54,6 +54,7 @@ window.setupDataTileParams = function() {
           width: 400,
           text: 'The "show-more-portals" plugin has been disabled.\n\n'
                +'Niantic have changed the intel site so that zoom level 17 (all portals) now needs '+mapScale+' times more requests than level 15 (L1+ portals), so fetching at the wrong zoom level will be unfriendly to the servers\n\n'
+               +'Don\'t like this? Ask Niantic to change the standard intel site, then IITC can match and all would benifit.'
         });
 
         window.CONFIG_ZOOM_SHOW_MORE_PORTALS=false;
