@@ -648,7 +648,8 @@ window.plugin.ownership.portalTable = function(sortBy, sortOrder) {
         else
           order = field.defaultOrder < 0 ? -1 : 1;
 
-        // Repopulate the table if freshly sorted
+        // Repopulate the table if freshly sorted as values may have been updated
+        window.plugin.ownership.getPortals();
         $('#ownershiplist').empty().append(window.plugin.ownership.portalTable(i, order));
       });
     }
