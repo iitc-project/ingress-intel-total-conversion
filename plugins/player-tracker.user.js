@@ -17,8 +17,10 @@
 @@PLUGINSTART@@
 
 // PLUGIN START ////////////////////////////////////////////////////////
-window.PLAYER_TRACKER_MAX_TIME = 3*60*60*1000; // in milliseconds
-window.PLAYER_TRACKER_MIN_ZOOM = 9;
+window.PLAYER_TRACKER_MAX_EVENT_TIME = 3*60*60*1000; // in milliseconds  (Ray)  renamed for clarity
+window.PLAYER_TRACKER_MAX_FIELD_TIME = 6*60*60*1000; // in milliseconds  (Ray)  separate time limit for checking fields
+window.PLAYER_TRACKER_MAX_EVENT_DISPLAY = 10;        // (Ray) number of event lines to display in popup
+window.PLAYER_TRACKER_MAX_FIELD_DISPLAY = 20;        // (Ray) number of field lines to display in popupwindow.PLAYER_TRACKER_MIN_ZOOM = 9;
 window.PLAYER_TRACKER_MIN_OPACITY = 0.3;
 window.PLAYER_TRACKER_LINE_COLOUR = '#FF00FD';
 
@@ -111,22 +113,53 @@ window.plugin.playerTracker.zoomListener = function() {
   }
 }
 
-window.plugin.playerTracker.getLimit = function() {
- return new Date().getTime() - window.PLAYER_TRACKER_MAX_TIME;
-}
+window.plugin.playerTracker.getEventLimit = function() // (Ray) renamed to use renamed variable
+    return new Date().getTime() - window.PLAYER_TRACKER_MAX_EVENT_TIME;
+
+window.plugin.playerTracker.getFieldLimit = function() // (Ray) separate limit for fields
+    return new Date().getTime() - window.PLAYER_TRACKER_MAX_FIELD_TIME;
 
 window.plugin.playerTracker.discardOldData = function() {
-  var limit = plugin.playerTracker.getLimit();
-  $.each(plugin.playerTracker.stored, function(plrname, player) {
-    var i;
-    var ev = player.events;
-    for(i = 0; i < ev.length; i++) {
-      if(ev[i].time >= limit) break;
-    }
-    if(i === 0) return true;
-    if(i === ev.length) return delete plugin.playerTracker.stored[plrname];
-    plugin.playerTracker.stored[plrname].events.splice(0, i);
-  });
+    // (Ray) altered to remove old fields as well as old events
+    var eventlimit = plugin.playerTracker.getEventLimit();  // (Ray)
+    var fieldlimit = plugin.playerTracker.getFieldLimit();  // (Ray)
+        
+    $.each(plugin.playerTracker.stored, function(plrname, player) {
+        var i;
+        var ev = player.events;
+        var hasEvents = (ev.length > 0);
+        var fld = player.fields;
+        var hasFields = (fld.length >0);
+        
+        if (hasEvents)
+            {
+            for(i = 0; i < ev.length; i++) 
+                { if(ev[i].time >= eventlimit) break; }
+            if (i > 0) 
+                {
+                if (i === ev.length) 
+                    hasEvents = false;
+                else
+                    plugin.playerTracker.stored[plrname].events.splice(0, i); 
+                }
+            }
+            
+        if (hasFields)
+            {
+            for(i = 0; i < fld.length; i++) 
+                { if(fld[i].time >= fieldlimit) break; }
+            if (i > 0)
+                {
+                if (i === fld.length) 
+                    hasFields = false;
+                else
+                    plugin.playerTracker.stored[plrname].fields.splice(0, i); 
+                }
+            }
+        
+        if (!hasEvents && !hasFields)
+            delete plugin.playerTracker.stored[plrname];
+    });
 }
 
 window.plugin.playerTracker.eventHasLatLng = function(ev, lat, lng) {
@@ -140,114 +173,198 @@ window.plugin.playerTracker.eventHasLatLng = function(ev, lat, lng) {
   return hasLatLng;
 }
 
-window.plugin.playerTracker.processNewData = function(data) {
-  var limit = plugin.playerTracker.getLimit();
-  $.each(data.result, function(ind, json) {
-    // skip old data
-    if(json[1] < limit) return true;
 
-    // find player and portal information
-    var plrname, lat, lng, id=null, name, address;
-    var skipThisMessage = false;
-    $.each(json[2].plext.markup, function(ind, markup) {
-      switch(markup[0]) {
-      case 'TEXT':
-        // Destroy link and field messages depend on where the link or
-        // field was originally created. Therefore it’s not clear which
-        // portal the player is at, so ignore it.
-        if(markup[1].plain.indexOf('destroyed the Link') !== -1
-          || markup[1].plain.indexOf('destroyed a Control Field') !== -1
-          || markup[1].plain.indexOf('Your Link') !== -1) {
-          skipThisMessage = true;
-          return false;
-        }
-        break;
-      case 'PLAYER':
-        plrname = markup[1].plain;
-        break;
-      case 'PORTAL':
-        // link messages are “player linked X to Y” and the player is at
-        // X.
-        lat = lat ? lat : markup[1].latE6/1E6;
-        lng = lng ? lng : markup[1].lngE6/1E6;
+window.plugin.playerTracker.processNewData = function(data) 
+    {
+    // (Ray) a lot of changes here. no early exits from messages because they could be a field
+    // but not an event for traditional player tracker
+    var eventlimit = plugin.playerTracker.getEventLimit();
+    var fieldlimit = plugin.playerTracker.getFieldLimit();
 
-        // no GUID in the data any more - but we need some unique string. use the latE6,lngE6
-        id = markup[1].latE6+","+markup[1].lngE6;
+    $.each(data.result, function(ind, json) 
+        {
+        // find player and portal information
+        var plrname, lat, lng, id=null, name, address;
+        var ignoreThisMessage = false;
+        var handledThisEvent = false;
 
-        name = name ? name : markup[1].name;
-        address = address ? address : markup[1].address;
-        break;
-      }
-    });
+        // (Ray)
+        var mufield = 0;    // counter for checking that we got a complete mu change message
+        var valMU = 0;      // amount of mu changed
+        var mutype = 'x';   // type of mu change + - x
+        var isEvent = true;
+        var isField = false;
 
-    // skip unusable events
-    if(!plrname || !lat || !lng || !id || skipThisMessage) return true;
+        $.each(json[2].plext.markup, function(ind, markup) 
+            {
+            switch(markup[0]) 
+                {
+                case 'TEXT':
+                    // (Ray) Yes this could be more elegant 
+                    // looping through the additional TEXT nodes to make sure it has all three for an MU field
+                    if ((mufield == 0) && (markup[1].plain.indexOf('created a Control Field') !== -1)) { mufield = 1; } 
+                    if ((mufield == 1) && (ind == 3) && (markup[1].plain == ' +'))   { mufield = 2; mutype = '+'; }
+                    if ((mufield == 2) && (ind == 4))  { mufield = 3; valMU = parseInt(markup[1].plain); }
+                    if ((mufield == 3) && (ind == 5) && (markup[1].plain == ' MUs'))  { isField = true; }  // (Ray) got all four fields for + MU
 
-    var newEvent = {
-      latlngs: [[lat, lng]],
-      ids: [id],
-      time: json[1],
-      name: name,
-      address: address
-    };
+                    if ((mufield == 0) && (markup[1].plain.indexOf('destroyed a Control Field') !== -1)) { mufield = 11; } 
+                    if ((mufield == 11) && (ind == 3) && (markup[1].plain == ' -'))   { mufield = 12; mutype = '-'; }  
+                    if ((mufield == 12) && (ind == 4))  { mufield = 13; valMU = parseInt(markup[1].plain); }
+                    if ((mufield == 13) && (ind == 5) && (markup[1].plain == ' MUs')) { isField = true; }  // (Ray) got all four fields for - MU
 
-    var playerData = window.plugin.playerTracker.stored[plrname];
+                    // Destroy link and field messages depend on where the link or
+                    // field was originally created. Therefore it's not clear which
+                    // portal the player is at, so ignore it.  
+                    if (markup[1].plain.indexOf('destroyed the Link') !== -1 || 
+                        markup[1].plain.indexOf('Your Link') !== -1 ||
+                        markup[1].plain.indexOf('destroyed a Control Field') !== -1) 
+                        { isEvent = false; }
+                    break;
+                case 'PLAYER':
+                    plrname = markup[1].plain;
+                    break;
+                case 'PORTAL':
+                    // link messages are 'player linked X to Y' and the player is at
+                    // X.
+                    lat = lat ? lat : markup[1].latE6/1E6;
+                    lng = lng ? lng : markup[1].lngE6/1E6;
 
-    // short-path if this is a new player
-    if(!playerData || playerData.events.length === 0) {
-      plugin.playerTracker.stored[plrname] = {
-        nick: plrname,
-        team: json[2].plext.team,
-        events: [newEvent]
-      };
-      return true;
+                    // no GUID in the data any more - but we need some unique string. use the latE6,lngE6
+                    id = markup[1].latE6+","+markup[1].lngE6;
+
+                    name = name ? name : markup[1].name;
+                    address = address ? address : markup[1].address;
+                    break;
+                } // switch
+            }); // each message section
+
+        isField = ((isField) && (valMU > 0) && (mutype != 'x') && (json[1] >= fieldlimit));
+                
+        isEvent = ((isEvent) && (lat) && (lng) && (id) && (plrname) && (json[1] >= eventlimit));
+                
+        if ((!isField) && (!isEvent))
+           { return true; }
+                
+        var playerData = window.plugin.playerTracker.stored[plrname];
+        if(!playerData) 
+            {
+            plugin.playerTracker.stored[plrname] = 
+                {
+                nick: plrname,
+                team: json[2].plext.team,
+                events: [],
+                fields: []
+                };
+            playerData = window.plugin.playerTracker.stored[plrname];
+            }
+
+        if (isEvent)
+            {
+            var newEvent = 
+                {
+                latlngs: [[lat, lng]],
+                ids: [id],
+                time: json[1],
+                name: name,
+                address: address
+                };
+            if (playerData.events.length === 0)
+                {
+                plugin.playerTracker.stored[plrname].events.push(newEvent);
+                }
+            else
+                {
+                var evts = playerData.events;
+                // there's some data already. Need to find correct place to insert.
+                var i;
+                for(i = 0; i < evts.length; i++) 
+                    if(evts[i].time > json[1]) break;
+ 
+                 var cmp = Math.max(i-1, 0);
+   
+                // so we have an event that happened at the same time. Most likely
+                // this is multiple resos destroyed at the same time.
+                if(evts[cmp].time === json[1]) 
+                    {
+                    evts[cmp].latlngs.push([lat, lng]);
+                    evts[cmp].ids.push(id);
+                    plugin.playerTracker.stored[plrname].events = evts;
+                    handledThisEvent = true;
+                    }
+
+                // the time changed. Is the player still at the same location?
+ 
+                // assume this is an older event at the same location. Then we need
+                // to look at the next item in the event list. If this event is the
+                // newest one, there may not be a newer event so check for that. If
+                // it really is an older event at the same location, then skip it.
+                if (evts[cmp+1] && plugin.playerTracker.eventHasLatLng(evts[cmp+1], lat, lng))
+                    handledThisEvent = true;
+
+                if (!handledThisEvent)
+                    {
+                    // if this event is newer, need to look at the previous one
+                    var sameLocation = plugin.playerTracker.eventHasLatLng(evts[cmp], lat, lng);
+
+                    // if it's the same location, just update the timestamp. Otherwise
+                    // push as new event.
+                    if(sameLocation) 
+                        { evts[cmp].time = json[1]; }
+                    else 
+                        { evts.splice(i, 0,  newEvent); }
+
+                    // update player data
+                    plugin.playerTracker.stored[plrname].events = evts;
+                    }
+                }
+            } //end isEvent
+
+        if (isField)
+            {
+            var newField = 
+                {
+                time: json[1],
+                latlngs: [[lat, lng]],
+                ids: [id],
+                name: (mutype == '+') ? ' + '+valMU.toLocaleString() : name,
+                address: address,
+                mutype: mutype,
+                mu: valMU
+                };
+            if (playerData.fields.length === 0)
+                {
+                plugin.playerTracker.stored[plrname].fields.push(newField);
+                }
+            else
+                {
+                var flds = playerData.fields;
+                var i;
+                for(i = 0; i < flds.length; i++) 
+                    { if((flds[i].time == json[1]) && (flds[i].mu == valMU)) break; }
+                if (i >= flds.length)
+                    {
+                    // (Ray) we didn't find a field with a matching time and mu 
+                    // put the new field in the right time position
+                    for(i = 0; i < flds.length; i++) 
+                        { if(flds[i].time > json[1]) break; }
+                    if (i >= flds.length)
+                        { flds.push(newField); }
+                    else
+                        { flds.splice(i, 0,  newField); }
+                    }
+
+                // update player data
+                plugin.playerTracker.stored[plrname].fields = flds;
+                }
+            } //end isField
+
+                
+        } );
     }
 
-    var evts = playerData.events;
-    // there’s some data already. Need to find correct place to insert.
-    var i;
-    for(i = 0; i < evts.length; i++) {
-      if(evts[i].time > json[1]) break;
-    }
-
-    var cmp = Math.max(i-1, 0);
-
-    // so we have an event that happened at the same time. Most likely
-    // this is multiple resos destroyed at the same time.
-    if(evts[cmp].time === json[1]) {
-      evts[cmp].latlngs.push([lat, lng]);
-      evts[cmp].ids.push(id);
-      plugin.playerTracker.stored[plrname].events = evts;
-      return true;
-    }
-
-    // the time changed. Is the player still at the same location?
-
-    // assume this is an older event at the same location. Then we need
-    // to look at the next item in the event list. If this event is the
-    // newest one, there may not be a newer event so check for that. If
-    // it really is an older event at the same location, then skip it.
-    if(evts[cmp+1] && plugin.playerTracker.eventHasLatLng(evts[cmp+1], lat, lng))
-      return true;
-
-    // if this event is newer, need to look at the previous one
-    var sameLocation = plugin.playerTracker.eventHasLatLng(evts[cmp], lat, lng);
-
-    // if it’s the same location, just update the timestamp. Otherwise
-    // push as new event.
-    if(sameLocation) {
-      evts[cmp].time = json[1];
-    } else {
-      evts.splice(i, 0,  newEvent);
-    }
-
-    // update player data
-    plugin.playerTracker.stored[plrname].events = evts;
-  });
-}
 
 window.plugin.playerTracker.getLatLngFromEvent = function(ev) {
-//TODO? add weight to certain events, or otherwise prefer them, to give better locations?
+//TODO' add weight to certain events, or otherwise prefer them, to give better locations'
   var lats = 0;
   var lngs = 0;
   $.each(ev.latlngs, function(i, latlng) {
@@ -269,6 +386,7 @@ window.plugin.playerTracker.ago = function(time, now) {
   return returnVal;
 }
 
+
 window.plugin.playerTracker.drawData = function() {
   var isTouchDev = window.isTouchDevice();
 
@@ -277,8 +395,9 @@ window.plugin.playerTracker.drawData = function() {
   var polyLineByAgeEnl = [[], [], [], []];
   var polyLineByAgeRes = [[], [], [], []];
 
-  var split = PLAYER_TRACKER_MAX_TIME / 4;
+  var split = PLAYER_TRACKER_MAX_EVENT_TIME / 4;
   var now = new Date().getTime();
+    
   $.each(plugin.playerTracker.stored, function(plrname, playerData) {
     if(!playerData || playerData.events.length === 0) {
       console.warn('broken player data for plrname=' + plrname);
@@ -307,14 +426,18 @@ window.plugin.playerTracker.drawData = function() {
     var tooltip = isTouchDev ? '' : (playerData.nick+', '+ago(last.time, now)+' ago');
 
     // popup for marker
+    //-----------------  
     var popup = $('<div>')
       .addClass('plugin-player-tracker-popup');
+
+    // player name  
     $('<span>')
       .addClass('nickname ' + (playerData.team === 'RESISTANCE' ? 'res' : 'enl'))
       .css('font-weight', 'bold')
       .text(playerData.nick)
       .appendTo(popup);
 
+    // player level
     if(window.plugin.guessPlayerLevels !== undefined &&
        window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer !== undefined) {
       function getLevel(lvl) {
@@ -326,11 +449,9 @@ window.plugin.playerTracker.drawData = function() {
           })
           .text(lvl);
       }
-
       var level = $('<span>')
         .css({'font-weight': 'bold', 'margin-left': '10px'})
         .appendTo(popup);
-
       var playerLevelDetails = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(plrname);
       level
         .text('Min level ')
@@ -341,34 +462,94 @@ window.plugin.playerTracker.drawData = function() {
           .append(getLevel(playerLevelDetails.guessed));
     }
 
+    // show most recent event
     popup
       .append('<br>')
       .append(document.createTextNode(ago(last.time, now)))
       .append('<br>')
-      .append(plugin.playerTracker.getPortalLink(last));
+      .append(plugin.playerTracker.getPortalLink(last))
+      .append('<br>');
 
-    // show previous data in popup
-    if(evtsLength >= 2) {
-      popup
-        .append('<br>')
-        .append('<br>')
-        .append(document.createTextNode('previous locations:'))
-        .append('<br>');
 
-      var table = $('<table>')
-        .appendTo(popup)
-        .css('border-spacing', '0');
-      for(var i = evtsLength - 2; i >= 0 && i >= evtsLength - 10; i--) {
-        var ev = playerData.events[i];
-        $('<tr>')
-          .append($('<td>')
-            .text(ago(ev.time, now) + ' ago'))
-          .append($('<td>')
-            .append(plugin.playerTracker.getPortalLink(ev)))
-          .appendTo(table);
-      }
-    }
+    // show previous events in popup
+    if(evtsLength >= 2) 
+        {
+        var eventtable = $('<table>') .css('border-spacing', '0');
+        for(var i = evtsLength - 2; i >= 0 && i >= evtsLength - window.PLAYER_TRACKER_MAX_EVENT_DISPLAY; i--) 
+            {
+            var ev = playerData.events[i];
+            $('<tr>')
+              .append($('<td>') .text(ago(ev.time, now) + ' ago '))
+              .append($('<td>') .append(plugin.playerTracker.getPortalLink(ev)))
+            .appendTo(eventtable);
+            }
 
+        popup
+          .append('<br>')
+          .append(document.createTextNode('previous locations:'))
+          .append('<br>');
+
+        eventtable.appendTo(popup);
+        }
+      
+    // (Ray) field data for popup
+    if (playerData.fields.length > 0)
+        {
+        var plusMU = 0;
+        var plusFields = 0;
+        var plusLines = 0;   // count lines output in popup
+        var minusMU = 0;
+        var minusFields = 0;
+        var minusLines = 0;  // count lines output in popup
+        var plustable = $('<table>')   .css('border-spacing', '0');
+        var minustable = $('<table>')  .css('border-spacing', '0');
+            
+        for(var i = playerData.fields.length-1; i >= 0; i--)
+            {
+            if ((playerData.fields[i].mutype == '+') && (plusLines < window.PLAYER_TRACKER_MAX_FIELD_DISPLAY))
+                { 
+                ++plusFields; 
+                plusMU += playerData.fields[i].mu; 
+                $('<tr>')
+                  .append($('<td>') .text(ago(playerData.fields[i].time, now) + ' ago'))
+                  .append($('<td>') .append(plugin.playerTracker.getPortalLink(playerData.fields[i])))
+                  .appendTo(plustable);
+                ++plusLines;
+                }
+            if ((playerData.fields[i].mutype == '-') && (minusLines < window.PLAYER_TRACKER_MAX_FIELD_DISPLAY))
+                { 
+                ++minusFields; 
+                minusMU += playerData.fields[i].mu; 
+                $('<tr>')
+                  .append($('<td>') .text(ago(playerData.fields[i].time, now) + ' ago'))
+                  .append($('<td>') .text(' - '+playerData.fields[i].mu.toLocaleString()+' MU'))
+                  .appendTo(minustable);
+                ++minusLines;
+                }
+            } // each field 
+            
+        if (plusFields > 0)
+            {
+            popup
+              .append('<br>')
+              .append('+ '+plusMU.toLocaleString()+' MU &nbsp; ('+plusFields+' fields)')
+              .append('<br>');
+            plustable.appendTo(popup);
+            }
+            
+        if (minusFields > 0)
+            {
+            popup
+              .append('<br>')
+              .append('- '+minusMU.toLocaleString()+' MU &nbsp; ('+minusFields+' fields)')
+              .append('<br>');
+            minustable.appendTo(popup);
+            }
+            
+        } // if we had fields
+
+    // done with popup (Ray)  
+      
     // calculate the closest portal to the player
     var eventPortal = []
     var closestPortal;
