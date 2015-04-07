@@ -89,7 +89,7 @@ window.plugin.missions = {
 		// After select.
 		setTimeout(function() {
 			// #resodetails
-			$('.linkdetails').append('<a href="#" onclick="plugin.missions.openPortalMissions();" >Missions</a>');
+			$('.linkdetails').append('<aside><a href="#" onclick="plugin.missions.openPortalMissions();" >Missions</a></aside>');
 		}, 0);
 	},
 
