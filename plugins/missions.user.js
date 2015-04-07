@@ -89,7 +89,7 @@ window.plugin.missions = {
 		// After select.
 		setTimeout(function() {
 			// #resodetails
-			$('.linkdetails').append('<a href="#" onclick="plugin.missions.openPortalMissions();" >Open mission(s)</a>');
+			$('.linkdetails').append('<a href="#" onclick="plugin.missions.openPortalMissions();" >Missions</a>');
 		}, 0);
 	},
 
@@ -622,7 +622,7 @@ window.plugin.missions = {
 			this.settings.checkedMissions = {};
 		}
 
-		$('#toolbox').append('<a href="#" onclick="plugin.missions.openTopMissions();" >Open mission(s) in window</a>');
+		$('#toolbox').append('<a href="#" onclick="plugin.missions.openTopMissions();" >Missions in view</a>');
 
 		// window.addPortalHighlighter('Mission start point', this.highlight.bind(this));
 		window.addHook('portalSelected', this.onPortalSelected.bind(this));
