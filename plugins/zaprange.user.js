@@ -2,7 +2,7 @@
 // @id             iitc-plugin-zaprange@zaso
 // @name           IITC plugin: Zaprange
 // @category       Layer
-// @version        0.1.3.@@DATETIMEVERSION@@
+// @version        0.1.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -25,18 +25,18 @@
 
   window.plugin.zaprange.portalAdded = function(data) {
     data.portal.on('add', function() {
-      window.plugin.zaprange.draw(this.options.guid, this.options.data.team);
+      window.plugin.zaprange.draw(this.options.guid, this.options.team);
     });
 
     data.portal.on('remove', function() {
-      window.plugin.zaprange.remove(this.options.guid, this.options.data.team);
+      window.plugin.zaprange.remove(this.options.guid, this.options.team);
     });
   }
 
   window.plugin.zaprange.remove = function(guid, faction) {
     var previousLayer = window.plugin.zaprange.zapLayers[guid];
     if(previousLayer) {
-      if(faction === 'ENLIGHTENED') {
+      if(faction === TEAM_ENL) {
         window.plugin.zaprange.zapCircleEnlHolderGroup.removeLayer(previousLayer);
       } else {
         window.plugin.zaprange.zapCircleResHolderGroup.removeLayer(previousLayer);
@@ -48,7 +48,7 @@
   window.plugin.zaprange.draw = function(guid, faction) {
     var d = window.portals[guid];
 
-    if(faction !== "NEUTRAL") {
+    if(faction !== TEAM_NONE) {
       var coo = d._latlng;
       var latlng = new L.LatLng(coo.lat,coo.lng);
       var portalLevel = d.options.level;
@@ -57,7 +57,7 @@
 
       var circle = new L.Circle(latlng, range, optCircle);
 
-      if(faction === 'ENLIGHTENED') {
+      if(faction === TEAM_ENL) {
         circle.addTo(window.plugin.zaprange.zapCircleEnlHolderGroup);
       } else {
         circle.addTo(window.plugin.zaprange.zapCircleResHolderGroup);

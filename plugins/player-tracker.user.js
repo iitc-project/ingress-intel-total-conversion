@@ -2,7 +2,7 @@
 // @id             iitc-plugin-player-tracker@breunigs
 // @name           IITC Plugin: Player tracker
 // @category       Layer
-// @version        0.11.0.@@DATETIMEVERSION@@
+// @version        0.11.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -27,6 +27,8 @@ window.PLAYER_TRACKER_LINE_COLOUR = '#FF00FD';
 window.plugin.playerTracker = function() {};
 
 window.plugin.playerTracker.setup = function() {
+  $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:plugins/player-tracker.css@@').appendTo('head');
+
   var iconEnlImage = '@@INCLUDEIMAGE:images/marker-green.png@@';
   var iconEnlRetImage = '@@INCLUDEIMAGE:images/marker-green-2x.png@@';
   var iconResImage = '@@INCLUDEIMAGE:images/marker-blue.png@@';
@@ -85,12 +87,12 @@ plugin.playerTracker.onClickListener = function(event) {
 
 // force close all open tooltips before markers are cleared
 window.plugin.playerTracker.closeIconTooltips = function() {
-    plugin.playerTracker.drawnTracesRes.eachLayer(function(layer) {
-      if ($(layer._icon)) { $(layer._icon).tooltip('close');}
-    });
-    plugin.playerTracker.drawnTracesEnl.eachLayer(function(layer) {
-      if ($(layer._icon)) { $(layer._icon).tooltip('close');}
-    });
+  plugin.playerTracker.drawnTracesRes.eachLayer(function(layer) {
+    if ($(layer._icon)) { $(layer._icon).tooltip('close');}
+  });
+  plugin.playerTracker.drawnTracesEnl.eachLayer(function(layer) {
+    if ($(layer._icon)) { $(layer._icon).tooltip('close');}
+  });
 }
 
 window.plugin.playerTracker.zoomListener = function() {
@@ -140,7 +142,7 @@ window.plugin.playerTracker.eventHasLatLng = function(ev, lat, lng) {
 
 window.plugin.playerTracker.processNewData = function(data) {
   var limit = plugin.playerTracker.getLimit();
-  $.each(data.raw.success, function(ind, json) {
+  $.each(data.result, function(ind, json) {
     // skip old data
     if(json[1] < limit) return true;
 
@@ -330,19 +332,13 @@ window.plugin.playerTracker.drawData = function() {
         .appendTo(popup);
 
       var playerLevelDetails = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(plrname);
-      if(playerLevelDetails.min == 8) {
+      level
+        .text('Min level ')
+        .append(getLevel(playerLevelDetails.min));
+      if(playerLevelDetails.min != playerLevelDetails.guessed)
         level
-          .text('Level ')
-          .append(getLevel(8));
-      } else {
-        level
-          .text('Min level ')
-          .append(getLevel(playerLevelDetails.min));
-        if(playerLevelDetails.min != playerLevelDetails.guessed)
-          level
-            .append(document.createTextNode(', guessed level: '))
-            .append(getLevel(playerLevelDetails.guessed));
-      }
+          .append(document.createTextNode(', guessed level: '))
+          .append(getLevel(playerLevelDetails.guessed));
     }
 
     popup
@@ -406,6 +402,8 @@ window.plugin.playerTracker.drawData = function() {
       // ensure tooltips are closed, sometimes they linger
       m.on('mouseout', function() { $(this._icon).tooltip('close'); });
     }
+
+    playerData.marker = m;
 
     m.addTo(playerData.team === 'RESISTANCE' ? plugin.playerTracker.drawnTracesRes : plugin.playerTracker.drawnTracesEnl);
     window.registerMarkerForOMS(m);
@@ -485,59 +483,87 @@ window.plugin.playerTracker.handleData = function(data) {
   plugin.playerTracker.drawData();
 }
 
-window.plugin.playerTracker.findUserPosition = function(nick) {
+window.plugin.playerTracker.findUser = function(nick) {
   nick = nick.toLowerCase();
-  var foundPlayerData = undefined;
+  var foundPlayerData = false;
   $.each(plugin.playerTracker.stored, function(plrname, playerData) {
     if (playerData.nick.toLowerCase() === nick) {
       foundPlayerData = playerData;
       return false;
     }
   });
-  
-  if (!foundPlayerData) {
-    return false;
-  }
-  
-  var evtsLength = foundPlayerData.events.length;
-  var last = foundPlayerData.events[evtsLength-1];
+  return foundPlayerData;
+}
+
+window.plugin.playerTracker.findUserPosition = function(nick) {
+  var data = window.plugin.playerTracker.findUser(nick);
+  if (!data) return false;
+
+  var last = data.events[data.events.length - 1];
   return plugin.playerTracker.getLatLngFromEvent(last);
 }
 
 window.plugin.playerTracker.centerMapOnUser = function(nick) {
-  var position = plugin.playerTracker.findUserPosition(nick);
-  
-  if (position === false) {
-    return false;
-  }
-  
-  if(window.isSmartphone()) window.smartphone.mapButton.click();
+  var data = plugin.playerTracker.findUser(nick);
+  if(!data) return false;
+
+  var last = data.events[data.events.length - 1];
+  var position = plugin.playerTracker.getLatLngFromEvent(last);
+
+  if(window.isSmartphone()) window.show('map');
   window.map.setView(position, map.getZoom());
+
+  if(data.marker) {
+    window.plugin.playerTracker.onClickListener({target: data.marker});
+  }
+  return true;
 }
 
 window.plugin.playerTracker.onNicknameClicked = function(info) {
   if (info.event.ctrlKey || info.event.metaKey) {
-    plugin.playerTracker.centerMapOnUser(info.nickname);
-    return false;
+    return !plugin.playerTracker.centerMapOnUser(info.nickname);
   }
+  return true; // don't interrupt hook
 }
 
-window.plugin.playerTracker.onGeoSearch = function(search) {
-  if (/^@/.test(search)) {
-    plugin.playerTracker.centerMapOnUser(search.replace(/^@/, ''));
-    return false;
-  }
+window.plugin.playerTracker.onSearchResultSelected = function(result, event) {
+  event.stopPropagation(); // prevent chat from handling the click
+
+  if(window.isSmartphone()) window.show('map');
+
+  // if the user moved since the search was started, check if we have a new set of data
+  if(false === window.plugin.playerTracker.centerMapOnUser(result.nickname))
+    map.setView(result.position);
+
+  if(event.type == 'dblclick')
+    map.setZoom(17);
+
+  return true;
+};
+
+window.plugin.playerTracker.onSearch = function(query) {
+  var term = query.term.toLowerCase();
+
+  if (term.length && term[0] == '@') term = term.substr(1);
+
+  $.each(plugin.playerTracker.stored, function(nick, data) {
+    if(nick.toLowerCase().indexOf(term) === -1) return;
+
+    var event = data.events[data.events.length - 1];
+
+    query.addResult({
+      title: '<mark class="nickname help '+TEAM_TO_CSS[getTeam(data)]+'">' + nick + '</mark>',
+      nickname: nick,
+      description: data.team.substr(0,3) + ', last seen ' + unixTimeToDateTimeString(event.time),
+      position: plugin.playerTracker.getLatLngFromEvent(event),
+      onSelected: window.plugin.playerTracker.onSearchResultSelected,
+    });
+  });
 }
 
 window.plugin.playerTracker.setupUserSearch = function() {
-  $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:plugins/player-tracker.css@@').appendTo('head');
-
   addHook('nicknameClicked', window.plugin.playerTracker.onNicknameClicked);
-  addHook('geoSearch', window.plugin.playerTracker.onGeoSearch);
-  
-  var geoSearch = $('#geosearch');
-  var beforeEllipsis = /(.*)…/.exec(geoSearch.attr('placeholder'))[1];
-  geoSearch.attr('placeholder', beforeEllipsis + ' or @player…');
+  addHook('search', window.plugin.playerTracker.onSearch);
 }
 
 

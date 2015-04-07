@@ -161,18 +161,18 @@ window.chat.handleFaction = function(data, olderMsgs) {
   chat._requestFactionRunning = false;
   $("#chatcontrols a:contains('faction')").removeClass('loading');
 
-  if(!data || !data.success) {
+  if(!data || !data.result) {
     window.failedRequestCount++;
     return console.warn('faction chat error. Waiting for next auto-refresh.');
   }
 
-  if(data.success.length === 0) return;
+  if(data.result.length === 0) return;
 
   var old = chat._faction.oldestTimestamp;
   chat.writeDataToHash(data, chat._faction, false, olderMsgs);
   var oldMsgsWereAdded = old !== chat._faction.oldestTimestamp;
 
-  runHooks('factionChatDataAvailable', {raw: data, processed: chat._faction.data});
+  runHooks('factionChatDataAvailable', {raw: data, result: data.result, processed: chat._faction.data});
 
   window.chat.renderFaction(oldMsgsWereAdded);
 }
@@ -209,18 +209,18 @@ window.chat.handlePublic = function(data, olderMsgs) {
   chat._requestPublicRunning = false;
   $("#chatcontrols a:contains('all')").removeClass('loading');
 
-  if(!data || !data.success) {
+  if(!data || !data.result) {
     window.failedRequestCount++;
     return console.warn('public chat error. Waiting for next auto-refresh.');
   }
 
-  if(data.success.length === 0) return;
+  if(data.result.length === 0) return;
 
   var old = chat._public.oldestTimestamp;
   chat.writeDataToHash(data, chat._public, undefined, olderMsgs);   //NOTE: isPublic passed as undefined - this is the 'all' channel, so not really public or private
   var oldMsgsWereAdded = old !== chat._public.oldestTimestamp;
 
-  runHooks('publicChatDataAvailable', {raw: data, processed: chat._public.data});
+  runHooks('publicChatDataAvailable', {raw: data, result: data.result, processed: chat._public.data});
 
   window.chat.renderPublic(oldMsgsWereAdded);
 
@@ -259,19 +259,19 @@ window.chat.handleAlerts = function(data, olderMsgs) {
   chat._requestAlertsRunning = false;
   $("#chatcontrols a:contains('alerts')").removeClass('loading');
 
-  if(!data || !data.success) {
+  if(!data || !data.result) {
     window.failedRequestCount++;
     return console.warn('alerts chat error. Waiting for next auto-refresh.');
   }
 
-  if(data.success.length === 0) return;
+  if(data.result.length === 0) return;
 
   var old = chat._alerts.oldestTimestamp;
   chat.writeDataToHash(data, chat._alerts, undefined, olderMsgs); //NOTE: isPublic passed as undefined - it's nether public or private!
   var oldMsgsWereAdded = old !== chat._alerts.oldestTimestamp;
 
 // no hoot for alerts - API change planned here...
-//  runHooks('alertsChatDataAvailable', {raw: data, processed: chat._alerts.data});
+//  runHooks('alertsChatDataAvailable', {raw: data, result: data.result, processed: chat._alerts.data});
 
   window.chat.renderAlerts(oldMsgsWereAdded);
 }
@@ -292,10 +292,14 @@ window.chat.nicknameClicked = function(event, nickname) {
   if (window.runHooks('nicknameClicked', hookData)) {
     window.chat.addNickname('@' + nickname);
   }
+
+  event.preventDefault();
+  event.stopPropagation();
+  return false;
 }
 
 window.chat.writeDataToHash = function(newData, storageHash, isPublicChannel, isOlderMsgs) {
-  $.each(newData.success, function(ind, json) {
+  $.each(newData.result, function(ind, json) {
     // avoid duplicates
     if(json[0] in storageHash.data) return true;
 
@@ -454,15 +458,14 @@ window.chat.renderMsg = function(msg, nick, time, team, msgToPlayer, systemNarro
   var color = COLORS[team];
   if (nick === window.PLAYER.nickname) color = '#fd6';    //highlight things said/done by the player in a unique colour (similar to @player mentions from others in the chat text itself)
   var s = 'style="cursor:pointer; color:'+color+'"';
-  var title = nick.length >= 8 ? 'title="'+nick+'" class="help"' : '';
   var i = ['<span class="invisep">&lt;</span>', '<span class="invisep">&gt;</span>'];
   return '<tr><td>'+t+'</td><td>'+i[0]+'<mark class="nickname" ' + s + '>'+ nick+'</mark>'+i[1]+'</td><td>'+msg+'</td></tr>';
 }
 
-window.chat.addNickname= function(nick){
-    var c = document.getElementById("chattext");
-    c.value = [c.value.trim(), nick].join(" ").trim() + " ";
-    c.focus()
+window.chat.addNickname= function(nick) {
+  var c = document.getElementById("chattext");
+  c.value = [c.value.trim(), nick].join(" ").trim() + " ";
+  c.focus()
 }
 
 
@@ -604,7 +607,7 @@ window.chat.chooseTab = function(tab) {
       input.css('cssText', 'color: #bbb !important');
       mark.text('tell Jarvis:');
 
-      //chat.renderAlerts(false);
+      chat.renderAlerts(false);
       break;
 
     default:
@@ -710,7 +713,7 @@ window.chat.setup = function() {
   $('#chatinput mark').addClass(cls);
 
   $(document).on('click', '.nickname', function(event) {
-    window.chat.nicknameClicked(event, $(this).text());
+    return window.chat.nicknameClicked(event, $(this).text());
   });
 }
 

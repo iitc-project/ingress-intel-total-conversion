@@ -165,7 +165,7 @@ window.setupMap = function() {
     center: [0,0],
     zoom: 1,
     zoomControl: (typeof android !== 'undefined' && android && android.showZoom) ? android.showZoom() : true,
-    minZoom: 1,
+    minZoom: MIN_ZOOM,
 //    zoomAnimation: false,
     markerZoomAnimation: false,
     bounceAtZoomLimits: false
@@ -453,6 +453,7 @@ window.setupSidebarToggle = function() {
       toggle.html('<span class="toggle close"></span>');
       toggle.css('right', SIDEBAR_WIDTH+1+'px');
     }
+    $('.ui-tooltip').remove();
   });
 }
 
@@ -460,10 +461,11 @@ window.setupTooltips = function(element) {
   element = element || $(document);
   element.tooltip({
     // disable show/hide animation
-    show: { effect: "hide", duration: 0 } ,
+    show: { effect: 'none', duration: 0, delay: 350 },
     hide: false,
     open: function(event, ui) {
-      ui.tooltip.delay(300).fadeIn(0);
+      // ensure all other tooltips are closed
+      $(".ui-tooltip").not(ui.tooltip).remove();
     },
     content: function() {
       var title = $(this).attr('title');
@@ -589,9 +591,10 @@ function boot() {
   window.setupTaphold();
   window.setupStyles();
   window.setupDialogs();
+  window.setupDataTileParams();
   window.setupMap();
   window.setupOMS();
-  window.setupGeosearch();
+  window.search.setup();
   window.setupRedeem();
   window.setupLargeImagePreview();
   window.setupSidebarToggle();
@@ -690,8 +693,8 @@ try { console.log('Loading included JS now'); } catch(e) {}
 try { console.log('done loading included JS'); } catch(e) {}
 
 //note: no protocol - so uses http or https as used on the current page
-var JQUERY = '//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js';
-var JQUERYUI = '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js';
+var JQUERY = '//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js';
+var JQUERYUI = '//ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js';
 
 // after all scripts have loaded, boot the actual app
 load(JQUERY).then(JQUERYUI).thenRun(boot);

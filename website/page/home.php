@@ -11,31 +11,43 @@ offers many more features. It is available for
 <a href="?page=mobile">mobile application</a>.
 </p>
 
-<h4>10th January 2015</h4>
+<h3>Latest news</h3>
+
+<h4>4th April 2015</h4>
 <p>
-IITC 0.20.0 released. This is a critical update to fix loading of portals/links/fields after a protocol change by Niantic.
+IITC 0.22.2 has been released. This is a critical update needed to fix portal loading at some zoom levels.
 </p>
-<p>Other changes include</p>
+
+<h4>20th March 2015</h4>
+<p>
+IITC 0.22.1 has been released. This is a critical update needed to fix COMM after a recent Niantic site update.
+</p>
+<p>
+Other changes
+</p>
 <ul>
-<li>Improvements to the regional scoreboard display</li>
-<li>Two new default map themes, from CartoDB - one dark, one light</li>
-<li>..and other tweaks/bugfixes</li>
+<li>Fix Sh&#333;nin artifacts on the map and portal details</li>
+<li>distance-to-portal plugin: integrate with portals list plugin</li>
+<li>missions: start of work for missions support. It will take some time to support them completely, but for now there's a highlighter for mission start points</li>
 </ul>
 
-<h4>21st December 2014</h4>
+<h4>27th Febuary 2015</h4>
 <p>
-IITC 0.19.0 / IITC Mobile 0.19.0 released.
+IITC 0.22.0 has been released. This is a critical update needed to fix loading of portal details after the recent
+Niantic site update.
 </p>
-<p>Changes include</p>
+<p>
+Major update to IITC's search system. Multiple search results are listed and specific results selected.
+Visible portals are also searched, numerical lat/lng search added, and some plugins also integrate with the new
+search feature: player-tracker (player name search), regions (region name search), bookmarks, 
+<p>
 <ul>
-<li>Version numbers of IITC Mobile have been changed to keep in sync with the main IITC desktop scripts</li>
-<li>Support for regional scores added</li>
-<li>draw-tools: update the copy+paste import/export process to support links as stock intel URL formats, for exchanging plans with non-IITC users.</li>
-<li>IITC Mobile: sometimes the app wouldn't detect the screen size properly on startup, requiring a reload/screen rotation - fixed<./li>
-<li>Fix URL parameter parsing to handle commas encoded as %3C</li>
-<li>New plugin done-links: a companion to cross-links - it highlights any drawn links that already exist.</li>
-<li>Sync plugin: a couple of bugfixes - it may work better now - not sure if it's 100%</li>
-<li>..and other tweaks/bugfixes, as always</li>
+<li>needs-recharge highlighter: colours/opacity tweaked, should be clearer now</li>
+<li>show-linked-portals: fix bugs, and highlight link/target portal on hover</li>
+<li>new plugin: distance-to-portal. Manually set your location, and the distance to the selected portal is shown</li>
 </ul>
+<p>
+...plus other minor bug fixes and optimisations.
+</p>
 
 <a class="btn btn-default btn-sm" href="?page=news">Older news</a>

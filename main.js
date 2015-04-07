@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.20.1.@@DATETIMEVERSION@@
+// @version        0.22.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -91,9 +91,9 @@ document.getElementsByTagName('body')[0].innerHTML = ''
   + '  <div id="sidebar" style="display: none">'
   + '    <div id="playerstat">t</div>'
   + '    <div id="gamestat">&nbsp;loading global control stats</div>'
-  + '    <div id="geosearchwrapper">'
-  + '      <input id="geosearch" placeholder="Search location…" type="text" accesskey="f" title="Search for a place [f]"/>'
-  + '      <img src="@@INCLUDEIMAGE:images/current-location.png@@"/ title="Current Location">'
+  + '    <div id="searchwrapper">'
+  + '      <img src="@@INCLUDEIMAGE:images/current-location.png@@"/ title="Current Location" id="buttongeolocation">'
+  + '      <input id="search" placeholder="Search location…" type="search" accesskey="f" title="Search for a place [f]"/>'
   + '    </div>'
   + '    <div id="portaldetails"></div>'
   + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
@@ -132,7 +132,7 @@ window.ZOOM_LEVEL_ADJ = 5; // add 5 seconds per zoom level
 window.ON_MOVE_REFRESH = 2.5;  //refresh time to use after a movement event
 window.MINIMUM_OVERRIDE_REFRESH = 10; //limit on refresh time since previous refresh, limiting repeated move refresh rate
 window.REFRESH_GAME_SCORE = 15*60; // refresh game score every 15 minutes
-window.MAX_IDLE_TIME = 4*60; // stop updating map after 4min idling
+window.MAX_IDLE_TIME = 15*60; // stop updating map after 15min idling
 window.HIDDEN_SCROLLBAR_ASSUMED_WIDTH = 20;
 window.SIDEBAR_WIDTH = 300;
 
@@ -160,14 +160,12 @@ window.MOD_TYPE = {RES_SHIELD:'Shield', MULTIHACK:'Multi-hack', FORCE_AMP:'Force
 window.ACCESS_INDICATOR_COLOR = 'orange';
 window.RANGE_INDICATOR_COLOR = 'red'
 
-// by how much pixels should the portal range be expanded on mobile
-// devices. This should make clicking them easier.
-window.PORTAL_RADIUS_ENLARGE_MOBILE = 5;
-
+// min zoom for intel map - should match that used by stock intel
+window.MIN_ZOOM = 3;
 
 window.DEFAULT_PORTAL_IMG = '//commondatastorage.googleapis.com/ingress.com/img/default-portal-image.png';
 //window.NOMINATIM = '//nominatim.openstreetmap.org/search?format=json&limit=1&q=';
-window.NOMINATIM = '//open.mapquestapi.com/nominatim/v1/search.php?format=json&limit=1&q=';
+window.NOMINATIM = '//open.mapquestapi.com/nominatim/v1/search.php?format=json&polygon_geojson=1&q=';
 
 // INGRESS CONSTANTS /////////////////////////////////////////////////
 // http://decodeingress.me/2012/11/18/ingress-portal-levels-and-link-range/

@@ -148,6 +148,7 @@ window.artifact.getArtifactDescriptions = function(type) {
     'jarvis': { 'title': "Jarvis Shards", 'fragmentName': "shards" },
     'amar': { 'title': "Amar Artifacts", 'fragmentName': "artifacts" },
     'helios': { 'title': "Helios Artifacts", 'fragmentName': "artifacts" },
+    'shonin': { 'title': "Sh\u014Dnin Shards", 'fragmentName': "shards" },
   };
 
   return descriptions[type];
@@ -233,6 +234,20 @@ window.artifact.updateLayer = function() {
         iconSize = 100/2; // 100 pixels - half that size works better
       } else if (data.helios.fragments) {
         iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/helios_shard.png';
+        iconSize = 60/2; // 60 pixels - half that size works better
+        opacity = 0.6; // these often hide portals - let's make them semi transparent
+      }
+
+    }
+
+    // 2015-03-05 - shonin shards
+    if (data.shonin) {
+      if (data.shonin.target) {
+        // target portal - show the target marker.
+        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/shonin_shard_target.png';
+        iconSize = 100/2; // 100 pixels - half that size works better
+      } else if (data.shonin.fragments) {
+        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/shonin_shard.png';
         iconSize = 60/2; // 60 pixels - half that size works better
         opacity = 0.6; // these often hide portals - let's make them semi transparent
       }

@@ -42,13 +42,13 @@ window.MapDataRequest = function() {
 
 
   // a short delay between one request finishing and the queue being run for the next request.
-  this.RUN_QUEUE_DELAY = 0.05;
+  this.RUN_QUEUE_DELAY = 0;
 
   // delay before processing the queue after failed requests
   this.BAD_REQUEST_RUN_QUEUE_DELAY = 10; // longer delay before doing anything after errors (other than TIMEOUT)
 
   // delay before processing the queue after error==TIMEOUT requests. this is 'expected', so minimal extra delay over the regular RUN_QUEUE_DELAY
-  this.TIMEOUT_REQUEST_RUN_QUEUE_DELAY = 0.1;
+  this.TIMEOUT_REQUEST_RUN_QUEUE_DELAY = 0;
 
 
   // render queue
@@ -230,11 +230,11 @@ window.MapDataRequest.prototype.refresh = function() {
   this.render.startRenderPass(tileParams.level, dataBounds);
 
 
-  this.render.processGameEntities(artifact.getArtifactEntities());
+  this.render.processGameEntities(artifact.getArtifactEntities(),true);
 
   var logMessage = 'requesting data tiles at zoom '+dataZoom;
   if (tileParams.level != tileParams.maxLevel) {
-    logMessage += ' (L'+tileParams.level+'+ portals - could have doneug L'+tileParams.maxLevel+'+';
+    logMessage += ' (L'+tileParams.level+'+ portals - could have done L'+tileParams.maxLevel+'+';
   } else {
     logMessage += ' (L'+tileParams.level+'+ portals';
   }
@@ -485,6 +485,7 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
 
   var successTiles = [];
   var errorTiles = [];
+  var retryTiles = [];
   var timeoutTiles = [];
 
   if (!success || !data || !data.result) {
@@ -492,13 +493,26 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
 
     //request failed - requeue all the tiles(?)
 
-    for (var i in tiles) {
-      var id = tiles[i];
-      errorTiles.push(id);
-      this.debugTiles.setState (id, 'request-fail');
-    }
+    if (data && data.error && data.error == 'RETRY') {
+      // the server can sometimes ask us to retry a request. this is botguard related, I believe
 
-    window.runHooks('requestFinished', {success: false});
+      for (var i in tiles) {
+        var id = tiles[i];
+        retryTiles.push(id);
+        this.debugTiles.setState (id, 'retrying');
+      }
+
+      window.runHooks('requestFinished', {success: false});
+
+    } else {
+      for (var i in tiles) {
+        var id = tiles[i];
+        errorTiles.push(id);
+        this.debugTiles.setState (id, 'request-fail');
+      }
+
+      window.runHooks('requestFinished', {success: false});
+    }
 
   } else {
 
@@ -548,11 +562,18 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
   }
 
   // set the queue delay based on any errors or timeouts
+  // NOTE: retryTimes are retried at the regular delay - no longer wait as for error/timeout cases
   var nextQueueDelay = errorTiles.length > 0 ? this.BAD_REQUEST_RUN_QUEUE_DELAY :
                        timeoutTiles.length > 0 ? this.TIMEOUT_REQUEST_RUN_QUEUE_DELAY :
                        this.RUN_QUEUE_DELAY;
+  var statusMsg = 'getEntities status: '+tiles.length+' tiles: ';
+  statusMsg += successTiles.length+' successful';
+  if (retryTiles.length) statusMsg += ', '+retryTiles.length+' retried';
+  if (timeoutTiles.length) statusMsg += ', '+timeoutTiles.length+' timed out';
+  if (errorTiles.length) statusMsg += ', '+errorTiles.length+' failed';
+  statusMsg += '. delay '+nextQueueDelay+' seconds';
+  console.log (statusMsg);
 
-  console.log ('getEntities status: '+tiles.length+' tiles: '+successTiles.length+' successful, '+timeoutTiles.length+' timed out, '+errorTiles.length+' failed. delay '+nextQueueDelay+' seconds');
 
   // requeue any 'timeout' tiles immediately
   if (timeoutTiles.length > 0) {
@@ -561,6 +582,15 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
       delete this.requestedTiles[id];
 
       this.requeueTile(id, true);
+    }
+  }
+
+  if (retryTiles.length > 0) {
+    for (var i in retryTiles) {
+      var id = retryTiles[i];
+      delete this.requestedTiles[id];
+
+      this.requeueTile(id, false);  //tiles from a error==RETRY request are requeued without counting it as an error
     }
   }
 
