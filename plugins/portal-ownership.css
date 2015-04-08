@@ -140,3 +140,9 @@ td.portal-list-ownership {
   display: inline-block;
   width: 22%;
 }
+
+/* Dialog button margin */
+
+.ui-dialog-buttonset button {
+  margin-left: 4px;
+}
