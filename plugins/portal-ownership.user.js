@@ -324,20 +324,14 @@ window.plugin.ownership.setupPortalsList = function() {
     // Update the owned portals list neccessary
     var shouldRemove = !info.owned && $('[ownership-dialog-level="'+data.guid+'"]').length > 0;
     var shouldAdd = info.owned && $('[ownership-dialog-level="'+data.guid+'"]').length == 0;
+    var shouldUpdate = info.owned && $('[ownership-dialog-level="'+data.guid+'"]').length > 0;
 
-    if (shouldAdd || shouldRemove) {
+    if (shouldAdd || shouldRemove || shouldUpdate) {
       window.plugin.ownership.getPortals();
       $('#ownershiplist').empty().append(window.plugin.ownership.portalTable(window.plugin.ownership.sortBy, window.plugin.ownership.sortOrder));
     }
 
     $('[data-list-ownership="'+data.guid+'"].owned').prop('checked', info.owned);
-
-    // Update the owned portal list information as it is encountered
-    if (info.level && info.health && info.resonatorCount) {
-      $('[ownership-dialog-level="'+data.guid+'"]').css('background-color', COLORS_LVL[info.level]).text("L" + info.level);
-      $('[ownership-dialog-health="'+data.guid+'"]').text(info.health + "%");
-      $('[ownership-dialog-resonatorCount="'+data.guid+'"]').text(info.resonatorCount);
-    }
   });
 
   window.addHook('pluginOwnershipRefreshAll', function() {
