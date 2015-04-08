@@ -721,11 +721,6 @@ var setup = function() {
   } else {
     $('#toolbox').append('<a onclick="window.plugin.ownership.displayPL()" title="Display a list of portals in the current view [g]" accesskey="g">Owned Portals</a>');
   }
-
-  $("<style>")
-    .prop("type", "text/css")
-    .html("@@INCLUDESTRING:plugins/portals-list.css@@")
-    .appendTo("head");
 }
 
 //PLUGIN END //////////////////////////////////////////////////////////
