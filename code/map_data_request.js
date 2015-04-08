@@ -487,6 +487,7 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
   var errorTiles = [];
   var retryTiles = [];
   var timeoutTiles = [];
+  var unaccountedTiles = tiles.slice(0); // Clone
 
   if (!success || !data || !data.result) {
     console.warn('Request.handleResponse: request failed - requeuing...'+(data && data.error?' error: '+data.error:''));
@@ -513,7 +514,7 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
 
       window.runHooks('requestFinished', {success: false});
     }
-
+    unaccountedTiles = [];
   } else {
 
     // TODO: use result.minLevelOfDetail ??? stock site doesn't use it yet...
@@ -522,7 +523,7 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
 
     for (var id in m) {
       var val = m[id];
-
+      unaccountedTiles.splice(unaccountedTiles.indexOf(id), 1);
       if ('error' in val) {
         // server returned an error for this individual data tile
 
@@ -571,6 +572,7 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
   if (retryTiles.length) statusMsg += ', '+retryTiles.length+' retried';
   if (timeoutTiles.length) statusMsg += ', '+timeoutTiles.length+' timed out';
   if (errorTiles.length) statusMsg += ', '+errorTiles.length+' failed';
+  if (unaccountedTiles.length) statusMsg += ', '+unaccountedTiles.length+' unaccounted';
   statusMsg += '. delay '+nextQueueDelay+' seconds';
   console.log (statusMsg);
 
@@ -597,6 +599,14 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
   if (errorTiles.length > 0) {
     for (var i in errorTiles) {
       var id = errorTiles[i];
+      delete this.requestedTiles[id];
+      this.requeueTile(id, true);
+    }
+  }
+
+  if (unaccountedTiles.length > 0) {
+    for (var i in unaccountedTiles) {
+      var id = unaccountedTiles[i];
       delete this.requestedTiles[id];
       this.requeueTile(id, true);
     }
