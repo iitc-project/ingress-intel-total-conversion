@@ -60,7 +60,7 @@ window.plugin.scoreCycleTimes.update = function() {
     timeStr = timeStr.replace(/:00$/,''); //FIXME: doesn't remove seconds from AM/PM formatted dates
 
     return '<tr><td>'+label+'</td><td>'+timeStr+'</td></tr>';
-  }
+  };
 
   var html = '<table>'
            + formatRow('Cycle start', cycleStart)
@@ -72,7 +72,7 @@ window.plugin.scoreCycleTimes.update = function() {
   $('#score_cycle_times_display').html(html);
 
   setTimeout ( window.plugin.scoreCycleTimes.update, checkpointEnd-now);
-}
+};
 
 
 
