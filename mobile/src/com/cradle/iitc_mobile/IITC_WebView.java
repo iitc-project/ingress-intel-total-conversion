@@ -86,11 +86,7 @@ public class IITC_WebView extends WebView {
             }
         };
 
-        // if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-        mIitcWebChromeClient = new IITC_WebChromeLollipop(mIitc);
-        // } else {
-        // mIitcWebChromeClient = new IITC_WebChromeClient(mIitc);
-        // }
+        mIitcWebChromeClient = new IITC_WebChromeClient(mIitc);
         setWebChromeClient(mIitcWebChromeClient);
         mIitcWebViewClient = new IITC_WebViewClient(mIitc);
         setWebViewClient(mIitcWebViewClient);
