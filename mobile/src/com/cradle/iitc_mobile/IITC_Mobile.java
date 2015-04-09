@@ -837,7 +837,7 @@ public class IITC_Mobile extends Activity
         final String js = "(function(obj){var result;" +
                 "console.log('>>> ' + obj.code);" +
                 "try{result=eval(obj.code);}catch(e){if(e.stack) console.error(e.stack);throw e;}" +
-                "if(result!==undefined) console.log(result.toString());" +
+                "if(result!==undefined) console.log(result===null?null:result.toString());" +
                 "})(" + obj.toString() + ");";
 
         mIitcWebView.loadJS(js);
