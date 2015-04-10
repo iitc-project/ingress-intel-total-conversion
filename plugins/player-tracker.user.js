@@ -567,7 +567,7 @@ window.plugin.playerTracker.drawData = function() {
     });
 
     // marker opacity
-    var relOpacity = 1 - (now - last.time) / window.PLAYER_TRACKER_MAX_TIME
+    var relOpacity = 1 - (now - last.time) / window.PLAYER_TRACKER_MAX_EVENT_TIME
     var absOpacity = window.PLAYER_TRACKER_MIN_OPACITY + (1 - window.PLAYER_TRACKER_MIN_OPACITY) * relOpacity;
 
     // marker itself
