@@ -619,13 +619,8 @@ window.plugin.ownership.updatePortalFromRefreshAll = function(portalGUID) {
   if (!window.plugin.ownership.updatingPortalGUID) {
     window.plugin.ownership.updatingPortalGUID = portalGUID;
     var portal = window.plugin.ownership.ownership[portalGUID];
-    var mapBounds = map.getBounds();
     window.plugin.ownership.setOwnedPortalListTitle('Updating: ' + portal.title);
-    // No point reloading the map if this portal is within map bounds
-    if (mapBounds.contains([portal.latE6/1E6, portal.lngE6/1E6]))
-      renderPortalDetails(portalGUID);
-    else
-      zoomToAndShowPortal(portalGUID, [portal.latE6/1E6, portal.lngE6/1E6]);
+    window.plugin.ownership.navigateToAndSelectPortal(portalGUID, portal);
   }
 
   // Non-blocking wait until the portal details have been loaded
@@ -725,6 +720,15 @@ window.plugin.ownership.portalTable = function(sortBy, sortOrder) {
   return container;
 }
 
+window.plugin.ownership.navigateToAndSelectPortal = function(guid, portal) {
+  var mapBounds = map.getBounds();
+  // No point reloading the map if this portal is within map bounds
+  if (mapBounds.contains([portal.latE6/1E6, portal.lngE6/1E6]))
+    renderPortalDetails(guid);
+  else
+    zoomToAndShowPortal(guid, [portal.latE6/1E6, portal.lngE6/1E6]);
+}
+
 // Constructs a link to the given portal.
 // Always moves the map to the portal location and displays its details.
 // based on code from getPortalLink function by xelio from iitc: AP List - https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/ap-list.user.js
@@ -734,12 +738,7 @@ window.plugin.ownership.getPortalLink = function(guid, portal) {
   link.textContent = portal.title;
   link.href = '/intel?latE6='+portal.latE6+'&lngE6='+portal.lngE6+'&z=17';
   link.addEventListener("click", function(ev) {
-    var mapBounds = map.getBounds();
-    // No point reloading the map if this portal is within map bounds
-    if (mapBounds.contains([portal.latE6/1E6, portal.lngE6/1E6]))
-      renderPortalDetails(guid);
-    else
-      zoomToAndShowPortal(guid, [portal.latE6/1E6, portal.lngE6/1E6]);
+    window.plugin.ownership.navigateToAndSelectPortal(guid, portal);
     ev.preventDefault();
     return false;
   }, false);
