@@ -810,7 +810,6 @@
 
     if(latlngs.length >= 2 && latlngs.length <= 3) {
       // TODO: add an API to draw-tools rather than assuming things about its internals
-      window.plugin.drawTools.setOptions();
 
       var layer, layerType;
       if(latlngs.length == 2) {
