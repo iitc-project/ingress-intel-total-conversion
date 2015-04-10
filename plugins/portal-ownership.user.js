@@ -590,7 +590,7 @@ window.plugin.ownership.displayPL = function() {
     dialog({
       html: $('<div id="ownershiplist">').append(list),
       dialogClass: 'ui-dialog-ownershiplist',
-      title: 'Portal list: ' + window.plugin.ownership.listPortals.length + ' ' + (window.plugin.ownership.listPortals.length == 1 ? 'portal' : 'portals'),
+      title: window.plugin.ownership.ownedPortalListTitle(),
       id: 'portal-list',
       width: 700,
       buttons: {'Refresh All': function() {
@@ -604,12 +604,23 @@ window.plugin.ownership.displayPL = function() {
   }
 }
 
+window.plugin.ownership.ownedPortalListTitle = function() {
+  return 'Portal list: ' + window.plugin.ownership.listPortals.length + ' ' + (window.plugin.ownership.listPortals.length == 1 ? 'portal' : 'portals');
+}
+
+window.plugin.ownership.setOwnedPortalListTitle = function(title) {
+  if(!title)
+    title = window.plugin.ownership.ownedPortalListTitle();
+
+  $('.ui-dialog-ownershiplist > .ui-dialog-titlebar').text(title);
+}
+
 window.plugin.ownership.updatePortalFromRefreshAll = function(portalGUID) {
   if (!window.plugin.ownership.updatingPortalGUID) {
     window.plugin.ownership.updatingPortalGUID = portalGUID;
     var portal = window.plugin.ownership.ownership[portalGUID];
     var mapBounds = map.getBounds();
-    $('.ui-dialog-ownershiplist > .ui-dialog-titlebar').text('Updating: ' + portal.title);
+    window.plugin.ownership.setOwnedPortalListTitle('Updating: ' + portal.title);
     // No point reloading the map if this portal is within map bounds
     if (mapBounds.contains([portal.latE6/1E6, portal.lngE6/1E6]))
       renderPortalDetails(portalGUID);
@@ -622,7 +633,7 @@ window.plugin.ownership.updatePortalFromRefreshAll = function(portalGUID) {
   if (!details)
     setTimeout(window.plugin.ownership.updatePortalFromRefreshAll,1000,portalGUID);
   else {
-    $('.ui-dialog-ownershiplist > .ui-dialog-titlebar').text('Portal list: ' + window.plugin.ownership.listPortals.length + ' ' + (window.plugin.ownership.listPortals.length == 1 ? 'portal' : 'portals'));
+    window.plugin.ownership.setOwnedPortalListTitle();
     window.plugin.ownership.updatingPortalGUID = null;
     return true;
   }
