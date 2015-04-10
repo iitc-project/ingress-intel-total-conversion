@@ -582,7 +582,9 @@ window.plugin.ownership.displayPL = function() {
       width: 700,
       buttons: {'Refresh All': function() {
         $.each(Object.keys(window.plugin.ownership.ownership), function(i, portalGUID) {
-          window.plugin.ownership.updatePortalFromRefreshAll(portalGUID,(i == (Object.keys(window.plugin.ownership.ownership).length - 1)));
+          // Only update the portal information if it is cache-stale
+          if (!window.portalDetail.isFresh(portalGUID))
+            window.plugin.ownership.updatePortalFromRefreshAll(portalGUID,(i == (Object.keys(window.plugin.ownership.ownership).length - 1)));
         });
       }}
     });
@@ -595,6 +597,7 @@ window.plugin.ownership.updatePortalFromRefreshAll = function(portalGUID,isLastU
     var portal = window.plugin.ownership.ownership[portalGUID];
     var mapBounds = map.getBounds();
     $('.ui-dialog-ownershiplist > .ui-dialog-titlebar').text('Updating: ' + portal.title);
+    // No point reloading the map if this portal is within map bounds
     if (mapBounds.contains([portal.latE6/1E6, portal.lngE6/1E6]))
       renderPortalDetails(portalGUID);
     else
