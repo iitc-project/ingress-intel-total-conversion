@@ -46,6 +46,9 @@ window.plugin.ownership.contentHTML = null;
 // Disable highlighter until selected
 window.plugin.ownership.isHighlightActive = false;
 
+// Keep track of portal that is being updated.
+window.plugin.ownership.updatingPortalGUID = null;
+
 window.plugin.ownership.daysOwned = function(guid) {
   var ownershipInfo = window.plugin.ownership.ownership[guid];
   if(ownershipInfo && ownershipInfo.owned && ownershipInfo.recordedDate)
@@ -576,8 +579,37 @@ window.plugin.ownership.displayPL = function() {
       dialogClass: 'ui-dialog-ownershiplist',
       title: 'Portal list: ' + window.plugin.ownership.listPortals.length + ' ' + (window.plugin.ownership.listPortals.length == 1 ? 'portal' : 'portals'),
       id: 'portal-list',
-      width: 700
+      width: 700,
+      buttons: {'Refresh All': function() {
+        $.each(Object.keys(window.plugin.ownership.ownership), function(i, portalGUID) {
+          window.plugin.ownership.updatePortalFromRefreshAll(portalGUID,(i == (Object.keys(window.plugin.ownership.ownership).length - 1)));
+        });
+      }}
     });
+  }
+}
+
+window.plugin.ownership.updatePortalFromRefreshAll = function(portalGUID,isLastUpdate) {
+  if (!window.plugin.ownership.updatingPortalGUID) {
+    window.plugin.ownership.updatingPortalGUID = portalGUID;
+    var portal = window.plugin.ownership.ownership[portalGUID];
+    var mapBounds = map.getBounds();
+    $('.ui-dialog-ownershiplist > .ui-dialog-titlebar').text('Updating: ' + portal.title);
+    if (mapBounds.contains([portal.latE6/1E6, portal.lngE6/1E6]))
+      renderPortalDetails(portalGUID);
+    else
+      zoomToAndShowPortal(portalGUID, [portal.latE6/1E6, portal.lngE6/1E6]);
+  }
+
+  // Non-blocking wait until the portal details have been loaded
+  var details = window.portalDetail.get(portalGUID);
+  if (!details)
+    setTimeout(window.plugin.ownership.updatePortalFromRefreshAll,1000,portalGUID,isLastUpdate);
+  else {
+    if (isLastUpdate)
+      $('.ui-dialog-ownershiplist > .ui-dialog-titlebar').text('Portal list: ' + window.plugin.ownership.listPortals.length + ' ' + (window.plugin.ownership.listPortals.length == 1 ? 'portal' : 'portals'));
+    window.plugin.ownership.updatingPortalGUID = null;
+    return true;
   }
 }
 
