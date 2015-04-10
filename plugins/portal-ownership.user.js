@@ -597,7 +597,7 @@ window.plugin.ownership.displayPL = function() {
         $.each(Object.keys(window.plugin.ownership.ownership), function(i, portalGUID) {
           // Only update the portal information if it is cache-stale
           if (!window.portalDetail.isFresh(portalGUID))
-            window.plugin.ownership.updatePortalFromRefreshAll(portalGUID,(i == (Object.keys(window.plugin.ownership.ownership).length - 1)));
+            window.plugin.ownership.updatePortalFromRefreshAll(portalGUID);
         });
       }}
     });
