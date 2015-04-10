@@ -591,7 +591,7 @@ window.plugin.ownership.displayPL = function() {
   }
 }
 
-window.plugin.ownership.updatePortalFromRefreshAll = function(portalGUID,isLastUpdate) {
+window.plugin.ownership.updatePortalFromRefreshAll = function(portalGUID) {
   if (!window.plugin.ownership.updatingPortalGUID) {
     window.plugin.ownership.updatingPortalGUID = portalGUID;
     var portal = window.plugin.ownership.ownership[portalGUID];
@@ -607,10 +607,9 @@ window.plugin.ownership.updatePortalFromRefreshAll = function(portalGUID,isLastU
   // Non-blocking wait until the portal details have been loaded
   var details = window.portalDetail.get(portalGUID);
   if (!details)
-    setTimeout(window.plugin.ownership.updatePortalFromRefreshAll,1000,portalGUID,isLastUpdate);
+    setTimeout(window.plugin.ownership.updatePortalFromRefreshAll,1000,portalGUID);
   else {
-    if (isLastUpdate)
-      $('.ui-dialog-ownershiplist > .ui-dialog-titlebar').text('Portal list: ' + window.plugin.ownership.listPortals.length + ' ' + (window.plugin.ownership.listPortals.length == 1 ? 'portal' : 'portals'));
+    $('.ui-dialog-ownershiplist > .ui-dialog-titlebar').text('Portal list: ' + window.plugin.ownership.listPortals.length + ' ' + (window.plugin.ownership.listPortals.length == 1 ? 'portal' : 'portals'));
     window.plugin.ownership.updatingPortalGUID = null;
     return true;
   }
