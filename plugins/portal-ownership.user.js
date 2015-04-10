@@ -49,11 +49,25 @@ window.plugin.ownership.isHighlightActive = false;
 // Keep track of portal that is being updated.
 window.plugin.ownership.updatingPortalGUID = null;
 
-window.plugin.ownership.daysOwned = function(guid) {
-  var ownershipInfo = window.plugin.ownership.ownership[guid];
-  if(ownershipInfo && ownershipInfo.owned && ownershipInfo.recordedDate)
-    return Math.round((Date.now() - ownershipInfo.recordedDate) / 86400000);
+window.plugin.ownership.daysOwnedByGUID = function(guid) {
+  var portalInfo = window.plugin.ownership.ownership[guid];
+  if(portalInfo)
+    return window.plugin.ownership.daysOwnedByPortal(portalInfo);
   return 0;
+}
+
+window.plugin.ownership.daysOwnedByPortal = function(portal) {
+  if(portal && portal.owned && portal.recordedDate)
+    return Math.round((Date.now() - portal.recordedDate) / 86400000);
+  return 0;
+}
+
+window.plugin.ownership.setPortalOwnershipDate = function(guid,numberOfDaysOwned) {
+  var portalInfo = window.plugin.ownership.ownership[guid];
+  if(portalInfo) {
+    portalInfo.recordedDate = Date.now() - numberOfDaysOwned * 86400000;
+    plugin.ownership.sync(guid);
+  }
 }
 
 window.plugin.ownership.onPortalDetailsUpdated = function() {
@@ -330,8 +344,7 @@ window.plugin.ownership.setupPortalsList = function() {
     var shouldUpdate = info.owned && $('[ownership-dialog-level="'+data.guid+'"]').length > 0;
 
     if (shouldAdd || shouldRemove || shouldUpdate) {
-      window.plugin.ownership.getPortals();
-      $('#ownershiplist').empty().append(window.plugin.ownership.portalTable(window.plugin.ownership.sortBy, window.plugin.ownership.sortOrder));
+      window.plugin.ownership.resetOwnedPortalsList();
     }
 
     $('[data-list-ownership="'+data.guid+'"].owned').prop('checked', info.owned);
@@ -487,7 +500,7 @@ window.plugin.ownership.fields = [
   },
   {
     title: "Days Owned",
-    value: function(portal) { return Math.round((Date.now() - portal.recordedDate) / 86400000)},
+    value: function(portal) { return window.plugin.ownership.daysOwnedByPortal(portal)},
     format: function(cell, guid, portal, value) {
       $(cell)
         .addClass("alignR")
@@ -498,13 +511,8 @@ window.plugin.ownership.fields = [
         var actualNumberOfDays = prompt("How many days have you owned " + portal.title + "?","");
         var parsedNumberOfDays = parseInt(actualNumberOfDays);
         if(!isNaN(parsedNumberOfDays) && parsedNumberOfDays >= 0){
-          var ownershipInfo = window.plugin.ownership.ownership[guid];
-          if(ownershipInfo){
-            ownershipInfo.recordedDate = Date.now() - parsedNumberOfDays * 86400000;
-            plugin.ownership.sync(guid);
-            window.plugin.ownership.getPortals();
-            $('#ownershiplist').empty().append(window.plugin.ownership.portalTable(window.plugin.ownership.sortBy, window.plugin.ownership.sortOrder));
-          }
+          window.plugin.ownership.setPortalOwnershipDate(guid,parsedNumberOfDays);
+          window.plugin.ownership.resetOwnedPortalsList();
         }
         ev.preventDefault();
         return false;
@@ -513,6 +521,11 @@ window.plugin.ownership.fields = [
     defaultOrder: -1,
   },
 ];
+
+window.plugin.ownership.resetOwnedPortalsList = function() {
+  window.plugin.ownership.getPortals();
+  $('#ownershiplist').empty().append(window.plugin.ownership.portalTable(window.plugin.ownership.sortBy, window.plugin.ownership.sortOrder));
+}
 
 // Construct the set of portals to be used, based on data obtained from the set of 'owned' portals.
 window.plugin.ownership.getPortals = function() {
@@ -716,7 +729,6 @@ window.plugin.ownership.getPortalLink = function(guid, portal) {
       renderPortalDetails(guid);
     else
       zoomToAndShowPortal(guid, [portal.latE6/1E6, portal.lngE6/1E6]);
-    console.log(mapBounds.contains([portal.latE6/1E6, portal.lngE6/1E6]));
     ev.preventDefault();
     return false;
   }, false);
