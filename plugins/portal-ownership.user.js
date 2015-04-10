@@ -694,8 +694,8 @@ window.plugin.ownership.portalTable = function(sortBy, sortOrder) {
     table.appendChild(row);
   });
 
-  container.append('<div class="information">Information generated from the latest known data (the last time the portal detail was shown). <br>'
-    + 'Visit portals to update information.<br>'
+  container.append('<div class="information">Information generated from the latest known data (the last time the portal detail was shown).<br>'
+    + 'Click \'Refresh All\' to update all portal information or click a portal name to update information for that portal.<br>'
     + 'Click on portals table headers to sort by that column.<br>'
     + 'Double click on the number of days owned for a portal to adjust manually</div>');
 
