@@ -710,7 +710,13 @@ window.plugin.ownership.getPortalLink = function(guid, portal) {
   link.textContent = portal.title;
   link.href = '/intel?latE6='+portal.latE6+'&lngE6='+portal.lngE6+'&z=17';
   link.addEventListener("click", function(ev) {
-    zoomToAndShowPortal(guid, [portal.latE6/1E6, portal.lngE6/1E6]);
+    var mapBounds = map.getBounds();
+    // No point reloading the map if this portal is within map bounds
+    if (mapBounds.contains([portal.latE6/1E6, portal.lngE6/1E6]))
+      renderPortalDetails(guid);
+    else
+      zoomToAndShowPortal(guid, [portal.latE6/1E6, portal.lngE6/1E6]);
+    console.log(mapBounds.contains([portal.latE6/1E6, portal.lngE6/1E6]));
     ev.preventDefault();
     return false;
   }, false);
