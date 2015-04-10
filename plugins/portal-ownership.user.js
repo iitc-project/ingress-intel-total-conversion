@@ -612,7 +612,7 @@ window.plugin.ownership.setOwnedPortalListTitle = function(title) {
   if(!title)
     title = window.plugin.ownership.ownedPortalListTitle();
 
-  $('.ui-dialog-ownershiplist > .ui-dialog-titlebar').text(title);
+  $('.ui-dialog-ownershiplist > .ui-dialog-titlebar > span').text(title);
 }
 
 window.plugin.ownership.updatePortalFromRefreshAll = function(portalGUID) {
