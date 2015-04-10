@@ -1001,6 +1001,10 @@ h3 {
   background-color: rgba(8, 48, 78, 0.9);
 }
 
+.ui-dialog-buttonset button {
+  margin-left: 4px;
+}
+
 .ui-dialog-buttonset button:hover {
   text-decoration: underline;
 }
