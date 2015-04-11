@@ -538,18 +538,19 @@ window.plugin.missions = {
 
 	highlightMissionPortals: function(mission) {
 		var markers = [];
-		var prevPortal = null;
+		var latlngs = [];
+		
 		mission.waypoints.forEach(function(waypoint) {
 			if (!waypoint.portal) {
 				return;
 			}
-			var portal = window.portals[waypoint.portal.guid];
-			if (!portal) { // not in view?
-				return;
-			}
-			var marker = L.circleMarker(
-				L.latLng(portal.options.data.latE6 / 1E6, portal.options.data.lngE6 / 1E6), {
-					radius: portal.options.radius + Math.ceil(portal.options.radius / 2),
+			
+			var radius = window.portals[waypoint.portal.guid] ? window.portals[waypoint.portal.guid].options.radius * 1.5 : 5;
+			var ll = [waypoint.portal.latE6 / 1E6, waypoint.portal.lngE6 / 1E6];
+			latlngs.push(ll);
+			
+			var marker = L.circleMarker(ll, {
+					radius: radius,
 					weight: 3,
 					opacity: 1,
 					color: '#222',
@@ -560,22 +561,16 @@ window.plugin.missions = {
 			);
 			this.missionLayer.addLayer(marker);
 			markers.push(marker);
-			if (prevPortal) {
-				var line = L.geodesicPolyline([
-					L.latLng(prevPortal.options.data.latE6 / 1E6, prevPortal.options.data.lngE6 / 1E6),
-					L.latLng(portal.options.data.latE6 / 1E6, portal.options.data.lngE6 / 1E6)
-				], {
-					color: '#222',
-
-					opacity: 1,
-					weight: 2,
-					clickable: false
-				});
-				this.missionLayer.addLayer(line);
-				markers.push(line);
-			}
-			prevPortal = portal;
 		}, this);
+		
+		var line = L.geodesicPolyline(latlngs, {
+			color: '#222',
+			opacity: 1,
+			weight: 2,
+			clickable: false
+		});
+		this.missionLayer.addLayer(line);
+		markers.push(line);
 		return markers;
 	},
 
