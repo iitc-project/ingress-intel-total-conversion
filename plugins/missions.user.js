@@ -133,8 +133,8 @@ window.plugin.missions = {
 			closeCallback: function() {
 				me.unhighlightMissionPortals(markers);
 			},
-			collapseCallback: this.collapsFix,
-			expandCallback: this.collapsFix
+			collapseCallback: this.collapseFix,
+			expandCallback: this.collapseFix
 		});
 	},
 
@@ -143,12 +143,12 @@ window.plugin.missions = {
 			html: this.renderMissionList(missions),
 			height: 'auto',
 			width: '400px',
-			collapseCallback: this.collapsFix,
-			expandCallback: this.collapsFix
+			collapseCallback: this.collapseFix,
+			expandCallback: this.collapseFix
 		});
 	},
 
-	collapsFix: function() {
+	collapseFix: function() {
 		if (this && this.parentNode) {
 			this.parentNode.style.height = 'auto';
 		}
@@ -196,7 +196,7 @@ window.plugin.missions = {
 				return;
 			}
 
-      window.runHooks('portalMissionsLoaded', { missions: missions, portalguid: guid });
+			window.runHooks('portalMissionsLoaded', { missions: missions, portalguid: guid });
 
 			me.cacheByPortalGuid[guid] = {
 				time: Date.now(),
@@ -230,7 +230,7 @@ window.plugin.missions = {
 				return;
 			}
 
-      window.runHooks('missionLoaded', { mission: mission });
+			window.runHooks('missionLoaded', { mission: mission });
 
 			me.cacheByMissionGuid[guid] = {
 				time: Date.now(),
@@ -405,7 +405,7 @@ window.plugin.missions = {
 		var el = document.getElementsByClassName('wp-' + mwpid);
 		if (!this.settings.checkedWaypoints[mwpid]) {
 			this.settings.checkedWaypoints[mwpid] = true;
-      window.runHooks('waypointFinished', { mission: this.getMissionCache(mid), waypointguid: wpid });
+			window.runHooks('waypointFinished', { mission: this.getMissionCache(mid), waypointguid: wpid });
 			$(el).show();
 		} else {
 			delete this.settings.checkedWaypoints[mwpid];
@@ -432,7 +432,7 @@ window.plugin.missions = {
 			}, this);
 			$(el).show();
 			$(sumel).css('background-color', 'rgba(255, 187, 0, 0.3)');
-      window.runHooks('missionFinished', { mission: mission });
+			window.runHooks('missionFinished', { mission: mission });
 		} else {
 			delete this.settings.checkedMissions[mid];
 			mission.waypoints.forEach(function(waypoint) {
@@ -657,10 +657,10 @@ window.plugin.missions = {
 		window.addLayerGroup('Mission start portals', this.missionStartLayer, false);
 		window.addLayerGroup('Mission portals', this.missionLayer, true);
 
-    window.pluginCreateHook('missionLoaded');
-    window.pluginCreateHook('portalMissionsLoaded');
-    window.pluginCreateHook('missionFinished');
-    window.pluginCreateHook('waypointFinished');
+		window.pluginCreateHook('missionLoaded');
+		window.pluginCreateHook('portalMissionsLoaded');
+		window.pluginCreateHook('missionFinished');
+		window.pluginCreateHook('waypointFinished');
 	}
 };
 
