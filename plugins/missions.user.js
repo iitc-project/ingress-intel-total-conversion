@@ -249,168 +249,182 @@ window.plugin.missions = {
 	},
 
 	renderMissionList: function(missions) {
-		return missions.map(this.renderMissionSummary, this).join(' ');
+		var container = document.createElement('div');
+		missions.forEach(function(mission) {
+			container.appendChild(this.renderMissionSummary(mission));
+		}, this);
+		return container;
 	},
 
 	renderMissionSummary: function(mission) {
 		var cachedMission = this.getMissionCache(mission.guid);
 
-		var html = '';
 		var checked = this.settings.checkedMissions[mission.guid];
 
-		html += '<div class="mc-' + mission.guid + '" style="' + (checked ? 'background-color: rgba(255, 187, 0, 0.3);' : '') + 'padding: 5px; border-bottom: black solid 1px;margin-bottom:  5px;height: 50px; ">';
-		html += '<img style="width: 50px; float: left; margin-right: 20px" src="' + mission.image + '" >';
-		html += '<div style="font-weight: bold;font-size: 1.3em;" ><a href="#" onclick="plugin.missions.openMission(\'' + mission.guid + '\')" >' + mission.title + '</a> </div>';
-		if (cachedMission) {
-			html += '<span class="' + (cachedMission.authorTeam === 'R' ? 'RESISTANCE' : 'ENLIGHTENED') + '">' + cachedMission.authorNickname + '</span>';
-			html += '<br />';
+		var container = document.createElement('div');
+		container.className = 'plugin-mission-summary mc-' + mission.guid;
+		if(checked)
+			container.classList.add('checked');
+		
+		var img = container.appendChild(document.createElement('img'));
+		img.src = mission.image;
+		img.addEventListener('click', function(ev) {
+			plugin.missions.toggleMission(mission.guid);
+		}, false);
+		
+		var title = container.appendChild(document.createElement('a'));
+		title.textContent = mission.title;
+		title.href = '/mission/' + mission.guid; // TODO make IITC load on mission permalinks as well
+		title.addEventListener('click', function(ev) {
+			plugin.missions.openMission(mission.guid);
+			// prevent browser from following link
+			ev.preventDefault();
+			return false;
+		}, false);
+		
+		if(cachedMission) {
+			var span = container.appendChild(document.createElement('span'));
+			span.className = 'nickname ' + (cachedMission.authorTeam === 'R' ? 'res' : 'enl')
+			span.textContent = cachedMission.authorNickname;
 		}
-		html += '<img style="height: 14px; margin-right: 8px; vertical-align: middle;" src="https://commondatastorage.googleapis.com/ingress.com/img/tm_icons/time.png" />' +
-			timeToRemaining((mission.medianCompletionTimeMs / 1000) | 0);
-		html += '<img style="height: 14px; margin-right: 8px; vertical-align: middle; margin-left: 5px;" src="https://commondatastorage.googleapis.com/ingress.com/img/tm_icons/like.png" />' +
-			(((mission.ratingE6 / 100) | 0) / 100) + '%';
-
+		
+		container.appendChild(document.createElement('br'));
+		
+		var infoTime = container.appendChild(document.createElement('span'));
+		infoTime.className = 'plugin-mission-info time';
+		infoTime.textContent = timeToRemaining((mission.medianCompletionTimeMs / 1000) | 0) + ' ';
+		img = infoTime.insertBefore(document.createElement('img'), infoTime.firstChild);
+		img.src = 'https://commondatastorage.googleapis.com/ingress.com/img/tm_icons/time.png';
+		
+		var infoRating = container.appendChild(document.createElement('span'));
+		infoRating.className = 'plugin-mission-info rating';
+		infoRating.textContent = (((mission.ratingE6 / 100) | 0) / 100) + '%' + ' ';
+		img = infoRating.insertBefore(document.createElement('img'), infoRating.firstChild);
+		img.src = 'https://commondatastorage.googleapis.com/ingress.com/img/tm_icons/like.png';
+		
 		if (cachedMission) {
-			html += '<img style="height: 14px; margin-right: 8px; vertical-align: middle; margin-left: 5px;" src="https://commondatastorage.googleapis.com/ingress.com/img/tm_icons/players.png" />' +
-				cachedMission.numUniqueCompletedPlayers;
-			html += '<img style="height: 14px; margin-right: 8px; vertical-align: middle; margin-left: 5px;" src="https://commondatastorage.googleapis.com/ingress.com/img/map_icons/linkmodeicon.png" />' +
-				cachedMission.waypoints.length;
+			var infoPlayers = container.appendChild(document.createElement('span'));
+			infoPlayers.className = 'plugin-mission-info players';
+			infoPlayers.textContent = cachedMission.numUniqueCompletedPlayers + ' ';
+			img = infoPlayers.insertBefore(document.createElement('img'), infoPlayers.firstChild);
+			img.src = 'https://commondatastorage.googleapis.com/ingress.com/img/tm_icons/players.png';
+			
+			var infoWaypoints = container.appendChild(document.createElement('span'));
+			infoWaypoints.className = 'plugin-mission-info waypoints';
+			infoWaypoints.textContent = cachedMission.waypoints.length + ' ';
+			img = infoWaypoints.insertBefore(document.createElement('img'), infoWaypoints.firstChild);
+			img.src = 'https://commondatastorage.googleapis.com/ingress.com/img/map_icons/linkmodeicon.png';
 		}
-		html += '<br />';
-		html += '</div>';
-		return html;
+		
+		return container;
 	},
 
 	renderMission: function(mission) {
-		var me = this;
-		var checked = this.settings.checkedMissions[mission.guid];
-		//commondatastorage.googleapis.com/ingress.com/img/map_icons/linkmodeicon.png
-		var html = '<div style="height: 110px;" >';
-		html += '<a href="#" onclick="plugin.missions.toggleMission(\'' + mission.guid + '\')" >';
-		html += '<span class="m-' + mission.guid + '" style="' + (checked ? '' : 'display: none;') + 'position: absolute; float: left; left: 12px; vertical-align: middle; padding-left: 10px; padding-top: 40px; font-size: 8em;opacity: 0.5;width: 90px; height: 60px;" >&#10003;</span>';
-		html += '<img style="width: 100px;float: left; margin-right: 20px" src="' + mission.image + '" >';
-		html += '</a>';
-		html += '<div style="font-weight: bold;font-size: 1.3em;" >' + mission.title + '</div>';
-		html += '<span class="' + (mission.authorTeam === 'R' ? 'RESISTANCE' : 'ENLIGHTENED') + '">' + mission.authorNickname + '</span>';
-		html += '<br />';
-		html += '<br />';
-		html += '<img style="height: 14px; margin-right: 8px; vertical-align: middle;" src="https://commondatastorage.googleapis.com/ingress.com/img/tm_icons/time.png" />' +
-			timeToRemaining((mission.medianCompletionTimeMs / 1000) | 0);
-		html += '<img style="height: 14px; margin-right: 8px; vertical-align: middle; margin-left: 5px;" src="https://commondatastorage.googleapis.com/ingress.com/img/tm_icons/like.png" />' +
-			(((mission.ratingE6 / 100) | 0) / 100) + '%';
-		html += '<img style="height: 14px; margin-right: 8px; vertical-align: middle; margin-left: 5px;" src="https://commondatastorage.googleapis.com/ingress.com/img/tm_icons/players.png" />' +
-			mission.numUniqueCompletedPlayers;
-		html += '<img style="height: 14px; margin-right: 8px; vertical-align: middle; margin-left: 5px;" src="https://commondatastorage.googleapis.com/ingress.com/img/map_icons/linkmodeicon.png" />' +
-			mission.waypoints.length;
-		html += '<br />';
-		html += '<p>';
-		html += mission.description;
-		html += '</p>';
-		html += '</div>';
-		html += mission.waypoints.map(function(waypoint, index) {
-			return me.renderMissionWaypoint(waypoint, index, mission);
-		}).join(' ');
-		return html;
+		var container = document.createElement('div');
+		container.className = 'plugin-mission-details';
+		
+		var summary = container.appendChild(this.renderMissionSummary(mission));
+		
+		// replace link with heading
+		var title = summary.getElementsByTagName('a')[0];
+		var newtitle = document.createElement('h4');
+		newtitle.textContent = mission.title;
+		title.parentNode.replaceChild(newtitle, title);
+		
+		var desc = summary.appendChild(document.createElement('p'));
+		desc.className = 'description';
+		desc.textContent = mission.description;
+		
+		
+		var list = container.appendChild(document.createElement('ol'))
+		mission.waypoints.forEach(function(waypoint, index) {
+			list.appendChild(this.renderMissionWaypoint(waypoint, index, mission));
+		}, this);
+		
+		return container;
 	},
 
 	renderMissionWaypoint: function(waypoint, index, mission) {
-		var html = '';
-		html += '<p>';
-		html += '<div style="font-weight: bold;font-size: 1.3em;padding-left: 20px;" >';
+		var container = document.createElement('li');
+		container.className = 'plugin-mission-waypoint';
+		
 		if (waypoint.portal) {
-			var color = 'white';
-			if (waypoint.portal.team === 'R') { // Yay
-				color = '#00c2ff';
-			} else if (waypoint.portal.team === 'E') { // Booo
-				color = '#28f428';
-			}
-			var realHealth = (waypoint.portal.resCount / 8) * (waypoint.portal.health / 100);
-			html += this.renderPortalCircle(color, waypoint.portal.level, realHealth);
-			/*
-			var radius = ((realHealth * 360) | 0);
-			html += '<div style="display: inline-block; position:relative;margin: 1px; margin-right: 10px;margin-left: -4px;" >';
-			html += '<div class="arc_start" style="position:absolute;top:0;left:0;width:15px;height: 15px;border-radius:100%;border: 3px solid;border-color:transparent '+color+' '+color+' '+color+';transform: rotate('+radius+'deg);"></div>';
-			html += '<div class="arc_end" style="position:absolute;top:0;left:0;width:15px;height: 15px;border-radius:100%;border: 3px solid;border-color:'+color+' '+color+' '+color+' transparent;transform: rotate(405deg);"></div>'; // 360 + 45
-			html += '<div style="font-size: 0.8em; font-weight: bold; padding-top: 3px; padding-left: 6.5px;color: '+color+';" > ' + waypoint.portal.level + ' </div>';
-			html += '</div>';
-			*/
-		}
-		if (waypoint.portal) {
-			html += '<a href="#" onclick="renderPortalDetails(\'' + waypoint.portal.guid + '\')" >';
-		}
-		if (waypoint.title) {
-			html += waypoint.title;
+			container.appendChild(this.renderPortalCircle(waypoint.portal));
+			
+			var title = container.appendChild(document.createElement('a'));
+			
+			var lat = waypoint.portal.latE6/1E6;
+			var lng = waypoint.portal.lngE6/1E6;
+			var perma = '/intel?ll='+lat+','+lng+'&z=17&pll='+lat+','+lng;
+			
+			title.href = perma;
+			title.addEventListener("click", function(ev) {
+				renderPortalDetails(waypoint.portal.guid);
+				ev.preventDefault();
+				return false;
+			}, false);
+			title.addEventListener("dblclick", function(ev) {
+				zoomToAndShowPortal(waypoint.portal.guid, [lat, lng]);
+				ev.preventDefault();
+				return false;
+			}, false);
 		} else {
-			html += 'Unknown';
+			var title = container.appendChild(document.createElement('span'));
 		}
-		if (waypoint.portal) {
-			html += '</a>';
-		}
-		html += '</div>';
-		/*
-		  checkbox_grey
-		  checkbox_orange
-		  checkbox_cyan
-		*/
-		var img = 'cyan';
-		if (index === 0) {
-			img = 'orange';
-		} else if (!waypoint.objective) {
-			img = 'grey';
-		}
-		// &#10003;
+		
+		title.className = 'title';
+		if(waypoint.title)
+			title.textContent = waypoint.title;
+		else if(waypoint.portal && waypoint.portal.title)
+			title.textContent = waypoint.portal.title;
+		else
+			title.textContent = 'Unknown';
+		
 		var mwpid = mission.guid + '-' + waypoint.guid;
 		var checked = this.settings.checkedWaypoints[mwpid];
-
-		html += '<a href="#" onclick="plugin.missions.toggleWaypoint(\'' + mission.guid + '\',\'' + waypoint.guid + '\')" >';
-		html += '<span class="wp-' + mwpid + '" style="' + (checked ? '' : 'display: none;') + 'position:absolute; float: left;margin-left: 4px">&#10003;</span>';
-
-		html += '<img style="height: 14px; margin-right: 8px; vertical-align: middle;" src="https://commondatastorage.googleapis.com/ingress.com/img/tm_icons/checkbox_' + img + '.png" />';
-		html += '</a>';
-		html += (waypoint.objective ? waypoint.objective : '?');
-		html += '</p>';
-		return html;
+		
+		var label = container.appendChild(document.createElement('label'));
+		
+		var checkbox = label.appendChild(document.createElement('input'));
+		checkbox.type = 'checkbox';
+		checkbox.addEventListener('change', function() {
+			plugin.missions.toggleWaypoint(mission.guid, waypoint.guid);
+		}, false);
+		checkbox.className = 'wp-' + mwpid;
+		
+		var objective = label.appendChild(document.createElement('span'));
+		objective.textContent = waypoint.objective ? waypoint.objective : '?';
+		
+		return container;
 	},
-	renderPortalCircle: function(portalColor, portalLevel, portalHealth) {
-		var s = 20,
-			bg = '#999',
-			c = portalColor,
-			i = 14,
-			ic = '#555',
-			s2 = ((s / 2) | 0),
-			si = (((s - i) / 2) | 0),
-			d = (portalHealth * 180) | 0,
-			num = portalLevel;
-		var html = '<div style="width: ' + s + 'px;height: ' + s + 'px;background-color:' + bg + ';border-radius: 50%;position: absolute;margin-top: -4px;margin-left: -23px;" >';
-		html += '<div>';
-		html += '<div style="width: ' + s + 'px;height: ' + s + 'px;position: absolute;border-radius: 50%;clip: rect(0px, ' + s + 'px, ' + s + 'px, ' + s2 + 'px);transform: rotate(' + d + 'deg);" >';
-		html += '<div style="width: ' + s + 'px;height: ' + s + 'px;position: absolute;border-radius: 50%;background-color:' + c + ';clip: rect(0px, ' + s2 + 'px, ' + s + 'px, 0px);transform: rotate(' + d + 'deg);">';
-		html += '</div>';
-		html += '</div>';
-		html += '<div style="width: ' + s + 'px;height: ' + s + 'px;position: absolute;border-radius: 50%;clip: rect(0px, ' + s + 'px, ' + s + 'px, ' + s2 + 'px);" >';
-		html += '<div style="width: ' + s + 'px;height: ' + s + 'px;position: absolute;border-radius: 50%;background-color:' + c + ';clip: rect(0px, ' + s2 + 'px, ' + s + 'px, 0px);transform: rotate(' + d + 'deg);" >';
-		html += '</div>';
-		html += '</div>';
-		html += '</div>';
-		html += '<div style="width: ' + i + 'px;height: ' + i + 'px;position: absolute;margin-left: ' + si + 'px;margin-top: ' + si + 'px;background-color:' + ic + ';border-radius: 50%;" >';
-		html += '</div>';
-		html += '<div style="position: absolute; font-size: 0.7em; font-weight: bold;padding-top: 4px; padding-left: 7px;">' + num;
-		html += '</div>';
-		html += '</div>';
-		return html;
+	
+	renderPortalCircle: function(portal) {
+		var team = TEAM_TO_CSS[getTeam(portal)];
+		var resCount = portal.resCount;
+		var level = resCount == 0 ? 0 : portal.level; // we want neutral portals to be level 0
+		
+		var container = document.createElement('div');
+		container.className = 'plugin-mission-portal-indicator help ' + team;
+		container.textContent = level;
+		container.title = 'Level:\t'+level+'\nResonators:\t'+resCount+'\nHealth:\t'+portal.health+'%';
+		
+		for(var i = 0; i< resCount; i++) {
+			var resonator = container.appendChild(document.createElement('div'));
+			resonator.style.transform = 'rotate(' + i*45 + 'deg)';
+		}
+		return container;
 	},
 
 	toggleWaypoint: function(mid, wpid, dontsave) {
 		var mwpid = mid + '-' + wpid;
 		var el = document.getElementsByClassName('wp-' + mwpid);
-		if (!this.settings.checkedWaypoints[mwpid]) {
+		if(!this.settings.checkedWaypoints[mwpid]) {
 			this.settings.checkedWaypoints[mwpid] = true;
 			window.runHooks('waypointFinished', { mission: this.getMissionCache(mid), waypointguid: wpid });
-			$(el).show();
 		} else {
 			delete this.settings.checkedWaypoints[mwpid];
-			$(el).hide();
 		}
+		$(el).prop('checked', !!this.settings.checkedWaypoints[mwpid]);
 		if (!dontsave) {
 			this.saveData();
 		}
@@ -431,7 +445,7 @@ window.plugin.missions = {
 				}
 			}, this);
 			$(el).show();
-			$(sumel).css('background-color', 'rgba(255, 187, 0, 0.3)');
+			$(sumel).addClass('checked');
 			window.runHooks('missionFinished', { mission: mission });
 		} else {
 			delete this.settings.checkedMissions[mid];
@@ -441,7 +455,7 @@ window.plugin.missions = {
 				}
 			}, this);
 			$(el).hide();
-			$(sumel).css('background-color', '');
+			$(sumel).removeClass('checked');
 		}
 		this.saveData();
 	},
@@ -622,6 +636,7 @@ window.plugin.missions = {
 			this.settings.checkedMissions = {};
 		}
 
+		$('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:plugins/missions.css@@').appendTo('head');
 		$('#toolbox').append('<a href="#" onclick="plugin.missions.openTopMissions();" >Missions in view</a>');
 
 		// window.addPortalHighlighter('Mission start point', this.highlight.bind(this));
