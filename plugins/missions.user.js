@@ -25,9 +25,9 @@ var decodeWaypoint = function(data) {
 		guid: data[1],
 		title: data[2],
 		typeNum: data[3],
-		type: [null, "Portal", "Field Trip"][data[3]],
+		type: [null, 'Portal', 'Field Trip'][data[3]],
 		objectiveNum: data[4],
-		objective: [null, "Hack this Portal", "Capture or Upgrade Portal", "Create Link from Portal", "Create Field from Portal", "Install a Mod on this Portal", "Take a Photo", "View this Field Trip Waypoint", "Enter the Passphrase"][data[4]],
+		objective: [null, 'Hack this Portal', 'Capture or Upgrade Portal', 'Create Link from Portal', 'Create Field from Portal', 'Install a Mod on this Portal', 'Take a Photo', 'View this Field Trip Waypoint', 'Enter the Passphrase'][data[4]],
 	};
 	if (result.typeNum === 1) {
 		result.portal = window.decodeArray.portalSummary(data[5]);
@@ -48,7 +48,7 @@ var decodeMission = function(data) {
 		medianCompletionTimeMs: data[6],
 		numUniqueCompletedPlayers: data[7],
 		typeNum: data[8],
-		type: [null, "Sequential", "Non Sequential", "Hidden"][data[8]],
+		type: [null, 'Sequential', 'Non Sequential', 'Hidden'][data[8]],
 		waypoints: data[9].map(decodeWaypoint),
 		image: data[10]
 	};
@@ -63,7 +63,7 @@ var decodeMissionSummary = function(data) {
 	};
 };
 var timeToRemaining = function(t) {
-	var data = parseInt(t / 86400) + 'd ' + (new Date(t % 86400 * 1000)).toUTCString().replace(/.*(\d{2}):(\d{2}):(\d{2}).*/, "$1h $2m $3s");
+	var data = parseInt(t / 86400) + 'd ' + (new Date(t % 86400 * 1000)).toUTCString().replace(/.*(\d{2}):(\d{2}):(\d{2}).*/, '$1h $2m $3s');
 	data = data.replace('0d', '');
 	data = data.replace('00h', '');
 	data = data.replace('00m', '');
@@ -74,6 +74,13 @@ window.plugin.missions = {
 	missionCacheTime: 3 * 24 * 3600 * 1E3,
 	// 3 weeks.
 	portalMissionsCacheTime: 21 * 24 * 3600 * 1E3,
+
+	missionTypeImages: [
+		'@@INCLUDEIMAGE:images/mission-type-unknown.png@@',
+		'@@INCLUDEIMAGE:images/mission-type-sequential.png@@',
+		'@@INCLUDEIMAGE:images/mission-type-random.png@@',
+		'@@INCLUDEIMAGE:images/mission-type-hidden.png@@',
+	],
 
 	onPortalSelected: function(event) {
 		/*if(event.selectedPortalGuid === event.unselectedPortalGuid) {
@@ -89,7 +96,7 @@ window.plugin.missions = {
 		// After select.
 		setTimeout(function() {
 			// #resodetails
-			$('.linkdetails').append('<aside><a href="#" onclick="plugin.missions.openPortalMissions();" >Missions</a></aside>');
+			$('.linkdetails').append('<aside><a tabindex="0" onclick="plugin.missions.openPortalMissions();" >Missions</a></aside>');
 		}, 0);
 	},
 
@@ -313,7 +320,9 @@ window.plugin.missions = {
 			infoWaypoints.className = 'plugin-mission-info waypoints';
 			infoWaypoints.textContent = cachedMission.waypoints.length + ' ';
 			img = infoWaypoints.insertBefore(document.createElement('img'), infoWaypoints.firstChild);
-			img.src = 'https://commondatastorage.googleapis.com/ingress.com/img/map_icons/linkmodeicon.png';
+			img.src = this.missionTypeImages[cachedMission.typeNum] || this.missionTypeImages[0];
+			img.title = cachedMission.type || 'Unknown mission type';
+			img.className = 'help';
 		}
 		
 		return container;
@@ -358,12 +367,12 @@ window.plugin.missions = {
 			var perma = '/intel?ll='+lat+','+lng+'&z=17&pll='+lat+','+lng;
 			
 			title.href = perma;
-			title.addEventListener("click", function(ev) {
+			title.addEventListener('click', function(ev) {
 				renderPortalDetails(waypoint.portal.guid);
 				ev.preventDefault();
 				return false;
 			}, false);
-			title.addEventListener("dblclick", function(ev) {
+			title.addEventListener('dblclick', function(ev) {
 				zoomToAndShowPortal(waypoint.portal.guid, [lat, lng]);
 				ev.preventDefault();
 				return false;
@@ -632,7 +641,7 @@ window.plugin.missions = {
 		}
 
 		$('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:plugins/missions.css@@').appendTo('head');
-		$('#toolbox').append('<a href="#" onclick="plugin.missions.openTopMissions();" >Missions in view</a>');
+		$('#toolbox').append('<a tabindex="0" onclick="plugin.missions.openTopMissions();">Missions in view</a>');
 
 		// window.addPortalHighlighter('Mission start point', this.highlight.bind(this));
 		window.addHook('portalSelected', this.onPortalSelected.bind(this));

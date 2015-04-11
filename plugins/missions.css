@@ -45,6 +45,14 @@
 	margin-bottom: 2px;
 }
 
+.plugin-mission-info {
+	display: inline-block;
+}
+.plugin-mission-info.time    { min-width: 8em; }
+.plugin-mission-info.rating  { min-width: 6em; }
+.plugin-mission-info.players { min-width: 4em; }
+.plugin-mission-info.type    { min-width: 4em; }
+
 .plugin-mission-info img {
 	height: 14px;
 	margin-right: 8px;
