@@ -107,7 +107,9 @@
 	left: 6px;
 	position: absolute;
 	top: 0;
+	/* Firefox supports transform* without vendor prefix, but Android does not yet */
 	transform-origin: 4px 9px 0;
+	-webkit-transform-origin: 4px 9px 0;
 	width: 8px;
 }
 

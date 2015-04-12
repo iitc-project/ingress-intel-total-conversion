@@ -419,7 +419,9 @@ window.plugin.missions = {
 		
 		for(var i = 0; i< resCount; i++) {
 			var resonator = container.appendChild(document.createElement('div'));
+			/* Firefox supports transform* without vendor prefix, but Android does not yet */
 			resonator.style.transform = 'rotate(' + i*45 + 'deg)';
+			resonator.style.webkitTransform = 'rotate(' + i*45 + 'deg)';
 		}
 		return container;
 	},
