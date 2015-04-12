@@ -293,6 +293,16 @@ window.plugin.missions = {
 			var span = container.appendChild(document.createElement('span'));
 			span.className = 'nickname ' + (cachedMission.authorTeam === 'R' ? 'res' : 'enl')
 			span.textContent = cachedMission.authorNickname;
+			
+			if(window.plugin.distanceToPortal && window.plugin.distanceToPortal.currentLoc) {
+				var infoDistance = container.appendChild(document.createElement('span'));
+				infoDistance.className = 'plugin-mission-info distance help';
+				infoDistance.title = 'Distance to this mission. Click to update.';
+				infoDistance.addEventListener('click', function() {
+					plugin.missions.renderMissionDistance(cachedMission, infoDistance);
+				}, false);
+				this.renderMissionDistance(cachedMission, infoDistance);
+			}
 		}
 		
 		container.appendChild(document.createElement('br'));
@@ -326,6 +336,45 @@ window.plugin.missions = {
 		}
 		
 		return container;
+	},
+
+	renderMissionDistance: function(mission /* cached mission, full details*/, container) {
+		if(!(plugin.distanceToPortal && plugin.distanceToPortal.currentLoc)) return;
+		
+		var distances = mission.waypoints
+			.filter(function(waypoint) {
+				return !!waypoint.portal;
+			})
+			.map(function(waypoint) {
+				var position = L.latLng(waypoint.portal.latE6/1E6, waypoint.portal.lngE6/1E6);
+				var distance = position.distanceTo(plugin.distanceToPortal.currentLoc);
+				return {
+					waypoint: waypoint,
+					distance: distance,
+					position: position,
+				};
+			});
+		
+		if(!distances.length) return;
+		
+		if(mission.typeNum == 2) { // non-sequential
+			distances.sort(function(a, b) { return a.distance - b.distance; });
+		}
+		
+		var position = distances[0].position;
+		var distance = distances[0].distance;
+		
+		var bearing = window.plugin.distanceToPortal.currentLoc.bearingTo(position);
+		
+		$(container)
+			.text(window.plugin.distanceToPortal.formatDistance(distance))
+			.prepend($('<span>')
+				.addClass('portal-distance-bearing')
+				.css({
+					'transform': 'rotate('+bearing+'deg)',
+					'-moz-transform': 'rotate('+bearing+'deg)',
+					'-webkit-transform': 'rotate('+bearing+'deg)',
+				}));
 	},
 
 	renderMission: function(mission) {

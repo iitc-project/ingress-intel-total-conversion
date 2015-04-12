@@ -45,6 +45,17 @@
 	margin-bottom: 2px;
 }
 
+.plugin-mission-summary > .nickname {
+	display: inline-block;
+	min-width: 8em; /* to align with time */
+}
+
+.plugin-mission-info .portal-distance-bearing {
+	font-size: 14px;
+	margin-right: 8px;
+	color: #b2fbff;
+}
+
 .plugin-mission-info {
 	display: inline-block;
 }

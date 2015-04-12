@@ -67,7 +67,7 @@ window.plugin.distanceToPortal.updateDistance = function() {
     $('#portal-distance')
       .text('Distance: ' + dist + ' ')
       .append($('<span>')
-        .attr('id', 'portal-distance-bearing')
+        .addClass('portal-distance-bearing')
         .css({
           'transform': 'rotate('+bearing+'deg)',
           '-moz-transform': 'rotate('+bearing+'deg)',
@@ -115,7 +115,6 @@ window.plugin.distanceToPortal.setupPortalsList = function() {
       $(cell).addClass('alignR').text(dist?window.plugin.distanceToPortal.formatDistance(dist):'-');
     }
   });
-
 }
 
 
