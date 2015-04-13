@@ -643,7 +643,8 @@ window.plugin.missions = {
 			color: '#222',
 			opacity: 1,
 			weight: 2,
-			clickable: false
+			clickable: false,
+			dashArray: (mission.typeNum == 2 /* non-sequential */ ? '1,5' : undefined),
 		});
 		this.missionLayer.addLayer(line);
 		markers.push(line);
