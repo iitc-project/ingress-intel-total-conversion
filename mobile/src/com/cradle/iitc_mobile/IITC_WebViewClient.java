@@ -33,6 +33,14 @@ public class IITC_WebViewClient extends WebViewClient {
             "body, #dashboard_container, #map_canvas { background: #000 !important; }"
                     .getBytes());
 
+    public static final boolean isIntelUrl(String url) {
+        return
+            url.startsWith("http://www.ingress.com/intel") ||
+            url.startsWith("https://www.ingress.com/intel") ||
+            url.startsWith("http://www.ingress.com/mission/") ||
+            url.startsWith("https://www.ingress.com/mission/");
+    }
+
     private final IITC_Mobile mIitc;
     private boolean mIitcInjected = false;
     private final String mIitcPath;
@@ -119,8 +127,7 @@ public class IITC_WebViewClient extends WebViewClient {
 
     @Override
     public void onPageFinished(final WebView view, final String url) {
-        if (url.startsWith("http://www.ingress.com/intel")
-                || url.startsWith("https://www.ingress.com/intel")) {
+        if(isIntelUrl(url)) {
             if (mIitcInjected) return;
             Log.d("injecting iitc..");
             loadScripts((IITC_WebView) view);
@@ -229,7 +236,7 @@ public class IITC_WebViewClient extends WebViewClient {
             Log.d("Google login");
             return false;
         }
-        else if (url.contains("ingress.com/intel")) {
+        else if (isIntelUrl(url)) {
             Log.d("intel link requested, reset app and load " + url);
             mIitc.reset();
             mIitc.setLoadingState(true);
