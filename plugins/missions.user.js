@@ -146,6 +146,11 @@ window.plugin.missions = {
 			},
 			collapseCallback: this.collapseFix,
 			expandCallback: this.collapseFix
+		}).dialog('option', 'buttons', {
+			'Zoom to mission': function() {
+				me.zoomToMission(mission);
+			},
+			'OK': function() { $(this).dialog('close'); },
 		});
 	},
 
@@ -155,7 +160,10 @@ window.plugin.missions = {
 			height: 'auto',
 			width: '400px',
 			collapseCallback: this.collapseFix,
-			expandCallback: this.collapseFix
+			expandCallback: this.collapseFix,
+		}).dialog('option', 'buttons', {
+			'Create new mission': function() { open('//mission-author-dot-betaspike.appspot.com'); },
+			'OK': function() { $(this).dialog('close'); },
 		});
 	},
 
@@ -163,6 +171,16 @@ window.plugin.missions = {
 		if (this && this.parentNode) {
 			this.parentNode.style.height = 'auto';
 		}
+	},
+
+	zoomToMission: function(mission) {
+		var latlngs = mission.waypoints.filter(function(waypoint) {
+			return !!waypoint.portal;
+		}).map(function(waypoint) {
+			return [waypoint.portal.latE6/1E6, waypoint.portal.lngE6/1E6];
+		});
+		
+		map.fitBounds(L.latLngBounds(latlngs), {maxZoom: 17});
 	},
 
 	loadMissionsInBounds: function(bounds, callback, errorcallback) {
