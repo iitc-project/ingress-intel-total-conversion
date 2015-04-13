@@ -136,7 +136,7 @@ window.plugin.missions = {
 		var me = this;
 		var markers = this.highlightMissionPortals(mission);
 		dialog({
-			// id: 'mission-' + mission.guid,
+			id: 'plugin-mission-details-' + mission.guid.replace(/\./g, '_') /* dots irritate the dialog framework */,
 			title: mission.title,
 			height: 'auto',
 			html: this.renderMission(mission),
@@ -145,7 +145,7 @@ window.plugin.missions = {
 				me.unhighlightMissionPortals(markers);
 			},
 			collapseCallback: this.collapseFix,
-			expandCallback: this.collapseFix
+			expandCallback: this.collapseFix,
 		}).dialog('option', 'buttons', {
 			'Zoom to mission': function() {
 				me.zoomToMission(mission);
@@ -304,13 +304,13 @@ window.plugin.missions = {
 		
 		var title = container.appendChild(document.createElement('a'));
 		title.textContent = mission.title;
-		title.href = '/mission/' + mission.guid; // TODO make IITC load on mission permalinks as well
+		title.href = '/mission/' + mission.guid;
 		title.addEventListener('click', function(ev) {
-			plugin.missions.openMission(mission.guid);
+			this.openMission(mission.guid);
 			// prevent browser from following link
 			ev.preventDefault();
 			return false;
-		}, false);
+		}.bind(this), false);
 		
 		if(cachedMission) {
 			var span = container.appendChild(document.createElement('span'));
@@ -406,16 +406,9 @@ window.plugin.missions = {
 		
 		var summary = container.appendChild(this.renderMissionSummary(mission));
 		
-		// replace link with heading
-		var title = summary.getElementsByTagName('a')[0];
-		var newtitle = document.createElement('h4');
-		newtitle.textContent = mission.title;
-		title.parentNode.replaceChild(newtitle, title);
-		
 		var desc = summary.appendChild(document.createElement('p'));
 		desc.className = 'description';
 		desc.textContent = mission.description;
-		
 		
 		var list = container.appendChild(document.createElement('ol'))
 		mission.waypoints.forEach(function(waypoint, index) {

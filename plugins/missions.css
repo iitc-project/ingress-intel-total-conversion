@@ -34,7 +34,7 @@
 	margin-bottom: 5px;
 }
 
-.plugin-mission-summary > a, .plugin-mission-summary > h4 {
+.plugin-mission-summary > a {
 	display: block;
 	font-weight: bold;
 	font-size: 1.3em;
@@ -70,8 +70,9 @@
 	vertical-align: top;
 }
 
-.plugin-mission-summary description {
-	white-space: pre;
+.plugin-mission-details .plugin-mission-summary > a,
+.plugin-mission-details .plugin-mission-summary .description {
+	white-space: pre-line;
 	margin-left: 110px;
 }
 
