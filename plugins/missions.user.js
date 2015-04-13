@@ -251,7 +251,8 @@ window.plugin.missions = {
 
 			callback(mission);
 		}, function() {
-			console.log('Error loading mission data', guid, arguments);
+			console.error('Error loading mission data: ' + guid + ", " + Array.prototype.slice.call(arguments));
+			
 			if (errorcallback) {
 				errorcallback(error);
 			}
@@ -421,7 +422,7 @@ window.plugin.missions = {
 			
 			title.href = perma;
 			title.addEventListener('click', function(ev) {
-				renderPortalDetails(waypoint.portal.guid);
+				selectPortalByLatLng(lat, lng);
 				ev.preventDefault();
 				return false;
 			}, false);
@@ -735,6 +736,12 @@ window.plugin.missions = {
 		window.pluginCreateHook('portalMissionsLoaded');
 		window.pluginCreateHook('missionFinished');
 		window.pluginCreateHook('waypointFinished');
+
+		var match = location.pathname.match(/\/mission\/([0-9a-z.]+)/);
+		if(match && match[1]) {
+			var mid = match[1];
+			this.openMission(mid);
+		}
 	}
 };
 
