@@ -289,7 +289,7 @@ window.plugin.missions = {
 	renderMissionSummary: function(mission) {
 		var cachedMission = this.getMissionCache(mission.guid);
 
-		var checked = this.settings.checkedMissions[mission.guid];
+		var checked = this.checkedMissions[mission.guid];
 
 		var container = document.createElement('div');
 		container.className = 'plugin-mission-summary mc-' + mission.guid;
@@ -455,7 +455,7 @@ window.plugin.missions = {
 			title.textContent = 'Unknown';
 		
 		var mwpid = mission.guid + '-' + waypoint.guid;
-		var checked = this.settings.checkedWaypoints[mwpid];
+		var checked = this.checkedWaypoints[mwpid];
 		
 		var label = container.appendChild(document.createElement('label'));
 		
@@ -494,13 +494,13 @@ window.plugin.missions = {
 	toggleWaypoint: function(mid, wpid, dontsave) {
 		var mwpid = mid + '-' + wpid;
 		var el = document.getElementsByClassName('wp-' + mwpid);
-		if(!this.settings.checkedWaypoints[mwpid]) {
-			this.settings.checkedWaypoints[mwpid] = true;
+		if(!this.checkedWaypoints[mwpid]) {
+			this.checkedWaypoints[mwpid] = true;
 			window.runHooks('waypointFinished', { mission: this.getMissionCache(mid), waypointguid: wpid });
 		} else {
-			delete this.settings.checkedWaypoints[mwpid];
+			delete this.checkedWaypoints[mwpid];
 		}
-		$(el).prop('checked', !!this.settings.checkedWaypoints[mwpid]);
+		$(el).prop('checked', !!this.checkedWaypoints[mwpid]);
 		if (!dontsave) {
 			this.saveData();
 		}
@@ -513,10 +513,10 @@ window.plugin.missions = {
 		}
 		var el = document.getElementsByClassName('m-' + mid);
 		var sumel = document.getElementsByClassName('mc-' + mid);
-		if (!this.settings.checkedMissions[mid]) {
-			this.settings.checkedMissions[mid] = true;
+		if (!this.checkedMissions[mid]) {
+			this.checkedMissions[mid] = true;
 			mission.waypoints.forEach(function(waypoint) {
-				if (!this.settings.checkedWaypoints[mid + '-' + waypoint.guid]) {
+				if (!this.checkedWaypoints[mid + '-' + waypoint.guid]) {
 					this.toggleWaypoint(mid, waypoint.guid, true);
 				}
 			}, this);
@@ -524,9 +524,9 @@ window.plugin.missions = {
 			$(sumel).addClass('checked');
 			window.runHooks('missionFinished', { mission: mission });
 		} else {
-			delete this.settings.checkedMissions[mid];
+			delete this.checkedMissions[mid];
 			mission.waypoints.forEach(function(waypoint) {
-				if (this.settings.checkedWaypoints[mid + '-' + waypoint.guid]) {
+				if (this.checkedWaypoints[mid + '-' + waypoint.guid]) {
 					this.toggleWaypoint(mid, waypoint.guid, true);
 				}
 			}, this);
@@ -568,13 +568,24 @@ window.plugin.missions = {
 		this.checkCacheSize();
 		localStorage['plugins-missions-portalcache'] = JSON.stringify(this.cacheByPortalGuid);
 		localStorage['plugins-missions-missioncache'] = JSON.stringify(this.cacheByMissionGuid);
-		localStorage['plugins-missions-settings'] = JSON.stringify(this.settings);
+		localStorage['plugins-missions-checkedMissions'] = JSON.stringify(this.checkedMissions);
+		localStorage['plugins-missions-checkedWaypoints'] = JSON.stringify(this.checkedWaypoints);
 	},
 
 	loadData: function() {
 		this.cacheByPortalGuid = JSON.parse(localStorage['plugins-missions-portalcache'] || '{}');
 		this.cacheByMissionGuid = JSON.parse(localStorage['plugins-missions-missioncache'] || '{}');
-		this.settings = JSON.parse(localStorage['plugins-missions-settings'] || '{}');
+		
+		if("plugins-missions-checkedMissions" in localStorage) {
+			this.checkedMissions = JSON.parse(localStorage['plugins-missions-checkedMissions'] || '{}');
+			this.checkedWaypoints = JSON.parse(localStorage['plugins-missions-checkedWaypoints'] || '{}');
+		} else if("plugins-missions-settings" in localStorage) {
+			var settings = JSON.parse(localStorage['plugins-missions-settings'] || '{}');
+			this.checkedMissions = settings.checkedMissions;
+			this.checkedWaypoints = settings.checkedWaypoints;
+			this.saveData();
+			delete localStorage['plugins-missions-settings'];
+		}
 	},
 
 	checkCacheSize: function() {
@@ -701,11 +712,11 @@ window.plugin.missions = {
 
 		this.loadData();
 
-		if (!this.settings.checkedWaypoints) {
-			this.settings.checkedWaypoints = {};
+		if (!this.checkedWaypoints) {
+			this.checkedWaypoints = {};
 		}
-		if (!this.settings.checkedMissions) {
-			this.settings.checkedMissions = {};
+		if (!this.checkedMissions) {
+			this.checkedMissions = {};
 		}
 
 		$('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:plugins/missions.css@@').appendTo('head');
