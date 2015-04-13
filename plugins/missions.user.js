@@ -225,7 +225,7 @@ window.plugin.missions = {
 				return;
 			}
 
-			window.runHooks('portalMissionsLoaded', { missions: missions, portalguid: guid });
+			window.runHooks('plugin-missions-on-portal-loaded', { missions: missions, portalguid: guid });
 
 			me.cacheByPortalGuid[guid] = {
 				time: Date.now(),
@@ -259,7 +259,7 @@ window.plugin.missions = {
 				return;
 			}
 
-			window.runHooks('missionLoaded', { mission: mission });
+			window.runHooks('plugin-missions-loaded-mission', { mission: mission });
 
 			me.cacheByMissionGuid[guid] = {
 				time: Date.now(),
@@ -292,7 +292,8 @@ window.plugin.missions = {
 		var checked = this.checkedMissions[mission.guid];
 
 		var container = document.createElement('div');
-		container.className = 'plugin-mission-summary mc-' + mission.guid;
+		container.className = 'plugin-mission-summary';
+		container.dataset['mission_mid'] = mission.guid;
 		if(checked)
 			container.classList.add('checked');
 		
@@ -464,7 +465,7 @@ window.plugin.missions = {
 		checkbox.addEventListener('change', function() {
 			plugin.missions.toggleWaypoint(mission.guid, waypoint.guid);
 		}, false);
-		checkbox.className = 'wp-' + mwpid;
+		checkbox.dataset['mission_mwpid'] = mwpid;
 		
 		var objective = label.appendChild(document.createElement('span'));
 		objective.textContent = waypoint.objective ? waypoint.objective : '?';
@@ -493,49 +494,66 @@ window.plugin.missions = {
 
 	toggleWaypoint: function(mid, wpid, dontsave) {
 		var mwpid = mid + '-' + wpid;
-		var el = document.getElementsByClassName('wp-' + mwpid);
-		if(!this.checkedWaypoints[mwpid]) {
-			this.checkedWaypoints[mwpid] = true;
-			window.runHooks('waypointFinished', { mission: this.getMissionCache(mid), waypointguid: wpid });
-		} else {
+		if(this.checkedWaypoints[mwpid])
 			delete this.checkedWaypoints[mwpid];
-		}
-		$(el).prop('checked', !!this.checkedWaypoints[mwpid]);
+		else
+			this.checkedWaypoints[mwpid] = true;
+		
+		window.runHooks('plugin-missions-waypoint-changed', { mission: this.getMissionCache(mid), waypointguid: wpid });
 		if (!dontsave) {
 			this.saveData();
 		}
 	},
-
+	
+	onWaypointChanged: function(data) {
+		var mid = data.mission.guid;
+		var wpid = data.wpid;
+		var mwpid = mid + '-' + wpid;
+		
+		var checked = !!this.checkedWaypoints[mwpid];
+		
+		$('[data-mission_mwpid="'+mwpid+'"]').prop('checked', checked);
+	},
+	
+	onWaypointsRefreshed: function() {
+		$('[data-mission_mwpid]').each(function(i, element) {
+			var mwpid = element.dataset['mission_mwpid'];
+			var checked = !!this.checkedWaypoints[mwpid];
+			element.checked = checked;
+		});
+	},
+	
 	toggleMission: function(mid) {
 		var mission = this.getMissionCache(mid);
 		if (!mission) {
 			return;
 		}
-		var el = document.getElementsByClassName('m-' + mid);
-		var sumel = document.getElementsByClassName('mc-' + mid);
-		if (!this.checkedMissions[mid]) {
-			this.checkedMissions[mid] = true;
-			mission.waypoints.forEach(function(waypoint) {
-				if (!this.checkedWaypoints[mid + '-' + waypoint.guid]) {
-					this.toggleWaypoint(mid, waypoint.guid, true);
-				}
-			}, this);
-			$(el).show();
-			$(sumel).addClass('checked');
-			window.runHooks('missionFinished', { mission: mission });
-		} else {
+		
+		if(this.checkedMissions[mid])
 			delete this.checkedMissions[mid];
-			mission.waypoints.forEach(function(waypoint) {
-				if (this.checkedWaypoints[mid + '-' + waypoint.guid]) {
-					this.toggleWaypoint(mid, waypoint.guid, true);
-				}
-			}, this);
-			$(el).hide();
-			$(sumel).removeClass('checked');
-		}
+		else
+			this.checkedMissions[mid] = true;
+		
+		window.runHooks('plugin-missions-mission-changed', { mission: this.getMissionCache(mid) });
 		this.saveData();
 	},
-
+	
+	onMissionChanged: function(data) {
+		var mid = data.mission.guid;
+		
+		var checked = !!this.checkedMissions[mid];
+		
+		$('[data-mission_mid="'+mid+'"]').toggleClass('checked', checked);
+	},
+	
+	onMissionsRefreshed: function() {
+		$('[data-mission_mid]').each(function(i, element) {
+			var mid = element.dataset['mission_mid'];
+			var checked = !!this.checkedMissions[mid];
+			$(element).toggleClass('checked', checked);
+		});
+	},
+	
 	getMissionCache: function(guid, updatePortals) {
 		if (this.cacheByMissionGuid[guid]) {
 			var cache = this.cacheByMissionGuid[guid];
@@ -755,10 +773,17 @@ window.plugin.missions = {
 		window.addLayerGroup('Mission start portals', this.missionStartLayer, false);
 		window.addLayerGroup('Mission portals', this.missionLayer, true);
 
-		window.pluginCreateHook('missionLoaded');
-		window.pluginCreateHook('portalMissionsLoaded');
-		window.pluginCreateHook('missionFinished');
-		window.pluginCreateHook('waypointFinished');
+		window.pluginCreateHook('plugin-missions-loaded-mission');
+		window.pluginCreateHook('plugin-missions-on-portal-loaded');
+		window.pluginCreateHook('plugin-missions-mission-changed');
+		window.pluginCreateHook('plugin-missions-missions-refreshed');
+		window.pluginCreateHook('plugin-missions-waypoint-changed');
+		window.pluginCreateHook('plugin-missions-waypoints-refreshed');
+
+		window.addHook('plugin-missions-mission-changed',     this.onMissionChanged.bind(this));
+		window.addHook('plugin-missions-missions-refreshed',  this.onMissionsRefreshed.bind(this));
+		window.addHook('plugin-missions-waypoint-changed',    this.onWaypointChanged.bind(this));
+		window.addHook('plugin-missions-waypoints-refreshed', this.onWaypointsRefreshed.bind(this));
 
 		var match = location.pathname.match(/\/mission\/([0-9a-z.]+)/);
 		if(match && match[1]) {
