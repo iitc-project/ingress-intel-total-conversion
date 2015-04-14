@@ -60,9 +60,8 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
 
     var title;
 
-    if(portals[guid]) {
-      var data = portals[guid].options.data;
-
+    var data = (portals[guid] && portals[guid].options.data) || portalDetail.get(guid) || null;
+    if(data) {
       title = data.title;
       div.append($('<img/>').attr({
         'src': fixPortalImageUrl(data.image),
