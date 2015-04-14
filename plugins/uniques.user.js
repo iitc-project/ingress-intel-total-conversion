@@ -262,7 +262,7 @@ window.plugin.uniques.updateCaptured = function(captured, guid) {
 
 // stores the gived GUID for sync
 plugin.uniques.sync = function(guid) {
-	plugin.uniques.updatingQueue[guid] = true;
+	plugin.uniques.updateQueue[guid] = true;
 	plugin.uniques.storeLocal('uniques');
 	plugin.uniques.storeLocal('updateQueue');
 	plugin.uniques.syncQueue();
