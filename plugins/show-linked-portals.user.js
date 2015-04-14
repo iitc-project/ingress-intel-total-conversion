@@ -53,7 +53,8 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
     var lng = link[key + 'LngE6']/1E6;
 
     var length = L.latLng(link.oLatE6/1E6, link.oLngE6/1E6).distanceTo([link.dLatE6/1E6, link.dLngE6/1E6]);
-    var lengthText = digits(Math.round(length)) + 'm';
+    var lengthFull = digits(Math.round(length)) + 'm';
+    var lengthShort = length < 100000 ? lengthFull : digits(Math.round(length/1000)) + 'km'
 
     var div = $('<div>').addClass('showLinkedPortalLink showLinkedPortalLink' + c + (key=='d' ? ' outgoing' : ' incoming'));
 
@@ -73,7 +74,7 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
       div
         .addClass('outOfRange')
         .append($('<span/>')
-          .html('Portal out of range.<br>' + lengthText));
+          .html('Portal out of range.<br>' + lengthShort));
     }
 
     div
@@ -86,7 +87,7 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
           .append($('<br/>'))
           .append($('<span/>').text(key=='d' ? '↴ outgoing link' : '↳ incoming link'))
           .append($('<br/>'))
-          .append($('<span/>').html(lengthText))
+          .append($('<span/>').html(lengthFull))
           .html(),
       })
       .appendTo('#portaldetails');
