@@ -79,6 +79,9 @@ window.plugin.missions = {
 	// 3 weeks.
 	portalMissionsCacheTime: 21 * 24 * 3600 * 1E3,
 
+	SYNC_DELAY: 5000,
+	enableSync: false,
+
 	missionTypeImages: [
 		'@@INCLUDEIMAGE:images/mission-type-unknown.png@@',
 		'@@INCLUDEIMAGE:images/mission-type-sequential.png@@',
@@ -231,7 +234,7 @@ window.plugin.missions = {
 				time: Date.now(),
 				data: missions
 			};
-			me.saveData();
+			me.storeCache();
 			callback(missions);
 		}, function(error) {
 			console.log('Error loading portal missions', arguments);
@@ -265,7 +268,7 @@ window.plugin.missions = {
 				time: Date.now(),
 				data: mission
 			};
-			me.saveData();
+			me.storeCache();
 
 			callback(mission);
 		}, function() {
@@ -499,16 +502,17 @@ window.plugin.missions = {
 		else
 			this.checkedWaypoints[mwpid] = true;
 		
-		window.runHooks('plugin-missions-waypoint-changed', { mission: this.getMissionCache(mid), waypointguid: wpid });
+		window.runHooks('plugin-missions-waypoint-changed', { mwpid: mwpid, });
 		if (!dontsave) {
-			this.saveData();
+			this.checkedWaypointsUpdateQueue[mwpid] = true;
+			this.storeLocal('checkedWaypoints');
+			this.storeLocal('checkedWaypointsUpdateQueue');
+			this.syncQueue();
 		}
 	},
 	
 	onWaypointChanged: function(data) {
-		var mid = data.mission.guid;
-		var wpid = data.wpid;
-		var mwpid = mid + '-' + wpid;
+		var mwpid = data.mwpid;
 		
 		var checked = !!this.checkedWaypoints[mwpid];
 		
@@ -524,22 +528,20 @@ window.plugin.missions = {
 	},
 	
 	toggleMission: function(mid) {
-		var mission = this.getMissionCache(mid);
-		if (!mission) {
-			return;
-		}
-		
 		if(this.checkedMissions[mid])
 			delete this.checkedMissions[mid];
 		else
 			this.checkedMissions[mid] = true;
 		
-		window.runHooks('plugin-missions-mission-changed', { mission: this.getMissionCache(mid) });
-		this.saveData();
+		window.runHooks('plugin-missions-mission-changed', { mid: mid, });
+		this.checkedMissionsUpdateQueue[mid] = true;
+		this.storeLocal('checkedMissions');
+		this.storeLocal('checkedMissionsUpdateQueue');
+		this.syncQueue();
 	},
 	
 	onMissionChanged: function(data) {
-		var mid = data.mission.guid;
+		var mid = data.mid;
 		
 		var checked = !!this.checkedMissions[mid];
 		
@@ -582,30 +584,39 @@ window.plugin.missions = {
 		return null;
 	},
 
-	saveData: function() {
+	storeCache: function() {
 		this.checkCacheSize();
 		localStorage['plugins-missions-portalcache'] = JSON.stringify(this.cacheByPortalGuid);
 		localStorage['plugins-missions-missioncache'] = JSON.stringify(this.cacheByMissionGuid);
-		localStorage['plugins-missions-checkedMissions'] = JSON.stringify(this.checkedMissions);
-		localStorage['plugins-missions-checkedWaypoints'] = JSON.stringify(this.checkedWaypoints);
 	},
-
+	
+	storeLocal: function(key) {
+		localStorage['plugins-missions-' + key] = JSON.stringify(this[key]);
+	},
+	
 	loadData: function() {
 		this.cacheByPortalGuid = JSON.parse(localStorage['plugins-missions-portalcache'] || '{}');
 		this.cacheByMissionGuid = JSON.parse(localStorage['plugins-missions-missioncache'] || '{}');
 		
-		if("plugins-missions-checkedMissions" in localStorage) {
-			this.checkedMissions = JSON.parse(localStorage['plugins-missions-checkedMissions'] || '{}');
-			this.checkedWaypoints = JSON.parse(localStorage['plugins-missions-checkedWaypoints'] || '{}');
-		} else if("plugins-missions-settings" in localStorage) {
+		if("plugins-missions-settings" in localStorage) {
 			var settings = JSON.parse(localStorage['plugins-missions-settings'] || '{}');
-			this.checkedMissions = settings.checkedMissions;
-			this.checkedWaypoints = settings.checkedWaypoints;
-			this.saveData();
+			localStorage['plugins-missions-checkedMissions'] = JSON.stringify(settings.checkedMissions);
+			localStorage['plugins-missions-checkedWaypoints'] = JSON.stringify(settings.checkedWaypoints);
 			delete localStorage['plugins-missions-settings'];
 		}
+		
+		this.loadLocal('checkedMissions');
+		this.loadLocal('checkedMissionsUpdateQueue');
+		this.loadLocal('checkedMissionsUpdatingQueue');
+		this.loadLocal('checkedWaypoints');
+		this.loadLocal('checkedWaypointsUpdateQueue');
+		this.loadLocal('checkedWaypointsUpdatingQueue');
 	},
-
+	
+	loadLocal: function(key) {
+		this[key] = JSON.parse(localStorage['plugins-missions-' + key] || '{}');
+	},
+	
 	checkCacheSize: function() {
 		if (JSON.stringify(this.cacheByPortalGuid).length > 1e6) { // 1 MB not MiB ;)
 			this.cleanupPortalCache();
@@ -721,6 +732,76 @@ window.plugin.missions = {
 		}
 	},
 
+	// sync the queue, but delay the actual sync to group a few updates in a single request
+	syncQueue: function() {
+		if(!this.enableSync) return;
+
+		clearTimeout(this.syncTimer);
+
+		this.syncTimer = setTimeout(function() {
+			this.syncTimer = null;
+
+			$.extend(this.checkedMissionsUpdatingQueue, this.checkedMissionsUpdateQueue);
+			this.checkedMissionsUpdateQueue = {};
+			this.storeLocal('checkedMissionsUpdatingQueue');
+			this.storeLocal('checkedMissionsUpdateQueue');
+			plugin.sync.updateMap('missions', 'checkedMissions', Object.keys(this.checkedMissionsUpdatingQueue));
+
+			$.extend(this.checkedWaypointsUpdatingQueue, this.checkedWaypointsUpdateQueue);
+			this.checkedWaypointsUpdateQueue = {};
+			this.storeLocal('checkedWaypointsUpdatingQueue');
+			this.storeLocal('checkedWaypointsUpdateQueue');
+			plugin.sync.updateMap('missions', 'checkedWaypoints', Object.keys(this.checkedWaypointsUpdatingQueue));
+
+		}.bind(this), this.SYNC_DELAY);
+	},
+
+	// called after IITC and all plugin loaded
+	registerFieldForSyncing: function() {
+		if(!window.plugin.sync) return;
+		window.plugin.sync.registerMapForSync('missions', 'checkedMissions', this.syncCallback.bind(this), this.syncInitialed.bind(this));
+		window.plugin.sync.registerMapForSync('missions', 'checkedWaypoints', this.syncCallback.bind(this), this.syncInitialed.bind(this));
+	},
+
+	// called after local or remote change uploaded
+	syncCallback: function(pluginName, fieldName, e, fullUpdated) {
+		this.storeLocal(fieldName);
+		// All data is replaced if another client updates the data while this client was offline,
+		// fire a complete refresh
+		if(fullUpdated) {
+			if(fieldName === 'checkedMissions') {
+				window.runHooks('plugin-missions-missions-refreshed');
+			} else if(fieldName === 'checkedWaypoints') {
+				window.runHooks('plugin-missions-waypoints-refreshed');
+			}
+			return;
+		}
+
+		if(!e) return;
+		if(e.isLocal) {
+			// Update pushed successfully, remove it from updatingQueue
+			delete this[fieldName + 'UpdatingQueue'][e.property];
+		} else {
+			// Remote update
+			delete this[fieldName + 'UpdateQueue'][e.property]
+			this.storeLocal(fieldName + 'UpdateQueue');
+			
+			if(fieldName === 'checkedMissions') {
+				window.runHooks('plugin-missions-mission-changed', { mid: e.property, });
+			} else if(fieldName === 'checkedWaypoints') {
+				window.runHooks('plugin-missions-waypoint-changed', { mwpid: e.property, });
+			}
+		}
+	},
+
+	// syncing of the field is initialed, upload all queued update
+	syncInitialed: function(pluginName, fieldName) {
+		this.enableSync = true;
+		if(Object.keys(this[fieldName + 'UpdateQueue']).length > 0) {
+			this.syncQueue();
+		}
+	},
+
 	setup: function() {
 		this.cacheByPortalGuid = {};
 		this.cacheByMissionGuid = {};
@@ -729,13 +810,6 @@ window.plugin.missions = {
 		this.markedMissionPortals = {};
 
 		this.loadData();
-
-		if (!this.checkedWaypoints) {
-			this.checkedWaypoints = {};
-		}
-		if (!this.checkedMissions) {
-			this.checkedMissions = {};
-		}
 
 		$('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:plugins/missions.css@@').appendTo('head');
 		$('#toolbox').append('<a tabindex="0" onclick="plugin.missions.openTopMissions();">Missions in view</a>');
@@ -784,6 +858,7 @@ window.plugin.missions = {
 		window.addHook('plugin-missions-missions-refreshed',  this.onMissionsRefreshed.bind(this));
 		window.addHook('plugin-missions-waypoint-changed',    this.onWaypointChanged.bind(this));
 		window.addHook('plugin-missions-waypoints-refreshed', this.onWaypointsRefreshed.bind(this));
+		window.addHook('iitcLoaded', this.registerFieldForSyncing.bind(this));
 
 		var match = location.pathname.match(/\/mission\/([0-9a-z.]+)/);
 		if(match && match[1]) {
