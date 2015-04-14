@@ -541,6 +541,9 @@ window.plugin.ownership.getPortals = function() {
       // Create the row, background color adjusted for team
       var row = document.createElement('tr');
       row.className = window.PLAYER.team == 'RESISTANCE' ? 'res' : 'enl';
+      var idAtt = document.createAttribute('portal-id');
+      idAtt.value = portalGUID;
+      row.setAttributeNode(idAtt);
       obj.row = row;
 
       // Cell for portal number
@@ -621,6 +624,7 @@ window.plugin.ownership.updatePortalFromRefreshAll = function(portalGUID) {
     var portal = window.plugin.ownership.ownership[portalGUID];
     window.plugin.ownership.setOwnedPortalListTitle('Updating: ' + portal.title);
     window.plugin.ownership.navigateToAndSelectPortal(portalGUID, portal);
+    $('[portal-id="' + portalGUID + '"]').addClass('updating');
   }
 
   // Non-blocking wait until the portal details have been loaded

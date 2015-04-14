@@ -127,6 +127,10 @@ td.portal-list-ownership {
   background-color: #000;
 }
 
+#ownershiplist table tr.updating {
+  border: 1px solid #FFCE00;
+}
+
 #ownershiplist .information {
   margin-top: 10px;
   font-size: 10px;
