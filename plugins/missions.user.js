@@ -487,7 +487,7 @@ window.plugin.missions = {
 		else
 			title.textContent = 'Unknown';
 		
-		var mwpid = mission.guid + '-' + waypoint.guid;
+		var mwpid = mission.guid + '-' + index + '-' + waypoint.guid;
 		var checked = this.checkedWaypoints[mwpid];
 		
 		var label = container.appendChild(document.createElement('label'));
@@ -495,7 +495,7 @@ window.plugin.missions = {
 		var checkbox = label.appendChild(document.createElement('input'));
 		checkbox.type = 'checkbox';
 		checkbox.addEventListener('change', function() {
-			plugin.missions.toggleWaypoint(mission.guid, waypoint.guid);
+			plugin.missions.toggleWaypoint(mission.guid, mwpid);
 		}, false);
 		checkbox.dataset['mission_mwpid'] = mwpid;
 		
@@ -524,8 +524,7 @@ window.plugin.missions = {
 		return container;
 	},
 
-	toggleWaypoint: function(mid, wpid, dontsave) {
-		var mwpid = mid + '-' + wpid;
+	toggleWaypoint: function(mid, mwpid, dontsave) {
 		if(this.checkedWaypoints[mwpid])
 			delete this.checkedWaypoints[mwpid];
 		else
