@@ -349,7 +349,8 @@ window.plugin.drawTools.importFromIntelURL = function(isAddedToExisting) {
       if (isNaN(floats[j])) throw("URL item had invalid number");
     }
     var layer = L.geodesicPolyline([[floats[0],floats[1]],[floats[2],floats[3]]], window.plugin.drawTools.lineOptions);
-    newLines.push(layer);
+    if(newLines.indexOf(layer) == -1)
+      newLines.push(layer);
   }
 
   // all parsed OK - clear and insert
@@ -357,7 +358,9 @@ window.plugin.drawTools.importFromIntelURL = function(isAddedToExisting) {
     window.plugin.drawTools.drawnItems.clearLayers();
 
   for (var i=0; i<newLines.length; i++) {
-    window.plugin.drawTools.drawnItems.addLayer(newLines[i]);
+    if(!window.plugin.drawTools.layerIsAlreadyDrawn(newLines[i])) {
+      window.plugin.drawTools.drawnItems.addLayer(newLines[i]);
+    }
   }
   runHooks('pluginDrawTools', {event: 'import'});
 
@@ -394,7 +397,7 @@ window.plugin.drawTools.import = function(data) {
         console.warn('unknown layer type "'+item.type+'" when loading draw tools layer');
         break;
     }
-    if (layer) {
+    if (layer && !window.plugin.drawTools.layerIsAlreadyDrawn(layer)) {
       window.plugin.drawTools.drawnItems.addLayer(layer);
     }
   });
@@ -403,6 +406,16 @@ window.plugin.drawTools.import = function(data) {
 
 }
 
+window.plugin.drawTools.layerIsAlreadyDrawn = function(layer) {
+  var layers = window.plugin.drawTools.drawnItems.getLayers();
+  for (var i = 0; i < layers.length; i++) {
+    if(layers[i].getBounds().equals(layer.getBounds())) {
+      console.log("draw-tools: Duplicate layer detected:" + layer.getLatLngs());
+      return true;
+    }
+  }
+  return false;
+}
 
 //Draw Tools Options
 
