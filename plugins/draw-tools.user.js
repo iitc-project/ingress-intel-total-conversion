@@ -475,6 +475,9 @@ window.plugin.drawTools.loadFromIntelURL = function(url) {
 
   console.log('DRAWTOOLS: reset and imported drawn items from stock URL');
   window.plugin.drawTools.optAlert('Import Successful.');
+
+  // Save to local storage
+  window.plugin.drawTools.save();
 }
 
 window.plugin.drawTools.optPaste = function() {
@@ -526,7 +529,6 @@ window.plugin.drawTools.optReset = function() {
   if(promptAction) {
     delete localStorage['plugin-draw-tools-layer'];
     window.plugin.drawTools.drawnItems.clearLayers();
-    window.plugin.drawTools.load();
     console.log('DRAWTOOLS: reset all drawn items');
     window.plugin.drawTools.optAlert('Reset Successful. ');
     runHooks('pluginDrawTools', {event: 'clear'});
