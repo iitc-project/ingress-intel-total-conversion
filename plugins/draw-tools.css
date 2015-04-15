@@ -1,0 +1,47 @@
+#drawtools-paste-form {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+#drawtools-paste-info span {
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+#drawtools-paste-text {
+  display: block;
+}
+
+#drawtools-paste-text input[type="text"] {
+  width: 100%;
+}
+
+#drawtools-paste-check {
+  margin-top: 4px;
+  float: right;
+  display: block;
+}
+
+#drawtools-paste-check span {
+  display: inline-block;
+  margin-right: 4px;
+}
+
+#drawtools-paste-check input[type="checkbox"] {
+  margin-right: 1px;
+  display: inline-block;
+}
+
+#drawtools-load-intel {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+#drawtools-load-intel-info span {
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 5px;
+}

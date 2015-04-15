@@ -36,6 +36,7 @@ window.plugin.drawTools.loadExternals = function() {
 
   $('head').append('<style>@@INCLUDESTRING:external/leaflet.draw.css@@</style>');
   $('head').append('<style>@@INCLUDESTRING:external/spectrum/spectrum.css@@</style>');
+  $('head').append('<style>@@INCLUDESTRING:plugins/draw-tools.css@@</style>');
 }
 
 window.plugin.drawTools.getMarkerIcon = function(color) {
@@ -271,20 +272,53 @@ window.plugin.drawTools.isIntelURL = function(url) {
   return url.match(new RegExp("^(https?://)?(www\\.)ingress\\.com/intel.*[?&]pls="));
 }
 
+window.plugin.drawTools.loadFromIntelURL = function(isAddedToExisting, data) {
+  if(isAddedToExisting && data)
+    window.plugin.drawTools.import(data);
+  window.plugin.drawTools.importFromIntelURL(isAddedToExisting);
+}
+
 window.plugin.drawTools.load = function() {
+  var dataStr = localStorage['plugin-draw-tools-layer'];
+  var data = (!dataStr) ? null : JSON.parse(dataStr);
+
   if (window.plugin.drawTools.isIntelURL(document.URL)) {
     try {
       console.log('draw-tools: Loading from Intel URL.')
-      window.plugin.drawTools.loadFromIntelURL(document.URL);
+      if(data) {
+        dialog({
+          html: "<div id='drawtools-load-intel'><div id='drawtools-load-intel-info'><span>Add the links in the URL to currently drawn items?</span></div>",
+          modal: true,
+          buttons : [
+            {
+              text: "Yes",
+              click: function() {
+                window.plugin.drawTools.loadFromIntelURL(true, data);
+                $(this).dialog('close');
+              }
+            },
+            {
+              text: "No",
+              click: function() {
+                window.plugin.drawTools.loadFromIntelURL(false);
+                $(this).dialog('close');
+              }
+            }
+          ],
+          dialogClass: 'ui-dialog-drawtoolsSet',
+          title: "Add to Existing Links?",
+          width: 400,
+          height: 100,
+        });
+      } else {
+        window.plugin.drawTools.loadFromIntelURL(false);
+      }
     } catch(e) {
         console.warn('draw-tools: failed to load data from Intel URL: ' + e);
     }
   } else {
     try {
-      var dataStr = localStorage['plugin-draw-tools-layer'];
-      if (dataStr === undefined) return;
-
-      var data = JSON.parse(dataStr);
+      if (!data) return;
       console.log('draw-tools: Loading from local data.');
       window.plugin.drawTools.import(data);
 
@@ -294,7 +328,8 @@ window.plugin.drawTools.load = function() {
   }
 }
 
-window.plugin.drawTools.loadFromIntelURL = function(url) {
+window.plugin.drawTools.importFromIntelURL = function(isAddedToExisting) {
+  var url = document.URL;
   var items = url.split(/[?&]/);
   var foundAt = -1;
   for (var i=0; i<items.length; i++) {
@@ -318,7 +353,9 @@ window.plugin.drawTools.loadFromIntelURL = function(url) {
   }
 
   // all parsed OK - clear and insert
-  window.plugin.drawTools.drawnItems.clearLayers();
+  if(!isAddedToExisting)
+    window.plugin.drawTools.drawnItems.clearLayers();
+
   for (var i=0; i<newLines.length; i++) {
     window.plugin.drawTools.drawnItems.addLayer(newLines[i]);
   }
@@ -480,17 +517,19 @@ window.plugin.drawTools.optExport = function() {
   }
 }
 
-window.plugin.drawTools.optPaste = function() {
-  var promptAction = prompt('Press CTRL+V to paste (draw-tools data or stock intel URL).', '');
-  if(promptAction !== null && promptAction !== '') {
+window.plugin.drawTools.processPastedData = function(data, isAddedToExisting) {
+  if(data && data != '') {
     try {
       // first see if it looks like a URL-format stock intel link, and if so, try and parse out any stock drawn items
       // from the pls parameter
-      if (window.plugin.drawTools.isIntelURL(promptAction)) {
-        window.plugin.drawTools.loadFromIntelURL(promptAction);
+      if (window.plugin.drawTools.isIntelURL(data)) {
+        window.plugin.drawTools.importFromIntelURL(isAddedToExisting);
       } else {
-        var data = JSON.parse(promptAction);
-        window.plugin.drawTools.drawnItems.clearLayers();
+        var data = JSON.parse(data);
+
+        if (!isAddedToExisting)
+          window.plugin.drawTools.drawnItems.clearLayers();
+
         window.plugin.drawTools.import(data);
         console.log('DRAWTOOLS: reset and imported drawn items');
         window.plugin.drawTools.optAlert('Import Successful.');
@@ -503,6 +542,33 @@ window.plugin.drawTools.optPaste = function() {
       window.plugin.drawTools.optAlert('<span style="color: #f88">Import failed</span>');
     }
   }
+}
+
+window.plugin.drawTools.optPaste = function() {
+  dialog({
+    html: "<div id='drawtools-paste-form'><div id='drawtools-paste-info'><span>Press CTRL+V to paste (draw-tools data or stock intel URL).</span></div>"
+          + "<div id='drawtools-paste-text'><input type='text' id='drawtools-paste-input'></input></div>"
+          + '<div id="drawtools-paste-check"><span onclick="$(\'#drawtools-paste-add-to-existing\').click();">Add to currently drawn items?</span><input type="checkbox" id="drawtools-paste-add-to-existing"></input></div></div>',
+    modal: true,
+    buttons : [
+      {
+        text: "OK",
+        click: function() {
+          window.plugin.drawTools.processPastedData($('#drawtools-paste-input').val(), $('#drawtools-paste-add-to-existing').prop('checked'));
+          $(this).dialog('close');
+        }
+      },
+      {
+        text: "Cancel",
+        click: function() {
+          $(this).dialog('close');
+        }
+      }
+    ],
+    dialogClass: 'ui-dialog-drawtoolsSet',
+    title: "Import Drawn Items",
+    width: 400,
+  });
 }
 
 window.plugin.drawTools.optImport = function() {
