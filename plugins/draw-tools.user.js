@@ -268,15 +268,25 @@ window.plugin.drawTools.save = function() {
 }
 
 window.plugin.drawTools.load = function() {
-  try {
-    var dataStr = localStorage['plugin-draw-tools-layer'];
-    if (dataStr === undefined) return;
+  if (window.plugin.drawTools.isIntelURL(document.URL)) {
+    try {
+      console.log('draw-tools: Loading from Intel URL.')
+      window.plugin.drawTools.loadFromIntelURL(document.URL);
+    } catch(e) {
+        console.warn('draw-tools: failed to load data from Intel URL: ' + e);
+    }
+  } else {
+    try {
+      var dataStr = localStorage['plugin-draw-tools-layer'];
+      if (dataStr === undefined) return;
 
-    var data = JSON.parse(dataStr);
-    window.plugin.drawTools.import(data);
+      var data = JSON.parse(dataStr);
+      console.log('draw-tools: Loading from local data.');
+      window.plugin.drawTools.import(data);
 
-  } catch(e) {
-    console.warn('draw-tools: failed to load data from localStorage: '+e);
+    } catch(e) {
+      console.warn('draw-tools: failed to load data from localStorage: '+e);
+    }
   }
 }
 
@@ -429,47 +439,52 @@ window.plugin.drawTools.optExport = function() {
   }
 }
 
+window.plugin.drawTools.isIntelURL = function(url) {
+  return url.match(new RegExp("^(https?://)?(www\\.)ingress\\.com/intel.*[?&]pls="));
+}
+
+window.plugin.drawTools.loadFromIntelURL = function(url) {
+  var items = url.split(/[?&]/);
+  var foundAt = -1;
+  for (var i=0; i<items.length; i++) {
+    if (items[i].substr(0,4) == "pls=") {
+      foundAt = i;
+    }
+  }
+
+  if (foundAt == -1) throw ("No drawn items found in intel URL");
+
+  var newLines = [];
+  var linesStr = items[foundAt].substr(4).split('_');
+  for (var i=0; i<linesStr.length; i++) {
+    var floats = linesStr[i].split(',').map(Number);
+    if (floats.length != 4) throw("URL item not a set of four floats");
+    for (var j=0; j<floats.length; j++) {
+      if (isNaN(floats[j])) throw("URL item had invalid number");
+    }
+    var layer = L.geodesicPolyline([[floats[0],floats[1]],[floats[2],floats[3]]], window.plugin.drawTools.lineOptions);
+    newLines.push(layer);
+  }
+
+  // all parsed OK - clear and insert
+  window.plugin.drawTools.drawnItems.clearLayers();
+  for (var i=0; i<newLines.length; i++) {
+    window.plugin.drawTools.drawnItems.addLayer(newLines[i]);
+  }
+  runHooks('pluginDrawTools', {event: 'import'});
+
+  console.log('DRAWTOOLS: reset and imported drawn items from stock URL');
+  window.plugin.drawTools.optAlert('Import Successful.');
+}
+
 window.plugin.drawTools.optPaste = function() {
   var promptAction = prompt('Press CTRL+V to paste (draw-tools data or stock intel URL).', '');
   if(promptAction !== null && promptAction !== '') {
     try {
       // first see if it looks like a URL-format stock intel link, and if so, try and parse out any stock drawn items
       // from the pls parameter
-      if (promptAction.match(new RegExp("^(https?://)?(www\\.)ingress\\.com/intel.*[?&]pls="))) {
-        //looks like a ingress URL that has drawn items...
-        var items = promptAction.split(/[?&]/);
-        var foundAt = -1;
-        for (var i=0; i<items.length; i++) {
-          if (items[i].substr(0,4) == "pls=") {
-            foundAt = i;
-          }
-        }
-
-        if (foundAt == -1) throw ("No drawn items found in intel URL");
-
-        var newLines = [];
-        var linesStr = items[foundAt].substr(4).split('_');
-        for (var i=0; i<linesStr.length; i++) {
-          var floats = linesStr[i].split(',').map(Number);
-          if (floats.length != 4) throw("URL item not a set of four floats");
-          for (var j=0; j<floats.length; j++) {
-            if (isNaN(floats[j])) throw("URL item had invalid number");
-          }
-          var layer = L.geodesicPolyline([[floats[0],floats[1]],[floats[2],floats[3]]], window.plugin.drawTools.lineOptions);
-          newLines.push(layer);
-        }
-
-        // all parsed OK - clear and insert
-        window.plugin.drawTools.drawnItems.clearLayers();
-        for (var i=0; i<newLines.length; i++) {
-          window.plugin.drawTools.drawnItems.addLayer(newLines[i]);
-        }
-        runHooks('pluginDrawTools', {event: 'import'});
-
-        console.log('DRAWTOOLS: reset and imported drawn items from stock URL');
-        window.plugin.drawTools.optAlert('Import Successful.');
-
-
+      if (window.plugin.drawTools.isIntelURL(promptAction)) {
+        window.plugin.drawTools.loadFromIntelURL(promptAction);
       } else {
         var data = JSON.parse(promptAction);
         window.plugin.drawTools.drawnItems.clearLayers();
