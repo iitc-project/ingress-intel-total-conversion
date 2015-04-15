@@ -267,6 +267,10 @@ window.plugin.drawTools.save = function() {
   console.log('draw-tools: saved to localStorage');
 }
 
+window.plugin.drawTools.isIntelURL = function(url) {
+  return url.match(new RegExp("^(https?://)?(www\\.)ingress\\.com/intel.*[?&]pls="));
+}
+
 window.plugin.drawTools.load = function() {
   if (window.plugin.drawTools.isIntelURL(document.URL)) {
     try {
@@ -288,6 +292,43 @@ window.plugin.drawTools.load = function() {
       console.warn('draw-tools: failed to load data from localStorage: '+e);
     }
   }
+}
+
+window.plugin.drawTools.loadFromIntelURL = function(url) {
+  var items = url.split(/[?&]/);
+  var foundAt = -1;
+  for (var i=0; i<items.length; i++) {
+    if (items[i].substr(0,4) == "pls=") {
+      foundAt = i;
+    }
+  }
+
+  if (foundAt == -1) throw ("No drawn items found in intel URL");
+
+  var newLines = [];
+  var linesStr = items[foundAt].substr(4).split('_');
+  for (var i=0; i<linesStr.length; i++) {
+    var floats = linesStr[i].split(',').map(Number);
+    if (floats.length != 4) throw("URL item not a set of four floats");
+    for (var j=0; j<floats.length; j++) {
+      if (isNaN(floats[j])) throw("URL item had invalid number");
+    }
+    var layer = L.geodesicPolyline([[floats[0],floats[1]],[floats[2],floats[3]]], window.plugin.drawTools.lineOptions);
+    newLines.push(layer);
+  }
+
+  // all parsed OK - clear and insert
+  window.plugin.drawTools.drawnItems.clearLayers();
+  for (var i=0; i<newLines.length; i++) {
+    window.plugin.drawTools.drawnItems.addLayer(newLines[i]);
+  }
+  runHooks('pluginDrawTools', {event: 'import'});
+
+  console.log('DRAWTOOLS: reset and imported drawn items from stock URL');
+  window.plugin.drawTools.optAlert('Import Successful.');
+
+  // Save to local storage
+  window.plugin.drawTools.save();
 }
 
 window.plugin.drawTools.import = function(data) {
@@ -437,47 +478,6 @@ window.plugin.drawTools.optExport = function() {
   if(typeof android !== 'undefined' && android && android.saveFile) {
     android.saveFile('IITC-drawn-items.json', 'application/json', localStorage['plugin-draw-tools-layer']);
   }
-}
-
-window.plugin.drawTools.isIntelURL = function(url) {
-  return url.match(new RegExp("^(https?://)?(www\\.)ingress\\.com/intel.*[?&]pls="));
-}
-
-window.plugin.drawTools.loadFromIntelURL = function(url) {
-  var items = url.split(/[?&]/);
-  var foundAt = -1;
-  for (var i=0; i<items.length; i++) {
-    if (items[i].substr(0,4) == "pls=") {
-      foundAt = i;
-    }
-  }
-
-  if (foundAt == -1) throw ("No drawn items found in intel URL");
-
-  var newLines = [];
-  var linesStr = items[foundAt].substr(4).split('_');
-  for (var i=0; i<linesStr.length; i++) {
-    var floats = linesStr[i].split(',').map(Number);
-    if (floats.length != 4) throw("URL item not a set of four floats");
-    for (var j=0; j<floats.length; j++) {
-      if (isNaN(floats[j])) throw("URL item had invalid number");
-    }
-    var layer = L.geodesicPolyline([[floats[0],floats[1]],[floats[2],floats[3]]], window.plugin.drawTools.lineOptions);
-    newLines.push(layer);
-  }
-
-  // all parsed OK - clear and insert
-  window.plugin.drawTools.drawnItems.clearLayers();
-  for (var i=0; i<newLines.length; i++) {
-    window.plugin.drawTools.drawnItems.addLayer(newLines[i]);
-  }
-  runHooks('pluginDrawTools', {event: 'import'});
-
-  console.log('DRAWTOOLS: reset and imported drawn items from stock URL');
-  window.plugin.drawTools.optAlert('Import Successful.');
-
-  // Save to local storage
-  window.plugin.drawTools.save();
 }
 
 window.plugin.drawTools.optPaste = function() {
