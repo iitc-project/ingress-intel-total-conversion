@@ -157,17 +157,97 @@ window.plugin.portalslist.fields = [
   },
 ];
 
+/*
+pnpoly Copyright (c) 1970-2003, Wm. Randolph Franklin
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+persons to whom the Software is furnished to do so, subject to the following conditions:
+
+  1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+     disclaimers.
+  2. Redistributions in binary form must reproduce the above copyright notice in the documentation and/or other
+     materials provided with the distribution.
+  3. The name of W. Randolph Franklin may not be used to endorse or promote products derived from this Software without
+     specific prior written permission.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+window.plugin.portalslist.pnpoly = function(latlngs, point) {
+	var length = latlngs.length, c = false;
+
+	for(var i = 0, j = length - 1; i < length; j = i++) {
+		if(((latlngs[i].lat > point.lat) != (latlngs[j].lat > point.lat)) &&
+		  (point.lng < latlngs[i].lng
+		  + (latlngs[j].lng - latlngs[i].lng) * (point.lat - latlngs[i].lat)
+		  / (latlngs[j].lat - latlngs[i].lat))) {
+			c = !c;
+		}
+	}
+
+	return c;
+}
+
+// interesting layer to us?
+window.plugin.portalslist.closedLayer = function (layer) {
+  return layer instanceof L.GeodesicPolygon ||
+         layer instanceof L.Polygon ||
+         layer instanceof L.GeodesicCircle ||
+         layer instanceof L.Circle;
+}
+
+// is the portal inside any polygon  
+window.plugin.portalslist.portalInDrawnItems = function (portal) {
+  var InDrawnItem = false;
+  var point = portal.getLatLng();
+  
+  window.plugin.drawTools.drawnItems.eachLayer(function(layer) {
+    if (window.plugin.portalslist.closedLayer(layer) &&
+        window.plugin.portalslist.pnpoly(layer.getLatLngs(), point)) {
+      InDrawnItem = true;
+    }
+  });
+  return InDrawnItem;
+}
+
+// turn on polygon filtering if
+// we have draw tools, that layer group is visible, there are layers,
+// and at least one layer has some sort of a closed polygon
+window.plugin.portalslist.checkPolygons = function() {
+  filter_by_polygon = false;
+
+  if (window.plugin.drawTools &&
+      window.isLayerGroupDisplayed('Drawn Items', true) &&
+      window.plugin.drawTools.drawnItems.getLayers().length > 0) {
+    window.plugin.drawTools.drawnItems.eachLayer(function(layer) {
+      if (window.plugin.portalslist.closedLayer(layer)) {
+        filter_by_polygon = true;
+      }
+    });
+  }
+  
+  return filter_by_polygon;
+}
+
 //fill the listPortals array with portals avaliable on the map (level filtered portals will not appear in the table)
 window.plugin.portalslist.getPortals = function() {
   //filter : 0 = All, 1 = Neutral, 2 = Res, 3 = Enl, -x = all but x
   var retval=false;
 
   var displayBounds = map.getBounds();
+  var checkPoly = window.plugin.portalslist.checkPolygons();
 
   window.plugin.portalslist.listPortals = [];
   $.each(window.portals, function(i, portal) {
     // eliminate offscreen portals (selected, and in padding)
     if(!displayBounds.contains(portal.getLatLng())) return true;
+
+    // eliminate portals outside of polygons if drawn items are present
+    if(checkPoly && !window.plugin.portalslist.portalInDrawnItems(portal)) return true;
 
     retval=true;
 
@@ -241,7 +321,7 @@ window.plugin.portalslist.displayPL = function() {
     dialog({
       html: $('<div id="portalslist">').append(list),
       dialogClass: 'ui-dialog-portalslist',
-      title: 'Portal list: ' + window.plugin.portalslist.listPortals.length + ' ' + (window.plugin.portalslist.listPortals.length == 1 ? 'portal' : 'portals'),
+      title: 'Portal list: ' + window.plugin.portalslist.listPortals.length + ' ' + (window.plugin.portalslist.listPortals.length == 1 ? 'portal' : 'portals') + (window.plugin.portalslist.checkPolygons() ? " (inside visible polygons)" : ""),
       id: 'portal-list',
       width: 700
     });
