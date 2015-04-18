@@ -32,10 +32,10 @@ window.plugin.portalslist.enlP = 0;
 window.plugin.portalslist.resP = 0;
 window.plugin.portalslist.neuP = 0;
 window.plugin.portalslist.filter = 0;
-window.plugin.portalslist.levelcount = [ // XXX fixme
-	[ 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [ 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [ 0, 0, 0, 0, 0, 0, 0, 0, 0] ];
+window.plugin.portalslist.levelcount = [
+  [ 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [ 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [ 0, 0, 0, 0, 0, 0, 0, 0, 0] ];
 
 /*
  * plugins may add fields by appending their specifiation to the following list. The following members are supported:
@@ -422,7 +422,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   }
 
   ["Neutral", "Resistance", "Enlightened"].forEach(function(label, team) {
-    if (team > 0) {
+    if (team > 0) { // Neutral is redundant
       row = table.insertRow(-1);
 	  row.className = TEAM_TO_CSS[team];
 	  cell = row.appendChild(document.createElement('td'));
