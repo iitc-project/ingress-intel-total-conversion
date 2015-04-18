@@ -230,8 +230,9 @@ window.plugin.crossLinks.showLink = function(link) {
       guid: link.options.guid
     });
 
-    poly.addTo(plugin.supercrossLinks.linkLayer);
-    poly2.addTo(plugin.supercrossLinks.linkLayer);
+    poly.addTo(plugin.crossLinks.linkLayer);
+    poly2.addTo(plugin.crossLinks.linkLayer);
+    plugin.crossLinks.linkLayerGuids[link.options.guid]=poly;
 }
 
 window.plugin.crossLinks.onMapDataRefreshEnd = function () {
