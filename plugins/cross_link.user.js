@@ -220,8 +220,18 @@ window.plugin.crossLinks.showLink = function(link) {
        guid: link.options.guid
     });
 
-    poly.addTo(plugin.crossLinks.linkLayer);
-    plugin.crossLinks.linkLayerGuids[link.options.guid]=poly;
+    var poly2 = L.geodesicPolyline(link.getLatLngs(), {
+      color: COLORS[link.options.team],
+      opacity: 0.3,
+      weight: 50,
+      clickable: false,
+      dashArray: [8,8],
+
+      guid: link.options.guid
+    });
+
+    poly.addTo(plugin.supercrossLinks.linkLayer);
+    poly2.addTo(plugin.supercrossLinks.linkLayer);
 }
 
 window.plugin.crossLinks.onMapDataRefreshEnd = function () {
