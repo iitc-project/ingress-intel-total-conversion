@@ -402,6 +402,29 @@
     console.log('BOOKMARKS: added '+type+' '+ID);
   }
 
+  window.plugin.bookmarks.addFolder = function(folderName, tabName) {
+    var ID = window.plugin.bookmarks.generateID();
+
+    if(!folderName) // Make a default folder name
+      folderName = 'Folder';
+
+    // Is it being added to maps or portals?
+    var short_type;
+    if(tabName && (tabName == 'maps' || tabName == 'portals'))
+      short_type = tabName;
+    else { // default to which pane is selected
+      var typeList = $('.newFolder').parent().parent('div.current').attr('id');
+      short_type = typeList.replace('bkmrk_','');
+    }
+
+    //Add to localStorage
+    window.plugin.bookmarks.bkmrksObj[short_type][ID] = {"label": folderName, "state": 1, "bkmrk": {}};
+    window.plugin.bookmarks.saveStorage();
+    window.plugin.bookmarks.refreshBkmrks();
+    window.runHooks('pluginBkmrksEdit', {"target": 'folder', "action": "add", "id": ID});
+    console.log('BOOKMARKS: added folder ' + ID);
+  }
+
   // Remove BOOKMARK/FOLDER
   window.plugin.bookmarks.removeElement = function(elem, type) {
     if(type === 'maps' || type === 'portals') {
