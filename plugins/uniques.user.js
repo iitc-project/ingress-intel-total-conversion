@@ -27,6 +27,11 @@ window.plugin.uniques = function() {};
 //delay in ms
 window.plugin.uniques.SYNC_DELAY = 5000;
 
+// Keep track of whether or not visited portals are shown on map
+window.plugin.uniques.hideVisitedPortals = false;
+// Keep track of whether or not captured portals are shown on map
+window.plugin.uniques.hideCapturedPortals = false;
+
 // maps the JS property names to localStorage keys
 window.plugin.uniques.FIELDS = {
 	'uniques': 'plugin-uniques-data',
@@ -55,6 +60,7 @@ window.plugin.uniques.onPortalDetailsUpdated = function() {
 		details = portalDetail.get(guid),
 		nickname = window.PLAYER.nickname;
 	if(details) {
+    window.plugin.uniques.showHiddenPortal(window.portals[guid]); // Show the portal marker if it is hidden.
 		if(details.owner == nickname) {
 			//FIXME: a virus flip will set the owner of the portal, but doesn't count as a unique capture
 			plugin.uniques.updateCaptured(true);
@@ -359,6 +365,111 @@ window.plugin.uniques.loadLocal = function(name) {
 	}
 }
 
+window.plugin.uniques.portalShouldBeHidden = function(portal) {
+  var uniqueInfo = window.plugin.uniques.uniques[portal.options.guid];
+  if(uniqueInfo) {
+    var hideAsVisited = window.plugin.uniques.hideVisitedPortals && uniqueInfo.visited;
+    var hideAsCaptured = window.plugin.uniques.hideCapturedPortals && uniqueInfo.captured;
+    return hideAsVisited || hideAsCaptured;
+  }
+  return false;
+}
+
+window.plugin.uniques.updateOtherPluginLabels = function() {
+  if (window.plugin.portalNames)
+    window.plugin.portalNames.updatePortalLabels();
+  if (window.plugin.portalLevelNumbers)
+    window.plugin.portalLevelNumbers.updatePortalLabels();
+}
+
+window.plugin.uniques.showOrHidePortal = function(portal) {
+  if(window.plugin.uniques.portalShouldBeHidden(portal) && !(portal.options.guid == window.selectedPortal)){
+    window.Render.prototype.removePortalFromMapLayer(portal);
+  }
+  else {
+    window.Render.prototype.addPortalToMapLayer(portal);
+  }
+  window.plugin.uniques.updateOtherPluginLabels();
+}
+
+window.plugin.uniques.showHiddenPortal = function(portal) {
+  window.Render.prototype.addPortalToMapLayer(portal);
+  window.plugin.uniques.updateOtherPluginLabels();
+}
+
+window.plugin.uniques.removeHiddenPortals = function() {
+  if (window.plugin.uniques.isHighlightActive) {
+    $.each(window.portals, function(guid, portal) {
+      window.plugin.uniques.showOrHidePortal(portal);
+    });
+  }
+}
+
+window.plugin.uniques.showAllHiddenPortals = function() {
+  $.each(window.portals, function(guid, portal) {
+    window.plugin.uniques.showHiddenPortal(portal);
+  })
+}
+
+window.plugin.uniques.visitedButtonText = function() {
+  var buttonText;
+  if(window.plugin.uniques.hideVisitedPortals)
+    buttonText = "Show";
+  else
+    buttonText = "Hide";
+  return buttonText + " Visited Portals";
+}
+
+window.plugin.uniques.capturedButtonText = function() {
+  var buttonText;
+  if(window.plugin.uniques.hideCapturedPortals)
+    buttonText = "Show";
+  else
+    buttonText = "Hide";
+  return buttonText + " Captured Portals";
+}
+
+window.plugin.uniques.hideVisited = function() {
+  if(window.plugin.uniques.isHighlightActive) {
+    if (window.plugin.uniques.hideVisitedPortals) {
+      window.plugin.uniques.hideVisitedPortals = false;
+      $('#hide-captured').removeClass('disabled');
+    }
+    else {
+      window.plugin.uniques.hideVisitedPortals = true;
+      $('#hide-captured').addClass('disabled');
+    }
+    window.plugin.uniques.removeHiddenPortals();
+    $('#hide-visited').text(window.plugin.uniques.visitedButtonText());
+  }
+}
+
+window.plugin.uniques.hideCaptured = function() {
+  if(window.plugin.uniques.isHighlightActive && !($('#hide-captured').hasClass('disabled'))) {
+    if (window.plugin.uniques.hideCapturedPortals) {
+      window.plugin.uniques.hideCapturedPortals = false;
+    }
+    else {
+      window.plugin.uniques.hideCapturedPortals = true;
+    }
+    window.plugin.uniques.removeHiddenPortals();
+    $('#hide-captured').text(window.plugin.uniques.capturedButtonText());
+  }
+}
+
+window.plugin.uniques.capturedPortalStyle = {
+}
+
+window.plugin.uniques.visitedPortalStyle = {
+  fillColor: "yellow",
+  fillOpacity: 0.6,
+}
+
+window.plugin.uniques.unvisitedPortalStyle = {
+  fillColor: "red",
+  fillOpacity: 0.5,
+}
+
 /***************************************************************************************************************************************************************/
 /** HIGHLIGHTER ************************************************************************************************************************************************/
 /***************************************************************************************************************************************************************/
@@ -367,32 +478,33 @@ window.plugin.uniques.highlighter = {
 		var guid = data.portal.options.ent[0];
 		var uniqueInfo = window.plugin.uniques.uniques[guid];
 
-		var style = {};
+		var style;
 
 		if (uniqueInfo) {
 			if (uniqueInfo.captured) {
-				// captured (and, implied, visited too) - no highlights
-
+        style = window.plugin.uniques.capturedPortalStyle;
 			} else if (uniqueInfo.visited) {
-				style.fillColor = 'yellow';
-				style.fillOpacity = 0.6;
+				style = window.plugin.uniques.visitedPortalStyle;
 			} else {
 				// we have an 'uniqueInfo' entry for the portal, but it's not set visited or captured?
 				// could be used to flag a portal you don't plan to visit, so use a less opaque red
-				style.fillColor = 'red';
-				style.fillOpacity = 0.5;
+				style = window.plugin.uniques.unvisitedPortalStyle;
 			}
 		} else {
 			// no visit data at all
-			style.fillColor = 'red';
-			style.fillOpacity = 0.7;
+			style = window.plugin.uniques.unvisitedPortalStyle;
 		}
 
 		data.portal.setStyle(style);
 	},
 
 	setSelected: function(active) {
+    var wasActive = window.plugin.uniques.isHighlightActive;
 		window.plugin.uniques.isHighlightActive = active;
+    if (active)
+      window.plugin.uniques.removeHiddenPortals();
+    else if (!active && wasActive)
+      window.plugin.uniques.showAllHiddenPortals();
 	}
 }
 
@@ -402,6 +514,10 @@ window.plugin.uniques.setupCSS = function() {
 	.prop("type", "text/css")
 	.html("@@INCLUDESTRING:plugins/uniques.css@@")
 	.appendTo("head");
+}
+
+window.plugin.uniques.setupToolbox = function() {
+  $('#toolbox').append('<a onclick="window.plugin.uniques.manualOpt();return false;" accesskey="u" title="[u]">Uniques Opt</a>');
 }
 
 window.plugin.uniques.setupContent = function() {
@@ -489,6 +605,21 @@ window.plugin.uniques.setupPortalsList = function() {
 	});
 }
 
+window.plugin.uniques.manualOpt = function() {
+  var html = '<div class="uniqueOptions">'
+           + '<a onclick="window.plugin.uniques.hideVisited();" id="hide-visited" tabindex="0">' + window.plugin.uniques.visitedButtonText() + '</a>'
+           + '<a onclick="window.plugin.uniques.hideCaptured();return false;" id="hide-captured" tabindex="0" class="' + (window.plugin.uniques.hideVisitedPortals ? 'disabled' : '') + '">'
+          + window.plugin.uniques.capturedButtonText() + '</a>'
+           + '</div>';
+
+  dialog({
+    html: html,
+    id: 'plugin-unique-options',
+    dialogClass: 'ui-dialog-uniqueOptions',
+    title: 'Unique Portal Options'
+  });
+}
+
 var setup = function() {
 	if($.inArray('pluginUniquesUpdateUniques', window.VALID_HOOKS) < 0)
 		window.VALID_HOOKS.push('pluginUniquesUpdateUniques');
@@ -496,11 +627,13 @@ var setup = function() {
 		window.VALID_HOOKS.push('pluginUniquesRefreshAll');
 	window.plugin.uniques.setupCSS();
 	window.plugin.uniques.setupContent();
+  window.plugin.uniques.setupToolbox();
 	window.plugin.uniques.loadLocal('uniques');
 	window.addHook('portalDetailsUpdated', window.plugin.uniques.onPortalDetailsUpdated);
 	window.addHook('publicChatDataAvailable', window.plugin.uniques.onPublicChatDataAvailable);
 	window.addHook('iitcLoaded', window.plugin.uniques.registerFieldForSyncing);
 		window.addPortalHighlighter('Uniques', window.plugin.uniques.highlighter);
+  window.addHook('mapDataRefreshEnd', window.plugin.uniques.removeHiddenPortals);
 
 	if(window.plugin.portalslist) {
 		window.plugin.uniques.setupPortalsList();
