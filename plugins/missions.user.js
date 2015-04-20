@@ -138,23 +138,58 @@ window.plugin.missions = {
 	showMissionDialog: function(mission) {
 		var me = this;
 		var markers = this.highlightMissionPortals(mission);
-		dialog({
-			id: 'plugin-mission-details-' + mission.guid.replace(/\./g, '_') /* dots irritate the dialog framework */,
-			title: mission.title,
-			height: 'auto',
-			html: this.renderMission(mission),
-			width: '450px',
-			closeCallback: function() {
-				me.unhighlightMissionPortals(markers);
-			},
-			collapseCallback: this.collapseFix,
-			expandCallback: this.collapseFix,
-		}).dialog('option', 'buttons', {
-			'Zoom to mission': function() {
-				me.zoomToMission(mission);
-			},
-			'OK': function() { $(this).dialog('close'); },
-		});
+		var content = this.renderMission(mission);
+		var id = mission.guid.replace(/\./g, '_'); // dots irritate the dialog framework and are not allowed in HTML IDs
+		
+		if(useAndroidPanes()) {
+			if(this.tabHeaders[id]) {
+				this.tabHeaders[id].parentNode.querySelector('.ui-icon-close').click();
+			}
+			
+			var li = this.tabBar.appendChild(document.createElement('li'));
+			var a = li.appendChild(document.createElement('a'));
+			a.textContent = mission.title;
+			a.href = '#mission_pane_'+id;
+			this.tabHeaders[id] = a;
+			var span = li.appendChild(document.createElement('span'));
+			span.className = 'ui-icon ui-icon-close';
+			span.textContent = 'Close mission';
+			span.addEventListener('click', function() {
+				li.parentNode.removeChild(li);
+				content.parentNode.removeChild(content);
+				delete this.tabHeaders[id];
+				$(this.tabs)
+					.tabs('refresh')
+					.find('.ui-tabs-nav')
+						.sortable('refresh');
+			}.bind(this), false);
+			
+			this.tabs.appendChild(content);
+			content.id = 'mission_pane_'+id;
+			var tabs = $(this.tabs);
+			tabs.tabs('refresh');
+			tabs.find('.ui-tabs-nav').sortable('refresh');
+			tabs.tabs('option','active', -1);
+			show('plugin-missions');
+		} else {
+			dialog({
+				id: 'plugin-mission-details-' + id,
+				title: mission.title,
+				height: 'auto',
+				html: content,
+				width: '450px',
+				closeCallback: function() {
+					me.unhighlightMissionPortals(markers);
+				},
+				collapseCallback: this.collapseFix,
+				expandCallback: this.collapseFix,
+			}).dialog('option', 'buttons', {
+				'Zoom to mission': function() {
+					me.zoomToMission(mission);
+				},
+				'OK': function() { $(this).dialog('close'); },
+			});
+		}
 	},
 
 	showMissionListDialog: function(missions) {
@@ -272,7 +307,7 @@ window.plugin.missions = {
 
 			callback(mission);
 		}, function() {
-			console.error('Error loading mission data: ' + guid + ", " + Array.prototype.slice.call(arguments));
+			console.error('Error loading mission data: ' + guid + ', ' + Array.prototype.slice.call(arguments));
 			
 			if (errorcallback) {
 				errorcallback(error);
@@ -335,9 +370,9 @@ window.plugin.missions = {
 			
 			if(len > 0) {
 				if(len > 1000)
-					len = Math.round(len / 100) / 10 + "km";
+					len = Math.round(len / 100) / 10 + 'km';
 				else
-					len = Math.round(len * 10) / 10 + "m";
+					len = Math.round(len * 10) / 10 + 'm';
 				
 				var infoLength = container.appendChild(document.createElement('span'));
 				infoLength.className = 'plugin-mission-info length help';
@@ -466,11 +501,13 @@ window.plugin.missions = {
 			
 			title.href = perma;
 			title.addEventListener('click', function(ev) {
+				show('map');
 				selectPortalByLatLng(lat, lng);
 				ev.preventDefault();
 				return false;
 			}, false);
 			title.addEventListener('dblclick', function(ev) {
+				show('map');
 				zoomToAndShowPortal(waypoint.portal.guid, [lat, lng]);
 				ev.preventDefault();
 				return false;
@@ -630,7 +667,7 @@ window.plugin.missions = {
 		this.cacheByPortalGuid = JSON.parse(localStorage['plugins-missions-portalcache'] || '{}');
 		this.cacheByMissionGuid = JSON.parse(localStorage['plugins-missions-missioncache'] || '{}');
 		
-		if("plugins-missions-settings" in localStorage) {
+		if('plugins-missions-settings' in localStorage) {
 			var settings = JSON.parse(localStorage['plugins-missions-settings'] || '{}');
 			localStorage['plugins-missions-checkedMissions'] = JSON.stringify(settings.checkedMissions);
 			localStorage['plugins-missions-checkedWaypoints'] = JSON.stringify(settings.checkedWaypoints);
@@ -834,6 +871,14 @@ window.plugin.missions = {
 		}
 	},
 
+	onPaneChanged: function(pane) {
+		if(pane == 'plugin-missions') {
+			document.body.appendChild(this.mobilePane);
+		} else if(this.mobilePane.parentNode) {
+			this.mobilePane.parentNode.removeChild(this.mobilePane);
+		}
+	},
+
 	setup: function() {
 		this.cacheByPortalGuid = {};
 		this.cacheByMissionGuid = {};
@@ -845,6 +890,31 @@ window.plugin.missions = {
 
 		$('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:plugins/missions.css@@').appendTo('head');
 		$('#toolbox').append('<a tabindex="0" onclick="plugin.missions.openTopMissions();">Missions in view</a>');
+
+		if(window.useAndroidPanes()) {
+			this.mobilePane = document.createElement('div');
+			this.mobilePane.className = 'plugin-mission-pane';
+			
+			var button = this.mobilePane.appendChild(document.createElement('button'));
+			button.textContent = 'Missions in view';
+			button.addEventListener('click', function(){ this.openTopMissions(); }.bind(this), false);
+			
+			this.tabs = this.mobilePane.appendChild(document.createElement('div'));
+			this.tabBar = this.tabs.appendChild(document.createElement('ul'));
+			this.tabHeaders = {};
+			
+			$(this.tabs)
+				.tabs()
+				.find('.ui-tabs-nav').sortable({
+					axis: 'x',
+					stop: function() {
+						$(this.tabs).tabs('refresh');
+					},
+				});
+			
+			android.addPane('plugin-missions', 'Missions', 'ic_missions');
+			addHook('paneChanged', this.onPaneChanged.bind(this));
+		}
 
 		// window.addPortalHighlighter('Mission start point', this.highlight.bind(this));
 		window.addHook('portalSelected', this.onPortalSelected.bind(this));
