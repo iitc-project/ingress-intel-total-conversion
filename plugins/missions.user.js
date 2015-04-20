@@ -2,7 +2,7 @@
 // @id             iitc-plugin-missions@jonatkins
 // @name           IITC plugin: Missions
 // @category       Info
-// @version        0.0.2.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -33,7 +33,7 @@ var decodeWaypoint = function(data) {
 		objectiveNum: data[4],
 		objective: [null, 'Hack this Portal', 'Capture or Upgrade Portal', 'Create Link from Portal', 'Create Field from Portal', 'Install a Mod on this Portal', 'Take a Photo', 'View this Field Trip Waypoint', 'Enter the Passphrase'][data[4]],
 	};
-	if (result.typeNum === 1) {
+	if (result.typeNum === 1 && data[5]) {
 		result.portal = window.decodeArray.portalSummary(data[5]);
 		// Portal waypoints have the same guid as the respective portal.
 		result.portal.guid = result.guid;
@@ -321,6 +321,32 @@ window.plugin.missions = {
 			span.className = 'nickname ' + (cachedMission.authorTeam === 'R' ? 'res' : 'enl')
 			span.textContent = cachedMission.authorNickname;
 			
+			var len = cachedMission.waypoints.filter(function(waypoint) {
+				return !!waypoint.portal;
+			}).map(function(waypoint) {
+				return L.latLng(waypoint.portal.latE6/1E6, waypoint.portal.lngE6/1E6);
+			}).map(function(latlng1, i, latlngs) {
+				if(i == 0) return 0;
+				var latlng2 = latlngs[i - 1];
+				return latlng1.distanceTo(latlng2);
+			}).reduce(function(a, b) {
+				return a + b;
+			});
+			
+			if(len > 0) {
+				if(len > 1000)
+					len = Math.round(len / 100) / 10 + "km";
+				else
+					len = Math.round(len * 10) / 10 + "m";
+				
+				var infoLength = container.appendChild(document.createElement('span'));
+				infoLength.className = 'plugin-mission-info length help';
+				infoLength.title = 'Length of this mission.\n\nNOTE: The actual distance required to cover may vary depending on several factors!';
+				infoLength.textContent = len;
+				img = infoLength.insertBefore(document.createElement('img'), infoLength.firstChild);
+				img.src = '@@INCLUDEIMAGE:images/mission-length.png@@';
+			}
+			
 			if(window.plugin.distanceToPortal && window.plugin.distanceToPortal.currentLoc) {
 				var infoDistance = container.appendChild(document.createElement('span'));
 				infoDistance.className = 'plugin-mission-info distance help';
@@ -335,31 +361,34 @@ window.plugin.missions = {
 		container.appendChild(document.createElement('br'));
 		
 		var infoTime = container.appendChild(document.createElement('span'));
-		infoTime.className = 'plugin-mission-info time';
+		infoTime.className = 'plugin-mission-info time help';
+		infoTime.title = 'Typical duration';
 		infoTime.textContent = timeToRemaining((mission.medianCompletionTimeMs / 1000) | 0) + ' ';
 		img = infoTime.insertBefore(document.createElement('img'), infoTime.firstChild);
 		img.src = 'https://commondatastorage.googleapis.com/ingress.com/img/tm_icons/time.png';
 		
 		var infoRating = container.appendChild(document.createElement('span'));
-		infoRating.className = 'plugin-mission-info rating';
+		infoRating.className = 'plugin-mission-info rating help';
+		infoRating.title = 'Average rating';
 		infoRating.textContent = (((mission.ratingE6 / 100) | 0) / 100) + '%' + ' ';
 		img = infoRating.insertBefore(document.createElement('img'), infoRating.firstChild);
 		img.src = 'https://commondatastorage.googleapis.com/ingress.com/img/tm_icons/like.png';
 		
 		if (cachedMission) {
 			var infoPlayers = container.appendChild(document.createElement('span'));
-			infoPlayers.className = 'plugin-mission-info players';
+			infoPlayers.className = 'plugin-mission-info players help';
+			infoPlayers.title = 'Unique players who have completed this mission';
 			infoPlayers.textContent = cachedMission.numUniqueCompletedPlayers + ' ';
 			img = infoPlayers.insertBefore(document.createElement('img'), infoPlayers.firstChild);
 			img.src = 'https://commondatastorage.googleapis.com/ingress.com/img/tm_icons/players.png';
 			
 			var infoWaypoints = container.appendChild(document.createElement('span'));
-			infoWaypoints.className = 'plugin-mission-info waypoints';
+			infoWaypoints.className = 'plugin-mission-info waypoints help';
+			infoWaypoints.title = (cachedMission.type ? cachedMission.type + ' mission' : 'Unknown mission type')
+			                    + ' with ' + cachedMission.waypoints.length + ' waypoints';
 			infoWaypoints.textContent = cachedMission.waypoints.length + ' ';
 			img = infoWaypoints.insertBefore(document.createElement('img'), infoWaypoints.firstChild);
 			img.src = this.missionTypeImages[cachedMission.typeNum] || this.missionTypeImages[0];
-			img.title = cachedMission.type || 'Unknown mission type';
-			img.className = 'help';
 		}
 		
 		return container;
@@ -446,6 +475,10 @@ window.plugin.missions = {
 				ev.preventDefault();
 				return false;
 			}, false);
+		} else if(waypoint.typeNum === 1) {
+			// if typeNum === 1 but portal is undefined, this waypoint is a deleted portal.
+			var title = container.appendChild(document.createElement('span'));
+			container.classList.add('unavailable');
 		} else {
 			var title = container.appendChild(document.createElement('span'));
 		}
@@ -458,7 +491,7 @@ window.plugin.missions = {
 		else
 			title.textContent = 'Unknown';
 		
-		var mwpid = mission.guid + '-' + waypoint.guid;
+		var mwpid = mission.guid + '-' + index + '-' + waypoint.guid;
 		var checked = this.checkedWaypoints[mwpid];
 		
 		var label = container.appendChild(document.createElement('label'));
@@ -466,7 +499,7 @@ window.plugin.missions = {
 		var checkbox = label.appendChild(document.createElement('input'));
 		checkbox.type = 'checkbox';
 		checkbox.addEventListener('change', function() {
-			plugin.missions.toggleWaypoint(mission.guid, waypoint.guid);
+			plugin.missions.toggleWaypoint(mission.guid, mwpid);
 		}, false);
 		checkbox.dataset['mission_mwpid'] = mwpid;
 		
@@ -495,8 +528,7 @@ window.plugin.missions = {
 		return container;
 	},
 
-	toggleWaypoint: function(mid, wpid, dontsave) {
-		var mwpid = mid + '-' + wpid;
+	toggleWaypoint: function(mid, mwpid, dontsave) {
 		if(this.checkedWaypoints[mwpid])
 			delete this.checkedWaypoints[mwpid];
 		else

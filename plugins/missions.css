@@ -47,7 +47,9 @@
 
 .plugin-mission-summary > .nickname {
 	display: inline-block;
+	box-sizing: border-box;
 	min-width: 8em; /* to align with time */
+	padding-right: 0.2em;
 }
 
 .plugin-mission-info .portal-distance-bearing {
@@ -59,15 +61,20 @@
 .plugin-mission-info {
 	display: inline-block;
 }
-.plugin-mission-info.time    { min-width: 8em; }
-.plugin-mission-info.rating  { min-width: 6em; }
-.plugin-mission-info.players { min-width: 4em; }
-.plugin-mission-info.type    { min-width: 4em; }
+.plugin-mission-info.length   { min-width: 6em; }
+.plugin-mission-info.distance { min-width: 6em; }
+.plugin-mission-info.time     { min-width: 8em; }
+.plugin-mission-info.rating   { min-width: 6em; }
+.plugin-mission-info.players  { min-width: 4em; }
+.plugin-mission-info.type     { min-width: 4em; }
 
 .plugin-mission-info img {
 	height: 14px;
 	margin-right: 8px;
 	vertical-align: top;
+}
+.plugin-mission-info.players img {
+	padding: 0 3px; /* the icon is 12x18 */
 }
 
 .plugin-mission-details .plugin-mission-summary > a,
@@ -125,6 +132,9 @@
 	width: 8px;
 }
 
+.plugin-mission-waypoint.unavailable {
+	text-decoration: line-through;
+}
 .plugin-mission-waypoint .title {
 	font-size: 18px;
 	font-weight: bold;
