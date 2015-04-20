@@ -132,6 +132,9 @@
 	width: 8px;
 }
 
+.plugin-mission-waypoint.unavailable {
+	text-decoration: line-through;
+}
 .plugin-mission-waypoint .title {
 	font-size: 18px;
 	font-weight: bold;
