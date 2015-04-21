@@ -155,6 +155,7 @@ window.plugin.missions = {
 			span.className = 'ui-icon ui-icon-close';
 			span.textContent = 'Close mission';
 			span.addEventListener('click', function() {
+				this.unhighlightMissionPortals(markers);
 				li.parentNode.removeChild(li);
 				content.parentNode.removeChild(content);
 				delete this.tabHeaders[id];
