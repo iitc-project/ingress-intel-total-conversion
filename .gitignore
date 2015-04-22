@@ -6,3 +6,4 @@ localbuildsettings.py
 *.bak
 *.project
 .pydevproject
+.DS_Store
