@@ -171,7 +171,8 @@ window.plugin.missions = {
 			tabs.tabs('refresh');
 			tabs.find('.ui-tabs-nav').sortable('refresh');
 			tabs.tabs('option','active', -1);
-			show('plugin-missions');
+			if(window.isSmartphone())
+				show('plugin-missions');
 		} else {
 			dialog({
 				id: 'plugin-mission-details-' + id,
@@ -502,13 +503,15 @@ window.plugin.missions = {
 			
 			title.href = perma;
 			title.addEventListener('click', function(ev) {
-				show('map');
+				if(window.isSmartphone())
+					show('map');
 				selectPortalByLatLng(lat, lng);
 				ev.preventDefault();
 				return false;
 			}, false);
 			title.addEventListener('dblclick', function(ev) {
-				show('map');
+				if(window.isSmartphone())
+					show('map');
 				zoomToAndShowPortal(waypoint.portal.guid, [lat, lng]);
 				ev.preventDefault();
 				return false;
