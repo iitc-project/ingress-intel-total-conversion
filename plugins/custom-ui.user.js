@@ -20,70 +20,78 @@
 
 // use own namespace for plugin
 window.plugin.customUI = function() {};
-    
+
 window.plugin.customUI.ScreenshotMode = false;
 
 window.plugin.customUI.loadSettings = function () {
-	if (localStorage.getItem('customUI') == null) {
-		var options = {
-			// id: [enabled, 'name'],
-			chatcontrols: [true, 'Chattabs'],
-			chat: [true, 'Chat'],
-			chatinput: [true, 'Chatinput'],
-			sidebar: [true, 'Sidebar'],
-			updatestatus: [true, 'Statusbar'],
-			bookmarks: [true, 'Bookmarks'],
-			portal_highlight_select: [true, 'Portal highlighter'],
-			drawtools: [true, 'Drawtools'],
-			mouse: [true, 'Mouse pointer'],
-		};
-		
-		localStorage.setItem('customUI', options);
-	};
-	
-	window.plugin.customUI.options = localStorage.getItem('customUI');
-}
+  if (localStorage.getItem('customUI') === null) {
+    var options = {
+      // id: [enabled, 'name'],
+      chatcontrols: [true, 'Chattabs'],
+      chat: [true, 'Chat'],
+      chatinput: [true, 'Chatinput'],
+      sidebar: [true, 'Sidebar'],
+      updatestatus: [true, 'Statusbar'],
+      bookmarks: [true, 'Bookmarks'],
+      portal_highlight_select: [true, 'Portal highlighter'],
+      drawtools: [true, 'Drawtools'],
+      mouse: [true, 'Mouse pointer'],
+    };
+    
+    localStorage.setItem('customUI', options);
+  };
+  
+  window.plugin.customUI.options = localStorage.getItem('customUI');
+};
+
+window.plugin.customUI.resetSettings = function () {
+    localStorage.removeItem('customUI');
+    
+    window.plugin.customUI.loadSettings();
+};
 
 window.plugin.customUI.toggleScreenshotMode = function () {
   if (window.plugin.customUI.ScreenshotMode) {
-		$('#chatcontrols').toggle();
-		$('#chat').toggle();
-		$('#chatinput').toggle();
-		$('#sidebartoggle').toggle();
-		$('#scrollwrapper').toggle();
-		$('#updatestatus').toggle();
-		$('#bkmrksTrigger').toggle();
-		$('#bookmarksBox').toggle();
-		$('#portal_highlight_select').toggle();
-		$('.leaflet-control-container').toggle();
-		
-		$('*').css({'cursor': ''});
-		
-		window.plugin.customUI.ScreenshotMode = false;
+    $('#chatcontrols').toggle();
+    $('#chat').toggle();
+    $('#chatinput').toggle();
+    $('#sidebartoggle').toggle();
+    $('#scrollwrapper').toggle();
+    $('#updatestatus').toggle();
+    $('#bkmrksTrigger').toggle();
+    $('#bookmarksBox').toggle();
+    $('#portal_highlight_select').toggle();
+    $('.leaflet-control-container').toggle();
+    
+    $('*').css({'cursor': ''});
+    
+    window.plugin.customUI.ScreenshotMode = false;
   } else {
-		$('#chatcontrols').toggle();
-		$('#chat').toggle();
-		$('#chatinput').toggle();
-		$('#sidebartoggle').toggle();
-		$('#scrollwrapper').toggle();
-		$('#updatestatus').toggle();
-		$('#bkmrksTrigger').toggle();
-		$('#bookmarksBox').toggle();
-		$('#portal_highlight_select').toggle();
-		$('.leaflet-control-container').toggle();
-		
-		$('*').css({'cursor': 'none'});
-		
-		window.plugin.customUI.ScreenshotMode = true;
+    $('#chatcontrols').toggle();
+    $('#chat').toggle();
+    $('#chatinput').toggle();
+    $('#sidebartoggle').toggle();
+    $('#scrollwrapper').toggle();
+    $('#updatestatus').toggle();
+    $('#bkmrksTrigger').toggle();
+    $('#bookmarksBox').toggle();
+    $('#portal_highlight_select').toggle();
+    $('.leaflet-control-container').toggle();
+    
+    $('*').css({'cursor': 'none'});
+    
+    window.plugin.customUI.ScreenshotMode = true;
   }
-}
+};
 
 window.plugin.customUI.showOptions = function() {
 
-  var html = '<label for="customUI-chatcontrols"><input type="checkbox" id="customUI-chatcontrols"> Chatcontrols</label>'
-		   + '<label for="customUI-chat"><input type="checkbox" id="customUI-chat"> Chat</label>'
-		   + '<label for="customUI-chatinput"><input type="checkbox" id="customUI-chatinput"> Chatinput</label>'
-		   + '<label for="customUI-sidebar"><input type="checkbox" id="customUI-sidebar"> Sidebar</label>';
+  var html = '<a onclick="window.plugin.customUI.resetSettings(); return false;">Reset Settings</a>' +
+             '<hr>' +
+             '<label for="customUI-chatcontrols"><input type="checkbox" id="customUI-chatcontrols"> Chatcontrols</label>' +
+             '<label for="customUI-chat"><input type="checkbox" id="customUI-chat"> Chat</label>' +
+             '<label for="customUI-chatinput"><input type="checkbox" id="customUI-chatinput"> Chatinput</label>' +
+             '<label for="customUI-sidebar"><input type="checkbox" id="customUI-sidebar"> Sidebar</label>';
            // + '<a onclick="window.plugin.drawTools.optCopy();" tabindex="0">Copy Drawn Items</a>'
            // + '<a onclick="window.plugin.drawTools.optPaste();return false;" tabindex="0">Paste Drawn Items</a>'
            // + (window.requestFile != undefined
@@ -99,16 +107,17 @@ window.plugin.customUI.showOptions = function() {
     dialogClass: 'ui-dialog',
     title: 'Custom UI Options'
   });
-}
+};
 
 var setup =  function() {
   $('head').append('<style>' +
+    '#dialog-plugin-customUI-options a {display: block; color: #ffce00; border: 1px solid #ffce00; padding: 3px 0; margin: 10px auto; width: 80%; text-align: center; background: rgba(8,48,78,.9); }' +
     '#dialog-plugin-customUI-options label { display: block; }' +
     '#dialog-plugin-customUI-options input { vertical-align: middle; }' +
     '</style>');
-	
+  
   window.plugin.customUI.loadSettings();
-	
+  
   document.addEventListener('keydown', function(e) {
     // pressed alt+h
     if (e.keyCode == 72 && !e.shiftKey && !e.ctrlKey && e.altKey && !e.metaKey) {
@@ -116,7 +125,7 @@ var setup =  function() {
     }
   }, false);
   $('#toolbox').append(' <a onclick="window.plugin.customUI.showOptions()" title="Show custom UI settings">Custom UI Opt</a>');
-}
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
