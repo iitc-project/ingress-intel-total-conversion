@@ -116,12 +116,9 @@ iitc_bg.process_key = function(key,serverEval) {
 
     if (serverEval) {
       // server wants us to eval some code! risky, and impossible to be certain we can do it safely
-      // however... reports say that it only interacts with the botguard.bg code, so we might be fine just running it
-      // (but this is only when we don't send the correct params to the server? no reports of this code triggering yet...)
+      // seems to always be the same javascript as already found in the web page source.
       try {
         console.warn('botguard: Server-generated javascript eval requested:\n'+serverEval);
-debugger;
-if (!confirm('The server asked IITC to run (eval) some javascript. This may or may not be safe. Run and continue?\n\nScript:\n'+serverEval)) { console.error('server javascript eval cancelled') } else
         iitc_bg.evalFunc(serverEval);
         console.log('botguard: Server-generated javascript ran OK');
       } catch(e) {
