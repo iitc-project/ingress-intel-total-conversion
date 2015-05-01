@@ -57,7 +57,7 @@
       return true;
     }
     return false;
-  }
+  };
 
 /*********************************************************************************************************************/
 
@@ -65,7 +65,7 @@
   window.plugin.bookmarks.generateID = function() {
     var d = new Date();
     var ID = d.getTime()+(Math.floor(Math.random()*99)+1);
-    var ID = 'id'+ID.toString();
+    ID = 'id'+ID.toString();
     return ID;
   }
 
@@ -353,16 +353,30 @@
     }
   }
 
-  plugin.bookmarks.addPortalBookmark = function(guid, latlng, label) {
+  /**
+   * adds a portal bookmark with the given latlng and label to the folder, If no folder is goven
+   * it defaults to the 'other' folder
+   * @param guid the guid of the portal
+   * @param latlng the position
+   * @param label the name of this bookmark
+   * @param folderID the id of the folder (or by default the 'other')
+   */
+  plugin.bookmarks.addPortalBookmark = function(guid, latlng, label, folderID) {
+    // this defaults folder to plugin.bookmarks.KEY_OTHER_BKMRK
+    // see http://stackoverflow.com/questions/894860/set-a-default-parameter-value-for-a-javascript-function
+    folderID = typeof folderID !== 'undefined' ? folderID : plugin.bookmarks.KEY_OTHER_BKMRK;
+
     var ID = window.plugin.bookmarks.generateID();
 
     // Add bookmark in the localStorage
-    window.plugin.bookmarks.bkmrksObj['portals'][window.plugin.bookmarks.KEY_OTHER_BKMRK]['bkmrk'][ID] = {"guid":guid,"latlng":latlng,"label":label};
+    window.plugin.bookmarks.bkmrksObj['portals'][folderID]['bkmrk'][ID] = {"guid":guid,"latlng":latlng,"label":label};
 
     window.plugin.bookmarks.saveStorage();
     window.plugin.bookmarks.refreshBkmrks();
     window.runHooks('pluginBkmrksEdit', {"target": "portal", "action": "add", "id": ID, "guid": guid});
-    console.log('BOOKMARKS: added portal '+ID);
+    console.log('BOOKMARKS: added portal '+ID+' to folder ' + folderID);
+
+    return ID;
   }
 
   /**
@@ -400,18 +414,18 @@
    * @param lat the latetude
    * @param lng the longitude
    * @param zoom the zoom lvl
-   * @param folder the ID of the folder to put it under
+   * @param folderID the ID of the folder to put it under
    * @returns the ID of the map
    */
-  window.plugin.bookmarks.addMap = function(name, lat, lng, zoom, folder) {
+  window.plugin.bookmarks.addMapBookmark = function(name, lat, lng, zoom, folderID) {
     // this defaults folder to plugin.bookmarks.KEY_OTHER_BKMRK
     // see http://stackoverflow.com/questions/894860/set-a-default-parameter-value-for-a-javascript-function
-    folder = typeof folder !== 'undefined' ? folder : plugin.bookmarks.KEY_OTHER_BKMRK;
+    folderID = typeof folderID !== 'undefined' ? folderID : plugin.bookmarks.KEY_OTHER_BKMRK;
 
     var ID = window.plugin.bookmarks.generateID();
 
     var latlng = lat+','+lng;
-    window.plugin.bookmarks.bkmrksObj['maps'][folder]['bkmrk'][ID] = {"label":name,"latlng":latlng,"z":zoom};
+    window.plugin.bookmarks.bkmrksObj['maps'][folderID]['bkmrk'][ID] = {"label":name,"latlng":latlng,"z":zoom};
 
     window.plugin.bookmarks.saveStorage();
     window.plugin.bookmarks.refreshBkmrks();
@@ -439,12 +453,111 @@
       var lng = Math.round(c.lng*1E6)/1E6;
       var zoom = parseInt(map.getZoom());
 
-      window.plugin.bookmarks.addMap(label,lat,lng,zoom);
+      window.plugin.bookmarks.addMapBookmark(label,lat,lng,zoom);
     }
     else{
-      window.plugin.bookmarks.addFolder(label, typeList.contains("portals"));
+      window.plugin.bookmarks.addFolder(label, typeList.indexOf("portals") > -1);
     }
   }
+
+
+  /**
+   * removes the folder with the id, no matter where it's located
+   * @param id the id of the folder to remove
+   */
+  window.plugin.bookmarks.removeFolder = function(ID) {
+
+    delete window.plugin.bookmarks.bkmrksObj["portals"][ID];
+    delete window.plugin.bookmarks.bkmrksObj["maps"][ID];
+
+    window.plugin.bookmarks.saveStorage();
+    window.plugin.bookmarks.refreshBkmrks();
+    window.runHooks('pluginBkmrksEdit', {"target": "folder", "action": "remove", "id": ID});
+    console.log('BOOKMARKS: removed folder '+ID);
+
+  }
+
+  /**
+   * removes the map with the given idea in any folder
+   * @param ID the id of the map to remove
+   */
+  window.plugin.bookmarks.removeMap = function(ID) {
+    $.each(window.plugin.bookmarks.bkmrksObj["maps"], function(folderID, array) {
+      delete window.plugin.bookmarks.bkmrksObj["maps"][folderID]["bkmrk"][ID];
+    });
+
+    window.plugin.bookmarks.saveStorage();
+    window.plugin.bookmarks.refreshBkmrks();
+    window.runHooks('pluginBkmrksEdit', {"target": "map", "action": "remove", "id": ID});
+    console.log('BOOKMARKS: removed map '+ID);
+  }
+
+
+  /**
+   * removed the portal with the given guid
+   * @param guid the guid to remove
+   * @returns {boolean} true if it was bookmarked and is now removed, false if not there
+   */
+  window.plugin.bookmarks.removePortalByGuid = function(guid) {
+
+    var hasBeenRemoved = false;
+    while (bkmrkData = window.plugin.bookmarks.findByGuid(guid)) {
+      var list = window.plugin.bookmarks.bkmrksObj['portals'];
+      delete list[bkmrkData['id_folder']]['bkmrk'][bkmrkData['id_bookmark']];
+
+
+      window.plugin.bookmarks.saveStorage();
+      window.plugin.bookmarks.updateStarPortal();
+      window.plugin.bookmarks.refreshBkmrks();
+
+      window.runHooks('pluginBkmrksEdit', {
+        "target": "portal",
+        "action": "remove",
+        "folder": bkmrkData['id_folder'],
+        "id": bkmrkData['id_bookmark'],
+        "guid": guid
+      });
+      console.log('BOOKMARKS: removed portal (' + bkmrkData['id_bookmark'] + ' situated in ' + bkmrkData['id_folder'] + ' folder)');
+      hasBeenRemoved = true;
+    }
+
+    return hasBeenRemoved;
+  }
+
+  /**
+   * removed a portal from only the given foler
+   * @param folderID the folder to remove the portal from
+   * @param guid the guid of the portal to remove
+   */
+  window.plugin.bookmarks.removePortalFromFolder = function(folderID, guid) {
+    var id = null;
+
+    var list = window.plugin.bookmarks.bkmrksObj['portals'][folderID];
+    for(var idBkmrk in list['bkmrk']) {
+      if(list['bkmrk'][idBkmrk]['guid'] === guid) {
+        id = idBkmrk;
+        break;
+      }
+    }
+    if(id) {
+
+      delete list['bkmrk'][id];
+
+      window.plugin.bookmarks.saveStorage();
+      window.plugin.bookmarks.updateStarPortal();
+      window.plugin.bookmarks.refreshBkmrks();
+
+      window.runHooks('pluginBkmrksEdit', {
+        "target": "portal",
+        "action": "remove",
+        "folder": folderID,
+        "id": id,
+        "guid": guid
+      });
+      console.log('BOOKMARKS: removed portal (' + id + ' situated in ' + folderID + ' folder)');
+    }
+  }
+
 
   // Remove BOOKMARK/FOLDER
   window.plugin.bookmarks.removeElement = function(elem, type) {
@@ -454,33 +567,19 @@
       var IDfold = $(elem).parent().parent().parent('li').attr('id');
       var guid = window.plugin.bookmarks.bkmrksObj[typeList.replace('bkmrk_', '')][IDfold]['bkmrk'][ID].guid;
 
-      delete window.plugin.bookmarks.bkmrksObj[typeList.replace('bkmrk_', '')][IDfold]['bkmrk'][ID];
       $(elem).parent('li').remove();
 
       if(type === 'portals') {
-        var list = window.plugin.bookmarks.bkmrksObj['portals'];
-
-        window.plugin.bookmarks.updateStarPortal();
-        window.plugin.bookmarks.saveStorage();
-
-        window.runHooks('pluginBkmrksEdit', {"target": "portal", "action": "remove", "folder": IDfold, "id": ID, "guid": guid});
-        console.log('BOOKMARKS: removed portal ('+ID+' situated in '+IDfold+' folder)');
+        window.plugin.bookmarks.removePortalFromFolder(IDfold, guid);
       } else {
-        window.plugin.bookmarks.saveStorage();
-        window.runHooks('pluginBkmrksEdit', {"target": "map", "action": "remove", "id": ID});
-        console.log('BOOKMARKS: removed map '+ID);
+        window.plugin.bookmarks.removeMap(ID);
       }
     }
     else if(type === 'folder') {
-      var typeList = $(elem).parent().parent().parent().parent('div').attr('id');
       var ID = $(elem).parent().parent('li').attr('id');
 
-      delete plugin.bookmarks.bkmrksObj[typeList.replace('bkmrk_', '')][ID];
+      window.plugin.bookmarks.removeFolder(ID);
       $(elem).parent().parent('li').remove();
-      window.plugin.bookmarks.saveStorage();
-      window.plugin.bookmarks.updateStarPortal();
-      window.runHooks('pluginBkmrksEdit', {"target": "folder", "action": "remove", "id": ID});
-      console.log('BOOKMARKS: removed folder '+ID);
     }
   }
 
