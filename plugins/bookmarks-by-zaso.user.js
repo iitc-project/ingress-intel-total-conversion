@@ -45,6 +45,7 @@
   window.plugin.bookmarks.updateQueue = {};
   window.plugin.bookmarks.updatingQueue = {};
 
+
   window.plugin.bookmarks.enableSync = false;
 
   window.plugin.bookmarks.starLayers = {};
@@ -364,9 +365,64 @@
     console.log('BOOKMARKS: added portal '+ID);
   }
 
+  /**
+   * adds an Folder to the bookmarks, if isPortalFolder is true, ti will be created in the portals area,
+   * if it's false it will be created in the maps area
+   * @param name string the name of the folder, defaults to "Folder"
+   * @param isPortalFolder boolean if this is a Portal or Map folder
+   * @returns the ID of the folder
+   */
+  window.plugin.bookmarks.addFolder = function(name, isPortalFolder) {
+    var ID = window.plugin.bookmarks.generateID();
+
+    var label = window.plugin.bookmarks.escapeHtml(name);
+
+    if(label === '') { label = 'Folder'; }
+
+    var short_type = isPortalFolder ? "portals": "maps";
+
+    // Add new folder in the localStorage
+    window.plugin.bookmarks.bkmrksObj[short_type][ID] = {"label":label,"state":1,"bkmrk":{}};
+
+    window.plugin.bookmarks.saveStorage();
+    window.plugin.bookmarks.refreshBkmrks();
+    window.runHooks('pluginBkmrksEdit', {"target": "folder", "action": "add", "id": ID});
+    console.log('BOOKMARKS: added folder '+ID);
+
+    return ID;
+
+  }
+
+
+  /**
+   * adds a Map to the bookmarks under the given folder
+   * @param name the name of the map
+   * @param lat the latetude
+   * @param lng the longitude
+   * @param zoom the zoom lvl
+   * @param folder the ID of the folder to put it under
+   * @returns the ID of the map
+   */
+  window.plugin.bookmarks.addMap = function(name, lat, lng, zoom, folder) {
+    // this defaults folder to plugin.bookmarks.KEY_OTHER_BKMRK
+    // see http://stackoverflow.com/questions/894860/set-a-default-parameter-value-for-a-javascript-function
+    folder = typeof folder !== 'undefined' ? folder : plugin.bookmarks.KEY_OTHER_BKMRK;
+
+    var ID = window.plugin.bookmarks.generateID();
+
+    var latlng = lat+','+lng;
+    window.plugin.bookmarks.bkmrksObj['maps'][folder]['bkmrk'][ID] = {"label":name,"latlng":latlng,"z":zoom};
+
+    window.plugin.bookmarks.saveStorage();
+    window.plugin.bookmarks.refreshBkmrks();
+    window.runHooks('pluginBkmrksEdit', {"target": "map", "action": "add", "id": ID});
+    console.log('BOOKMARKS: added map '+ID);
+
+    return ID;
+  }
+
   // Add BOOKMARK/FOLDER
   window.plugin.bookmarks.addElement = function(elem, type) {
-    var ID = window.plugin.bookmarks.generateID();
     var typeList = $(elem).parent().parent('div').attr('id');
 
     // Get the label | Convert some characters | Set the input (empty)
@@ -381,21 +437,13 @@
       var c = map.getCenter();
       var lat = Math.round(c.lat*1E6)/1E6;
       var lng = Math.round(c.lng*1E6)/1E6;
-      var latlng = lat+','+lng;
       var zoom = parseInt(map.getZoom());
-      // Add bookmark in the localStorage
-      window.plugin.bookmarks.bkmrksObj['maps'][plugin.bookmarks.KEY_OTHER_BKMRK]['bkmrk'][ID] = {"label":label,"latlng":latlng,"z":zoom};
+
+      window.plugin.bookmarks.addMap(label,lat,lng,zoom);
     }
     else{
-      if(label === '') { label = 'Folder'; }
-      var short_type = typeList.replace('bkmrk_', '');
-      // Add new folder in the localStorage
-      window.plugin.bookmarks.bkmrksObj[short_type][ID] = {"label":label,"state":1,"bkmrk":{}};
+      window.plugin.bookmarks.addFolder(label, typeList.contains("portals"));
     }
-    window.plugin.bookmarks.saveStorage();
-    window.plugin.bookmarks.refreshBkmrks();
-    window.runHooks('pluginBkmrksEdit', {"target": type, "action": "add", "id": ID});
-    console.log('BOOKMARKS: added '+type+' '+ID);
   }
 
   // Remove BOOKMARK/FOLDER
