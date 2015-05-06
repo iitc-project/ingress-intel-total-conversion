@@ -41,27 +41,6 @@ window.setupDataTileParams = function() {
     window.TILE_PARAMS.TILES_PER_EDGE = DEFAULT_ZOOM_TO_TILES_PER_EDGE;
   }
 
-  // disable SHOW_MORE_PORTALS if it would be unfriendly to the servers (i.e. result in more requests)
-  // needs to be fired a bit later, after plugins have been initialised
-  setTimeout(function(){
-    if (window.CONFIG_ZOOM_SHOW_MORE_PORTALS) {
-      if (window.TILE_PARAMS.TILES_PER_EDGE[17] > window.TILE_PARAMS.TILES_PER_EDGE[15]) {
-        var edgeScale = window.TILE_PARAMS.TILES_PER_EDGE[17]/window.TILE_PARAMS.TILES_PER_EDGE[15];
-        var mapScale = edgeScale*edgeScale;
-
-        dialog({
-          title: 'Show more portals plugin disabled',
-          width: 400,
-          text: 'The "show-more-portals" plugin has been disabled.\n\n'
-               +'Niantic have changed the intel site so that zoom level 17 (all portals) now needs '+mapScale+' times more requests than level 15 (L1+ portals), so fetching at the wrong zoom level will be unfriendly to the servers\n\n'
-               +'Don\'t like this? Ask Niantic to change the standard intel site, then IITC can match and all would benifit.'
-        });
-
-        window.CONFIG_ZOOM_SHOW_MORE_PORTALS=false;
-      }
-    }
-  }, 1);
-
 }
 
 
@@ -104,13 +83,24 @@ window.getDataZoomForMapZoom = function(zoom) {
     zoom = 21;
   }
 
-  var origTileParams = getMapZoomTileParameters(zoom);
+  if (window.CONFIG_ZOOM_SHOW_MORE_PORTALS) {
+    // slightly unfriendly to the servers, requesting more, but smaller, tiles, for the 'unclaimed' level of detail
+    // however, server load issues are all related to the map area in view, with no real issues related to detail level
+    // therefore, I believel we can get away with these smaller tiles for one or two further zoom levels without issues
+
+    if (zoom == 16) {
+      zoom = 17;
+    }
+  }
+
 
   if (!window.CONFIG_ZOOM_DEFAULT_DETAIL_LEVEL) {
 
     // to improve the cacheing performance, we try and limit the number of zoom levels we retrieve data for
     // to avoid impacting server load, we keep ourselves restricted to a zoom level with the sane numbre
     // of tilesPerEdge and portal levels visible
+
+    var origTileParams = getMapZoomTileParameters(zoom);
 
     while (zoom > MIN_ZOOM) {
       var newTileParams = getMapZoomTileParameters(zoom-1);
@@ -124,15 +114,6 @@ window.getDataZoomForMapZoom = function(zoom) {
       }
     }
 
-  }
-
-  if (window.CONFIG_ZOOM_SHOW_MORE_PORTALS) {
-    // this is, in theory, slightly 'unfriendly' to the servers. in practice, this isn't the case - and it can even be nicer
-    // as it vastly improves cacheing in IITC and also reduces the amount of panning/zooming a user would do
-    if (zoom >= 15 && zoom <= 16) {
-      //L1+ and closer zooms. the 'all portals' zoom uses the same tile size, so it's no harm to request things at that zoom level
-      zoom = 17;
-    }
   }
 
   return zoom;
