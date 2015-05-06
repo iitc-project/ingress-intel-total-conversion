@@ -100,8 +100,8 @@ window.getDataZoomForMapZoom = function(zoom) {
 
   // firstly, some of IITCs zoom levels, depending on base map layer, can be higher than stock. limit zoom level
   // (stock site max zoom may vary depending on google maps detail in the area - 20 or 21 max is common)
-  if (zoom > 20) {
-    zoom = 20;
+  if (zoom > 21) {
+    zoom = 21;
   }
 
   var origTileParams = getMapZoomTileParameters(zoom);
