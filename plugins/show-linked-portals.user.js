@@ -11,6 +11,10 @@
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/mission/*
+// @include        http://www.ingress.com/mission/*
+// @match          https://www.ingress.com/mission/*
+// @match          http://www.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -48,13 +52,16 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
     var lat = link[key + 'LatE6']/1E6;
     var lng = link[key + 'LngE6']/1E6;
 
+    var length = L.latLng(link.oLatE6/1E6, link.oLngE6/1E6).distanceTo([link.dLatE6/1E6, link.dLngE6/1E6]);
+    var lengthFull = digits(Math.round(length)) + 'm';
+    var lengthShort = length < 100000 ? lengthFull : digits(Math.round(length/1000)) + 'km'
+
     var div = $('<div>').addClass('showLinkedPortalLink showLinkedPortalLink' + c + (key=='d' ? ' outgoing' : ' incoming'));
 
     var title;
 
-    if(portals[guid]) {
-      var data = portals[guid].options.data;
-
+    var data = (portals[guid] && portals[guid].options.data) || portalDetail.get(guid) || null;
+    if(data) {
       title = data.title;
       div.append($('<img/>').attr({
         'src': fixPortalImageUrl(data.image),
@@ -66,7 +73,7 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
       div
         .addClass('outOfRange')
         .append($('<span/>')
-          .text('Portal out of range.'))
+          .html('Portal out of range.<br>' + lengthShort));
     }
 
     div
@@ -78,6 +85,8 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
           .append($('<strong/>').text(title))
           .append($('<br/>'))
           .append($('<span/>').text(key=='d' ? '↴ outgoing link' : '↳ incoming link'))
+          .append($('<br/>'))
+          .append($('<span/>').html(lengthFull))
           .html(),
       })
       .appendTo('#portaldetails');
