@@ -1,5 +1,19 @@
 <h2>News</h2>
 
+<h4>8th May 2015</h4>
+<p>
+IITC 0.22.3 has been released. Changes include
+</p>
+<ul>
+<li>Lightman Shards supported</li>
+<li>Workaround for map loading not reaching 100%</li>
+<li>IITC Mobile: fix dialogs not appearing on Android 5 with the System WebView update</li>
+<li>Remove unnecessary prompt on botguard script response</li>
+<li>Plugin: Missions - full mission support</li>
+<li>Plugin: show-linked-portals - more details shown</li>
+<li>Plugin: show-more-portals - enabled again for one zoom level</li>
+</ul>
+
 <h4>4th April 2015</h4>
 <p>
 IITC 0.22.2 has been released. This is a critical update needed to fix portal loading at some zoom levels.
