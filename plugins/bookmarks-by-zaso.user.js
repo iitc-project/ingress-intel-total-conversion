@@ -704,11 +704,11 @@
               continue;
           }
           output += '\n\nFolder: ' + portals[key].label + '\n';
-          output += 'ID|GUID|Name|Latitude Longitude|URL\n';
+          output += 'ID\tGUID\tName\tLatitude Longitude\tURL\n';
 
           var bkmrk = portals[key].bkmrk;
           for (var key in bkmrk) {
-              output += key+'|'+bkmrk[key].guid + '|' + bkmrk[key].label + '|' + bkmrk[key].latlng +'|'+ 'https://www.ingress.com/intel?ll=' + bkmrk[key].latlng + '&z=17&pll=' + bkmrk[key].latlng + '\n';
+              output += key+'\t'+bkmrk[key].guid + '\t' + bkmrk[key].label + '\t' + bkmrk[key].latlng +'\t'+ 'https://www.ingress.com/intel?ll=' + bkmrk[key].latlng + '&z=17&pll=' + bkmrk[key].latlng + '\n';
           }
       }
 
