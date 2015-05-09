@@ -93,11 +93,9 @@ window.getURLParam = function(param) {
 
 // read cookie by name.
 // http://stackoverflow.com/a/5639455/1684530 by cwolves
-var cookies;
-window.readCookie = function(name,c,C,i){
-  if(cookies) return cookies[name];
-  c = document.cookie.split('; ');
-  cookies = {};
+window.readCookie = function(name){
+  var C, i, c = document.cookie.split('; ');
+  var cookies = {};
   for(i=c.length-1; i>=0; i--){
     C = c[i].split('=');
     cookies[C[0]] = unescape(C[1]);
@@ -106,7 +104,8 @@ window.readCookie = function(name,c,C,i){
 }
 
 window.writeCookie = function(name, val) {
-  document.cookie = name + "=" + val + '; expires=Thu, 31 Dec 2020 23:59:59 GMT; path=/';
+  var d = new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000).toUTCString();
+  document.cookie = name + "=" + val + '; expires='+d+'; path=/';
 }
 
 window.eraseCookie = function(name) {

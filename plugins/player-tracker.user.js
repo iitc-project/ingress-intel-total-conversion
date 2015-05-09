@@ -2,7 +2,7 @@
 // @id             iitc-plugin-player-tracker@breunigs
 // @name           IITC Plugin: Player tracker
 // @category       Layer
-// @version        0.11.0.@@DATETIMEVERSION@@
+// @version        0.11.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -11,6 +11,10 @@
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/mission/*
+// @include        http://www.ingress.com/mission/*
+// @match          https://www.ingress.com/mission/*
+// @match          http://www.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -87,12 +91,12 @@ plugin.playerTracker.onClickListener = function(event) {
 
 // force close all open tooltips before markers are cleared
 window.plugin.playerTracker.closeIconTooltips = function() {
-    plugin.playerTracker.drawnTracesRes.eachLayer(function(layer) {
-      if ($(layer._icon)) { $(layer._icon).tooltip('close');}
-    });
-    plugin.playerTracker.drawnTracesEnl.eachLayer(function(layer) {
-      if ($(layer._icon)) { $(layer._icon).tooltip('close');}
-    });
+  plugin.playerTracker.drawnTracesRes.eachLayer(function(layer) {
+    if ($(layer._icon)) { $(layer._icon).tooltip('close');}
+  });
+  plugin.playerTracker.drawnTracesEnl.eachLayer(function(layer) {
+    if ($(layer._icon)) { $(layer._icon).tooltip('close');}
+  });
 }
 
 window.plugin.playerTracker.zoomListener = function() {
@@ -142,7 +146,7 @@ window.plugin.playerTracker.eventHasLatLng = function(ev, lat, lng) {
 
 window.plugin.playerTracker.processNewData = function(data) {
   var limit = plugin.playerTracker.getLimit();
-  $.each(data.raw.success, function(ind, json) {
+  $.each(data.result, function(ind, json) {
     // skip old data
     if(json[1] < limit) return true;
 
@@ -332,19 +336,13 @@ window.plugin.playerTracker.drawData = function() {
         .appendTo(popup);
 
       var playerLevelDetails = window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer(plrname);
-      if(playerLevelDetails.min == 8) {
+      level
+        .text('Min level ')
+        .append(getLevel(playerLevelDetails.min));
+      if(playerLevelDetails.min != playerLevelDetails.guessed)
         level
-          .text('Level ')
-          .append(getLevel(8));
-      } else {
-        level
-          .text('Min level ')
-          .append(getLevel(playerLevelDetails.min));
-        if(playerLevelDetails.min != playerLevelDetails.guessed)
-          level
-            .append(document.createTextNode(', guessed level: '))
-            .append(getLevel(playerLevelDetails.guessed));
-      }
+          .append(document.createTextNode(', guessed level: '))
+          .append(getLevel(playerLevelDetails.guessed));
     }
 
     popup
@@ -549,6 +547,8 @@ window.plugin.playerTracker.onSearchResultSelected = function(result, event) {
 
 window.plugin.playerTracker.onSearch = function(query) {
   var term = query.term.toLowerCase();
+
+  if (term.length && term[0] == '@') term = term.substr(1);
 
   $.each(plugin.playerTracker.stored, function(nick, data) {
     if(nick.toLowerCase().indexOf(term) === -1) return;

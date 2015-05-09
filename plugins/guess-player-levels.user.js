@@ -2,7 +2,7 @@
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           IITC plugin: guess player level
 // @category       Info
-// @version        0.5.6.@@DATETIMEVERSION@@
+// @version        0.5.7.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -11,6 +11,10 @@
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/mission/*
+// @include        http://www.ingress.com/mission/*
+// @match          https://www.ingress.com/mission/*
+// @match          http://www.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -93,13 +97,10 @@ window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
   }
 
   var text = '<span style="color: ' + el.css("color") + '">' + nick + '</span>\n';
-  if(details.min == 8)
-    text += 'Player level: ' + getLevel(8);
-  else {
-    text += 'Min player level: ' + getLevel(details.min);
-    if(details.min != details.guessed)
-      text += '\nGuessed player level: ' + getLevel(details.guessed);
-  }
+  text += 'Min player level: ' + getLevel(details.min);
+  if(details.min != details.guessed)
+    text += '\nGuessed player level: ' + getLevel(details.guessed);
+
   window.setupTooltips(el);
 
   /*
@@ -189,7 +190,7 @@ window.plugin.guessPlayerLevels.extractChatData = function(data) {
     attackData[nick][timestamp].push(portal);
   }
 
-  data.raw.success.forEach(function(msg) {
+  data.result.forEach(function(msg) {
     var plext = msg[2].plext;
 
     // search for "x deployed an Ly Resonator on z"

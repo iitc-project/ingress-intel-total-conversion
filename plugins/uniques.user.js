@@ -11,6 +11,10 @@
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/mission/*
+// @include        http://www.ingress.com/mission/*
+// @match          https://www.ingress.com/mission/*
+// @match          http://www.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -72,7 +76,7 @@ window.plugin.uniques.onPortalDetailsUpdated = function() {
 
 window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 	var nick = window.PLAYER.nickname;
-	data.raw.success.forEach(function(msg) {
+	data.result.forEach(function(msg) {
 		var plext = msg[2].plext,
 			markup = plext.markup;
 
@@ -258,7 +262,7 @@ window.plugin.uniques.updateCaptured = function(captured, guid) {
 
 // stores the gived GUID for sync
 plugin.uniques.sync = function(guid) {
-	plugin.uniques.updatingQueue[guid] = true;
+	plugin.uniques.updateQueue[guid] = true;
 	plugin.uniques.storeLocal('uniques');
 	plugin.uniques.storeLocal('updateQueue');
 	plugin.uniques.syncQueue();

@@ -1,15 +1,19 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.21.3.@@DATETIMEVERSION@@
+// @version        0.22.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Total conversion for the ingress intel map.
-// @include        http://www.ingress.com/intel*
 // @include        https://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
+// @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/mission/*
+// @include        http://www.ingress.com/mission/*
+// @match          https://www.ingress.com/mission/*
+// @match          http://www.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -160,10 +164,8 @@ window.MOD_TYPE = {RES_SHIELD:'Shield', MULTIHACK:'Multi-hack', FORCE_AMP:'Force
 window.ACCESS_INDICATOR_COLOR = 'orange';
 window.RANGE_INDICATOR_COLOR = 'red'
 
-// by how much pixels should the portal range be expanded on mobile
-// devices. This should make clicking them easier.
-window.PORTAL_RADIUS_ENLARGE_MOBILE = 5;
-
+// min zoom for intel map - should match that used by stock intel
+window.MIN_ZOOM = 3;
 
 window.DEFAULT_PORTAL_IMG = '//commondatastorage.googleapis.com/ingress.com/img/default-portal-image.png';
 //window.NOMINATIM = '//nominatim.openstreetmap.org/search?format=json&limit=1&q=';

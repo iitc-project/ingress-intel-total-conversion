@@ -1,6 +1,11 @@
 // created to start cleaning up "window" interaction
 //
+
+window.currentPane = '';
+
 window.show = function(id) {
+  if(window.currentPane == id) return;
+  window.currentPane = id;
   window.hideall();
 
   runHooks("paneChanged", id);

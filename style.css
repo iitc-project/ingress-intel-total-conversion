@@ -1200,12 +1200,12 @@ table.artifact .portal {
 	color: #ffce00;
 	outline: none
 }
-.cellscore .ui-accordion-header::before {
+.cellscore .ui-accordion-header:before {
 	font-size: 18px;
 	margin-right: 2px;
 	content: "⊞";
 }
-.cellscore .ui-accordion-header-active::before {
+.cellscore .ui-accordion-header-active:before {
 	content: "⊟";
 }
 g.checkpoint:hover circle {
@@ -1227,5 +1227,59 @@ g.checkpoint:hover circle {
 	text-overflow: ellipsis;
 	vertical-align: text-bottom;
 	width: 100%;
+}
+
+/* tabs */
+.ui-tabs-nav {
+	display: block;
+	border-bottom: 1px solid #20a8b1;
+	border-top: 1px solid transparent;
+	margin: 3px 0 0;
+	padding: 0;
+}
+.ui-tabs-nav::after {
+	content: '';
+	clear: left;
+	display: block;
+	height: 0;
+	width: 0;
+}
+.ui-tabs-nav li {
+	list-style: none;
+	display: block;
+	float:left;
+	margin: 0 0 -1px;
+	border: 1px solid #20a8b1;
+}
+.ui-tabs-nav li.ui-tabs-active {
+	border-bottom-color: #0F2C3F;
+	background: #0F2C3F;
+	border-width: 2px 2px 1px;
+	font-weight: bold;
+	margin: -1px 1px;
+}
+.ui-tabs-nav a {
+	display: inline-block;
+	padding: 0.2em 0.7em;
+}
+.ui-tabs-nav .ui-icon {
+	display: inline-block;
+	font-size: 0;
+	height: 22px;
+	overflow: hidden;
+	position: relative;
+	vertical-align: top;
+	width: 16px;
+}
+.ui-tabs-nav .ui-icon-close::before {
+	content: "×";
+	font-size: 16px;
+	height: 16px;
+	position: absolute;
+	text-align: center;
+	top: 2px;
+	vertical-align: baseline;
+	width: 16px;
+	cursor: pointer;
 }
 

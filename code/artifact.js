@@ -148,6 +148,8 @@ window.artifact.getArtifactDescriptions = function(type) {
     'jarvis': { 'title': "Jarvis Shards", 'fragmentName': "shards" },
     'amar': { 'title': "Amar Artifacts", 'fragmentName': "artifacts" },
     'helios': { 'title': "Helios Artifacts", 'fragmentName': "artifacts" },
+    'shonin': { 'title': "Sh\u014Dnin Shards", 'fragmentName': "shards" },
+    'lightman': { 'title': "Lightman Shards", 'fragmentName': "shards" },
   };
 
   return descriptions[type];
@@ -222,7 +224,6 @@ window.artifact.updateLayer = function() {
         iconSize = 60/2; // 60 pixels - half that size works better
         opacity = 0.6; // these often hide portals - let's make them semi transparent
       }
-
     }
 
     // 2014-08-09 - helios artifacts. original guess was slightly wrong
@@ -236,7 +237,32 @@ window.artifact.updateLayer = function() {
         iconSize = 60/2; // 60 pixels - half that size works better
         opacity = 0.6; // these often hide portals - let's make them semi transparent
       }
+    }
 
+    // 2015-03-05 - shonin shards
+    if (data.shonin) {
+      if (data.shonin.target) {
+        // target portal - show the target marker.
+        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/shonin_shard_target.png';
+        iconSize = 100/2; // 100 pixels - half that size works better
+      } else if (data.shonin.fragments) {
+        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/shonin_shard.png';
+        iconSize = 60/2; // 60 pixels - half that size works better
+        opacity = 0.6; // these often hide portals - let's make them semi transparent
+      }
+    }
+
+    // 2015-04-22 - lightman fragments (guessed)
+    if (data.lightman) {
+      if (data.lightman.target) {
+        // target portal - show the target marker.
+        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/lightman_shard_target.png';
+        iconSize = 100/2; // 100 pixels - half that size works better
+      } else if (data.lightman.fragments) {
+        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/lightman_shard.png';
+        iconSize = 60/2; // 60 pixels - half that size works better
+        opacity = 0.6; // these often hide portals - let's make them semi transparent
+      }
     }
 
     if (iconUrl) {

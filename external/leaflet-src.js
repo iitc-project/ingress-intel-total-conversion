@@ -1191,7 +1191,7 @@ L.LatLng.prototype = {
 	distanceTo: function (other) { // (LatLng) -> Number
 		other = L.latLng(other);
 
-		var R = 6378137, // earth radius in meters
+		var R = 6367000.0, // earth radius in meters
 		    d2r = L.LatLng.DEG_TO_RAD,
 		    dLat = (other.lat - this.lat) * d2r,
 		    dLon = (other.lng - this.lng) * d2r,
@@ -1512,7 +1512,7 @@ L.CRS.EPSG3857 = L.extend({}, L.CRS, {
 
 	project: function (latlng) { // (LatLng) -> Point
 		var projectedPoint = this.projection.project(latlng),
-		    earthRadius = 6378137;
+		    earthRadius = 6367000.0;
 		return projectedPoint.multiplyBy(earthRadius);
 	}
 });
@@ -8299,7 +8299,7 @@ L.Control.Scale = L.Control.extend({
 	_update: function () {
 		var bounds = this._map.getBounds(),
 		    centerLat = bounds.getCenter().lat,
-		    halfWorldMeters = 6378137 * Math.PI * Math.cos(centerLat * Math.PI / 180),
+		    halfWorldMeters = 6367000.0 * Math.PI * Math.cos(centerLat * Math.PI / 180),
 		    dist = halfWorldMeters * (bounds.getNorthEast().lng - bounds.getSouthWest().lng) / 180,
 
 		    size = this._map.getSize(),

@@ -3,7 +3,11 @@
 
 iitc_bg = Object();
 
+iitc_bg.DISABLED = false; //if set, botguard is disabld. no b/c params sent in requests, no processing of responses
+
 iitc_bg.init = function() {
+  if (iitc_bg.DISABLED) return;
+
 // stock site - 'ad.e()' constructor
 //function Ad() {
 //  this.Eb = {}; // a map, indexed by 'group-[ab]-actions', each entry containing an array of 'yd' objects (simple object, with 'gf' and 'cb' members). a queue of data to process?
@@ -89,6 +93,8 @@ iitc_bg.push_queue = function(group, data, key) {
 // called both on initialisation and on processing responses from the server
 // 
 iitc_bg.process_key = function(key,serverEval) {
+  if (iitc_bg.DISABLED) return;
+
 
 // stock site code
 //function Bd(a, b, c) {
@@ -110,12 +116,9 @@ iitc_bg.process_key = function(key,serverEval) {
 
     if (serverEval) {
       // server wants us to eval some code! risky, and impossible to be certain we can do it safely
-      // however... reports say that it only interacts with the botguard.bg code, so we might be fine just running it
-      // (but this is only when we don't send the correct params to the server? no reports of this code triggering yet...)
+      // seems to always be the same javascript as already found in the web page source.
       try {
         console.warn('botguard: Server-generated javascript eval requested:\n'+serverEval);
-debugger;
-if (!confirm('The server asked IITC to run (eval) some javascript. This may or may not be safe. Run and continue?\n\nScript:\n'+serverEval)) { console.error('server javascript eval cancelled') } else
         iitc_bg.evalFunc(serverEval);
         console.log('botguard: Server-generated javascript ran OK');
       } catch(e) {
@@ -157,6 +160,8 @@ iitc_bg.get_method_group = function(method) {
 
 // returns the extra parameters to add to any JSON request
 iitc_bg.extra_request_params = function(method) {
+  if (iitc_bg.DISABLED) return {};
+
 
   var extra = {};
   extra.b = iitc_bg.key;
@@ -255,6 +260,15 @@ iitc_bg.process_queue = function(group) {
 
 
 iitc_bg.process_response_params = function(method,data) {
+  if (iitc_bg.DISABLED) {
+    // the rest of IITC won't expect these strange a/b/c params in the response data
+    // (e.g. it's pointless to keep in the cache, etc), so clear them
+    delete data.a;
+    delete data.b;
+    delete data.c;
+    return;
+  }
+
 // stock site: response processing
 //yd.prototype.vi = function(a, b) {
 //  var c = b.target;
