@@ -2,15 +2,19 @@
 // @id             iitc-plugin-show-more-portals@jonatkins
 // @name           IITC plugin: Show more portals
 // @category       Tweaks
-// @version        0.2.0.@@DATETIMEVERSION@@
+// @version        0.2.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Boost the detail level of portals shown so that unclaimed portals are visible when normally L1+ portals would be shown. Recent protocol changes by Niantic means this no longer sends more requests than the standard intel site, and can mean fewer requests.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Boost the detail level of portals shown so that unclaimed portals are visible one level saooner.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/mission/*
+// @include        http://www.ingress.com/mission/*
+// @match          https://www.ingress.com/mission/*
+// @match          http://www.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
