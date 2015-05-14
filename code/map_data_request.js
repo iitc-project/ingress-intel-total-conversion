@@ -45,7 +45,10 @@ window.MapDataRequest = function() {
   this.RUN_QUEUE_DELAY = 0;
 
   // delay before processing the queue after failed requests
-  this.BAD_REQUEST_RUN_QUEUE_DELAY = 10; // longer delay before doing anything after errors (other than TIMEOUT)
+  this.BAD_REQUEST_RUN_QUEUE_DELAY = 5; // longer delay before doing anything after errors (other than TIMEOUT)
+
+  // delay before processing the queue after empty responses
+  this.EMPTY_RESPONSE_RUN_QUEUE_DELAY = 5; // also long delay - empty responses are likely due to some server issues
 
   // delay before processing the queue after error==TIMEOUT requests. this is 'expected', so minimal extra delay over the regular RUN_QUEUE_DELAY
   this.TIMEOUT_REQUEST_RUN_QUEUE_DELAY = 0;
@@ -565,6 +568,7 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
   // set the queue delay based on any errors or timeouts
   // NOTE: retryTimes are retried at the regular delay - no longer wait as for error/timeout cases
   var nextQueueDelay = errorTiles.length > 0 ? this.BAD_REQUEST_RUN_QUEUE_DELAY :
+                       unaccountedTiles.length > 0 ? this.EMPTY_RESPONSE_RUN_QUEUE_DELAY :
                        timeoutTiles.length > 0 ? this.TIMEOUT_REQUEST_RUN_QUEUE_DELAY :
                        this.RUN_QUEUE_DELAY;
   var statusMsg = 'getEntities status: '+tiles.length+' tiles: ';
