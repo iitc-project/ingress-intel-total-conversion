@@ -33,7 +33,7 @@ window.plugin.hideUI.saveSettings = function () {
 
 // load settings from local storage
 window.plugin.hideUI.loadSettings = function () {
-	// if settings not available, create new object with default values
+  // if settings not available, create new object with default values
   if (localStorage.getItem('hideUI') === null) {
     var options = {
       // id: [boolean enabled, string name],
@@ -44,10 +44,10 @@ window.plugin.hideUI.loadSettings = function () {
       portal_highlight_select: [true, 'Portal highlighter'],
       drawtools: [true, 'Drawtools'],
     };
-    
+
     localStorage.setItem('hideUI', JSON.stringify(options));
   };
-  
+
   window.plugin.hideUI.options = JSON.parse(localStorage.getItem('hideUI'));
 };
 
@@ -55,7 +55,7 @@ window.plugin.hideUI.loadSettings = function () {
 // reset settings back to default values
 window.plugin.hideUI.resetSettings = function () {
   localStorage.removeItem('hideUI');
-    
+
   window.plugin.hideUI.loadSettings();
 };
 
@@ -65,16 +65,16 @@ window.plugin.hideUI.applySettings = function () {
   for (var key in window.plugin.hideUI.options) {
     if (window.plugin.hideUI.options.hasOwnProperty(key)) {
       var option = window.plugin.hideUI.options[key];
-			
-			if (option.hasOwnProperty('0')){
-				if (option[0] === true) {
-					$('#'+key).show();
-				} else {
-					$('#'+key).hide();
-				};
-			}
+
+      if (option.hasOwnProperty('0')){
+        if (option[0] === true) {
+          $('#'+key).show();
+        } else {
+          $('#'+key).hide();
+        };
+      }
     }
-	}
+  }
 };
 
 
@@ -88,9 +88,9 @@ window.plugin.hideUI.toggleScreenshotMode = function () {
     $('#bookmarksBox').show();
     $('#portal_highlight_select').show();
     $('#leaflet-control-container').show();
-    
+
     $('*').css({'cursor': ''});
-    
+
     window.plugin.hideUI.ScreenshotMode = false;
   } else {
     $('#chatwrapper').hide();
@@ -100,9 +100,9 @@ window.plugin.hideUI.toggleScreenshotMode = function () {
     $('#bookmarksBox').hide();
     $('#portal_highlight_select').hide();
     $('#leaflet-control-container').hide();
-    
+
     $('*').css({'cursor': 'none'});
-    
+
     window.plugin.hideUI.ScreenshotMode = true;
   }
 };
@@ -113,27 +113,27 @@ window.plugin.hideUI.showOptions = function() {
   var html = '<a onclick="window.plugin.hideUI.resetSettings(); return false;">Reset Settings</a>' +
              '<hr>' +
              '<div class="bold">Always hide:</div>';
-						 
+
   for (var key in window.plugin.hideUI.options) {
     if (window.plugin.hideUI.options.hasOwnProperty(key)) {
       var option = window.plugin.hideUI.options[key];
-			
-			if (option.hasOwnProperty('0')){
-				html += '<label for="hideUI-'+key+'">' +
-								'<input type="checkbox" id="hideUI-'+key+'" ' + 
-								'onclick="window.plugin.hideUI.options.'+key+'[0]=this.checked; ' + 
-								'window.plugin.hideUI.saveSettings(); ' + 
-								'window.plugin.hideUI.applySettings();"';
-				
-				if (option[0] === true) {
-					html += ' checked';
-				};
-				
-				html += '> '+option[1]+'</label>';
-			}
+
+      if (option.hasOwnProperty('0')){
+        html += '<label for="hideUI-'+key+'">' +
+                '<input type="checkbox" id="hideUI-'+key+'" ' +
+                'onclick="window.plugin.hideUI.options.'+key+'[0]=this.checked; ' +
+                'window.plugin.hideUI.saveSettings(); ' +
+                'window.plugin.hideUI.applySettings();"';
+
+        if (option[0] === true) {
+          html += ' checked';
+        };
+
+        html += '> '+option[1]+'</label>';
+      }
     }
-	};
-	
+  };
+
   dialog({
     html: html,
     id: 'plugin-hideUI-options',
@@ -150,20 +150,20 @@ var setup =  function() {
     '#dialog-plugin-hideUI-options input { vertical-align: middle; }' +
     '.bold { font-weight: bold; }' +
     '</style>');
-		
-	$('#sidebartoggle, #scrollwrapper').wrapAll('<div id="sidebarwrapper"></div>');
-	$('#chatcontrols, #chat, #chatinput').wrapAll('<div id="chatwrapper"></div>');
-	$('.leaflet-control-container').attr('id', 'leaflet-control-container');
-  
+
+  $('#sidebartoggle, #scrollwrapper').wrapAll('<div id="sidebarwrapper"></div>');
+  $('#chatcontrols, #chat, #chatinput').wrapAll('<div id="chatwrapper"></div>');
+  $('.leaflet-control-container').attr('id', 'leaflet-control-container');
+
   window.plugin.hideUI.loadSettings();
-  
+
   document.addEventListener('keydown', function(e) {
     // pressed alt+h
     if (e.keyCode == 72 && !e.shiftKey && !e.ctrlKey && e.altKey && !e.metaKey) {
       window.plugin.hideUI.toggleScreenshotMode();
     }
   }, false);
-	
+
   $('#toolbox').append(' <a onclick="window.plugin.hideUI.showOptions()" title="Show custom UI settings">Custom UI Opt</a>');
 };
 
