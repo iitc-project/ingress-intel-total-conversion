@@ -82,6 +82,10 @@ window.plugin.missions = {
 	SYNC_DELAY: 5000,
 	enableSync: false,
 
+	// Multiple colors to allow discerning multiple missions in the viewport
+	lineColors: ['#222', '#444', '#666', '#888'],
+	lastLineColor: 0,
+
 	missionTypeImages: [
 		'@@INCLUDEIMAGE:images/mission-type-unknown.png@@',
 		'@@INCLUDEIMAGE:images/mission-type-sequential.png@@',
@@ -728,32 +732,34 @@ window.plugin.missions = {
 	highlightMissionPortals: function(mission) {
 		var markers = [];
 		var latlngs = [];
-		
+
+		this.lastLineColor = (this.lastLineColor + 1) % this.lineColors.length;
+		var color = this.lineColors[this.lastLineColor];
+
 		mission.waypoints.forEach(function(waypoint) {
 			if (!waypoint.portal) {
 				return;
 			}
-			
+
 			var radius = window.portals[waypoint.portal.guid] ? window.portals[waypoint.portal.guid].options.radius * 1.5 : 5;
 			var ll = [waypoint.portal.latE6 / 1E6, waypoint.portal.lngE6 / 1E6];
 			latlngs.push(ll);
-			
+
 			var marker = L.circleMarker(ll, {
-					radius: radius,
-					weight: 3,
-					opacity: 1,
-					color: '#222',
-					fill: false,
-					dashArray: null,
-					clickable: false
-				}
-			);
+				radius: radius,
+				weight: 3,
+				opacity: 1,
+				color: color,
+				fill: false,
+				dashArray: null,
+				clickable: false
+			});
 			this.missionLayer.addLayer(marker);
 			markers.push(marker);
 		}, this);
-		
+
 		var line = L.geodesicPolyline(latlngs, {
-			color: '#222',
+			color: color,
 			opacity: 1,
 			weight: 2,
 			clickable: false,
