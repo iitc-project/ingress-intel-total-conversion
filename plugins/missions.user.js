@@ -886,8 +886,10 @@ window.plugin.missions = {
 	onSearch: function(query) {
 		var self = this;
 		
+		var bounds = window.map.getBounds();
+		
 		if(query.confirmed) {
-			this.loadMissionsInBounds(window.map.getBounds(), function(missions) {
+			this.loadMissionsInBounds(bounds, function(missions) {
 				self.addMissionsToQuery(query, missions);
 			});
 		}
@@ -896,7 +898,15 @@ window.plugin.missions = {
 			return self.cacheByMissionGuid[guid].data;
 		});
 		
-		self.addMissionsToQuery(query, cachedMissions);
+		var cachedMissionsInView = cachedMissions.filter(function(mission) {
+			return mission.waypoints && mission.waypoints.some(function(waypoint) {
+				if(!waypoint) return false;
+				if(!waypoint.portal) return false;
+				return bounds.contains([waypoint.portal.latE6/1E6, waypoint.portal.lngE6/1E6]);
+			});
+		});
+		
+		self.addMissionsToQuery(query, cachedMissionsInView);
 	},
 
 	addMissionsToQuery: function(query, missions) {
