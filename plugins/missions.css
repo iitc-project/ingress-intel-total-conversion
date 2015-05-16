@@ -160,3 +160,11 @@
 	width: 18px;
 }
 
+.plugin-mission-search-result-desc {
+	display: block;
+	max-height: 2em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
