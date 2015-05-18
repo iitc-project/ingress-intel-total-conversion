@@ -883,6 +883,82 @@ window.plugin.missions = {
 		}
 	},
 
+	onSearch: function(query) {
+		var self = this;
+		
+		var bounds = window.map.getBounds();
+		
+		if(query.confirmed) {
+			this.loadMissionsInBounds(bounds, function(missions) {
+				self.addMissionsToQuery(query, missions);
+			});
+		}
+		
+		var cachedMissions = Object.keys(this.cacheByMissionGuid).map(function(guid) {
+			return self.cacheByMissionGuid[guid].data;
+		});
+		
+		var cachedMissionsInView = cachedMissions.filter(function(mission) {
+			return mission.waypoints && mission.waypoints.some(function(waypoint) {
+				if(!waypoint) return false;
+				if(!waypoint.portal) return false;
+				return bounds.contains([waypoint.portal.latE6/1E6, waypoint.portal.lngE6/1E6]);
+			});
+		});
+		
+		self.addMissionsToQuery(query, cachedMissionsInView);
+	},
+
+	addMissionsToQuery: function(query, missions) {
+		var term = query.term.toLowerCase();
+		
+		missions.forEach(function(mission) {
+			if(mission.title.toLowerCase().indexOf(term) === -1
+			&& ((!mission.description) || mission.description.toLowerCase().indexOf(term) === -1)) {
+				return;
+			}
+			
+			if(query.results.some(function(result) { return result.mission && (result.mission.guid == mission.guid); }))
+				// mission already in list (a cached mission may be found again via missions in bounds)
+				return;
+			
+			var result = {
+				title: escapeHtmlSpecialChars(mission.title),
+				description: mission.description
+					? 'Recently viewed mission: <small class="plugin-mission-search-result-desc">' + escapeHtmlSpecialChars(mission.description) + '</small>'
+					: 'Mission in view',
+				icon: 'https://commondatastorage.googleapis.com/ingress.com/img/tm_icons/tm_cyan.png',
+				onSelected: this.onSearchResultSelected.bind(this),
+				mission: mission,
+				layer: null, // prevent a preview, we'll handle this
+			};
+			
+			// mission may be a cached mission or contain the full details
+			if(mission.waypoints) {
+				var latlngs = mission.waypoints.filter(function(waypoint) {
+					return !!waypoint.portal;
+				}).map(function(waypoint) {
+					return [waypoint.portal.latE6/1E6, waypoint.portal.lngE6/1E6];
+				});
+				result.bounds = L.latLngBounds(latlngs)
+			}
+			if(mission.typeNum) {
+				result.icon = this.missionTypeImages[mission.typeNum] || this.missionTypeImages[0];
+			}
+			
+			query.addResult(result);
+		}.bind(this));
+	},
+
+	onSearchResultSelected: function(result, event) {
+		if(result.bounds) {
+			map.fitBounds(result.bounds, {maxZoom: 17});
+		}
+		
+		this.openMission(result.mission.guid);
+		return false;
+	},
+
 	setup: function() {
 		this.cacheByPortalGuid = {};
 		this.cacheByMissionGuid = {};
@@ -922,6 +998,8 @@ window.plugin.missions = {
 
 		// window.addPortalHighlighter('Mission start point', this.highlight.bind(this));
 		window.addHook('portalSelected', this.onPortalSelected.bind(this));
+
+		window.addHook('search', this.onSearch.bind(this));
 
 		/*
 		  I know iitc has portalAdded event but it is missing portalDeleted. So we have to resort to Object.observe
