@@ -489,6 +489,40 @@ window.plugin.uniques.setupPortalsList = function() {
 	});
 }
 
+window.plugin.uniques.updateList = function(messages) {
+  $('#uniques-list').html(messages);
+}
+
+window.plugin.uniques.showDialog = function() {
+  window.dialog({html: plugin.uniques.dialogHTML, title: 'Uniques', modal: true, id: 'uniques-setting'});
+  plugin.uniques.updateList(plugin.uniques.getList());
+}
+
+//Count the number of visited and captured portals and produce the string which is displayed
+//in the dialog window
+window.plugin.uniques.getList = function() {
+  var allLogs = '';
+  var ccount = 0;
+  var vcount = 0;
+    for (var key in plugin.uniques.uniques){
+        var info = plugin.uniques.uniques[key];
+        if (info.captured) ccount=ccount+1;
+        if (info.visited) vcount=vcount+1;
+    }
+    allLogs += ' ' + 'Captured: ' + ccount + '<br />Visited: ' + vcount + '<br />';
+
+  return allLogs;
+}
+
+window.plugin.uniques.setupDialog = function() {
+	//Create the HTML within the dialog window
+	plugin.uniques.dialogHTML = '<div id="uniques-dialog">'
+		+ '<div id="uniques-list"></div>'
+                + '</div>';
+  //Add link in the IITC toolbax to display the Uniques dialog
+  $('#toolbox').append('<a id="uniques-show-dialog" onclick="window.plugin.uniques.showDialog();">Uniques</a> ');
+}
+
 var setup = function() {
 	if($.inArray('pluginUniquesUpdateUniques', window.VALID_HOOKS) < 0)
 		window.VALID_HOOKS.push('pluginUniquesUpdateUniques');
@@ -496,6 +530,7 @@ var setup = function() {
 		window.VALID_HOOKS.push('pluginUniquesRefreshAll');
 	window.plugin.uniques.setupCSS();
 	window.plugin.uniques.setupContent();
+	window.plugin.uniques.setupDialog();
 	window.plugin.uniques.loadLocal('uniques');
 	window.addHook('portalDetailsUpdated', window.plugin.uniques.onPortalDetailsUpdated);
 	window.addHook('publicChatDataAvailable', window.plugin.uniques.onPublicChatDataAvailable);
