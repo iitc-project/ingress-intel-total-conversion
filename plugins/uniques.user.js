@@ -371,21 +371,25 @@ window.plugin.uniques.highlighter = {
 
 		if (uniqueInfo) {
 			if (uniqueInfo.captured) {
+                data.portal.addTo(window.plugin.uniques.capturedLayerGroup); 
 				// captured (and, implied, visited too) - no highlights
 
 			} else if (uniqueInfo.visited) {
 				style.fillColor = 'yellow';
 				style.fillOpacity = 0.6;
+                data.portal.addTo(window.plugin.uniques.visitedLayerGroup); 
 			} else {
 				// we have an 'uniqueInfo' entry for the portal, but it's not set visited or captured?
 				// could be used to flag a portal you don't plan to visit, so use a less opaque red
 				style.fillColor = 'red';
 				style.fillOpacity = 0.5;
+                data.portal.addTo(window.plugin.uniques.unvisitedLayerGroup);
 			}
 		} else {
 			// no visit data at all
 			style.fillColor = 'red';
 			style.fillOpacity = 0.7;
+            data.portal.addTo(window.plugin.uniques.unvisitedLayerGroup);
 		}
 
 		data.portal.setStyle(style);
@@ -489,6 +493,16 @@ window.plugin.uniques.setupPortalsList = function() {
 	});
 }
 
+    window.plugin.uniques.setupLayers = function () {
+        window.plugin.uniques.capturedLayerGroup = new L.LayerGroup();
+        window.plugin.uniques.visitedLayerGroup = new L.LayerGroup();
+        window.plugin.uniques.unvisitedLayerGroup = new L.LayerGroup();
+        
+        window.addLayerGroup('Captured Portals', window.plugin.uniques.capturedLayerGroup, true);
+        window.addLayerGroup('Visited Portals', window.plugin.uniques.visitedLayerGroup, true);
+        window.addLayerGroup('Unvisited Portals', window.plugin.uniques.unvisitedLayerGroup, true);
+    };
+
 var setup = function() {
 	if($.inArray('pluginUniquesUpdateUniques', window.VALID_HOOKS) < 0)
 		window.VALID_HOOKS.push('pluginUniquesUpdateUniques');
@@ -496,6 +510,7 @@ var setup = function() {
 		window.VALID_HOOKS.push('pluginUniquesRefreshAll');
 	window.plugin.uniques.setupCSS();
 	window.plugin.uniques.setupContent();
+	window.plugin.uniques.setupLayers();
 	window.plugin.uniques.loadLocal('uniques');
 	window.addHook('portalDetailsUpdated', window.plugin.uniques.onPortalDetailsUpdated);
 	window.addHook('publicChatDataAvailable', window.plugin.uniques.onPublicChatDataAvailable);
