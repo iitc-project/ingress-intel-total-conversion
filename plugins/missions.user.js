@@ -575,7 +575,7 @@ window.plugin.missions = {
 		else
 			this.checkedWaypoints[mwpid] = true;
 		
-		window.runHooks('plugin-missions-waypoint-changed', { mwpid: mwpid, });
+		window.runHooks('plugin-missions-waypoint-changed', { mwpid: mwpid, local: true, });
 		if (!dontsave) {
 			this.checkedWaypointsUpdateQueue[mwpid] = true;
 			this.storeLocal('checkedWaypoints');
@@ -606,7 +606,7 @@ window.plugin.missions = {
 		else
 			this.checkedMissions[mid] = true;
 		
-		window.runHooks('plugin-missions-mission-changed', { mid: mid, });
+		window.runHooks('plugin-missions-mission-changed', { mid: mid, local: true, });
 		this.checkedMissionsUpdateQueue[mid] = true;
 		this.storeLocal('checkedMissions');
 		this.storeLocal('checkedMissionsUpdateQueue');
@@ -860,9 +860,9 @@ window.plugin.missions = {
 			this.storeLocal(fieldName + 'UpdateQueue');
 			
 			if(fieldName === 'checkedMissions') {
-				window.runHooks('plugin-missions-mission-changed', { mid: e.property, });
+				window.runHooks('plugin-missions-mission-changed', { mid: e.property, local: false, });
 			} else if(fieldName === 'checkedWaypoints') {
-				window.runHooks('plugin-missions-waypoint-changed', { mwpid: e.property, });
+				window.runHooks('plugin-missions-waypoint-changed', { mwpid: e.property, local: false, });
 			}
 		}
 	},
