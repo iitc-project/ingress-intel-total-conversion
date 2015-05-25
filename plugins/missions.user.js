@@ -79,6 +79,10 @@ window.plugin.missions = {
 	// 3 weeks.
 	portalMissionsCacheTime: 21 * 24 * 3600 * 1E3,
 
+	MISSION_COLOR: '#404000',
+	MISSION_COLOR_ACTIVE: '#7f7f00',
+	MISSION_COLOR_START: '#A6A600',
+
 	SYNC_DELAY: 5000,
 	enableSync: false,
 
@@ -137,7 +141,7 @@ window.plugin.missions = {
 
 	showMissionDialog: function(mission) {
 		var me = this;
-		var markers = this.highlightMissionPortals(mission);
+		var markers = this.drawMission(mission);
 		var content = this.renderMission(mission);
 		var id = mission.guid.replace(/\./g, '_'); // dots irritate the dialog framework and are not allowed in HTML IDs
 		
@@ -145,6 +149,8 @@ window.plugin.missions = {
 			if(this.tabHeaders[id]) {
 				this.tabHeaders[id].parentNode.querySelector('.ui-icon-close').click();
 			}
+			
+			this.tabMarkers[id] = markers;
 			
 			var button = content.insertBefore(document.createElement('button'), content.lastChild);
 			button.textContent = 'Zoom to mission';
@@ -154,6 +160,8 @@ window.plugin.missions = {
 			}, false);
 			
 			var li = this.tabBar.appendChild(document.createElement('li'));
+			li.dataset['mission_id'] = id;
+			
 			var a = li.appendChild(document.createElement('a'));
 			a.textContent = mission.title;
 			a.href = '#mission_pane_'+id;
@@ -162,10 +170,11 @@ window.plugin.missions = {
 			span.className = 'ui-icon ui-icon-close';
 			span.textContent = 'Close mission';
 			span.addEventListener('click', function() {
-				this.unhighlightMissionPortals(markers);
+				this.removeMissionLayers(markers);
 				li.parentNode.removeChild(li);
 				content.parentNode.removeChild(content);
 				delete this.tabHeaders[id];
+				delete this.tabMarkers[id];
 				$(this.tabs)
 					.tabs('refresh')
 					.find('.ui-tabs-nav')
@@ -188,10 +197,13 @@ window.plugin.missions = {
 				html: content,
 				width: '450px',
 				closeCallback: function() {
-					me.unhighlightMissionPortals(markers);
+					me.removeMissionLayers(markers);
 				},
 				collapseCallback: this.collapseFix,
 				expandCallback: this.collapseFix,
+				focus: function() {
+					me.highlightMissionLayers(markers);
+				}
 			}).dialog('option', 'buttons', {
 				'Zoom to mission': function() {
 					me.zoomToMission(mission);
@@ -732,7 +744,7 @@ window.plugin.missions = {
 		});
 	},
 
-	highlightMissionPortals: function(mission) {
+	drawMission: function(mission) {
 		var markers = [];
 		var latlngs = [];
 		
@@ -741,7 +753,7 @@ window.plugin.missions = {
 				return;
 			}
 			
-			var radius = window.portals[waypoint.portal.guid] ? window.portals[waypoint.portal.guid].options.radius * 1.5 : 5;
+			var radius = window.portals[waypoint.portal.guid] ? window.portals[waypoint.portal.guid].options.radius * 1.75 : 5;
 			var ll = [waypoint.portal.latE6 / 1E6, waypoint.portal.lngE6 / 1E6];
 			latlngs.push(ll);
 			
@@ -749,7 +761,7 @@ window.plugin.missions = {
 					radius: radius,
 					weight: 3,
 					opacity: 1,
-					color: '#222',
+					color: this.MISSION_COLOR,
 					fill: false,
 					dashArray: null,
 					clickable: false
@@ -760,7 +772,7 @@ window.plugin.missions = {
 		}, this);
 		
 		var line = L.geodesicPolyline(latlngs, {
-			color: '#222',
+			color: this.MISSION_COLOR,
 			opacity: 1,
 			weight: 2,
 			clickable: false,
@@ -771,9 +783,19 @@ window.plugin.missions = {
 		return markers;
 	},
 
-	unhighlightMissionPortals: function(markers) {
+	removeMissionLayers: function(markers) {
 		markers.forEach(function(marker) {
 			this.missionLayer.removeLayer(marker);
+		}, this);
+	},
+
+	highlightMissionLayers: function(markers) {
+		this.missionLayer.eachLayer(function(layer) {
+			var active = (markers.indexOf(layer) !== -1);
+			layer.setStyle({
+				color: active ? this.MISSION_COLOR_ACTIVE : this.MISSION_COLOR,
+			});
+			if(active) layer.bringToFront();
 		}, this);
 	},
 
@@ -794,7 +816,7 @@ window.plugin.missions = {
 					radius: portal.options.radius + Math.ceil(portal.options.radius / 2),
 					weight: 3,
 					opacity: 1,
-					color: '#555',
+					color: this.MISSION_COLOR_START,
 					fill: false,
 					dashArray: null,
 					clickable: false
@@ -989,9 +1011,18 @@ window.plugin.missions = {
 			this.tabs = this.mobilePane.appendChild(document.createElement('div'));
 			this.tabBar = this.tabs.appendChild(document.createElement('ul'));
 			this.tabHeaders = {};
+			this.tabMarkers = {};
 			
 			$(this.tabs)
-				.tabs()
+				.tabs({
+					activate: function(event, ui) {
+						if(!ui.newTab) return;
+						
+						var header = $(ui.newTab)[0];
+						var id = header.dataset['mission_id'];
+						this.highlightMissionLayers(this.tabMarkers[id]);
+					}.bind(this),
+				})
 				.find('.ui-tabs-nav').sortable({
 					axis: 'x',
 					stop: function() {
