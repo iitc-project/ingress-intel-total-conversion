@@ -146,6 +146,13 @@ window.plugin.missions = {
 				this.tabHeaders[id].parentNode.querySelector('.ui-icon-close').click();
 			}
 			
+			var button = content.insertBefore(document.createElement('button'), content.lastChild);
+			button.textContent = 'Zoom to mission';
+			button.addEventListener('click', function() {
+				me.zoomToMission(mission);
+				show('map');
+			}, false);
+			
 			var li = this.tabBar.appendChild(document.createElement('li'));
 			var a = li.appendChild(document.createElement('a'));
 			a.textContent = mission.title;

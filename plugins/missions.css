@@ -8,6 +8,9 @@
 	position: absolute;
 	overflow: auto;
 }
+.plugin-mission-pane > button {
+	padding: 0.3em 2em;
+}
 
 .plugin-mission-summary {
 	padding: 5px;
