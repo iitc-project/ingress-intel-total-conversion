@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Hide user interface elements
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Hide user interface elements that you don't need or use the screenshot mode (Alt + H) to hide everything.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -28,31 +28,31 @@ window.plugin.hideUI.options = {};
 
 
 // write settings to local storage
-window.plugin.hideUI.saveSettings = function () {
+window.plugin.hideUI.saveSettings = function() {
   localStorage.setItem('hideUI', JSON.stringify(window.plugin.hideUI.options));
 };
 
 
 // load settings from local storage
-window.plugin.hideUI.loadSettings = function () {
+window.plugin.hideUI.loadSettings = function() {
   // if settings not available, create new object with default values
-  if (localStorage.getItem('hideUI') === null) {
+  if(localStorage.getItem('hideUI') === null) {
     var options = {
       // id: [boolean hidden, boolean changeable, boolean nested, string name],
-      chatwrapper:              [false, true,   false,  'Chat'],
-      chatinput:                [false, true,   true,   'Chat input'],
+      portal_highlight_select:  [false, true,   false,  'Portal highlighter'],
+      leafletcontrols:          [false, true,   false,  'Map controls'],
+      zoom:                     [false, true,   true,   'Zoom buttons'],
+      drawtools:                [false, true,   true,   'Drawtools'],
+      layer:                    [false, true,   true,   'Map layer'],
       sidebarwrapper:           [false, false,  false,  'Sidebar'],
       playerstat:               [false, true,   true,   'Playerinfo'],
       gamestat:                 [false, true,   true,   'Global score'],
       searchwrapper:            [false, true,   true,   'Search bar'],
       portaldetails:            [false, true,   true,   'Portal details'],
       redeem:                   [false, true,   true,   'Passcode redeem'],
+      chatwrapper:              [false, true,   false,  'Chat'],
+      chatinput:                [false, true,   true,   'Chat input'],
       updatestatus:             [false, true,   false,  'Status bar'],
-      leafletcontrols:          [false, true,   false,  'Map controls'],
-      layer:                    [false, true,   true,   'Map layer'],
-      zoom:                     [false, true,   true,   'Zoom buttons'],
-      drawtools:                [false, true,   true,   'Drawtools'],
-      portal_highlight_select:  [false, true,   false,  'Portal highlighter'],
       bookmarkswrapper:         [false, true,   false,  'Bookmarks'],
     };
 
@@ -64,53 +64,56 @@ window.plugin.hideUI.loadSettings = function () {
 
 
 // reset settings back to default values
-window.plugin.hideUI.resetSettings = function () {
+window.plugin.hideUI.resetSettings = function() {
   localStorage.removeItem('hideUI');
 
   window.plugin.hideUI.loadSettings();
   window.plugin.hideUI.applySettings();
+
+  window.plugin.hideUI.showOptions();
 };
 
 
 
 // hide or show UI elements depending on settings
-window.plugin.hideUI.applySettings = function () {
-  for (var id in window.plugin.hideUI.options) {
-    if (window.plugin.hideUI.options.hasOwnProperty(id)) {
+window.plugin.hideUI.applySettings = function() {
+  for(var id in window.plugin.hideUI.options) {
+    if(window.plugin.hideUI.options.hasOwnProperty(id)) {
       var option = window.plugin.hideUI.options[id];
 
-      if (option.hasOwnProperty('0')) {
-        if (option[0] === true) {
+      if(option.hasOwnProperty('0')) {
+        if(option[0] === true) {
           $('#' + id).hide();
 
           // if chatinput is hidden, move the chat down to the bottom
-          if (option[3] === 'Chat input') {
+          if(option[3] === 'Chat input') {
             $('#chatwrapper').addClass('noinput');
           };
 
           // move leaflet controls, when highlighter is hidden
-          if (option[3] === 'Portal highlighter') {
-            $(".leaflet-top.leaflet-left").css('padding-top', '0px');
-            $(".leaflet-control-scale-line").css('margin-top','0px');
+          if(option[3] === 'Portal highlighter') {
+            $('.leaflet-top.leaflet-left').css('padding-top', '0px');
+            $('.leaflet-control-scale-line').css('margin-top','0px');
           };
 
         } else {
-          $('#' + id).show();
+          // don't use show(), because it will block css classes to apply
+          $('#' + id).css('display', '');
 
           // if chat is activated, make sure there are messages to display
-          if (option[3] === 'Chat') {
+          if(option[3] === 'Chat') {
             window.chat.needMoreMessages();
           };
 
           // if chatinput is shown, move the chat back up
-          if (option[3] === 'Chat input') {
+          if(option[3] === 'Chat input') {
             $('#chatwrapper').removeClass('noinput');
           };
 
           // move leaflet controls, when highlighter is hidden
-          if (option[3] === 'Portal highlighter') {
-            $(".leaflet-top.leaflet-left").css('padding-top', '20px');
-            $(".leaflet-control-scale-line").css('margin-top','25px');
+          if(option[3] === 'Portal highlighter') {
+            $('.leaflet-top.leaflet-left').css('padding-top', '20px');
+            $('.leaflet-control-scale-line').css('margin-top','25px');
           };
 
         };
@@ -122,8 +125,8 @@ window.plugin.hideUI.applySettings = function () {
 
 
 // switch screenshot mode on or off
-window.plugin.hideUI.toggleScreenshotMode = function () {
-  if (window.plugin.hideUI.ScreenshotMode) {
+window.plugin.hideUI.toggleScreenshotMode = function() {
+  if(window.plugin.hideUI.ScreenshotMode) {
     $('#chatwrapper').show();
     $('#sidebarwrapper').show();
     $('#updatestatus').show();
@@ -132,8 +135,8 @@ window.plugin.hideUI.toggleScreenshotMode = function () {
     $('#leafletcontrols').show();
 
     // show dialogs
-    for (var id in window.DIALOGS) {
-      if (window.DIALOGS.hasOwnProperty(id)) {
+    for(var id in window.DIALOGS) {
+      if(window.DIALOGS.hasOwnProperty(id)) {
         $('#' + id).parent().show();
       }
     }
@@ -152,8 +155,8 @@ window.plugin.hideUI.toggleScreenshotMode = function () {
     $('#leafletcontrols').hide();
 
     // hide dialogs
-    for (var id in window.DIALOGS) {
-      if (window.DIALOGS.hasOwnProperty(id)) {
+    for(var id in window.DIALOGS) {
+      if(window.DIALOGS.hasOwnProperty(id)) {
         $('#' + id).parent().hide();
       }
     }
@@ -167,37 +170,42 @@ window.plugin.hideUI.toggleScreenshotMode = function () {
 
 
 window.plugin.hideUI.showOptions = function() {
-
   var html = '<a onclick="window.plugin.hideUI.resetSettings(); return false;">Reset Settings</a>' +
              '<hr>' +
              '<div class="bold">Always hide:</div>';
 
-  for (var key in window.plugin.hideUI.options) {
-    if (window.plugin.hideUI.options.hasOwnProperty(key)) {
-      var option = window.plugin.hideUI.options[key];
+  for(var id in window.plugin.hideUI.options) {
+    if(window.plugin.hideUI.options.hasOwnProperty(id)) {
+      // only show option if element/plugin is loaded
+      if($('#' + id).length) {
+        var option = window.plugin.hideUI.options[id];
 
-      if (option.hasOwnProperty('0')) {
-        html += '<label for="hideUI-'+key+'"';
+        if(option.hasOwnProperty('0')) {
+          html += '<label for="hideUI-'+id+'"';
 
-        if (option[2] === true) {
-          html += ' class="nested"';
-        };
+          // nested
+          if(option[2] === true) {
+            html += ' class="nested"';
+          };
 
-        html += '>' +
-                '<input type="checkbox" id="hideUI-'+key+'" ' +
-                'onclick="window.plugin.hideUI.options.'+key+'[0]=this.checked; ' +
-                'window.plugin.hideUI.saveSettings(); ' +
-                'window.plugin.hideUI.applySettings();"';
+          html += '>' +
+                  '<input type="checkbox" id="hideUI-'+id+'" ' +
+                  'onclick="window.plugin.hideUI.options.'+id+'[0]=this.checked; ' +
+                  'window.plugin.hideUI.saveSettings(); ' +
+                  'window.plugin.hideUI.applySettings();"';
 
-        if (option[0] === true) {
-          html += ' checked';
-        };
+          // hidden
+          if(option[0] === true) {
+            html += ' checked';
+          };
 
-        if (option[1] === false) {
-          html += ' disabled';
-        };
+          // changeable
+          if(option[1] === false) {
+            html += ' disabled';
+          };
 
-        html += '> '+option[3]+'</label>';
+          html += '> '+option[3]+'</label>';
+        }
       }
     }
   };
@@ -223,8 +231,8 @@ var setup =  function() {
     '#dialog-plugin-hideUI-options input { vertical-align: middle; }' +
     '.bold { font-weight: bold; }' +
     '.nested { margin-left: 20px; }' +
-    '.noinput > #chatcontrols { bottom: 59px; }' +
-    '.noinput > #chat { bottom: 0px; }' +
+    '.noinput > #chatcontrols, .noinput > #privacycontrols { bottom: 59px !important; }' +
+    '.noinput > #chat, .privacy_active .noinput > #privacycontrols { bottom: 0px !important; }' +
     '</style>');
 
   // wrap multiple divs that belong together in one div
@@ -243,7 +251,7 @@ var setup =  function() {
 
   document.addEventListener('keydown', function(e) {
     // pressed alt+h
-    if (e.keyCode == 72 && !e.shiftKey && !e.ctrlKey && e.altKey && !e.metaKey) {
+    if(e.keyCode === 72 && !e.shiftKey && !e.ctrlKey && e.altKey && !e.metaKey) {
       window.plugin.hideUI.toggleScreenshotMode();
     }
   }, false);
