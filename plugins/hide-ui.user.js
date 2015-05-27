@@ -141,8 +141,6 @@ window.plugin.hideUI.toggleScreenshotMode = function() {
       }
     }
 
-    $('*').css({'cursor': ''});
-
     window.plugin.hideUI.applySettings();
 
     window.plugin.hideUI.ScreenshotMode = false;
@@ -161,8 +159,6 @@ window.plugin.hideUI.toggleScreenshotMode = function() {
       }
     }
 
-    $('*').css({'cursor': 'none'});
-
     window.plugin.hideUI.ScreenshotMode = true;
   }
 };
@@ -170,7 +166,7 @@ window.plugin.hideUI.toggleScreenshotMode = function() {
 
 
 window.plugin.hideUI.showOptions = function() {
-  var html = '<a onclick="window.plugin.hideUI.resetSettings(); return false;">Reset Settings</a>' +
+  var html = '<button type="button" onclick="window.plugin.hideUI.resetSettings(); return false;">Reset Settings</button>' +
              '<hr>' +
              '<div class="bold">Always hide:</div>';
 
@@ -226,9 +222,10 @@ window.plugin.hideUI.showOptions = function() {
 
 var setup =  function() {
   $('head').append('<style>' +
-    '#dialog-plugin-hideUI-options a {display: block; color: #ffce00; border: 1px solid #ffce00; padding: 3px 0; margin: 10px auto; width: 80%; text-align: center; background: rgba(8,48,78,.9); }' +
+    '#dialog-plugin-hideUI-options button { display: block; margin: 10px auto; width: 80%; }' +
+    '#dialog-plugin-hideUI-options button:hover { cursor: pointer; text-decoration: underline;  }' +
     '#dialog-plugin-hideUI-options label { display: block; }' +
-    '#dialog-plugin-hideUI-options input { vertical-align: middle; }' +
+    '#dialog-plugin-hideUI-options input { vertical-align: middle; height: initial; }' +
     '.bold { font-weight: bold; }' +
     '.nested { margin-left: 20px; }' +
     '.noinput > #chatcontrols, .noinput > #privacycontrols { bottom: 59px !important; }' +
