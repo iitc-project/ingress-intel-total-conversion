@@ -92,12 +92,16 @@ window.plugin.drawTools.setOptions = function() {
 window.plugin.drawTools.setDrawColor = function(color) {
   window.plugin.drawTools.currentColor = color;
   window.plugin.drawTools.currentMarker = window.plugin.drawTools.getMarkerIcon(color);
-
-  window.plugin.drawTools.drawControl.setDrawingOptions({
-    'polygon': { 'shapeOptions': { color: color } },
-    'polyline': { 'shapeOptions': { color: color } },
-    'circle': { 'shapeOptions': { color: color } },
-    'marker': { 'icon': window.plugin.drawTools.currentMarker },
+  
+  window.plugin.drawTools.lineOptions.color = color;
+  window.plugin.drawTools.polygonOptions.color = color;
+  window.plugin.drawTools.markerOptions.icon = window.plugin.drawTools.currentMarker;
+  
+  plugin.drawTools.drawControl.setDrawingOptions({
+    polygon:  { shapeOptions: plugin.drawTools.polygonOptions },
+    polyline: { shapeOptions: plugin.drawTools.lineOptions },
+    circle:   { shapeOptions: plugin.drawTools.polygonOptions },
+    marker:   { icon:         plugin.drawTools.markerOptions.icon },
   });
 }
 

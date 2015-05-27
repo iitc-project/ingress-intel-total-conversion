@@ -292,6 +292,9 @@ addHook('search', function(query) {
           opacity: 0.7,
           weight: 2,
           fill: false,
+          pointToLayer: function(featureData,latLng) {
+            return createGenericMarker(latLng,'red');
+          }
         });
       }
 
