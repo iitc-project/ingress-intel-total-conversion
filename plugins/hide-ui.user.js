@@ -110,7 +110,7 @@ window.plugin.hideUI.applySettings = function() {
             $('#chatwrapper').removeClass('noinput');
           };
 
-          // move leaflet controls, when highlighter is hidden
+          // move leaflet controls, when highlighter is shown
           if(option[3] === 'Portal highlighter') {
             $('.leaflet-top.leaflet-left').css('padding-top', '20px');
             $('.leaflet-control-scale-line').css('margin-top','25px');
