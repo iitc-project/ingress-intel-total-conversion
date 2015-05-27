@@ -5,32 +5,10 @@
 window.extractFromStock = function() {
   window.niantic_params = {}
 
-  window.niantic_params.botguard_method_group_flag = {};
-
   // extract the former nemesis.dashboard.config.CURRENT_VERSION from the code
   var reVersion = new RegExp('[a-z]=[a-z].getData\\(\\);[a-z].v="([a-f0-9]{40})";');
 
-  // we also extract all top-level arrays of strings, for botguard
-  var arrays = [];
-
   var minified = new RegExp('^[a-zA-Z$][a-zA-Z$0-9]$');
-
-  // required for botguard
-  var requestPrototype = (function() {
-    for(var topLevel in window) {
-      if(!window[topLevel]) continue;
-      // need an example for a request object
-      for(var property in window[topLevel]) {
-        try {
-          if(window[topLevel][property] == "getRegionScoreDetails") {
-            return Object.getPrototypeOf(window[topLevel]);
-          }
-        } catch(e) { // might throw SecurityError or others (noticed on top.opener, which might be cross-origin)
-          continue;
-        }
-      }
-    }
-  })();
 
   for (var topLevel in window) {
     if (minified.test(topLevel)) {
@@ -57,17 +35,61 @@ window.extractFromStock = function() {
             }
           }
         }
+
       } //end 'if .prototype'
 
-      // finding the required method names for the botguard interface code
-      if(topObject && typeof topObject == "object" && Object.getPrototypeOf(topObject) == requestPrototype) {
-        var methodKey = Object
-          .keys(topObject)
-          .filter(function(key) { return typeof key == "string"; })[0];
+      if (topObject && Array.isArray && Array.isArray(topObject)) {
+        // find all non-zero length arrays containing just numbers
+        if (topObject.length>0) {
+          var justInts = true;
+          for (var i=0; i<topObject.length; i++) {
+            if (typeof(topObject[i]) !== 'number' || topObject[i] != parseInt(topObject[i])) {
+              justInts = false;
+              break;
+            }
+          }
+          if (justInts) {
 
-        for(var secLevel in topObject) {
-          if(typeof topObject[secLevel] == "boolean") {
-            window.niantic_params.botguard_method_group_flag[topObject[methodKey]] = topObject[secLevel];
+            // current lengths are: 17: ZOOM_TO_LEVEL, 16: TILES_PER_EDGE
+            // however, slightly longer or shorter are a possibility in the future
+
+            if (topObject.length >= 15 && topObject.length <= 18) {
+              // a reasonable array length for tile parameters
+              // need to find two types:
+              // a. portal level limits. decreasing numbers, starting at 8
+              // b. tiles per edge. increasing numbers. current max is 36000, 9000 was the previous value - 18000 is a likely possibility too
+
+              if (topObject[0] == 8) {
+                // check for tile levels
+                var decreasing = true;
+                for (var i=1; i<topObject.length; i++) {
+                  if (topObject[i-1] < topObject[i]) {
+                    decreasing = false;
+                    break;
+                  }
+                }
+                if (decreasing) {
+                  console.log ('int array '+topLevel+' looks like ZOOM_TO_LEVEL: '+JSON.stringify(topObject));
+                  window.niantic_params.ZOOM_TO_LEVEL = topObject;
+                }
+              } // end if (topObject[0] == 8)
+
+              if (topObject[topObject.length-1] == 36000 || topObject[topObject.length-1] == 18000 || topObject[topObject.length-1] == 9000) {
+                var increasing = true;
+                for (var i=1; i<topObject.length; i++) {
+                  if (topObject[i-1] > topObject[i]) {
+                    increasing = false;
+                    break;
+                  }
+                }
+                if (increasing) {
+                  console.log ('int array '+topLevel+' looks like TILES_PER_EDGE: '+JSON.stringify(topObject));
+                  window.niantic_params.TILES_PER_EDGE = topObject;
+                }
+
+              } //end if (topObject[topObject.length-1] == 9000) {
+
+            }
           }
         }
       }
@@ -77,7 +99,7 @@ window.extractFromStock = function() {
   }
 
 
-  if (niantic_params.CURRENT_VERSION === undefined || Object.keys(window.niantic_params.botguard_method_group_flag).length == 0) {
+  if (niantic_params.CURRENT_VERSION === undefined) {
     dialog({
       title: 'IITC Broken',
       html: '<p>IITC failed to extract the required parameters from the intel site</p>'

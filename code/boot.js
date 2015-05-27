@@ -165,7 +165,7 @@ window.setupMap = function() {
     center: [0,0],
     zoom: 1,
     zoomControl: (typeof android !== 'undefined' && android && android.showZoom) ? android.showZoom() : true,
-    minZoom: 1,
+    minZoom: MIN_ZOOM,
 //    zoomAnimation: false,
     markerZoomAnimation: false,
     bounceAtZoomLimits: false
@@ -586,11 +586,11 @@ function boot() {
   }});
 
   window.extractFromStock();
-  window.iitc_bg.init(); //NOTE: needs to be early (before any requests sent), but after extractFromStock()
   window.setupIdle();
   window.setupTaphold();
   window.setupStyles();
   window.setupDialogs();
+  window.setupDataTileParams();
   window.setupMap();
   window.setupOMS();
   window.search.setup();
