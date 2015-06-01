@@ -1,6 +1,3 @@
-ingress intel total conversion (IITC)
-=====================================
-
 ## What this fork is
 
 This is me messing around with IITC. 
@@ -12,6 +9,9 @@ Changes to Bookmarks plugin:
 - Export to Tab Separated Values
 - Export bookmarks to a list of URLS for http://www.ingress-maxfield.com/
 - Export bookmarks to a list of URLS for http://www.ingressrouteplanner.com/
+
+ingress intel total conversion (IITC)
+=====================================
 
 Since the [breunigs](https://github.com/breunigs/ingress-intel-total-conversion) IITC branch was deleted,
 I've created this one to continue some development.
