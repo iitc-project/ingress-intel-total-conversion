@@ -35,6 +35,8 @@ window.artifact.requestData = function() {
   if (isIdle()) {
     artifact.idle = true;
   } else {
+    // new API available in stock (2015-05-21) - 'getArtifactPortals'
+    // stock still uses this one, and the new method doesn't yet return anything, but they might be changing things soon...
     window.postAjax('artifacts', {}, artifact.handleSuccess, artifact.handleError);
   }
 }

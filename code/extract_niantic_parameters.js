@@ -5,29 +5,10 @@
 window.extractFromStock = function() {
   window.niantic_params = {}
 
-  window.niantic_params.botguard_method_group_flag = {};
-
   // extract the former nemesis.dashboard.config.CURRENT_VERSION from the code
   var reVersion = new RegExp('[a-z]=[a-z].getData\\(\\);[a-z].v="([a-f0-9]{40})";');
 
   var minified = new RegExp('^[a-zA-Z$][a-zA-Z$0-9]$');
-
-  // required for botguard
-  var requestPrototype = (function() {
-    for(var topLevel in window) {
-      if(!window[topLevel]) continue;
-      // need an example for a request object
-      for(var property in window[topLevel]) {
-        try {
-          if(window[topLevel][property] == "getRegionScoreDetails") {
-            return Object.getPrototypeOf(window[topLevel]);
-          }
-        } catch(e) { // might throw SecurityError or others (noticed on top.opener, which might be cross-origin)
-          continue;
-        }
-      }
-    }
-  })();
 
   for (var topLevel in window) {
     if (minified.test(topLevel)) {
@@ -114,25 +95,11 @@ window.extractFromStock = function() {
       }
 
 
-      // finding the required method names for the botguard interface code
-      if(topObject && typeof topObject == "object" && Object.getPrototypeOf(topObject) == requestPrototype) {
-        var methodKey = Object
-          .keys(topObject)
-          .filter(function(key) { return typeof key == "string"; })[0];
-
-        for(var secLevel in topObject) {
-          if(typeof topObject[secLevel] == "boolean") {
-            window.niantic_params.botguard_method_group_flag[topObject[methodKey]] = topObject[secLevel];
-          }
-        }
-      }
-
-
     }
   }
 
 
-  if (niantic_params.CURRENT_VERSION === undefined || Object.keys(window.niantic_params.botguard_method_group_flag).length == 0) {
+  if (niantic_params.CURRENT_VERSION === undefined) {
     dialog({
       title: 'IITC Broken',
       html: '<p>IITC failed to extract the required parameters from the intel site</p>'

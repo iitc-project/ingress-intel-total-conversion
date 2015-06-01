@@ -13,6 +13,11 @@ offers many more features. It is available for
 
 <h3>Latest news</h3>
 
+<h4>27th May 2015</h4>
+<p>
+IITC 0.23.0 has been released. This is a critical update needed to fix IITC after a Niantic site update.
+</p>
+
 <h4>8th May 2015</h4>
 <p>
 IITC 0.22.3 has been released. Changes include

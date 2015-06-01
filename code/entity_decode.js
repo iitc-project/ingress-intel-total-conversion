@@ -25,6 +25,16 @@
       energy: arr[2],
     };
   }
+  function parseArtifact(arr) {
+    if (arr == null) { return null; }
+    // empty artifact data is pointless - ignore it
+    if (arr.length == 3 && arr[0] == "" && arr[1] == "" && arr[2].length == 0) { return null; }
+    return {
+      type: arr[0],
+      displayName: arr[1],
+      fragments: arr[2],
+    };
+  }
 
 
   var summaryArrayLength = undefined;
@@ -71,7 +81,8 @@
     return $.extend(basePortalData(a),{
       mods:      a[summaryArrayLength+0].map(parseMod),
       resonators:a[summaryArrayLength+1].map(parseResonator),
-      owner:     a[summaryArrayLength+2]
+      owner:     a[summaryArrayLength+2],
+      artifact:  parseArtifact(a[summaryArrayLength+3]),
     });
     
   }
