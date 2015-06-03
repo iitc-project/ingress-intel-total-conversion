@@ -785,12 +785,15 @@ window.plugin.missions = {
 	},
 
 	highlightMissionLayers: function(markers) {
+		// layer.bringToFront() will break if the layer is not visible
+		var bringToFront = map.hasLayer(plugin.missions.missionLayer);
+		
 		this.missionLayer.eachLayer(function(layer) {
 			var active = (markers.indexOf(layer) !== -1);
 			layer.setStyle({
 				color: active ? this.MISSION_COLOR_ACTIVE : this.MISSION_COLOR,
 			});
-			if(active) layer.bringToFront();
+			if(active && bringToFront) layer.bringToFront();
 		}, this);
 	},
 
