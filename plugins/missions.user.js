@@ -117,22 +117,17 @@ window.plugin.missions = {
 	},
 
 	openPortalMissions: function() {
-		var me = this,
-			portal = window.portals[window.selectedPortal];
-		if (!portal) {
-			return;
-		}
 		this.loadPortalMissions(window.selectedPortal, function(missions) {
 			if (!missions.length) {
 				return;
 			}
 
 			if (missions.length === 1) {
-				me.loadMission(missions[0].guid, me.showMissionDialog.bind(me));
+				this.loadMission(missions[0].guid, this.showMissionDialog.bind(this));
 			} else {
-				me.showMissionListDialog(missions);
+				this.showMissionListDialog(missions);
 			}
-		});
+		}.bind(this));
 	},
 
 	openMission: function(guid) {
@@ -274,7 +269,7 @@ window.plugin.missions = {
 			return;
 		}
 		window.postAjax('getTopMissionsForPortal', {
-			guid: window.selectedPortal
+			guid: guid,
 		}, function(data) {
 			var missions = data.result.map(decodeMissionSummary);
 			if (!missions) {
