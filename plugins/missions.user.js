@@ -259,7 +259,7 @@ window.plugin.missions = {
 			}
 			callback(missions);
 		}, function(error) {
-			console.log('Error loading missions in bounds', arguments);
+			console.error('Error loading missions in bounds', arguments);
 			if (errorcallback) {
 				errorcallback(error);
 			}
@@ -293,7 +293,7 @@ window.plugin.missions = {
 			me.storeCache();
 			callback(missions);
 		}, function(error) {
-			console.log('Error loading portal missions', arguments);
+			console.error('Error loading portal missions', arguments);
 			if (errorcallback) {
 				errorcallback(error);
 			}
