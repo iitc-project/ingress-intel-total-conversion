@@ -12,8 +12,8 @@
 
 window.setupDataTileParams = function() {
   // default values - used to fall back to if we can't detect those used in stock intel
-  var DEFAULT_ZOOM_TO_TILES_PER_EDGE = [256, 256, 256, 256, 512, 512, 512, 2048, 2048, 2048, 4096, 4096, 6500, 6500, 6500, 18e3, 18e3, 36e3];
-  var DEFAULT_ZOOM_TO_LEVEL = [ 8, 8, 8, 8, 7, 7, 7, 6, 6, 5, 4, 4, 3, 2, 2, 1, 1 ];
+  var DEFAULT_ZOOM_TO_TILES_PER_EDGE = [256,256,256,256,512,512,512,2048,2048,4096,4096,6500,6500,6500,18000,18000,36000];
+  var DEFAULT_ZOOM_TO_LEVEL = [8,8,8,8,7,7,7,6,6,5,4,4,3,2,2,1,1];
 
 
   window.TILE_PARAMS = {};
@@ -25,11 +25,11 @@ window.setupDataTileParams = function() {
 
     // lazy numerical array comparison
     if ( JSON.stringify(niantic_params.ZOOM_TO_LEVEL) != JSON.stringify(DEFAULT_ZOOM_TO_LEVEL)) {
-      console.warn('Tile parameter ZOOM_TO_LEVEL have changed in stock intel. Detectec correct values, but code should be updated');
+      console.warn('Tile parameter ZOOM_TO_LEVEL have changed in stock intel. Detected correct values, but code should be updated');
       debugger;
     }
     if ( JSON.stringify(niantic_params.TILES_PER_EDGE) != JSON.stringify(DEFAULT_ZOOM_TO_TILES_PER_EDGE)) {
-      console.warn('Tile parameter ZOOM_TO_LEVEL have changed in stock intel. Detectec correct values, but code should be updated');
+      console.warn('Tile parameter ZOOM_TO_LEVEL have changed in stock intel. Detected correct values, but code should be updated');
       debugger;
     }
 
