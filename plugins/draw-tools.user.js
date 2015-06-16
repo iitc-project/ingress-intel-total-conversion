@@ -60,6 +60,8 @@ window.plugin.drawTools.getMarkerIcon = function(color) {
 window.plugin.drawTools.currentColor = '#a24ac3';
 window.plugin.drawTools.markerTemplate = '@@INCLUDESTRING:images/marker-icon.svg.template@@';
 
+window.plugin.drawTools.storageKEY = 'plugin-draw-tools-layer';
+
 window.plugin.drawTools.setOptions = function() {
 
   window.plugin.drawTools.lineOptions = {
@@ -266,14 +268,14 @@ window.plugin.drawTools.save = function() {
     data.push(item);
   });
 
-  localStorage['plugin-draw-tools-layer'] = JSON.stringify(data);
+  localStorage[window.plugin.drawTools.storageKEY] = JSON.stringify(data);
 
   console.log('draw-tools: saved to localStorage');
 }
 
 window.plugin.drawTools.load = function() {
   try {
-    var dataStr = localStorage['plugin-draw-tools-layer'];
+    var dataStr = localStorage[window.plugin.drawTools.storageKEY];
     if (dataStr === undefined) return;
 
     var data = JSON.parse(dataStr);
@@ -362,6 +364,7 @@ window.plugin.drawTools.manualOpt = function() {
 //    move: function(color) { window.plugin.drawTools.setDrawColor(color.toHexString()); },
     color: window.plugin.drawTools.currentColor,
   });
+  runHooks('pluginDrawTools', {event: 'openOpt'});
 }
 
 window.plugin.drawTools.optAlert = function(message) {
@@ -371,7 +374,7 @@ window.plugin.drawTools.optAlert = function(message) {
 
 window.plugin.drawTools.optCopy = function() {
     if (typeof android !== 'undefined' && android && android.shareString) {
-        android.shareString(localStorage['plugin-draw-tools-layer']);
+        android.shareString(localStorage[window.plugin.drawTools.storageKEY]);
     } else {
       var stockWarnings = {};
       var stockLinks = [];
@@ -411,7 +414,7 @@ window.plugin.drawTools.optCopy = function() {
       if (stockWarnings.unknown) stockWarnTexts.push('Warning: UNKNOWN ITEM TYPE');
 
       var html = '<p><a onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p>'
-                +'<textarea readonly onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">'+localStorage['plugin-draw-tools-layer']+'</textarea>'
+                +'<textarea readonly onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">'+localStorage[window.plugin.drawTools.storageKEY]+'</textarea>'
                 +'<p>or, export as a link for the standard intel map (for non IITC users)</p>'
                 +'<input onclick="event.target.select();" type="text" size="90" value="'+stockUrl+'"/>';
       if (stockWarnTexts.length>0) {
@@ -429,7 +432,7 @@ window.plugin.drawTools.optCopy = function() {
 
 window.plugin.drawTools.optExport = function() {
   if(typeof android !== 'undefined' && android && android.saveFile) {
-    android.saveFile('IITC-drawn-items.json', 'application/json', localStorage['plugin-draw-tools-layer']);
+    android.saveFile('IITC-drawn-items.json', 'application/json', localStorage[window.plugin.drawTools.storageKEY]);
   }
 }
 
@@ -513,7 +516,7 @@ window.plugin.drawTools.optImport = function() {
 window.plugin.drawTools.optReset = function() {
   var promptAction = confirm('All drawn items will be deleted. Are you sure?', '');
   if(promptAction) {
-    delete localStorage['plugin-draw-tools-layer'];
+    delete localStorage[window.plugin.drawTools.storageKEY];
     window.plugin.drawTools.drawnItems.clearLayers();
     window.plugin.drawTools.load();
     console.log('DRAWTOOLS: reset all drawn items');
