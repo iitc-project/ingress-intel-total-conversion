@@ -2,7 +2,7 @@
 // @id             iitc-plugin-draw-projects@zaso
 // @name           IITC plugin: Draw Projects
 // @category       Layer
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -30,6 +30,11 @@ window.plugin.drawProjects.PREKEY = 'plugin-draw-tools-layer';
 window.plugin.drawProjects.projects = [];
 
 window.plugin.drawProjects.scanStorage = function() {
+  // Create drawtools default localstorage if it not exist
+  if(!window.localStorage[window.plugin.drawProjects.PREKEY]) {
+    window.localStorage[window.plugin.drawProjects.PREKEY] = '';
+  }
+
   for(field in window.localStorage) {
     if(field.includes(window.plugin.drawProjects.PREKEY)) {
       window.plugin.drawProjects.projects.push(field);
@@ -67,7 +72,6 @@ window.plugin.drawProjects.clearAndDraw = function() {
   window.plugin.drawTools.drawnItems.clearLayers();
   window.plugin.drawTools.load();
   console.log('DRAWTOOLS: reset all drawn items');
-  runHooks('pluginDrawTools', {event: 'clear'});
 }
 
 window.plugin.drawProjects.createNewProject = function() {
@@ -89,18 +93,26 @@ window.plugin.drawProjects.switchProject = function() {
   var namePrj = $('#drawProjects select').val();
   window.plugin.drawTools.storageKEY = namePrj;
   window.plugin.drawProjects.clearAndDraw();
+  runHooks('pluginDrawTools', {event: 'switch'});
 }
 
-window.plugin.drawProjects.deleteProject = function() {
-  var id = $('#drawProjects select').val();
-  if(id != window.plugin.drawProjects.PREKEY) {
-    var index = window.plugin.drawProjects.projects.indexOf(id);
+window.plugin.drawProjects.deleteProject = function(data) {
+  // If a localStorage is deleted
+  if(data.event == 'clear') {
+    var id = $('#drawProjects select').val();
 
-    $('#drawProjects select option[value = "'+id+'"]').remove();
-    delete localStorage[id];
-    if(index >= 0) { window.plugin.drawProjects.projects.splice(index, 1); }
+    if(id != window.plugin.drawProjects.PREKEY) { // Not remove "html option to select the Stock Project"
+      // Search in the projects array the index of the project deleted
+      var index = window.plugin.drawProjects.projects.indexOf(id);
+      // Remove from DOM the option to select the project deleted
+      $('#drawProjects select option[value = "'+id+'"]').remove();
+      // Remove from the projects array the project deleted
+      if(index >= 0) { window.plugin.drawProjects.projects.splice(index, 1); }
+    }
 
+    // Reset the current localstorage key to the default value
     window.plugin.drawTools.storageKEY = window.plugin.drawProjects.PREKEY;
+    // Clean and redraw the layer
     window.plugin.drawProjects.clearAndDraw();
   }
 }
@@ -114,9 +126,9 @@ window.plugin.drawProjects.openDrawOptBox = function(data) {
     $('#dialog-plugin-drawtools-options').append('<div id="drawProjectsManager"></div>');
     $('#drawProjectsManager')
         .append('<h4>Draw Projects</h4>')
-        .append('<div id="expProjAdd"><input placeholder="Insert new draw project name" /><a onclick="window.plugin.drawProjects.createNewProject();return false">Add</a></div>')
-        .append('<a id="expProjDel" onclick="window.plugin.drawProjects.deleteProject();return false;">Delet current projects</a>');
-  }
+        .append('<div id="drawProjAdd"><input placeholder="Insert new draw project name" /><a onclick="window.plugin.drawProjects.createNewProject();return false">Add</a></div>')
+        .append('<small>NB: The stock "Drawtools Opt" commands will be applied to the currents project.</small>')
+  ;}
 }
 
 window.plugin.drawProjects.appendBox = function() {
@@ -144,18 +156,21 @@ window.plugin.drawProjects.setupCSS = function() {
 
     +'#drawProjectsManager *{color:#ffce00;text-align:center;box-sizing:border-box;box-sizing:border-box;height:23px;}'
     +'#drawProjectsManager h4{margin:15px 0 6px;}'
-    +'#drawProjectsManager div#expProjAdd a,#drawProjectsManager a#expProjDel{display:block;border:1px solid #ffce00;padding:3px 0;margin:10px auto;width:80%;background:rgba(8,48,78,.9);}'
-    +'#drawProjectsManager div#expProjAdd *{float:left;}'
-    +'#drawProjectsManager div#expProjAdd{width:80%;margin:0 10%;}'
-    +'#drawProjectsManager div#expProjAdd input{border:1px solid #ffce00;padding:3px 0;width:80%;background:rgba(8,48,78,.9);text-align:left;text-indent:7px;}'
-    +'#drawProjectsManager div#expProjAdd a{width:20%;margin:0;border-left:none;}'
-    +'#drawProjectsManager a#expProjDel{clear: both;}'
+    +'#drawProjectsManager a{display:block;border:1px solid #ffce00;padding:3px 0;margin:10px auto;width:80%;background:rgba(8,48,78,.9);}'
+
+    +'#drawProjectsManager div#drawProjAdd{width:80%;margin:0 10%;}'
+    +'#drawProjectsManager div#drawProjAdd *{float:left;}'
+    +'#drawProjectsManager div#drawProjAdd input{border:1px solid #ffce00;padding:3px 0;width:80%;background:rgba(8,48,78,.9);text-align:left;text-indent:7px;}'
+    +'#drawProjectsManager div#drawProjAdd a{width:20%;margin:0;border-left:none;}'
+    +'#drawProjectsManager > a{clear: both;}'
+    +'#drawProjectsManager small{width:80%;display:block;text-align:left;margin:5px auto;}'
   ).appendTo("head");
 }
 
 var setup = function() {
   if($.inArray('pluginDrawTools', window.VALID_HOOKS) < 0) { window.VALID_HOOKS.push('pluginDrawTools'); }
   window.addHook('pluginDrawTools', window.plugin.drawProjects.openDrawOptBox);
+  window.addHook('pluginDrawTools', window.plugin.drawProjects.deleteProject);
 
   window.plugin.drawProjects.setupCSS();
   window.plugin.drawProjects.scanStorage();
