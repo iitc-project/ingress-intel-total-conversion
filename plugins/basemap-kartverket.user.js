@@ -30,12 +30,12 @@ window.plugin.mapTileKartverketMap.addLayer = function() {
 
   // Map data from Kartverket (http://statkart.no/en/)
   kartverketAttribution = 'Map data © Kartverket';
-	var kartverketOpt = {attribution: kartverketAttribution, maxNativeZoom: 18, maxZoom: 21, subdomains: ['opencache', 'opencache2', 'opencache3']};
-	var kartverketTopo2 = new L.TileLayer('http://{s}.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo2&zoom={z}&x={x}&y={y}', kartverketOpt);
+  var kartverketOpt = {attribution: kartverketAttribution, maxNativeZoom: 18, maxZoom: 21, subdomains: ['opencache', 'opencache2', 'opencache3']};
+  var kartverketTopo2 = new L.TileLayer('http://{s}.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo2&zoom={z}&x={x}&y={y}', kartverketOpt);
   var kartverketTopo2Grayscale = new L.TileLayer('http://{s}.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo2graatone&zoom={z}&x={x}&y={y}', kartverketOpt);
   var kartverketBasemap = new L.TileLayer('http://{s}.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=norges_grunnkart&zoom={z}&x={x}&y={y}', kartverketOpt);
   var kartverketBasemapGrayscale = new L.TileLayer('http://{s}.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=norges_grunnkart_graatone&zoom={z}&x={x}&y={y}', kartverketOpt);
-    
+
   layerChooser.addBaseLayer(kartverketBasemap, "Norway Basemap");
   layerChooser.addBaseLayer(kartverketBasemapGrayscale, "Norway Basemap Grayscale");
   layerChooser.addBaseLayer(kartverketTopo2, "Norway Topo");
