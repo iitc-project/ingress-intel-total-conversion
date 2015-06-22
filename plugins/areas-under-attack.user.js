@@ -36,7 +36,7 @@ window.plugin.areasUnderAttack.removePortalList = {}; // list of attacked portal
 window.plugin.areasUnderAttack.removeLinkList = {}; // list of links previously highlighted that need de-highlighting
 window.plugin.areasUnderAttack.removeFieldList = {}; //list of fields previously highlighted that need de-highlighting
 window.plugin.areasUnderAttack.portalsLoaded = false; // set to true once initial display of portals has finished
-window.plugin.areasUnderAttack.css3enabled = true;
+window.plugin.areasUnderAttack.style = 'css3';
 
 window.plugin.areasUnderAttack.setupCSS = function () {
     $("<style>").prop("type", "text/css").html(''
@@ -158,12 +158,24 @@ window.plugin.areasUnderAttack.setupToolbox = function(){
 };
 
 window.plugin.areasUnderAttack.showConfigDialog = function(){
-    var html = '<div><label for="toggle">Enable CSS3 Transitions</label>'
-        + '<input type="checkbox" id="css3enable" onclick="window.plugin.areasUnderAttack.setCSS3(this.checked)" ';
-    if(window.plugin.areasUnderAttack.css3enabled === true){
+    var html = '<div>';
+    html += '<p>Select style of highlighting.</p>';
+    html += '<input type="radio" name="plugin-areasunderattack-style" value="disabled" onclick="window.plugin.areasUnderAttack.setStyle(\'disabled\')" ';
+    if(window.plugin.areasUnderAttack.style === 'disabled'){
         html += 'checked="checked" ';
     }
-    html += '/></div>';
+    html += '/><label>Disabled</label><br/>'
+    html += '<input type="radio" name="plugin-areasunderattack-style" value="static" onclick="window.plugin.areasUnderAttack.setStyle(\'static\')" ';
+    if(window.plugin.areasUnderAttack.style === 'static'){
+        html += 'checked="checked" ';
+    }
+    html += '/><label>Static (Apply red colour but no pulse effect)</label><br/>'
+    html += '<input type="radio" name="plugin-areasunderattack-style" value="css3" onclick="window.plugin.areasUnderAttack.setStyle(\'css3\')" ';
+    if(window.plugin.areasUnderAttack.style === 'css3'){
+        html += 'checked="checked" ';
+    }
+    html += '/><label>CSS3 (Pulse attacked areas red)</label><br/>'
+    html += '</div>';
     dialog({
         html: html,
         id: 'plugin-areasUnderAttack-options',
@@ -171,8 +183,10 @@ window.plugin.areasUnderAttack.showConfigDialog = function(){
     });
 };
 
-window.plugin.areasUnderAttack.setCSS3 = function(enabled){
-    window.plugin.areasUnderAttack.css3enabled = enabled;
+window.plugin.areasUnderAttack.setStyle = function(style){
+    console.log("Setting style to " + style);
+    window.plugin.areasUnderAttack.style = style;
+    localStorage["plugin-areasUnderAttack-style"] = style;
 };
 
 window.plugin.areasUnderAttack.isPortalSameTeam = function (portal) {
@@ -315,7 +329,6 @@ window.plugin.areasUnderAttack.refreshFields = function () {
 };
 
 window.plugin.areasUnderAttack.runHighlighters = function () {
-    console.log('css3enabled = ' + window.plugin.areasUnderAttack.css3enabled)
     var portalList = window.plugin.areasUnderAttack.portalList;
     var linkList = window.plugin.areasUnderAttack.linkList;
     var fieldList = window.plugin.areasUnderAttack.fieldList;
@@ -337,17 +350,21 @@ window.plugin.areasUnderAttack.runHighlighters = function () {
         var portal = window.portals[pguid];
         if (portal) {
             //console.log(portal);
-            if(window.plugin.areasUnderAttack.css3enabled === true){
+            if(window.plugin.areasUnderAttack.style === 'css3'){
                 portal._path.classList.remove("plugin-areas-under-attack-light");
                 if (portal.options.data.team === 'R') {
                     portal._path.classList.add("plugin-areas-under-attack-blue");
                 } else {
                     portal._path.classList.add("plugin-areas-under-attack-green");
                 }
-            } else {
+            } else if(window.plugin.areasUnderAttack.style === 'static'){
                 portal._path.classList.remove("plugin-areas-under-attack-blue");
                 portal._path.classList.remove("plugin-areas-under-attack-green");
                 portal._path.classList.add("plugin-areas-under-attack-light");
+            } else {
+                portal._path.classList.remove("plugin-areas-under-attack-light");
+                portal._path.classList.remove("plugin-areas-under-attack-blue");
+                portal._path.classList.remove("plugin-areas-under-attack-green");
             }
         }
     }
@@ -366,15 +383,19 @@ window.plugin.areasUnderAttack.runHighlighters = function () {
         var link = linkList[lguid];
         if (link) {
             //console.log(link);
-            if(window.plugin.areasUnderAttack.css3enabled === true) {
+            if(window.plugin.areasUnderAttack.style === 'css3') {
                 link._path.classList.remove("plugin-areas-under-attack-light");
                 if (link.options.data.team === 'R') {
                     link._path.classList.add("plugin-areas-under-attack-blue");
                 } else {
                     link._path.classList.add("plugin-areas-under-attack-green");
                 }
-            } else {
+            } else if(window.plugin.areasUnderAttack.style === 'static'){
                 link._path.classList.add("plugin-areas-under-attack-light");
+                link._path.classList.remove("plugin-areas-under-attack-blue");
+                link._path.classList.remove("plugin-areas-under-attack-green");
+            } else {
+                link._path.classList.remove("plugin-areas-under-attack-light");
                 link._path.classList.remove("plugin-areas-under-attack-blue");
                 link._path.classList.remove("plugin-areas-under-attack-green");
             }
@@ -395,15 +416,19 @@ window.plugin.areasUnderAttack.runHighlighters = function () {
         var field = fieldList[fguid];
         if (field) {
             //console.log(field);
-            if(window.plugin.areasUnderAttack.css3enabled === true) {
+            if(window.plugin.areasUnderAttack.style === 'css3') {
                 field._path.classList.remove("plugin-areas-under-attack-field-light");
                 if (field.options.data.team === 'R') {
                     field._path.classList.add("plugin-areas-under-attack-field-blue");
                 } else {
                     field._path.classList.add("plugin-areas-under-attack-field-green");
                 }
-            } else {
+            } else if(window.plugin.areasUnderAttack.style === 'css3'){
                 field._path.classList.add("plugin-areas-under-attack-field-light");
+                field._path.classList.remove("plugin-areas-under-attack-field-blue");
+                field._path.classList.remove("plugin-areas-under-attack-field-green");
+            } else {
+                field._path.classList.remove("plugin-areas-under-attack-field-light");
                 field._path.classList.remove("plugin-areas-under-attack-field-blue");
                 field._path.classList.remove("plugin-areas-under-attack-field-green");
             }
@@ -438,6 +463,12 @@ window.plugin.areasUnderAttack.mapDataRefreshed = function () {
 };
 
 var setup = function () {
+    try{
+        window.plugin.areasUnderAttack.style = localStorage["plugin-areasUnderAttack-style"]
+    } catch(e) {
+        console.warn(e);
+        window.plugin.areasUnderAttack.style = 'css3';
+    }
     window.plugin.areasUnderAttack.setupCSS();
     window.plugin.areasUnderAttack.setupToolbox();
     window.addHook('publicChatDataAvailable', window.plugin.areasUnderAttack.chatDataLoaded);
