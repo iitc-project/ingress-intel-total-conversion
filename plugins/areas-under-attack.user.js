@@ -1,12 +1,12 @@
 // ==UserScript==
 // @id             iitc-plugin-areas-under-attack@bryndavies
 // @name           IITC plugin: highlight areas recently under attack
-// @category       Highlighter
+// @category       Tweaks
 // @version        0.0.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Highlight areas under attack in last 15 mins by flashing portals, links and fields red. Only uses chat data to determine attacked portals.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Highlight areas under attack in last 15 mins by flashing portals, links and fields red. Uses chat data to determine attacked portals.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
