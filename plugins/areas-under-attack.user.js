@@ -464,7 +464,11 @@ window.plugin.areasUnderAttack.mapDataRefreshed = function () {
 
 var setup = function () {
     try{
-        window.plugin.areasUnderAttack.style = localStorage["plugin-areasUnderAttack-style"]
+        var style = localStorage["plugin-areasUnderAttack-style"];
+        if(style !== undefined && style !== null){
+            window.plugin.areasUnderAttack.style = style;
+
+        }
     } catch(e) {
         console.warn(e);
         window.plugin.areasUnderAttack.style = 'css3';
