@@ -12,14 +12,15 @@ window.getRangeText = function(d) {
   
   if(!range.isLinkable) title += '\nPortal is missing resonators,\nno new links can be made';
   
-  return ['<span title="' + title + '">range</span>',
+  return ['range',
       '<a onclick="window.rangeLinkClick()"'
     + (range.isLinkable ? '' : ' style="text-decoration:line-through;"')
-    + ' title="'+title+'">'
+    + '>'
     + (range.range > 1000
       ? Math.floor(range.range/1000) + ' km'
       : Math.floor(range.range)      + ' m')
-    + '</a>'];
+    + '</a>',
+    title];
 }
 
 // generates description text from details for portal
@@ -151,9 +152,9 @@ window.getModDetails = function(d) {
 window.getEnergyText = function(d) {
   var currentNrg = getCurrentPortalEnergy(d);
   var totalNrg = getTotalPortalEnergy(d);
-  var inf = currentNrg + ' / ' + totalNrg;
+  var title = currentNrg + ' / ' + totalNrg;
   var fill = prettyEnergy(currentNrg) + ' / ' + prettyEnergy(totalNrg)
-  return ['energy', '<tt title="'+inf+'">' + fill + '</tt>'];
+  return ['energy', fill, title];
 }
 
 
@@ -237,22 +238,19 @@ window.getAttackApGainText = function(d,fieldCount,linkCount) {
   var breakdown = getAttackApGain(d,fieldCount,linkCount);
   var totalGain = breakdown.enemyAp;
 
-  function tt(text) {
-    var t = '';
-    if (teamStringToId(PLAYER.team) == teamStringToId(d.team)) {
-      totalGain = breakdown.friendlyAp;
-      t += 'Friendly AP:\t' + breakdown.friendlyAp + '\n';
-      t += '  Deploy ' + breakdown.deployCount + ', ';
-      t += 'Upgrade ' + breakdown.upgradeCount + '\n';
-      t += '\n';
-    }
-    t += 'Enemy AP:\t' + breakdown.enemyAp + '\n';
-    t += '  Destroy AP:\t' + breakdown.destroyAp + '\n';
-    t += '  Capture AP:\t' + breakdown.captureAp + '\n';
-    return '<tt title="' + t + '">' + text + '</tt>';
+  var t = '';
+  if (teamStringToId(PLAYER.team) == teamStringToId(d.team)) {
+    totalGain = breakdown.friendlyAp;
+    t += 'Friendly AP:\t' + breakdown.friendlyAp + '\n';
+    t += '  Deploy ' + breakdown.deployCount + ', ';
+    t += 'Upgrade ' + breakdown.upgradeCount + '\n';
+    t += '\n';
   }
+  t += 'Enemy AP:\t' + breakdown.enemyAp + '\n';
+  t += '  Destroy AP:\t' + breakdown.destroyAp + '\n';
+  t += '  Capture AP:\t' + breakdown.captureAp + '\n';
 
-  return [tt('AP Gain'), tt(digits(totalGain))];
+  return ['AP Gain', digits(totalGain), t];
 }
 
 
@@ -261,16 +259,12 @@ window.getHackDetailsText = function(d) {
 
   var shortHackInfo = hackDetails.hacks+' @ '+formatInterval(hackDetails.cooldown);
 
-  function tt(text) {
-    var t = 'Hacks available every 4 hours\n';
-    t += 'Hack count:\t'+hackDetails.hacks+'\n';
-    t += 'Cooldown time:\t'+formatInterval(hackDetails.cooldown)+'\n';
-    t += 'Burnout time:\t'+formatInterval(hackDetails.burnout)+'\n';
+  var title = 'Hacks available every 4 hours\n'
+            + 'Hack count:\t'+hackDetails.hacks+'\n'
+            + 'Cooldown time:\t'+formatInterval(hackDetails.cooldown)+'\n'
+            + 'Burnout time:\t'+formatInterval(hackDetails.burnout);
 
-    return '<span title="'+t+'">'+text+'</span>';
-  }
-
-  return [tt('hacks'), tt(shortHackInfo)];
+  return ['hacks', shortHackInfo, title];
 }
 
 
@@ -280,16 +274,12 @@ window.getMitigationText = function(d,linkCount) {
   var mitigationShort = mitigationDetails.total;
   if (mitigationDetails.excess) mitigationShort += ' (+'+mitigationDetails.excess+')';
 
-  function tt(text) {
-    var t = 'Total shielding:\t'+(mitigationDetails.shields+mitigationDetails.links)+'\n'
-          + '- active:\t'+mitigationDetails.total+'\n'
-          + '- excess:\t'+mitigationDetails.excess+'\n'
-          + 'From\n'
-          + '- shields:\t'+mitigationDetails.shields+'\n'
-          + '- links:\t'+mitigationDetails.links;
+  var title = 'Total shielding:\t'+(mitigationDetails.shields+mitigationDetails.links)+'\n'
+            + '- active:\t'+mitigationDetails.total+'\n'
+            + '- excess:\t'+mitigationDetails.excess+'\n'
+            + 'From\n'
+            + '- shields:\t'+mitigationDetails.shields+'\n'
+            + '- links:\t'+mitigationDetails.links;
 
-    return '<span title="'+t+'">'+text+'</span>';
-  }
-
-  return [tt('shielding'), tt(mitigationShort)];
+  return ['shielding', mitigationShort, title];
 }
