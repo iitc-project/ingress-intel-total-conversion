@@ -15,8 +15,14 @@ window.setupDataTileParams = function() {
   var DEFAULT_ZOOM_TO_TILES_PER_EDGE = [60, 60, 60, 60, 60, 120, 500, 500, 2000, 4000, 4000, 8000, 32000, 64000];
   var DEFAULT_ZOOM_TO_LEVEL = [8,8,8,8,7,7,7,6,6,5,4,4,3,2,2,1,1];
 
+  // stock intel doesn't have this array (they use a switch statement instead), but this is far neater
+  var DEFAULT_ZOOM_TO_LINK_LENGTH = [200000,200000,200000,200000,200000,60000,60000,10000,5000,2500,2500,800,300,0,0];
 
   window.TILE_PARAMS = {};
+
+  // not in stock to detect - we'll have to assume the above values...
+  window.TILE_PARAMS.ZOOM_TO_LINK_LENGTH = DEFAULT_ZOOM_TO_LINK_LENGTH;
+
 
   if (niantic_params.ZOOM_TO_LEVEL && niantic_params.TILES_PER_EDGE) {
     window.TILE_PARAMS.ZOOM_TO_LEVEL = niantic_params.ZOOM_TO_LEVEL;
@@ -67,6 +73,8 @@ window.getMapZoomTileParameters = function(zoom) {
     level: level,
     maxLevel: window.TILE_PARAMS.ZOOM_TO_LEVEL[zoom] || 0,  // for reference, for log purposes, etc
     tilesPerEdge: window.TILE_PARAMS.TILES_PER_EDGE[zoom] || maxTilesPerEdge,
+    minLinkLength: window.TILE_PARAMS.ZOOM_TO_LINK_LENGTH[zoom] || 0,
+    noPortals: zoom < window.TILE_PARAMS.ZOOM_TO_LINK_LENGTH.length,  // no portals returned at all when link length limits things
     zoom: zoom  // include the zoom level, for reference
   };
 }
