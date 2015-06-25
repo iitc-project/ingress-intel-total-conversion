@@ -335,10 +335,11 @@ window.uniqueArray = function(arr) {
 window.genFourColumnTable = function(blocks) {
   var t = $.map(blocks, function(detail, index) {
     if(!detail) return '';
+    var title = detail[2] ? ' title="'+escapeHtmlSpecialChars(detail[2]) + '"' : '';
     if(index % 2 === 0)
-      return '<tr><td>'+detail[1]+'</td><th>'+detail[0]+'</th>';
+      return '<tr><td'+title+'>'+detail[1]+'</td><th'+title+'>'+detail[0]+'</th>';
     else
-      return '    <th>'+detail[0]+'</th><td>'+detail[1]+'</td></tr>';
+      return '    <th'+title+'>'+detail[0]+'</th><td'+title+'>'+detail[1]+'</td></tr>';
   }).join('');
   if(t.length % 2 === 1) t + '<td></td><td></td></tr>';
   return t;

@@ -169,11 +169,15 @@ window.getPortalMiscDetails = function(guid,d) {
 
     // collect some random data that’s not worth to put in an own method
     var linkInfo = getPortalLinks(guid);
+    var maxOutgoing = getMaxOutgoingLinks(d);
     var linkCount = linkInfo.in.length + linkInfo.out.length;
     var links = {incoming: linkInfo.in.length, outgoing: linkInfo.out.length};
 
-    function linkExpl(t) { return '<tt title="'+links.outgoing+' links out (8 max)\n'+links.incoming+' links in\n('+(links.outgoing+links.incoming)+' total)">'+t+'</tt>'; }
-    var linksText = [linkExpl('links'), linkExpl(links.outgoing+' out / '+links.incoming+' in')];
+    var title = 'at most ' + maxOutgoing + ' outgoing links\n' +
+                links.outgoing + ' links out\n' +
+                links.incoming + ' links in\n' +
+                '(' + (links.outgoing+links.incoming) + ' total)'
+    var linksText = ['links', links.outgoing+' out / '+links.incoming+' in', title];
 
     var player = d.owner
       ? '<span class="nickname">' + d.owner + '</span>'
