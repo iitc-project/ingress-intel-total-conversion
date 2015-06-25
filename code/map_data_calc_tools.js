@@ -12,7 +12,7 @@
 
 window.setupDataTileParams = function() {
   // default values - used to fall back to if we can't detect those used in stock intel
-  var DEFAULT_ZOOM_TO_TILES_PER_EDGE = [60,60,60,60,60,120,240,240,1000,2000,2000,4000,16000,32000];
+  var DEFAULT_ZOOM_TO_TILES_PER_EDGE = [1,1,1,40,40,80,80,320,1000,2000,2000,4000,8000,16000,16000,32000];
   var DEFAULT_ZOOM_TO_LEVEL = [8,8,8,8,7,7,7,6,6,5,4,4,3,2,2,1,1];
 
   // stock intel doesn't have this array (they use a switch statement instead), but this is far neater
@@ -50,6 +50,31 @@ window.setupDataTileParams = function() {
 }
 
 
+window.debugMapZoomParameters = function() {
+
+  //for debug purposes, log the tile params used for each zoom level
+  console.log('DEBUG: Map Zoom Parameters');
+  var doneZooms = {};
+  for (var z=MIN_ZOOM; z<=21; z++) {
+    var ourZoom = getDataZoomForMapZoom(z);
+    console.log('DEBUG: map zoom '+z+': IITC requests '+ourZoom+(ourZoom!=z?' instead':''));
+    if (!doneZooms[ourZoom]) {
+      var params = getMapZoomTileParameters(ourZoom);
+      var msg = 'DEBUG: data zoom '+ourZoom;
+      if (params.hasPortals) {
+        msg += ' has portals, L'+params.level+'+';
+      } else {
+        msg += ' NO portals (was L'+params.level+'+)';
+      }
+      msg += ', minLinkLength='+params.minLinkLength;
+      msg += ', tiles per edge='+params.tilesPerEdge;
+      console.log(msg);
+      doneZooms[ourZoom] = true;
+    }
+  }
+}
+
+
 
 window.getMapZoomTileParameters = function(zoom) {
 
@@ -60,12 +85,12 @@ window.getMapZoomTileParameters = function(zoom) {
 
   var level = window.TILE_PARAMS.ZOOM_TO_LEVEL[zoom] || 0;  // default to level 0 (all portals) if not in array
 
-  if (window.CONFIG_ZOOM_SHOW_LESS_PORTALS_ZOOMED_OUT) {
-    if (level <= 7 && level >= 4) {
-      // reduce portal detail level by one - helps reduce clutter
-      level = level+1;
-    }
-  }
+//  if (window.CONFIG_ZOOM_SHOW_LESS_PORTALS_ZOOMED_OUT) {
+//    if (level <= 7 && level >= 4) {
+//      // reduce portal detail level by one - helps reduce clutter
+//      level = level+1;
+//    }
+//  }
 
   var maxTilesPerEdge = window.TILE_PARAMS.TILES_PER_EDGE[window.TILE_PARAMS.TILES_PER_EDGE.length-1];
 
@@ -74,7 +99,7 @@ window.getMapZoomTileParameters = function(zoom) {
     maxLevel: window.TILE_PARAMS.ZOOM_TO_LEVEL[zoom] || 0,  // for reference, for log purposes, etc
     tilesPerEdge: window.TILE_PARAMS.TILES_PER_EDGE[zoom] || maxTilesPerEdge,
     minLinkLength: window.TILE_PARAMS.ZOOM_TO_LINK_LENGTH[zoom] || 0,
-    noPortals: zoom < window.TILE_PARAMS.ZOOM_TO_LINK_LENGTH.length,  // no portals returned at all when link length limits things
+    hasPortals: zoom >= window.TILE_PARAMS.ZOOM_TO_LINK_LENGTH.length,  // no portals returned at all when link length limits things
     zoom: zoom  // include the zoom level, for reference
   };
 }
@@ -110,7 +135,11 @@ window.getDataZoomForMapZoom = function(zoom) {
 
     while (zoom > MIN_ZOOM) {
       var newTileParams = getMapZoomTileParameters(zoom-1);
-      if (newTileParams.tilesPerEdge != origTileParams.tilesPerEdge || newTileParams.level != origTileParams.level) {
+
+      if ( newTileParams.tilesPerEdge != origTileParams.tilesPerEdge
+        || newTileParams.hasPortals != origTileParams.hasPortals
+        || newTileParams.level*newTileParams.hasPortals != origTileParams.level*origTileParams.hasPortals  // multiply by 'hasPortals' bool - so comparison does not matter when no portals available
+      ) {
         // switching to zoom-1 would result in a different detail level - so we abort changing things
         break;
       } else {

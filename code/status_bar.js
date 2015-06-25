@@ -15,7 +15,7 @@ window.renderUpdateStatus = function() {
 
   var t = '<span class="help portallevel" title="Indicates portal levels/link lengths displayed.  Zoom in to display more.">';
 
-  if (!tileParams.noPortals) {
+  if (tileParams.hasPortals) {
     // zoom level includes portals (and also all links/fields)
     if(!window.isSmartphone()) // space is valuable
       t += '<b>portals</b>: ';
