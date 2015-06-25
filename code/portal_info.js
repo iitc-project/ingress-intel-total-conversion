@@ -207,7 +207,8 @@ window.getPortalModsByType = function(d, type) {
     TURRET: 'HIT_BONUS',  // and/or ATTACK_FREQUENCY??
     HEATSINK: 'HACK_SPEED',
     MULTIHACK: 'BURNOUT_INSULATION',
-    LINK_AMPLIFIER: 'LINK_RANGE_MULTIPLIER'
+    LINK_AMPLIFIER: 'LINK_RANGE_MULTIPLIER',
+    ULTRA_LINK_AMP: 'OUTGOING_LINKS_BONUS', // and/or LINK_DEFENSE_BOOST??
   };
 
   var stat = typeToStat[type];
@@ -257,6 +258,17 @@ window.getPortalMitigationDetails = function(d,linkCount) {
   return mitigation;
 }
 
+window.getMaxOutgoingLinks = function(d) {
+  var linkAmps = getPortalModsByType(d, 'ULTRA_LINK_AMP');
+
+  var links = 8;
+
+  linkAmps.forEach(function(mod, i) {
+    links += parseInt(mod.stats.OUTGOING_LINKS_BONUS);
+  });
+
+  return links;
+};
 
 window.getPortalHackDetails = function(d) {
 

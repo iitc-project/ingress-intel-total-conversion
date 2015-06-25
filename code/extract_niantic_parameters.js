@@ -50,10 +50,10 @@ window.extractFromStock = function() {
           }
           if (justInts) {
 
-            // current lengths are: 17: ZOOM_TO_LEVEL, 16: TILES_PER_EDGE
+            // current lengths are: 17: ZOOM_TO_LEVEL, 14: TILES_PER_EDGE
             // however, slightly longer or shorter are a possibility in the future
 
-            if (topObject.length >= 15 && topObject.length <= 18) {
+            if (topObject.length >= 12 && topObject.length <= 18) {
               // a reasonable array length for tile parameters
               // need to find two types:
               // a. portal level limits. decreasing numbers, starting at 8
@@ -74,7 +74,8 @@ window.extractFromStock = function() {
                 }
               } // end if (topObject[0] == 8)
 
-              if (topObject[topObject.length-1] == 36000 || topObject[topObject.length-1] == 18000 || topObject[topObject.length-1] == 9000) {
+              // 2015-06-25 - changed to top value of 64000, then to 32000 - allow for them to restore it just in case
+              if (topObject[topObject.length-1] >= 9000 && topObject[topObject.length-1] <= 64000) {
                 var increasing = true;
                 for (var i=1; i<topObject.length; i++) {
                   if (topObject[i-1] > topObject[i]) {

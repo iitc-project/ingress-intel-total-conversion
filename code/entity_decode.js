@@ -53,7 +53,9 @@
       title:         a[8],
       ornaments:     a[9],
       mission:       a[10],
-      mission50plus: a[11]
+      mission50plus: a[11],
+      unknown12:     a[12],
+      timestamp:     a[13]
     };
   };
 
