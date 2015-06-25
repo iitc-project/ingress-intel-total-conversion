@@ -2,7 +2,7 @@
 // @id             iitc-plugin-areas-under-attack@bryndavies
 // @name           IITC plugin: highlight areas recently under attack
 // @category       Tweaks
-// @version        0.0.1.@@DATETIMEVERSION@@
+// @version        0.1.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -200,13 +200,10 @@ window.plugin.areasUnderAttack.setStyle = function(style){
     localStorage["plugin-areasUnderAttack-style"] = style;
 };
 
-window.plugin.areasUnderAttack.isPortalSameTeam = function (portal) {
-    var originalPortalTeam = portal.team;
-    var currentPortal = window.portals[portal.guid];
-    if (currentPortal === undefined) return false;
-    return originalPortalTeam === currentPortal.options.data.team;
-};
-
+/**
+ * Remove all msgPortals that are older than the threshold time
+ * @param thresholdTime
+ */
 window.plugin.areasUnderAttack.removeOldMsgPortals = function (thresholdTime) {
     var portalList = window.plugin.areasUnderAttack.msgPortalList;
     for (guid in portalList) if (portalList.hasOwnProperty(guid)) {
@@ -217,6 +214,11 @@ window.plugin.areasUnderAttack.removeOldMsgPortals = function (thresholdTime) {
     }
 };
 
+/**
+ * Add msgPortals to the list for all new messages that signify an attack
+ * @param messages
+ * @param thresholdTime
+ */
 window.plugin.areasUnderAttack.addAttackedMsgPortals = function (messages, thresholdTime) {
     $.each(messages, function (i, message) {
         if (message[1] > thresholdTime) {
@@ -246,6 +248,11 @@ window.plugin.areasUnderAttack.addAttackedMsgPortals = function (messages, thres
     }
 };
 
+/**
+ * Iterate over msgPortal list, finding the guids for the corresponding portals in the messages. Determine whether they
+ * are still under attack. If so, add the portal details to the main portal list for highlighting. Otherwise, remove the
+ * msgPortal from its list and add the portal to a 'remove highlighting' list.
+ */
 window.plugin.areasUnderAttack.updateAttackedPortals = function () {
     var thresholdMillis = new Date().valueOf() - (window.plugin.areasUnderAttack.THRESHOLDMINS * 60000);
     window.plugin.areasUnderAttack.removeOldMsgPortals(thresholdMillis);
@@ -288,6 +295,10 @@ window.plugin.areasUnderAttack.updateAttackedPortals = function () {
     });
 };
 
+/**
+ * (re)build list of links attached to portals that are under attack and list of links that were previously under
+ * attack that need highlighting to be removed
+ */
 window.plugin.areasUnderAttack.refreshLinks = function () {
     window.plugin.areasUnderAttack.removeLinkList = window.plugin.areasUnderAttack.linkList;
     window.plugin.areasUnderAttack.linkList = {};
@@ -311,6 +322,10 @@ window.plugin.areasUnderAttack.refreshLinks = function () {
     }
 };
 
+/**
+ * (re)build list of fields attached to portals that are under attack and list of fields that were previously under
+ * attack that need highlighting to be removed
+ */
 window.plugin.areasUnderAttack.refreshFields = function () {
     window.plugin.areasUnderAttack.removeFieldList = window.plugin.areasUnderAttack.fieldList;
     window.plugin.areasUnderAttack.fieldList = {};
@@ -327,6 +342,11 @@ window.plugin.areasUnderAttack.refreshFields = function () {
     }
 };
 
+/**
+ * Go through attacked portal list, link list and field list, identifying the corresponding _path object and add appropriate
+ * highlighting css class
+ * Go through removed lists removing all highlighting classes from their _path objects
+ */
 window.plugin.areasUnderAttack.runHighlighters = function () {
     var portalList = window.plugin.areasUnderAttack.portalList;
     var linkList = window.plugin.areasUnderAttack.linkList;
@@ -433,10 +453,10 @@ window.plugin.areasUnderAttack.chatDataLoaded = function (data) {
     // get earliest time for attacks that we want to highlight
     var thresholdTime = new Date().valueOf() - (window.plugin.areasUnderAttack.THRESHOLDMINS * 60000);
 
-    // remove portals from existing list if attacked before threshold time or if portal no longer same colour as when attacked
+    // remove portals from existing message portal list if attacked before threshold time or if portal no longer same colour as when attacked
     window.plugin.areasUnderAttack.removeOldMsgPortals(thresholdTime);
 
-    // update portal list from new message data
+    // update message portal list from new message data
     window.plugin.areasUnderAttack.addAttackedMsgPortals(data.result, thresholdTime);
 };
 
