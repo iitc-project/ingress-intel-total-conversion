@@ -41,52 +41,64 @@ window.plugin.areasUnderAttack.style = 'css3';
 window.plugin.areasUnderAttack.setupCSS = function () {
     $("<style>").prop("type", "text/css").html(''
         + '@-webkit-keyframes plugin-areas-under-attack-blink-green {'
-        + 'from {stroke: #03DC03}'
-        + 'to {stroke: #FF0000}'
+        + '0% {stroke: #03DC03}'
+        + '50% {stroke: #FF0000}'
+        + '100% {stroke: #03DC03}'
         + '}'
         + '@-webkit-keyframes plugin-areas-under-attack-blink-blue {'
-        + 'from {stroke: #0088FF}'
-        + 'to {stroke: #FF0000}'
+        + '0% {stroke: #0088FF}'
+        + '50% {stroke: #FF0000}'
+        + '100% {stroke: #0088FF}'
         + '}'
         + '@-moz-keyframes plugin-areas-under-attack-blink-green {'
-        + 'from {stroke: #03DC03}'
-        + 'to {stroke: #FF0000}'
+        + '0% {stroke: #03DC03}'
+        + '50% {stroke: #FF0000}'
+        + '100% {stroke: #03DC03}'
         + '}'
         + '@-moz-keyframes plugin-areas-under-attack-blink-blue {'
-        + 'from {stroke: #0088FF}'
-        + 'to {stroke: #FF0000}'
+        + '0% {stroke: #0088FF}'
+        + '50% {stroke: #FF0000}'
+        + '100% {stroke: #0088FF}'
         + '}'
         + '@keyframes plugin-areas-under-attack-blink-green {'
-        + 'from {stroke: #03DC03}'
-        + 'to {stroke: #FF0000}'
+        + '0% {stroke: #03DC03}'
+        + '50% {stroke: #FF0000}'
+        + '100% {stroke: #03DC03}'
         + '}'
         + '@keyframes plugin-areas-under-attack-blink-blue {'
-        + 'from {stroke: #0088FF}'
-        + 'to {stroke: #FF0000}'
+        + '0% {stroke: #0088FF}'
+        + '50% {stroke: #FF0000}'
+        + '100% {stroke: #0088FF}'
         + '}'
         + '@-webkit-keyframes plugin-areas-under-attack-blink-field-green {'
-        + 'from {fill: #03DC03}'
-        + 'to {fill: #FF0000}'
+        + '0% {fill: #03DC03}'
+        + '50% {fill: #FF0000}'
+        + '100% {fill: #03DC03}'
         + '}'
         + '@-webkit-keyframes plugin-areas-under-attack-blink-field-blue {'
-        + 'from {fill: #0088FF}'
-        + 'to {fill: #FF0000}'
+        + '0% {fill: #0088FF}'
+        + '50% {fill: #FF0000}'
+        + '100% {fill: #0088FF}'
         + '}'
         + '@-moz-keyframes plugin-areas-under-attack-blink-field-green {'
-        + 'from {fill: #03DC03}'
-        + 'to {fill: #FF0000}'
+        + '0% {fill: #03DC03}'
+        + '50% {fill: #FF0000}'
+        + '100% {fill: #03DC03}'
         + '}'
         + '@-moz-keyframes plugin-areas-under-attack-blink-field-blue {'
-        + 'from {fill: #0088FF}'
-        + 'to {fill: #FF0000}'
+        + '0% {fill: #0088FF}'
+        + '50% {fill: #FF0000}'
+        + '100% {fill: #0088FF}'
         + '}'
         + '@keyframes plugin-areas-under-attack-blink-field-green {'
-        + 'from {fill: #03DC03}'
-        + 'to {fill: #FF0000}'
+        + '0% {fill: #03DC03}'
+        + '50% {fill: #FF0000}'
+        + '100% {fill: #03DC03}'
         + '}'
         + '@keyframes plugin-areas-under-attack-blink-field-blue {'
-        + 'from {fill: #0088FF}'
-        + 'to {fill: #FF0000}'
+        + '0% {fill: #0088FF}'
+        + '50% {fill: #FF0000}'
+        + '100% {fill: #0088FF}'
         + '}'
         + '.plugin-areas-under-attack-green{'
         + '-webkit-animation-name: plugin-areas-under-attack-blink-green;'
@@ -184,7 +196,6 @@ window.plugin.areasUnderAttack.showConfigDialog = function(){
 };
 
 window.plugin.areasUnderAttack.setStyle = function(style){
-    console.log("Setting style to " + style);
     window.plugin.areasUnderAttack.style = style;
     localStorage["plugin-areasUnderAttack-style"] = style;
 };
@@ -218,8 +229,6 @@ window.plugin.areasUnderAttack.addAttackedMsgPortals = function (messages, thres
                 msgPortal = plext.markup[4][1];
             }
             if (msgPortal !== null && msgPortal !== undefined && attackTime >= thresholdTime) {
-                //console.log("adding attack messagePortal - threshold=" + thresholdTime + ", attackTime=" + attackTime + " :");
-                //console.log(message);
                 var key = msgPortal.latE6 + "/" + msgPortal.lngE6;
                 var existingMsgPortal = window.plugin.areasUnderAttack.msgPortalList[key];
                 if (existingMsgPortal == undefined || existingMsgPortal.attackTime < attackTime) {
@@ -232,8 +241,6 @@ window.plugin.areasUnderAttack.addAttackedMsgPortals = function (messages, thres
             }
         }
     });
-    //console.log("Updated attacked msgPortals:");
-    //console.log(window.plugin.areasUnderAttack.msgPortalList);
     if (window.plugin.areasUnderAttack.portalsLoaded === true) {
         window.plugin.areasUnderAttack.mapDataRefreshed();
     }
@@ -270,19 +277,15 @@ window.plugin.areasUnderAttack.updateAttackedPortals = function () {
                     }
                 }
             } else {
-                //console.log("Portal " + msgPortal.name + " no longer under attack, removing msgPortal.");
                 removeList.push(latlng);
             }
         } else {
-            //console.log("no current portal found for msgPortal: " + msgPortal.name + ", removing msgPortal");
             removeList.push(latlng);
         }
     }
     $.each(removeList, function (i, latlng) {
         delete window.plugin.areasUnderAttack.msgPortalList[latlng];
     });
-    //console.log("Updated attacked portals:");
-    //console.log(window.plugin.areasUnderAttack.portalList);
 };
 
 window.plugin.areasUnderAttack.refreshLinks = function () {
@@ -291,8 +294,6 @@ window.plugin.areasUnderAttack.refreshLinks = function () {
     var portalList = window.plugin.areasUnderAttack.portalList;
     for (guid in portalList) if (portalList.hasOwnProperty(guid)) {
         var portalLinks = window.getPortalLinks(guid);
-        //console.log('attackedLinks from portal guid:' + guid);
-        //console.log(portalLinks);
         $.each(portalLinks.in, function (index, lguid) {
             window.plugin.areasUnderAttack.linkList[lguid] = window.links[lguid];
             if (window.plugin.areasUnderAttack.removeLinkList.hasOwnProperty(lguid)) {
@@ -316,8 +317,6 @@ window.plugin.areasUnderAttack.refreshFields = function () {
     var portalList = window.plugin.areasUnderAttack.portalList;
     for (guid in portalList) if (portalList.hasOwnProperty(guid)) {
         var portalFields = window.getPortalFields(guid);
-        //console.log('attackedFields from portal guid:' + guid);
-        //console.log(portalFields);
         $.each(portalFields, function (index, fguid) {
             window.plugin.areasUnderAttack.fieldList[fguid] = window.fields[fguid];
             if (window.plugin.areasUnderAttack.removeFieldList.hasOwnProperty(fguid)) {
@@ -335,21 +334,19 @@ window.plugin.areasUnderAttack.runHighlighters = function () {
     var removePortalList = window.plugin.areasUnderAttack.removePortalList;
     var removeLinkList = window.plugin.areasUnderAttack.removeLinkList;
     var removeFieldList = window.plugin.areasUnderAttack.removeFieldList;
-    //console.log("de-highlighting old portals:");
+    // dehighlight portals that are no longer under attack
     for (var rpguid in removePortalList) if (removePortalList.hasOwnProperty(rpguid)) {
         var rportal = window.portals[rpguid];
         if (rportal) {
-            //console.log(rportal);
             rportal._path.classList.remove("plugin-areas-under-attack-blue");
             rportal._path.classList.remove("plugin-areas-under-attack-green");
             rportal._path.classList.remove("plugin-areas-under-attack-light");
         }
     }
-    //console.log("highlighting portals:");
+    // highlight attacked portals
     for (var pguid in portalList) if (portalList.hasOwnProperty(pguid)) {
         var portal = window.portals[pguid];
         if (portal) {
-            //console.log(portal);
             if(window.plugin.areasUnderAttack.style === 'css3'){
                 portal._path.classList.remove("plugin-areas-under-attack-light");
                 if (portal.options.data.team === 'R') {
@@ -368,21 +365,19 @@ window.plugin.areasUnderAttack.runHighlighters = function () {
             }
         }
     }
-    //console.log("de-highlighting old links:");
+    // dehighlight links no longer under attack
     for (rlguid in removeLinkList) if (removeLinkList.hasOwnProperty(rlguid)) {
         var rlink = removeLinkList[rlguid];
         if (rlink) {
-            //console.log(rlink);
             rlink._path.classList.remove("plugin-areas-under-attack-blue");
             rlink._path.classList.remove("plugin-areas-under-attack-green");
             rlink._path.classList.remove("plugin-areas-under-attack-light");
         }
     }
-    //console.log("highlighting links:");
+    // highlight attacked links
     for (lguid in linkList) if (linkList.hasOwnProperty(lguid)) {
         var link = linkList[lguid];
         if (link) {
-            //console.log(link);
             if(window.plugin.areasUnderAttack.style === 'css3') {
                 link._path.classList.remove("plugin-areas-under-attack-light");
                 if (link.options.data.team === 'R') {
@@ -401,21 +396,19 @@ window.plugin.areasUnderAttack.runHighlighters = function () {
             }
         }
     }
-    //console.log("de-highlighting old fields:");
+    // dehighlight fields no longer under attack
     for (rfguid in removeFieldList) if (removeFieldList.hasOwnProperty(rfguid)) {
         var rfield = removeFieldList[rfguid];
         if (rfield) {
-            //console.log(rfield);
             rfield._path.classList.remove("plugin-areas-under-attack-field-blue");
             rfield._path.classList.remove("plugin-areas-under-attack-field-green");
             rfield._path.classList.remove("plugin-areas-under-attack-field-light");
         }
     }
-    //console.log("highlighting fields:");
+    // highlight attacked fields
     for (fguid in fieldList) if (fieldList.hasOwnProperty(fguid)) {
         var field = fieldList[fguid];
         if (field) {
-            //console.log(field);
             if(window.plugin.areasUnderAttack.style === 'css3') {
                 field._path.classList.remove("plugin-areas-under-attack-field-light");
                 if (field.options.data.team === 'R') {
