@@ -12,7 +12,7 @@
 
 window.setupDataTileParams = function() {
   // default values - used to fall back to if we can't detect those used in stock intel
-  var DEFAULT_ZOOM_TO_TILES_PER_EDGE = [60, 60, 60, 60, 60, 120, 500, 500, 2000, 4000, 4000, 8000, 32000, 64000];
+  var DEFAULT_ZOOM_TO_TILES_PER_EDGE = [60,60,60,60,60,120,240,240,1000,2000,2000,4000,16000,32000];
   var DEFAULT_ZOOM_TO_LEVEL = [8,8,8,8,7,7,7,6,6,5,4,4,3,2,2,1,1];
 
   // stock intel doesn't have this array (they use a switch statement instead), but this is far neater
@@ -35,7 +35,7 @@ window.setupDataTileParams = function() {
       debugger;
     }
     if ( JSON.stringify(niantic_params.TILES_PER_EDGE) != JSON.stringify(DEFAULT_ZOOM_TO_TILES_PER_EDGE)) {
-      console.warn('Tile parameter ZOOM_TO_LEVEL have changed in stock intel. Detected correct values, but code should be updated');
+      console.warn('Tile parameter TILES_PER_EDGE have changed in stock intel. Detected correct values, but code should be updated');
       debugger;
     }
 
@@ -92,11 +92,9 @@ window.getDataZoomForMapZoom = function(zoom) {
   }
 
   if (window.CONFIG_ZOOM_SHOW_MORE_PORTALS) {
-    // slightly unfriendly to the servers, requesting more, but smaller, tiles, for the 'unclaimed' level of detail
-    // however, server load issues are all related to the map area in view, with no real issues related to detail level
-    // therefore, I believel we can get away with these smaller tiles for one or two further zoom levels without issues
-
-    if (zoom == 16) {
+    // as of 2015-06-25 stock site update, all zoom levels that retrieve portals (15+) use the same tile size
+    // therefore, it's no more load on the servers to fake it always to show unclaimed rather than L1+
+    if (zoom >= 15 && zoom <= 16) {
       zoom = 17;
     }
   }
