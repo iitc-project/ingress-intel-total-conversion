@@ -12,14 +12,11 @@
 
 window.setupDataTileParams = function() {
   // default values - used to fall back to if we can't detect those used in stock intel
-  var DEFAULT_ZOOM_TO_TILES_PER_EDGE = [256,256,256,256,512,512,512,2048,2048,4096,4096,6500,6500,6500,18000,18000,36000];
+  var DEFAULT_ZOOM_TO_TILES_PER_EDGE = [1,1,1,40,40,80,80,320,1000,2000,2000,4000,8000,16000,16000,32000];
   var DEFAULT_ZOOM_TO_LEVEL = [8,8,8,8,7,7,7,6,6,5,4,4,3,2,2,1,1];
 
-//  // stock intel doesn't have this array (they use a switch statement instead), but this is far neater
-//  var DEFAULT_ZOOM_TO_LINK_LENGTH = [200000,200000,200000,200000,200000,60000,60000,10000,5000,2500,2500,800,300,0,0];
-//and looks like Niantic reverted the changes! an empty array will restore behaviour without removing the code.. as I
-//wouldn't be surprised if Niantic try and bring something like this back at some point...
-  var DEFAULT_ZOOM_TO_LINK_LENGTH = [];
+  // stock intel doesn't have this array (they use a switch statement instead), but this is far neater
+  var DEFAULT_ZOOM_TO_LINK_LENGTH = [200000,200000,200000,200000,200000,60000,60000,10000,5000,2500,2500,800,300,0,0];
 
   window.TILE_PARAMS = {};
 
@@ -43,8 +40,12 @@ window.setupDataTileParams = function() {
     }
 
   } else {
-    console.warn('Failed to detect both ZOOM_TO_LEVEL and TILES_PER_EDGE in the stock intel site - using internal defaults');
-    debugger;
+    dialog({
+      title: 'IITC Warning',
+      html: "<p>IITC failed to detect the ZOOM_TO_LEVEL and/or TILES_PER_EDGE settings from the stock intel site.</p>"
+           +"<p>IITC is now using fallback default values. However, if detection has failed it's likely the values have changed."
+           +" IITC may not load the map if these default values are wrong.</p>",
+    });
 
     window.TILE_PARAMS.ZOOM_TO_LEVEL = DEFAULT_ZOOM_TO_LEVEL;
     window.TILE_PARAMS.TILES_PER_EDGE = DEFAULT_ZOOM_TO_TILES_PER_EDGE;
