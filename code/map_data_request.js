@@ -230,7 +230,8 @@ window.MapDataRequest.prototype.refresh = function() {
 
   window.runHooks ('mapDataRefreshStart', {bounds: bounds, mapZoom: mapZoom, dataZoom: dataZoom, minPortalLevel: tileParams.level, tileBounds: dataBounds});
 
-  this.render.startRenderPass(tileParams.level, dataBounds);
+//hack: fake the min level to 9999 when the data level doesn't include any portals
+  this.render.startRenderPass(tileParams.hasPortals?tileParams.level:9999, dataBounds);
 
 
   this.render.processGameEntities(artifact.getArtifactEntities(),true);
