@@ -249,6 +249,28 @@ window.Render.prototype.deleteFieldEntity = function(guid) {
 }
 
 
+window.Render.prototype.createPlaceholderPortalEntity = function(guid,latE6,lngE6,team) {
+  // intel no longer returns portals at anything but the closest zoom
+  // stock intel creates 'placeholder' portals from the data in links/fields - IITC needs to do the same
+  // we only have the portal guid, lat/lng coords, and the faction - no other data
+  // having the guid, at least, allows the portal details to be loaded once it's selected. however,
+  // no highlighters, portal level numbers, portal names, useful counts of portals, etc are possible
+
+
+  var ent = [
+    guid,       //ent[0] = guid
+    0,          //ent[1] = timestamp - zero will mean any other source of portal data will have a higher timestamp
+                //ent[2] = an array with the entity data
+    [ 'p',      //0 - a portal
+      team,     //1 - team
+      latE6,    //2 - lat
+      lngE6     //3 - lng
+    ]
+  ];
+
+//  this.createPortalEntity(ent);
+
+}
 
 
 window.Render.prototype.createPortalEntity = function(ent) {
@@ -435,6 +457,14 @@ window.Render.prototype.createLinkEntity = function(ent,faked) {
   window.links[ent[0]] = poly;
 
   linksFactionLayers[poly.options.team].addLayer(poly);
+
+
+  // create placeholder entities for link start and end points
+  this.createPlaceholderPortalEntity(data.oGuid, data.oLatE6, data.oLngE6, data.team);
+  this.createPlaceholderPortalEntity(data.dGuid, data.dLatE6, data.dLngE6, data.team);
+
+
+
 }
 
 
