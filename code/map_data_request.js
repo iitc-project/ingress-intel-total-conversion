@@ -57,7 +57,7 @@ window.MapDataRequest = function() {
   // render queue
   // number of items to process in each render pass. there are pros and cons to smaller and larger values
   // (however, if using leaflet canvas rendering, it makes sense to push as much as possible through every time)
-  this.RENDER_BATCH_SIZE = L.Path.CANVAS ? 1E9 : 500;
+  this.RENDER_BATCH_SIZE = L.Path.CANVAS ? 1E9 : 1500;
 
   // delay before repeating the render loop. this gives a better chance for user interaction
   this.RENDER_PAUSE = (typeof android === 'undefined') ? 0.1 : 0.2; //100ms desktop, 200ms mobile
@@ -233,7 +233,7 @@ window.MapDataRequest.prototype.refresh = function() {
   this.render.startRenderPass(tileParams.level, dataBounds);
 
 
-  this.render.processGameEntities(artifact.getArtifactEntities(),true);
+  this.render.processGameEntities(artifact.getArtifactEntities());
 
   var logMessage = 'requesting data tiles at zoom '+dataZoom;
   if (tileParams.level != tileParams.maxLevel) {

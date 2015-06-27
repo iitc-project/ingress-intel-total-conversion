@@ -110,7 +110,7 @@ window.Render.prototype.processDeletedGameEntityGuids = function(deleted) {
 
 }
 
-window.Render.prototype.processGameEntities = function(entities,ignoreLevel) {
+window.Render.prototype.processGameEntities = function(entities) {
 
   // we loop through the entities three times - for fields, links and portals separately
   // this is a reasonably efficient work-around for leafletjs limitations on svg render order
@@ -131,27 +131,13 @@ window.Render.prototype.processGameEntities = function(entities,ignoreLevel) {
     }
   }
 
-  // 2015-03-12 - Niantic have been returning all mission portals to the client, ignoring portal level
-  // and density filtering usually in use. this makes things unusable when viewing the global view, so we
-  // filter these out
-  var minLevel = ignoreLevel ? 0 : this.level;
-  var ignoredCount = 0;
-
   for (var i in entities) {
     var ent = entities[i];
 
     if (ent[2][0] == 'p' && !(ent[0] in this.deletedGuid)) {
-      var portalLevel = ent[2][1] == 'N' ? 0 : parseInt(ent[2][4]);
-      if (portalLevel >= minLevel) {
-        this.createPortalEntity(ent);
-      } else {
-        ignoredCount++;
-      }
-
+      this.createPortalEntity(ent);
     }
   }
-
-  if (ignoredCount) console.log('Render: ignored '+ignoredCount+' portals below the level requested from the server');
 }
 
 
@@ -263,6 +249,28 @@ window.Render.prototype.deleteFieldEntity = function(guid) {
 }
 
 
+window.Render.prototype.createPlaceholderPortalEntity = function(guid,latE6,lngE6,team) {
+  // intel no longer returns portals at anything but the closest zoom
+  // stock intel creates 'placeholder' portals from the data in links/fields - IITC needs to do the same
+  // we only have the portal guid, lat/lng coords, and the faction - no other data
+  // having the guid, at least, allows the portal details to be loaded once it's selected. however,
+  // no highlighters, portal level numbers, portal names, useful counts of portals, etc are possible
+
+
+  var ent = [
+    guid,       //ent[0] = guid
+    0,          //ent[1] = timestamp - zero will mean any other source of portal data will have a higher timestamp
+                //ent[2] = an array with the entity data
+    [ 'p',      //0 - a portal
+      team,     //1 - team
+      latE6,    //2 - lat
+      lngE6     //3 - lng
+    ]
+  ];
+
+//  this.createPortalEntity(ent);
+
+}
 
 
 window.Render.prototype.createPortalEntity = function(ent) {
@@ -449,6 +457,14 @@ window.Render.prototype.createLinkEntity = function(ent,faked) {
   window.links[ent[0]] = poly;
 
   linksFactionLayers[poly.options.team].addLayer(poly);
+
+
+  // create placeholder entities for link start and end points
+  this.createPlaceholderPortalEntity(data.oGuid, data.oLatE6, data.oLngE6, data.team);
+  this.createPlaceholderPortalEntity(data.dGuid, data.dLatE6, data.dLngE6, data.team);
+
+
+
 }
 
 

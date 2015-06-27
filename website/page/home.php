@@ -13,6 +13,17 @@ offers many more features. It is available for
 
 <h3>Latest news</h3>
 
+<h4>27th June 2015</h4>
+<p>
+IITC 0.24.0 has been released. This is a critical update needed to fix the map not loading any data.
+</p>
+<p>
+NOTE: Niantic have removed portals from the map data at all but the closest of zoom levels (L1+ - zoom 15+).
+The stock intel site creates dummy placeholder portals at the anchors for links, allowing you to click and open the
+portal details. However, IITC does not do this yet. It will take some time to modify IITC and the plugins to allow
+for such placeholder portals, so making a first release without them.
+</p>
+
 <h4>27th May 2015</h4>
 <p>
 IITC 0.23.0 has been released. This is a critical update needed to fix IITC after a Niantic site update.

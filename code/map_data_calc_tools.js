@@ -12,11 +12,17 @@
 
 window.setupDataTileParams = function() {
   // default values - used to fall back to if we can't detect those used in stock intel
-  var DEFAULT_ZOOM_TO_TILES_PER_EDGE = [256,256,256,256,512,512,512,2048,2048,4096,4096,6500,6500,6500,18000,18000,36000];
+  var DEFAULT_ZOOM_TO_TILES_PER_EDGE = [1,1,1,40,40,80,80,320,1000,2000,2000,4000,8000,16000,16000,32000];
   var DEFAULT_ZOOM_TO_LEVEL = [8,8,8,8,7,7,7,6,6,5,4,4,3,2,2,1,1];
 
+  // stock intel doesn't have this array (they use a switch statement instead), but this is far neater
+  var DEFAULT_ZOOM_TO_LINK_LENGTH = [200000,200000,200000,200000,200000,60000,60000,10000,5000,2500,2500,800,300,0,0];
 
   window.TILE_PARAMS = {};
+
+  // not in stock to detect - we'll have to assume the above values...
+  window.TILE_PARAMS.ZOOM_TO_LINK_LENGTH = DEFAULT_ZOOM_TO_LINK_LENGTH;
+
 
   if (niantic_params.ZOOM_TO_LEVEL && niantic_params.TILES_PER_EDGE) {
     window.TILE_PARAMS.ZOOM_TO_LEVEL = niantic_params.ZOOM_TO_LEVEL;
@@ -29,18 +35,47 @@ window.setupDataTileParams = function() {
       debugger;
     }
     if ( JSON.stringify(niantic_params.TILES_PER_EDGE) != JSON.stringify(DEFAULT_ZOOM_TO_TILES_PER_EDGE)) {
-      console.warn('Tile parameter ZOOM_TO_LEVEL have changed in stock intel. Detected correct values, but code should be updated');
+      console.warn('Tile parameter TILES_PER_EDGE have changed in stock intel. Detected correct values, but code should be updated');
       debugger;
     }
 
   } else {
-    console.warn('Failed to detect both ZOOM_TO_LEVEL and TILES_PER_EDGE in the stock intel site - using internal defaults');
-    debugger;
+    dialog({
+      title: 'IITC Warning',
+      html: "<p>IITC failed to detect the ZOOM_TO_LEVEL and/or TILES_PER_EDGE settings from the stock intel site.</p>"
+           +"<p>IITC is now using fallback default values. However, if detection has failed it's likely the values have changed."
+           +" IITC may not load the map if these default values are wrong.</p>",
+    });
 
     window.TILE_PARAMS.ZOOM_TO_LEVEL = DEFAULT_ZOOM_TO_LEVEL;
     window.TILE_PARAMS.TILES_PER_EDGE = DEFAULT_ZOOM_TO_TILES_PER_EDGE;
   }
 
+}
+
+
+window.debugMapZoomParameters = function() {
+
+  //for debug purposes, log the tile params used for each zoom level
+  console.log('DEBUG: Map Zoom Parameters');
+  var doneZooms = {};
+  for (var z=MIN_ZOOM; z<=21; z++) {
+    var ourZoom = getDataZoomForMapZoom(z);
+    console.log('DEBUG: map zoom '+z+': IITC requests '+ourZoom+(ourZoom!=z?' instead':''));
+    if (!doneZooms[ourZoom]) {
+      var params = getMapZoomTileParameters(ourZoom);
+      var msg = 'DEBUG: data zoom '+ourZoom;
+      if (params.hasPortals) {
+        msg += ' has portals, L'+params.level+'+';
+      } else {
+        msg += ' NO portals (was L'+params.level+'+)';
+      }
+      msg += ', minLinkLength='+params.minLinkLength;
+      msg += ', tiles per edge='+params.tilesPerEdge;
+      console.log(msg);
+      doneZooms[ourZoom] = true;
+    }
+  }
 }
 
 
@@ -54,12 +89,12 @@ window.getMapZoomTileParameters = function(zoom) {
 
   var level = window.TILE_PARAMS.ZOOM_TO_LEVEL[zoom] || 0;  // default to level 0 (all portals) if not in array
 
-  if (window.CONFIG_ZOOM_SHOW_LESS_PORTALS_ZOOMED_OUT) {
-    if (level <= 7 && level >= 4) {
-      // reduce portal detail level by one - helps reduce clutter
-      level = level+1;
-    }
-  }
+//  if (window.CONFIG_ZOOM_SHOW_LESS_PORTALS_ZOOMED_OUT) {
+//    if (level <= 7 && level >= 4) {
+//      // reduce portal detail level by one - helps reduce clutter
+//      level = level+1;
+//    }
+//  }
 
   var maxTilesPerEdge = window.TILE_PARAMS.TILES_PER_EDGE[window.TILE_PARAMS.TILES_PER_EDGE.length-1];
 
@@ -67,6 +102,8 @@ window.getMapZoomTileParameters = function(zoom) {
     level: level,
     maxLevel: window.TILE_PARAMS.ZOOM_TO_LEVEL[zoom] || 0,  // for reference, for log purposes, etc
     tilesPerEdge: window.TILE_PARAMS.TILES_PER_EDGE[zoom] || maxTilesPerEdge,
+    minLinkLength: window.TILE_PARAMS.ZOOM_TO_LINK_LENGTH[zoom] || 0,
+    hasPortals: zoom >= window.TILE_PARAMS.ZOOM_TO_LINK_LENGTH.length,  // no portals returned at all when link length limits things
     zoom: zoom  // include the zoom level, for reference
   };
 }
@@ -84,11 +121,9 @@ window.getDataZoomForMapZoom = function(zoom) {
   }
 
   if (window.CONFIG_ZOOM_SHOW_MORE_PORTALS) {
-    // slightly unfriendly to the servers, requesting more, but smaller, tiles, for the 'unclaimed' level of detail
-    // however, server load issues are all related to the map area in view, with no real issues related to detail level
-    // therefore, I believel we can get away with these smaller tiles for one or two further zoom levels without issues
-
-    if (zoom == 16) {
+    // as of 2015-06-25 stock site update, all zoom levels that retrieve portals (15+) use the same tile size
+    // therefore, it's no more load on the servers to fake it always to show unclaimed rather than L1+
+    if (zoom >= 15 && zoom <= 16) {
       zoom = 17;
     }
   }
@@ -104,7 +139,11 @@ window.getDataZoomForMapZoom = function(zoom) {
 
     while (zoom > MIN_ZOOM) {
       var newTileParams = getMapZoomTileParameters(zoom-1);
-      if (newTileParams.tilesPerEdge != origTileParams.tilesPerEdge || newTileParams.level != origTileParams.level) {
+
+      if ( newTileParams.tilesPerEdge != origTileParams.tilesPerEdge
+        || newTileParams.hasPortals != origTileParams.hasPortals
+        || newTileParams.level*newTileParams.hasPortals != origTileParams.level*origTileParams.hasPortals  // multiply by 'hasPortals' bool - so comparison does not matter when no portals available
+      ) {
         // switching to zoom-1 would result in a different detail level - so we abort changing things
         break;
       } else {
