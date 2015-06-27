@@ -110,7 +110,7 @@ window.Render.prototype.processDeletedGameEntityGuids = function(deleted) {
 
 }
 
-window.Render.prototype.processGameEntities = function(entities,ignoreLevel) {
+window.Render.prototype.processGameEntities = function(entities) {
 
   // we loop through the entities three times - for fields, links and portals separately
   // this is a reasonably efficient work-around for leafletjs limitations on svg render order
@@ -131,27 +131,13 @@ window.Render.prototype.processGameEntities = function(entities,ignoreLevel) {
     }
   }
 
-  // 2015-03-12 - Niantic have been returning all mission portals to the client, ignoring portal level
-  // and density filtering usually in use. this makes things unusable when viewing the global view, so we
-  // filter these out
-  var minLevel = ignoreLevel ? 0 : this.level;
-  var ignoredCount = 0;
-
   for (var i in entities) {
     var ent = entities[i];
 
     if (ent[2][0] == 'p' && !(ent[0] in this.deletedGuid)) {
-      var portalLevel = ent[2][1] == 'N' ? 0 : parseInt(ent[2][4]);
-      if (portalLevel >= minLevel) {
-        this.createPortalEntity(ent);
-      } else {
-        ignoredCount++;
-      }
-
+      this.createPortalEntity(ent);
     }
   }
-
-  if (ignoredCount) console.log('Render: ignored '+ignoredCount+' portals below the level requested from the server');
 }
 
 
