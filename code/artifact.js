@@ -37,6 +37,20 @@ window.artifact.requestData = function() {
   } else {
     // new API available in stock (2015-05-21) - 'getArtifactPortals'
     // stock still uses this one, and the new method doesn't yet return anything, but they might be changing things soon...
+//2015-06-13 - stock intel update using the new API
+//above method takes no params, returns a list of portals. however, no longer
+//1. a distinction between target portals and artifact portals
+//2. some shard details in the portal summary 'unknown12' variable
+//  a. no sign of fragment numbers in this summary data - only in portal details
+//  b. not sure how resistance/enlightened targets are identified. so far, most portals have
+//    "[[["lightman"]], []]" (fragment at portal?)
+//    aod two have
+//    "[[["lightman"]], [["lightman"]]]"
+//    best guess - first array is a list of artifact types (but not numbers) at a portal
+//               - second array is a list of the target types for a portal
+//    (so "[[[]], [["lightman"]]]" would be for a target without any fragments at it
+
+
     window.postAjax('artifacts', {}, artifact.handleSuccess, artifact.handleError);
   }
 }

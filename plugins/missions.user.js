@@ -117,22 +117,17 @@ window.plugin.missions = {
 	},
 
 	openPortalMissions: function() {
-		var me = this,
-			portal = window.portals[window.selectedPortal];
-		if (!portal) {
-			return;
-		}
 		this.loadPortalMissions(window.selectedPortal, function(missions) {
 			if (!missions.length) {
 				return;
 			}
 
 			if (missions.length === 1) {
-				me.loadMission(missions[0].guid, me.showMissionDialog.bind(me));
+				this.loadMission(missions[0].guid, this.showMissionDialog.bind(this));
 			} else {
-				me.showMissionListDialog(missions);
+				this.showMissionListDialog(missions);
 			}
-		});
+		}.bind(this));
 	},
 
 	openMission: function(guid) {
@@ -259,7 +254,7 @@ window.plugin.missions = {
 			}
 			callback(missions);
 		}, function(error) {
-			console.log('Error loading missions in bounds', arguments);
+			console.error('Error loading missions in bounds', arguments);
 			if (errorcallback) {
 				errorcallback(error);
 			}
@@ -274,7 +269,7 @@ window.plugin.missions = {
 			return;
 		}
 		window.postAjax('getTopMissionsForPortal', {
-			guid: window.selectedPortal
+			guid: guid,
 		}, function(data) {
 			var missions = data.result.map(decodeMissionSummary);
 			if (!missions) {
@@ -293,7 +288,7 @@ window.plugin.missions = {
 			me.storeCache();
 			callback(missions);
 		}, function(error) {
-			console.log('Error loading portal missions', arguments);
+			console.error('Error loading portal missions', arguments);
 			if (errorcallback) {
 				errorcallback(error);
 			}
@@ -790,12 +785,15 @@ window.plugin.missions = {
 	},
 
 	highlightMissionLayers: function(markers) {
+		// layer.bringToFront() will break if the layer is not visible
+		var bringToFront = map.hasLayer(plugin.missions.missionLayer);
+		
 		this.missionLayer.eachLayer(function(layer) {
 			var active = (markers.indexOf(layer) !== -1);
 			layer.setStyle({
 				color: active ? this.MISSION_COLOR_ACTIVE : this.MISSION_COLOR,
 			});
-			if(active) layer.bringToFront();
+			if(active && bringToFront) layer.bringToFront();
 		}, this);
 	},
 
