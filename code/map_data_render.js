@@ -25,7 +25,7 @@ window.Render.prototype.startRenderPass = function(level,bounds) {
   // this will just avoid a few entity removals at start of render when they'll just be added again
   var paddedBounds = bounds.pad(0.1);
 
-  this.clearPortalsBelowLevelOrOutsideBounds(level,paddedBounds);
+  this.clearPortalsOutsideBounds(paddedBounds);
 
   this.clearLinksOutsideBounds(paddedBounds);
   this.clearFieldsOutsideBounds(paddedBounds);
@@ -34,12 +34,12 @@ window.Render.prototype.startRenderPass = function(level,bounds) {
   this.rescalePortalMarkers();
 }
 
-window.Render.prototype.clearPortalsBelowLevelOrOutsideBounds = function(level,bounds) {
+window.Render.prototype.clearPortalsOutsideBounds = function(bounds) {
   var count = 0;
   for (var guid in window.portals) {
     var p = portals[guid];
-    // clear portals below specified level - unless it's the selected portal, or it's relevant to artifacts
-    if ((parseInt(p.options.level) < level || !bounds.contains(p.getLatLng())) && guid !== selectedPortal && !artifact.isInterestingPortal(guid)) {
+    // clear portals outside visible bounds - unless it's the selected portal, or it's relevant to artifacts
+    if (!bounds.contains(p.getLatLng()) && guid !== selectedPortal && !artifact.isInterestingPortal(guid)) {
       this.deletePortalEntity(guid);
       count++;
     }
