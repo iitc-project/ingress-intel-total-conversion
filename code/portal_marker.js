@@ -30,12 +30,9 @@ window.setMarkerStyle = function(marker, selected) {
 
   marker.setStyle(styleOptions);
 
-  // don't run highlighters if we only have placeholder data
-  if (marker.options.data.level !== undefined) {
-    // FIXME? it's inefficient to set the marker style (above), then do it again inside the highlighter
-    // the highlighter API would need to be changed for this to be improved though. will it be too slow?
-    highlightPortal(marker);
-  }
+  // FIXME? it's inefficient to set the marker style (above), then do it again inside the highlighter
+  // the highlighter API would need to be changed for this to be improved though. will it be too slow?
+  highlightPortal(marker);
 
   if (selected) {
     marker.setStyle ({color: COLOR_SELECTED_PORTAL});
