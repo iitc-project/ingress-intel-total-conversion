@@ -25,7 +25,7 @@ window.Render.prototype.startRenderPass = function(level,bounds) {
   // this will just avoid a few entity removals at start of render when they'll just be added again
   var paddedBounds = bounds.pad(0.1);
 
-  this.clearPortalsBelowLevelOrOutsideBounds(level,paddedBounds);
+  this.clearPortalsOutsideBounds(paddedBounds);
 
   this.clearLinksOutsideBounds(paddedBounds);
   this.clearFieldsOutsideBounds(paddedBounds);
@@ -34,12 +34,12 @@ window.Render.prototype.startRenderPass = function(level,bounds) {
   this.rescalePortalMarkers();
 }
 
-window.Render.prototype.clearPortalsBelowLevelOrOutsideBounds = function(level,bounds) {
+window.Render.prototype.clearPortalsOutsideBounds = function(bounds) {
   var count = 0;
   for (var guid in window.portals) {
     var p = portals[guid];
-    // clear portals below specified level - unless it's the selected portal, or it's relevant to artifacts
-    if ((parseInt(p.options.level) < level || !bounds.contains(p.getLatLng())) && guid !== selectedPortal && !artifact.isInterestingPortal(guid)) {
+    // clear portals outside visible bounds - unless it's the selected portal, or it's relevant to artifacts
+    if (!bounds.contains(p.getLatLng()) && guid !== selectedPortal && !artifact.isInterestingPortal(guid)) {
       this.deletePortalEntity(guid);
       count++;
     }
@@ -268,7 +268,7 @@ window.Render.prototype.createPlaceholderPortalEntity = function(guid,latE6,lngE
     ]
   ];
 
-//  this.createPortalEntity(ent);
+  this.createPortalEntity(ent);
 
 }
 
@@ -296,7 +296,7 @@ window.Render.prototype.createPortalEntity = function(ent) {
     this.deletePortalEntity(ent[0]);
   }
 
-  var portalLevel = parseInt(ent[2][4]);
+  var portalLevel = parseInt(ent[2][4])||0;
   var team = teamStringToId(ent[2][1]);
   // the data returns unclaimed portals as level 1 - but IITC wants them treated as level 0
   if (team == TEAM_NONE) portalLevel = 0;
@@ -409,6 +409,22 @@ window.Render.prototype.createFieldEntity = function(ent) {
 window.Render.prototype.createLinkEntity = function(ent,faked) {
   this.seenLinksGuid[ent[0]] = true;  // flag we've seen it
 
+  var data = { // TODO add other properties and check correction direction
+//    type:   ent[2][0],
+    team:   ent[2][1],
+    oGuid:  ent[2][2],
+    oLatE6: ent[2][3],
+    oLngE6: ent[2][4],
+    dGuid:  ent[2][5],
+    dLatE6: ent[2][6],
+    dLngE6: ent[2][7]
+  };
+
+  // create placeholder entities for link start and end points (before checking if the link itself already exists
+  this.createPlaceholderPortalEntity(data.oGuid, data.oLatE6, data.oLngE6, data.team);
+  this.createPlaceholderPortalEntity(data.dGuid, data.dLatE6, data.dLngE6, data.team);
+
+
   // check if entity already exists
   if (ent[0] in window.links) {
     // yes. now, as sometimes links are 'faked', they have incomplete data. if the data we have is better, replace the data
@@ -422,17 +438,6 @@ window.Render.prototype.createLinkEntity = function(ent,faked) {
     // 2. delete the entity, then re-create it with the new data
     this.deleteLinkEntity(ent[0]); // option 2 - for now
   }
-
-  var data = { // TODO add other properties and check correction direction
-//    type:   ent[2][0],
-    team:   ent[2][1],
-    oGuid:  ent[2][2],
-    oLatE6: ent[2][3],
-    oLngE6: ent[2][4],
-    dGuid:  ent[2][5],
-    dLatE6: ent[2][6],
-    dLngE6: ent[2][7]
-  };
 
   var team = teamStringToId(ent[2][1]);
   var latlngs = [
@@ -457,14 +462,6 @@ window.Render.prototype.createLinkEntity = function(ent,faked) {
   window.links[ent[0]] = poly;
 
   linksFactionLayers[poly.options.team].addLayer(poly);
-
-
-  // create placeholder entities for link start and end points
-  this.createPlaceholderPortalEntity(data.oGuid, data.oLatE6, data.oLngE6, data.team);
-  this.createPlaceholderPortalEntity(data.dGuid, data.dLatE6, data.dLngE6, data.team);
-
-
-
 }
 
 
@@ -485,12 +482,12 @@ window.Render.prototype.rescalePortalMarkers = function() {
 
 // add the portal to the visible map layer
 window.Render.prototype.addPortalToMapLayer = function(portal) {
-  portalsFactionLayers[parseInt(portal.options.level)][portal.options.team].addLayer(portal);
+  portalsFactionLayers[parseInt(portal.options.level)||0][portal.options.team].addLayer(portal);
 }
 
 window.Render.prototype.removePortalFromMapLayer = function(portal) {
   //remove it from the portalsLevels layer
-  portalsFactionLayers[parseInt(portal.options.level)][portal.options.team].removeLayer(portal);
+  portalsFactionLayers[parseInt(portal.options.level)||0][portal.options.team].removeLayer(portal);
 }
 
 

@@ -120,13 +120,15 @@ window.getDataZoomForMapZoom = function(zoom) {
     zoom = 21;
   }
 
-  if (window.CONFIG_ZOOM_SHOW_MORE_PORTALS) {
-    // as of 2015-06-25 stock site update, all zoom levels that retrieve portals (15+) use the same tile size
-    // therefore, it's no more load on the servers to fake it always to show unclaimed rather than L1+
-    if (zoom >= 15 && zoom <= 16) {
-      zoom = 17;
-    }
-  }
+// as of the 2015-06-26 niantic update, unclaimed portals are returned when we ask for L1+ - so this
+// is not needed at all
+//  if (window.CONFIG_ZOOM_SHOW_MORE_PORTALS) {
+//    // as of 2015-06-25 stock site update, all zoom levels that retrieve portals (15+) use the same tile size
+//    // therefore, it's no more load on the servers to fake it always to show unclaimed rather than L1+
+//    if (zoom >= 15 && zoom <= 16) {
+//      zoom = 17;
+//    }
+//  }
 
 
   if (!window.CONFIG_ZOOM_DEFAULT_DETAIL_LEVEL) {
