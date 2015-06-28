@@ -37,15 +37,21 @@
   }
 
 
-  var summaryArrayLength = undefined;
+  var summaryArrayLength = 14;
 
+//there's also a 'placeholder' portal - generated from the data in links/fields. only has team/lat/lng
 
-  function basePortalData(a) {
+  function corePortalData(a) {
     return {
       // a[0] == type (always 'p')
       team:          a[1],
       latE6:         a[2],
-      lngE6:         a[3],
+      lngE6:         a[3]
+    }
+  };
+
+  function summaryPortalData(a) {
+    return {
       level:         a[4],
       health:        a[5],
       resCount:      a[6],
@@ -64,10 +70,16 @@
 
     if (a[0] != 'p') throw 'Error: decodeArray.portalSUmmary - not a portal';
 
-    if (summaryArrayLength===undefined) summaryArrayLength = a.length;
-    if (summaryArrayLength!=a.length) console.warn('decodeArray.portalSUmmary: inconsistant map data portal array lengths');
+    if (a.length == 4) {
+      return corePortalData(a);
+    }
 
-    return basePortalData(a);
+    if (a.length != summaryArrayLength) {
+      console.warn('Portal summary length changed - portal details likely broken!');
+      debugger;
+    }
+
+    return $.extend(corePortalData(a), summaryPortalData(a));
   }
 
   window.decodeArray.portalDetail = function(a) {
@@ -75,12 +87,14 @@
 
     if (a[0] != 'p') throw 'Error: decodeArray.portalDetail - not a portal';
 
-    if (summaryArrayLength===undefined) throw 'Error: decodeArray.portalDetail - not yet seen any portal summary data - cannot decode!';
+
+    //TODO look at the array values, make a better guess as to which index the mods start at, rather than using the hard-coded summaryArrayLength constant
+
 
     // the portal details array is just an extension of the portal summary array
     // to allow for niantic adding new items into the array before the extended details start,
     // use the length of the summary array
-    return $.extend(basePortalData(a),{
+    return $.extend(corePortalData(a), summaryPortalData(a),{
       mods:      a[summaryArrayLength+0].map(parseMod),
       resonators:a[summaryArrayLength+1].map(parseResonator),
       owner:     a[summaryArrayLength+2],

@@ -30,9 +30,12 @@ window.setMarkerStyle = function(marker, selected) {
 
   marker.setStyle(styleOptions);
 
-  // FIXME? it's inefficient to set the marker style (above), then do it again inside the highlighter
-  // the highlighter API would need to be changed for this to be improved though. will it be too slow?
-  highlightPortal(marker);
+  // don't run highlighters if we only have placeholder data
+  if (marker.options.data.level !== undefined) {
+    // FIXME? it's inefficient to set the marker style (above), then do it again inside the highlighter
+    // the highlighter API would need to be changed for this to be improved though. will it be too slow?
+    highlightPortal(marker);
+  }
 
   if (selected) {
     marker.setStyle ({color: COLOR_SELECTED_PORTAL});
@@ -47,7 +50,7 @@ window.getMarkerStyleOptions = function(details) {
   var LEVEL_TO_WEIGHT = [2, 2, 2, 2, 2, 3, 3, 4, 4];
   var LEVEL_TO_RADIUS = [7, 7, 7, 7, 8, 8, 9,10,11];
 
-  var level = Math.floor(details.level);
+  var level = Math.floor(details.level||0);
 
   var lvlWeight = LEVEL_TO_WEIGHT[level] * Math.sqrt(scale);
   var lvlRadius = LEVEL_TO_RADIUS[level] * scale;
