@@ -37,7 +37,11 @@ var handleResponse = function(guid, data, success) {
   }
 
   if (success) {
+
     var dict = decodeArray.portalDetail(data.result);
+
+    // entity format, as used in map data
+    var ent = [guid,dict.timestamp,data.result];
 
     cache.store(guid,dict);
 
@@ -47,7 +51,7 @@ var handleResponse = function(guid, data, success) {
       renderPortalDetails(guid);
     }
 
-    window.runHooks ('portalDetailLoaded', {guid:guid, success:success, details:dict});
+    window.runHooks ('portalDetailLoaded', {guid:guid, success:success, details:dict, ent:ent});
 
   } else {
     if (data && data.error == "RETRY") {
