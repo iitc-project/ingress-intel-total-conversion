@@ -23,59 +23,6 @@ window.getRangeText = function(d) {
     title];
 }
 
-// generates description text from details for portal
-window.getPortalDescriptionFromDetails = function(details) {
-  return details.title || '(untitled)';
-
-//  var descObj = details.descriptiveText.map;
-//  // FIXME: also get real description?
-//  var desc = descObj.TITLE;
-//  if(descObj.ADDRESS)
-//    desc += '\n' + descObj.ADDRESS;
-////  if(descObj.ATTRIBUTION)
-////    desc += '\nby '+descObj.ATTRIBUTION+' ('+descObj.ATTRIBUTION_LINK+')';
-//  return desc;
-}
-
-// Grabs more info, including the submitter name for the current main
-// portal image
-window.getPortalDescriptionFromDetailsExtended = function(details) {
-  var descObj = details.title;
-  var photoStreamObj = details.photoStreamInfo;
-
-  var submitterObj = new Object();
-  submitterObj.type = "";
-  submitterObj.name = "";
-  submitterObj.team = "";
-  submitterObj.link = "";
-  submitterObj.voteCount = undefined;
-
-  if(photoStreamObj && photoStreamObj.hasOwnProperty("coverPhoto") && photoStreamObj.coverPhoto.hasOwnProperty("attributionMarkup")) {
-    submitterObj.name = "Unknown";
-
-    var attribution = photoStreamObj.coverPhoto.attributionMarkup;
-    submitterObj.type = attribution[0];
-    if(attribution[1].hasOwnProperty("plain"))
-      submitterObj.name = attribution[1].plain;
-    if(attribution[1].hasOwnProperty("team"))
-      submitterObj.team = attribution[1].team;
-    if(attribution[1].hasOwnProperty("attributionLink"))
-      submitterObj.link = attribution[1].attributionLink;
-    if(photoStreamObj.coverPhoto.hasOwnProperty("voteCount"))
-      submitterObj.voteCount = photoStreamObj.coverPhoto.voteCount;
-  }
-
-
-  var portalDetails = {
-    title: descObj.TITLE,
-    description: descObj.DESCRIPTION,
-    address: descObj.ADDRESS,
-    submitter: submitterObj
-  };
-
-  return portalDetails;
-}
-
 
 // given portal details, returns html code to display mod details.
 window.getModDetails = function(d) {
