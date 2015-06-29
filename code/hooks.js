@@ -18,6 +18,7 @@
 // portalSelected: called when portal on map is selected/unselected.
 //              Provide guid of selected and unselected portal.
 // mapDataRefreshStart: called when we start refreshing map data
+// mapDataEntityInject: called just as we start to render data. has callback to inject cached entities into the map render
 // mapDataRefreshEnd: called when we complete the map data load
 // portalAdded: called when a portal has been received and is about to
 //              be added to its layer group. Note that this does NOT
@@ -55,7 +56,7 @@
 window._hooks = {}
 window.VALID_HOOKS = [
   'portalSelected', 'portalDetailsUpdated',
-  'mapDataRefreshStart', 'mapDataRefreshEnd',
+  'mapDataRefreshStart', 'mapDataEntityInject', 'mapDataRefreshEnd',
   'portalAdded', 'linkAdded', 'fieldAdded',
   'publicChatDataAvailable', 'factionChatDataAvailable',
   'requestFinished', 'nicknameClicked',
