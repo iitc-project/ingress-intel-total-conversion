@@ -4,7 +4,6 @@
 
 
 window.Render = function() {
-
   this.portalMarkerScale = undefined;
 }
 
