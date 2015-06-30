@@ -239,6 +239,9 @@ window.MapDataRequest.prototype.refresh = function() {
 
   this.render.startRenderPass(tileParams.level, dataBounds);
 
+  var _render = this.render;
+  window.runHooks ('mapDataEntityInject', {callback: function(ents) { _render.processGameEntities(ents);}});
+
 
   this.render.processGameEntities(artifact.getArtifactEntities());
 
