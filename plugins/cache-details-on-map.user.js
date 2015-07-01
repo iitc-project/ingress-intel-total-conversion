@@ -38,7 +38,7 @@ window.plugin.cachePortalDetailsOnMap.entityInject = function(data) {
   var ents = [];
   for (var guid in window.plugin.cachePortalDetailsOnMap.cache) {
     if (window.plugin.cachePortalDetailsOnMap.cache[guid].loadtime < maxAge) {
-      window.plugin.cachePortalDetailsOnMap.cache.delete(guid);
+      delete window.plugin.cachePortalDetailsOnMap.cache[guid];
     } else {
       ents.push(window.plugin.cachePortalDetailsOnMap.cache[guid].ent);
     }
