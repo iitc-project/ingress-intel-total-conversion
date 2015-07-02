@@ -57,7 +57,7 @@ window.MapDataRequest = function() {
   // render queue
   // number of items to process in each render pass. there are pros and cons to smaller and larger values
   // (however, if using leaflet canvas rendering, it makes sense to push as much as possible through every time)
-  this.RENDER_BATCH_SIZE = L.Path.CANVAS ? 1E9 : 500;
+  this.RENDER_BATCH_SIZE = L.Path.CANVAS ? 1E9 : 1500;
 
   // delay before repeating the render loop. this gives a better chance for user interaction
   this.RENDER_PAUSE = (typeof android === 'undefined') ? 0.1 : 0.2; //100ms desktop, 200ms mobile
@@ -69,6 +69,13 @@ window.MapDataRequest = function() {
 
   // ensure we have some initial map status
   this.setStatus ('startup', undefined, -1);
+
+  // add a portalDetailLoaded hook, so we can use the exteneed details to update portals on the map
+  var _this = this;
+  addHook('portalDetailLoaded',function(data){
+    _this.render.processGameEntities([data.ent]);
+  });
+
 }
 
 
@@ -232,8 +239,11 @@ window.MapDataRequest.prototype.refresh = function() {
 
   this.render.startRenderPass(tileParams.level, dataBounds);
 
+  var _render = this.render;
+  window.runHooks ('mapDataEntityInject', {callback: function(ents) { _render.processGameEntities(ents);}});
 
-  this.render.processGameEntities(artifact.getArtifactEntities(),true);
+
+  this.render.processGameEntities(artifact.getArtifactEntities());
 
   var logMessage = 'requesting data tiles at zoom '+dataZoom;
   if (tileParams.level != tileParams.maxLevel) {

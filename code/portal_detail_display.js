@@ -41,46 +41,13 @@ window.renderPortalDetails = function(guid) {
  
 
   var img = fixPortalImageUrl(details ? details.image : data.image);
-  var title = data.title;
+  var title = (details && details.title) || (data && data.title) || '(untitled)';
 
   var lat = data.latE6/1E6;
   var lng = data.lngE6/1E6;
 
-  var imgTitle = details ? getPortalDescriptionFromDetails(details) : data.title;
-  imgTitle += '\n\nClick to show full image.';
-  var portalDetailObj = details ? window.getPortalDescriptionFromDetailsExtended(details) : undefined;
+  var imgTitle = title+'\n\nClick to show full image.';
 
-  var portalDetailedDescription = '';
-
-  if(portalDetailObj) {
-    portalDetailedDescription = '<table description="Portal Photo Details" class="portal_details">';
-
-    // TODO (once the data supports it) - portals can have multiple photos. display all, with navigation between them
-    // (at this time the data isn't returned from the server - although a count of images IS returned!)
-
-    if(portalDetailObj.submitter.name.length > 0) {
-      if(portalDetailObj.submitter.team) {
-        submitterSpan = '<span class="' + (portalDetailObj.submitter.team === 'RESISTANCE' ? 'res' : 'enl') + ' nickname">';
-      } else {
-        submitterSpan = '<span class="none">';
-      }
-      portalDetailedDescription += '<tr><th>Photo by:</th><td>' + submitterSpan
-                                + escapeHtmlSpecialChars(portalDetailObj.submitter.name) + '</span>'+(portalDetailObj.submitter.voteCount !== undefined ? ' (' + portalDetailObj.submitter.voteCount + ' votes)' : '')+'</td></tr>';
-    }
-    if(portalDetailObj.submitter.link.length > 0) {
-      portalDetailedDescription += '<tr><th>Photo from:</th><td><a href="'
-                                + escapeHtmlSpecialChars(portalDetailObj.submitter.link) + '">' + escapeHtmlSpecialChars(portalDetailObj.submitter.link) + '</a></td></tr>';
-    }
-
-    if(portalDetailObj.description) {
-      portalDetailedDescription += '<tr class="padding-top"><th>Description:</th><td>' + escapeHtmlSpecialChars(portalDetailObj.description) + '</td></tr>';
-    }
-//    if(d.descriptiveText.map.ADDRESS) {
-//      portalDetailedDescription += '<tr><th>Address:</th><td>' + escapeHtmlSpecialChars(d.descriptiveText.map.ADDRESS) + '</td></tr>';
-//    }
-
-    portalDetailedDescription += '</table>';
-  }
 
   // portal level. start with basic data - then extend with fractional info in tooltip if available
   var levelInt = (teamStringToId(data.team) == TEAM_NONE) ? 0 : data.level;
@@ -127,7 +94,7 @@ window.renderPortalDetails = function(guid) {
     .html('') //to ensure it's clear
     .attr('class', TEAM_TO_CSS[teamStringToId(data.team)])
     .append(
-      $('<h3>').attr({class:'title'}).text(data.title),
+      $('<h3>').attr({class:'title'}).text(title),
 
       $('<span>').attr({
         class: 'close',
@@ -141,7 +108,6 @@ window.renderPortalDetails = function(guid) {
       .attr({class:'imgpreview', title:imgTitle, style:"background-image: url('"+img+"')"})
       .append(
         $('<span>').attr({id:'level', title: levelDetails}).text(levelInt),
-        $('<div>').attr({class:'portalDetails'}).html(portalDetailedDescription),
         $('<img>').attr({class:'hide', src:img})
       ),
 
