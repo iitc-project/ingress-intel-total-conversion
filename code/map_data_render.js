@@ -406,6 +406,13 @@ window.Render.prototype.createFieldEntity = function(ent) {
 }
 
 window.Render.prototype.createLinkEntity = function(ent,faked) {
+  // Niantic have been faking link entities, based on data from fields
+  // these faked links are sent along with the real portal links, causing duplicates
+  // the faked ones all have longer GUIDs, based on the field GUID (with _ab, _ac, _bc appended)
+  var fakedLink = new RegExp("^[0-9a-f]{32}\.b_[ab][bc]$"); //field GUIDs always end with ".b" - faked links append the edge identifier
+  if (fakedLink.test(ent[0])) return;
+
+
   this.seenLinksGuid[ent[0]] = true;  // flag we've seen it
 
   var data = { // TODO add other properties and check correction direction
