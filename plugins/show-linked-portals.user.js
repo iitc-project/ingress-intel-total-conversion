@@ -2,7 +2,7 @@
 // @id             iitc-plugin-show-linked-portals@fstopienski
 // @name           IITC plugin: Show linked portals
 // @category       Portal Info
-// @version        0.3.0.@@DATETIMEVERSION@@
+// @version        0.3.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -61,7 +61,7 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
     var title;
 
     var data = (portals[guid] && portals[guid].options.data) || portalDetail.get(guid) || null;
-    if(data) {
+    if(data && data.title) {
       title = data.title;
       div.append($('<img/>').attr({
         'src': fixPortalImageUrl(data.image),
@@ -73,7 +73,7 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
       div
         .addClass('outOfRange')
         .append($('<span/>')
-          .html('Portal out of range.<br>' + lengthShort));
+          .html('Portal not loaded.<br>' + lengthShort));
     }
 
     div
