@@ -156,21 +156,6 @@ window.artifact.getPortalData = function(guid,artifactId) {
   return artifact.portalInfo[guid] && artifact.portalInfo[guid][artifactId];
 }
 
-// get the target(s) at a specified portal. returns 'false'y if the portal isn't a target
-window.artifact.getPortalTarget = function(guid) {
-  targets = {};
-  if (artifact.portalInfo[guid]) {
-    for (var type in artifact.artifactTypes) {
-      if (artifact.portalInfo[guid][type].target !== undefined) {
-        targets[type] = artifact.portalInfo[guid][type].target;
-      }
-    }
-  }
-
-  return Object.keys(targets).length == 0 ? null : targets;
-
-}
-
 window.artifact.updateLayer = function() {
   artifact._layer.clearLayers();
 
@@ -237,7 +222,7 @@ window.artifact.showArtifactList = function() {
   $.each(artifact.artifactTypes, function(type,type2) {
     // no nice way to convert the Niantic internal name into the correct display name
     // (we do get the description string once a portal with that shard type is selected - could cache that somewhere?)
-    var name = type.substr(0,1).toUpperCase() + type.substr(1) + ' shards';
+    var name = type.capitalize() + ' shards';
 
     if (!first) html += '<hr>';
     first = false;
