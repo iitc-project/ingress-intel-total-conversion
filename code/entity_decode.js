@@ -25,7 +25,33 @@
       energy: arr[2],
     };
   }
-  function parseArtifact(arr) {
+  function parseArtifactBrief(arr) {
+    if (arr === null) return null;
+
+    // array index 0 is for fragments at the portal. index 1 is for target portals
+    // each of those is two dimensional - not sure why. part of this is to allow for multiple types of artifacts,
+    // with their own targets, active at once - but one level for the array is enough for that
+
+    // making a guess - first level is for different artifact types, second index would allow for
+    // extra data for that artifact type
+
+    function decodeArtifactArray(arr) {
+      var result = {};
+      for (var i=0; i<arr.length; i++) {
+        // we'll use the type as the key - and store any additional array values as the value
+        // that will be an empty array for now, so only object keys are useful data
+        result[arr[i][0]] = arr[i].slice(1);
+      }
+      return result;
+    }
+
+    return {
+      fragment: decodeArtifactArray(arr[0]),
+      target: decodeArtifactArray(arr[1]),
+    };
+  }
+
+  function parseArtifactDetail(arr) {
     if (arr == null) { return null; }
     // empty artifact data is pointless - ignore it
     if (arr.length == 3 && arr[0] == "" && arr[1] == "" && arr[2].length == 0) { return null; }
@@ -60,7 +86,7 @@
       ornaments:     a[9],
       mission:       a[10],
       mission50plus: a[11],
-      unknown12:     a[12],
+      artifactBrief: parseArtifactBrief(a[12]),
       timestamp:     a[13]
     };
   };
@@ -107,7 +133,7 @@
       mods:      a[SUMMARY_PORTAL_DATA_LENGTH+0].map(parseMod),
       resonators:a[SUMMARY_PORTAL_DATA_LENGTH+1].map(parseResonator),
       owner:     a[SUMMARY_PORTAL_DATA_LENGTH+2],
-      artifact:  parseArtifact(a[SUMMARY_PORTAL_DATA_LENGTH+3]),
+      artifactDetail:  parseArtifactDetail(a[SUMMARY_PORTAL_DATA_LENGTH+3]),
     });
     
   }

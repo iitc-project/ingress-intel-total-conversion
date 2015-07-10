@@ -184,31 +184,23 @@ window.getPortalMiscDetails = function(guid,d) {
         '<span title="force amplifier" class="text-overflow-ellipsis">force amplifier</span>',
         '×'+attackValues.force_amplifier]);
 
-    // artifact details
-
-    // 2014-02-06: stock site changed from supporting 'jarvis shards' to 'amar artifacts'(?) - so let's see what we can do to be generic...
-    $.each(artifact.getArtifactTypes(),function(index,type) {
-      var artdata = artifact.getPortalData (guid, type);
-      if (artdata) {
-        var details = artifact.getArtifactDescriptions(type);
-        if (details) {
-          // the genFourColumnTable function below doesn't handle cases where one column is null and the other isn't - so default to *something* in both columns
-          var target = ['',''], shards = [details.fragmentName,'(none)'];
-          if (artdata.target) {
-            target = ['target', '<span class="'+TEAM_TO_CSS[artdata.target]+'">'+(artdata.target==TEAM_RES?'Resistance':'Enlightened')+'</span>'];
-          }
-          if (artdata.fragments) {
-            shards = [details.fragmentName, '#'+artdata.fragments.join(', #')];
-          }
-
-          randDetailsData.push (target, shards);
-        } else {
-          console.warn('Unknown artifact type '+type+': no names, so cannot display');
-        }
-      }
-    });
-
     randDetails = '<table id="randdetails">' + genFourColumnTable(randDetailsData) + '</table>';
+
+
+    // artifacts - tacked on after (but not as part of) the 'randdetails' table
+    // instead of using the existing columns....
+
+    // fill in target status from the artifact code
+    var targets = artifact.getPortalTarget(guid);
+    if (targets) {
+//currently (2015-07-10) we no longer know the team each target portal is for - so we'll just show the artifact type(s) 
+       randDetails += '<div id="artifact_target">Target portal: '+Object.keys(targets).map(function(x) { return x.substr(0,1).toUpperCase()+x.substr(1); }).join(', ')+'</div>';
+    }
+
+    // shards - taken directly from the portal details
+    if (d.artifactDetail) {
+      randDetails += '<div id="artifact_fragments">Shards: '+d.artifactDetail.displayName+' #'+d.artifactDetail.fragments.join(', ')+'</div>';
+    }
 
   }
 
