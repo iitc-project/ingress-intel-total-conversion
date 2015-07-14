@@ -99,6 +99,17 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[0][0] == 'PLAYER'
 		&& markup[0][1].plain == nick
 		&& markup[1][0] == 'TEXT'
+		&& markup[1][1].plain == ' deployed a Resonator on '
+		&& markup[2][0] == 'PORTAL') {
+			// search for "x deployed a Resonator on z"
+			var portal = markup[4][1];
+			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
+			if(guid) plugin.uniques.setPortalVisited(guid);
+		} else if(plext.plextType == 'SYSTEM_BROADCAST'
+		&& markup.length==3
+		&& markup[0][0] == 'PLAYER'
+		&& markup[0][1].plain == nick
+		&& markup[1][0] == 'TEXT'
 		&& markup[1][1].plain == ' captured '
 		&& markup[2][0] == 'PORTAL') {
 			// search for "x captured y"
