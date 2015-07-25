@@ -450,7 +450,7 @@ window.plugin.areasUnderAttack.runHighlighters = function() {
 };
 
 window.plugin.areasUnderAttack.chatDataLoaded = function(data) {
-  console.log("AUA: chat data refreshed, refreshing message portals")
+  //console.log("AUA: chat data refreshed, refreshing message portals")
   // get earliest time for attacks that we want to highlight
   var thresholdTime = new Date().valueOf() - (window.plugin.areasUnderAttack.THRESHOLDMINS * 60000);
 
@@ -462,7 +462,7 @@ window.plugin.areasUnderAttack.chatDataLoaded = function(data) {
 };
 
 window.plugin.areasUnderAttack.mapDataRefreshed = function() {
-  console.log("AUA: map data refreshed, refreshing attacked portals")
+  //console.log("AUA: map data refreshed, refreshing attacked portals")
   window.plugin.areasUnderAttack.portalsLoaded = true;
   window.plugin.areasUnderAttack.updateAttackedPortals();
 
