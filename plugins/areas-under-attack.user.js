@@ -2,7 +2,7 @@
 // @id             iitc-plugin-areas-under-attack@bryndavies
 // @name           IITC plugin: highlight areas recently under attack
 // @category       Tweaks
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
