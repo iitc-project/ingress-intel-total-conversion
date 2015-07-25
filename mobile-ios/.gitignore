@@ -26,3 +26,6 @@ DerivedData
 compile_commands.json
 xcodebuild.log
 report.html
+
+# cocoapods
+Pods/
