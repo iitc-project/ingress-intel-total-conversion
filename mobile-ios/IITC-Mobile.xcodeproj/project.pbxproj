@@ -22,6 +22,9 @@
 		B48991EE1B63A0F8007749C3 /* IITCLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = B48991ED1B63A0F8007749C3 /* IITCLocation.m */; };
 		B48991F01B63A136007749C3 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B48991EF1B63A136007749C3 /* CoreLocation.framework */; };
 		B48991F21B63E2FE007749C3 /* ios-hooks.js in Resources */ = {isa = PBXBuildFile; fileRef = B48991F11B63E2FD007749C3 /* ios-hooks.js */; };
+		B4C9BC981B63EE0500C47A3C /* RootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C9BC971B63EE0500C47A3C /* RootViewController.m */; };
+		B4C9BC9E1B63EF8600C47A3C /* LayersTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C9BC9D1B63EF8600C47A3C /* LayersTableViewController.m */; };
+		B4C9BCA11B64087F00C47A3C /* NavigationTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C9BCA01B64087F00C47A3C /* NavigationTableViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +52,12 @@
 		B48991ED1B63A0F8007749C3 /* IITCLocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IITCLocation.m; sourceTree = "<group>"; };
 		B48991EF1B63A136007749C3 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		B48991F11B63E2FD007749C3 /* ios-hooks.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ios-hooks.js"; sourceTree = "<group>"; };
+		B4C9BC961B63EE0500C47A3C /* RootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewController.h; sourceTree = "<group>"; };
+		B4C9BC971B63EE0500C47A3C /* RootViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RootViewController.m; sourceTree = "<group>"; };
+		B4C9BC9C1B63EF8600C47A3C /* LayersTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayersTableViewController.h; sourceTree = "<group>"; };
+		B4C9BC9D1B63EF8600C47A3C /* LayersTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LayersTableViewController.m; sourceTree = "<group>"; };
+		B4C9BC9F1B64087F00C47A3C /* NavigationTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigationTableViewController.h; sourceTree = "<group>"; };
+		B4C9BCA01B64087F00C47A3C /* NavigationTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NavigationTableViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,6 +129,12 @@
 				B44D197B1B62A53300E94D98 /* Supporting Files */,
 				B48991EC1B63A0F8007749C3 /* IITCLocation.h */,
 				B48991ED1B63A0F8007749C3 /* IITCLocation.m */,
+				B4C9BC961B63EE0500C47A3C /* RootViewController.h */,
+				B4C9BC971B63EE0500C47A3C /* RootViewController.m */,
+				B4C9BC9C1B63EF8600C47A3C /* LayersTableViewController.h */,
+				B4C9BC9D1B63EF8600C47A3C /* LayersTableViewController.m */,
+				B4C9BC9F1B64087F00C47A3C /* NavigationTableViewController.h */,
+				B4C9BCA01B64087F00C47A3C /* NavigationTableViewController.m */,
 			);
 			path = "IITC-Mobile";
 			sourceTree = "<group>";
@@ -251,10 +266,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B4C9BCA11B64087F00C47A3C /* NavigationTableViewController.m in Sources */,
 				B48991E61B636917007749C3 /* JSHandler.m in Sources */,
+				B4C9BC981B63EE0500C47A3C /* RootViewController.m in Sources */,
 				B48991E91B6398F1007749C3 /* IITCWebView.m in Sources */,
 				B44D19801B62A53300E94D98 /* AppDelegate.m in Sources */,
 				B48991EE1B63A0F8007749C3 /* IITCLocation.m in Sources */,
+				B4C9BC9E1B63EF8600C47A3C /* LayersTableViewController.m in Sources */,
 				B44D197D1B62A53300E94D98 /* main.m in Sources */,
 				B48991EB1B639987007749C3 /* ViewController.m in Sources */,
 			);
