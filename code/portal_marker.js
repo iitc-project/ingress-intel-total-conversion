@@ -52,6 +52,13 @@ window.getMarkerStyleOptions = function(details) {
   var lvlWeight = LEVEL_TO_WEIGHT[level] * Math.sqrt(scale);
   var lvlRadius = LEVEL_TO_RADIUS[level] * scale;
 
+  var dashArray = null;
+  // thinner and dashed outline for placeholder portals
+  if (details.team != TEAM_NONE && level==0) {
+    lvlWeight = 1;
+    dashArray = [1,2];
+  }
+
   var options = {
     radius: lvlRadius,
     stroke: true,
@@ -61,7 +68,7 @@ window.getMarkerStyleOptions = function(details) {
     fill: true,
     fillColor: COLORS[details.team],
     fillOpacity: 0.5,
-    dashArray: null
+    dashArray: dashArray
   };
 
   return options;

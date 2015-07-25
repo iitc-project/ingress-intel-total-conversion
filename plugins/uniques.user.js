@@ -2,7 +2,7 @@
 // @id             iitc-plugin-uniques@3ch01c
 // @name           IITC plugin: Uniques
 // @category       Misc
-// @version        0.2.3.@@DATETIMEVERSION@@
+// @version        0.2.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/3ch01c/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -99,6 +99,17 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[0][0] == 'PLAYER'
 		&& markup[0][1].plain == nick
 		&& markup[1][0] == 'TEXT'
+		&& markup[1][1].plain == ' deployed a Resonator on '
+		&& markup[2][0] == 'PORTAL') {
+			// search for "x deployed a Resonator on z"
+			var portal = markup[2][1];
+			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
+			if(guid) plugin.uniques.setPortalVisited(guid);
+		} else if(plext.plextType == 'SYSTEM_BROADCAST'
+		&& markup.length==3
+		&& markup[0][0] == 'PLAYER'
+		&& markup[0][1].plain == nick
+		&& markup[1][0] == 'TEXT'
 		&& markup[1][1].plain == ' captured '
 		&& markup[2][0] == 'PORTAL') {
 			// search for "x captured y"
@@ -188,6 +199,8 @@ window.plugin.uniques.updateCheckedAndHighlight = function(guid) {
 window.plugin.uniques.setPortalVisited = function(guid) {
 	var uniqueInfo = plugin.uniques.uniques[guid];
 	if (uniqueInfo) {
+		if(uniqueInfo.visited) return;
+
 		uniqueInfo.visited = true;
 	} else {
 		plugin.uniques.uniques[guid] = {
@@ -203,6 +216,8 @@ window.plugin.uniques.setPortalVisited = function(guid) {
 window.plugin.uniques.setPortalCaptured = function(guid) {
 	var uniqueInfo = plugin.uniques.uniques[guid];
 	if (uniqueInfo) {
+		if(uniqueInfo.visited && uniqueInfo.captured) return;
+
 		uniqueInfo.visited = true;
 		uniqueInfo.captured = true;
 	} else {
@@ -227,6 +242,8 @@ window.plugin.uniques.updateVisited = function(visited, guid) {
 		};
 	}
 
+	if(visited == uniqueInfo.visited) return;
+
 	if (visited) {
 		uniqueInfo.visited = true;
 	} else { // not visited --> not captured
@@ -248,6 +265,8 @@ window.plugin.uniques.updateCaptured = function(captured, guid) {
 			captured: false
 		};
 	}
+
+	if(captured == uniqueInfo.captured) return;
 
 	if (captured) { // captured --> visited
 		uniqueInfo.captured = true;
