@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3C83B79A3EB8D493E1FB4E4D /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A5DDCD1A767FC905B3A96128 /* libPods.a */; };
 		B44D197D1B62A53300E94D98 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B44D197C1B62A53300E94D98 /* main.m */; };
 		B44D19801B62A53300E94D98 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B44D197F1B62A53300E94D98 /* AppDelegate.m */; };
 		B44D19861B62A53300E94D98 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B44D19841B62A53300E94D98 /* Main.storyboard */; };
@@ -24,6 +25,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1E677BE34CE7CE12E1C0FA4A /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		79E7B261A6578287E6208179 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+		A5DDCD1A767FC905B3A96128 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		B44D19781B62A53300E94D98 /* IITC-Mobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "IITC-Mobile.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B44D197C1B62A53300E94D98 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		B44D197E1B62A53300E94D98 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -54,12 +58,30 @@
 			files = (
 				B48991F01B63A136007749C3 /* CoreLocation.framework in Frameworks */,
 				B48991E31B6364D1007749C3 /* WebKit.framework in Frameworks */,
+				3C83B79A3EB8D493E1FB4E4D /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		014CF9F74584668170A86D2C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A5DDCD1A767FC905B3A96128 /* libPods.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		3C6E93995DED98A0DB48BE8B /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				1E677BE34CE7CE12E1C0FA4A /* Pods.debug.xcconfig */,
+				79E7B261A6578287E6208179 /* Pods.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		B44D196F1B62A53300E94D98 = {
 			isa = PBXGroup;
 			children = (
@@ -67,6 +89,8 @@
 				B48991E21B6364D1007749C3 /* WebKit.framework */,
 				B44D197A1B62A53300E94D98 /* IITC-Mobile */,
 				B44D19791B62A53300E94D98 /* Products */,
+				3C6E93995DED98A0DB48BE8B /* Pods */,
+				014CF9F74584668170A86D2C /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -126,9 +150,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = B44D198F1B62A53300E94D98 /* Build configuration list for PBXNativeTarget "IITC-Mobile" */;
 			buildPhases = (
+				455566C2DED5CA274DD7F45F /* Check Pods Manifest.lock */,
 				B44D19741B62A53300E94D98 /* Sources */,
 				B44D19751B62A53300E94D98 /* Frameworks */,
 				B44D19761B62A53300E94D98 /* Resources */,
+				3C4DF3475FA8E496A0C62174 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -186,6 +212,39 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		3C4DF3475FA8E496A0C62174 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		455566C2DED5CA274DD7F45F /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		B44D19741B62A53300E94D98 /* Sources */ = {
@@ -307,6 +366,7 @@
 		};
 		B44D19901B62A53300E94D98 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1E677BE34CE7CE12E1C0FA4A /* Pods.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = "IITC-Mobile/Info.plist";
@@ -318,6 +378,7 @@
 		};
 		B44D19911B62A53300E94D98 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 79E7B261A6578287E6208179 /* Pods.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = "IITC-Mobile/Info.plist";
