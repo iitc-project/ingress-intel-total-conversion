@@ -29,7 +29,7 @@ window.plugin.portalHighlighterNeedsRecharge.highlight = function(data) {
   var d = data.portal.options.data;
   var health = d.health;
 
-  if(data.portal.options.team != TEAM_NONE && health < 100) {
+  if(health !== undefined && data.portal.options.team != TEAM_NONE && health < 100) {
     var color,fill_opacity;
     if (health > 95) {
       color = 'yellow';

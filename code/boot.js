@@ -586,7 +586,6 @@ function boot() {
   }});
 
   window.extractFromStock();
-  window.iitc_bg.init(); //NOTE: needs to be early (before any requests sent), but after extractFromStock()
   window.setupIdle();
   window.setupTaphold();
   window.setupStyles();
