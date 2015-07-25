@@ -227,8 +227,8 @@ window.plugin.areasUnderAttack.addAttackedMsgPortals = function(messages, thresh
       var msgPortal = null;
       if(plext.text.indexOf("is under attack") > -1) {
         msgPortal = plext.markup[1][1];
-      } else if(plext.text.indexOf("destroyed an") > -1) {
-        msgPortal = plext.markup[4][1];
+      } else if(plext.text.indexOf("destroyed a") > -1) {
+        msgPortal = plext.markup[2][1];
       }
       if(msgPortal !== null && msgPortal !== undefined && attackTime >= thresholdTime) {
         var key = msgPortal.latE6 + "/" + msgPortal.lngE6;
@@ -450,6 +450,7 @@ window.plugin.areasUnderAttack.runHighlighters = function() {
 };
 
 window.plugin.areasUnderAttack.chatDataLoaded = function(data) {
+  console.log("AUA: chat data refreshed, refreshing message portals")
   // get earliest time for attacks that we want to highlight
   var thresholdTime = new Date().valueOf() - (window.plugin.areasUnderAttack.THRESHOLDMINS * 60000);
 
@@ -461,7 +462,7 @@ window.plugin.areasUnderAttack.chatDataLoaded = function(data) {
 };
 
 window.plugin.areasUnderAttack.mapDataRefreshed = function() {
-  //console.log("map data refreshed, refreshing attacked portals")
+  console.log("AUA: map data refreshed, refreshing attacked portals")
   window.plugin.areasUnderAttack.portalsLoaded = true;
   window.plugin.areasUnderAttack.updateAttackedPortals();
 
