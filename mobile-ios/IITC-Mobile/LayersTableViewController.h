@@ -7,7 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+@interface Layer : NSObject
+@property (strong)NSString *layerID;
+@property (strong)NSString *layerName;
+@property BOOL active;
+@end
 
 @interface LayersTableViewController : UITableViewController
-
+- (void)setLayers:(NSArray *)layers;
 @end

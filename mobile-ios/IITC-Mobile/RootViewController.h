@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <RESideMenu.h>
 
-@interface RootViewController : UIViewController
-
+@interface RootViewController : RESideMenu
+- (void)setLayers:(NSArray *)layers;
 @end

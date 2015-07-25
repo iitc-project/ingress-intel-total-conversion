@@ -156,6 +156,7 @@
 
 - (void) setLayers: (NSArray *)layers {
     NSLog([layers description]);
+    [self.viewController setLayers:layers];
 //    mIitc.runOnUiThread(new Runnable() {
 //        @Override
 //        - (void) run() {

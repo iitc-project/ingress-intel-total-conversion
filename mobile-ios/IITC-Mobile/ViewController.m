@@ -10,7 +10,7 @@
 #import <WebKit/WebKit.h>
 #import "IITCWebView.h"
 #import "IITCLocation.h"
-
+static ViewController *_viewController;
 @interface ViewController ()
 @property IITCLocation *location;
 @property (strong, nonatomic) UIProgressView *progressView;
@@ -24,6 +24,7 @@
 @synthesize progressView;
 - (void)viewDidLoad {
     [super viewDidLoad];
+    _viewController = self;
     // Do any additional setup after loading the view, typically from a nib.
     self.backPane = [[NSMutableArray alloc] init];
     self.currentPane = @"map";
@@ -53,6 +54,10 @@
     [self.webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:NULL];
     [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.ingress.com/intel?vp=m"]]];
 
+}
+
++(instancetype)sharedInstance{
+    return _viewController;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -109,6 +114,7 @@
 
 - (void)bootFinished {
     [self.location startUpdate];
+    [self getLayers];
 }
 
 - (void)switchToPane:(NSString *)pane {
@@ -144,4 +150,11 @@
     _currentPane = pane;
 }
 
+- (void)getLayers {
+    [self.webView loadJS:@"window.layerChooser.getLayers()"];
+}
+
+-(void)setLayers:(NSArray *)layers {
+    [self.rootController setLayers:layers];
+}
 @end

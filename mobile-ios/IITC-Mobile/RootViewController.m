@@ -7,6 +7,8 @@
 //
 
 #import "RootViewController.h"
+#import "ViewController.h"
+#import "LayersTableViewController.h"
 
 @interface RootViewController ()
 
@@ -24,6 +26,22 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (void)awakeFromNib {
+    self.contentViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"contentViewController"];
+    ((ViewController *)((UINavigationController *)self.contentViewController).viewControllers[0]).rootController = self;
+    self.leftMenuViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"leftMenuViewController"];
+    self.rightMenuViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"rightMenuViewController"];
+    self.scaleContentView = NO;
+    self.scaleMenuView = NO;
+    self.contentViewShadowEnabled = YES;
+    self.contentViewShadowColor = [UIColor blackColor];
+    self.parallaxEnabled = NO;
+
+}
+
+- (void)setLayers:(NSArray *)layers {
+    [((LayersTableViewController *)(((UINavigationController *) self.rightMenuViewController).viewControllers)[0]) setLayers:layers];
+}
 /*
 #pragma mark - Navigation
 

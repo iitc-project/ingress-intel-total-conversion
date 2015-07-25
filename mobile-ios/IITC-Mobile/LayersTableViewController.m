@@ -7,16 +7,25 @@
 //
 
 #import "LayersTableViewController.h"
+#import "ViewController.h"
+#import "IITCWebView.h"
 
 @interface LayersTableViewController ()
-
+@property NSUInteger currentBase;
+@property (strong)NSMutableArray *baseLayers;
+@property (strong)NSMutableArray *overlayLayers;
 @end
 
 @implementation LayersTableViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    self.currentBase = 0;
+    self.baseLayers = [[NSArray alloc] init];
+    self.overlayLayers = [[NSArray alloc] init];
+    UIEdgeInsets inset =self.tableView.separatorInset;
+    inset.left = self.view.frame.size.width/2-15.0;
+    [self.tableView setSeparatorInset:inset];
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
     
@@ -29,27 +38,117 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (void)setLayers:(NSArray *)layers {
+    NSError *error;
+    self.baseLayers = [[NSMutableArray alloc] init];
+    self.overlayLayers = [[NSMutableArray alloc] init];
+    NSArray *temp = [[NSMutableArray alloc] initWithArray: [NSJSONSerialization JSONObjectWithData:[((NSString *)layers[0]) dataUsingEncoding:NSASCIIStringEncoding]  options:kNilOptions error:&error]];
+    for (NSDictionary *layer in temp) {
+        [self.baseLayers addObject:[NSMutableDictionary dictionaryWithDictionary:layer]];
+        if ([(NSNumber *)layer[@"active"] boolValue]) {
+            self.currentBase = self.baseLayers.count-1;
+        }
+    }
+    
+    temp = [[NSMutableArray alloc] initWithArray: [NSJSONSerialization JSONObjectWithData:[((NSString *)layers[1]) dataUsingEncoding:NSASCIIStringEncoding]  options:kNilOptions error:&error]];
+    for (NSDictionary *layer in temp) {
+        [self.overlayLayers addObject:[NSMutableDictionary dictionaryWithDictionary:layer]];
+    }
+    [self.tableView reloadData];
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-#warning Incomplete implementation, return the number of sections
-    return 0;
+    return 2;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-#warning Incomplete implementation, return the number of rows
+    switch (section) {
+        case 0:
+            return self.baseLayers.count;
+        case 1:
+            return self.overlayLayers.count;
+        default:
+            break;
+    }
     return 0;
 }
 
-/*
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:<#@"reuseIdentifier"#> forIndexPath:indexPath];
-    
-    // Configure the cell...
-    
-    return cell;
+- (nullable NSString *)tableView:(nonnull UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    switch (section) {
+        case 0:
+            return @"BASE LAYERS";
+        case 1:
+            return @"OVERLAY LAYERS";
+        default:
+            break;
+    }
+    return nil;
 }
-*/
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    switch (indexPath.section) {
+        case 0:
+        {
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"baseLayerCell" forIndexPath:indexPath];
+            
+            // Configure the cell...
+            cell.textLabel.text = self.baseLayers[indexPath.row][@"name"];
+            if ([(NSNumber *)self.baseLayers[indexPath.row][@"active"] boolValue]) {
+                cell.accessoryType = UITableViewCellAccessoryCheckmark;
+            }
+            return cell;
+
+        }
+        case 1:
+        {
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"baseLayerCell" forIndexPath:indexPath];
+            
+            // Configure the cell...
+            cell.textLabel.text = self.overlayLayers[indexPath.row][@"name"];
+            if ([(NSNumber *)self.overlayLayers[indexPath.row][@"active"] boolValue]) {
+                cell.accessoryType = UITableViewCellAccessoryCheckmark;
+            }
+            return cell;
+            
+        }
+        default:
+            break;
+    }
+    return nil;
+}
+
+- (void)tableView:(nonnull UITableView *)tableView didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
+    BOOL changed = NO;
+    BOOL reloadNeeded = NO;
+    switch (indexPath.section) {
+        case 0:
+            if (indexPath.row != self.currentBase) {
+                self.baseLayers[indexPath.row][@"active"] = @(YES);
+                [tableView cellForRowAtIndexPath:indexPath].accessoryType = UITableViewCellAccessoryCheckmark;
+                self.baseLayers[self.currentBase][@"active"] = @(NO);
+                [tableView cellForRowAtIndexPath:[NSIndexPath indexPathForItem:self.currentBase
+                                       inSection:0]].accessoryType = UITableViewCellAccessoryNone;
+                self.currentBase = indexPath.row;
+                [[ViewController sharedInstance].webView loadJS:[NSString stringWithFormat:@"window.layerChooser.showLayer(%@, true)",self.baseLayers[indexPath.row][@"layerId"]]];
+                break;
+            }
+            break;
+        case 1:
+        {
+            BOOL temp = ![(NSNumber *)self.overlayLayers[indexPath.row][@"active"] boolValue];
+            self.overlayLayers[indexPath.row][@"active"]=@(temp);
+            [tableView cellForRowAtIndexPath:indexPath].accessoryType = temp? UITableViewCellAccessoryCheckmark :UITableViewCellAccessoryNone;
+            [[ViewController sharedInstance].webView loadJS:[NSString stringWithFormat:@"window.layerChooser.showLayer(%@, %@)",self.overlayLayers[indexPath.row][@"layerId"], temp ? @"true" : @"false"]];
+            changed = YES;
+            break;
+        }
+        default:
+            break;
+    }
+    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
 
 /*
 // Override to support conditional editing of the table view.

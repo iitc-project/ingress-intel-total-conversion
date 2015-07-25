@@ -7,7 +7,9 @@
 //
 
 #import "NavigationTableViewController.h"
-
+#import "ViewController.h"
+#import "IITCWebView.h"
+#import <RESideMenu.h>
 @interface NavigationTableViewController ()
 
 @end
@@ -32,13 +34,35 @@
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-#warning Incomplete implementation, return the number of sections
-    return 0;
+    return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-#warning Incomplete implementation, return the number of rows
-    return 0;
+    return 4;
+}
+
+-(void)tableView:(nonnull UITableView *)tableView didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
+    switch (indexPath.row) {
+        case 0:
+            [[ViewController sharedInstance] switchToPane:@"info"];
+            break;
+        case 1:
+            [[ViewController sharedInstance] switchToPane:@"all"];
+            break;
+
+        case 2:
+            [[ViewController sharedInstance] switchToPane:@"faction"];
+            break;
+
+        case 3:
+            [[ViewController sharedInstance] switchToPane:@"alerts"];
+            break;
+
+        default:
+            break;
+    }
+    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+    [self.sideMenuViewController hideMenuViewController];
 }
 
 /*
