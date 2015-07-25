@@ -34,7 +34,6 @@ window.postAjax = function(action, data, successCallback, errorCallback) {
 
   var onSuccess = function(data, textStatus, jqXHR) {
     window.requests.remove(jqXHR);
-    iitc_bg.process_response_params(action,data);
 
     // the Niantic server can return a HTTP success, but the JSON response contains an error. handle that sensibly
     if (data && data.error && data.error == 'out of date') {
@@ -65,7 +64,7 @@ window.postAjax = function(action, data, successCallback, errorCallback) {
   }
 
   var versionStr = niantic_params.CURRENT_VERSION;
-  var post_data = JSON.stringify($.extend({}, data, {v: versionStr}, iitc_bg.extra_request_params(action)));
+  var post_data = JSON.stringify($.extend({}, data, {v: versionStr}));
 
   var result = $.ajax({
     url: '/r/'+action,
