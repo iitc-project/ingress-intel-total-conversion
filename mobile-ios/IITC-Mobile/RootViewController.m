@@ -37,10 +37,19 @@
     self.contentViewShadowColor = [UIColor blackColor];
     self.parallaxEnabled = NO;
 
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sharedAction:) name:JSNotificationSharedAction object:nil];
+}
+
+- (void)dealloc{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)setLayers:(NSArray *)layers {
     [((LayersTableViewController *)(((UINavigationController *) self.rightMenuViewController).viewControllers)[0]) setLayers:layers];
+
+- (void)sharedAction:(NSNotification *)notification {
+    UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:notification.userInfo[@"data"] applicationActivities:nil];
+    [self.contentViewController presentViewController:activityViewController animated:YES completion:nil];
 }
 /*
 #pragma mark - Navigation

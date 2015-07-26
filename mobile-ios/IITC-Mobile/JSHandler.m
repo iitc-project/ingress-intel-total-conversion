@@ -47,15 +47,32 @@
 
 // open dialog to send geo intent for navigation apps like gmaps or waze etc...
 
-//- (void)intentPosLink(
-//                           double lat,  double lng,  int zoom,  NSString * title,  boolean isPortal) {
+- (void)intentPosLink:(NSArray *)args {
+    NSNumber *isPortal = args[4];
+    NSString *lat = args[0];
+    NSString *lng = args[1];
+    
+    NSNumber *zoom = args[2];
+    
+    NSURL *url;
+    if ([isPortal boolValue]) {
+        url = [NSURL URLWithString:[NSString stringWithFormat:@"https://www.ingress.com/intel?pll=%@,%@&z=%@", lat,lng,zoom]];
+    } else {
+        url = [NSURL URLWithString:[NSString stringWithFormat:@"https://www.ingress.com/intel?ll=%@,%@&z=%@", lat,lng,zoom]];
+    }
+    NSURL *locationURL =url = [NSURL URLWithString:[NSString stringWithFormat:@"maps://?ll=%@,%@", lat,lng]];
+    
+//    NSString *title = args[3];
+//
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:JSNotificationSharedAction object:self userInfo:@{@"data":@[args[3],  url]}];
 //    mIitc.startActivity(ShareActivity.forPosition(mIitc, lat, lng, zoom, title, isPortal));
-//}
+}
 
 // share a string to the IITC share activity. only uses the share tab.
 
 - (void)shareString:(NSString *) str {
-//    mIitc.startActivity(ShareActivity.forString(mIitc, str));
+    [[NSNotificationCenter defaultCenter] postNotificationName:JSNotificationSharedAction object:self userInfo:@{@"data":@[str]}];
 }
 
 // disable javascript injection while spinner is enabled
@@ -68,10 +85,8 @@
 // copy link to specific portal to android clipboard
 
 - (void) copy:(NSString *) s {
-//     ClipboardManager clipboard = (ClipboardManager) mIitc.getSystemService(Context.CLIPBOARD_SERVICE);
-//     ClipData clip = ClipData.newPlainText("Copied Text ", s);
-//    clipboard.setPrimaryClip(clip);
-//    Toast.makeText(mIitc, "copied to clipboard", Toast.LENGTH_SHORT).show();
+    UIPasteboard *pb = [UIPasteboard generalPasteboard];
+    [pb setString:s];
 }
 
 
