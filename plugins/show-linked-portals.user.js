@@ -43,6 +43,8 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
 
   var c = 1;
 
+  $('<div>',{id:'showLinkedPortalContainer'}).appendTo('#portaldetails');
+
   function renderLinkedPortal(linkGuid) {
     if(c > 16) return;
 
@@ -89,7 +91,7 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
           .append($('<span/>').html(lengthFull))
           .html(),
       })
-      .appendTo('#portaldetails');
+      .appendTo('#showLinkedPortalContainer');
 
     c++;
   }
@@ -101,10 +103,10 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
     $('<div>')
       .addClass('showLinkedPortalLink showLinkedPortalOverflow')
       .text(length-16 + ' more')
-      .appendTo('#portaldetails');
+      .appendTo('#showLinkedPortalContainer');
   }
 
-  $('#portaldetails')
+  $('#showLinkedPortalContainer')
     .on('click', '.showLinkedPortalLink', plugin.showLinkedPortal.onLinkedPortalClick)
     .on('mouseover', '.showLinkedPortalLink', plugin.showLinkedPortal.onLinkedPortalMouseOver)
     .on('mouseout', '.showLinkedPortalLink', plugin.showLinkedPortal.onLinkedPortalMouseOut);
