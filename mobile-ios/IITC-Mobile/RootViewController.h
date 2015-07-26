@@ -10,5 +10,5 @@
 #import <RESideMenu.h>
 
 @interface RootViewController : RESideMenu
-- (void)setLayers:(NSArray *)layers;
+
 @end

@@ -9,9 +9,11 @@
 #import "RootViewController.h"
 #import "ViewController.h"
 #import "LayersTableViewController.h"
+#import "JSHandler.h"
 
 @interface RootViewController ()
-
+@property (weak) ViewController *mainViewController;
+@property (weak) LayersTableViewController *layerChooser;
 @end
 
 @implementation RootViewController
@@ -28,9 +30,10 @@
 
 - (void)awakeFromNib {
     self.contentViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"contentViewController"];
-    ((ViewController *)((UINavigationController *)self.contentViewController).viewControllers[0]).rootController = self;
+    self.mainViewController = ((UINavigationController *)self.contentViewController).viewControllers[0];
     self.leftMenuViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"leftMenuViewController"];
     self.rightMenuViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"rightMenuViewController"];
+    self.layerChooser = ((UINavigationController *)self.rightMenuViewController).viewControllers[0];
     self.scaleContentView = NO;
     self.scaleMenuView = NO;
     self.contentViewShadowEnabled = YES;
@@ -45,7 +48,8 @@
 }
 
 - (void)setLayers:(NSArray *)layers {
-    [((LayersTableViewController *)(((UINavigationController *) self.rightMenuViewController).viewControllers)[0]) setLayers:layers];
+    [self.layerChooser setLayers:layers];
+}
 
 - (void)sharedAction:(NSNotification *)notification {
     UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:notification.userInfo[@"data"] applicationActivities:nil];
