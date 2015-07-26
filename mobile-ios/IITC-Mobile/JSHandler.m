@@ -7,20 +7,11 @@
 //
 
 #import "JSHandler.h"
-#import "ViewController.h"
 
 @interface JSHandler ()
-@property (weak) ViewController *viewController;
+
 @end
 @implementation JSHandler
-
-- (instancetype)initWithCallback:(ViewController *)viewController {
-    self = [super init];
-    if (self) {
-        self.viewController = viewController;
-    }
-    return self;
-}
 
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
     NSDictionary *call = message.body;
@@ -110,21 +101,7 @@
 
 
 - (void) switchToPane: (NSString *) paneID {
-    NSLog(@"paneID:%@", paneID);
-    [self.viewController setCurrentPane:paneID];
-//    mIitc.runOnUiThread(new Runnable() {
-//        @Override
-//        - (void) run() {
-//            Pane pane;
-//            try {
-//                pane = mIitc.getNavigationHelper().getPane(paneID);
-//            } catch ( IllegalArgumentException e) {
-//                pane = Pane.MAP;
-//            }
-//            
-//            mIitc.setCurrentPane(pane);
-//        }
-//    });
+    [[NSNotificationCenter defaultCenter] postNotificationName:JSNotificationPaneChanged object:self userInfo:@{@"paneID":paneID}];
 }
 
 
@@ -139,30 +116,13 @@
 
 
 - (void) bootFinished {
-    [self.viewController bootFinished];
-//    Log.d("...boot finished");
-//    
-//    mIitc.runOnUiThread(new Runnable() {
-//        @Override
-//        - (void) run() {
-//            mIitc.setLoadingState(false);
-//            
-//            mIitc.getMapSettings().onBootFinished();
-//        }
-//    });
+    [[NSNotificationCenter defaultCenter] postNotificationName:JSNotificationBootFinished object:self];
 }
 
 // get layers and list them in a dialog
 
 - (void) setLayers: (NSArray *)layers {
-    NSLog([layers description]);
-    [self.viewController setLayers:layers];
-//    mIitc.runOnUiThread(new Runnable() {
-//        @Override
-//        - (void) run() {
-//            mIitc.getMapSettings().setLayers(base_layer, overlay_layer);
-//        }
-//    });
+    [[NSNotificationCenter defaultCenter] postNotificationName:JSNotificationLayersGot object:self userInfo:@{@"layers":layers}];
 }
 
 

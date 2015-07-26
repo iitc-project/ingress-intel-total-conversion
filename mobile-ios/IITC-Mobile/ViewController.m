@@ -7,16 +7,17 @@
 //
 
 #import "ViewController.h"
-#import <WebKit/WebKit.h>
 #import "IITCWebView.h"
 #import "IITCLocation.h"
+#import "JSHandler.h"
+
 static ViewController *_viewController;
 @interface ViewController ()
 @property IITCLocation *location;
 @property (strong, nonatomic) UIProgressView *progressView;
 @property (strong) NSMutableArray *backPane;
 @property BOOL backButtonPressed;
-@property NSString *currentPane;
+@property NSString *currentPaneID;
 @end
 
 @implementation ViewController
@@ -27,10 +28,10 @@ static ViewController *_viewController;
     _viewController = self;
     // Do any additional setup after loading the view, typically from a nib.
     self.backPane = [[NSMutableArray alloc] init];
-    self.currentPane = @"map";
+    self.currentPaneID = @"map";
     
     self.location = [[IITCLocation alloc] initWithCallback:self];
-    self.webView = [[IITCWebView alloc] initWithFrame:CGRectZero viewController:self];
+    self.webView = [[IITCWebView alloc] initWithFrame:CGRectZero];
     self.webView.UIDelegate = self;
     self.progressView = [[UIProgressView alloc] initWithFrame:CGRectZero];
     self.webView.translatesAutoresizingMaskIntoConstraints = NO;
@@ -52,9 +53,17 @@ static ViewController *_viewController;
     
     [self.webView addObserver:self forKeyPath:@"loading" options:NSKeyValueObservingOptionNew context:nil];
     [self.webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:NULL];
-    [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.ingress.com/intel?vp=m"]]];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(bootFinished) name:JSNotificationBootFinished object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setCurrentPane:) name:JSNotificationPaneChanged object:nil];
+
+    [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.ingress.com/intel"]]];
 
 }
+
+-(void) dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+};
 
 +(instancetype)sharedInstance{
     return _viewController;
@@ -65,9 +74,7 @@ static ViewController *_viewController;
     // Dispose of any resources that can be recreated.
 }
 
-
-
-- (void)observeValueForKeyPath:(nullable NSString *)keyPath ofObject:(nullable id)object change:(nullable NSDictionary *)change context:(nullable void *)context {
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if ([keyPath isEqualToString: @"loading"]) {
     }
     else {
@@ -79,7 +86,6 @@ static ViewController *_viewController;
 //{
 //    //WebView.frame=[[UIScreen mainScreen] bounds];
 //}
-
 
 - (void)webView:(WKWebView *)webView runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(void))completionHandler
 {
@@ -133,8 +139,10 @@ static ViewController *_viewController;
     }
 }
 
--(void)setCurrentPane:(NSString *)pane {
-    if ([pane isEqualToString:self.currentPane]) return;
+-(void)setCurrentPane:(NSNotification *)notification {
+    NSString *pane = notification.userInfo[@"paneID"];
+
+    if ([pane isEqualToString:self.currentPaneID]) return;
     
     // map pane is top-lvl. clear stack.
     if ([pane isEqualToString:@"map"]) {
@@ -142,19 +150,16 @@ static ViewController *_viewController;
     }
     // don't push current pane to backstack if this method was called via back button
     else if (!self.backButtonPressed) {
-        [self.backPane addObject:self.currentPane];
+        [self.backPane addObject:self.currentPaneID];
         self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"back" style:UIBarButtonItemStyleDone target:self action:@selector(backButtonPressed:)];;
     }
     
     self.backButtonPressed = NO;
-    _currentPane = pane;
+    _currentPaneID = pane;
 }
 
 - (void)getLayers {
     [self.webView loadJS:@"window.layerChooser.getLayers()"];
 }
 
--(void)setLayers:(NSArray *)layers {
-    [self.rootController setLayers:layers];
-}
 @end

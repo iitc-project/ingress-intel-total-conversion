@@ -7,18 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "RootViewController.h"
+#import <WebKit/WebKit.h>
 
-@protocol WKUIDelegate;
 @class IITCWebView;
 
 @interface ViewController : UIViewController<WKUIDelegate>
 +(instancetype) sharedInstance;
-@property(weak) RootViewController *rootController;
-- (void)bootFinished;
 @property (strong, nonatomic) IITCWebView *webView;
 - (void)switchToPane:(NSString *)pane;
-- (void)setCurrentPane:(NSString *)pane;
-- (void)setLayers:(NSArray *)layers;
 @end
 

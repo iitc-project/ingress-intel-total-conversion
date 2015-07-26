@@ -9,6 +9,6 @@
 #import <WebKit/WebKit.h>
 @class ViewController;
 @interface IITCWebView : WKWebView
-- (nonnull instancetype)initWithFrame:(CGRect)frame viewController:(ViewController *)viewController;
+- (instancetype)initWithFrame:(CGRect)frame;
 - (void)loadJS:(NSString *)js;
 @end

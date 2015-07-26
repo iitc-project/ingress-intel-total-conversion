@@ -9,6 +9,7 @@
 #import "LayersTableViewController.h"
 #import "ViewController.h"
 #import "IITCWebView.h"
+#import "JSHandler.h"
 
 @interface LayersTableViewController ()
 @property NSUInteger currentBase;
@@ -21,24 +22,27 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.currentBase = 0;
-    self.baseLayers = [[NSArray alloc] init];
-    self.overlayLayers = [[NSArray alloc] init];
-    UIEdgeInsets inset =self.tableView.separatorInset;
-    inset.left = self.view.frame.size.width/2-15.0;
-    [self.tableView setSeparatorInset:inset];
+    self.baseLayers = [[NSMutableArray alloc] init];
+    self.overlayLayers = [[NSMutableArray alloc] init];
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
     
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setLayers:) name:JSNotificationLayersGot object:nil];
 }
+
+-(void) dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+};
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
-- (void)setLayers:(NSArray *)layers {
+- (void)setLayers:(NSNotification *)notification {
+    NSArray *layers = notification.userInfo[@"layers"];
     NSError *error;
     self.baseLayers = [[NSMutableArray alloc] init];
     self.overlayLayers = [[NSMutableArray alloc] init];
@@ -103,7 +107,7 @@
         }
         case 1:
         {
-            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"baseLayerCell" forIndexPath:indexPath];
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"overlayLayerCell" forIndexPath:indexPath];
             
             // Configure the cell...
             cell.textLabel.text = self.overlayLayers[indexPath.row][@"name"];
@@ -119,7 +123,7 @@
     return nil;
 }
 
-- (void)tableView:(nonnull UITableView *)tableView didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
+- (void)tableView:( UITableView *)tableView didSelectRowAtIndexPath:( NSIndexPath *)indexPath {
     BOOL changed = NO;
     BOOL reloadNeeded = NO;
     switch (indexPath.section) {
@@ -131,6 +135,7 @@
                 [tableView cellForRowAtIndexPath:[NSIndexPath indexPathForItem:self.currentBase
                                        inSection:0]].accessoryType = UITableViewCellAccessoryNone;
                 self.currentBase = indexPath.row;
+                
                 [[ViewController sharedInstance].webView loadJS:[NSString stringWithFormat:@"window.layerChooser.showLayer(%@, true)",self.baseLayers[indexPath.row][@"layerId"]]];
                 break;
             }

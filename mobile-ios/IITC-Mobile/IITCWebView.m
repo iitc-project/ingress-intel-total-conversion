@@ -11,9 +11,9 @@
 
 @implementation IITCWebView
 
-- (nonnull instancetype)initWithFrame:(CGRect)frame viewController:(ViewController *)viewController{
+- (instancetype)initWithFrame:(CGRect)frame{
     WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
-    JSHandler *handler = [[JSHandler alloc] initWithCallback:viewController];
+    JSHandler *handler = [[JSHandler alloc] init];
     [configuration.userContentController addScriptMessageHandler:handler name:@"ios"];
     NSError *error;
     NSString *path = [[NSBundle mainBundle] pathForResource:@"ios-hooks" ofType:@"js"];
