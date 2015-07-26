@@ -73,5 +73,10 @@ function Android() {
     function bootFinished() {
         window.webkit.messageHandlers.ios.postMessage({functionName: "bootFinished", args: ""});
     };
+
+    this.intentPosLink=intentPosLink;
+    function intentPosLink(lat, lng, zoom, title, boolValue ){
+        window.webkit.messageHandlers.ios.postMessage({functionName: "intentPosLink", args:[lat,lng,zoom,title,boolValue]});
+    };
 }
 var android=new Android();
