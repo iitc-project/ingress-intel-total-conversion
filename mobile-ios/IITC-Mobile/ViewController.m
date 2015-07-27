@@ -58,6 +58,10 @@ static ViewController *_viewController;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setCurrentPane:) name:JSNotificationPaneChanged object:nil];
 
     [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.ingress.com/intel"]]];
+    self.backButton = [[UIBarButtonItem alloc] initWithTitle:@"back" style:UIBarButtonItemStyleDone target:self action:@selector(backButtonPressed:)];
+    UIBarButtonItem *settingButton = [[UIBarButtonItem alloc] initWithTitle:@"settings" style:UIBarButtonItemStylePlain target:self action:@selector(settingButtonPressed:)];
+    UIBarButtonItem *locationButton = [[UIBarButtonItem alloc] initWithTitle:@"locate" style:UIBarButtonItemStylePlain target:self action:@selector(locationButtonPressed:)];
+    self.navigationItem.rightBarButtonItems = @[settingButton, locationButton];
 
 }
 
@@ -135,7 +139,7 @@ static ViewController *_viewController;
         self.backButtonPressed = true;
     }
     if (![self.backPane count]) {
-        self.navigationItem.rightBarButtonItem=nil;
+        self.navigationItem.leftBarButtonItem=nil;
     }
 }
 
@@ -151,7 +155,7 @@ static ViewController *_viewController;
     // don't push current pane to backstack if this method was called via back button
     else if (!self.backButtonPressed) {
         [self.backPane addObject:self.currentPaneID];
-        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"back" style:UIBarButtonItemStyleDone target:self action:@selector(backButtonPressed:)];;
+        self.navigationItem.leftBarButtonItem = self.backButton;
     }
     
     self.backButtonPressed = NO;
