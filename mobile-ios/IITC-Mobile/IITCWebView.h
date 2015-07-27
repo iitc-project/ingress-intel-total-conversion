@@ -10,5 +10,6 @@
 @class ViewController;
 @interface IITCWebView : WKWebView
 - (instancetype)initWithFrame:(CGRect)frame;
+- (void)loadScripts;
 - (void)loadJS:(NSString *)js;
 @end
