@@ -15,15 +15,13 @@
 		B44D198B1B62A53300E94D98 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B44D19891B62A53300E94D98 /* LaunchScreen.storyboard */; };
 		B47613081B669CEB00F8A51A /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B47613071B669CEB00F8A51A /* SettingsViewController.m */; };
 		B476130A1B677D0A00F8A51A /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = B47613091B677D0A00F8A51A /* Settings.bundle */; };
-		B48991E01B63648F007749C3 /* total-conversion-build.user.js in Resources */ = {isa = PBXBuildFile; fileRef = B48991DE1B63648F007749C3 /* total-conversion-build.user.js */; };
-		B48991E11B63648F007749C3 /* user-location.user.js in Resources */ = {isa = PBXBuildFile; fileRef = B48991DF1B63648F007749C3 /* user-location.user.js */; };
+		B47613BD1B67922100F8A51A /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = B47613BC1B67922100F8A51A /* scripts */; };
 		B48991E31B6364D1007749C3 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B48991E21B6364D1007749C3 /* WebKit.framework */; };
 		B48991E61B636917007749C3 /* JSHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B48991E51B636917007749C3 /* JSHandler.m */; };
 		B48991E91B6398F1007749C3 /* IITCWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = B48991E81B6398F1007749C3 /* IITCWebView.m */; };
 		B48991EB1B639987007749C3 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B48991EA1B639987007749C3 /* ViewController.m */; };
 		B48991EE1B63A0F8007749C3 /* IITCLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = B48991ED1B63A0F8007749C3 /* IITCLocation.m */; };
 		B48991F01B63A136007749C3 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B48991EF1B63A136007749C3 /* CoreLocation.framework */; };
-		B48991F21B63E2FE007749C3 /* ios-hooks.js in Resources */ = {isa = PBXBuildFile; fileRef = B48991F11B63E2FD007749C3 /* ios-hooks.js */; };
 		B4C9BC981B63EE0500C47A3C /* RootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C9BC971B63EE0500C47A3C /* RootViewController.m */; };
 		B4C9BC9E1B63EF8600C47A3C /* LayersTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C9BC9D1B63EF8600C47A3C /* LayersTableViewController.m */; };
 		B4C9BCA11B64087F00C47A3C /* NavigationTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C9BCA01B64087F00C47A3C /* NavigationTableViewController.m */; };
@@ -45,8 +43,7 @@
 		B47613061B669CEB00F8A51A /* SettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsViewController.h; sourceTree = "<group>"; };
 		B47613071B669CEB00F8A51A /* SettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsViewController.m; sourceTree = "<group>"; };
 		B47613091B677D0A00F8A51A /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
-		B48991DE1B63648F007749C3 /* total-conversion-build.user.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "total-conversion-build.user.js"; sourceTree = "<group>"; };
-		B48991DF1B63648F007749C3 /* user-location.user.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "user-location.user.js"; sourceTree = "<group>"; };
+		B47613BC1B67922100F8A51A /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = scripts; sourceTree = "<group>"; };
 		B48991E21B6364D1007749C3 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		B48991E41B636917007749C3 /* JSHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSHandler.h; sourceTree = "<group>"; };
 		B48991E51B636917007749C3 /* JSHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSHandler.m; sourceTree = "<group>"; };
@@ -56,7 +53,6 @@
 		B48991EC1B63A0F8007749C3 /* IITCLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IITCLocation.h; sourceTree = "<group>"; };
 		B48991ED1B63A0F8007749C3 /* IITCLocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IITCLocation.m; sourceTree = "<group>"; };
 		B48991EF1B63A136007749C3 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
-		B48991F11B63E2FD007749C3 /* ios-hooks.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ios-hooks.js"; sourceTree = "<group>"; };
 		B4C9BC961B63EE0500C47A3C /* RootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewController.h; sourceTree = "<group>"; };
 		B4C9BC971B63EE0500C47A3C /* RootViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RootViewController.m; sourceTree = "<group>"; };
 		B4C9BC9C1B63EF8600C47A3C /* LayersTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayersTableViewController.h; sourceTree = "<group>"; };
@@ -119,6 +115,7 @@
 		B44D197A1B62A53300E94D98 /* IITC-Mobile */ = {
 			isa = PBXGroup;
 			children = (
+				B47613BC1B67922100F8A51A /* scripts */,
 				B44D197E1B62A53300E94D98 /* AppDelegate.h */,
 				B44D197F1B62A53300E94D98 /* AppDelegate.m */,
 				B44D19811B62A53300E94D98 /* ViewController.h */,
@@ -150,20 +147,9 @@
 			isa = PBXGroup;
 			children = (
 				B47613091B677D0A00F8A51A /* Settings.bundle */,
-				B48991DD1B63648F007749C3 /* scripts */,
 				B44D197C1B62A53300E94D98 /* main.m */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		B48991DD1B63648F007749C3 /* scripts */ = {
-			isa = PBXGroup;
-			children = (
-				B48991F11B63E2FD007749C3 /* ios-hooks.js */,
-				B48991DE1B63648F007749C3 /* total-conversion-build.user.js */,
-				B48991DF1B63648F007749C3 /* user-location.user.js */,
-			);
-			path = scripts;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -226,10 +212,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B44D198B1B62A53300E94D98 /* LaunchScreen.storyboard in Resources */,
+				B47613BD1B67922100F8A51A /* scripts in Resources */,
 				B44D19881B62A53300E94D98 /* Assets.xcassets in Resources */,
-				B48991E01B63648F007749C3 /* total-conversion-build.user.js in Resources */,
-				B48991F21B63E2FE007749C3 /* ios-hooks.js in Resources */,
-				B48991E11B63648F007749C3 /* user-location.user.js in Resources */,
 				B44D19861B62A53300E94D98 /* Main.storyboard in Resources */,
 				B476130A1B677D0A00F8A51A /* Settings.bundle in Resources */,
 			);
