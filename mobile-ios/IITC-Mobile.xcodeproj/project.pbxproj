@@ -13,6 +13,8 @@
 		B44D19861B62A53300E94D98 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B44D19841B62A53300E94D98 /* Main.storyboard */; };
 		B44D19881B62A53300E94D98 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B44D19871B62A53300E94D98 /* Assets.xcassets */; };
 		B44D198B1B62A53300E94D98 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B44D19891B62A53300E94D98 /* LaunchScreen.storyboard */; };
+		B47613081B669CEB00F8A51A /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B47613071B669CEB00F8A51A /* SettingsViewController.m */; };
+		B476130A1B677D0A00F8A51A /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = B47613091B677D0A00F8A51A /* Settings.bundle */; };
 		B48991E01B63648F007749C3 /* total-conversion-build.user.js in Resources */ = {isa = PBXBuildFile; fileRef = B48991DE1B63648F007749C3 /* total-conversion-build.user.js */; };
 		B48991E11B63648F007749C3 /* user-location.user.js in Resources */ = {isa = PBXBuildFile; fileRef = B48991DF1B63648F007749C3 /* user-location.user.js */; };
 		B48991E31B6364D1007749C3 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B48991E21B6364D1007749C3 /* WebKit.framework */; };
@@ -40,6 +42,9 @@
 		B44D19871B62A53300E94D98 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B44D198A1B62A53300E94D98 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B44D198C1B62A53300E94D98 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B47613061B669CEB00F8A51A /* SettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsViewController.h; sourceTree = "<group>"; };
+		B47613071B669CEB00F8A51A /* SettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsViewController.m; sourceTree = "<group>"; };
+		B47613091B677D0A00F8A51A /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		B48991DE1B63648F007749C3 /* total-conversion-build.user.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "total-conversion-build.user.js"; sourceTree = "<group>"; };
 		B48991DF1B63648F007749C3 /* user-location.user.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "user-location.user.js"; sourceTree = "<group>"; };
 		B48991E21B6364D1007749C3 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
@@ -135,6 +140,8 @@
 				B4C9BC9D1B63EF8600C47A3C /* LayersTableViewController.m */,
 				B4C9BC9F1B64087F00C47A3C /* NavigationTableViewController.h */,
 				B4C9BCA01B64087F00C47A3C /* NavigationTableViewController.m */,
+				B47613061B669CEB00F8A51A /* SettingsViewController.h */,
+				B47613071B669CEB00F8A51A /* SettingsViewController.m */,
 			);
 			path = "IITC-Mobile";
 			sourceTree = "<group>";
@@ -142,6 +149,7 @@
 		B44D197B1B62A53300E94D98 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				B47613091B677D0A00F8A51A /* Settings.bundle */,
 				B48991DD1B63648F007749C3 /* scripts */,
 				B44D197C1B62A53300E94D98 /* main.m */,
 			);
@@ -223,6 +231,7 @@
 				B48991F21B63E2FE007749C3 /* ios-hooks.js in Resources */,
 				B48991E11B63648F007749C3 /* user-location.user.js in Resources */,
 				B44D19861B62A53300E94D98 /* Main.storyboard in Resources */,
+				B476130A1B677D0A00F8A51A /* Settings.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -273,6 +282,7 @@
 				B44D19801B62A53300E94D98 /* AppDelegate.m in Sources */,
 				B48991EE1B63A0F8007749C3 /* IITCLocation.m in Sources */,
 				B4C9BC9E1B63EF8600C47A3C /* LayersTableViewController.m in Sources */,
+				B47613081B669CEB00F8A51A /* SettingsViewController.m in Sources */,
 				B44D197D1B62A53300E94D98 /* main.m in Sources */,
 				B48991EB1B639987007749C3 /* ViewController.m in Sources */,
 			);
