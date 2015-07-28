@@ -13,6 +13,7 @@
 @interface IITCLocation ()
 @property (strong) CLLocationManager*locationManager;
 @property (weak) ViewController *viewController;
+@property IITCLocationMode currentMode;
 @end
 
 @implementation IITCLocation
@@ -36,6 +37,17 @@
     return self;
 }
 
+- (void)setLocationMode:(IITCLocationMode)mode {
+    if (self.currentMode == kIITCLocationModeNotShow) {
+        [self startUpdate];
+        //
+    } else if (mode == kIITCLocationModeNotShow) {
+        [self stopUpdate];
+        //
+    }
+    self.currentMode = mode;
+}
+
 - (void)startUpdate {
     if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined) {
         [locationManager requestWhenInUseAuthorization];
@@ -51,9 +63,14 @@
      didUpdateLocations:(NSArray<CLLocation *> *)locations{
 //    NSLog(@"Location:%@", [[manager location] description]);
     CLLocation* location = [manager location] ;
-    
-    [self.viewController.webView loadJS:[NSString stringWithFormat:@"if(window.plugin && window.plugin.userLocation)\nwindow.plugin.userLocation.onLocationChange(%f, %f);", location.coordinate.latitude, location.coordinate.longitude ]];
-    [self.viewController.webView loadJS:[NSString stringWithFormat:@"if(window.plugin && window.plugin.userLocation)\nwindow.plugin.userLocation.onOrientationChange(%f);", location.course]];
+    if (self.currentMode != kIITCLocationModeNotShow) {
+        [self.viewController.webView loadJS:[NSString stringWithFormat:@"if(window.plugin && window.plugin.userLocation)\nwindow.plugin.userLocation.onLocationChange(%f, %f);", location.coordinate.latitude, location.coordinate.longitude ]];
+
+    }
+    if (self.currentMode == kIITCLocationModeShowPositionAndOrientation) {
+        [self.viewController.webView loadJS:[NSString stringWithFormat:@"if(window.plugin && window.plugin.userLocation)\nwindow.plugin.userLocation.onOrientationChange(%f);", location.course]];
+
+    }
 }
 
 - (void)locationManager:(CLLocationManager *)manager

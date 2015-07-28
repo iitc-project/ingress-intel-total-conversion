@@ -139,7 +139,8 @@ static ViewController *_viewController;
 }
 
 - (void)bootFinished {
-    [self.location startUpdate];
+    IITCLocationMode mode = [[NSUserDefaults standardUserDefaults] integerForKey:@"pref_user_location_mode"];
+    [self.location setLocationMode:mode];
     [self getLayers];
 }
 

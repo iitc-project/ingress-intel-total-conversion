@@ -9,8 +9,14 @@
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
 @class ViewController;
+
+typedef enum : NSUInteger {
+    kIITCLocationModeNotShow,
+    kIITCLocationModeShowPosition,
+    kIITCLocationModeShowPositionAndOrientation,
+} IITCLocationMode;
+
 @interface IITCLocation : NSObject<CLLocationManagerDelegate>
 - (instancetype)initWithCallback:(ViewController *)viewController;
--(void) startUpdate;
--(void) stopUpdate;
+- (void)setLocationMode:(IITCLocationMode)mode;
 @end
