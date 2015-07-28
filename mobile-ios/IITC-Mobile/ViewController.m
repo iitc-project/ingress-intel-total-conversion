@@ -167,7 +167,9 @@ static ViewController *_viewController;
 }
 
 - (void)locationButtonPressed:(id)aa {
-    [self.webView loadJS:@"window.map.locate({setView : true, maxZoom : map.getZoom()});"];
+    NSUserDefaults *defaults =[NSUserDefaults standardUserDefaults];
+    BOOL prefPersistentZoom = [defaults boolForKey:@"pref_persistent_zoom"];
+    [self.webView loadJS:[NSString stringWithFormat:@"window.map.locate({setView : true%@});" , prefPersistentZoom? @", maxZoom : map.getZoom()":@""]];
 }
 -(void)setCurrentPane:(NSNotification *)notification {
     NSString *pane = notification.userInfo[@"paneID"];
