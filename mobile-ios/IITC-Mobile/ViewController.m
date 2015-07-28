@@ -10,6 +10,7 @@
 #import "IITCWebView.h"
 #import "IITCLocation.h"
 #import "JSHandler.h"
+#import "SettingsViewController.h"
 
 static ViewController *_viewController;
 @interface ViewController ()
@@ -159,7 +160,9 @@ static ViewController *_viewController;
 }
 
 - (void)settingButtonPressed:(id)aa {
-    UIViewController *vc = [self.storyboard instantiateViewControllerWithIdentifier:@"settingsViewController"];
+    SettingsViewController *vc =[[SettingsViewController alloc] init];
+    vc.neverShowPrivacySettings = YES;
+    vc.showDoneButton = NO;
     [self.navigationController pushViewController:vc animated:YES];
 }
 
