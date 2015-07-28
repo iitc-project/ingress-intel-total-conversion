@@ -16,13 +16,25 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+//    self.delegate = self;
     // Do any additional setup after loading the view.
 }
-
+- (void)dealloc {
+//    [self synchronizeSettings];
+}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+- (void)settingsViewController:(IASKAppSettingsViewController*)sender buttonTappedForSpecifier:(IASKSpecifier*)specifier {
+    NSLog(specifier.key);
+}
+
+- (void)settingsViewControllerDidEnd:(IASKAppSettingsViewController *)sender {
+//    [self synchronizeSettings];
+}
+
 
 /*
 #pragma mark - Navigation
