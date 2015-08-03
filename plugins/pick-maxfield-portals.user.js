@@ -3,7 +3,7 @@
 // @name           IITC plugin: pick portals for the maxfield script
 // @category       Info
 // @version        0.1.0.@@DATETIMEVERSION@@
-// @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
+// @namespace      https://github.com/rspielmann/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Pick portals for the maxfield script.
