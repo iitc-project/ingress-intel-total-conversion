@@ -84,6 +84,18 @@
         .replace(/\\/g, '&#92;');
   }
 
+  window.plugin.bookmarks.escapeUnicode = function(str) {
+    for (var result = '', index = 0, charCode; !isNaN(charCode = str.charCodeAt(index));) {
+      if ((charCode & 127) == charCode) {
+        result += str[index];
+      } else {
+        result += '\\u' + ('0000' + charCode.toString(16)).slice(-4);
+      }
+      index++;
+    }
+    return result;
+  }
+
   // Update the localStorage
   window.plugin.bookmarks.saveStorage = function() {
     localStorage[plugin.bookmarks.KEY_STORAGE] = JSON.stringify(window.plugin.bookmarks.bkmrksObj);
@@ -641,10 +653,10 @@
 
   window.plugin.bookmarks.optCopy = function() {
     if(typeof android !== 'undefined' && android && android.shareString) {
-      return android.shareString(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
+      return android.shareString(window.plugin.bookmarks.escapeUnicode(localStorage[window.plugin.bookmarks.KEY_STORAGE]));
     } else {
       dialog({
-        html: '<p><a onclick="$(\'.ui-dialog-bkmrksSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly>'+localStorage[window.plugin.bookmarks.KEY_STORAGE]+'</textarea>',
+        html: '<p><a onclick="$(\'.ui-dialog-bkmrksSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly>'+window.plugin.bookmarks.escapeUnicode(localStorage[window.plugin.bookmarks.KEY_STORAGE])+'</textarea>',
         dialogClass: 'ui-dialog-bkmrksSet-copy',
         title: 'Bookmarks Export'
       });
