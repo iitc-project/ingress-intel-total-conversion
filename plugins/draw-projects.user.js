@@ -2,7 +2,7 @@
 // @id             iitc-plugin-draw-projects@zaso
 // @name           IITC plugin: Draw Projects
 // @category       Layer
-// @version        0.1.1.@@DATETIMEVERSION@@
+// @version        0.1.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -27,16 +27,18 @@
 window.plugin.drawProjects = function() {};
 
 window.plugin.drawProjects.PREKEY = 'plugin-draw-tools-layer';
-window.plugin.drawProjects.projects = [];
 
 window.plugin.drawProjects.scanStorage = function() {
+  //Create an empty array to fill with projects localstorage key
+  window.plugin.drawProjects.projects = [];
+
   // Create drawtools default localstorage if it not exist
   if(!window.localStorage[window.plugin.drawProjects.PREKEY]) {
     window.localStorage[window.plugin.drawProjects.PREKEY] = '';
   }
 
   for(field in window.localStorage) {
-    if(field.includes(window.plugin.drawProjects.PREKEY)) {
+    if(field.indexOf(window.plugin.drawProjects.PREKEY) !== -1) {
       window.plugin.drawProjects.projects.push(field);
     }
   }
