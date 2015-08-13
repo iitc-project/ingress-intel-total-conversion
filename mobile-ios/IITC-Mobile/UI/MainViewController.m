@@ -17,7 +17,6 @@ static MainViewController *_viewController;
 @interface MainViewController ()
 @property IITCLocation *location;
 @property (strong, nonatomic) UIProgressView *webProgressView;
-@property (weak, nonatomic) IBOutlet UIProgressView *progressView;
 @property (strong) UIBarButtonItem *backButton;
 @property (strong) NSMutableArray *backPane;
 @property BOOL backButtonPressed;
@@ -44,6 +43,7 @@ static MainViewController *_viewController;
     self.webProgressView = [[UIProgressView alloc] initWithFrame:CGRectZero];
     self.webView.translatesAutoresizingMaskIntoConstraints = NO;
     self.webProgressView.translatesAutoresizingMaskIntoConstraints = NO;
+    
     NSMutableArray *constraits = [[NSMutableArray alloc] init];
     
     [self.view addSubview:self.webView];
@@ -56,7 +56,7 @@ static MainViewController *_viewController;
     [constraits addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[webProgressView]-0-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(webProgressView)]];
     [constraits addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[topGuide]-0-[webProgressView]" options:0 metrics:nil views:NSDictionaryOfVariableBindings(topGuide, webProgressView)]];
     [self.view addConstraints:constraits];
-    [self.webProgressView setProgress:0.8];
+    [self.webProgressView setProgress:0.0];
     self.webView.backgroundColor = [UIColor blackColor];
     
     UIScreenEdgePanGestureRecognizer *recognizerLeft = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self action:@selector(leftPanGesture:)];
@@ -253,11 +253,10 @@ static MainViewController *_viewController;
 - (void)setIITCProgress:(NSNotification *)notification {
     NSNumber * progress = notification.userInfo[@"data"];
     if ([progress doubleValue] != -1) {
-        [self.progressView setHidden:NO];
-        [self.progressView setProgress:[progress doubleValue] animated:YES];
+//        [self.progressView setHidden:NO];
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     } else {
-        [self.progressView setHidden:YES];
-        [self.progressView setProgress:0 animated:YES];
+       [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     }
 }
 

@@ -10,7 +10,7 @@
 #import "MainViewController.h"
 #import "IITCWebView.h"
 #import "JSHandler.h"
-
+#import <RESideMenu.h>
 @interface LayersTableViewController ()
 @property NSUInteger currentBase;
 @property (strong)NSMutableArray *baseLayers;
@@ -64,14 +64,16 @@
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 2;
+    return 3;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     switch (section) {
         case 0:
-            return self.baseLayers.count;
+            return 4;
         case 1:
+            return self.baseLayers.count;
+        case 2:
             return self.overlayLayers.count;
         default:
             break;
@@ -82,8 +84,10 @@
 - (nullable NSString *)tableView:(nonnull UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     switch (section) {
         case 0:
-            return @"BASE LAYERS";
+            return @"Panels";
         case 1:
+            return @"BASE LAYERS";
+        case 2:
             return @"OVERLAY LAYERS";
         default:
             break;
@@ -95,6 +99,27 @@
     switch (indexPath.section) {
         case 0:
         {
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"panelCell" forIndexPath:indexPath];
+            switch (indexPath.row) {
+                case 0:
+                    cell.textLabel.text = @"Info";
+                    break;
+                case 1:
+                    cell.textLabel.text = @"All";
+                    break;
+                case 2:
+                    cell.textLabel.text = @"Faction";
+                    break;
+                case 3:
+                    cell.textLabel.text = @"Alert";
+                    break;
+                default:
+                    break;
+            }
+            return cell;
+        }
+        case 1:
+        {
             UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"baseLayerCell" forIndexPath:indexPath];
             
             // Configure the cell...
@@ -105,7 +130,7 @@
             return cell;
 
         }
-        case 1:
+        case 2:
         {
             UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"overlayLayerCell" forIndexPath:indexPath];
             
@@ -127,7 +152,31 @@
     BOOL changed = NO;
     BOOL reloadNeeded = NO;
     switch (indexPath.section) {
-        case 0:
+            case 0:
+                switch (indexPath.row) {
+                    case 0:
+                        [[MainViewController sharedInstance] switchToPane:@"info"];
+                        break;
+                    case 1:
+                        [[MainViewController sharedInstance] switchToPane:@"all"];
+                        break;
+                        
+                    case 2:
+                        [[MainViewController sharedInstance] switchToPane:@"faction"];
+                        break;
+                        
+                    case 3:
+                        [[MainViewController sharedInstance] switchToPane:@"alerts"];
+                        break;
+                        
+                    default:
+                        break;
+                }
+                [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+                [self.sideMenuViewController hideMenuViewController];
+            break;
+            
+        case 1:
             if (indexPath.row != self.currentBase) {
                 self.baseLayers[indexPath.row][@"active"] = @(YES);
                 [tableView cellForRowAtIndexPath:indexPath].accessoryType = UITableViewCellAccessoryCheckmark;
@@ -140,7 +189,7 @@
                 break;
             }
             break;
-        case 1:
+        case 2:
         {
             BOOL temp = ![(NSNumber *)self.overlayLayers[indexPath.row][@"active"] boolValue];
             self.overlayLayers[indexPath.row][@"active"]=@(temp);

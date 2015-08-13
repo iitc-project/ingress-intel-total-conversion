@@ -32,14 +32,13 @@
     self.contentViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"contentViewController"];
     self.mainViewController = ((UINavigationController *)self.contentViewController).viewControllers[0];
     self.leftMenuViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"leftMenuViewController"];
-    self.rightMenuViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"rightMenuViewController"];
     self.layerChooser = ((UINavigationController *)self.rightMenuViewController).viewControllers[0];
     self.scaleContentView = NO;
     self.scaleMenuView = NO;
     self.contentViewShadowEnabled = YES;
     self.contentViewShadowColor = [UIColor blackColor];
     self.parallaxEnabled = NO;
-
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sharedAction:) name:JSNotificationSharedAction object:nil];
 }
 
