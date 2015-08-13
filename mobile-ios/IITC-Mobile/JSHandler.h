@@ -8,7 +8,6 @@
 
 #import <UIKit/UIKit.h>
 #import <WebKit/WebKit.h>
-@class ViewController;
 
 static NSString *const JSNotificationLayersGot = @"JSNotificationLayersGot";
 static NSString *const JSNotificationPaneChanged = @"JSNotificationPaneChanged";

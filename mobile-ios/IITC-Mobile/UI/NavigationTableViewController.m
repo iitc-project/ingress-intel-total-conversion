@@ -7,7 +7,7 @@
 //
 
 #import "NavigationTableViewController.h"
-#import "ViewController.h"
+#import "MainViewController.h"
 #import "IITCWebView.h"
 #import <RESideMenu.h>
 @interface NavigationTableViewController ()
@@ -44,18 +44,18 @@
 -(void)tableView:(nonnull UITableView *)tableView didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     switch (indexPath.row) {
         case 0:
-            [[ViewController sharedInstance] switchToPane:@"info"];
+            [[MainViewController sharedInstance] switchToPane:@"info"];
             break;
         case 1:
-            [[ViewController sharedInstance] switchToPane:@"all"];
+            [[MainViewController sharedInstance] switchToPane:@"all"];
             break;
 
         case 2:
-            [[ViewController sharedInstance] switchToPane:@"faction"];
+            [[MainViewController sharedInstance] switchToPane:@"faction"];
             break;
 
         case 3:
-            [[ViewController sharedInstance] switchToPane:@"alerts"];
+            [[MainViewController sharedInstance] switchToPane:@"alerts"];
             break;
 
         default:

@@ -7,12 +7,12 @@
 //
 
 #import "RootViewController.h"
-#import "ViewController.h"
+#import "MainViewController.h"
 #import "LayersTableViewController.h"
 #import "JSHandler.h"
 
 @interface RootViewController ()
-@property (weak) ViewController *mainViewController;
+@property (weak) MainViewController *mainViewController;
 @property (weak) LayersTableViewController *layerChooser;
 @end
 
@@ -45,10 +45,6 @@
 
 - (void)dealloc{
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
-- (void)setLayers:(NSArray *)layers {
-    [self.layerChooser setLayers:layers];
 }
 
 - (void)sharedAction:(NSNotification *)notification {

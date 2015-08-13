@@ -7,19 +7,19 @@
 //
 
 #import "IITCLocation.h"
-#import "ViewController.h"
+#import "MainViewController.h"
 #import "IITCWebView.h"
 
 @interface IITCLocation ()
 @property (strong) CLLocationManager*locationManager;
-@property (weak) ViewController *viewController;
+@property (weak) MainViewController *viewController;
 @property IITCLocationMode currentMode;
 @end
 
 @implementation IITCLocation
 @synthesize locationManager;
 
-- (instancetype)initWithCallback:(ViewController *)viewController {
+- (instancetype)initWithCallback:(MainViewController *)viewController {
     self = [super init];
     if (self) {
         self.viewController = viewController;

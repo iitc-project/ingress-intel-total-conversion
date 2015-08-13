@@ -6,15 +6,15 @@
 //  Copyright © 2015年 IITC. All rights reserved.
 //
 
-#import "ViewController.h"
+#import "MainViewController.h"
 #import "IITCWebView.h"
 #import "IITCLocation.h"
 #import "JSHandler.h"
 #import "SettingsViewController.h"
 #import <RESideMenu.h>
 
-static ViewController *_viewController;
-@interface ViewController ()
+static MainViewController *_viewController;
+@interface MainViewController ()
 @property IITCLocation *location;
 @property (strong, nonatomic) UIProgressView *webProgressView;
 @property (weak, nonatomic) IBOutlet UIProgressView *progressView;
@@ -26,7 +26,7 @@ static ViewController *_viewController;
 @property BOOL loadIITCNeeded;
 @end
 
-@implementation ViewController
+@implementation MainViewController
 @synthesize webView;
 @synthesize webProgressView;
 - (void)viewDidLoad {

@@ -7,7 +7,7 @@
 //
 
 #import <WebKit/WebKit.h>
-@class ViewController;
+
 @interface IITCWebView : WKWebView
 - (instancetype)initWithFrame:(CGRect)frame;
 - (void)loadScripts;

@@ -7,7 +7,7 @@
 //
 
 #import "LayersTableViewController.h"
-#import "ViewController.h"
+#import "MainViewController.h"
 #import "IITCWebView.h"
 #import "JSHandler.h"
 
@@ -136,7 +136,7 @@
                                        inSection:0]].accessoryType = UITableViewCellAccessoryNone;
                 self.currentBase = indexPath.row;
                 
-                [[ViewController sharedInstance].webView loadJS:[NSString stringWithFormat:@"window.layerChooser.showLayer(%@, true)",self.baseLayers[indexPath.row][@"layerId"]]];
+                [[MainViewController sharedInstance].webView loadJS:[NSString stringWithFormat:@"window.layerChooser.showLayer(%@, true)",self.baseLayers[indexPath.row][@"layerId"]]];
                 break;
             }
             break;
@@ -145,7 +145,7 @@
             BOOL temp = ![(NSNumber *)self.overlayLayers[indexPath.row][@"active"] boolValue];
             self.overlayLayers[indexPath.row][@"active"]=@(temp);
             [tableView cellForRowAtIndexPath:indexPath].accessoryType = temp? UITableViewCellAccessoryCheckmark :UITableViewCellAccessoryNone;
-            [[ViewController sharedInstance].webView loadJS:[NSString stringWithFormat:@"window.layerChooser.showLayer(%@, %@)",self.overlayLayers[indexPath.row][@"layerId"], temp ? @"true" : @"false"]];
+            [[MainViewController sharedInstance].webView loadJS:[NSString stringWithFormat:@"window.layerChooser.showLayer(%@, %@)",self.overlayLayers[indexPath.row][@"layerId"], temp ? @"true" : @"false"]];
             changed = YES;
             break;
         }
