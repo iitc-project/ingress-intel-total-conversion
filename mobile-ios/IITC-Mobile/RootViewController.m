@@ -53,7 +53,7 @@
 
 - (void)sharedAction:(NSNotification *)notification {
     UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:notification.userInfo[@"data"] applicationActivities:nil];
-    [self.contentViewController presentViewController:activityViewController animated:YES completion:nil];
+    [self presentViewController:activityViewController animated:YES completion:nil];
 }
 /*
 #pragma mark - Navigation
