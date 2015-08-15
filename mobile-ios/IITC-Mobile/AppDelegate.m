@@ -19,6 +19,8 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    //Load LayersTableView here
+    UIViewController *temp = [self.window.rootViewController.storyboard instantiateViewControllerWithIdentifier:@"menuViewController"];
     [[ScriptsManager sharedInstance] loadLocalFiles];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sharedAction:) name:JSNotificationSharedAction object:nil];
     return YES;

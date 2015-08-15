@@ -12,7 +12,6 @@
 #import "IITCLocation.h"
 #import "JSHandler.h"
 #import "SettingsViewController.h"
-#import <RESideMenu.h>
 
 static MainViewController *_viewController;
 @interface MainViewController ()
@@ -22,7 +21,6 @@ static MainViewController *_viewController;
 @property (strong) NSMutableArray *backPane;
 @property BOOL backButtonPressed;
 @property NSString *currentPaneID;
-@property BOOL iitcLoaded;
 @property BOOL loadIITCNeeded;
 @end
 
@@ -31,7 +29,6 @@ static MainViewController *_viewController;
 @synthesize webProgressView;
 - (void)viewDidLoad {
     [super viewDidLoad];
-    UIViewController *temp = [self.storyboard instantiateViewControllerWithIdentifier:@"menuViewController"];
     _viewController = self;
     // Do any additional setup after loading the view, typically from a nib.
     self.backPane = [[NSMutableArray alloc] init];
@@ -59,10 +56,7 @@ static MainViewController *_viewController;
     [constraits addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[topGuide]-0-[webProgressView]" options:0 metrics:nil views:NSDictionaryOfVariableBindings(topGuide, webProgressView)]];
     [self.view addConstraints:constraits];
     [self.webProgressView setProgress:0.0];
-    self.webView.backgroundColor = [UIColor blackColor];
     
-    [self.webView addObserver:self forKeyPath:@"URL" options:NSKeyValueObservingOptionNew context:nil];
-    [self.webView addObserver:self forKeyPath:@"loading" options:NSKeyValueObservingOptionNew context:nil];
     [self.webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:NULL];
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(bootFinished) name:JSNotificationBootFinished object:nil];
@@ -103,18 +97,7 @@ static MainViewController *_viewController;
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    if ([keyPath isEqualToString: @"URL"]) {
-
-    } else if ([keyPath isEqualToString: @"loading"]) {
-//        if ([self.webView.URL.host containsString:@"accounts.google"]) {
-//            self.loadIITCNeeded = YES;
-//            UIViewController *tempView = [[UIViewController alloc] init];
-//            
-//        } else if (!self.webView.loading &&[self.webView.URL.host containsString:@"ingress"] && self.loadIITCNeeded) {
-////            [self.webView loadScripts];
-//        }
-    }
-    else {
+    if ([keyPath isEqualToString: @"estimatedProgress"]) {
         double progress = self.webView.estimatedProgress;
         if (progress >= 0.8) {
             if ([self.webView.URL.host containsString:@"ingress"] && self.loadIITCNeeded) {
@@ -133,10 +116,10 @@ static MainViewController *_viewController;
     }
 }
 
-//- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-//{
-//    //WebView.frame=[[UIScreen mainScreen] bounds];
-//}
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    self.webView.frame=[[UIScreen mainScreen] bounds];
+}
 
 - (void)webView:(WKWebView *)webView runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(void))completionHandler
 {
@@ -243,38 +226,14 @@ static MainViewController *_viewController;
 - (void)getLayers {
     [self.webView loadJS:@"window.layerChooser.getLayers()"];
 }
+
 - (void)setIITCProgress:(NSNotification *)notification {
     NSNumber * progress = notification.userInfo[@"data"];
     if ([progress doubleValue] != -1) {
-//        [self.progressView setHidden:NO];
         [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     } else {
        [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     }
 }
 
-- (void)webView:(nonnull WKWebView *)webView didCommitNavigation:(null_unspecified WKNavigation *)navigation {
-    
-    
-    NSLog(@"%s", __func__);
-    
-}
-
-- (void)webView:(nonnull WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation {
-    NSLog(@"%s", __func__);
-    if (![webView.URL.host containsString:@"ingress"]) {
-//        [self.webView loadScripts];
-//        self.loadIITCNeeded = YES;
-    }
-}
-
-
-- (void)webView:(nonnull WKWebView *)webView didCommitNavigation:(null_unspecified WKNavigation *)navigation {
-    if (![webView.URL.host containsString:@"ingress"]) {
-        //        [self.webView loadScripts];
-                self.loadIITCNeeded = YES;
-    }
-    [self.webProgressView setProgress:0 animated:NO];
-    self.webProgressView.alpha = 1;
-}
 @end
