@@ -25,14 +25,15 @@ static LayersTableViewController *_instance;
     self = [super initWithCoder:aDecoder];
     _instance = self;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setLayers:) name:JSNotificationLayersGot object:nil];
+    self.currentBase = 0;
+    self.baseLayers = [[NSMutableArray alloc] init];
+    self.overlayLayers = [[NSMutableArray alloc] init];
     return self;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.currentBase = 0;
-    self.baseLayers = [[NSMutableArray alloc] init];
-    self.overlayLayers = [[NSMutableArray alloc] init];
+
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
 
