@@ -7,6 +7,7 @@
 //
 
 #import "MainViewController.h"
+#import "LayersTableViewController.h"
 #import "IITCWebView.h"
 #import "IITCLocation.h"
 #import "JSHandler.h"
@@ -30,6 +31,7 @@ static MainViewController *_viewController;
 @synthesize webProgressView;
 - (void)viewDidLoad {
     [super viewDidLoad];
+    UIViewController *temp = [self.storyboard instantiateViewControllerWithIdentifier:@"menuViewController"];
     _viewController = self;
     // Do any additional setup after loading the view, typically from a nib.
     self.backPane = [[NSMutableArray alloc] init];
@@ -59,17 +61,6 @@ static MainViewController *_viewController;
     [self.webProgressView setProgress:0.0];
     self.webView.backgroundColor = [UIColor blackColor];
     
-    UIScreenEdgePanGestureRecognizer *recognizerLeft = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self action:@selector(leftPanGesture:)];
-    recognizerLeft.delegate = self;
-    recognizerLeft.edges = UIRectEdgeLeft;
-    
-    UIScreenEdgePanGestureRecognizer *recognizerRight = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self action:@selector(rightPanGesture:)];
-    recognizerRight.delegate = self;
-    recognizerRight.edges = UIRectEdgeRight;
-    
-    [self.webView addGestureRecognizer:recognizerLeft];
-    [self.webView addGestureRecognizer:recognizerRight];
-    
     [self.webView addObserver:self forKeyPath:@"URL" options:NSKeyValueObservingOptionNew context:nil];
     [self.webView addObserver:self forKeyPath:@"loading" options:NSKeyValueObservingOptionNew context:nil];
     [self.webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:NULL];
@@ -80,9 +71,13 @@ static MainViewController *_viewController;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadIITC) name:JSNotificationReloadRequired object:nil];
     
     self.backButton = [[UIBarButtonItem alloc] initWithTitle:@"back" style:UIBarButtonItemStyleDone target:self action:@selector(backButtonPressed:)];
+    UIBarButtonItem *menuButton = [[UIBarButtonItem alloc] initWithTitle:@"Menu" style:UIBarButtonItemStylePlain target:self action:@selector(menuButtonPressed:)];
+    
     UIBarButtonItem *settingButton = [[UIBarButtonItem alloc] initWithTitle:@"settings" style:UIBarButtonItemStylePlain target:self action:@selector(settingButtonPressed:)];
     UIBarButtonItem *locationButton = [[UIBarButtonItem alloc] initWithTitle:@"locate" style:UIBarButtonItemStylePlain target:self action:@selector(locationButtonPressed:)];
     UIBarButtonItem *reloadButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(reloadButtonPressed:)];
+    self.navigationItem.leftBarButtonItems = @[self.backButton, menuButton];
+    [self.backButton setEnabled:NO];
     self.navigationItem.rightBarButtonItems = @[settingButton, locationButton];
     
     [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.ingress.com/intel"]]];
@@ -107,15 +102,6 @@ static MainViewController *_viewController;
     // Dispose of any resources that can be recreated.
 }
 
-- (void)leftPanGesture:(id)aa {
-//    NSLog(@"left");
-//    [self.sideMenuViewController presentLeftMenuViewController];
-}
-
-- (void)rightPanGesture:(id)aa {
-//    [self.sideMenuViewController presentRightMenuViewController];
-}
-
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if ([keyPath isEqualToString: @"URL"]) {
 
@@ -131,7 +117,6 @@ static MainViewController *_viewController;
     else {
         double progress = self.webView.estimatedProgress;
         if (progress >= 0.8) {
-            NSLog(@"???");
             if ([self.webView.URL.host containsString:@"ingress"] && self.loadIITCNeeded) {
                 [self.webView loadScripts];
                 self.loadIITCNeeded = NO;
@@ -194,6 +179,14 @@ static MainViewController *_viewController;
     [self.webView loadJS:[NSString stringWithFormat:@"window.show('%@')", pane]];
 }
 
+- (void)menuButtonPressed:(id)sender {
+    UINavigationController *temp = [[UINavigationController alloc]init];
+    [temp pushViewController:[LayersTableViewController sharedInstance] animated:NO];
+    temp.modalPresentationStyle = UIModalPresentationPopover;
+    temp.popoverPresentationController.barButtonItem = sender;
+    [self presentViewController:temp animated:YES completion:nil];
+}
+
 - (void)backButtonPressed:(id)aa {
     if ([self.backPane count]) {
         NSString * pane = [self.backPane lastObject];
@@ -202,7 +195,7 @@ static MainViewController *_viewController;
         self.backButtonPressed = true;
     }
     if (![self.backPane count]) {
-        self.navigationItem.leftBarButtonItem=nil;
+        [self.backButton setEnabled:NO];
     }
 }
 
@@ -240,7 +233,7 @@ static MainViewController *_viewController;
     // don't push current pane to backstack if this method was called via back button
     else if (!self.backButtonPressed) {
         [self.backPane addObject:self.currentPaneID];
-        self.navigationItem.leftBarButtonItem = self.backButton;
+        [self.backButton setEnabled:YES];
     }
     
     self.backButtonPressed = NO;
