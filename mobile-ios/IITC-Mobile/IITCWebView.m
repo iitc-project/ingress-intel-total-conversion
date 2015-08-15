@@ -42,14 +42,16 @@
 
 - (void)loadScripts {
     NSError *error;
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"ios-hooks" ofType:@"js"];
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"scripts/ios-hooks" ofType:@"js"];
     NSString *js = [NSString stringWithContentsOfFile:path encoding:NSASCIIStringEncoding error:&error];
-    [self addJSBlock:js];
-    path = [[NSBundle mainBundle] pathForResource:@"total-conversion-build.user" ofType:@"js"];
-    js = [NSString stringWithContentsOfFile:path encoding:NSASCIIStringEncoding error:&error];
+    js = [NSString stringWithFormat:js,[[NSBundle mainBundle] objectForInfoDictionaryKey: @"CFBundleVersion"], [(NSString *)[[NSBundle mainBundle] objectForInfoDictionaryKey: (NSString *)kCFBundleVersionKey] integerValue]];
+
     
     [self addJSBlock:js];
-    path = [[NSBundle mainBundle] pathForResource:@"user-location.user" ofType:@"js"];
+    path = [[NSBundle mainBundle] pathForResource:@"scripts/total-conversion-build.user" ofType:@"js"];
+    js = [NSString stringWithContentsOfFile:path encoding:NSASCIIStringEncoding error:&error];
+        [self addJSBlock:js];
+    path = [[NSBundle mainBundle] pathForResource:@"scripts/user-location.user" ofType:@"js"];
     js = [NSString stringWithContentsOfFile:path encoding:NSASCIIStringEncoding error:&error];
     [self addJSBlock:js];
     

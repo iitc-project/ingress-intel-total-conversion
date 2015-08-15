@@ -31,7 +31,12 @@ function Android() {
 
     this.getVersionName = getVersionName;
     function getVersionName() {
-        window.webkit.messageHandlers.ios.postMessage({functionName: "getVersionName", args: ""});
+        return "%@";
+    };
+
+    this.getVersionCode = getVersionCode;
+    function getVersionCode() {
+        return %d;
     };
 
     this.dialogOpened = dialogOpened;
