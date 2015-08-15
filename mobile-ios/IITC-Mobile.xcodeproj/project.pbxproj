@@ -16,7 +16,6 @@
 		B4737C751B67A3F300DE3E6A /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4737C741B67A3F300DE3E6A /* CoreData.framework */; };
 		B47613BD1B67922100F8A51A /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = B47613BC1B67922100F8A51A /* scripts */; };
 		B487A5DB1B6F6B19001CA21F /* LayersTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B487A5CC1B6F6B19001CA21F /* LayersTableViewController.m */; };
-		B487A5DC1B6F6B19001CA21F /* NavigationTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B487A5CE1B6F6B19001CA21F /* NavigationTableViewController.m */; };
 		B487A5DD1B6F6B19001CA21F /* PluginsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B487A5D01B6F6B19001CA21F /* PluginsTableViewController.m */; };
 		B487A5DE1B6F6B19001CA21F /* RootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B487A5D21B6F6B19001CA21F /* RootViewController.m */; };
 		B487A5DF1B6F6B19001CA21F /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = B487A5D31B6F6B19001CA21F /* Settings.bundle */; };
@@ -49,8 +48,6 @@
 		B47613BC1B67922100F8A51A /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = scripts; sourceTree = "<group>"; };
 		B487A5CB1B6F6B19001CA21F /* LayersTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayersTableViewController.h; sourceTree = "<group>"; };
 		B487A5CC1B6F6B19001CA21F /* LayersTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LayersTableViewController.m; sourceTree = "<group>"; };
-		B487A5CD1B6F6B19001CA21F /* NavigationTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigationTableViewController.h; sourceTree = "<group>"; };
-		B487A5CE1B6F6B19001CA21F /* NavigationTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NavigationTableViewController.m; sourceTree = "<group>"; };
 		B487A5CF1B6F6B19001CA21F /* PluginsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PluginsTableViewController.h; sourceTree = "<group>"; };
 		B487A5D01B6F6B19001CA21F /* PluginsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PluginsTableViewController.m; sourceTree = "<group>"; };
 		B487A5D11B6F6B19001CA21F /* RootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewController.h; sourceTree = "<group>"; };
@@ -168,8 +165,6 @@
 				B4ECA1841B7D055000425339 /* MainViewController.m */,
 				B487A5CB1B6F6B19001CA21F /* LayersTableViewController.h */,
 				B487A5CC1B6F6B19001CA21F /* LayersTableViewController.m */,
-				B487A5CD1B6F6B19001CA21F /* NavigationTableViewController.h */,
-				B487A5CE1B6F6B19001CA21F /* NavigationTableViewController.m */,
 				B487A5CF1B6F6B19001CA21F /* PluginsTableViewController.h */,
 				B487A5D01B6F6B19001CA21F /* PluginsTableViewController.m */,
 				B487A5D11B6F6B19001CA21F /* RootViewController.h */,
@@ -311,7 +306,6 @@
 				B44D19801B62A53300E94D98 /* AppDelegate.m in Sources */,
 				B48991EE1B63A0F8007749C3 /* IITCLocation.m in Sources */,
 				B487A5DD1B6F6B19001CA21F /* PluginsTableViewController.m in Sources */,
-				B487A5DC1B6F6B19001CA21F /* NavigationTableViewController.m in Sources */,
 				B4ECA1851B7D055000425339 /* MainViewController.m in Sources */,
 				B44D197D1B62A53300E94D98 /* main.m in Sources */,
 				B487A5E01B6F6B19001CA21F /* SettingsViewController.m in Sources */,
