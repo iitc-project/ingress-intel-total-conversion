@@ -15,6 +15,7 @@ static ViewController *_viewController;
 @interface ViewController ()
 @property IITCLocation *location;
 @property (strong, nonatomic) UIProgressView *progressView;
+@property (strong) UIBarButtonItem *backButton;
 @property (strong) NSMutableArray *backPane;
 @property BOOL backButtonPressed;
 @property NSString *currentPaneID;
@@ -157,6 +158,14 @@ static ViewController *_viewController;
     }
 }
 
+- (void)settingButtonPressed:(id)aa {
+    UIViewController *vc = [self.storyboard instantiateViewControllerWithIdentifier:@"settingsViewController"];
+    [self.navigationController pushViewController:vc animated:YES];
+}
+
+- (void)locationButtonPressed:(id)aa {
+    [self.webView loadJS:@"window.map.locate({setView : true, maxZoom : map.getZoom()});"];
+}
 -(void)setCurrentPane:(NSNotification *)notification {
     NSString *pane = notification.userInfo[@"paneID"];
 
