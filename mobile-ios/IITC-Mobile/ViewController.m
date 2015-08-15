@@ -16,7 +16,8 @@
 static ViewController *_viewController;
 @interface ViewController ()
 @property IITCLocation *location;
-@property (strong, nonatomic) UIProgressView *progressView;
+@property (strong, nonatomic) UIProgressView *webProgressView;
+@property (weak, nonatomic) IBOutlet UIProgressView *progressView;
 @property (strong) UIBarButtonItem *backButton;
 @property (strong) NSMutableArray *backPane;
 @property BOOL backButtonPressed;
@@ -27,7 +28,7 @@ static ViewController *_viewController;
 
 @implementation ViewController
 @synthesize webView;
-@synthesize progressView;
+@synthesize webProgressView;
 - (void)viewDidLoad {
     [super viewDidLoad];
     _viewController = self;
@@ -40,22 +41,22 @@ static ViewController *_viewController;
     self.webView = [[IITCWebView alloc] initWithFrame:CGRectZero];
     self.webView.UIDelegate = self;
     self.webView.navigationDelegate = self;
-    self.progressView = [[UIProgressView alloc] initWithFrame:CGRectZero];
+    self.webProgressView = [[UIProgressView alloc] initWithFrame:CGRectZero];
     self.webView.translatesAutoresizingMaskIntoConstraints = NO;
-    self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.webProgressView.translatesAutoresizingMaskIntoConstraints = NO;
     NSMutableArray *constraits = [[NSMutableArray alloc] init];
     
     [self.view addSubview:self.webView];
-    [self.view addSubview:self.progressView];
+    [self.view addSubview:self.webProgressView];
 
     [constraits addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[webView]-0-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(webView)]];
     id topGuide = self.topLayoutGuide;
     id bottomGuide = self.bottomLayoutGuide;
     [constraits addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[topGuide]-0-[webView]-0-[bottomGuide]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(topGuide, webView, bottomGuide)]];
-    [constraits addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[progressView]-0-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(progressView)]];
-    [constraits addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[topGuide]-0-[progressView]" options:0 metrics:nil views:NSDictionaryOfVariableBindings(topGuide, progressView)]];
+    [constraits addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[webProgressView]-0-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(webProgressView)]];
+    [constraits addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[topGuide]-0-[webProgressView]" options:0 metrics:nil views:NSDictionaryOfVariableBindings(topGuide, webProgressView)]];
     [self.view addConstraints:constraits];
-    [self.progressView setProgress:0.8];
+    [self.webProgressView setProgress:0.8];
     self.webView.backgroundColor = [UIColor blackColor];
     
     UIScreenEdgePanGestureRecognizer *recognizerLeft = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self action:@selector(leftPanGesture:)];
@@ -75,6 +76,8 @@ static ViewController *_viewController;
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(bootFinished) name:JSNotificationBootFinished object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setCurrentPane:) name:JSNotificationPaneChanged object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setIITCProgress:) name:JSNotificationProgressChanged object:nil];
+    
     self.backButton = [[UIBarButtonItem alloc] initWithTitle:@"back" style:UIBarButtonItemStyleDone target:self action:@selector(backButtonPressed:)];
     UIBarButtonItem *settingButton = [[UIBarButtonItem alloc] initWithTitle:@"settings" style:UIBarButtonItemStylePlain target:self action:@selector(settingButtonPressed:)];
     UIBarButtonItem *locationButton = [[UIBarButtonItem alloc] initWithTitle:@"locate" style:UIBarButtonItemStylePlain target:self action:@selector(locationButtonPressed:)];
@@ -124,7 +127,7 @@ static ViewController *_viewController;
         }
     }
     else {
-        [self.progressView setProgress:self.webView.estimatedProgress animated:YES];
+        [self.webProgressView setProgress:self.webView.estimatedProgress animated:YES];
     }
 }
 
@@ -219,6 +222,16 @@ static ViewController *_viewController;
 
 - (void)getLayers {
     [self.webView loadJS:@"window.layerChooser.getLayers()"];
+}
+- (void)setIITCProgress:(NSNotification *)notification {
+    NSNumber * progress = notification.userInfo[@"data"];
+    if ([progress doubleValue] != -1) {
+        [self.progressView setHidden:NO];
+        [self.progressView setProgress:[progress doubleValue] animated:YES];
+    } else {
+        [self.progressView setHidden:YES];
+        [self.progressView setProgress:0 animated:YES];
+    }
 }
 
 - (void)webView:(nonnull WKWebView *)webView didCommitNavigation:(null_unspecified WKNavigation *)navigation {
