@@ -191,7 +191,7 @@ static LayersTableViewController *_instance;
                 [tableView cellForRowAtIndexPath:indexPath].accessoryType = UITableViewCellAccessoryCheckmark;
                 self.baseLayers[self.currentBase][@"active"] = @(NO);
                 [tableView cellForRowAtIndexPath:[NSIndexPath indexPathForItem:self.currentBase
-                                                                     inSection:0]].accessoryType = UITableViewCellAccessoryNone;
+                                                                     inSection:1]].accessoryType = UITableViewCellAccessoryNone;
                 self.currentBase = indexPath.row;
 
                 [[MainViewController sharedInstance].webView loadJS:[NSString stringWithFormat:@"window.layerChooser.showLayer(%@, true)", self.baseLayers[indexPath.row][@"layerId"]]];
