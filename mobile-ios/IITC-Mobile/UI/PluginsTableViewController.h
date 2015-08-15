@@ -10,11 +10,11 @@
 #import <CoreData/CoreData.h>
 
 @interface PluginsTableViewCell : UITableViewCell
-@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
-@property (weak, nonatomic) IBOutlet UILabel *subtitleLabel;
+@property(weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property(weak, nonatomic) IBOutlet UILabel *subtitleLabel;
 @end
 
-@interface PluginsTableViewController : UITableViewController<NSFetchedResultsControllerDelegate>
+@interface PluginsTableViewController : UITableViewController <NSFetchedResultsControllerDelegate>
 @property(strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
 @property(strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 

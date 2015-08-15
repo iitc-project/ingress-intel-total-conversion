@@ -15,8 +15,8 @@ static LayersTableViewController *_instance;
 
 @interface LayersTableViewController ()
 @property NSUInteger currentBase;
-@property (strong)NSMutableArray *baseLayers;
-@property (strong)NSMutableArray *overlayLayers;
+@property(strong) NSMutableArray *baseLayers;
+@property(strong) NSMutableArray *overlayLayers;
 @end
 
 @implementation LayersTableViewController
@@ -35,12 +35,12 @@ static LayersTableViewController *_instance;
     self.overlayLayers = [[NSMutableArray alloc] init];
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
-    
+
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 
--(void) dealloc {
+- (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 };
 
@@ -54,19 +54,19 @@ static LayersTableViewController *_instance;
 }
 
 - (void)setLayers:(NSNotification *)notification {
-    NSArray *layers = notification.userInfo[@"layers"];
-    NSError *error;
+    NSArray * layers = notification.userInfo[@"layers"];
+    NSError * error;
     self.baseLayers = [[NSMutableArray alloc] init];
     self.overlayLayers = [[NSMutableArray alloc] init];
-    NSArray *temp = [[NSMutableArray alloc] initWithArray: [NSJSONSerialization JSONObjectWithData:[((NSString *)layers[0]) dataUsingEncoding:NSASCIIStringEncoding]  options:kNilOptions error:&error]];
+    NSArray * temp = [[NSMutableArray alloc] initWithArray:[NSJSONSerialization JSONObjectWithData:[((NSString *) layers[0]) dataUsingEncoding:NSASCIIStringEncoding] options:kNilOptions error:&error]];
     for (NSDictionary *layer in temp) {
         [self.baseLayers addObject:[NSMutableDictionary dictionaryWithDictionary:layer]];
-        if ([(NSNumber *)layer[@"active"] boolValue]) {
-            self.currentBase = self.baseLayers.count-1;
+        if ([(NSNumber *) layer[@"active"] boolValue]) {
+            self.currentBase = self.baseLayers.count - 1;
         }
     }
-    
-    temp = [[NSMutableArray alloc] initWithArray: [NSJSONSerialization JSONObjectWithData:[((NSString *)layers[1]) dataUsingEncoding:NSASCIIStringEncoding]  options:kNilOptions error:&error]];
+
+    temp = [[NSMutableArray alloc] initWithArray:[NSJSONSerialization JSONObjectWithData:[((NSString *) layers[1]) dataUsingEncoding:NSASCIIStringEncoding] options:kNilOptions error:&error]];
     for (NSDictionary *layer in temp) {
         [self.overlayLayers addObject:[NSMutableDictionary dictionaryWithDictionary:layer]];
     }
@@ -109,8 +109,7 @@ static LayersTableViewController *_instance;
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     switch (indexPath.section) {
-        case 0:
-        {
+        case 0: {
             UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"panelCell" forIndexPath:indexPath];
             switch (indexPath.row) {
                 case 0:
@@ -130,29 +129,27 @@ static LayersTableViewController *_instance;
             }
             return cell;
         }
-        case 1:
-        {
+        case 1: {
             UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"baseLayerCell" forIndexPath:indexPath];
-            
+
             // Configure the cell...
             cell.textLabel.text = self.baseLayers[indexPath.row][@"name"];
-            if ([(NSNumber *)self.baseLayers[indexPath.row][@"active"] boolValue]) {
+            if ([(NSNumber *) self.baseLayers[indexPath.row][@"active"] boolValue]) {
                 cell.accessoryType = UITableViewCellAccessoryCheckmark;
             }
             return cell;
 
         }
-        case 2:
-        {
+        case 2: {
             UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"overlayLayerCell" forIndexPath:indexPath];
-            
+
             // Configure the cell...
             cell.textLabel.text = self.overlayLayers[indexPath.row][@"name"];
-            if ([(NSNumber *)self.overlayLayers[indexPath.row][@"active"] boolValue]) {
+            if ([(NSNumber *) self.overlayLayers[indexPath.row][@"active"] boolValue]) {
                 cell.accessoryType = UITableViewCellAccessoryCheckmark;
             }
             return cell;
-            
+
         }
         default:
             break;
@@ -160,53 +157,52 @@ static LayersTableViewController *_instance;
     return nil;
 }
 
-- (void)tableView:( UITableView *)tableView didSelectRowAtIndexPath:( NSIndexPath *)indexPath {
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     BOOL changed = NO;
     BOOL reloadNeeded = NO;
     switch (indexPath.section) {
-            case 0:
-                switch (indexPath.row) {
-                    case 0:
-                        [[MainViewController sharedInstance] switchToPane:@"info"];
-                        break;
-                    case 1:
-                        [[MainViewController sharedInstance] switchToPane:@"all"];
-                        break;
-                        
-                    case 2:
-                        [[MainViewController sharedInstance] switchToPane:@"faction"];
-                        break;
-                        
-                    case 3:
-                        [[MainViewController sharedInstance] switchToPane:@"alerts"];
-                        break;
-                        
-                    default:
-                        break;
-                }
-                [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+        case 0:
+            switch (indexPath.row) {
+                case 0:
+                    [[MainViewController sharedInstance] switchToPane:@"info"];
+                    break;
+                case 1:
+                    [[MainViewController sharedInstance] switchToPane:@"all"];
+                    break;
+
+                case 2:
+                    [[MainViewController sharedInstance] switchToPane:@"faction"];
+                    break;
+
+                case 3:
+                    [[MainViewController sharedInstance] switchToPane:@"alerts"];
+                    break;
+
+                default:
+                    break;
+            }
+            [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
             [self doneClicked:nil];
             break;
-            
+
         case 1:
             if (indexPath.row != self.currentBase) {
                 self.baseLayers[indexPath.row][@"active"] = @(YES);
                 [tableView cellForRowAtIndexPath:indexPath].accessoryType = UITableViewCellAccessoryCheckmark;
                 self.baseLayers[self.currentBase][@"active"] = @(NO);
                 [tableView cellForRowAtIndexPath:[NSIndexPath indexPathForItem:self.currentBase
-                                       inSection:0]].accessoryType = UITableViewCellAccessoryNone;
+                                                                     inSection:0]].accessoryType = UITableViewCellAccessoryNone;
                 self.currentBase = indexPath.row;
-                
-                [[MainViewController sharedInstance].webView loadJS:[NSString stringWithFormat:@"window.layerChooser.showLayer(%@, true)",self.baseLayers[indexPath.row][@"layerId"]]];
+
+                [[MainViewController sharedInstance].webView loadJS:[NSString stringWithFormat:@"window.layerChooser.showLayer(%@, true)", self.baseLayers[indexPath.row][@"layerId"]]];
                 break;
             }
             break;
-        case 2:
-        {
-            BOOL temp = ![(NSNumber *)self.overlayLayers[indexPath.row][@"active"] boolValue];
-            self.overlayLayers[indexPath.row][@"active"]=@(temp);
-            [tableView cellForRowAtIndexPath:indexPath].accessoryType = temp? UITableViewCellAccessoryCheckmark :UITableViewCellAccessoryNone;
-            [[MainViewController sharedInstance].webView loadJS:[NSString stringWithFormat:@"window.layerChooser.showLayer(%@, %@)",self.overlayLayers[indexPath.row][@"layerId"], temp ? @"true" : @"false"]];
+        case 2: {
+            BOOL temp = ![(NSNumber *) self.overlayLayers[indexPath.row][@"active"] boolValue];
+            self.overlayLayers[indexPath.row][@"active"] = @(temp);
+            [tableView cellForRowAtIndexPath:indexPath].accessoryType = temp ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
+            [[MainViewController sharedInstance].webView loadJS:[NSString stringWithFormat:@"window.layerChooser.showLayer(%@, %@)", self.overlayLayers[indexPath.row][@"layerId"], temp ? @"true" : @"false"]];
             changed = YES;
             break;
         }

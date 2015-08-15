@@ -11,9 +11,11 @@
 
 @class IITCWebView;
 
-@interface MainViewController : UIViewController<WKUIDelegate, UIPopoverControllerDelegate>
-+(instancetype) sharedInstance;
-@property (strong, nonatomic) IITCWebView *webView;
+@interface MainViewController : UIViewController <WKUIDelegate, UIPopoverControllerDelegate>
++ (instancetype)sharedInstance;
+
+@property(strong, nonatomic) IITCWebView *webView;
+
 - (void)switchToPane:(NSString *)pane;
 @end
 
