@@ -6,3 +6,4 @@ localbuildsettings.py
 *.bak
 *.project
 .pydevproject
+mobile-ios/IITC-Mobile/scripts/plugins
