@@ -7,6 +7,7 @@
 //
 
 #import "SettingsViewController.h"
+#import "PluginsTableViewController.h"
 
 @interface SettingsViewController ()
 
@@ -16,7 +17,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-//    self.delegate = self;
+    self.delegate = self;
     // Do any additional setup after loading the view.
 }
 - (void)dealloc {
@@ -29,6 +30,13 @@
 
 - (void)settingsViewController:(IASKAppSettingsViewController*)sender buttonTappedForSpecifier:(IASKSpecifier*)specifier {
     NSLog(specifier.key);
+    if ([specifier.key isEqualToString:@"pref_plugins"]) {
+        if (self.storyboard) {
+            NSLog(@".....");
+        }
+        PluginsTableViewController *vc = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"pluginsViewController"];
+        [self.navigationController pushViewController:vc animated:YES];
+    }
 }
 
 - (void)settingsViewControllerDidEnd:(IASKAppSettingsViewController *)sender {
