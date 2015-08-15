@@ -77,6 +77,7 @@ static ViewController *_viewController;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(bootFinished) name:JSNotificationBootFinished object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setCurrentPane:) name:JSNotificationPaneChanged object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setIITCProgress:) name:JSNotificationProgressChanged object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadIITC) name:JSNotificationReloadRequired object:nil];
     
     self.backButton = [[UIBarButtonItem alloc] initWithTitle:@"back" style:UIBarButtonItemStyleDone target:self action:@selector(backButtonPressed:)];
     UIBarButtonItem *settingButton = [[UIBarButtonItem alloc] initWithTitle:@"settings" style:UIBarButtonItemStylePlain target:self action:@selector(settingButtonPressed:)];
@@ -119,16 +120,31 @@ static ViewController *_viewController;
     if ([keyPath isEqualToString: @"URL"]) {
 
     } else if ([keyPath isEqualToString: @"loading"]) {
-        if ([self.webView.URL.host containsString:@"accounts.google"]) {
-            self.loadIITCNeeded = YES;
-            UIViewController *tempView = [[UIViewController alloc] init];
-            
-        } else if (!self.webView.loading &&[self.webView.URL.host containsString:@"ingress"] && self.loadIITCNeeded) {
-//            [self.webView loadScripts];
-        }
+//        if ([self.webView.URL.host containsString:@"accounts.google"]) {
+//            self.loadIITCNeeded = YES;
+//            UIViewController *tempView = [[UIViewController alloc] init];
+//            
+//        } else if (!self.webView.loading &&[self.webView.URL.host containsString:@"ingress"] && self.loadIITCNeeded) {
+////            [self.webView loadScripts];
+//        }
     }
     else {
-        [self.webProgressView setProgress:self.webView.estimatedProgress animated:YES];
+        double progress = self.webView.estimatedProgress;
+        if (progress >= 0.8) {
+            NSLog(@"???");
+            if ([self.webView.URL.host containsString:@"ingress"] && self.loadIITCNeeded) {
+                [self.webView loadScripts];
+                self.loadIITCNeeded = NO;
+            }
+            
+        }
+        
+        [self.webProgressView setProgress:progress animated:YES];
+        if (progress == 1.0) {
+            [UIView animateWithDuration:1 animations:^{
+                self.webProgressView.alpha = 0;
+            }];
+        }
     }
 }
 
@@ -208,6 +224,7 @@ static ViewController *_viewController;
 }
 
 - (void)reloadIITC {
+    self.loadIITCNeeded = YES;
     [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.ingress.com/intel"]]];
 }
 
@@ -253,14 +270,19 @@ static ViewController *_viewController;
 
 - (void)webView:(nonnull WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation {
     NSLog(@"%s", __func__);
-    if ([webView.URL.host containsString:@"ingress"]) {
-        [self.webView loadScripts];
+    if (![webView.URL.host containsString:@"ingress"]) {
+//        [self.webView loadScripts];
+//        self.loadIITCNeeded = YES;
     }
 }
 
-- (void)webView:(nonnull WKWebView *)webView didStartProvisionalNavigation:(null_unspecified WKNavigation *)navigation{
-    NSLog(@"%s", __func__);
-    
-}
 
+- (void)webView:(nonnull WKWebView *)webView didCommitNavigation:(null_unspecified WKNavigation *)navigation {
+    if (![webView.URL.host containsString:@"ingress"]) {
+        //        [self.webView loadScripts];
+                self.loadIITCNeeded = YES;
+    }
+    [self.webProgressView setProgress:0 animated:NO];
+    self.webProgressView.alpha = 1;
+}
 @end
