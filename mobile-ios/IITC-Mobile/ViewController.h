@@ -11,7 +11,7 @@
 
 @class IITCWebView;
 
-@interface ViewController : UIViewController<WKUIDelegate>
+@interface ViewController : UIViewController<WKUIDelegate, WKNavigationDelegate>
 +(instancetype) sharedInstance;
 @property (strong, nonatomic) IITCWebView *webView;
 - (void)switchToPane:(NSString *)pane;

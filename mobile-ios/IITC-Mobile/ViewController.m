@@ -18,6 +18,8 @@ static ViewController *_viewController;
 @property (strong) NSMutableArray *backPane;
 @property BOOL backButtonPressed;
 @property NSString *currentPaneID;
+@property BOOL iitcLoaded;
+@property BOOL loadIITCNeeded;
 @end
 
 @implementation ViewController
@@ -29,10 +31,12 @@ static ViewController *_viewController;
     // Do any additional setup after loading the view, typically from a nib.
     self.backPane = [[NSMutableArray alloc] init];
     self.currentPaneID = @"map";
+    self.loadIITCNeeded = YES;
     
     self.location = [[IITCLocation alloc] initWithCallback:self];
     self.webView = [[IITCWebView alloc] initWithFrame:CGRectZero];
     self.webView.UIDelegate = self;
+    self.webView.navigationDelegate = self;
     self.progressView = [[UIProgressView alloc] initWithFrame:CGRectZero];
     self.webView.translatesAutoresizingMaskIntoConstraints = NO;
     self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
@@ -51,17 +55,18 @@ static ViewController *_viewController;
     [self.progressView setProgress:0.8];
     self.webView.backgroundColor = [UIColor blackColor];
     
+    [self.webView addObserver:self forKeyPath:@"URL" options:NSKeyValueObservingOptionNew context:nil];
     [self.webView addObserver:self forKeyPath:@"loading" options:NSKeyValueObservingOptionNew context:nil];
     [self.webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:NULL];
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(bootFinished) name:JSNotificationBootFinished object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setCurrentPane:) name:JSNotificationPaneChanged object:nil];
-
-    [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.ingress.com/intel"]]];
     self.backButton = [[UIBarButtonItem alloc] initWithTitle:@"back" style:UIBarButtonItemStyleDone target:self action:@selector(backButtonPressed:)];
     UIBarButtonItem *settingButton = [[UIBarButtonItem alloc] initWithTitle:@"settings" style:UIBarButtonItemStylePlain target:self action:@selector(settingButtonPressed:)];
     UIBarButtonItem *locationButton = [[UIBarButtonItem alloc] initWithTitle:@"locate" style:UIBarButtonItemStylePlain target:self action:@selector(locationButtonPressed:)];
     self.navigationItem.rightBarButtonItems = @[settingButton, locationButton];
+    
+    [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.ingress.com/intel"]]];
 
 }
 
@@ -79,7 +84,16 @@ static ViewController *_viewController;
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    if ([keyPath isEqualToString: @"loading"]) {
+    if ([keyPath isEqualToString: @"URL"]) {
+
+    } else if ([keyPath isEqualToString: @"loading"]) {
+        if ([self.webView.URL.host containsString:@"accounts.google"]) {
+            self.loadIITCNeeded = YES;
+            UIViewController *tempView = [[UIViewController alloc] init];
+            
+        } else if (!self.webView.loading &&[self.webView.URL.host containsString:@"ingress"] && self.loadIITCNeeded) {
+//            [self.webView loadScripts];
+        }
     }
     else {
         [self.progressView setProgress:self.webView.estimatedProgress animated:YES];
@@ -164,6 +178,25 @@ static ViewController *_viewController;
 
 - (void)getLayers {
     [self.webView loadJS:@"window.layerChooser.getLayers()"];
+}
+
+- (void)webView:(nonnull WKWebView *)webView didCommitNavigation:(null_unspecified WKNavigation *)navigation {
+    
+    
+    NSLog(@"%s", __func__);
+    
+}
+
+- (void)webView:(nonnull WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation {
+    NSLog(@"%s", __func__);
+    if ([webView.URL.host containsString:@"ingress"]) {
+        [self.webView loadScripts];
+    }
+}
+
+- (void)webView:(nonnull WKWebView *)webView didStartProvisionalNavigation:(null_unspecified WKNavigation *)navigation{
+    NSLog(@"%s", __func__);
+    
 }
 
 @end
