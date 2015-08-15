@@ -8,6 +8,7 @@
 
 #import "AppDelegate.h"
 #import "ScriptsManager.h"
+#import "JSHandler.h"
 
 @interface AppDelegate ()
 
@@ -19,6 +20,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     [[ScriptsManager sharedInstance] loadLocalFiles];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sharedAction:) name:JSNotificationSharedAction object:nil];
     return YES;
 }
 
@@ -44,4 +46,9 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
+- (void)sharedAction:(NSNotification *)notification {
+    UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:notification.userInfo[@"data"] applicationActivities:nil];
+    
+    [self.window.rootViewController presentViewController:activityViewController animated:YES completion:nil];
+}
 @end
