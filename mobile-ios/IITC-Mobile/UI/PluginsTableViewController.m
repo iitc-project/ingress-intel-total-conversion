@@ -24,6 +24,8 @@
     [super viewDidLoad];
     self.changed = NO;
     self.managedObjectContext = [ScriptsManager sharedInstance].document.managedObjectContext;
+    self.tableView.estimatedRowHeight = 44.0;
+    self.tableView.rowHeight = UITableViewAutomaticDimension;
     // Do any additional setup after loading the view, typically from a nib.
 }
 
@@ -191,27 +193,6 @@
 
 - (void)controllerDidChangeContent:(NSFetchedResultsController *)controller {
     [self.tableView endUpdates];
-}
-
-- (CGFloat)heightForText:(NSString *)bodyText withWidth:(CGFloat)width withFontSize:(NSInteger)size {
-    NSAttributedString *attributedText =
-            [[NSAttributedString alloc] initWithString:bodyText
-                                            attributes:@{NSFontAttributeName : [UIFont systemFontOfSize:size]}];
-    CGRect rect = [attributedText boundingRectWithSize:(CGSize) {width, CGFLOAT_MAX}
-                                               options:NSStringDrawingUsesLineFragmentOrigin
-                                               context:nil];
-//    NSLog(@"width=%f, height=%f", width, height);
-    return ceilf(rect.size.height);
-}
-
-- (CGFloat)tableView:(nonnull UITableView *)tableView heightForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
-    CGFloat width = tableView.frame.size.width - 30.0f;
-    NSManagedObject *object = [self.fetchedResultsController objectAtIndexPath:indexPath];
-    NSString * text1 = [object valueForKey:@"name"];
-    NSString * text2 = [object valueForKey:@"scriptDescription"];
-    CGFloat temp1 = [self heightForText:text1 withWidth:width withFontSize:16];
-    CGFloat temp2 = [self heightForText:text2 withWidth:width withFontSize:11];
-    return temp1 + temp2 + 30;
 }
 
 /*
