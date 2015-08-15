@@ -14,5 +14,6 @@
 @end
 
 @interface LayersTableViewController : UITableViewController
++ (instancetype)sharedInstance;
 - (void)setLayers:(NSArray *)layers;
 @end

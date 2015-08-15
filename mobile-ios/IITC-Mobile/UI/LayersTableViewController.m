@@ -10,7 +10,9 @@
 #import "MainViewController.h"
 #import "IITCWebView.h"
 #import "JSHandler.h"
-#import <RESideMenu.h>
+
+static LayersTableViewController *_instance;
+
 @interface LayersTableViewController ()
 @property NSUInteger currentBase;
 @property (strong)NSMutableArray *baseLayers;
@@ -18,6 +20,13 @@
 @end
 
 @implementation LayersTableViewController
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    _instance = self;
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setLayers:) name:JSNotificationLayersGot object:nil];
+    return self;
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -29,12 +38,15 @@
     
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setLayers:) name:JSNotificationLayersGot object:nil];
 }
 
 -(void) dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 };
+
++ (instancetype)sharedInstance {
+    return _instance;
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -173,7 +185,7 @@
                         break;
                 }
                 [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-                [self.sideMenuViewController hideMenuViewController];
+            [self doneClicked:nil];
             break;
             
         case 1:
@@ -204,13 +216,10 @@
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
+- (IBAction)doneClicked:(id)sender {
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
-*/
+
 
 /*
 // Override to support editing the table view.
