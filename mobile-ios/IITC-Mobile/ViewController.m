@@ -11,6 +11,7 @@
 #import "IITCLocation.h"
 #import "JSHandler.h"
 #import "SettingsViewController.h"
+#import <RESideMenu.h>
 
 static ViewController *_viewController;
 @interface ViewController ()
@@ -57,6 +58,17 @@ static ViewController *_viewController;
     [self.progressView setProgress:0.8];
     self.webView.backgroundColor = [UIColor blackColor];
     
+    UIScreenEdgePanGestureRecognizer *recognizerLeft = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self action:@selector(leftPanGesture:)];
+    recognizerLeft.delegate = self;
+    recognizerLeft.edges = UIRectEdgeLeft;
+    
+    UIScreenEdgePanGestureRecognizer *recognizerRight = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self action:@selector(rightPanGesture:)];
+    recognizerRight.delegate = self;
+    recognizerRight.edges = UIRectEdgeRight;
+    
+    [self.webView addGestureRecognizer:recognizerLeft];
+    [self.webView addGestureRecognizer:recognizerRight];
+    
     [self.webView addObserver:self forKeyPath:@"URL" options:NSKeyValueObservingOptionNew context:nil];
     [self.webView addObserver:self forKeyPath:@"loading" options:NSKeyValueObservingOptionNew context:nil];
     [self.webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:NULL];
@@ -76,6 +88,11 @@ static ViewController *_viewController;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 };
 
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+    return YES;
+}
+
 +(instancetype)sharedInstance{
     return _viewController;
 }
@@ -83,6 +100,15 @@ static ViewController *_viewController;
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void)leftPanGesture:(id)aa {
+//    NSLog(@"left");
+//    [self.sideMenuViewController presentLeftMenuViewController];
+}
+
+- (void)rightPanGesture:(id)aa {
+//    [self.sideMenuViewController presentRightMenuViewController];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
