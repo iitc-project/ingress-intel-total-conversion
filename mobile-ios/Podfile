@@ -1,3 +1,2 @@
 source 'https://github.com/CocoaPods/Specs.git'
-pod 'RESideMenu', '~> 4.0.7'
 pod 'InAppSettingsKit', '~> 2.6'
