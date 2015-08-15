@@ -15,7 +15,7 @@ static NSString *const JSNotificationPaneChanged = @"JSNotificationPaneChanged";
 static NSString *const JSNotificationBootFinished = @"JSNotificationBootFinished";
 static NSString *const JSNotificationReloadRequired = @"JSNotificationReloadRequired";
 static NSString *const JSNotificationSharedAction = @"JSNotificationSharedAction";
-
+static NSString *const JSNotificationProgressChanged = @"JSNotificationProgressChanged";
 @interface JSHandler : NSObject<WKScriptMessageHandler>
 
 @end

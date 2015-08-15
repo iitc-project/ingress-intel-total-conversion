@@ -185,29 +185,9 @@
 //}
 
 
-//- (void) setProgress:(NSNumber *) progress {
-//    NSLog(@"progress:%f", [progress doubleValue]);
-////    mIitc.runOnUiThread(new Runnable() {
-////        @Override
-////        - (void) run() {
-////            try {
-////                if (progress != -1) {
-////                    // maximum for setProgress is 10,000
-////                    mIitc.setProgressBarIndeterminate(false);
-////                    mIitc.setProgress((int) Math.round(progress * 10000));
-////                }
-////                else {
-////                    mIitc.setProgressBarIndeterminate(true);
-////                    mIitc.setProgress(1);
-////                }
-////            } catch(NullPointerException e) {
-////                // for some reason, setProgressBarIndeterminate throws a NullPointerException on some devices
-////                e.printStackTrace();
-////                mIitc.setProgress(10000); // hide the progress bar
-////            }
-////        }
-////    });
-//}
+- (void) setProgress:(NSNumber *) progress {
+    [[NSNotificationCenter defaultCenter] postNotificationName:JSNotificationProgressChanged object:self userInfo:@{@"data":progress}];
+}
 
 
 //- (NSString *) getFileRequestUrlPrefix {
@@ -237,14 +217,9 @@
 //}
 
 
-//- (void) reloadIITC {
-////    mIitc.runOnUiThread(new Runnable() {
-////        @Override
-////        - (void) run() {
-////            mIitc.reloadIITC();
-////        }
-////    });
-//}
+- (void) reloadIITC {
+    [[NSNotificationCenter defaultCenter] postNotificationName:JSNotificationReloadRequired object:self userInfo:nil];
+}
 
 
 //- (void) reloadIITC:(BOOL) clearCache {
