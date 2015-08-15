@@ -46,6 +46,9 @@ static ScriptsManager * _sharedInstance;
     NSError * error;
     NSArray * directoryContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:documentsPath error:&error];
     for (NSString *file in directoryContents) {
+        if (![file hasSuffix:@"meta.js"]) {
+            continue;
+        }
         NSString *js = [NSString stringWithContentsOfFile:[documentsPath stringByAppendingPathComponent:file] encoding:NSASCIIStringEncoding error:&error];
         NSString *header = @"";
         
@@ -106,7 +109,7 @@ static ScriptsManager * _sharedInstance;
                     script.category = @"Undefined";
                 }
                 script.scriptDescription = attributes[@"description"];
-                script.filePath = file;
+                script.filePath = [file stringByReplacingOccurrencesOfString:@"meta.js" withString:@"user.js"];
             }
             
         }
