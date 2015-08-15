@@ -113,6 +113,8 @@ static MainViewController *_viewController;
             [UIView animateWithDuration:1 animations:^{
                 self.webProgressView.alpha = 0;
             }];
+        } else {
+            self.webProgressView.alpha = 1;
         }
     }
 }
