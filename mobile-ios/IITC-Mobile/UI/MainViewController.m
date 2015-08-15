@@ -69,12 +69,12 @@ static MainViewController *_viewController;
     self.backButton = [[UIBarButtonItem alloc] initWithTitle:@"back" style:UIBarButtonItemStyleDone target:self action:@selector(backButtonPressed:)];
     UIBarButtonItem *menuButton = [[UIBarButtonItem alloc] initWithTitle:@"Menu" style:UIBarButtonItemStylePlain target:self action:@selector(menuButtonPressed:)];
 
-    UIBarButtonItem *settingButton = [[UIBarButtonItem alloc] initWithTitle:@"settings" style:UIBarButtonItemStylePlain target:self action:@selector(settingButtonPressed:)];
-    UIBarButtonItem *locationButton = [[UIBarButtonItem alloc] initWithTitle:@"locate" style:UIBarButtonItemStylePlain target:self action:@selector(locationButtonPressed:)];
+    UIBarButtonItem *settingButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"ic_settings_applications"] style:UIBarButtonItemStylePlain target:self action:@selector(settingButtonPressed:)];
+    UIBarButtonItem *locationButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"ic_my_location"] style:UIBarButtonItemStylePlain target:self action:@selector(locationButtonPressed:)];
     UIBarButtonItem *reloadButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(reloadButtonPressed:)];
     self.navigationItem.leftBarButtonItems = @[self.backButton, menuButton];
     [self.backButton setEnabled:NO];
-    self.navigationItem.rightBarButtonItems = @[settingButton, locationButton];
+    self.navigationItem.rightBarButtonItems = @[settingButton, locationButton, reloadButton];
 
     [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.ingress.com/intel"]]];
 
