@@ -81,6 +81,7 @@ static ViewController *_viewController;
     self.backButton = [[UIBarButtonItem alloc] initWithTitle:@"back" style:UIBarButtonItemStyleDone target:self action:@selector(backButtonPressed:)];
     UIBarButtonItem *settingButton = [[UIBarButtonItem alloc] initWithTitle:@"settings" style:UIBarButtonItemStylePlain target:self action:@selector(settingButtonPressed:)];
     UIBarButtonItem *locationButton = [[UIBarButtonItem alloc] initWithTitle:@"locate" style:UIBarButtonItemStylePlain target:self action:@selector(locationButtonPressed:)];
+    UIBarButtonItem *reloadButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(reloadButtonPressed:)];
     self.navigationItem.rightBarButtonItems = @[settingButton, locationButton];
     
     [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.ingress.com/intel"]]];
@@ -201,6 +202,15 @@ static ViewController *_viewController;
     BOOL prefPersistentZoom = [defaults boolForKey:@"pref_persistent_zoom"];
     [self.webView loadJS:[NSString stringWithFormat:@"window.map.locate({setView : true%@});" , prefPersistentZoom? @", maxZoom : map.getZoom()":@""]];
 }
+
+- (void)reloadButtonPressed:(id)aa{
+    [self reloadIITC];
+}
+
+- (void)reloadIITC {
+    [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.ingress.com/intel"]]];
+}
+
 -(void)setCurrentPane:(NSNotification *)notification {
     NSString *pane = notification.userInfo[@"paneID"];
 
