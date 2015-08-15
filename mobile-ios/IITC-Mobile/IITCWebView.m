@@ -8,6 +8,7 @@
 
 #import "IITCWebView.h"
 #import "JSHandler.h"
+#import "ScriptsManager.h"
 
 @implementation IITCWebView
 
@@ -54,7 +55,13 @@
     path = [[NSBundle mainBundle] pathForResource:@"scripts/user-location.user" ofType:@"js"];
     js = [NSString stringWithContentsOfFile:path encoding:NSASCIIStringEncoding error:&error];
     [self addJSBlock:js];
-    
+    NSString *resourcePath = [[NSBundle mainBundle] resourcePath];
+    NSString * pluginsPath = [resourcePath stringByAppendingPathComponent:@"scripts/plugins"];
+    for (NSString *scriptPath in [[ScriptsManager sharedInstance] loadedScripts]) {
+        path = [pluginsPath stringByAppendingPathComponent:scriptPath];
+        js = [NSString stringWithContentsOfFile:path encoding:NSASCIIStringEncoding error:&error];
+        [self addJSBlock:js];
+    }
 }
 
 - (void)addJSBlock:(NSString *)path {
