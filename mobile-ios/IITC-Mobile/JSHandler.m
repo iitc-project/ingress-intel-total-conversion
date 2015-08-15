@@ -78,9 +78,9 @@
 // disable javascript injection while spinner is enabled
 // prevent the spinner from closing automatically
 
-- (void) spinnerEnabled:(BOOL) en {
-//    mIitc.getWebView().disableJS(en);
-}
+//- (void) spinnerEnabled:(BOOL) en {
+////    mIitc.getWebView().disableJS(en);
+//}
 
 // copy link to specific portal to android clipboard
 
@@ -89,45 +89,19 @@
     [pb setString:s];
 }
 
-
-//- (int) getVersionCode {
-//    int versionCode = 0;
-////    try {
-////         PackageInfo pInfo = mIitc.getPackageManager().getPackageInfo(mIitc.getPackageName(), 0);
-////        versionCode = pInfo.versionCode;
-////    } catch ( PackageManager.NameNotFoundException e) {
-////        Log.w(e);
-////    }
-//    return versionCode;
-//}
-
-
-//- (NSString *) getVersionName {
-//    NSString * buildVersion = @"unknown";
-////     PackageManager pm = mIitc.getPackageManager();
-////    try {
-////         PackageInfo info = pm.getPackageInfo(mIitc.getPackageName(), 0);
-////        buildVersion = info.versionName;
-////    } catch ( PackageManager.NameNotFoundException e) {
-////        Log.w(e);
-////    }
-//    return buildVersion;
-//}
-
-
 - (void) switchToPane: (NSString *) paneID {
     [[NSNotificationCenter defaultCenter] postNotificationName:JSNotificationPaneChanged object:self userInfo:@{@"paneID":paneID}];
 }
 
 
-- (void) dialogFocused:(NSString *) dialogID {
-//    mIitc.setFocusedDialog(id);
-}
+//- (void) dialogFocused:(NSString *) dialogID {
+////    mIitc.setFocusedDialog(id);
+//}
 
 
-- (void) dialogOpened:(NSString *) dialogID withResult:(BOOL) open {
-//    mIitc.dialogOpened(id, open);
-}
+//- (void) dialogOpened:(NSString *) dialogID withResult:(BOOL) open {
+////    mIitc.dialogOpened(id, open);
+//}
 
 
 - (void) bootFinished {
@@ -140,35 +114,35 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:JSNotificationLayersGot object:self userInfo:@{@"layers":layers}];
 }
 
+//
+//- (void) addPortalHighlighter:( NSString * )name {
+////    mIitc.runOnUiThread(new Runnable() {
+////        @Override
+////        - (void) run() {
+////            mIitc.getMapSettings().addPortalHighlighter(name);
+////        }
+////    });
+//}
+//
+//
+//- (void) setActiveHighlighter: (NSString *) name {
+////    mIitc.runOnUiThread(new Runnable() {
+////        @Override
+////        - (void) run() {
+////            mIitc.getMapSettings().setActiveHighlighter(name);
+////        }
+////    });
+//}
 
-- (void) addPortalHighlighter:( NSString * )name {
-//    mIitc.runOnUiThread(new Runnable() {
-//        @Override
-//        - (void) run() {
-//            mIitc.getMapSettings().addPortalHighlighter(name);
-//        }
-//    });
-}
 
-
-- (void) setActiveHighlighter: (NSString *) name {
-//    mIitc.runOnUiThread(new Runnable() {
-//        @Override
-//        - (void) run() {
-//            mIitc.getMapSettings().setActiveHighlighter(name);
-//        }
-//    });
-}
-
-
-- (void) updateIitc: (NSString *) fileUrl {
+//- (void) updateIitc: (NSString *) fileUrl {
 //    mIitc.runOnUiThread(new Runnable() {
 //        @Override
 //        - (void) run() {
 //            mIitc.updateIitc(fileUrl);
 //        }
 //    });
-}
+//}
 
 
 //- (void) addPane( NSString * name,  NSString * label,  NSString * icon) {
@@ -192,13 +166,13 @@
 //}
 
 
-- (BOOL) showZoom {
-//     PackageManager pm = mIitc.getPackageManager();
-//     boolean hasMultitouch = pm.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH);
-//     boolean forcedZoom = mIitc.getPrefs().getBoolean("pref_user_zoom", false);
-//    return forcedZoom || !hasMultitouch;
-    return YES;
-}
+//- (BOOL) showZoom {
+////     PackageManager pm = mIitc.getPackageManager();
+////     boolean hasMultitouch = pm.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH);
+////     boolean forcedZoom = mIitc.getPrefs().getBoolean("pref_user_zoom", false);
+////    return forcedZoom || !hasMultitouch;
+//    return YES;
+//}
 
 
 //- (void) setFollowMode:(BOOL) follow {
@@ -211,29 +185,29 @@
 //}
 
 
-- (void) setProgress:(NSNumber *) progress {
-    NSLog(@"progress:%f", [progress doubleValue]);
-//    mIitc.runOnUiThread(new Runnable() {
-//        @Override
-//        - (void) run() {
-//            try {
-//                if (progress != -1) {
-//                    // maximum for setProgress is 10,000
-//                    mIitc.setProgressBarIndeterminate(false);
-//                    mIitc.setProgress((int) Math.round(progress * 10000));
-//                }
-//                else {
-//                    mIitc.setProgressBarIndeterminate(true);
-//                    mIitc.setProgress(1);
-//                }
-//            } catch(NullPointerException e) {
-//                // for some reason, setProgressBarIndeterminate throws a NullPointerException on some devices
-//                e.printStackTrace();
-//                mIitc.setProgress(10000); // hide the progress bar
-//            }
-//        }
-//    });
-}
+//- (void) setProgress:(NSNumber *) progress {
+//    NSLog(@"progress:%f", [progress doubleValue]);
+////    mIitc.runOnUiThread(new Runnable() {
+////        @Override
+////        - (void) run() {
+////            try {
+////                if (progress != -1) {
+////                    // maximum for setProgress is 10,000
+////                    mIitc.setProgressBarIndeterminate(false);
+////                    mIitc.setProgress((int) Math.round(progress * 10000));
+////                }
+////                else {
+////                    mIitc.setProgressBarIndeterminate(true);
+////                    mIitc.setProgress(1);
+////                }
+////            } catch(NullPointerException e) {
+////                // for some reason, setProgressBarIndeterminate throws a NullPointerException on some devices
+////                e.printStackTrace();
+////                mIitc.setProgress(10000); // hide the progress bar
+////            }
+////        }
+////    });
+//}
 
 
 //- (NSString *) getFileRequestUrlPrefix {
