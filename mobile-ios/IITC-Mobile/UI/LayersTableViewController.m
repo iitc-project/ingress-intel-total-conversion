@@ -209,10 +209,6 @@ static LayersTableViewController *_instance;
         default:
             break;
     }
-    if (changed) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:JSNotificationReloadRequired object:nil];
-        changed = NO;
-    }
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 

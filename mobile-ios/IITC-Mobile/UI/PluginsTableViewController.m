@@ -8,21 +8,30 @@
 
 #import "PluginsTableViewController.h"
 #import "ScriptsManager.h"
+#import "JSHandler.h"
 
 @implementation PluginsTableViewCell
 
 @end
 
 @interface PluginsTableViewController ()
-
+@property BOOL changed;
 @end
 
 @implementation PluginsTableViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.changed = NO;
     self.managedObjectContext = [ScriptsManager sharedInstance].document.managedObjectContext;
     // Do any additional setup after loading the view, typically from a nib.
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    if (self.changed) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:JSNotificationReloadRequired object:nil];
+        self.changed = NO;
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -93,6 +102,7 @@
         [tableView cellForRowAtIndexPath:indexPath].accessoryType = UITableViewCellAccessoryCheckmark;
     }
     [object setValue:@(![loaded boolValue]) forKey:@"loaded"];
+    self.changed = YES;
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 
 }
