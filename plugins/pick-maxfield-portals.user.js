@@ -2,7 +2,7 @@
 // @id             iitc-plugin-pick-maxfield-portals
 // @name           IITC plugin: pick portals for the maxfield script
 // @category       Info
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/rspielmann/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -27,8 +27,20 @@ plugin.pickmaxfieldportals.resetSelectedPortals = function() {
 
 plugin.pickmaxfieldportals.getMaxfieldInputLine = function() {
   var portal = window.portals[window.selectedPortal];
-  var info = portal.options.data.title + ";" + $('.linkdetails aside a')[0].href + ";";
-  return info;
+  var portalData = portal.options.data;
+
+  var inputLineParts = [];
+
+  // portal title
+  inputLineParts.push(portalData.title);
+
+  // permalink
+  var lat = portalData.latE6/1E6;
+  var lng = portalData.lngE6/1E6;
+  var permalink = 'https://www.ingress.com/intel/?ll=' + lat + ',' + lng + '&z=17&pll=' + lat + ',' + lng;
+  inputLineParts.push(permalink);
+
+  return inputLineParts.join(';');
 }
 
 plugin.pickmaxfieldportals.onAddClick = function() {
