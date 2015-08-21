@@ -7,3 +7,5 @@ localbuildsettings.py
 *.project
 .pydevproject
 mobile-ios/IITC-Mobile/scripts/plugins
+mobile-ios/IITC-Mobile/scripts/total-conversion-build.user.js
+mobile-ios/IITC-Mobile/scripts/user-location.user.js
