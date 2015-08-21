@@ -282,6 +282,24 @@ if buildMobile:
             'force-https*', 'speech-search*', 'basemap-cloudmade*',
             'scroll-wheel-zoom-disable*'))
 
+    # copy the IITC script into the mobile-ios folder. create the folder if needed
+    try:
+        os.makedirs("mobile-ios/IITC-Mobile/scripts")
+    except:
+        pass
+    shutil.copy(os.path.join(outDir,"total-conversion-build.user.js"), "mobile-ios/IITC-Mobile/scripts/total-conversion-build.user.js")
+    # copy the user location script into the mobile folder.
+    shutil.copy(os.path.join(outDir,"user-location.user.js"), "mobile-ios/IITC-Mobile/scripts/user-location.user.js")
+    # also copy plugins
+    try:
+        shutil.rmtree("mobile-ios/IITC-Mobile/scripts/plugins")
+    except:
+        pass
+    shutil.copytree(os.path.join(outDir,"plugins"), "mobile-ios/IITC-Mobile/scripts/plugins",
+            # do not include desktop-only plugins to mobile assets
+            ignore=shutil.ignore_patterns(
+            'force-https*', 'speech-search*', 'basemap-cloudmade*',
+            'scroll-wheel-zoom-disable*'))
 
     if buildMobile != 'copyonly':
         # now launch 'ant' to build the mobile project
