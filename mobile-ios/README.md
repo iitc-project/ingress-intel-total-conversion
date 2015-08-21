@@ -8,4 +8,7 @@ Please run
 		pod install
 first and open `IITC-Mobile.xcworkspace`
 
-The scripts need to be copied into IITC-mobile/scripts
+Run 
+
+		build.py mobile
+to copy all scripts into IITC-Mobile's folder
