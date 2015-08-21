@@ -60,7 +60,7 @@
 }
 
 - (void)locationManager:(CLLocationManager *)manager
-     didUpdateLocations:(NSArray<CLLocation *> *)locations{
+     didUpdateLocations:(NSArray *)locations{
 //    NSLog(@"Location:%@", [[manager location] description]);
     CLLocation* location = [manager location] ;
     if (self.currentMode != kIITCLocationModeNotShow) {

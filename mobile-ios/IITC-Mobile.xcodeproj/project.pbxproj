@@ -12,7 +12,6 @@
 		B44D19801B62A53300E94D98 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B44D197F1B62A53300E94D98 /* AppDelegate.m */; };
 		B44D19861B62A53300E94D98 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B44D19841B62A53300E94D98 /* Main.storyboard */; };
 		B44D19881B62A53300E94D98 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B44D19871B62A53300E94D98 /* Assets.xcassets */; };
-		B44D198B1B62A53300E94D98 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B44D19891B62A53300E94D98 /* LaunchScreen.storyboard */; };
 		B4737C751B67A3F300DE3E6A /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4737C741B67A3F300DE3E6A /* CoreData.framework */; };
 		B47613BD1B67922100F8A51A /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = B47613BC1B67922100F8A51A /* scripts */; };
 		B487A5DB1B6F6B19001CA21F /* LayersTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B487A5CC1B6F6B19001CA21F /* LayersTableViewController.m */; };
@@ -243,7 +242,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B44D198B1B62A53300E94D98 /* LaunchScreen.storyboard in Resources */,
 				B47613BD1B67922100F8A51A /* scripts in Resources */,
 				B44D19881B62A53300E94D98 /* Assets.xcassets in Resources */,
 				B44D19861B62A53300E94D98 /* Main.storyboard in Resources */,
@@ -364,7 +362,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -402,7 +400,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -416,6 +414,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = "IITC-Mobile/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.cradle.IITC-Mobile";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -428,6 +427,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = "IITC-Mobile/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.cradle.IITC-Mobile";
 				PRODUCT_NAME = "$(TARGET_NAME)";

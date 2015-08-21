@@ -60,11 +60,11 @@ static ScriptsManager * _sharedInstance;
             NSMutableArray * fileLines = [[NSMutableArray alloc] initWithArray:[header componentsSeparatedByString:@"\n"] copyItems: YES];
             for (NSString *line in fileLines) {
                 NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:@"//.*?@([^\\s]*)\\s*(.*)" options:0 error:&error];
-                NSArray<NSTextCheckingResult *> * matches = [regex matchesInString:line options:0 range:NSMakeRange(0, [line length])];
+                NSArray* matches = [regex matchesInString:line options:0 range:NSMakeRange(0, [line length])];
                 if (![matches count]) {
                     continue;
                 }
-                NSRange range= matches[0].range;
+                NSRange range= ((NSTextCheckingResult *)matches[0]).range;
                 if(range.location == 0 && range.length == [line length]) {
                     NSString * key = [line substringWithRange:[matches[0] rangeAtIndex:1]];
                     NSString * value= [line substringWithRange:[matches[0] rangeAtIndex:2]];
@@ -117,7 +117,7 @@ static ScriptsManager * _sharedInstance;
     }
 }
 
-- (NSSet<NSString *> *)loadedScripts {
+- (NSSet *)loadedScripts {
     NSError *error;
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     // Edit the entity name as appropriate.
