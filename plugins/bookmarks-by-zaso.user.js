@@ -11,6 +11,10 @@
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/mission/*
+// @include        http://www.ingress.com/mission/*
+// @match          https://www.ingress.com/mission/*
+// @match          http://www.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -288,26 +292,36 @@
   }
 
   // Append a 'star' flag in sidebar.
+  window.plugin.bookmarks.onPortalSelectedPending = false;
   window.plugin.bookmarks.onPortalSelected = function() {
     $('.bkmrksStar').remove();
 
     if(window.selectedPortal == null) return;
 
-    setTimeout(function() { // the sidebar is constructed after firing the hook
-      if(typeof(Storage) === "undefined") {
-        $('#portaldetails > .imgpreview').after(plugin.bookmarks.htmlDisabledMessage);
-        return;
-      }
+    if (!window.plugin.bookmarks.onPortalSelectedPending) {
+      window.plugin.bookmarks.onPortalSelectedPending = true;
 
-      // Prepend a star to mobile status-bar
-      if(window.plugin.bookmarks.isSmart) {
-        $('#updatestatus').prepend(plugin.bookmarks.htmlStar);
-        $('#updatestatus .bkmrksStar').attr('title', '');
-      }
+      setTimeout(function() { // the sidebar is constructed after firing the hook
+        window.plugin.bookmarks.onPortalSelectedPending = false;
 
-      $('#portaldetails > h3.title').before(plugin.bookmarks.htmlStar);
-      window.plugin.bookmarks.updateStarPortal();
-    }, 0);
+        $('.bkmrksStar').remove();
+
+        if(typeof(Storage) === "undefined") {
+          $('#portaldetails > .imgpreview').after(plugin.bookmarks.htmlDisabledMessage);
+          return;
+        }
+
+        // Prepend a star to mobile status-bar
+        if(window.plugin.bookmarks.isSmart) {
+          $('#updatestatus').prepend(plugin.bookmarks.htmlStar);
+          $('#updatestatus .bkmrksStar').attr('title', '');
+        }
+
+        $('#portaldetails > h3.title').before(plugin.bookmarks.htmlStar);
+        window.plugin.bookmarks.updateStarPortal();
+      }, 0);
+    }
+
   }
 
   // Update the status of the star (when a portal is selected from the map/bookmarks-list)
@@ -810,7 +824,6 @@
 
     if(latlngs.length >= 2 && latlngs.length <= 3) {
       // TODO: add an API to draw-tools rather than assuming things about its internals
-      window.plugin.drawTools.setOptions();
 
       var layer, layerType;
       if(latlngs.length == 2 || $('#bkmrkDrawAsPolylines').prop('checked')) {

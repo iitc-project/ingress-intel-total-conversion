@@ -11,6 +11,10 @@
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/mission/*
+// @include        http://www.ingress.com/mission/*
+// @match          https://www.ingress.com/mission/*
+// @match          http://www.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -26,7 +30,7 @@ window.plugin.portalsMissingResonators.highlight = function(data) {
   if(data.portal.options.team != TEAM_NONE) {
     var res_count = data.portal.options.data.resCount;
 
-    if(res_count < 8) {
+    if(res_count !== undefined && res_count < 8) {
       var fill_opacity = ((8-res_count)/8)*.85 + .15;
       var color = 'red';
       var params = {fillColor: color, fillOpacity: fill_opacity};

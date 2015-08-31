@@ -11,6 +11,10 @@
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/mission/*
+// @include        http://www.ingress.com/mission/*
+// @match          https://www.ingress.com/mission/*
+// @match          http://www.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -23,7 +27,7 @@ window.plugin.portalWeakness = function() {};
 
 window.plugin.portalWeakness.highlightWeakness = function(data) {
 
-  if(data.portal.options.team != TEAM_NONE) {
+  if(data.portal.options.data.resCount !== undefined && data.portal.options.data.health !== undefined && data.portal.options.team != TEAM_NONE) {
     var res_count = data.portal.options.data.resCount;
     var portal_health = data.portal.options.data.health;
 

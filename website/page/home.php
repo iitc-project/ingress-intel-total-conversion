@@ -11,36 +11,36 @@ offers many more features. It is available for
 <a href="?page=mobile">mobile application</a>.
 </p>
 
-<h4>20th March 2015</h4>
-<p>
-IITC 0.22.1 has been released. This is a critical update needed to fix COMM after a recent Niantic site update.
-</p>
-<p>
-Other changes
-</p>
-<ul>
-<li>Fix Sh&#333;nin artifacts on the map and portal details</li>
-<li>distance-to-portal plugin: integrate with portals list plugin</li>
-<li>missions: start of work for missions support. It will take some time to support them completely, but for now there's a highlighter for mission start points</li>
-</ul>
+<h3>Latest news</h3>
 
-<h4>27th Febuary 2015</h4>
+<h4>27th June 2015</h4>
 <p>
-IITC 0.22.0 has been released. This is a critical update needed to fix loading of portal details after the recent
-Niantic site update.
+IITC 0.24.0 has been released. This is a critical update needed to fix the map not loading any data.
 </p>
 <p>
-Major update to IITC's search system. Multiple search results are listed and specific results selected.
-Visible portals are also searched, numerical lat/lng search added, and some plugins also integrate with the new
-search feature: player-tracker (player name search), regions (region name search), bookmarks, 
+NOTE: Niantic have removed portals from the map data at all but the closest of zoom levels (L1+ - zoom 15+).
+The stock intel site creates dummy placeholder portals at the anchors for links, allowing you to click and open the
+portal details. However, IITC does not do this yet. It will take some time to modify IITC and the plugins to allow
+for such placeholder portals, so making a first release without them.
+</p>
+
+<h4>27th May 2015</h4>
 <p>
+IITC 0.23.0 has been released. This is a critical update needed to fix IITC after a Niantic site update.
+</p>
+
+<h4>8th May 2015</h4>
+<p>
+IITC 0.22.3 has been released. Changes include
+</p>
 <ul>
-<li>needs-recharge highlighter: colours/opacity tweaked, should be clearer now</li>
-<li>show-linked-portals: fix bugs, and highlight link/target portal on hover</li>
-<li>new plugin: distance-to-portal. Manually set your location, and the distance to the selected portal is shown</li>
+<li>Lightman Shards supported</li>
+<li>Workaround for map loading not reaching 100%</li>
+<li>IITC Mobile: fix dialogs not appearing on Android 5 with the System WebView update</li>
+<li>Remove unnecessary prompt on botguard script response</li>
+<li>Plugin: Missions - full mission support</li>
+<li>Plugin: show-linked-portals - more details shown</li>
+<li>Plugin: show-more-portals - enabled again for one zoom level</li>
 </ul>
-<p>
-...plus other minor bug fixes and optimisations.
-</p>
 
 <a class="btn btn-default btn-sm" href="?page=news">Older news</a>

@@ -4,7 +4,6 @@
 
 
 window.Render = function() {
-
   this.portalMarkerScale = undefined;
 }
 
@@ -25,7 +24,7 @@ window.Render.prototype.startRenderPass = function(level,bounds) {
   // this will just avoid a few entity removals at start of render when they'll just be added again
   var paddedBounds = bounds.pad(0.1);
 
-  this.clearPortalsBelowLevelOrOutsideBounds(level,paddedBounds);
+  this.clearPortalsOutsideBounds(paddedBounds);
 
   this.clearLinksOutsideBounds(paddedBounds);
   this.clearFieldsOutsideBounds(paddedBounds);
@@ -34,12 +33,12 @@ window.Render.prototype.startRenderPass = function(level,bounds) {
   this.rescalePortalMarkers();
 }
 
-window.Render.prototype.clearPortalsBelowLevelOrOutsideBounds = function(level,bounds) {
+window.Render.prototype.clearPortalsOutsideBounds = function(bounds) {
   var count = 0;
   for (var guid in window.portals) {
     var p = portals[guid];
-    // clear portals below specified level - unless it's the selected portal, or it's relevant to artifacts
-    if ((parseInt(p.options.level) < level || !bounds.contains(p.getLatLng())) && guid !== selectedPortal && !artifact.isInterestingPortal(guid)) {
+    // clear portals outside visible bounds - unless it's the selected portal, or it's relevant to artifacts
+    if (!bounds.contains(p.getLatLng()) && guid !== selectedPortal && !artifact.isInterestingPortal(guid)) {
       this.deletePortalEntity(guid);
       count++;
     }
@@ -110,7 +109,7 @@ window.Render.prototype.processDeletedGameEntityGuids = function(deleted) {
 
 }
 
-window.Render.prototype.processGameEntities = function(entities,ignoreLevel) {
+window.Render.prototype.processGameEntities = function(entities) {
 
   // we loop through the entities three times - for fields, links and portals separately
   // this is a reasonably efficient work-around for leafletjs limitations on svg render order
@@ -131,27 +130,13 @@ window.Render.prototype.processGameEntities = function(entities,ignoreLevel) {
     }
   }
 
-  // 2015-03-12 - Niantic have been returning all mission portals to the client, ignoring portal level
-  // and density filtering usually in use. this makes things unusable when viewing the global view, so we
-  // filter these out
-  var minLevel = ignoreLevel ? 0 : this.level;
-  var ignoredCount = 0;
-
   for (var i in entities) {
     var ent = entities[i];
 
     if (ent[2][0] == 'p' && !(ent[0] in this.deletedGuid)) {
-      var portalLevel = ent[2][1] == 'N' ? 0 : parseInt(ent[2][4]);
-      if (portalLevel >= minLevel) {
-        this.createPortalEntity(ent);
-      } else {
-        ignoredCount++;
-      }
-
+      this.createPortalEntity(ent);
     }
   }
-
-  if (ignoredCount) console.log('Render: ignored '+ignoredCount+' portals below the level requested from the server');
 }
 
 
@@ -263,6 +248,28 @@ window.Render.prototype.deleteFieldEntity = function(guid) {
 }
 
 
+window.Render.prototype.createPlaceholderPortalEntity = function(guid,latE6,lngE6,team) {
+  // intel no longer returns portals at anything but the closest zoom
+  // stock intel creates 'placeholder' portals from the data in links/fields - IITC needs to do the same
+  // we only have the portal guid, lat/lng coords, and the faction - no other data
+  // having the guid, at least, allows the portal details to be loaded once it's selected. however,
+  // no highlighters, portal level numbers, portal names, useful counts of portals, etc are possible
+
+
+  var ent = [
+    guid,       //ent[0] = guid
+    0,          //ent[1] = timestamp - zero will mean any other source of portal data will have a higher timestamp
+                //ent[2] = an array with the entity data
+    [ 'p',      //0 - a portal
+      team,     //1 - team
+      latE6,    //2 - lat
+      lngE6     //3 - lng
+    ]
+  ];
+
+  this.createPortalEntity(ent);
+
+}
 
 
 window.Render.prototype.createPortalEntity = function(ent) {
@@ -288,7 +295,7 @@ window.Render.prototype.createPortalEntity = function(ent) {
     this.deletePortalEntity(ent[0]);
   }
 
-  var portalLevel = parseInt(ent[2][4]);
+  var portalLevel = parseInt(ent[2][4])||0;
   var team = teamStringToId(ent[2][1]);
   // the data returns unclaimed portals as level 1 - but IITC wants them treated as level 0
   if (team == TEAM_NONE) portalLevel = 0;
@@ -350,6 +357,18 @@ window.Render.prototype.createPortalEntity = function(ent) {
 window.Render.prototype.createFieldEntity = function(ent) {
   this.seenFieldsGuid[ent[0]] = true;  // flag we've seen it
 
+  var data = {
+//    type: ent[2][0],
+    team: ent[2][1],
+    points: ent[2][2].map(function(arr) { return {guid: arr[0], latE6: arr[1], lngE6: arr[2] }; })
+  };
+
+  //create placeholder portals for field corners. we already do links, but there are the odd case where this is useful
+  for (var i=0; i<3; i++) {
+    var p=data.points[i];
+    this.createPlaceholderPortalEntity(p.guid, p.latE6, p.lngE6, data.team);
+  }
+
   // check if entity already exists
   if(ent[0] in window.fields) {
     // yes. in theory, we should never get updated data for an existing field. they're created, and they're destroyed - never changed
@@ -363,12 +382,6 @@ window.Render.prototype.createFieldEntity = function(ent) {
     // 2. delete the entity, then re-create with the new data
     this.deleteFieldEntity(ent[0]); // option 2, for now
   }
-
-  var data = {
-//    type: ent[2][0],
-    team: ent[2][1],
-    points: ent[2][2].map(function(arr) { return {guid: arr[0], latE6: arr[1], lngE6: arr[2] }; })
-  };
 
   var team = teamStringToId(ent[2][1]);
   var latlngs = [
@@ -399,7 +412,30 @@ window.Render.prototype.createFieldEntity = function(ent) {
 }
 
 window.Render.prototype.createLinkEntity = function(ent,faked) {
+  // Niantic have been faking link entities, based on data from fields
+  // these faked links are sent along with the real portal links, causing duplicates
+  // the faked ones all have longer GUIDs, based on the field GUID (with _ab, _ac, _bc appended)
+  var fakedLink = new RegExp("^[0-9a-f]{32}\.b_[ab][bc]$"); //field GUIDs always end with ".b" - faked links append the edge identifier
+  if (fakedLink.test(ent[0])) return;
+
+
   this.seenLinksGuid[ent[0]] = true;  // flag we've seen it
+
+  var data = { // TODO add other properties and check correction direction
+//    type:   ent[2][0],
+    team:   ent[2][1],
+    oGuid:  ent[2][2],
+    oLatE6: ent[2][3],
+    oLngE6: ent[2][4],
+    dGuid:  ent[2][5],
+    dLatE6: ent[2][6],
+    dLngE6: ent[2][7]
+  };
+
+  // create placeholder entities for link start and end points (before checking if the link itself already exists
+  this.createPlaceholderPortalEntity(data.oGuid, data.oLatE6, data.oLngE6, data.team);
+  this.createPlaceholderPortalEntity(data.dGuid, data.dLatE6, data.dLngE6, data.team);
+
 
   // check if entity already exists
   if (ent[0] in window.links) {
@@ -414,17 +450,6 @@ window.Render.prototype.createLinkEntity = function(ent,faked) {
     // 2. delete the entity, then re-create it with the new data
     this.deleteLinkEntity(ent[0]); // option 2 - for now
   }
-
-  var data = { // TODO add other properties and check correction direction
-//    type:   ent[2][0],
-    team:   ent[2][1],
-    oGuid:  ent[2][2],
-    oLatE6: ent[2][3],
-    oLngE6: ent[2][4],
-    dGuid:  ent[2][5],
-    dLatE6: ent[2][6],
-    dLngE6: ent[2][7]
-  };
 
   var team = teamStringToId(ent[2][1]);
   var latlngs = [
@@ -469,12 +494,12 @@ window.Render.prototype.rescalePortalMarkers = function() {
 
 // add the portal to the visible map layer
 window.Render.prototype.addPortalToMapLayer = function(portal) {
-  portalsFactionLayers[parseInt(portal.options.level)][portal.options.team].addLayer(portal);
+  portalsFactionLayers[parseInt(portal.options.level)||0][portal.options.team].addLayer(portal);
 }
 
 window.Render.prototype.removePortalFromMapLayer = function(portal) {
   //remove it from the portalsLevels layer
-  portalsFactionLayers[parseInt(portal.options.level)][portal.options.team].removeLayer(portal);
+  portalsFactionLayers[parseInt(portal.options.level)||0][portal.options.team].removeLayer(portal);
 }
 
 
