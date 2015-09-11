@@ -292,26 +292,36 @@
   }
 
   // Append a 'star' flag in sidebar.
+  window.plugin.bookmarks.onPortalSelectedPending = false;
   window.plugin.bookmarks.onPortalSelected = function() {
     $('.bkmrksStar').remove();
 
     if(window.selectedPortal == null) return;
 
-    setTimeout(function() { // the sidebar is constructed after firing the hook
-      if(typeof(Storage) === "undefined") {
-        $('#portaldetails > .imgpreview').after(plugin.bookmarks.htmlDisabledMessage);
-        return;
-      }
+    if (!window.plugin.bookmarks.onPortalSelectedPending) {
+      window.plugin.bookmarks.onPortalSelectedPending = true;
 
-      // Prepend a star to mobile status-bar
-      if(window.plugin.bookmarks.isSmart) {
-        $('#updatestatus').prepend(plugin.bookmarks.htmlStar);
-        $('#updatestatus .bkmrksStar').attr('title', '');
-      }
+      setTimeout(function() { // the sidebar is constructed after firing the hook
+        window.plugin.bookmarks.onPortalSelectedPending = false;
 
-      $('#portaldetails > h3.title').before(plugin.bookmarks.htmlStar);
-      window.plugin.bookmarks.updateStarPortal();
-    }, 0);
+        $('.bkmrksStar').remove();
+
+        if(typeof(Storage) === "undefined") {
+          $('#portaldetails > .imgpreview').after(plugin.bookmarks.htmlDisabledMessage);
+          return;
+        }
+
+        // Prepend a star to mobile status-bar
+        if(window.plugin.bookmarks.isSmart) {
+          $('#updatestatus').prepend(plugin.bookmarks.htmlStar);
+          $('#updatestatus .bkmrksStar').attr('title', '');
+        }
+
+        $('#portaldetails > h3.title').before(plugin.bookmarks.htmlStar);
+        window.plugin.bookmarks.updateStarPortal();
+      }, 0);
+    }
+
   }
 
   // Update the status of the star (when a portal is selected from the map/bookmarks-list)
