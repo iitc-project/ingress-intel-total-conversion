@@ -51,6 +51,11 @@ window.setupDataTileParams = function() {
     window.TILE_PARAMS.TILES_PER_EDGE = DEFAULT_ZOOM_TO_TILES_PER_EDGE;
   }
 
+  // 2015-07-01: niantic added code to the stock site that overrides the min zoom level for unclaimed portals to 15 and above
+  // instead of updating the zoom-to-level array. makes no sense really....
+  // we'll just chop off the array at that point, so the code defaults to level 0 (unclaimed) everywhere...
+  window.TILE_PARAMS.ZOOM_TO_LEVEL = window.TILE_PARAMS.ZOOM_TO_LEVEL.slice(0,15);
+
 }
 
 
@@ -118,14 +123,6 @@ window.getDataZoomForMapZoom = function(zoom) {
   // (stock site max zoom may vary depending on google maps detail in the area - 20 or 21 max is common)
   if (zoom > 21) {
     zoom = 21;
-  }
-
-  if (window.CONFIG_ZOOM_SHOW_MORE_PORTALS) {
-    // as of 2015-06-25 stock site update, all zoom levels that retrieve portals (15+) use the same tile size
-    // therefore, it's no more load on the servers to fake it always to show unclaimed rather than L1+
-    if (zoom >= 15 && zoom <= 16) {
-      zoom = 17;
-    }
   }
 
 

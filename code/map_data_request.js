@@ -69,6 +69,13 @@ window.MapDataRequest = function() {
 
   // ensure we have some initial map status
   this.setStatus ('startup', undefined, -1);
+
+  // add a portalDetailLoaded hook, so we can use the exteneed details to update portals on the map
+  var _this = this;
+  addHook('portalDetailLoaded',function(data){
+    _this.render.processGameEntities([data.ent]);
+  });
+
 }
 
 
@@ -231,6 +238,9 @@ window.MapDataRequest.prototype.refresh = function() {
   window.runHooks ('mapDataRefreshStart', {bounds: bounds, mapZoom: mapZoom, dataZoom: dataZoom, minPortalLevel: tileParams.level, tileBounds: dataBounds});
 
   this.render.startRenderPass(tileParams.level, dataBounds);
+
+  var _render = this.render;
+  window.runHooks ('mapDataEntityInject', {callback: function(ents) { _render.processGameEntities(ents);}});
 
 
   this.render.processGameEntities(artifact.getArtifactEntities());

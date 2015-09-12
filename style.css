@@ -711,6 +711,15 @@ h3 {
   cursor: help;
 }
 
+#artifact_target, #artifact_fragments {
+  margin-top: 4px;
+  margin-bottom: 4px;
+
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+
 /* resonators */
 #resodetails {
   margin-bottom: 0px;
