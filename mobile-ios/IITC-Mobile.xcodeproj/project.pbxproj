@@ -14,6 +14,7 @@
 		B44D19881B62A53300E94D98 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B44D19871B62A53300E94D98 /* Assets.xcassets */; };
 		B4737C751B67A3F300DE3E6A /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4737C741B67A3F300DE3E6A /* CoreData.framework */; };
 		B47613BD1B67922100F8A51A /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = B47613BC1B67922100F8A51A /* scripts */; };
+		B476254D1B8856D0007F6ABC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B44D19891B62A53300E94D98 /* LaunchScreen.storyboard */; };
 		B487A5DB1B6F6B19001CA21F /* LayersTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B487A5CC1B6F6B19001CA21F /* LayersTableViewController.m */; };
 		B487A5DD1B6F6B19001CA21F /* PluginsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B487A5D01B6F6B19001CA21F /* PluginsTableViewController.m */; };
 		B487A5DF1B6F6B19001CA21F /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = B487A5D31B6F6B19001CA21F /* Settings.bundle */; };
@@ -245,6 +246,7 @@
 				B47613BD1B67922100F8A51A /* scripts in Resources */,
 				B44D19881B62A53300E94D98 /* Assets.xcassets in Resources */,
 				B44D19861B62A53300E94D98 /* Main.storyboard in Resources */,
+				B476254D1B8856D0007F6ABC /* LaunchScreen.storyboard in Resources */,
 				B487A5DF1B6F6B19001CA21F /* Settings.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
