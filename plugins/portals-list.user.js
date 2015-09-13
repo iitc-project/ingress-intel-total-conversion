@@ -56,7 +56,7 @@ window.plugin.portalslist.fields = [
   {
     title: "Portal Name",
     value: function(portal) { return portal.options.data.title; },
-    sortValue: function(value, portal) { return value.toLowerCase(); },
+    sortValue: function(value, portal) { if (value) { return value.toLowerCase(); } else { return ""; } },
     format: function(cell, portal, value) {
       $(cell)
         .append(plugin.portalslist.getPortalLink(portal))
@@ -67,9 +67,13 @@ window.plugin.portalslist.fields = [
     title: "Level",
     value: function(portal) { return portal.options.data.level; },
     format: function(cell, portal, value) {
+      var level_text = "L?";
+      if (value) {
+          level_text = "L" + value;
+      }
       $(cell)
         .css('background-color', COLORS_LVL[value])
-        .text('L' + value);
+        .text(level_text);
     },
     defaultOrder: -1,
   },
@@ -85,9 +89,13 @@ window.plugin.portalslist.fields = [
     value: function(portal) { return portal.options.data.health; },
     sortValue: function(value, portal) { return portal.options.team===TEAM_NONE ? -1 : value; },
     format: function(cell, portal, value) {
+      var health_text = "??%";
+      if (value) {
+          health_text = value + "%";
+      }
       $(cell)
         .addClass("alignR")
-        .text(portal.options.team===TEAM_NONE ? '-' : value+'%');
+        .text(portal.options.team===TEAM_NONE ? '-' : health_text);
     },
     defaultOrder: -1,
   },
@@ -127,13 +135,17 @@ window.plugin.portalslist.fields = [
   {
     title: "AP",
     value: function(portal) {
-      var links = window.getPortalLinks(portal.options.guid);
-      var fields = getPortalFieldsCount(portal.options.guid);
-      return portalApGainMaths(portal.options.data.resCount, links.in.length+links.out.length, fields);
+      //var links = window.getPortalLinks(portal.options.guid);
+      //var fields = getPortalFieldsCount(portal.options.guid);
+      return window.getPortalApGain(portal.options.guid);
     },
     sortValue: function(value, portal) { return value.enemyAp; },
     format: function(cell, portal, value) {
       var title = '';
+      var ap_value = '-';
+      if (value !== undefined) {
+         ap_value = digits(value.enemyAp);
+      }
       if (teamStringToId(PLAYER.team) == portal.options.team) {
         title += 'Friendly AP:\t'+value.friendlyAp+'\n'
                + '- deploy '+(8-portal.options.data.resCount)+' resonator(s)\n'
@@ -143,11 +155,11 @@ window.plugin.portalslist.fields = [
              + '- Destroy AP:\t'+value.destroyAp+'\n'
              + '- Capture AP:\t'+value.captureAp;
 
-      $(cell)
+    $(cell)
         .addClass("alignR")
         .addClass('help')
         .prop('title', title)
-        .html(digits(value.enemyAp));
+        .html(ap_value);
     },
     defaultOrder: -1,
   },
