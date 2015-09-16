@@ -13,5 +13,7 @@
 @property (strong) UIManagedDocument* document;
 + (instancetype)sharedInstance;
 - (void)loadLocalFiles;
+- (void)update;
 - (NSSet*) loadedScripts;
++ (BOOL)updateScript:(NSString *)filePath;
 @end

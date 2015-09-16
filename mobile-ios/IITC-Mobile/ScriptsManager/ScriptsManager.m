@@ -40,37 +40,64 @@ static ScriptsManager * _sharedInstance;
     return self;
 }
 
++ (NSDictionary *)getScriptInfosFromJS:(NSString *)js {
+    NSMutableDictionary *attributes = [[NSMutableDictionary alloc] init];
+    NSError *error;
+    NSRange range = [js rangeOfString:@"==UserScript=="];
+    NSRange range1 = [js rangeOfString:@"==/UserScript=="];
+    NSString *header = [js substringWithRange:NSMakeRange(range.location+range.length, range1.location-range.location-range.length)];
+    NSMutableArray * fileLines = [[NSMutableArray alloc] initWithArray:[header componentsSeparatedByString:@"\n"] copyItems: YES];
+    for (NSString *line in fileLines) {
+        NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:@"//.*?@([^\\s]*)\\s*(.*)" options:0 error:&error];
+        NSArray* matches = [regex matchesInString:line options:0 range:NSMakeRange(0, [line length])];
+        if (![matches count]) {
+            continue;
+        }
+        NSRange range= ((NSTextCheckingResult *)matches[0]).range;
+        if(range.location == 0 && range.length == [line length]) {
+            NSString * key = [line substringWithRange:[matches[0] rangeAtIndex:1]];
+            NSString * value= [line substringWithRange:[matches[0] rangeAtIndex:2]];
+            attributes[key] = value;
+        }
+    }
+    return attributes;
+}
+
++ (BOOL)copyFileToDocument {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *testFilePath = [(NSString *)paths[0] stringByAppendingPathComponent:@"original/.copied"];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:testFilePath]) {
+        return YES;
+    }
+    NSError *error;
+    [@"copied" writeToFile:testFilePath atomically:YES encoding:NSASCIIStringEncoding error:&error];
+    NSString *scriptsPath = [(NSString *)paths[0] stringByAppendingPathComponent:@"original"];
+    NSString *resScriptsPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"scripts"];
+    [[NSFileManager defaultManager] copyItemAtPath:resScriptsPath toPath:scriptsPath error:&error];
+    if (!error) {
+        return YES;
+    }
+    return NO;
+}
+
 - (void)loadLocalFiles {
-    NSString * resourcePath = [[NSBundle mainBundle] resourcePath];
-    NSString * documentsPath = [resourcePath stringByAppendingPathComponent:@"scripts/plugins"];
+    if (![ScriptsManager copyFileToDocument]) {
+        return;
+    }
+    
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString * documentsPath = [paths[0] stringByAppendingPathComponent:@"scripts/plugins"];
     NSError * error;
     NSArray * directoryContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:documentsPath error:&error];
     for (NSString *file in directoryContents) {
-        if (![file hasSuffix:@"meta.js"]) {
+        if ([file hasSuffix:@"meta.js"]) {
             continue;
         }
         NSString *js = [NSString stringWithContentsOfFile:[documentsPath stringByAppendingPathComponent:file] encoding:NSASCIIStringEncoding error:&error];
         NSString *header = @"";
         
         if (js != nil && [js containsString:@"==UserScript=="] && [js containsString:@"==/UserScript=="]) {
-            NSMutableDictionary *attributes = [[NSMutableDictionary alloc] init];
-            NSRange range = [js rangeOfString:@"==UserScript=="];
-            NSRange range1 = [js rangeOfString:@"==/UserScript=="];
-            header = [js substringWithRange:NSMakeRange(range.location+range.length, range1.location-range.location-range.length)];
-            NSMutableArray * fileLines = [[NSMutableArray alloc] initWithArray:[header componentsSeparatedByString:@"\n"] copyItems: YES];
-            for (NSString *line in fileLines) {
-                NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:@"//.*?@([^\\s]*)\\s*(.*)" options:0 error:&error];
-                NSArray* matches = [regex matchesInString:line options:0 range:NSMakeRange(0, [line length])];
-                if (![matches count]) {
-                    continue;
-                }
-                NSRange range= ((NSTextCheckingResult *)matches[0]).range;
-                if(range.location == 0 && range.length == [line length]) {
-                    NSString * key = [line substringWithRange:[matches[0] rangeAtIndex:1]];
-                    NSString * value= [line substringWithRange:[matches[0] rangeAtIndex:2]];
-                    attributes[key] = value;
-                }
-            }
+            NSDictionary *attributes = [ScriptsManager getScriptInfosFromJS:js];
             
             NSEntityDescription *entityDescription = [NSEntityDescription
                                                       entityForName:@"Script" inManagedObjectContext:self.document.managedObjectContext];
@@ -109,12 +136,42 @@ static ScriptsManager * _sharedInstance;
                     script.category = @"Undefined";
                 }
                 script.scriptDescription = attributes[@"description"];
-                script.filePath = [file stringByReplacingOccurrencesOfString:@"meta.js" withString:@"user.js"];
+                script.filePath = file;
             }
             
         }
         
     }
+}
+
+- (void)update {
+    [self updateAllPlugins];
+    [self updateMainScript];
+    [self loadedScripts];
+}
+
+- (void)updateAllPlugins {
+    NSEntityDescription *entityDescription = [NSEntityDescription
+                                              entityForName:@"Script" inManagedObjectContext:self.document.managedObjectContext];
+    NSFetchRequest *request = [[NSFetchRequest alloc] init];
+    [request setEntity:entityDescription];
+    
+    NSError *error;
+    NSArray *array = [self.document.managedObjectContext executeFetchRequest:request error:&error];
+    for (Script *script in array) {
+        [ScriptsManager updateScript:script.filePath];
+    }
+    
+    return;
+}
+
+- (void)updateMainScript {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *testFilePath = [(NSString *)paths[0] stringByAppendingPathComponent:@"original/total-conversion-build.user.js"];
+    if(![[NSFileManager defaultManager] fileExistsAtPath:testFilePath]) {
+        return;
+    }
+    [ScriptsManager updateScript:testFilePath];
 }
 
 - (NSSet *)loadedScripts {
@@ -126,5 +183,42 @@ static ScriptsManager * _sharedInstance;
     [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"loaded == YES"]];
     NSArray * result = [self.document.managedObjectContext executeFetchRequest:fetchRequest error:&error];
     return [NSSet setWithArray:[result valueForKeyPath:@"filePath"]];
+}
+
++ (BOOL)updateScript:(NSString *)filePath {
+    NSError *error;
+    NSString * file = [NSString stringWithContentsOfFile:filePath encoding:NSASCIIStringEncoding error:&error];
+    NSDictionary *attributes = [self getScriptInfosFromJS:file];
+    NSString* updateURL = attributes[@"updateURL"];
+    NSString* downloadURL = attributes[@"downloadURL"];
+    if (updateURL == nil) updateURL = downloadURL;
+
+    NSURL *url = [NSURL URLWithString:updateURL];
+    NSURLResponse *response;
+    NSData *temp = [NSURLConnection sendSynchronousRequest:[NSURLRequest requestWithURL:url] returningResponse:&response error:&error];
+    NSString *updatedJSMeta = [[NSString alloc] initWithData:temp encoding:NSASCIIStringEncoding];
+    NSDictionary *updatedAttributes = [self getScriptInfosFromJS:updatedJSMeta];
+    NSLog(@"Old version:%@\nNew Version:%@", attributes[@"version"], updatedAttributes[@"version"]);
+    if (![attributes[@"version"] compare:updatedAttributes[@"version"] options:NSLiteralSearch]) {
+        return NO;
+    }
+    NSString *updatedJS;
+    if ([updateURL isEqualToString: downloadURL]) {
+        updatedJS = updatedJSMeta;
+    } else {
+        if (updatedAttributes[@"downloadURL"] != nil) {
+            downloadURL = updatedAttributes[@"downloadURL"];
+        }
+        
+//        if (!isUpdateAllowed(downloadURL)) return false;
+        
+        NSURL *downloadUrl = [NSURL URLWithString:downloadURL];
+        NSURLResponse *tempResponse;
+        NSData *temp = [NSURLConnection sendSynchronousRequest:[NSURLRequest requestWithURL:downloadUrl] returningResponse:&tempResponse error:&error];
+        updatedJS = [[NSString alloc] initWithData:temp encoding:NSASCIIStringEncoding];
+    }
+    [updatedJS writeToFile:filePath atomically:YES encoding:NSASCIIStringEncoding error:&error];
+    return YES;
+    
 }
 @end
