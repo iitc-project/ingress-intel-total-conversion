@@ -27,8 +27,19 @@
 		B48991E91B6398F1007749C3 /* IITCWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = B48991E81B6398F1007749C3 /* IITCWebView.m */; };
 		B48991EE1B63A0F8007749C3 /* IITCLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = B48991ED1B63A0F8007749C3 /* IITCLocation.m */; };
 		B48991F01B63A136007749C3 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B48991EF1B63A136007749C3 /* CoreLocation.framework */; };
+		B4EB98911BA4A86E003307AB /* ScriptsManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B4EB98901BA4A86E003307AB /* ScriptsManagerTest.m */; };
 		B4ECA1851B7D055000425339 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4ECA1841B7D055000425339 /* MainViewController.m */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B4EB98931BA4A86E003307AB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B44D19701B62A53300E94D98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B44D19771B62A53300E94D98;
+			remoteInfo = "IITC-Mobile";
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		1E677BE34CE7CE12E1C0FA4A /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
@@ -66,6 +77,9 @@
 		B48991EC1B63A0F8007749C3 /* IITCLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IITCLocation.h; sourceTree = "<group>"; };
 		B48991ED1B63A0F8007749C3 /* IITCLocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IITCLocation.m; sourceTree = "<group>"; };
 		B48991EF1B63A136007749C3 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		B4EB988E1BA4A86E003307AB /* ScriptsManagerTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScriptsManagerTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B4EB98901BA4A86E003307AB /* ScriptsManagerTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScriptsManagerTest.m; sourceTree = "<group>"; };
+		B4EB98921BA4A86E003307AB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B4ECA1831B7D055000425339 /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
 		B4ECA1841B7D055000425339 /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -79,6 +93,13 @@
 				B48991F01B63A136007749C3 /* CoreLocation.framework in Frameworks */,
 				B48991E31B6364D1007749C3 /* WebKit.framework in Frameworks */,
 				3C83B79A3EB8D493E1FB4E4D /* libPods.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B4EB988B1BA4A86E003307AB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -109,6 +130,7 @@
 				B48991EF1B63A136007749C3 /* CoreLocation.framework */,
 				B48991E21B6364D1007749C3 /* WebKit.framework */,
 				B44D197A1B62A53300E94D98 /* IITC-Mobile */,
+				B4EB988F1BA4A86E003307AB /* ScriptsManagerTest */,
 				B44D19791B62A53300E94D98 /* Products */,
 				3C6E93995DED98A0DB48BE8B /* Pods */,
 				014CF9F74584668170A86D2C /* Frameworks */,
@@ -119,6 +141,7 @@
 			isa = PBXGroup;
 			children = (
 				B44D19781B62A53300E94D98 /* IITC-Mobile.app */,
+				B4EB988E1BA4A86E003307AB /* ScriptsManagerTest.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -184,6 +207,15 @@
 			path = ScriptsManager;
 			sourceTree = "<group>";
 		};
+		B4EB988F1BA4A86E003307AB /* ScriptsManagerTest */ = {
+			isa = PBXGroup;
+			children = (
+				B4EB98901BA4A86E003307AB /* ScriptsManagerTest.m */,
+				B4EB98921BA4A86E003307AB /* Info.plist */,
+			);
+			path = ScriptsManagerTest;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -206,6 +238,24 @@
 			productReference = B44D19781B62A53300E94D98 /* IITC-Mobile.app */;
 			productType = "com.apple.product-type.application";
 		};
+		B4EB988D1BA4A86E003307AB /* ScriptsManagerTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B4EB98971BA4A86E003307AB /* Build configuration list for PBXNativeTarget "ScriptsManagerTest" */;
+			buildPhases = (
+				B4EB988A1BA4A86E003307AB /* Sources */,
+				B4EB988B1BA4A86E003307AB /* Frameworks */,
+				B4EB988C1BA4A86E003307AB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B4EB98941BA4A86E003307AB /* PBXTargetDependency */,
+			);
+			name = ScriptsManagerTest;
+			productName = ScriptsManagerTest;
+			productReference = B4EB988E1BA4A86E003307AB /* ScriptsManagerTest.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -217,6 +267,11 @@
 				TargetAttributes = {
 					B44D19771B62A53300E94D98 = {
 						CreatedOnToolsVersion = 7.0;
+						DevelopmentTeam = RX9K7XFZLZ;
+					};
+					B4EB988D1BA4A86E003307AB = {
+						CreatedOnToolsVersion = 7.0;
+						TestTargetID = B44D19771B62A53300E94D98;
 					};
 				};
 			};
@@ -234,6 +289,7 @@
 			projectRoot = "";
 			targets = (
 				B44D19771B62A53300E94D98 /* IITC-Mobile */,
+				B4EB988D1BA4A86E003307AB /* ScriptsManagerTest */,
 			);
 		};
 /* End PBXProject section */
@@ -248,6 +304,13 @@
 				B44D19861B62A53300E94D98 /* Main.storyboard in Resources */,
 				B476254D1B8856D0007F6ABC /* LaunchScreen.storyboard in Resources */,
 				B487A5DF1B6F6B19001CA21F /* Settings.bundle in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B4EB988C1BA4A86E003307AB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -306,7 +369,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B4EB988A1BA4A86E003307AB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B4EB98911BA4A86E003307AB /* ScriptsManagerTest.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B4EB98941BA4A86E003307AB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B44D19771B62A53300E94D98 /* IITC-Mobile */;
+			targetProxy = B4EB98931BA4A86E003307AB /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		B44D19841B62A53300E94D98 /* Main.storyboard */ = {
@@ -415,6 +494,7 @@
 			baseConfigurationReference = 1E677BE34CE7CE12E1C0FA4A /* Pods.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = "IITC-Mobile/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -428,11 +508,38 @@
 			baseConfigurationReference = 79E7B261A6578287E6208179 /* Pods.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = "IITC-Mobile/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.cradle.IITC-Mobile";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		B4EB98951BA4A86E003307AB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = ScriptsManagerTest/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = mu.lab.ScriptsManagerTest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/IITC-Mobile.app/IITC-Mobile";
+			};
+			name = Debug;
+		};
+		B4EB98961BA4A86E003307AB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = ScriptsManagerTest/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = mu.lab.ScriptsManagerTest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/IITC-Mobile.app/IITC-Mobile";
 			};
 			name = Release;
 		};
@@ -456,6 +563,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		B4EB98971BA4A86E003307AB /* Build configuration list for PBXNativeTarget "ScriptsManagerTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B4EB98951BA4A86E003307AB /* Debug */,
+				B4EB98961BA4A86E003307AB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 
