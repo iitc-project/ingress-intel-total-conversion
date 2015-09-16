@@ -192,6 +192,7 @@ window.TEAM_NONE = 0;
 window.TEAM_RES = 1;
 window.TEAM_ENL = 2;
 window.TEAM_TO_CSS = ['none', 'res', 'enl'];
+window.TEAM_NAMES = ['Neutral', 'Resistance', 'Enlightened'];
 
 window.SLOT_TO_LAT = [0, Math.sqrt(2)/2, 1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2];
 window.SLOT_TO_LNG = [1, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2, -1, -Math.sqrt(2)/2, 0, Math.sqrt(2)/2];
