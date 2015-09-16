@@ -8,6 +8,7 @@
 
 #import "SettingsViewController.h"
 #import "PluginsTableViewController.h"
+#import "ScriptsManager.h"
 
 @interface SettingsViewController ()
 
@@ -38,6 +39,8 @@
         }
         PluginsTableViewController *vc = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"pluginsViewController"];
         [self.navigationController pushViewController:vc animated:YES];
+    } else if ([specifier.key isEqualToString:@"pref_update"]) {
+        [[ScriptsManager sharedInstance] update];
     }
 }
 
