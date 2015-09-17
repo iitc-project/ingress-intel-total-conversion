@@ -1,38 +1,9 @@
 
 var RegionScoreboard = (function () {
-    
-  function showScoreboard() {
-    // TODO: rather than just load the region scores for the center of the map, display a list of regions in the current view
-    // and let the user select one (with automatic selection when just one region, and limited to close enough zooms so list size is reasonable)
-    var latLng = map.getCenter();
-
-    var latE6 = Math.round(latLng.lat*1E6);
-    var lngE6 = Math.round(latLng.lng*1E6);
-
-    var dlg = dialog({title:'Region scores',html:'Loading regional scores...',width:450,minHeight:320});
-
-    window.postAjax('getRegionScoreDetails', {latE6:latE6,lngE6:lngE6}, 
-        function(res) { regionScoreboardSuccess(res, dlg);}, 
-        function() { regionScoreboardFailure(dlg);
-        });
-  };
-
-  // TODO: DEPRECATED replace with "window.RegionScoreboard.showScoreboard();"
-  window.regionScoreboard = showScoreboard;
   
+  var mainDialog;
+  var regionScore;
   
-  function regionScoreboardFailure(dlg) {
-    dlg.html('Failed to load region scores - try again');
-   }
-
-  function regionScoreboardSuccess(data,dlg) {
-      if (data.result === undefined) {
-        return regionScoreboardFailure(dlg);
-      }
-      
-      regionScoreboardProcess(  new RegionScore(data.result), dlg);
-   }
-
   function RegionScore(serverResult) {
       this.ori_data = serverResult;
       this.topAgents = serverResult.topAgents;
@@ -65,8 +36,76 @@ var RegionScoreboard = (function () {
           return max;
       }
    }
+  
+  function showScoreboard() {
+    // TODO: rather than just load the region scores for the center of the map, display a list of regions in the current view
+    // and let the user select one (with automatic selection when just one region, and limited to close enough zooms so list size is reasonable)
+    var latLng = map.getCenter();
 
-  function regionScoreBoardHistoryChartPath(svgresult, regionScore, scaleFct) {
+    var latE6 = Math.round(latLng.lat*1E6);
+    var lngE6 = Math.round(latLng.lng*1E6);
+
+    mainDialog = dialog({title:'Region scores',html:'Loading regional scores...',width:450,minHeight:320});
+
+    window.postAjax('getRegionScoreDetails', {latE6:latE6,lngE6:lngE6}, 
+        onRequestSuccess, 
+        onRequestFailure);
+  };
+
+  // TODO: DEPRECATED replace with "window.RegionScoreboard.showScoreboard();"
+  window.regionScoreboard = showScoreboard;
+  
+  function onRequestFailure() {
+    mainDialog.html('Failed to load region scores - try again');
+   }
+
+  function onRequestSuccess(data) {
+      if (data.result === undefined) {
+        return onRequestFailure();
+      }
+      
+      regionScore = new RegionScore(data.result);
+      updateDialog();
+   }
+
+  function updateDialog(logscale) {
+
+    // we need some divs to make the accordion work properly
+    mainDialog.html('<div class="cellscore">'
+           +'<b>Region scores for '+regionScore.regionName+'</b>'
+           +'<div><table>'+createResults()+'</table>'
+           +createHistoryChart( logscale)+'</div>'
+           +'<b>Checkpoint overview</b>'
+           +'<div>'+createHistoryTable()+'</div>'
+           +'<b>Top agents</b>'
+           +'<div>'+createAgentTable()+'</div>'
+           +'</div>');
+
+    $('g.checkpoint', mainDialog).each(function(i, elem) {
+      elem = $(elem);
+
+      var tooltip = 'CP:\t'+elem.attr('data-cp')
+        + '\nEnl:\t' + digits(elem.attr('data-enl'))
+        + '\nRes:\t' + digits(elem.attr('data-res'));
+      elem.tooltip({
+        content: convertTextToTableMagic(tooltip),
+        position: {my: "center bottom", at: "center top-10"}
+      });
+    });
+
+    $('.cellscore', mainDialog).accordion({
+      header: 'b',
+      heightStyle: "fill"
+    });
+
+    $('input.logscale', mainDialog).change(function(){
+      var input = $(this);
+      updateDialog(input.prop('checked'));
+    });
+  }
+   
+
+  function createHistoryChartPath(svgresult, scaleFct) {
     var teamPaths = [[],[]];
 
     for (var i=0; i<regionScore.checkpoints.length; i++) {
@@ -94,8 +133,7 @@ var RegionScoreboard = (function () {
     return teamPaths;
    }
    
-   
-  function regionScoreBoardHistoryChartTicks(svgresult, regionScore, scaleFct, logscale,max) {
+  function createHistoryChartTicks(svgresult, scaleFct, logscale,max) {
       // graph tickmarks - horizontal
       var ticks = [];
       for (var i=5; i<=35; i+=5) {
@@ -137,7 +175,7 @@ var RegionScoreboard = (function () {
    }
 
    
-  function regionScoreboardScoreHistoryChart(regionScore, logscale) {
+  function createHistoryChart(logscale) {
     // svg area 400x130. graph area 350x100, offset to 40,10
 
     var max = Math.max(regionScore.getScoreMax(),10); //NOTE: ensure a min of 10 for the graph
@@ -153,9 +191,9 @@ var RegionScoreboard = (function () {
 
       
       var otherSvg = [];
-      var teamPaths = regionScoreBoardHistoryChartPath(otherSvg, regionScore, scaleFct);
+      var teamPaths = createHistoryChartPath(otherSvg, scaleFct);
 
-      var ticks_path = regionScoreBoardHistoryChartTicks(otherSvg, regionScore, scaleFct, logscale,max,max);
+      var ticks_path = createHistoryChartTicks(otherSvg, scaleFct, logscale,max);
       
       for (var t=0; t<2; t++) {
           var col = t==0 ? COLORS[TEAM_ENL] : COLORS[TEAM_RES];
@@ -180,7 +218,7 @@ var RegionScoreboard = (function () {
       return svg;
    }
 
-  function regionScoreboardCreateHistoryTable(regionScore) {
+  function createHistoryTable() {
     var history = regionScore.checkpoints;
     var table = '<table class="checkpoint_table"><thead><tr><th>Checkpoint</th><th>Enlightened</th><th>Resistance</th></tr></thead>';
 
@@ -192,7 +230,7 @@ var RegionScoreboard = (function () {
     return table;
    }
 
-  function regionScoreboardCreateAgentTable(regionScore) {
+  function createAgentTable() {
       var agentTable = '<table><tr><th>#</th><th>Agent</th></tr>';
       
       for (var i=0; i<regionScore.topAgents.length; i++) {
@@ -208,7 +246,7 @@ var RegionScoreboard = (function () {
       return agentTable;
    }
    
-  function regionScoreboardCreateResults(regionScore) {
+  function createResults() {
       
       var maxAverage = regionScore.getAvgScoreMax();
       var order = (PLAYER.team == 'RESISTANCE' ? [TEAM_RES,TEAM_ENL]:[TEAM_ENL,TEAM_RES])
@@ -228,48 +266,10 @@ var RegionScoreboard = (function () {
       return result;
   }
    
-  function regionScoreboardProcess(regionScore,dlg,logscale) {
-
-    var agentTable = regionScoreboardCreateAgentTable(regionScore);
-
-    // we need some divs to make the accordion work properly
-    dlg.html('<div class="cellscore">'
-           +'<b>Region scores for '+regionScore.regionName+'</b>'
-           +'<div><table>'+regionScoreboardCreateResults(regionScore)+'</table>'
-           +regionScoreboardScoreHistoryChart(regionScore, logscale)+'</div>'
-           +'<b>Checkpoint overview</b>'
-           +'<div>'+regionScoreboardCreateHistoryTable(regionScore)+'</div>'
-           +'<b>Top agents</b>'
-           +'<div>'+agentTable+'</div>'
-           +'</div>');
-
-    $('g.checkpoint', dlg).each(function(i, elem) {
-      elem = $(elem);
-
-      var tooltip = 'CP:\t'+elem.attr('data-cp')
-        + '\nEnl:\t' + digits(elem.attr('data-enl'))
-        + '\nRes:\t' + digits(elem.attr('data-res'));
-      elem.tooltip({
-        content: convertTextToTableMagic(tooltip),
-        position: {my: "center bottom", at: "center top-10"}
-      });
-    });
-
-    $('.cellscore', dlg).accordion({
-      header: 'b',
-      heightStyle: "fill"
-    });
-
-    $('input.logscale', dlg).change(function(){
-      var input = $(this);
-      regionScoreboardProcess(regionScore, dlg, input.prop('checked'));
-    });
-    
-  }
 
   return {
     showScoreboard
-  }
+  };
   
 }());
 
