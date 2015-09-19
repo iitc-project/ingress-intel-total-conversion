@@ -29,5 +29,7 @@ won't work on these as they don't contain enough information</li>
 even when you zoom out</li>
 <li>and other tweaks/bugfixes</li>
 </ul>
+<b>Update 17th September 2015</b>
+<p>IITC 0.25.1 released. This fixes search not working after MapQuest made a change to their API.</p>
 
 <a class="btn btn-default btn-sm" href="?page=news">Older news</a>
