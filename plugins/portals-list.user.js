@@ -55,7 +55,9 @@ window.plugin.portalslist.filter = 0;
 window.plugin.portalslist.fields = [
   {
     title: "Portal Name",
-    value: function(portal) { return portal.options.data.title; },
+    value: function(portal) { 
+        return plugin.portalslist.getPortalTitle(portal);
+    },
     sortValue: function(value, portal) { if (value) { return value.toLowerCase(); } else { return ""; } },
     format: function(cell, portal, value) {
       $(cell)
@@ -135,9 +137,11 @@ window.plugin.portalslist.fields = [
   {
     title: "AP",
     value: function(portal) {
-      //var links = window.getPortalLinks(portal.options.guid);
-      //var fields = getPortalFieldsCount(portal.options.guid);
-      return window.getPortalApGain(portal.options.guid);
+      var ap_value = window.getPortalApGain(portal.options.guid);
+      if (!ap_value) {
+        ap_value = "-";
+      }
+      return ap_value;
     },
     sortValue: function(value, portal) { return value.enemyAp; },
     format: function(cell, portal, value) {
@@ -248,6 +252,14 @@ window.plugin.portalslist.displayPL = function() {
       width: 700
     });
   }
+}
+
+window.plugin.portalslist.getPortalTitle = function(portal) {
+  var name_text = 'UNCACHED';
+  if(portal && portal.options.data.title) {
+    name_text = portal.options.data.title+'';
+  }
+  return name_text;
 }
 
 window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
@@ -378,12 +390,12 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
 //               double click: zoom to and select portal
 // code from getPortalLink function by xelio from iitc: AP List - https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/ap-list.user.js
 window.plugin.portalslist.getPortalLink = function(portal) {
-  var coord = portal.getLatLng();
+  var coord = window.findPortalLatLng(portal.options.guid);
   var perma = '/intel?ll='+coord.lat+','+coord.lng+'&z=17&pll='+coord.lat+','+coord.lng;
 
   // jQuery's event handlers seem to be removed when the nodes are remove from the DOM
   var link = document.createElement("a");
-  link.textContent = portal.options.data.title;
+  link.textContent = window.plugin.portalslist.getPortalTitle(portal);
   link.href = perma;
   link.addEventListener("click", function(ev) {
     renderPortalDetails(portal.options.guid);
