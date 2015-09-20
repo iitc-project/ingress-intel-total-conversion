@@ -138,7 +138,7 @@ window.plugin.portalslist.fields = [
     title: "AP",
     value: function(portal) {
       var ap_value = window.getPortalApGain(portal.options.guid);
-      if (!ap_value) {
+      if (!ap_value && !isNaN(ap_value)) {
         ap_value = "-";
       }
       return ap_value;
@@ -147,7 +147,7 @@ window.plugin.portalslist.fields = [
     format: function(cell, portal, value) {
       var title = '';
       var ap_value = '-';
-      if (value !== undefined) {
+      if (value !== undefined && !isNaN(value.enemyAp)) {
          ap_value = digits(value.enemyAp);
       }
       if (teamStringToId(PLAYER.team) == portal.options.team) {
