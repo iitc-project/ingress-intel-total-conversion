@@ -10,10 +10,13 @@ var RegionScoreboard = (function () {
       this.regionName = serverResult.regionName;
       this.gameScore = serverResult.gameScore;
       
+      this.median=[-1,-1,-1];
+      this.MAX_CYCLES = 35;
+
       this.checkpoints = []
       for (var i=0; i<serverResult.scoreHistory.length; i++) {
-          var h = serverResult.scoreHistory[i]
-          this.checkpoints[h[0]] = [h[1],h[2]];
+          var h = serverResult.scoreHistory[i];
+          this.checkpoints[parseInt(h[0])] = [parseInt(h[1]), parseInt(h[2])];
       }
 
       this.hasNoTopAgents = function () {
@@ -35,6 +38,62 @@ var RegionScoreboard = (function () {
           }
           return max;
       }
+
+    this.getAvgScoreAtCP = function(faction, cp_idx) {
+      var score = 0;
+      var count = 0;
+      var idx = faction==TEAM_RES? 1:0;
+
+      cp_idx = Math.min(cp_idx,this.checkpoints.length);
+
+      for (var i=1; i<cp_idx; i++) {
+        if (this.checkpoints[i] != undefined) {
+          score += this.checkpoints[i][idx];
+          count++;
+        }
+      }
+
+      var total_score = score + this.getScoreMedian(faction)*(this.MAX_CYCLES-count);
+
+      return Math.floor(total_score / this.MAX_CYCLES);
+    }
+
+
+    this.getScoreMedian = function(faction) {
+        if (this.median[faction]<0) {
+            var idx = faction==TEAM_RES? 1:0;
+            var values = this.checkpoints.map( function (val) { return val[idx];} );
+            this.median[faction] = this.findMedian(values);
+        }
+
+        return this.median[faction];
+    }
+
+    this.findMedian = function(values) {
+        var len = values.length
+        var rank = Math.floor((len-1)/2)
+
+        var l=0, m=len-1;
+        var b,i,j,x;
+        while (l<m) {
+            x=values[rank];
+            i=l;
+            j=m;
+            do {
+                while (values[i]<x) i++;
+                while (x<values[j]) j--;
+                if (i<=j) {
+                    b = values[i];
+                    values[i] = values[j];
+                    values[j] = b;
+                    i++ ; j-- ;
+                }
+            } while (i<=j);
+            if (j<rank) l=i ;
+            if (rank<i) m=j ;
+        }
+        return values[rank];
+    }
    }
    
   function showDialog() {
@@ -296,10 +355,19 @@ RegionScoreboard.HistoryChart = (function () {
    
   function svgAveragePath() {
     var path='';
-    for (var t=0; t<2; t++) {
-      var col = getFactionColor(t);
-      var y = scaleFct(regionScore.gameScore[t]);
-      path += '<path d="M40,'+y+' L390,'+y+'" stroke="'+col+'" stroke-dasharray="3,2" opacity="0.8" />';
+    for (var faction=1; faction<3; faction++) {
+      var col = COLORS[faction];
+
+      var points=[];
+      for (var cp=1; cp<regionScore.MAX_CYCLES; cp++) {
+        var score = regionScore.getAvgScoreAtCP(faction, cp);
+
+        var x = cp*10+40;
+        var y = scaleFct(score);
+        points.push(x+','+y);
+      }
+
+      path += '<polyline points="'+points.join(' ')+'" stroke="'+col+'" stroke-dasharray="3,2" opacity="0.8" fill="none"/>';
     }
     
     return path;
