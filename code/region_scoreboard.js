@@ -191,36 +191,35 @@ RegionScoreboard.HistoryChart = (function () {
    }
   
   function svgFactionPath() {
-    var teamPaths = [[],[]];
-
-    for (var i=0; i<regionScore.checkpoints.length; i++) {
-      var x=i*10+40;
-        
-      if (regionScore.checkpoints[i] !== undefined) {
-          
-        // paths
-        if (i>0 && regionScore.checkpoints[i-1] !== undefined) {
-          for (var t=0; t<2; t++) {
-            teamPaths[t].push('M'+(x-10)+','+scaleFct(regionScore.checkpoints[i-1][t])+' L'+x+','+scaleFct(regionScore.checkpoints[i][t]));
-          }
-        }
-        // markers
-        svgObjects.push('<g title="test" class="checkpoint" data-cp="'+i+'" data-enl="'+regionScore.checkpoints[i][0]+'" data-res="'+regionScore.checkpoints[i][1]+'">');
-        svgObjects.push('<rect x="'+(i*10+35)+'" y="10" width="10" height="100" fill="black" fill-opacity="0" />');
-        for (var t=0; t<2; t++) {
-          var col = getFactionColor(t);
-          svgObjects.push('<circle cx="'+x+'" cy="'+scaleFct(regionScore.checkpoints[i][t])+'" r="3" stroke-width="1" stroke="'+col+'" fill="'+col+'" fill-opacity="0.5" />');
-        }
-        svgObjects.push('</g>');
-      }
-    }
     
-    var svgPath='';
+    var svgPath = '';
+
     for (var t=0; t<2; t++) {
-        var col = getFactionColor(t);
-        if (teamPaths[t].length > 0) {
-            svgPath += '<path d="'+teamPaths[t].join(' ')+'" stroke="'+col+'" />';
+      
+      var col = getFactionColor(t);
+      var teamPaths = [];
+      
+      for (var i=1; i<regionScore.checkpoints.length; i++) {
+        
+        if (regionScore.checkpoints[i] !== undefined) {
+
+          var x=i*10+40;
+          
+          // paths
+          teamPaths.push(x+','+scaleFct(regionScore.checkpoints[i][t]));
+          
+          // markers
+          svgObjects.push('<g class="checkpoint" data-cp="'+i+'" data-enl="'+regionScore.checkpoints[i][0]+'" data-res="'+regionScore.checkpoints[i][1]+'">');
+          svgObjects.push('<rect x="'+(i*10+35)+'" y="10" width="10" height="100" fill="black" fill-opacity="0" />');
+        
+          svgObjects.push('<circle cx="'+x+'" cy="'+scaleFct(regionScore.checkpoints[i][t])+'" r="3" stroke-width="1" stroke="'+col+'" fill="'+col+'" fill-opacity="0.5" />');
+          svgObjects.push('</g>');
         }
+      }
+      
+      if (teamPaths.length > 0) {
+          svgPath += '<polyline points="'+teamPaths.join(' ')+'" stroke="'+col+'" fill="none" />';
+      }
     }
     
     return svgPath;
@@ -303,9 +302,9 @@ RegionScoreboard.HistoryChart = (function () {
         Math.log10 = function(x) { return Math.log(x) / Math.LN10; };
         
       // 0 cannot be displayed on a log scale, so we set the minimum to 0.001 and divide by lg(0.001)=-3
-      scaleFct = function(y) { return  10 - Math.log10(Math.max(0.001,y/max)) / 3 * 100; }
+      scaleFct = function(y) { return Math.round(10 - Math.log10(Math.max(0.001,y/max)) / 3 * 100); }
     } else {
-      scaleFct = function(y) { return 110-y/max*100; };
+      scaleFct = function(y) { return Math.round(110-y/max*100); };
     }
   }
 
