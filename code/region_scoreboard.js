@@ -40,22 +40,24 @@ var RegionScoreboard = (function () {
       }
 
     this.getAvgScoreAtCP = function(faction, cp_idx) {
-      var score = 0;
-      var count = 0;
       var idx = faction==TEAM_RES? 1:0;
 
-      cp_idx = Math.min(cp_idx,this.checkpoints.length);
+      var score = 0;
+      var count = 0;
+      var cp_len = Math.min(cp_idx,this.checkpoints.length);
 
-      for (var i=1; i<cp_idx; i++) {
+      for (var i=1; i<=cp_len; i++) {
         if (this.checkpoints[i] != undefined) {
           score += this.checkpoints[i][idx];
           count++;
         }
       }
 
-      var total_score = score + this.getScoreMedian(faction)*(this.MAX_CYCLES-count);
+      if (count < cp_idx) {
+        score += this.getScoreMedian(faction)*(cp_idx-count);
+      }
 
-      return Math.floor(total_score / this.MAX_CYCLES);
+      return Math.floor(score / cp_idx);
     }
 
 
