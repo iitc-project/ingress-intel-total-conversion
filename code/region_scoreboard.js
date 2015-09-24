@@ -313,7 +313,7 @@ RegionScoreboard.HistoryChart = (function () {
   }
 
   function formatNumber(num) {
-    return i>=1000000000 ? i/1000000000+'B' : i>=1000000 ? i/1000000+'M' : i>=1000 ? i/1000+'k' : i;
+    return (num>=1000000000 ? num/1000000000+'B' : num>=1000000 ? num/1000000+'M' : num>=1000 ? num/1000+'k' : num);
   }
   
   return {
