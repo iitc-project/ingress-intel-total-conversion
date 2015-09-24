@@ -165,7 +165,7 @@ RegionScoreboard.HistoryChart = (function () {
   var regionScore;
   var scaleFct;
   var logscale;
-  var svgObjects;
+  var svgTickText;
   
   function create(_regionScore,logscale) {
     regionScore = _regionScore;
@@ -174,8 +174,8 @@ RegionScoreboard.HistoryChart = (function () {
     max *= 1.09;      // scale up maximum a little, so graph isn't squashed right against upper edge
     setScaleType(max,logscale)
       
-    svgObjects = [];
-
+    svgTickText = [];
+    
     // svg area 400x130. graph area 350x100, offset to 40,10
     var svg= '<div><svg width="400" height="133" style="margin-left: 10px;">'
            + svgBackground()
@@ -183,7 +183,7 @@ RegionScoreboard.HistoryChart = (function () {
            + svgAveragePath()
            + svgFactionPath()
            + svgCheckPointMarkers()
-           + svgObjects.join('')
+           + svgTickText.join('')
            + '<foreignObject height="18" width="45" y="111" x="0" class="node"><label title="Logarithmic scale">'
            +  '<input type="checkbox" class="logscale" style="height:auto;padding:0;vertical-align:middle"'+(logscale?' checked':'')+'/>'
            +  'log</label></foreignObject>'
@@ -219,22 +219,24 @@ RegionScoreboard.HistoryChart = (function () {
   
   function svgCheckPointMarkers() {
     
+    var markers = '';
+    
     var col1 = getFactionColor(0);
     var col2 = getFactionColor(1);
     
     for (var i=1; i<regionScore.checkpoints.length; i++) {
       if (regionScore.checkpoints[i] !== undefined) {
-        svgObjects.push('<g title="dummy" class="checkpoint" data-cp="'+i+'" data-enl="'+regionScore.checkpoints[i][0]+'" data-res="'+regionScore.checkpoints[i][1]+'">');
-        svgObjects.push('<rect x="'+(i*10+35)+'" y="10" width="10" height="100" fill="black" fill-opacity="0" />');
-        svgObjects.push('<circle cx="'+(i*10+40)+'" cy="'+scaleFct(regionScore.checkpoints[i][0])+'" r="3" stroke-width="1" stroke="'+col1+'" fill="'+col1+'" fill-opacity="0.5" />');
-        svgObjects.push('<circle cx="'+(i*10+40)+'" cy="'+scaleFct(regionScore.checkpoints[i][1])+'" r="3" stroke-width="1" stroke="'+col2+'" fill="'+col2+'" fill-opacity="0.5" />');
-        svgObjects.push('</g>');
+        
+        markers += '<g title="dummy" class="checkpoint" data-cp="'+i+'" data-enl="'+regionScore.checkpoints[i][0]+'" data-res="'+regionScore.checkpoints[i][1]+'">'
+                  +'<rect x="'+(i*10+35)+'" y="10" width="10" height="100" fill="black" fill-opacity="0" />'
+                  +'<circle cx="'+(i*10+40)+'" cy="'+scaleFct(regionScore.checkpoints[i][0])+'" r="3" stroke-width="1" stroke="'+col1+'" fill="'+col1+'" fill-opacity="0.5" />'
+                  +'<circle cx="'+(i*10+40)+'" cy="'+scaleFct(regionScore.checkpoints[i][1])+'" r="3" stroke-width="1" stroke="'+col2+'" fill="'+col2+'" fill-opacity="0.5" />'
+                  +'</g>';
       }
     }
     
-    return '';
+    return markers;
   }
-  
    
   function svgBackground() {
     return '<rect x="0" y="1" width="400" height="132" stroke="#FFCE00" fill="#08304E" />';
@@ -252,8 +254,7 @@ RegionScoreboard.HistoryChart = (function () {
           var y = scaleFct(i);
 
           ticks.push('M40,'+y+' L390,'+y);
-        
-          svgObjects.push('<text x="35" y="'+y+'" font-size="12" font-family="Roboto, Helvetica, sans-serif" text-anchor="end" fill="#fff">'+formatNumber(i)+'</text>');
+          svgTickText.push('<text x="35" y="'+y+'" font-size="12" font-family="Roboto, Helvetica, sans-serif" text-anchor="end" fill="#fff">'+formatNumber(i)+'</text>');
       }
     
       // vertical
@@ -287,7 +288,7 @@ RegionScoreboard.HistoryChart = (function () {
     for (var i=5; i<=35; i+=5) {
       var x=i*10+40;
       ticks.push('M'+x+',10 L'+x+',110');
-      svgObjects.push('<text x="'+x+'" y="125" font-size="12" font-family="Roboto, Helvetica, sans-serif" text-anchor="middle" fill="#fff">'+i+'</text>');
+      svgTickText.push('<text x="'+x+'" y="125" font-size="12" font-family="Roboto, Helvetica, sans-serif" text-anchor="middle" fill="#fff">'+i+'</text>');
     }
     
     return ticks;
