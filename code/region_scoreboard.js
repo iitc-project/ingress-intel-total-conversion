@@ -1,5 +1,5 @@
 
-var RegionScoreboard = (function () {
+RegionScoreboard = (function () {
   
   var mainDialog;
   var regionScore;
@@ -65,6 +65,7 @@ var RegionScoreboard = (function () {
         if (this.median[faction]<0) {
             var idx = faction==TEAM_RES? 1:0;
             var values = this.checkpoints.map( function (val) { return val[idx];} );
+            values = values.filter(function(n){ return n != undefined }); 
             this.median[faction] = this.findMedian(values);
         }
 
@@ -72,8 +73,8 @@ var RegionScoreboard = (function () {
     }
 
     this.findMedian = function(values) {
-        var len = values.length
-        var rank = Math.floor((len-1)/2)
+        var len = values.length;
+        var rank = Math.floor((len-1)/2);
 
         var l=0, m=len-1;
         var b,i,j,x;
