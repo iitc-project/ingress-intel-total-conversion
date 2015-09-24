@@ -36,8 +36,8 @@ var RegionScoreboard = (function () {
           return max;
       }
    }
-  
-  function showScoreboard() {
+   
+  function showDialog() {
     // TODO: rather than just load the region scores for the center of the map, display a list of regions in the current view
     // and let the user select one (with automatic selection when just one region, and limited to close enough zooms so list size is reasonable)
     var latLng = map.getCenter();
@@ -52,8 +52,8 @@ var RegionScoreboard = (function () {
         onRequestFailure);
   };
 
-  // TODO: DEPRECATED replace with "window.RegionScoreboard.showScoreboard();"
-  window.regionScoreboard = showScoreboard;
+  // TODO: DEPRECATED replace with "window.RegionScoreboard.showDialog();"
+  window.regionScoreboard = showDialog;
   
   function onRequestFailure() {
     mainDialog.html('Failed to load region scores - try again');
@@ -73,7 +73,7 @@ var RegionScoreboard = (function () {
     // we need some divs to make the accordion work properly
     mainDialog.html('<div class="cellscore">'
            +'<b>Region scores for '+regionScore.regionName+'</b>'
-           +'<div><table>'+createResults()+'</table>'
+           +'<div>'+createResults()
            +RegionScoreboard.HistoryChart.create(regionScore, logscale)+'</div>'
            +'<b>Checkpoint overview</b>'
            +'<div>'+createHistoryTable()+'</div>'
@@ -137,7 +137,7 @@ var RegionScoreboard = (function () {
       var maxAverage = regionScore.getAvgScoreMax();
       var order = (PLAYER.team == 'RESISTANCE' ? [TEAM_RES,TEAM_ENL]:[TEAM_ENL,TEAM_RES])
       
-      var result = '';
+      var result = '<table style="margin: auto;">';
       for (var t=0; t<2; t++) {
           var faction = order[t];
           var team = window.TEAM_NAMES[faction];
@@ -145,16 +145,17 @@ var RegionScoreboard = (function () {
           var teamCol = COLORS[faction];
           var barSize = Math.round(regionScore.getAvgScore(faction)/maxAverage*200);
           result += '<tr><th class="'+teamClass+'">'+team+'</th>'
-                  + '<td class="'+teamClass+'">'+digits(regionScore.getAvgScore(faction))+'</td>'
-                  + '<td><div style="background:'+teamCol+'; width: '+barSize+'px; height: 1.3ex; border: 2px outset '+teamCol+'; margin-top: 2px"> </td></tr>';
+                  + '<td class="'+teamClass+'" align="right">'+digits(regionScore.getAvgScore(faction))+'</td>'
+                  + '<td><div style="background:'+teamCol+'; width: '+barSize+'px; height: 1.3ex; border: 2px outset '+teamCol+'; margin-top: 2px"> </td>'
+                  + '<td class="'+teamClass+'" align="right"><small>( '+digits(regionScore.getAvgScoreAtCP(faction,35))+' )</small></td>'
+                  + '</tr>';
       }
 
-      return result;
+      return result+'</table>';
   }
    
-
   return {
-    showScoreboard
+    showDialog
   };
   
 }());
@@ -176,11 +177,12 @@ RegionScoreboard.HistoryChart = (function () {
     svgObjects = [];
 
     // svg area 400x130. graph area 350x100, offset to 40,10
-    var svg= '<div><svg width="400" height="130">'
+    var svg= '<div><svg width="400" height="133" style="margin-left: 10px;">'
            + svgBackground()
            + svgAxis(max)
            + svgAveragePath()
            + svgFactionPath()
+           + svgCheckPointMarkers()
            + svgObjects.join('')
            + '<foreignObject height="18" width="45" y="111" x="0" class="node"><label title="Logarithmic scale">'
            +  '<input type="checkbox" class="logscale" style="height:auto;padding:0;vertical-align:middle"'+(logscale?' checked':'')+'/>'
@@ -202,18 +204,8 @@ RegionScoreboard.HistoryChart = (function () {
       for (var i=1; i<regionScore.checkpoints.length; i++) {
         
         if (regionScore.checkpoints[i] !== undefined) {
-
           var x=i*10+40;
-          
-          // paths
           teamPaths.push(x+','+scaleFct(regionScore.checkpoints[i][t]));
-          
-          // markers
-          svgObjects.push('<g class="checkpoint" data-cp="'+i+'" data-enl="'+regionScore.checkpoints[i][0]+'" data-res="'+regionScore.checkpoints[i][1]+'">');
-          svgObjects.push('<rect x="'+(i*10+35)+'" y="10" width="10" height="100" fill="black" fill-opacity="0" />');
-        
-          svgObjects.push('<circle cx="'+x+'" cy="'+scaleFct(regionScore.checkpoints[i][t])+'" r="3" stroke-width="1" stroke="'+col+'" fill="'+col+'" fill-opacity="0.5" />');
-          svgObjects.push('</g>');
         }
       }
       
@@ -221,13 +213,31 @@ RegionScoreboard.HistoryChart = (function () {
           svgPath += '<polyline points="'+teamPaths.join(' ')+'" stroke="'+col+'" fill="none" />';
       }
     }
-    
+      
     return svgPath;
+  }
+  
+  function svgCheckPointMarkers() {
+    
+    var col1 = getFactionColor(0);
+    var col2 = getFactionColor(1);
+    
+    for (var i=1; i<regionScore.checkpoints.length; i++) {
+      if (regionScore.checkpoints[i] !== undefined) {
+        svgObjects.push('<g class="checkpoint" data-cp="'+i+'" data-enl="'+regionScore.checkpoints[i][0]+'" data-res="'+regionScore.checkpoints[i][1]+'">');
+        svgObjects.push('<rect x="'+(i*10+35)+'" y="10" width="10" height="100" fill="black" fill-opacity="0" />');
+        svgObjects.push('<circle cx="'+(i*10+40)+'" cy="'+scaleFct(regionScore.checkpoints[i][0])+'" r="3" stroke-width="1" stroke="'+col1+'" fill="'+col1+'" fill-opacity="0.5" />');
+        svgObjects.push('<circle cx="'+(i*10+40)+'" cy="'+scaleFct(regionScore.checkpoints[i][1])+'" r="3" stroke-width="1" stroke="'+col2+'" fill="'+col2+'" fill-opacity="0.5" />');
+        svgObjects.push('</g>');
+      }
+    }
+    
+    return '';
   }
   
    
   function svgBackground() {
-    return '<rect x="0" y="0" width="400" height="130" stroke="#FFCE00" fill="#08304E" />';
+    return '<rect x="0" y="1" width="400" height="132" stroke="#FFCE00" fill="#08304E" />';
   }
 
   function svgAxis(max) {
