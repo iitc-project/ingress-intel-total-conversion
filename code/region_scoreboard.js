@@ -224,7 +224,7 @@ RegionScoreboard.HistoryChart = (function () {
     
     for (var i=1; i<regionScore.checkpoints.length; i++) {
       if (regionScore.checkpoints[i] !== undefined) {
-        svgObjects.push('<g class="checkpoint" data-cp="'+i+'" data-enl="'+regionScore.checkpoints[i][0]+'" data-res="'+regionScore.checkpoints[i][1]+'">');
+        svgObjects.push('<g title="dummy" class="checkpoint" data-cp="'+i+'" data-enl="'+regionScore.checkpoints[i][0]+'" data-res="'+regionScore.checkpoints[i][1]+'">');
         svgObjects.push('<rect x="'+(i*10+35)+'" y="10" width="10" height="100" fill="black" fill-opacity="0" />');
         svgObjects.push('<circle cx="'+(i*10+40)+'" cy="'+scaleFct(regionScore.checkpoints[i][0])+'" r="3" stroke-width="1" stroke="'+col1+'" fill="'+col1+'" fill-opacity="0.5" />');
         svgObjects.push('<circle cx="'+(i*10+40)+'" cy="'+scaleFct(regionScore.checkpoints[i][1])+'" r="3" stroke-width="1" stroke="'+col2+'" fill="'+col2+'" fill-opacity="0.5" />');
