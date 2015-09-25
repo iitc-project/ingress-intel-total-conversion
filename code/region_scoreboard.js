@@ -3,34 +3,39 @@ RegionScoreboard = (function () {
 
   var mainDialog;
   var regionScore;
+  var timer;
 
   function RegionScore(serverResult) {
-      this.ori_data = serverResult;
-      this.topAgents = serverResult.topAgents;
-      this.regionName = serverResult.regionName;
-      this.gameScore = serverResult.gameScore;
+    this.ori_data = serverResult;
+    this.topAgents = serverResult.topAgents;
+    this.regionName = serverResult.regionName;
+    this.gameScore = serverResult.gameScore;
+    this.cpEndTime;
 
-      this.median=[-1,-1,-1];
-      this.MAX_CYCLES = 35;
+    this.median=[-1,-1,-1];
+    this.MAX_CYCLES = 35;
 
-      this.checkpoints = []
-      for (var i=0; i<serverResult.scoreHistory.length; i++) {
-          var h = serverResult.scoreHistory[i];
-          this.checkpoints[parseInt(h[0])] = [parseInt(h[1]), parseInt(h[2])];
-      }
+    this.checkpoints = [];
+    for (var i=0; i<serverResult.scoreHistory.length; i++) {
+        var h = serverResult.scoreHistory[i];
+        this.checkpoints[parseInt(h[0])] = [parseInt(h[1]), parseInt(h[2])];
+    }
 
-      this.hasNoTopAgents = function () {
+    var curdate = new Date().valueOf()+serverResult.timeToEndOfBaseCycleMs;
+    this.cpEndTime = new Date( curdate - curdate%(1000*60*60));
+
+    this.hasNoTopAgents = function () {
         return this.topAgents.length==0;
       }
 
-      this.getAvgScore = function(faction) {
+    this.getAvgScore = function(faction) {
           return parseInt(this.gameScore[ faction===TEAM_ENL? 0:1 ]);
       }
-      this.getAvgScoreMax = function() {
+    this.getAvgScoreMax = function() {
           return Math.max(this.getAvgScore(TEAM_ENL), this.getAvgScore(TEAM_RES), 1);
       }
 
-      this.getScoreMax = function(min_value) {
+    this.getScoreMax = function(min_value) {
           var max = min_value || 0;
           for (var i=1; i<this.checkpoints.length; i++) {
               var cp = this.checkpoints[i];
@@ -97,7 +102,21 @@ RegionScoreboard = (function () {
         }
         return values[rank];
     }
-   }
+
+    this.getCurrentCP = function() {
+      return this.checkpoints.length;
+    }
+
+    this.getCycleEnd = function() {
+      var end = new Date(this.cpEndTime.getTime());
+      end.setHours(end.getHours()+(this.MAX_CYCLES-this.getCurrentCP())*5);
+      return end;
+    }
+
+    this.getCheckpointEnd = function() {
+      return this.cpEndTime;
+    }
+  }
 
   function showDialog() {
     // TODO: rather than just load the region scores for the center of the map, display a list of regions in the current view
@@ -107,7 +126,7 @@ RegionScoreboard = (function () {
     var latE6 = Math.round(latLng.lat*1E6);
     var lngE6 = Math.round(latLng.lng*1E6);
 
-    mainDialog = dialog({title:'Region scores',html:'Loading regional scores...',width:450,minHeight:320});
+    mainDialog = dialog({title:'Region scores',html:'Loading regional scores...',width:450,minHeight:340,closeCallback:onDialogClose});
 
     window.postAjax('getRegionScoreDetails', {latE6:latE6,lngE6:lngE6},
         onRequestSuccess,
@@ -128,6 +147,7 @@ RegionScoreboard = (function () {
 
       regionScore = new RegionScore(data.result);
       updateDialog();
+      startTimer();
    }
 
   function updateDialog(logscale) {
@@ -141,7 +161,8 @@ RegionScoreboard = (function () {
            +'<div>'+createHistoryTable()+'</div>'
            +'<b>Top agents</b>'
            +'<div>'+createAgentTable()+'</div>'
-           +'</div>');
+           +'</div>'
+           + createTimers() );
 
     $('g.checkpoint', mainDialog).each(function(i, elem) {
       elem = $(elem);
@@ -169,7 +190,13 @@ RegionScoreboard = (function () {
       var input = $(this);
       updateDialog(input.prop('checked'));
     });
+
   }
+
+  function onDialogClose() {
+    stopTimer();
+  }
+
 
   function createHistoryTable() {
     var history = regionScore.checkpoints;
@@ -258,6 +285,55 @@ RegionScoreboard = (function () {
     return res;
   }
 
+
+  function createTimers() {
+    var nextcp = regionScore.getCheckpointEnd();
+    var nextcpstr = ('0'+nextcp.getHours()).slice(-2)+':00';
+
+    var endcp = regionScore.getCycleEnd();
+    var endcpstr = ('0'+endcp.getDate()).slice(-2)+'.'+('0'+(endcp.getMonth()+1)).slice(-2)+' '+('0'+endcp.getHours()).slice(-2)+':00';
+
+    return '<div><table style="margin: auto; width: 400px; padding-top: 4px"><tr><td align="left" width="33%">t- <span id="cycletimer"></span></td>'
+          +'<td align="center" width="33%">cp at: '+nextcpstr +'</td>'
+          +'<td align="right" width="33%">cycle: '+endcpstr+'</td></tr></table></div>'    ;
+  }
+
+  function startTimer() {
+    stopTimer();
+
+    timer = window.setInterval(onTimer, 1000);
+    onTimer();
+  }
+
+  function stopTimer() {
+    if (timer) {
+      window.clearInterval(timer);
+      timer = undefined;
+    }
+  }
+
+  function onTimer() {
+    var d = regionScore.cpEndTime-(new Date());
+    $("#cycletimer",mainDialog).html(formatMinutes( Math.floor(d/1000)) );
+  }
+
+  function formatMinutes(sec) {
+    var hours   = Math.floor(sec / 3600);
+    var minutes = Math.floor((sec % 3600) / 60);
+    sec = sec % 60;
+
+    var time='';
+    time += hours+':';
+    if (minutes<10) time += '0';
+    time += minutes;
+    time += ':';
+    if (sec<10) time+= '0';
+    time += sec;
+    return time;
+  }
+
+
+
   return {
     showDialog
   };
@@ -305,7 +381,7 @@ RegionScoreboard.HistoryChart = (function () {
       var col = getFactionColor(t);
       var teamPaths = [];
 
-      for (var i=1; i<regionScore.checkpoints.length; i++) {
+      for (var i=1; i<=regionScore.checkpoints.length; i++) {
 
         if (regionScore.checkpoints[i] !== undefined) {
           var x=i*10+40;
@@ -328,7 +404,7 @@ RegionScoreboard.HistoryChart = (function () {
     var col1 = getFactionColor(0);
     var col2 = getFactionColor(1);
 
-    for (var i=1; i<regionScore.checkpoints.length; i++) {
+    for (var i=1; i<=regionScore.checkpoints.length; i++) {
       if (regionScore.checkpoints[i] !== undefined) {
 
         markers += '<g title="dummy" class="checkpoint" data-cp="'+i+'" data-enl="'+regionScore.checkpoints[i][0]+'" data-res="'+regionScore.checkpoints[i][1]+'">'
