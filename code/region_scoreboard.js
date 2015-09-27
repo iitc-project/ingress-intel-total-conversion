@@ -16,13 +16,6 @@ RegionScoreboard = (function () {
     this.MAX_CYCLES = 35;
 
     this.checkpoints = [];
-    for (var i=0; i<serverResult.scoreHistory.length; i++) {
-        var h = serverResult.scoreHistory[i];
-        this.checkpoints[parseInt(h[0])] = [parseInt(h[1]), parseInt(h[2])];
-    }
-
-    var curdate = new Date().valueOf()+serverResult.timeToEndOfBaseCycleMs;
-    this.cpEndTime = new Date( curdate - curdate%(1000*60*60));
 
     this.hasNoTopAgents = function () {
         return this.topAgents.length==0;
@@ -34,6 +27,10 @@ RegionScoreboard = (function () {
     this.getAvgScoreMax = function() {
           return Math.max(this.getAvgScore(TEAM_ENL), this.getAvgScore(TEAM_RES), 1);
       }
+
+    this.getCPScore = function(cp) {
+      return this.checkpoints[cp];
+    }
 
     this.getScoreMax = function(min_value) {
           var max = min_value || 0;
@@ -78,8 +75,10 @@ RegionScoreboard = (function () {
     }
 
     this.findMedian = function(values) {
-        var len = values.length;
-        var rank = Math.floor((len-1)/2);
+      var len = values.length;
+      var rank = Math.floor((len-1)/2);
+
+      if (len===0) return 0;
 
         var l=0, m=len-1;
         var b,i,j,x;
@@ -103,19 +102,28 @@ RegionScoreboard = (function () {
         return values[rank];
     }
 
-    this.getCurrentCP = function() {
-      return this.checkpoints.length;
+    this.getLastCP = function() {
+      if (this.checkpoints.length==0) return 0;
+      return this.checkpoints.length-1;
     }
 
     this.getCycleEnd = function() {
-      var end = new Date(this.cpEndTime.getTime());
-      end.setHours(end.getHours()+(this.MAX_CYCLES-this.getCurrentCP())*5);
+      return this.getCheckpointEnd(this.MAX_CYCLES);
+    }
+
+    this.getCheckpointEnd = function(cp) {
+      var end = new Date(this.cycleStartTime.getTime());
+      end.setHours(end.getHours()+cp*5);
       return end;
     }
 
-    this.getCheckpointEnd = function() {
-      return this.cpEndTime;
+    for (var i=0; i<serverResult.scoreHistory.length; i++) {
+        var h = serverResult.scoreHistory[i];
+        this.checkpoints[parseInt(h[0])] = [parseInt(h[1]), parseInt(h[2])];
     }
+
+    var curdate = new Date().valueOf()+serverResult.timeToEndOfBaseCycleMs;
+    this.cycleStartTime  = new Date( curdate - curdate%(1000*60*60)-1000*60*60*5*(1+this.getLastCP()));
   }
 
   function showDialog() {
@@ -167,9 +175,16 @@ RegionScoreboard = (function () {
     $('g.checkpoint', mainDialog).each(function(i, elem) {
       elem = $(elem);
 
-      var tooltip = 'CP:\t'+elem.attr('data-cp')
-        + '\nEnl:\t' + digits(elem.attr('data-enl'))
-        + '\nRes:\t' + digits(elem.attr('data-res'));
+      var cp = parseInt(elem.attr('data-cp'));
+      var scores = regionScore.getCPScore(cp);
+      var enl_str = scores ? '\nEnl:\t' + digits(scores[0]) : ''
+      var res_str = scores ? '\nRes:\t' + digits(scores[1]) : ''
+
+      var tooltip = 'CP:\t'+cp+'\t-\t'+formatDayHours(regionScore.getCheckpointEnd(cp))
+        + '\n<hr>'
+        + enl_str
+        + res_str;
+
       elem.tooltip({
         content: convertTextToTableMagic(tooltip),
         position: {my: "center bottom", at: "center top-10"}
@@ -199,11 +214,11 @@ RegionScoreboard = (function () {
 
 
   function createHistoryTable() {
-    var history = regionScore.checkpoints;
-    var table = '<table class="checkpoint_table"><thead><tr><th>Checkpoint</th><th>Enlightened</th><th>Resistance</th></tr></thead>';
+    var table = '<table class="checkpoint_table" width="90%" align="right"><thead><tr><th>Time</th><th>Checkpoint</th><th>Enlightened</th><th>Resistance</th></tr></thead>';
 
-    for(var i=history.length-1; i>0; i--) {
-      table += '<tr><td>' + i + '</td><td>' + digits(history[i][0]) + '</td><td>' + digits(history[i][1]) + '</td></tr>';
+    for(var cp=regionScore.getLastCP(); cp>0; cp--) {
+      var score = regionScore.getCPScore(cp);
+      table += '<tr><td>'+formatDayHours(regionScore.getCheckpointEnd(cp))+'</td><td>'+cp+'</td><td>' + digits(score[0]) + '</td><td>' + digits(score[1]) + '</td></tr>';
     }
 
     table += '</table>';
@@ -256,6 +271,11 @@ RegionScoreboard = (function () {
 
     var order = (loosing_faction == TEAM_ENL ? [TEAM_RES,TEAM_ENL]:[TEAM_ENL,TEAM_RES])
 
+    function percentToString(score,total) {
+      if (total===0) return '50%';
+      return (Math.round( score/total * 10000)/100)+'%';
+    }
+
     var res='Current:\n';
     var total = regionScore.getAvgScore(TEAM_RES)+regionScore.getAvgScore(TEAM_ENL);
     for (var t=0; t<2; t++) {
@@ -263,7 +283,7 @@ RegionScoreboard = (function () {
       var score = regionScore.getAvgScore(faction);
       res += window.TEAM_NAMES[faction]+'\t'
           + digits(score)+'\t'
-          + Math.round( score/total * 10000)/100+ '%\n';
+          + percentToString( score,total)+'\n';
     }
 
     res +='<hr>\nEstiminated:\n';
@@ -273,12 +293,12 @@ RegionScoreboard = (function () {
       var score = regionScore.getAvgScoreAtCP(faction,regionScore.MAX_CYCLES);
       res += window.TEAM_NAMES[faction]+'\t'
           + digits(score)+'\t'
-          + Math.round( score/total * 10000)/100+ '%\n';
+          + percentToString( score,total)+'\n';
     }
 
     var required_mu = Math.abs(e_res-e_enl) * regionScore.MAX_CYCLES+1;
     res +='<hr>\n' + window.TEAM_NAMES[loosing_faction]+' requires:\n';
-    for (var cp = 1; cp+regionScore.checkpoints.length<regionScore.MAX_CYCLES && cp<6;cp++) {
+    for (var cp = 1; cp+regionScore.getLastCP()<=regionScore.MAX_CYCLES && cp<6;cp++) {
       res += cp+' cycles\t+'+digits(Math.ceil(required_mu/cp))+'\n';
     }
 
@@ -287,15 +307,12 @@ RegionScoreboard = (function () {
 
 
   function createTimers() {
-    var nextcp = regionScore.getCheckpointEnd();
-    var nextcpstr = ('0'+nextcp.getHours()).slice(-2)+':00';
-
+    var nextcp = regionScore.getCheckpointEnd( regionScore.getLastCP() );
     var endcp = regionScore.getCycleEnd();
-    var endcpstr = ('0'+endcp.getDate()).slice(-2)+'.'+('0'+(endcp.getMonth()+1)).slice(-2)+' '+('0'+endcp.getHours()).slice(-2)+':00';
 
     return '<div><table style="margin: auto; width: 400px; padding-top: 4px"><tr><td align="left" width="33%">t- <span id="cycletimer"></span></td>'
-          +'<td align="center" width="33%">cp at: '+nextcpstr +'</td>'
-          +'<td align="right" width="33%">cycle: '+endcpstr+'</td></tr></table></div>'    ;
+          +'<td align="center" width="33%">cp at: '+formatHours(nextcp) +'</td>'
+          +'<td align="right" width="33%">cycle: '+formatDayHours(endcp)+'</td></tr></table></div>'    ;
   }
 
   function startTimer() {
@@ -313,8 +330,8 @@ RegionScoreboard = (function () {
   }
 
   function onTimer() {
-    var d = regionScore.cpEndTime-(new Date());
-    $("#cycletimer",mainDialog).html(formatMinutes( Math.floor(d/1000)) );
+    var d = regionScore.getCheckpointEnd(regionScore.getLastCP()+1)-(new Date());
+    $("#cycletimer",mainDialog).html(formatMinutes( Math.max(0,Math.floor(d/1000))) );
   }
 
   function formatMinutes(sec) {
@@ -332,6 +349,12 @@ RegionScoreboard = (function () {
     return time;
   }
 
+  function formatHours(time) {
+    return ('0'+time.getHours()).slice(-2)+':00';
+  }
+  function formatDayHours(time) {
+    return ('0'+time.getDate()).slice(-2)+'.'+('0'+(time.getMonth()+1)).slice(-2)+' '+('0'+time.getHours()).slice(-2)+':00';
+  }
 
 
   return {
@@ -381,11 +404,12 @@ RegionScoreboard.HistoryChart = (function () {
       var col = getFactionColor(t);
       var teamPaths = [];
 
-      for (var i=1; i<=regionScore.checkpoints.length; i++) {
+      for (var cp=1; cp<=regionScore.getLastCP(); cp++) {
 
-        if (regionScore.checkpoints[i] !== undefined) {
-          var x=i*10+40;
-          teamPaths.push(x+','+scaleFct(regionScore.checkpoints[i][t]));
+        var score = regionScore.getCPScore(cp);
+        if (score !== undefined) {
+          var x=cp*10+40;
+          teamPaths.push(x+','+scaleFct(score[t]));
         }
       }
 
@@ -404,13 +428,14 @@ RegionScoreboard.HistoryChart = (function () {
     var col1 = getFactionColor(0);
     var col2 = getFactionColor(1);
 
-    for (var i=1; i<=regionScore.checkpoints.length; i++) {
-      if (regionScore.checkpoints[i] !== undefined) {
+    for (var cp=1; cp<=regionScore.getLastCP(); cp++) {
+      var scores = regionScore.getCPScore(cp);
 
-        markers += '<g title="dummy" class="checkpoint" data-cp="'+i+'" data-enl="'+regionScore.checkpoints[i][0]+'" data-res="'+regionScore.checkpoints[i][1]+'">'
-                  +'<rect x="'+(i*10+35)+'" y="10" width="10" height="100" fill="black" fill-opacity="0" />'
-                  +'<circle cx="'+(i*10+40)+'" cy="'+scaleFct(regionScore.checkpoints[i][0])+'" r="3" stroke-width="1" stroke="'+col1+'" fill="'+col1+'" fill-opacity="0.5" />'
-                  +'<circle cx="'+(i*10+40)+'" cy="'+scaleFct(regionScore.checkpoints[i][1])+'" r="3" stroke-width="1" stroke="'+col2+'" fill="'+col2+'" fill-opacity="0.5" />'
+      if (scores) {
+        markers += '<g title="dummy" class="checkpoint" data-cp="'+i+'">'
+                  +'<rect x="'+(cp*10+35)+'" y="10" width="10" height="100" fill="black" fill-opacity="0" />'
+                  +'<circle cx="'+(cp*10+40)+'" cy="'+scaleFct(scores[0])+'" r="3" stroke-width="1" stroke="'+col1+'" fill="'+col1+'" fill-opacity="0.5" />'
+                  +'<circle cx="'+(cp*10+40)+'" cy="'+scaleFct(scores[1])+'" r="3" stroke-width="1" stroke="'+col2+'" fill="'+col2+'" fill-opacity="0.5" />'
                   +'</g>';
       }
     }
