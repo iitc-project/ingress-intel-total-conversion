@@ -43,23 +43,22 @@
 
 - (void)loadScripts {
     NSError *error;
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"scripts/ios-hooks" ofType:@"js"];
-    NSString *js = [NSString stringWithContentsOfFile:path encoding:NSASCIIStringEncoding error:&error];
-    js = [NSString stringWithFormat:js,[[NSBundle mainBundle] objectForInfoDictionaryKey: @"CFBundleVersion"], [(NSString *)[[NSBundle mainBundle] objectForInfoDictionaryKey: (NSString *)kCFBundleVersionKey] integerValue]];
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 
-    
+    NSString *mainScriptPath = [paths[0] stringByAppendingPathComponent:@"original/scripts/total-conversion-build.user.js" ];
+    NSString *js = [NSString stringWithContentsOfFile:mainScriptPath encoding:NSUTF8StringEncoding error:&error];
     [self addJSBlock:js];
-    path = [[NSBundle mainBundle] pathForResource:@"scripts/total-conversion-build.user" ofType:@"js"];
-    js = [NSString stringWithContentsOfFile:path encoding:NSASCIIStringEncoding error:&error];
-        [self addJSBlock:js];
-    path = [[NSBundle mainBundle] pathForResource:@"scripts/user-location.user" ofType:@"js"];
-    js = [NSString stringWithContentsOfFile:path encoding:NSASCIIStringEncoding error:&error];
+    NSString *locationScriptPath = [paths[0] stringByAppendingPathComponent:@"original/scripts/user-location.user.js"];
+    js = [NSString stringWithContentsOfFile:locationScriptPath encoding:NSUTF8StringEncoding error:&error];
     [self addJSBlock:js];
-    NSString *resourcePath = [[NSBundle mainBundle] resourcePath];
-    NSString * pluginsPath = [resourcePath stringByAppendingPathComponent:@"scripts/plugins"];
+    NSString *hookPath = [[NSBundle mainBundle] pathForResource:@"scripts/ios-hooks" ofType:@"js"];
+    js = [NSString stringWithContentsOfFile:hookPath encoding:NSUTF8StringEncoding error:&error];
+    js = [NSString stringWithFormat:js,[[NSBundle mainBundle] objectForInfoDictionaryKey: @"CFBundleVersion"], [(NSString *)[[NSBundle mainBundle] objectForInfoDictionaryKey: (NSString *)kCFBundleVersionKey] integerValue]];
+    [self addJSBlock:js];
+    NSString * pluginsPath = [paths[0] stringByAppendingPathComponent:@"original/scripts/plugins"];
     for (NSString *scriptPath in [[ScriptsManager sharedInstance] loadedScripts]) {
-        path = [pluginsPath stringByAppendingPathComponent:scriptPath];
-        js = [NSString stringWithContentsOfFile:path encoding:NSASCIIStringEncoding error:&error];
+        NSString *path = [pluginsPath stringByAppendingPathComponent:scriptPath];
+        js = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
         [self addJSBlock:js];
     }
 }
