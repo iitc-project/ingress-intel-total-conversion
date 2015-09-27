@@ -9,6 +9,7 @@
 #import "AppDelegate.h"
 #import "ScriptsManager.h"
 #import "JSHandler.h"
+#import "MBProgressHUD.h"
 
 @interface AppDelegate ()
 
@@ -16,12 +17,18 @@
 
 @implementation AppDelegate
 
-
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     //Load LayersTableView here
     UIViewController *temp = [self.window.rootViewController.storyboard instantiateViewControllerWithIdentifier:@"menuViewController"];
-    [[ScriptsManager sharedInstance] loadLocalFiles];
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.window.rootViewController.view animated:YES];
+    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        [[ScriptsManager sharedInstance] loadLocalFiles];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [hud hide:YES];
+        });
+    });
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sharedAction:) name:JSNotificationSharedAction object:nil];
     return YES;
 }
