@@ -243,7 +243,7 @@ static ScriptsManager * _sharedInstance;
         NSData *temp = [NSURLConnection sendSynchronousRequest:[NSURLRequest requestWithURL:downloadUrl] returningResponse:&tempResponse error:&error];
         updatedJS = [[NSString alloc] initWithData:temp encoding:NSASCIIStringEncoding];
     }
-    [updatedJS writeToFile:filePath atomically:YES encoding:NSASCIIStringEncoding error:&error];
+    [updatedJS writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:&error];
     if (error) {
         return NO;
     }
