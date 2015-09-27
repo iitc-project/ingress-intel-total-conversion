@@ -28,6 +28,8 @@
 		B48991F01B63A136007749C3 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B48991EF1B63A136007749C3 /* CoreLocation.framework */; };
 		B4EB98911BA4A86E003307AB /* ScriptsManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B4EB98901BA4A86E003307AB /* ScriptsManagerTest.m */; };
 		B4ECA1851B7D055000425339 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4ECA1841B7D055000425339 /* MainViewController.m */; };
+		B4ED553A1BB72B7F00390457 /* ScriptsUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4ED55391BB72B7F00390457 /* ScriptsUtilities.swift */; settings = {ASSET_TAGS = (); }; };
+		B4ED553E1BB72BEB00390457 /* SettingsViewControllerNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4ED553D1BB72BEB00390457 /* SettingsViewControllerNew.swift */; settings = {ASSET_TAGS = (); }; };
 		BD7F105A62DA7101E71DF806 /* Pods.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B5F658178F82FF418ECB7F7 /* Pods.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 /* End PBXBuildFile section */
 
@@ -82,6 +84,9 @@
 		B4EB98921BA4A86E003307AB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B4ECA1831B7D055000425339 /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
 		B4ECA1841B7D055000425339 /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainViewController.m; sourceTree = "<group>"; };
+		B4ED55381BB72B7E00390457 /* IITC-Mobile-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "IITC-Mobile-Bridging-Header.h"; sourceTree = "<group>"; };
+		B4ED55391BB72B7F00390457 /* ScriptsUtilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScriptsUtilities.swift; sourceTree = "<group>"; };
+		B4ED553D1BB72BEB00390457 /* SettingsViewControllerNew.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewControllerNew.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -190,6 +195,7 @@
 				B487A5D31B6F6B19001CA21F /* Settings.bundle */,
 				B487A5D41B6F6B19001CA21F /* SettingsViewController.h */,
 				B487A5D51B6F6B19001CA21F /* SettingsViewController.m */,
+				B4ED553D1BB72BEB00390457 /* SettingsViewControllerNew.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -203,6 +209,8 @@
 				B487A5E61B6F6B36001CA21F /* Scripts.xcdatamodeld */,
 				B487A5E81B6F6B36001CA21F /* ScriptsManager.h */,
 				B487A5E91B6F6B36001CA21F /* ScriptsManager.m */,
+				B4ED55391BB72B7F00390457 /* ScriptsUtilities.swift */,
+				B4ED55381BB72B7E00390457 /* IITC-Mobile-Bridging-Header.h */,
 			);
 			path = ScriptsManager;
 			sourceTree = "<group>";
@@ -263,6 +271,7 @@
 		B44D19701B62A53300E94D98 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 0700;
 				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = IITC;
 				TargetAttributes = {
@@ -372,6 +381,8 @@
 			files = (
 				B487A5EC1B6F6B36001CA21F /* ScriptsManager.m in Sources */,
 				B48991E61B636917007749C3 /* JSHandler.m in Sources */,
+				B4ED553E1BB72BEB00390457 /* SettingsViewControllerNew.swift in Sources */,
+				B4ED553A1BB72B7F00390457 /* ScriptsUtilities.swift in Sources */,
 				B487A5DB1B6F6B19001CA21F /* LayersTableViewController.m in Sources */,
 				B487A5EA1B6F6B36001CA21F /* Script.m in Sources */,
 				B487A5EB1B6F6B36001CA21F /* Scripts.xcdatamodeld in Sources */,
@@ -510,12 +521,15 @@
 			baseConfigurationReference = 1E677BE34CE7CE12E1C0FA4A /* Pods.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = "IITC-Mobile/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.cradle.IITC-Mobile";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "IITC-Mobile/ScriptsManager/IITC-Mobile-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
@@ -524,12 +538,14 @@
 			baseConfigurationReference = 79E7B261A6578287E6208179 /* Pods.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = "IITC-Mobile/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.cradle.IITC-Mobile";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "IITC-Mobile/ScriptsManager/IITC-Mobile-Bridging-Header.h";
 			};
 			name = Release;
 		};
