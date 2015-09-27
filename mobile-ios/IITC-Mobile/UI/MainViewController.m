@@ -12,6 +12,7 @@
 #import "IITCLocation.h"
 #import "JSHandler.h"
 #import "SettingsViewController.h"
+#import "IITC_Mobile-Swift.h"
 
 static MainViewController *_viewController;
 
@@ -187,7 +188,7 @@ static MainViewController *_viewController;
 }
 
 - (void)settingButtonPressed:(id)aa {
-    SettingsViewController *vc = [[SettingsViewController alloc] init];
+    SettingsViewControllerNew *vc = [SettingsViewControllerNew new];
     vc.neverShowPrivacySettings = YES;
     vc.showDoneButton = NO;
     [self.navigationController pushViewController:vc animated:YES];
