@@ -15,5 +15,6 @@
 - (void)loadLocalFiles;
 - (void)update;
 - (NSSet*) loadedScripts;
+- (NSArray<NSString *> *)getAllScriptsPath;
 + (BOOL)updateScript:(NSString *)filePath;
 @end

@@ -45,6 +45,7 @@ static ScriptsManager * _sharedInstance;
     NSError *error;
     NSRange range = [js rangeOfString:@"==UserScript=="];
     NSRange range1 = [js rangeOfString:@"==/UserScript=="];
+    
     NSString *header = [js substringWithRange:NSMakeRange(range.location+range.length, range1.location-range.location-range.length)];
     NSMutableArray * fileLines = [[NSMutableArray alloc] initWithArray:[header componentsSeparatedByString:@"\n"] copyItems: YES];
     for (NSString *line in fileLines) {
@@ -70,8 +71,8 @@ static ScriptsManager * _sharedInstance;
         return YES;
     }
     NSError *error;
-    [@"copied" writeToFile:testFilePath atomically:YES encoding:NSASCIIStringEncoding error:&error];
-    NSString *scriptsPath = [(NSString *)paths[0] stringByAppendingPathComponent:@"original"];
+    [[NSFileManager defaultManager] createDirectoryAtPath:testFilePath withIntermediateDirectories:YES attributes:nil error:NULL];
+    NSString *scriptsPath = [(NSString *)paths[0] stringByAppendingPathComponent:@"original/scripts"];
     NSString *resScriptsPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"scripts"];
     [[NSFileManager defaultManager] copyItemAtPath:resScriptsPath toPath:scriptsPath error:&error];
     if (!error) {
@@ -86,7 +87,7 @@ static ScriptsManager * _sharedInstance;
     }
     
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString * documentsPath = [paths[0] stringByAppendingPathComponent:@"scripts/plugins"];
+    NSString * documentsPath = [paths[0] stringByAppendingPathComponent:@"original/scripts/plugins"];
     NSError * error;
     NSArray * directoryContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:documentsPath error:&error];
     for (NSString *file in directoryContents) {
@@ -174,6 +175,24 @@ static ScriptsManager * _sharedInstance;
     [ScriptsManager updateScript:testFilePath];
 }
 
+- (NSArray<NSString *> *)getAllScriptsPath {
+    NSEntityDescription *entityDescription = [NSEntityDescription
+                                              entityForName:@"Script" inManagedObjectContext:self.document.managedObjectContext];
+    NSFetchRequest *request = [[NSFetchRequest alloc] init];
+    [request setEntity:entityDescription];
+    
+    NSError *error;
+    NSArray *array = [self.document.managedObjectContext executeFetchRequest:request error:&error];
+    NSMutableArray *temp = [[NSMutableArray alloc] init];
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *scriptsPath = [(NSString *)paths[0] stringByAppendingPathComponent:@"original/scripts/plugins"];
+    [temp addObject:[(NSString *)paths[0] stringByAppendingPathComponent:@"original/scripts/total-conversion-build.user.js"]];
+    for (Script *script in array) {
+        [temp addObject:[scriptsPath stringByAppendingPathComponent: script.filePath]];
+    }
+    return temp;
+}
+
 - (NSSet *)loadedScripts {
     NSError *error;
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
@@ -186,13 +205,20 @@ static ScriptsManager * _sharedInstance;
 }
 
 + (BOOL)updateScript:(NSString *)filePath {
-    NSError *error;
+    NSError *error = nil;
     NSString * file = [NSString stringWithContentsOfFile:filePath encoding:NSASCIIStringEncoding error:&error];
+    if (error) {
+        return NO;
+    }
     NSDictionary *attributes = [self getScriptInfosFromJS:file];
     NSString* updateURL = attributes[@"updateURL"];
     NSString* downloadURL = attributes[@"downloadURL"];
     if (updateURL == nil) updateURL = downloadURL;
 
+    if (updateURL == nil) {
+        return NO;
+    }
+    
     NSURL *url = [NSURL URLWithString:updateURL];
     NSURLResponse *response;
     NSData *temp = [NSURLConnection sendSynchronousRequest:[NSURLRequest requestWithURL:url] returningResponse:&response error:&error];
@@ -218,6 +244,9 @@ static ScriptsManager * _sharedInstance;
         updatedJS = [[NSString alloc] initWithData:temp encoding:NSASCIIStringEncoding];
     }
     [updatedJS writeToFile:filePath atomically:YES encoding:NSASCIIStringEncoding error:&error];
+    if (error) {
+        return NO;
+    }
     return YES;
     
 }
