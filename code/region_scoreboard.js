@@ -172,24 +172,7 @@ RegionScoreboard = (function () {
            +'</div>'
            + createTimers() );
 
-    $('g.checkpoint', mainDialog).each(function(i, elem) {
-      elem = $(elem);
-
-      var cp = parseInt(elem.attr('data-cp'));
-      var scores = regionScore.getCPScore(cp);
-      var enl_str = scores ? '\nEnl:\t' + digits(scores[0]) : ''
-      var res_str = scores ? '\nRes:\t' + digits(scores[1]) : ''
-
-      var tooltip = 'CP:\t'+cp+'\t-\t'+formatDayHours(regionScore.getCheckpointEnd(cp))
-        + '\n<hr>'
-        + enl_str
-        + res_str;
-
-      elem.tooltip({
-        content: convertTextToTableMagic(tooltip),
-        position: {my: "center bottom", at: "center top-10"}
-      });
-    });
+    setupToolTips();
 
     tooltip = createResultTooltip();
     $('#overview', mainDialog).tooltip({
@@ -208,13 +191,38 @@ RegionScoreboard = (function () {
 
   }
 
+  function setupToolTips() {
+    $('g.checkpoint', mainDialog).each(function(i, elem) {
+      elem = $(elem);
+
+      var tooltip;
+      var cp = parseInt(elem.attr('data-cp'));
+      if (cp) {
+        var scores = regionScore.getCPScore(cp);
+        var enl_str = scores ? '\nEnl:\t' + digits(scores[0]) : ''
+        var res_str = scores ? '\nRes:\t' + digits(scores[1]) : ''
+
+        tooltip = 'CP:\t'+cp+'\t-\t'+formatDayHours(regionScore.getCheckpointEnd(cp))
+          + '\n<hr>'
+          + enl_str
+          + res_str;
+      }
+
+      elem.tooltip({
+        content: convertTextToTableMagic(tooltip),
+        position: {my: "center bottom", at: "center top-10"},
+        show: 100
+      });
+    });
+  }
+
   function onDialogClose() {
     stopTimer();
   }
 
 
   function createHistoryTable() {
-    var table = '<table class="checkpoint_table" width="90%" align="right"><thead><tr><th>Time</th><th>Checkpoint</th><th>Enlightened</th><th>Resistance</th></tr></thead>';
+    var table = '<table class="checkpoint_table" width="90%"><thead><tr><th>Time</th><th align="right">Checkpoint</th><th align="right">Enlightened</th><th align="right">Resistance</th></tr></thead>';
 
     for(var cp=regionScore.getLastCP(); cp>0; cp--) {
       var score = regionScore.getCPScore(cp);
@@ -307,7 +315,7 @@ RegionScoreboard = (function () {
 
 
   function createTimers() {
-    var nextcp = regionScore.getCheckpointEnd( regionScore.getLastCP() );
+    var nextcp = regionScore.getCheckpointEnd( regionScore.getLastCP()+1 );
     var endcp = regionScore.getCycleEnd();
 
     return '<div><table style="margin: auto; width: 400px; padding-top: 4px"><tr><td align="left" width="33%">t- <span id="cycletimer"></span></td>'
@@ -428,16 +436,18 @@ RegionScoreboard.HistoryChart = (function () {
     var col1 = getFactionColor(0);
     var col2 = getFactionColor(1);
 
-    for (var cp=1; cp<=regionScore.getLastCP(); cp++) {
+    for (var cp=1; cp<=regionScore.MAX_CYCLES; cp++) {
       var scores = regionScore.getCPScore(cp);
 
+      markers += '<g title="dummy" class="checkpoint" data-cp="'+cp+'">'
+              +'<rect x="'+(cp*10+35)+'" y="10" width="10" height="100" fill="black" fill-opacity="0" />';
+
       if (scores) {
-        markers += '<g title="dummy" class="checkpoint" data-cp="'+i+'">'
-                  +'<rect x="'+(cp*10+35)+'" y="10" width="10" height="100" fill="black" fill-opacity="0" />'
-                  +'<circle cx="'+(cp*10+40)+'" cy="'+scaleFct(scores[0])+'" r="3" stroke-width="1" stroke="'+col1+'" fill="'+col1+'" fill-opacity="0.5" />'
-                  +'<circle cx="'+(cp*10+40)+'" cy="'+scaleFct(scores[1])+'" r="3" stroke-width="1" stroke="'+col2+'" fill="'+col2+'" fill-opacity="0.5" />'
-                  +'</g>';
+        markers += '<circle cx="'+(cp*10+40)+'" cy="'+scaleFct(scores[0])+'" r="3" stroke-width="1" stroke="'+col1+'" fill="'+col1+'" fill-opacity="0.5" />'
+                +'<circle cx="'+(cp*10+40)+'" cy="'+scaleFct(scores[1])+'" r="3" stroke-width="1" stroke="'+col2+'" fill="'+col2+'" fill-opacity="0.5" />';
       }
+
+      markers += '</g>';
     }
 
     return markers;
@@ -505,7 +515,7 @@ RegionScoreboard.HistoryChart = (function () {
       var col = COLORS[faction];
 
       var points=[];
-      for (var cp=1; cp<regionScore.MAX_CYCLES; cp++) {
+      for (var cp=1; cp<=regionScore.MAX_CYCLES; cp++) {
         var score = regionScore.getAvgScoreAtCP(faction, cp);
 
         var x = cp*10+40;
