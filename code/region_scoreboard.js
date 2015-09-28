@@ -195,17 +195,28 @@ RegionScoreboard = (function () {
     $('g.checkpoint', mainDialog).each(function(i, elem) {
       elem = $(elem);
 
+      function formatScore(idx, score_now, score_last) {
+        if (!score_now[idx])  return '';
+        var res = digits(score_now[idx]);
+        if (score_last && score_last[idx]) {
+          var delta = score_now[idx]-score_last[idx];
+          res += '\t(';
+          if (delta>0) res +='+';
+          res += digits(delta)+')';
+        }
+        return res;
+      }
+
       var tooltip;
       var cp = parseInt(elem.attr('data-cp'));
       if (cp) {
-        var scores = regionScore.getCPScore(cp);
-        var enl_str = scores ? '\nEnl:\t' + digits(scores[0]) : ''
-        var res_str = scores ? '\nRes:\t' + digits(scores[1]) : ''
+        var score_now = regionScore.getCPScore(cp);
+        var score_last = regionScore.getCPScore(cp-1);
+        var enl_str = score_now ? '\nEnl:\t' + formatScore(0,score_now,score_last) : '';
+        var res_str = score_now ? '\nRes:\t' + formatScore(1,score_now,score_last) : '';
 
         tooltip = 'CP:\t'+cp+'\t-\t'+formatDayHours(regionScore.getCheckpointEnd(cp))
-          + '\n<hr>'
-          + enl_str
-          + res_str;
+            + '\n<hr>' + enl_str + res_str;
       }
 
       elem.tooltip({
