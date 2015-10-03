@@ -55,13 +55,23 @@
 
 window._hooks = {}
 window.VALID_HOOKS = [
-  'portalSelected', 'portalDetailsUpdated',
-  'mapDataRefreshStart', 'mapDataEntityInject', 'mapDataRefreshEnd',
-  'portalAdded', 'linkAdded', 'fieldAdded',
-  'publicChatDataAvailable', 'factionChatDataAvailable',
-  'requestFinished', 'nicknameClicked',
-  'geoSearch', 'search', 'iitcLoaded',
-  'portalDetailLoaded', 'paneChanged'];
+  'portalSelected',
+  'portalDetailsUpdated',
+  'mapDataRefreshStart',
+  'mapDataEntityInject',
+  'mapDataRefreshEnd',
+  'portalAdded',
+  'linkAdded',
+  'fieldAdded',
+  'publicChatDataAvailable',
+  'factionChatDataAvailable',
+  'requestFinished',
+  'nicknameClicked',
+  'geoSearch',
+  'search',
+  'iitcLoaded',
+  'portalDetailLoaded',
+  'paneChanged'];
 
 window.runHooks = function(event, data) {
   if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);
