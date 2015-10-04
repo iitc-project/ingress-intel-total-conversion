@@ -13,34 +13,23 @@ offers many more features. It is available for
 
 <h3>Latest news</h3>
 
-<h4>27th June 2015</h4>
+<h4>12th September 2015</h4>
 <p>
-IITC 0.24.0 has been released. This is a critical update needed to fix the map not loading any data.
+IITC 0.25.0 has been released. This is a critical update to fix things after a Niantic site update.
 </p>
 <p>
-NOTE: Niantic have removed portals from the map data at all but the closest of zoom levels (L1+ - zoom 15+).
-The stock intel site creates dummy placeholder portals at the anchors for links, allowing you to click and open the
-portal details. However, IITC does not do this yet. It will take some time to modify IITC and the plugins to allow
-for such placeholder portals, so making a first release without them.
-</p>
-
-<h4>27th May 2015</h4>
-<p>
-IITC 0.23.0 has been released. This is a critical update needed to fix IITC after a Niantic site update.
-</p>
-
-<h4>8th May 2015</h4>
-<p>
-IITC 0.22.3 has been released. Changes include
+Other changes include
 </p>
 <ul>
-<li>Lightman Shards supported</li>
-<li>Workaround for map loading not reaching 100%</li>
-<li>IITC Mobile: fix dialogs not appearing on Android 5 with the System WebView update</li>
-<li>Remove unnecessary prompt on botguard script response</li>
-<li>Plugin: Missions - full mission support</li>
-<li>Plugin: show-linked-portals - more details shown</li>
-<li>Plugin: show-more-portals - enabled again for one zoom level</li>
+<li>"Placeholder portals". Like stock intel, IITC creates clickable portals at the end of links. Portal highlighters
+won't work on these as they don't contain enough information</li>
+<li>Artifacts loading fixed after a change in data format by Niantic</li>
+<li>'show-more-portals' plugin is no longer required - Niantic now return all portals at zoom 15, rather than zoom 17</li>
+<li>New plugin: "cache-details-on-map". Caches the portal details as you select portals, and keeps these portals on the map
+even when you zoom out</li>
+<li>and other tweaks/bugfixes</li>
 </ul>
+<b>Update 17th September 2015</b>
+<p>IITC 0.25.1 released. This fixes search not working after MapQuest made a change to their API.</p>
 
 <a class="btn btn-default btn-sm" href="?page=news">Older news</a>
