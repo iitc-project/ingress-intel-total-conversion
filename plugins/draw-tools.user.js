@@ -667,12 +667,12 @@ window.plugin.drawTools.boot = function() {
 
   map.on('draw:deleted', function(e) {
     window.plugin.drawTools.save();
-    runHooks('pluginDrawTools',{event:'layersDeleted'});
+    runHooks('pluginDrawTools',{event:'layersDeleted',layers:e.layers});
   });
 
   map.on('draw:edited', function(e) {
     window.plugin.drawTools.save();
-    runHooks('pluginDrawTools',{event:'layersEdited'});
+    runHooks('pluginDrawTools',{event:'layersEdited',layers:e.layers});
   });
   //add options menu
   $('#toolbox').append('<a onclick="window.plugin.drawTools.manualOpt();return false;" accesskey="x" title="[x]">DrawTools Opt</a>');
