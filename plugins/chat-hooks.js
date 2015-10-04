@@ -167,6 +167,61 @@ window.plugin.chatHooks.runHooks = function(event, data) {
   return !interrupted;
 }
 
+window.plugin.chatHooks.LinkedList = function() {
+  this._root = null
+  this.makeNode = function(key, data) {
+    var node = {
+      key: typeof key !== 'undefined' ? key : null,
+      item: typeof data !== 'undefined' ? data : null
+      left: null,
+      right: null
+    }
+    return node
+  }
+  this.add = function(key, data) {
+    if (this._root === null) {
+      this._root = makeNode(key, data)
+    } else {
+      // Find place to insert based on key
+      node = this._root
+      while (node !== null) {
+        var next_node = null
+        if (key <= node.key) {
+          next_node = node.left
+          if (next_node===null) {
+            node.left = makeNode(key, data)
+            return node.left
+          }
+        } else if (key > node.key) {
+          next_node = node.right
+          if (next_node===null) {
+            node.right = makeNode(key, data)
+            return node.right
+          }
+        }
+        node = next_node
+      }
+    }
+    return null
+  }
+  this.get = function(key) {
+    // Find node based on key
+    node = this._root
+    while (node !== null) {
+      if (node.key === key) {
+        return node
+      }
+      if (key <= node.key) {
+        node = node.left
+      } else if (key > node.key) {
+        node = node.right
+      }
+    }
+  }
+}
+
+window.plugin.playerTracker.stored = {};
+
 window.plugin.chatHooks.handlePublicData = function(data) {
     var type
     var id = ""
@@ -204,18 +259,18 @@ window.plugin.chatHooks.handlePublicData = function(data) {
 
     var playerData = window.plugin.chatHooks.stored[plrname];
     // Insert new event into list
-// TODO : Update for chatHooks
     if(!playerData || playerData.events.length === 0) {
-      plugin.playerTracker.stored[plrname] = {
+      plugin.chatHooks.stored[plrname] = {
         nick: plrname,
         team: json[2].plext.team,
-        events: [newEvent]
+        events: LinkedList()
       };
-      return true;
+      plugin.chatHooks.stored[plrname].events.add(time, newevent)  
     }
 
+// TODO : Update for chatHooks
     var evts = playerData.events;
-    // there’s some data already. Need to find correct place to insert.
+    // there's some data already. Need to find correct place to insert.
     var i;
     for(i = 0; i < evts.length; i++) {
       if(evts[i].time > json[1]) break;
@@ -223,8 +278,7 @@ window.plugin.chatHooks.handlePublicData = function(data) {
 
     var cmp = Math.max(i-1, 0);
 
-    // so we have an event that happened at the same time. Most likely
-    // this is multiple resos destroyed at the same time.
+    // We have an event that happened at the same time.
     if(evts[cmp].time === json[1]) {
       evts[cmp].latlngs.push([lat, lng]);
       evts[cmp].ids.push(id);
