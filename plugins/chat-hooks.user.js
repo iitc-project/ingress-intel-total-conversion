@@ -39,6 +39,19 @@ window.plugin.chatHooks.VALID_CHATHOOKS = [
   'CHAT_FIELDDESTROYED'
 ];
 
+window.plugin.chatHooks.CHATHOOK_MSG = {
+  CHAT_DESTROYRESO:       "destroyed a Resonator",
+  CHAT_DEPLOYRESO:        "deployed a Resonator",
+  CHAT_LINK_PORTALS:      "linked",
+  CHAT_FIELDFROM:         "created a Control Field",
+  CHAT_CAPTUREPORTAL:     "captured",
+  CHAT_PORTALUNDERATTACK: "is under attack",
+  CHAT_PORTALNEUTRALISED: "neutralized",
+  CHAT_LINKDESTROYED:     "destroyed the Link",
+  CHAT_LINKDESTROYED_OWN: "Your Link",
+  CHAT_FIELDDESTROYED:    "destroyed a Control Field"
+}
+
 window.plugin.chatHooks.runChatHooks = function(event, data) {
   if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);
 
@@ -73,24 +86,25 @@ window.plugin.chatHooks.LinkedList = function() {
   };
   this.add = function(key, data) {
     if (this._root === null) {
-      this._root = makeNode(key, data);
+      this._root = this.makeNode(key, data);
       this._length++;
+      return this._root;
     } else {
       // Find place to insert based on key
       node = this._root;
       while (node !== null) {
         var next_node = null;
-        if (key <= node.key) {
+        if (key < node.key) {
           next_node = node.left;
           if (next_node===null) {
-            node.left = makeNode(key, data);
+            node.left = this.makeNode(key, data);
             this._length++;
             return node.left;
           }
         } else if (key > node.key) {
           next_node = node.right;
           if (next_node===null) {
-            node.right = makeNode(key, data);
+            node.right = this.makeNode(key, data);
             this._length++;
             return node.right;
           }
@@ -130,17 +144,13 @@ window.plugin.chatHooks.handlePublicData = function(data) {
       var plrname, lat, lng, id=null, name, address;
       $.each(json[2].plext.markup, function(ind, markup) {
         switch(markup[0]) {
-/*
           case 'TEXT':
-            if(markup[1].plain.indexOf('destroyed the Link') !== -1) {
-              type = "CHAT_DESTROYLINK";
-            } else if (markup[1].plain.indexOf('destroyed a Control Field') !== -1) {
-              type = "CHAT_DESTROYFIELD";
-            } else if (markup[1].plain.indexOf('Your Link') !== -1) {
-              type = "CHAT_DESTROYLINK_OWN";
-            }
+            for (var key in window.plugin.chatHooks.CHATHOOK_MSG) {
+              if(markup[1].plain.indexOf(window.plugin.chatHooks.CHATHOOK_MSG[key]) !== -1) {
+                type = key;
+              };
+            };
             break;
-*/
           case 'PLAYER':
             plrname = markup[1].plain;
             break;
@@ -156,35 +166,43 @@ window.plugin.chatHooks.handlePublicData = function(data) {
           default:
             break;
         }
-        var newEvent = {
-                        time: json[1],
-                        type: type
-        };
-        if (lat && lng) {
-          newEvent[latlngs] = [[lat, lng]];
-        }
-        if (name) {
-          newEvent[name] = name;
-        }
-        if (address) {
-          newEvent[address] = address;
-        }
-
-        if (plrname) {
-          var playerData = window.plugin.chatHooks.stored[plrname];
-          // Insert new event into list
-          if(!playerData || !playerData.events || playerData.events._length === 0) {
-            plugin.chatHooks.stored[plrname] = {
-              nick: plrname,
-              team: json[2].plext.team,
-              events: window.plugin.chatHooks.LinkedList()
-            };
-          }
-        }
     });
-    if (type && newEvent) {
-      playerData.events.add(newEvent.time, newEvent);
-      runChatHooks(type, newEvent);
+    var newEvent = {
+                    id:   json[0],
+                    time: json[1],
+                    type: type
+    };
+    if (lat && lng) {
+      newEvent.latlngs = [[lat, lng]];
+    }
+    if (name) {
+      newEvent.name = name;
+    }
+    if (address) {
+      newEvent.address = address;
+    }
+
+    if (plrname) {
+      var playerData = window.plugin.chatHooks.stored[plrname];
+      // Insert new event into list
+      if(!playerData) {
+        plugin.chatHooks.stored[plrname] = {
+          nick: plrname,
+          team: json[2].plext.team,
+        }
+        playerData = plugin.chatHooks.stored[plrname]
+      }
+      if (!playerData.events) {
+        playerData.events = new window.plugin.chatHooks.LinkedList()
+      }
+      if (type && newEvent) {
+        var test  = playerData.events.add(newEvent.id, newEvent);
+        if (test) {
+          console.log("Added chat event for " + playerData.nick + ": " + newEvent.type + "(" + newEvent.id + ")")
+          window.plugin.chatHooks.runChatHooks(type, newEvent);
+          return true;
+        }
+      }
     }
   });
 };
@@ -195,7 +213,7 @@ window.plugin.chatHooks.handleFactionData = function(data) {
 
 var setup =  function() {
   addHook('publicChatDataAvailable', window.plugin.chatHooks.handlePublicData);
-  addHook('factionChatDataAvailable', window.plugin.chatHooks.handleFactionData);
+  //addHook('factionChatDataAvailable', window.plugin.chatHooks.handleFactionData);
 };
 
 // PLUGIN END //////////////////////////////////////////////////////////
