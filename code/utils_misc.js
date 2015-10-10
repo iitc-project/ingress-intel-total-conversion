@@ -415,6 +415,7 @@ window.addLayerGroup = function(name, layerGroup, defaultDisplay) {
 }
 
 window.removeLayerGroup = function(layerGroup) {
+  if(!layerChooser._layers[layerGroup._leaflet_id]) throw('Layer was not found');
   // removing the layer will set it's default visibility to false (store if layer gets added again)
   var name = layerChooser._layers[layerGroup._leaflet_id].name;
   var enabled = isLayerGroupDisplayed(name);
@@ -485,3 +486,4 @@ L.Draggable.prototype._onDown = function(e) {
     L.DomEvent.on(document, "touchcancel", this._onUp, this);
   }
 }
+
