@@ -104,3 +104,12 @@ window.addHook = function(event, callback) {
   else
     _hooks[event].push(callback);
 }
+
+// callback must the SAME function to be unregistered.
+window.removeHook = function(event, callback) {
+  if (typeof callback !== 'function') throw('Callback must be a function.');
+
+  if (_hooks[event]) {
+    _hooks[event].splice(_hooks[event].indexOf(callback), 1);
+  }
+}
