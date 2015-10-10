@@ -30,7 +30,7 @@ window.plugin.drawTools.loadExternals = function() {
   try { console.log('Loading leaflet.draw JS now'); } catch(e) {}
   @@INCLUDERAW:external/leaflet.draw.js@@
   @@INCLUDERAW:external/spectrum/spectrum.js@@
-  try { console.log('done loading leaflet.draw JS'); } catch(e) {}
+  try { console.log('Done loading leaflet.draw JS'); } catch(e) {}
 
   window.plugin.drawTools.boot();
 

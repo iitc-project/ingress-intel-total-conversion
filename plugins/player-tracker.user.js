@@ -356,7 +356,7 @@ window.plugin.playerTracker.drawData = function() {
       popup
         .append('<br>')
         .append('<br>')
-        .append(document.createTextNode('previous locations:'))
+        .append(document.createTextNode('Previous locations:'))
         .append('<br>');
 
       var table = $('<table>')

@@ -165,7 +165,7 @@ window.plugin.sync.RegisteredMap.prototype.initFile = function(callback) {
   failedCallback = function(resp) {
     _this.initializing = false;
     _this.failed = true;
-    plugin.sync.logger.log('Could not create file: ' + _this.getFileName() + '. If this problem persist, delete this file in IITC-SYNC-DATA-V2 and empty trash in your Google drive and try again.');
+    plugin.sync.logger.log('Could not create sync file: ' + _this.getFileName() + '. If this problem persists, please delete this file in IITC-SYNC-DATA-V2 and empty the trash in your Google drive and try again.');
   }
 
   this.fileSearcher = new plugin.sync.FileSearcher({'fileName': this.getFileName(),

@@ -28,7 +28,7 @@ window.plugin.overlayKML = function() {};
 window.plugin.overlayKML.loadExternals = function() {
   try { console.log('Loading leaflet.filelayer JS now'); } catch(e) {}
   @@INCLUDERAW:external/leaflet.filelayer.js@@
-  try { console.log('done loading leaflet.filelayer JS'); } catch(e) {}
+  try { console.log('Done loading leaflet.filelayer JS'); } catch(e) {}
 
   if (window.requestFile !== undefined) {
     try { console.log('Loading android webview extensions for leaflet.filelayer JS now'); } catch(e) {}
