@@ -414,6 +414,16 @@ window.addLayerGroup = function(name, layerGroup, defaultDisplay) {
   layerChooser.addOverlay(layerGroup, name);
 }
 
+window.removeLayerGroup = function(layerGroup) {
+  if(!layerChooser._layers[layerGroup._leaflet_id]) throw('Layer was not found');
+  // removing the layer will set it's default visibility to false (store if layer gets added again)
+  var name = layerChooser._layers[layerGroup._leaflet_id].name;
+  var enabled = isLayerGroupDisplayed(name);
+  map.removeLayer(layerGroup);
+  layerChooser.removeLayer(layerGroup);
+  updateDisplayedLayerGroup(name, enabled);
+};
+
 window.clampLat = function(lat) {
   // the map projection used does not handle above approx +- 85 degrees north/south of the equator
   if (lat > 85.051128)
