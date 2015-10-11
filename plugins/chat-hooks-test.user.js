@@ -24,21 +24,44 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.chatHookTests = function() {};
+window.plugin.chatHooksTest = function() {};
 
-window.plugin.chatHookTests.linked_portal = function(data) {
-  console.log(data.time + ": ");
-  for (var portal in data.portals) {
-    console.log("Portal " + portal.name);
-  }
-  console.log(" linked by " + data.nick);
-}
+
+
+window.plugin.chatHooksTest.resonator = function(data) {
+  portal = data.portals[0];
+  //console.log("resonator event @ " + portal.latE6/1E6 + "," + portal.lngE6/1E6);
+  lat = portal.latE6/1E6;
+  lng = portal.lngE6/1E6;
+  plugin.chatHooksTest.addCircle(lat, lng);
+};
+
+window.plugin.chatHooksTest.linked_portal = function(data) {
+  portal = data.portals[0];
+  str = data.time + ": from " + portal.name + " to " + data.portals[1].name;
+  str += " linked by " + data.nick;
+  //console.log(str);
+  //L.circle(L.latLng(portal.latE6/1E6, portal.lngE6/1E6), 40, fill=true).addTo(plugin.chatHooksTest.layer)
+  lat = portal.latE6/1E6;
+  lng = portal.lngE6/1E6;
+  plugin.chatHooksTest.addCircle(lat, lng);
+};
+
+window.plugin.chatHooksTest.addCircle = function(lat, lng) {
+  console.log("Adding circle at " + lat + ", " + lng);
+  L.circle(L.latLng(lat, lng), 40, fill=true).addTo(plugin.chatHooksTest.layer);
+};
 
 var setup =  function() {
   if (!window.plugin.chatHooks) {
-    
+
   }
-  window.plugin.chatHooks.addChatHook('CH_PORTAL_LINKED', window.plugin.chatHookTests.linked_portal);
+  window.plugin.chatHooksTest.layer = new L.LayerGroup();
+  window.addLayerGroup('chathookstest', window.plugin.chatHooksTest.layer, true);
+
+  window.plugin.chatHooks.addChatHook('CH_PORTAL_LINKED', window.plugin.chatHooksTest.linked_portal);
+  window.plugin.chatHooks.addChatHook('CH_RESO_DEPLOYED', window.plugin.chatHooksTest.resonator);
+  window.plugin.chatHooks.addChatHook('CH_RESO_DESTROYED', window.plugin.chatHooksTest.resonator);
   //addHook('factionChatDataAvailable', window.plugin.chatHooks.handleFactionData);
 };
 

@@ -209,7 +209,6 @@ window.plugin.chatHooks.handlePublicData = function(data) {
       if (!playerData.events) {
         playerData.events = new window.plugin.chatHooks.LinkedList()
       }
-      debugger;
       if (newEvent.type) {
         var test  = playerData.events.add(newEvent.id, newEvent);
         if (test) {
@@ -226,9 +225,28 @@ window.plugin.chatHooks.handleFactionData = function(data) {
 
 };
 
+/*
+// Is sync useful? It would provide cross-session information, but that's not the purpose of chat-hooks.
+window.plugin.chatHooks.syncCallback = function(pluginName, fieldName, e, fullUpdate) {
+  
+}
+
+window.plugin.chatHooks.syncInitialised = function(pluginName, fieldName) {
+  
+}
+
+// Call after IITC and all other plugins have loaded
+window.plugin.chatHooks.registerFieldForSyncing = function() {
+  if(!window.plugin.sync) return;
+  window.plugin.sync.registerMapForSync('bookmarks', 'chatHookHistory', window.plugin.chatHooks.syncCallback, window.plugin.chatHooks.syncInitialised);
+}
+*/
+
 var setup =  function() {
   addHook('publicChatDataAvailable', window.plugin.chatHooks.handlePublicData);
   //addHook('factionChatDataAvailable', window.plugin.chatHooks.handleFactionData);
+
+  //addHook('iitcLoaded', window.plugin.bookmarks.registerFieldForSyncing);
 };
 
 // PLUGIN END //////////////////////////////////////////////////////////
