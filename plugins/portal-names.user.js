@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portal-names@zaso
 // @name           IITC plugin: Portal Names
 // @category       Layer
-// @version        0.1.5.@@DATETIMEVERSION@@
+// @version        0.1.6.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -11,6 +11,10 @@
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/mission/*
+// @include        http://www.ingress.com/mission/*
+// @match          https://www.ingress.com/mission/*
+// @match          http://www.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -89,7 +93,7 @@ window.plugin.portalNames.updatePortalLabels = function() {
 
   for (var guid in window.portals) {
     var p = window.portals[guid];
-    if (p._map) {  // only consider portals added to the map
+    if (p._map && p.options.data.title) {  // only consider portals added to the map and with a title
       var point = map.project(p.getLatLng());
       portalPoints[guid] = point;
     }

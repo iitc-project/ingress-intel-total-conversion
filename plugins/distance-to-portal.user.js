@@ -1,8 +1,8 @@
 // ==UserScript==
 // @id             iitc-plugin-distance-to-portal@jonatkins
 // @name           IITC plugin: Distance to portal
-// @category       Info
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @category       Portal Info
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -11,6 +11,10 @@
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/mission/*
+// @include        http://www.ingress.com/mission/*
+// @match          https://www.ingress.com/mission/*
+// @match          http://www.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -35,6 +39,19 @@ window.plugin.distanceToPortal.addDistance = function() {
   window.plugin.distanceToPortal.updateDistance();
 };
 
+window.plugin.distanceToPortal.formatDistance = function(dist) {
+  if (dist >= 10000) {
+    dist = Math.round(dist/1000)+'km';
+  } else if (dist >= 1000) {
+    dist = Math.round(dist/100)/10+'km';
+  } else {
+    dist = Math.round(dist)+'m';
+  }
+
+  return dist;
+}
+
+
 window.plugin.distanceToPortal.updateDistance = function() {
   if(!(selectedPortal && portals[selectedPortal])) return;
   var portal = portals[selectedPortal];
@@ -46,13 +63,7 @@ window.plugin.distanceToPortal.updateDistance = function() {
   if (window.plugin.distanceToPortal.currentLoc) {
     var dist = window.plugin.distanceToPortal.currentLoc.distanceTo(ll);
 
-    if (dist >= 10000) {
-      dist = Math.round(dist/1000)+'km';
-    } else if (dist >= 1000) {
-      dist = Math.round(dist/100)/10+'km';
-    } else {
-      dist = Math.round(dist)+'m';
-    }
+    dist = window.plugin.distanceToPortal.formatDistance(dist);
 
     var bearing = window.plugin.distanceToPortal.currentLoc.bearingTo(ll);
     var bearingWord = window.plugin.distanceToPortal.currentLoc.bearingWordTo(ll);
@@ -60,7 +71,7 @@ window.plugin.distanceToPortal.updateDistance = function() {
     $('#portal-distance')
       .text('Distance: ' + dist + ' ')
       .append($('<span>')
-        .attr('id', 'portal-distance-bearing')
+        .addClass('portal-distance-bearing')
         .css({
           'transform': 'rotate('+bearing+'deg)',
           '-moz-transform': 'rotate('+bearing+'deg)',
@@ -98,6 +109,18 @@ window.plugin.distanceToPortal.setLocation = function() {
   map.addLayer(window.plugin.distanceToPortal.currentLocMarker);
 };
 
+window.plugin.distanceToPortal.setupPortalsList = function() {
+  if(!window.plugin.portalslist) return;
+
+  window.plugin.portalslist.fields.push({
+    title: "Dist",
+    value: function(portal) { if (window.plugin.distanceToPortal.currentLoc) return window.plugin.distanceToPortal.currentLoc.distanceTo(portal.getLatLng()); else return 0; },
+    format: function(cell, portal, dist) {
+      $(cell).addClass('alignR').text(dist?window.plugin.distanceToPortal.formatDistance(dist):'-');
+    }
+  });
+}
+
 
 window.plugin.distanceToPortal.setup  = function() {
   // https://github.com/gregallensworth/Leaflet/
@@ -114,6 +137,9 @@ window.plugin.distanceToPortal.setup  = function() {
   $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:plugins/distance-to-portal.css@@').appendTo('head');
 
   addHook('portalDetailsUpdated', window.plugin.distanceToPortal.addDistance);
+
+  window.plugin.distanceToPortal.setupPortalsList();
+
 };
 
 var setup =  window.plugin.distanceToPortal.setup;

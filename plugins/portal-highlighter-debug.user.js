@@ -11,6 +11,10 @@
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/mission/*
+// @include        http://www.ingress.com/mission/*
+// @match          https://www.ingress.com/mission/*
+// @match          http://www.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -21,35 +25,21 @@
 // use own namespace for plugin
 window.plugin.portalHighlighterDebug = function() {};
 
-window.plugin.portalHighlighterDebug.unknown10 = function(data) {
-  var opacity = 0.7;
-  var color = undefined;
-
-  if (data.portal.options.data.unknown_10) {
-    color='red';
-  }
-
-  if (color) {
-    data.portal.setStyle({fillColor: color, fillOpacity: opacity});
-  }
-}
-
-window.plugin.portalHighlighterDebug.unknown11 = function(data) {
-  var opacity = 0.7;
-  var color = undefined;
-
-  if (data.portal.options.data.unknown_11) {
-    color='red';
-  }
-
-  if (color) {
-    data.portal.setStyle({fillColor: color, fillOpacity: opacity});
-  }
-}
+//window.plugin.portalHighlighterDebug.unknown11 = function(data) {
+//  var opacity = 0.7;
+//  var color = undefined;
+//
+//  if (data.portal.options.data.unknown_11) {
+//    color='red';
+//  }
+//
+//  if (color) {
+//    data.portal.setStyle({fillColor: color, fillOpacity: opacity});
+//  }
+//}
 
 var setup =  function() {
-  window.addPortalHighlighter('DEBUG: Unknoen_10 (mission start portals?)', window.plugin.portalHighlighterDebug.unknown10);
-  window.addPortalHighlighter('DEBUG: Unknoen_11', window.plugin.portalHighlighterDebug.unknown11);
+//  window.addPortalHighlighter('DEBUG: Unknoen_11', window.plugin.portalHighlighterDebug.unknown11);
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

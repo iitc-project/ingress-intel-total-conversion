@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portal-level-numbers@rongou
 // @name           IITC plugin: Portal Level Numbers
 // @category       Layer
-// @version        0.1.4.@@DATETIMEVERSION@@
+// @version        0.1.5.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -11,6 +11,10 @@
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/mission/*
+// @include        http://www.ingress.com/mission/*
+// @match          https://www.ingress.com/mission/*
+// @match          http://www.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -84,7 +88,7 @@ window.plugin.portalLevelNumbers.updatePortalLabels = function() {
 
   for (var guid in window.portals) {
     var p = window.portals[guid];
-    if (p._map) {  // only consider portals added to the map
+    if (p._map && p.options.data.level !== undefined) {  // only consider portals added to the map, and that have a level set
       var point = map.project(p.getLatLng());
       portalPoints[guid] = point;
     }

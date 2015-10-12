@@ -33,16 +33,18 @@ window.ornaments.addPortal = function(portal) {
   var size = window.ornaments.OVERLAY_SIZE;
   var latlng = portal.getLatLng();
 
-  window.ornaments._portals[guid] = portal.options.data.ornaments.map(function(ornament) {
-    var icon = L.icon({
-      iconUrl: "//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/"+ornament+".png",
-      iconSize: [size, size],
-      iconAnchor: [size/2,size/2],
-      className: 'no-pointer-events'  // the clickable: false below still blocks events going through to the svg underneath
-    });
+  if (portal.options.data.ornaments) {
+    window.ornaments._portals[guid] = portal.options.data.ornaments.map(function(ornament) {
+      var icon = L.icon({
+        iconUrl: "//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/"+ornament+".png",
+        iconSize: [size, size],
+        iconAnchor: [size/2,size/2],
+        className: 'no-pointer-events'  // the clickable: false below still blocks events going through to the svg underneath
+      });
 
-    return L.marker(latlng, {icon: icon, clickable: false, keyboard: false, opacity: window.ornaments.OVERLAY_OPACITY }).addTo(window.ornaments._layer);
-  });
+      return L.marker(latlng, {icon: icon, clickable: false, keyboard: false, opacity: window.ornaments.OVERLAY_OPACITY }).addTo(window.ornaments._layer);
+    });
+  }
 }
 
 window.ornaments.removePortal = function(portal) {

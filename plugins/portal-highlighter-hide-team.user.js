@@ -2,7 +2,7 @@
 // @id             iitc-plugin-highlight-hide-team@vita10gy
 // @name           IITC plugin: Hide portal ownership
 // @category       Highlighter
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.1.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -11,6 +11,10 @@
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/mission/*
+// @include        http://www.ingress.com/mission/*
+// @match          https://www.ingress.com/mission/*
+// @match          http://www.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -24,7 +28,7 @@ window.plugin.portalHighlighterHideOwnership = function() {};
 window.plugin.portalHighlighterHideOwnership.highlight = function(data) {
   var scale = window.portalMarkerScale();
 
-  var params = {fillColor: COLORS[TEAM_NONE], color: COLORS[TEAM_NONE], opacity: 1, fillOpacity: 0.5, radius: 7*scale+(L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE*scale : 0), weight: 2};
+  var params = getMarkerStyleOptions({team: TEAM_NONE, level: 0});
   data.portal.setStyle(params);
 }
 

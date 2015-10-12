@@ -11,6 +11,10 @@
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/mission/*
+// @include        http://www.ingress.com/mission/*
+// @match          https://www.ingress.com/mission/*
+// @match          http://www.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -186,7 +190,7 @@ window.plugin.guessPlayerLevels.extractChatData = function(data) {
     attackData[nick][timestamp].push(portal);
   }
 
-  data.raw.success.forEach(function(msg) {
+  data.result.forEach(function(msg) {
     var plext = msg[2].plext;
 
     // search for "x deployed an Ly Resonator on z"

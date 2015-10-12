@@ -11,6 +11,10 @@
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/mission/*
+// @include        http://www.ingress.com/mission/*
+// @match          https://www.ingress.com/mission/*
+// @match          http://www.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -23,19 +27,22 @@ window.plugin.portalHighlighterInactive = function() {};
 
 window.plugin.portalHighlighterInactive.highlight = function(data) {
 
-  var daysUnmodified = (new Date().getTime() - data.portal.options.timestamp) / (24*60*60*1000);
+  if (data.portal.options.timestamp > 0) {
 
-  if (daysUnmodified >= 7) {
+    var daysUnmodified = (new Date().getTime() - data.portal.options.timestamp) / (24*60*60*1000);
 
-    var fill_opacity = Math.min(1,((daysUnmodified-7)/24)*.85 + .15);
+    if (daysUnmodified >= 7) {
 
-    var blue = Math.max(0,Math.min(255,Math.round((daysUnmodified-31)/62*255)));
+      var fill_opacity = Math.min(1,((daysUnmodified-7)/24)*.85 + .15);
 
-    var colour = 'rgb(255,0,'+blue+')';
+      var blue = Math.max(0,Math.min(255,Math.round((daysUnmodified-31)/62*255)));
 
-    var params = {fillColor: colour, fillOpacity: fill_opacity};
+      var colour = 'rgb(255,0,'+blue+')';
 
-    data.portal.setStyle(params);
+      var params = {fillColor: colour, fillOpacity: fill_opacity};
+
+      data.portal.setStyle(params);
+    }
   }
 
 }

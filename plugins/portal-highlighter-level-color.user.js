@@ -11,6 +11,10 @@
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/mission/*
+// @include        http://www.ingress.com/mission/*
+// @match          https://www.ingress.com/mission/*
+// @match          http://www.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -23,8 +27,10 @@ window.plugin.portalHighlighterPortalsLevelColor = function() {};
 
 window.plugin.portalHighlighterPortalsLevelColor.colorLevel = function(data) {
   var portal_level = data.portal.options.data.level;
-  var opacity = .6;
-  data.portal.setStyle({fillColor: COLORS_LVL[portal_level], fillOpacity: opacity});
+  if (portal_level !== undefined) {
+    var opacity = .6;
+    data.portal.setStyle({fillColor: COLORS_LVL[portal_level], fillOpacity: opacity});
+  }
 }
 
 var setup =  function() {

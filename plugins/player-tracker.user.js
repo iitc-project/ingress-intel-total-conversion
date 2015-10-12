@@ -11,6 +11,10 @@
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/mission/*
+// @include        http://www.ingress.com/mission/*
+// @match          https://www.ingress.com/mission/*
+// @match          http://www.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -87,12 +91,12 @@ plugin.playerTracker.onClickListener = function(event) {
 
 // force close all open tooltips before markers are cleared
 window.plugin.playerTracker.closeIconTooltips = function() {
-    plugin.playerTracker.drawnTracesRes.eachLayer(function(layer) {
-      if ($(layer._icon)) { $(layer._icon).tooltip('close');}
-    });
-    plugin.playerTracker.drawnTracesEnl.eachLayer(function(layer) {
-      if ($(layer._icon)) { $(layer._icon).tooltip('close');}
-    });
+  plugin.playerTracker.drawnTracesRes.eachLayer(function(layer) {
+    if ($(layer._icon)) { $(layer._icon).tooltip('close');}
+  });
+  plugin.playerTracker.drawnTracesEnl.eachLayer(function(layer) {
+    if ($(layer._icon)) { $(layer._icon).tooltip('close');}
+  });
 }
 
 window.plugin.playerTracker.zoomListener = function() {
@@ -142,7 +146,7 @@ window.plugin.playerTracker.eventHasLatLng = function(ev, lat, lng) {
 
 window.plugin.playerTracker.processNewData = function(data) {
   var limit = plugin.playerTracker.getLimit();
-  $.each(data.raw.success, function(ind, json) {
+  $.each(data.result, function(ind, json) {
     // skip old data
     if(json[1] < limit) return true;
 

@@ -168,6 +168,7 @@ public class IITC_WebView extends WebView {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
         getHandler().removeCallbacks(mNavHider);
