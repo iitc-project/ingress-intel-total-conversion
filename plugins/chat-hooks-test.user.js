@@ -62,6 +62,18 @@ var setup =  function() {
   window.plugin.chatHooks.addChatHook('CH_PORTAL_LINKED', window.plugin.chatHooksTest.linked_portal);
   window.plugin.chatHooks.addChatHook('CH_RESO_DEPLOYED', window.plugin.chatHooksTest.resonator);
   window.plugin.chatHooks.addChatHook('CH_RESO_DESTROYED', window.plugin.chatHooksTest.resonator);
+  window.plugin.chatHooks.addChatHook('CH_RESO_DESTROYED', window.plugin.chatHooksTest.resonator); // :     "destroyed a Resonator",
+  window.plugin.chatHooks.addChatHook('CH_RESO_DEPLOYED', window.plugin.chatHooksTest.resonator); // :      "deployed a Resonator",
+  window.plugin.chatHooks.addChatHook('CH_PORTAL_LINKED', window.plugin.chatHooksTest.resonator); // :      "linked",
+  window.plugin.chatHooks.addChatHook('CH_PORTAL_CAPTURED', window.plugin.chatHooksTest.resonator); // :    "captured",
+  window.plugin.chatHooks.addChatHook('CH_PORTAL_ATTACKED', window.plugin.chatHooksTest.resonator); // :    "is under attack",
+  window.plugin.chatHooks.addChatHook('CH_PORTAL_NEUTRALISED', window.plugin.chatHooksTest.resonator); // : "neutralized",
+  /*
+  CH_LINK_DESTROYED:     "destroyed the Link",
+  CH_LINK_DESTROYED_OWN: "Your Link",
+  CH_FIELD_CREATED:      "created a Control Field",
+  CH_FIELD_DESTROYED:    "destroyed a Control Field"
+  */
   //addHook('factionChatDataAvailable', window.plugin.chatHooks.handleFactionData);
 };
 

@@ -51,7 +51,7 @@ window.plugin.chatHooks.CHATHOOK_MSG_TRIGGERS = {
   CH_LINK_DESTROYED_OWN: "Your Link",
   CH_FIELD_CREATED:      "created a Control Field",
   CH_FIELD_DESTROYED:    "destroyed a Control Field"
-}
+};
 
 window.plugin.chatHooks.runChatHooks = function(event, data) {
   if(plugin.chatHooks.VALID_CHATHOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);
@@ -86,7 +86,7 @@ window.plugin.chatHooks.addChatHook = function(event, callback) {
     plugin.chatHooks._chathooks[event] = [callback];
   else
     plugin.chatHooks._chathooks[event].push(callback);
-}
+};
 
 window.plugin.chatHooks.LinkedList = function() {
   this._root = null;
@@ -156,7 +156,7 @@ window.plugin.chatHooks.stored = {};
 window.plugin.chatHooks.handlePublicData = function(data) {
   // TODO : Design GUID to identify event - time + type + (each portals lat_lng) ?
   $.each(data.result, function(ind, json) {
-    var type, newEvent;
+    var type;
     var plrname, lat, lng, id=null, name, address;
     var newEvent = {
                     id:   json[0],
@@ -169,8 +169,8 @@ window.plugin.chatHooks.handlePublicData = function(data) {
           for (var key in window.plugin.chatHooks.CHATHOOK_MSG_TRIGGERS) {
             if(markup[1].plain.indexOf(window.plugin.chatHooks.CHATHOOK_MSG_TRIGGERS[key]) !== -1) {
               newEvent.type = key;
-            };
-          };
+            }
+          }
           break;
         case 'PLAYER':
           playername = markup[1].plain;
@@ -202,17 +202,17 @@ window.plugin.chatHooks.handlePublicData = function(data) {
       if(!playerData) {
         plugin.chatHooks.stored[playername] = {
           nick: playername,
-          team: json[2].plext.team,
-        }
-        playerData = plugin.chatHooks.stored[playername]
+          team: json[2].plext.team
+        };
+        playerData = plugin.chatHooks.stored[playername];
       }
       if (!playerData.events) {
-        playerData.events = new window.plugin.chatHooks.LinkedList()
+        playerData.events = new window.plugin.chatHooks.LinkedList();
       }
       if (newEvent.type) {
         var test  = playerData.events.add(newEvent.id, newEvent);
         if (test) {
-          console.log("Added chat event for " + newEvent.nick + ": " + newEvent.type + "(" + newEvent.id + ")")
+          console.log("Added chat event for " + newEvent.nick + ": " + newEvent.type + "(" + newEvent.id + ")");
           window.plugin.chatHooks.runChatHooks(newEvent.type, newEvent);
           return true;
         }
