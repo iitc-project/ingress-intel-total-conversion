@@ -52,10 +52,12 @@
 //              this only selects the current chat pane; on mobile, it
 //              also switches between map, info and other panes defined
 //              by plugins
+// artifactsUpdated: called when the set of artifacts (including targets)
+//              has changed. Parameters names are old, new.
 
 window._hooks = {}
 window.VALID_HOOKS = [
-  'portalSelected', 'portalDetailsUpdated',
+  'portalSelected', 'portalDetailsUpdated', 'artifactsUpdated',
   'mapDataRefreshStart', 'mapDataEntityInject', 'mapDataRefreshEnd',
   'portalAdded', 'linkAdded', 'fieldAdded',
   'publicChatDataAvailable', 'factionChatDataAvailable',
