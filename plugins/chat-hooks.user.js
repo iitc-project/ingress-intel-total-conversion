@@ -161,7 +161,8 @@ window.plugin.chatHooks.handlePublicData = function(data) {
     var newEvent = {
                     id:   json[0],
                     time: json[1],
-                    type: undefined
+                    type: undefined,
+                    team: json[2].plext.team
     };
     $.each(json[2].plext.markup, function(ind, markup) {
       switch(markup[0]) {
