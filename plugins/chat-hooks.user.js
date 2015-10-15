@@ -65,7 +65,7 @@ window.plugin.chatHooks.runChatHooks = function(event, data) {
         return false;  //break from $.each
       }
     } catch(err) {
-      console.error('error running chat hook '+event+', error: '+err);
+      console.error('@@BUILDDATE@@' + 'error running chat hook '+event+', error: '+err);
       debugger;
       return false;  //break from $.each
     }

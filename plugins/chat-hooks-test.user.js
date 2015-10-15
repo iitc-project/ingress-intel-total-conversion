@@ -24,9 +24,11 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.chatHooksTest = function() {};
+window.plugin.chatHooksTest = function() {
+};
 
 
+window.plugin.chatHooksTest.usercount = 0;
 
 window.plugin.chatHooksTest.resonator = function(data) {
   portal = data.portals[0];
@@ -50,6 +52,25 @@ window.plugin.chatHooksTest.linked_portal = function(data) {
 window.plugin.chatHooksTest.addCircle = function(lat, lng) {
   console.log("Adding circle at " + lat + ", " + lng);
   L.circle(L.latLng(lat, lng), 40, fill=true).addTo(plugin.chatHooksTest.layer);
+  plugin.chatHooksTest.showUsers();
+};
+
+window.plugin.chatHooksTest.showUsers = function() {
+  var names;
+  var first = true;
+  for (var user in window.plugin.chatHooks.stored) {
+    if (first) {
+      first = false;
+    } else {
+      names = names + "\n";
+    }
+    names = names + user;
+  }
+  console.log(names.length + "<->" + plugin.chatHooksTest.usercount);
+  if (names.length > plugin.chatHooksTest.usercount) {
+    console.log(names);
+    plugin.chatHooksTest.usercount = names.length;
+  }
 };
 
 var setup =  function() {
