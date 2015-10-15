@@ -29,13 +29,20 @@ window.plugin.PlayerFrequency = function() {
 
 
 window.plugin.PlayerFrequency.usercount = 0;
+window.plugin.PlayerFrequency.FACTION_COLOURS = {
+  ENLIGHTENED: "#00FF00",
+  RESISTANCE:  "#0000FF"
+};
 
 window.plugin.PlayerFrequency.resonator = function(data) {
   portal = data.portals[0];
   //console.log("resonator event @ " + portal.latE6/1E6 + "," + portal.lngE6/1E6);
   lat = portal.latE6/1E6;
   lng = portal.lngE6/1E6;
-  plugin.PlayerFrequency.addCircle(lat, lng);
+  style = {
+    color: plugin.PlayerFrequency.FACTION_COLOURS[data.team]
+  };
+  plugin.PlayerFrequency.addCircle(lat, lng, style);
 };
 
 window.plugin.PlayerFrequency.portal = function(data) {
@@ -43,7 +50,10 @@ window.plugin.PlayerFrequency.portal = function(data) {
   //console.log("resonator event @ " + portal.latE6/1E6 + "," + portal.lngE6/1E6);
   lat = portal.latE6/1E6;
   lng = portal.lngE6/1E6;
-  plugin.PlayerFrequency.addCircle(lat, lng);
+  style = {
+    color: plugin.PlayerFrequency.FACTION_COLOURS[data.team]
+  };
+  plugin.PlayerFrequency.addCircle(lat, lng, style);
 };
 
 window.plugin.PlayerFrequency.linked_portal = function(data) {
@@ -54,23 +64,18 @@ window.plugin.PlayerFrequency.linked_portal = function(data) {
   //L.circle(L.latLng(portal.latE6/1E6, portal.lngE6/1E6), 40, fill=true).addTo(plugin.PlayerFrequency.layer)
   lat = portal.latE6/1E6;
   lng = portal.lngE6/1E6;
-  style = data.team;
+  style = {
+    color: plugin.PlayerFrequency.FACTION_COLOURS[data.team]
+  };
   plugin.PlayerFrequency.addCircle(lat, lng, style);
 };
 
 window.plugin.PlayerFrequency.addCircle = function(lat, lng, style) {
   console.log("Adding circle at " + lat + ", " + lng);
-  var colour = "#0000FF";
-  if (style == "ENLIGHTENED") {
-    colour = "#00FF00";
-  }
 
-  var opts = {
-    fill: true,
-    color: colour
-  };
+  style.fill = true;
     
-  L.circle(L.latLng(lat, lng), 40, opts).addTo(plugin.PlayerFrequency.layer);
+  L.circle(L.latLng(lat, lng), 40, style).addTo(plugin.PlayerFrequency.layer);
   plugin.PlayerFrequency.showUsers();
 };
 
@@ -94,6 +99,36 @@ window.plugin.PlayerFrequency.showUsers = function() {
     }
   }
 };
+
+/*
+window.plugin.PlayerFrequency.filterUsers = function() {
+  var stored = window.plugin.chatHooks.stored;
+  var names = Object.keys(stored)
+  dialog({
+    text: names,
+    title: 'Names',
+    id: 'player-frequecy-userfilter',
+    width: 350,
+    buttons: {
+      'RESET GUESSES': function() {
+        // clear all guessed levels from local storage
+        localStorage.removeItem('plugin-guess-player-levels')
+        window.plugin.guessPlayerLevels._nameToLevelCache = {}
+        // now force all portals through the callback manually
+        $.each(window.portals, function(guid,p) {
+          var details = portalDetail.get(guid);
+          if(details)
+            window.plugin.guessPlayerLevels.extractPortalData({details:details, success:true});
+        });
+        // and re-open the dialog (on a minimal timeout - so it's not closed while processing this callback)
+        setTimeout(window.plugin.guessPlayerLevels.guess,1);
+      },
+    }
+
+})
+
+}
+*/
 
 var setup =  function() {
   if (!window.plugin.chatHooks) {
