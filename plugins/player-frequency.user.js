@@ -54,30 +54,44 @@ window.plugin.PlayerFrequency.linked_portal = function(data) {
   //L.circle(L.latLng(portal.latE6/1E6, portal.lngE6/1E6), 40, fill=true).addTo(plugin.PlayerFrequency.layer)
   lat = portal.latE6/1E6;
   lng = portal.lngE6/1E6;
-  plugin.PlayerFrequency.addCircle(lat, lng);
+  style = data.team;
+  plugin.PlayerFrequency.addCircle(lat, lng, style);
 };
 
-window.plugin.PlayerFrequency.addCircle = function(lat, lng) {
+window.plugin.PlayerFrequency.addCircle = function(lat, lng, style) {
   console.log("Adding circle at " + lat + ", " + lng);
-  L.circle(L.latLng(lat, lng), 40, fill=true).addTo(plugin.PlayerFrequency.layer);
+  var colour = "#0000FF";
+  if (style == "ENLIGHTENED") {
+    colour = "#00FF00";
+  }
+
+  var opts = {
+    fill: true,
+    color: colour
+  };
+    
+  L.circle(L.latLng(lat, lng), 40, opts).addTo(plugin.PlayerFrequency.layer);
   plugin.PlayerFrequency.showUsers();
 };
 
 window.plugin.PlayerFrequency.showUsers = function() {
-  var names;
-  var first = true;
-  for (var user in window.plugin.chatHooks.stored) {
-    if (first) {
-      first = false;
-    } else {
-      names = names + "\n";
+  var stored = window.plugin.chatHooks.stored;
+  if (stored) {
+    console.log(Object.keys(stored).length + "<->" + plugin.PlayerFrequency.usercount);
+    if (Object.keys(stored).length > plugin.PlayerFrequency.usercount) {
+      var names = "";
+      var first = true;
+      for (var user in stored) {
+        if (first) {
+          first = false;
+        } else {
+          names = names + "\n";
+        }
+        names = names + user;
+      }
+      console.log(names);
+      plugin.PlayerFrequency.usercount = Object.keys(stored).length;
     }
-    names = names + user;
-  }
-  console.log(names.length + "<->" + plugin.PlayerFrequency.usercount);
-  if (names.length > plugin.PlayerFrequency.usercount) {
-    console.log(names);
-    plugin.PlayerFrequency.usercount = names.length;
   }
 };
 
