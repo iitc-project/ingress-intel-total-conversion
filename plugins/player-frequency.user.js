@@ -27,11 +27,40 @@
 window.plugin.PlayerFrequency = function() {
 };
 
-
 window.plugin.PlayerFrequency.usercount = 0;
+
 window.plugin.PlayerFrequency.FACTION_COLOURS = {
   ENLIGHTENED: "#00FF00",
   RESISTANCE:  "#0000FF"
+};
+window.plugin.PlayerFrequency.styles = {
+  ENLIGHTENED: { color: plugin.PlayerFrequency.FACTION_COLOURS.ENLIGHTENED },
+  RESISTANCE: { color: plugin.PlayerFrequency.FACTION_COLOURS.RESISTANCE }
+};
+
+window.plugin.PlayerFrequency.Filter = {
+    enabled: false,
+    enable: function() {
+        self.enabled = true;
+    },
+    disable: function() {
+        self.enabled = false;
+    },
+};
+
+window.plugin.PlayerFrequency.userfilter = {
+  filters: {},
+  names: [],
+  setfilter: function(nick) {
+    console.log("Setting filters[" + nick + "] = 'on'");
+    this.filters[nick] = "on";
+    this.names[nick] = true;
+  },
+  unsetfilter: function(nick) {
+    console.log("Setting filters[" + nick + "] = 'off'");
+    this.filters[nick] = "off";
+    this.names[nick] = true;
+  },
 };
 
 window.plugin.PlayerFrequency.resonator = function(data) {
@@ -39,10 +68,9 @@ window.plugin.PlayerFrequency.resonator = function(data) {
   //console.log("resonator event @ " + portal.latE6/1E6 + "," + portal.lngE6/1E6);
   lat = portal.latE6/1E6;
   lng = portal.lngE6/1E6;
-  style = {
-    color: plugin.PlayerFrequency.FACTION_COLOURS[data.team]
-  };
-  plugin.PlayerFrequency.addCircle(lat, lng, style);
+  style = data.team;
+  plugin.PlayerFrequency.addCircle(lat, lng, plugin.PlayerFrequency.styles[style]);
+  window.plugin.PlayerFrequency.userfilter.setfilter(data.nick);
 };
 
 window.plugin.PlayerFrequency.portal = function(data) {
@@ -50,10 +78,9 @@ window.plugin.PlayerFrequency.portal = function(data) {
   //console.log("resonator event @ " + portal.latE6/1E6 + "," + portal.lngE6/1E6);
   lat = portal.latE6/1E6;
   lng = portal.lngE6/1E6;
-  style = {
-    color: plugin.PlayerFrequency.FACTION_COLOURS[data.team]
-  };
-  plugin.PlayerFrequency.addCircle(lat, lng, style);
+  style = data.team;
+  plugin.PlayerFrequency.addCircle(lat, lng, plugin.PlayerFrequency.styles[style]);
+  window.plugin.PlayerFrequency.userfilter.setfilter(data.nick);
 };
 
 window.plugin.PlayerFrequency.linked_portal = function(data) {
@@ -64,19 +91,19 @@ window.plugin.PlayerFrequency.linked_portal = function(data) {
   //L.circle(L.latLng(portal.latE6/1E6, portal.lngE6/1E6), 40, fill=true).addTo(plugin.PlayerFrequency.layer)
   lat = portal.latE6/1E6;
   lng = portal.lngE6/1E6;
-  style = {
-    color: plugin.PlayerFrequency.FACTION_COLOURS[data.team]
-  };
-  plugin.PlayerFrequency.addCircle(lat, lng, style);
+  style = data.team;
+  plugin.PlayerFrequency.addCircle(lat, lng, plugin.PlayerFrequency.styles[style]);
+  window.plugin.PlayerFrequency.userfilter.setfilter(data.nick);
 };
+
 
 window.plugin.PlayerFrequency.addCircle = function(lat, lng, style) {
   console.log("Adding circle at " + lat + ", " + lng);
 
   style.fill = true;
-    
+
   L.circle(L.latLng(lat, lng), 40, style).addTo(plugin.PlayerFrequency.layer);
-  plugin.PlayerFrequency.showUsers();
+  // plugin.PlayerFrequency.showUsers();
 };
 
 window.plugin.PlayerFrequency.showUsers = function() {
@@ -101,14 +128,26 @@ window.plugin.PlayerFrequency.showUsers = function() {
 };
 
 window.plugin.PlayerFrequency.filterUsers = function() {
-  var stored = window.plugin.chatHooks.stored;
-  var names = Object.keys(stored);
+  var userfilter = window.plugin.PlayerFrequency.userfilter.filters;
+  var names = window.plugin.PlayerFrequency.userfilter.names;
   var names_checkboxes = "<fieldset>";
   names_checkboxes += "<legend>Players with current frequency data:</legend>";
-  for (var index in names) {
-   names_checkboxes += '<input type="checkbox" name="players" value="' + names[index] + '" checked="checked" />' + names[index] + '<br/>';
+
+  console.log("filterUsers 1");
+  for (var nick in names) {
+    checked = userfilter[nick] === "on" ? "checked" : "";
+    setfunction = userfilter[nick] === "on" ? "unsetfilter" : "setfilter";
+    var value = 'value="' + nick + '"';
+    var checked = checked ? 'checked' : '';
+    var onclick = 'onclick="window.plugin.PlayerFrequency.userfilter.' + setfunction + '(\'' + nick + '\')"';
+    console.log("value: " + value);
+    console.log("checked: " + checked);
+    console.log("onclick: " + onclick);
+    names_checkboxes += '<input type="checkbox" name="players" ' + value + ' ' + checked + ' ' + onclick + ' />' + nick + '<br/>';
   }
+  console.log("filterUsers 2");
   names_checkboxes += "</fieldset>";
+
   dialog({
     text: names_checkboxes,
     title: 'Names',
