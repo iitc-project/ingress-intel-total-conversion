@@ -100,35 +100,22 @@ window.plugin.PlayerFrequency.showUsers = function() {
   }
 };
 
-/*
 window.plugin.PlayerFrequency.filterUsers = function() {
   var stored = window.plugin.chatHooks.stored;
-  var names = Object.keys(stored)
+  var names = Object.keys(stored);
+  var names_checkboxes = "<fieldset>";
+  names_checkboxes += "<legend>Players with current frequency data:</legend>";
+  for (var index in names) {
+   names_checkboxes += '<input type="checkbox" name="players" value="' + names[index] + '" checked="checked" />' + names[index] + '<br/>';
+  }
+  names_checkboxes += "</fieldset>";
   dialog({
-    text: names,
+    text: names_checkboxes,
     title: 'Names',
     id: 'player-frequecy-userfilter',
     width: 350,
-    buttons: {
-      'RESET GUESSES': function() {
-        // clear all guessed levels from local storage
-        localStorage.removeItem('plugin-guess-player-levels')
-        window.plugin.guessPlayerLevels._nameToLevelCache = {}
-        // now force all portals through the callback manually
-        $.each(window.portals, function(guid,p) {
-          var details = portalDetail.get(guid);
-          if(details)
-            window.plugin.guessPlayerLevels.extractPortalData({details:details, success:true});
-        });
-        // and re-open the dialog (on a minimal timeout - so it's not closed while processing this callback)
-        setTimeout(window.plugin.guessPlayerLevels.guess,1);
-      },
-    }
-
-})
-
-}
-*/
+  });
+};
 
 var setup =  function() {
   if (!window.plugin.chatHooks) {
@@ -150,6 +137,8 @@ var setup =  function() {
   CH_FIELD_DESTROYED:    "destroyed a Control Field"
   */
   //addHook('factionChatDataAvailable', window.plugin.chatHooks.handleFactionData);
+
+  $('#toolbox').append(' <a onclick="window.plugin.PlayerFrequency.filterUsers()" title="Display users recorded for Frequency stats">Frequency player list</a>');
 };
 
 // PLUGIN END //////////////////////////////////////////////////////////

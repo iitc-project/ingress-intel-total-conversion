@@ -157,7 +157,7 @@ window.plugin.chatHooks.handlePublicData = function(data) {
   // TODO : Design GUID to identify event - time + type + (each portals lat_lng) ?
   $.each(data.result, function(ind, json) {
     var type;
-    var plrname, lat, lng, id=null, name, address;
+    var playername, lat, lng, id=null, name, address;
     var newEvent = {
                     id:   json[0],
                     time: json[1],
