@@ -24,21 +24,16 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.PlayerFrequency = function() {
-};
+window.plugin.PlayerFrequency = {
+  // Constants
+  CHATHOOKS: plugin.chatHooks,
+  FACTION_COLOURS: {
+    ENLIGHTENED: "#00FF00",
+    RESISTANCE:  "#0000FF"
+  },
 
-window.plugin.PlayerFrequency.usercount = 0;
-
-window.plugin.PlayerFrequency.FACTION_COLOURS = {
-  ENLIGHTENED: "#00FF00",
-  RESISTANCE:  "#0000FF"
-};
-window.plugin.PlayerFrequency.styles = {
-  ENLIGHTENED: { color: plugin.PlayerFrequency.FACTION_COLOURS.ENLIGHTENED },
-  RESISTANCE: { color: plugin.PlayerFrequency.FACTION_COLOURS.RESISTANCE }
-};
-
-window.plugin.PlayerFrequency.Filter = {
+  // Member classes
+  Filter: {
     enabled: false,
     enable: function() {
         self.enabled = true;
@@ -46,138 +41,141 @@ window.plugin.PlayerFrequency.Filter = {
     disable: function() {
         self.enabled = false;
     },
-};
-
-window.plugin.PlayerFrequency.userfilter = {
-  filters: {},
-  names: [],
-  setfilter: function(nick) {
-    console.log("Setting filters[" + nick + "] = 'on'");
-    this.filters[nick] = "on";
-    this.names[nick] = true;
   },
-  unsetfilter: function(nick) {
-    console.log("Setting filters[" + nick + "] = 'off'");
-    this.filters[nick] = "off";
-    this.names[nick] = true;
+
+  // Member variables
+  usercount: 0,
+  styles: {
+    ENLIGHTENED: { color: plugin.PlayerFrequency.FACTION_COLOURS.ENLIGHTENED },
+    RESISTANCE: { color: plugin.PlayerFrequency.FACTION_COLOURS.RESISTANCE }
   },
-};
 
-window.plugin.PlayerFrequency.resonator = function(data) {
-  portal = data.portals[0];
-  //console.log("resonator event @ " + portal.latE6/1E6 + "," + portal.lngE6/1E6);
-  lat = portal.latE6/1E6;
-  lng = portal.lngE6/1E6;
-  style = data.team;
-  plugin.PlayerFrequency.addCircle(lat, lng, plugin.PlayerFrequency.styles[style]);
-  window.plugin.PlayerFrequency.userfilter.setfilter(data.nick);
-};
+  // Member functions
+  userfilter: {
+    filters: {},
+    names: [],
+    setfilter: function(nick) {
+      console.log("Setting filters[" + nick + "] = 'on'");
+      this.filters[nick] = "on";
+      this.names[nick] = true;
+    },
+    unsetfilter: function(nick) {
+      console.log("Setting filters[" + nick + "] = 'off'");
+      this.filters[nick] = "off";
+      this.names[nick] = true;
+    },
+  },
+  resonator: function(data) {
+    portal = data.portals[0];
+    //console.log("resonator event @ " + portal.latE6/1E6 + "," + portal.lngE6/1E6);
+    lat = portal.latE6/1E6;
+    lng = portal.lngE6/1E6;
+    style = data.team;
+    this.addCircle(lat, lng, plugin.PlayerFrequency.styles[style]);
+    this.userfilter.setfilter(data.nick);
+  },
+  portal: function(data) {
+    portal = data.portals[0];
+    //console.log("resonator event @ " + portal.latE6/1E6 + "," + portal.lngE6/1E6);
+    lat = portal.latE6/1E6;
+    lng = portal.lngE6/1E6;
+    style = data.team;
+    this.addCircle(lat, lng, plugin.PlayerFrequency.styles[style]);
+    this.userfilter.setfilter(data.nick);
+  },
+  linked_portal: function(data) {
+    portal = data.portals[0];
+    str = data.time + ": from " + portal.name + " to " + data.portals[1].name;
+    str += " linked by " + data.nick;
+    //console.log(str);
+    //L.circle(L.latLng(portal.latE6/1E6, portal.lngE6/1E6), 40, fill=true).addTo(plugin.PlayerFrequency.layer)
+    lat = portal.latE6/1E6;
+    lng = portal.lngE6/1E6;
+    style = data.team;
+    plugin.PlayerFrequency.addCircle(lat, lng, plugin.PlayerFrequency.styles[style]);
+    window.plugin.PlayerFrequency.userfilter.setfilter(data.nick);
+  };
+  addCircle: function(lat, lng, style) {
+    console.log("Adding circle at " + lat + ", " + lng);
 
-window.plugin.PlayerFrequency.portal = function(data) {
-  portal = data.portals[0];
-  //console.log("resonator event @ " + portal.latE6/1E6 + "," + portal.lngE6/1E6);
-  lat = portal.latE6/1E6;
-  lng = portal.lngE6/1E6;
-  style = data.team;
-  plugin.PlayerFrequency.addCircle(lat, lng, plugin.PlayerFrequency.styles[style]);
-  window.plugin.PlayerFrequency.userfilter.setfilter(data.nick);
-};
+    style.fill = true;
 
-window.plugin.PlayerFrequency.linked_portal = function(data) {
-  portal = data.portals[0];
-  str = data.time + ": from " + portal.name + " to " + data.portals[1].name;
-  str += " linked by " + data.nick;
-  //console.log(str);
-  //L.circle(L.latLng(portal.latE6/1E6, portal.lngE6/1E6), 40, fill=true).addTo(plugin.PlayerFrequency.layer)
-  lat = portal.latE6/1E6;
-  lng = portal.lngE6/1E6;
-  style = data.team;
-  plugin.PlayerFrequency.addCircle(lat, lng, plugin.PlayerFrequency.styles[style]);
-  window.plugin.PlayerFrequency.userfilter.setfilter(data.nick);
-};
-
-
-window.plugin.PlayerFrequency.addCircle = function(lat, lng, style) {
-  console.log("Adding circle at " + lat + ", " + lng);
-
-  style.fill = true;
-
-  L.circle(L.latLng(lat, lng), 40, style).addTo(plugin.PlayerFrequency.layer);
-  // plugin.PlayerFrequency.showUsers();
-};
-
-window.plugin.PlayerFrequency.showUsers = function() {
-  var stored = window.plugin.chatHooks.stored;
-  if (stored) {
-    console.log(Object.keys(stored).length + "<->" + plugin.PlayerFrequency.usercount);
-    if (Object.keys(stored).length > plugin.PlayerFrequency.usercount) {
-      var names = "";
-      var first = true;
-      for (var user in stored) {
-        if (first) {
-          first = false;
-        } else {
-          names = names + "\n";
+    L.circle(L.latLng(lat, lng), 40, style).addTo(this.layer);
+    // plugin.PlayerFrequency.showUsers();
+  },
+  showUsers: function() {
+    var stored = window.plugin.chatHooks.stored;
+    if (stored) {
+      console.log(Object.keys(stored).length + "<->" + this.usercount);
+      if (Object.keys(stored).length > this.usercount) {
+        var names = "";
+        var first = true;
+        for (var user in stored) {
+          if (first) {
+            first = false;
+          } else {
+            names = names + "\n";
+          }
+          names = names + user;
         }
-        names = names + user;
+        console.log(names);
+        this.usercount = Object.keys(stored).length;
       }
-      console.log(names);
-      plugin.PlayerFrequency.usercount = Object.keys(stored).length;
     }
-  }
-};
+  },
 
-window.plugin.PlayerFrequency.filterUsers = function() {
-  var userfilter = window.plugin.PlayerFrequency.userfilter.filters;
-  var names = window.plugin.PlayerFrequency.userfilter.names;
-  var names_checkboxes = "<fieldset>";
-  names_checkboxes += "<legend>Players with current frequency data:</legend>";
+  filterUsers: function() {
+    var userfilter = this.userfilter.filters;
+    var names = this.userfilter.names;
+    var names_checkboxes = "<fieldset>";
+    names_checkboxes += "<legend>Players with current frequency data:</legend>";
 
-  console.log("filterUsers 1");
-  for (var nick in names) {
-    checked = userfilter[nick] === "on" ? "checked" : "";
-    setfunction = userfilter[nick] === "on" ? "unsetfilter" : "setfilter";
-    var value = 'value="' + nick + '"';
-    var checked = checked ? 'checked' : '';
-    var onclick = 'onclick="window.plugin.PlayerFrequency.userfilter.' + setfunction + '(\'' + nick + '\')"';
-    console.log("value: " + value);
-    console.log("checked: " + checked);
-    console.log("onclick: " + onclick);
-    names_checkboxes += '<input type="checkbox" name="players" ' + value + ' ' + checked + ' ' + onclick + ' />' + nick + '<br/>';
-  }
-  console.log("filterUsers 2");
-  names_checkboxes += "</fieldset>";
+    console.log("filterUsers 1");
+    for (var nick in names) {
+      checked = userfilter[nick] === "on" ? "checked" : "";
+      setfunction = userfilter[nick] === "on" ? "unsetfilter" : "setfilter";
+      var value = 'value="' + nick + '"';
+      var checked = checked ? 'checked' : '';
+      var onclick = 'onclick="window.plugin.PlayerFrequency.userfilter.' + setfunction + '(\'' + nick + '\')"';
+      console.log("value: " + value);
+      console.log("checked: " + checked);
+      console.log("onclick: " + onclick);
+      names_checkboxes += '<input type="checkbox" name="players" ' + value + ' ' + checked + ' ' + onclick + ' />' + nick + '<br/>';
+    }
+    console.log("filterUsers 2");
+    names_checkboxes += "</fieldset>";
 
-  dialog({
-    text: names_checkboxes,
-    title: 'Names',
-    id: 'player-frequecy-userfilter',
-    width: 350,
-  });
-};
+    dialog({
+      text: names_checkboxes,
+      title: 'Names',
+      id: 'player-frequecy-userfilter',
+      width: 350,
+    });
+  },
 
-var setup =  function() {
-  if (!window.plugin.chatHooks) {
+  setup: function() {
+    if (!window.plugin.chatHooks) {
 
-  }
-  window.plugin.PlayerFrequency.layer = new L.LayerGroup();
-  window.addLayerGroup('player-frequency', window.plugin.PlayerFrequency.layer, true);
+    }
+    this.PlayerFrequency.layer = new L.LayerGroup();
+    window.addLayerGroup('player-frequency', this.PlayerFrequency.layer, true);
 
-  window.plugin.chatHooks.addChatHook('CH_PORTAL_LINKED', window.plugin.PlayerFrequency.linked_portal);
-  window.plugin.chatHooks.addChatHook('CH_RESO_DESTROYED', window.plugin.PlayerFrequency.resonator); // :     "destroyed a Resonator",
-  window.plugin.chatHooks.addChatHook('CH_RESO_DEPLOYED', window.plugin.PlayerFrequency.resonator); // :      "deployed a Resonator",
-  window.plugin.chatHooks.addChatHook('CH_PORTAL_CAPTURED', window.plugin.PlayerFrequency.portal); // :    "captured",
-  window.plugin.chatHooks.addChatHook('CH_PORTAL_ATTACKED', window.plugin.PlayerFrequency.portal); // :    "is under attack",
-  window.plugin.chatHooks.addChatHook('CH_PORTAL_NEUTRALISED', window.plugin.PlayerFrequency.portal); // : "neutralized",
-  /*
-  CH_LINK_DESTROYED:     "destroyed the Link",
-  CH_LINK_DESTROYED_OWN: "Your Link",
-  CH_FIELD_CREATED:      "created a Control Field",
-  CH_FIELD_DESTROYED:    "destroyed a Control Field"
-  */
-  //addHook('factionChatDataAvailable', window.plugin.chatHooks.handleFactionData);
+    window.plugin.chatHooks.addChatHook('CH_PORTAL_LINKED', this.PlayerFrequency.linked_portal);
+    window.plugin.chatHooks.addChatHook('CH_RESO_DESTROYED', this.PlayerFrequency.resonator); // :     "destroyed a Resonator",
+    window.plugin.chatHooks.addChatHook('CH_RESO_DEPLOYED', this.PlayerFrequency.resonator); // :      "deployed a Resonator",
+    window.plugin.chatHooks.addChatHook('CH_PORTAL_CAPTURED', this.PlayerFrequency.portal); // :    "captured",
+    window.plugin.chatHooks.addChatHook('CH_PORTAL_ATTACKED', this.PlayerFrequency.portal); // :    "is under attack",
+    window.plugin.chatHooks.addChatHook('CH_PORTAL_NEUTRALISED', this.PlayerFrequency.portal); // : "neutralized",
+    /*
+    CH_LINK_DESTROYED:     "destroyed the Link",
+    CH_LINK_DESTROYED_OWN: "Your Link",
+    CH_FIELD_CREATED:      "created a Control Field",
+    CH_FIELD_DESTROYED:    "destroyed a Control Field"
+    */
+    //addHook('factionChatDataAvailable', window.plugin.chatHooks.handleFactionData);
 
-  $('#toolbox').append(' <a onclick="window.plugin.PlayerFrequency.filterUsers()" title="Display users recorded for Frequency stats">Frequency player list</a>');
+    $('#toolbox').append(' <a onclick="window.plugin.PlayerFrequency.filterUsers()" title="Display users recorded for Frequency stats">Frequency player list</a>');
+  },
 };
 
 // PLUGIN END //////////////////////////////////////////////////////////
