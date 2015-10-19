@@ -70,9 +70,11 @@ window.artifact.processData = function(data) {
     return;
   }
 
+  var oldArtifacts = artifact.entities;
   artifact.clearData();
 
   artifact.processResult(data.result);
+  runHooks('artifactsUpdated', {old: oldArtifacts, 'new': artifact.entities});
 
   // redraw the artifact layer
   artifact.updateLayer();
