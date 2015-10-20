@@ -561,6 +561,19 @@ window.setupLayerChooserApi = function() {
     }
 
     return true;
+  };
+
+  var _update = window.layerChooser._update;
+  window.layerChooser._update = function() {
+    // update layer menu in IITCm
+    try {
+      if(typeof android != 'undefined')
+        window.layerChooser.getLayers();
+    } catch(e) {
+      console.error(e);
+    }
+    // call through
+    return _update.apply(this, arguments);
   }
 }
 
