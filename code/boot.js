@@ -575,6 +575,14 @@ window.setupLayerChooserApi = function() {
     // call through
     return _update.apply(this, arguments);
   }
+  // as this setupLayerChooserApi function is called after the layer menu is populated, we need to also get they layers once
+  // so they're passed through to the android app
+  try {
+    if(typeof android != 'undefined')
+      window.layerChooser.getLayers();
+  } catch(e) {
+    console.error(e);
+  }
 }
 
 // BOOTING ///////////////////////////////////////////////////////////
