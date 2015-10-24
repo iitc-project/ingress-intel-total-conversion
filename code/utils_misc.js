@@ -213,7 +213,7 @@ window.showPortalPosLinks = function(lat, lng, name) {
     var bingmaps = '<a href="http://www.bing.com/maps/?v=2&cp='+lat+'~'+lng+'&lvl=16&sp=Point.'+lat+'_'+lng+'_'+encoded_name+'___">Bing Maps</a>';
     var osm = '<a href="http://www.openstreetmap.org/?mlat='+lat+'&mlon='+lng+'&zoom=16">OpenStreetMap</a>';
     var latLng = '<span>&lt;' + lat + ',' + lng +'&gt;</span>';
-    var navigon = '<a href="navigon://coordinate/'+encoded_name+'/'+lng+'/'+lat+'">NavigonLink</a>';
+    var navigon = '<a href="navigon://coordinate/'+encoded_name+'/'+lng+'/'+lat+'">Navigon</a>';
     dialog({
       html: '<div style="text-align: center;">' + qrcode + script + gmaps + '; ' + bingmaps + '; ' + osm + '; ' + navigon + '<br />' + latLng + '</div>',
       title: name,
