@@ -318,7 +318,7 @@ RegionScoreboard = (function () {
     var required_mu = Math.abs(e_res-e_enl) * regionScore.MAX_CYCLES+1;
     res +='<hr>\n' + window.TEAM_NAMES[loosing_faction]+' requires:\n';
     for (var cp = 1; cp+regionScore.getLastCP()<=regionScore.MAX_CYCLES && cp<6;cp++) {
-      res += cp+' cycles\t+'+digits(Math.ceil(required_mu/cp))+'\n';
+      res += cp+' checkpoint\t+'+digits(Math.ceil(required_mu/cp))+'\n';
     }
 
     return res;
