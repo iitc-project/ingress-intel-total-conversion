@@ -1,7 +1,8 @@
 /*
  * Google layer using Google Maps API
- * Source: http://www.qtrandev.com/transit5/googlemaps/GoogleTraffic.js
- * Author: https://github.com/qtrandev
+ * Source: https://github.com/qtrandev/LeafletTransit
+ * Author: Quyen Tran https://github.com/qtrandev
+ * License: https://github.com/codeforamerica/ceviche-cms/blob/master/LICENCE.md
  */
 
 /* global google: true */
