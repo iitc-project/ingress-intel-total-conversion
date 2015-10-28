@@ -182,6 +182,9 @@ window.plugin.crossLinks.checkAllLinks = function() {
     console.debug("Cross-Links: checking all links");
     plugin.crossLinks.linkLayer.clearLayers();
     plugin.crossLinks.linkLayerGuids = {};
+    $('#blocker_output').css({'color':'#ffce00'});
+    html = "No Cross Links";
+    $('#blocker_output').html(html);
 
     $.each(window.links, function(guid, link) {
         plugin.crossLinks.testLink(link);
@@ -222,6 +225,10 @@ window.plugin.crossLinks.showLink = function(link) {
 
     poly.addTo(plugin.crossLinks.linkLayer);
     plugin.crossLinks.linkLayerGuids[link.options.guid]=poly;
+    console.warn("Found a Blocker!");
+    $('#blocker_output').css({'color':'#d22'});
+    html = "Crossing Links: " + Object.keys(plugin.crossLinks.linkLayerGuids).length;
+    $('#blocker_output').html(html);
 }
 
 window.plugin.crossLinks.onMapDataRefreshEnd = function () {
@@ -311,7 +318,12 @@ var setup = function() {
 
     window.addHook('linkAdded', window.plugin.crossLinks.onLinkAdded);
     window.addHook('mapDataRefreshEnd', window.plugin.crossLinks.onMapDataRefreshEnd);
-
+    
+    $('#sidebar').append('<div id="blocker_output"></div>');
+    $('#blocker_output').css({'font-weight':'bold'});
+    $('#blocker_output').css({'color':'#ffce00'});
+    html = "No Crossing Links";
+    $('#blocker_output').html(html);
     
 }
 
