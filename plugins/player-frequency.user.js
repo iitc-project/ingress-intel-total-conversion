@@ -34,7 +34,6 @@ window.plugin.PlayerFrequency = (function() {
         RESISTANCE:  "#0000FF"
       };
       this.usercount = 0;
-debugger;
       this.styles = {
         ENLIGHTENED: { color: this.FACTION_COLOURS.ENLIGHTENED },
         RESISTANCE: { color: this.FACTION_COLOURS.RESISTANCE }
@@ -105,6 +104,22 @@ debugger;
       }
     },
 
+    update_cb: function(nick) {
+      var userfilter = this.userfilter;
+      // find dom for this cb
+      cb = $('input[name="players"][value=nick]');
+      // find state of checkbox
+      cb_state = cb.prop("checked");
+      // update filter and update cb state to match filter
+      if (userfilter.filters[nick] === "on") {
+        userfilter.unsetfilter(nick);
+        cb.prop("checked", false);
+      } else {
+        userfilter.setfilter(nick);
+        cb.prop("checked", true);
+      }
+    },
+
     filterUsers: function() {
       var userfilter = this.userfilter.filters;
       var names = this.userfilter.names;
@@ -114,14 +129,14 @@ debugger;
       console.log("filterUsers 1");
       for (var nick in names) {
         checked = userfilter[nick] === "on" ? "checked" : "";
-        setfunction = userfilter[nick] === "on" ? "unsetfilter" : "setfilter";
         var value = 'value="' + nick + '"';
         var checked_opt = checked ? 'checked' : '';
-        var onclick_opt = 'onchange="pf.userfilter.' + setfunction + '(\'' + nick + '\')"';
+        var onclick_opt = 'onchange="pf.update_cb(\'' + nick + '\')"';
         console.log("value: " + value);
         console.log("checked: " + checked);
         console.log("onclick: " + onclick);
         names_checkboxes += '<input type="checkbox" name="players" ' + value + ' ' + checked_opt + ' ' + onclick_opt + ' />' + nick + '<br/>';
+
       }
       console.log("filterUsers 2");
       names_checkboxes += "</fieldset>";
