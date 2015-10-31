@@ -50,8 +50,7 @@ window.plugin.PlayerFrequency = (function() {
       lat = portal.latE6/1E6;
       lng = portal.lngE6/1E6;
       style = data.team;
-debugger;
-      this.addCircle(lat, lng, self.styles[style]);
+      this.addCircle(lat, lng, this.styles[style]);
       this.userfilter.setfilter(data.nick);
     },
     portal: function(data) {
@@ -200,17 +199,15 @@ var setup = function() {
   window.addLayerGroup('player-frequency', pf.layer, true);
 
   window.plugin.chatHooks.addChatHook('CH_PORTAL_LINKED', function (data) { return pf.linked_portal(data); });
-  //window.plugin.chatHooks.addChatHook('CH_RESO_DESTROYED', pf.resonator); // :     "destroyed a Resonator",
-  //window.plugin.chatHooks.addChatHook('CH_RESO_DEPLOYED', pf.resonator); // :      "deployed a Resonator",
-  //window.plugin.chatHooks.addChatHook('CH_PORTAL_CAPTURED', pf.portal); // :    "captured",
-  //window.plugin.chatHooks.addChatHook('CH_PORTAL_ATTACKED', pf.portal); // :    "is under attack",
-  //window.plugin.chatHooks.addChatHook('CH_PORTAL_NEUTRALISED', pf.portal); // : "neutralized",
-  /*
-  CH_LINK_DESTROYED:     "destroyed the Link",
-  CH_LINK_DESTROYED_OWN: "Your Link",
-  CH_FIELD_CREATED:      "created a Control Field",
-  CH_FIELD_DESTROYED:    "destroyed a Control Field"
-  */
+  window.plugin.chatHooks.addChatHook('CH_RESO_DESTROYED', function (data) { return pf.resonator(data); }); // :     "destroyed a Resonator",
+  window.plugin.chatHooks.addChatHook('CH_RESO_DEPLOYED', function (data) { return pf.resonator(data); }); // :      "deployed a Resonator",
+  window.plugin.chatHooks.addChatHook('CH_PORTAL_CAPTURED', function (data) { return pf.portal(data); }); // :    "captured",
+  window.plugin.chatHooks.addChatHook('CH_PORTAL_ATTACKED', function (data) { return pf.portal(data); }); // :    "is under attack",
+  window.plugin.chatHooks.addChatHook('CH_PORTAL_NEUTRALISED', function (data) { return pf.portal(data); }); // : "neutralized",
+  window.plugin.chatHooks.addChatHook('CH_LINK_DESTROYED', function (data) { return pf.portal(data); }); //:     "destroyed the Link",
+  window.plugin.chatHooks.addChatHook('CH_LINK_DESTROYED_OWN', function (data) { return pf.portal(data); }); //: "Your Link",
+  window.plugin.chatHooks.addChatHook('CH_FIELD_CREATED', function (data) { return pf.portal(data); }); //:      "created a Control Field",
+  window.plugin.chatHooks.addChatHook('CH_FIELD_DESTROYED', function (data) { return pf.portal(data); }); //:    "destroyed a Control Field"
   //addHook('factionChatDataAvailable', window.plugin.chatHooks.handleFactionData);
 
   pf.setup();
