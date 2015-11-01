@@ -36,43 +36,44 @@ window.plugin.PlayerFrequency = (function() {
       this.usercount = 0;
       this.styles = {
         ENLIGHTENED: { color: this.FACTION_COLOURS.ENLIGHTENED },
-        RESISTANCE: { color: this.FACTION_COLOURS.RESISTANCE }
+        RESISTANCE: { color: this.FACTION_COLOURS.RESISTANCE },
+        KEY_COLLECTION: { color: "gray" }
       };
       this.userfilter = new userfilter();
-    var self = this;
+      this.stored = {};
   };
   PlayerFrequency.prototype = {
-    
     // Member functions
+    stored_append: function(nick, portal, lat, lng, style) {
+      if (!this.stored[nick]) {
+        this.stored[nick] = [];
+      }
+      this.stored[nick].push({portal: portal, lat: lat, lng: lng, style: style});
+      if (!this.userfilter.hasrecord(nick)) {
+        this.userfilter.setfilter(nick);
+      }
+    },
     resonator: function(data) {
       portal = data.portals[0];
-      //console.log("resonator event @ " + portal.latE6/1E6 + "," + portal.lngE6/1E6);
-      lat = portal.latE6/1E6;
-      lng = portal.lngE6/1E6;
+      lat = portal.latE6;
+      lng = portal.lngE6;
       style = data.team;
-      this.addCircle(lat, lng, this.styles[style]);
-      this.userfilter.setfilter(data.nick);
+      this.stored_append(data.nick, portal, lat, lng, style);
     },
     portal: function(data) {
       portal = data.portals[0];
-      //console.log("resonator event @ " + portal.latE6/1E6 + "," + portal.lngE6/1E6);
-      lat = portal.latE6/1E6;
-      lng = portal.lngE6/1E6;
+      lat = portal.latE6;
+      lng = portal.lngE6;
       style = data.team;
-      this.addCircle(lat, lng, this.styles[style]);
-      this.userfilter.setfilter(data.nick);
+      this.stored_append(data.nick, portal, lat, lng, style);
     },
     linked_portal: function(data) {
       portal = data.portals[0];
-      str = data.time + ": from " + portal.name + " to " + data.portals[1].name;
-      str += " linked by " + data.nick;
-      //console.log(str);
-      //L.circle(L.latLng(portal.latE6/1E6, portal.lngE6/1E6), 40, fill=true).addTo(plugin.PlayerFrequency.layer)
-      lat = portal.latE6/1E6;
-      lng = portal.lngE6/1E6;
+      lat = portal.latE6;
+      lng = portal.lngE6;
       style = data.team;
-      this.addCircle(lat, lng, this.styles[style]);
-      this.userfilter.setfilter(data.nick);
+      this.stored_append(data.nick, portal, lat, lng, style);
+      this.stored_append(data.nick, data.portals[1], data.portals[1].latE6, data.portals[1].lngE6, "KEY_COLLECTION");
     },
     addCircle: function(lat, lng, style) {
       console.log("Adding circle at " + lat + ", " + lng);
@@ -80,7 +81,12 @@ window.plugin.PlayerFrequency = (function() {
       style.fill = true;
 
       L.circle(L.latLng(lat, lng), 40, style).addTo(this.layer);
-      // plugin.PlayerFrequency.showUsers();
+    },
+    addUserDataToLayer: function(nick) {
+      var self = this;
+      this.stored[nick].forEach(function(entry, id, arr) {
+        self.addCircle(entry.lat/1E6, entry.lng/1E6, self.styles[entry.style]);
+      });
     },
     showUsers: function() {
       var stored = window.plugin.chatHooks.stored;
@@ -102,32 +108,38 @@ window.plugin.PlayerFrequency = (function() {
         }
       }
     },
-
+    showSelectedUsers: function() {
+      this.layer.clearLayers();
+      var self = this;
+      Object.getOwnPropertyNames(this.userfilter.filters).forEach(
+        function(nick, id, arr) {
+          if (self.userfilter.filters[nick].enabled) {
+            self.addUserDataToLayer(nick);
+          }
+        }
+      );
+    },
     update_cb: function(nick) {
-      var userfilter = this.userfilter;
+      var userfilter = this.userfilter.filters[nick];
       // find dom for this cb
       cb = $('input[name="players"][value=nick]');
       // find state of checkbox
       cb_state = cb.prop("checked");
       // update filter and update cb state to match filter
-      if (userfilter.filters[nick] === "on") {
-        userfilter.unsetfilter(nick);
-        cb.prop("checked", false);
-      } else {
-        userfilter.setfilter(nick);
-        cb.prop("checked", true);
-      }
+      console.log(nick + ": " + userfilter.enabled);
+      userfilter.toggle();
+      console.log(nick + ": " + userfilter.enabled);
+      cb.prop("checked", userfilter.enabled);
     },
 
     filterUsers: function() {
       var userfilter = this.userfilter.filters;
-      var names = this.userfilter.names;
+      var names = Object.getOwnPropertyNames(this.userfilter.filters);
       var names_checkboxes = "<fieldset>";
       names_checkboxes += "<legend>Players with current frequency data:</legend>";
 
-      console.log("filterUsers 1");
-      for (var nick in names) {
-        checked = userfilter[nick] === "on" ? "checked" : "";
+      names.forEach(function(nick, id, arr) {
+        checked = userfilter[nick].enabled ? "checked" : "";
         var value = 'value="' + nick + '"';
         var checked_opt = checked ? 'checked' : '';
         var onclick_opt = 'onchange="pf.update_cb(\'' + nick + '\')"';
@@ -135,10 +147,8 @@ window.plugin.PlayerFrequency = (function() {
         console.log("checked: " + checked);
         console.log("onclick: " + onclick);
         names_checkboxes += '<input type="checkbox" name="players" ' + value + ' ' + checked_opt + ' ' + onclick_opt + ' />' + nick + '<br/>';
-
-      }
-      console.log("filterUsers 2");
-      names_checkboxes += "</fieldset>";
+      });
+      names_checkboxes += '</fieldset><input type="button" onclick="pf.showSelectedUsers()">OK</input>';
 
       dialog({
         text: names_checkboxes,
@@ -155,28 +165,44 @@ window.plugin.PlayerFrequency = (function() {
   };
   Filter.prototype = {
     enable: function() {
-      self.enabled = true;
+      this.enabled = true;
     },
     disable: function() {
-      self.enabled = false;
+      this.enabled = false;
+    },
+    toggle: function() {
+      if (this.enabled) {
+        this.disable();
+      } else {
+        this.enable();
+      }
     },
   };
 
   var userfilter = function() {
     this.filters = {};
-    this.names = [];
   };
   userfilter.prototype = {
-      setfilter: function(nick) {
-        console.log("Setting filters[" + nick + "] = 'on'");
-        this.filters[nick] = "on";
-        this.names[nick] = true;
-      },
-      unsetfilter: function(nick) {
-        console.log("Setting filters[" + nick + "] = 'off'");
-        this.filters[nick] = "off";
-        this.names[nick] = true;
-      },
+    setfilter: function(nick) {
+      console.log("Setting filters[" + nick + "] = 'on'");
+      if (!this.filters[nick]) {
+        this.filters[nick] = new Filter();
+      }
+      this.filters[nick].enable;
+    },
+    unsetfilter: function(nick) {
+      console.log("Setting filters[" + nick + "] = 'off'");
+      if (!this.filters[nick]) {
+        this.filters[nick] = new Filter();
+      }
+      this.filters[nick].disable;
+    },
+    toggle: function(nick) {
+      this.filters[nick].toggle();
+    },
+    hasrecord: function(nick) {
+      return this.filters.hasOwnProperty(nick);
+    }
   };
 
   return {
@@ -185,15 +211,17 @@ window.plugin.PlayerFrequency = (function() {
   };
 })();
 
+/*
 window.plugin.PlayerFrequency.Classes = {
   // Member functions
 
 };
+*/
 
 var setup = function() {
   pf = new window.plugin.PlayerFrequency.PlayerFrequency();
   if (!window.plugin.chatHooks) {
-
+    debugger;
   }
   pf.layer = new L.LayerGroup();
   window.addLayerGroup('player-frequency', pf.layer, true);
@@ -204,8 +232,8 @@ var setup = function() {
   window.plugin.chatHooks.addChatHook('CH_PORTAL_CAPTURED', function (data) { return pf.portal(data); }); // :    "captured",
   window.plugin.chatHooks.addChatHook('CH_PORTAL_ATTACKED', function (data) { return pf.portal(data); }); // :    "is under attack",
   window.plugin.chatHooks.addChatHook('CH_PORTAL_NEUTRALISED', function (data) { return pf.portal(data); }); // : "neutralized",
-  window.plugin.chatHooks.addChatHook('CH_LINK_DESTROYED', function (data) { return pf.portal(data); }); //:     "destroyed the Link",
-  window.plugin.chatHooks.addChatHook('CH_LINK_DESTROYED_OWN', function (data) { return pf.portal(data); }); //: "Your Link",
+  window.plugin.chatHooks.addChatHook('CH_LINK_DESTROYED', function (data) { return pf.linked_portal(data); }); //:     "destroyed the Link",
+  window.plugin.chatHooks.addChatHook('CH_LINK_DESTROYED_OWN', function (data) { return pf.linked_portal(data); }); //: "Your Link",
   window.plugin.chatHooks.addChatHook('CH_FIELD_CREATED', function (data) { return pf.portal(data); }); //:      "created a Control Field",
   window.plugin.chatHooks.addChatHook('CH_FIELD_DESTROYED', function (data) { return pf.portal(data); }); //:    "destroyed a Control Field"
   //addHook('factionChatDataAvailable', window.plugin.chatHooks.handleFactionData);
