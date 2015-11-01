@@ -69,10 +69,7 @@ window.plugin.portalslist.fields = [
     title: "Level",
     value: function(portal) { return portal.options.data.level; },
     format: function(cell, portal, value) {
-      var level_text = "L?";
-      if (value) {
-          level_text = "L" + value;
-      }
+      var level_text = value ? "L" + value : "L?";
       $(cell)
         .css('background-color', COLORS_LVL[value])
         .text(level_text);
