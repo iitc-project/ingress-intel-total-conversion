@@ -6,9 +6,9 @@ window.extractFromStock = function() {
   window.niantic_params = {}
 
   // extract the former nemesis.dashboard.config.CURRENT_VERSION from the code
-  var reVersion = new RegExp('[a-z]=[a-z].getData\\(\\);[a-z].v="([a-f0-9]{40})";');
+  var reVersion = new RegExp('"X-CSRFToken".*[a-z].v="([a-f0-9]{40})";');
 
-  var minified = new RegExp('^[a-zA-Z$][a-zA-Z$0-9]$');
+  var minified = new RegExp('^[a-zA-Z$][a-zA-Z$0-9]?$');
 
   for (var topLevel in window) {
     if (minified.test(topLevel)) {
