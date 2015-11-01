@@ -144,7 +144,6 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
 
     public void onBootFinished() {
         mLoading = false;
-        updateLayers();
     }
 
     @Override
@@ -278,11 +277,5 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
             }
         }
         mOverlayLayers.notifyDataSetChanged();
-    }
-
-    public void updateLayers() {
-        if (!mLoading) {
-            mIitc.getWebView().loadUrl("javascript: window.layerChooser.getLayers()");
-        }
     }
 }

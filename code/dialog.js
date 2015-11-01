@@ -93,6 +93,15 @@ window.dialog = function(options) {
     }
   }
 
+  // there seems to be a bug where width/height are set to a fixed value after moving a dialog
+  function sizeFix() {
+    if(dialog.data('collapsed')) return;
+
+    var options = dialog.dialog('option');
+    dialog.dialog('option', 'height', options.height);
+    dialog.dialog('option', 'width', options.width);
+  }
+
   // Create the window, appending a div to the body
   $('body').append('<div id="' + id + '"></div>');
   var dialog = $(jqID).dialog($.extend(true, {
@@ -140,7 +149,8 @@ window.dialog = function(options) {
           var button   = dialog.find('.ui-dialog-titlebar-button-collapse');
 
           // Slide toggle
-          $(selector).slideToggle({duration: window.DIALOG_SLIDE_DURATION});
+          $(this).css('height', '');
+          $(selector).slideToggle({duration: window.DIALOG_SLIDE_DURATION, complete: sizeFix});
 
           if(collapsed) {
             $(button).removeClass('ui-dialog-titlebar-button-collapse-collapsed');
@@ -213,6 +223,8 @@ window.dialog = function(options) {
       $(this).closest('.ui-dialog').find('.ui-dialog-title').removeClass('ui-dialog-title-inactive').addClass('ui-dialog-title-active');
     }
   }, options));
+
+  dialog.on('dialogdragstop dialogresizestop', sizeFix);
 
   // Set HTML and IDs
   dialog.html(html);

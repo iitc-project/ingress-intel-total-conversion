@@ -95,7 +95,7 @@ window.outOfDateUserPrompt = function()
 
     dialog({
       title: 'Reload IITC',
-      html: '<p>IITC is using an outdated version code. This will happen when Niantic update the standard intel site.</p>'
+      html: '<p>IITC is using an outdated version code. This will happen when Niantic updates the standard intel site.</p>'
            +'<p>You need to reload the page to get the updated changes.</p>'
            +'<p>If you have just reloaded the page, then an old version of the standard site script is cached somewhere.'
            +'In this case, try clearing your cache, or waiting 15-30 minutes for the stale data to expire.</p>',
