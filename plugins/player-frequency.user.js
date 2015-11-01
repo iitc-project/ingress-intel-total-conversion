@@ -188,14 +188,14 @@ window.plugin.PlayerFrequency = (function() {
       if (!this.filters[nick]) {
         this.filters[nick] = new Filter();
       }
-      this.filters[nick].enable;
+      this.filters[nick].enable();
     },
     unsetfilter: function(nick) {
       console.log("Setting filters[" + nick + "] = 'off'");
       if (!this.filters[nick]) {
         this.filters[nick] = new Filter();
       }
-      this.filters[nick].disable;
+      this.filters[nick].disable();
     },
     toggle: function(nick) {
       this.filters[nick].toggle();
