@@ -184,13 +184,6 @@ window.plugin.chatHooks.handlePublicData = function(data) {
           } else {
             newEvent.portals.push(portal);
           }
-
-          /*
-          lat = markup[1].latE6/1E6;
-          lng = markup[1].lngE6/1E6;
-          name = markup[1].name;
-          address = markup[1].address;
-          */
           break;
         default:
           break;
@@ -213,7 +206,7 @@ window.plugin.chatHooks.handlePublicData = function(data) {
       if (newEvent.type) {
         var test  = playerData.events.add(newEvent.id, newEvent);
         if (test) {
-          console.log("Added chat event for " + newEvent.nick + ": " + newEvent.type + "(" + newEvent.id + ")");
+          // console.log("Added chat event for " + newEvent.nick + ": " + newEvent.type + "(" + newEvent.id + ")");
           window.plugin.chatHooks.runChatHooks(newEvent.type, newEvent);
           return true;
         }
