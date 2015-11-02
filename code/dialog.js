@@ -51,10 +51,6 @@ window.DIALOG_SLIDE_DURATION = 100;
 window.dialog = function(options) {
   // Override for smartphones. Preserve default behavior and create a modal dialog.
   options = options || {};
-  if(isSmartphone()) {
-    options.modal = true;
-    options.width = 'auto';
-  }
 
   // Build an identifier for this dialog
   var id = 'dialog-' + (options.modal ? 'modal' : (options.id ? options.id : 'anon-' + window.DIALOG_ID++));
@@ -78,7 +74,7 @@ window.dialog = function(options) {
 
   // Modal dialogs should not be draggable
   if(options.modal) {
-    options.dialogClass = 'ui-dialog-modal';
+    options.dialogClass = (options.dialogClass ? options.dialogClass + ' ' : '') + 'ui-dialog-modal';
     options.draggable = false;
   }
 
