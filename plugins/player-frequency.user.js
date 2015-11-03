@@ -138,7 +138,7 @@ window.plugin.PlayerFrequency = (function() {
 
     filterUsers: function() {
       var userfilter = this.userfilter.filters;
-      var names = Object.getOwnPropertyNames(this.userfilter.filters);
+      var names = this.userfilter.names_sorted();
       var names_checkboxes = "<fieldset>";
       names_checkboxes += "<legend>Players with current frequency data:</legend>";
 
@@ -147,10 +147,11 @@ window.plugin.PlayerFrequency = (function() {
         var value = 'value="' + nick + '"';
         var checked_opt = checked ? 'checked' : '';
         var onclick_opt = 'onchange="pf.update_cb(\'' + nick + '\')"';
+        var player_class = 'player-freq-' + userfilter[name].style;
         console.log("value: " + value);
         console.log("checked: " + checked);
         console.log("onclick: " + onclick);
-        names_checkboxes += '<input type="checkbox" name="players" ' + value + ' ' + checked_opt + ' ' + onclick_opt + ' />' + nick + '<br/>';
+        names_checkboxes += '<input type="checkbox" name="players" ' + value + ' ' + checked_opt + ' ' + onclick_opt + ' /><div class="' + player_class + '">' + nick + '</div><br/>';
       });
       names_checkboxes += '</fieldset><input type="button" onclick="pf.showSelectedUsers()">OK</input>';
 
@@ -183,21 +184,38 @@ window.plugin.PlayerFrequency = (function() {
     },
   };
 
+  var UserFilter = function() {};
+  UserFilter.prototype = new Filter();
+  UserFilter.constructor = UserFilter_ctor;
+  var UserFilter_ctor = function () {
+    this.style = null;
+  };
   var userfilter = function() {
     this.filters = {};
   };
   userfilter.prototype = {
+    name_sort_lc: function(s1, s2) {
+      if (s1 == s2) { return 0; }
+      if (s1.toLowerCase() == s2.toLowerCase()) {
+        return s1 < s2 ? -1 : 1;
+      }
+      return s1.toLowerCase() < s2.toLowerCase() ? -1 : 1;
+    },
+    names_sorted: function() {
+      var names = Object.getOwnPropertyNames(this.filters).sort(this.name_sort_lc);
+      return names;
+    },
     setfilter: function(nick) {
       console.log("Setting filters[" + nick + "] = 'on'");
       if (!this.filters[nick]) {
-        this.filters[nick] = new Filter();
+        this.filters[nick] = new UserFilter();
       }
       this.filters[nick].enable();
     },
     unsetfilter: function(nick) {
       console.log("Setting filters[" + nick + "] = 'off'");
       if (!this.filters[nick]) {
-        this.filters[nick] = new Filter();
+        this.filters[nick] = new UserFilter();
       }
       this.filters[nick].disable();
     },
