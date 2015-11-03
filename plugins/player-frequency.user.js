@@ -61,11 +61,15 @@ window.plugin.PlayerFrequency = (function() {
       this.stored_append(data.nick, portal, lat, lng, style);
     },
     portal: function(data) {
-      portal = data.portals[0];
-      lat = portal.latE6;
-      lng = portal.lngE6;
-      style = data.team;
-      this.stored_append(data.nick, portal, lat, lng, style);
+      if (data.portals) {
+        portal = data.portals[0];
+        lat = portal.latE6;
+        lng = portal.lngE6;
+        style = data.team;
+        this.stored_append(data.nick, portal, lat, lng, style);
+      } else {
+        console.log("No portals in " + data);
+      }
     },
     linked_portal: function(data) {
       portal = data.portals[0];
