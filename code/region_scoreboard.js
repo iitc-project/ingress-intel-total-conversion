@@ -10,7 +10,6 @@ RegionScoreboard = (function () {
     this.topAgents = serverResult.topAgents;
     this.regionName = serverResult.regionName;
     this.gameScore = serverResult.gameScore;
-    this.cpEndTime;
 
     this.median=[-1,-1,-1];
     this.MAX_CYCLES = 35;
@@ -18,19 +17,20 @@ RegionScoreboard = (function () {
     this.checkpoints = [];
 
     this.hasNoTopAgents = function () {
-        return this.topAgents.length==0;
-      }
+        return this.topAgents.length===0;
+      };
 
     this.getAvgScore = function(faction) {
           return parseInt(this.gameScore[ faction===TEAM_ENL? 0:1 ]);
-      }
+      };
+      
     this.getAvgScoreMax = function() {
           return Math.max(this.getAvgScore(TEAM_ENL), this.getAvgScore(TEAM_RES), 1);
-      }
+      };
 
     this.getCPScore = function(cp) {
       return this.checkpoints[cp];
-    }
+      };
 
     this.getScoreMax = function(min_value) {
           var max = min_value || 0;
@@ -39,7 +39,7 @@ RegionScoreboard = (function () {
               max = Math.max(max,cp[0],cp[1]);
           }
           return max;
-      }
+      };
 
     this.getAvgScoreAtCP = function(faction, cp_idx) {
       var idx = faction==TEAM_RES? 1:0;
@@ -49,7 +49,7 @@ RegionScoreboard = (function () {
       var cp_len = Math.min(cp_idx,this.checkpoints.length);
 
       for (var i=1; i<=cp_len; i++) {
-        if (this.checkpoints[i] != undefined) {
+        if (this.checkpoints[i] !== undefined) {
           score += this.checkpoints[i][idx];
           count++;
         }
@@ -60,19 +60,19 @@ RegionScoreboard = (function () {
       }
 
       return Math.floor(score / cp_idx);
-    }
+    };
 
 
     this.getScoreMedian = function(faction) {
         if (this.median[faction]<0) {
             var idx = faction==TEAM_RES? 1:0;
             var values = this.checkpoints.map( function (val) { return val[idx];} );
-            values = values.filter(function(n){ return n != undefined });
+            values = values.filter(function(n){ return n !== undefined; });
             this.median[faction] = this.findMedian(values);
         }
 
         return this.median[faction];
-    }
+    };
 
     this.findMedian = function(values) {
       var len = values.length;
@@ -100,22 +100,22 @@ RegionScoreboard = (function () {
             if (rank<i) m=j ;
         }
         return values[rank];
-    }
+    };
 
     this.getLastCP = function() {
-      if (this.checkpoints.length==0) return 0;
+      if (this.checkpoints.length===0) return 0;
       return this.checkpoints.length-1;
-    }
+    };
 
     this.getCycleEnd = function() {
       return this.getCheckpointEnd(this.MAX_CYCLES);
-    }
+    };
 
     this.getCheckpointEnd = function(cp) {
       var end = new Date(this.cycleStartTime.getTime());
       end.setHours(end.getHours()+cp*5);
       return end;
-    }
+    };
 
     for (var i=0; i<serverResult.scoreHistory.length; i++) {
         var h = serverResult.scoreHistory[i];
@@ -139,7 +139,7 @@ RegionScoreboard = (function () {
     window.postAjax('getRegionScoreDetails', {latE6:latE6,lngE6:lngE6},
         onRequestSuccess,
         onRequestFailure);
-  };
+  }
 
   // TODO: DEPRECATED replace with "window.RegionScoreboard.showDialog();"
   window.regionScoreboard = showDialog;
@@ -250,7 +250,7 @@ RegionScoreboard = (function () {
       for (var i=0; i<regionScore.topAgents.length; i++) {
           var agent = regionScore.topAgents[i];
           agentTable += '<tr><td>'+(i+1)+'</td><td class="nickname '+(agent.team=='RESISTANCE'?'res':'enl')+'">'+agent.nick+'</td></tr>';
-      };
+      }
 
       if (regionScore.hasNoTopAgents()) {
         agentTable += '<tr><td colspan="2"><i>no top agents</i></td></tr>';
@@ -263,13 +263,13 @@ RegionScoreboard = (function () {
   function createResults() {
 
       var maxAverage = regionScore.getAvgScoreMax();
-      var order = (PLAYER.team == 'RESISTANCE' ? [TEAM_RES,TEAM_ENL]:[TEAM_ENL,TEAM_RES])
+      var order = (PLAYER.team == 'RESISTANCE' ? [TEAM_RES,TEAM_ENL]:[TEAM_ENL,TEAM_RES]);
 
       var result = '<table id="overview" style="margin: auto;" title="dummy">';
       for (var t=0; t<2; t++) {
           var faction = order[t];
           var team = window.TEAM_NAMES[faction];
-          var teamClass = window.TEAM_TO_CSS[faction]
+          var teamClass = window.TEAM_TO_CSS[faction];
           var teamCol = COLORS[faction];
           var barSize = Math.round(regionScore.getAvgScore(faction)/maxAverage*200);
           result += '<tr><th class="'+teamClass+'">'+team+'</th>'
@@ -288,7 +288,7 @@ RegionScoreboard = (function () {
     var e_enl = regionScore.getAvgScoreAtCP(TEAM_ENL,regionScore.MAX_CYCLES);
     var loosing_faction = e_res<e_enl ? TEAM_RES : TEAM_ENL;
 
-    var order = (loosing_faction == TEAM_ENL ? [TEAM_RES,TEAM_ENL]:[TEAM_ENL,TEAM_RES])
+    var order = (loosing_faction == TEAM_ENL ? [TEAM_RES,TEAM_ENL]:[TEAM_ENL,TEAM_RES]);
 
     function percentToString(score,total) {
       if (total===0) return '50%';
@@ -377,7 +377,7 @@ RegionScoreboard = (function () {
 
 
   return {
-    showDialog
+    showDialog: showDialog
   };
 
 }());
@@ -394,7 +394,7 @@ RegionScoreboard.HistoryChart = (function () {
 
     var max = regionScore.getScoreMax(10); //NOTE: ensure a min of 10 for the graph
     max *= 1.09;      // scale up maximum a little, so graph isn't squashed right against upper edge
-    setScaleType(max,logscale)
+    setScaleType(max,logscale);
 
     svgTickText = [];
 
@@ -548,14 +548,14 @@ RegionScoreboard.HistoryChart = (function () {
         Math.log10 = function(x) { return Math.log(x) / Math.LN10; };
 
       // 0 cannot be displayed on a log scale, so we set the minimum to 0.001 and divide by lg(0.001)=-3
-      scaleFct = function(y) { return Math.round(10 - Math.log10(Math.max(0.001,y/max)) / 3 * 100); }
+      scaleFct = function(y) { return Math.round(10 - Math.log10(Math.max(0.001,y/max)) / 3 * 100); };
     } else {
       scaleFct = function(y) { return Math.round(110-y/max*100); };
     }
   }
 
   function getFactionColor(t) {
-    return t==0 ? COLORS[TEAM_ENL] : COLORS[TEAM_RES];;
+    return (t==0 ? COLORS[TEAM_ENL] : COLORS[TEAM_RES]);
   }
 
   function formatNumber(num) {
@@ -563,7 +563,7 @@ RegionScoreboard.HistoryChart = (function () {
   }
 
   return {
-    create
+    create: create
   };
 
 }());
