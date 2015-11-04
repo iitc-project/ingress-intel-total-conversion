@@ -50,7 +50,7 @@ window.plugin.PlayerFrequency = (function() {
       }
       this.stored[nick].push({portal: portal, lat: lat, lng: lng, style: style});
       if (!this.userfilter.hasrecord(nick)) {
-        this.userfilter.setfilter(nick);
+        this.userfilter.init_filter(nick, style);
       }
     },
     resonator: function(data) {
@@ -134,6 +134,7 @@ window.plugin.PlayerFrequency = (function() {
       userfilter.toggle();
       console.log(nick + ": " + userfilter.enabled);
       cb.prop("checked", userfilter.enabled);
+      this.showSelectedUsers();
     },
 
     filterUsers: function() {
@@ -147,13 +148,13 @@ window.plugin.PlayerFrequency = (function() {
         var value = 'value="' + nick + '"';
         var checked_opt = checked ? 'checked' : '';
         var onclick_opt = 'onchange="pf.update_cb(\'' + nick + '\')"';
-        var player_class = 'player-freq-' + userfilter[name].style;
+        var player_class = 'player-freq-' + userfilter[nick].style;
         console.log("value: " + value);
-        console.log("checked: " + checked);
-        console.log("onclick: " + onclick);
-        names_checkboxes += '<input type="checkbox" name="players" ' + value + ' ' + checked_opt + ' ' + onclick_opt + ' /><div class="' + player_class + '">' + nick + '</div><br/>';
+        console.log("checked: " + checked_opt);
+        console.log("onclick: " + onclick_opt);
+        names_checkboxes += '<div class="' + player_class + '"><input type="checkbox" name="players" ' + value + ' ' + checked_opt + ' ' + onclick_opt + ' />' + nick + '</div>';
       });
-      names_checkboxes += '</fieldset><input type="button" onclick="pf.showSelectedUsers()">OK</input>';
+      names_checkboxes += '</fieldset><button onclick="pf.showSelectedUsers()">OK</button>';
 
       dialog({
         text: names_checkboxes,
@@ -186,8 +187,7 @@ window.plugin.PlayerFrequency = (function() {
 
   var UserFilter = function() {};
   UserFilter.prototype = new Filter();
-  UserFilter.constructor = UserFilter_ctor;
-  var UserFilter_ctor = function () {
+  UserFilter.constructor = function () {
     this.style = null;
   };
   var userfilter = function() {
@@ -205,15 +205,23 @@ window.plugin.PlayerFrequency = (function() {
       var names = Object.getOwnPropertyNames(this.filters).sort(this.name_sort_lc);
       return names;
     },
+    init_filter: function(nick, style) {
+      console.log("Initialising filters[" + nick + "]");
+      if (!this.filters[nick]) {
+        this.filters[nick] = new UserFilter();
+      }
+      this.filters[nick].disable();
+      this.filters[nick].style = style;
+    },
     setfilter: function(nick) {
-      console.log("Setting filters[" + nick + "] = 'on'");
+      console.log("Setting filters[" + nick + "]");
       if (!this.filters[nick]) {
         this.filters[nick] = new UserFilter();
       }
       this.filters[nick].enable();
     },
     unsetfilter: function(nick) {
-      console.log("Setting filters[" + nick + "] = 'off'");
+      console.log("Unsetting filters[" + nick + "]");
       if (!this.filters[nick]) {
         this.filters[nick] = new UserFilter();
       }
@@ -259,6 +267,8 @@ var setup = function() {
   window.plugin.chatHooks.addChatHook('CH_FIELD_CREATED', function (data) { return pf.portal(data); }); //:      "created a Control Field",
   window.plugin.chatHooks.addChatHook('CH_FIELD_DESTROYED', function (data) { return pf.portal(data); }); //:    "destroyed a Control Field"
   //addHook('factionChatDataAvailable', window.plugin.chatHooks.handleFactionData);
+
+  $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:plugins/player-frequency.css@@').appendTo('head');
 
   pf.setup();
   $('#toolbox').append(' <a onclick="pf.filterUsers()" title="Display users recorded for Frequency stats">Frequency player list</a>');
