@@ -519,7 +519,11 @@ window.setupLayerChooserApi = function() {
     var baseLayersJSON = JSON.stringify(baseLayers);
 
     if (typeof android !== 'undefined' && android && android.setLayers) {
-        android.setLayers(baseLayersJSON, overlayLayersJSON);
+        if(this.androidTimer) clearTimeout(this.androidTimer);
+        this.androidTimer = setTimeout(function() {
+            this.androidTimer = null;
+            android.setLayers(baseLayersJSON, overlayLayersJSON);
+        }, 1000);
     }
 
     return {
