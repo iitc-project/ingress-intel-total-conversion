@@ -170,10 +170,34 @@ window.plugin.crossLinks.testPolyLine = function (polyline, link,closed) {
     return false;
 }
 
-window.plugin.crossLinks.onLinkAdded = function (data) {
-    if (window.plugin.crossLinks.disabled) return;
+window.plugin.crossLinks.testPolyLineAgainstPolyLine = function (polyline1, polyline2, firstClosed, secondClosed) {
 
-    plugin.crossLinks.testLink(data.link);
+    var a = polyline1.getLatLngs();
+    var b = polyline2.getLatLngs();
+
+    for (var i=0;i<a.length-1;++i) {
+        for (var j=0;j<b.length-1;++j) {
+            if (window.plugin.crossLinks.greatCircleArcIntersect(a[i],a[i+1],b[j],b[j+1])) return true;
+
+            if (firstClosed) {
+                if (window.plugin.crossLinks.greatCircleArcIntersect(a[a.length-1],a[0],b[j],b[j+1])) return true;
+            }
+        }
+
+        if (secondClosed) {
+            if (window.plugin.crossLinks.greatCircleArcIntersect(a[i],a[i+1],b[b.length-1],b[0])) return true;
+        }
+    }
+
+    if (firstClosed && secondClosed) {
+        if (window.plugin.crossLinks.greatCircleArcIntersect(a[a.length-1],a[0],b[b.length-1],b[0])) return true;
+    }
+    return false;
+}
+
+window.plugin.crossLinks.onLinkAdded = function (data) {
+    if (!window.plugin.crossLinks.disabled);
+        plugin.crossLinks.testLink(data.link);
 }
 
 window.plugin.crossLinks.checkAllLinks = function() {
@@ -224,12 +248,30 @@ window.plugin.crossLinks.showLink = function(link) {
     plugin.crossLinks.linkLayerGuids[link.options.guid]=poly;
 }
 
+window.plugin.crossLinks.showLayer = function(layer) {
+    if(plugin.crossLinks.crossLayersLayer.hasLayer(layer))
+        return;
+
+    var poly = L.geodesicPolyline(layer.getLatLngs(), {
+       color: '#d22',
+       opacity: 0.7,
+       weight: 5,
+       clickable: false,
+       dashArray: [8,8],
+    });
+
+    poly.addTo(plugin.crossLinks.crossLayersLayer);
+}
+
 window.plugin.crossLinks.onMapDataRefreshEnd = function () {
-    if (window.plugin.crossLinks.disabled) return;
+    if (!window.plugin.crossLinks.disabled) {
+        window.plugin.crossLinks.linkLayer.bringToFront();
 
-    window.plugin.crossLinks.linkLayer.bringToFront();
+        window.plugin.crossLinks.testForDeletedLinks();
+    }
 
-    window.plugin.crossLinks.testForDeletedLinks();
+    if (!window.plugin.crossLinks.crossLayersDisabled)
+        window.plugin.crossLinks.crossLayersLayer.bringToFront();
 }
 
 window.plugin.crossLinks.testAllLinksAgainstLayer = function (layer) {
@@ -251,6 +293,45 @@ window.plugin.crossLinks.testAllLinksAgainstLayer = function (layer) {
     });
 }
 
+window.plugin.crossLinks.testCrossLayers = function (layer) {
+    if (window.plugin.crossLinks.crossLayersDisabled) return;
+
+    plugin.crossLinks.crossLayersLayer.clearLayers();
+    
+    for (var i in plugin.drawTools.drawnItems._layers) {
+        var layer1 = plugin.drawTools.drawnItems._layers[i];
+        var layer1Closed = false;
+        if (layer1 instanceof L.GeodesicPolygon) 
+            layer1Closed = true;
+
+        if (layer) {
+            var layerClosed = false;
+            if (layer instanceof L.GeodesicPolygon) 
+                layerClosed = true;
+
+            if (plugin.crossLinks.testPolyLineAgainstPolyLine(layer1, layer, layer1Closed, layerClosed)) {
+                plugin.crossLinks.showLayer(layer1);
+                plugin.crossLinks.showLayer(layer);
+            }
+        } else {
+            for (var j in plugin.drawTools.drawnItems._layers) {
+                if(i == j) continue;
+
+                var layer2 = plugin.drawTools.drawnItems._layers[j];
+                var layer2Closed = false;
+
+                if (layer2 instanceof L.GeodesicPolygon) 
+                    layer2Closed = true;
+
+                if (plugin.crossLinks.testPolyLineAgainstPolyLine(layer1, layer2, layer1Closed, layer2Closed)) {
+                    plugin.crossLinks.showLayer(layer1);
+                    plugin.crossLinks.showLayer(layer2);
+                }
+            }
+        }
+    }
+}
+
 window.plugin.crossLinks.testForDeletedLinks = function () {
     window.plugin.crossLinks.linkLayer.eachLayer( function(layer) {
         var guid = layer.options.guid;
@@ -266,11 +347,16 @@ window.plugin.crossLinks.createLayer = function() {
     window.plugin.crossLinks.linkLayer = new L.FeatureGroup();
     window.plugin.crossLinks.linkLayerGuids={};
     window.addLayerGroup('Cross Links', window.plugin.crossLinks.linkLayer, true);
+    window.plugin.crossLinks.crossLayersLayer = new L.FeatureGroup();
+    window.addLayerGroup('Cross Layers', window.plugin.crossLinks.crossLayersLayer, true);
 
     map.on('layeradd', function(obj) {
       if(obj.layer === window.plugin.crossLinks.linkLayer) {
         delete window.plugin.crossLinks.disabled;
         window.plugin.crossLinks.checkAllLinks();
+      } else if(obj.layer === window.plugin.crossLinks.crossLayersLayer) {
+        delete window.plugin.crossLinks.crossLayersDisabled;
+        window.plugin.crossLinks.testCrossLayers();
       }
     });
     map.on('layerremove', function(obj) {
@@ -278,12 +364,19 @@ window.plugin.crossLinks.createLayer = function() {
         window.plugin.crossLinks.disabled = true;
         window.plugin.crossLinks.linkLayer.clearLayers();
         plugin.crossLinks.linkLayerGuids = {};
+      } else if(obj.layer === window.plugin.crossLinks.crossLayersLayer) {
+        window.plugin.crossLink.crossLayersDisabled = true;
+        window.plugin.crossLinks.crossLayersLayer.clearLayers();
       }
     });
 
     // ensure 'disabled' flag is initialised
     if (!map.hasLayer(window.plugin.crossLinks.linkLayer)) {
         window.plugin.crossLinks.disabled = true;
+    }
+
+    if (!map.hasLayer(window.plugin.crossLinks.crossLayersLayer)) {
+        window.plugin.crossLinks.crossLayersDisabled = true;
     }
 }
 
@@ -303,9 +396,11 @@ var setup = function() {
         if (e.event == 'layerCreated') {
             // we can just test the new layer in this case
             window.plugin.crossLinks.testAllLinksAgainstLayer(e.layer);
+            window.plugin.crossLinks.testCrossLayers(e.layer);
         } else {
             // all other event types - assume anything could have been modified and re-check all links
             window.plugin.crossLinks.checkAllLinks();
+            window.plugin.crossLinks.testCrossLayers();
         }
     });
 
