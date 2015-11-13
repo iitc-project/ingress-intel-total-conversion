@@ -262,6 +262,7 @@ window.plugin.crossLinks.showLayersIntersection = function(layer1, layer2) {
             var poly = L.geodesicPolygon(layer.getLatLngs(), {
                color: '#d22',
                opacity: 0.7,
+               fill: false,
                weight: 5,
                clickable: false,
                dashArray: [8,8],
