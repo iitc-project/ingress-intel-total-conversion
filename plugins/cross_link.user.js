@@ -179,19 +179,17 @@ window.plugin.crossLinks.testPolyLineAgainstPolyLine = function (polyline1, poly
         for (var j=0;j<b.length-1;++j) {
             if (window.plugin.crossLinks.greatCircleArcIntersect(a[i],a[i+1],b[j],b[j+1])) return true;
 
-            if (firstClosed) {
+            if (firstClosed) 
                 if (window.plugin.crossLinks.greatCircleArcIntersect(a[a.length-1],a[0],b[j],b[j+1])) return true;
-            }
         }
 
-        if (secondClosed) {
+        if (secondClosed) 
             if (window.plugin.crossLinks.greatCircleArcIntersect(a[i],a[i+1],b[b.length-1],b[0])) return true;
-        }
     }
 
-    if (firstClosed && secondClosed) {
+    if (firstClosed && secondClosed) 
         if (window.plugin.crossLinks.greatCircleArcIntersect(a[a.length-1],a[0],b[b.length-1],b[0])) return true;
-    }
+
     return false;
 }
 
@@ -248,19 +246,64 @@ window.plugin.crossLinks.showLink = function(link) {
     plugin.crossLinks.linkLayerGuids[link.options.guid]=poly;
 }
 
-window.plugin.crossLinks.showLayer = function(layer) {
-    if(plugin.crossLinks.crossLayersLayer.hasLayer(layer))
+window.plugin.crossLinks.showLayersIntersection = function(layer1, layer2) {
+    if(window.plugin.crossLinks.crossLayersIntersections.indexOf([layer1, layer2]) > 0 ||
+       window.plugin.crossLinks.crossLayersIntersections.indexOf([layer2, layer1]) > 0)
         return;
 
-    var poly = L.geodesicPolyline(layer.getLatLngs(), {
-       color: '#d22',
-       opacity: 0.7,
-       weight: 5,
-       clickable: false,
-       dashArray: [8,8],
-    });
+    var layers = [layer1, layer2];
+    window.plugin.crossLinks.crossLayersIntersections.push(layers);
+    for (var i = 0; i < 2; i++) {
+        var layer = layers[i];
+        if(plugin.crossLinks.crossLayersLayer.hasLayer(layer))
+            return;
 
-    poly.addTo(plugin.crossLinks.crossLayersLayer);
+        if (layer instanceof L.GeodesicPolygon) {
+            var poly = L.geodesicPolygon(layer.getLatLngs(), {
+               color: '#d22',
+               opacity: 0.7,
+               weight: 5,
+               clickable: false,
+               dashArray: [8,8],
+            });
+        } else {
+            var poly = L.geodesicPolyline(layer.getLatLngs(), {
+               color: '#d22',
+               opacity: 0.7,
+               weight: 5,
+               clickable: false,
+               dashArray: [8,8],
+            });
+        }
+
+        poly.addTo(plugin.crossLinks.crossLayersLayer);
+    }; 
+}
+
+window.plugin.crossLinks.removeLayersIntersection = function(layer1, layer2) {
+    var intersectionIndex = window.plugin.crossLinks.crossLayersIntersections.indexOf([layer1, layer2]);
+    if(intersectionIndex < 0)
+       intersectionIndex = window.plugin.crossLinks.crossLayersIntersections.indexOf([layer2, layer1]);
+    if(intersectionIndex < 0)
+        return;
+
+    window.plugin.crossLinks.crossLayersIntersections.splice(intersectionIndex, 1);
+    var removeLayer = [ true, true ];
+    for(var i = 0; i < window.plugin.crossLinks.crossLayersIntersections.length; i++) {
+        var intersection = window.plugin.crossLinks.crossLayersIntersections[i];
+        if(intersection[0] === layer1 || intersection[1] === layer1)
+            removeLayer[0] = false;
+        if(intersection[0] === layer2 || intersection[1] === layer1)
+            removeLayer[1] = false;
+
+        if (!removeLayer[0] && !removeLayer[1])
+            break;
+    }
+
+    if (removeLayer[0]) 
+        window.plugin.crossLinks.crossLayersLayer.removeLayer(layer1);
+    if (removeLayer[1]) 
+        window.plugin.crossLinks.crossLayersLayer.removeLayer(layer2);
 }
 
 window.plugin.crossLinks.onMapDataRefreshEnd = function () {
@@ -270,8 +313,10 @@ window.plugin.crossLinks.onMapDataRefreshEnd = function () {
         window.plugin.crossLinks.testForDeletedLinks();
     }
 
-    if (!window.plugin.crossLinks.crossLayersDisabled)
+    if (!window.plugin.crossLinks.crossLayersDisabled) {
+        window.plugin.crossLinks.testCrossLayers();
         window.plugin.crossLinks.crossLayersLayer.bringToFront();
+    }
 }
 
 window.plugin.crossLinks.testAllLinksAgainstLayer = function (layer) {
@@ -296,7 +341,8 @@ window.plugin.crossLinks.testAllLinksAgainstLayer = function (layer) {
 window.plugin.crossLinks.testCrossLayers = function (layer) {
     if (window.plugin.crossLinks.crossLayersDisabled) return;
 
-    plugin.crossLinks.crossLayersLayer.clearLayers();
+    if (!layer)
+        plugin.crossLinks.crossLayersLayer.clearLayers();
     
     for (var i in plugin.drawTools.drawnItems._layers) {
         var layer1 = plugin.drawTools.drawnItems._layers[i];
@@ -309,10 +355,10 @@ window.plugin.crossLinks.testCrossLayers = function (layer) {
             if (layer instanceof L.GeodesicPolygon) 
                 layerClosed = true;
 
-            if (plugin.crossLinks.testPolyLineAgainstPolyLine(layer1, layer, layer1Closed, layerClosed)) {
-                plugin.crossLinks.showLayer(layer1);
-                plugin.crossLinks.showLayer(layer);
-            }
+            if (plugin.crossLinks.testPolyLineAgainstPolyLine(layer1, layer, layer1Closed, layerClosed)) 
+                plugin.crossLinks.showLayersIntersection(layer1, layer);
+            else
+                plugin.crossLinks.removeLayersIntersection(layer1, layer);
         } else {
             for (var j in plugin.drawTools.drawnItems._layers) {
                 if(i == j) continue;
@@ -323,10 +369,8 @@ window.plugin.crossLinks.testCrossLayers = function (layer) {
                 if (layer2 instanceof L.GeodesicPolygon) 
                     layer2Closed = true;
 
-                if (plugin.crossLinks.testPolyLineAgainstPolyLine(layer1, layer2, layer1Closed, layer2Closed)) {
-                    plugin.crossLinks.showLayer(layer1);
-                    plugin.crossLinks.showLayer(layer2);
-                }
+                if (plugin.crossLinks.testPolyLineAgainstPolyLine(layer1, layer2, layer1Closed, layer2Closed)) 
+                    plugin.crossLinks.showLayersIntersection(layer1, layer2);
             }
         }
     }
@@ -347,6 +391,7 @@ window.plugin.crossLinks.createLayer = function() {
     window.plugin.crossLinks.linkLayer = new L.FeatureGroup();
     window.plugin.crossLinks.linkLayerGuids={};
     window.addLayerGroup('Cross Links', window.plugin.crossLinks.linkLayer, true);
+    window.plugin.crossLinks.crossLayersIntersections = [];
     window.plugin.crossLinks.crossLayersLayer = new L.FeatureGroup();
     window.addLayerGroup('Cross Layers', window.plugin.crossLinks.crossLayersLayer, true);
 
