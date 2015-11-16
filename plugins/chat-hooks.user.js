@@ -151,6 +151,20 @@ window.plugin.chatHooks.LinkedList = function() {
   };
 };
 
+// function traverse_do(obj) { if (obj.type == "CH_PORTAL_CAPTURED" || obj.type == "CH_PORTAL_ATTACKED" || obj.type == "CH_PORTAL_LINKED") { var type_s = obj.type == "CH_PORTAL_CAPTURED" ? "CAP" : obj.type == "CH_PORTAL_LINKED" ? "LNK" : "ATT"; d = new Date(); d.setTime(obj.time); var dt = Intl.DateTimeFormat("en-GB", {weekday: "short", hour: "2-digit", minute: "2-digit"}).format; console.log(dt(d) + ": " + type_s + " " + obj.portals[0].name); } }
+
+// traverse(window.plugin.chatHooks.stored.DragonJD.events._root, traverse_do);
+function traverse(root, fn) {
+  var obj = root;
+  if (obj.left !== null) {
+    traverse(obj.left, fn);
+  } 
+  if (obj.right !== null) {
+    traverse(obj.right, fn);
+  }
+  fn(obj.item);
+}
+
 window.plugin.chatHooks.stored = {};
 
 window.plugin.chatHooks.handlePublicData = function(data) {
