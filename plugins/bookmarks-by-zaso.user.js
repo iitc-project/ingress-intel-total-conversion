@@ -825,8 +825,16 @@
     if(latlngs.length >= 2 && latlngs.length <= 3) {
       // TODO: add an API to draw-tools rather than assuming things about its internals
 
+      var draw_polyline = 0;
+      if($('#bkmrkDrawPolyline').prop('checked'))
+        draw_polyline = 1;
+
       var layer, layerType;
-      if(latlngs.length == 2) {
+      if(latlngs.length == 2 || draw_polyline == 1) {
+        if(latlngs.length == 3) {
+          // we want to close the triangle, so the 1st point also has to be also the 4th
+          latlngs[3] = latlngs[0]
+        }
         layer = L.geodesicPolyline(latlngs, window.plugin.drawTools.lineOptions);
         layerType = 'polyline';
       } else {
@@ -941,6 +949,8 @@
         + '<label style="margin-bottom: 9px; display: block;">'
         + '<input style="vertical-align: middle;" type="checkbox" id="bkmrkClearSelection" checked>'
         + ' Clear selection after drawing</label>'
+        + '<input style="vertical-align: middle;" type="checkbox" id="bkmrkDrawPolyline">'
+        + ' Draw lines instead of a polygon</label>'
         + '<p style="margin-bottom:9px;color:red">You must select 2 or 3 portals!</p>'
         + '<div onclick="window.plugin.bookmarks.autoDrawOnSelect();return false;">'
         + element
