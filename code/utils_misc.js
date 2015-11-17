@@ -335,10 +335,11 @@ window.uniqueArray = function(arr) {
 window.genFourColumnTable = function(blocks) {
   var t = $.map(blocks, function(detail, index) {
     if(!detail) return '';
+    var title = detail[2] ? ' title="'+escapeHtmlSpecialChars(detail[2]) + '"' : '';
     if(index % 2 === 0)
-      return '<tr><td>'+detail[1]+'</td><th>'+detail[0]+'</th>';
+      return '<tr><td'+title+'>'+detail[1]+'</td><th'+title+'>'+detail[0]+'</th>';
     else
-      return '    <th>'+detail[0]+'</th><td>'+detail[1]+'</td></tr>';
+      return '    <th'+title+'>'+detail[0]+'</th><td'+title+'>'+detail[1]+'</td></tr>';
   }).join('');
   if(t.length % 2 === 1) t + '<td></td><td></td></tr>';
   return t;
@@ -412,6 +413,16 @@ window.addLayerGroup = function(name, layerGroup, defaultDisplay) {
   if(isLayerGroupDisplayed(name, defaultDisplay)) map.addLayer(layerGroup);
   layerChooser.addOverlay(layerGroup, name);
 }
+
+window.removeLayerGroup = function(layerGroup) {
+  if(!layerChooser._layers[layerGroup._leaflet_id]) throw('Layer was not found');
+  // removing the layer will set it's default visibility to false (store if layer gets added again)
+  var name = layerChooser._layers[layerGroup._leaflet_id].name;
+  var enabled = isLayerGroupDisplayed(name);
+  map.removeLayer(layerGroup);
+  layerChooser.removeLayer(layerGroup);
+  updateDisplayedLayerGroup(name, enabled);
+};
 
 window.clampLat = function(lat) {
   // the map projection used does not handle above approx +- 85 degrees north/south of the equator

@@ -27,7 +27,7 @@ window.plugin.portalWeakness = function() {};
 
 window.plugin.portalWeakness.highlightWeakness = function(data) {
 
-  if(data.portal.options.team != TEAM_NONE) {
+  if(data.portal.options.data.resCount !== undefined && data.portal.options.data.health !== undefined && data.portal.options.team != TEAM_NONE) {
     var res_count = data.portal.options.data.resCount;
     var portal_health = data.portal.options.data.health;
 

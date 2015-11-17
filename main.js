@@ -1,7 +1,7 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.22.4.@@DATETIMEVERSION@@
+// @version        0.25.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -27,18 +27,11 @@ window.iitcBuildDate = '@@BUILDDATE@@';
 window.onload = function() {};
 document.body.onload = function() {};
 
-// rescue user data from original page
-var scr = document.getElementsByTagName('script');
-for(var x in scr) {
-  var s = scr[x];
-  if(s.src) continue;
-  if(s.type !== 'text/javascript') continue;
-  var d = s.innerHTML.split('\n');
-  break;
-}
 
+//originally code here parsed the <Script> tags from the page to find the one that defined the PLAYER object
+//however, that's already been executed, so we can just access PLAYER - no messing around needed!
 
-if(!d) {
+if (typeof(window.PLAYER)!="object" || typeof(window.PLAYER.nickname) != "string") {
   // page doesn’t have a script tag with player information.
   if(document.getElementById('header_email')) {
     // however, we are logged in.
@@ -53,11 +46,6 @@ if(!d) {
 }
 
 
-for(var i = 0; i < d.length; i++) {
-  if(!d[i].match('var PLAYER = ')) continue;
-  eval(d[i].match(/^var /, 'window.'));
-  break;
-}
 // player information is now available in a hash like this:
 // window.PLAYER = {"ap": "123", "energy": 123, "available_invites": 123, "nickname": "somenick", "team": "ENLIGHTENED||RESISTANCE"};
 
@@ -168,8 +156,8 @@ window.RANGE_INDICATOR_COLOR = 'red'
 window.MIN_ZOOM = 3;
 
 window.DEFAULT_PORTAL_IMG = '//commondatastorage.googleapis.com/ingress.com/img/default-portal-image.png';
-//window.NOMINATIM = '//nominatim.openstreetmap.org/search?format=json&limit=1&q=';
-window.NOMINATIM = '//open.mapquestapi.com/nominatim/v1/search.php?format=json&polygon_geojson=1&q=';
+//window.NOMINATIM = '//open.mapquestapi.com/nominatim/v1/search.php?format=json&polygon_geojson=1&q=';
+window.NOMINATIM = '//nominatim.openstreetmap.org/search?format=json&polygon_geojson=1&q=';
 
 // INGRESS CONSTANTS /////////////////////////////////////////////////
 // http://decodeingress.me/2012/11/18/ingress-portal-levels-and-link-range/

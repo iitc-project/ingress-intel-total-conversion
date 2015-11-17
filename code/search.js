@@ -225,6 +225,8 @@ addHook('search', function(query) {
 
   $.each(portals, function(guid, portal) {
     var data = portal.options.data;
+    if(!data.title) return;
+
     if(data.title.toLowerCase().indexOf(term) !== -1) {
       var team = portal.options.team;
       var color = team==TEAM_NONE ? '#CCC' : COLORS[team];
