@@ -6,3 +6,7 @@ localbuildsettings.py
 *.bak
 *.project
 .pydevproject
+twistd.pid
+temp.csv
+dump.kml
+generate_kml.py

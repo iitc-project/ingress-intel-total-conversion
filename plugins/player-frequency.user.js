@@ -72,6 +72,7 @@ window.plugin.PlayerFrequency = (function() {
       }
     },
     linked_portal: function(data) {
+      debugger;
       portal = data.portals[0];
       lat = portal.latE6;
       lng = portal.lngE6;
@@ -164,6 +165,10 @@ window.plugin.PlayerFrequency = (function() {
       });
     },
     setup: function() {
+    },
+    createURL: function() {
+      var data = new Blob([JSON.stringify(this.stored)], {type: 'text/plain'});
+      console.log(window.URL.createObjectURL(data));
     },
   };
   var Filter = function (){

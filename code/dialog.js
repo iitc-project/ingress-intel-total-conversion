@@ -51,10 +51,6 @@ window.DIALOG_SLIDE_DURATION = 100;
 window.dialog = function(options) {
   // Override for smartphones. Preserve default behavior and create a modal dialog.
   options = options || {};
-  if(isSmartphone()) {
-    options.modal = true;
-    options.width = 'auto';
-  }
 
   // Build an identifier for this dialog
   var id = 'dialog-' + (options.modal ? 'modal' : (options.id ? options.id : 'anon-' + window.DIALOG_ID++));
@@ -78,7 +74,7 @@ window.dialog = function(options) {
 
   // Modal dialogs should not be draggable
   if(options.modal) {
-    options.dialogClass = 'ui-dialog-modal';
+    options.dialogClass = (options.dialogClass ? options.dialogClass + ' ' : '') + 'ui-dialog-modal';
     options.draggable = false;
   }
 
@@ -91,6 +87,15 @@ window.dialog = function(options) {
     } catch(err) {
       console.log('window.dialog: Tried to close nonexistent dialog ' + id);
     }
+  }
+
+  // there seems to be a bug where width/height are set to a fixed value after moving a dialog
+  function sizeFix() {
+    if(dialog.data('collapsed')) return;
+
+    var options = dialog.dialog('option');
+    dialog.dialog('option', 'height', options.height);
+    dialog.dialog('option', 'width', options.width);
   }
 
   // Create the window, appending a div to the body
@@ -140,7 +145,8 @@ window.dialog = function(options) {
           var button   = dialog.find('.ui-dialog-titlebar-button-collapse');
 
           // Slide toggle
-          $(selector).slideToggle({duration: window.DIALOG_SLIDE_DURATION});
+          $(this).css('height', '');
+          $(selector).slideToggle({duration: window.DIALOG_SLIDE_DURATION, complete: sizeFix});
 
           if(collapsed) {
             $(button).removeClass('ui-dialog-titlebar-button-collapse-collapsed');
@@ -213,6 +219,8 @@ window.dialog = function(options) {
       $(this).closest('.ui-dialog').find('.ui-dialog-title').removeClass('ui-dialog-title-inactive').addClass('ui-dialog-title-active');
     }
   }, options));
+
+  dialog.on('dialogdragstop dialogresizestop', sizeFix);
 
   // Set HTML and IDs
   dialog.html(html);

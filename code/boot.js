@@ -519,7 +519,11 @@ window.setupLayerChooserApi = function() {
     var baseLayersJSON = JSON.stringify(baseLayers);
 
     if (typeof android !== 'undefined' && android && android.setLayers) {
-        android.setLayers(baseLayersJSON, overlayLayersJSON);
+        if(this.androidTimer) clearTimeout(this.androidTimer);
+        this.androidTimer = setTimeout(function() {
+            this.androidTimer = null;
+            android.setLayers(baseLayersJSON, overlayLayersJSON);
+        }, 1000);
     }
 
     return {
@@ -561,6 +565,27 @@ window.setupLayerChooserApi = function() {
     }
 
     return true;
+  };
+
+  var _update = window.layerChooser._update;
+  window.layerChooser._update = function() {
+    // update layer menu in IITCm
+    try {
+      if(typeof android != 'undefined')
+        window.layerChooser.getLayers();
+    } catch(e) {
+      console.error(e);
+    }
+    // call through
+    return _update.apply(this, arguments);
+  }
+  // as this setupLayerChooserApi function is called after the layer menu is populated, we need to also get they layers once
+  // so they're passed through to the android app
+  try {
+    if(typeof android != 'undefined')
+      window.layerChooser.getLayers();
+  } catch(e) {
+    console.error(e);
   }
 }
 

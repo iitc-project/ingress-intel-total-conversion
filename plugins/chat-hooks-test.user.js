@@ -19,46 +19,44 @@
 // ==/UserScript==
 
 
-@@PLUGINSTART@@
+//@@PLUGINSTART@@
 
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.chatHooksTest = function() {
+window.plugin.chatHooksTest = function () {
 };
 
 
 window.plugin.chatHooksTest.usercount = 0;
 
-window.plugin.chatHooksTest.resonator = function(data) {
-  portal = data.portals[0];
-  //console.log("resonator event @ " + portal.latE6/1E6 + "," + portal.lngE6/1E6);
-  lat = portal.latE6/1E6;
-  lng = portal.lngE6/1E6;
+window.plugin.chatHooksTest.resonator = function (data) {
+  var portal = data.portals[0],
+      lat = portal.latE6 / 1E6,
+      lng = portal.lngE6 / 1E6;
   plugin.chatHooksTest.addCircle(lat, lng);
 };
 
-window.plugin.chatHooksTest.linked_portal = function(data) {
-  portal = data.portals[0];
-  str = data.time + ": from " + portal.name + " to " + data.portals[1].name;
-  str += " linked by " + data.nick;
-  //console.log(str);
-  //L.circle(L.latLng(portal.latE6/1E6, portal.lngE6/1E6), 40, fill=true).addTo(plugin.chatHooksTest.layer)
-  lat = portal.latE6/1E6;
-  lng = portal.lngE6/1E6;
+window.plugin.chatHooksTest.linked_portal = function (data) {
+  var portal = data.portals[0],
+      str = data.time +
+        ": from " + portal.name +
+        " to " + data.portals[1].name +
+        " linked by " + data.nick,
+      lat = portal.latE6 / 1E6, lng = portal.lngE6 / 1E6;
   plugin.chatHooksTest.addCircle(lat, lng);
 };
 
-window.plugin.chatHooksTest.addCircle = function(lat, lng) {
+window.plugin.chatHooksTest.addCircle = function (lat, lng) {
   console.log("Adding circle at " + lat + ", " + lng);
-  L.circle(L.latLng(lat, lng), 40, fill=true).addTo(plugin.chatHooksTest.layer);
+  L.circle(L.latLng(lat, lng), 40, fill = true).addTo(plugin.chatHooksTest.layer);
   plugin.chatHooksTest.showUsers();
 };
 
-window.plugin.chatHooksTest.showUsers = function() {
-  var names;
-  var first = true;
-  for (var user in window.plugin.chatHooks.stored) {
+window.plugin.chatHooksTest.showUsers = function () {
+  var names, user,
+      first = true;
+  for (user in window.plugin.chatHooks.stored) {
     if (first) {
       first = false;
     } else {
@@ -100,4 +98,4 @@ var setup =  function() {
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
-@@PLUGINEND@@
+//@@PLUGINEND@@

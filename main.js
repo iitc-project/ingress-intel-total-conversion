@@ -31,7 +31,7 @@ document.body.onload = function() {};
 //originally code here parsed the <Script> tags from the page to find the one that defined the PLAYER object
 //however, that's already been executed, so we can just access PLAYER - no messing around needed!
 
-if (!window.PLAYER) {
+if (typeof(window.PLAYER)!="object" || typeof(window.PLAYER.nickname) != "string") {
   // page doesn’t have a script tag with player information.
   if(document.getElementById('header_email')) {
     // however, we are logged in.
