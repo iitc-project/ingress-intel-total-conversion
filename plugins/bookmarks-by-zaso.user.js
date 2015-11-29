@@ -826,8 +826,9 @@
       // TODO: add an API to draw-tools rather than assuming things about its internals
 
       var draw_polyline = 0;
-      if($('#bkmrkDrawPolyline').prop('checked'))
+      if($('#bkmrkDrawPolyline').prop('checked')) {
         draw_polyline = 1;
+      }
 
       var layer, layerType;
       if(latlngs.length == 2 || draw_polyline == 1) {
@@ -847,8 +848,9 @@
         layerType: layerType
       });
 
-      if($('#bkmrkClearSelection').prop('checked'))
+      if($('#bkmrkClearSelection').prop('checked')) {
         $('#bkmrksAutoDrawer a.bkmrk.selected').removeClass('selected');
+      }
 
       if(window.plugin.bookmarks.isSmart) {
         window.show('map');
