@@ -168,15 +168,16 @@ function traverse(root, fn) {
 window.plugin.chatHooks.stored = {};
 
 window.plugin.chatHooks.handlePublicData = function(data) {
-  // TODO : Design GUID to identify event - time + type + (each portals lat_lng) ?
   $.each(data.result, function(ind, json) {
     var type;
     var playername, lat, lng, id=null, name, address;
+    debugger;
     var newEvent = {
                     id:   json[0],
                     time: json[1],
                     type: undefined,
-                    team: json[2].plext.team
+                    team: json[2].plext.team,
+                    text: json[2].plext.text,
     };
     $.each(json[2].plext.markup, function(ind, markup) {
       switch(markup[0]) {
