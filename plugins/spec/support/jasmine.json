@@ -1,0 +1,9 @@
+{
+  "spec_dir": ".",
+  "spec_files": [
+  	"json_loader_tests.js"
+  ],
+  "stopSpecOnExpectationFailure": false,
+  "random": false
+}
+
