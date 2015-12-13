@@ -167,15 +167,14 @@ function traverse(root, fn) {
 
 window.plugin.chatHooks.stored = {};
 
+
 window.plugin.chatHooks.handlePublicData = function(data) {
   $.each(data.result, function(ind, json) {
     var type;
     var playername, lat, lng, id=null, name, address;
-    debugger;
     var newEvent = {
                     id:   json[0],
                     time: json[1],
-                    type: undefined,
                     team: json[2].plext.team,
                     text: json[2].plext.text,
     };
