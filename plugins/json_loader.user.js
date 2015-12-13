@@ -20,24 +20,37 @@ var Link = function (source, sink) {
     this.sink = sink;
 };
 
-Link.prototype = function(){
-    this.isValid = function() {return this.source !== undefined && this.sink !== undefined; };
+Link.prototype = {
+    isValid: function() { return this.source !== undefined && this.sink !== undefined; },
+    toString: function() {
+        return "".concat(
+            "{",
+            "{", this.source.lat, ", ", this.source.lng, "}, ",
+            "{", this.sink.lat,   ", ", this.sink.lng,   "}",
+            "}");
+    }
 };
+
+function get_link_id_from_latlng(latlng) {
+            var lat = (latlng.lat * 1e6).toString();
+            var lng = (latlng.lng * 1e6).toString();
+            var id = "".concat(lat, lng);
+            return id;
+}
 
 function get_links(json_data) {
     links = {};
     for (var item of json_data) {
         if (item.latLngs.length == 2) {
             var link = new Link(item.latLngs[0], item.latLngs[1]);
-            id0 = "" + item.latLngs[0].lat + item.latLngs[0].lng;
-            id1 = "" + item.latLngs[1].lat + item.latLngs[1].lng;
+            var id0 = get_link_id_from_latlng(item.latLngs[0]);
+            var id1 = get_link_id_from_latlng(item.latLngs[1]);
             if (!(id0 in links)) {
                 links[id0] = [];
             }
             if (!(id1 in links)) {
                 links[id1] = [];
             }
-            console.log("Pushing " + link + " onto " + id0 + " and " + id1);
             links[id0].push(link);
             links[id1].push(link);
         }
@@ -48,5 +61,6 @@ function get_links(json_data) {
 module.exports = {
     load_json: load_json,
     get_links: get_links,
+    get_link_id_from_latlng: get_link_id_from_latlng,
     Link: Link
 };
