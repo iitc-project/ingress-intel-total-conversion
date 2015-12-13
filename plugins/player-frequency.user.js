@@ -72,7 +72,6 @@ window.plugin.PlayerFrequency = (function() {
       }
     },
     linked_portal: function(data) {
-      debugger;
       portal = data.portals[0];
       lat = portal.latE6;
       lng = portal.lngE6;
