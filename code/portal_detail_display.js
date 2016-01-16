@@ -123,7 +123,7 @@ window.renderPortalDetails = function(guid) {
   if (details) {
     runHooks('portalDetailsUpdated', {guid: guid, portal: portal, portalDetails: details, portalData: data});
   }
-}
+};
 
 
 
