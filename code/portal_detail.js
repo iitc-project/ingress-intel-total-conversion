@@ -9,75 +9,72 @@
 // anonymous function wrapper for the code - any variables/functions not placed into 'window' will be private
 (function(){
 
-var cache;
-var requestQueue = {};
+  var cache;
+  var requestQueue = {};
 
-window.portalDetail = function() {};
+  window.portalDetail = function() {};
 
-window.portalDetail.setup = function() {
-  cache = new DataCache();
+  window.portalDetail.setup = function() {
+    cache = new DataCache();
 
-  cache.startExpireInterval(20);
-}
+    cache.startExpireInterval(20);
+  };
 
-window.portalDetail.get = function(guid) {
-  return cache.get(guid);
-}
+  window.portalDetail.get = function(guid) {
+    return cache.get(guid);
+  };
 
-window.portalDetail.isFresh = function(guid) {
-  return cache.isFresh(guid);
-}
+  window.portalDetail.isFresh = function(guid) {
+    return cache.isFresh(guid);
+  };
 
 
-var handleResponse = function(guid, data, success) {
-  delete requestQueue[guid];
+  var handleResponse = function(guid, data, success) {
+    delete requestQueue[guid];
 
-  if (!data || data.error || !data.result) {
-    success = false;
-  }
-
-  if (success) {
-
-    var dict = decodeArray.portalDetail(data.result);
-
-    // entity format, as used in map data
-    var ent = [guid,dict.timestamp,data.result];
-
-    cache.store(guid,dict);
-
-    //FIXME..? better way of handling sidebar refreshing...
-
-    if (guid == selectedPortal) {
-      renderPortalDetails(guid);
+    if (!data || data.error || !data.result) {
+      success = false;
     }
 
-    window.runHooks ('portalDetailLoaded', {guid:guid, success:success, details:dict, ent:ent});
+    if (success) {
 
-  } else {
-    if (data && data.error == "RETRY") {
-      // server asked us to try again
-      portalDetail.request(guid);
+      var dict = decodeArray.portalDetail(data.result);
+
+      // entity format, as used in map data
+      var ent = [guid,dict.timestamp,data.result];
+
+      cache.store(guid,dict);
+
+      //FIXME..? better way of handling sidebar refreshing...
+
+      if (guid == selectedPortal) {
+        renderPortalDetails(guid);
+      }
+
+      window.runHooks ('portalDetailLoaded', {guid:guid, success:success, details:dict, ent:ent});
+
     } else {
-      window.runHooks ('portalDetailLoaded', {guid:guid, success:success});
+      if (data && data.error == "RETRY") {
+        // server asked us to try again
+        portalDetail.request(guid);
+      } else {
+        window.runHooks ('portalDetailLoaded', {guid:guid, success:success});
+      }
     }
-  }
 
-}
+  };
 
-window.portalDetail.request = function(guid) {
-  if (!requestQueue[guid]) {
-    requestQueue[guid] = true;
+  window.portalDetail.request = function(guid) {
+    if (!requestQueue[guid]) {
+      requestQueue[guid] = true;
 
-    window.postAjax('getPortalDetails', {guid:guid},
-      function(data,textStatus,jqXHR) { handleResponse(guid, data, true); },
-      function() { handleResponse(guid, undefined, false); }
-    );
-  }
+      window.postAjax('getPortalDetails', {guid:guid},
+        function(data,textStatus,jqXHR) { handleResponse(guid, data, true); },
+        function() { handleResponse(guid, undefined, false); }
+      );
+    }
 
-}
-
-
-
+  };
 })(); // anonymous wrapper function end
 
 

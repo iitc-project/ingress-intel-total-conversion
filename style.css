@@ -966,9 +966,11 @@ h3 {
 }
 .ui-dialog-titlebar-button-close::after {
   transform: translateY(3.5px) rotate(45deg);
+  -webkit-transform: translateY(3.5px) rotate(45deg);
 }
 .ui-dialog-titlebar-button-close::before {
   transform: translateY(3.5px) rotate(-45deg);
+  -webkit-transform: translateY(3.5px) rotate(-45deg);
 }
 .ui-dialog-titlebar-button.ui-state-active::after,
 .ui-dialog-titlebar-button.ui-state-active::before,
