@@ -57,13 +57,24 @@
 
 window._hooks = {}
 window.VALID_HOOKS = [
-  'portalSelected', 'portalDetailsUpdated', 'artifactsUpdated',
-  'mapDataRefreshStart', 'mapDataEntityInject', 'mapDataRefreshEnd',
-  'portalAdded', 'linkAdded', 'fieldAdded',
-  'publicChatDataAvailable', 'factionChatDataAvailable',
-  'requestFinished', 'nicknameClicked',
-  'geoSearch', 'search', 'iitcLoaded',
-  'portalDetailLoaded', 'paneChanged'];
+  'portalSelected',
+  'portalDetailsUpdated',
+  'mapDataRefreshStart',
+  'mapDataEntityInject',
+  'mapDataRefreshEnd',
+  'portalAdded',
+  'linkAdded',
+  'fieldAdded',
+  'publicChatDataAvailable',
+  'factionChatDataAvailable',
+  'requestFinished',
+  'nicknameClicked',
+  'geoSearch',
+  'search',
+  'iitcLoaded',
+  'portalDetailLoaded',
+  'paneChanged',
+  'artifactsUpdated'];
 
 window.runHooks = function(event, data) {
   if(VALID_HOOKS.indexOf(event) === -1) throw('Unknown event type: ' + event);
@@ -82,14 +93,14 @@ window.runHooks = function(event, data) {
     }
   });
   return !interrupted;
-}
+};
 
 // helper method to allow plugins to create new hooks
 window.pluginCreateHook = function(event) {
   if($.inArray(event, window.VALID_HOOKS) < 0) {
     window.VALID_HOOKS.push(event);
   }
-}
+};
 
 
 window.addHook = function(event, callback) {
@@ -105,7 +116,7 @@ window.addHook = function(event, callback) {
     _hooks[event] = [callback];
   else
     _hooks[event].push(callback);
-}
+};
 
 // callback must the SAME function to be unregistered.
 window.removeHook = function(event, callback) {
@@ -118,4 +129,4 @@ window.removeHook = function(event, callback) {
     else
       _hooks[event].splice(index, 1);
   }
-}
+};

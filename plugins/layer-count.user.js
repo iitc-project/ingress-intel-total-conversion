@@ -23,7 +23,7 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-plugin.layerCount = {}
+plugin.layerCount = {};
 
 plugin.layerCount.onBtnClick = function(ev) {
 	var btn = plugin.layerCount.button,
@@ -44,7 +44,7 @@ plugin.layerCount.onBtnClick = function(ev) {
 
 plugin.layerCount.latLngE6ToGooglePoint = function(point) {
 	return new google.maps.LatLng(point.latE6/1E6, point.lngE6/1E6);
-}
+};
 
 /*
 pnpoly Copyright (c) 1970-2003, Wm. Randolph Franklin
@@ -70,21 +70,29 @@ plugin.layerCount.pnpoly = function(latlngs, point) {
 	var length = latlngs.length, c = false;
 
 	for(var i = 0, j = length - 1; i < length; j = i++) {
-		if(((latlngs[i].lat > point.lat) != (latlngs[j].lat > point.lat)) &&
-		  (point.lng < latlngs[i].lng
-		  + (latlngs[j].lng - latlngs[i].lng) * (point.lat - latlngs[i].lat)
-		  / (latlngs[j].lat - latlngs[i].lat))) {
+		if(
+			(
+				(latlngs[i].lat > point.lat) !== (latlngs[j].lat > point.lat)
+			) &&
+			(
+				point.lng < latlngs[i].lng +
+				(latlngs[j].lng - latlngs[i].lng) *
+				(point.lat - latlngs[i].lat) / 
+				(latlngs[j].lat - latlngs[i].lat)
+			)
+		) {
 			c = !c;
 		}
 	}
 
 	return c;
-}
+};
 
 plugin.layerCount.calculate = function(ev) {
-	var point = ev.latlng;
-	var fields = window.fields;
-	var layersRes = layersEnl = 0;
+	var layersEnl, layersRes, point, fields, content;
+	point = ev.latlng;
+	fields = window.fields;
+	layersRes = layersEnl = 0;
 
 	for(var guid in fields) {
 		var field = fields[guid];
@@ -99,14 +107,14 @@ plugin.layerCount.calculate = function(ev) {
 		}
 	}
 
-	if(layersRes != 0 && layersEnl != 0)
-		var content = "Res: " + layersRes + " + Enl: " + layersEnl + " = " + (layersRes + layersEnl) + " fields";
-	else if(layersRes != 0)
-		var content = "Res: " + layersRes + " field(s)";
-	else if(layersEnl != 0)
-		var content = "Enl: " + layersEnl + " field(s)";
+	if(layersRes !== 0 && layersEnl !== 0)
+		content = "Res: " + layersRes + " + Enl: " + layersEnl + " = " + (layersRes + layersEnl) + " fields";
+	else if(layersRes !== 0)
+		content = "Res: " + layersRes + " field(s)";
+	else if(layersEnl !== 0)
+		content = "Enl: " + layersEnl + " field(s)";
 	else
-		var content = "No fields";
+		content = "No fields";
 
 	plugin.layerCount.tooltip.innerHTML = content;
 
@@ -135,7 +143,7 @@ var setup = function() {
 	plugin.layerCount.button = button;
 	plugin.layerCount.tooltip = tooltip;
 	plugin.layerCount.container = container;
-}
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 

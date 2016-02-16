@@ -114,8 +114,8 @@ window.chat.genPostData = function(channel, storageHash, getOlderMsgs) {
     // above.
     // After resuming from idle, there might be more new messages than
     // desiredNumItems. So on the first request, we are not really up to
-    // date. We will eventually catch up, as long as there are less new
-    // messages than desiredNumItems per each refresh cycle.
+    // date. We will eventually catch up, as long as there are fewer new
+    // messages than desiredNumItems per refresh cycle.
     // A proper solution would be to query until no more new results are
     // returned. Another way would be to set desiredNumItems to a very
     // large number so we really get all new messages since the last

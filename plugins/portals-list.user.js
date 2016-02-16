@@ -55,8 +55,10 @@ window.plugin.portalslist.filter = 0;
 window.plugin.portalslist.fields = [
   {
     title: "Portal Name",
-    value: function(portal) { return portal.options.data.title; },
-    sortValue: function(value, portal) { return value.toLowerCase(); },
+    value: function(portal) { 
+        return plugin.portalslist.getPortalTitle(portal);
+    },
+    sortValue: function(value, portal) { if (value) { return value.toLowerCase(); } else { return ""; } },
     format: function(cell, portal, value) {
       $(cell)
         .append(plugin.portalslist.getPortalLink(portal))
@@ -67,9 +69,10 @@ window.plugin.portalslist.fields = [
     title: "Level",
     value: function(portal) { return portal.options.data.level; },
     format: function(cell, portal, value) {
+      var level_text = value ? "L" + value : "L?";
       $(cell)
         .css('background-color', COLORS_LVL[value])
-        .text('L' + value);
+        .text(level_text);
     },
     defaultOrder: -1,
   },
@@ -85,9 +88,13 @@ window.plugin.portalslist.fields = [
     value: function(portal) { return portal.options.data.health; },
     sortValue: function(value, portal) { return portal.options.team===TEAM_NONE ? -1 : value; },
     format: function(cell, portal, value) {
+      var health_text = "??%";
+      if (value) {
+          health_text = value + "%";
+      }
       $(cell)
         .addClass("alignR")
-        .text(portal.options.team===TEAM_NONE ? '-' : value+'%');
+        .text(portal.options.team===TEAM_NONE ? '-' : health_text);
     },
     defaultOrder: -1,
   },
@@ -127,13 +134,19 @@ window.plugin.portalslist.fields = [
   {
     title: "AP",
     value: function(portal) {
-      var links = window.getPortalLinks(portal.options.guid);
-      var fields = getPortalFieldsCount(portal.options.guid);
-      return portalApGainMaths(portal.options.data.resCount, links.in.length+links.out.length, fields);
+      var ap_value = window.getPortalApGain(portal.options.guid);
+      if (!ap_value && !isNaN(ap_value)) {
+        ap_value = "-";
+      }
+      return ap_value;
     },
     sortValue: function(value, portal) { return value.enemyAp; },
     format: function(cell, portal, value) {
       var title = '';
+      var ap_value = '-';
+      if (value !== undefined && !isNaN(value.enemyAp)) {
+         ap_value = digits(value.enemyAp);
+      }
       if (teamStringToId(PLAYER.team) == portal.options.team) {
         title += 'Friendly AP:\t'+value.friendlyAp+'\n'
                + '- deploy '+(8-portal.options.data.resCount)+' resonator(s)\n'
@@ -143,11 +156,11 @@ window.plugin.portalslist.fields = [
              + '- Destroy AP:\t'+value.destroyAp+'\n'
              + '- Capture AP:\t'+value.captureAp;
 
-      $(cell)
+    $(cell)
         .addClass("alignR")
         .addClass('help')
         .prop('title', title)
-        .html(digits(value.enemyAp));
+        .html(ap_value);
     },
     defaultOrder: -1,
   },
@@ -236,6 +249,14 @@ window.plugin.portalslist.displayPL = function() {
       width: 700
     });
   }
+}
+
+window.plugin.portalslist.getPortalTitle = function(portal) {
+  var name_text = 'UNCACHED';
+  if(portal && portal.options.data.title) {
+    name_text = portal.options.data.title+'';
+  }
+  return name_text;
 }
 
 window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
@@ -366,12 +387,12 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
 //               double click: zoom to and select portal
 // code from getPortalLink function by xelio from iitc: AP List - https://raw.github.com/breunigs/ingress-intel-total-conversion/gh-pages/plugins/ap-list.user.js
 window.plugin.portalslist.getPortalLink = function(portal) {
-  var coord = portal.getLatLng();
+  var coord = window.findPortalLatLng(portal.options.guid);
   var perma = '/intel?ll='+coord.lat+','+coord.lng+'&z=17&pll='+coord.lat+','+coord.lng;
 
   // jQuery's event handlers seem to be removed when the nodes are remove from the DOM
   var link = document.createElement("a");
-  link.textContent = portal.options.data.title;
+  link.textContent = window.plugin.portalslist.getPortalTitle(portal);
   link.href = perma;
   link.addEventListener("click", function(ev) {
     renderPortalDetails(portal.options.guid);
