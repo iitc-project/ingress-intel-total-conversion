@@ -1101,8 +1101,8 @@ td + td {
 
 #portal_highlight_select {
   position: absolute;
-  top:5px;
-  left:10px;
+  top:35px;
+  left:45px;
   z-index: 2500;
   font-size:11px;
   background-color:#0E3C46;
