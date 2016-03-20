@@ -116,6 +116,16 @@ public class IITC_Mobile extends Activity
         mViewDebug = findViewById(R.id.viewDebug);
         mBtnToggleMap = (ImageButton) findViewById(R.id.btnToggleMapVisibility);
         mEditCommand = (EditText) findViewById(R.id.editCommand);
+        mEditCommand.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(final View v, final int keyCode, final KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_ENTER && event.isCtrlPressed()) {
+                    onBtnRunCodeClick(v);
+                    return true;
+                }
+                return false;
+            }
+        });
         mEditCommand.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(final TextView v, final int actionId, final KeyEvent event) {
