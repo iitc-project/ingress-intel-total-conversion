@@ -28,12 +28,12 @@ build correctly on Linux and Windows (and, probably, Macs, FreeBSD, etc)
 
 Fork this project, clone to your local machine.
 
-Run the ```build.py local``` script to build the code.
+Run the `build.py local` script to build the code.
 
-If all goes well, output of the build will end up in ```build/local``` subfolder.
+If all goes well, output of the build will end up in `build/local` subfolder.
 
-You can create a custom build settings file, ```localbuildsettings.py``` - look in the supplied
-```buildsettings.py``` for details.
+You can create a custom build settings file, `localbuildsettings.py` - look in the supplied
+`buildsettings.py` for details.
 
 #### Mobile
 
@@ -42,7 +42,7 @@ To build the mobile app, along with python, you will need
 - The Java JDK (development kit - the runtime JRE is not enough)
 - The Android SDK
 
-Run ``build.py mobile``` to build IITC Mobile in debug mode.
+Run ``build.py mobile` to build IITC Mobile in debug mode.
 
-Note that part of the build.py process includes copying the IITC script files into the ```mobile/res``` subfolder.
+Note that part of the build.py process includes copying the IITC script files into the `mobile/res` subfolder.
 If this isn't done (e.g. you build IITC Mobile directly from Eclipse) you will end up with a broken build.
