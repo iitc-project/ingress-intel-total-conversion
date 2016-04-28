@@ -170,6 +170,35 @@ window.plugin.crossLinks.testPolyLine = function (polyline, link,closed) {
     return false;
 }
 
+
+window.plugin.crossLinks.testDrawnPolyLine = function (polyline, closed, polyline2, closed2) {
+
+
+        
+        var a = polyline.getLatLngs();
+        var b = polyline2.getLatLngs();
+
+        for (var i=0;i<b.length-1;++i) {
+            for (var k=0;k<a.length-1;++k) {
+                if (window.plugin.crossLinks.greatCircleArcIntersect(a[k],a[k+1],b[i],b[i+1])) return true;
+            }
+        }
+        if (closed) {
+            if (closed2) {
+                if (window.plugin.crossLinks.greatCircleArcIntersect(a[a.length-1],a[0],b[b.length-1],b[0])) return true;
+            }
+            if (window.plugin.crossLinks.greatCircleArcIntersect(a[0],a[1],b[b.length-1],b[0])) return true;
+        }
+        if (closed2) {
+            if (window.plugin.crossLinks.greatCircleArcIntersect(a[a.length-1],a[0],b[0],b[1])) return true;
+        }
+    
+
+    return false;
+}
+
+
+
 window.plugin.crossLinks.onLinkAdded = function (data) {
     if (window.plugin.crossLinks.disabled) return;
 
@@ -186,6 +215,12 @@ window.plugin.crossLinks.checkAllLinks = function() {
     $.each(window.links, function(guid, link) {
         plugin.crossLinks.testLink(link);
     });
+    
+    for (var i in plugin.drawTools.drawnItems._layers) { // leaflet don't support breaking out of the loop
+   // alert("testAllLinksAgainst drawn items");
+        var layer = plugin.drawTools.drawnItems._layers[i];
+        window.plugin.crossLinks.testAllLayersAgainstLayer(layer);
+    }
 }
 
 window.plugin.crossLinks.testLink = function (link) {
@@ -224,6 +259,22 @@ window.plugin.crossLinks.showLink = function(link) {
     plugin.crossLinks.linkLayerGuids[link.options.guid]=poly;
 }
 
+window.plugin.crossLinks.showPoly = function(polyline) {
+
+    var poly = L.geodesicPolyline(polyline.getLatLngs(), {
+       color: '#d22',
+       opacity: 0.7,
+       weight: 5,
+       clickable: false,
+       dashArray: [8,8],
+
+       guid: polyline.options.guid
+    });
+
+    poly.addTo(plugin.crossLinks.linkLayer);
+    plugin.crossLinks.linkLayerGuids[polyline.options.guid]=poly;
+}
+
 window.plugin.crossLinks.onMapDataRefreshEnd = function () {
     if (window.plugin.crossLinks.disabled) return;
 
@@ -234,7 +285,9 @@ window.plugin.crossLinks.onMapDataRefreshEnd = function () {
 
 window.plugin.crossLinks.testAllLinksAgainstLayer = function (layer) {
     if (window.plugin.crossLinks.disabled) return;
-
+    
+    window.plugin.crossLinks.testAllLayersAgainstLayer(layer);
+    
     $.each(window.links, function(guid, link) {
         if (!plugin.crossLinks.linkLayerGuids[link.options.guid])
         {
