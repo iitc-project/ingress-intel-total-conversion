@@ -42,7 +42,7 @@ To build the mobile app, along with python, you will need
 - The Java JDK (development kit - the runtime JRE is not enough)
 - The Android SDK
 
-Run ``build.py mobile` to build IITC Mobile in debug mode.
+Run `build.py mobile` to build IITC Mobile in debug mode.
 
 Note that part of the build.py process includes copying the IITC script files into the `mobile/res` subfolder.
 If this isn't done (e.g. you build IITC Mobile directly from Eclipse) you will end up with a broken build.
