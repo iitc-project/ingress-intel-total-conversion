@@ -201,7 +201,7 @@ window.setupMap = function() {
     portalsFactionLayers[i] = [L.layerGroup(), L.layerGroup(), L.layerGroup()];
     portalsLayers[i] = L.layerGroup(portalsFactionLayers[i]);
     map.addLayer(portalsLayers[i]);
-    var t = (i === 0 ? 'Unclaimed' : 'Level ' + i) + ' Portals';
+    var t = (i === 0 ? 'Unclaimed/Placeholder' : 'Level ' + i) + ' Portals';
     addLayers[t] = portalsLayers[i];
     // Store it in hiddenLayer to remove later
     if(!isLayerGroupDisplayed(t, true)) hiddenLayer.push(portalsLayers[i]);
