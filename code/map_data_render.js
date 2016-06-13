@@ -225,6 +225,7 @@ window.Render.prototype.deletePortalEntity = function(guid) {
     window.ornaments.removePortal(p);
     this.removePortalFromMapLayer(p);
     delete window.portals[guid];
+    window.runHooks('portalRemoved', {portal: p, data: p.options.data });
   }
 }
 
@@ -233,6 +234,7 @@ window.Render.prototype.deleteLinkEntity = function(guid) {
     var l = window.links[guid];
     linksFactionLayers[l.options.team].removeLayer(l);
     delete window.links[guid];
+    window.runHooks('linkRemoved', {link: l, data: l.options.data });
   }
 }
 
@@ -244,6 +246,7 @@ window.Render.prototype.deleteFieldEntity = function(guid) {
 
     fieldsFactionLayers[f.options.team].removeLayer(f);
     delete window.fields[guid];
+    window.runHooks('fieldRemoved', {field: f, data: f.options.data });
   }
 }
 

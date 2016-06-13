@@ -29,6 +29,9 @@
 //              the Leaflet CircleMarker for the portal in "portal" var.
 // linkAdded:   called when a link is about to be added to the map
 // fieldAdded:  called when a field is about to be added to the map
+// portalRemoved: called when a portal has been removed
+// linkRemoved: called when a link has been removed
+// fieldRemoved: called when a field has been removed
 // portalDetailsUpdated: fired after the details in the sidebar have
 //              been (re-)rendered Provides data about the portal that
 //              has been selected.
@@ -60,6 +63,7 @@ window.VALID_HOOKS = [
   'portalSelected', 'portalDetailsUpdated', 'artifactsUpdated',
   'mapDataRefreshStart', 'mapDataEntityInject', 'mapDataRefreshEnd',
   'portalAdded', 'linkAdded', 'fieldAdded',
+  'portalRemoved', 'linkRemoved', 'fieldRemoved',
   'publicChatDataAvailable', 'factionChatDataAvailable',
   'requestFinished', 'nicknameClicked',
   'geoSearch', 'search', 'iitcLoaded',
