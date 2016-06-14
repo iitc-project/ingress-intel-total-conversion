@@ -57,7 +57,7 @@ window.plugin.scoreCycleTimes.update = function() {
 
   var formatRow = function(label,time) {
     var timeStr = unixTimeToString(time,true);
-    timeStr = timeStr.replace(/:00(?: ?[ap]m)?$/i,'');
+    timeStr = timeStr.replace(/:00$|:00(?= [AP]M$)/,'');
 
     return '<tr><td>'+label+'</td><td>'+timeStr+'</td></tr>';
   }
