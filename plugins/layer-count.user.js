@@ -32,24 +32,21 @@ plugin.layerCount.onBtnClick = function(ev) {
 
 	if(btn.classList.contains("active")) {
 		if(window.plugin.drawTools !== undefined) {
-			for (var layerId in window.plugin.drawTools.drawnItems._layers) {
-				var layer = window.plugin.drawTools.drawnItems._layers[layerId];
+			window.plugin.drawTools.drawnItems.eachLayer(function(layer) {
 				if (layer instanceof L.GeodesicPolygon) {
 					L.DomUtil.addClass(layer._path, "leaflet-clickable");
 					layer._path.setAttribute("pointer-events", layer.options.pointerEventsBackup);
 					layer.options.pointerEvents = layer.options.pointerEventsBackup;
 					layer.options.clickable = true;
 				}
-			}
-
+			});
 		}
 		map.off("click", plugin.layerCount.calculate);
 		btn.classList.remove("active");
 	} else {
 		console.log("inactive");
 		if(window.plugin.drawTools !== undefined) {
-			for (var layerId in window.plugin.drawTools.drawnItems._layers) {
-				var layer = window.plugin.drawTools.drawnItems._layers[layerId];
+			window.plugin.drawTools.drawnItems.eachLayer(function(layer) {
 				if (layer instanceof L.GeodesicPolygon) {
 					layer.options.pointerEventsBackup = layer.options.pointerEvents;
 					layer.options.pointerEvents = null;
@@ -57,8 +54,7 @@ plugin.layerCount.onBtnClick = function(ev) {
 					L.DomUtil.removeClass(layer._path, "leaflet-clickable");
 					layer._path.setAttribute("pointer-events", "none");
 				}
-			}
-
+			});
 		}
 		map.on("click", plugin.layerCount.calculate);
 		btn.classList.add("active");
@@ -115,8 +111,8 @@ plugin.layerCount.calculate = function(ev) {
 	for(var guid in fields) {
 		var field = fields[guid];
 
-		// we don't need to check the field's bounds first. pnpoly is pretty simple math. the bounds is about 50 times
-		// slower than just using pnpoly
+		// we don't need to check the field's bounds first. pnpoly is pretty simple math.
+		// Checking the bounds is about 50 times slower than just using pnpoly
 		if(plugin.layerCount.pnpoly(field._latlngs, point)) {
 			if(field.options.team == TEAM_ENL)
 				layersEnl++;
@@ -143,7 +139,7 @@ plugin.layerCount.calculate = function(ev) {
 		var content = "No fields";
 
 	if (layersDrawn != 0)
-		content += "; draw: " + layersDrawn + " field(s)";
+		content += "; draw: " + layersDrawn + " polygon(s)";
 
 	plugin.layerCount.tooltip.innerHTML = content;
 
