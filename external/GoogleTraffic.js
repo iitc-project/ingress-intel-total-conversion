@@ -32,7 +32,7 @@ L.GoogleTraffic = L.Class.extend({
 		this._ready = google.maps.Map !== undefined;
 		if (!this._ready) L.GoogleTraffic.asyncWait.push(this);
 
-		this._type = type || 'SATELLITE';
+		this._type = type || 'ROADMAP';
 	},
 
 	onAdd: function(map, insertAtTheBottom) {
