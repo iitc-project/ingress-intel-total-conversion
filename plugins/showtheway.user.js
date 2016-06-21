@@ -53,14 +53,14 @@ window.plugin.showtheway = {
                     .prop('readonly', true)
                     .addClass('showtheway-portal-url')
                     .click(function () {
-                        if (!$(this).hasClass("selected")) {
+                        if (!$(this).hasClass('selected')) {
                             $(this).select();
-                            $(this).addClass("selected");
+                            $(this).addClass('selected');
                         }
                     })
                     .blur(function () {
-                        if ($(this).hasClass("selected")) {
-                            $(this).removeClass("selected");
+                        if ($(this).hasClass('selected')) {
+                            $(this).removeClass('selected');
                         }
                     })
             )
