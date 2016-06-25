@@ -6117,6 +6117,12 @@ L.Polygon.include(!L.Path.CANVAS ? {} : {
 
 L.Circle.include(!L.Path.CANVAS ? {} : {
 	_drawPath: function () {
+		if (this.options.dashArray) {
+            		var da = typeof(this.options.dashArray) === "string" ? this.options.dashArray.split(",").map(function(el,ix,ar) { return parseInt(el); }) : this.options.dashArray;
+            		this._ctx.setLineDash(da);
+        	} else {
+			this._ctx.setLineDash([]);
+        	}
 		var p = this._point;
 		this._ctx.beginPath();
 		this._ctx.arc(p.x, p.y, this._radius, 0, Math.PI * 2, false);
