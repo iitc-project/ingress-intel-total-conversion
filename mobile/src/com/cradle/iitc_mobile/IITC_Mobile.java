@@ -116,6 +116,16 @@ public class IITC_Mobile extends Activity
         mViewDebug = findViewById(R.id.viewDebug);
         mBtnToggleMap = (ImageButton) findViewById(R.id.btnToggleMapVisibility);
         mEditCommand = (EditText) findViewById(R.id.editCommand);
+        mEditCommand.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(final View v, final int keyCode, final KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_ENTER && event.isCtrlPressed()) {
+                    onBtnRunCodeClick(v);
+                    return true;
+                }
+                return false;
+            }
+        });
         mEditCommand.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(final TextView v, final int actionId, final KeyEvent event) {
@@ -837,7 +847,7 @@ public class IITC_Mobile extends Activity
         final String js = "(function(obj){var result;" +
                 "console.log('>>> ' + obj.code);" +
                 "try{result=eval(obj.code);}catch(e){if(e.stack) console.error(e.stack);throw e;}" +
-                "if(result!==undefined) console.log(result.toString());" +
+                "if(result!==undefined) console.log(result===null?null:result.toString());" +
                 "})(" + obj.toString() + ");";
 
         mIitcWebView.loadJS(js);

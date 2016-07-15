@@ -11,6 +11,10 @@
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/mission/*
+// @include        http://www.ingress.com/mission/*
+// @match          https://www.ingress.com/mission/*
+// @match          http://www.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -45,6 +49,7 @@
   window.plugin.bookmarks.updateQueue = {};
   window.plugin.bookmarks.updatingQueue = {};
 
+  window.plugin.bookmarks.IDcount = 0;
 
   window.plugin.bookmarks.enableSync = false;
 
@@ -63,9 +68,9 @@
 
   // Generate an ID for the bookmark (date time + random number)
   window.plugin.bookmarks.generateID = function() {
-    var d = new Date();
-    var ID = d.getTime()+(Math.floor(Math.random()*99)+1);
-    ID = 'id'+ID.toString();
+    var d = new Date();    var ID = d.getTime().toString() + window.plugin.bookmarks.IDcount.toString() + (Math.floor(Math.random()*99)+1);
+    window.plugin.bookmarks.IDcount++;
+    var ID = 'id'+ID.toString();
     return ID;
   }
 
@@ -289,26 +294,36 @@
   }
 
   // Append a 'star' flag in sidebar.
+  window.plugin.bookmarks.onPortalSelectedPending = false;
   window.plugin.bookmarks.onPortalSelected = function() {
     $('.bkmrksStar').remove();
 
     if(window.selectedPortal == null) return;
 
-    setTimeout(function() { // the sidebar is constructed after firing the hook
-      if(typeof(Storage) === "undefined") {
-        $('#portaldetails > .imgpreview').after(plugin.bookmarks.htmlDisabledMessage);
-        return;
-      }
+    if (!window.plugin.bookmarks.onPortalSelectedPending) {
+      window.plugin.bookmarks.onPortalSelectedPending = true;
 
-      // Prepend a star to mobile status-bar
-      if(window.plugin.bookmarks.isSmart) {
-        $('#updatestatus').prepend(plugin.bookmarks.htmlStar);
-        $('#updatestatus .bkmrksStar').attr('title', '');
-      }
+      setTimeout(function() { // the sidebar is constructed after firing the hook
+        window.plugin.bookmarks.onPortalSelectedPending = false;
 
-      $('#portaldetails > h3.title').before(plugin.bookmarks.htmlStar);
-      window.plugin.bookmarks.updateStarPortal();
-    }, 0);
+        $('.bkmrksStar').remove();
+
+        if(typeof(Storage) === "undefined") {
+          $('#portaldetails > .imgpreview').after(plugin.bookmarks.htmlDisabledMessage);
+          return;
+        }
+
+        // Prepend a star to mobile status-bar
+        if(window.plugin.bookmarks.isSmart) {
+          $('#updatestatus').prepend(plugin.bookmarks.htmlStar);
+          $('#updatestatus .bkmrksStar').attr('title', '');
+        }
+
+        $('#portaldetails > h3.title').before(plugin.bookmarks.htmlStar);
+        window.plugin.bookmarks.updateStarPortal();
+      }, 0);
+    }
+
   }
 
   // Update the status of the star (when a portal is selected from the map/bookmarks-list)
@@ -957,7 +972,6 @@
 
     if(latlngs.length >= 2 && latlngs.length <= 3) {
       // TODO: add an API to draw-tools rather than assuming things about its internals
-      window.plugin.drawTools.setOptions();
 
       var layer, layerType;
       if(latlngs.length == 2) {
@@ -1028,7 +1042,7 @@
   }
 
   window.plugin.bookmarks.dialogLoadList = function() {
-    var r = 'The "<a href="http://iitc.jonatkins.com/?page=desktop#plugin-draw-tools" target="_BLANK"><strong>Draw Tools</strong></a>" plugin is required.</span>';
+    var r = 'The "<a href="http://iitc.me/desktop/#plugin-draw-tools" target="_BLANK"><strong>Draw Tools</strong></a>" plugin is required.</span>';
 
     if(!window.plugin.bookmarks || !window.plugin.drawTools) {
       $('.ui-dialog-autodrawer .ui-dialog-buttonset .ui-button:not(:first)').hide();

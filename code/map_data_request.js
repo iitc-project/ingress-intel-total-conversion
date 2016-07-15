@@ -45,7 +45,10 @@ window.MapDataRequest = function() {
   this.RUN_QUEUE_DELAY = 0;
 
   // delay before processing the queue after failed requests
-  this.BAD_REQUEST_RUN_QUEUE_DELAY = 10; // longer delay before doing anything after errors (other than TIMEOUT)
+  this.BAD_REQUEST_RUN_QUEUE_DELAY = 5; // longer delay before doing anything after errors (other than TIMEOUT)
+
+  // delay before processing the queue after empty responses
+  this.EMPTY_RESPONSE_RUN_QUEUE_DELAY = 5; // also long delay - empty responses are likely due to some server issues
 
   // delay before processing the queue after error==TIMEOUT requests. this is 'expected', so minimal extra delay over the regular RUN_QUEUE_DELAY
   this.TIMEOUT_REQUEST_RUN_QUEUE_DELAY = 0;
@@ -54,7 +57,7 @@ window.MapDataRequest = function() {
   // render queue
   // number of items to process in each render pass. there are pros and cons to smaller and larger values
   // (however, if using leaflet canvas rendering, it makes sense to push as much as possible through every time)
-  this.RENDER_BATCH_SIZE = L.Path.CANVAS ? 1E9 : 500;
+  this.RENDER_BATCH_SIZE = L.Path.CANVAS ? 1E9 : 1500;
 
   // delay before repeating the render loop. this gives a better chance for user interaction
   this.RENDER_PAUSE = (typeof android === 'undefined') ? 0.1 : 0.2; //100ms desktop, 200ms mobile
@@ -66,6 +69,13 @@ window.MapDataRequest = function() {
 
   // ensure we have some initial map status
   this.setStatus ('startup', undefined, -1);
+
+  // add a portalDetailLoaded hook, so we can use the exteneed details to update portals on the map
+  var _this = this;
+  addHook('portalDetailLoaded',function(data){
+    _this.render.processGameEntities([data.ent]);
+  });
+
 }
 
 
@@ -229,8 +239,11 @@ window.MapDataRequest.prototype.refresh = function() {
 
   this.render.startRenderPass(tileParams.level, dataBounds);
 
+  var _render = this.render;
+  window.runHooks ('mapDataEntityInject', {callback: function(ents) { _render.processGameEntities(ents);}});
 
-  this.render.processGameEntities(artifact.getArtifactEntities(),true);
+
+  this.render.processGameEntities(artifact.getArtifactEntities());
 
   var logMessage = 'requesting data tiles at zoom '+dataZoom;
   if (tileParams.level != tileParams.maxLevel) {
@@ -487,6 +500,7 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
   var errorTiles = [];
   var retryTiles = [];
   var timeoutTiles = [];
+  var unaccountedTiles = tiles.slice(0); // Clone
 
   if (!success || !data || !data.result) {
     console.warn('Request.handleResponse: request failed - requeuing...'+(data && data.error?' error: '+data.error:''));
@@ -513,7 +527,7 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
 
       window.runHooks('requestFinished', {success: false});
     }
-
+    unaccountedTiles = [];
   } else {
 
     // TODO: use result.minLevelOfDetail ??? stock site doesn't use it yet...
@@ -522,7 +536,7 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
 
     for (var id in m) {
       var val = m[id];
-
+      unaccountedTiles.splice(unaccountedTiles.indexOf(id), 1);
       if ('error' in val) {
         // server returned an error for this individual data tile
 
@@ -564,6 +578,7 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
   // set the queue delay based on any errors or timeouts
   // NOTE: retryTimes are retried at the regular delay - no longer wait as for error/timeout cases
   var nextQueueDelay = errorTiles.length > 0 ? this.BAD_REQUEST_RUN_QUEUE_DELAY :
+                       unaccountedTiles.length > 0 ? this.EMPTY_RESPONSE_RUN_QUEUE_DELAY :
                        timeoutTiles.length > 0 ? this.TIMEOUT_REQUEST_RUN_QUEUE_DELAY :
                        this.RUN_QUEUE_DELAY;
   var statusMsg = 'getEntities status: '+tiles.length+' tiles: ';
@@ -571,6 +586,7 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
   if (retryTiles.length) statusMsg += ', '+retryTiles.length+' retried';
   if (timeoutTiles.length) statusMsg += ', '+timeoutTiles.length+' timed out';
   if (errorTiles.length) statusMsg += ', '+errorTiles.length+' failed';
+  if (unaccountedTiles.length) statusMsg += ', '+unaccountedTiles.length+' unaccounted';
   statusMsg += '. delay '+nextQueueDelay+' seconds';
   console.log (statusMsg);
 
@@ -597,6 +613,14 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
   if (errorTiles.length > 0) {
     for (var i in errorTiles) {
       var id = errorTiles[i];
+      delete this.requestedTiles[id];
+      this.requeueTile(id, true);
+    }
+  }
+
+  if (unaccountedTiles.length > 0) {
+    for (var i in unaccountedTiles) {
+      var id = unaccountedTiles[i];
       delete this.requestedTiles[id];
       this.requeueTile(id, true);
     }
