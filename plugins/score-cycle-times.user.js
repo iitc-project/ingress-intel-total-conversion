@@ -11,6 +11,10 @@
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
+// @include        https://www.ingress.com/mission/*
+// @include        http://www.ingress.com/mission/*
+// @match          https://www.ingress.com/mission/*
+// @match          http://www.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -60,7 +64,7 @@ window.plugin.scoreCycleTimes.update = function() {
     timeStr = timeStr.replace(/:00$/,''); //FIXME: doesn't remove seconds from AM/PM formatted dates
 
     return '<tr><td>'+label+'</td><td>'+timeStr+'</td></tr>';
-  }
+  };
 
   var html = '<table>'
            + formatRow('Cycle start', cycleStart)
@@ -72,7 +76,7 @@ window.plugin.scoreCycleTimes.update = function() {
   $('#score_cycle_times_display').html(html);
 
   setTimeout ( window.plugin.scoreCycleTimes.update, checkpointEnd-now);
-}
+};
 
 
 

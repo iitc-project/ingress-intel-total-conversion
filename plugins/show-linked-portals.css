@@ -25,6 +25,8 @@
 	height: 40px;
 }
 .showLinkedPortalLink.outOfRange span {
+	display: block;
+	line-height: 13px;
 	font-size: 10px;
 }
 .showLinkedPortalOverflow {
