@@ -29,4 +29,4 @@ The Android App behaves like the desktop version, but uses the mobile view, whic
 
 **The App only works with Android 4.0+**
 
-### [For developer docs, please see HACKING.md](https://github.com/jonatkins/ingress-intel-total-conversion/blob/master/mobile/HACKING.md)
+### [For developer docs, please see HACKING.md](https://github.com/iitc-project/ingress-intel-total-conversion/blob/master/mobile/HACKING.md)

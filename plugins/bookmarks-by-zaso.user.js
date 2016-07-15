@@ -897,7 +897,7 @@
   }
 
   window.plugin.bookmarks.dialogLoadList = function() {
-    var r = 'The "<a href="http://iitc.jonatkins.com/?page=desktop#plugin-draw-tools" target="_BLANK"><strong>Draw Tools</strong></a>" plugin is required.</span>';
+    var r = 'The "<a href="http://iitc.me/desktop/#plugin-draw-tools" target="_BLANK"><strong>Draw Tools</strong></a>" plugin is required.</span>';
 
     if(!window.plugin.bookmarks || !window.plugin.drawTools) {
       $('.ui-dialog-autodrawer .ui-dialog-buttonset .ui-button:not(:first)').hide();

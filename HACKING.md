@@ -73,7 +73,7 @@ How do I report bugs?
 You can also try to [install the most recent developer version (“nightly”)]
 (https://www.dropbox.com/sh/lt9p0s40kt3cs6m/3xzpyiVBnF) and repeat the steps above. Maybe your issue has already been fixed? The nightly versions will update to the next stable release, so you don’t need to worry about that.
 
-If your issue persists, continue. The next step is to look for existing issues, maybe someone else has a similar problem. You can look [through the existing issues](https://github.com/jonatkins/ingress-intel-total-conversion/issues?sort=updated&state=open) or use the search function on the top right. If your issue persists, open a new issue and provide **all** of the information below, even if you don’t think this is necessary.
+If your issue persists, continue. The next step is to look for existing issues, maybe someone else has a similar problem. You can look [through the existing issues](https://github.com/iitc-project/ingress-intel-total-conversion/issues?sort=updated&state=open) or use the search function on the top right. If your issue persists, open a new issue and provide **all** of the information below, even if you don’t think this is necessary.
 
 - a descriptive title
 - your browser and its version
@@ -85,7 +85,7 @@ If your issue persists, continue. The next step is to look for existing issues, 
     - description of how the script behaves now and how it should behave instead
 
 
-[You may report the issue here.](https://github.com/jonatkins/ingress-intel-total-conversion/issues/new)
+[You may report the issue here.](https://github.com/iitc-project/ingress-intel-total-conversion/issues/new)
 
 
 If asked to **“copy console output”**, do the following:

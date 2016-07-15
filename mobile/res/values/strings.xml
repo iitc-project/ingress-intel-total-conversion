@@ -34,13 +34,13 @@
         After Niantic asked the main developer to shut down his github project, development
         is continued on a fork of <a href="https://github.com/jonatkins"><b>jonatkins</b></a>.
         <h3>Community:</h3>
-        • Visit the <a href="http://iitc.jonatkins.com/">IITC website</a> for new releases and the desktop version.<br>
+        • Visit the <a href="http://iitc.me/">IITC website</a> for new releases and the desktop version.<br>
         • Follow the <a href="https://plus.google.com/105383756361375410867">IITC Google+ page</a>
         for release announcements.<br>
         • Join the <a href="https://plus.google.com/communities/105647403088015055797">IITC Google+ community</a>
         - a place to ask for help and discuss with other users.
         <h3>Developers:</h3>
-        <a href="https://github.com/jonatkins/ingress-intel-total-conversion">IITC on Github</a>
+        <a href="https://github.com/iitc-project/ingress-intel-total-conversion">IITC on Github</a>
         <h3>IITC Licence:</h3>
         Copyright © 2013 Stefan Breunig, Jon Atkins, Philipp Schäfer and others<br><br>
 
@@ -68,7 +68,7 @@
         • You can quickly send the current portal link/permalink to another device if both devices support NFC (hold
         both devices back-to-back and tap the screen to beam the map to the other device).<br><br>
         • You can add official plugins in the settings.<br><br>
-        • For external plugins please have a look at the <a href="http://iitc.jonatkins.com/?page=faq#mobile-plugins">FAQ.]]>
+        • For external plugins please have a look at the <a href="http://iitc.me/faq/#mobile-plugins">FAQ.]]>
     </string>
     <string name="notice_info">
         <![CDATA[Hint: Alternative ways to open the info screen:<br><br>
