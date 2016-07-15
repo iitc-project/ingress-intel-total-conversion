@@ -391,6 +391,9 @@ window.plugin.uniques.highlighter = {
 		if (uniqueInfo) {
 			if (uniqueInfo.captured) {
 				// captured (and, implied, visited too) - no highlights
+				if (data.portal.options.team === 0){
+                                        style.fillColor = 'lightgrey';
+                                }
 
 			} else if (uniqueInfo.visited) {
 				style.fillColor = 'yellow';
