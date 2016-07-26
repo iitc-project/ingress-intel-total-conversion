@@ -25,7 +25,7 @@ if (targetContainer) {
   logoDiv.setAttribute('style', "position: fixed; left: 20px; top: 130px; z-index: auto; pointer-events: none;");
 
   var img = document.createElement('img');
-  img.setAttribute('src', 'http://iitc.jonatkins.com/assets/img/prefer-iitc-200.png');
+  img.setAttribute('src', 'http://iitc.me/assets/img/prefer-iitc-200.png');
 
   logoDiv.appendChild(img);
 

@@ -38,7 +38,7 @@ window.aboutIITC = function() {
   + '  <div>Ingress Intel Total Conversion</div> '
   + '  <hr>'
   + '  <div>'
-  + '    <a href="http://iitc.jonatkins.com/" target="_blank">IITC Homepage</a><br />'
+  + '    <a href="http://iitc.me/" target="_blank">IITC Homepage</a><br />'
   + '     On the script’s homepage you can:'
   + '     <ul>'
   + '       <li>Find Updates</li>'
