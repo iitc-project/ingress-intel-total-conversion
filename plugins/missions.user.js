@@ -386,7 +386,7 @@ window.plugin.missions = {
 				return latlng1.distanceTo(latlng2);
 			}).reduce(function(a, b) {
 				return a + b;
-			});
+			}, 0);
 			
 			if(len > 0) {
 				if(len > 1000)
