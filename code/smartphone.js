@@ -11,7 +11,8 @@ window.isSmartphone = function() {
   if (viewParam == 'm') return true;
   if (viewParam == 'f') return false;
 
-  return navigator.userAgent.match(/Android.*Mobile/);
+  return navigator.userAgent.match(/Android.*Mobile/)
+  || navigator.userAgent.match(/iPhone|iPad|iPod/i);
 }
 
 window.smartphone = function() {};
