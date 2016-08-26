@@ -7,8 +7,8 @@ addHook('search', function(query) {});
 
 `query` is an object with the following members:
 - `term` is the term for which the user has searched
-- `confirmed` is a boolean indicating if the user has pressed enter after searching. You should not search online or 
-  heavy processing unless the user has confirmed the search term
+- `confirmed` is a boolean indicating if the user has pressed enter after searching. You should not search online or
+  do heavy processing unless the user has confirmed the search term
 - `addResult(result)` can be called to add a result to the query.
 
 `result` may have the following members (`title` is required, as well as one of `position` and `bounds`):

@@ -511,9 +511,19 @@ input[type="search"], input[type="url"] {
 }
 #buttongeolocation {
   position: absolute;
-  top: 2px;
-  right: 2px;
-  cursor: pointer;
+  right: 0;
+  top: 0;
+  margin: 0;
+  border: 0 none transparent;
+  padding: 0 2px 0 0;
+  height: 100%;
+  background-color: transparent;
+}
+#buttongeolocation:focus {
+  outline: 1px dotted #ffce00;
+}
+#buttongeolocation img {
+  display: block;
 }
 #searchwrapper h3 {
   font-size: 1em;
