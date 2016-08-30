@@ -1,8 +1,8 @@
 // ==UserScript==
 // @id             iitc-plugin-fontchanger@umer936
-// @name           IITC plugin: Changes the font to see agent names easier 
+// @name           IITC plugin: Changes the font to see agent names easier
 // @category       Tweaks
-// @version        0.1.1.@@DATETIMEVERSION@@
+// @version        0.1.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -15,14 +15,14 @@
 // @include        http://www.ingress.com/mission/*
 // @match          https://www.ingress.com/mission/*
 // @match          http://www.ingress.com/mission/*
-// @grant          none
+// @grant          GM_addStyle
 // ==/UserScript==
 
 @@PLUGINSTART@@
 
 // PLUGIN START ////////////////////////////////////////////////////////
 
-$(".nickname").css("font-family","Verdana");undefined;
+GM_addStyle ( ".nickname {font-family: Lucida Console !important;}" );
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
