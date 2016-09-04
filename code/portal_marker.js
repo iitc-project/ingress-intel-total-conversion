@@ -39,7 +39,11 @@ window.setMarkerStyle = function(marker, selected) {
   }
 }
 
-
+/**
+ * Generates the default style marker options based on portal details.
+ * @param details {PortalData}
+ * @returns {{radius: number, stroke: boolean, color: *, weight: number, opacity: number, fill: boolean, fillColor: *, fillOpacity: number, dashArray: *}}
+ */
 window.getMarkerStyleOptions = function(details) {
   var scale = window.portalMarkerScale();
 
