@@ -378,11 +378,13 @@ window.MapDataRequest.prototype.processRequestQueue = function(isFirstPass) {
   var requestBuckets = this.MAX_REQUESTS - this.activeRequestCount;
   if (pendingTiles.length > 0 && requestBuckets > 0) {
 
+    // Split the requests across all available buckets.
+    var requestBucketSize = Math.min(this.NUM_TILES_PER_REQUEST, Math.max(5, Math.ceil(pendingTiles.length / requestBuckets)));
     for (var bucket=0; bucket < requestBuckets; bucket++) {
 
       // if the tiles for this request have had several retries, use smaller requests
       // maybe some of the tiles caused all the others to error? no harm anyway, and it may help...
-      var numTilesThisRequest = Math.min(this.NUM_TILES_PER_REQUEST,pendingTiles.length);
+      var numTilesThisRequest = Math.min(requestBucketSize, pendingTiles.length);
 
       var id = pendingTiles[0];
       var retryTotal = (this.tileErrorCount[id]||0);
