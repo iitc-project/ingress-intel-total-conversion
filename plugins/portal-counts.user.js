@@ -93,7 +93,7 @@ window.plugin.portalcounts.getPortals = function (){
     for(var level = window.MAX_PORTAL_LEVEL; level > 0; level--){
       counts += '<tr><td class="L'+level+'">Level '+level+'</td>';
       if(minlvl > level)
-        counts += '<td colspan="2">zoom in to see portals in this level</td>';
+        counts += '<td colspan="2">Zoom in to see portals in this level</td>';
       else
         counts += '<td class="enl">'+self.PortalsEnl[level]+'</td><td class="res">'+self.PortalsRes[level]+'</td>';
       counts += '</tr>';
@@ -103,7 +103,7 @@ window.plugin.portalcounts.getPortals = function (){
 
     counts += '<tr><td>Neutral:</td><td colspan="2">';
     if(minlvl > 0)
-      counts += 'zoom in to see unclaimed portals';
+      counts += 'Zoom in to see unclaimed portals';
     else
       counts += self.neuP;
     counts += '</td></tr></table>';

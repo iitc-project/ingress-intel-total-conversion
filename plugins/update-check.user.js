@@ -137,18 +137,18 @@ window.plugin.updateCheck.compareDetails = function(web_version, script_version)
 //  }
 
   if (!result.localVersion) {
-    result.html = '<span class="help" title="Your version unknown\nLatest version '+webVerHTML+'">version check failed</span>';
+    result.html = '<span class="help" title="Your version of IITC is unknown.\nThe latest version is: '+webVerHTML+'.">Unknown version of IITC installed.</span>';
   } else if (!result.webVersion) {
-    result.html = '<span class="help" title="Your version '+localVerHTML+'\nNo version from update check server">version check failed</span>';
+    result.html = '<span class="help" title="Your version of IITC is: '+localVerHTML+'.\nUnable to identify update versions, please check the IITC website.">Unknown update version.</span>';
   } else if (result.upToDate) {
-    result.html = '<span class="help" title="Version '+localVerHTML+'">up to date</span>';
+    result.html = '<span class="help" title="Version: '+localVerHTML+'">IITC is up-to-date.</span>';
   } else if (result.outOfDate) {
-    result.html = '<span class="help" title="Your version '+localVerHTML+'\nLatest version '+webVerHTML+'">out of date</span>';
+    result.html = '<span class="help" title="Your version of IITC is: '+localVerHTML+'.\nThe latest version is: '+webVerHTML+'.">Please update your version of IITC.</span>';
   } else if (result.localNewer) {
-    result.html = localVerHTML+' is newer than '+webVerHTML+'(?!)';
+    result.html = 'Your version of IITC (' + localVerHTML +') is newer than is available ('+webVerHTML+')';
   } else {
     console.warn ('Unknown case of version combinations!');
-    result.html = '<span class="help" title="Your version '+localVerHTML+'\nLatest version '+webVerHTML+'">version check failed(!?)</span>';
+    result.html = '<span class="help" title="Your version of IITC is: '+localVerHTML+'.\nThe latest available version is: '+webVerHTML+'.">Please check the IITC website for an update.</span>';
   }
 
   return result;
@@ -159,7 +159,7 @@ window.plugin.updateCheck.showReport = function(data) {
   var result = '<b>WORK IN PROGRESS</b>';
 
   if (data.error) {
-    result += '<div><b>Error checking for updates</b><br>'+data.error+'</div>';
+    result += '<div><b>Error checking for updates:</b><br>'+data.error+'</div>';
   } else {
     if (data.name) {
       result += '<div>IITC update check: '+data.name+'</div>';

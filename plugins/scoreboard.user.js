@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Display a scoreboard about all visible portals with statistics about both teams,like average portal level,link & field counts etc.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Display a scoreboard about all visible portals with statistics for both teams, like average portal level,link & field counts etc.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -248,7 +248,7 @@
         +enlCountOfLinks+'</td>'+'<td class="res" style="text-align:center;">'+resCountOfLinks+'</td></tr>'
         +'<tr><td class="firstColumn" style="text-align:center;">Number of Fields</td>'+'<td class="enl" style="text-align:center;">'
         +enlCountOfFields+'</td>'+'<td class="res" style="text-align:center;">'+resCountOfFields+'</td></tr>'
-        +'<tr><td class="firstColumn" style="text-align:center;">Average portal Health</td>'+'<td class="enl" style="text-align:center;">'
+        +'<tr><td class="firstColumn" style="text-align:center;">Average Portal Health</td>'+'<td class="enl" style="text-align:center;">'
         +avgHealthEnl+'%</td>'+'<td class="res" style="text-align:center;">'+avgHealthRes+'%</td></tr>';
         
         
@@ -267,7 +267,7 @@
             android.addPane("plugin-Scoreboard", "Scoreboard", "ic_action_paste");
             addHook("paneChanged", window.plugin.scoreboard.onPaneChanged);
         } else {
-            $('#toolbox').append(' <a onclick="window.plugin.scoreboard.displayScoreboard()" title="Display a dynamic scoreboard in the current view">Scoreboard</a>');
+            $('#toolbox').append(' <a onclick="window.plugin.scoreboard.displayScoreboard()" title="Display a dynamic scoreboard in the current view.">Scoreboard</a>');
         }
         
         $('head').append('<style>' +   //set style for the scoreboard and its cells

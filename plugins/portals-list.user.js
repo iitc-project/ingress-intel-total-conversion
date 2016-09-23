@@ -356,8 +356,8 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
     table.appendChild(row);
   });
 
-  container.append('<div class="disclaimer">Click on portals table headers to sort by that column. '
-    + 'Click on <b>All, Neutral, Resistance, Enlightened</b> to only show portals owner by that faction or on the number behind the factions to show all but those portals.</div>');
+  container.append('<div class="disclaimer">Click on table headers to sort by that column. '
+    + 'Click on <b>All, Neutral, Resistance, Enlightened</b> to only show portals owned by that faction or on the number behind the factions to show all but those portals.</div>');
 
   return container;
 }

@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Show a mini map on the corner of the map.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Show a mini map in the corner of the map.
 // @include        https://www.ingress.com/intel*
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -30,7 +30,7 @@ window.plugin.miniMap.setup  = function() {
 
   try { console.log('Loading leaflet.draw JS now'); } catch(e) {}
   @@INCLUDERAW:external/Control.MiniMap.js@@
-  try { console.log('done loading leaflet.draw JS'); } catch(e) {}
+  try { console.log('Done loading leaflet.draw JS'); } catch(e) {}
 
   // we can't use the same TileLayer as the main map uses - it causes issues.
   // stick with the Google tiles for now

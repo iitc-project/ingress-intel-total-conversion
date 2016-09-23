@@ -139,7 +139,7 @@ window.plugin.maxLinks.updateLayer = function() {
 window.plugin.maxLinks.setup = function() {
   try { console.log('Loading delaunay JS now'); } catch(e) {}
   @@INCLUDERAW:external/delaunay.js@@
-  try { console.log('done loading delaunay JS'); } catch(e) {}
+  try { console.log('Done loading delaunay JS'); } catch(e) {}
 
   window.plugin.maxLinks.layer = L.layerGroup([]);
 
