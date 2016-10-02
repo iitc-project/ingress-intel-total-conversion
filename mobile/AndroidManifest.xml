@@ -3,7 +3,7 @@
     package="com.cradle.iitc_mobile"
     android:installLocation="auto"
     android:versionCode="104"
-    android:versionName="0.25.2">
+    android:versionName="0.26.0">
 
     <uses-sdk
         android:minSdkVersion="14"
