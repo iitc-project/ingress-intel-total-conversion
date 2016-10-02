@@ -122,6 +122,14 @@ function createDefaultBaseMapLayers() {
   //var mqMapOpt = {attribution: osmAttribution+', Tiles Courtesy of MapQuest', maxNativeZoom: 18, maxZoom: 21, subdomains: mqSubdomains};
   //baseLayers['MapQuest OSM'] = new L.TileLayer(mqTileUrlPrefix+'/tiles/1.0.0/map/{z}/{x}/{y}.jpg',mqMapOpt);
 
+  // MapBox - https://www.mapbox.com/api-documentation/
+  // Access MapBox via the GNOME Project proxy.
+  // In the future, this URL will provide improved tiles from the GNOME Project with localized labels.
+  var gnomeStreetUrl = 'https://gis.gnome.org/tiles/street/v1/{z}/{x}/{y}';
+  var gnomeAerialUrl = 'https://gis.gnome.org/tiles/satellite/v1/{z}/{x}/{y}';
+  baseLayers['MapBox Street'] = L.tileLayer(gnomeStreetUrl);
+  baseLayers['MapBox Satellite'] = L.tileLayer(gnomeAerialUrl);
+  
   // cartodb has some nice tiles too - both dark and light subtle maps - http://cartodb.com/basemaps/
   // (not available over https though - not on the right domain name anyway)
   var cartoAttr = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>';

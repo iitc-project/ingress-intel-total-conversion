@@ -41,7 +41,7 @@ window.renderPortalDetails = function(guid) {
  
 
   var img = fixPortalImageUrl(details ? details.image : data.image);
-  var title = (details && details.title) || (data && data.title) || '(untitled)';
+  var title = (details && details.title) || (data && data.title) || 'null';
 
   var lat = data.latE6/1E6;
   var lng = data.lngE6/1E6;
