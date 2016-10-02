@@ -4,10 +4,10 @@
 // @version        0.0.1
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @description    Adds back CloudMade.com map layers - 
-// @include        https://www.ingress.com/intel*
-// @include        http://www.ingress.com/intel*
-// @match          https://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        https://*.ingress.com/intel*
+// @include        http://*.ingress.com/intel*
+// @match          https://*.ingress.com/intel*
+// @match          http://*.ingress.com/intel*
 // ==/UserScript==
 
 function wrapper() {
