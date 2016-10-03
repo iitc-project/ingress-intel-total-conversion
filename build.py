@@ -235,6 +235,9 @@ main = doReplacements(main,downloadUrl=downloadUrl,updateUrl=updateUrl)
 
 saveScriptAndMeta(main, outDir, 'total-conversion-build.user.js', oldDir)
 
+with io.open(os.path.join(outDir, '.build-timestamp'), 'w') as f:
+    f.write(time.strftime('%Y-%m-%d %H:%M:%S UTC', utcTime))
+
 
 # for each plugin, load, parse, and save output
 os.mkdir(os.path.join(outDir,'plugins'))
