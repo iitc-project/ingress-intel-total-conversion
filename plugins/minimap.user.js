@@ -32,15 +32,26 @@ window.plugin.miniMap.setup  = function() {
   @@INCLUDERAW:external/Control.MiniMap.js@@
   try { console.log('done loading leaflet.draw JS'); } catch(e) {}
 
-  // we can't use the same TileLayer as the main map uses - it causes issues.
-  // stick with the Google tiles for now
+  function miniBaseLayer(layerName) {
+    // we can't use the same TileLayer as the main map uses - it causes issues.
+    // but we can use whatever layer we want (so long as it's not the literal same TileLayer)
+    // so ... lets match the users selection 
+    var baseLayers = window.createDefaultBaseMapLayers();
+
+    return baseLayers[layerName];
+  }
 
   // desktop mode - bottom-left, so it doesn't clash with the sidebar
   // mobile mode - bottom-right - so it floats above the map copyright text
   var position = isSmartphone() ? 'bottomright' : 'bottomleft';
 
   setTimeout(function() {
-    new L.Control.MiniMap(new L.Google('ROADMAP',{maxZoom:21}), {toggleDisplay: true, position: position}).addTo(window.map);
+    window.plugin.miniMap.MINI_MAP = new L.Control.MiniMap(miniBaseLayer(localStorage['iitc-base-map']), {toggleDisplay: true, position: position}).addTo(window.map);
+    map.on('baselayerchange', function(info) {
+      window.plugin.miniMap.MINI_MAP._miniMap.removeLayer(window.plugin.miniMap.MINI_MAP._layer);
+      window.plugin.miniMap.MINI_MAP._layer = miniBaseLayer(info.name);
+      window.plugin.miniMap.MINI_MAP._miniMap.addLayer(window.plugin.miniMap.MINI_MAP._layer);
+    });
   }, 0);
 
   $('head').append('<style>@@INCLUDESTRING:external/Control.MiniMap.css@@</style>');
