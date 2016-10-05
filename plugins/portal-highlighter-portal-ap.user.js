@@ -23,7 +23,7 @@
 // PLUGIN START ////////////////////////////////////////////////////////
 
 // use own namespace for plugin
-window.plugin.portalHighlighterPortalsLevelColor = function() {};
+window.plugin.portalHighlighterPortalsAP = function() {};
 
 var setup = function() {
   window.addPortalHighlighter('AP', function(data) {
@@ -34,7 +34,7 @@ var setup = function() {
         getPortalFieldsCount(data.portal.options.guid)
     );
     var teams = ['NEUTRAL', 'RESISTANCE', 'ENLIGHTENED'];
-    var my = (PLAYER.team === teams[data.portal.options.team]) ? ap.friendlyAp : ap.enemyAp;
+    var my = PLAYER.team === teams[data.portal.options.team] ? ap.friendlyAp : ap.enemyAp;
     if (isNaN(my) || my < 2500) {
         data.portal.setStyle({ fillOpacity: 0 });
     } else if (my < 5000) {
