@@ -259,6 +259,7 @@ addHook('search', function(query) {
 addHook('search', function(query) {
   var locations = query.term.match(/[+-]?\d+\.\d+,[+-]?\d+\.\d+/g);
   var added = {};
+  if(!locations) return;
   locations.forEach(function(location) {
     var pair = location.split(',').map(function(s) { return parseFloat(s).toFixed(6); });
     var ll = pair.join(",");
