@@ -6,7 +6,7 @@
 // @namespace      raw.githubusercontent.com
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Extends the lines of polygons and polylines out past their vertices. Useful for determining which portals can be used for a layered field. Draw Tools are required.
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Extends the lines of polygons and polylines out past their vertices. This may be useful for determining which portals can be used for a layered field. Requires draw-tools plugin.
 // @include        https://*.ingress.com/intel*
 // @include        http://*.ingress.com/intel*
 // @match          https://*.ingress.com/intel*
