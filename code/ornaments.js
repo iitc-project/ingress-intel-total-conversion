@@ -15,7 +15,7 @@
 // (there are 7 different colors for each of them)
 
 
-window.ornaments = {}
+window.ornaments = {};
 window.ornaments.OVERLAY_SIZE = 60;
 window.ornaments.OVERLAY_OPACITY = 0.6;
 
@@ -25,12 +25,12 @@ window.ornaments.setup = function() {
   window.ornaments._beacons = L.layerGroup();
   window.addLayerGroup('Ornaments', window.ornaments._layer, true);
   window.addLayerGroup('Beacons', window.ornaments._beacons, true);
-}
+};
 
 // quick test for portal having ornaments
 window.ornaments.isInterestingPortal = function(portal) {
   return portal.options.data.ornaments.length != 0;
-}
+};
 
 window.ornaments.addPortal = function(portal) {
   var guid = portal.options.guid;
@@ -59,15 +59,15 @@ window.ornaments.addPortal = function(portal) {
       return L.marker(latlng, {icon: icon, clickable: false, keyboard: false, opacity: window.ornaments.OVERLAY_OPACITY }).addTo(layer);
     });
   }
-}
+};
 
 window.ornaments.removePortal = function(portal) {
   var guid = portal.options.guid;
   if(window.ornaments._portals[guid]) {
     window.ornaments._portals[guid].forEach(function(marker) {
       window.ornaments._layer.removeLayer(marker);
-      window.ornaments._beacon.removeLayer(marker);
+      window.ornaments._beacons.removeLayer(marker);
     });
     delete window.ornaments._portals[guid];
   }
-}
+};
