@@ -31,7 +31,7 @@ window.ornaments.setup = function() {
 
 // quick test for portal having ornaments
 window.ornaments.isInterestingPortal = function(portal) {
-  return portal.options.data.ornaments.length != 0;
+  return portal.options.data.ornaments.length !== 0;
 };
 
 window.ornaments.addPortal = function(portal) {
