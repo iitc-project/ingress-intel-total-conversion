@@ -45,9 +45,6 @@ window.ornaments.addPortal = function(portal) {
       var layer = window.ornaments._layer;
       if (ornament.startsWith("pe") && ornament != "peFRACK") {
         layer = window.ornaments._beacons;
-        if(ornament == "peOBSIDIAN") {
-          ornament = "peNIA";
-        }
       }
       var icon = L.icon({
         iconUrl: "//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/" + ornament + ".png",
