@@ -4,6 +4,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -118,6 +119,7 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle>, 
      * <p/>
      * After a token is created, AccountManager will call the run() method.
      */
+    @SuppressLint("MissingPermission")
     private void startAuthentication() {
         mProgressbar.show();
 
@@ -174,6 +176,7 @@ public class IITC_DeviceAccountLogin implements AccountManagerCallback<Bundle>, 
      * if we already have a username (e.g. because the existing login has timed out), we can directly start
      * authentication if an account with that username is found.
      */
+    @SuppressLint("MissingPermission")
     public void startLogin(final String realm, final String accountName, final String args) {
         mAccounts = mAccountManager.getAccountsByType(realm);
         mAccountAdapter.notifyDataSetChanged();

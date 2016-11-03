@@ -7,8 +7,8 @@ addHook('search', function(query) {});
 
 `query` is an object with the following members:
 - `term` is the term for which the user has searched
-- `confirmed` is a boolean indicating if the user has pressed enter after searching. You should not search online or 
-  heavy processing unless the user has confirmed the search term
+- `confirmed` is a boolean indicating if the user has pressed enter after searching. You should not search online or
+  do heavy processing unless the user has confirmed the search term
 - `addResult(result)` can be called to add a result to the query.
 
 `result` may have the following members (`title` is required, as well as one of `position` and `bounds`):
@@ -219,6 +219,8 @@ window.search.setup = function() {
   });
 };
 
+
+// search for portals
 addHook('search', function(query) {
   var term = query.term.toLowerCase();
   var teams = ['NEU','RES','ENL'];
@@ -251,21 +253,41 @@ addHook('search', function(query) {
   });
 });
 
+
+// search for locations
 // TODO: recognize 50°31'03.8"N 7°59'05.3"E and similar formats
-// TODO: if a portal with these exact coordinates is found, select it
 addHook('search', function(query) {
-  if(query.term.split(',').length == 2) {
-    var ll = query.term.split(',');
-    if(!isNaN(ll[0]) && !isNaN(ll[1])) {
-      query.addResult({
-        title: query.term,
-        description: 'geo coordinates',
-        position: L.latLng(parseFloat(ll[0]), parseFloat(ll[1])),
-      });
-    }
-  }
+  var locations = query.term.match(/[+-]?\d+\.\d+,[+-]?\d+\.\d+/g);
+  var added = {};
+  if(!locations) return;
+  locations.forEach(function(location) {
+    var pair = location.split(',').map(function(s) { return parseFloat(s).toFixed(6); });
+    var ll = pair.join(",");
+    var latlng = L.latLng(pair.map(function(s) { return parseFloat(s); }));
+    if(added[ll]) return;
+    added[ll] = true;
+
+    query.addResult({
+      title: ll,
+      description: 'geo coordinates',
+      position: latlng,
+      onSelected: function(result, event) {
+        for(var guid in window.portals) {
+          var p = window.portals[guid].getLatLng();
+          if((p.lat.toFixed(6)+","+p.lng.toFixed(6)) == ll) {
+            renderPortalDetails(guid);
+            return;
+          }
+        }
+
+        urlPortalLL = [result.position.lat, result.position.lng];
+      },
+    });
+  });
 });
 
+
+// search on OpenStreetMap
 addHook('search', function(query) {
   if(!query.confirmed) return;
 

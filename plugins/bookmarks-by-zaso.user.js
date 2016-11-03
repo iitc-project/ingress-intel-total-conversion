@@ -7,14 +7,14 @@
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Save your favorite Maps and Portals and move the intel map with a click. Works with sync.
-// @include        https://www.ingress.com/intel*
-// @include        http://www.ingress.com/intel*
-// @match          https://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
-// @include        https://www.ingress.com/mission/*
-// @include        http://www.ingress.com/mission/*
-// @match          https://www.ingress.com/mission/*
-// @match          http://www.ingress.com/mission/*
+// @include        https://*.ingress.com/intel*
+// @include        http://*.ingress.com/intel*
+// @match          https://*.ingress.com/intel*
+// @match          http://*.ingress.com/intel*
+// @include        https://*.ingress.com/mission/*
+// @include        http://*.ingress.com/mission/*
+// @match          https://*.ingress.com/mission/*
+// @match          http://*.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -49,6 +49,8 @@
   window.plugin.bookmarks.updateQueue = {};
   window.plugin.bookmarks.updatingQueue = {};
 
+  window.plugin.bookmarks.IDcount = 0;
+
   window.plugin.bookmarks.enableSync = false;
 
   window.plugin.bookmarks.starLayers = {};
@@ -67,7 +69,8 @@
   // Generate an ID for the bookmark (date time + random number)
   window.plugin.bookmarks.generateID = function() {
     var d = new Date();
-    var ID = d.getTime()+(Math.floor(Math.random()*99)+1);
+    var ID = d.getTime().toString() + window.plugin.bookmarks.IDcount.toString() + (Math.floor(Math.random()*99)+1);
+    window.plugin.bookmarks.IDcount++;
     var ID = 'id'+ID.toString();
     return ID;
   }
@@ -894,7 +897,7 @@
   }
 
   window.plugin.bookmarks.dialogLoadList = function() {
-    var r = 'The "<a href="http://iitc.jonatkins.com/?page=desktop#plugin-draw-tools" target="_BLANK"><strong>Draw Tools</strong></a>" plugin is required.</span>';
+    var r = 'The "<a href="http://iitc.me/desktop/#plugin-draw-tools" target="_BLANK"><strong>Draw Tools</strong></a>" plugin is required.</span>';
 
     if(!window.plugin.bookmarks || !window.plugin.drawTools) {
       $('.ui-dialog-autodrawer .ui-dialog-buttonset .ui-button:not(:first)').hide();
