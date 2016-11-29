@@ -25,7 +25,7 @@ window.setupOMS = function() {
     if(ev.keyCode === 27) // Esc
       window.oms.unspiderfy();
   }, false);
-}
+};
 
 window.registerMarkerForOMS = function(marker) {
   marker.on('add', function () {
@@ -36,6 +36,6 @@ window.registerMarkerForOMS = function(marker) {
   });
   if(marker._map) // marker has already been added
     window.oms.addMarker(marker);
-}
+};
 
 

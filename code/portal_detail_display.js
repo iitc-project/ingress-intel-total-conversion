@@ -38,7 +38,7 @@ window.renderPortalDetails = function(guid) {
 
 //TODO? other status details...
   var statusDetails = details ? '' : '<div id="portalStatus">Loading details...</div>';
- 
+
 
   var img = fixPortalImageUrl(details ? details.image : data.image);
   var title = (details && details.title) || (data && data.title) || '(untitled)';
@@ -123,7 +123,7 @@ window.renderPortalDetails = function(guid) {
   if (details) {
     runHooks('portalDetailsUpdated', {guid: guid, portal: portal, portalDetails: details, portalData: data});
   }
-}
+};
 
 
 
@@ -142,12 +142,12 @@ window.getPortalMiscDetails = function(guid,d) {
     var title = 'at most ' + maxOutgoing + ' outgoing links\n' +
                 links.outgoing + ' links out\n' +
                 links.incoming + ' links in\n' +
-                '(' + (links.outgoing+links.incoming) + ' total)'
+                '(' + (links.outgoing+links.incoming) + ' total)';
     var linksText = ['links', links.outgoing+' out / '+links.incoming+' in', title];
 
-    var player = d.owner
-      ? '<span class="nickname">' + d.owner + '</span>'
-      : '-';
+    var player = d.owner ?
+        '<span class="nickname">' + d.owner + '</span>' :
+        '-';
     var playerText = ['owner', player];
 
 
@@ -173,13 +173,13 @@ window.getPortalMiscDetails = function(guid,d) {
       apGainText, getHackDetailsText(d),
     ];
 
-    if(attackValues.attack_frequency != 0)
+    if(attackValues.attack_frequency !== 0)
       randDetailsData.push([
         '<span title="attack frequency" class="text-overflow-ellipsis">attack frequency</span>',
         '×'+attackValues.attack_frequency]);
-    if(attackValues.hit_bonus != 0)
+    if(attackValues.hit_bonus !== 0)
       randDetailsData.push(['hit bonus', attackValues.hit_bonus+'%']);
-    if(attackValues.force_amplifier != 0)
+    if(attackValues.force_amplifier !== 0)
       randDetailsData.push([
         '<span title="force amplifier" class="text-overflow-ellipsis">force amplifier</span>',
         '×'+attackValues.force_amplifier]);
@@ -192,7 +192,7 @@ window.getPortalMiscDetails = function(guid,d) {
 
     if (d.artifactBrief && d.artifactBrief.target && Object.keys(d.artifactBrief.target).length > 0) {
       var targets = Object.keys(d.artifactBrief.target);
-//currently (2015-07-10) we no longer know the team each target portal is for - so we'll just show the artifact type(s) 
+//currently (2015-07-10) we no longer know the team each target portal is for - so we'll just show the artifact type(s)
        randDetails += '<div id="artifact_target">Target portal: '+targets.map(function(x) { return x.capitalize(); }).join(', ')+'</div>';
     }
 
@@ -204,7 +204,7 @@ window.getPortalMiscDetails = function(guid,d) {
   }
 
   return randDetails;
-}
+};
 
 
 // draws link-range and hack-range circles around the portal with the
@@ -227,14 +227,14 @@ window.setPortalIndicators = function(p) {
     var d = portalDetail.get(p.options.guid);
     if (d) {
       var range = getPortalRange(d);
-      portalRangeIndicator = (range.range > 0
-          ? L.geodesicCircle(coord, range.range, {
+      portalRangeIndicator = (range.range > 0 ?
+          L.geodesicCircle(coord, range.range, {
               fill: false,
               color: RANGE_INDICATOR_COLOR,
               weight: 3,
               dashArray: range.isLinkable ? undefined : "10,10",
-              clickable: false })
-          : L.circle(coord, range.range, { fill: false, stroke: false, clickable: false })
+              clickable: false }) :
+          L.circle(coord, range.range, { fill: false, stroke: false, clickable: false })
         ).addTo(map);
     }
 
@@ -243,7 +243,7 @@ window.setPortalIndicators = function(p) {
     ).addTo(map);
   }
 
-}
+};
 
 // highlights portal with given GUID. Automatically clears highlights
 // on old selection. Returns false if the selected portal changed.
@@ -273,4 +273,4 @@ window.selectPortal = function(guid) {
 
   runHooks('portalSelected', {selectedPortalGuid: guid, unselectedPortalGuid: oldPortalGuid});
   return update;
-}
+};

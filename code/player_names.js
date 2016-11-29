@@ -15,4 +15,4 @@ window.isSystemPlayer = function(name) {
       return false;
   }
 
-}
+};

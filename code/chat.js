@@ -46,7 +46,7 @@ window.chat.handleTabCompletion = function() {
   newText += (atPresent ? '' : '@') + nick + ' ';
   newText += text.substring(curPos);
   el.val(newText);
-}
+};
 
 //
 // clear management
@@ -100,7 +100,7 @@ window.chat.genPostData = function(channel, storageHash, getOlderMsgs) {
     minTimestampMs: -1,
     maxTimestampMs: -1,
     tab: channel,
-  }
+  };
 
   if(getOlderMsgs) {
     // ask for older chat when scrolling up
@@ -129,7 +129,7 @@ window.chat.genPostData = function(channel, storageHash, getOlderMsgs) {
     if (min > -1) $.extend(data, {ascendingTimestampOrder: true});
   }
   return data;
-}
+};
 
 
 
@@ -149,11 +149,11 @@ window.chat.requestFaction = function(getOlderMsgs, isRetry) {
     'getPlexts',
     d,
     function(data, textStatus, jqXHR) { chat.handleFaction(data, getOlderMsgs); },
-    isRetry
-      ? function() { window.chat._requestFactionRunning = false; }
-      : function() { window.chat.requestFaction(getOlderMsgs, true) }
+    isRetry ?
+      function() { window.chat._requestFactionRunning = false; } :
+      function() { window.chat.requestFaction(getOlderMsgs, true); }
   );
-}
+};
 
 
 window.chat._faction = {data:{}, oldestTimestamp:-1, newestTimestamp:-1};
@@ -175,11 +175,11 @@ window.chat.handleFaction = function(data, olderMsgs) {
   runHooks('factionChatDataAvailable', {raw: data, result: data.result, processed: chat._faction.data});
 
   window.chat.renderFaction(oldMsgsWereAdded);
-}
+};
 
 window.chat.renderFaction = function(oldMsgsWereAdded) {
   chat.renderData(chat._faction.data, 'chatfaction', oldMsgsWereAdded);
-}
+};
 
 
 //
@@ -198,11 +198,11 @@ window.chat.requestPublic = function(getOlderMsgs, isRetry) {
     'getPlexts',
     d,
     function(data, textStatus, jqXHR) { chat.handlePublic(data, getOlderMsgs); },
-    isRetry
-      ? function() { window.chat._requestPublicRunning = false; }
-      : function() { window.chat.requestPublic(getOlderMsgs, true) }
+    isRetry ?
+      function() { window.chat._requestPublicRunning = false; } :
+      function() { window.chat.requestPublic(getOlderMsgs, true); }
   );
-}
+};
 
 window.chat._public = {data:{}, oldestTimestamp:-1, newestTimestamp:-1};
 window.chat.handlePublic = function(data, olderMsgs) {
@@ -224,11 +224,11 @@ window.chat.handlePublic = function(data, olderMsgs) {
 
   window.chat.renderPublic(oldMsgsWereAdded);
 
-}
+};
 
 window.chat.renderPublic = function(oldMsgsWereAdded) {
   chat.renderData(chat._public.data, 'chatall', oldMsgsWereAdded);
-}
+};
 
 
 //
@@ -247,11 +247,11 @@ window.chat.requestAlerts = function(getOlderMsgs, isRetry) {
     'getPlexts',
     d,
     function(data, textStatus, jqXHR) { chat.handleAlerts(data, getOlderMsgs); },
-    isRetry
-      ? function() { window.chat._requestAlertsRunning = false; }
-      : function() { window.chat.requestAlerts(getOlderMsgs, true) }
+    isRetry ?
+      function() { window.chat._requestAlertsRunning = false; } :
+      function() { window.chat.requestAlerts(getOlderMsgs, true); }
   );
-}
+};
 
 
 window.chat._alerts = {data:{}, oldestTimestamp:-1, newestTimestamp:-1};
@@ -274,11 +274,11 @@ window.chat.handleAlerts = function(data, olderMsgs) {
 //  runHooks('alertsChatDataAvailable', {raw: data, result: data.result, processed: chat._alerts.data});
 
   window.chat.renderAlerts(oldMsgsWereAdded);
-}
+};
 
 window.chat.renderAlerts = function(oldMsgsWereAdded) {
   chat.renderData(chat._alerts.data, 'chatalerts', oldMsgsWereAdded);
-}
+};
 
 
 
@@ -288,7 +288,7 @@ window.chat.renderAlerts = function(oldMsgsWereAdded) {
 
 window.chat.nicknameClicked = function(event, nickname) {
   var hookData = { event: event, nickname: nickname };
-  
+
   if (window.runHooks('nicknameClicked', hookData)) {
     window.chat.addNickname('@' + nickname);
   }
@@ -296,7 +296,7 @@ window.chat.nicknameClicked = function(event, nickname) {
   event.preventDefault();
   event.stopPropagation();
   return false;
-}
+};
 
 window.chat.writeDataToHash = function(newData, storageHash, isPublicChannel, isOlderMsgs) {
   $.each(newData.result, function(ind, json) {
@@ -351,11 +351,11 @@ window.chat.writeDataToHash = function(newData, storageHash, isPublicChannel, is
         var perma = '/intel?ll='+latlng[0]+','+latlng[1]+'&z=17&pll='+latlng[0]+','+latlng[1];
         var js = 'window.selectPortalByLatLng('+latlng[0]+', '+latlng[1]+');return false';
 
-        msg += '<a onclick="'+js+'"'
-          + ' title="'+markup[1].address+'"'
-          + ' href="'+perma+'" class="help">'
-          + window.chat.getChatPortalName(markup[1])
-          + '</a>';
+        msg += '<a onclick="'+js+'"' +
+          ' title="'+markup[1].address+'"' +
+          ' href="'+perma+'" class="help">' +
+          window.chat.getChatPortalName(markup[1]) +
+          '</a>';
         break;
 
       case 'SECURE':
@@ -383,16 +383,16 @@ window.chat.writeDataToHash = function(newData, storageHash, isPublicChannel, is
     //both the public and private channels
     //we don't include this '[secure]' text above, as it's redundant in the faction-only channel
     //let's add it here though if we have a secure message in the public channel, or the reverse if a non-secure in the faction one
-    if (!auto && !(isPublicChannel===false) && isSecureMessage) msg = '<span style="color: #f88; background-color: #500;">[faction]</span> ' + msg;
+    if (!auto && (isPublicChannel!==false) && isSecureMessage) msg = '<span style="color: #f88; background-color: #500;">[faction]</span> ' + msg;
     //and, add the reverse - a 'public' marker to messages in the private channel
-    if (!auto && !(isPublicChannel===true) && (!isSecureMessage)) msg = '<span style="color: #ff6; background-color: #550">[public]</span> ' + msg;
+    if (!auto && (isPublicChannel!==true) && (!isSecureMessage)) msg = '<span style="color: #ff6; background-color: #550">[public]</span> ' + msg;
 
 
     // format: timestamp, autogenerated, HTML message
     storageHash.data[json[0]] = [json[1], auto, chat.renderMsg(msg, nick, time, team, msgToPlayer, systemNarrowcast), nick];
 
   });
-}
+};
 
 // Override portal names that are used over and over, such as 'US Post Office'
 window.chat.getChatPortalName = function(markup) {
@@ -402,7 +402,7 @@ window.chat.getChatPortalName = function(markup) {
     name = 'USPS: ' + address[0];
   }
   return name;
-}
+};
 
 // renders data from the data-hash to the element defined by the given
 // ID. Set 3rd argument to true if it is likely that old data has been
@@ -430,13 +430,13 @@ window.chat.renderData = function(data, element, likelyWereOldMsgs) {
   var scrollBefore = scrollBottom(elm);
   elm.html('<table>' + msgs + '</table>');
   chat.keepScrollPosition(elm, scrollBefore, likelyWereOldMsgs);
-}
+};
 
 
 window.chat.renderDivider = function(text) {
   var d = ' ──────────────────────────────────────────────────────────────────────────';
   return '<tr><td colspan="3" style="padding-top:3px"><summary>─ ' + text + d + '</summary></td></tr>';
-}
+};
 
 
 window.chat.renderMsg = function(msg, nick, time, team, msgToPlayer, systemNarrowcast) {
@@ -460,20 +460,17 @@ window.chat.renderMsg = function(msg, nick, time, team, msgToPlayer, systemNarro
   var s = 'style="cursor:pointer; color:'+color+'"';
   var i = ['<span class="invisep">&lt;</span>', '<span class="invisep">&gt;</span>'];
   return '<tr><td>'+t+'</td><td>'+i[0]+'<mark class="nickname" ' + s + '>'+ nick+'</mark>'+i[1]+'</td><td>'+msg+'</td></tr>';
-}
+};
 
 window.chat.addNickname= function(nick) {
   var c = document.getElementById("chattext");
   c.value = [c.value.trim(), nick].join(" ").trim() + " ";
-  c.focus()
-}
-
-
-
+  c.focus();
+};
 
 window.chat.getActive = function() {
   return $('#chatcontrols .active').text();
-}
+};
 
 window.chat.tabToChannel = function(tab) {
   if (tab == 'faction') return 'faction';
@@ -498,7 +495,7 @@ window.chat.toggle = function() {
     $('.leaflet-control').css('margin-left', '720px');
     chat.needMoreMessages();
   }
-}
+};
 
 
 // called by plugins (or other things?) that need to monitor COMM data streams when the user is not viewing them
@@ -523,22 +520,22 @@ window.chat.backgroundChannelData = function(instance,channel,flag) {
     });
   });
 
-}
+};
 
 
 window.chat.request = function() {
   console.log('refreshing chat');
   var channel = chat.tabToChannel(chat.getActive());
-  if (channel == 'faction' || (window.chat.backgroundChannels && window.chat.backgroundChannels['faction'])) {
+  if (channel == 'faction' || (window.chat.backgroundChannels && window.chat.backgroundChannels.faction)) {
     chat.requestFaction(false);
   }
-  if (channel == 'all' || (window.chat.backgroundChannels && window.chat.backgroundChannels['all'])) {
+  if (channel == 'all' || (window.chat.backgroundChannels && window.chat.backgroundChannels.all)) {
     chat.requestPublic(false);
   }
-  if (channel == 'alerts' || (window.chat.backgroundChannels && window.chat.backgroundChannels['alerts'])) {
+  if (channel == 'alerts' || (window.chat.backgroundChannels && window.chat.backgroundChannels.alerts)) {
     chat.requestAlerts(false);
   }
-}
+};
 
 
 // checks if there are enough messages in the selected chat tab and
@@ -614,7 +611,7 @@ window.chat.chooseTab = function(tab) {
       throw('chat.chooser was asked to handle unknown button: ' + tt);
   }
 
-  var elm = $('#chat' + tab);
+  elm = $('#chat' + tab);
   elm.show();
 
   if(elm.data('needsScrollTop')) {
@@ -622,22 +619,23 @@ window.chat.chooseTab = function(tab) {
     elm.scrollTop(elm.data('needsScrollTop'));
     elm.data('needsScrollTop', null);
   }
-}
+};
 
 window.chat.show = function(name) {
-    window.isSmartphone()
-        ? $('#updatestatus').hide()
-        : $('#updatestatus').show();
-    $('#chat, #chatinput').show();
+  if (window.isSmartphone())
+    $('#updatestatus').hide();
+  else
+    $('#updatestatus').show();
+  $('#chat, #chatinput').show();
 
-    window.chat.chooseTab(name);
-}
+  window.chat.chooseTab(name);
+};
 
 window.chat.chooser = function(event) {
   var t = $(event.target);
   var tab = t.text();
   window.chat.chooseTab(tab);
-}
+};
 
 // contains the logic to keep the correct scroll position.
 window.chat.keepScrollPosition = function(box, scrollBefore, isOldMsgs) {
@@ -656,7 +654,7 @@ window.chat.keepScrollPosition = function(box, scrollBefore, isOldMsgs) {
     box.data('ignoreNextScroll', true);
     box.scrollTop(box.scrollTop() + (scrollBottom(box)-scrollBefore));
   }
-}
+};
 
 
 
@@ -715,7 +713,7 @@ window.chat.setup = function() {
   $(document).on('click', '.nickname', function(event) {
     return window.chat.nicknameClicked(event, $(this).text());
   });
-}
+};
 
 
 window.chat.setupTime = function() {
@@ -731,7 +729,7 @@ window.chat.setupTime = function() {
   };
   updateTime();
   window.addResumeFunction(updateTime);
-}
+};
 
 
 //
@@ -762,7 +760,7 @@ window.chat.setupPosting = function() {
     event.preventDefault();
     chat.postMsg();
   });
-}
+};
 
 
 window.chat.postMsg = function() {
@@ -807,4 +805,4 @@ window.chat.postMsg = function() {
   );
 
   $('#chatinput input').val('');
-}
+};

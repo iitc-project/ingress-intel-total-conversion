@@ -18,15 +18,15 @@ window.portalDetail.setup = function() {
   cache = new DataCache();
 
   cache.startExpireInterval(20);
-}
+};
 
 window.portalDetail.get = function(guid) {
   return cache.get(guid);
-}
+};
 
 window.portalDetail.isFresh = function(guid) {
   return cache.isFresh(guid);
-}
+};
 
 
 var handleResponse = function(guid, data, success) {
@@ -62,7 +62,7 @@ var handleResponse = function(guid, data, success) {
     }
   }
 
-}
+};
 
 window.portalDetail.request = function(guid) {
   if (!requestQueue[guid]) {
@@ -74,7 +74,7 @@ window.portalDetail.request = function(guid) {
     );
   }
 
-}
+};
 
 
 

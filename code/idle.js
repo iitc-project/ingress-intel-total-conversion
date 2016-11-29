@@ -16,7 +16,7 @@ var idlePoll = function() {
   if (!wasIdle && isIdle()) {
     console.log('idlePoll: entering idle mode');
   }
-}
+};
 
 setInterval(idlePoll, IDLE_POLL_TIME*1000);
 
@@ -41,7 +41,7 @@ window.idleSet = function() {
   if (!wasIdle && isIdle()) {
     console.log ('idleSet: entering idle mode');
   }
-}
+};
 
 
 // only reset idle on mouse move where the coordinates are actually different.
@@ -57,17 +57,17 @@ var idleMouseMove = function(e) {
     _lastMouseY = e.clientY;
     idleReset();
   }
-}
+};
 
 window.setupIdle = function() {
   $('body').keypress(idleReset);
   $('body').mousemove(idleMouseMove);
-}
+};
 
 
 window.isIdle = function() {
   return window.idleTime >= window._idleTimeLimit;
-}
+};
 
 window._onResumeFunctions = [];
 
@@ -75,4 +75,4 @@ window._onResumeFunctions = [];
 // resumes from being idle
 window.addResumeFunction = function(f) {
   window._onResumeFunctions.push(f);
-}
+};
