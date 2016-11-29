@@ -2,25 +2,25 @@
 // DEBUGGING TOOLS ///////////////////////////////////////////////////
 // meant to be used from browser debugger tools and the like.
 
-window.debug = function() {}
+window.debug = function() {};
 
 window.debug.renderDetails = function() {
   console.log('portals: ' + Object.keys(window.portals).length);
   console.log('links:   ' + Object.keys(window.links).length);
   console.log('fields:  ' + Object.keys(window.fields).length);
-}
+};
 
 window.debug.printStackTrace = function() {
   var e = new Error('dummy');
   console.log(e.stack);
   return e.stack;
-}
+};
 
 
 
 window.debug.console = function() {
   $('#debugconsole').text();
-}
+};
 
 window.debug.console.show = function() {
     $('#chat, #chatinput').show();
@@ -30,21 +30,22 @@ window.debug.console.show = function() {
     $('#debugconsole').show();
     $('#chatcontrols .active').removeClass('active');
     $("#chatcontrols a:contains('debug')").addClass('active');
-}
+};
 
 window.debug.console.create = function() {
   if($('#debugconsole').length) return;
   $('#chatcontrols').append('<a>debug</a>');
   $('#chatcontrols a:last').click(window.debug.console.show);
   $('#chat').append('<div style="display: none" id="debugconsole"><table></table></div>');
-}
+};
 
 window.debug.console.renderLine = function(text, errorType) {
   debug.console.create();
+  var color;
   switch(errorType) {
-    case 'error':   var color = '#FF424D'; break;
-    case 'warning': var color = '#FFDE42'; break;
-    default:        var color = '#eee';
+    case 'error':   color = '#FF424D'; break;
+    case 'warning': color = '#FFDE42'; break;
+    default:        color = '#EEEEEE';
   }
   if(typeof text !== 'string' && typeof text !== 'number') {
     var cache = [];
@@ -68,19 +69,19 @@ window.debug.console.renderLine = function(text, errorType) {
   var s = 'style="color:'+color+'"';
   var l = '<tr><td>'+t+'</td><td><mark '+s+'>'+errorType+'</mark></td><td>'+text+'</td></tr>';
   $('#debugconsole table').prepend(l);
-}
+};
 
 window.debug.console.log = function(text) {
   debug.console.renderLine(text, 'notice');
-}
+};
 
 window.debug.console.warn = function(text) {
   debug.console.renderLine(text, 'warning');
-}
+};
 
 window.debug.console.error = function(text) {
   debug.console.renderLine(text, 'error');
-}
+};
 
 window.debug.console.overwriteNative = function() {
   window.debug.console.create();
@@ -92,15 +93,15 @@ window.debug.console.overwriteNative = function() {
     window.console[which] = function() {
       nativeConsole[which].apply(nativeConsole, arguments);
       window.debug.console[which].apply(window.debug.console, arguments);
-    }
+    };
   }
 
   overwrite("log");
   overwrite("warn");
   overwrite("error");
-}
+};
 
 window.debug.console.overwriteNativeIfRequired = function() {
   if(!window.console || L.Browser.mobile)
     window.debug.console.overwriteNative();
-}
+};

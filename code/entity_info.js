@@ -9,7 +9,7 @@
 // to. Uses TEAM_* enum values.
 window.getTeam = function(details) {
   return teamStringToId(details.team);
-}
+};
 
 window.teamStringToId = function(teamStr) {
   var team = TEAM_NONE;
@@ -18,6 +18,6 @@ window.teamStringToId = function(teamStr) {
   if(teamStr === 'E') team = TEAM_ENL;
   if(teamStr === 'R') team = TEAM_RES;
   return team;
-}
+};
 
 

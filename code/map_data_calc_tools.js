@@ -42,9 +42,9 @@ window.setupDataTileParams = function() {
   } else {
     dialog({
       title: 'IITC Warning',
-      html: "<p>IITC failed to detect the ZOOM_TO_LEVEL and/or TILES_PER_EDGE settings from the stock intel site.</p>"
-           +"<p>IITC is now using fallback default values. However, if detection has failed it's likely the values have changed."
-           +" IITC may not load the map if these default values are wrong.</p>",
+      html: "<p>IITC failed to detect the ZOOM_TO_LEVEL and/or TILES_PER_EDGE settings from the stock intel site.</p>" +
+           "<p>IITC is now using fallback default values. However, if detection has failed it's likely the values have changed." +
+           " IITC may not load the map if these default values are wrong.</p>",
     });
 
     window.TILE_PARAMS.ZOOM_TO_LEVEL = DEFAULT_ZOOM_TO_LEVEL;
@@ -56,7 +56,7 @@ window.setupDataTileParams = function() {
   // we'll just chop off the array at that point, so the code defaults to level 0 (unclaimed) everywhere...
   window.TILE_PARAMS.ZOOM_TO_LEVEL = window.TILE_PARAMS.ZOOM_TO_LEVEL.slice(0,15);
 
-}
+};
 
 
 window.debugMapZoomParameters = function() {
@@ -81,7 +81,7 @@ window.debugMapZoomParameters = function() {
       doneZooms[ourZoom] = true;
     }
   }
-}
+};
 
 
 
@@ -111,7 +111,7 @@ window.getMapZoomTileParameters = function(zoom) {
     hasPortals: zoom >= window.TILE_PARAMS.ZOOM_TO_LINK_LENGTH.length,  // no portals returned at all when link length limits things
     zoom: zoom  // include the zoom level, for reference
   };
-}
+};
 
 
 window.getDataZoomForMapZoom = function(zoom) {
@@ -137,9 +137,10 @@ window.getDataZoomForMapZoom = function(zoom) {
     while (zoom > MIN_ZOOM) {
       var newTileParams = getMapZoomTileParameters(zoom-1);
 
-      if ( newTileParams.tilesPerEdge != origTileParams.tilesPerEdge
-        || newTileParams.hasPortals != origTileParams.hasPortals
-        || newTileParams.level*newTileParams.hasPortals != origTileParams.level*origTileParams.hasPortals  // multiply by 'hasPortals' bool - so comparison does not matter when no portals available
+      if ( newTileParams.tilesPerEdge != origTileParams.tilesPerEdge ||
+        newTileParams.hasPortals != origTileParams.hasPortals ||
+        newTileParams.level*newTileParams.hasPortals !=
+        origTileParams.level*origTileParams.hasPortals  // multiply by 'hasPortals' bool - so comparison does not matter when no portals available
       ) {
         // switching to zoom-1 would result in a different detail level - so we abort changing things
         break;
@@ -153,33 +154,33 @@ window.getDataZoomForMapZoom = function(zoom) {
   }
 
   return zoom;
-}
+};
 
 
 window.lngToTile = function(lng, params) {
   return Math.floor((lng + 180) / 360 * params.tilesPerEdge);
-}
+};
 
 window.latToTile = function(lat, params) {
   return Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) +
     1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * params.tilesPerEdge);
-}
+};
 
 window.tileToLng = function(x, params) {
   return x / params.tilesPerEdge * 360 - 180;
-}
+};
 
 window.tileToLat = function(y, params) {
   var n = Math.PI - 2 * Math.PI * y / params.tilesPerEdge;
   return 180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
-}
+};
 
 window.pointToTileId = function(params, x, y) {
 //change to quadkey construction
 //as of 2014-05-06: zoom_x_y_minlvl_maxlvl_maxhealth
 
   return params.zoom + "_" + x + "_" + y + "_" + params.level + "_8_100";
-}
+};
 
 
 window.getResonatorLatLng = function(dist, slot, portalLatLng) {
@@ -196,4 +197,4 @@ window.getResonatorLatLng = function(dist, slot, portalLatLng) {
   var lon0 = portalLatLng[1] + dLon * 180/Math.PI;
 
   return [lat0, lon0];
-}
+};

@@ -19,12 +19,12 @@ window.getPortalLinks = function(guid) {
   });
 
   return links;
-}
+};
 
 window.getPortalLinksCount = function(guid) {
   var links = getPortalLinks(guid);
   return links.in.length+links.out.length;
-}
+};
 
 
 // search through the fields for all that reference a portal
@@ -34,21 +34,21 @@ window.getPortalFields = function(guid) {
   $.each(window.fields, function(g,f) {
     var d = f.options.data;
 
-    if ( d.points[0].guid == guid
-      || d.points[1].guid == guid
-      || d.points[2].guid == guid ) {
+    if ( d.points[0].guid == guid ||
+        d.points[1].guid == guid ||
+        d.points[2].guid == guid ) {
 
       fields.push(g);
     }
   });
 
   return fields;
-}
+};
 
 window.getPortalFieldsCount = function(guid) {
   var fields = getPortalFields(guid);
   return fields.length;
-}
+};
 
 
 // find the lat/lon for a portal, using any and all available data
@@ -136,10 +136,10 @@ window.findPortalLatLng = function(guid) {
         .map(function(latlng) { return [latlng, cache[latlng][1]]; })  // map them to [latlng, timestamp]
         .sort(function(a,b) { return b[1] - a[1]; }) // sort them
         .slice(GC_KEEP) // drop the MRU
-        .forEach(function(item) { delete cache[item[0]] }); // delete the rest
-      cache_level = Object.keys(cache).length
+        .forEach(function(item) { delete cache[item[0]]; }); // delete the rest
+      cache_level = Object.keys(cache).length;
     }
-  }
+  };
 })();
 
 
@@ -159,15 +159,15 @@ window.getPortalApGain = function(guid) {
   }
 
   return undefined;
-}
+};
 
 // given counts of resonators, links and fields, calculate the available AP
 // doesn't take account AP for resonator upgrades or AP for adding mods
 window.portalApGainMaths = function(resCount, linkCount, fieldCount) {
 
   var deployAp = (8-resCount)*DEPLOY_RESONATOR;
-  if (resCount == 0) deployAp += CAPTURE_PORTAL;
-  if (resCount != 8) deployAp += COMPLETION_BONUS;
+  if (resCount === 0) deployAp += CAPTURE_PORTAL;
+  if (resCount !== 8) deployAp += COMPLETION_BONUS;
   // there could also be AP for upgrading existing resonators, and for deploying mods - but we don't have data for that
   var friendlyAp = deployAp;
 
@@ -184,5 +184,5 @@ window.portalApGainMaths = function(resCount, linkCount, fieldCount) {
     destroyAp: destroyAp,
     destroyResoAp: destroyResoAp,
     captureAp: captureAp
-  }
-}
+  };
+};

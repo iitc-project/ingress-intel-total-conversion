@@ -58,7 +58,7 @@
 // artifactsUpdated: called when the set of artifacts (including targets)
 //              has changed. Parameters names are old, new.
 
-window._hooks = {}
+window._hooks = {};
 window.VALID_HOOKS = [
   'portalSelected', 'portalDetailsUpdated', 'artifactsUpdated',
   'mapDataRefreshStart', 'mapDataEntityInject', 'mapDataRefreshEnd',
@@ -86,14 +86,14 @@ window.runHooks = function(event, data) {
     }
   });
   return !interrupted;
-}
+};
 
 // helper method to allow plugins to create new hooks
 window.pluginCreateHook = function(event) {
   if($.inArray(event, window.VALID_HOOKS) < 0) {
     window.VALID_HOOKS.push(event);
   }
-}
+};
 
 
 window.addHook = function(event, callback) {
@@ -109,7 +109,7 @@ window.addHook = function(event, callback) {
     _hooks[event] = [callback];
   else
     _hooks[event].push(callback);
-}
+};
 
 // callback must the SAME function to be unregistered.
 window.removeHook = function(event, callback) {
@@ -122,4 +122,4 @@ window.removeHook = function(event, callback) {
     else
       _hooks[event].splice(index, 1);
   }
-}
+};

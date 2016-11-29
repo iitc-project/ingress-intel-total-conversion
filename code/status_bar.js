@@ -66,7 +66,7 @@ window.renderUpdateStatus = function() {
   if (window.activeRequests.length > 0)
     t += ' ' + window.activeRequests.length + ' requests';
   if (window.failedRequestCount > 0)
-    t += ' <span style="color:#f66">' + window.failedRequestCount + ' failed</span>'
+    t += ' <span style="color:#f66">' + window.failedRequestCount + ' failed</span>';
 
 
   //it's possible that updating the status bar excessively causes some performance issues. so rather than doing it
@@ -91,4 +91,4 @@ window.renderUpdateStatus = function() {
       android.setProgress(progress);
   }, 0);
 
-}
+};

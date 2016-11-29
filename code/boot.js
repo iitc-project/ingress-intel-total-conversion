@@ -23,7 +23,7 @@ window.setupLargeImagePreview = function() {
       });
     }
   });
-}
+};
 
 // adds listeners to the layer chooser such that a long press hides
 // all custom layers except the long pressed one.
@@ -60,7 +60,7 @@ window.setupLayerChooserSelectOne = function() {
     }
     e.preventDefault();
   });
-}
+};
 
 // Setup the function to record the on/off status of overlay layerGroups
 window.setupLayerChooserStatusRecorder = function() {
@@ -76,7 +76,7 @@ window.setupLayerChooserStatusRecorder = function() {
     var display = (e.type === 'overlayadd');
     window.updateDisplayedLayerGroup(e.name, display);
   });
-}
+};
 
 window.layerChooserSetDisabledStates = function() {
 // layer selector - enable/disable layers that aren't visible due to zoom level
@@ -90,7 +90,7 @@ window.layerChooserSetDisabledStates = function() {
 
 //TODO? some generic mechanism where other layers can have their disabled state marked on/off? a few
 //plugins have code to do it by hand already
-}
+};
 
 
 window.setupStyles = function() {
@@ -105,9 +105,9 @@ window.setupStyles = function() {
       '#sidebar { width:'+(SIDEBAR_WIDTH + HIDDEN_SCROLLBAR_ASSUMED_WIDTH + 1 /*border*/)+'px;  } ',
       '#sidebartoggle { right:'+(SIDEBAR_WIDTH+1)+'px;  } ',
       '#scrollwrapper  { width:'+(SIDEBAR_WIDTH + 2*HIDDEN_SCROLLBAR_ASSUMED_WIDTH)+'px; right:-'+(2*HIDDEN_SCROLLBAR_ASSUMED_WIDTH-2)+'px } ',
-      '#sidebar > * { width:'+(SIDEBAR_WIDTH+1)+'px;  }'].join("\n")
-    + '</style>');
-}
+      '#sidebar > * { width:'+(SIDEBAR_WIDTH+1)+'px;  }'].join("\n") +
+      '</style>');
+};
 
 function createDefaultBaseMapLayers() {
   var baseLayers = {};
@@ -129,7 +129,7 @@ function createDefaultBaseMapLayers() {
   var gnomeAerialUrl = 'https://gis.gnome.org/tiles/satellite/v1/{z}/{x}/{y}';
   baseLayers['MapBox Street'] = L.tileLayer(gnomeStreetUrl);
   baseLayers['MapBox Satellite'] = L.tileLayer(gnomeAerialUrl);
-  
+
   // cartodb has some nice tiles too - both dark and light subtle maps - http://cartodb.com/basemaps/
   // (not available over https though - not on the right domain name anyway)
   var cartoAttr = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>';
@@ -196,7 +196,7 @@ window.setupMap = function() {
   // TODO? move the actual IITC DOM into the leaflet control areas, so dummy <div>s aren't needed
   if(!isSmartphone()) {
     // chat window area
-    $(window.map._controlCorners['bottomleft']).append(
+    $(window.map._controlCorners.bottomleft).append(
       $('<div>').width(708).height(108).addClass('leaflet-control').css({'pointer-events': 'none', 'margin': '0'}));
   }
 
@@ -218,14 +218,14 @@ window.setupMap = function() {
   fieldsFactionLayers = [L.layerGroup(), L.layerGroup(), L.layerGroup()];
   var fieldsLayer = L.layerGroup(fieldsFactionLayers);
   map.addLayer(fieldsLayer, true);
-  addLayers['Fields'] = fieldsLayer;
+  addLayers.Fields = fieldsLayer;
   // Store it in hiddenLayer to remove later
   if(!isLayerGroupDisplayed('Fields', true)) hiddenLayer.push(fieldsLayer);
 
   linksFactionLayers = [L.layerGroup(), L.layerGroup(), L.layerGroup()];
   var linksLayer = L.layerGroup(linksFactionLayers);
   map.addLayer(linksLayer, true);
-  addLayers['Links'] = linksLayer;
+  addLayers.Links = linksLayer;
   // Store it in hiddenLayer to remove later
   if(!isLayerGroupDisplayed('Links', true)) hiddenLayer.push(linksLayer);
 
@@ -239,28 +239,29 @@ window.setupMap = function() {
   }
 
   var setFactionLayersState = function(fac,enabled) {
+    var lvl;
     if (enabled) {
       if (!fieldsLayer.hasLayer(fieldsFactionLayers[fac])) fieldsLayer.addLayer (fieldsFactionLayers[fac]);
       if (!linksLayer.hasLayer(linksFactionLayers[fac])) linksLayer.addLayer (linksFactionLayers[fac]);
-      for (var lvl in portalsLayers) {
+      for (lvl in portalsLayers) {
         if (!portalsLayers[lvl].hasLayer(portalsFactionLayers[lvl][fac])) portalsLayers[lvl].addLayer (portalsFactionLayers[lvl][fac]);
       }
     } else {
       if (fieldsLayer.hasLayer(fieldsFactionLayers[fac])) fieldsLayer.removeLayer (fieldsFactionLayers[fac]);
       if (linksLayer.hasLayer(linksFactionLayers[fac])) linksLayer.removeLayer (linksFactionLayers[fac]);
-      for (var lvl in portalsLayers) {
+      for (lvl in portalsLayers) {
         if (portalsLayers[lvl].hasLayer(portalsFactionLayers[lvl][fac])) portalsLayers[lvl].removeLayer (portalsFactionLayers[lvl][fac]);
       }
     }
-  }
+  };
 
   // to avoid any favouritism, we'll put the player's own faction layer first
   if (PLAYER.team == 'RESISTANCE') {
-    addLayers['Resistance'] = factionLayers[TEAM_RES];
-    addLayers['Enlightened'] = factionLayers[TEAM_ENL];
+    addLayers.Resistance = factionLayers[TEAM_RES];
+    addLayers.Enlightened = factionLayers[TEAM_ENL];
   } else {
-    addLayers['Enlightened'] = factionLayers[TEAM_ENL];
-    addLayers['Resistance'] = factionLayers[TEAM_RES];
+    addLayers.Enlightened = factionLayers[TEAM_ENL];
+    addLayers.Resistance = factionLayers[TEAM_RES];
   }
   if (!isLayerGroupDisplayed('Resistance', true)) hiddenLayer.push (factionLayers[TEAM_RES]);
   if (!isLayerGroupDisplayed('Enlightened', true)) hiddenLayer.push (factionLayers[TEAM_ENL]);
@@ -286,15 +287,15 @@ window.setupMap = function() {
 
   window.layerChooser = new L.Control.Layers(baseLayers, addLayers);
 
-  // Remove the hidden layer after layerChooser built, to avoid messing up ordering of layers 
+  // Remove the hidden layer after layerChooser built, to avoid messing up ordering of layers
   $.each(hiddenLayer, function(ind, layer){
     map.removeLayer(layer);
 
     // as users often become confused if they accidentally switch a standard layer off, display a warning in this case
-    $('#portaldetails').html('<div class="layer_off_warning">'
-                            +'<p><b>Warning</b>: some of the standard layers are turned off. Some portals/links/fields will not be visible.</p>'
-                            +'<a id="enable_standard_layers">Enable standard layers</a>'
-                            +'</div>');
+    $('#portaldetails').html('<div class="layer_off_warning">' +
+                            '<p><b>Warning</b>: some of the standard layers are turned off. Some portals/links/fields will not be visible.</p>' +
+                            '<a id="enable_standard_layers">Enable standard layers</a>' +
+                            '</div>');
 
     $('#enable_standard_layers').on('click', function() {
       $.each(addLayers, function(ind, layer) {
@@ -317,7 +318,7 @@ window.setupMap = function() {
     // then latitude is clamped with the clampLatLng function (to the 85 deg north/south limits)
     var newPos = clampLatLng(map.getCenter().wrap());
     if (!map.getCenter().equals(newPos)) {
-      map.panTo(newPos,{animate:false})
+      map.panTo(newPos,{animate:false});
     }
   });
 
@@ -362,6 +363,7 @@ window.setMapBaseLayer = function() {
   //create a map name -> layer mapping - depends on internals of L.Control.Layers
   var nameToLayer = {};
   var firstLayer = null;
+  var i;
 
   for (i in window.layerChooser._layers) {
     var obj = window.layerChooser._layers[i];
@@ -397,7 +399,7 @@ window.setMapBaseLayer = function() {
   });
 
 
-}
+};
 
 // renders player details into the website. Since the player info is
 // included as inline script in the original site, the data is static
@@ -413,10 +415,12 @@ window.setupPlayerStat = function() {
   var ap = parseInt(PLAYER.ap);
   var thisLvlAp = parseInt(PLAYER.min_ap_for_current_level);
   var nextLvlAp = parseInt(PLAYER.min_ap_for_next_level);
+  var lvlUpAp = 0;
+  var lvlApProg = 0;
 
   if (nextLvlAp) {
-    var lvlUpAp = digits(nextLvlAp-ap);
-    var lvlApProg = Math.round((ap-thisLvlAp)/(nextLvlAp-thisLvlAp)*100);
+    lvlUpAp = digits(nextLvlAp-ap);
+    lvlApProg = Math.round((ap-thisLvlAp)/(nextLvlAp-thisLvlAp)*100);
   } // else zero nextLvlAp - so at maximum level(?)
 
   var xmMax = parseInt(PLAYER.xm_capacity);
@@ -425,26 +429,26 @@ window.setupPlayerStat = function() {
   var cls = PLAYER.team === 'RESISTANCE' ? 'res' : 'enl';
 
 
-  var t = 'Level:\t' + level + '\n'
-        + 'XM:\t' + PLAYER.energy + ' / ' + xmMax + '\n'
-        + 'AP:\t' + digits(ap) + '\n'
-        + (nextLvlAp > 0 ? 'level up in:\t' + lvlUpAp + ' AP' : 'Maximul level reached(!)')
-        + '\n\Invites:\t'+PLAYER.available_invites
-        + '\n\nNote: your player stats can only be updated by a full reload (F5)';
+  var t = 'Level:\t' + level + '\n' +
+        'XM:\t' + PLAYER.energy + ' / ' + xmMax + '\n' +
+        'AP:\t' + digits(ap) + '\n' +
+        (nextLvlAp > 0 ? 'level up in:\t' + lvlUpAp + ' AP' : 'Maximul level reached(!)') +
+        '\n\Invites:\t'+PLAYER.available_invites +
+        '\n\nNote: your player stats can only be updated by a full reload (F5)';
 
-  $('#playerstat').html(''
-    + '<h2 title="'+t+'">'+level+'&nbsp;'
-    + '<div id="name">'
-    + '<span class="'+cls+'">'+PLAYER.nickname+'</span>'
-    + '<a href="/_ah/logout?continue=https://www.google.com/accounts/Logout%3Fcontinue%3Dhttps://appengine.google.com/_ah/logout%253Fcontinue%253Dhttps://www.ingress.com/intel%26service%3Dah" id="signout">sign out</a>'
-    + '</div>'
-    + '<div id="stats">'
-    + '<sup>XM: '+xmRatio+'%</sup>'
-    + '<sub>' + (nextLvlAp > 0 ? 'level: '+lvlApProg+'%' : 'max level') + '</sub>'
-    + '</div>'
-    + '</h2>'
+  $('#playerstat').html('' +
+    '<h2 title="'+t+'">'+level+'&nbsp;' +
+    '<div id="name">' +
+    '<span class="'+cls+'">'+PLAYER.nickname+'</span>' +
+    '<a href="/_ah/logout?continue=https://www.google.com/accounts/Logout%3Fcontinue%3Dhttps://appengine.google.com/_ah/logout%253Fcontinue%253Dhttps://www.ingress.com/intel%26service%3Dah" id="signout">sign out</a>' +
+    '</div>' +
+    '<div id="stats">' +
+    '<sup>XM: '+xmRatio+'%</sup>' +
+    '<sub>' + (nextLvlAp > 0 ? 'level: '+lvlApProg+'%' : 'max level') + '</sub>' +
+    '</div>' +
+    '</h2>'
   );
-}
+};
 
 window.setupSidebarToggle = function() {
   $('#sidebartoggle').on('click', function() {
@@ -463,7 +467,7 @@ window.setupSidebarToggle = function() {
     }
     $('.ui-tooltip').remove();
   });
-}
+};
 
 window.setupTooltips = function(element) {
   element = element || $(document);
@@ -485,16 +489,16 @@ window.setupTooltips = function(element) {
     window.tooltipClearerHasBeenSetup = true;
     $(document).on('click', '.ui-tooltip', function() { $(this).remove(); });
   }
-}
+};
 
 window.setupTaphold = function() {
   @@INCLUDERAW:external/taphold.js@@
-}
+};
 
 
 window.setupQRLoadLib = function() {
   @@INCLUDERAW:external/jquery.qrcode.min.js@@
-}
+};
 
 window.setupLayerChooserApi = function() {
   // hide layer chooser if booted with the iitcm android app
@@ -505,8 +509,9 @@ window.setupLayerChooserApi = function() {
   //hook some additional code into the LayerControl so it's easy for the mobile app to interface with it
   //WARNING: does depend on internals of the L.Control.Layers code
   window.layerChooser.getLayers = function() {
-    var baseLayers = new Array();
-    var overlayLayers = new Array();
+    var baseLayers = new Array([]);
+    var overlayLayers = new Array([]);
+    var i;
 
     for (i in this._layers) {
       var obj = this._layers[i];
@@ -515,7 +520,7 @@ window.setupLayerChooserApi = function() {
         layerId: L.stamp(obj.layer),
         name: obj.name,
         active: layerActive
-      }
+      };
       if (obj.overlay) {
         overlayLayers.push(info);
       } else {
@@ -537,8 +542,8 @@ window.setupLayerChooserApi = function() {
     return {
       baseLayers: baseLayers,
       overlayLayers: overlayLayers
-    }
-  }
+    };
+  };
 
   window.layerChooser.showLayer = function(id,show) {
     if (show === undefined) show = true;
@@ -552,7 +557,7 @@ window.setupLayerChooserApi = function() {
 
         //if it's a base layer, remove any others
         if (!obj.overlay) {
-          for(i in this._layers) {
+          for(var i in this._layers) {
             if (i != id) {
               var other = this._layers[i];
               if (!other.overlay && this._map.hasLayer(other.layer)) this._map.removeLayer(other.layer);
@@ -586,7 +591,7 @@ window.setupLayerChooserApi = function() {
     }
     // call through
     return _update.apply(this, arguments);
-  }
+  };
   // as this setupLayerChooserApi function is called after the layer menu is populated, we need to also get they layers once
   // so they're passed through to the android app
   try {
@@ -595,7 +600,7 @@ window.setupLayerChooserApi = function() {
   } catch(e) {
     console.error(e);
   }
-}
+};
 
 // BOOTING ///////////////////////////////////////////////////////////
 
