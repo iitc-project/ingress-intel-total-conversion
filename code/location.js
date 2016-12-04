@@ -60,7 +60,7 @@ window.getPosition = function() {
     return {center: new L.LatLng(lat, lng), zoom: z};
   }
 
-  setTimeout(function() {window.map.locate({setView : true}); }, 50);
+  setTimeout("window.map.locate({setView : true});", 50);
 
   return {center: new L.LatLng(0.0, 0.0), zoom: 1};
 };

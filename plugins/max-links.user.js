@@ -43,7 +43,7 @@ window.plugin.maxLinks.errorMarker = null;
 
 
 window.plugin.maxLinks.addErrorMarker = function() {
-  if (window.plugin.maxLinks.errorMarker == null) {
+  if (window.plugin.maxLinks.errorMarker === null) {
     window.plugin.maxLinks.errorMarker = L.marker (window.map.getCenter(), {
       icon: L.divIcon({
         className: 'max-links-error',
@@ -56,14 +56,14 @@ window.plugin.maxLinks.addErrorMarker = function() {
     window.map.addLayer(window.plugin.maxLinks.errorMarker);
   }
 
-}
+};
 
 window.plugin.maxLinks.clearErrorMarker = function() {
-  if (window.plugin.maxLinks.errorMarker != null) {
+  if (window.plugin.maxLinks.errorMarker !== null) {
     window.map.removeLayer(window.plugin.maxLinks.errorMarker);
     window.plugin.maxLinks.errorMarker = null;
   }
-}
+};
 
 
 window.plugin.maxLinks.updateLayer = function() {
@@ -97,7 +97,7 @@ window.plugin.maxLinks.updateLayer = function() {
     if(a.x<b.x) return [a,b];
     if(a.x==b.x && a.y<b.y) return [a,b];
     return [b,a];
-  }
+  };
   var drawnLinks = {};
 
   //draw a link, but only if it hasn't already been drawn
@@ -127,14 +127,14 @@ window.plugin.maxLinks.updateLayer = function() {
       poly.addTo(window.plugin.maxLinks.layer);
       drawnLinkCount++;
     }
-  }
+  };
 
   $.each(triangles, function(idx, triangle) {
     drawLink(triangle.a,triangle.b);
     drawLink(triangle.b,triangle.c);
     drawLink(triangle.c,triangle.a);
   });
-}
+};
 
 window.plugin.maxLinks.setup = function() {
   try { console.log('Loading delaunay JS now'); } catch(e) {}
@@ -167,7 +167,7 @@ window.plugin.maxLinks.setup = function() {
     '</style>');
 
 
-}
+};
 var setup = window.plugin.maxLinks.setup;
 
 // PLUGIN END //////////////////////////////////////////////////////////

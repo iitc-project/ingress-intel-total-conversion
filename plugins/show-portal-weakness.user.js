@@ -32,27 +32,27 @@ window.plugin.portalWeakness.highlightWeakness = function(data) {
     var portal_health = data.portal.options.data.health;
 
     var strength = (res_count/8) * (portal_health/100);
-   
+
     if(strength < 1) {
-      var fill_opacity = (1-strength)*.85 + .15;
+      var fill_opacity = (1-strength)*0.85 + 0.15;
       var color = 'red';
       var params = {fillColor: color, fillOpacity: fill_opacity};
 
       // Hole per missing resonator
       if (res_count < 8) {
-        var dash = new Array((8 - res_count) + 1).join("1,4,") + "100,0"
+        var dash = new Array((8 - res_count) + 1).join("1,4,") + "100,0";
         params.dashArray = dash;
       }
 
       data.portal.setStyle(params);
-    } 
+    }
   }
 
-}
+};
 
 var setup =  function() {
   window.addPortalHighlighter('Portal Weakness', window.plugin.portalWeakness.highlightWeakness);
-}
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 

@@ -28,11 +28,11 @@ window.plugin.mapTileYandex = function() {};
 
 window.plugin.mapTileYandex.leafletSetup = function() {
 
-//include Yandex.js start
-@@INCLUDERAW:external/Yandex.js@@
-//include Yandex.js end
+  //include Yandex.js start
+  @@INCLUDERAW:external/Yandex.js@@
+  //include Yandex.js end
 
-}
+};
 
 
 
@@ -41,9 +41,9 @@ window.plugin.mapTileYandex.setup = function() {
   var yStyles = {
     'map': "Map",
     'satellite': "Satellite",
-    'hybrid': "Hybrid",
-//    'publicMap': "Public Map",
-//    'publicMapHybrid': "Public Hybrid",
+    'hybrid': "Hybrid"
+    //    'publicMap': "Public Map",
+    //    'publicMapHybrid': "Public Hybrid",
   };
 
 
@@ -63,15 +63,15 @@ window.plugin.mapTileYandex.setup = function() {
       var yMap = new L.Yandex(key, yOpt);
       layer.addLayer(yMap);
     });
-  }
+  };
 
 
-//a few options on language are available, including en-US. Oddly, the detail available on the maps varies
-//depending on the language
-  var yandexApiJs = '//api-maps.yandex.ru/2.0-stable/?load=package.standard&lang=ru-RU'
+  //a few options on language are available, including en-US. Oddly, the detail available on the maps varies
+  //depending on the language
+  var yandexApiJs = '//api-maps.yandex.ru/2.0-stable/?load=package.standard&lang=ru-RU';
 
   load(yandexApiJs).thenRun(callback);
-}
+};
 
 
 var setup =  window.plugin.mapTileYandex.setup;

@@ -67,12 +67,12 @@ window.runOnSmartphonesBeforeBoot = function() {
 
 window.smartphoneInfo = function(data) {
   var guid = data.selectedPortalGuid;
-  var t;
   if(!window.portals[guid]) return;
 
   data = window.portals[selectedPortal].options.data;
   var details = window.portalDetail.get(guid);
 
+  var t;
   var lvl = data.level;
   if(data.team === "NEUTRAL")
     t = '<span class="portallevel">L0</span>';

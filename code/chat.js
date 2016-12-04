@@ -468,6 +468,9 @@ window.chat.addNickname= function(nick) {
   c.focus();
 };
 
+
+
+
 window.chat.getActive = function() {
   return $('#chatcontrols .active').text();
 };

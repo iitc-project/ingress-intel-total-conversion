@@ -43,8 +43,8 @@ window.setupDataTileParams = function() {
     dialog({
       title: 'IITC Warning',
       html: "<p>IITC failed to detect the ZOOM_TO_LEVEL and/or TILES_PER_EDGE settings from the stock intel site.</p>" +
-           "<p>IITC is now using fallback default values. However, if detection has failed it's likely the values have changed." +
-           " IITC may not load the map if these default values are wrong.</p>",
+            "<p>IITC is now using fallback default values. However, if detection has failed it's likely the values have changed." +
+            " IITC may not load the map if these default values are wrong.</p>",
     });
 
     window.TILE_PARAMS.ZOOM_TO_LEVEL = DEFAULT_ZOOM_TO_LEVEL;
@@ -138,9 +138,8 @@ window.getDataZoomForMapZoom = function(zoom) {
       var newTileParams = getMapZoomTileParameters(zoom-1);
 
       if ( newTileParams.tilesPerEdge != origTileParams.tilesPerEdge ||
-        newTileParams.hasPortals != origTileParams.hasPortals ||
-        newTileParams.level*newTileParams.hasPortals !=
-        origTileParams.level*origTileParams.hasPortals  // multiply by 'hasPortals' bool - so comparison does not matter when no portals available
+           newTileParams.hasPortals != origTileParams.hasPortals ||
+           newTileParams.level*newTileParams.hasPortals != origTileParams.level*origTileParams.hasPortals  // multiply by 'hasPortals' bool - so comparison does not matter when no portals available
       ) {
         // switching to zoom-1 would result in a different detail level - so we abort changing things
         break;

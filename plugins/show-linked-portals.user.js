@@ -39,7 +39,7 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
   plugin.showLinkedPortal.removePreview();
 
   var portalLinks = getPortalLinks(data.guid);
-  var length = portalLinks.in.length + portalLinks.out.length
+  var length = portalLinks.in.length + portalLinks.out.length;
 
   var c = 1;
 
@@ -56,7 +56,7 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
 
     var length = L.latLng(link.oLatE6/1E6, link.oLngE6/1E6).distanceTo([link.dLatE6/1E6, link.dLngE6/1E6]);
     var lengthFull = digits(Math.round(length)) + 'm';
-    var lengthShort = length < 100000 ? lengthFull : digits(Math.round(length/1000)) + 'km'
+    var lengthShort = length < 100000 ? lengthFull : digits(Math.round(length/1000)) + 'km';
 
     var div = $('<div>').addClass('showLinkedPortalLink showLinkedPortalLink' + c + (key=='d' ? ' outgoing' : ' incoming'));
 
@@ -110,7 +110,7 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
     .on('click', '.showLinkedPortalLink', plugin.showLinkedPortal.onLinkedPortalClick)
     .on('mouseover', '.showLinkedPortalLink', plugin.showLinkedPortal.onLinkedPortalMouseOver)
     .on('mouseout', '.showLinkedPortalLink', plugin.showLinkedPortal.onLinkedPortalMouseOut);
-}
+};
 
 plugin.showLinkedPortal.onLinkedPortalClick = function() {
   plugin.showLinkedPortal.removePreview();
@@ -164,7 +164,7 @@ plugin.showLinkedPortal.removePreview = function() {
 var setup = function () {
   window.addHook('portalDetailsUpdated', window.plugin.showLinkedPortal.portalDetail);
   $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:plugins/show-linked-portals.css@@').appendTo('head');
-}
+};
 // PLUGIN END //////////////////////////////////////////////////////////
 
 @@PLUGINEND@@

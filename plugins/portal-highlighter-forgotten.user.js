@@ -33,7 +33,7 @@ window.plugin.portalHighlighterInactive.highlight = function(data) {
 
     if (daysUnmodified >= 7) {
 
-      var fill_opacity = Math.min(1,((daysUnmodified-7)/24)*.85 + .15);
+      var fill_opacity = Math.min(1,((daysUnmodified-7)/24)*0.85 + 0.15);
 
       var blue = Math.max(0,Math.min(255,Math.round((daysUnmodified-31)/62*255)));
 
@@ -45,11 +45,11 @@ window.plugin.portalHighlighterInactive.highlight = function(data) {
     }
   }
 
-}
+};
 
 var setup =  function() {
   window.addPortalHighlighter('Inactive Portals', window.plugin.portalHighlighterInactive.highlight);
-}
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 

@@ -31,12 +31,12 @@ window.plugin.mapTileStamen.addLayer = function() {
 
   var types = {
     'toner': [ 'Toner', 'png', 0, 20 ],
-//    'toner-hybrid': [ ' Toner Hybrid', 'png', 0, 20 ],  // transparent layer. could be useful over satellite imagery or similar
-//    'toner-labels': [ 'Toner Labels', 'png', 0, 20 ],  // transparent layer. could be useful over satellite imagery or similar
-//    'toner-lines': [ 'Toner Lines', 'png', 0, 20 ],  // transparent layer. could be useful over satellite imagery or similar
+    //    'toner-hybrid': [ ' Toner Hybrid', 'png', 0, 20 ],  // transparent layer. could be useful over satellite imagery or similar
+    //    'toner-labels': [ 'Toner Labels', 'png', 0, 20 ],  // transparent layer. could be useful over satellite imagery or similar
+    //    'toner-lines': [ 'Toner Lines', 'png', 0, 20 ],  // transparent layer. could be useful over satellite imagery or similar
     'toner-background': [ 'Toner Background', 'png', 0, 20 ],
     'toner-lite': [ 'Toner Lite', 'png', 0, 20 ],
-    'watercolor': [ 'Watercolor', 'jpg', 1, 16 ],
+    'watercolor': [ 'Watercolor', 'jpg', 1, 16 ]
   };
 
   var baseUrl = window.location.protocol == 'https:' ? 'https://stamen-tiles-{s}.a.ssl.fastly.net/' : 'http://{s}.tile.stamen.com/';

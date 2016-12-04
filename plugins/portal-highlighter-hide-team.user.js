@@ -30,11 +30,11 @@ window.plugin.portalHighlighterHideOwnership.highlight = function(data) {
 
   var params = getMarkerStyleOptions({team: TEAM_NONE, level: 0});
   data.portal.setStyle(params);
-}
+};
 
 var setup =  function() {
   window.addPortalHighlighter('Hide portal ownership', window.plugin.portalHighlighterHideOwnership.highlight);
-}
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 

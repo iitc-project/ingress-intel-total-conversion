@@ -66,12 +66,12 @@ window.plugin.scoreCycleTimes.update = function() {
     return '<tr><td>'+label+'</td><td>'+timeStr+'</td></tr>';
   };
 
-  var html = '<table>'
-           + formatRow('Cycle start', cycleStart)
-           + formatRow('Previous checkpoint', checkpointStart)
-           + formatRow('Next checkpoint', checkpointEnd)
-           + formatRow('Cycle end', cycleEnd)
-           + '</table>';
+  var html = '<table>' +
+             formatRow('Cycle start', cycleStart) +
+             formatRow('Previous checkpoint', checkpointStart) +
+             formatRow('Next checkpoint', checkpointEnd) +
+             formatRow('Cycle end', cycleEnd) +
+             '</table>';
 
   $('#score_cycle_times_display').html(html);
 

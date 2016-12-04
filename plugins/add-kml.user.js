@@ -36,7 +36,7 @@ window.plugin.overlayKML.loadExternals = function() {
       parse: function (fileContent, fileName) {
         // Check file extension
         var ext = fileName.split('.').pop(),
-          parser = this._parsers[ext];
+            parser = this._parsers[ext];
         if (!parser) {
           window.alert("Unsupported file type " + file.type + '(' + ext + ')');
           return;
@@ -55,9 +55,9 @@ window.plugin.overlayKML.loadExternals = function() {
       _initContainer: function () {
         // Create a button, and bind click on hidden file input
         var zoomName = 'leaflet-control-filelayer leaflet-control-zoom',
-          barName = 'leaflet-bar',
-          partName = barName + '-part',
-          container = L.DomUtil.create('div', zoomName + ' ' + barName);
+            barName = 'leaflet-bar',
+            partName = barName + '-part',
+            container = L.DomUtil.create('div', zoomName + ' ' + barName);
         var link = L.DomUtil.create('a', zoomName + '-in ' + partName, container);
         link.innerHTML = L.Control.FileLayerLoad.LABEL;
         link.href = '#';
@@ -65,16 +65,16 @@ window.plugin.overlayKML.loadExternals = function() {
 
         var stop = L.DomEvent.stopPropagation;
         L.DomEvent
-          .on(link, 'click', stop)
-          .on(link, 'mousedown', stop)
-          .on(link, 'dblclick', stop)
-          .on(link, 'click', L.DomEvent.preventDefault)
-          .on(link, 'click', function (e) {
-            window.requestFile(function(filename, content) {
-              _fileLayerLoad.getLoader().parse(content, filename);
-            });
-            e.preventDefault();
+        .on(link, 'click', stop)
+        .on(link, 'mousedown', stop)
+        .on(link, 'dblclick', stop)
+        .on(link, 'click', L.DomEvent.preventDefault)
+        .on(link, 'click', function (e) {
+          window.requestFile(function(filename, content) {
+            _fileLayerLoad.getLoader().parse(content, filename);
           });
+          e.preventDefault();
+        });
         return container;
       }
     };
@@ -92,13 +92,13 @@ window.plugin.overlayKML.loadExternals = function() {
   try { console.log('done loading togeojson JS'); } catch(e) {}
 
   window.plugin.overlayKML.load();
-}
+};
 
 var _fileLayerLoad = null;
 
 window.plugin.overlayKML.load = function() {
   // Provide popup window allow user to select KML to overlay
-	
+
   L.Icon.Default.imagePath = '@@INCLUDEIMAGE:images/marker-icon.png@@';
   var KMLIcon = L.icon({
     iconUrl: '@@INCLUDEIMAGE:images/marker-icon.png@@',
@@ -107,21 +107,22 @@ window.plugin.overlayKML.load = function() {
     iconAnchor:   [8, 24], // point of the icon which will correspond to marker's location
     popupAnchor:  [-3, 16] // point from which the popup should open relative to the iconAnchor
   });
-  
+
   L.Control.FileLayerLoad.LABEL = '<img src="@@INCLUDEIMAGE:images/open-folder-icon_sml.png@@" alt="Open" />';
   _fileLayerLoad = L.Control.fileLayerLoad({
     fitBounds: true,
     layerOptions: {
       pointToLayer: function (data, latlng) {
-      return L.marker(latlng, {icon: KMLIcon});
-    }},
+        return L.marker(latlng, {icon: KMLIcon});
+      }
+    },
   });
   _fileLayerLoad.addTo(map);
-}
+};
 
 var setup =  function() {
   window.plugin.overlayKML.loadExternals();
-}
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 

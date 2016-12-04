@@ -28,8 +28,8 @@ window.plugin.defaultIntelDetail = function() {};
 
 window.plugin.defaultIntelDetail.setup  = function() {
 
-// NOTE: the logic required is closely tied to the IITC+stock map detail level code - so the logic is moved there now
-// and just enabled by this flag
+  // NOTE: the logic required is closely tied to the IITC+stock map detail level code - so the logic is moved there now
+  // and just enabled by this flag
   window.CONFIG_ZOOM_DEFAULT_DETAIL_LEVEL=true;
 
 };

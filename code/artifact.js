@@ -96,7 +96,6 @@ window.artifact.processResult = function (portals) {
   for (var guid in portals) {
     var ent = portals[guid];
     var data = decodeArray.portalSummary(ent);
-    var type;
 
     // we no longer know the faction for the target portals, and we don't know which fragment numbers are at the portals
     // all we know, from the portal summary data, for each type of artifact, is that each artifact portal is
@@ -108,7 +107,7 @@ window.artifact.processResult = function (portals) {
     // store the decoded data - needed for lat/lng for layer markers
     artifact.portalInfo[guid]._data = data;
 
-    for(type in data.artifactBrief.target) {
+    for(var type in data.artifactBrief.target) {
       if (!artifact.artifactTypes[type]) artifact.artifactTypes[type] = {};
 
       if (!artifact.portalInfo[guid][type]) artifact.portalInfo[guid][type] = {};
@@ -166,7 +165,9 @@ window.artifact.updateLayer = function() {
     var latlng = L.latLng ([data._data.latE6/1E6, data._data.lngE6/1E6]);
 
     $.each(data, function(type,detail) {
+
       // we'll construct the URL form the type - stock seems to do that now
+
       var iconUrl;
       var iconSize;
       var opacity;

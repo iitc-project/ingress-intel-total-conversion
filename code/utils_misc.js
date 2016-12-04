@@ -6,32 +6,29 @@ window.aboutIITC = function() {
     v += '[IITC Mobile '+android.getVersionName()+']';
   }
 
-  var plugins;
-  if(window.bootPlugins) {
-    plugins = '<ul>';
-    for (var i in bootPlugins) {
-      var info = bootPlugins[i].info;
-      if (info) {
-        var pname = info.script && info.script.name || info.pluginId;
-        if (pname.substr(0,13) == 'IITC plugin: ' || pname.substr(0,13) == 'IITC Plugin: ') {
-          pname = pname.substr(13);
-        }
-        var pvers = info.script && info.script.version || info.dateTimeVersion;
-
-        var ptext = pname + ' - ' + pvers;
-        if (info.buildName != script_info.buildName) {
-          ptext += ' ['+(info.buildName||'<i>non-standard plugin</i>')+']';
-        }
-
-        plugins += '<li>'+ptext+'</li>';
-      } else {
-        // no 'info' property of the plugin setup function - old plugin wrapper code
-        // could attempt to find the "window.plugin.NAME = function() {};" line it's likely to have..?
-        plugins += '<li>(unknown plugin: index '+i+')</li>';
+  var plugins = '<ul>';
+  for (var i in bootPlugins) {
+    var info = bootPlugins[i].info;
+    if (info) {
+      var pname = info.script && info.script.name || info.pluginId;
+      if (pname.substr(0,13) == 'IITC plugin: ' || pname.substr(0,13) == 'IITC Plugin: ') {
+        pname = pname.substr(13);
       }
+      var pvers = info.script && info.script.version || info.dateTimeVersion;
+
+      var ptext = pname + ' - ' + pvers;
+      if (info.buildName != script_info.buildName) {
+        ptext += ' ['+(info.buildName||'<i>non-standard plugin</i>')+']';
+      }
+
+      plugins += '<li>'+ptext+'</li>';
+    } else {
+      // no 'info' property of the plugin setup function - old plugin wrapper code
+      // could attempt to find the "window.plugin.NAME = function() {};" line it's likely to have..?
+      plugins += '<li>(unknown plugin: index '+i+')</li>';
     }
-    plugins += '</ul>';
   }
+  plugins += '</ul>';
 
   var attrib = '@@INCLUDEMD:ATTRIBUTION.md@@';
   var contrib = '@@INCLUDEMD:CONTRIBS.md@@';
@@ -164,7 +161,7 @@ window.unixTimeToDateTimeString = function(time, millisecond) {
   if(!time) return null;
   var d = new Date(typeof time === 'string' ? parseInt(time) : time);
   return d.getFullYear()+'-'+zeroPad(d.getMonth()+1,2)+'-'+zeroPad(d.getDate(),2) +
-      ' '+zeroPad(d.getHours(),2)+':'+zeroPad(d.getMinutes(),2)+':'+zeroPad(d.getSeconds(),2)+(millisecond?'.'+zeroPad(d.getMilliseconds(),3):'');
+     ' '+zeroPad(d.getHours(),2)+':'+zeroPad(d.getMinutes(),2)+':'+zeroPad(d.getSeconds(),2)+(millisecond?'.'+zeroPad(d.getMilliseconds(),3):'');
 };
 
 window.unixTimeToHHmm = function(time) {
@@ -226,7 +223,7 @@ window.showPortalPosLinks = function(lat, lng, name) {
 
 window.isTouchDevice = function() {
   return 'ontouchstart' in window || // works on most browsers
-      'onmsgesturechange' in window; // works on ie10
+         'onmsgesturechange' in window; // works on ie10
 };
 
 window.androidCopy = function(text) {

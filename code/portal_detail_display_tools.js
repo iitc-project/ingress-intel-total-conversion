@@ -83,9 +83,9 @@ window.getModDetails = function(d) {
     modsColor.push(modColor);
   });
 
-  var i;
+
   var t = '';
-  for (i=0; i<mods.length; i++) {
+  for (var i=0; i<mods.length; i++) {
     t += '<span'+(modsTitle[i].length ? ' title="'+modsTitle[i]+'"' : '')+' style="color:'+modsColor[i]+'">'+mods[i]+'</span>';
   }
   // and add blank entries if we have less than 4 mods (as the server no longer returns all mod slots, but just the filled ones)
@@ -165,7 +165,7 @@ window.renderResonatorDetails = function(slot, level, nrg, nick) {
                        'level:\t'  + level + '\n' +
                        'owner:\t'  + nick  + '\n' :
                        '') +
-          (slot !== null ? 'octant:\t' + OCTANTS[slot] + ' ' + OCTANTS_ARROW[slot]:'');
+            (slot !== null ? 'octant:\t' + OCTANTS[slot] + ' ' + OCTANTS_ARROW[slot]:'');
 
   var style = fillGrade ? 'width:'+fillGrade+'%; background:'+COLORS_LVL[level]+';':'';
 
@@ -208,9 +208,9 @@ window.getHackDetailsText = function(d) {
   var shortHackInfo = hackDetails.hacks+' @ '+formatInterval(hackDetails.cooldown);
 
   var title = 'Hacks available every 4 hours\n' +
-            'Hack count:\t'+hackDetails.hacks+'\n' +
-            'Cooldown time:\t'+formatInterval(hackDetails.cooldown)+'\n' +
-            'Burnout time:\t'+formatInterval(hackDetails.burnout);
+              'Hack count:\t'+hackDetails.hacks+'\n' +
+              'Cooldown time:\t'+formatInterval(hackDetails.cooldown)+'\n' +
+              'Burnout time:\t'+formatInterval(hackDetails.burnout);
 
   return ['hacks', shortHackInfo, title];
 };
@@ -223,11 +223,11 @@ window.getMitigationText = function(d,linkCount) {
   if (mitigationDetails.excess) mitigationShort += ' (+'+mitigationDetails.excess+')';
 
   var title = 'Total shielding:\t'+(mitigationDetails.shields+mitigationDetails.links)+'\n' +
-            '- active:\t'+mitigationDetails.total+'\n' +
-            '- excess:\t'+mitigationDetails.excess+'\n' +
-            'From\n' +
-            '- shields:\t'+mitigationDetails.shields+'\n' +
-            '- links:\t'+mitigationDetails.links;
+              '- active:\t'+mitigationDetails.total+'\n' +
+              '- excess:\t'+mitigationDetails.excess+'\n' +
+              'From\n' +
+              '- shields:\t'+mitigationDetails.shields+'\n' +
+              '- links:\t'+mitigationDetails.links;
 
   return ['shielding', mitigationShort, title];
 };

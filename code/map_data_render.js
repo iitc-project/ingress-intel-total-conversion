@@ -146,10 +146,9 @@ window.Render.prototype.processGameEntities = function(entities) {
 // is considered complete
 window.Render.prototype.endRenderPass = function() {
   var countp=0,countl=0,countf=0;
-  var guid;
 
   // check to see if there are any entities we haven't seen. if so, delete them
-  for (guid in window.portals) {
+  for (var guid in window.portals) {
     // special case for selected portal - it's kept even if not seen
     // artifact (e.g. jarvis shard) portals are also kept - but they're always 'seen'
     if (!(guid in this.seenPortalsGuid) && guid !== selectedPortal) {
@@ -194,7 +193,7 @@ window.Render.prototype.bringPortalsToFront = function() {
     for (var fac in portalsFactionLayers[lvl]) {
       var layer = portalsFactionLayers[lvl][fac];
       if (layer._map) {
-        layer.eachLayer (fillPortals(p));
+        layer.eachLayer (fillPortals);
       }
     }
 
