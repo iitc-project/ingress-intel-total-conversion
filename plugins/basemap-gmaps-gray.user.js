@@ -29,14 +29,14 @@ window.plugin.grayGMaps.addLayer = function() {
     backgroundColor: '#0e3d4e', //or #dddddd ? - that's the Google tile layer default
     styles: [
       {featureType:"landscape.natural",stylers:[{visibility:"simplified"},{saturation:-100},{lightness:-80},{gamma:2.44}]},
-      {featureType:"road",stylers:[{visibility:"simplified"},{color:"#bebebe"},{weight:.6}]},
-      {featureType:"poi",stylers:[{saturation:-100},{visibility:"on"},{gamma:.14}]},
+      {featureType:"road",stylers:[{visibility:"simplified"},{color:"#bebebe"},{weight:0.6}]},
+      {featureType:"poi",stylers:[{saturation:-100},{visibility:"on"},{gamma:0.14}]},
       {featureType:"water",stylers:[{color:"#32324f"}]},
       {featureType:"transit",stylers:[{visibility:"off"}]},
       {featureType:"road",elementType:"labels",stylers:[{visibility:"off"}]},
       {featureType:"poi",elementType:"labels",stylers:[{visibility:"off"}]},
       {featureType:"poi"},
-      {featureType:"landscape.man_made",stylers:[{saturation:-100},{gamma:.13}]},
+      {featureType:"landscape.man_made",stylers:[{saturation:-100},{gamma:0.13}]},
       {featureType:"water",elementType:"labels",stylers:[{visibility:"off"}]}
     ]
   };
@@ -47,7 +47,7 @@ window.plugin.grayGMaps.addLayer = function() {
 };
 
 var setup =  window.plugin.grayGMaps.addLayer;
-	
+
 // PLUGIN END //////////////////////////////////////////////////////////
 
 @@PLUGINEND@@

@@ -6,7 +6,7 @@ window.aboutIITC = function() {
     v += '[IITC Mobile '+android.getVersionName()+']';
   }
 
-  var plugins; plugins = '<ul>';
+  var plugins = '<ul>';
   for (var i in bootPlugins) {
     var info = bootPlugins[i].info;
     if (info) {
@@ -161,7 +161,7 @@ window.unixTimeToDateTimeString = function(time, millisecond) {
   if(!time) return null;
   var d = new Date(typeof time === 'string' ? parseInt(time) : time);
   return d.getFullYear()+'-'+zeroPad(d.getMonth()+1,2)+'-'+zeroPad(d.getDate(),2) +
-      ' '+zeroPad(d.getHours(),2)+':'+zeroPad(d.getMinutes(),2)+':'+zeroPad(d.getSeconds(),2)+(millisecond?'.'+zeroPad(d.getMilliseconds(),3):'');
+     ' '+zeroPad(d.getHours(),2)+':'+zeroPad(d.getMinutes(),2)+':'+zeroPad(d.getSeconds(),2)+(millisecond?'.'+zeroPad(d.getMilliseconds(),3):'');
 };
 
 window.unixTimeToHHmm = function(time) {
@@ -223,7 +223,7 @@ window.showPortalPosLinks = function(lat, lng, name) {
 
 window.isTouchDevice = function() {
   return 'ontouchstart' in window || // works on most browsers
-      'onmsgesturechange' in window; // works on ie10
+         'onmsgesturechange' in window; // works on ie10
 };
 
 window.androidCopy = function(text) {

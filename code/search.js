@@ -173,14 +173,14 @@ window.search.doSearch = function(term, confirmed) {
 
   // don't clear last confirmed search
   if(window.search.lastSearch &&
-      window.search.lastSearch.confirmed &&
-      !confirmed)
+     window.search.lastSearch.confirmed &&
+     !confirmed)
     return;
 
   // don't make the same query again
   if(window.search.lastSearch &&
-      window.search.lastSearch.confirmed == confirmed &&
-      window.search.lastSearch.term == term)
+     window.search.lastSearch.confirmed == confirmed &&
+     window.search.lastSearch.term == term)
     return;
 
   if(window.search.lastSearch) window.search.lastSearch.hide();

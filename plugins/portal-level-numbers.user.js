@@ -35,17 +35,17 @@ window.plugin.portalLevelNumbers.levelLayerGroup = null;
 window.plugin.portalLevelNumbers.setupCSS = function() {
   $("<style>")
     .prop("type", "text/css")
-    .html(".plugin-portal-level-numbers {\
-            font-size: 10px;\
-            color: #FFFFBB;\
-            font-family: monospace;\
-            text-align: center;\
-            text-shadow: 0 0 0.5em black, 0 0 0.5em black, 0 0 0.5em black;\
-            pointer-events: none;\
-            -webkit-text-size-adjust:none;\
-          }")
-  .appendTo("head");
-}
+    .html(".plugin-portal-level-numbers {" +
+          "font-size: 10px;" +
+          "color: #FFFFBB;" +
+          "font-family: monospace;" +
+          "text-align: center;" +
+          "text-shadow: 0 0 0.5em black, 0 0 0.5em black, 0 0 0.5em black;" +
+          "pointer-events: none;" +
+          "-webkit-text-size-adjust:none;" +
+          "}")
+    .appendTo("head");
+};
 
 window.plugin.portalLevelNumbers.removeLabel = function(guid) {
   var previousLayer = window.plugin.portalLevelNumbers.levelLayers[guid];
@@ -53,7 +53,7 @@ window.plugin.portalLevelNumbers.removeLabel = function(guid) {
     window.plugin.portalLevelNumbers.levelLayerGroup.removeLayer(previousLayer);
     delete plugin.portalLevelNumbers.levelLayers[guid];
   }
-}
+};
 
 window.plugin.portalLevelNumbers.addLabel = function(guid,latLng) {
   // remove old layer before updating
@@ -67,17 +67,17 @@ window.plugin.portalLevelNumbers.addLabel = function(guid,latLng) {
       className: 'plugin-portal-level-numbers',
       iconSize: [window.plugin.portalLevelNumbers.ICON_SIZE, window.plugin.portalLevelNumbers.ICON_SIZE],
       html: levelNumber
-      }),
+    }),
     guid: guid
   });
   plugin.portalLevelNumbers.levelLayers[guid] = level;
   level.addTo(plugin.portalLevelNumbers.levelLayerGroup);
-}
+};
 
 window.plugin.portalLevelNumbers.updatePortalLabels = function() {
 
   var SQUARE_SIZE = L.Browser.mobile ? (window.plugin.portalLevelNumbers.ICON_SIZE + 3) * window.plugin.portalLevelNumbers.MOBILE_SCALE
-                                     : (window.plugin.portalLevelNumbers.ICON_SIZE + 3);
+    : (window.plugin.portalLevelNumbers.ICON_SIZE + 3);
 
   // as this is called every time layers are toggled, there's no point in doing it when the layer is off
   if (!map.hasLayer(window.plugin.portalLevelNumbers.levelLayerGroup)) {
@@ -85,19 +85,20 @@ window.plugin.portalLevelNumbers.updatePortalLabels = function() {
   }
 
   var portalPoints = {};
+  var point;
 
   for (var guid in window.portals) {
     var p = window.portals[guid];
     if (p._map && p.options.data.level !== undefined) {  // only consider portals added to the map, and that have a level set
-      var point = map.project(p.getLatLng());
+      point = map.project(p.getLatLng());
       portalPoints[guid] = point;
     }
   }
 
   // for efficient testing of intersection, group portals into buckets based on the defined rectangle size
   var buckets = {};
-  for (var guid in portalPoints) {
-    var point = portalPoints[guid];
+  for (guid in portalPoints) {
+    point = portalPoints[guid];
 
     var bucketId = L.point([Math.floor(point.x/(SQUARE_SIZE*2)),Math.floor(point.y/SQUARE_SIZE*2)]);
     // the guid is added to four buckets. this way, when testing for overlap we don't need to test
@@ -114,8 +115,8 @@ window.plugin.portalLevelNumbers.updatePortalLabels = function() {
 
   for (var bucket in buckets) {
     var bucketGuids = buckets[bucket];
-    for (var guid in bucketGuids) {
-      var point = portalPoints[guid];
+    for (guid in bucketGuids) {
+      point = portalPoints[guid];
       // the bounds used for testing are twice as wide as the rectangle. this is so that there's no left/right
       // overlap between two different portals text
       var southWest = point.subtract([SQUARE_SIZE, SQUARE_SIZE]);
@@ -138,22 +139,22 @@ window.plugin.portalLevelNumbers.updatePortalLabels = function() {
     }
   }
 
-  for (var guid in coveredPortals) {
+  for (guid in coveredPortals) {
     delete portalPoints[guid];
   }
 
   // remove any not wanted
-  for (var guid in window.plugin.portalLevelNumbers.levelLayers) {
+  for (guid in window.plugin.portalLevelNumbers.levelLayers) {
     if (!(guid in portalPoints)) {
       window.plugin.portalLevelNumbers.removeLabel(guid);
     }
   }
 
   // and add those we do
-  for (var guid in portalPoints) {
+  for (guid in portalPoints) {
     window.plugin.portalLevelNumbers.addLabel(guid, portals[guid].getLatLng());
   }
-}
+};
 
 // as calculating portal marker visibility can take some time when there's lots of portals shown, we'll do it on
 // a short timer. this way it doesn't get repeated so much
@@ -166,7 +167,7 @@ window.plugin.portalLevelNumbers.delayedUpdatePortalLabels = function(wait) {
     }, wait*1000);
 
   }
-}
+};
 
 var setup = function() {
 
@@ -179,7 +180,7 @@ var setup = function() {
   window.addHook('mapDataRefreshEnd', function() { window.plugin.portalLevelNumbers.delayedUpdatePortalLabels(0.5); });
   window.map.on('overlayadd overlayremove', function() { setTimeout(function(){window.plugin.portalLevelNumbers.delayedUpdatePortalLabels(1.0);},1); });
 
-}
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 

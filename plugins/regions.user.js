@@ -33,16 +33,16 @@ window.plugin.regions.setup  = function() {
 
   $("<style>")
     .prop("type", "text/css")
-    .html(".plugin-regions-name {\
-             font-size: 14px;\
-             font-weight: bold;\
-             color: gold;\
-             opacity: 0.7;\
-             text-align: center;\
-             text-shadow: -1px -1px #000, 1px -1px #000, -1px 1px #000, 1px 1px #000, 0 0 2px #000; \
-             pointer-events: none;\
-          }")
-  .appendTo("head");
+    .html(".plugin-regions-name {" +
+          "font-size: 14px;" +
+          "font-weight: bold;" +
+          "color: gold;" +
+          "opacity: 0.7;" +
+          "text-align: center;" +
+          "text-shadow: -1px -1px #000, 1px -1px #000, -1px 1px #000, 1px 1px #000, 0 0 2px #000; " +
+          "pointer-events: none;" +
+          "}")
+    .appendTo("head");
 
   addLayerGroup('Score Regions', window.plugin.regions.regionLayer, true);
 
@@ -105,28 +105,28 @@ window.plugin.regions.search = function(query) {
     return string.match(window.plugin.regions.REGEXP);
   });
   if(!matches.every(function(match) { return match !== null; })) return;
-  
+
   var currentCell = window.plugin.regions.regionName(S2.S2Cell.FromLatLng(map.getCenter(), 6));
-  
+
   matches.forEach(function(match) {
     if(!match[1])
       match[1] = currentCell.substr(0, 2);
     else
       match[1] = match[1].toUpperCase();
-    
+
     if(!match[2])
       match[2] = currentCell.substr(2,2);
-    
+
     match[3] = match[3].toUpperCase();
-    
+
     var result = window.plugin.regions.getSearchResult(match);
     if(result) query.addResult(result);
   });
-}
+};
 
 // rot and d2xy from Wikipedia
 window.plugin.regions.rot = function(n, x, y, rx, ry) {
-  if(ry == 0) {
+  if(ry === 0) {
     if(rx == 1) {
       x = n-1 - x;
       y = n-1 - y;
@@ -135,7 +135,7 @@ window.plugin.regions.rot = function(n, x, y, rx, ry) {
     return [y, x];
   }
   return [x, y];
-}
+};
 window.plugin.regions.d2xy = function(n, d) {
   var rx, ry, s, t = d, xy = [0, 0];
   for(s=1; s<n; s*=2) {
@@ -147,7 +147,7 @@ window.plugin.regions.d2xy = function(n, d) {
     t /= 4;
   }
   return xy;
-}
+};
 
 window.plugin.regions.getSearchResult = function(match) {
   var faceId = window.plugin.regions.FACE_NAMES.indexOf(match[1]);
@@ -182,9 +182,9 @@ window.plugin.regions.getSearchResult = function(match) {
   }
 
   // as in the name-construction above, for odd numbered faces, the I and J need swapping
-  var cell = (faceId % 2 == 1)
-    ? S2.S2Cell.FromFaceIJ(faceId, [regionJ,regionI], level)
-    : S2.S2Cell.FromFaceIJ(faceId, [regionI,regionJ], level);
+  var cell = (faceId % 2 == 1) ?
+    S2.S2Cell.FromFaceIJ(faceId, [regionJ,regionI], level) :
+    S2.S2Cell.FromFaceIJ(faceId, [regionI,regionJ], level);
 
   var corners = cell.getCornerLatLngs();
 
@@ -193,7 +193,7 @@ window.plugin.regions.getSearchResult = function(match) {
   result.bounds = L.latLngBounds(corners);
 
   return result;
-}
+};
 
 window.plugin.regions.update = function() {
 
@@ -256,15 +256,15 @@ window.plugin.regions.update = function() {
   }
 
   // and the north-south lines. no need for geodesic here
-  for (var i=-135; i<=135; i+=90) {
+  for (i=-135; i<=135; i+=90) {
     var poly = L.polyline ( [[35.264389682754654,i], [-35.264389682754654,i]], globalCellOptions );
     window.plugin.regions.regionLayer.addLayer(poly);
   }
-}
+};
 
 window.plugin.regions.drawCell = function(cell) {
 
-//TODO: move to function - then call for all cells on screen
+  //TODO: move to function - then call for all cells on screen
 
   // corner points
   var corners = cell.getCornerLatLngs();
@@ -285,7 +285,7 @@ window.plugin.regions.drawCell = function(cell) {
 
   window.plugin.regions.regionLayer.addLayer(region);
 
-// move the label if we're at a high enough zoom level and it's off screen
+  // move the label if we're at a high enough zoom level and it's off screen
   if (map.getZoom() >= 9) {
     var namebounds = map.getBounds().pad(-0.1); // pad 10% inside the screen bounds
     if (!namebounds.contains(center)) {

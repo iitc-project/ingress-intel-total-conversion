@@ -355,9 +355,8 @@ window.setMapBaseLayer = function() {
   //create a map name -> layer mapping - depends on internals of L.Control.Layers
   var nameToLayer = {};
   var firstLayer = null;
-  var i;
 
-  for (i in window.layerChooser._layers) {
+  for (var i in window.layerChooser._layers) {
     var obj = window.layerChooser._layers[i];
     if (!obj.overlay) {
       nameToLayer[obj.name] = obj.layer;
@@ -503,9 +502,8 @@ window.setupLayerChooserApi = function() {
   window.layerChooser.getLayers = function() {
     var baseLayers = new Array([]);
     var overlayLayers = new Array([]);
-    var i;
 
-    for (i in this._layers) {
+    for (var i in this._layers) {
       var obj = this._layers[i];
       var layerActive = window.map.hasLayer(obj.layer);
       var info = {

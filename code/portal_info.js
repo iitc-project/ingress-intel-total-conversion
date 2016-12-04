@@ -94,9 +94,8 @@ window.getAttackApGain = function(d,fieldCount,linkCount) {
   var resoCount = 0;
   var maxResonators = MAX_RESO_PER_PLAYER.slice(0);
   var curResonators = [ 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  var n;
 
-  for(n = PLAYER.level + 1; n < 9; n++) {
+  for(var n = PLAYER.level + 1; n < 9; n++) {
     maxResonators[n] = 0;
   }
   $.each(d.resonators, function(ind, reso) {
@@ -147,14 +146,13 @@ window.getAttackApGain = function(d,fieldCount,linkCount) {
 window.potentialPortalLevel = function(d) {
   var current_level = getPortalLevel(d);
   var potential_level = current_level;
-  var i;
 
   if(PLAYER.team === d.team) {
     var resonators_on_portal = d.resonators;
     var resonator_levels = new Array([]);
     // figure out how many of each of these resonators can be placed by the player
     var player_resontators = new Array([]);
-    for(i=1;i<=MAX_PORTAL_LEVEL; i++) {
+    for(var i=1;i<=MAX_PORTAL_LEVEL; i++) {
       player_resontators[i] = i > PLAYER.level ? 0 : MAX_RESO_PER_PLAYER[i];
     }
     $.each(resonators_on_portal, function(ind, reso) {

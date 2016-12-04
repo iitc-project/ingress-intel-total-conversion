@@ -33,26 +33,26 @@ window.plugin.portalHighlighterNeedsRecharge.highlight = function(data) {
     var color,fill_opacity;
     if (health > 95) {
       color = 'yellow';
-      fill_opacity = (1-health/100)*.50 + .50;
+      fill_opacity = (1-health/100)*0.50 + 0.50;
     } else if (health > 75) {
       color = 'DarkOrange';
-      fill_opacity = (1-health/100)*.50 + .50;
+      fill_opacity = (1-health/100)*0.50 + 0.50;
     } else if (health > 15) {
       color = 'red';
-      fill_opacity = (1-health/100)*.75 + .25;
+      fill_opacity = (1-health/100)*0.75 + 0.25;
     } else {
       color = 'magenta';
-      fill_opacity = (1-health/100)*.75 + .25;
+      fill_opacity = (1-health/100)*0.75 + 0.25;
     }
 
     var params = {fillColor: color, fillOpacity: fill_opacity};
     data.portal.setStyle(params);
   }
-}
+};
 
 var setup =  function() {
   window.addPortalHighlighter('Needs Recharge (Health)', window.plugin.portalHighlighterNeedsRecharge.highlight);
-}
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 

@@ -25,8 +25,8 @@
 window.plugin.mapBing = function() {};
 
 window.plugin.mapBing.setupBingLeaflet = function() {
-@@INCLUDERAW:external/Bing.js@@
-}
+  @@INCLUDERAW:external/Bing.js@@
+};
 
 
 window.plugin.mapBing.setup = function() {
@@ -38,7 +38,7 @@ window.plugin.mapBing.setup = function() {
   var bingTypes = {
     'Road': "Road",
     'Aerial': "Aerial",
-    'AerialWithLabels': "Aerial with labels",
+    'AerialWithLabels': "Aerial with labels"
   };
 
   // bing maps has an annual usage limit, which will likely be hit in 6 months at this time.
@@ -49,7 +49,7 @@ window.plugin.mapBing.setup = function() {
 
   var bingMapContainers = [];
 
-  for (type in bingTypes) {
+  for (var type in bingTypes) {
     var name = bingTypes[type];
 
     bingMapContainers[type] = new L.LayerGroup();
@@ -60,7 +60,7 @@ window.plugin.mapBing.setup = function() {
   map.on('baselayerchange', function(e) {
     for (type in bingMapContainers) {
       if (e.layer == bingMapContainers[type]) {
-        if (bingMapContainers[type].getLayers().length == 0) {
+        if (bingMapContainers[type].getLayers().length === 0) {
           // dummy layer group is empty - create the bing layer
           console.log('basemap-bing: creating '+type+' layer');
           var bingMap = new L.BingLayer (bingApiKey, {type: type, maxNativeZoom: 19, maxZoom: 21});

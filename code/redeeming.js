@@ -119,7 +119,6 @@ window.formatPasscodeLong = function(data) {
 window.formatPasscodeShort = function(data) {
 
   var awards;
-
   if(data.other) {
     awards = data.other.map(window.escapeHtmlSpecialChars);
   } else {

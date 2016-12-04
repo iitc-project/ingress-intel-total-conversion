@@ -42,7 +42,7 @@ window.plugin.keysOnMap.portalAdded = function(data) {
   data.portal.on('remove', function() {
     plugin.keysOnMap.removeKey(this.options.guid);
   });
-}
+};
 
 window.plugin.keysOnMap.keyUpdate = function(data) {
   // Disable if Plugin Keys is not there
@@ -54,70 +54,70 @@ window.plugin.keysOnMap.keyUpdate = function(data) {
   if(!portal) return;
   var latLng = portal.getLatLng();
 
-  plugin.keysOnMap.renderKey(data.guid, latLng)
-}
+  plugin.keysOnMap.renderKey(data.guid, latLng);
+};
 
 window.plugin.keysOnMap.refreshAllKeys = function() {
   plugin.keysOnMap.keyLayerGroup.clearLayers();
   $.each(plugin.keys.keys, function(key, count) {
     plugin.keysOnMap.keyUpdate({guid: key});
   });
-}
+};
 
 window.plugin.keysOnMap.renderKey = function(guid,latLng) {
-    plugin.keysOnMap.removeKey(guid);
+  plugin.keysOnMap.removeKey(guid);
 
-    var keyCount = plugin.keys.keys[guid];
-    if (keyCount > 0) {
-      var key = L.marker(latLng, {
-        icon: L.divIcon({
-          className: 'plugin-keys-on-map-key',
-          iconAnchor: [6,7],
-          iconSize: [12,10],
-          html: keyCount
-          }),
-        guid: guid
-        });
+  var keyCount = plugin.keys.keys[guid];
+  if (keyCount > 0) {
+    var key = L.marker(latLng, {
+      icon: L.divIcon({
+        className: 'plugin-keys-on-map-key',
+        iconAnchor: [6,7],
+        iconSize: [12,10],
+        html: keyCount
+      }),
+      guid: guid
+    });
 
-      plugin.keysOnMap.keyLayers[guid] = key;
-      key.addTo(plugin.keysOnMap.keyLayerGroup);
-    }
-}
+    plugin.keysOnMap.keyLayers[guid] = key;
+    key.addTo(plugin.keysOnMap.keyLayerGroup);
+  }
+};
 
 window.plugin.keysOnMap.removeKey = function(guid) {
-    var previousLayer = plugin.keysOnMap.keyLayers[guid];
-    if(previousLayer) {
-      plugin.keysOnMap.keyLayerGroup.removeLayer(previousLayer);
-      delete plugin.keysOnMap.keyLayers[guid];
-    }
-}
+  var previousLayer = plugin.keysOnMap.keyLayers[guid];
+  if(previousLayer) {
+    plugin.keysOnMap.keyLayerGroup.removeLayer(previousLayer);
+    delete plugin.keysOnMap.keyLayers[guid];
+  }
+};
 
 window.plugin.keysOnMap.disableMessage = function() {
   if(!plugin.keysOnMap.messageShown) {
     alert('Plugin "Keys On Map" need plugin "Keys" to run!');
     plugin.keysOnMap.messageShown = true;
   }
-}
+};
 
 window.plugin.keysOnMap.setupCSS = function() {
   $("<style>")
     .prop("type", "text/css")
-    .html(".plugin-keys-on-map-key {\
-            font-size: 10px;\
-            color: #FFFFBB;\
-            font-family: monospace;\
-            text-align: center;\
-            text-shadow: 0 0 0.5em black, 0 0 0.5em black, 0 0 0.5em black;\
-            pointer-events: none;\
-            -webkit-text-size-adjust:none;\
-          }")
-  .appendTo("head");
-}
+    .html(".plugin-keys-on-map-key {" +
+          "font-size: 10px;" +
+          "color: #FFFFBB;" +
+          "font-family: monospace;" +
+          "text-align: center;" +
+          "text-shadow: 0 0 0.5em black, 0 0 0.5em black, 0 0 0.5em black;" +
+          "pointer-events: none;" +
+          "-webkit-text-size-adjust:none;" +
+          "}")
+    .appendTo("head");
+};
 
 window.plugin.keysOnMap.setupLayer = function() {
   window.plugin.keysOnMap.keyLayerGroup = new L.LayerGroup();
   window.addLayerGroup('Keys', window.plugin.keysOnMap.keyLayerGroup, false);
-}
+};
 
 var setup =  function() {
 
@@ -133,7 +133,7 @@ var setup =  function() {
   window.addHook('portalAdded', window.plugin.keysOnMap.portalAdded);
   window.addHook('pluginKeysUpdateKey', window.plugin.keysOnMap.keyUpdate);
   window.addHook('pluginKeysRefreshAll', window.plugin.keysOnMap.refreshAllKeys);
-}
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 

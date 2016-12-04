@@ -28,11 +28,11 @@ window.plugin.portalHighlighterPortalsMyLevel = function() {};
 
 window.plugin.portalHighlighterPortalsMyLevel.belowLevel = function(data) {
   window.plugin.portalHighlighterPortalsMyLevel.colorLevel(true,data);
-}
+};
 
 window.plugin.portalHighlighterPortalsMyLevel.aboveLevel = function(data) {
   window.plugin.portalHighlighterPortalsMyLevel.colorLevel(false,data);
-}
+};
 
 window.plugin.portalHighlighterPortalsMyLevel.colorLevel = function(below,data) {
   var portal_level = data.portal.options.level;
@@ -40,17 +40,17 @@ window.plugin.portalHighlighterPortalsMyLevel.colorLevel = function(below,data) 
   // as portal levels can never be higher than L8, clamp the player level to this for highlight purposes
   var player_level = Math.min(PLAYER.level,8);
 
-  var opacity = .6;
+  var opacity = 0.6;
   if((below && portal_level <= player_level) ||
      (!below && portal_level >= player_level)) {
     data.portal.setStyle({fillColor: 'red', fillOpacity: opacity});
-  } 
-}
+  }
+};
 
 var setup =  function() {
   window.addPortalHighlighter('Below My Level', window.plugin.portalHighlighterPortalsMyLevel.belowLevel);
   window.addPortalHighlighter('Above My Level', window.plugin.portalHighlighterPortalsMyLevel.aboveLevel);
-}
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 

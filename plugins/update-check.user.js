@@ -31,17 +31,17 @@ window.plugin.updateCheck.versionDataLoading = false;
 
 window.plugin.updateCheck.getUrl = function(callback) {
   var base = window.location.protocol == 'https:' ? 'https://secure.jonatkins.com/iitc' : 'http://iitc.jonatkins.com';
-  var url = base+'/versioncheck.php'
-          + '?build=@@BUILDNAME@@'
-          + '&mobile='+((typeof android !== 'undefined' && android)?'1':'0')
-          + '&ts='+Date.now();  // append timestamp - ensures no caching of old data, even on mobile with the aggressive cache code
+  var url = base+'/versioncheck.php' +
+            '?build=@@BUILDNAME@@' +
+            '&mobile='+((typeof android !== 'undefined' && android)?'1':'0') +
+            '&ts='+Date.now();  // append timestamp - ensures no caching of old data, even on mobile with the aggressive cache code
 
   if (callback) {
-    url = url + '&callback='+callback
+    url = url + '&callback='+callback;
   }
 
   return url;
-}
+};
 
 window.plugin.updateCheck.versionCompare = function(a,b) {
   a = a.split('.');
@@ -62,16 +62,16 @@ window.plugin.updateCheck.versionCompare = function(a,b) {
   }
 
   return 0;
-}
+};
 
 window.plugin.updateCheck.loadVersionData = function() {
   if (!window.plugin.updateCheck.versionDataLoading) {
     window.plugin.updateCheck.versionDataLoading = true;
 
-//TODO: IITC Mobile-specific parameter, to retrieve the mobile app version rather than the script versions
-//also
-//  JSInterface public void updateIitc(String fileUrl)
-//call on the android object to be able to download+install the android app.
+    //TODO: IITC Mobile-specific parameter, to retrieve the mobile app version rather than the script versions
+    //also
+    //  JSInterface public void updateIitc(String fileUrl)
+    //call on the android object to be able to download+install the android app.
 
     var s = document.createElement('script');
     s.setAttribute('type','text/javascript');
@@ -83,7 +83,7 @@ window.plugin.updateCheck.loadVersionData = function() {
     // else we're already loading the script and it hasn't completed - do nothing
     console.warn('update-check: already loading data - cannot load again');
   }
-}
+};
 
 window.plugin.updateCheck.versionDataCallback = function(data) {
   // data loaded - flag it's not loading any more and remove the script tag
@@ -94,7 +94,7 @@ window.plugin.updateCheck.versionDataCallback = function(data) {
   }
 
   window.plugin.updateCheck.showReport(data);
-}
+};
 
 window.plugin.updateCheck.versionHTML = function(ver) {
   var re = new RegExp ('^([0-9]+\\.[0-9]+\\.[0-9]+)(\\.2[0-9][0-9][0-9][01][0-9][0123][0-9]\\.[0-9]+)$');
@@ -104,7 +104,7 @@ window.plugin.updateCheck.versionHTML = function(ver) {
   } else {
     return ver;
   }
-}
+};
 
 window.plugin.updateCheck.compareDetails = function(web_version, script_version) {
   // compare the local script version data with the website version data
@@ -121,7 +121,7 @@ window.plugin.updateCheck.compareDetails = function(web_version, script_version)
     result.comp = window.plugin.updateCheck.versionCompare (result.localVersion, result.webVersion);
 
     result.outOfDate = result.comp>0;
-    result.upToDate = result.comp==0;
+    result.upToDate = result.comp===0;
     result.localNewer = result.comp<0;
 
 
@@ -130,11 +130,11 @@ window.plugin.updateCheck.compareDetails = function(web_version, script_version)
   var webVerHTML = result.webVersion && window.plugin.updateCheck.versionHTML(result.webVersion);
   var localVerHTML = result.localVersion && window.plugin.updateCheck.versionHTML(result.localVersion);
 
-//  var webLinkInstallHTML = '';
-//  if (result.downloadUrl && result.webUrl) {
-//    webLinkInstallHTML = '<a href="'+result.webUrl+'" title="Web page" target="_blank">web</a> '
-//                       + '<a href="'+result.downloadUrl+'" title="Install" target="_blank">install</a>';
-//  }
+  //  var webLinkInstallHTML = '';
+  //  if (result.downloadUrl && result.webUrl) {
+  //    webLinkInstallHTML = '<a href="'+result.webUrl+'" title="Web page" target="_blank">web</a> '
+  //                       + '<a href="'+result.downloadUrl+'" title="Install" target="_blank">install</a>';
+  //  }
 
   if (!result.localVersion) {
     result.html = '<span class="help" title="Your version unknown\nLatest version '+webVerHTML+'">version check failed</span>';
@@ -152,7 +152,7 @@ window.plugin.updateCheck.compareDetails = function(web_version, script_version)
   }
 
   return result;
-}
+};
 
 
 window.plugin.updateCheck.showReport = function(data) {
@@ -165,6 +165,7 @@ window.plugin.updateCheck.showReport = function(data) {
       result += '<div>IITC update check: '+data.name+'</div>';
     }
 
+    var compare;
     if (typeof android !== 'undefined' && android) {
       // mobile app version check
       var ourVerCode = android.getVersionCode && android.getVersionCode() || 0;
@@ -174,8 +175,8 @@ window.plugin.updateCheck.showReport = function(data) {
         var latestVerCode = parseInt(data.mobile.versioncode);
         var latestVerName = data.mobile.versionstr;
 
-	var webLink = '';
-	if (data.mobile.pageurl) webLink = '<a href="'+data.mobile.pageurl+'" target="_blank">web</a>';
+        var webLink = '';
+        if (data.mobile.pageurl) webLink = '<a href="'+data.mobile.pageurl+'" target="_blank">web</a>';
         var downloadLink = '';
         if (data.mobile.downloadurl) downloadLink = '<a href="'+data.mobile.downloadurl+'">download</a>';
         if (data.mobile.downloadurl && android.updateIitc) downloadLink = '<a onclick="android.updateIitc(\''+data.mobile.downloadurl+'\')">install</a>';
@@ -186,12 +187,12 @@ window.plugin.updateCheck.showReport = function(data) {
           result += '<div>IITC Mobile is up to date - version <span title="ver code "'+ourVerCode+'">'+ourVerName+'</span> '+webLink+'</div>';
         } else if (ourVerCode < latestVerCode) {
           // out of date
-          result += '<div>IITC Mobile is out of date. Current version <span title="ver code "'+ourVerCode+'">'+ourVerName+'</span>, '
-                  + 'Available version <span title="ver code "'+latestVerCode+'">'+latestVerName+'</span>. '+webLink+' '+downloadLink+'</div>';
+          result += '<div>IITC Mobile is out of date. Current version <span title="ver code "'+ourVerCode+'">'+ourVerName+'</span>, ' +
+            'Available version <span title="ver code "'+latestVerCode+'">'+latestVerName+'</span>. '+webLink+' '+downloadLink+'</div>';
         } else {
           // local version newer?!
-          result += '<div>IITC Mobile version newer than latest on server?! Current version <span title="ver code "'+ourVerCode+'">'+ourVerName+'</span>, '
-                  + 'Available version <span title="ver code "'+latestVerCode+'">'+latestVerName+'</span>.</div>';
+          result += '<div>IITC Mobile version newer than latest on server?! Current version <span title="ver code "'+ourVerCode+'">'+ourVerName+'</span>, ' +
+            'Available version <span title="ver code "'+latestVerCode+'">'+latestVerName+'</span>.</div>';
         }
 
       } else {
@@ -200,7 +201,7 @@ window.plugin.updateCheck.showReport = function(data) {
     } else {
       // desktop userscript version check
       if (data.iitc && window.script_info) {
-        var compare = window.plugin.updateCheck.compareDetails(data.iitc, window.script_info);
+        compare = window.plugin.updateCheck.compareDetails(data.iitc, window.script_info);
         result += '<div>IITC Main script: '+compare.html+'</div>';
 
       } else {
@@ -217,10 +218,11 @@ window.plugin.updateCheck.showReport = function(data) {
 
       var plugins = { upToDate: [], outOfDate: [], other: [] };
 
-      if (window.bootPlugins.length == 0) {
+      var i;
+      if (window.bootPlugins.length === 0) {
         result += '<li>No plugins installed</li>';
       } else {
-        for (var i=0; i<window.bootPlugins.length; i++) {
+        for (i=0; i<window.bootPlugins.length; i++) {
           var pluginStatus = { index: i, status: 'other' };
 
           var info = window.bootPlugins[i].info;
@@ -230,7 +232,7 @@ window.plugin.updateCheck.showReport = function(data) {
           if (info && info.pluginId) {
             var webinfo = data.plugins[info.pluginId];
             if (webinfo) {
-              var compare = window.plugin.updateCheck.compareDetails(webinfo,info);
+              compare = window.plugin.updateCheck.compareDetails(webinfo,info);
               pluginStatus.compare = compare;
               if (compare.upToDate) {
                 pluginStatus.status = 'upToDate';
@@ -258,29 +260,29 @@ window.plugin.updateCheck.showReport = function(data) {
         links = links && links.join(' ') || '-';
 
         return '<tr class="'+status+'"><td>'+name+'</td><td>'+statustext+'</td><td>'+links+'</td></tr>';
-      }
+      };
 
       result += '<tr><th colspan="3">Out of date</th></tr>';
-      for (var i in plugins.outOfDate) {
+      for (i in plugins.outOfDate) {
         result += formatRow (plugins.outOfDate[i],true,true);
       }
-      if (plugins.outOfDate.length==0) {
+      if (plugins.outOfDate.length===0) {
         result += '<tr><td colspan="3">no plugins</td></tr>';
       }
 
       result += '<tr><th colspan="3">Up To Date</th></tr>';
-      for (var i in plugins.upToDate) {
+      for (i in plugins.upToDate) {
         result += formatRow (plugins.upToDate[i],true,false);
       }
-      if (plugins.upToDate.length==0) {
+      if (plugins.upToDate.length===0) {
         result += '<tr><td colspan="3">no plugins</td></tr>';
       }
 
       result += '<tr><th colspan="3">Other</th></tr>';
-      for (var i in plugins.other) {
+      for (i in plugins.other) {
         result += formatRow (plugins.other[i],true,false);
       }
-      if (plugins.other.length==0) {
+      if (plugins.other.length===0) {
         result += '<tr><td colspan="3">no plugins</td></tr>';
       }
 
@@ -294,7 +296,7 @@ window.plugin.updateCheck.showReport = function(data) {
     title: 'Update check',
     html: result
   });
-}
+};
 
 
 window.plugin.updateCheck.open = function() {
@@ -303,7 +305,7 @@ window.plugin.updateCheck.open = function() {
   // TODO? prevent loading the version data every time - cache it, with a user option to force fresh data
 
   window.plugin.updateCheck.loadVersionData();
-}
+};
 
 
 

@@ -25,19 +25,21 @@
 // use own namespace for plugin
 window.plugin.portalInfrastructure = function() {};
 
-window.plugin.portalInfrastructure.badTitles = ['^statue$',
-                                                '^fountain$',
-                                                '^sculpture$',
-                                                '^post office$',
-                                                '^us post office$',
-                                                '^church$',
-                                                'untitled',
-                                                'no title'];
+window.plugin.portalInfrastructure.badTitles = [
+  '^statue$',
+  '^fountain$',
+  '^sculpture$',
+  '^post office$',
+  '^us post office$',
+  '^church$',
+  'untitled',
+  'no title'
+];
 
 window.plugin.portalInfrastructure.highlight = function(data) {
   var d = data.portal.options.data;
   var color = '';
-  var opa = .75;
+  var opa = 0.75;
 
   if(!(d.image)) {
     color = 'red';
@@ -45,19 +47,19 @@ window.plugin.portalInfrastructure.highlight = function(data) {
 
   if((new RegExp(window.plugin.portalInfrastructure.badTitles.join("|"),'i')).test(d.title)) {
     color = color == 'red' ? 'orange' : 'yellow';
-    opa = .9;
+    opa = 0.9;
   }
-  
+
   if(color !== '') {
     var params = {fillColor: color, fillOpacity: opa};
-    data.portal.setStyle(params);  
+    data.portal.setStyle(params);
   }
- 
-}
+
+};
 
 var setup =  function() {
   window.addPortalHighlighter('Infrastructure', window.plugin.portalInfrastructure.highlight);
-}
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
