@@ -145,12 +145,12 @@ window.zeroPad = function(number,pad) {
 window.unixTimeToString = function(time, full) {
   if(!time) return null;
   var d = new Date(typeof time === 'string' ? parseInt(time) : time);
-  time = d.toLocaleTimeString();
+  var _time = d.toLocaleTimeString();
 //  var time = zeroPad(d.getHours(),2)+':'+zeroPad(d.getMinutes(),2)+':'+zeroPad(d.getSeconds(),2);
   var date = d.getFullYear()+'-'+zeroPad(d.getMonth()+1,2)+'-'+zeroPad(d.getDate(),2);
-  if(typeof full !== 'undefined' && full) return date + ' ' + time;
+  if(typeof full !== 'undefined' && full) return date + ' ' + _time;
   if(d.toDateString() == new Date().toDateString())
-    return time;
+    return _time;
   else
     return date;
 };
