@@ -28,14 +28,14 @@ window.plugin.portalHighlighterPortalsLevelColor = function() {};
 window.plugin.portalHighlighterPortalsLevelColor.colorLevel = function(data) {
   var portal_level = data.portal.options.data.level;
   if (portal_level !== undefined) {
-    var opacity = .6;
+    var opacity = 0.6;
     data.portal.setStyle({fillColor: COLORS_LVL[portal_level], fillOpacity: opacity});
   }
-}
+};
 
 var setup =  function() {
   window.addPortalHighlighter('Level Color', window.plugin.portalHighlighterPortalsLevelColor.colorLevel);
-}
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 

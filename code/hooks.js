@@ -53,7 +53,7 @@
 //              also switches between map, info and other panes defined
 //              by plugins
 
-window._hooks = {}
+window._hooks = {};
 window.VALID_HOOKS = [
   'portalSelected', 'portalDetailsUpdated',
   'mapDataRefreshStart', 'mapDataEntityInject', 'mapDataRefreshEnd',
@@ -80,14 +80,14 @@ window.runHooks = function(event, data) {
     }
   });
   return !interrupted;
-}
+};
 
 // helper method to allow plugins to create new hooks
 window.pluginCreateHook = function(event) {
   if($.inArray(event, window.VALID_HOOKS) < 0) {
     window.VALID_HOOKS.push(event);
   }
-}
+};
 
 
 window.addHook = function(event, callback) {
@@ -103,4 +103,4 @@ window.addHook = function(event, callback) {
     _hooks[event] = [callback];
   else
     _hooks[event].push(callback);
-}
+};

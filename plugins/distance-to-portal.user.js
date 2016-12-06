@@ -30,7 +30,7 @@ window.plugin.distanceToPortal.addDistance = function() {
   var div = $('<div>')
     .attr({
       id: 'portal-distance',
-      title: 'Double-click to set/change current location',
+      title: 'Double-click to set/change current location'
     })
     .on('dblclick', window.plugin.distanceToPortal.setLocation);
 
@@ -49,7 +49,7 @@ window.plugin.distanceToPortal.formatDistance = function(dist) {
   }
 
   return dist;
-}
+};
 
 
 window.plugin.distanceToPortal.updateDistance = function() {
@@ -71,12 +71,12 @@ window.plugin.distanceToPortal.updateDistance = function() {
     $('#portal-distance')
       .text('Distance: ' + dist + ' ')
       .append($('<span>')
-        .addClass('portal-distance-bearing')
-        .css({
-          'transform': 'rotate('+bearing+'deg)',
-          '-moz-transform': 'rotate('+bearing+'deg)',
-          '-webkit-transform': 'rotate('+bearing+'deg)',
-        }))
+      .addClass('portal-distance-bearing')
+      .css({
+        'transform': 'rotate('+bearing+'deg)',
+        '-moz-transform': 'rotate('+bearing+'deg)',
+        '-webkit-transform': 'rotate('+bearing+'deg)'
+      }))
       .append(document.createTextNode(' ' + zeroPad(bearing, 3) + '° ' + bearingWord));
   } else {
     $('#portal-distance').text('Location not set');
@@ -119,7 +119,7 @@ window.plugin.distanceToPortal.setupPortalsList = function() {
       $(cell).addClass('alignR').text(dist?window.plugin.distanceToPortal.formatDistance(dist):'-');
     }
   });
-}
+};
 
 
 window.plugin.distanceToPortal.setup  = function() {

@@ -40,8 +40,8 @@ window.plugin.canvasRendering.setup  = function() {
   if (!L.Path.CANVAS) {
     dialog({
       title:'Canvas Render Warning',
-      text:'The Canvas Rendering plugin failed to enable canvas rendering in leaflet. This will occur if it initialises too late.\n'
-          +'Try re-ordering userscripts so Canvas Rendering is before the main IITC script.'
+      text:'The Canvas Rendering plugin failed to enable canvas rendering in leaflet. This will occur if it initialises too late.\n' +
+           'Try re-ordering userscripts so Canvas Rendering is before the main IITC script.'
     });
   }
 

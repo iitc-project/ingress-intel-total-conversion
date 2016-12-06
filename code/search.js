@@ -7,7 +7,7 @@ addHook('search', function(query) {});
 
 `query` is an object with the following members:
 - `term` is the term for which the user has searched
-- `confirmed` is a boolean indicating if the user has pressed enter after searching. You should not search online or 
+- `confirmed` is a boolean indicating if the user has pressed enter after searching. You should not search online or
   heavy processing unless the user has confirmed the search term
 - `addResult(result)` can be called to add a result to the query.
 
@@ -40,12 +40,12 @@ window.search.Query.prototype.init = function() {
   this.container = $('<div>').addClass('searchquery');
 
   this.header = $('<h3>')
-    .text(this.confirmed
-      ? this.term
-      : ((this.term.length > 16
-        ? this.term.substr(0,8) + '…' + this.term.substr(this.term.length-8,8)
-        : this.term)
-        + ' (Return to load more)'))
+    .text(this.confirmed ?
+      this.term :
+      ((this.term.length > 16 ?
+        this.term.substr(0,8) + '…' + this.term.substr(this.term.length-8,8) :
+        this.term) +
+        ' (Return to load more)'))
     .appendTo(this.container);
 
   this.list = $('<ul>')
@@ -67,7 +67,7 @@ window.search.Query.prototype.hide = function() {
   this.removeSelectedResult();
 };
 window.search.Query.prototype.addResult = function(result) {
-  if(this.results.length == 0) {
+  if(this.results.length === 0) {
     // remove 'No results'
     this.list.empty();
   }
@@ -156,13 +156,14 @@ window.search.Query.prototype.onResultSelected = function(result, ev) {
     map.addLayer(result.layer);
 
   if(window.isSmartphone()) window.show('map');
-}
+};
+
 window.search.Query.prototype.removeSelectedResult = function() {
   if(this.selectedResult) {
     if(this.selectedResult.layer) map.removeLayer(this.selectedResult.layer);
     if(this.selectedResult.onRemove) this.selectedResult.onRemove(this.selectedResult);
   }
-}
+};
 
 window.search.doSearch = function(term, confirmed) {
   term = term.trim();
@@ -171,22 +172,22 @@ window.search.doSearch = function(term, confirmed) {
   if(term.length < 3 && !confirmed) return;
 
   // don't clear last confirmed search
-  if(window.search.lastSearch
-  && window.search.lastSearch.confirmed
-  && !confirmed)
+  if(window.search.lastSearch &&
+     window.search.lastSearch.confirmed &&
+     !confirmed)
     return;
 
   // don't make the same query again
-  if(window.search.lastSearch
-  && window.search.lastSearch.confirmed == confirmed
-  && window.search.lastSearch.term == term)
+  if(window.search.lastSearch &&
+     window.search.lastSearch.confirmed == confirmed &&
+     window.search.lastSearch.term == term)
     return;
 
   if(window.search.lastSearch) window.search.lastSearch.hide();
   window.search.lastSearch = null;
 
   // clear results
-  if(term == '') return;
+  if(term === '') return;
 
   if(useAndroidPanes()) show('info');
 
@@ -270,7 +271,7 @@ addHook('search', function(query) {
   if(!query.confirmed) return;
 
   $.getJSON(NOMINATIM + encodeURIComponent(query.term), function(data) {
-    if(data.length == 0) {
+    if(data.length === 0) {
       query.addResult({
         title: 'No results on OpenStreetMap',
         icon: '//www.openstreetmap.org/favicon.ico',

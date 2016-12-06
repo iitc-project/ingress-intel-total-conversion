@@ -84,21 +84,21 @@ window.postAjax = function(action, data, successCallback, errorCallback) {
   requests.add(result);
 
   return result;
-}
+};
 
 
 window.outOfDateUserPrompt = function()
 {
-  // we block all requests while the dialog is open. 
+  // we block all requests while the dialog is open.
   if (!window.blockOutOfDateRequests) {
     window.blockOutOfDateRequests = true;
 
     dialog({
       title: 'Reload IITC',
-      html: '<p>IITC is using an outdated version code. This will happen when Niantic update the standard intel site.</p>'
-           +'<p>You need to reload the page to get the updated changes.</p>'
-           +'<p>If you have just reloaded the page, then an old version of the standard site script is cached somewhere.'
-           +'In this case, try clearing your cache, or waiting 15-30 minutes for the stale data to expire.</p>',
+      html: '<p>IITC is using an outdated version code. This will happen when Niantic update the standard intel site.</p>' +
+            '<p>You need to reload the page to get the updated changes.</p>' +
+            '<p>If you have just reloaded the page, then an old version of the standard site script is cached somewhere.' +
+            'In this case, try clearing your cache, or waiting 15-30 minutes for the stale data to expire.</p>',
       buttons: {
         'RELOAD': function() {
           if (typeof android !== 'undefined' && android && android.reloadIITC) {
@@ -117,4 +117,4 @@ window.outOfDateUserPrompt = function()
 
   }
 
-}
+};

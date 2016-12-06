@@ -147,7 +147,7 @@ window.plugin.linkShowDirection.showDialog = function() {
 
     input.addEventListener('click', function() {
       localStorage['plugin-linkshowdirection-drawtools'] = input.checked.toString();
-      
+
       if(input.checked)
         window.plugin.linkShowDirection.animateLinks();
       else

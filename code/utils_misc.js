@@ -31,39 +31,39 @@ window.aboutIITC = function() {
   plugins += '</ul>';
 
   var attrib = '@@INCLUDEMD:ATTRIBUTION.md@@';
-  var contrib = '@@INCLUDEMD:CONTRIBS.md@@'
+  var contrib = '@@INCLUDEMD:CONTRIBS.md@@';
 
-  var a = ''
-  + '  <div><b>About IITC</b></div> '
-  + '  <div>Ingress Intel Total Conversion</div> '
-  + '  <hr>'
-  + '  <div>'
-  + '    <a href="http://iitc.jonatkins.com/" target="_blank">IITC Homepage</a><br />'
-  + '     On the script’s homepage you can:'
-  + '     <ul>'
-  + '       <li>Find Updates</li>'
-  + '       <li>Get Plugins</li>'
-  + '       <li>Report Bugs</li>'
-  + '       <li>Contribute!</li>'
-  + '     </ul>'
-  + '  </div>'
-  + '  <div>'
-  + '    MapQuest OSM tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="https://developer.mapquest.com/content/osm/mq_logo.png">'
-  + '  </div>'
-  + '  <hr>'
-  + '  <div>Version: ' + v + '</div>'
-  + '  <div>Plugins: ' + plugins + '</div>'
-  + '  <hr>'
-  + '  <div>' + attrib + '</div>'
-  + '  <hr>'
-  + '  <div>' + contrib + '</div>';
+  var a = '' +
+    '  <div><b>About IITC</b></div> ' +
+    '  <div>Ingress Intel Total Conversion</div> ' +
+    '  <hr>' +
+    '  <div>' +
+    '    <a href="http://iitc.jonatkins.com/" target="_blank">IITC Homepage</a><br />' +
+    '     On the script’s homepage you can:' +
+    '     <ul>' +
+    '       <li>Find Updates</li>' +
+    '       <li>Get Plugins</li>' +
+    '       <li>Report Bugs</li>' +
+    '       <li>Contribute!</li>' +
+    '     </ul>' +
+    '  </div>' +
+    '  <div>' +
+    '    MapQuest OSM tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="https://developer.mapquest.com/content/osm/mq_logo.png">' +
+    '  </div>' +
+    '  <hr>' +
+    '  <div>Version: ' + v + '</div>' +
+    '  <div>Plugins: ' + plugins + '</div>' +
+    '  <hr>' +
+    '  <div>' + attrib + '</div>' +
+    '  <hr>' +
+    '  <div>' + contrib + '</div>';
 
   dialog({
     title: 'IITC ' + v,
     html: a,
     dialogClass: 'ui-dialog-aboutIITC'
   });
-}
+};
 
 
 window.layerGroupLength = function(layerGroup) {
@@ -72,12 +72,12 @@ window.layerGroupLength = function(layerGroup) {
   if (layers)
     layersCount = Object.keys(layers).length;
   return layersCount;
-}
+};
 
 // retrieves parameter from the URL?query=string.
 window.getURLParam = function(param) {
   var items = window.location.search.substr(1).split('&');
-  if (items == "") return "";
+  if (items === "") return "";
 
   for (var i=0; i<items.length; i++) {
     var item = items[i].split('=');
@@ -89,7 +89,7 @@ window.getURLParam = function(param) {
   }
 
   return '';
-}
+};
 
 // read cookie by name.
 // http://stackoverflow.com/a/5639455/1684530 by cwolves
@@ -101,16 +101,16 @@ window.readCookie = function(name){
     cookies[C[0]] = unescape(C[1]);
   }
   return cookies[name];
-}
+};
 
 window.writeCookie = function(name, val) {
   var d = new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000).toUTCString();
   document.cookie = name + "=" + val + '; expires='+d+'; path=/';
-}
+};
 
 window.eraseCookie = function(name) {
   document.cookie = name + '=; expires=Thu, 1 Jan 1970 00:00:00 GMT; path=/';
-}
+};
 
 //certain values were stored in cookies, but we're better off using localStorage instead - make it easy to convert
 window.convertCookieToLocalStorage = function(name) {
@@ -122,7 +122,7 @@ window.convertCookieToLocalStorage = function(name) {
     }
     eraseCookie(name);
   }
-}
+};
 
 // add thousand separators to given number.
 // http://stackoverflow.com/a/1990590/1684530 by Doug Neiner.
@@ -130,14 +130,14 @@ window.digits = function(d) {
   // U+2009 - Thin Space. Recommended for use as a thousands separator...
   // https://en.wikipedia.org/wiki/Space_(punctuation)#Table_of_spaces
   return (d+"").replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1&#8201;");
-}
+};
 
 
 window.zeroPad = function(number,pad) {
   number = number.toString();
   var zeros = pad - number.length;
   return Array(zeros>0?zeros+1:0).join("0") + number;
-}
+};
 
 
 // converts javascript timestamps to HH:mm:ss format if it was today;
@@ -145,24 +145,24 @@ window.zeroPad = function(number,pad) {
 window.unixTimeToString = function(time, full) {
   if(!time) return null;
   var d = new Date(typeof time === 'string' ? parseInt(time) : time);
-  var time = d.toLocaleTimeString();
+  var _time = d.toLocaleTimeString();
 //  var time = zeroPad(d.getHours(),2)+':'+zeroPad(d.getMinutes(),2)+':'+zeroPad(d.getSeconds(),2);
   var date = d.getFullYear()+'-'+zeroPad(d.getMonth()+1,2)+'-'+zeroPad(d.getDate(),2);
-  if(typeof full !== 'undefined' && full) return date + ' ' + time;
+  if(typeof full !== 'undefined' && full) return date + ' ' + _time;
   if(d.toDateString() == new Date().toDateString())
-    return time;
+    return _time;
   else
     return date;
-}
+};
 
 // converts a javascript time to a precise date and time (optionally with millisecond precision)
 // formatted in ISO-style YYYY-MM-DD hh:mm:ss.mmm - but using local timezone
 window.unixTimeToDateTimeString = function(time, millisecond) {
   if(!time) return null;
   var d = new Date(typeof time === 'string' ? parseInt(time) : time);
-  return d.getFullYear()+'-'+zeroPad(d.getMonth()+1,2)+'-'+zeroPad(d.getDate(),2)
-    +' '+zeroPad(d.getHours(),2)+':'+zeroPad(d.getMinutes(),2)+':'+zeroPad(d.getSeconds(),2)+(millisecond?'.'+zeroPad(d.getMilliseconds(),3):'');
-}
+  return d.getFullYear()+'-'+zeroPad(d.getMonth()+1,2)+'-'+zeroPad(d.getDate(),2) +
+     ' '+zeroPad(d.getHours(),2)+':'+zeroPad(d.getMinutes(),2)+':'+zeroPad(d.getSeconds(),2)+(millisecond?'.'+zeroPad(d.getMilliseconds(),3):'');
+};
 
 window.unixTimeToHHmm = function(time) {
   if(!time) return null;
@@ -170,7 +170,7 @@ window.unixTimeToHHmm = function(time) {
   var h = '' + d.getHours(); h = h.length === 1 ? '0' + h : h;
   var s = '' + d.getMinutes(); s = s.length === 1 ? '0' + s : s;
   return  h + ':' + s;
-}
+};
 
 window.formatInterval = function(seconds,maxTerms) {
 
@@ -183,12 +183,12 @@ window.formatInterval = function(seconds,maxTerms) {
   if (d > 0) terms.push(d+'d');
   if (h > 0) terms.push(h+'h');
   if (m > 0) terms.push(m+'m');
-  if (s > 0 || terms.length==0) terms.push(s+'s');
+  if (s > 0 || terms.length===0) terms.push(s+'s');
 
   if (maxTerms) terms = terms.slice(0,maxTerms);
 
   return terms.join(' ');
-}
+};
 
 
 window.rangeLinkClick = function() {
@@ -196,7 +196,7 @@ window.rangeLinkClick = function() {
     window.map.fitBounds(window.portalRangeIndicator.getBounds());
   if(window.isSmartphone())
     window.show('map');
-}
+};
 
 window.showPortalPosLinks = function(lat, lng, name) {
   var encoded_name = 'undefined';
@@ -219,11 +219,11 @@ window.showPortalPosLinks = function(lat, lng, name) {
       id: 'poslinks'
     });
   }
-}
+};
 
 window.isTouchDevice = function() {
-  return 'ontouchstart' in window // works on most browsers
-      || 'onmsgesturechange' in window; // works on ie10
+  return 'ontouchstart' in window || // works on most browsers
+         'onmsgesturechange' in window; // works on ie10
 };
 
 window.androidCopy = function(text) {
@@ -232,7 +232,7 @@ window.androidCopy = function(text) {
   else
     android.copy(text);
   return false;
-}
+};
 
 window.androidPermalink = function() {
   if(typeof android === 'undefined' || !android || !android.intentPosLink)
@@ -241,7 +241,7 @@ window.androidPermalink = function() {
   var center = map.getCenter();
   android.intentPosLink(center.lat, center.lng, map.getZoom(), "Selected map view", false);
   return false;
-}
+};
 
 
 
@@ -249,14 +249,14 @@ window.getMinPortalLevel = function() {
   var z = map.getZoom();
   z = getDataZoomForMapZoom(z);
   return getMapZoomTileParameters(z).level;
-}
+};
 
 // returns number of pixels left to scroll down before reaching the
 // bottom. Works similar to the native scrollTop function.
 window.scrollBottom = function(elm) {
   if(typeof elm === 'string') elm = $(elm);
   return elm.get(0).scrollHeight - elm.innerHeight() - elm.scrollTop();
-}
+};
 
 window.zoomToAndShowPortal = function(guid, latlng) {
   map.setView(latlng, 17);
@@ -266,7 +266,7 @@ window.zoomToAndShowPortal = function(guid, latlng) {
     renderPortalDetails(guid);
   else
     urlPortal = guid;
-}
+};
 
 window.selectPortalByLatLng = function(lat, lng) {
   if(lng === undefined && lat instanceof Array) {
@@ -291,7 +291,7 @@ window.selectPortalByLatLng = function(lat, lng) {
 
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
-}
+};
 
 // http://stackoverflow.com/a/646643/1684530 by Bergi and CMS
 if (typeof String.prototype.startsWith !== 'function') {
@@ -304,7 +304,7 @@ if (typeof String.prototype.startsWith !== 'function') {
 // (for strings passed as parameters to html onclick="..." for example)
 window.escapeJavascriptString = function(str) {
   return (str+'').replace(/[\\"']/g,'\\$&');
-}
+};
 
 //escape special characters, such as tags
 window.escapeHtmlSpecialChars = function(str) {
@@ -312,11 +312,11 @@ window.escapeHtmlSpecialChars = function(str) {
   var text = document.createTextNode(str);
   div.appendChild(text);
   return div.innerHTML;
-}
+};
 
 window.prettyEnergy = function(nrg) {
   return nrg> 1000 ? Math.round(nrg/1000) + ' k': nrg;
-}
+};
 
 window.setPermaLink = function(elm) {
   var c = map.getCenter();
@@ -324,13 +324,13 @@ window.setPermaLink = function(elm) {
   var lng = Math.round(c.lng*1E6)/1E6;
   var qry = 'll='+lat+','+lng+'&z=' + map.getZoom();
   $(elm).attr('href',  '/intel?' + qry);
-}
+};
 
 window.uniqueArray = function(arr) {
   return $.grep(arr, function(v, i) {
     return $.inArray(v, arr) === i;
   });
-}
+};
 
 window.genFourColumnTable = function(blocks) {
   var t = $.map(blocks, function(detail, index) {
@@ -341,9 +341,9 @@ window.genFourColumnTable = function(blocks) {
     else
       return '    <th'+title+'>'+detail[0]+'</th><td'+title+'>'+detail[1]+'</td></tr>';
   }).join('');
-  if(t.length % 2 === 1) t + '<td></td><td></td></tr>';
+  if(t.length % 2 === 1) t += '<td></td><td></td></tr>';
   return t;
-}
+};
 
 
 // converts given text with newlines (\n) and tabs (\t) to a HTML
@@ -377,18 +377,18 @@ window.convertTextToTableMagic = function(text) {
   });
   table += '</table>';
   return table;
-}
+};
 
 // Given 3 sets of points in an array[3]{lat, lng} returns the area of the triangle
 window.calcTriArea = function(p) {
   return Math.abs((p[0].lat*(p[1].lng-p[2].lng)+p[1].lat*(p[2].lng-p[0].lng)+p[2].lat*(p[0].lng-p[1].lng))/2);
-}
+};
 
 // Update layerGroups display status to window.overlayStatus and localStorage 'ingress.intelmap.layergroupdisplayed'
 window.updateDisplayedLayerGroup = function(name, display) {
   overlayStatus[name] = display;
   localStorage['ingress.intelmap.layergroupdisplayed'] = JSON.stringify(overlayStatus);
-}
+};
 
 // Read layerGroup status from window.overlayStatus if it was added to map,
 // read from cookie if it has not added to map yet.
@@ -405,14 +405,14 @@ window.isLayerGroupDisplayed = function(name, defaultDisplay) {
   overlayStatus = $.extend(layers, overlayStatus);
   if(typeof(overlayStatus[name]) === 'undefined') return defaultDisplay;
   return overlayStatus[name];
-}
+};
 
 window.addLayerGroup = function(name, layerGroup, defaultDisplay) {
   if (defaultDisplay === undefined) defaultDisplay = true;
 
   if(isLayerGroupDisplayed(name, defaultDisplay)) map.addLayer(layerGroup);
   layerChooser.addOverlay(layerGroup, name);
-}
+};
 
 window.clampLat = function(lat) {
   // the map projection used does not handle above approx +- 85 degrees north/south of the equator
@@ -421,7 +421,7 @@ window.clampLat = function(lat) {
   else if (lat < -85.051128)
     lat = -85.051128;
   return lat;
-}
+};
 
 window.clampLng = function(lng) {
   if (lng > 179.999999)
@@ -429,22 +429,22 @@ window.clampLng = function(lng) {
   else if (lng < -180.0)
     lng = -180.0;
   return lng;
-}
+};
 
 
 window.clampLatLng = function(latlng) {
   return new L.LatLng ( clampLat(latlng.lat), clampLng(latlng.lng) );
-}
+};
 
 window.clampLatLngBounds = function(bounds) {
   return new L.LatLngBounds ( clampLatLng(bounds.getSouthWest()), clampLatLng(bounds.getNorthEast()) );
-}
+};
 
 window.getGenericMarkerSvg = function(color) {
   var markerTemplate = '@@INCLUDESTRING:images/marker-icon.svg.template@@';
 
   return markerTemplate.replace(/%COLOR%/g, color);
-}
+};
 
 window.getGenericMarkerIcon = function(color,className) {
   return L.divIcon({
@@ -453,7 +453,7 @@ window.getGenericMarkerIcon = function(color,className) {
     html: getGenericMarkerSvg(color),
     className: className || 'leaflet-iitc-divicon-generic-marker'
   });
-}
+};
 
 window.createGenericMarker = function(ll,color,options) {
   options = options || {};
@@ -463,7 +463,7 @@ window.createGenericMarker = function(ll,color,options) {
   }, options);
 
   return L.marker(ll, markerOpt);
-}
+};
 
 
 
@@ -475,5 +475,5 @@ L.Draggable.prototype._onDown = function(e) {
   if(e.type === "touchstart") {
     L.DomEvent.on(document, "touchcancel", this._onUp, this);
   }
-}
+};
 

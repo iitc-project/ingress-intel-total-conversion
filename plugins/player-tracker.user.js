@@ -73,9 +73,9 @@ window.plugin.playerTracker.setup = function() {
     window.plugin.playerTracker.zoomListener();
   });
   window.plugin.playerTracker.zoomListener();
-  
+
   plugin.playerTracker.setupUserSearch();
-}
+};
 
 window.plugin.playerTracker.stored = {};
 
@@ -97,7 +97,7 @@ window.plugin.playerTracker.closeIconTooltips = function() {
   plugin.playerTracker.drawnTracesEnl.eachLayer(function(layer) {
     if ($(layer._icon)) { $(layer._icon).tooltip('close');}
   });
-}
+};
 
 window.plugin.playerTracker.zoomListener = function() {
   var ctrl = $('.leaflet-control-layers-selector + span:contains("Player Tracker")').parent();
@@ -113,11 +113,11 @@ window.plugin.playerTracker.zoomListener = function() {
     //note: zoomListener is also called at init time to set up things, so we only need to do this in here
     window.chat.backgroundChannelData('plugin.playerTracker', 'all', true);    //enable this plugin's interest in 'all' COMM
   }
-}
+};
 
 window.plugin.playerTracker.getLimit = function() {
- return new Date().getTime() - window.PLAYER_TRACKER_MAX_TIME;
-}
+  return new Date().getTime() - window.PLAYER_TRACKER_MAX_TIME;
+};
 
 window.plugin.playerTracker.discardOldData = function() {
   var limit = plugin.playerTracker.getLimit();
@@ -131,7 +131,7 @@ window.plugin.playerTracker.discardOldData = function() {
     if(i === ev.length) return delete plugin.playerTracker.stored[plrname];
     plugin.playerTracker.stored[plrname].events.splice(0, i);
   });
-}
+};
 
 window.plugin.playerTracker.eventHasLatLng = function(ev, lat, lng) {
   var hasLatLng = false;
@@ -142,7 +142,7 @@ window.plugin.playerTracker.eventHasLatLng = function(ev, lat, lng) {
     }
   });
   return hasLatLng;
-}
+};
 
 window.plugin.playerTracker.processNewData = function(data) {
   var limit = plugin.playerTracker.getLimit();
@@ -159,9 +159,9 @@ window.plugin.playerTracker.processNewData = function(data) {
         // Destroy link and field messages depend on where the link or
         // field was originally created. Therefore it’s not clear which
         // portal the player is at, so ignore it.
-        if(markup[1].plain.indexOf('destroyed the Link') !== -1
-          || markup[1].plain.indexOf('destroyed a Control Field') !== -1
-          || markup[1].plain.indexOf('Your Link') !== -1) {
+        if(markup[1].plain.indexOf('destroyed the Link') !== -1 ||
+           markup[1].plain.indexOf('destroyed a Control Field') !== -1 ||
+           markup[1].plain.indexOf('Your Link') !== -1) {
           skipThisMessage = true;
           return false;
         }
@@ -248,10 +248,10 @@ window.plugin.playerTracker.processNewData = function(data) {
     // update player data
     plugin.playerTracker.stored[plrname].events = evts;
   });
-}
+};
 
 window.plugin.playerTracker.getLatLngFromEvent = function(ev) {
-//TODO? add weight to certain events, or otherwise prefer them, to give better locations?
+  //TODO? add weight to certain events, or otherwise prefer them, to give better locations?
   var lats = 0;
   var lngs = 0;
   $.each(ev.latlngs, function(i, latlng) {
@@ -260,7 +260,7 @@ window.plugin.playerTracker.getLatLngFromEvent = function(ev) {
   });
 
   return L.latLng(lats / ev.latlngs.length, lngs / ev.latlngs.length);
-}
+};
 
 window.plugin.playerTracker.ago = function(time, now) {
   var s = (now-time) / 1000;
@@ -271,7 +271,7 @@ window.plugin.playerTracker.ago = function(time, now) {
     returnVal = h + 'h' + returnVal;
   }
   return returnVal;
-}
+};
 
 window.plugin.playerTracker.drawData = function() {
   var isTouchDev = window.isTouchDevice();
@@ -321,15 +321,15 @@ window.plugin.playerTracker.drawData = function() {
 
     if(window.plugin.guessPlayerLevels !== undefined &&
        window.plugin.guessPlayerLevels.fetchLevelDetailsByPlayer !== undefined) {
-      function getLevel(lvl) {
-        return $('<span>')
-          .css({
+      var getLevel = function(lvl) {
+      return $('<span>')
+        .css({
             padding: '4px',
             color: 'white',
             backgroundColor: COLORS_LVL[lvl],
-          })
-          .text(lvl);
-      }
+        })
+        .text(lvl);
+      };
 
       var level = $('<span>')
         .css({'font-weight': 'bold', 'margin-left': '10px'})
@@ -362,7 +362,7 @@ window.plugin.playerTracker.drawData = function() {
       var table = $('<table>')
         .appendTo(popup)
         .css('border-spacing', '0');
-      for(var i = evtsLength - 2; i >= 0 && i >= evtsLength - 10; i--) {
+      for(i = evtsLength - 2; i >= 0 && i >= evtsLength - 10; i--) {
         var ev = playerData.events[i];
         $('<tr>')
           .append($('<td>')
@@ -374,7 +374,7 @@ window.plugin.playerTracker.drawData = function() {
     }
 
     // calculate the closest portal to the player
-    var eventPortal = []
+    var eventPortal = [];
     var closestPortal;
     var mostPortals = 0;
     $.each(last.ids, function(i, id) {
@@ -390,7 +390,7 @@ window.plugin.playerTracker.drawData = function() {
     });
 
     // marker opacity
-    var relOpacity = 1 - (now - last.time) / window.PLAYER_TRACKER_MAX_TIME
+    var relOpacity = 1 - (now - last.time) / window.PLAYER_TRACKER_MAX_TIME;
     var absOpacity = window.PLAYER_TRACKER_MIN_OPACITY + (1 - window.PLAYER_TRACKER_MIN_OPACITY) * relOpacity;
 
     // marker itself
@@ -449,7 +449,7 @@ window.plugin.playerTracker.drawData = function() {
       L.polyline(poly, opts).addTo(plugin.playerTracker.drawnTracesRes);
     });
   });
-}
+};
 
 window.plugin.playerTracker.getPortalLink = function(data) {
   var position = data.latlngs[0];
@@ -468,12 +468,12 @@ window.plugin.playerTracker.getPortalLink = function(data) {
       return false;
     })
     .dblclick(function(event) {
-      map.setView(position, 17)
+      map.setView(position, 17);
       window.selectPortalByLatLng(position);
       event.preventDefault();
       return false;
     });
-}
+};
 
 window.plugin.playerTracker.handleData = function(data) {
   if(window.map.getZoom() < window.PLAYER_TRACKER_MIN_ZOOM) return;
@@ -485,7 +485,7 @@ window.plugin.playerTracker.handleData = function(data) {
   plugin.playerTracker.drawnTracesEnl.clearLayers();
   plugin.playerTracker.drawnTracesRes.clearLayers();
   plugin.playerTracker.drawData();
-}
+};
 
 window.plugin.playerTracker.findUser = function(nick) {
   nick = nick.toLowerCase();
@@ -497,7 +497,7 @@ window.plugin.playerTracker.findUser = function(nick) {
     }
   });
   return foundPlayerData;
-}
+};
 
 window.plugin.playerTracker.findUserPosition = function(nick) {
   var data = window.plugin.playerTracker.findUser(nick);
@@ -505,7 +505,7 @@ window.plugin.playerTracker.findUserPosition = function(nick) {
 
   var last = data.events[data.events.length - 1];
   return plugin.playerTracker.getLatLngFromEvent(last);
-}
+};
 
 window.plugin.playerTracker.centerMapOnUser = function(nick) {
   var data = plugin.playerTracker.findUser(nick);
@@ -521,14 +521,14 @@ window.plugin.playerTracker.centerMapOnUser = function(nick) {
     window.plugin.playerTracker.onClickListener({target: data.marker});
   }
   return true;
-}
+};
 
 window.plugin.playerTracker.onNicknameClicked = function(info) {
   if (info.event.ctrlKey || info.event.metaKey) {
     return !plugin.playerTracker.centerMapOnUser(info.nickname);
   }
   return true; // don't interrupt hook
-}
+};
 
 window.plugin.playerTracker.onSearchResultSelected = function(result, event) {
   event.stopPropagation(); // prevent chat from handling the click
@@ -563,12 +563,12 @@ window.plugin.playerTracker.onSearch = function(query) {
       onSelected: window.plugin.playerTracker.onSearchResultSelected,
     });
   });
-}
+};
 
 window.plugin.playerTracker.setupUserSearch = function() {
   addHook('nicknameClicked', window.plugin.playerTracker.onNicknameClicked);
   addHook('search', window.plugin.playerTracker.onSearch);
-}
+};
 
 
 var setup = plugin.playerTracker.setup;

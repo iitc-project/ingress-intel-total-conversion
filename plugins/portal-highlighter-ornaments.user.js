@@ -36,11 +36,11 @@ window.plugin.portalHighlightOrnaments.highlight = function(data) {
     var params = {fillColor: color, fillOpacity: fill_opacity};
     data.portal.setStyle(params);
   }
-}
+};
 
 var setup =  function() {
   window.addPortalHighlighter('Ornaments (anomaly portals)', window.plugin.portalHighlightOrnaments.highlight);
-}
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 

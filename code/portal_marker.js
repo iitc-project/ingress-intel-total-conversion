@@ -8,7 +8,7 @@ window.portalMarkerScale = function() {
     return zoom >= 16 ? 1.5 : zoom >= 14 ? 1.2 : zoom >= 11 ? 1.0 : zoom >= 8 ? 0.65 : 0.5;
   else
     return zoom >= 14 ? 1 : zoom >= 11 ? 0.8 : zoom >= 8 ? 0.65 : 0.5;
-}
+};
 
 // create a new marker. 'data' contain the IITC-specific entity data to be stored in the object options
 window.createMarker = function(latlng, data) {
@@ -21,7 +21,7 @@ window.createMarker = function(latlng, data) {
   highlightPortal(marker);
 
   return marker;
-}
+};
 
 
 window.setMarkerStyle = function(marker, selected) {
@@ -37,7 +37,7 @@ window.setMarkerStyle = function(marker, selected) {
   if (selected) {
     marker.setStyle ({color: COLOR_SELECTED_PORTAL});
   }
-}
+};
 
 
 window.getMarkerStyleOptions = function(details) {
@@ -54,7 +54,7 @@ window.getMarkerStyleOptions = function(details) {
 
   var dashArray = null;
   // thinner and dashed outline for placeholder portals
-  if (details.team != TEAM_NONE && level==0) {
+  if (details.team != TEAM_NONE && level===0) {
     lvlWeight = 1;
     dashArray = [1,2];
   }
@@ -72,5 +72,5 @@ window.getMarkerStyleOptions = function(details) {
   };
 
   return options;
-}
+};
 

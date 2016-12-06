@@ -6,7 +6,7 @@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
-// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Use the portal fill color to denote if the portal is missing resonators. 
+// @description    [@@BUILDNAME@@-@@BUILDDATE@@] Use the portal fill color to denote if the portal is missing resonators.
 // @include        https://*.ingress.com/intel*
 // @include        http://*.ingress.com/intel*
 // @match          https://*.ingress.com/intel*
@@ -31,22 +31,22 @@ window.plugin.portalsMissingResonators.highlight = function(data) {
     var res_count = data.portal.options.data.resCount;
 
     if(res_count !== undefined && res_count < 8) {
-      var fill_opacity = ((8-res_count)/8)*.85 + .15;
+      var fill_opacity = ((8-res_count)/8)*0.85 + 0.15;
       var color = 'red';
       var params = {fillColor: color, fillOpacity: fill_opacity};
 
       // Hole per missing resonator
-      var dash = new Array((8 - res_count) + 1).join("1,4,") + "100,0"
+      var dash = new Array((8 - res_count) + 1).join("1,4,") + "100,0";
       params.dashArray = dash;
 
       data.portal.setStyle(params);
-    } 
+    }
   }
-}
+};
 
 var setup =  function() {
   window.addPortalHighlighter('Portals Missing Resonators', window.plugin.portalsMissingResonators.highlight);
-}
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
