@@ -31,7 +31,7 @@ window.aboutIITC = function() {
   plugins += '</ul>';
 
   var attrib = '@@INCLUDEMD:ATTRIBUTION.md@@';
-  var contrib = '@@INCLUDEMD:CONTRIBS.md@@'
+  var contrib = '@@INCLUDEMD:CONTRIBS.md@@';
 
   var a = '' +
     '  <div><b>About IITC</b></div> ' +
