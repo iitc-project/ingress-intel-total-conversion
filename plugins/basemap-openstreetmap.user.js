@@ -2,7 +2,7 @@
 // @id             iitc-plugin-basemap-openstreetpam@jonatkins
 // @name           IITC plugin: OpenStreetMap.org map tiles
 // @category       Map Tiles
-// @version        0.1.1.@@DATETIMEVERSION@@
+// @version        0.1.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -36,8 +36,8 @@ window.plugin.mapTileOpenStreetMap = {
     };
 
     var layers = {
-      'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png': 'OpenStreetMap',
-      'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png': 'Humanitarian',
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png': 'OpenStreetMap',
+      'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png': 'Humanitarian',
     };
 
     for(var url in layers) {
