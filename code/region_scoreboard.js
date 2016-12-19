@@ -122,8 +122,9 @@ RegionScoreboard = (function () {
         this.checkpoints[parseInt(h[0])] = [parseInt(h[1]), parseInt(h[2])];
     }
 
-    var curdate = new Date().valueOf()+serverResult.timeToEndOfBaseCycleMs;
-    this.cycleStartTime  = new Date( curdate - curdate%(1000*60*60)-1000*60*60*5*(1+this.getLastCP()));
+    var now = new Date().getTime();
+    var CYCLE_TIME = 7*25*60*60*1000; //7 25 hour 'days' per cycle
+    this.cycleStartTime = new Date(Math.floor(now / CYCLE_TIME) * (CYCLE_TIME));
   }
 
   function showDialog() {
@@ -305,8 +306,8 @@ RegionScoreboard = (function () {
       return res;
     }
 
-    function estiminatedScore() {
-      var res ='<hr>Estiminated:\n';
+    function estimatedScore() {
+      var res ='<hr>Estimated:\n';
       total = e_res+e_enl;
       for (var t=0; t<2; t++) {
         var faction = order[t];
@@ -322,13 +323,13 @@ RegionScoreboard = (function () {
     function requiredScore() {
       var res='';
       var required_mu = Math.abs(e_res-e_enl) * regionScore.MAX_CYCLES+1;
-      res +='<hr>' + (regionScore.MAX_CYCLES-regionScore.getLastCP())+' Checkpoint(s) left\n';
-      res += window.TEAM_NAMES[loosing_faction]+' requires:'+ digits(Math.ceil(required_mu));
+      res += window.TEAM_NAMES[loosing_faction]+' requires:\t'+ digits(Math.ceil(required_mu));
+      res +='<hr>\nCheckpoint(s) left:\t' + (regionScore.MAX_CYCLES-regionScore.getLastCP())+' \n';
 
       return res;
     }
 
-    return currentScore()+estiminatedScore()+requiredScore();
+    return currentScore()+estimatedScore()+requiredScore();
   }
 
 
