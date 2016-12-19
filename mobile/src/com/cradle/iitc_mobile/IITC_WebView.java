@@ -59,6 +59,7 @@ public class IITC_WebView extends WebView {
         mSettings.setDatabasePath(getContext().getApplicationInfo().dataDir + "/databases/");
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            setWebContentsDebuggingEnabled(true);
             mJsInterface = new IITC_JSInterfaceKitkat(mIitc);
         } else {
             mJsInterface = new IITC_JSInterface(mIitc);

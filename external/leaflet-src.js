@@ -5132,6 +5132,12 @@ L.Path = (L.Path.SVG && !window.L_PREFER_CANVAS) || !L.Browser.canvas ? L.Path :
 	_updateStyle: function () {
 		var options = this.options;
 
+        	if (options.dashArray) {
+            		var da = typeof(options.dashArray) === "string" ? options.dashArray.split(",").map(function(el,ix,ar) { return parseInt(el); }) : options.dashArray;
+            		this._ctx.setLineDash(da);
+        	} else {
+	        	this._ctx.setLineDash([]);
+        	}
 		if (options.stroke) {
 			this._ctx.lineWidth = options.weight;
 			this._ctx.strokeStyle = options.color;
@@ -5143,7 +5149,14 @@ L.Path = (L.Path.SVG && !window.L_PREFER_CANVAS) || !L.Browser.canvas ? L.Path :
 
 	_drawPath: function () {
 		var i, j, len, len2, point, drawMethod;
-
+		
+        	if (this.options.dashArray) {
+            		var da = typeof(this.options.dashArray) === "string" ? this.options.dashArray.split(",").map(function(el,ix,ar) { return parseInt(el); }) : this.options.dashArray;
+            		this._ctx.setLineDash(da);
+        	} else {
+			this._ctx.setLineDash([]);
+        	}
+        	
 		this._ctx.beginPath();
 
 		for (i = 0, len = this._parts.length; i < len; i++) {
@@ -5170,6 +5183,12 @@ L.Path = (L.Path.SVG && !window.L_PREFER_CANVAS) || !L.Browser.canvas ? L.Path :
 		var ctx = this._ctx,
 		    options = this.options;
 
+        	if (options.dashArray) {
+            		var da = typeof(options.dashArray) === "string" ? options.dashArray.split(",").map(function(el,ix,ar) { return parseInt(el); }) : options.dashArray;
+            		ctx.setLineDash(da);
+        	} else {
+	        	ctx.setLineDash([]);
+        	}
 		this._drawPath();
 		ctx.save();
 		this._updateStyle();
@@ -6098,6 +6117,12 @@ L.Polygon.include(!L.Path.CANVAS ? {} : {
 
 L.Circle.include(!L.Path.CANVAS ? {} : {
 	_drawPath: function () {
+		if (this.options.dashArray) {
+            		var da = typeof(this.options.dashArray) === "string" ? this.options.dashArray.split(",").map(function(el,ix,ar) { return parseInt(el); }) : this.options.dashArray;
+            		this._ctx.setLineDash(da);
+        	} else {
+			this._ctx.setLineDash([]);
+        	}
 		var p = this._point;
 		this._ctx.beginPath();
 		this._ctx.arc(p.x, p.y, this._radius, 0, Math.PI * 2, false);
