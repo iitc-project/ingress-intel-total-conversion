@@ -185,7 +185,6 @@ RegionScoreboard = (function () {
       var input = $(this);
       updateDialog(input.prop('checked'));
     });
-
   }
 
   function setupToolTips() {
@@ -262,17 +261,17 @@ RegionScoreboard = (function () {
       var maxAverage = regionScore.getAvgScoreMax();
       var order = (PLAYER.team == 'RESISTANCE' ? [TEAM_RES,TEAM_ENL]:[TEAM_ENL,TEAM_RES]);
 
-      var result = '<table id="overview" style="margin: auto;" title="dummy">';
+      var result = '<table id="overview" title="">';
       for (var t=0; t<2; t++) {
           var faction = order[t];
           var team = window.TEAM_NAMES[faction];
           var teamClass = window.TEAM_TO_CSS[faction];
           var teamCol = COLORS[faction];
-          var barSize = Math.round(regionScore.getAvgScore(faction)/maxAverage*200);
+          var barSize = Math.round(regionScore.getAvgScore(faction)/maxAverage*100);
           result += '<tr><th class="'+teamClass+'">'+team+'</th>' +
-                  '<td class="'+teamClass+'" align="right">'+digits(regionScore.getAvgScore(faction))+'</td>' +
-                  '<td><div style="background:'+teamCol+'; width: '+barSize+'px; height: 1.3ex; border: 2px outset '+teamCol+'; margin-top: 2px"> </td>' +
-                  '<td class="'+teamClass+'" align="right"><small>( '+digits(regionScore.getAvgScoreAtCP(faction,35))+' )</small></td>' +
+                  '<td class="'+teamClass+'">'+digits(regionScore.getAvgScore(faction))+'</td>' +
+                  '<td style="width:100%"><div style="background:'+teamCol+'; width: '+barSize+'%; height: 1.3ex; border: 2px outset '+teamCol+'; margin-top: 2px"> </td>' +
+                  '<td class="'+teamClass+'"><small>( '+digits(regionScore.getAvgScoreAtCP(faction,35))+' )</small></td>' +
                   '</tr>';
       }
 
@@ -292,33 +291,44 @@ RegionScoreboard = (function () {
       return (Math.round( score/total * 10000)/100)+'%';
     }
 
-    var res='Current:\n';
-    var total = regionScore.getAvgScore(TEAM_RES)+regionScore.getAvgScore(TEAM_ENL);
-    for (var t=0; t<2; t++) {
-      var faction = order[t];
-      var score = regionScore.getAvgScore(faction);
-      res += window.TEAM_NAMES[faction]+'\t' +
-          digits(score)+'\t' +
-          percentToString( score,total)+'\n';
+    function currentScore() {
+      var res='Current:\n';
+      var total = regionScore.getAvgScore(TEAM_RES)+regionScore.getAvgScore(TEAM_ENL);
+      for (var t=0; t<2; t++) {
+        var faction = order[t];
+        var score = regionScore.getAvgScore(faction);
+        res += window.TEAM_NAMES[faction]+'\t' +
+            digits(score)+'\t' +
+            percentToString( score,total)+'\n';
+      }
+
+      return res;
     }
 
-    res +='<hr>\nEstiminated:\n';
-    total = e_res+e_enl;
-    for (var t=0; t<2; t++) {
-      var faction = order[t];
-      var score = regionScore.getAvgScoreAtCP(faction,regionScore.MAX_CYCLES);
-      res += window.TEAM_NAMES[faction]+'\t' +
-          digits(score)+'\t' +
-          percentToString( score,total)+'\n';
+    function estiminatedScore() {
+      var res ='<hr>Estiminated:\n';
+      total = e_res+e_enl;
+      for (var t=0; t<2; t++) {
+        var faction = order[t];
+        var score = regionScore.getAvgScoreAtCP(faction,regionScore.MAX_CYCLES);
+        res += window.TEAM_NAMES[faction]+'\t' +
+            digits(score)+'\t' +
+            percentToString( score,total)+'\n';
+      }
+
+      return res;
     }
 
-    var required_mu = Math.abs(e_res-e_enl) * regionScore.MAX_CYCLES+1;
-    res +='<hr>\n' + window.TEAM_NAMES[loosing_faction]+' requires:\n';
-    for (var cp = 1; cp+regionScore.getLastCP()<=regionScore.MAX_CYCLES && cp<6;cp++) {
-      res += cp+' checkpoint\t+'+digits(Math.ceil(required_mu/cp))+'\n';
+    function requiredScore() {
+      var res='';
+      var required_mu = Math.abs(e_res-e_enl) * regionScore.MAX_CYCLES+1;
+      res +='<hr>' + (regionScore.MAX_CYCLES-regionScore.getLastCP())+' Checkpoint(s) left\n';
+      res += window.TEAM_NAMES[loosing_faction]+' requires:'+ digits(Math.ceil(required_mu));
+
+      return res;
     }
 
-    return res;
+    return currentScore()+estiminatedScore()+requiredScore();
   }
 
 
@@ -551,7 +561,7 @@ RegionScoreboard.HistoryChart = (function () {
   }
 
   function getFactionColor(t) {
-    return (t==0 ? COLORS[TEAM_ENL] : COLORS[TEAM_RES]);
+    return (t===0 ? COLORS[TEAM_ENL] : COLORS[TEAM_RES]);
   }
 
   function formatNumber(num) {
