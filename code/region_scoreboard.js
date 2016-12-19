@@ -23,7 +23,7 @@ RegionScoreboard = (function () {
     this.getAvgScore = function(faction) {
           return parseInt(this.gameScore[ faction===TEAM_ENL? 0:1 ]);
       };
-      
+
     this.getAvgScoreMax = function() {
           return Math.max(this.getAvgScore(TEAM_ENL), this.getAvgScore(TEAM_RES), 1);
       };
@@ -161,16 +161,13 @@ RegionScoreboard = (function () {
   function updateDialog(logscale) {
 
     // we need some divs to make the accordion work properly
-    mainDialog.html('<div class="cellscore">'
-           +'<b>Region scores for '+regionScore.regionName+'</b>'
-           +'<div>'+createResults()
-           +RegionScoreboard.HistoryChart.create(regionScore, logscale)+'</div>'
-           +'<b>Checkpoint overview</b>'
-           +'<div>'+createHistoryTable()+'</div>'
-           +'<b>Top agents</b>'
-           +'<div>'+createAgentTable()+'</div>'
-           +'</div>'
-           + createTimers() );
+    mainDialog.html('<div class="cellscore">' +
+          '<b>Region scores for '+regionScore.regionName+'</b>' +
+          '<div>'+createResults() + RegionScoreboard.HistoryChart.create(regionScore, logscale)+'</div>' +
+           '<b>Checkpoint overview</b><div>'+createHistoryTable()+'</div>' +
+           '<b>Top agents</b><div>'+createAgentTable()+'</div>' +
+          '</div>' +
+          createTimers() );
 
     setupToolTips();
 
@@ -215,8 +212,8 @@ RegionScoreboard = (function () {
         var enl_str = score_now ? '\nEnl:\t' + formatScore(0,score_now,score_last) : '';
         var res_str = score_now ? '\nRes:\t' + formatScore(1,score_now,score_last) : '';
 
-        tooltip = 'CP:\t'+cp+'\t-\t'+formatDayHours(regionScore.getCheckpointEnd(cp))
-            + '\n<hr>' + enl_str + res_str;
+        tooltip = 'CP:\t'+cp+'\t-\t'+formatDayHours(regionScore.getCheckpointEnd(cp)) +
+                  '\n<hr>' + enl_str + res_str;
       }
 
       elem.tooltip({
@@ -272,11 +269,11 @@ RegionScoreboard = (function () {
           var teamClass = window.TEAM_TO_CSS[faction];
           var teamCol = COLORS[faction];
           var barSize = Math.round(regionScore.getAvgScore(faction)/maxAverage*200);
-          result += '<tr><th class="'+teamClass+'">'+team+'</th>'
-                  + '<td class="'+teamClass+'" align="right">'+digits(regionScore.getAvgScore(faction))+'</td>'
-                  + '<td><div style="background:'+teamCol+'; width: '+barSize+'px; height: 1.3ex; border: 2px outset '+teamCol+'; margin-top: 2px"> </td>'
-                  + '<td class="'+teamClass+'" align="right"><small>( '+digits(regionScore.getAvgScoreAtCP(faction,35))+' )</small></td>'
-                  + '</tr>';
+          result += '<tr><th class="'+teamClass+'">'+team+'</th>' +
+                  '<td class="'+teamClass+'" align="right">'+digits(regionScore.getAvgScore(faction))+'</td>' +
+                  '<td><div style="background:'+teamCol+'; width: '+barSize+'px; height: 1.3ex; border: 2px outset '+teamCol+'; margin-top: 2px"> </td>' +
+                  '<td class="'+teamClass+'" align="right"><small>( '+digits(regionScore.getAvgScoreAtCP(faction,35))+' )</small></td>' +
+                  '</tr>';
       }
 
       return result+'</table>';
@@ -300,9 +297,9 @@ RegionScoreboard = (function () {
     for (var t=0; t<2; t++) {
       var faction = order[t];
       var score = regionScore.getAvgScore(faction);
-      res += window.TEAM_NAMES[faction]+'\t'
-          + digits(score)+'\t'
-          + percentToString( score,total)+'\n';
+      res += window.TEAM_NAMES[faction]+'\t' +
+          digits(score)+'\t' +
+          percentToString( score,total)+'\n';
     }
 
     res +='<hr>\nEstiminated:\n';
@@ -310,9 +307,9 @@ RegionScoreboard = (function () {
     for (var t=0; t<2; t++) {
       var faction = order[t];
       var score = regionScore.getAvgScoreAtCP(faction,regionScore.MAX_CYCLES);
-      res += window.TEAM_NAMES[faction]+'\t'
-          + digits(score)+'\t'
-          + percentToString( score,total)+'\n';
+      res += window.TEAM_NAMES[faction]+'\t' +
+          digits(score)+'\t' +
+          percentToString( score,total)+'\n';
     }
 
     var required_mu = Math.abs(e_res-e_enl) * regionScore.MAX_CYCLES+1;
@@ -329,9 +326,9 @@ RegionScoreboard = (function () {
     var nextcp = regionScore.getCheckpointEnd( regionScore.getLastCP()+1 );
     var endcp = regionScore.getCycleEnd();
 
-    return '<div><table style="margin: auto; width: 400px; padding-top: 4px"><tr><td align="left" width="33%">t- <span id="cycletimer"></span></td>'
-          +'<td align="center" width="33%">cp at: '+formatHours(nextcp) +'</td>'
-          +'<td align="right" width="33%">cycle: '+formatDayHours(endcp)+'</td></tr></table></div>'    ;
+    return '<div><table style="margin: auto; width: 400px; padding-top: 4px"><tr><td align="left" width="33%">t- <span id="cycletimer"></span></td>' +
+          '<td align="center" width="33%">cp at: '+formatHours(nextcp) +'</td>'+
+          '<td align="right" width="33%">cycle: '+formatDayHours(endcp)+'</td></tr></table></div>';
   }
 
   function startTimer() {
@@ -399,17 +396,17 @@ RegionScoreboard.HistoryChart = (function () {
     svgTickText = [];
 
     // svg area 400x130. graph area 350x100, offset to 40,10
-    var svg= '<div><svg width="400" height="133" style="margin-left: 10px;">'
-           + svgBackground()
-           + svgAxis(max)
-           + svgAveragePath()
-           + svgFactionPath()
-           + svgCheckPointMarkers()
-           + svgTickText.join('')
-           + '<foreignObject height="18" width="45" y="111" x="0" class="node"><label title="Logarithmic scale">'
-           +  '<input type="checkbox" class="logscale" style="height:auto;padding:0;vertical-align:middle"'+(logscale?' checked':'')+'/>'
-           +  'log</label></foreignObject>'
-           + '</svg></div>';
+    var svg= '<div><svg width="400" height="133" style="margin-left: 10px;">' +
+           svgBackground() +
+           svgAxis(max) +
+           svgAveragePath() +
+           svgFactionPath() +
+           svgCheckPointMarkers() +
+           svgTickText.join('') +
+           '<foreignObject height="18" width="45" y="111" x="0" class="node"><label title="Logarithmic scale">' +
+           '<input type="checkbox" class="logscale" style="height:auto;padding:0;vertical-align:middle"'+(logscale?' checked':'')+'/>' +
+           'log</label></foreignObject>'+
+           '</svg></div>';
 
     return svg;
    }
@@ -450,12 +447,12 @@ RegionScoreboard.HistoryChart = (function () {
     for (var cp=1; cp<=regionScore.MAX_CYCLES; cp++) {
       var scores = regionScore.getCPScore(cp);
 
-      markers += '<g title="dummy" class="checkpoint" data-cp="'+cp+'">'
-              +'<rect x="'+(cp*10+35)+'" y="10" width="10" height="100" fill="black" fill-opacity="0" />';
+      markers += '<g title="dummy" class="checkpoint" data-cp="'+cp+'">' +
+              '<rect x="'+(cp*10+35)+'" y="10" width="10" height="100" fill="black" fill-opacity="0" />';
 
       if (scores) {
-        markers += '<circle cx="'+(cp*10+40)+'" cy="'+scaleFct(scores[0])+'" r="3" stroke-width="1" stroke="'+col1+'" fill="'+col1+'" fill-opacity="0.5" />'
-                +'<circle cx="'+(cp*10+40)+'" cy="'+scaleFct(scores[1])+'" r="3" stroke-width="1" stroke="'+col2+'" fill="'+col2+'" fill-opacity="0.5" />';
+        markers += '<circle cx="'+(cp*10+40)+'" cy="'+scaleFct(scores[0])+'" r="3" stroke-width="1" stroke="'+col1+'" fill="'+col1+'" fill-opacity="0.5" />' +
+                '<circle cx="'+(cp*10+40)+'" cy="'+scaleFct(scores[1])+'" r="3" stroke-width="1" stroke="'+col2+'" fill="'+col2+'" fill-opacity="0.5" />';
       }
 
       markers += '</g>';
@@ -469,8 +466,7 @@ RegionScoreboard.HistoryChart = (function () {
   }
 
   function svgAxis(max) {
-    return '<path d="M40,110 L40,10 M40,110 L390,110" stroke="#fff" />'
-           + createTicks(max);
+    return '<path d="M40,110 L40,10 M40,110 L390,110" stroke="#fff" />'+createTicks(max);
   }
 
   function createTicks(max) {
@@ -500,8 +496,8 @@ RegionScoreboard.HistoryChart = (function () {
               vtickStep /= 2;
           }
 
-          for (var i=vtickStep; i<=max; i+=vtickStep) {
-            addVTick(i);
+          for (var ti=vtickStep; ti<=max; ti+=vtickStep) {
+            addVTick(ti);
           }
       }
 
