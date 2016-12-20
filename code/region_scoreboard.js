@@ -41,6 +41,17 @@ RegionScoreboard = (function () {
           return max;
       };
 
+    this.getCPSum = function() {
+      var sums=[0,0];
+      for (var i=1; i<this.checkpoints.length; i++) {
+          sums[0] += this.checkpoints[i][0];
+          sums[1] += this.checkpoints[i][1];
+      }
+
+      return sums;
+    };
+
+
     this.getAvgScoreAtCP = function(faction, cp_idx) {
       var idx = faction==TEAM_RES? 1:0;
 
@@ -230,11 +241,30 @@ RegionScoreboard = (function () {
 
 
   function createHistoryTable() {
-    var table = '<table class="checkpoint_table" width="90%"><thead><tr><th>Time</th><th align="right">Checkpoint</th><th align="right">Enlightened</th><th align="right">Resistance</th></tr></thead>';
+
+    var order_name = (PLAYER.team == 'RESISTANCE' ? [TEAM_RES,TEAM_ENL]:[TEAM_ENL,TEAM_RES]);
+    var order_team = (PLAYER.team == 'RESISTANCE' ? [1,0]:[0,1]);
+
+    var table = '<table class="checkpoint_table" width="90%"><thead><tr><th align="right">CP</th><th>Time</th>'+
+                '<th align="right">'+window.TEAM_NAMES[order_name[0]]+'</th>'+
+                '<th align="right">'+window.TEAM_NAMES[order_name[1]]+'</th></tr></thead>';
+
+    var total = regionScore.getCPSum();
+    table += '<tr><td style="text-align:center" colspan="2">Total</td>'+
+             '<td class="'+window.TEAM_TO_CSS[order_name[0]]+'">' + digits(total[order_team[0]]) + '</td>'+
+             '<td class="'+window.TEAM_TO_CSS[order_name[1]]+'">' + digits(total[order_team[1]]) + '</td></tr>';
 
     for(var cp=regionScore.getLastCP(); cp>0; cp--) {
       var score = regionScore.getCPScore(cp);
-      table += '<tr><td>'+formatDayHours(regionScore.getCheckpointEnd(cp))+'</td><td>'+cp+'</td><td>' + digits(score[0]) + '</td><td>' + digits(score[1]) + '</td></tr>';
+      var style1='';
+      var style2='';
+
+      if (score[order_team[0]] > score[order_team[1]]) style1=' class="'+window.TEAM_TO_CSS[order_name[0]]+'"';
+      if (score[order_team[1]] > score[order_team[0]]) style2=' class="'+window.TEAM_TO_CSS[order_name[1]]+'"';
+
+      table += '<tr><td>'+cp+'</td><td>'+formatDayHours(regionScore.getCheckpointEnd(cp))+'</td>'+
+               '<td'+style1+'>' + digits(score[order_team[0]]) + '</td>'+
+               '<td'+style2+'>' + digits(score[order_team[1]]) + '</td></tr>';
     }
 
     table += '</table>';
@@ -323,8 +353,9 @@ RegionScoreboard = (function () {
     function requiredScore() {
       var res='';
       var required_mu = Math.abs(e_res-e_enl) * regionScore.MAX_CYCLES+1;
-      res += window.TEAM_NAMES[loosing_faction]+' requires:\t'+ digits(Math.ceil(required_mu));
-      res +='<hr>\nCheckpoint(s) left:\t' + (regionScore.MAX_CYCLES-regionScore.getLastCP())+' \n';
+      res += '<hr>\n';
+      res += window.TEAM_NAMES[loosing_faction]+' requires:\t'+ digits(Math.ceil(required_mu))+' \n';
+      res +='Checkpoint(s) left:\t' + (regionScore.MAX_CYCLES-regionScore.getLastCP()-1)+' \n';
 
       return res;
     }

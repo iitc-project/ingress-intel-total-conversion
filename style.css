@@ -1250,6 +1250,23 @@ g.checkpoint:hover circle {
 	width: 100%;
 }
 
+.cellscore #overview {
+  width: 100%;
+}
+
+.cellscore #overview td {
+  white-space: nowrap;
+  width: 1%;
+  text-align: right;
+}
+
+.cellscore #overview th {
+  white-space: nowrap;
+  width: 1%;
+  text-align: left;
+  padding-left: 4px;
+}
+
 /* tabs */
 .ui-tabs-nav {
 	display: block;
@@ -1304,19 +1321,3 @@ g.checkpoint:hover circle {
 	cursor: pointer;
 }
 
-.cellscore #overview {
-  width: 100%;
-}
-
-.cellscore #overview td {
-  white-space: nowrap;
-  width: 1%;
-  text-align: right;
-}
-
-.cellscore #overview th {
-  white-space: nowrap;
-  width: 1%;
-  text-align: left;
-  padding-left: 4px;
-}
