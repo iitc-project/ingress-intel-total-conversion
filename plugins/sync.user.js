@@ -24,12 +24,12 @@
 
 ////////////////////////////////////////////////////////////////////////
 // Notice for developers:
-// 
-// You should treat the data stored on Google Realtime API as volatile. 
-// Because if there are change in Google API client ID, Google will 
-// treat it as another application and could not access the data created 
-// by old client ID. Store any important data locally and only use this 
-// plugin as syncing function. 
+//
+// You should treat the data stored on Google Realtime API as volatile.
+// Because if there are change in Google API client ID, Google will
+// treat it as another application and could not access the data created
+// by old client ID. Store any important data locally and only use this
+// plugin as syncing function.
 //
 // Google Realtime API reference
 // https://developers.google.com/drive/realtime/application
@@ -128,15 +128,29 @@ window.plugin.sync.RegisteredMap.prototype.updateMap = function(keyArray) {
     if (this.lastUpdateUUID.length > 0)
       this.lastUpdateUUID.removeRange(0, this.lastUpdateUUID.length);
     this.lastUpdateUUID.setText(this.uuid);
-  
-    $.each(keyArray, function(ind, key) {
-      var value = window.plugin[_this.pluginName][_this.fieldName][key];
-      if(typeof(value) !== 'undefined') {
-        _this.map.set(key, value);
-      } else {
-        _this.map.delete(key);
+
+    if(_this.fieldName === 'keys') {
+      // Iterate over all capsules
+      for(i = 0; i < keyArray.length; i++) {
+        $.each(Object.keys(keyArray[i]), function(ind, key) {
+          var value = window.plugin[_this.pluginName][_this.fieldName][i][key];
+          if(typeof(value) !== 'undefined') {
+            _this.map[i].set(key, value);
+          } else {
+            _this.map[i].delete(key);
+          }
+        });
       }
-    });
+    } else {
+      $.each(keyArray, function(ind, key) {
+        var value = window.plugin[_this.pluginName][_this.fieldName][key];
+        if(typeof(value) !== 'undefined') {
+          _this.map.set(key, value);
+        } else {
+          _this.map.delete(key);
+        }
+      });
+    }
   } finally {
     // Ensure endCompoundOperation is always called (see bug #896)
     this.model.endCompoundOperation();
@@ -173,18 +187,34 @@ window.plugin.sync.RegisteredMap.prototype.initFile = function(callback) {
   this.fileSearcher.initialize(this.forceFileSearch, assignIdCallback, failedCallback);
 }
 
-window.plugin.sync.RegisteredMap.prototype.updateListener = function(e) {
+window.plugin.sync.RegisteredMap.prototype.updateListener = function(e,index) {
   if(!e.isLocal) {
-    if(!window.plugin[this.pluginName][this.fieldName]) {
-      window.plugin[this.pluginName][this.fieldName] = {};
-    }
-    if(typeof(e.newValue) !== 'undefined' && e.newValue !== null) {
-      window.plugin[this.pluginName][this.fieldName][e.property] = e.newValue;
+    if(index === undefined) {
+      if(!window.plugin[this.pluginName][this.fieldName]) {
+        window.plugin[this.pluginName][this.fieldName] = {};
+      }
+
+      if(typeof(e.newValue) !== 'undefined' && e.newValue !== null) {
+        window.plugin[this.pluginName][this.fieldName][e.property] = e.newValue;
+      } else {
+        delete window.plugin[this.pluginName][this.fieldName][e.property];
+      }
     } else {
-      delete window.plugin[this.pluginName][this.fieldName][e.property];
+      if(!window.plugin[this.pluginName][this.fieldName][index]) {
+        window.plugin[this.pluginName][this.fieldName][index] = {'Total':0};
+      }
+      if(typeof(e.newValue) !== 'undefined' && e.newValue !== null) {
+        window.plugin[this.pluginName][this.fieldName][index][e.property] = e.newValue;
+      } else {
+        delete window.plugin[this.pluginName][this.fieldName][index][e.property];
+      }
     }
   }
-  if(this.callback) this.callback(this.pluginName, this.fieldName, e);
+  if(index === undefined) {
+    if(this.callback) this.callback(this.pluginName, this.fieldName, e);
+  } else {
+    if(this.callback) this.callback(this.pluginName, this.fieldName, e, index);
+  }
 }
 
 window.plugin.sync.RegisteredMap.prototype.initialize = function(callback) {
@@ -200,19 +230,37 @@ window.plugin.sync.RegisteredMap.prototype.loadRealtimeDocument = function(callb
   // and the CollaborativeMap is populated with data in plugin field
   initializeModel = function(model) {
     var empty = true;
-    var map = model.createMap();
+    // the map variable is defined later
+    // var map = model.createMap();
     var lastUpdateUUID = model.createString();
 
-    // Init the map values if this map is first created
-    $.each(window.plugin[_this.pluginName][_this.fieldName], function(key, val) {
-      map.set(key, val);
-      empty = false;
-    });
+    if(_this.fieldName === 'keys'){
+      // In this case the map variable should be an array to suit the capsule structure
+      var map =[];
+      model.getRoot().set('NMaps',window.plugin[_this.pluginName][_this.fieldName].length);
+      for (i = 0; i < window.plugin[_this.pluginName][_this.fieldName].length; i++) {
+        // Init the map values if this map is first created
+        map[i] = model.createMap();
+        $.each(window.plugin[_this.pluginName][_this.fieldName][i], function(key, val) {
+          map[i].set(key, val);
+          empty = false;
+        });
+        model.getRoot().set('map_'+JSON.stringify(i), map[i]);
+      }
+    } else {
+      // Otherwise fall back to the old map structure
+      var map = model.createMap();
+      $.each(window.plugin[_this.pluginName][_this.fieldName], function(key, val) {
+        map.set(key, val);
+        empty = false;
+      });
+      model.getRoot().set('map', map);
+    }
 
     // Only set the update client if the map is not empty, avoid clearing data of other clients
     lastUpdateUUID.setText(empty ? '' : _this.uuid);
 
-    model.getRoot().set('map', map);
+    // model.getRoot().set('map', map);
     model.getRoot().set('last-udpate-uuid', lastUpdateUUID);
     plugin.sync.logger.log('Model initialized: ' + _this.pluginName + '[' + _this.fieldName + ']');
   };
@@ -223,18 +271,39 @@ window.plugin.sync.RegisteredMap.prototype.loadRealtimeDocument = function(callb
   onFileLoaded = function(doc) {
     _this.doc = doc;
     _this.model = doc.getModel();
-    _this.map = doc.getModel().getRoot().get('map');
+    if (_this.fieldName === 'keys'){
+      NMaps= doc.getModel().getRoot().get('NMaps');
+      _this.map=[]
+      for (i = 0; i < NMaps; i++) {
+        _this.map[i] = doc.getModel().getRoot().get('map_'+JSON.stringify(i));
+      }
+      _this.map.forEach(function(element, index){element.addEventListener(gapi.drive.realtime.EventType.VALUE_CHANGED, function(event){_this.updateListener(event,index);})});
+    } else {
+      _this.map = doc.getModel().getRoot().get('map');
+      _this.map.addEventListener(gapi.drive.realtime.EventType.VALUE_CHANGED, _this.updateListener);
+    }
     _this.lastUpdateUUID = doc.getModel().getRoot().get('last-udpate-uuid');
-    _this.map.addEventListener(gapi.drive.realtime.EventType.VALUE_CHANGED, _this.updateListener);
+
 
     // Replace local value if data is changed by others
     if(_this.isUpdatedByOthers()) {
-    plugin.sync.logger.log('Updated by others, replacing content: ' + _this.pluginName + '[' + _this.fieldName + ']');
-      window.plugin[_this.pluginName][_this.fieldName] = {};
-      $.each(_this.map.keys(), function(ind, key) {
-        window.plugin[_this.pluginName][_this.fieldName][key] = _this.map.get(key);
-      });
-      if(_this.callback) _this.callback(_this.pluginName, _this.fieldName, null, true);
+      plugin.sync.logger.log('Updated by others, replacing content: ' + _this.pluginName + '[' + _this.fieldName + ']');
+      if (_this.fieldName === 'keys'){
+        window.plugin[_this.pluginName][_this.fieldName] = [];
+        for(i = 0; i < NMaps; i++) {
+          window.plugin[_this.pluginName][_this.fieldName][i] = {"TOTAL":0};
+          $.each(_this.map[i].keys(), function(ind, key) {
+            window.plugin[_this.pluginName][_this.fieldName][i][key] = _this.map[i].get(key);
+          });
+        }
+        if(_this.callback) _this.callback(_this.pluginName, _this.fieldName, null, 0, true);
+      } else {
+        window.plugin[_this.pluginName][_this.fieldName] = {};
+        $.each(_this.map.keys(), function(ind, key) {
+          window.plugin[_this.pluginName][_this.fieldName][key] = _this.map.get(key);
+        });
+        if(_this.callback) _this.callback(_this.pluginName, _this.fieldName, null, true);
+      }
     }
 
     _this.initialized = true;
@@ -253,7 +322,7 @@ window.plugin.sync.RegisteredMap.prototype.loadRealtimeDocument = function(callb
     } else if(e.type === gapi.drive.realtime.ErrorType.NOT_FOUND) {
       _this.forceFileSearch = true;
     } else if(e.type === gapi.drive.realtime.ErrorType.CLIENT_ERROR) {
-      // Workaround: if Realtime API open a second document and the file do not exist, 
+      // Workaround: if Realtime API open a second document and the file do not exist,
       // it will rasie 'CLIENT_ERROR' instead of 'NOT_FOUND'. So we do a force file search here.
       _this.forceFileSearch = true;
     } else {
@@ -265,7 +334,11 @@ window.plugin.sync.RegisteredMap.prototype.loadRealtimeDocument = function(callb
 }
 
 window.plugin.sync.RegisteredMap.prototype.stopSync = function() {
-  if(this.map) this.map.removeEventListener(gapi.drive.realtime.EventType.VALUE_CHANGED, this.updateListener);
+  if (_this.fieldName === 'keys'){
+    if(this.map) _this.map.forEach(function(element){element.removeEventListener(gapi.drive.realtime.EventType.VALUE_CHANGED, this.updateListener)});
+  }else{
+    if(this.map) this.map.removeEventListener(gapi.drive.realtime.EventType.VALUE_CHANGED, this.updateListener);
+  }
   this.fileId = null;
   this.doc = null;
   this.model = null;
@@ -669,7 +742,7 @@ window.plugin.sync.storeLocal = function(mapping) {
 window.plugin.sync.loadLocal = function(mapping) {
   var objectJSON = localStorage[mapping.key];
   if(!objectJSON) return;
-  plugin.sync[mapping.field] = mapping.convertFunc 
+  plugin.sync[mapping.field] = mapping.convertFunc
                           ? mapping.convertFunc(JSON.parse(objectJSON))
                           : JSON.parse(objectJSON);
 }

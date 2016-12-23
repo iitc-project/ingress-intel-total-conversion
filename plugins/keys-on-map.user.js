@@ -59,15 +59,16 @@ window.plugin.keysOnMap.keyUpdate = function(data) {
 
 window.plugin.keysOnMap.refreshAllKeys = function() {
   plugin.keysOnMap.keyLayerGroup.clearLayers();
-  $.each(plugin.keys.keys, function(key, count) {
+  // Only the keys of the active Capsule are rendered
+  $.each(plugin.keys.keys[plugin.keys.CapsuleIndex], function(key, count) {
     plugin.keysOnMap.keyUpdate({guid: key});
   });
 }
 
 window.plugin.keysOnMap.renderKey = function(guid,latLng) {
     plugin.keysOnMap.removeKey(guid);
-
-    var keyCount = plugin.keys.keys[guid];
+    // Only the keys of the active Capsule are rendered
+    var keyCount = plugin.keys.keys[plugin.keys.CapsuleIndex][guid];
     if (keyCount > 0) {
       var key = L.marker(latLng, {
         icon: L.divIcon({

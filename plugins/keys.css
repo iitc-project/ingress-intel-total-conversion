@@ -11,10 +11,52 @@
   margin: 6px 3px 1px 3px;
 }
 
-#keys-label {
+#Capsule-add {
+}
+
+#Capsule-count {
+  width: 26px;
+  height: 18px !important;
+  border: 1px solid;
+  text-align: center;
+}
+
+#Capsule-subtract {
+}
+
+.Capsule-button {
+  position:relative;
+  width: 16px;
+  height: 16px !important;
+}
+
+.Capsule-button > div {
+  background-color: rgb(32, 168, 177);
+  position: absolute;
+}
+
+.Capsule-button-minus {
+  width: 100%;
+  height: 4px;
+  top: 6px;
+}
+
+.Capsule-button-plus-h {
+  width: 100%;
+  height: 4px;
+  top: 6px;
+}
+
+.Capsule-button-plus-v {
+  width: 4px;
+  height: 100%;
+  left: 6px;
+}
+
+/*#keys-label {
   padding: 0 4px;
   cursor: help;
-}
+}*/
 
 #keys-add {
 }
@@ -24,7 +66,7 @@
   height: 18px !important;
   border: 1px solid;
   text-align: center;
-  cursor: help;
+  /*cursor: help;*/
 }
 
 #keys-subtract {
@@ -59,11 +101,18 @@
   left: 6px;
 }
 
-#keys-help {
+#Total-count {
+  width: 26px;
+  height: 18px !important;
+  border: 1px solid;
+  text-align: center;
+}
+
+/*#keys-help {
   font-weight: 900;
   margin: 6px 3px 1px 20px !important;
   cursor: help;
-}
+}*/
 
 .portal-list-keys button {
   font-family: monospace;
