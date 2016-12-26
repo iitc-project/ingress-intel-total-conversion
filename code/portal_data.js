@@ -61,7 +61,7 @@ window.findPortalLatLng = function(guid) {
   // not found in portals - try the cached (and possibly stale) details - good enough for location
   var details = portalDetail.get(guid);
   if (details) {
-    return L.latLng (details.latE6/1E6, details.lngE6/1E6);
+    return _L.latLng (details.latE6/1E6, details.lngE6/1E6);
   }
 
   // now try searching through fields
@@ -70,7 +70,7 @@ window.findPortalLatLng = function(guid) {
 
     for (var i in f.points) {
       if (f.points[i].guid == guid) {
-        return L.latLng (f.points[i].latE6/1E6, f.points[i].lngE6/1E6);
+        return _L.latLng (f.points[i].latE6/1E6, f.points[i].lngE6/1E6);
       }
     }
   }
@@ -79,10 +79,10 @@ window.findPortalLatLng = function(guid) {
   for (var lguid in window.links) {
     var l = window.links[lguid].options.data;
     if (l.oGuid == guid) {
-      return L.latLng (l.oLatE6/1E6, l.oLngE6/1E6);
+      return _L.latLng (l.oLatE6/1E6, l.oLngE6/1E6);
     }
     if (l.dGuid == guid) {
-      return L.latLng (l.dLatE6/1E6, l.dLngE6/1E6);
+      return _L.latLng (l.dLatE6/1E6, l.dLngE6/1E6);
     }
   }
 

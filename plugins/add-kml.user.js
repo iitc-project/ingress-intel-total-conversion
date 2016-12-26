@@ -27,7 +27,7 @@ window.plugin.overlayKML = function() {};
 
 window.plugin.overlayKML.loadExternals = function() {
   try { console.log('Loading leaflet.filelayer JS now'); } catch(e) {}
-  @@INCLUDERAW:external/leaflet.filelayer.js@@
+  (function (L) {@@INCLUDERAW:external/leaflet.filelayer.js@@})(_L);
   try { console.log('done loading leaflet.filelayer JS'); } catch(e) {}
 
   if (window.requestFile !== undefined) {
@@ -57,18 +57,18 @@ window.plugin.overlayKML.loadExternals = function() {
         var zoomName = 'leaflet-control-filelayer leaflet-control-zoom',
           barName = 'leaflet-bar',
           partName = barName + '-part',
-          container = L.DomUtil.create('div', zoomName + ' ' + barName);
-        var link = L.DomUtil.create('a', zoomName + '-in ' + partName, container);
-        link.innerHTML = L.Control.FileLayerLoad.LABEL;
+          container = _L.DomUtil.create('div', zoomName + ' ' + barName);
+        var link = _L.DomUtil.create('a', zoomName + '-in ' + partName, container);
+        link.innerHTML = _L.Control.FileLayerLoad.LABEL;
         link.href = '#';
-        link.title = L.Control.FileLayerLoad.TITLE;
+        link.title = _L.Control.FileLayerLoad.TITLE;
 
-        var stop = L.DomEvent.stopPropagation;
-        L.DomEvent
+        var stop = _L.DomEvent.stopPropagation;
+        _L.DomEvent
           .on(link, 'click', stop)
           .on(link, 'mousedown', stop)
           .on(link, 'dblclick', stop)
-          .on(link, 'click', L.DomEvent.preventDefault)
+          .on(link, 'click', _L.DomEvent.preventDefault)
           .on(link, 'click', function (e) {
             window.requestFile(function(filename, content) {
               _fileLayerLoad.getLoader().parse(content, filename);
@@ -78,13 +78,13 @@ window.plugin.overlayKML.loadExternals = function() {
         return container;
       }
     };
-    L.Control.FileLayerLoad.include(FileLayerLoadMixin);
+    _L.Control.FileLayerLoad.include(FileLayerLoadMixin);
 
     try { console.log('done loading android webview extensions for leaflet.filelayer JS'); } catch(e) {}
   }
 
   try { console.log('Loading KML JS now'); } catch(e) {}
-  @@INCLUDERAW:external/KML.js@@
+  (function (L) {@@INCLUDERAW:external/KML.js@@}(_L))
   try { console.log('done loading KML JS'); } catch(e) {}
 
   try { console.log('Loading togeojson JS now'); } catch(e) {}
@@ -99,8 +99,8 @@ var _fileLayerLoad = null;
 window.plugin.overlayKML.load = function() {
   // Provide popup window allow user to select KML to overlay
 	
-  L.Icon.Default.imagePath = '@@INCLUDEIMAGE:images/marker-icon.png@@';
-  var KMLIcon = L.icon({
+  _L.Icon.Default.imagePath = '@@INCLUDEIMAGE:images/marker-icon.png@@';
+  var KMLIcon = _L.icon({
     iconUrl: '@@INCLUDEIMAGE:images/marker-icon.png@@',
 
     iconSize:     [16, 24], // size of the icon
@@ -108,12 +108,12 @@ window.plugin.overlayKML.load = function() {
     popupAnchor:  [-3, 16] // point from which the popup should open relative to the iconAnchor
   });
   
-  L.Control.FileLayerLoad.LABEL = '<img src="@@INCLUDEIMAGE:images/open-folder-icon_sml.png@@" alt="Open" />';
-  _fileLayerLoad = L.Control.fileLayerLoad({
+  _L.Control.FileLayerLoad.LABEL = '<img src="@@INCLUDEIMAGE:images/open-folder-icon_sml.png@@" alt="Open" />';
+  _fileLayerLoad = _L.Control.fileLayerLoad({
     fitBounds: true,
     layerOptions: {
       pointToLayer: function (data, latlng) {
-      return L.marker(latlng, {icon: KMLIcon});
+      return _L.marker(latlng, {icon: KMLIcon});
     }},
   });
   _fileLayerLoad.addTo(map);

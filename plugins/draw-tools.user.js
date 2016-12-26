@@ -28,7 +28,7 @@ window.plugin.drawTools = function() {};
 
 window.plugin.drawTools.loadExternals = function() {
   try { console.log('Loading leaflet.draw JS now'); } catch(e) {}
-  @@INCLUDERAW:external/leaflet.draw.js@@
+  (function (L) {@@INCLUDERAW:external/leaflet.draw.js@@})(_L);
   @@INCLUDERAW:external/spectrum/spectrum.js@@
   try { console.log('done loading leaflet.draw JS'); } catch(e) {}
 
@@ -46,12 +46,12 @@ window.plugin.drawTools.getMarkerIcon = function(color) {
 
   var svgIcon = window.plugin.drawTools.markerTemplate.replace(/%COLOR%/g, color);
 
-  return L.divIcon({
-    iconSize: new L.Point(25, 41),
-    iconAnchor: new L.Point(12, 41),
+  return _L.divIcon({
+    iconSize: new _L.Point(25, 41),
+    iconAnchor: new _L.Point(12, 41),
     html: svgIcon,
     className: 'leaflet-iitc-custom-icon',
-    // L.divIcon does not use the option color, but we store it here to
+    // _L.divIcon does not use the option color, but we store it here to
     // be able to simply retrieve the color for serializing markers
     color: color
   });
@@ -71,13 +71,13 @@ window.plugin.drawTools.setOptions = function() {
     clickable: true
   };
 
-  window.plugin.drawTools.polygonOptions = L.extend({}, window.plugin.drawTools.lineOptions, {
+  window.plugin.drawTools.polygonOptions = _L.extend({}, window.plugin.drawTools.lineOptions, {
     fill: true,
     fillColor: null, // to use the same as 'color' for fill
     fillOpacity: 0.2
   });
 
-  window.plugin.drawTools.editOptions = L.extend({}, window.plugin.drawTools.polygonOptions, {
+  window.plugin.drawTools.editOptions = _L.extend({}, window.plugin.drawTools.polygonOptions, {
     dashArray: [10,10]
   });
   delete window.plugin.drawTools.editOptions.color;
@@ -107,7 +107,7 @@ window.plugin.drawTools.setDrawColor = function(color) {
 
 // renders the draw control buttons in the top left corner
 window.plugin.drawTools.addDrawControl = function() {
-  var drawControl = new L.Control.Draw({
+  var drawControl = new _L.Control.Draw({
     draw: {
       rectangle: false,
       polygon: {
@@ -144,7 +144,7 @@ window.plugin.drawTools.addDrawControl = function() {
 
       // Options for marker (icon, zIndexOffset) are not set via shapeOptions,
       // so we have merge them here!
-      marker: L.extend({}, window.plugin.drawTools.markerOptions, {
+      marker: _L.extend({}, window.plugin.drawTools.markerOptions, {
         title: 'Add a marker.\n\n'
           + 'Click on the button, then click on the map where\n'
           + 'you want the marker to appear.',
@@ -177,7 +177,7 @@ window.plugin.drawTools.addDrawControl = function() {
 
   window.plugin.drawTools.setAccessKeys();
   for (var toolbarId in drawControl._toolbars) {
-    if (drawControl._toolbars[toolbarId] instanceof L.Toolbar) {
+    if (drawControl._toolbars[toolbarId] instanceof _L.Toolbar) {
       drawControl._toolbars[toolbarId].on('enable', function() {
         setTimeout(window.plugin.drawTools.setAccessKeys, 10);
       });
@@ -232,7 +232,7 @@ window.plugin.drawTools.getSnapLatLng = function(unsnappedLatLng) {
 
   if(candidates.length === 0) return unsnappedLatLng;
   candidates = candidates.sort(function(a, b) { return a[0]-b[0]; });
-  return new L.LatLng(candidates[0][1].lat, candidates[0][1].lng);  //return a clone of the portal location
+  return new _L.LatLng(candidates[0][1].lat, candidates[0][1].lng);  //return a clone of the portal location
 }
 
 
@@ -241,20 +241,20 @@ window.plugin.drawTools.save = function() {
 
   window.plugin.drawTools.drawnItems.eachLayer( function(layer) {
     var item = {};
-    if (layer instanceof L.GeodesicCircle || layer instanceof L.Circle) {
+    if (layer instanceof _L.GeodesicCircle || layer instanceof _L.Circle) {
       item.type = 'circle';
       item.latLng = layer.getLatLng();
       item.radius = layer.getRadius();
       item.color = layer.options.color;
-    } else if (layer instanceof L.GeodesicPolygon || layer instanceof L.Polygon) {
+    } else if (layer instanceof _L.GeodesicPolygon || layer instanceof _L.Polygon) {
       item.type = 'polygon';
       item.latLngs = layer.getLatLngs();
       item.color = layer.options.color;
-    } else if (layer instanceof L.GeodesicPolyline || layer instanceof L.Polyline) {
+    } else if (layer instanceof _L.GeodesicPolyline || layer instanceof _L.Polyline) {
       item.type = 'polyline';
       item.latLngs = layer.getLatLngs();
       item.color = layer.options.color;
-    } else if (layer instanceof L.Marker) {
+    } else if (layer instanceof _L.Marker) {
       item.type = 'marker';
       item.latLng = layer.getLatLng();
       item.color = layer.options.icon.options.color;
@@ -292,18 +292,18 @@ window.plugin.drawTools.import = function(data) {
 
     switch(item.type) {
       case 'polyline':
-        layer = L.geodesicPolyline(item.latLngs, L.extend({},window.plugin.drawTools.lineOptions,extraOpt));
+        layer = _L.geodesicPolyline(item.latLngs, _L.extend({},window.plugin.drawTools.lineOptions,extraOpt));
         break;
       case 'polygon':
-        layer = L.geodesicPolygon(item.latLngs, L.extend({},window.plugin.drawTools.polygonOptions,extraOpt));
+        layer = _L.geodesicPolygon(item.latLngs, _L.extend({},window.plugin.drawTools.polygonOptions,extraOpt));
         break;
       case 'circle':
-        layer = L.geodesicCircle(item.latLng, item.radius, L.extend({},window.plugin.drawTools.polygonOptions,extraOpt));
+        layer = _L.geodesicCircle(item.latLng, item.radius, _L.extend({},window.plugin.drawTools.polygonOptions,extraOpt));
         break;
       case 'marker':
         var extraMarkerOpt = {};
         if (item.color) extraMarkerOpt.icon = window.plugin.drawTools.getMarkerIcon(item.color);
-        layer = L.marker(item.latLng, L.extend({},window.plugin.drawTools.markerOptions,extraMarkerOpt));
+        layer = _L.marker(item.latLng, _L.extend({},window.plugin.drawTools.markerOptions,extraMarkerOpt));
         window.registerMarkerForOMS(layer);
         break;
       default:
@@ -376,15 +376,15 @@ window.plugin.drawTools.optCopy = function() {
       var stockWarnings = {};
       var stockLinks = [];
       window.plugin.drawTools.drawnItems.eachLayer( function(layer) {
-        if (layer instanceof L.GeodesicCircle || layer instanceof L.Circle) {
+        if (layer instanceof _L.GeodesicCircle || layer instanceof _L.Circle) {
           stockWarnings.noCircle = true;
           return; //.eachLayer 'continue'
-        } else if (layer instanceof L.GeodesicPolygon || layer instanceof L.Polygon) {
+        } else if (layer instanceof _L.GeodesicPolygon || layer instanceof _L.Polygon) {
           stockWarnings.polyAsLine = true;
           // but we can export them
-        } else if (layer instanceof L.GeodesicPolyline || layer instanceof L.Polyline) {
+        } else if (layer instanceof _L.GeodesicPolyline || layer instanceof _L.Polyline) {
           // polylines are fine
-        } else if (layer instanceof L.Marker) {
+        } else if (layer instanceof _L.Marker) {
           stockWarnings.noMarker = true;
           return; //.eachLayer 'continue'
         } else {
@@ -398,7 +398,7 @@ window.plugin.drawTools.optCopy = function() {
           stockLinks.push([latLngs[i].lat,latLngs[i].lng,latLngs[i+1].lat,latLngs[i+1].lng]);
         }
         // for polygons, we also need a final link from last to first point
-        if (layer instanceof L.GeodesicPolygon || layer instanceof L.Polygon) {
+        if (layer instanceof _L.GeodesicPolygon || layer instanceof _L.Polygon) {
           stockLinks.push([latLngs[latLngs.length-1].lat,latLngs[latLngs.length-1].lng,latLngs[0].lat,latLngs[0].lng]);
         }
       });
@@ -459,7 +459,7 @@ window.plugin.drawTools.optPaste = function() {
           for (var j=0; j<floats.length; j++) {
             if (isNaN(floats[j])) throw("URL item had invalid number");
           }
-          var layer = L.geodesicPolyline([[floats[0],floats[1]],[floats[2],floats[3]]], window.plugin.drawTools.lineOptions);
+          var layer = _L.geodesicPolyline([[floats[0],floats[1]],[floats[2],floats[3]]], window.plugin.drawTools.lineOptions);
           newLines.push(layer);
         }
 
@@ -581,7 +581,7 @@ window.plugin.drawTools.snapToPortals = function() {
         testCount++;
         var newll = findClosestPortalLatLng(ll);
         if (!newll.equals(ll)) {
-          layer.setLatLng(new L.LatLng(newll.lat,newll.lng));
+          layer.setLatLng(new _L.LatLng(newll.lat,newll.lng));
           changedCount++;
         }
       }
@@ -593,7 +593,7 @@ window.plugin.drawTools.snapToPortals = function() {
           testCount++;
           var newll = findClosestPortalLatLng(lls[i]);
           if (!newll.equals(lls[i])) {
-            lls[i] = new L.LatLng(newll.lat,newll.lng);
+            lls[i] = new _L.LatLng(newll.lat,newll.lng);
             changedCount++;
             layerChanged = true;
           }
@@ -623,7 +623,7 @@ window.plugin.drawTools.boot = function() {
   window.plugin.drawTools.setOptions();
 
   //create a leaflet FeatureGroup to hold drawn items
-  window.plugin.drawTools.drawnItems = new L.FeatureGroup();
+  window.plugin.drawTools.drawnItems = new _L.FeatureGroup();
 
   //load any previously saved items
   plugin.drawTools.load();
@@ -658,7 +658,7 @@ window.plugin.drawTools.boot = function() {
     window.plugin.drawTools.drawnItems.addLayer(layer);
     window.plugin.drawTools.save();
 
-    if(layer instanceof L.Marker) {
+    if(layer instanceof _L.Marker) {
       window.registerMarkerForOMS(layer);
     }
 

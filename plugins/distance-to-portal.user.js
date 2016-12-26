@@ -124,10 +124,10 @@ window.plugin.distanceToPortal.setupPortalsList = function() {
 
 window.plugin.distanceToPortal.setup  = function() {
   // https://github.com/gregallensworth/Leaflet/
-  @@INCLUDERAW:external/LatLng_Bearings.js@@
+  (function (L) {@@INCLUDERAW:external/LatLng_Bearings.js@@})(_L);
 
   try {
-    window.plugin.distanceToPortal.currentLoc = L.latLng(JSON.parse(localStorage['plugin-distance-to-portal']));
+    window.plugin.distanceToPortal.currentLoc = _L.latLng(JSON.parse(localStorage['plugin-distance-to-portal']));
   } catch(e) {
     window.plugin.distanceToPortal.currentLoc = null;
   }

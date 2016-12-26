@@ -172,7 +172,7 @@ window.plugin.farmFind.checkPortals = function(){
     
     
     
-    window.plugin.farmFind.drawnItems = new L.FeatureGroup();
+    window.plugin.farmFind.drawnItems = new _L.FeatureGroup();
     
     
     for (farm = 0; farm < farms.length; farm++)
@@ -245,10 +245,10 @@ window.plugin.farmFind.drawCircle = function(farm)
     //console.log(radius);
 	//((20 - map._zoom) * 1000) / map._zoom
     
-	var latlng = new L.LatLng(center.lat(), center.lng());
+	var latlng = new _L.LatLng(center.lat(), center.lng());
     //console.log("latlng: " + latlng);
     var optCircle = {color:'red',opacity:0.7,fill:true,fillColor:'red',fillOpacity:0.7,weight:15,clickable:true};
-    var circle = new L.Circle(latlng, radius, optCircle);
+    var circle = new _L.Circle(latlng, radius, optCircle);
     circle.bindPopup(popupMsg);
     
     
@@ -342,7 +342,7 @@ var setup =  function() {
     window.plugin.farmFind.Radius = 500;
     $('#toolbox').append(' <a onclick="window.plugin.farmFind.checkPortals()" id="findFarmClick" title="Check portals in view for L' + window.plugin.farmFind.minLevel + ' farms">L' + window.plugin.farmFind.minLevel + ' Farms</a>');
     possibleFarmPortals = [];
-    window.plugin.farmFind.levelLayerGroup = new L.LayerGroup();
+    window.plugin.farmFind.levelLayerGroup = new _L.LayerGroup();
 	$('body').append('<select onchange="window.plugin.farmFind.changeLevel()" id="farm_level_select"><option value=1>Farm level 1</option><option value=2>Farm level 2</option><option value=3>Farm level 3</option><option value=4>Farm level 4</option><option value=5>Farm level 5</option><option value=6>Farm level 6</option><option value=7>Farm level 7</option><option value=8>Farm level 8</option></select>');
     var myselect = document.getElementById("farm_level_select");
     myselect.options.selectedIndex = 6;

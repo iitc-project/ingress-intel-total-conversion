@@ -7,7 +7,7 @@ window.DataCache = function() {
   this.REQUEST_CACHE_MAX_AGE = 5*60;  // maximum cache age. entries are deleted from the cache after this time
 
   //NOTE: characters are 16 bits (ECMAScript standard), so divide byte size by two for correct limit
-  if (L.Browser.mobile) {
+  if (_L.Browser.mobile) {
     // on mobile devices, smaller cache size
     this.REQUEST_CACHE_MAX_ITEMS = 300;  // if more than this many entries, expire early
     this.REQUEST_CACHE_MAX_CHARS = 5000000/2; // or more than this total size

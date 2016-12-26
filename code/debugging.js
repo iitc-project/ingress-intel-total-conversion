@@ -101,6 +101,6 @@ window.debug.console.overwriteNative = function() {
 }
 
 window.debug.console.overwriteNativeIfRequired = function() {
-  if(!window.console || L.Browser.mobile)
+  if(!window.console || _L.Browser.mobile)
     window.debug.console.overwriteNative();
 }

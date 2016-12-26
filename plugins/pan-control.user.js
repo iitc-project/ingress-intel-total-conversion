@@ -28,21 +28,21 @@ window.plugin.panControl = function() {};
 
 window.plugin.panControl.setup  = function() {
   try { console.log('Loading Leaflet.Pancontrol JS now'); } catch(e) {}
-  @@INCLUDERAW:external/L.Control.Pan.js@@
+  (function (L) {@@INCLUDERAW:external/L.Control.Pan.js@@})(_L);
   try { console.log('done loading Leaflet.Pancontrol JS'); } catch(e) {}
 
   // prevent Pancontrol from being activated by default (e.g. in minimap)
-  L.Map.mergeOptions({
+  _L.Map.mergeOptions({
     panControl: false
   });
 
 
-  window.map.panControl = L.control.pan({panOffset: 350});
+  window.map.panControl = _L.control.pan({panOffset: 350});
   window.map.addControl(window.map.panControl);
 
   if(map.zoomControl._map) {  // Move above the zoom control
     window.map.removeControl(map.zoomControl);
-    window.map.zoomControl = L.control.zoom();
+    window.map.zoomControl = _L.control.zoom();
     window.map.addControl(window.map.zoomControl);
   }
 

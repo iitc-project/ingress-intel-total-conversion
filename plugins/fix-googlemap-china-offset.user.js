@@ -133,7 +133,7 @@ var WGS84toGCJ02 = new WGS84transformer();
 
 /////////// begin overwrited L.Google /////////
 window.plugin.fixChinaOffset.L = {};
-window.plugin.fixChinaOffset.L.Google = {
+window.plugin.fixChinaOffset._L.Google = {
   
   _update: function(e) {
 
@@ -193,7 +193,7 @@ window.plugin.fixChinaOffset.overwrite = function(dest, src) {
 
 var setup = function() {
 
-  window.plugin.fixChinaOffset.overwrite(L.Google.prototype, window.plugin.fixChinaOffset.L.Google);
+  window.plugin.fixChinaOffset.overwrite(_L.Google.prototype, window.plugin.fixChinaOffset._L.Google);
 
 }
 

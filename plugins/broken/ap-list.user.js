@@ -649,7 +649,7 @@ window.plugin.apList.setPortalLocationIndicator = function(guid) {
     map.removeLayer(plugin.apList.portalLocationIndicator);
   if(plugin.apList.animTimeout)
     clearTimeout(plugin.apList.animTimeout);
-  plugin.apList.portalLocationIndicator = L.circleMarker(latlng, property).addTo(map);
+  plugin.apList.portalLocationIndicator = _L.circleMarker(latlng, property).addTo(map);
   plugin.apList.animTimeout = setTimeout(plugin.apList.animPortalLocationIndicator,100);
 }
 

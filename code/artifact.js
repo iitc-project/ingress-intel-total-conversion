@@ -24,7 +24,7 @@ window.artifact.setup = function() {
   // move the initial data request onto a very short timer. prevents thrown exceptions causing IITC boot failures
   setTimeout (artifact.requestData, 1);
 
-  artifact._layer = new L.LayerGroup();
+  artifact._layer = new _L.LayerGroup();
   addLayerGroup ('Artifacts', artifact._layer, true);
 
   $('#toolbox').append(' <a onclick="window.artifact.showArtifactList()" title="Show artifact portal list">Artifacts</a>');
@@ -162,7 +162,7 @@ window.artifact.updateLayer = function() {
   artifact._layer.clearLayers();
 
   $.each(artifact.portalInfo, function(guid,data) {
-    var latlng = L.latLng ([data._data.latE6/1E6, data._data.lngE6/1E6]);
+    var latlng = _L.latLng ([data._data.latE6/1E6, data._data.lngE6/1E6]);
 
     $.each(data, function(type,detail) {
 
@@ -175,14 +175,14 @@ window.artifact.updateLayer = function() {
         var iconSize = 100/2;
         var opacity = 1.0;
 
-        var icon = L.icon({
+        var icon = _L.icon({
           iconUrl: iconUrl,
           iconSize: [iconSize,iconSize],
           iconAnchor: [iconSize/2,iconSize/2],
           className: 'no-pointer-events'  // the clickable: false below still blocks events going through to the svg underneath
         });
 
-        var marker = L.marker (latlng, {icon: icon, clickable: false, keyboard: false, opacity: opacity });
+        var marker = _L.marker (latlng, {icon: icon, clickable: false, keyboard: false, opacity: opacity });
 
         artifact._layer.addLayer(marker);
 
@@ -193,14 +193,14 @@ window.artifact.updateLayer = function() {
         var iconSize = 60/2;
         var opacity = 0.6;
 
-        var icon = L.icon({
+        var icon = _L.icon({
           iconUrl: iconUrl,
           iconSize: [iconSize,iconSize],
           iconAnchor: [iconSize/2,iconSize/2],
           className: 'no-pointer-events'  // the clickable: false below still blocks events going through to the svg underneath
         });
 
-        var marker = L.marker (latlng, {icon: icon, clickable: false, keyboard: false, opacity: opacity });
+        var marker = _L.marker (latlng, {icon: icon, clickable: false, keyboard: false, opacity: opacity });
 
         artifact._layer.addLayer(marker);
 

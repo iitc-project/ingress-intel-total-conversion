@@ -507,7 +507,7 @@
           title: escapeHtmlSpecialChars(bookmark.label),
           description: 'Map in folder "' + escapeHtmlSpecialChars(folder.label) + '"',
           icon: '@@INCLUDEIMAGE:images/icon-bookmark-map.png@@',
-          position: L.latLng(bookmark.latlng.split(",")),
+          position: _L.latLng(bookmark.latlng.split(",")),
           zoom: bookmark.z,
           onSelected: window.plugin.bookmarks.onSearchResultSelected,
         });
@@ -522,7 +522,7 @@
           title: escapeHtmlSpecialChars(bookmark.label),
           description: 'Bookmark in folder "' + escapeHtmlSpecialChars(folder.label) + '"',
           icon: '@@INCLUDEIMAGE:images/icon-bookmark.png@@',
-          position: L.latLng(bookmark.latlng.split(",")),
+          position: _L.latLng(bookmark.latlng.split(",")),
           guid: bookmark.guid,
           onSelected: window.plugin.bookmarks.onSearchResultSelected,
         });
@@ -830,10 +830,10 @@
 
       var layer, layerType;
       if(latlngs.length == 2) {
-        layer = L.geodesicPolyline(latlngs, window.plugin.drawTools.lineOptions);
+        layer = _L.geodesicPolyline(latlngs, window.plugin.drawTools.lineOptions);
         layerType = 'polyline';
       } else {
-        layer = L.geodesicPolygon(latlngs, window.plugin.drawTools.polygonOptions);
+        layer = _L.geodesicPolygon(latlngs, window.plugin.drawTools.polygonOptions);
         layerType = 'polygon';
       }
 
@@ -878,14 +878,14 @@
     }
 
     if(latlngs.length == 2) {
-      var distance = L.latLng(latlngs[0]).distanceTo(latlngs[1]);
+      var distance = _L.latLng(latlngs[0]).distanceTo(latlngs[1]);
       text = 'Distance between portals: ' + formatDistance(distance);
       color = "";
     } else if(latlngs.length == 3) {
       var longdistance = false;
       var distances = latlngs.map(function(ll1, i, latlngs) {
         var ll2 = latlngs[(i+1)%3];
-        return formatDistance(L.latLng(ll1).distanceTo(ll2));
+        return formatDistance(_L.latLng(ll1).distanceTo(ll2));
       });
       text = 'Distances: ' + distances.join(", ");
       color = "";
@@ -1087,9 +1087,9 @@
   }
 
   window.plugin.bookmarks.addStar = function(guid, latlng, lbl) {
-    var star = L.marker(latlng, {
+    var star = _L.marker(latlng, {
       title: lbl,
-      icon: L.icon({
+      icon: _L.icon({
         iconUrl: '@@INCLUDEIMAGE:images/marker-star.png@@',
         iconAnchor: [15,40],
         iconSize: [30,40]
@@ -1296,7 +1296,7 @@
     window.addPortalHighlighter('Bookmarked Portals', window.plugin.bookmarks.highlight);
 
     // Layer - Bookmarked portals
-    window.plugin.bookmarks.starLayerGroup = new L.LayerGroup();
+    window.plugin.bookmarks.starLayerGroup = new _L.LayerGroup();
     window.addLayerGroup('Bookmarked Portals', window.plugin.bookmarks.starLayerGroup, false);
     window.plugin.bookmarks.addAllStars();
     window.addHook('pluginBkmrksEdit', window.plugin.bookmarks.editStar);

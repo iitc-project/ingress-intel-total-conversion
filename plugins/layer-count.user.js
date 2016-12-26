@@ -33,8 +33,8 @@ plugin.layerCount.onBtnClick = function(ev) {
 	if(btn.classList.contains("active")) {
 		if(window.plugin.drawTools !== undefined) {
 			window.plugin.drawTools.drawnItems.eachLayer(function(layer) {
-				if (layer instanceof L.GeodesicPolygon) {
-					L.DomUtil.addClass(layer._path, "leaflet-clickable");
+				if (layer instanceof _L.GeodesicPolygon) {
+					_L.DomUtil.addClass(layer._path, "leaflet-clickable");
 					layer._path.setAttribute("pointer-events", layer.options.pointerEventsBackup);
 					layer.options.pointerEvents = layer.options.pointerEventsBackup;
 					layer.options.clickable = true;
@@ -47,11 +47,11 @@ plugin.layerCount.onBtnClick = function(ev) {
 		console.log("inactive");
 		if(window.plugin.drawTools !== undefined) {
 			window.plugin.drawTools.drawnItems.eachLayer(function(layer) {
-				if (layer instanceof L.GeodesicPolygon) {
+				if (layer instanceof _L.GeodesicPolygon) {
 					layer.options.pointerEventsBackup = layer.options.pointerEvents;
 					layer.options.pointerEvents = null;
 					layer.options.clickable = false;
-					L.DomUtil.removeClass(layer._path, "leaflet-clickable");
+					_L.DomUtil.removeClass(layer._path, "leaflet-clickable");
 					layer._path.setAttribute("pointer-events", "none");
 				}
 			});
@@ -124,7 +124,7 @@ plugin.layerCount.calculate = function(ev) {
 	if (window.plugin.drawTools) {
 		for(var layerId in window.plugin.drawTools.drawnItems._layers) {
 			var field = window.plugin.drawTools.drawnItems._layers[layerId];
-			if(field instanceof L.GeodesicPolygon && plugin.layerCount.pnpoly(field._latlngs, point)) 
+			if(field instanceof _L.GeodesicPolygon && plugin.layerCount.pnpoly(field._latlngs, point)) 
 				layersDrawn++;
 		}
 	}

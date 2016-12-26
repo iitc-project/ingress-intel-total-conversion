@@ -29,8 +29,8 @@ window.plugin.mapTileBlank = function() {};
 window.plugin.mapTileBlank.addLayer = function() {
 
   var blankOpt = {attribution: '', maxNativeZoom: 18, maxZoom: 21};
-  var blankWhite = new L.TileLayer('@@INCLUDEIMAGE:images/basemap-blank-tile-white.png@@', blankOpt);
-  var blankBlack = new L.TileLayer('@@INCLUDEIMAGE:images/basemap-blank-tile-black.png@@', blankOpt);
+  var blankWhite = new _L.TileLayer('@@INCLUDEIMAGE:images/basemap-blank-tile-white.png@@', blankOpt);
+  var blankBlack = new _L.TileLayer('@@INCLUDEIMAGE:images/basemap-blank-tile-black.png@@', blankOpt);
 
   layerChooser.addBaseLayer(blankWhite, "Blank Map (White)");
   layerChooser.addBaseLayer(blankBlack, "Blank Map (Black)");

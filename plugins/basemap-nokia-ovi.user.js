@@ -41,7 +41,7 @@ window.plugin.mapNokiaOvi.setup = function() {
   $.each(oviStyles, function(style,data) {
     oviOpt['style'] = style;
     oviOpt['type'] = data.type;
-    var oviMap = new L.TileLayer('http://{s}.maptile.maps.svc.ovi.com/maptiler/maptile/newest/{style}/{z}/{x}/{y}/256/{type}', oviOpt);
+    var oviMap = new _L.TileLayer('http://{s}.maptile.maps.svc.ovi.com/maptiler/maptile/newest/{style}/{z}/{x}/{y}/256/{type}', oviOpt);
     layerChooser.addBaseLayer(oviMap, 'Nokia OVI '+data.name);
   });
 

@@ -14,8 +14,8 @@ addHook('search', function(query) {});
 `result` may have the following members (`title` is required, as well as one of `position` and `bounds`):
 - `title`: the label for this result. Will be interpreted as HTML, so make sure to escape properly.
 - `description`: secondary information for this result. Will be interpreted as HTML, so make sure to escape properly.
-- `position`: a L.LatLng object describing the position of this result
-- `bounds`: a L.LatLngBounds object describing the bounds of this result
+- `position`: a _L.LatLng object describing the position of this result
+- `bounds`: a _L.LatLngBounds object describing the bounds of this result
 - `layer`: a ILayer to be added to the map when the user selects this search result. Will be generated if not set.
   Set to `null` to prevent the result from being added to the map.
 - `icon`: a URL to a icon to display in the result list. Should be 12x12.
@@ -134,7 +134,7 @@ window.search.Query.prototype.onResultSelected = function(result, ev) {
   }
 
   if(result.layer !== null && !result.layer) {
-    result.layer = L.layerGroup();
+    result.layer = _L.layerGroup();
 
     if(result.position) {
       createGenericMarker(result.position, 'red', {
@@ -143,7 +143,7 @@ window.search.Query.prototype.onResultSelected = function(result, ev) {
     }
 
     if(result.bounds) {
-      L.rectangle(result.bounds, {
+      _L.rectangle(result.bounds, {
         title: result.title,
         clickable: false,
         color: 'red',
@@ -263,7 +263,7 @@ addHook('search', function(query) {
   locations.forEach(function(location) {
     var pair = location.split(',').map(function(s) { return parseFloat(s).toFixed(6); });
     var ll = pair.join(",");
-    var latlng = L.latLng(pair.map(function(s) { return parseFloat(s); }));
+    var latlng = _L.latLng(pair.map(function(s) { return parseFloat(s); }));
     if(added[ll]) return;
     added[ll] = true;
 
@@ -305,12 +305,12 @@ addHook('search', function(query) {
       var result = {
         title: item.display_name,
         description: 'Type: ' + item.type,
-        position: L.latLng(parseFloat(item.lat), parseFloat(item.lon)),
+        position: _L.latLng(parseFloat(item.lat), parseFloat(item.lon)),
         icon: item.icon,
       };
 
       if(item.geojson) {
-        result.layer = L.geoJson(item.geojson, {
+        result.layer = _L.geoJson(item.geojson, {
           clickable: false,
           color: 'red',
           opacity: 0.7,
@@ -324,9 +324,9 @@ addHook('search', function(query) {
 
       var b = item.boundingbox;
       if(b) {
-        var southWest = new L.LatLng(b[0], b[2]),
-            northEast = new L.LatLng(b[1], b[3]);
-        result.bounds = new L.LatLngBounds(southWest, northEast);
+        var southWest = new _L.LatLng(b[0], b[2]),
+            northEast = new _L.LatLng(b[1], b[3]);
+        result.bounds = new _L.LatLngBounds(southWest, northEast);
       }
 
       query.addResult(result);

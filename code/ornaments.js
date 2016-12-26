@@ -16,7 +16,7 @@ window.ornaments.OVERLAY_OPACITY = 0.6;
 
 window.ornaments.setup = function() {
   window.ornaments._portals = {};
-  window.ornaments._layer = L.layerGroup();
+  window.ornaments._layer = _L.layerGroup();
   window.addLayerGroup('Ornaments', window.ornaments._layer, true);
 }
 
@@ -35,14 +35,14 @@ window.ornaments.addPortal = function(portal) {
 
   if (portal.options.data.ornaments) {
     window.ornaments._portals[guid] = portal.options.data.ornaments.map(function(ornament) {
-      var icon = L.icon({
+      var icon = _L.icon({
         iconUrl: "//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/"+ornament+".png",
         iconSize: [size, size],
         iconAnchor: [size/2,size/2],
         className: 'no-pointer-events'  // the clickable: false below still blocks events going through to the svg underneath
       });
 
-      return L.marker(latlng, {icon: icon, clickable: false, keyboard: false, opacity: window.ornaments.OVERLAY_OPACITY }).addTo(window.ornaments._layer);
+      return _L.marker(latlng, {icon: icon, clickable: false, keyboard: false, opacity: window.ornaments.OVERLAY_OPACITY }).addTo(window.ornaments._layer);
     });
   }
 }

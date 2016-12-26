@@ -28,18 +28,18 @@ window.plugin.zoomSlider = function() {};
 
 window.plugin.zoomSlider.setup  = function() {
   try { console.log('Loading Leaflet.zoomslider JS now'); } catch(e) {}
-  @@INCLUDERAW:external/L.Control.Zoomslider.js@@
+  (function (L) {@@INCLUDERAW:external/L.Control.Zoomslider.js@@})(_L);
   try { console.log('done loading Leaflet.zoomslider JS'); } catch(e) {}
 
   // prevent Zoomslider from being activated by default (e.g. in minimap)
-  L.Map.mergeOptions({
+  _L.Map.mergeOptions({
     zoomsliderControl: false
   });
 
   if(map.zoomControl._map) {
     window.map.removeControl(map.zoomControl);
   }
-  window.map.addControl(L.control.zoomslider());
+  window.map.addControl(_L.control.zoomslider());
 
   $('head').append('<style>@@INCLUDESTRING:external/L.Control.Zoomslider.css@@</style>');
 };

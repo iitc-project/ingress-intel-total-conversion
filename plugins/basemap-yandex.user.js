@@ -27,13 +27,8 @@
 window.plugin.mapTileYandex = function() {};
 
 window.plugin.mapTileYandex.leafletSetup = function() {
-
-//include Yandex.js start
-@@INCLUDERAW:external/Yandex.js@@
-//include Yandex.js end
-
+  (function (L) {@@INCLUDERAW:external/Yandex.js@@})(_L);
 }
-
 
 
 window.plugin.mapTileYandex.setup = function() {
@@ -52,7 +47,7 @@ window.plugin.mapTileYandex.setup = function() {
   var layers = {};
 
   $.each(yStyles, function(key,value) {
-    layers[key] = new L.LayerGroup();
+    layers[key] = new _L.LayerGroup();
     layerChooser.addBaseLayer(layers[key], 'Yandex '+value);
   });
 
@@ -60,7 +55,7 @@ window.plugin.mapTileYandex.setup = function() {
     window.plugin.mapTileYandex.leafletSetup();
     var yOpt = {maxZoom: 18};
     $.each(layers, function(key,layer) {
-      var yMap = new L.Yandex(key, yOpt);
+      var yMap = new _L.Yandex(key, yOpt);
       layer.addLayer(yMap);
     });
   }

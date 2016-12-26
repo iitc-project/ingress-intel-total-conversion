@@ -4,7 +4,7 @@
 
 window.portalMarkerScale = function() {
   var zoom = map.getZoom();
-  if (L.Browser.mobile)
+  if (_L.Browser.mobile)
     return zoom >= 16 ? 1.5 : zoom >= 14 ? 1.2 : zoom >= 11 ? 1.0 : zoom >= 8 ? 0.65 : 0.5;
   else
     return zoom >= 14 ? 1 : zoom >= 11 ? 0.8 : zoom >= 8 ? 0.65 : 0.5;
@@ -14,9 +14,9 @@ window.portalMarkerScale = function() {
 window.createMarker = function(latlng, data) {
   var styleOptions = window.getMarkerStyleOptions(data);
 
-  var options = L.extend({}, data, styleOptions, { clickable: true });
+  var options = _L.extend({}, data, styleOptions, { clickable: true });
 
-  var marker = L.circleMarker(latlng, options);
+  var marker = _L.circleMarker(latlng, options);
 
   highlightPortal(marker);
 

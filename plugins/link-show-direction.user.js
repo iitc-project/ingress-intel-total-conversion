@@ -90,7 +90,7 @@ window.plugin.linkShowDirection.addAllLinkStyles = function() {
 
   if(window.plugin.drawTools && localStorage['plugin-linkshowdirection-drawtools'] == "true") {
     window.plugin.drawTools.drawnItems.eachLayer(function(layer) {
-      if(layer instanceof L.GeodesicPolyline)
+      if(layer instanceof _L.GeodesicPolyline)
         window.plugin.linkShowDirection.addLinkStyle(layer);
     });
   }
@@ -104,7 +104,7 @@ window.plugin.linkShowDirection.removeDrawToolsStyle = function() {
   if(!window.plugin.drawTools) return;
 
   window.plugin.drawTools.drawnItems.eachLayer(function(layer) {
-    if(layer instanceof L.GeodesicPolyline)
+    if(layer instanceof _L.GeodesicPolyline)
       layer.setStyle({dashArray: null});
   });
 };
@@ -177,7 +177,7 @@ window.plugin.linkShowDirection.setup  = function() {
   }
 
   // only start the animation timer of the paths support SVG
-  if(L.Path.SVG) {
+  if(_L.Path.SVG) {
     window.plugin.linkShowDirection.animateLinks();
 
     // set up move start/end handlers to pause animations while moving

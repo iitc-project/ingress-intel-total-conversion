@@ -54,7 +54,7 @@ window.plugin.showLinkedPortal.portalDetail = function (data) {
     var lat = link[key + 'LatE6']/1E6;
     var lng = link[key + 'LngE6']/1E6;
 
-    var length = L.latLng(link.oLatE6/1E6, link.oLngE6/1E6).distanceTo([link.dLatE6/1E6, link.dLngE6/1E6]);
+    var length = _L.latLng(link.oLatE6/1E6, link.oLngE6/1E6).distanceTo([link.dLatE6/1E6, link.dLngE6/1E6]);
     var lengthFull = digits(Math.round(length)) + 'm';
     var lengthShort = length < 100000 ? lengthFull : digits(Math.round(length/1000)) + 'km'
 
@@ -122,7 +122,7 @@ plugin.showLinkedPortal.onLinkedPortalClick = function() {
 
   if(!guid) return; // overflow
 
-  var position = L.latLng(lat, lng);
+  var position = _L.latLng(lat, lng);
   if(!map.getBounds().contains(position)) map.setView(position);
   if(portals[guid])
     renderPortalDetails(guid);
@@ -139,15 +139,15 @@ plugin.showLinkedPortal.onLinkedPortalMouseOver = function() {
 
   if(!(lat && lng)) return; // overflow
 
-  var remote = L.latLng(lat, lng);
+  var remote = _L.latLng(lat, lng);
   var local = portals[selectedPortal].getLatLng();
 
-  plugin.showLinkedPortal.preview = L.layerGroup().addTo(map);
+  plugin.showLinkedPortal.preview = _L.layerGroup().addTo(map);
 
-  L.circleMarker(remote, plugin.showLinkedPortal.previewOptions)
+  _L.circleMarker(remote, plugin.showLinkedPortal.previewOptions)
     .addTo(plugin.showLinkedPortal.preview);
 
-  L.geodesicPolyline([local, remote], plugin.showLinkedPortal.previewOptions)
+  _L.geodesicPolyline([local, remote], plugin.showLinkedPortal.previewOptions)
     .addTo(plugin.showLinkedPortal.preview);
 };
 
