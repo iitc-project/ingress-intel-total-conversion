@@ -715,7 +715,7 @@ function boot() {
 try { console.log('Loading included JS now'); } catch(e) {}
 @@INCLUDERAW:external/leaflet-src.js@@
 window._L = L.noConflict();
-//window.L = window._L; // temporary backwards compability for 3rd party plugins
+window.L = window._L; // TODO: remove this. It's obsolete and only for 3rd party plugins
 (function (L) {@@INCLUDERAW:external/L.Geodesic.js@@})(_L);
 
 // modified version of https://github.com/shramov/leaflet-plugins. Also
