@@ -1,12 +1,17 @@
 // ORNAMENTS ///////////////////////////////////////////////////////
 
-// added as part of the ingress #helios in 2014, ornaments
-// are additional image overlays for portals
-// currently there are 28 known ornaments: ap$x$suffix
+// Added as part of the Ingress #Helios in 2014, ornaments
+// are additional image overlays for portals.
+// currently there are 6 known types of ornaments: ap$x$suffix
 // - cluster portals (without suffix)
 // - volatile portals (_v)
 // - meeting points (_start)
 // - finish points (_end)
+//
+// Beacons and Frackers were introduced at the launch of the Ingress
+// ingame store on November 1st, 2015
+// - Beacons (pe$TAG - $NAME) ie: 'peNIA - NIANTIC'
+// - Frackers ('peFRACK')
 // (there are 7 different colors for each of them)
 
 
@@ -17,7 +22,9 @@ window.ornaments.OVERLAY_OPACITY = 0.6;
 window.ornaments.setup = function() {
   window.ornaments._portals = {};
   window.ornaments._layer = L.layerGroup();
+  window.ornaments._beacons = L.layerGroup();
   window.addLayerGroup('Ornaments', window.ornaments._layer, true);
+  window.addLayerGroup('Beacons', window.ornaments._beacons, true);
 }
 
 // quick test for portal having ornaments
@@ -35,14 +42,21 @@ window.ornaments.addPortal = function(portal) {
 
   if (portal.options.data.ornaments) {
     window.ornaments._portals[guid] = portal.options.data.ornaments.map(function(ornament) {
+      var layer = window.ornaments._layer;
+      if (ornament.startsWith("pe") && ornament != "peFRACK") {
+        layer = window.ornaments._beacons;
+        if(ornament == "peOBSIDIAN") {
+          ornament = "peNIA";
+        }
+      }
       var icon = L.icon({
-        iconUrl: "//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/"+ornament+".png",
+        iconUrl: "//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/" + ornament + ".png",
         iconSize: [size, size],
-        iconAnchor: [size/2,size/2],
+        iconAnchor: [size/2, size/2],
         className: 'no-pointer-events'  // the clickable: false below still blocks events going through to the svg underneath
       });
 
-      return L.marker(latlng, {icon: icon, clickable: false, keyboard: false, opacity: window.ornaments.OVERLAY_OPACITY }).addTo(window.ornaments._layer);
+      return L.marker(latlng, {icon: icon, clickable: false, keyboard: false, opacity: window.ornaments.OVERLAY_OPACITY }).addTo(layer);
     });
   }
 }
@@ -52,6 +66,7 @@ window.ornaments.removePortal = function(portal) {
   if(window.ornaments._portals[guid]) {
     window.ornaments._portals[guid].forEach(function(marker) {
       window.ornaments._layer.removeLayer(marker);
+      window.ornaments._beacon.removeLayer(marker);
     });
     delete window.ornaments._portals[guid];
   }
