@@ -5189,11 +5189,11 @@ L.Path = (L.Path.SVG && !window.L_PREFER_CANVAS) || !L.Browser.canvas ? L.Path :
 	_initEvents: function () {
 		if (this.options.clickable) {
 			this._map.on('mousemove', this._onMouseMove, this);
-			this._map.on('click dblclick contextmenu', this._fireMouseEvent, this);
+			this._map.on('click', this._onClick, this);
 		}
 	},
 
-	_fireMouseEvent: function (e) {
+	_onClick: function (e) {
 		if (this._containsPoint(e.layerPoint)) {
 			this.fire(e.type, e);
 		}
