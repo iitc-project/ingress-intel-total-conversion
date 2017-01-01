@@ -209,6 +209,13 @@ window.plugin.portalslist.getPortals = function() {
   return retval;
 }
 
+function mapHasPortals() {
+  var zoom = map.getZoom();
+  zoom = getDataZoomForMapZoom(zoom);
+  var tileParams = getMapZoomTileParameters(zoom);
+  return tileParams.hasPortals
+}
+
 window.plugin.portalslist.displayPL = function() {
   var list;
   // plugins (e.g. bookmarks) can insert fields before the standard ones - so we need to search for the 'level' column
@@ -219,11 +226,16 @@ window.plugin.portalslist.displayPL = function() {
   window.plugin.portalslist.neuP = 0;
   window.plugin.portalslist.filter = 0;
 
-  if (window.plugin.portalslist.getPortals()) {
-    list = window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy, window.plugin.portalslist.sortOrder,window.plugin.portalslist.filter);
+  if (mapHasPortals()) {
+    if (window.plugin.portalslist.getPortals()) {
+      list = window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy, window.plugin.portalslist.sortOrder,window.plugin.portalslist.filter);
+    } else {
+      list = $('<table class="noPortals"><tr><td>Nothing to show!</td></tr></table>');
+    };
   } else {
-    list = $('<table class="noPortals"><tr><td>Nothing to show!</td></tr></table>');
-  };
+    window.plugin.portalslist.listPortals=[];
+    list = $('<table class="noPortals"><tr><td>Zoom in for Portals!</td></tr></table>');
+  }
 
   if(window.useAndroidPanes()) {
     $('<div id="portalslist" class="mobile">').append(list).appendTo(document.body);
