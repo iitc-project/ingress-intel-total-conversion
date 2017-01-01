@@ -153,19 +153,20 @@ window.plugin.portalslist.fields = [
   },
 ];
 
-//fill the listPortals array with portals avaliable on the map (level filtered portals will not appear in the table)
+
 window.plugin.portalslist.getPortals = function() {
-  //filter : 0 = All, 1 = Neutral, 2 = Res, 3 = Enl, -x = all but x
-  var retval=false;
+
+  window.plugin.portalslist.enlP = 0;
+  window.plugin.portalslist.resP = 0;
+  window.plugin.portalslist.neuP = 0;
 
   var displayBounds = map.getBounds();
 
-  window.plugin.portalslist.listPortals = [];
+  var list = [];
   $.each(window.portals, function(i, portal) {
-    // eliminate offscreen portals (selected, and in padding)
-    if(!displayBounds.contains(portal.getLatLng())) return true;
 
-    retval=true;
+    if(!displayBounds.contains(portal.getLatLng())) return true;
+    if (portal.options.timestamp===0) return true;
 
     switch (portal.options.team) {
       case TEAM_RES:
@@ -203,40 +204,22 @@ window.plugin.portalslist.getPortals = function() {
       }
     });
 
-    window.plugin.portalslist.listPortals.push(obj);
+    list.push(obj);
   });
 
-  return retval;
-}
-
-function mapHasPortals() {
-  var zoom = map.getZoom();
-  zoom = getDataZoomForMapZoom(zoom);
-  var tileParams = getMapZoomTileParameters(zoom);
-  return tileParams.hasPortals
-}
+  return list;
 };
 
-window.plugin.portalslist.displayPL = function() {
-  var list;
-  // plugins (e.g. bookmarks) can insert fields before the standard ones - so we need to search for the 'level' column
-  window.plugin.portalslist.sortBy = window.plugin.portalslist.fields.map(function(f){return f.title;}).indexOf('Level');
-  window.plugin.portalslist.sortOrder = -1;
-  window.plugin.portalslist.enlP = 0;
-  window.plugin.portalslist.resP = 0;
-  window.plugin.portalslist.neuP = 0;
-  window.plugin.portalslist.filter = 0;
 
-  if (mapHasPortals()) {
-    if (window.plugin.portalslist.getPortals()) {
-      list = window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy, window.plugin.portalslist.sortOrder,window.plugin.portalslist.filter);
-    } else {
-      list = $('<table class="noPortals"><tr><td>Nothing to show!</td></tr></table>');
-    };
-  } else {
-    window.plugin.portalslist.listPortals=[];
-    list = $('<table class="noPortals"><tr><td>Zoom in for Portals!</td></tr></table>');
-  }
+window.plugin.portalslist.displayPL = function() {
+
+  // plugins (e.g. bookmarks) can insert fields before the standard ones - so we need to search for the 'level' column
+  var sortBy = window.plugin.portalslist.fields.map(function(f){return f.title;}).indexOf('Level');
+  var sortOrder = -1;
+  var filter = 0;
+
+  window.plugin.portalslist.listPortals = window.plugin.portalslist.getPortals();
+  var list = window.plugin.portalslist.portalTable(sortBy, sortOrder, filter);
 
   if(window.useAndroidPanes()) {
     $('<div id="portalslist" class="mobile">').append(list).appendTo(document.body);
@@ -252,89 +235,41 @@ window.plugin.portalslist.displayPL = function() {
 };
 
 window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
-  // save the sortBy/sortOrder/filter
 
   window.plugin.portalslist.sortBy = sortBy;
   window.plugin.portalslist.sortOrder = sortOrder;
   window.plugin.portalslist.filter = filter;
 
   var portals = window.plugin.portalslist.listPortals;
-  var sortField = window.plugin.portalslist.fields[sortBy];
 
-  portals.sort(function(a, b) {
-    var valueA = a.sortValues[sortBy];
-    var valueB = b.sortValues[sortBy];
-
-    if(sortField.sort) {
-      return sortOrder * sortField.sort(valueA, valueB, a.portal, b.portal);
-    }
-
-//FIXME: sort isn't stable, so re-sorting identical values can change the order of the list.
-//fall back to something constant (e.g. portal name?, portal GUID?),
-//or switch to a stable sort so order of equal items doesn't change
-    return sortOrder *
-      (valueA < valueB ? -1 :
-      valueA > valueB ?  1 :
-      0);
-  });
-
-  if(filter !== 0) {
-    portals = portals.filter(function(obj) {
-      return filter < 0 ? obj.portal.options.team+1 != -filter : obj.portal.options.team+1 == filter;
-    });
+  if (!window.plugin.portalslist.mapZoomHasPortals()) {
+    return $('<table class="noPortals"><tr><td>Zoom in for Portals.</td></tr></table>');
   }
 
-  var table, row, cell;
+  if (portals.length===0) {
+    return $('<table class="noPortals"><tr><td>Nothing to show!</td></tr></table>');
+  }
+
+  portals = window.plugin.portalslist.sortPortals(portals, sortBy, sortOrder);
+  portals = window.plugin.portalslist.filterPortals(portals, filter);
+
   var container = $('<div>');
 
-  table = document.createElement('table');
+  var table = document.createElement('table');
   table.className = 'filter';
   container.append(table);
 
-  row = table.insertRow(-1);
+  window.plugin.portalslist.generateFilterRow(table);
 
-  var length = window.plugin.portalslist.listPortals.length;
-
-  ["All", "Neutral", "Resistance", "Enlightened"].forEach(function(label, i) {
-    cell = row.appendChild(document.createElement('th'));
-    cell.className = 'filter' + label.substr(0, 3);
-    cell.textContent = label+':';
-    cell.title = 'Show only portals of this color';
-    $(cell).click(function() {
-      $('#portalslist').empty().append(window.plugin.portalslist.portalTable(sortBy, sortOrder, i));
-    });
-
-
-    cell = row.insertCell(-1);
-    cell.className = 'filter' + label.substr(0, 3);
-    if(i !== 0) cell.title = 'Hide portals of this color';
-    $(cell).click(function() {
-      $('#portalslist').empty().append(window.plugin.portalslist.portalTable(sortBy, sortOrder, -i));
-    });
-
-    switch(i-1) {
-      case -1:
-        cell.textContent = length;
-        break;
-      case 0:
-        cell.textContent = window.plugin.portalslist.neuP + ' (' + Math.round(window.plugin.portalslist.neuP/length*100) + '%)';
-        break;
-      case 1:
-        cell.textContent = window.plugin.portalslist.resP + ' (' + Math.round(window.plugin.portalslist.resP/length*100) + '%)';
-        break;
-      case 2:
-        cell.textContent = window.plugin.portalslist.enlP + ' (' + Math.round(window.plugin.portalslist.enlP/length*100) + '%)';
-    }
-  });
 
   table = document.createElement('table');
   table.className = 'portals';
   container.append(table);
 
   var thead = table.appendChild(document.createElement('thead'));
-  row = thead.insertRow(-1);
+  var row = thead.insertRow(-1);
 
-  cell = row.appendChild(document.createElement('th'));
+  var cell = row.appendChild(document.createElement('th'));
   cell.textContent = '#';
 
   window.plugin.portalslist.fields.forEach(function(field, i) {
@@ -373,7 +308,90 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
 
   return container;
 };
+
+
+window.plugin.portalslist.generateFilterRow = function(table) {
+  var row = table.insertRow(-1);
+
+  var length = window.plugin.portalslist.listPortals.length;
+
+  ["All", "Neutral", "Resistance", "Enlightened"].forEach(function(label, i) {
+    var cell = row.appendChild(document.createElement('th'));
+    cell.className = 'filter' + label.substr(0, 3);
+    cell.textContent = label+':';
+    cell.title = 'Show only portals of this color';
+    $(cell).click(function() {
+      $('#portalslist').empty().append(window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy, window.plugin.portalslist.sortOrder, i));
+    });
+
+
+    cell = row.insertCell(-1);
+    cell.className = 'filter' + label.substr(0, 3);
+    if(i !== 0) cell.title = 'Hide portals of this color';
+    $(cell).click(function() {
+      $('#portalslist').empty().append(window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy, window.plugin.portalslist.sortOrder, -i));
+    });
+
+    switch(i-1) {
+      case -1:
+        cell.textContent = length;
+        break;
+      case 0:
+        cell.textContent = window.plugin.portalslist.neuP + ' (' + Math.round(window.plugin.portalslist.neuP/length*100) + '%)';
+        break;
+      case 1:
+        cell.textContent = window.plugin.portalslist.resP + ' (' + Math.round(window.plugin.portalslist.resP/length*100) + '%)';
+        break;
+      case 2:
+        cell.textContent = window.plugin.portalslist.enlP + ' (' + Math.round(window.plugin.portalslist.enlP/length*100) + '%)';
+    }
+  });
 }
+
+
+window.plugin.portalslist.mapZoomHasPortals = function() {
+  var zoom = map.getZoom();
+  zoom = getDataZoomForMapZoom(zoom);
+  var tileParams = getMapZoomTileParameters(zoom);
+  return tileParams.hasPortals;
+}
+
+
+window.plugin.portalslist.sortPortals = function(portals,sortBy,sortOrder) {
+  var sortField = window.plugin.portalslist.fields[sortBy];
+
+  portals.sort(function(a, b) {
+    var valueA = a.sortValues[sortBy];
+    var valueB = b.sortValues[sortBy];
+
+    if(sortField.sort) {
+      return sortOrder * sortField.sort(valueA, valueB, a.portal, b.portal);
+    }
+
+//FIXME: sort isn't stable, so re-sorting identical values can change the order of the list.
+//fall back to something constant (e.g. portal name?, portal GUID?),
+//or switch to a stable sort so order of equal items doesn't change
+    return sortOrder *
+      (valueA < valueB ? -1 :
+      valueA > valueB ?  1 :
+      0);
+  });
+
+  return portals;
+}
+
+
+window.plugin.portalslist.filterPortals = function(portals,filter) {
+  if(filter !== 0) {
+    portals = portals.filter(function(obj) {
+      return filter < 0 ? obj.portal.options.team+1 != -filter : obj.portal.options.team+1 == filter;
+    });
+  }
+
+  return portals;
+}
+
+
 
 // portal link - single click: select portal
 //               double click: zoom to and select portal
