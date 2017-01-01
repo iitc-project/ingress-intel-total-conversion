@@ -116,7 +116,7 @@ window.plugin.portalslist.fields = [
   },
   {
     title: "Fields",
-    value: function(portal) { return getPortalFieldsCount(portal.options.guid) },
+    value: function(portal) { return getPortalFieldsCount(portal.options.guid); },
     format: function(cell, portal, value) {
       $(cell)
         .addClass("alignR")
@@ -135,13 +135,13 @@ window.plugin.portalslist.fields = [
     format: function(cell, portal, value) {
       var title = '';
       if (teamStringToId(PLAYER.team) == portal.options.team) {
-        title += 'Friendly AP:\t'+value.friendlyAp+'\n'
-               + '- deploy '+(8-portal.options.data.resCount)+' resonator(s)\n'
-               + '- upgrades/mods unknown\n';
+        title += 'Friendly AP:\t'+value.friendlyAp+'\n' +
+                 '- deploy '+(8-portal.options.data.resCount)+' resonator(s)\n' +
+                 '- upgrades/mods unknown\n';
       }
-      title += 'Enemy AP:\t'+value.enemyAp+'\n'
-             + '- Destroy AP:\t'+value.destroyAp+'\n'
-             + '- Capture AP:\t'+value.captureAp;
+      title += 'Enemy AP:\t'+value.enemyAp+'\n' +
+               '- Destroy AP:\t'+value.destroyAp+'\n' +
+               '- Capture AP:\t'+value.captureAp;
 
       $(cell)
         .addClass("alignR")
@@ -215,6 +215,7 @@ function mapHasPortals() {
   var tileParams = getMapZoomTileParameters(zoom);
   return tileParams.hasPortals
 }
+};
 
 window.plugin.portalslist.displayPL = function() {
   var list;
@@ -248,10 +249,11 @@ window.plugin.portalslist.displayPL = function() {
       width: 700
     });
   }
-}
+};
 
 window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   // save the sortBy/sortOrder/filter
+
   window.plugin.portalslist.sortBy = sortBy;
   window.plugin.portalslist.sortOrder = sortOrder;
   window.plugin.portalslist.filter = filter;
@@ -278,9 +280,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
 
   if(filter !== 0) {
     portals = portals.filter(function(obj) {
-      return filter < 0
-        ? obj.portal.options.team+1 != -filter
-        : obj.portal.options.team+1 == filter;
+      return filter < 0 ? obj.portal.options.team+1 != -filter : obj.portal.options.team+1 == filter;
     });
   }
 
@@ -307,7 +307,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
 
     cell = row.insertCell(-1);
     cell.className = 'filter' + label.substr(0, 3);
-    if(i != 0) cell.title = 'Hide portals of this color';
+    if(i !== 0) cell.title = 'Hide portals of this color';
     $(cell).click(function() {
       $('#portalslist').empty().append(window.plugin.portalslist.portalTable(sortBy, sortOrder, -i));
     });
@@ -360,7 +360,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   });
 
   portals.forEach(function(obj, i) {
-    var row = obj.row
+    var row = obj.row;
     if(row.parentNode) row.parentNode.removeChild(row);
 
     row.cells[0].textContent = i+1;
@@ -372,6 +372,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
     + 'Click on <b>All, Neutral, Resistance, Enlightened</b> to only show portals owner by that faction or on the number behind the factions to show all but those portals.</div>');
 
   return container;
+};
 }
 
 // portal link - single click: select portal
@@ -402,7 +403,7 @@ window.plugin.portalslist.onPaneChanged = function(pane) {
   if(pane == "plugin-portalslist")
     window.plugin.portalslist.displayPL();
   else
-    $("#portalslist").remove()
+    $("#portalslist").remove();
 };
 
 var setup =  function() {
@@ -417,8 +418,7 @@ var setup =  function() {
     .prop("type", "text/css")
     .html("@@INCLUDESTRING:plugins/portals-list.css@@")
     .appendTo("head");
-
-}
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
