@@ -1,0 +1,32 @@
+#portal-distance {
+	text-align: center;
+}
+.portal-distance-bearing {
+	display: inline-block;
+	vertical-align: top;
+	position: relative;
+	height: 1em;
+	width: 1em;
+}
+.portal-distance-bearing:before, .portal-distance-bearing:after {
+	border-color: transparent currentcolor transparent transparent;
+	border-style: solid;
+	border-width: 0.75em 0.4em 0 0;
+	content: "";
+	height: 0;
+	width: 0;
+	position: absolute;
+	top: 0.15em;
+	left: 0.15em;
+	transform: skewY(-30deg);
+	-moz-transform: skewY(-30deg);
+	-webkit-transform: skewY(-30deg);
+}
+.portal-distance-bearing:after {
+	left: auto;
+	right: 0.15em;
+	transform: scaleX(-1) skewY(-30deg);
+	-moz-transform: scaleX(-1) skewY(-30deg);
+	-webkit-transform: scaleX(-1) skewY(-30deg);
+}
+

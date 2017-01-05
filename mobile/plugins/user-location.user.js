@@ -7,10 +7,14 @@
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Show user location marker on map
-// @include        https://www.ingress.com/intel*
-// @include        http://www.ingress.com/intel*
-// @match          https://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        https://*.ingress.com/intel*
+// @include        http://*.ingress.com/intel*
+// @match          https://*.ingress.com/intel*
+// @match          http://*.ingress.com/intel*
+// @include        https://*.ingress.com/mission/*
+// @include        http://*.ingress.com/mission/*
+// @match          https://*.ingress.com/mission/*
+// @match          http://*.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -75,7 +79,7 @@ window.plugin.userLocation.onZoomEnd = function() {
   }
 };
 
-window.plugin.userLocation.locate = function(lat, lng, accuracy) {
+window.plugin.userLocation.locate = function(lat, lng, accuracy, persistentZoom) {
   if(window.plugin.userLocation.follow) {
     window.plugin.userLocation.follow = false;
     if(typeof android !== 'undefined' && android && android.setFollowMode)
@@ -94,7 +98,7 @@ window.plugin.userLocation.locate = function(lat, lng, accuracy) {
 
   // an extremely close view is pretty pointless (especially with maps that support zoom level 20+)
   // so limit to 17 (enough to see all portals)
-  zoom = Math.min(zoom,17);
+  zoom = (persistentZoom) ? map.getZoom() : Math.min(zoom,17);
 
   if(window.map.getCenter().distanceTo(latlng) < 10) {
     window.plugin.userLocation.follow = true;
@@ -111,6 +115,11 @@ window.plugin.userLocation.onLocationChange = function(lat, lng) {
   var latlng = new L.LatLng(lat, lng);
   window.plugin.userLocation.marker.setLatLng(latlng);
   window.plugin.userLocation.circle.setLatLng(latlng);
+
+  if(window.plugin.distanceToPortal) {
+    window.plugin.distanceToPortal.currentLoc = latlng;
+    window.plugin.distanceToPortal.updateDistance();
+  }
 
   if(window.plugin.userLocation.follow) {
     // move map if marker moves more than 35% from the center

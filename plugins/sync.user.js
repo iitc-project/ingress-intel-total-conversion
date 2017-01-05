@@ -2,15 +2,19 @@
 // @id             iitc-plugin-sync@xelio
 // @name           IITC plugin: Sync
 // @category       Misc
-// @version        0.2.2.@@DATETIMEVERSION@@
+// @version        0.2.3.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Sync data between clients via Google Realtime API. Only syncs data from specific plugins (currently: Keys, Bookmarks). Sign in via the 'Sync' link.
-// @include        https://www.ingress.com/intel*
-// @include        http://www.ingress.com/intel*
-// @match          https://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        https://*.ingress.com/intel*
+// @include        http://*.ingress.com/intel*
+// @match          https://*.ingress.com/intel*
+// @match          http://*.ingress.com/intel*
+// @include        https://*.ingress.com/mission/*
+// @include        http://*.ingress.com/mission/*
+// @match          https://*.ingress.com/mission/*
+// @match          http://*.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -119,19 +123,24 @@ window.plugin.sync.RegisteredMap.prototype.updateMap = function(keyArray) {
   var _this = this;
   // Use compound operation to ensure update pushed as a batch
   this.model.beginCompoundOperation();
-  // Remove before set text to ensure full text change
-  this.lastUpdateUUID.removeRange(0, this.lastUpdateUUID.length);
-  this.lastUpdateUUID.setText(this.uuid);
-
-  $.each(keyArray, function(ind, key) {
-    var value = window.plugin[_this.pluginName][_this.fieldName][key];
-    if(typeof(value) !== 'undefined') {
-      _this.map.set(key, value);
-    } else {
-      _this.map.delete(key);
-    }
-  });
-  this.model.endCompoundOperation();
+  try {
+    // Remove before set text to ensure full text change
+    if (this.lastUpdateUUID.length > 0)
+      this.lastUpdateUUID.removeRange(0, this.lastUpdateUUID.length);
+    this.lastUpdateUUID.setText(this.uuid);
+  
+    $.each(keyArray, function(ind, key) {
+      var value = window.plugin[_this.pluginName][_this.fieldName][key];
+      if(typeof(value) !== 'undefined') {
+        _this.map.set(key, value);
+      } else {
+        _this.map.delete(key);
+      }
+    });
+  } finally {
+    // Ensure endCompoundOperation is always called (see bug #896)
+    this.model.endCompoundOperation();
+  }
 }
 
 window.plugin.sync.RegisteredMap.prototype.isUpdatedByOthers = function() {
@@ -440,7 +449,7 @@ window.plugin.sync.FileSearcher.prototype.initFile = function(assignIdCallback, 
   };
 
   searchCallback = function(resp) {
-    if(resp.items) {
+    if(resp.items && resp.items[0]) {
       handleFileId(resp.items[0].id);// file found
     } else if(!resp.error) {
       _this.createFileOrFolder(createCallback); // file not found, create file

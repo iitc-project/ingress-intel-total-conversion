@@ -2,15 +2,19 @@
 // @id             iitc-plugin-portal-names@zaso
 // @name           IITC plugin: Portal Names
 // @category       Layer
-// @version        0.1.4.@@DATETIMEVERSION@@
+// @version        0.1.6.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Show portal names on the map.
-// @include        https://www.ingress.com/intel*
-// @include        http://www.ingress.com/intel*
-// @match          https://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        https://*.ingress.com/intel*
+// @include        http://*.ingress.com/intel*
+// @match          https://*.ingress.com/intel*
+// @match          http://*.ingress.com/intel*
+// @include        https://*.ingress.com/mission/*
+// @include        http://*.ingress.com/mission/*
+// @match          https://*.ingress.com/mission/*
+// @match          http://*.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -72,6 +76,13 @@ window.plugin.portalNames.addLabel = function(guid, latLng) {
   }
 }
 
+window.plugin.portalNames.clearAllPortalLabels = function() {
+  for (var guid in window.plugin.portalNames.labelLayers) {
+    window.plugin.portalNames.removeLabel(guid);
+  }
+}
+
+
 window.plugin.portalNames.updatePortalLabels = function() {
   // as this is called every time layers are toggled, there's no point in doing it when the leyer is off
   if (!map.hasLayer(window.plugin.portalNames.labelLayerGroup)) {
@@ -82,7 +93,7 @@ window.plugin.portalNames.updatePortalLabels = function() {
 
   for (var guid in window.portals) {
     var p = window.portals[guid];
-    if (p._map) {  // only consider portals added to the map
+    if (p._map && p.options.data.title) {  // only consider portals added to the map and with a title
       var point = map.project(p.getLatLng());
       portalPoints[guid] = point;
     }
@@ -171,6 +182,8 @@ var setup = function() {
   window.addHook('requestFinished', function() { setTimeout(function(){window.plugin.portalNames.delayedUpdatePortalLabels(3.0);},1); });
   window.addHook('mapDataRefreshEnd', function() { window.plugin.portalNames.delayedUpdatePortalLabels(0.5); });
   window.map.on('overlayadd overlayremove', function() { setTimeout(function(){window.plugin.portalNames.delayedUpdatePortalLabels(1.0);},1); });
+  window.map.on('zoomend', window.plugin.portalNames.clearAllPortalLabels );
+
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////

@@ -1,0 +1,39 @@
+.leaflet-control-layer-count a
+{
+	background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCI+Cgk8ZyBzdHlsZT0iZmlsbDojMDAwMDAwO2ZpbGwtb3BhY2l0eTowLjQ7c3Ryb2tlOm5vbmUiPgoJCTxwYXRoIGQ9Ik0gNiwyNCAyNCwyNCAxNSw2IHoiLz4KCQk8cGF0aCBkPSJNIDYsMjQgMjQsMjQgMTUsMTIgeiIvPgoJCTxwYXRoIGQ9Ik0gNiwyNCAyNCwyNCAxNSwxOCB6Ii8+Cgk8L2c+Cjwvc3ZnPgo=");
+}
+.leaflet-control-layer-count a.active
+{
+	background-color: #BBB;
+}
+.leaflet-control-layer-count-tooltip
+{
+	background-color: rgba(255, 255, 255, 0.6);
+	display: none;
+	height: 24px;
+	left: 30px;
+	line-height: 24px;
+	margin-left: 15px;
+	margin-top: -12px;
+	padding: 0 10px;
+	position: absolute;
+	top: 50%;
+	white-space: nowrap;
+	width: auto;
+}
+.leaflet-control-layer-count a.active .leaflet-control-layer-count-tooltip
+{
+	display: block;
+}
+.leaflet-control-layer-count-tooltip:before
+{
+	border-color: transparent rgba(255, 255, 255, 0.6);
+	border-style: solid;
+	border-width: 12px 12px 12px 0;
+	content: "";
+	display: block;
+	height: 0;
+	left: -12px;
+	position: absolute;
+	width: 0;
+}

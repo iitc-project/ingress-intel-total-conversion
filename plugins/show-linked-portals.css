@@ -1,0 +1,64 @@
+#level {
+	text-align: center;
+	margin-right: -0.5em;
+	position: relative;
+	right: 50%;
+	width: 1em;
+}
+.showLinkedPortalLink {
+	cursor: pointer;
+	position: absolute;
+	height: 40px;
+	width: 50px;
+	border-width: 1px;
+	overflow: hidden;
+	text-align: center;
+	background: #0e3d4e;
+}
+.showLinkedPortalLink.outgoing {
+	border-style: dashed;
+}
+.showLinkedPortalLink.incoming {
+	border-style: dotted;
+}
+.showLinkedPortalLink .minImg {
+	height: 40px;
+}
+.showLinkedPortalLink.outOfRange span {
+	display: block;
+	line-height: 13px;
+	font-size: 10px;
+}
+.showLinkedPortalOverflow {
+	left: 50%;
+	margin-left:-25px;
+	cursor: default;
+}
+
+.showLinkedPortalLink1, .showLinkedPortalLink2, .showLinkedPortalLink3, .showLinkedPortalLink4 {
+	left: 5px;
+}
+.showLinkedPortalLink5, .showLinkedPortalLink6, .showLinkedPortalLink7, .showLinkedPortalLink8 {
+	right: 5px;
+}
+.showLinkedPortalLink9, .showLinkedPortalLink10, .showLinkedPortalLink11, .showLinkedPortalLink12 {
+	left: 59px;
+}
+.showLinkedPortalLink13, .showLinkedPortalLink14, .showLinkedPortalLink15, .showLinkedPortalLink16 {
+	right: 59px
+}
+
+.showLinkedPortalLink1, .showLinkedPortalLink5, .showLinkedPortalLink9, .showLinkedPortalLink13 {
+	top: 23px;
+}
+.showLinkedPortalLink2, .showLinkedPortalLink6, .showLinkedPortalLink10, .showLinkedPortalLink14 {
+	top: 72px;
+}
+.showLinkedPortalLink3, .showLinkedPortalLink7, .showLinkedPortalLink11, .showLinkedPortalLink15 {
+	top: 122px;
+}
+.showLinkedPortalLink4, .showLinkedPortalLink8, .showLinkedPortalLink12, .showLinkedPortalLink16,
+.showLinkedPortalOverflow {
+	top: 171px;
+}
+

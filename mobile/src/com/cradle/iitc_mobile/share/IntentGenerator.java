@@ -107,7 +107,8 @@ public class IntentGenerator {
 
     public ArrayList<Intent> getBrowserIntents(final String title, final String url) {
         final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         return resolveTargets(intent);
     }
@@ -115,7 +116,8 @@ public class IntentGenerator {
     public ArrayList<Intent> getGeoIntents(final String title, final String mLl, final int mZoom) {
         final Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
                 Uri.parse(String.format("geo:%s?z=%d", mLl, mZoom)))
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         final ArrayList<Intent> targets = resolveTargets(intent);
 

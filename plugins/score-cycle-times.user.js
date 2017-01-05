@@ -7,10 +7,14 @@
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Show the times used for the septicycle and checkpoints for regional scoreboards.
-// @include        https://www.ingress.com/intel*
-// @include        http://www.ingress.com/intel*
-// @match          https://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        https://*.ingress.com/intel*
+// @include        http://*.ingress.com/intel*
+// @match          https://*.ingress.com/intel*
+// @match          http://*.ingress.com/intel*
+// @include        https://*.ingress.com/mission/*
+// @include        http://*.ingress.com/mission/*
+// @match          https://*.ingress.com/mission/*
+// @match          http://*.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -60,7 +64,7 @@ window.plugin.scoreCycleTimes.update = function() {
     timeStr = timeStr.replace(/:00$/,''); //FIXME: doesn't remove seconds from AM/PM formatted dates
 
     return '<tr><td>'+label+'</td><td>'+timeStr+'</td></tr>';
-  }
+  };
 
   var html = '<table>'
            + formatRow('Cycle start', cycleStart)
@@ -72,7 +76,7 @@ window.plugin.scoreCycleTimes.update = function() {
   $('#score_cycle_times_display').html(html);
 
   setTimeout ( window.plugin.scoreCycleTimes.update, checkpointEnd-now);
-}
+};
 
 
 

@@ -102,16 +102,14 @@ body {
   margin-left: 5px !important;
 }
 
-.leaflet-control-layers {
-  display: none;    /* hide layer control - it's now handled by an in-app option */
+#searchwrapper {
+  font-size: 1.2em;
 }
-
-#geosearch {
-  width: 100%;
+#searchwrapper .ui-accordion-header {
+  padding: 0.3em 0;
 }
-
-#geosearchwrapper img {
-  display: none;
+#searchwrapper li {
+  line-height: 1.3em;
 }
 
 #chatcontrols {

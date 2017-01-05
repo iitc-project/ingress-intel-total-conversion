@@ -2,15 +2,19 @@
 // @id             iitc-plugin-guess-player-levels@breunigs
 // @name           IITC plugin: guess player level
 // @category       Info
-// @version        0.5.4.@@DATETIMEVERSION@@
+// @version        0.5.7.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Try to determine player levels from the data available in the current view.
-// @include        https://www.ingress.com/intel*
-// @include        http://www.ingress.com/intel*
-// @match          https://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        https://*.ingress.com/intel*
+// @include        http://*.ingress.com/intel*
+// @match          https://*.ingress.com/intel*
+// @match          http://*.ingress.com/intel*
+// @include        https://*.ingress.com/mission/*
+// @include        http://*.ingress.com/mission/*
+// @match          https://*.ingress.com/mission/*
+// @match          http://*.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -93,13 +97,10 @@ window.plugin.guessPlayerLevels.setLevelTitle = function(dom) {
   }
 
   var text = '<span style="color: ' + el.css("color") + '">' + nick + '</span>\n';
-  if(details.min == 8)
-    text += 'Player level: ' + getLevel(8);
-  else {
-    text += 'Min player level: ' + getLevel(details.min);
-    if(details.min != details.guessed)
-      text += '\nGuessed player level: ' + getLevel(details.guessed);
-  }
+  text += 'Min player level: ' + getLevel(details.min);
+  if(details.min != details.guessed)
+    text += '\nGuessed player level: ' + getLevel(details.guessed);
+
   window.setupTooltips(el);
 
   /*
@@ -121,9 +122,9 @@ window.plugin.guessPlayerLevels.setupChatNickHelper = function() {
 }
 
 window.plugin.guessPlayerLevels.extractPortalData = function(data) {
-  if(!data.success || !data.details.portalV2) return;
+  if(!data.success) return;
 
-  var r = data.details.resonatorArray.resonators;
+  var r = data.details.resonators;
 
   /* Due to the Jarvis Virus/ADA Refactor it's possible for a player to own resonators on a portal at a higher level
      than the player themselves. It is not possible to detect for sure when this has happened, but in many cases it will
@@ -189,7 +190,7 @@ window.plugin.guessPlayerLevels.extractChatData = function(data) {
     attackData[nick][timestamp].push(portal);
   }
 
-  data.raw.success.forEach(function(msg) {
+  data.result.forEach(function(msg) {
     var plext = msg[2].plext;
 
     // search for "x deployed an Ly Resonator on z"
@@ -259,9 +260,11 @@ window.plugin.guessPlayerLevels.extractChatData = function(data) {
       var latlngs = [];
       var portals = {};
       attackData[nick][timestamp].forEach(function(portal) {
-        if(portals.hasOwnProperty(portal.guid))
+        // no GUID in the data any more - but we need some unique string. use the latE6,lngE6
+        var id = portal.latE6+","+portal.lngE6;
+        if(portals.hasOwnProperty(id))
           return;
-        portals[portal.guid] = 1;
+        portals[id] = 1;
         latlngs.push({x: portal.lngE6/1E6, y:portal.latE6/1E6});
       });
       if(latlngs.length < 2) // we need at least 2 portals to calculate burster range
@@ -307,9 +310,18 @@ window.plugin.guessPlayerLevels.handleAttackData = function(nick, latlngs) {
   }
 
   var burster = window.plugin.guessPlayerLevels.BURSTER_RANGES;
-  for(var i=1; i<burster.length; i++) {
-    if(range > burster[i]) {
-      window.plugin.guessPlayerLevels.savePlayerLevel(nick, Math.min(i+1, MAX_PORTAL_LEVEL), false);
+
+
+  // res can be up to 40m from a portal, so attack notifications for portals, say, 100m apart could
+  // actually be a weapon range as low as 20m. however, typical deployments are a bit less than 40m, and resonators
+  // can only be deployed on the 8 compass points. a value of 40m x 2 would never be wrong
+  var reso_range_correction = 40*2;
+  // however, the full correction often under-estimates.
+
+  for(var i=burster.length-1; i>=1; i--) {
+    if(range >= (burster[i]+reso_range_correction)) {
+      window.plugin.guessPlayerLevels.savePlayerLevel(nick, Math.min(i+1, MAX_PORTAL_LEVEL), true);
+      break;
     }
   }
 
@@ -419,7 +431,7 @@ window.plugin.guessPlayerLevels.guess = function() {
   $.each(window.portals, function(guid,p) {
     var details = portalDetail.get(guid);
     if(details) {
-      var r = details.resonatorArray.resonators;
+      var r = details.resonators;
       $.each(r, function(ind, reso) {
         if(!reso) return true;
         var nick = reso.owner;

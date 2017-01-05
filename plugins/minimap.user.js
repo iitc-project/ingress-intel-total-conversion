@@ -2,15 +2,19 @@
 // @id             iitc-plugin-minimap@breunigs
 // @name           IITC plugin: Mini map
 // @category       Controls
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.2.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Show a mini map on the corner of the map.
-// @include        https://www.ingress.com/intel*
-// @include        http://www.ingress.com/intel*
-// @match          https://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        https://*.ingress.com/intel*
+// @include        http://*.ingress.com/intel*
+// @match          https://*.ingress.com/intel*
+// @match          http://*.ingress.com/intel*
+// @include        https://*.ingress.com/mission/*
+// @include        http://*.ingress.com/mission/*
+// @match          https://*.ingress.com/mission/*
+// @match          http://*.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -29,26 +33,14 @@ window.plugin.miniMap.setup  = function() {
   try { console.log('done loading leaflet.draw JS'); } catch(e) {}
 
   // we can't use the same TileLayer as the main map uses - it causes issues.
-  // stick with the MapQuest tiles for now
+  // stick with the Google tiles for now
 
-  //OpenStreetMap attribution - required by several of the layers
-  osmAttribution = 'Map data © OpenStreetMap contributors';
-
-  //MapQuest offer tiles - http://developer.mapquest.com/web/products/open/map
-  //their usage policy has no limits (except required notification above 4000 tiles/sec - we're perhaps at 50 tiles/sec based on CloudMade stats)
-  var mqSubdomains = [ 'otile1','otile2', 'otile3', 'otile4' ];
-  var mqTileUrlPrefix = window.location.protocol !== 'https:' ? 'http://{s}.mqcdn.com' : 'https://{s}-s.mqcdn.com';
-  var mqMapOpt = {attribution: osmAttribution+', Tiles Courtesy of MapQuest', maxZoom: 18, subdomains: mqSubdomains};
-  var mqMap = new L.TileLayer(mqTileUrlPrefix+'/tiles/1.0.0/map/{z}/{x}/{y}.jpg',mqMapOpt);
+  // desktop mode - bottom-left, so it doesn't clash with the sidebar
+  // mobile mode - bottom-right - so it floats above the map copyright text
+  var position = isSmartphone() ? 'bottomright' : 'bottomleft';
 
   setTimeout(function() {
-    if(!isSmartphone()) {
-      // desktop mode - bottom-left, so it doesn't clash with the sidebar
-      new L.Control.MiniMap(mqMap, {toggleDisplay: true, position: 'bottomleft'}).addTo(window.map);
-    } else {
-      // mobile mode - bottom-right - so it floats above the map copyright text
-      new L.Control.MiniMap(mqMap, {toggleDisplay: true, position: 'bottomright'}).addTo(window.map);
-    }
+    new L.Control.MiniMap(new L.Google('ROADMAP',{maxZoom:21}), {toggleDisplay: true, position: position}).addTo(window.map);
   }, 0);
 
   $('head').append('<style>@@INCLUDESTRING:external/Control.MiniMap.css@@</style>');

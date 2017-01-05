@@ -32,15 +32,17 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
-import com.cradle.iitc_mobile.prefs.PluginPreferenceActivity;
 import com.cradle.iitc_mobile.prefs.PreferenceActivity;
 import com.cradle.iitc_mobile.share.ShareActivity;
 
@@ -60,7 +62,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class IITC_Mobile extends Activity
-        implements OnSharedPreferenceChangeListener, NfcAdapter.CreateNdefMessageCallback {
+        implements OnSharedPreferenceChangeListener, NfcAdapter.CreateNdefMessageCallback, OnItemLongClickListener {
     private static final String mIntelUrl = "https://www.ingress.com/intel";
 
     private SharedPreferences mSharedPrefs;
@@ -81,11 +83,12 @@ public class IITC_Mobile extends Activity
     private EditText mEditCommand;
     private boolean mDebugging = false;
     private boolean mReloadNeeded = false;
-    private boolean mIsLoading = true;
+    private boolean mIsLoading = false;
     private boolean mShowMapInDebug = false;
+    private boolean mPersistentZoom = false;
     private final Stack<String> mDialogStack = new Stack<String>();
     private String mPermalink = null;
-    private String mSearchTerm = null;
+    private String mSearchTerm = "";
 
     // Used for custom back stack handling
     private final Stack<Pane> mBackStack = new Stack<IITC_NavigationHelper.Pane>();
@@ -113,6 +116,16 @@ public class IITC_Mobile extends Activity
         mViewDebug = findViewById(R.id.viewDebug);
         mBtnToggleMap = (ImageButton) findViewById(R.id.btnToggleMapVisibility);
         mEditCommand = (EditText) findViewById(R.id.editCommand);
+        mEditCommand.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(final View v, final int keyCode, final KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_ENTER && event.isCtrlPressed()) {
+                    onBtnRunCodeClick(v);
+                    return true;
+                }
+                return false;
+            }
+        });
         mEditCommand.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(final TextView v, final int actionId, final KeyEvent event) {
@@ -131,6 +144,7 @@ public class IITC_Mobile extends Activity
         });
 
         mLvDebug.setAdapter(new IITC_LogAdapter(this));
+        mLvDebug.setOnItemLongClickListener(this);
 
         // do something if user changed something in the settings
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -141,7 +155,10 @@ public class IITC_Mobile extends Activity
 
         // enable/disable advance menu
         final String[] menuDefaults = getResources().getStringArray(R.array.pref_android_menu_default);
-        mAdvancedMenu = mSharedPrefs.getStringSet("pref_android_menu", new HashSet<String>(Arrays.asList(menuDefaults)));
+        mAdvancedMenu = mSharedPrefs
+                .getStringSet("pref_android_menu", new HashSet<String>(Arrays.asList(menuDefaults)));
+
+        mPersistentZoom = mSharedPrefs.getBoolean("pref_persistent_zoom", false);
 
         // get fullscreen status from settings
         mIitcWebView.updateFullscreenStatus();
@@ -180,6 +197,9 @@ public class IITC_Mobile extends Activity
             if (mUserLocation.setLocationMode(mode))
                 mReloadNeeded = true;
             return;
+        } else if (key.equals("pref_persistent_zoom")) {
+            mPersistentZoom = mSharedPrefs.getBoolean("pref_persistent_zoom", false);
+            return;
         } else if (key.equals("pref_fullscreen")) {
             mIitcWebView.updateFullscreenStatus();
             mNavigationHelper.onPrefChanged();
@@ -195,7 +215,7 @@ public class IITC_Mobile extends Activity
         } else if (key.equals("pref_fake_user_agent")) {
             mIitcWebView.setUserAgent();
         } else if (key.equals("pref_last_plugin_update")) {
-            Long forceUpdate = sharedPreferences.getLong("pref_last_plugin_update", 0);
+            final Long forceUpdate = sharedPreferences.getLong("pref_last_plugin_update", 0);
             if (forceUpdate == 0) mFileManager.updatePlugins(true);
             return;
         } else if (key.equals("pref_update_plugins_interval")) {
@@ -255,33 +275,30 @@ public class IITC_Mobile extends Activity
                             .show();
                 }
             }
-
-            // intent MIME type and uri path may be null
-            final String type = intent.getType() == null ? "" : intent.getType();
-            final String path = uri.getPath() == null ? "" : uri.getPath();
-            if (path.endsWith(".user.js") || type.contains("javascript")) {
-                final Intent prefIntent = new Intent(this, PluginPreferenceActivity.class);
-                prefIntent.setDataAndType(uri, intent.getType());
-                startActivity(prefIntent);
-            }
         }
 
         if (Intent.ACTION_SEARCH.equals(action)) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            query = query.replace("'", "''");
-            final SearchView searchView =
-                    (SearchView) mSearchMenuItem.getActionView();
+            final String query = intent.getStringExtra(SearchManager.QUERY);
+            final SearchView searchView = (SearchView) mSearchMenuItem.getActionView();
             searchView.setQuery(query, false);
             searchView.clearFocus();
 
-            switchToPane(Pane.MAP);
-            mIitcWebView.loadUrl("javascript:search('" + query + "');");
+            search(query, true);
+
             return;
         }
 
         if (onCreate) {
             loadUrl(mIntelUrl);
         }
+    }
+
+    private void search(String term, final boolean confirmed) {
+        if (term.isEmpty() && !confirmed) return;
+
+        term = term.replace("'", "\\'");
+        mIitcWebView.loadUrl("javascript:if(window.search&&window.search.doSearch){window.search.doSearch('" + term
+                + "'," + confirmed + ");}");
     }
 
     private void handleGeoUri(final Uri uri) throws URISyntaxException {
@@ -343,8 +360,7 @@ public class IITC_Mobile extends Activity
                 mSearchTerm = search;
                 loadUrl(mIntelUrl);
             } else {
-                switchToPane(Pane.MAP);
-                mIitcWebView.loadUrl("javascript:search('" + search + "');");
+                search(search, true);
             }
             return;
         }
@@ -364,7 +380,7 @@ public class IITC_Mobile extends Activity
             if (findViewById(R.id.imageLoading).getVisibility() == View.GONE) {
                 // enough idle...let's do some work
                 Log.d("resuming...reset idleTimer");
-                mIitcWebView.loadUrl("javascript: window.idleReset();");
+                mIitcWebView.loadJS("(function(){if(window.idleReset) window.idleReset();})();");
             }
         }
 
@@ -496,6 +512,19 @@ public class IITC_Mobile extends Activity
     }
 
     @Override
+    public boolean onKeyDown(final int keyCode, final KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_SEARCH) {
+            mSearchMenuItem.expandActionView();
+
+            final SearchView tv = (SearchView) mSearchMenuItem.getActionView();
+            tv.setQuery(mSearchTerm, false);
+            tv.requestFocus();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
@@ -506,6 +535,34 @@ public class IITC_Mobile extends Activity
         // Assumes current activity is the searchable activity
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(final String query) {
+                mSearchTerm = query;
+                search(query, true);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(final String query) {
+                if (!query.isEmpty()) {
+                    mSearchTerm = query;
+                    search(query, false);
+                }
+                return true;
+            }
+        });
+
+        // the SearchView does not allow submitting an empty query, so we catch the clear button
+        final View buttonClear = searchView.findViewById(
+                getResources().getIdentifier("android:id/search_close_btn", null, null));
+        if (buttonClear != null) buttonClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                searchView.setQuery("", false);
+                search("", true);
+            }
+        });
         return true;
     }
 
@@ -515,6 +572,8 @@ public class IITC_Mobile extends Activity
         if (mNavigationHelper != null) visible = !mNavigationHelper.isDrawerOpened();
         if (mIsLoading) visible = false;
 
+        ((SearchView) menu.findItem(R.id.menu_search).getActionView()).setQuery(mSearchTerm, false);
+
         for (int i = 0; i < menu.size(); i++) {
             final MenuItem item = menu.getItem(i);
             final boolean enabled = mAdvancedMenu.contains(item.getTitle());
@@ -522,6 +581,13 @@ public class IITC_Mobile extends Activity
             switch (item.getItemId()) {
                 case R.id.action_settings:
                     item.setVisible(true);
+                    break;
+
+                case R.id.toggle_fullscreen:
+                    item.setChecked(mIitcWebView.isInFullscreen());
+                    item.setIcon(mIitcWebView.isInFullscreen()
+                            ? R.drawable.ic_action_return_from_full_screen
+                            : R.drawable.ic_action_full_screen);
                     break;
 
                 case R.id.locate:
@@ -533,7 +599,7 @@ public class IITC_Mobile extends Activity
                     break;
 
                 case R.id.menu_debug:
-                    item.setVisible(enabled && visible);
+                    item.setVisible(enabled);
                     item.setChecked(mDebugging);
                     break;
 
@@ -570,10 +636,11 @@ public class IITC_Mobile extends Activity
 
                 if (mUserLocation.hasCurrentLocation()) {
                     // if gps location is displayed we can use a better location without any costs
-                    mUserLocation.locate();
+                    mUserLocation.locate(mPersistentZoom);
                 } else {
                     // get location from network by default
-                    mIitcWebView.loadUrl("javascript: window.map.locate({setView : true});");
+                    mIitcWebView.loadUrl("javascript: window.map.locate({setView : true" +
+                            (mPersistentZoom ? ", maxZoom : map.getZoom()" : "") + "});");
                 }
                 return true;
             case R.id.action_settings: // start settings activity
@@ -611,29 +678,28 @@ public class IITC_Mobile extends Activity
     }
 
     public void reloadIITC() {
-        mNavigationHelper.reset();
-        mMapSettings.reset();
-        mUserLocation.reset();
-        mIitcWebView.getWebViewClient().reset();
-        mBackStack.clear();
-        // iitc starts on map after reload
-        mCurrentPane = Pane.MAP;
         loadUrl(mIntelUrl);
         mReloadNeeded = false;
     }
 
     // vp=f enables mDesktopMode mode...vp=m is the default mobile view
     private String addUrlParam(final String url) {
-        if (mDesktopMode) {
-            return (url + "?vp=f");
-        } else {
-            return (url + "?vp=m");
-        }
+        return url + (url.contains("?") ? '&' : '?') + "vp=" + (mDesktopMode ? 'f' : 'm');
+    }
+
+    public void reset() {
+        mNavigationHelper.reset();
+        mMapSettings.reset();
+        mUserLocation.reset();
+        mIitcWebView.getWebViewClient().reset();
+        mBackStack.clear();
+        mCurrentPane = Pane.MAP;
     }
 
     // inject the iitc-script and load the intel url
     // plugins are injected onPageFinished
     public void loadUrl(String url) {
+        reset();
         setLoadingState(true);
         url = addUrlParam(url);
         mIitcWebView.loadUrl(url);
@@ -712,22 +778,23 @@ public class IITC_Mobile extends Activity
     }
 
     public void setLoadingState(final boolean isLoading) {
-        mIsLoading = isLoading;
-        mNavigationHelper.onLoadingStateChanged();
-        invalidateOptionsMenu();
-        updateViews();
-        if (!isLoading) mFileManager.updatePlugins(false);
+        if (isLoading == mIsLoading) return;
 
-        if (mSearchTerm != null && !isLoading) {
+        if (mSearchTerm != null && !mSearchTerm.isEmpty() && mIsLoading && !isLoading) {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    // switchToPane(Pane.MAP);
-                    mIitcWebView.loadUrl("javascript:search('" + mSearchTerm + "');");
-                    mSearchTerm = null;
+                    search(mSearchTerm, true);
                 }
             }, 5000);
         }
+
+        mIsLoading = isLoading;
+        mNavigationHelper.onLoadingStateChanged();
+        mUserLocation.onLoadingStateChanged();
+        invalidateOptionsMenu();
+        updateViews();
+        if (!isLoading) mFileManager.updatePlugins(false);
     }
 
     private void updateViews() {
@@ -780,7 +847,7 @@ public class IITC_Mobile extends Activity
         final String js = "(function(obj){var result;" +
                 "console.log('>>> ' + obj.code);" +
                 "try{result=eval(obj.code);}catch(e){if(e.stack) console.error(e.stack);throw e;}" +
-                "if(result!==undefined) console.log(result.toString());" +
+                "if(result!==undefined) console.log(result===null?null:result.toString());" +
                 "})(" + obj.toString() + ");";
 
         mIitcWebView.loadJS(js);
@@ -793,6 +860,14 @@ public class IITC_Mobile extends Activity
     {
         mShowMapInDebug = !mShowMapInDebug;
         updateViews();
+    }
+
+    /**
+     * onClick handler for R.id.btnClearLog, assigned in activity_main.xml
+     */
+    public void onClearLog(final View v)
+    {
+        ((IITC_LogAdapter) mLvDebug.getAdapter()).clear();
     }
 
     private void deleteUpdateFile() {
@@ -913,5 +988,34 @@ public class IITC_Mobile extends Activity
             };
         }
         return new NdefMessage(records);
+    }
+
+    @Override
+    public boolean onItemLongClick(final AdapterView<?> parent, final View view, final int position, final long id) {
+        if (parent == mLvDebug) {
+            final IITC_LogAdapter adapter = ((IITC_LogAdapter) parent.getAdapter());
+            final Log.Message item = adapter.getItem(position);
+
+            final PopupMenu popupMenu = new PopupMenu(this, view);
+            popupMenu.getMenuInflater().inflate(R.menu.debug, popupMenu.getMenu());
+
+            popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(final MenuItem menuitem) {
+                    switch (menuitem.getItemId()) {
+                        case R.id.menu_copy:
+                            mIitcWebView.getJSInterface().copy(item.toString());
+                            return true;
+                        case R.id.menu_delete:
+                            adapter.remove(item);
+                            return true;
+                    }
+                    return false;
+                }
+            });
+
+            popupMenu.show();
+        }
+        return false;
     }
 }

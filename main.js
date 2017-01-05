@@ -1,15 +1,19 @@
 // ==UserScript==
 // @id             ingress-intel-total-conversion@jonatkins
 // @name           IITC: Ingress intel map total conversion
-// @version        0.16.13.@@DATETIMEVERSION@@
+// @version        0.26.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Total conversion for the ingress intel map.
-// @include        http://www.ingress.com/intel*
-// @include        https://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
-// @match          https://www.ingress.com/intel*
+// @include        https://*.ingress.com/intel*
+// @include        http://*.ingress.com/intel*
+// @match          https://*.ingress.com/intel*
+// @match          http://*.ingress.com/intel*
+// @include        https://*.ingress.com/mission/*
+// @include        http://*.ingress.com/mission/*
+// @match          https://*.ingress.com/mission/*
+// @match          http://*.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -23,18 +27,11 @@ window.iitcBuildDate = '@@BUILDDATE@@';
 window.onload = function() {};
 document.body.onload = function() {};
 
-// rescue user data from original page
-var scr = document.getElementsByTagName('script');
-for(var x in scr) {
-  var s = scr[x];
-  if(s.src) continue;
-  if(s.type !== 'text/javascript') continue;
-  var d = s.innerHTML.split('\n');
-  break;
-}
 
+//originally code here parsed the <Script> tags from the page to find the one that defined the PLAYER object
+//however, that's already been executed, so we can just access PLAYER - no messing around needed!
 
-if(!d) {
+if (typeof(window.PLAYER)!="object" || typeof(window.PLAYER.nickname) != "string") {
   // page doesn’t have a script tag with player information.
   if(document.getElementById('header_email')) {
     // however, we are logged in.
@@ -49,11 +46,6 @@ if(!d) {
 }
 
 
-for(var i = 0; i < d.length; i++) {
-  if(!d[i].match('var PLAYER = ')) continue;
-  eval(d[i].match(/^var /, 'window.'));
-  break;
-}
 // player information is now available in a hash like this:
 // window.PLAYER = {"ap": "123", "energy": 123, "available_invites": 123, "nickname": "somenick", "team": "ENLIGHTENED||RESISTANCE"};
 
@@ -67,38 +59,40 @@ document.getElementsByTagName('head')[0].innerHTML = ''
 //note: smartphone.css injection moved into code/smartphone.js
   + '<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:100,100italic,300,300italic,400,400italic,500,500italic,700,700italic&subset=latin,cyrillic-ext,greek-ext,greek,vietnamese,latin-ext,cyrillic"/>';
 
+
 document.getElementsByTagName('body')[0].innerHTML = ''
   + '<div id="map">Loading, please wait</div>'
   + '<div id="chatcontrols" style="display:none">'
-  + '  <a><span class="toggle expand"></span></a>'
-  +   '<a>full</a><a>compact</a><a>public</a><a class="active">faction</a>'
+  + '<a accesskey="0" title="[0]"><span class="toggle expand"></span></a>'
+  + '<a accesskey="1" title="[1]">all</a>'
+  + '<a accesskey="2" title="[2]" class="active">faction</a>'
+  + '<a accesskey="3" title="[3]">alerts</a>'
   + '</div>'
   + '<div id="chat" style="display:none">'
   + '  <div id="chatfaction"></div>'
-  + '  <div id="chatpublic"></div>'
-  + '  <div id="chatcompact"></div>'
-  + '  <div id="chatfull"></div>'
+  + '  <div id="chatall"></div>'
+  + '  <div id="chatalerts"></div>'
   + '</div>'
   + '<form id="chatinput" style="display:none"><table><tr>'
   + '  <td><time></time></td>'
   + '  <td><mark>tell faction:</mark></td>'
-  + '  <td><input id="chattext" type="text" maxlength="256" /></td>'
+  + '  <td><input id="chattext" type="text" maxlength="256" accesskey="c" title="[c]" /></td>'
   + '</tr></table></form>'
-  + '<a id="sidebartoggle"><span class="toggle close"></span></a>'
+  + '<a id="sidebartoggle" accesskey="i" title="Toggle sidebar [i]"><span class="toggle close"></span></a>'
   + '<div id="scrollwrapper">' // enable scrolling for small screens
   + '  <div id="sidebar" style="display: none">'
   + '    <div id="playerstat">t</div>'
   + '    <div id="gamestat">&nbsp;loading global control stats</div>'
-  + '    <div id="geosearchwrapper">'
-  + '      <input id="geosearch" placeholder="Search location…" type="text"/>'
-  + '      <img src="@@INCLUDEIMAGE:images/current-location.png@@"/ title="Current Location">'
+  + '    <div id="searchwrapper">'
+  + '      <button title="Current location" id="buttongeolocation"><img src="@@INCLUDEIMAGE:images/current-location.png@@" alt="Current location"/></button>'
+  + '      <input id="search" placeholder="Search location…" type="search" accesskey="f" title="Search for a place [f]"/>'
   + '    </div>'
   + '    <div id="portaldetails"></div>'
-// redeeming removed from stock site, so commented out for now. it may return...
-//  + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
+  + '    <input id="redeem" placeholder="Redeem code…" type="text"/>'
   + '    <div id="toolbox">'
   + '      <a onmouseover="setPermaLink(this)" onclick="setPermaLink(this);return androidPermalink()" title="URL link to this map view">Permalink</a>'
   + '      <a onclick="window.aboutIITC()" style="cursor: help">About IITC</a>'
+  + '      <a onclick="window.regionScoreboard()" title="View regional scoreboard">Region scores</a>'
   + '    </div>'
   + '  </div>'
   + '</div>'
@@ -114,15 +108,7 @@ function wrapper(info) {
 // (not the full GM_info - it contains the ENTIRE script source!)
 window.script_info = info;
 
-// disabling of some cruft left behind by the stock site
-try {
-  goog.events.removeAll();
-  goog.Timer.clear();
-} catch(e) {
-  console.warn('Exception from trying to clear stock site stuff');
-  console.warn(e);
-  debugger; // debugger break
-}
+
 
 
 // LEAFLET PREFER CANVAS ///////////////////////////////////////////////
@@ -138,13 +124,10 @@ window.ZOOM_LEVEL_ADJ = 5; // add 5 seconds per zoom level
 window.ON_MOVE_REFRESH = 2.5;  //refresh time to use after a movement event
 window.MINIMUM_OVERRIDE_REFRESH = 10; //limit on refresh time since previous refresh, limiting repeated move refresh rate
 window.REFRESH_GAME_SCORE = 15*60; // refresh game score every 15 minutes
-window.MAX_IDLE_TIME = 4*60; // stop updating map after 4min idling
+window.MAX_IDLE_TIME = 15*60; // stop updating map after 15min idling
 window.HIDDEN_SCROLLBAR_ASSUMED_WIDTH = 20;
 window.SIDEBAR_WIDTH = 300;
 
-// how many items to request each query
-window.CHAT_PUBLIC_ITEMS = 50;
-window.CHAT_FACTION_ITEMS = 50;
 // how many pixels to the top before requesting new data
 window.CHAT_REQUEST_SCROLL_TOP = 200;
 window.CHAT_SHRINKED = 60;
@@ -156,9 +139,9 @@ window.FIELD_MU_DISPLAY_AREA_ZOOM_RATIO = 0.001;
 window.FIELD_MU_DISPLAY_POINT_TOLERANCE = 60
 
 window.COLOR_SELECTED_PORTAL = '#f0f';
-window.COLORS = ['#FF9900', '#0088FF', '#03DC03']; // none, res, enl
+window.COLORS = ['#FF6600', '#0088FF', '#03DC03']; // none, res, enl
 window.COLORS_LVL = ['#000', '#FECE5A', '#FFA630', '#FF7315', '#E40000', '#FD2992', '#EB26CD', '#C124E0', '#9627F4'];
-window.COLORS_MOD = {VERY_RARE: '#F78AF6', RARE: '#AD8AFF', COMMON: '#84FBBD'};
+window.COLORS_MOD = {VERY_RARE: '#b08cff', RARE: '#73a8ff', COMMON: '#8cffbf'};
 
 
 window.MOD_TYPE = {RES_SHIELD:'Shield', MULTIHACK:'Multi-hack', FORCE_AMP:'Force Amp', HEATSINK:'Heat Sink', TURRET:'Turret', LINK_AMPLIFIER: 'Link Amp'};
@@ -169,13 +152,12 @@ window.MOD_TYPE = {RES_SHIELD:'Shield', MULTIHACK:'Multi-hack', FORCE_AMP:'Force
 window.ACCESS_INDICATOR_COLOR = 'orange';
 window.RANGE_INDICATOR_COLOR = 'red'
 
-// by how much pixels should the portal range be expanded on mobile
-// devices. This should make clicking them easier.
-window.PORTAL_RADIUS_ENLARGE_MOBILE = 5;
-
+// min zoom for intel map - should match that used by stock intel
+window.MIN_ZOOM = 3;
 
 window.DEFAULT_PORTAL_IMG = '//commondatastorage.googleapis.com/ingress.com/img/default-portal-image.png';
-window.NOMINATIM = 'http://nominatim.openstreetmap.org/search?format=json&limit=1&q=';
+//window.NOMINATIM = '//open.mapquestapi.com/nominatim/v1/search.php?format=json&polygon_geojson=1&q=';
+window.NOMINATIM = '//nominatim.openstreetmap.org/search?format=json&polygon_geojson=1&q=';
 
 // INGRESS CONSTANTS /////////////////////////////////////////////////
 // http://decodeingress.me/2012/11/18/ingress-portal-levels-and-link-range/
@@ -210,8 +192,7 @@ window.DEG2RAD = Math.PI / 180;
 // getters/setters, but if you are careful enough, this works.
 window.refreshTimeout = undefined;
 window.urlPortal = null;
-window.playersToResolve = [];
-window.playersInResolving = [];
+window.urlPortalLL = null;
 window.selectedPortal = null;
 window.portalRangeIndicator = null;
 window.portalAccessIndicator = null;

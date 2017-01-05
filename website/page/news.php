@@ -1,5 +1,284 @@
 <h2>News</h2>
 
+<h4>12th September 2015</h4>
+<p>
+IITC 0.25.0 has been released. This is a critical update to fix things after a Niantic site update.
+</p>
+<p>
+Other changes include
+</p>
+<ul>
+<li>"Placeholder portals". Like stock intel, IITC creates clickable portals at the end of links. Portal highlighters
+won't work on these as they don't contain enough information</li>
+<li>Artifacts loading fixed after a change in data format by Niantic</li>
+<li>'show-more-portals' plugin is no longer required - Niantic now return all portals at zoom 15, rather than zoom 17</li>
+<li>New plugin: "cache-details-on-map". Caches the portal details as you select portals, and keeps these portals on the map
+even when you zoom out</li>
+<li>and other tweaks/bugfixes</li>
+</ul>
+<b>Update 17th September 2015</b>
+<p>IITC 0.25.1 released. This fixes search not working after MapQuest made a change to their API.</p>
+
+
+<h4>27th June 2015</h4>
+<p>
+IITC 0.24.0 has been released. This is a critical update needed to fix the map not loading any data.
+</p>
+<p>
+NOTE: Niantic have removed portals from the map data at all but the closest of zoom levels (L1+ - zoom 15+).
+The stock intel site creates dummy placeholder portals at the anchors for links, allowing you to click and open the
+portal details. However, IITC does not do this yet. It will take some time to modify IITC and the plugins to allow
+for such placeholder portals, so making a first release without them.
+</p>
+
+<h4>27th May 2015</h4>
+<p>
+IITC 0.23.0 has been released. This is a critical update needed to fix IITC after a Niantic site update.
+</p>
+
+<h4>8th May 2015</h4>
+<p>
+IITC 0.22.3 has been released. Changes include
+</p>
+<ul>
+<li>Lightman Shards supported</li>
+<li>Workaround for map loading not reaching 100%</li>
+<li>IITC Mobile: fix dialogs not appearing on Android 5 with the System WebView update</li>
+<li>Remove unnecessary prompt on botguard script response</li>
+<li>Plugin: Missions - full mission support</li>
+<li>Plugin: show-linked-portals - more details shown</li>
+<li>Plugin: show-more-portals - enabled again for one zoom level</li>
+</ul>
+
+<h4>4th April 2015</h4>
+<p>
+IITC 0.22.2 has been released. This is a critical update needed to fix portal loading at some zoom levels.
+</p>
+
+<h4>20th March 2015</h4>
+<p>
+IITC 0.22.1 has been released. This is a critical update needed to fix COMM after a recent Niantic site update.
+</p>
+<p>
+Other changes
+</p>
+<ul>
+<li>Fix Sh&#333;nin artifacts on the map and portal details</li>
+<li>distance-to-portal plugin: integrate with portals list plugin</li>
+<li>missions: start of work for missions support. It will take some time to support them completely, but for now there's a highlighter for mission start points</li>
+</ul>
+
+<h4>27th Febuary 2015</h4>
+<p>
+IITC 0.22.0 has been released. This is a critical update needed to fix loading of portal details after the recent
+Niantic site update.
+</p>
+<p>
+Major update to IITC's search system. Multiple search results are listed and specific results selected.
+Visible portals are also searched, numerical lat/lng search added, and some plugins also integrate with the new
+search feature: player-tracker (player name search), regions (region name search), bookmarks, 
+<p>
+<ul>
+<li>needs-recharge highlighter: colours/opacity tweaked, should be clearer now</li>
+<li>show-linked-portals: fix bugs, and highlight link/target portal on hover</li>
+<li>new plugin: distance-to-portal. Manually set your location, and the distance to the selected portal is shown</li>
+</ul>
+<p>
+...plus other minor bug fixes and optimisations.
+</p>
+
+<h4>8th Febuary 2015</h4>
+<p>
+IITC 0.21.2 has been released. This is a simple bugfix over the 0.21.1 release, where for some users IITC would crash
+at startup, being stuck on 'loading'
+</p>
+
+<h4>7th Febuary 2015</h4>
+<p>
+IITC 0.21.1 has just been released. This is (yet another) critical update required to work with internal changes to the
+stock intel site.
+</p>
+
+<h4>30th January 2015</h4>
+<p>
+IITC 0.21.0 has just been released. This is a critical update needed to fix things after a Niantic site update.
+</p>
+<p>
+Also, a few bug fixes are included since the previous release, but no major updates.
+</p>
+
+<h4>25th January 2015</h4>
+<p>
+IITC 0.20.1 has been released. This is an important release that changes how the COMM tabs work,
+to avoid IITC making excessive requests in some cases, possibly leading to intel bans.
+</p>
+<p>
+This has, unfortunately, required the removal of the full/compact/public COMM tabs, instead IITC has an 'all' tab,
+just like the standard intel site. Also, the 'alerts' tab from the standard site has been added to IITC.
+See <a href="https://plus.google.com/105383756361375410867/posts/b9ihAer4Fxm">this post</a>
+for details about why this was needed.
+</p>
+<p>
+Also, other various tweaks and bugfixes.
+</p>
+<p>
+I'm sure many people will miss the public COMM tab. The best way for this to return is for Niantic to change the COMM tabs of the standard intel site, so it's supported server-side. My suggestion for Niantic is to remove the 'all' tab, instead having:
+</p>
+<ul>
+<li>'system' - the 'captured a portal/deployed a resonator/created a link/etc' messages (internally, the SYSTEM_BROADCAST type) only</li>
+<li>'public' - the cross-faction public user chat only - everything in the specificed range, and all public @mentions from any range</li>
+<li>'faction' - pretty much as it is now - your faction user chat messages, plus all faction @mentions from any range</li>
+<li>'alerts' - as it is now - the 'your portal is under attack' messages (internally, the SYSTEM_NARROWCAST type), plus @mentions at any range</li>
+</ul>
+<p>
+These changes should also be made to the app as well as the intel site.
+</p>
+
+<h4>10th January 2015</h4>
+<p>
+IITC 0.20.0 released. This is a critical update to fix loading of portals/links/fields after a protocol change by Niantic.
+</p>
+<p>Other changes include</p>
+<ul>
+<li>Improvements to the regional scoreboard display</li>
+<li>Two new default map themes, from CartoDB - one dark, one light</li>
+<li>..and other tweaks/bugfixes</li>
+</ul>
+
+<h4>21st December 2014</h4>
+<p>
+IITC 0.19.0 / IITC Mobile 0.19.0 released.
+</p>
+<p>Changes include</p>
+<ul>
+<li>Version numbers of IITC Mobile have been changed to keep in sync with the main IITC desktop scripts</li>
+<li>Support for regional scores added</li>
+<li>draw-tools: update the copy+paste import/export process to support links as stock intel URL formats, for exchanging plans with non-IITC users.</li>
+<li>IITC Mobile: sometimes the app wouldn't detect the screen size properly on startup, requiring a reload/screen rotation - fixed<./li>
+<li>Fix URL parameter parsing to handle commas encoded as %3C</li>
+<li>New plugin done-links: a companion to cross-links - it highlights any drawn links that already exist.</li>
+<li>Sync plugin: a couple of bugfixes - it may work better now - not sure if it's 100%</li>
+<li>..and other tweaks/bugfixes, as always</li>
+</ul>
+
+<h4>7th November 2014</h4>
+<p>
+IITC 0.18.3 / IITC Mobile 0.11.9 released.
+</p>
+<p>
+This is a critical update, required to fix IITC after a change to the standard intel site.
+No other significant changes have been made.
+</p>
+
+<h4>24th October 2014</h4>
+<p>
+IITC 0.18.2 / IITC Mobile 0.11.8 released.
+</p>
+<p>
+While previous release continue to work in most situations, this IITC update is highly recommended.
+After seeing recent changes to the stock intel map I've had a rethink about how IITC handles loading and
+optimising requests, particularly when it comes to viewing country-wide regions and above. It made me realise that
+fewer requests sent may not actually mean it's friendlier to the servers, so IITC has been updated to match
+the standard intel site in the number of, and batching, of requests.
+</p>
+<p>
+Fixes
+</p>
+<ul>
+<li>Game score loads correctly, rather than showing 'NaN'</li>
+<li>portals load correctly for large-scale views (US/Europe sized regions)</li>
+<li>draw-tools plugin: new feature in the DrawTools Opt dialog - 'Snap to portal'. This moves line/polygon/markers to the exact center of the closest portal. Best used when zoomed in close to the map, to ensure the right portal is the target.</li>
+<li>show-less-portals-zoomed-out: this plugin has been brought out of retirement, and updated to work in a more sensible way. It now works as if you were using the portal level filter on the standard site, rather than changing the types of requests. If the min portal was L4+ or L5+, it becomes L6+, L6+ becomes L7+, and L7+ becomes L8. I recommend trying this plugin when viewing large areas of the map - fewer portals loaded, but no changes in detail when it comes to links and fields. This plugin can be found in the 'Tweaks' category.</li>
+</ul>
+<p>
+Plus, as always, other minor tweaks and bugfixes.
+</p>
+
+<h4>6th October 2014</h4>
+<p>
+IITC 0.18.1 and IITC Mobile 0.11.7 have just been released. Changes include
+</p>
+<ul>
+<li>Added support for 'ornaments' - per-portal markers sent from the server, currently used for anomaly portals.</li>
+<li>Player tracker plugin - fix player tracker when faction COMM is viewed.</li>
+<li>Passcodes - fix displaying results from passcode redemption.</li>
+<li>Other minor tweaks and bugfixes.</li>
+</ul>
+
+<h4>17th September 2014</h4>
+<p>
+IITC 0.18.0 and IITC Mobile 0.11.6 have just been released. This is an important update required to fix a few
+problems caused in recent Niantic site updates.
+</p>
+<p>Changes include:</p>
+<ul>
+<li>New plugin: layer count. Counts the number of overlapping layers on the map at the selected point</li>
+<li>Portals list plugin: A major update, including integration with the bookmarks and uniques plugins</li>
+<li>COMM bugfixes: only load the visible tab (in preperation for adding the 'alerts' tab), and fix COMM not loading on global map view</li>
+<li>plus other tweaks and bugfixes...</li>
+</ul>
+
+<h4>15th August 2014</h4>
+<p>
+IITC 0.17.5 and IITC Mobile 0.11.5 have just been released. This is a critical update required to work
+with the latest changes to the standard intel site.
+</p>
+<p>
+Along with the fixes needed to work with the Niantic changes, the only other change since the previous
+release is a minor colour scheme change for mods, to match the standard intel site. Rare is now a
+shade of blue (rather than purple), and very rare is now purple (rather than pink).
+</p>
+
+<h4>14th August 2014</h4>
+<p>
+IITC 0.17.4 and IITC Mobile 0.11.4 have just been released. Changes include:
+</p>
+<ul>
+<li>Support for the Helios artifacts</li>
+<li>New plugin: 'uniques' - allows manual and partial automatic tracking of unique portals visited/captured</li>
+<li>Passcodes can be redeemed - enter them in the box below the portal details in the sidebar</li>
+<li>Big improvements in network error handling - including a new prompt when IITC needs a reload after a Niantic site update</li>
+<li>and, as usual, other tweaks and bugfixes</li>
+</ul>
+
+<h4>5th July 2014</h4>
+<p>
+IITC 0.17.3 and IITC Mobile 0.11.3 have just been released. Changes include:
+</p>
+<ul>
+<li>Leaflet updated: some bugfixes for the map engine IITC uses.</li>
+<li>Keyboard shortcuts: limited testing so far, so considered experimental. More details in 
+<a href="https://plus.google.com/116983602532788146323/posts/7omuVsv3c1g">this post</a>.</li>
+<li>New plugin "Cross Links". This works with the "draw tools" plugin, highlighting any existing links that cross
+drawn lines/polygons. Very useful to see what needs clearing when planning large fields.</li>
+<li>and, as always, other minor tweaks and bugfixes</li>
+</ul>
+
+<h4>16th June 2014</h4>
+<p>
+IITC 0.17.2 and IITC Mobile 0.11.2 have just been release. This is to fix the display of portal details - in particular,
+the 'owner' field - after Niantic removed the capture date from the standard site and data.
+</p>
+
+<h4>31st May 2014</h4>
+<p>
+IITC 0.17.1 and IITC Mobile 0.11.1 have just been released.
+</p>
+<p>
+Another critical update, due to more changes by Niantic. Hopefully the last one for a while - all recent breaking changes
+were caused by Niantic removing the obsfucation of data requests one bit at a time - the final piece has been removed now.
+</p>
+<p>
+<b>Lost bookmarks? Drawn items?</b> In the latest Niantic site update they changed the server to always go to the
+<code>http<b>s</b></code> version. It is possible to copy your data to the new location - further details
+<a href="https://plus.google.com/105383756361375410867/posts/749UX2nQcaP">here</a>.
+</p>
+<p>
+Additionally, a few bugs were fixed since the previous release, and now most map layers support zooming in closer than before.
+<b>Note</b>: There can be issues on Chrome when zooming beyond zoom level 18 (the previous default maximum for several maps).
+Just zoom out again if the zoom/layer controls, or the COMM panel, disappear.
+</p>
+
 <h4>24th May 2014</h4>
 <p>
 And another IITC update, IITC 0.16.12 and IITC Mobile 0.11.0 have just been released, to fix things after the most recent

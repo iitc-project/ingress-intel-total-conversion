@@ -29,3 +29,17 @@
     bottom: 0;
     right: 0; 
 }
+.leaflet-left .leaflet-control-minimap-toggle-display {
+    left: 0;
+    right: auto;
+    transform: scaleX(-1);
+}
+.leaflet-top .leaflet-control-minimap-toggle-display {
+    bottom: auto;
+    top: 0;
+    transform: scaleY(-1);
+}
+.leaflet-top.leaflet-left .leaflet-control-minimap-toggle-display {
+    transform: scaleY(-1) scaleX(-1);
+}
+

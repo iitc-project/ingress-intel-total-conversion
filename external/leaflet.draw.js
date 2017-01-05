@@ -1602,7 +1602,7 @@ L.GeometryUtil = {
 				area += ((p2.lng - p1.lng) * d2r) *
 						(2 + Math.sin(p1.lat * d2r) + Math.sin(p2.lat * d2r));
 			}
-			area = area * 6378137.0 * 6378137.0 / 2.0;
+			area = area * 6367000.0 * 6367000.0 / 2.0;
 		}
 
 		return Math.abs(area);

@@ -10,7 +10,7 @@
 (function(){
 
 var cache;
-
+var requestQueue = {};
 
 window.portalDetail = function() {};
 
@@ -30,26 +30,50 @@ window.portalDetail.isFresh = function(guid) {
 
 
 var handleResponse = function(guid, data, success) {
+  delete requestQueue[guid];
+
+  if (!data || data.error || !data.result) {
+    success = false;
+  }
 
   if (success) {
-    cache.store(guid,data);
+
+    var dict = decodeArray.portalDetail(data.result);
+
+    // entity format, as used in map data
+    var ent = [guid,dict.timestamp,data.result];
+
+    cache.store(guid,dict);
 
     //FIXME..? better way of handling sidebar refreshing...
 
     if (guid == selectedPortal) {
       renderPortalDetails(guid);
     }
+
+    window.runHooks ('portalDetailLoaded', {guid:guid, success:success, details:dict, ent:ent});
+
+  } else {
+    if (data && data.error == "RETRY") {
+      // server asked us to try again
+      portalDetail.request(guid);
+    } else {
+      window.runHooks ('portalDetailLoaded', {guid:guid, success:success});
+    }
   }
 
-  window.runHooks ('portalDetailLoaded', {guid:guid, success:success, details:data});
 }
 
 window.portalDetail.request = function(guid) {
+  if (!requestQueue[guid]) {
+    requestQueue[guid] = true;
 
-  window.postAjax('getPortalDetails', {guid:guid},
-    function(data,textStatus,jqXHR) { handleResponse(guid, data, true); },
-    function() { handleResponse(guid, undefined, false); }
-  );
+    window.postAjax('getPortalDetails', {guid:guid},
+      function(data,textStatus,jqXHR) { handleResponse(guid, data, true); },
+      function() { handleResponse(guid, undefined, false); }
+    );
+  }
+
 }
 
 

@@ -3,7 +3,6 @@ package com.cradle.iitc_mobile.async;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
@@ -16,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 
@@ -25,9 +25,12 @@ public class UpdateScript extends AsyncTask<String, Void, Boolean> {
     private String mFilePath;
     private String mScript;
     private HashMap<String, String> mScriptInfo;
+    private final boolean mForceSecureUpdates;
 
     public UpdateScript(final Activity activity) {
         mActivity = activity;
+        mForceSecureUpdates = PreferenceManager.getDefaultSharedPreferences(mActivity)
+                .getBoolean("pref_secure_updates", true);
     }
 
     @Override
@@ -37,37 +40,63 @@ public class UpdateScript extends AsyncTask<String, Void, Boolean> {
             // get local script meta information
             mScript = IITC_FileManager.readStream(new FileInputStream(new File(mFilePath)));
             mScriptInfo = IITC_FileManager.getScriptInfo(mScript);
+
             String updateURL = mScriptInfo.get("updateURL");
-            final String downloadURL = mScriptInfo.get("downloadURL");
+            String downloadURL = mScriptInfo.get("downloadURL");
             if (updateURL == null) updateURL = downloadURL;
 
-            // check for https protocol
-            final URL url = new URL(updateURL);
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mActivity);
-            Boolean secureUpdates = prefs.getBoolean("pref_secure_updates", true);
-            if (!url.getProtocol().equals("https") && secureUpdates) return false;
+            if (!isUpdateAllowed(updateURL)) return false;
 
-            // get remote script meta information
-            final InputStream is = url.openStream();
-            final String remote_version = IITC_FileManager.getScriptInfo(IITC_FileManager.readStream(is)).get("version");
+            final File updateFile = File.createTempFile("iitc.update", ".meta.js", mActivity.getCacheDir());
+            IITC_FileManager.copyStream(new URL(updateURL).openStream(), new FileOutputStream(updateFile), true);
+
+            final HashMap<String, String> updateInfo =
+                    IITC_FileManager.getScriptInfo(IITC_FileManager.readFile(updateFile));
+
+            final String remote_version = updateInfo.get("version");
+
             final File local_file = new File(mFilePath);
             final String local_version = mScriptInfo.get("version");
 
-            // update script if neccessary
-            if (local_version.compareTo(remote_version) < 0) {
-                Log.d("plugin " + mFilePath + " outdated\n" + local_version + " vs " + remote_version);
-                Log.d("updating file....");
-                IITC_FileManager.copyStream(new URL(downloadURL).openStream(), new FileOutputStream(local_file), true);
-                Log.d("...done");
-                return true;
+            if (local_version.compareTo(remote_version) >= 0) return false;
+
+            Log.d("plugin " + mFilePath + " outdated\n" + local_version + " vs " + remote_version);
+
+            InputStream sourceStream;
+            if (updateURL.equals(downloadURL)) {
+                sourceStream = new FileInputStream(updateFile);
+            } else {
+                if (updateInfo.get("downloadURL") != null) {
+                    downloadURL = updateInfo.get("downloadURL");
+                }
+
+                if (!isUpdateAllowed(downloadURL)) return false;
+
+                sourceStream = new URL(downloadURL).openStream();
             }
+
+            Log.d("updating file....");
+            IITC_FileManager.copyStream(sourceStream, new FileOutputStream(local_file), true);
+            Log.d("...done");
+
+            updateFile.delete();
+
+            return true;
+
         } catch (final IOException e) {
             return false;
         }
-        return false;
     }
 
-    protected void onPostExecute(Boolean updated) {
+    private boolean isUpdateAllowed(final String url) throws MalformedURLException {
+        if (new URL(url).getProtocol().equals("https"))
+            return true;
+
+        return !mForceSecureUpdates;
+    }
+
+    @Override
+    protected void onPostExecute(final Boolean updated) {
         if (updated) {
             final String name = IITC_FileManager.getScriptInfo(mScript).get("name");
             new AlertDialog.Builder(mActivity)
@@ -76,13 +105,13 @@ public class UpdateScript extends AsyncTask<String, Void, Boolean> {
                     .setCancelable(true)
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                        public void onClick(final DialogInterface dialog, final int which) {
                             dialog.cancel();
                         }
                     })
                     .setNegativeButton("Reload", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                        public void onClick(final DialogInterface dialog, final int which) {
                             dialog.cancel();
                             ((IITC_Mobile) mActivity).reloadIITC();
                         }
