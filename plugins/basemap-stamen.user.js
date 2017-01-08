@@ -50,7 +50,7 @@ window.plugin.mapTileStamen.addLayer = function() {
     var minZoom = info[2];
     var maxZoom = info[3];
 
-    var mapLayer = new L.TileLayer (baseUrl+'{layer}/{z}/{x}/{y}.{type}', {
+    var mapLayer = new _L.TileLayer (baseUrl+'{layer}/{z}/{x}/{y}.{type}', {
       attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.',
       subdomains: 'abcd',    
       layer: layer,

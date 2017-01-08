@@ -57,7 +57,7 @@ window.MapDataRequest = function() {
   // render queue
   // number of items to process in each render pass. there are pros and cons to smaller and larger values
   // (however, if using leaflet canvas rendering, it makes sense to push as much as possible through every time)
-  this.RENDER_BATCH_SIZE = L.Path.CANVAS ? 1E9 : 1500;
+  this.RENDER_BATCH_SIZE = _L.Path.CANVAS ? 1E9 : 1500;
 
   // delay before repeating the render loop. this gives a better chance for user interaction
   this.RENDER_PAUSE = (typeof android === 'undefined') ? 0.1 : 0.2; //100ms desktop, 200ms mobile
@@ -215,7 +215,7 @@ window.MapDataRequest.prototype.refresh = function() {
 //DEBUG: resize the bounds so we only retrieve some data
 //bounds = bounds.pad(-0.4);
 
-//var debugrect = L.rectangle(bounds,{color: 'red', fill: false, weight: 4, opacity: 0.8}).addTo(map);
+//var debugrect = _L.rectangle(bounds,{color: 'red', fill: false, weight: 4, opacity: 0.8}).addTo(map);
 //setTimeout (function(){ map.removeLayer(debugrect); }, 10*1000);
 
   var x1 = lngToTile(bounds.getWest(), tileParams);
@@ -224,11 +224,11 @@ window.MapDataRequest.prototype.refresh = function() {
   var y2 = latToTile(bounds.getSouth(), tileParams);
 
   // calculate the full bounds for the data - including the part of the tiles off the screen edge
-  var dataBounds = L.latLngBounds([
+  var dataBounds = _L.latLngBounds([
     [tileToLat(y2+1,tileParams), tileToLng(x1,tileParams)],
     [tileToLat(y1,tileParams), tileToLng(x2+1,tileParams)]
   ]);
-//var debugrect2 = L.rectangle(dataBounds,{color: 'magenta', fill: false, weight: 4, opacity: 0.8}).addTo(map);
+//var debugrect2 = _L.rectangle(dataBounds,{color: 'magenta', fill: false, weight: 4, opacity: 0.8}).addTo(map);
 //setTimeout (function(){ map.removeLayer(debugrect2); }, 10*1000);
 
   // store the parameters used for fetching the data. used to prevent unneeded refreshes after move/zoom
@@ -296,7 +296,7 @@ window.MapDataRequest.prototype.refresh = function() {
 
         var latCenter = (latNorth+latSouth)/2;
         var lngCenter = (lngEast+lngWest)/2;
-        var tileLatLng = L.latLng(latCenter,lngCenter);
+        var tileLatLng = _L.latLng(latCenter,lngCenter);
 
         var tilePoint = map.project(tileLatLng, mapZoom);
 

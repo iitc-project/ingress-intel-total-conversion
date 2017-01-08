@@ -41,7 +41,7 @@ window.plugin.grayGMaps.addLayer = function() {
     ]
   };
 
-  var grayGMaps = new L.Google('ROA#DMAP',{maxZoom:21, mapOptions: grayGMapsOptions});
+  var grayGMaps = new _L.Google('ROA#DMAP',{maxZoom:21, mapOptions: grayGMapsOptions});
 
   layerChooser.addBaseLayer(grayGMaps, "Google Gray");
 };

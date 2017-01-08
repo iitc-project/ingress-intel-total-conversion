@@ -41,7 +41,7 @@ window.plugin.mapTileOpenStreetMap = {
     };
 
     for(var url in layers) {
-      var layer = new L.TileLayer(url, osmOpt);
+      var layer = new _L.TileLayer(url, osmOpt);
       layerChooser.addBaseLayer(layer, layers[url]);
     }
   },

@@ -69,8 +69,8 @@ window.plugin.keysOnMap.renderKey = function(guid,latLng) {
 
     var keyCount = plugin.keys.keys[guid];
     if (keyCount > 0) {
-      var key = L.marker(latLng, {
-        icon: L.divIcon({
+      var key = _L.marker(latLng, {
+        icon: _L.divIcon({
           className: 'plugin-keys-on-map-key',
           iconAnchor: [6,7],
           iconSize: [12,10],
@@ -115,7 +115,7 @@ window.plugin.keysOnMap.setupCSS = function() {
 }
 
 window.plugin.keysOnMap.setupLayer = function() {
-  window.plugin.keysOnMap.keyLayerGroup = new L.LayerGroup();
+  window.plugin.keysOnMap.keyLayerGroup = new _L.LayerGroup();
   window.addLayerGroup('Keys', window.plugin.keysOnMap.keyLayerGroup, false);
 }
 

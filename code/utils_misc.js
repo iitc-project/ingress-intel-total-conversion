@@ -272,7 +272,7 @@ window.selectPortalByLatLng = function(lat, lng) {
   if(lng === undefined && lat instanceof Array) {
     lng = lat[1];
     lat = lat[0];
-  } else if(lng === undefined && lat instanceof L.LatLng) {
+  } else if(lng === undefined && lat instanceof _L.LatLng) {
     lng = lat.lng;
     lat = lat.lat;
   }
@@ -443,11 +443,11 @@ window.clampLng = function(lng) {
 
 
 window.clampLatLng = function(latlng) {
-  return new L.LatLng ( clampLat(latlng.lat), clampLng(latlng.lng) );
+  return new _L.LatLng ( clampLat(latlng.lat), clampLng(latlng.lng) );
 }
 
 window.clampLatLngBounds = function(bounds) {
-  return new L.LatLngBounds ( clampLatLng(bounds.getSouthWest()), clampLatLng(bounds.getNorthEast()) );
+  return new _L.LatLngBounds ( clampLatLng(bounds.getSouthWest()), clampLatLng(bounds.getNorthEast()) );
 }
 
 window.getGenericMarkerSvg = function(color) {
@@ -457,9 +457,9 @@ window.getGenericMarkerSvg = function(color) {
 }
 
 window.getGenericMarkerIcon = function(color,className) {
-  return L.divIcon({
-    iconSize: new L.Point(25, 41),
-    iconAnchor: new L.Point(12, 41),
+  return _L.divIcon({
+    iconSize: new _L.Point(25, 41),
+    iconAnchor: new _L.Point(12, 41),
     html: getGenericMarkerSvg(color),
     className: className || 'leaflet-iitc-divicon-generic-marker'
   });
@@ -472,18 +472,18 @@ window.createGenericMarker = function(ll,color,options) {
     icon: getGenericMarkerIcon(color || '#a24ac3')
   }, options);
 
-  return L.marker(ll, markerOpt);
+  return _L.marker(ll, markerOpt);
 }
 
 
 
 // Fix Leaflet: handle touchcancel events in Draggable
-L.Draggable.prototype._onDownOrig = L.Draggable.prototype._onDown;
-L.Draggable.prototype._onDown = function(e) {
-  L.Draggable.prototype._onDownOrig.apply(this, arguments);
+_L.Draggable.prototype._onDownOrig = _L.Draggable.prototype._onDown;
+_L.Draggable.prototype._onDown = function(e) {
+  _L.Draggable.prototype._onDownOrig.apply(this, arguments);
 
   if(e.type === "touchstart") {
-    L.DomEvent.on(document, "touchcancel", this._onUp, this);
+    _L.DomEvent.on(document, "touchcancel", this._onUp, this);
   }
 }
 

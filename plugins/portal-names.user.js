@@ -62,8 +62,8 @@ window.plugin.portalNames.addLabel = function(guid, latLng) {
     var d = window.portals[guid].options.data;
     var portalName = d.title;
 
-    var label = L.marker(latLng, {
-      icon: L.divIcon({
+    var label = _L.marker(latLng, {
+      icon: _L.divIcon({
         className: 'plugin-portal-names',
         iconAnchor: [window.plugin.portalNames.NAME_WIDTH/2,0],
         iconSize: [window.plugin.portalNames.NAME_WIDTH,window.plugin.portalNames.NAME_HEIGHT],
@@ -104,7 +104,7 @@ window.plugin.portalNames.updatePortalLabels = function() {
   for (var guid in portalPoints) {
     var point = portalPoints[guid];
 
-    var bucketId = L.point([Math.floor(point.x/(window.plugin.portalNames.NAME_WIDTH*2)),Math.floor(point.y/window.plugin.portalNames.NAME_HEIGHT)]);
+    var bucketId = _L.point([Math.floor(point.x/(window.plugin.portalNames.NAME_WIDTH*2)),Math.floor(point.y/window.plugin.portalNames.NAME_HEIGHT)]);
     // the guid is added to four buckets. this way, when testing for overlap we don't need to test
     // all 8 buckets surrounding the one around the particular portal, only the bucket it is in itself
     var bucketIds = [bucketId, bucketId.add([1,0]), bucketId.add([0,1]), bucketId.add([1,1])];
@@ -123,7 +123,7 @@ window.plugin.portalNames.updatePortalLabels = function() {
       var point = portalPoints[guid];
       // the bounds used for testing are twice as wide as the portal name marker. this is so that there's no left/right
       // overlap between two different portals text
-      var largeBounds = L.bounds (
+      var largeBounds = _L.bounds (
                 point.subtract([window.plugin.portalNames.NAME_WIDTH,0]),
                 point.add([window.plugin.portalNames.NAME_WIDTH,window.plugin.portalNames.NAME_HEIGHT])
       );
@@ -176,7 +176,7 @@ window.plugin.portalNames.delayedUpdatePortalLabels = function(wait) {
 var setup = function() {
   window.plugin.portalNames.setupCSS();
 
-  window.plugin.portalNames.labelLayerGroup = new L.LayerGroup();
+  window.plugin.portalNames.labelLayerGroup = new _L.LayerGroup();
   window.addLayerGroup('Portal Names', window.plugin.portalNames.labelLayerGroup, true);
 
   window.addHook('requestFinished', function() { setTimeout(function(){window.plugin.portalNames.delayedUpdatePortalLabels(3.0);},1); });

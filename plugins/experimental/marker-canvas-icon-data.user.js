@@ -28,9 +28,9 @@ window.plugin.markerIconCanvasUrl.setup  = function() {
   window.createMarker = function(latlng, data) {
     var icon = createMarkerIcon(data);
 
-    var options = L.extend({}, data, { icon: icon });
+    var options = _L.extend({}, data, { icon: icon });
 
-    var marker = L.marker (latlng, options);
+    var marker = _L.marker (latlng, options);
     marker.bringToFront = function(){}; //TEMP - until the rest of IITC code is changed to take account of non-path markers
     return marker;
 
@@ -50,7 +50,7 @@ window.plugin.markerIconCanvasUrl.setup  = function() {
     var lvlWeight = Math.max(2, Math.floor(details.level) / 1.5) * scale;
     var lvlRadius = (details.team === window.TEAM_NONE ? 7 : Math.floor(details.level) + 4) * scale;
 
-    lvlRadius += (L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE*scale : 0);
+    lvlRadius += (_L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE*scale : 0);
 
     var fillColor = COLORS[details.team];
     var fillAlpha = 0.5;
@@ -96,7 +96,7 @@ window.plugin.markerIconCanvasUrl.setup  = function() {
 
     var dataurl = canvas.toDataURL();
 
-    return L.icon({
+    return _L.icon({
       iconUrl: dataurl,
       iconSize: [size,size],
       iconAnchor: [anchor,anchor]

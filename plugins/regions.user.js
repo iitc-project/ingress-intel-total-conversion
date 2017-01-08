@@ -27,9 +27,9 @@
 window.plugin.regions = function() {};
 
 window.plugin.regions.setup  = function() {
-  @@INCLUDERAW:external/s2geometry.js@@
+  (function (L) {@@INCLUDERAW:external/s2geometry.js@@})(_L);
 
-  window.plugin.regions.regionLayer = L.layerGroup();
+  window.plugin.regions.regionLayer = _L.layerGroup();
 
   $("<style>")
     .prop("type", "text/css")
@@ -189,8 +189,8 @@ window.plugin.regions.getSearchResult = function(match) {
   var corners = cell.getCornerLatLngs();
 
   result.title = window.plugin.regions.regionName(cell);
-  result.layer = L.geodesicPolygon(corners, { fill: false, color: 'red', clickable: false });
-  result.bounds = L.latLngBounds(corners);
+  result.layer = _L.geodesicPolygon(corners, { fill: false, color: 'red', clickable: false });
+  result.bounds = _L.latLngBounds(corners);
 
   return result;
 }
@@ -213,7 +213,7 @@ window.plugin.regions.update = function() {
 
       // is it on the screen?
       var corners = cell.getCornerLatLngs();
-      var cellBounds = L.latLngBounds([corners[0],corners[1]]).extend(corners[2]).extend(corners[3]);
+      var cellBounds = _L.latLngBounds([corners[0],corners[1]]).extend(corners[2]).extend(corners[3]);
 
       if (cellBounds.intersects(bounds)) {
         // on screen - draw it
@@ -247,17 +247,17 @@ window.plugin.regions.update = function() {
   for (var i=0; i<latLngs.length-1; i++) {
     // the geodesic line code can't handle a line/polyline spanning more than (or close to?) 180 degrees, so we draw
     // each segment as a separate line
-    var poly1 = L.geodesicPolyline ( [latLngs[i], latLngs[i+1]], globalCellOptions );
+    var poly1 = _L.geodesicPolyline ( [latLngs[i], latLngs[i+1]], globalCellOptions );
     window.plugin.regions.regionLayer.addLayer(poly1);
 
     //southern mirror of the above
-    var poly2 = L.geodesicPolyline ( [[-latLngs[i][0],latLngs[i][1]], [-latLngs[i+1][0], latLngs[i+1][1]]], globalCellOptions );
+    var poly2 = _L.geodesicPolyline ( [[-latLngs[i][0],latLngs[i][1]], [-latLngs[i+1][0], latLngs[i+1][1]]], globalCellOptions );
     window.plugin.regions.regionLayer.addLayer(poly2);
   }
 
   // and the north-south lines. no need for geodesic here
   for (var i=-135; i<=135; i+=90) {
-    var poly = L.polyline ( [[35.264389682754654,i], [-35.264389682754654,i]], globalCellOptions );
+    var poly = _L.polyline ( [[35.264389682754654,i], [-35.264389682754654,i]], globalCellOptions );
     window.plugin.regions.regionLayer.addLayer(poly);
   }
 }
@@ -281,7 +281,7 @@ window.plugin.regions.drawCell = function(cell) {
   // the level 6 cells have noticible errors with non-geodesic lines - and the larger level 4 cells are worse
   // NOTE: we only draw two of the edges. as we draw all cells on screen, the other two edges will either be drawn
   // from the other cell, or be off screen so we don't care
-  var region = L.geodesicPolyline([corners[0],corners[1],corners[2]], {fill: false, color: color, opacity: 0.5, weight: 5, clickable: false });
+  var region = _L.geodesicPolyline([corners[0],corners[1],corners[2]], {fill: false, color: color, opacity: 0.5, weight: 5, clickable: false });
 
   window.plugin.regions.regionLayer.addLayer(region);
 
@@ -293,7 +293,7 @@ window.plugin.regions.drawCell = function(cell) {
       var newlat = Math.max(Math.min(center.lat, namebounds.getNorth()), namebounds.getSouth());
       var newlng = Math.max(Math.min(center.lng, namebounds.getEast()), namebounds.getWest());
 
-      var newpos = L.latLng(newlat,newlng);
+      var newpos = _L.latLng(newlat,newlng);
 
       // ensure the new position is still within the same cell
       var newposcell = S2.S2Cell.FromLatLng ( newpos, 6 );
@@ -304,8 +304,8 @@ window.plugin.regions.drawCell = function(cell) {
     }
   }
 
-  var marker = L.marker(center, {
-    icon: L.divIcon({
+  var marker = _L.marker(center, {
+    icon: _L.divIcon({
       className: 'plugin-regions-name',
       iconAnchor: [100,5],
       iconSize: [200,10],

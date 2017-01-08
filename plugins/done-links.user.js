@@ -71,12 +71,12 @@ window.plugin.doneLinks.testLink = function (link) {
 
     for (var i in plugin.drawTools.drawnItems._layers) { // leaflet don't support breaking out of the loop
        var layer = plugin.drawTools.drawnItems._layers[i];
-       if (layer instanceof L.GeodesicPolygon) {
+       if (layer instanceof _L.GeodesicPolygon) {
            if (plugin.doneLinks.testPolyLine(layer, link,true)) {
                plugin.doneLinks.showLink(link);
                break;
            }
-        } else if (layer instanceof L.GeodesicPolyline) {
+        } else if (layer instanceof _L.GeodesicPolyline) {
             if (plugin.doneLinks.testPolyLine(layer, link)) {
                 plugin.doneLinks.showLink(link);
                 break;
@@ -88,7 +88,7 @@ window.plugin.doneLinks.testLink = function (link) {
 
 window.plugin.doneLinks.showLink = function(link) {
 
-    var poly = L.geodesicPolyline(link.getLatLngs(), {
+    var poly = _L.geodesicPolyline(link.getLatLngs(), {
        color: COLORS[link.options.team],
        opacity: 0.8,
        weight: 6,
@@ -116,11 +116,11 @@ window.plugin.doneLinks.testAllLinksAgainstLayer = function (layer) {
     $.each(window.links, function(guid, link) {
         if (!plugin.doneLinks.linkLayerGuids[link.options.guid])
         {
-            if (layer instanceof L.GeodesicPolygon) {
+            if (layer instanceof _L.GeodesicPolygon) {
                 if (plugin.doneLinks.testPolyLine(layer, link,true)) {
                     plugin.doneLinks.showLink(link);
                 }
-            } else if (layer instanceof L.GeodesicPolyline) {
+            } else if (layer instanceof _L.GeodesicPolyline) {
                 if (plugin.doneLinks.testPolyLine(layer, link)) {
                     plugin.doneLinks.showLink(link);
                 }
@@ -141,7 +141,7 @@ window.plugin.doneLinks.testForDeletedLinks = function () {
 }
 
 window.plugin.doneLinks.createLayer = function() {
-    window.plugin.doneLinks.linkLayer = new L.FeatureGroup();
+    window.plugin.doneLinks.linkLayer = new _L.FeatureGroup();
     window.plugin.doneLinks.linkLayerGuids={};
     window.addLayerGroup('Done Links', window.plugin.doneLinks.linkLayer, true);
 

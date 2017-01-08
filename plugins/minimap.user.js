@@ -28,9 +28,9 @@ window.plugin.miniMap = function() {};
 
 window.plugin.miniMap.setup  = function() {
 
-  try { console.log('Loading leaflet.draw JS now'); } catch(e) {}
-  @@INCLUDERAW:external/Control.MiniMap.js@@
-  try { console.log('done loading leaflet.draw JS'); } catch(e) {}
+  try { console.log('Loading Control.MiniMap JS now'); } catch(e) {}
+  (function (L) {@@INCLUDERAW:external/Control.MiniMap.js@@})(_L);
+  try { console.log('done loading Control.MiniMap JS'); } catch(e) {}
 
   // we can't use the same TileLayer as the main map uses - it causes issues.
   // stick with the Google tiles for now
@@ -40,7 +40,7 @@ window.plugin.miniMap.setup  = function() {
   var position = isSmartphone() ? 'bottomright' : 'bottomleft';
 
   setTimeout(function() {
-    new L.Control.MiniMap(new L.Google('ROADMAP',{maxZoom:21}), {toggleDisplay: true, position: position}).addTo(window.map);
+    new _L.Control.MiniMap(new _L.Google('ROADMAP',{maxZoom:21}), {toggleDisplay: true, position: position}).addTo(window.map);
   }, 0);
 
   $('head').append('<style>@@INCLUDESTRING:external/Control.MiniMap.css@@</style>');

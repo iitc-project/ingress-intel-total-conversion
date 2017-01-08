@@ -295,7 +295,7 @@ window.plugin.guessPlayerLevels.handleAttackData = function(nick, latlngs) {
   }
 
   // circle.range is useless, because it is calculated in degrees (simplified algorithm!)
-  var latlng = L.latLng(circle.y, circle.x);
+  var latlng = _L.latLng(circle.y, circle.x);
   var range = 0;
   for(var i=0; i<latlngs.length; i++) {
     var d = latlng.distanceTo([latlngs[i].y, latlngs[i].x]);
@@ -325,7 +325,7 @@ window.plugin.guessPlayerLevels.handleAttackData = function(nick, latlngs) {
     }
   }
 
-  //L.circle(latlng, range, {
+  //_L.circle(latlng, range, {
   //  weight:1,
   //  title: nick + ", " + range + "m"
   //}).addTo(map);

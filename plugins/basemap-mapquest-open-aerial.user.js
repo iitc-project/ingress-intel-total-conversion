@@ -32,7 +32,7 @@ window.plugin.mapTileMapQuestSat.addLayer = function() {
   var mqTileUrlPrefix = window.location.protocol !== 'https:' ? 'http://{s}.mqcdn.com' : 'https://{s}-s.mqcdn.com';
   //MapQuest satellite coverage outside of the US is rather limited - so not really worth having as we have google as an op!
   var mqSatOpt = {attribution: 'Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency', maxNativeZoom: 18, maxZoom: 21, subdomains: mqSubdomains};
-  var mqSat = new L.TileLayer('http://{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg',mqSatOpt);
+  var mqSat = new _L.TileLayer('http://{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg',mqSatOpt);
 
   layerChooser.addBaseLayer(mqSat, "MapQuest Open Satellite");
 };

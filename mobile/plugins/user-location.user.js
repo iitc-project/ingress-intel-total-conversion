@@ -33,20 +33,20 @@ window.plugin.userLocation.setup = function() {
 
   var cssClass = PLAYER.team === 'RESISTANCE' ? 'res' : 'enl';
 
-  var icon = L.divIcon({
-    iconSize: L.point(32, 32),
-    iconAnchor: L.point(16, 16),
+  var icon = _L.divIcon({
+    iconSize: _L.point(32, 32),
+    iconAnchor: _L.point(16, 16),
     className: 'user-location',
     html: '<div class="container ' + cssClass + ' circle"><div class="outer"></div><div class="inner"></div></div>'
   });
 
-  var marker = L.marker(new L.LatLng(0,0), {
+  var marker = _L.marker(new _L.LatLng(0,0), {
     icon: icon,
     zIndexOffset: 300,
     clickable: false
   });
 
-  var circle = new L.Circle(new L.LatLng(0,0), 40, {
+  var circle = new _L.Circle(new _L.LatLng(0,0), 40, {
     stroke: false,
     opacity: 0.7,
     fillOpacity: 1,
@@ -55,7 +55,7 @@ window.plugin.userLocation.setup = function() {
     clickable: false
   });
 
-  window.plugin.userLocation.locationLayer = new L.LayerGroup();
+  window.plugin.userLocation.locationLayer = new _L.LayerGroup();
 
   marker.addTo(window.plugin.userLocation.locationLayer);
   window.plugin.userLocation.locationLayer.addTo(window.map);
@@ -70,7 +70,7 @@ window.plugin.userLocation.setup = function() {
 };
 
 window.plugin.userLocation.onZoomEnd = function() {
-  if(window.map.getZoom() < 16 || L.Path.CANVAS) {
+  if(window.map.getZoom() < 16 || _L.Path.CANVAS) {
     if (window.plugin.userLocation.locationLayer.hasLayer(window.plugin.userLocation.circle))
       window.plugin.userLocation.locationLayer.removeLayer(window.plugin.userLocation.circle);
   } else {
@@ -87,12 +87,12 @@ window.plugin.userLocation.locate = function(lat, lng, accuracy, persistentZoom)
     return;
   }
 
-  var latlng = new L.LatLng(lat, lng);
+  var latlng = new _L.LatLng(lat, lng);
 
   var latAccuracy = 180 * accuracy / 40075017;
-  var lngAccuracy = latAccuracy / Math.cos(L.LatLng.DEG_TO_RAD * lat);
+  var lngAccuracy = latAccuracy / Math.cos(_L.LatLng.DEG_TO_RAD * lat);
 
-  var zoom = window.map.getBoundsZoom(L.latLngBounds(
+  var zoom = window.map.getBoundsZoom(_L.latLngBounds(
     [lat - latAccuracy, lng - lngAccuracy],
     [lat + latAccuracy, lng + lngAccuracy]));
 
@@ -112,7 +112,7 @@ window.plugin.userLocation.locate = function(lat, lng, accuracy, persistentZoom)
 window.plugin.userLocation.onLocationChange = function(lat, lng) {
   if(!window.plugin.userLocation.marker) return;
 
-  var latlng = new L.LatLng(lat, lng);
+  var latlng = new _L.LatLng(lat, lng);
   window.plugin.userLocation.marker.setLatLng(latlng);
   window.plugin.userLocation.circle.setLatLng(latlng);
 

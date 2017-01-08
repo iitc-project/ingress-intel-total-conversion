@@ -292,8 +292,8 @@ window.plugin.scoreboard.display = function() {
 }
 
 window.plugin.scoreboard.portalDistance = function(portalAE6Location, portalBE6Location) {
-  portalA = new L.LatLng(portalAE6Location.latE6 / 1E6, portalAE6Location.lngE6 / 1E6);
-  portalB = new L.LatLng(portalBE6Location.latE6 / 1E6, portalBE6Location.lngE6 / 1E6);
+  portalA = new _L.LatLng(portalAE6Location.latE6 / 1E6, portalAE6Location.lngE6 / 1E6);
+  portalB = new _L.LatLng(portalBE6Location.latE6 / 1E6, portalBE6Location.lngE6 / 1E6);
   return (portalA.distanceTo(portalB));
 }
 

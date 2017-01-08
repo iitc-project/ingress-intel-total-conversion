@@ -28,9 +28,9 @@ window.plugin.markerDivIconSvg.setup  = function() {
   window.createMarker = function(latlng, data) {
     var icon = createMarkerDivIcon(data);
 
-    var options = L.extend({}, data, { icon: icon });
+    var options = _L.extend({}, data, { icon: icon });
 
-    var marker = L.marker (latlng, options);
+    var marker = _L.marker (latlng, options);
     return marker;
 
   }
@@ -50,7 +50,7 @@ window.plugin.markerDivIconSvg.setup  = function() {
     var lvlWeight = Math.max(2, Math.floor(details.level) / 1.5) * scale;
     var lvlRadius = (details.team === window.TEAM_NONE ? 7 : Math.floor(details.level) + 4) * scale;
 
-    lvlRadius += (L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE*scale : 0);
+    lvlRadius += (_L.Browser.mobile ? PORTAL_RADIUS_ENLARGE_MOBILE*scale : 0);
 
     var size = Math.ceil(lvlRadius + lvlWeight/2)*2;
     var anchor = Math.floor(size/2);
@@ -59,7 +59,7 @@ window.plugin.markerDivIconSvg.setup  = function() {
             + '<circle cx="'+anchor+'" cy="'+anchor+'" r="'+lvlRadius+'" stroke="'+COLORS[details.team]+'" stroke-width="'+lvlWeight+'" fill="'+COLORS[details.team]+'" fill-opacity="0.5" />'
             + '</svg>';
 
-    return L.divIcon({
+    return _L.divIcon({
       iconSize: [size,size],
       iconAnchor: [anchor,anchor],
       className: 'portal-marker',

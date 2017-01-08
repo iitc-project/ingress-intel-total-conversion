@@ -54,12 +54,12 @@
 
     if(faction !== TEAM_NONE) {
       var coo = d._latlng;
-      var latlng = new L.LatLng(coo.lat,coo.lng);
+      var latlng = new _L.LatLng(coo.lat,coo.lng);
       var portalLevel = d.options.level;
       var optCircle = {color:'red',opacity:0.7,fillColor:'red',fillOpacity:0.1,weight:1,clickable:false, dashArray: [10,6]};
       var range = (5*portalLevel)+35;
 
-      var circle = new L.Circle(latlng, range, optCircle);
+      var circle = new _L.Circle(latlng, range, optCircle);
 
       if(faction === TEAM_ENL) {
         circle.addTo(window.plugin.zaprange.zapCircleEnlHolderGroup);
@@ -96,12 +96,12 @@
 
   var setup =  function() {
     // this layer is added to the layer chooser, to be toggled on/off
-    window.plugin.zaprange.zapLayerEnlHolderGroup = new L.LayerGroup();
-    window.plugin.zaprange.zapLayerResHolderGroup = new L.LayerGroup();
+    window.plugin.zaprange.zapLayerEnlHolderGroup = new _L.LayerGroup();
+    window.plugin.zaprange.zapLayerResHolderGroup = new _L.LayerGroup();
 
     // this layer is added into the above layer, and removed from it when we zoom out too far
-    window.plugin.zaprange.zapCircleEnlHolderGroup = new L.LayerGroup();
-    window.plugin.zaprange.zapCircleResHolderGroup = new L.LayerGroup();
+    window.plugin.zaprange.zapCircleEnlHolderGroup = new _L.LayerGroup();
+    window.plugin.zaprange.zapCircleResHolderGroup = new _L.LayerGroup();
 
     window.plugin.zaprange.zapLayerEnlHolderGroup.addLayer(window.plugin.zaprange.zapCircleEnlHolderGroup);
     window.plugin.zaprange.zapLayerResHolderGroup.addLayer(window.plugin.zaprange.zapCircleResHolderGroup);

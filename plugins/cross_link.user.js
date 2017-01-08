@@ -193,12 +193,12 @@ window.plugin.crossLinks.testLink = function (link) {
 
     for (var i in plugin.drawTools.drawnItems._layers) { // leaflet don't support breaking out of the loop
        var layer = plugin.drawTools.drawnItems._layers[i];
-       if (layer instanceof L.GeodesicPolygon) {
+       if (layer instanceof _L.GeodesicPolygon) {
            if (plugin.crossLinks.testPolyLine(layer, link,true)) {
                plugin.crossLinks.showLink(link);
                break;
            }
-        } else if (layer instanceof L.GeodesicPolyline) {
+        } else if (layer instanceof _L.GeodesicPolyline) {
             if (plugin.crossLinks.testPolyLine(layer, link)) {
                 plugin.crossLinks.showLink(link);
                 break;
@@ -210,7 +210,7 @@ window.plugin.crossLinks.testLink = function (link) {
 
 window.plugin.crossLinks.showLink = function(link) {
 
-    var poly = L.geodesicPolyline(link.getLatLngs(), {
+    var poly = _L.geodesicPolyline(link.getLatLngs(), {
        color: '#d22',
        opacity: 0.7,
        weight: 5,
@@ -238,11 +238,11 @@ window.plugin.crossLinks.testAllLinksAgainstLayer = function (layer) {
     $.each(window.links, function(guid, link) {
         if (!plugin.crossLinks.linkLayerGuids[link.options.guid])
         {
-            if (layer instanceof L.GeodesicPolygon) {
+            if (layer instanceof _L.GeodesicPolygon) {
                 if (plugin.crossLinks.testPolyLine(layer, link,true)) {
                     plugin.crossLinks.showLink(link);
                 }
-            } else if (layer instanceof L.GeodesicPolyline) {
+            } else if (layer instanceof _L.GeodesicPolyline) {
                 if (plugin.crossLinks.testPolyLine(layer, link)) {
                     plugin.crossLinks.showLink(link);
                 }
@@ -263,7 +263,7 @@ window.plugin.crossLinks.testForDeletedLinks = function () {
 }
 
 window.plugin.crossLinks.createLayer = function() {
-    window.plugin.crossLinks.linkLayer = new L.FeatureGroup();
+    window.plugin.crossLinks.linkLayer = new _L.FeatureGroup();
     window.plugin.crossLinks.linkLayerGuids={};
     window.addLayerGroup('Cross Links', window.plugin.crossLinks.linkLayer, true);
 

@@ -3,10 +3,10 @@
 
 
 window.RenderDebugTiles = function() {
-  this.CLEAR_CHECK_TIME = L.Path.CANVAS ? 2.0 : 0.5;
+  this.CLEAR_CHECK_TIME = _L.Path.CANVAS ? 2.0 : 0.5;
   this.FADE_TIME = 2.0;
 
-  this.debugTileLayer = L.layerGroup();
+  this.debugTileLayer = _L.layerGroup();
   window.addLayerGroup("DEBUG Data Tiles", this.debugTileLayer, false);
 
   this.debugTileToRectangle = {};
@@ -23,10 +23,10 @@ window.RenderDebugTiles.prototype.reset = function() {
 window.RenderDebugTiles.prototype.create = function(id,bounds) {
   var s = {color: '#666', weight: 2, opacity: 0.4, fillColor: '#666', fillOpacity: 0.1, clickable: false};
 
-  var bounds = new L.LatLngBounds(bounds);
+  var bounds = new _L.LatLngBounds(bounds);
   bounds = bounds.pad(-0.02);
 
-  var l = L.rectangle(bounds,s);
+  var l = _L.rectangle(bounds,s);
   this.debugTileToRectangle[id] = l;
   this.debugTileLayer.addLayer(l);
   if (map.hasLayer(this.debugTileLayer)) {

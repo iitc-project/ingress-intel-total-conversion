@@ -44,8 +44,8 @@ window.plugin.maxLinks.errorMarker = null;
 
 window.plugin.maxLinks.addErrorMarker = function() {
   if (window.plugin.maxLinks.errorMarker == null) {
-    window.plugin.maxLinks.errorMarker = L.marker (window.map.getCenter(), {
-      icon: L.divIcon({
+    window.plugin.maxLinks.errorMarker = _L.marker (window.map.getCenter(), {
+      icon: _L.divIcon({
         className: 'max-links-error',
         iconSize: [300,30],
         html: 'Tidy Links: too many portals!'
@@ -123,7 +123,7 @@ window.plugin.maxLinks.updateLayer = function() {
       var alatlng = map.unproject (a, window.plugin.maxLinks.PROJECT_ZOOM);
       var blatlng = map.unproject (b, window.plugin.maxLinks.PROJECT_ZOOM);
 
-      var poly = L.polyline([alatlng, blatlng], window.plugin.maxLinks.STROKE_STYLE);
+      var poly = _L.polyline([alatlng, blatlng], window.plugin.maxLinks.STROKE_STYLE);
       poly.addTo(window.plugin.maxLinks.layer);
       drawnLinkCount++;
     }
@@ -141,7 +141,7 @@ window.plugin.maxLinks.setup = function() {
   @@INCLUDERAW:external/delaunay.js@@
   try { console.log('done loading delaunay JS'); } catch(e) {}
 
-  window.plugin.maxLinks.layer = L.layerGroup([]);
+  window.plugin.maxLinks.layer = _L.layerGroup([]);
 
   window.addHook('mapDataRefreshEnd', function(e) {
     window.plugin.maxLinks.updateLayer();

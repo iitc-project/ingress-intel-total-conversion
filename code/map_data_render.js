@@ -54,7 +54,7 @@ window.Render.prototype.clearLinksOutsideBounds = function(bounds) {
     // NOTE: our geodesic lines can have lots of intermediate points. the bounds calculation hasn't been optimised for this
     // so can be particularly slow. a simple bounds check based on start+end point will be good enough for this check
     var lls = l.getLatLngs();
-    var linkBounds = L.latLngBounds(lls);
+    var linkBounds = _L.latLngBounds(lls);
 
     if (!bounds.intersects(linkBounds)) {
       this.deleteLinkEntity(guid);
@@ -72,7 +72,7 @@ window.Render.prototype.clearFieldsOutsideBounds = function(bounds) {
     // NOTE: our geodesic polys can have lots of intermediate points. the bounds calculation hasn't been optimised for this
     // so can be particularly slow. a simple bounds check based on corner points will be good enough for this check
     var lls = f.getLatLngs();
-    var fieldBounds = L.latLngBounds([lls[0],lls[1]]).extend(lls[2]);
+    var fieldBounds = _L.latLngBounds([lls[0],lls[1]]).extend(lls[2]);
 
     if (!bounds.intersects(fieldBounds)) {
       this.deleteFieldEntity(guid);
@@ -314,7 +314,7 @@ window.Render.prototype.createPortalEntity = function(ent) {
   // the data returns unclaimed portals as level 1 - but IITC wants them treated as level 0
   if (team == TEAM_NONE) portalLevel = 0;
 
-  var latlng = L.latLng(ent[2][2]/1E6, ent[2][3]/1E6);
+  var latlng = _L.latLng(ent[2][2]/1E6, ent[2][3]/1E6);
 
   var data = decodeArray.portalSummary(ent[2]);
 
@@ -399,12 +399,12 @@ window.Render.prototype.createFieldEntity = function(ent) {
 
   var team = teamStringToId(ent[2][1]);
   var latlngs = [
-    L.latLng(data.points[0].latE6/1E6, data.points[0].lngE6/1E6),
-    L.latLng(data.points[1].latE6/1E6, data.points[1].lngE6/1E6),
-    L.latLng(data.points[2].latE6/1E6, data.points[2].lngE6/1E6)
+    _L.latLng(data.points[0].latE6/1E6, data.points[0].lngE6/1E6),
+    _L.latLng(data.points[1].latE6/1E6, data.points[1].lngE6/1E6),
+    _L.latLng(data.points[2].latE6/1E6, data.points[2].lngE6/1E6)
   ];
 
-  var poly = L.geodesicPolygon(latlngs, {
+  var poly = _L.geodesicPolygon(latlngs, {
     fillColor: COLORS[team],
     fillOpacity: 0.25,
     stroke: false,
@@ -467,10 +467,10 @@ window.Render.prototype.createLinkEntity = function(ent,faked) {
 
   var team = teamStringToId(ent[2][1]);
   var latlngs = [
-    L.latLng(data.oLatE6/1E6, data.oLngE6/1E6),
-    L.latLng(data.dLatE6/1E6, data.dLngE6/1E6)
+    _L.latLng(data.oLatE6/1E6, data.oLngE6/1E6),
+    _L.latLng(data.dLatE6/1E6, data.dLngE6/1E6)
   ];
-  var poly = L.geodesicPolyline(latlngs, {
+  var poly = _L.geodesicPolyline(latlngs, {
     color: COLORS[team],
     opacity: 1,
     weight: faked ? 1 : 2,

@@ -67,7 +67,7 @@ window.plugin.flyLinks.updateLayer = function() {
     var alatlng = map.unproject(a, window.plugin.flyLinks.PROJECT_ZOOM);
     var blatlng = map.unproject(b, window.plugin.flyLinks.PROJECT_ZOOM);
 
-    var poly = L.polyline([alatlng, blatlng], style);
+    var poly = _L.polyline([alatlng, blatlng], style);
     poly.addTo(window.plugin.flyLinks.linksLayerGroup);
   }
   
@@ -76,7 +76,7 @@ window.plugin.flyLinks.updateLayer = function() {
     var blatlng = map.unproject(b, window.plugin.flyLinks.PROJECT_ZOOM);
     var clatlng = map.unproject(c, window.plugin.flyLinks.PROJECT_ZOOM);
     
-    var poly = L.polygon([alatlng, blatlng, clatlng], style);
+    var poly = _L.polygon([alatlng, blatlng, clatlng], style);
     poly.addTo(window.plugin.flyLinks.fieldsLayerGroup);
   }
   
@@ -281,8 +281,8 @@ window.plugin.flyLinks.Triangle = function(a, b, c, depth) {
 }
 
 window.plugin.flyLinks.setup = function() {
-  window.plugin.flyLinks.linksLayerGroup = new L.LayerGroup();
-  window.plugin.flyLinks.fieldsLayerGroup = new L.LayerGroup();
+  window.plugin.flyLinks.linksLayerGroup = new _L.LayerGroup();
+  window.plugin.flyLinks.fieldsLayerGroup = new _L.LayerGroup();
   
   window.addHook('mapDataRefreshEnd', function(e) {
     window.plugin.flyLinks.updateLayer();

@@ -228,17 +228,17 @@ window.setPortalIndicators = function(p) {
     if (d) {
       var range = getPortalRange(d);
       portalRangeIndicator = (range.range > 0
-          ? L.geodesicCircle(coord, range.range, {
+          ? _L.geodesicCircle(coord, range.range, {
               fill: false,
               color: RANGE_INDICATOR_COLOR,
               weight: 3,
               dashArray: range.isLinkable ? undefined : "10,10",
               clickable: false })
-          : L.circle(coord, range.range, { fill: false, stroke: false, clickable: false })
+          : _L.circle(coord, range.range, { fill: false, stroke: false, clickable: false })
         ).addTo(map);
     }
 
-    portalAccessIndicator = L.circle(coord, HACK_RANGE,
+    portalAccessIndicator = _L.circle(coord, HACK_RANGE,
       { fill: false, color: ACCESS_INDICATOR_COLOR, weight: 2, clickable: false }
     ).addTo(map);
   }

@@ -37,7 +37,7 @@ window.plugin.canvasRendering = function() {};
 window.plugin.canvasRendering.setup  = function() {
 
   // nothing we can do here - other than check that canvas rendering was enabled
-  if (!L.Path.CANVAS) {
+  if (!_L.Path.CANVAS) {
     dialog({
       title:'Canvas Render Warning',
       text:'The Canvas Rendering plugin failed to enable canvas rendering in leaflet. This will occur if it initialises too late.\n'

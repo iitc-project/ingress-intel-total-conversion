@@ -38,17 +38,17 @@ window.plugin.playerTracker.setup = function() {
   var iconResImage = '@@INCLUDEIMAGE:images/marker-blue.png@@';
   var iconResRetImage = '@@INCLUDEIMAGE:images/marker-blue-2x.png@@';
 
-  plugin.playerTracker.iconEnl = L.Icon.Default.extend({options: {
+  plugin.playerTracker.iconEnl = _L.Icon.Default.extend({options: {
     iconUrl: iconEnlImage,
     iconRetinaUrl: iconEnlRetImage
   }});
-  plugin.playerTracker.iconRes = L.Icon.Default.extend({options: {
+  plugin.playerTracker.iconRes = _L.Icon.Default.extend({options: {
     iconUrl: iconResImage,
     iconRetinaUrl: iconResRetImage
   }});
 
-  plugin.playerTracker.drawnTracesEnl = new L.LayerGroup();
-  plugin.playerTracker.drawnTracesRes = new L.LayerGroup();
+  plugin.playerTracker.drawnTracesEnl = new _L.LayerGroup();
+  plugin.playerTracker.drawnTracesRes = new _L.LayerGroup();
   // to avoid any favouritism, we'll put the player's own faction layer first
   if (PLAYER.team == 'RESISTANCE') {
     window.addLayerGroup('Player Tracker Resistance', plugin.playerTracker.drawnTracesRes, true);
@@ -65,7 +65,7 @@ window.plugin.playerTracker.setup = function() {
     }
   });
 
-  plugin.playerTracker.playerPopup = new L.Popup({offset: L.point([1,-34])});
+  plugin.playerTracker.playerPopup = new _L.Popup({offset: _L.point([1,-34])});
 
   addHook('publicChatDataAvailable', window.plugin.playerTracker.handleData);
 
@@ -259,7 +259,7 @@ window.plugin.playerTracker.getLatLngFromEvent = function(ev) {
     lngs += latlng[1];
   });
 
-  return L.latLng(lats / ev.latlngs.length, lngs / ev.latlngs.length);
+  return _L.latLng(lats / ev.latlngs.length, lngs / ev.latlngs.length);
 }
 
 window.plugin.playerTracker.ago = function(time, now) {
@@ -397,7 +397,7 @@ window.plugin.playerTracker.drawData = function() {
     var icon = playerData.team === 'RESISTANCE' ?  new plugin.playerTracker.iconRes() :  new plugin.playerTracker.iconEnl();
     // as per OverlappingMarkerSpiderfier docs, click events (popups, etc) must be handled via it rather than the standard
     // marker click events. so store the popup text in the options, then display it in the oms click handler
-    var m = L.marker(gllfe(last), {icon: icon, referenceToPortal: closestPortal, opacity: absOpacity, desc: popup[0], title: tooltip});
+    var m = _L.marker(gllfe(last), {icon: icon, referenceToPortal: closestPortal, opacity: absOpacity, desc: popup[0], title: tooltip});
     m.addEventListener('spiderfiedclick', plugin.playerTracker.onClickListener);
 
     // m.bindPopup(title);
@@ -431,7 +431,7 @@ window.plugin.playerTracker.drawData = function() {
     };
 
     $.each(polyLine,function(ind,poly) {
-      L.polyline(poly, opts).addTo(plugin.playerTracker.drawnTracesEnl);
+      _L.polyline(poly, opts).addTo(plugin.playerTracker.drawnTracesEnl);
     });
   });
   $.each(polyLineByAgeRes, function(i, polyLine) {
@@ -446,7 +446,7 @@ window.plugin.playerTracker.drawData = function() {
     };
 
     $.each(polyLine, function(ind,poly) {
-      L.polyline(poly, opts).addTo(plugin.playerTracker.drawnTracesRes);
+      _L.polyline(poly, opts).addTo(plugin.playerTracker.drawnTracesRes);
     });
   });
 }

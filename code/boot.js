@@ -120,22 +120,22 @@ function createDefaultBaseMapLayers() {
   //var mqSubdomains = [ 'otile1','otile2', 'otile3', 'otile4' ];
   //var mqTileUrlPrefix = window.location.protocol !== 'https:' ? 'http://{s}.mqcdn.com' : 'https://{s}-s.mqcdn.com';
   //var mqMapOpt = {attribution: osmAttribution+', Tiles Courtesy of MapQuest', maxNativeZoom: 18, maxZoom: 21, subdomains: mqSubdomains};
-  //baseLayers['MapQuest OSM'] = new L.TileLayer(mqTileUrlPrefix+'/tiles/1.0.0/map/{z}/{x}/{y}.jpg',mqMapOpt);
+  //baseLayers['MapQuest OSM'] = new _L.TileLayer(mqTileUrlPrefix+'/tiles/1.0.0/map/{z}/{x}/{y}.jpg',mqMapOpt);
 
   // MapBox - https://www.mapbox.com/api-documentation/
   // Access MapBox via the GNOME Project proxy.
   // In the future, this URL will provide improved tiles from the GNOME Project with localized labels.
   var gnomeStreetUrl = 'https://gis.gnome.org/tiles/street/v1/{z}/{x}/{y}';
   var gnomeAerialUrl = 'https://gis.gnome.org/tiles/satellite/v1/{z}/{x}/{y}';
-  baseLayers['MapBox Street'] = L.tileLayer(gnomeStreetUrl);
-  baseLayers['MapBox Satellite'] = L.tileLayer(gnomeAerialUrl);
+  baseLayers['MapBox Street'] = _L.tileLayer(gnomeStreetUrl);
+  baseLayers['MapBox Satellite'] = _L.tileLayer(gnomeAerialUrl);
   
   // cartodb has some nice tiles too - both dark and light subtle maps - http://cartodb.com/basemaps/
   // (not available over https though - not on the right domain name anyway)
   var cartoAttr = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>';
   var cartoUrl = 'http://{s}.basemaps.cartocdn.com/{theme}/{z}/{x}/{y}.png';
-  baseLayers['CartoDB Dark Matter'] = L.tileLayer(cartoUrl,{attribution:cartoAttr,theme:'dark_all'});
-  baseLayers['CartoDB Positron'] = L.tileLayer(cartoUrl,{attribution:cartoAttr,theme:'light_all'});
+  baseLayers['CartoDB Dark Matter'] = _L.tileLayer(cartoUrl,{attribution:cartoAttr,theme:'dark_all'});
+  baseLayers['CartoDB Positron'] = _L.tileLayer(cartoUrl,{attribution:cartoAttr,theme:'light_all'});
 
 
   // we'll include google maps too - in the ingress default style, and a few other standard ones
@@ -151,11 +151,11 @@ function createDefaultBaseMapLayers() {
         { featureType:"transit", elementType:"all", stylers:[{visibility:"off"}] }
       ]
   };
-  baseLayers['Google Default Ingress Map'] = new L.Google('ROADMAP',{maxZoom:21, mapOptions:ingressGMapOptions});
-  baseLayers['Google Roads'] = new L.Google('ROADMAP',{maxZoom:21});
-  baseLayers['Google Satellite'] = new L.Google('SATELLITE',{maxZoom:21});
-  baseLayers['Google Hybrid'] = new L.Google('HYBRID',{maxZoom:21});
-  baseLayers['Google Terrain'] = new L.Google('TERRAIN',{maxZoom:15});
+  baseLayers['Google Default Ingress Map'] = new _L.Google('ROADMAP',{maxZoom:21, mapOptions:ingressGMapOptions});
+  baseLayers['Google Roads'] = new _L.Google('ROADMAP',{maxZoom:21});
+  baseLayers['Google Satellite'] = new _L.Google('SATELLITE',{maxZoom:21});
+  baseLayers['Google Hybrid'] = new _L.Google('HYBRID',{maxZoom:21});
+  baseLayers['Google Terrain'] = new _L.Google('TERRAIN',{maxZoom:15});
 
 
   return baseLayers;
@@ -169,7 +169,7 @@ window.setupMap = function() {
 
 
   // proper initial position is now delayed until all plugins are loaded and the base layer is set
-  window.map = new L.Map('map', {
+  window.map = new _L.Map('map', {
     center: [0,0],
     zoom: 1,
     zoomControl: (typeof android !== 'undefined' && android && android.showZoom) ? android.showZoom() : true,
@@ -179,16 +179,16 @@ window.setupMap = function() {
     bounceAtZoomLimits: false
   });
 
-  if (L.Path.CANVAS) {
+  if (_L.Path.CANVAS) {
     // for canvas, 2% overdraw only - to help performance
-    L.Path.CLIP_PADDING = 0.02;
-  } else if (L.Path.SVG) {
-    if (L.Browser.mobile) {
+    _L.Path.CLIP_PADDING = 0.02;
+  } else if (_L.Path.SVG) {
+    if (_L.Browser.mobile) {
       // mobile SVG - 10% ovredraw. might help performance?
-      L.Path.CLIP_PADDING = 0.1;
+      _L.Path.CLIP_PADDING = 0.1;
     } else {
       // for svg, 100% overdraw - so we have a full screen worth in all directions
-      L.Path.CLIP_PADDING = 1.0;
+      _L.Path.CLIP_PADDING = 1.0;
     }
   }
 
@@ -206,8 +206,8 @@ window.setupMap = function() {
   portalsFactionLayers = [];
   var portalsLayers = [];
   for(var i = 0; i <= 8; i++) {
-    portalsFactionLayers[i] = [L.layerGroup(), L.layerGroup(), L.layerGroup()];
-    portalsLayers[i] = L.layerGroup(portalsFactionLayers[i]);
+    portalsFactionLayers[i] = [_L.layerGroup(), _L.layerGroup(), _L.layerGroup()];
+    portalsLayers[i] = _L.layerGroup(portalsFactionLayers[i]);
     map.addLayer(portalsLayers[i]);
     var t = (i === 0 ? 'Unclaimed/Placeholder' : 'Level ' + i) + ' Portals';
     addLayers[t] = portalsLayers[i];
@@ -215,15 +215,15 @@ window.setupMap = function() {
     if(!isLayerGroupDisplayed(t, true)) hiddenLayer.push(portalsLayers[i]);
   }
 
-  fieldsFactionLayers = [L.layerGroup(), L.layerGroup(), L.layerGroup()];
-  var fieldsLayer = L.layerGroup(fieldsFactionLayers);
+  fieldsFactionLayers = [_L.layerGroup(), _L.layerGroup(), _L.layerGroup()];
+  var fieldsLayer = _L.layerGroup(fieldsFactionLayers);
   map.addLayer(fieldsLayer, true);
   addLayers['Fields'] = fieldsLayer;
   // Store it in hiddenLayer to remove later
   if(!isLayerGroupDisplayed('Fields', true)) hiddenLayer.push(fieldsLayer);
 
-  linksFactionLayers = [L.layerGroup(), L.layerGroup(), L.layerGroup()];
-  var linksLayer = L.layerGroup(linksFactionLayers);
+  linksFactionLayers = [_L.layerGroup(), _L.layerGroup(), _L.layerGroup()];
+  var linksLayer = _L.layerGroup(linksFactionLayers);
   map.addLayer(linksLayer, true);
   addLayers['Links'] = linksLayer;
   // Store it in hiddenLayer to remove later
@@ -233,7 +233,7 @@ window.setupMap = function() {
   // these layers don't actually contain any data. instead, every time they're added/removed from the map,
   // the matching sub-layers within the above portals/fields/links are added/removed from their parent with
   // the below 'onoverlayadd/onoverlayremove' events
-  var factionLayers = [L.layerGroup(), L.layerGroup(), L.layerGroup()];
+  var factionLayers = [_L.layerGroup(), _L.layerGroup(), _L.layerGroup()];
   for (var fac in factionLayers) {
     map.addLayer (factionLayers[fac]);
   }
@@ -284,7 +284,7 @@ window.setupMap = function() {
 
   var baseLayers = createDefaultBaseMapLayers();
 
-  window.layerChooser = new L.Control.Layers(baseLayers, addLayers);
+  window.layerChooser = new _L.Control.Layers(baseLayers, addLayers);
 
   // Remove the hidden layer after layerChooser built, to avoid messing up ordering of layers 
   $.each(hiddenLayer, function(ind, layer){
@@ -313,7 +313,7 @@ window.setupMap = function() {
 
   map.on('moveend', function(e) {
     // two limits on map position
-    // we wrap longitude (the L.LatLng 'wrap' method) - so we don't find ourselves looking beyond +-180 degrees
+    // we wrap longitude (the _L.LatLng 'wrap' method) - so we don't find ourselves looking beyond +-180 degrees
     // then latitude is clamped with the clampLatLng function (to the 85 deg north/south limits)
     var newPos = clampLatLng(map.getCenter().wrap());
     if (!map.getCenter().equals(newPos)) {
@@ -359,7 +359,7 @@ window.setupMap = function() {
 
 //adds a base layer to the map. done separately from the above, so that plugins that add base layers can be the default
 window.setMapBaseLayer = function() {
-  //create a map name -> layer mapping - depends on internals of L.Control.Layers
+  //create a map name -> layer mapping - depends on internals of _L.Control.Layers
   var nameToLayer = {};
   var firstLayer = null;
 
@@ -503,7 +503,7 @@ window.setupLayerChooserApi = function() {
   }
 
   //hook some additional code into the LayerControl so it's easy for the mobile app to interface with it
-  //WARNING: does depend on internals of the L.Control.Layers code
+  //WARNING: does depend on internals of the _L.Control.Layers code
   window.layerChooser.getLayers = function() {
     var baseLayers = new Array();
     var overlayLayers = new Array();
@@ -512,7 +512,7 @@ window.setupLayerChooserApi = function() {
       var obj = this._layers[i];
       var layerActive = window.map.hasLayer(obj.layer);
       var info = {
-        layerId: L.stamp(obj.layer),
+        layerId: _L.stamp(obj.layer),
         name: obj.name,
         active: layerActive
       }
@@ -566,7 +566,7 @@ window.setupLayerChooserApi = function() {
       }
     }
 
-    //below logic based on code in L.Control.Layers _onInputClick
+    //below logic based on code in _L.Control.Layers _onInputClick
     if(!obj.overlay) {
       this._map.setZoom(this._map.getZoom());
       this._map.fire('baselayerchange', {layer: obj.layer});
@@ -610,12 +610,12 @@ function boot() {
   var iconDefImage = '@@INCLUDEIMAGE:images/marker-icon.png@@';
   var iconDefRetImage = '@@INCLUDEIMAGE:images/marker-icon-2x.png@@';
 
-  L.Icon.Default = L.Icon.extend({options: {
+  _L.Icon.Default = _L.Icon.extend({options: {
     iconUrl: iconDefImage,
     iconRetinaUrl: iconDefRetImage,
-    iconSize: new L.Point(25, 41),
-    iconAnchor: new L.Point(12, 41),
-    popupAnchor: new L.Point(1, -34),
+    iconSize: new _L.Point(25, 41),
+    iconAnchor: new _L.Point(12, 41),
+    popupAnchor: new _L.Point(1, -34),
   }});
 
   window.extractFromStock();
@@ -707,7 +707,6 @@ function boot() {
   if (typeof android !== 'undefined' && android && android.bootFinished) {
     android.bootFinished();
   }
-
 }
 
 
@@ -715,12 +714,15 @@ function boot() {
 
 try { console.log('Loading included JS now'); } catch(e) {}
 @@INCLUDERAW:external/leaflet-src.js@@
-@@INCLUDERAW:external/L.Geodesic.js@@
+window._L = L.noConflict();
+window.L = window._L; // TODO: remove this. It's obsolete and only for 3rd party plugins
+(function (L) {@@INCLUDERAW:external/L.Geodesic.js@@})(_L);
+
 // modified version of https://github.com/shramov/leaflet-plugins. Also
 // contains the default Ingress map style.
-@@INCLUDERAW:external/Google.js@@
+(function (L) {@@INCLUDERAW:external/Google.js@@})(_L);
 @@INCLUDERAW:external/autolink.js@@
-@@INCLUDERAW:external/oms.min.js@@
+(function (L) {@@INCLUDERAW:external/oms.min.js@@})(_L);
 
 try { console.log('done loading included JS'); } catch(e) {}
 
