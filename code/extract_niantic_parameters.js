@@ -3,7 +3,7 @@
 // so we need to extract some essential parameters from the code for IITC to use
 
 window.extractFromStock = function() {
-  window.niantic_params = {}
+  window.niantic_params = {};
 
   // extract the former nemesis.dashboard.config.CURRENT_VERSION from the code
   var reVersion = new RegExp('"X-CSRFToken".*[a-z].v="([a-f0-9]{40})";');
@@ -62,7 +62,7 @@ window.extractFromStock = function() {
               if (topObject[0] == 8) {
                 // check for tile levels
                 var decreasing = true;
-                for (var i=1; i<topObject.length; i++) {
+                for (i=1; i<topObject.length; i++) {
                   if (topObject[i-1] < topObject[i]) {
                     decreasing = false;
                     break;
@@ -77,7 +77,7 @@ window.extractFromStock = function() {
               // 2015-06-25 - changed to top value of 64000, then to 32000 - allow for them to restore it just in case
               if (topObject[topObject.length-1] >= 9000 && topObject[topObject.length-1] <= 64000) {
                 var increasing = true;
-                for (var i=1; i<topObject.length; i++) {
+                for (i=1; i<topObject.length; i++) {
                   if (topObject[i-1] > topObject[i]) {
                     increasing = false;
                     break;
@@ -103,8 +103,8 @@ window.extractFromStock = function() {
   if (niantic_params.CURRENT_VERSION === undefined) {
     dialog({
       title: 'IITC Broken',
-      html: '<p>IITC failed to extract the required parameters from the intel site</p>'
-           +'<p>This can happen after Niantic update the standard intel site. A fix will be needed from the IITC developers.</p>',
+      html: '<p>IITC failed to extract the required parameters from the intel site</p>' +
+           '<p>This can happen after Niantic update the standard intel site. A fix will be needed from the IITC developers.</p>',
     });
 
     console.log('Discovered parameters');
@@ -113,5 +113,5 @@ window.extractFromStock = function() {
     throw('Error: IITC failed to extract CURRENT_VERSION string - cannot continue');
   }
 
-}
+};
 

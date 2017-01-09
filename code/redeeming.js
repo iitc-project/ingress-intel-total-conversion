@@ -14,7 +14,7 @@ window.REDEEM_SHORT_NAMES = {
   'power cube':'C',
   'media':'M',
   'ultra strike':'US',
-}
+};
 
 /* These are HTTP status codes returned by the redemption API.
  * TODO: Move to another file? Use more generally across IITC?
@@ -28,7 +28,7 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
   var passcode = jqXHR.passcode;
 
   if(data.error) {
-    console.error('Error redeeming passcode "'+passcode+'": ' + data.error)
+    console.error('Error redeeming passcode "'+passcode+'": ' + data.error);
     dialog({
       title: 'Error: ' + passcode,
       html: '<strong>' + data.error + '</strong>'
@@ -36,7 +36,7 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
     return;
   }
   if(!data.rewards) {
-    console.error('Error redeeming passcode "'+passcode+'": ', data)
+    console.error('Error redeeming passcode "'+passcode+'": ', data);
     dialog({
       title: 'Error: ' + passcode,
       html: '<strong>An unexpected error occured</strong>'
@@ -57,7 +57,7 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
   var formatHandlers = {
     "short": formatPasscodeShort,
     "long": formatPasscodeLong
-  }
+  };
   if(!formatHandlers[format])
     format = "long";
 
@@ -71,7 +71,7 @@ window.handleRedeemResponse = function(data, textStatus, jqXHR) {
       $(this).dialog("close");
       localStorage["iitc-passcode-format"] = label;
       handleRedeemResponse(data, textStatus, jqXHR);
-    }
+    };
   });
 
   // Display it
@@ -112,16 +112,17 @@ window.formatPasscodeLong = function(data) {
     });
   }
 
-  html += '</ul>'
+  html += '</ul>';
   return html;
-}
+};
 
 window.formatPasscodeShort = function(data) {
 
+  var awards;
   if(data.other) {
-    var awards = data.other.map(window.escapeHtmlSpecialChars);
+    awards = data.other.map(window.escapeHtmlSpecialChars);
   } else {
-    var awards = [];
+    awards = [];
   }
 
   if(0 < data.xm)
@@ -136,10 +137,10 @@ window.formatPasscodeShort = function(data) {
         if(item.count > 1)
           str += item.count + "&nbsp;";
 
+        var l = item.level;
         if(window.REDEEM_SHORT_NAMES[type.name.toLowerCase()]) {
           var shortName = window.REDEEM_SHORT_NAMES[type.name.toLowerCase()];
 
-          var l = item.level;
           if(0 < l) {
             l = parseInt(l);
             str += '<span class="itemlevel" style="color:' + COLORS_LVL[l] + '">' + shortName + l + '</span>';
@@ -147,7 +148,6 @@ window.formatPasscodeShort = function(data) {
             str += shortName;
           }
         } else { // no short name known
-          var l = item.level;
           if(0 < l) {
             l = parseInt(l);
             str += '<span class="itemlevel" style="color:' + COLORS_LVL[l] + '">L' + l + '</span> ';
@@ -160,8 +160,8 @@ window.formatPasscodeShort = function(data) {
     });
   }
 
-  return '<p class="redeemReward">' + awards.join(', ') + '</p>'
-}
+  return '<p class="redeemReward">' + awards.join(', ') + '</p>';
+};
 
 window.setupRedeem = function() {
   $("#redeem").keypress(function(e) {

@@ -39,8 +39,8 @@ window.plugin.portalHighlighterDebug = function() {};
 //}
 
 var setup =  function() {
-//  window.addPortalHighlighter('DEBUG: Unknoen_11', window.plugin.portalHighlighterDebug.unknown11);
-}
+  //  window.addPortalHighlighter('DEBUG: Unknoen_11', window.plugin.portalHighlighterDebug.unknown11);
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 

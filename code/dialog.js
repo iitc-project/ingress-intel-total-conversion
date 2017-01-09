@@ -247,7 +247,7 @@ window.dialog = function(options) {
   dialog.dialog('open');
 
   return dialog;
-}
+};
 
 /* Creates an alert dialog with default settings.
  * If you want more configurability, use window.dialog instead.
@@ -261,11 +261,11 @@ window.alert = function(text, isHTML, closeCallback) {
   }
 
   return dialog(obj);
-}
+};
 
 window.setupDialogs = function() {
   window.DIALOG_ID = 0;
-  window.DIALOGS   = {}
+  window.DIALOGS   = {};
   window.DIALOG_COUNT = 0;
   window.DIALOG_FOCUS = null;
-}
+};

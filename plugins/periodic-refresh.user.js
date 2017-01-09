@@ -27,7 +27,7 @@ window.plugin.periodicRefresh = function() {};
 window.plugin.periodicRefresh.wakeup = function() {
   console.log('periodicRefresh: timer fired - leaving idle mode');
   idleReset();
-}
+};
 
 
 window.plugin.periodicRefresh.setup = function() {

@@ -28,7 +28,7 @@ window.plugin.portalHighlighterPortalsHighLevel = function() {};
 window.plugin.portalHighlighterPortalsHighLevel.colorLevel = function(data) {
   var portal_level = data.portal.options.data.level;
   var opacity = 0.7;
-  var color = undefined;
+  var color;
 
   switch (portal_level) {
     case 6: color='orange'; break;
@@ -39,11 +39,11 @@ window.plugin.portalHighlighterPortalsHighLevel.colorLevel = function(data) {
   if (color) {
     data.portal.setStyle({fillColor: color, fillOpacity: opacity});
   }
-}
+};
 
 var setup =  function() {
   window.addPortalHighlighter('Higher Level Portals', window.plugin.portalHighlighterPortalsHighLevel.colorLevel);
-}
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 

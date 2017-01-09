@@ -13,7 +13,7 @@ window.getPortalLevel = function(d) {
     hasReso = true;
   });
   return hasReso ? Math.max(1, lvl/8) : 0;
-}
+};
 
 window.getTotalPortalEnergy = function(d) {
   var nrg = 0;
@@ -24,7 +24,7 @@ window.getTotalPortalEnergy = function(d) {
     nrg += max;
   });
   return nrg;
-}
+};
 
 // For backwards compatibility
 window.getPortalEnergy = window.getTotalPortalEnergy;
@@ -36,7 +36,7 @@ window.getCurrentPortalEnergy = function(d) {
     nrg += parseInt(reso.energy);
   });
   return nrg;
-}
+};
 
 window.getPortalRange = function(d) {
   // formula by the great gals and guys at
@@ -65,7 +65,7 @@ window.getPortalRange = function(d) {
   range.isLinkable = !resoMissing;
 
   return range;
-}
+};
 
 window.getLinkAmpRangeBoost = function(d) {
   // additional range boost calculation
@@ -85,7 +85,7 @@ window.getLinkAmpRangeBoost = function(d) {
   });
 
   return (linkAmps.length > 0) ? boost : 1.0;
-}
+};
 
 
 window.getAttackApGain = function(d,fieldCount,linkCount) {
@@ -123,7 +123,7 @@ window.getAttackApGain = function(d,fieldCount,linkCount) {
   var completionAp = (deployCount > 0) ? COMPLETION_BONUS : 0;
   var upgradeCount = 0;
   var upgradeAvailable = maxResonators[8];
-  for(var n = 7; n >= 0; n--) {
+  for(n = 7; n >= 0; n--) {
     upgradeCount += curResonators[n];
     if(upgradeAvailable < upgradeCount) {
         upgradeCount -= (upgradeCount - upgradeAvailable);
@@ -140,18 +140,18 @@ window.getAttackApGain = function(d,fieldCount,linkCount) {
     resoAp: resoAp,
     captureAp: captureAp
   };
-}
+};
 
 //This function will return the potential level a player can upgrade it to
 window.potentialPortalLevel = function(d) {
   var current_level = getPortalLevel(d);
   var potential_level = current_level;
-  
+
   if(PLAYER.team === d.team) {
     var resonators_on_portal = d.resonators;
-    var resonator_levels = new Array();
+    var resonator_levels = new Array([]);
     // figure out how many of each of these resonators can be placed by the player
-    var player_resontators = new Array();
+    var player_resontators = new Array([]);
     for(var i=1;i<=MAX_PORTAL_LEVEL; i++) {
       player_resontators[i] = i > PLAYER.level ? 0 : MAX_RESO_PER_PLAYER[i];
     }
@@ -159,16 +159,16 @@ window.potentialPortalLevel = function(d) {
       if(reso !== null && reso.owner === window.PLAYER.nickname) {
         player_resontators[reso.level]--;
       }
-      resonator_levels.push(reso === null ? 0 : reso.level);  
+      resonator_levels.push(reso === null ? 0 : reso.level);
     });
-    
+
     resonator_levels.sort(function(a, b) {
       return(a - b);
     });
-    
+
     // Max out portal
     var install_index = 0;
-    for(var i=MAX_PORTAL_LEVEL;i>=1; i--) {
+    for(i=MAX_PORTAL_LEVEL;i>=1; i--) {
       for(var install = player_resontators[i]; install>0; install--) {
         if(resonator_levels[install_index] < i) {
           resonator_levels[install_index] = i;
@@ -180,22 +180,22 @@ window.potentialPortalLevel = function(d) {
     potential_level = resonator_levels.reduce(function(a, b) {return a + b;}) / 8;
   }
   return(potential_level);
-}
+};
 
 
 window.fixPortalImageUrl = function(url) {
   if (url) {
     if (window.location.protocol === 'https:') {
-      url = url.indexOf('www.panoramio.com') !== -1
-            ? url.replace(/^http:\/\/www/, 'https://ssl').replace('small', 'medium')
-            : url.replace(/^http:\/\//, '//');
+      url = url.indexOf('www.panoramio.com') !== -1 ?
+          url.replace(/^http:\/\/www/, 'https://ssl').replace('small', 'medium') :
+          url.replace(/^http:\/\//, '//');
     }
     return url;
   } else {
     return DEFAULT_PORTAL_IMG;
   }
 
-}
+};
 
 
 window.getPortalModsByType = function(d, type) {
@@ -224,7 +224,7 @@ window.getPortalModsByType = function(d, type) {
   });
 
   return mods;
-}
+};
 
 
 
@@ -237,12 +237,12 @@ window.getPortalShieldMitigation = function(d) {
   });
 
   return mitigation;
-}
+};
 
 window.getPortalLinksMitigation = function(linkCount) {
   var mitigation = Math.round(400/9*Math.atan(linkCount/Math.E));
   return mitigation;
-}
+};
 
 window.getPortalMitigationDetails = function(d,linkCount) {
   var mitigation = {
@@ -256,7 +256,7 @@ window.getPortalMitigationDetails = function(d,linkCount) {
   mitigation.excess = (mitigation.shields+mitigation.links) - mitigation.total;
 
   return mitigation;
-}
+};
 
 window.getMaxOutgoingLinks = function(d) {
   var linkAmps = getPortalModsByType(d, 'ULTRA_LINK_AMP');
@@ -278,7 +278,7 @@ window.getPortalHackDetails = function(d) {
   // first mod of type is fully effective, the others are only 50% effective
   var effectivenessReduction = [ 1, 0.5, 0.5, 0.5 ];
 
-  var cooldownTime = 300; // 5 mins - 300 seconds 
+  var cooldownTime = 300; // 5 mins - 300 seconds
 
   $.each(heatsinks, function(index,mod) {
     var hackSpeed = parseInt(mod.stats.HACK_SPEED)/1000000;
@@ -293,14 +293,14 @@ window.getPortalHackDetails = function(d) {
   });
 
   return {cooldown: cooldownTime, hacks: numHacks, burnout: cooldownTime*(numHacks-1)};
-}
+};
 
 // given a detailed portal structure, return summary portal data, as seen in the map tile data
 window.getPortalSummaryData = function(d) {
 
   // NOTE: the summary data reports unclaimed portals as level 1 - not zero as elsewhere in IITC
   var level = parseInt(getPortalLevel(d));
-  if (level == 0) level = 1; //niantic returns neutral portals as level 1, not 0 as used throughout IITC elsewhere
+  if (level === 0) level = 1; //niantic returns neutral portals as level 1, not 0 as used throughout IITC elsewhere
 
   var resCount = 0;
   if (d.resonators) {
@@ -323,7 +323,7 @@ window.getPortalSummaryData = function(d) {
     lngE6: d.lngE6,
     type: 'portal'
   };
-}
+};
 
 window.getPortalAttackValues = function(d) {
   var forceamps = getPortalModsByType(d, 'FORCE_AMP');
@@ -360,6 +360,6 @@ window.getPortalAttackValues = function(d) {
   });
 
   return attackValues;
-}
+};
 
 

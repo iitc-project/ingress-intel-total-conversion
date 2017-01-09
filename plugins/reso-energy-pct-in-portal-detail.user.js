@@ -40,11 +40,11 @@ window.plugin.resoEnergyPctInPortalDetail.updateMeter = function(data) {
         $(this).html(html);
       }
     });
-}
+};
 
 var setup =  function() {
   window.addHook('portalDetailsUpdated', window.plugin.resoEnergyPctInPortalDetail.updateMeter);
-}
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 

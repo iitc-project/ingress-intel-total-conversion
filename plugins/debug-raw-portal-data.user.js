@@ -26,12 +26,12 @@
 window.plugin.rawdata = function() {};
 
 window.plugin.rawdata.setupCallback = function() {
-    addHook('portalDetailsUpdated', window.plugin.rawdata.addLink);
-}
+  addHook('portalDetailsUpdated', window.plugin.rawdata.addLink);
+};
 
 window.plugin.rawdata.addLink = function(d) {
   $('.linkdetails').append('<aside><a onclick="window.plugin.rawdata.showPortalData(\''+window.selectedPortal+'\')" title="Display raw data of the portal">Raw Data</a></aside>');
-}
+};
 
 window.plugin.rawdata.showPortalData = function(guid) {
   if (!window.portals[guid]) {
@@ -46,9 +46,9 @@ window.plugin.rawdata.showPortalData = function(guid) {
   var title = 'Raw portal data: ' + (data.title || '<no title>') + ' ('+guid+')';
 
   var body =
-    '<b>Portal GUID</b>: <code>'+guid+'</code><br />' +
-    '<b>Entity timestamp</b>: <code>'+ts+'</code> - '+window.unixTimeToDateTimeString(ts,true)+'<br />' + 
-    '<b>Portal map data:</b><pre>'+JSON.stringify(data,null,2)+'</pre>';
+  '<b>Portal GUID</b>: <code>'+guid+'</code><br />' +
+  '<b>Entity timestamp</b>: <code>'+ts+'</code> - '+window.unixTimeToDateTimeString(ts,true)+'<br />' +
+  '<b>Portal map data:</b><pre>'+JSON.stringify(data,null,2)+'</pre>';
 
   var details = portalDetail.get(guid);
   if (details) {
@@ -83,24 +83,24 @@ window.plugin.rawdata.showPortalData = function(guid) {
     title: title,
     html: body,
     id: 'dialog-rawdata',
-    dialogClass: 'ui-dialog-rawdata',
+    dialogClass: 'ui-dialog-rawdata'
   });
-}
+};
 
 var setup = function () {
   window.plugin.rawdata.setupCallback();
   $('head').append('<style>' +
-      '.ui-dialog-rawdata {' +
-        'width: auto !important;' +
-        'min-width: 400px !important;' +
-        //'max-width: 600px !important;' +
-    '}' +
-      '#dialog-rawdata {' +
-        'overflow-x: auto;' +
-        'overflow-y: auto;' +
-    '}' +
-    '</style>');
-}
+                   '.ui-dialog-rawdata {' +
+                   'width: auto !important;' +
+                   'min-width: 400px !important;' +
+                   //'max-width: 600px !important;' +
+                   '}' +
+                   '#dialog-rawdata {' +
+                   'overflow-x: auto;' +
+                   'overflow-y: auto;' +
+                   '}' +
+                   '</style>');
+};
 
 
 // PLUGIN END //////////////////////////////////////////////////////////

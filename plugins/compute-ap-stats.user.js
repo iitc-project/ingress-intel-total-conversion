@@ -37,7 +37,7 @@ window.plugin.compAPStats.setupCallback = function() {
   window.addHook('mapDataRefreshEnd', window.plugin.compAPStats.mapDataRefreshEnd);
   window.addHook('requestFinished', window.plugin.compAPStats.requestFinished);
 
-}
+};
 
 window.plugin.compAPStats.mapDataRefreshEnd = function() {
   if (window.plugin.compAPStats.timer) {
@@ -46,7 +46,7 @@ window.plugin.compAPStats.mapDataRefreshEnd = function() {
   }
 
   window.plugin.compAPStats.update(true);
-}
+};
 
 window.plugin.compAPStats.requestFinished = function() {
   // process on a short delay, so if multiple requests finish in a short time we only calculate once
@@ -56,35 +56,35 @@ window.plugin.compAPStats.requestFinished = function() {
       window.plugin.compAPStats.update(false);
     }, 0.75*1000);
   }
-}
+};
 
 window.plugin.compAPStats.update = function(hasFinished) {
   var result = window.plugin.compAPStats.compAPStats();
   var loading = hasFinished ? '' : 'Loading...';
 
   var formatRow = function(team,data) {
-    var title = 'Destroy and capture '+data.destroyPortals+' portals\n'
-              + 'Destroy '+data.destroyLinks+' links and '+data.destroyFields+' fields\n'
-              + 'Capture '+data.capturePortals+' neutral portals, complete '+data.finishPortals+' portals\n'
-              + '(unknown additional AP for links/fields)';
+    var title = 'Destroy and capture '+data.destroyPortals+' portals\n' +
+                'Destroy '+data.destroyLinks+' links and '+data.destroyFields+' fields\n' +
+                'Capture '+data.capturePortals+' neutral portals, complete '+data.finishPortals+' portals\n' +
+                '(unknown additional AP for links/fields)';
     return '<tr><td>'+team+'</td><td style="text-align:right" title="'+title+'">'+digits(data.AP)+'</td></tr>';
-  }
+  };
 
 
-  $('#available_ap_display').html('Available AP in this area: '
-    + loading
-    + '<table>'
-    + formatRow('Enlightened',result.enl)
-    + formatRow('Resistance', result.res)
-    + '</table>');
-}
+  $('#available_ap_display').html('Available AP in this area: ' +
+    loading +
+    '<table>' +
+    formatRow('Enlightened',result.enl) +
+    formatRow('Resistance', result.res) +
+    '</table>');
+};
 
 
 window.plugin.compAPStats.compAPStats = function() {
 
   var result = {
     res: { AP: 0, destroyPortals: 0, capturePortals: 0, finishPortals: 0, destroyLinks: 0, destroyFields: 0 },
-    enl: { AP: 0, destroyPortals: 0, capturePortals: 0, finishPortals: 0, destroyLinks: 0, destroyFields: 0 },
+    enl: { AP: 0, destroyPortals: 0, capturePortals: 0, finishPortals: 0, destroyLinks: 0, destroyFields: 0 }
   };
 
 
@@ -166,11 +166,11 @@ window.plugin.compAPStats.compAPStats = function() {
   });
 
   return result;
-}
+};
 
 var setup =  function() {
   window.plugin.compAPStats.setupCallback();
-}
+};
 
 // PLUGIN END //////////////////////////////////////////////////////////
 

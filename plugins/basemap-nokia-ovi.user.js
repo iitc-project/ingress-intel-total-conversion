@@ -32,15 +32,15 @@ window.plugin.mapNokiaOvi.setup = function() {
     'normal.day.transit': { name: "Normal (transit)", type: 'png8' },
     'satellite.day': { name: "Satellite", type: 'jpg' },
     'terrain.day': { name: "Terrain", type: 'png8' }, //would jpg be better?
-    'normal.night.grey': { name: "Normal Night (grey)", type: 'png8' },
+    'normal.night.grey': { name: "Normal Night (grey)", type: 'png8' }
   };
 
 
   var oviOpt = {attribution: 'Imagery © Nokia OVI', maxNativeZoom: 20, maxZoom: 21};
 
   $.each(oviStyles, function(style,data) {
-    oviOpt['style'] = style;
-    oviOpt['type'] = data.type;
+    oviOpt.style = style;
+    oviOpt.type = data.type;
     var oviMap = new L.TileLayer('http://{s}.maptile.maps.svc.ovi.com/maptiler/maptile/newest/{style}/{z}/{x}/{y}/256/{type}', oviOpt);
     layerChooser.addBaseLayer(oviMap, 'Nokia OVI '+data.name);
   });
