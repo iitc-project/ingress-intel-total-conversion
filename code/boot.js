@@ -713,7 +713,6 @@ function boot() {
 
 @@INCLUDERAW:external/load.js@@
 
-try { console.log('Loading included JS now'); } catch(e) {}
 @@INCLUDERAW:external/leaflet-src.js@@
 @@INCLUDERAW:external/L.Geodesic.js@@
 // modified version of https://github.com/shramov/leaflet-plugins. Also
@@ -722,11 +721,9 @@ try { console.log('Loading included JS now'); } catch(e) {}
 @@INCLUDERAW:external/autolink.js@@
 @@INCLUDERAW:external/oms.min.js@@
 
+@@INCLUDERAW:external/jquery-2.2.4.min.js@@
+@@INCLUDERAW:external/jquery-ui-1.11.4.min.js@@
+
 try { console.log('done loading included JS'); } catch(e) {}
 
-//note: no protocol - so uses http or https as used on the current page
-var JQUERY = '//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js';
-var JQUERYUI = '//ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js';
-
-// after all scripts have loaded, boot the actual app
-load(JQUERY).then(JQUERYUI).thenRun(boot);
+$(boot);
