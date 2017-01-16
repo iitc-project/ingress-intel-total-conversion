@@ -103,19 +103,19 @@
     {
         setup: function(data)
         {
-            $(this).bind((touchSupported ? "touchstart" : "mousedown"),  data, startHandler)
-                   .bind((touchSupported ? "touchend"   : "mouseup"),    stopHandler)
-                   .bind((touchSupported ? "touchmove"  : "mouseleave"), leaveHandler);
+            $(this).on((touchSupported ? "touchstart" : "mousedown"),  data, startHandler)
+                   .on((touchSupported ? "touchend"   : "mouseup"),    stopHandler)
+                   .on((touchSupported ? "touchmove"  : "mouseleave"), leaveHandler);
             if(touchSupported)
-                $(this).bind("touchcancel", leaveHandler);
+                $(this).on("touchcancel", leaveHandler);
         },
         teardown: function(namespaces)
         {
-            $(this).unbind((touchSupported ? "touchstart" : "mousedown"),  startHandler)
-                   .unbind((touchSupported ? "touchend"   : "mouseup"),    stopHandler)
-                   .unbind((touchSupported ? "touchmove"  : "mouseleave"), leaveHandler);
+            $(this).off((touchSupported ? "touchstart" : "mousedown"),  startHandler)
+                   .off((touchSupported ? "touchend"   : "mouseup"),    stopHandler)
+                   .off((touchSupported ? "touchmove"  : "mouseleave"), leaveHandler);
             if(touchSupported)
-                $(this).unbind("touchcancel", leaveHandler);
+                $(this).off("touchcancel", leaveHandler);
         }
     };
 })(jQuery);

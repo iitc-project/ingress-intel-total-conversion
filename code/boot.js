@@ -721,8 +721,8 @@ function boot() {
 @@INCLUDERAW:external/autolink.js@@
 @@INCLUDERAW:external/oms.min.js@@
 
-@@INCLUDERAW:external/jquery-2.2.4.min.js@@
-@@INCLUDERAW:external/jquery-ui-1.11.4.min.js@@
+@@INCLUDERAW:external/jquery-3.1.1.min.js@@
+@@INCLUDERAW:external/jquery-ui-1.12.1.min.js@@
 
 try { console.log('done loading included JS'); } catch(e) {}
 
