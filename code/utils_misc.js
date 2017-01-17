@@ -243,12 +243,10 @@ window.androidPermalink = function() {
   return false;
 }
 
-
-
-window.getMinPortalLevel = function() {
-  var z = map.getZoom();
-  z = getDataZoomForMapZoom(z);
-  return getMapZoomTileParameters(z).level;
+window.getCurrentZoomTileParameters = function() {
+  var zoom = getDataZoomForMapZoom( map.getZoom() );
+  var tileParams = getMapZoomTileParameters(zoom);
+  return tileParams;
 }
 
 // returns number of pixels left to scroll down before reaching the

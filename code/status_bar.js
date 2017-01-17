@@ -7,11 +7,7 @@ window.renderUpdateStatusTimer_ = undefined;
 window.renderUpdateStatus = function() {
   var progress = 1;
 
-  // portal/limk level display
-
-  var zoom = map.getZoom();
-  zoom = getDataZoomForMapZoom(zoom);
-  var tileParams = getMapZoomTileParameters(zoom);
+  var tileParams = window.getCurrentZoomTileParameters();
 
   var t = '<span class="help portallevel" title="Indicates portal levels/link lengths displayed.  Zoom in to display more.">';
 

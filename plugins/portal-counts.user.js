@@ -84,7 +84,6 @@ window.plugin.portalcounts.getPortals = function (){
   });
 
   //get portals informations from IITC
-  var minlvl = getMinPortalLevel();
   var total = self.neuP + self.enlP + self.resP;
 
   var counts = '';
@@ -92,20 +91,14 @@ window.plugin.portalcounts.getPortals = function (){
     counts += '<table><tr><th></th><th class="enl">Enlightened</th><th class="res">Resistance</th></tr>';  //'+self.enlP+' Portal(s)</th></tr>';
     for(var level = window.MAX_PORTAL_LEVEL; level > 0; level--){
       counts += '<tr><td class="L'+level+'">Level '+level+'</td>';
-      if(minlvl > level)
-        counts += '<td colspan="2">zoom in to see portals in this level</td>';
-      else
-        counts += '<td class="enl">'+self.PortalsEnl[level]+'</td><td class="res">'+self.PortalsRes[level]+'</td>';
+      counts += '<td class="enl">'+self.PortalsEnl[level]+'</td><td class="res">'+self.PortalsRes[level]+'</td>';
       counts += '</tr>';
     }
 
     counts += '<tr><th>Total:</th><td class="enl">'+self.enlP+'</td><td class="res">'+self.resP+'</td></tr>';
 
     counts += '<tr><td>Neutral:</td><td colspan="2">';
-    if(minlvl > 0)
-      counts += 'zoom in to see unclaimed portals';
-    else
-      counts += self.neuP;
+    counts += self.neuP;
     counts += '</td></tr></table>';
 
     var svg = $('<svg width="300" height="200">').css('margin-top', 10);
@@ -186,10 +179,8 @@ window.plugin.portalcounts.getPortals = function (){
     counts += '<p>No Portals in range!</p>';
   }
 
-  // I've only seen the backend reduce the portals returned for L4+ or further out zoom levels - but this could change
-  // UPDATE: now seen for L2+ in dense areas (map zoom level 14 or lower)
-  if (getMinPortalLevel() >= 2) {
-   counts += '<p class="help" title="To reduce data usage and speed up map display, the backend servers only return some portals in dense areas."><b>Warning</b>: Portal counts can be inaccurate when zoomed out</p>';
+  if (!window.getCurrentZoomTileParameters().hasPortals) {
+    counts += '<p class="help"><b>Warning</b>: Portal counts is inaccurate when zoomed to link-level</p>';
   }
 
   var total = self.enlP + self.resP + self.neuP;

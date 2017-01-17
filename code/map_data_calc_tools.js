@@ -87,25 +87,10 @@ window.debugMapZoomParameters = function() {
 
 window.getMapZoomTileParameters = function(zoom) {
 
-
-  // the current API allows the client to request a minimum portal level. the window.TILE_PARAMS.ZOOM_TO_LEVEL list are minimums
-  // however, in my view, this can return excessive numbers of portals in many cases. let's try an optional reduction
-  // of detail level at some zoom levels
-
-  var level = window.TILE_PARAMS.ZOOM_TO_LEVEL[zoom] || 0;  // default to level 0 (all portals) if not in array
-
-//  if (window.CONFIG_ZOOM_SHOW_LESS_PORTALS_ZOOMED_OUT) {
-//    if (level <= 7 && level >= 4) {
-//      // reduce portal detail level by one - helps reduce clutter
-//      level = level+1;
-//    }
-//  }
-
   var maxTilesPerEdge = window.TILE_PARAMS.TILES_PER_EDGE[window.TILE_PARAMS.TILES_PER_EDGE.length-1];
 
   return {
-    level: level,
-    maxLevel: window.TILE_PARAMS.ZOOM_TO_LEVEL[zoom] || 0,  // for reference, for log purposes, etc
+    level: window.TILE_PARAMS.ZOOM_TO_LEVEL[zoom] || 0,
     tilesPerEdge: window.TILE_PARAMS.TILES_PER_EDGE[zoom] || maxTilesPerEdge,
     minLinkLength: window.TILE_PARAMS.ZOOM_TO_LINK_LENGTH[zoom] || 0,
     hasPortals: zoom >= window.TILE_PARAMS.ZOOM_TO_LINK_LENGTH.length,  // no portals returned at all when link length limits things
