@@ -65,12 +65,12 @@ window.MapDataRequest = function() {
 
   this.REFRESH_CLOSE = 300;  // refresh time to use for close views z>12 when not idle and not moving
   this.REFRESH_FAR = 900;  // refresh time for far views z <= 12
-  this.FETCH_TO_REFRESH_FACTOR = 2;  //minumum refresh time is based on the time to complete a data fetch, times this value
+  this.FETCH_TO_REFRESH_FACTOR = 2;  //minimum refresh time is based on the time to complete a data fetch, times this value
 
   // ensure we have some initial map status
   this.setStatus ('startup', undefined, -1);
 
-  // add a portalDetailLoaded hook, so we can use the exteneed details to update portals on the map
+  // add a portalDetailLoaded hook, so we can use the extended details to update portals on the map
   var _this = this;
   addHook('portalDetailLoaded', function(data){
     if(data.success) {
