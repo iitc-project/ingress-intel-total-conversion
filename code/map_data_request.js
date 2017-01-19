@@ -72,8 +72,10 @@ window.MapDataRequest = function() {
 
   // add a portalDetailLoaded hook, so we can use the exteneed details to update portals on the map
   var _this = this;
-  addHook('portalDetailLoaded',function(data){
-    _this.render.processGameEntities([data.ent]);
+  addHook('portalDetailLoaded', function(data){
+    if(data.success) {
+      _this.render.processGameEntities([data.ent]);
+    }
   });
 
 }
