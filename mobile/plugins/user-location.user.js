@@ -2,7 +2,7 @@
 // @id             iitc-plugin-user-location@cradle
 // @name           IITC plugin: User Location
 // @category       Tweaks
-// @version        0.2.0.@@DATETIMEVERSION@@
+// @version        0.2.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -27,6 +27,8 @@ window.plugin.userLocation = function() {};
 window.plugin.userLocation.follow = false;
 
 window.plugin.userLocation.setup = function() {
+  window.pluginCreateHook('pluginUserLocation');
+
   $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:mobile/plugins/user-location.css@@').appendTo('head');
 
   $('<div style="position:absolute; left:-9999em; top:-9999em;">').html('@@INCLUDESTRING:mobile/plugins/user-location.svg@@').prependTo('body');
@@ -60,6 +62,9 @@ window.plugin.userLocation.setup = function() {
   marker.addTo(window.plugin.userLocation.locationLayer);
   window.plugin.userLocation.locationLayer.addTo(window.map);
   window.addLayerGroup('User location', window.plugin.userLocation.locationLayer, true);
+
+  // HOOK: fired when the marker is drawn the first time
+  window.runHooks('pluginUserLocation', {event: 'setup', data:{ latlng:new L.LatLng(0,0) }});
 
   window.plugin.userLocation.marker = marker;
   window.plugin.userLocation.circle = circle;
@@ -116,6 +121,9 @@ window.plugin.userLocation.onLocationChange = function(lat, lng) {
   window.plugin.userLocation.marker.setLatLng(latlng);
   window.plugin.userLocation.circle.setLatLng(latlng);
 
+  // HOOK: fired when the marker location is changed
+  window.runHooks('pluginUserLocation', {event: 'onLocationChange', data:{ latlng:latlng }});
+
   if(window.plugin.distanceToPortal) {
     window.plugin.distanceToPortal.currentLoc = latlng;
     window.plugin.distanceToPortal.updateDistance();
@@ -152,6 +160,9 @@ window.plugin.userLocation.onOrientationChange = function(direction) {
         "transform": "rotate(" + direction + "deg)",
         "webkitTransform": "rotate(" + direction + "deg)"
       });
+
+    // HOOK: fired when the marker direction is changed
+    window.runHooks('pluginUserLocation', {event: 'onOrientationChange', data:{ direction:direction }});
   }
 }
 
