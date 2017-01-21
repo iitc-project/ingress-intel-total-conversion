@@ -25,6 +25,7 @@
 window.plugin.userLocation = function() {};
 
 window.plugin.userLocation.follow = false;
+window.plugin.userLocation.user = { latlng:null, direction:null };
 
 window.plugin.userLocation.setup = function() {
   window.pluginCreateHook('pluginUserLocation');
@@ -35,6 +36,8 @@ window.plugin.userLocation.setup = function() {
 
   var cssClass = PLAYER.team === 'RESISTANCE' ? 'res' : 'enl';
 
+  var latlng = new L.LatLng(0,0);
+
   var icon = L.divIcon({
     iconSize: L.point(32, 32),
     iconAnchor: L.point(16, 16),
@@ -42,13 +45,13 @@ window.plugin.userLocation.setup = function() {
     html: '<div class="container ' + cssClass + ' circle"><div class="outer"></div><div class="inner"></div></div>'
   });
 
-  var marker = L.marker(new L.LatLng(0,0), {
+  var marker = L.marker(latlng, {
     icon: icon,
     zIndexOffset: 300,
     clickable: false
   });
 
-  var circle = new L.Circle(new L.LatLng(0,0), 40, {
+  var circle = new L.Circle(latlng, 40, {
     stroke: false,
     opacity: 0.7,
     fillOpacity: 1,
@@ -63,8 +66,7 @@ window.plugin.userLocation.setup = function() {
   window.plugin.userLocation.locationLayer.addTo(window.map);
   window.addLayerGroup('User location', window.plugin.userLocation.locationLayer, true);
 
-  // HOOK: fired when the marker is drawn the first time
-  window.runHooks('pluginUserLocation', {event: 'setup', data:{ latlng:new L.LatLng(0,0) }});
+  window.plugin.userLocation.user.latlng = latlng;
 
   window.plugin.userLocation.marker = marker;
   window.plugin.userLocation.circle = circle;
@@ -72,6 +74,9 @@ window.plugin.userLocation.setup = function() {
 
   window.map.on('zoomend', window.plugin.userLocation.onZoomEnd);
   window.plugin.userLocation.onZoomEnd();
+
+  // HOOK: fired when the marker is drawn the first time
+  window.runHooks('pluginUserLocation', { event:'setup', data:window.plugin.userLocation.user });
 };
 
 window.plugin.userLocation.onZoomEnd = function() {
@@ -118,11 +123,9 @@ window.plugin.userLocation.onLocationChange = function(lat, lng) {
   if(!window.plugin.userLocation.marker) return;
 
   var latlng = new L.LatLng(lat, lng);
+  window.plugin.userLocation.user.latlng = latlng;
   window.plugin.userLocation.marker.setLatLng(latlng);
   window.plugin.userLocation.circle.setLatLng(latlng);
-
-  // HOOK: fired when the marker location is changed
-  window.runHooks('pluginUserLocation', {event: 'onLocationChange', data:{ latlng:latlng }});
 
   if(window.plugin.distanceToPortal) {
     window.plugin.distanceToPortal.currentLoc = latlng;
@@ -137,10 +140,15 @@ window.plugin.userLocation.onLocationChange = function(lat, lng) {
 
     window.map.setView(latlng);
   }
+
+  // HOOK: fired when the marker location is changed
+  window.runHooks('pluginUserLocation', {event:'onLocationChange', data:window.plugin.userLocation.user });
 };
 
 window.plugin.userLocation.onOrientationChange = function(direction) {
   if(!window.plugin.userLocation.marker) return;
+
+  window.plugin.userLocation.user.direction = direction;
 
   var container = $(".container", window.plugin.userLocation.marker._icon);
 
@@ -160,10 +168,14 @@ window.plugin.userLocation.onOrientationChange = function(direction) {
         "transform": "rotate(" + direction + "deg)",
         "webkitTransform": "rotate(" + direction + "deg)"
       });
-
-    // HOOK: fired when the marker direction is changed
-    window.runHooks('pluginUserLocation', {event: 'onOrientationChange', data:{ direction:direction }});
   }
+
+  // HOOK: fired when the marker direction is changed
+  window.runHooks('pluginUserLocation', {event: 'onOrientationChange', data:window.plugin.userLocation.user });
+}
+
+window.plugin.userLocation.getUser = function() {
+  return window.plugin.userLocation.user;
 }
 
 var setup = window.plugin.userLocation.setup;
