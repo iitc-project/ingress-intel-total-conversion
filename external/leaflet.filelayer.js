@@ -50,7 +50,7 @@ var FileLoader = L.Class.extend({
             }
         })).addTo(this._map);
     },
-
+	
     _convertToGeoJSON: function (content, format) {
         // Format is either 'gpx' or 'kml'
         if (typeof content == 'string') {
