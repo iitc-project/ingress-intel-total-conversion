@@ -654,6 +654,85 @@
     }
   }
 
+  window.plugin.bookmarks.optMaxfield = function() {
+    if(typeof android !== 'undefined' && android && android.shareString) {
+      return android.shareString(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
+    } else {
+
+      var portals = JSON.parse(localStorage['plugin-bookmarks']).portals,
+          output = '';
+
+      for (var key in portals) {
+          if (!portals.hasOwnProperty(key)) {
+              continue;
+          }
+          var bkmrk = portals[key].bkmrk;
+          for (var key in bkmrk) {
+              output += bkmrk[key].label + ';' + 'https://www.ingress.com/intel?ll=' + bkmrk[key].latlng + '&z=17&pll=' + bkmrk[key].latlng + ';0\n';
+          }
+      }
+
+      dialog({
+        html: '<p><a onclick="$(\'.ui-dialog-bkmrksSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly>'+output+'</textarea>',
+        dialogClass: 'ui-dialog-bkmrksSet-copy',
+        title: 'Ingress Maxfield'
+      });
+    }
+  }
+
+  window.plugin.bookmarks.optRoutePlanner = function() {
+    if(typeof android !== 'undefined' && android && android.shareString) {
+      return android.shareString(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
+    } else {
+
+      var portals = JSON.parse(localStorage['plugin-bookmarks']).portals,
+          output = '';
+      for (var key in portals) {
+          if (!portals.hasOwnProperty(key)) {
+              continue;
+          }
+          var bkmrk = portals[key].bkmrk;
+          for (var key in bkmrk) {
+              output += 'https://www.ingress.com/intel?ll=' + bkmrk[key].latlng + '&z=17&pll=' + bkmrk[key].latlng + '\n';
+          }
+      }
+
+      dialog({
+        html: '<p><a onclick="$(\'.ui-dialog-bkmrksSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly>'+output+'</textarea>',
+        dialogClass: 'ui-dialog-bkmrksSet-copy',
+        title: 'Ingress Route Panner'
+      });
+    }
+  }
+
+  window.plugin.bookmarks.optCSV = function() {
+    if(typeof android !== 'undefined' && android && android.shareString) {
+      return android.shareString(localStorage[window.plugin.bookmarks.KEY_STORAGE]);
+    } else {
+
+      var portals = JSON.parse(localStorage['plugin-bookmarks']).portals,
+          output = '';
+      for (var key in portals) {
+          if (!portals.hasOwnProperty(key)) {
+              continue;
+          }
+          output += '\n\nFolder: ' + portals[key].label + '\n';
+          output += 'ID\tGUID\tName\tLatitude Longitude\tURL\n';
+
+          var bkmrk = portals[key].bkmrk;
+          for (var key in bkmrk) {
+              output += key+'\t'+bkmrk[key].guid + '\t' + bkmrk[key].label + '\t' + bkmrk[key].latlng +'\t'+ 'https://www.ingress.com/intel?ll=' + bkmrk[key].latlng + '&z=17&pll=' + bkmrk[key].latlng + '\n';
+          }
+      }
+
+      dialog({
+        html: '<p><a onclick="$(\'.ui-dialog-bkmrksSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly>'+output+'</textarea>',
+        dialogClass: 'ui-dialog-bkmrksSet-copy',
+        title: 'Ingress Route Panner'
+      });
+    }
+  }
+
   window.plugin.bookmarks.optExport = function() {
     if(typeof android !== 'undefined' && android && android.saveFile) {
       android.saveFile("IITC-bookmarks.json", "application/json", localStorage[window.plugin.bookmarks.KEY_STORAGE]);
@@ -1221,6 +1300,9 @@
     actions += '<a onclick="window.plugin.bookmarks.optReset();return false;">Reset bookmarks</a>';
     actions += '<a onclick="window.plugin.bookmarks.optCopy();return false;">Copy bookmarks</a>';
     actions += '<a onclick="window.plugin.bookmarks.optPaste();return false;">Paste bookmarks</a>';
+    actions += '<a onclick="window.plugin.bookmarks.optMaxfield();return false;">Bookmarks to Maxfield</a>';
+    actions += '<a onclick="window.plugin.bookmarks.optRoutePlanner();return false;">Bookmarks to Route Planner</a>';
+    actions += '<a onclick="window.plugin.bookmarks.optCSV();return false;">Bookmarks to CSV</a>';
 
     if(plugin.bookmarks.isAndroid()) {
       actions += '<a onclick="window.plugin.bookmarks.optImport();return false;">Import bookmarks</a>';

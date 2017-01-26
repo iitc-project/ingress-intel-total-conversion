@@ -73,6 +73,7 @@ window.plugin.maxLinks.updateLayer = function() {
   window.plugin.maxLinks.layer.clearLayers();
 
   var locations = [];
+  var myPortals = {};
 
   var bounds = map.getBounds();
   $.each(window.portals, function(guid, portal) {
@@ -80,6 +81,7 @@ window.plugin.maxLinks.updateLayer = function() {
     if (bounds.contains(ll)) {
       var p = map.project (portal.getLatLng(), window.plugin.maxLinks.PROJECT_ZOOM);
       locations.push(p);
+      myPortals[(p.x+':'+p.y)] = {'x':p.x,'y':p.y,'title':portal.options.data.title,'guid':portal.options.guid};
       if (locations.length > window.plugin.maxLinks.MAX_PORTALS_TO_LINK) return false; //$.each break
     }
   });
@@ -99,9 +101,12 @@ window.plugin.maxLinks.updateLayer = function() {
     return [b,a];
   }
   var drawnLinks = {};
+  var drawnLog = '';
 
   //draw a link, but only if it hasn't already been drawn
   var drawLink = function(a,b) {
+    drawnLog+= (myPortals[a.x+':'+a.y].title+'\tto\t' + myPortals[b.x+':'+b.y].title+'\n');
+    drawnLog+= (myPortals[b.x+':'+b.y].title+'\tto\t' + myPortals[a.x+':'+a.y].title+'\n');
     //order the points, so a pair of coordinates in any order is handled in one direction only
     var points = orderedPoints(a,b);
     a=points[0];
@@ -134,6 +139,7 @@ window.plugin.maxLinks.updateLayer = function() {
     drawLink(triangle.b,triangle.c);
     drawLink(triangle.c,triangle.a);
   });
+  console.log(drawnLog);
 }
 
 window.plugin.maxLinks.setup = function() {
