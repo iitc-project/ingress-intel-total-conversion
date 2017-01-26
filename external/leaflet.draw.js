@@ -201,6 +201,7 @@ L.Draw.Polyline = L.Draw.Feature.extend({
 			fill: false,
 			clickable: true
 		},
+		snapPoint: function(x) { return x; },
 		metric: true, // Whether to use the metric measurement system or imperial
 		zIndexOffset: 2000 // This should be > than the highest z-index any map layers
 	},
@@ -334,7 +335,7 @@ L.Draw.Polyline = L.Draw.Feature.extend({
 		var latlng = e.target.getLatLng(),
 			markerCount = this._markers.length;
 
-                if (this.options.snapPoint) latlng = this.options.snapPoint(latlng);
+                latlng = this.options.snapPoint(latlng);
 
 		if (markerCount > 0 && !this.options.allowIntersection && this._poly.newLatLngIntersects(latlng)) {
 			this._showErrorTooltip();
@@ -670,7 +671,8 @@ L.SimpleShape = {};
 
 L.Draw.SimpleShape = L.Draw.Feature.extend({
 	options: {
-		repeatMode: false
+		repeatMode: false,
+		snapPoint: function(x) { return x; },
 	},
 
 	initialize: function (map, options) {
@@ -720,7 +722,7 @@ L.Draw.SimpleShape = L.Draw.Feature.extend({
 		this._isDrawing = true;
 		this._startLatLng = e.latlng;
 
-                if (this.options.snapPoint) this._startLatLng = this.options.snapPoint(this._startLatLng);
+                this._startLatLng = this.options.snapPoint(this._startLatLng);
 
 		L.DomEvent
 			.on(document, 'mouseup', this._onMouseUp, this)
@@ -862,7 +864,8 @@ L.Draw.Marker = L.Draw.Feature.extend({
 	options: {
 		icon: new L.Icon.Default(),
 		repeatMode: false,
-		zIndexOffset: 2000 // This should be > than the highest z-index any markers
+		zIndexOffset: 2000, // This should be > than the highest z-index any markers
+		snapPoint: function(x) { return x; },
 	},
 
 	initialize: function (map, options) {
@@ -942,7 +945,7 @@ L.Draw.Marker = L.Draw.Feature.extend({
 	},
 
 	_onClick: function () {
-                if (this.options.snapPoint) this._marker.setLatLng(this.options.snapPoint(this._marker.getLatLng()));
+		this._marker.setLatLng(this.options.snapPoint(this._marker.getLatLng()));
 
 		this._fireCreatedEvent();
 
