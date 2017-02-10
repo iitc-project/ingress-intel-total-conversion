@@ -37,7 +37,7 @@ except ImportError:
 buildName = defaultBuild
 
 # build name from command line
-if len(sys.argv) == 2:	# argv[0] = program, argv[1] = buildname, len=2
+if len(sys.argv) >= 2:	# argv[0] = program, argv[1] = buildname, len=2
     buildName = sys.argv[1]
 
 
@@ -45,6 +45,18 @@ if buildName is None or not buildName in buildSettings:
     print ("Usage: build.py buildname")
     print (" available build names: %s" % ', '.join(buildSettings.keys()))
     sys.exit(1)
+
+verbose = False
+if len(sys.argv) >= 3:	# argv[0] = program, argv[1] = buildname, option
+    for option in sys.argv:
+        if option == "-verbose" or option == "--verbose":
+            verbose = True;
+
+if buildName is None or not buildName in buildSettings:
+    print ("Usage: build.py buildname [--verbose]")
+    print (" available build names: %s" % ', '.join(buildSettings.keys()))
+    sys.exit(1)
+
 
 settings = buildSettings[buildName]
 
@@ -78,6 +90,20 @@ plugin_info.dateTimeVersion = '@@DATETIMEVERSION@@';
 plugin_info.pluginId = '@@PLUGINNAME@@';
 //END PLUGIN AUTHORS NOTE
 
+"""
+
+pluginWrapperStartUseStrict = """
+function wrapper(plugin_info) {
+"use strict";
+// ensure plugin framework is there, even if iitc is not yet loaded
+if(typeof window.plugin !== 'function') window.plugin = function() {};
+
+//PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
+//(leaving them in place might break the 'About IITC' page or break update checks)
+plugin_info.buildName = '@@BUILDNAME@@';
+plugin_info.dateTimeVersion = '@@DATETIMEVERSION@@';
+plugin_info.pluginId = '@@PLUGINNAME@@';
+//END PLUGIN AUTHORS NOTE
 """
 
 pluginWrapperEnd = """
@@ -155,6 +181,7 @@ def doReplacements(script,updateUrl,downloadUrl,pluginName=None):
     script = re.sub('@@INJECTCODE@@',loadCode,script)
 
     script = script.replace('@@PLUGINSTART@@', pluginWrapperStart)
+    script = script.replace('@@PLUGINSTART-USE-STRICT@@', pluginWrapperStartUseStrict)
     script = script.replace('@@PLUGINEND@@', pluginWrapperEnd)
 
     script = re.sub('@@INCLUDERAW:([0-9a-zA-Z_./-]+)@@', loaderRaw, script)
@@ -231,6 +258,7 @@ main = readfile('main.js')
 
 downloadUrl = distUrlBase and distUrlBase + '/total-conversion-build.user.js' or 'none'
 updateUrl = distUrlBase and distUrlBase + '/total-conversion-build.meta.js' or 'none'
+verbose and print ("Buidling total-conversion-build.user.js");
 main = doReplacements(main,downloadUrl=downloadUrl,updateUrl=updateUrl)
 
 saveScriptAndMeta(main, outDir, 'total-conversion-build.user.js', oldDir)
@@ -243,6 +271,7 @@ with io.open(os.path.join(outDir, '.build-timestamp'), 'w') as f:
 os.mkdir(os.path.join(outDir,'plugins'))
 
 for fn in glob.glob("plugins/*.user.js"):
+    verbose and print ("Buidling " + fn);
     script = readfile(fn)
 
     downloadUrl = distUrlBase and distUrlBase + '/' + fn.replace("\\","/") or 'none'
