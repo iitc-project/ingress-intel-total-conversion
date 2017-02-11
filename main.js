@@ -59,8 +59,9 @@ document.getElementsByTagName('head')[0].innerHTML = ''
 //note: smartphone.css injection moved into code/smartphone.js
   + '<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:100,100italic,300,300italic,400,400italic,500,500italic,700,700italic&subset=latin,cyrillic-ext,greek-ext,greek,vietnamese,latin-ext,cyrillic"/>';
 
-
-document.getElementsByTagName('body')[0].innerHTML = ''
+// remove body element entirely to remove event listeners
+document.body = document.createElement('body');
+document.body.innerHTML = ''
   + '<div id="map">Loading, please wait</div>'
   + '<div id="chatcontrols" style="display:none">'
   + '<a accesskey="0" title="[0]"><span class="toggle expand"></span></a>'
