@@ -96,6 +96,11 @@ window.artifact.processResult = function (portals) {
   for (var guid in portals) {
     var ent = portals[guid];
     var data = decodeArray.portalSummary(ent);
+    
+    if (!data.artifactBrief) {
+      // 2/12/2017 - Shard removed from a portal leaves it in artifact results but has no artifactBrief
+      continue;
+    }
 
     // we no longer know the faction for the target portals, and we don't know which fragment numbers are at the portals
     // all we know, from the portal summary data, for each type of artifact, is that each artifact portal is
