@@ -65,6 +65,7 @@ window.plugin.fixChinaOffset = {};
 // 
 // The algorithm of transforming WGS-84 to GCJ-02 comes from:
 // https://on4wp7.codeplex.com/SourceControl/changeset/view/21483#353936
+// There is no official algorithm because it is classified information.
 //
 // Here we use the PRCoords implementation of this algorithm, which contains
 // a more careful yet still rough "China area" check in "insane_is_in_china.js".
