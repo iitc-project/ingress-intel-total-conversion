@@ -154,8 +154,8 @@ var PRCoords = window.plugin.fixChinaOffset.PRCoords = (function(){
     110.669856, 17.754550,
   ]
   var HK_LENGTH = 12 // for future use (e.g. with Baidu)
-  var lats = POINTS.filter(function (_, idx) { idx % 2 == 1; })
-  var lngs = POINTS.filter(function (_, idx) { idx % 2 == 0; })
+  var lats = POINTS.filter(function (_, idx) { return idx % 2 == 1; })
+  var lngs = POINTS.filter(function (_, idx) { return idx % 2 == 0; })
   POINTS = null // not needed anyway...
   
   /// *** pnpoly *** ///
@@ -191,7 +191,7 @@ var PRCoords = window.plugin.fixChinaOffset.PRCoords = (function(){
     if (! (xs.length === ys.length))
       throw new Error('pnpoly: assert(xs.length === ys.length)')
     var inside = 0
-    for (let i = 0, j = xs.length - 1; i < xs.length - 1; j = i++)
+    for (let i = 0, j = xs.length - 1; i < xs.length; j = i++)
       inside ^= (((ys[i] > y) !== (ys[j] > y)) &&
                 (x < (xs[j] - xs[i]) * (y - ys[i]) / (ys[j] - ys[i]) + xs[i]))
     return !!inside
