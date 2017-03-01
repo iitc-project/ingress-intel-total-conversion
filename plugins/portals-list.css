@@ -32,6 +32,10 @@
   text-align: right;
 }
 
+#portalslist table .hiddenColumn {
+  display: none;
+}
+
 #portalslist table.portals td {
   white-space: nowrap;
 }
