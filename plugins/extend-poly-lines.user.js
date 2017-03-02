@@ -142,6 +142,7 @@ window.plugin.extendPolyLines.updateLayer = function() {
 
   var extendEdge = function(a,b,layerGroup) {
     if(!a || !b) return;
+    if(a.equals(b)) return;
     var inverse = vincenty_inverse(a,b);
     var maxLinkDistance = 6881280;
     var maxLinkToAnchor = maxLinkDistance - inverse.distance;
