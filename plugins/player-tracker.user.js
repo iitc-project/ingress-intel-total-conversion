@@ -47,11 +47,10 @@ window.plugin.playerTracker.setupCSS = function() {
 }
 
 window.plugin.playerTracker.setup = function() {
-
-  window.plugin.playerTracker.setupCSS()
-
   $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:plugins/player-tracker.css@@').appendTo('head');
- 
+  
+  window.plugin.playerTracker.setupCSS()
+   
   var iconEnlImage = '@@INCLUDEIMAGE:images/marker-green.png@@';
   var iconEnlRetImage = '@@INCLUDEIMAGE:images/marker-green-2x.png@@';
   var iconResImage = '@@INCLUDEIMAGE:images/marker-blue.png@@';
@@ -188,7 +187,7 @@ window.plugin.playerTracker.processNewData = function(data) {
       switch(markup[0]) {
       case 'TEXT':
         // Destroy link and field messages depend on where the link or
-        // field was originally created. Therefore itвЂ™s not clear which
+        // field was originally created. Therefore it's not clear which
         // portal the player is at, so ignore it.
         if(markup[1].plain.indexOf('destroyed the Link') !== -1
           || markup[1].plain.indexOf('destroyed a Control Field') !== -1
@@ -201,7 +200,7 @@ window.plugin.playerTracker.processNewData = function(data) {
         plrname = markup[1].plain;
         break;
       case 'PORTAL':
-        // link messages are вЂњplayer linked X to YвЂќ and the player is at
+        // link messages are “player linked X to Y” and the player is at
         // X.
         lat = lat ? lat : markup[1].latE6/1E6;
         lng = lng ? lng : markup[1].lngE6/1E6;
@@ -239,7 +238,7 @@ window.plugin.playerTracker.processNewData = function(data) {
     }
 
     var evts = playerData.events;
-    // thereвЂ™s some data already. Need to find correct place to insert.
+    // there’s some data already. Need to find correct place to insert.
     var i;
     for(i = 0; i < evts.length; i++) {
       if(evts[i].time > json[1]) break;
@@ -466,7 +465,7 @@ window.plugin.playerTracker.drawData = function() {
     
     window.registerMarkerForOMS(m);
 
-    // jQueryUI doesnвЂ™t automatically notice the new markers
+    // jQueryUI doesn’t automatically notice the new markers
     if (!isTouchDev) {
       window.setupTooltips($(m._icon));
     }
