@@ -187,7 +187,7 @@ window.plugin.playerTracker.processNewData = function(data) {
       switch(markup[0]) {
       case 'TEXT':
         // Destroy link and field messages depend on where the link or
-        // field was originally created. Therefore it's not clear which
+        // field was originally created. Therefore it’s not clear which
         // portal the player is at, so ignore it.
         if(markup[1].plain.indexOf('destroyed the Link') !== -1
           || markup[1].plain.indexOf('destroyed a Control Field') !== -1
@@ -267,7 +267,7 @@ window.plugin.playerTracker.processNewData = function(data) {
     // if this event is newer, need to look at the previous one
     var sameLocation = plugin.playerTracker.eventHasLatLng(evts[cmp], lat, lng);
 
-    // if itвЂ™s the same location, just update the timestamp. Otherwise
+    // if it’s the same location, just update the timestamp. Otherwise
     // push as new event.
     if(sameLocation) {
       evts[cmp].time = json[1];
