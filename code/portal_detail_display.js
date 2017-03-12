@@ -38,7 +38,7 @@ window.renderPortalDetails = function(guid) {
 
 //TODO? other status details...
   var statusDetails = details ? '' : '<div id="portalStatus">Loading details...</div>';
- 
+
 
   var img = fixPortalImageUrl(details ? details.image : data.image);
   var title = (details && details.title) || (data && data.title) || 'null';
@@ -69,7 +69,7 @@ window.renderPortalDetails = function(guid) {
 
   var linkDetails = [];
 
-  var posOnClick = 'window.showPortalPosLinks('+lat+','+lng+',\''+escapeJavascriptString(title)+'\')';
+  var posOnClick = 'window.showPortalPosLinks('+lat+','+lng+',\''+window.escapeHtmlSpecialChars(title)+'\')';
   var permalinkUrl = '/intel?ll='+lat+','+lng+'&z=17&pll='+lat+','+lng;
 
   if (typeof android !== 'undefined' && android && android.intentPosLink) {
@@ -192,7 +192,7 @@ window.getPortalMiscDetails = function(guid,d) {
 
     if (d.artifactBrief && d.artifactBrief.target && Object.keys(d.artifactBrief.target).length > 0) {
       var targets = Object.keys(d.artifactBrief.target);
-//currently (2015-07-10) we no longer know the team each target portal is for - so we'll just show the artifact type(s) 
+//currently (2015-07-10) we no longer know the team each target portal is for - so we'll just show the artifact type(s)
        randDetails += '<div id="artifact_target">Target portal: '+targets.map(function(x) { return x.capitalize(); }).join(', ')+'</div>';
     }
 

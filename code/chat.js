@@ -288,7 +288,7 @@ window.chat.renderAlerts = function(oldMsgsWereAdded) {
 
 window.chat.nicknameClicked = function(event, nickname) {
   var hookData = { event: event, nickname: nickname };
-  
+
   if (window.runHooks('nicknameClicked', hookData)) {
     window.chat.addNickname('@' + nickname);
   }
@@ -352,7 +352,7 @@ window.chat.writeDataToHash = function(newData, storageHash, isPublicChannel, is
         var js = 'window.selectPortalByLatLng('+latlng[0]+', '+latlng[1]+');return false';
 
         msg += '<a onclick="'+js+'"'
-          + ' title="'+markup[1].address+'"'
+          + ' title="'+window.escapeHtmlSpecialChars(markup[1].address)+'"'
           + ' href="'+perma+'" class="help">'
           + window.chat.getChatPortalName(markup[1])
           + '</a>';

@@ -300,18 +300,17 @@ if (typeof String.prototype.startsWith !== 'function') {
   };
 }
 
-// escape a javascript string, so quotes and backslashes are escaped with a backslash
-// (for strings passed as parameters to html onclick="..." for example)
-window.escapeJavascriptString = function(str) {
-  return (str+'').replace(/[\\"']/g,'\\$&');
-}
-
-//escape special characters, such as tags
+// escape special characters, such as tags, double quote, single quote,
+// so output of this function can be used in html or in an attribute
 window.escapeHtmlSpecialChars = function(str) {
-  var div = document.createElement(div);
-  var text = document.createTextNode(str);
-  div.appendChild(text);
-  return div.innerHTML;
+  var from = [/&/g   , /</g  , /"/g    , /'/g  ];
+  var to   = ["&amp;", "&lt;", "&quot;", "&#39"];
+  var ret = str;
+  var len = from.length;
+  for(i = 0; i != len; ++i){
+    ret = ret.replace(from[i], to[i]);
+  }
+  return ret;
 }
 
 window.prettyEnergy = function(nrg) {
