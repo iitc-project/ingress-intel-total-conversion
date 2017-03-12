@@ -300,17 +300,17 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
       $('#portalslist').empty().append(window.plugin.portalslist.portalTable(sortBy, sortOrder, -i));
     });
 
-    switch(i-1) {
-      case -1:
+    switch(i) {
+      case 0:
         cell.textContent = length;
         break;
-      case 0:
+      case 1:
         cell.textContent = window.plugin.portalslist.neuP + ' (' + Math.round(window.plugin.portalslist.neuP/length*100) + '%)';
         break;
-      case 1:
+      case 2:
         cell.textContent = window.plugin.portalslist.resP + ' (' + Math.round(window.plugin.portalslist.resP/length*100) + '%)';
         break;
-      case 2:
+      case 3:
         cell.textContent = window.plugin.portalslist.enlP + ' (' + Math.round(window.plugin.portalslist.enlP/length*100) + '%)';
     }
   });
