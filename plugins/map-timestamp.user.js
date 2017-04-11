@@ -36,9 +36,9 @@ window.plugin.mapTimestamp.setup  = function() {
 
 window.plugin.mapTimestamp.update = function() {
 
-  var html = 'Time: ' + new Date();
+  var text = 'Time: ' + new Date();
 
-  $('#timestamp').html(html);
+  $('#timestamp').text(text);
 
   setTimeout (window.plugin.mapTimestamp.update, 60*1000);
 };
