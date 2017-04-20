@@ -32,6 +32,10 @@ window.plugin.portalslist.enlP = 0;
 window.plugin.portalslist.resP = 0;
 window.plugin.portalslist.neuP = 0;
 window.plugin.portalslist.filter = 0;
+window.plugin.portalslist.levelcount = [
+  [ 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [ 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [ 0, 0, 0, 0, 0, 0, 0, 0, 0] ];
 
 /*
  * plugins may add fields by appending their specifiation to the following list. The following members are supported:
@@ -177,6 +181,8 @@ window.plugin.portalslist.getPortals = function() {
       default:
         window.plugin.portalslist.neuP++;
     }
+    // count the number of portals at a particular level for a summary
+    window.plugin.portalslist.levelcount[portal.options.team][portal.options.level]++;
 
     // cache values and DOM nodes
     var obj = { portal: portal, values: [], sortValues: [] };
@@ -218,6 +224,10 @@ window.plugin.portalslist.displayPL = function() {
   window.plugin.portalslist.resP = 0;
   window.plugin.portalslist.neuP = 0;
   window.plugin.portalslist.filter = 0;
+  window.plugin.portalslist.levelcount = [
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [ 0, 0, 0, 0, 0, 0, 0, 0, 0] ];
 
   if (window.plugin.portalslist.getPortals()) {
     list = window.plugin.portalslist.portalTable(window.plugin.portalslist.sortBy, window.plugin.portalslist.sortOrder,window.plugin.portalslist.filter);
@@ -312,6 +322,39 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
         break;
       case 2:
         cell.textContent = window.plugin.portalslist.enlP + ' (' + Math.round(window.plugin.portalslist.enlP/length*100) + '%)';
+    }
+  });
+
+  table = document.createElement('table');
+  table.className = 'levelcount';
+  container.append(table);
+
+  row = table.insertRow(-1);
+
+  cell = row.appendChild(document.createElement('th'));
+  cell.textContent = 'Team Count';
+  for (var level = 1; level <= MAX_PORTAL_LEVEL; level++) {
+    cell = row.appendChild(document.createElement('th'));
+    $(cell)
+      .text('L' + level)
+      .css('background-color', COLORS_LVL[level])
+      .addClass('alignR');
+  }
+
+  ["Neutral", "Resistance", "Enlightened"].forEach(function(label, team) {
+    if (team > 0) { // Neutral is redundant
+      row = table.insertRow(-1);
+	  row.className = TEAM_TO_CSS[team];
+	  cell = row.appendChild(document.createElement('td'));
+	  $(cell)
+	    .addClass('filter' + label.substr(0, 3))
+		.text(label);
+	  for (var level = 1; level <= MAX_PORTAL_LEVEL; level++) {
+		cell = row.appendChild(document.createElement('td'));
+		$(cell)
+		  .addClass('alignR')
+		  .text(window.plugin.portalslist.levelcount[team][level]);
+	  }
     }
   });
 
