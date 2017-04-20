@@ -237,6 +237,22 @@ window.plugin.drawTools.getSnapLatLng = function(unsnappedLatLng) {
 
 
 window.plugin.drawTools.save = function() {
+  var layers = window.plugin.drawTools.drawnItems.getLayers();
+  layers.sort(function(a,b) {
+    aArea = L.GeometryUtil.geodesicArea(a.getLatLngs());
+    bArea = L.GeometryUtil.geodesicArea(b.getLatLngs());
+    if (aArea > bArea) {
+      return -1;
+    }
+    if (aArea < bArea) {
+      return 1;
+    }
+    return 0;
+  });
+  window.plugin.drawTools.drawnItems.clearLayers();
+  for (var layer of layers) {
+    window.plugin.drawTools.drawnItems.addLayer(layer);
+  }
   var data = [];
 
   window.plugin.drawTools.drawnItems.eachLayer( function(layer) {

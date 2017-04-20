@@ -222,6 +222,7 @@ window.plugin.crossLinks.showLink = function(link) {
 
     poly.addTo(plugin.crossLinks.linkLayer);
     plugin.crossLinks.linkLayerGuids[link.options.guid]=poly;
+	window.plugin.crossLinks.updateCount();
 }
 
 window.plugin.crossLinks.onMapDataRefreshEnd = function () {
@@ -258,6 +259,7 @@ window.plugin.crossLinks.testForDeletedLinks = function () {
             console.log("link removed");
             plugin.crossLinks.linkLayer.removeLayer(layer);
             delete plugin.crossLinks.linkLayerGuids[guid];
+            window.plugin.crossLinks.updateCount();
         }
     });
 }
@@ -287,6 +289,11 @@ window.plugin.crossLinks.createLayer = function() {
     }
 }
 
+window.plugin.crossLinks.updateCount = function () {
+    var count = Object.keys(plugin.crossLinks.linkLayerGuids).length;
+    $(plugin.crossLinks.pcBox).text(count + ' links blocking.').css({"cursor":(count>0?'pointer':'default')});
+}
+    
 var setup = function() {
     if (window.plugin.drawTools === undefined) {
        alert("'Cross-Links' requires 'draw-tools'");
@@ -312,7 +319,21 @@ var setup = function() {
     window.addHook('linkAdded', window.plugin.crossLinks.onLinkAdded);
     window.addHook('mapDataRefreshEnd', window.plugin.crossLinks.onMapDataRefreshEnd);
 
-    
+    $('#toolbox').after('<div id="cross-links-count">0 blocking links</div>');
+    $('#cross-links-count').css({"color":"#FFCE00","padding":"4px 2px"});
+    window.plugin.crossLinks.pcBox = document.getElementById('cross-links-count');
+    var linkCycle = 0;
+    window.plugin.crossLinks.pcBox.addEventListener('click', function () {
+        if (Object.keys(plugin.crossLinks.linkLayerGuids).length > 0) {
+            linkCycle = (linkCycle > Object.keys(plugin.crossLinks.linkLayerGuids).length-1 ? 0 : linkCycle); 
+            var link = plugin.crossLinks.linkLayerGuids[Object.keys(plugin.crossLinks.linkLayerGuids)[linkCycle]];
+            var linkBounds = L.latLngBounds(link._latlngs[0],link._latlngs[1]);
+            var linkMidPt = new L.latLng((link._latlngs[0].lat + link._latlngs[1].lat)/2,(link._latlngs[0].lng + link._latlngs[1].lng)/2);
+            debugger;
+            map.fitBounds(linkBounds);
+            linkCycle++;
+        }
+    });
 }
 
 // PLUGIN END //////////////////////////////////////////////////////////
