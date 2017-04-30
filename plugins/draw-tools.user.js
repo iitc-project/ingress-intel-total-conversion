@@ -22,9 +22,214 @@
 
 // PLUGIN START ////////////////////////////////////////////////////////
 
-
 // use own namespace for plugin
 window.plugin.drawTools = function() {};
+
+// Sync start
+
+window.plugin.drawTools.SYNC_DELAY = 2000;
+
+// Mapping from plugin field names to localStorage names
+window.plugin.drawTools.FIELDS = {
+  'drawings'      : 'plugin-drawTools-data',
+  'updateQueue'   : 'plugin-drawTools-update-queue',
+  'updatingQueue' : 'plugin-drawTools-updating-queue',
+};
+
+window.plugin.drawTools.drawings = {};
+window.plugin.drawTools.updateQueue = {};
+window.plugin.drawTools.updatingQueue = {};
+
+window.plugin.drawTools.enableSync = false;
+
+// Mark the given key from drawings to be synced
+plugin.drawTools.sync = function(key) {
+  plugin.drawTools.updateQueue[key] = true;
+  plugin.drawTools.storeLocal('drawings');
+  plugin.drawTools.storeLocal('updateQueue');
+  plugin.drawTools.syncQueue();
+};
+
+// Start sync, delayed by 2s to allow for more changes to be queued.
+window.plugin.drawTools.syncQueue = function() {
+  if(!plugin.drawTools.enableSync) return;
+
+  clearTimeout(plugin.drawTools.syncTimer);
+
+  plugin.drawTools.syncTimer = setTimeout(function() {
+    plugin.drawTools.syncTimer = null;
+
+    $.extend(plugin.drawTools.updatingQueue, plugin.drawTools.updateQueue);
+    plugin.drawTools.updateQueue = {}; // Updates are tracked in updatingQueue, reset updateQueue
+    plugin.drawTools.storeLocal('updatingQueue');
+    plugin.drawTools.storeLocal('updateQueue');
+
+    plugin.sync.updateMap('drawTools', 'drawings', Object.keys(plugin.drawTools.updatingQueue));
+  }, plugin.drawTools.SYNC_DELAY);
+};
+
+// Call after IITC boot, register drawings as a map to be synced.
+window.plugin.drawTools.registerFieldForSyncing = function() {
+  if(!window.plugin.sync) return;
+  window.plugin.sync.registerMapForSync('drawTools', 'drawings', window.plugin.drawTools.syncCallback, window.plugin.drawTools.syncInitialized);
+};
+
+// This is triggered after any sync update
+window.plugin.drawTools.syncCallback = function(pluginName, fieldName, e, fullUpdated) {
+  if(fieldName === 'drawings') {
+    plugin.drawTools.storeLocal('drawings');
+    if(fullUpdated) {
+      // Clear layers and redraw all
+      window.plugin.drawTools.load();
+      return;
+    }
+
+    if(!e) return; // If there is no updated object, exit
+    if(e.isLocal) {
+      // Update pushed successfully, remove it from updatingQueue
+      delete plugin.drawTools.updatingQueue[e.property];
+      console.log('DrawTools: local update detected, no redraw required.');
+    } else {
+      // Clear layers and redraw all
+      delete plugin.drawTools.updateQueue[e.property];
+      if (e.newValue == null) // The drawing starting at e.property has been deleted
+        delete window.plugin.drawTools.drawnItems[e.property];
+
+      plugin.drawTools.storeLocal('updateQueue');
+      window.plugin.drawTools.load();
+    }
+  }
+};
+
+// Called when sync has been initialized
+window.plugin.drawTools.syncInitialized = function(pluginName, fieldName) {
+  if(fieldName === 'drawings') {
+    plugin.drawTools.enableSync = true;
+
+    // If there are any pending updates, sync the queue
+    if(Object.keys(plugin.drawTools.updateQueue).length > 0) {
+      plugin.drawTools.syncQueue();
+    }
+  }
+};
+
+window.plugin.drawTools.storeLocal = function(name) {
+  var key = window.plugin.drawTools.FIELDS[name];
+  if(key === undefined) return;
+
+  var value = plugin.drawTools[name];
+
+  if(typeof value !== 'undefined' && value !== null) {
+    localStorage[key] = JSON.stringify(plugin.drawTools[name]);
+  } else {
+    localStorage.removeItem(key);
+  }
+};
+
+window.plugin.drawTools.loadLocal = function(name) {
+  var key = window.plugin.drawTools.FIELDS[name];
+  if(key === undefined) return;
+
+  if(localStorage[key] !== undefined) {
+    plugin.drawTools[name] = JSON.parse(localStorage[key]);
+
+  if (name == 'drawings')
+    window.plugin.drawTools.load();
+  }
+};
+
+window.plugin.drawTools.save = function() {
+  var oldDrawingsKeys = Object.keys(plugin.drawTools.drawings);
+  plugin.drawTools.drawings = {};
+  window.plugin.drawTools.drawnItems.eachLayer( function(layer) {
+    var item = {};
+    var key = null;
+    if (layer instanceof L.GeodesicCircle || layer instanceof L.Circle) {
+      item.type = 'circle';
+      item.latLng = layer.getLatLng();
+      item.radius = layer.getRadius();
+      item.color = layer.options.color;
+      key = item.latLng;
+    } else if (layer instanceof L.GeodesicPolygon || layer instanceof L.Polygon) {
+      item.type = 'polygon';
+      item.latLngs = layer.getLatLngs();
+      item.color = layer.options.color;
+      key = item.latLngs[0];
+    } else if (layer instanceof L.GeodesicPolyline || layer instanceof L.Polyline) {
+      item.type = 'polyline';
+      item.latLngs = layer.getLatLngs();
+      item.color = layer.options.color;
+      key = item.latLngs[0];
+    } else if (layer instanceof L.Marker) {
+      item.type = 'marker';
+      item.latLng = layer.getLatLng();
+      item.color = layer.options.icon.options.color;
+      key = item.latLng;
+    } else {
+      console.warn('Unknown layer type when saving draw tools layer');
+      return;
+    }
+    // Latitute to 3 points to eliminate vast numbers of keys
+    key = key.lat.toFixed(3);
+    window.plugin.drawTools.addDrawing(key, item);
+  });
+
+  // Get the set of drawing start points that have been removed at this change
+  var newDrawingsKeys = Object.keys(plugin.drawTools.drawings);
+  var deletedKeys = $(oldDrawingsKeys).not(newDrawingsKeys).get();
+
+  $.each(deletedKeys, function(index, key) {
+    window.plugin.drawTools.removeDrawing(key);
+  });
+
+  window.plugin.drawTools.storeLocal('drawings');
+};
+
+window.plugin.drawTools.addDrawing = function(key, item) {
+  if (!plugin.drawTools.drawings[key])
+    plugin.drawTools.drawings[key] = [];
+  if ($.inArray(item, plugin.drawTools.drawings[key]) == -1)
+    plugin.drawTools.drawings[key].push(item);
+
+  window.plugin.drawTools.sync(key);
+  console.log('DrawTools: added drawing starting at ' + key);
+};
+
+window.plugin.drawTools.removeDrawing = function(key) {
+  window.plugin.drawTools.drawings[key] = undefined; // Ensure that sync deletes the key.
+
+  window.plugin.drawTools.sync(key);
+  console.log('DrawTools: removed drawing starting at ' + key);
+};
+
+window.plugin.drawTools.importMapping = function(data) {
+  $.each(Object.keys(data), function(index, key) {
+    window.plugin.drawTools.import(data[key]);
+  });
+};
+
+window.plugin.drawTools.resetDrawings = function () {
+  delete localStorage['plugin-drawTools-data'];
+  window.plugin.drawTools.drawnItems.clearLayers();
+  window.plugin.drawTools.save();
+  window.plugin.drawTools.load();
+  console.log('DrawTools: removed drawings. Synced.')
+};
+
+window.plugin.drawTools.load = function() {
+  try {
+    var dataStr = localStorage['plugin-drawTools-data'];
+    if (dataStr === undefined) return;
+
+    console.log('DrawTools: loaded drawing data, redrawing.');
+    window.plugin.drawTools.drawnItems.clearLayers();
+    window.plugin.drawTools.importMapping(JSON.parse(dataStr));
+  } catch(e) {
+    console.warn('DrawTools: failed to load data from localStorage: '+e);
+  }
+};
+
+// Sync end
 
 window.plugin.drawTools.loadExternals = function() {
   try { console.log('Loading leaflet.draw JS now'); } catch(e) {}
@@ -235,55 +440,6 @@ window.plugin.drawTools.getSnapLatLng = function(unsnappedLatLng) {
   return new L.LatLng(candidates[0][1].lat, candidates[0][1].lng);  //return a clone of the portal location
 }
 
-
-window.plugin.drawTools.save = function() {
-  var data = [];
-
-  window.plugin.drawTools.drawnItems.eachLayer( function(layer) {
-    var item = {};
-    if (layer instanceof L.GeodesicCircle || layer instanceof L.Circle) {
-      item.type = 'circle';
-      item.latLng = layer.getLatLng();
-      item.radius = layer.getRadius();
-      item.color = layer.options.color;
-    } else if (layer instanceof L.GeodesicPolygon || layer instanceof L.Polygon) {
-      item.type = 'polygon';
-      item.latLngs = layer.getLatLngs();
-      item.color = layer.options.color;
-    } else if (layer instanceof L.GeodesicPolyline || layer instanceof L.Polyline) {
-      item.type = 'polyline';
-      item.latLngs = layer.getLatLngs();
-      item.color = layer.options.color;
-    } else if (layer instanceof L.Marker) {
-      item.type = 'marker';
-      item.latLng = layer.getLatLng();
-      item.color = layer.options.icon.options.color;
-    } else {
-      console.warn('Unknown layer type when saving draw tools layer');
-      return; //.eachLayer 'continue'
-    }
-
-    data.push(item);
-  });
-
-  localStorage['plugin-draw-tools-layer'] = JSON.stringify(data);
-
-  console.log('draw-tools: saved to localStorage');
-}
-
-window.plugin.drawTools.load = function() {
-  try {
-    var dataStr = localStorage['plugin-draw-tools-layer'];
-    if (dataStr === undefined) return;
-
-    var data = JSON.parse(dataStr);
-    window.plugin.drawTools.import(data);
-
-  } catch(e) {
-    console.warn('draw-tools: failed to load data from localStorage: '+e);
-  }
-}
-
 window.plugin.drawTools.import = function(data) {
   $.each(data, function(index,item) {
     var layer = null;
@@ -314,9 +470,8 @@ window.plugin.drawTools.import = function(data) {
       window.plugin.drawTools.drawnItems.addLayer(layer);
     }
   });
-
+  window.plugin.drawTools.save();
   runHooks('pluginDrawTools', {event: 'import'});
-
 }
 
 
@@ -372,7 +527,7 @@ window.plugin.drawTools.optAlert = function(message) {
 
 window.plugin.drawTools.optCopy = function() {
     if (typeof android !== 'undefined' && android && android.shareString) {
-        android.shareString(localStorage['plugin-draw-tools-layer']);
+        android.shareString(localStorage['plugin-drawTools-data']);
     } else {
       var stockWarnings = {};
       var stockLinks = [];
@@ -412,7 +567,7 @@ window.plugin.drawTools.optCopy = function() {
       if (stockWarnings.unknown) stockWarnTexts.push('Warning: UNKNOWN ITEM TYPE');
 
       var html = '<p><a onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p>'
-                +'<textarea readonly onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">'+localStorage['plugin-draw-tools-layer']+'</textarea>'
+                +'<textarea readonly onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">'+localStorage['plugin-drawTools-data']+'</textarea>'
                 +'<p>or, export as a link for the standard intel map (for non IITC users)</p>'
                 +'<input onclick="event.target.select();" type="text" size="90" value="'+stockUrl+'"/>';
       if (stockWarnTexts.length>0) {
@@ -430,7 +585,7 @@ window.plugin.drawTools.optCopy = function() {
 
 window.plugin.drawTools.optExport = function() {
   if(typeof android !== 'undefined' && android && android.saveFile) {
-    android.saveFile('IITC-drawn-items.json', 'application/json', localStorage['plugin-draw-tools-layer']);
+    android.saveFile('IITC-drawn-items.json', 'application/json', localStorage['plugin-drawTools-data']);
   }
 }
 
@@ -464,27 +619,23 @@ window.plugin.drawTools.optPaste = function() {
           newLines.push(layer);
         }
 
-        // all parsed OK - clear and insert
-        window.plugin.drawTools.drawnItems.clearLayers();
+        window.plugin.drawTools.resetDrawings();
+
         for (var i=0; i<newLines.length; i++) {
           window.plugin.drawTools.drawnItems.addLayer(newLines[i]);
         }
         runHooks('pluginDrawTools', {event: 'import'});
 
         console.log('DRAWTOOLS: reset and imported drawn items from stock URL');
-        window.plugin.drawTools.optAlert('Import Successful.');
-
-
       } else {
         var data = JSON.parse(promptAction);
-        window.plugin.drawTools.drawnItems.clearLayers();
-        window.plugin.drawTools.import(data);
+        window.plugin.drawTools.resetDrawings();
+        window.plugin.drawTools.importMapping(data);
         console.log('DRAWTOOLS: reset and imported drawn items');
-        window.plugin.drawTools.optAlert('Import Successful.');
       }
-
-      // to write back the data to localStorage
+      window.plugin.drawTools.optAlert('Import Successful.');
       window.plugin.drawTools.save();
+
     } catch(e) {
       console.warn('DRAWTOOLS: failed to import data: '+e);
       window.plugin.drawTools.optAlert('<span style="color: #f88">Import failed</span>');
@@ -497,9 +648,9 @@ window.plugin.drawTools.optImport = function() {
   window.requestFile(function(filename, content) {
     try {
       var data = JSON.parse(content);
-      window.plugin.drawTools.drawnItems.clearLayers();
-      window.plugin.drawTools.import(data);
-      console.log('DRAWTOOLS: reset and imported drawn tiems');
+      window.plugin.drawTools.resetDrawings();
+      window.plugin.drawTools.importMapping(data);
+      console.log('DRAWTOOLS: reset and imported drawn items');
       window.plugin.drawTools.optAlert('Import Successful.');
 
       // to write back the data to localStorage
@@ -514,10 +665,7 @@ window.plugin.drawTools.optImport = function() {
 window.plugin.drawTools.optReset = function() {
   var promptAction = confirm('All drawn items will be deleted. Are you sure?', '');
   if(promptAction) {
-    delete localStorage['plugin-draw-tools-layer'];
-    window.plugin.drawTools.drawnItems.clearLayers();
-    window.plugin.drawTools.load();
-    console.log('DRAWTOOLS: reset all drawn items');
+    window.plugin.drawTools.resetDrawings();
     window.plugin.drawTools.optAlert('Reset Successful. ');
     runHooks('pluginDrawTools', {event: 'clear'});
   }
@@ -618,6 +766,7 @@ window.plugin.drawTools.snapToPortals = function() {
 window.plugin.drawTools.boot = function() {
   // add a custom hook for draw tools to share it's activity with other plugins
   pluginCreateHook('pluginDrawTools');
+  window.addHook('iitcLoaded', window.plugin.drawTools.registerFieldForSyncing);
 
   window.plugin.drawTools.currentMarker = window.plugin.drawTools.getMarkerIcon(window.plugin.drawTools.currentColor);
 
