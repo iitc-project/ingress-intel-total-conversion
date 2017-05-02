@@ -70,7 +70,13 @@ window.plugin.uniques.onPortalDetailsUpdated = function() {
 		}
 	}
 
-	$('#portaldetails > .imgpreview').after(plugin.uniques.contentHTML);
+    if($('#ownership-container').length) {
+        $('#ownership-container > label:last').after(plugin.uniques.labelContentHTML);
+    }
+    else {
+        $('#portaldetails > .imgpreview').after(plugin.uniques.contentHTML);
+    }
+
 	plugin.uniques.updateCheckedAndHighlight(guid);
 }
 
@@ -424,9 +430,10 @@ window.plugin.uniques.setupCSS = function() {
 }
 
 window.plugin.uniques.setupContent = function() {
+    plugin.uniques.labelContentHTML = '<label><input type="checkbox" id="visited" onclick="window.plugin.uniques.updateVisited($(this).prop(\'checked\'))"> Visited</label>'
+        + '<label><input type="checkbox" id="captured" onclick="window.plugin.uniques.updateCaptured($(this).prop(\'checked\'))"> Captured</label>';
 	plugin.uniques.contentHTML = '<div id="uniques-container">'
-		+ '<label><input type="checkbox" id="visited" onclick="window.plugin.uniques.updateVisited($(this).prop(\'checked\'))"> Visited</label>'
-		+ '<label><input type="checkbox" id="captured" onclick="window.plugin.uniques.updateCaptured($(this).prop(\'checked\'))"> Captured</label>'
+		+ plugin.uniques.labelContentHTML
 		+ '</div>';
 	plugin.uniques.disabledMessage = '<div id="uniques-container" class="help" title="Your browser does not support localStorage">Plugin Uniques disabled</div>';
 }
@@ -463,7 +470,7 @@ window.plugin.uniques.setupPortalsList = function() {
 		if(info.visited) return 1;
 	}
 
-	window.plugin.portalslist.fields.push({
+    var uniquesField = {
 		title: "Visit",
 		value: function(portal) { return portal.options.guid; }, // we store the guid, but implement a custom comparator so the list does sort properly without closing and reopening the dialog
 		sort: function(guidA, guidB) {
@@ -505,7 +512,21 @@ window.plugin.uniques.setupPortalsList = function() {
 					return false;
 				}, false);
 		},
-	});
+	}
+
+    // Ensure that the ownership field appears after the uniques field.
+    if(window.plugin.ownership) {
+        var ownershipField = window.plugin.portalslist.fields.filter(function(element) {
+            return (element.title == "Owner");
+        })[0];
+        var ownershipFieldIndex = window.plugin.portalslist.fields.indexOf(ownershipField);
+        if(ownershipFieldIndex > 0) // Ownership field has been added to the set of fields
+            window.plugin.portalslist.fields.splice(ownershipFieldIndex,0,uniquesField); // Splice unique field in before the ownership field.
+        else // Ownership field has not been added to the set of fields yet
+            window.plugin.portalslist.fields.push(uniquesField)
+    }
+    else // Ownership plugin isn't defined (yet?)
+        window.plugin.portalslist.fields.push(uniquesField);
 }
 
 window.plugin.uniques.onMissionChanged = function(data) {

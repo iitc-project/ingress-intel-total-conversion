@@ -1,0 +1,146 @@
+/* Based on the css of the uniques-plugin */
+
+#ownership-container {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 6px;
+    margin-bottom: 1px;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding: 0 4px;
+}
+
+#ownership-container label {
+  margin: 0 0.5em;
+}
+
+#ownership-container input {
+  vertical-align: middle;
+}
+
+td.portal-list-ownership {
+    text-align: center;
+}
+
+.portal-list-ownership input[type='checkbox'] {
+  padding: 0;
+  height: auto;
+  margin-top: -5px;
+  margin-bottom: -5px;
+}
+
+/* Based on the css of the portals-list plugin */
+
+#ownershiplist.mobile {
+  background: transparent;
+  border: 0 none !important;
+  height: 100% !important;
+  width: 100% !important;
+  left: 0 !important;
+  top: 0 !important;
+  position: absolute;
+  overflow: auto;
+}
+
+#ownershiplist table {
+  margin-top: 5px;
+  border-collapse: collapse;
+  empty-cells: show;
+  width: 100%;
+  clear: both;
+}
+
+#ownershiplist table td, #ownershiplist table th {
+  background-color: #1b415e;
+  border-bottom: 1px solid #0b314e;
+  color: white;
+  padding: 3px;
+}
+
+#ownershiplist table th {
+  text-align: center;
+}
+
+#ownershiplist table .alignR {
+  text-align: right;
+}
+
+#ownershiplist table .alignL {
+  text-align: left;
+}
+
+#ownershiplist table.portals td {
+  white-space: nowrap;
+}
+
+#ownershiplist table th.sortable {
+  cursor: pointer;
+}
+
+#ownershiplist table .portalTitle {
+  min-width: 120px !important;
+  max-width: 240px !important;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#ownershiplist .sorted {
+  color: #FFCE00;
+}
+
+#ownershiplist table.filter {
+  table-layout: fixed;
+  cursor: pointer;
+  border-collapse: separate;
+  border-spacing: 1px;
+}
+
+#ownershiplist table.filter th {
+  text-align: left;
+  padding-left: 0.3em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#ownershiplist table.filter td {
+  text-align: right;
+  padding-right: 0.3em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#ownershiplist .filterNeu {
+  background-color: #666;
+}
+
+#ownershiplist table tr.res td, #ownershiplist .filterRes {
+  background-color: #005684;
+}
+
+#ownershiplist table tr.enl td, #ownershiplist .filterEnl {
+  background-color: #017f01;
+}
+
+#ownershiplist table tr.none td {
+  background-color: #000;
+}
+
+#ownershiplist table tr.updating {
+  border: 1px solid #FFCE00;
+}
+
+#ownershiplist .information {
+  margin-top: 10px;
+  font-size: 10px;
+}
+
+#ownershiplist.mobile table.filter tr {
+  display: block;
+  text-align: center;
+}
+#ownershiplist.mobile table.filter th, #ownershiplist.mobile table.filter td {
+  display: inline-block;
+  width: 22%;
+}

@@ -33,6 +33,7 @@ window.DIALOG_SLIDE_DURATION = 100;
  *        specific cases. (If IITC is running on mobile, modal will always be true).
  * id:   A unique ID for this dialog. If a dialog with id `id' is already open and dialog() is called
  *       again, it will be automatically closed.
+ * buttons: Any extra buttons to be added to the pane, prior to the OK button.
  *
  * == Callbacks
  * closeCallback: A callback to run on close. Takes no arguments.
@@ -106,11 +107,11 @@ window.dialog = function(options) {
     draggable: true,
     closeText: '&nbsp;',
     title: '',
-    buttons: {
+    buttons: $.extend(options.buttons,{
       'OK': function() {
         $(this).dialog('close');
-      }
-    },
+      },
+    }),
     open: function() {
       var titlebar = $(this).closest('.ui-dialog').find('.ui-dialog-titlebar');
       titlebar.find('.ui-dialog-title').addClass('ui-dialog-title-active');
