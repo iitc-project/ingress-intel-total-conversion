@@ -17,3 +17,22 @@
   margin-top: -5px;
   margin-bottom: -5px;
 }
+
+.uniqueOptions > a {
+  display: block;
+  color: #ffce00;
+  border: 1px solid #ffce00;
+  padding: 3px 0;
+  margin: 10px auto;
+  width: 80%;
+  text-align: center;
+  background: rgba(8,48,78,.9);
+}
+
+.uniqueOptions > a.disabled {
+  cursor: pointer;
+  color: grey;
+  border: 1px solid grey;
+  text-decoration: none;
+  outline: none;
+}
