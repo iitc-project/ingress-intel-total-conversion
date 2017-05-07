@@ -65,7 +65,96 @@
 
 //there's also a 'placeholder' portal - generated from the data in links/fields. only has team/lat/lng
 
-  var CORE_PORTA_DATA_LENGTH = 4;
+  var CORE_PORTAL_DATA_LENGTH = 4;
+  var SUMMARY_PORTAL_DATA_LENGTH = 14;
+
+  /**
+   * Placeholder data for the portal. Typically used only at lower zoom levels (showing larger area).
+   * @typedef {Object} PortalDataCore
+   * @property {string} team - 'E' for Enlightened, 'R' for Resistance, 'N' for none.
+   * @property {number} latE6 - The latitude of the portal multiplied by 10^6. (49.185163 becomes 49185163).
+   * @property {number} longE6 - The longitude of the portal multiplied by 10^6.
+   */
+
+  /**
+   * Extended data for the portal. Available at higher zoom levels. Is not a complete portal representation.
+   * @typedef {Object} PortalDataExtended
+   * @property {string} title - The title of the portal.
+   * @property {string} image - The URL of the portal image.
+   * @property {number} level - Indicates the level (1 through 8) of the portal. Note that unclaimed portals are reported as level 1.
+   * @property {number} resCount - The number of resonators (0 to 8) installed on the portal.*
+   * @property {number} health - The health of the portal as expressed as a number between 0 and 100.
+   * TODO Get ornaments type.
+   * @property {Object} ornaments - Provides ornament data.
+   * TODO Get mission type.
+   * @property {Object} mission - Provides mission data.
+   * TODO Get mission50plus type.
+   * @property {Object} mission50plus - Provides mission data.
+   * TODO Get artifactBrief type.
+   * @property {Object} artifactBrief - Provides artifact data.
+   * TODO Get timestamp type.
+   * @property {Object} timestamp.
+   */
+
+  /**
+   * Complete portal data. Composite of {PortalDataCore} and {PortalDataExtended} objects.
+   * @typedef {Object} PortalData
+   * @property {string} team - 'E' for Enlightened, 'R' for Resistance, 'N' for none.
+   * @property {number} latE6 - The latitude of the portal multiplied by 10^6. (49.185163 becomes 49185163).
+   * @property {number} longE6 - The longitude of the portal multiplied by 10^6.
+   * @property {string} title - The title of the portal.
+   * @property {string} image - The URL of the portal image.
+   * @property {number} level - Indicates the level (1 through 8) of the portal. Note that unclaimed portals are reported as level 1.
+   * @property {number} resCount - The number of resonators (0 to 8) installed on the portal.*
+   * @property {number} health - The health of the portal as expressed as a number between 0 and 100.
+   * TODO Get ornaments type.
+   * @property {Object} ornaments - Provides ornament data.
+   * TODO Get mission type.
+   * @property {Object} mission - Provides mission data.
+   * TODO Get mission50plus type.
+   * @property {Object} mission50plus - Provides mission data.
+   * TODO Get artifactBrief type.
+   * @property {Object} artifactBrief - Provides artifact data.
+   * TODO Get timestamp type.
+   * @property {Object} timestamp.
+   */
+
+  /**
+   * Complete portal data. Superset of {PortalData} data.
+   * @typedef {Object} PortalDataDetail
+   * @property {string} team - 'E' for Enlightened, 'R' for Resistance, 'N' for none.
+   * @property {number} latE6 - The latitude of the portal multiplied by 10^6. (49.185163 becomes 49185163).
+   * @property {number} longE6 - The longitude of the portal multiplied by 10^6.
+   * @property {string} title - The title of the portal.
+   * @property {string} image - The URL of the portal image.
+   * @property {number} level - Indicates the level (1 through 8) of the portal. Note that unclaimed portals are reported as level 1.
+   * @property {number} resCount - The number of resonators (0 to 8) installed on the portal.*
+   * @property {number} health - The health of the portal as expressed as a number between 0 and 100.
+   * TODO Get ornaments type.
+   * @property {Object} ornaments - Provides ornament data.
+   * TODO Get mission type.
+   * @property {Object} mission - Provides mission data.
+   * TODO Get mission50plus type.
+   * @property {Object} mission50plus - Provides mission data.
+   * TODO Get artifactBrief type.
+   * @property {Object} artifactBrief - Provides artifact data.
+   * TODO Get timestamp type. Confirm whether timestamp is update data, or something else.
+   * @property {Object} timestamp - Timestamp for the portal.
+   * TODO get mods type.
+   * @property {Object} mods - Mod data.
+   * TODO get resonators type.
+   * @property {Object} resonators - Resonator data.
+   * TODO get owner type.
+   * @property {Object} owner - Owner data.
+   * TODO get artifact detail type.
+   * @property {Object} artifactDetail - Artifact detail data.
+   */
+
+  /**
+   * Returns a core portal data object.
+   * @param {Array} a - The entity array provided by server. Expected to contain four objects.
+   * @returns {PortalDataCore} The core data for this portal.
+   */
   function corePortalData(a) {
     return {
       // a[0] == type (always 'p')
@@ -75,7 +164,11 @@
     }
   };
 
-  var SUMMARY_PORTAL_DATA_LENGTH = 14;
+  /**
+   * Returns a core portal data object.
+   * @param {Array} a - The entity array provided by server. Expected to contain four objects.
+   * @returns {PortalDataCore} The core data for this portal.
+   */
   function summaryPortalData(a) {
     return {
       level:         a[4],
@@ -91,15 +184,20 @@
     };
   };
 
-  var DETAILED_PORTAL_DATA_LENGTH = SUMMARY_PORTAL_DATA_LENGTH+4;
+  var DETAILED_PORTAL_DATA_LENGTH = SUMMARY_PORTAL_DATA_LENGTH+CORE_PORTAL_DATA_LENGTH;
 
 
+  /**
+   * Decodes the portal summary data.
+   * @param a - Array containing portal data.
+   * @returns {PortalDataCore, PortalData} Returns either a core data object, or a complete data object.
+   */
   window.decodeArray.portalSummary = function(a) {
     if (!a) return undefined;
 
     if (a[0] != 'p') throw 'Error: decodeArray.portalSUmmary - not a portal';
 
-    if (a.length == CORE_PORTA_DATA_LENGTH) {
+    if (a.length == CORE_PORTAL_DATA_LENGTH) {
       return corePortalData(a);
     }
 
@@ -113,6 +211,11 @@
     return $.extend(corePortalData(a), summaryPortalData(a));
   }
 
+  /**
+   * Decodes the portal detail data.
+   * @param a Array of portal data. Expected to include all portal data.
+   * @returns {PortalDataDetail} The portal detail object.
+   */
   window.decodeArray.portalDetail = function(a) {
     if (!a) return undefined;
 

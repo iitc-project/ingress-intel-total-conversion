@@ -295,9 +295,27 @@ window.getPortalHackDetails = function(d) {
   return {cooldown: cooldownTime, hacks: numHacks, burnout: cooldownTime*(numHacks-1)};
 }
 
-// given a detailed portal structure, return summary portal data, as seen in the map tile data
-window.getPortalSummaryData = function(d) {
 
+/**
+ * Summarizes a portal.
+ * @typedef {Object} PortalSummaryData
+ * @property {number} latE6 - The latitude of the portal multiplied by 10^6. (49.185163 becomes 49185163).
+ * @property {number} longE6 - The longitude of the portal multiplied by 10^6.
+ * @property {string} title - The title of the portal.
+ * @property {string} image - The URL of the portal image.
+ * @property {number} level - Indicates the level (1 through 8) of the portal. Note that unclaimed portals are reported as level 1.
+ * @property {string} team - The team of the portal, 'E' for Enlightened, 'R' for Resistance, or 'N' for none.
+ * @property {number} resCount - The number of resonators (0 to 8) installed on the portal.*
+ * @property {number} health - The health of the portal as expressed as a number between 0 and 100.
+ * @property {string} type - The type of the portal, always 'portal'.
+ */
+
+/**
+ * Returns a portal summary object.
+ * @param d Expects a portal data object with properties health
+ * @returns {PortalSummary}
+ */
+window.getPortalSummaryData = function(d) {
   // NOTE: the summary data reports unclaimed portals as level 1 - not zero as elsewhere in IITC
   var level = parseInt(getPortalLevel(d));
   if (level == 0) level = 1; //niantic returns neutral portals as level 1, not 0 as used throughout IITC elsewhere
