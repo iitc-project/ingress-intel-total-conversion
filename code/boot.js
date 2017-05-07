@@ -109,7 +109,7 @@ window.setupStyles = function() {
     + '</style>');
 }
 
-function createDefaultBaseMapLayers() {
+window.createDefaultBaseMapLayers = function() {
   var baseLayers = {};
 
   //OpenStreetMap attribution - required by several of the layers
