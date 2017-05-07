@@ -46,3 +46,11 @@ Run `build.py mobile` to build IITC Mobile in debug mode.
 
 Note that part of the build.py process includes copying the IITC script files into the `mobile/res` subfolder.
 If this isn't done (e.g. you build IITC Mobile directly from Eclipse) you will end up with a broken build.
+
+#### Mobile (using Android Studio)
+
+If you use Android Studio,you should import project "mobile-as".
+To build the mobile app, it is required
+
+- The Java JDK
+- The Android SDK
