@@ -95,76 +95,84 @@ GaodeTransformer.prototype.isOutOfChina = function(lat, lng) {
 
 GaodeTransformer.prototype.isInsideTaiwan = function(lat, lng) {
     return (21.8056 < lat && lat < 25.3637 && 119.9914 < lng && lng < 122.1849);
-}
+};
 
 /////////// end Gaode transformer /////////
 
 var gaodeTransformer = new GaodeTransformer();
 
-L.GaodeLayer = L.TileLayer.extend({
+window.plugin.mapGaode.setupGaodeLayer = function() {
 
-    options: {
-        subdomains: ['1', '2', '3', '4'],
-        attribution: 'Gaode Maps © https://gaode.com'
-    },
+    L.GaodeLayer = L.TileLayer.extend({
 
-    _getTilePos: function (tilePoint) {
+        options: {
+            subdomains: ['1', '2', '3', '4'],
+            maxZoom: 19,
+            detectRetina: true,
+            attribution: '© <a href="https://gaode.com">高德地图</a>'
+        },
 
-        var origin = this._map.getPixelOrigin(),
-            tileSize = this._getTileSize();
+        _getTilePos: function (tilePoint) {
 
-        ori = this._map._getCenterLayerPoint();
-        latLng = this._map.layerPointToLatLng(ori);
-        latLng = gaodeTransformer.transformToWgs(latLng.lat, latLng.lng);
-        dst = this._map.latLngToLayerPoint(new L.LatLng(latLng.lat, latLng.lng));
+            var origin = this._map.getPixelOrigin(),
+                tileSize = this._getTileSize();
 
-        tilePos = tilePoint.multiplyBy(tileSize).subtract(origin).subtract(ori.subtract(dst));
+            ori = this._map._getCenterLayerPoint();
+            latLng = this._map.layerPointToLatLng(ori);
+            latLng = gaodeTransformer.transformToWgs(latLng.lat, latLng.lng);
+            dst = this._map.latLngToLayerPoint(new L.LatLng(latLng.lat, latLng.lng));
 
-        return tilePos;
+            tilePos = tilePoint.multiplyBy(tileSize).subtract(origin).subtract(ori.subtract(dst));
 
-    },
+            return tilePos;
 
-    _update: function() {
+        },
 
-        if (!this._map) { return; }
+        _update: function() {
 
-        var map = this._map,
-            bounds = map.getPixelBounds(),
-            zoom = map.getZoom(),
-            tileSize = this._getTileSize();
+            if (!this._map) { return; }
 
-        if (zoom > this.options.maxZoom || zoom < this.options.minZoom) {
-            return;
+            var map = this._map,
+                bounds = map.getPixelBounds(),
+                zoom = map.getZoom(),
+                tileSize = this._getTileSize();
+
+            if (zoom > this.options.maxZoom || zoom < this.options.minZoom) {
+                return;
+            }
+
+            ori = this._map._getCenterLayerPoint();
+            latLng = this._map.layerPointToLatLng(ori);
+            latLng = gaodeTransformer.transformToWgs(latLng.lat, latLng.lng);
+            dst = this._map.latLngToLayerPoint(new L.LatLng(latLng.lat, latLng.lng));
+            bounds = L.bounds(
+                bounds.min.subtract(dst.subtract(ori)),
+                bounds.max.subtract(dst.subtract(ori))
+            );
+
+            var tileBounds = L.bounds(
+                    bounds.min.divideBy(tileSize)._floor(),
+                    bounds.max.divideBy(tileSize)._floor());
+
+            this._addTilesFromCenterOut(tileBounds);
+
+            if (this.options.unloadInvisibleTiles || this.options.reuseTiles) {
+                this._removeOtherTiles(tileBounds);
+            }
+
         }
 
-        ori = this._map._getCenterLayerPoint();
-        latLng = this._map.layerPointToLatLng(ori);
-        latLng = gaodeTransformer.transformToWgs(latLng.lat, latLng.lng);
-        dst = this._map.latLngToLayerPoint(new L.LatLng(latLng.lat, latLng.lng));
-        bounds = L.bounds(
-            bounds.min.subtract(dst.subtract(ori)),
-            bounds.max.subtract(dst.subtract(ori))
-        );
+    });
 
-        var tileBounds = L.bounds(
-                bounds.min.divideBy(tileSize)._floor(),
-                bounds.max.divideBy(tileSize)._floor());
+    L.gaodeLayer = function(url, options) {
+        return new L.GaodeLayer(url, options);
+    };
 
-        this._addTilesFromCenterOut(tileBounds);
-
-        if (this.options.unloadInvisibleTiles || this.options.reuseTiles) {
-            this._removeOtherTiles(tileBounds);
-        }
-
-    }
-
-});
-
-L.gaodeLayer = function(url, options) {
-    return new L.GaodeLayer(url, options);
 };
 
 window.plugin.mapGaode.setup = function() {
+
+    window.plugin.mapGaode.setupGaodeLayer();
 
     var gaodeSat = L.gaodeLayer('http://wprd0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}', {type: 'SATELLITE'});
     layerChooser.addBaseLayer(gaodeSat, 'Gaode Satellite');
