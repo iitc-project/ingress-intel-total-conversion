@@ -96,27 +96,30 @@ GaodeTransformer.prototype.isOutOfChina = function(lat, lng) {
 
 var gaodeTransformer = new GaodeTransformer();
 
-window.plugin.mapGaode.setup = function() {
+L.GaodeLayer = L.TileLayer.extend({
 
-    L.TileLayer.prototype._getTilePos = function (tilePoint) {
+    options: {
+        subdomains: ['1', '2', '3', '4'],
+        attribution: 'Gaode Maps © https://gaode.com'
+    },
+
+    _getTilePos: function (tilePoint) {
 
         var origin = this._map.getPixelOrigin(),
             tileSize = this._getTileSize();
 
-        if (this.options.type == 'GAODE') {
-            ori = this._map._getCenterLayerPoint();
-            latLng = this._map.layerPointToLatLng(ori);
-            latLng = gaodeTransformer.transformToWgs(latLng.lat, latLng.lng);
-            dst = this._map.latLngToLayerPoint(new L.LatLng(latLng.lat, latLng.lng));
-        }
+        ori = this._map._getCenterLayerPoint();
+        latLng = this._map.layerPointToLatLng(ori);
+        latLng = gaodeTransformer.transformToWgs(latLng.lat, latLng.lng);
+        dst = this._map.latLngToLayerPoint(new L.LatLng(latLng.lat, latLng.lng));
 
         tilePos = tilePoint.multiplyBy(tileSize).subtract(origin).subtract(ori.subtract(dst));
 
         return tilePos;
 
-    };
+    },
 
-    L.TileLayer.prototype._update = function() {
+    _update: function() {
 
         if (!this._map) { return; }
 
@@ -129,16 +132,14 @@ window.plugin.mapGaode.setup = function() {
             return;
         }
 
-        if (this.options.type == 'GAODE') {
-            ori = this._map._getCenterLayerPoint();
-            latLng = this._map.layerPointToLatLng(ori);
-            latLng = gaodeTransformer.transformToWgs(latLng.lat, latLng.lng);
-            dst = this._map.latLngToLayerPoint(new L.LatLng(latLng.lat, latLng.lng));
-            bounds = L.bounds(
-                bounds.min.subtract(dst.subtract(ori)),
-                bounds.max.subtract(dst.subtract(ori))
-            );
-        }
+        ori = this._map._getCenterLayerPoint();
+        latLng = this._map.layerPointToLatLng(ori);
+        latLng = gaodeTransformer.transformToWgs(latLng.lat, latLng.lng);
+        dst = this._map.latLngToLayerPoint(new L.LatLng(latLng.lat, latLng.lng));
+        bounds = L.bounds(
+            bounds.min.subtract(dst.subtract(ori)),
+            bounds.max.subtract(dst.subtract(ori))
+        );
 
         var tileBounds = L.bounds(
                 bounds.min.divideBy(tileSize)._floor(),
@@ -150,17 +151,25 @@ window.plugin.mapGaode.setup = function() {
             this._removeOtherTiles(tileBounds);
         }
 
-    };
+    }
 
-    var gaodeSat = new L.TileLayer('http://wprd0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}', {type: 'GAODE', variant: 'SATELLITE', subdomains: '1234'});
+});
+
+L.gaodeLayer = function(url, options) {
+    return new L.GaodeLayer(url, options);
+};
+
+window.plugin.mapGaode.setup = function() {
+
+    var gaodeSat = L.gaodeLayer('http://wprd0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}', {type: 'SATELLITE'});
     layerChooser.addBaseLayer(gaodeSat, 'Gaode Satellite');
 
-    var gaodeRoad = new L.TileLayer('http://wprd0{s}.is.autonavi.com/appmaptile?style=7&x={x}&y={y}&z={z}', {type: 'GAODE', variant: 'ROADS', subdomains: '1234'});
+    var gaodeRoad = L.gaodeLayer('http://wprd0{s}.is.autonavi.com/appmaptile?style=7&x={x}&y={y}&z={z}', {type: 'ROADS'});
     layerChooser.addBaseLayer(gaodeRoad, 'Gaode Roads');
 
-    var gaodeHybrid = new L.LayerGroup([
-        new L.TileLayer('http://wprd0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}', {type: 'GAODE', variant: 'SATELLITE', subdomains: '1234'}),
-        new L.TileLayer('http://wprd0{s}.is.autonavi.com/appmaptile?style=8&x={x}&y={y}&z={z}', {type: 'GAODE', variant: 'TRANSPARENT', subdomains: '1234', opacity: 0.75})
+    var gaodeHybrid = L.layerGroup([
+        L.gaodeLayer('http://wprd0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}', {type: 'SATELLITE'}),
+        L.gaodeLayer('http://wprd0{s}.is.autonavi.com/appmaptile?style=8&x={x}&y={y}&z={z}', {type: 'TRANSPARENT', opacity: 0.75})
     ]);
     layerChooser.addBaseLayer(gaodeHybrid, 'Gaode Hybrid');
 
