@@ -32,7 +32,7 @@ GaodeTransformer.prototype.ee = 0.00669342162296594323;
 
 GaodeTransformer.prototype.transformToGcj = function(wgLat, wgLng) {
 
-    if(this.isOutOfChina(wgLat, wgLng)) {
+    if (this.isOutOfChina(wgLat, wgLng) || this.isInsideTaiwan(wgLat, wgLng)) {
         return {lat: wgLat, lng: wgLng};
     }
 
@@ -53,7 +53,7 @@ GaodeTransformer.prototype.transformToGcj = function(wgLat, wgLng) {
 
 GaodeTransformer.prototype.transformToWgs = function(gcjLat, gcjLng) {
 
-    if(this.isOutOfChina(gcjLat, gcjLng)) {
+    if (this.isOutOfChina(gcjLat, gcjLng) || this.isInsideTaiwan(gcjLat, gcjLng)) {
         return {lat: gcjLat, lng: gcjLng};
     }
 
@@ -88,10 +88,15 @@ GaodeTransformer.prototype.transformLng = function(x, y) {
 };
 
 GaodeTransformer.prototype.isOutOfChina = function(lat, lng) {
-    if(lng < 72.004 || lng > 137.8347) return true;
-    if(lat < 0.8293 || lat > 55.8271) return true;
+    if (lng < 72.004 || lng > 137.8347) return true;
+    if (lat < 0.8293 || lat > 55.8271) return true;
     return false;
 };
+
+GaodeTransformer.prototype.isInsideTaiwan = function(lat, lng) {
+    return (21.8056 < lat && lat < 25.3637 && 119.9914 < lng && lng < 122.1849);
+}
+
 /////////// end Gaode transformer /////////
 
 var gaodeTransformer = new GaodeTransformer();
