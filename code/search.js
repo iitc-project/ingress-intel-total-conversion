@@ -289,9 +289,13 @@ addHook('search', function(query) {
 
 // search on OpenStreetMap
 addHook('search', function(query) {
-  if(!query.confirmed) return;
+  if(!query.confirmed)
+    return;
 
-  $.getJSON(NOMINATIM + encodeURIComponent(query.term), function(data) {
+  var searchCallback = (function(data) {
+    
+    var query = this;
+    
     if(data.length == 0) {
       query.addResult({
         title: 'No results on OpenStreetMap',
@@ -300,7 +304,7 @@ addHook('search', function(query) {
       });
       return;
     }
-
+    
     data.forEach(function(item) {
       var result = {
         title: item.display_name,
@@ -328,9 +332,14 @@ addHook('search', function(query) {
             northEast = new L.LatLng(b[1], b[3]);
         result.bounds = new L.LatLngBounds(southWest, northEast);
       }
-
       query.addResult(result);
     });
-  });
+  }).bind(query);
+  
+  $.ajax({
+      url: NOMINATIM + encodeURIComponent(query.term),
+      xhrFields: {
+          withCredentials: false
+      }
+  }).then(searchCallback);
 });
-
