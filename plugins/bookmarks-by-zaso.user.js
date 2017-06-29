@@ -664,8 +664,9 @@
     var promptAction = prompt('Press CTRL+V to paste it.', '');
     if(promptAction !== null && promptAction !== '') {
       try {
-        JSON.parse(promptAction); // try to parse JSON first
-        localStorage[window.plugin.bookmarks.KEY_STORAGE] = promptAction;
+        window.plugin.bookmarks.bkmrksObj = Object.assign({}, window.plugin.bookmarks.bkmrksObj, JSON.parse(promptAction));
+        window.plugin.bookmarks.saveStorage();
+        // localStorage[window.plugin.bookmarks.KEY_STORAGE] = promptAction;
         window.plugin.bookmarks.refreshBkmrks();
         window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
         console.log('BOOKMARKS: reset and imported bookmarks');
@@ -681,8 +682,8 @@
     if (window.requestFile === undefined) return;
     window.requestFile(function(filename, content) {
       try {
-        JSON.parse(content); // try to parse JSON first
-        localStorage[window.plugin.bookmarks.KEY_STORAGE] = content;
+        window.plugin.bookmarks.bkmrksObj = Object.assign({}, window.plugin.bookmarks.bkmrksObj, JSON.parse(content));
+        window.plugin.bookmarks.saveStorage();
         window.plugin.bookmarks.refreshBkmrks();
         window.runHooks('pluginBkmrksEdit', {"target": "all", "action": "import"});
         console.log('BOOKMARKS: reset and imported bookmarks');
