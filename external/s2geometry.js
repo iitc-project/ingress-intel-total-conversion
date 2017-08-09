@@ -212,8 +212,6 @@ S2.S2Cell.FromLatLng = function(latLng,level) {
   var ij = STToIJ(st,level);
 
   return S2.S2Cell.FromFaceIJ (faceuv[0], ij, level);
-
-  return result;
 };
 
 S2.S2Cell.FromFaceIJ = function(face,ij,level) {

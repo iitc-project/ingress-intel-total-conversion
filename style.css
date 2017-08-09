@@ -511,9 +511,19 @@ input[type="search"], input[type="url"] {
 }
 #buttongeolocation {
   position: absolute;
-  top: 2px;
-  right: 2px;
-  cursor: pointer;
+  right: 0;
+  top: 0;
+  margin: 0;
+  border: 0 none transparent;
+  padding: 0 2px 0 0;
+  height: 24px;
+  background-color: transparent;
+}
+#buttongeolocation:focus {
+  outline: 1px dotted #ffce00;
+}
+#buttongeolocation img {
+  display: block;
 }
 #searchwrapper h3 {
   font-size: 1em;
@@ -966,9 +976,11 @@ h3 {
 }
 .ui-dialog-titlebar-button-close::after {
   transform: translateY(3.5px) rotate(45deg);
+  -webkit-transform: translateY(3.5px) rotate(45deg);
 }
 .ui-dialog-titlebar-button-close::before {
   transform: translateY(3.5px) rotate(-45deg);
+  -webkit-transform: translateY(3.5px) rotate(-45deg);
 }
 .ui-dialog-titlebar-button.ui-state-active::after,
 .ui-dialog-titlebar-button.ui-state-active::before,

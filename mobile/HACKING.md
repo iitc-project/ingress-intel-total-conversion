@@ -16,7 +16,7 @@ Debugging
 
 If you want to debug the APK, I suggest [reading up on Google’s documentation](https://developer.android.com/index.html).
 
-Debugging IITC(M) **after** it has booted is relatively easy: you can switch to the “debug” tab, which is a low end developer console. It renders all calls to `console.*`, so you can use it just like you expect. It may be easier to develop in a desktop browser. Set it up like explained [in the normal hacking guide](https://github.com/jonatkins/ingress-intel-total-conversion/blob/master/HACKING.md), but fake your user agent or modify the detection in `code/smartphone.js` and `main.js`. The device ID is printed to the debug console on IITC boot.
+Debugging IITC(M) **after** it has booted is relatively easy: you can switch to the “debug” tab, which is a low end developer console. It renders all calls to `console.*`, so you can use it just like you expect. It may be easier to develop in a desktop browser. Set it up like explained [in the normal hacking guide](https://github.com/iitc-project/ingress-intel-total-conversion/blob/master/HACKING.md), but fake your user agent or modify the detection in `code/smartphone.js` and `main.js`. The device ID is printed to the debug console on IITC boot.
 
 Debugging IITC(M) **before** it has booted requires the Android Developer Tools. Connecting your device and running `adb logcat` should print the debug log to your computer until the low-end dev console mentioned above is available. 
 

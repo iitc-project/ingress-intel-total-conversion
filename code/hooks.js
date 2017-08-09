@@ -29,6 +29,9 @@
 //              the Leaflet CircleMarker for the portal in "portal" var.
 // linkAdded:   called when a link is about to be added to the map
 // fieldAdded:  called when a field is about to be added to the map
+// portalRemoved: called when a portal has been removed
+// linkRemoved: called when a link has been removed
+// fieldRemoved: called when a field has been removed
 // portalDetailsUpdated: fired after the details in the sidebar have
 //              been (re-)rendered Provides data about the portal that
 //              has been selected.
@@ -52,12 +55,15 @@
 //              this only selects the current chat pane; on mobile, it
 //              also switches between map, info and other panes defined
 //              by plugins
+// artifactsUpdated: called when the set of artifacts (including targets)
+//              has changed. Parameters names are old, new.
 
 window._hooks = {}
 window.VALID_HOOKS = [
-  'portalSelected', 'portalDetailsUpdated',
+  'portalSelected', 'portalDetailsUpdated', 'artifactsUpdated',
   'mapDataRefreshStart', 'mapDataEntityInject', 'mapDataRefreshEnd',
   'portalAdded', 'linkAdded', 'fieldAdded',
+  'portalRemoved', 'linkRemoved', 'fieldRemoved',
   'publicChatDataAvailable', 'factionChatDataAvailable',
   'requestFinished', 'nicknameClicked',
   'geoSearch', 'search', 'iitcLoaded',
@@ -103,4 +109,17 @@ window.addHook = function(event, callback) {
     _hooks[event] = [callback];
   else
     _hooks[event].push(callback);
+}
+
+// callback must the SAME function to be unregistered.
+window.removeHook = function(event, callback) {
+  if (typeof callback !== 'function') throw('Callback must be a function.');
+
+  if (_hooks[event]) {
+    var index = _hooks[event].indexOf(callback);
+    if(index == -1)
+      console.warn('Callback wasn\'t registered for this event.');
+    else
+      _hooks[event].splice(index, 1);
+  }
 }

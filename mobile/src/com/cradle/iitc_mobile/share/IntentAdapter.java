@@ -36,12 +36,7 @@ class IntentAdapter extends ArrayAdapter<Intent> {
 
         final Intent item = getItem(position);
 
-        try {
-            view.setText(IntentGenerator.getTitle(item));
-        } catch (IllegalArgumentException e) {
-            view.setText("unknown");
-            Log.w(e);
-        }
+        view.setText(IntentGenerator.getTitle(item));
         view.setCompoundDrawablePadding((int) getContext().getResources().getDimension(R.dimen.icon_margin));
 
         // get icon and scale it manually to ensure that all have the same size

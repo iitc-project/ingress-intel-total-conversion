@@ -225,6 +225,7 @@ window.Render.prototype.deletePortalEntity = function(guid) {
     window.ornaments.removePortal(p);
     this.removePortalFromMapLayer(p);
     delete window.portals[guid];
+    window.runHooks('portalRemoved', {portal: p, data: p.options.data });
   }
 }
 
@@ -233,6 +234,7 @@ window.Render.prototype.deleteLinkEntity = function(guid) {
     var l = window.links[guid];
     linksFactionLayers[l.options.team].removeLayer(l);
     delete window.links[guid];
+    window.runHooks('linkRemoved', {link: l, data: l.options.data });
   }
 }
 
@@ -244,6 +246,7 @@ window.Render.prototype.deleteFieldEntity = function(guid) {
 
     fieldsFactionLayers[f.options.team].removeLayer(f);
     delete window.fields[guid];
+    window.runHooks('fieldRemoved', {field: f, data: f.options.data });
   }
 }
 
@@ -266,6 +269,17 @@ window.Render.prototype.createPlaceholderPortalEntity = function(guid,latE6,lngE
       lngE6     //3 - lng
     ]
   ];
+
+  // placeholder portals don't have a useful timestamp value - so the standard code that checks for updated
+  // portal details doesn't apply
+  // so, check that the basic details are valid and delete the existing portal if out of date
+  if (guid in window.portals) {
+    var p = window.portals[guid];
+    if (team != p.options.data.team || latE6 != p.options.data.latE6 || lngE6 != p.options.data.lngE6) {
+      // team or location have changed - delete existing portal
+      this.deletePortalEntity(guid);
+    }
+  }
 
   this.createPortalEntity(ent);
 
@@ -357,6 +371,18 @@ window.Render.prototype.createPortalEntity = function(ent) {
 window.Render.prototype.createFieldEntity = function(ent) {
   this.seenFieldsGuid[ent[0]] = true;  // flag we've seen it
 
+  var data = {
+//    type: ent[2][0],
+    team: ent[2][1],
+    points: ent[2][2].map(function(arr) { return {guid: arr[0], latE6: arr[1], lngE6: arr[2] }; })
+  };
+
+  //create placeholder portals for field corners. we already do links, but there are the odd case where this is useful
+  for (var i=0; i<3; i++) {
+    var p=data.points[i];
+    this.createPlaceholderPortalEntity(p.guid, p.latE6, p.lngE6, data.team);
+  }
+
   // check if entity already exists
   if(ent[0] in window.fields) {
     // yes. in theory, we should never get updated data for an existing field. they're created, and they're destroyed - never changed
@@ -370,12 +396,6 @@ window.Render.prototype.createFieldEntity = function(ent) {
     // 2. delete the entity, then re-create with the new data
     this.deleteFieldEntity(ent[0]); // option 2, for now
   }
-
-  var data = {
-//    type: ent[2][0],
-    team: ent[2][1],
-    points: ent[2][2].map(function(arr) { return {guid: arr[0], latE6: arr[1], lngE6: arr[2] }; })
-  };
 
   var team = teamStringToId(ent[2][1]);
   var latlngs = [

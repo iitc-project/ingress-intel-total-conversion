@@ -2,19 +2,19 @@
 // @id             iitc-plugin-missions@jonatkins
 // @name           IITC plugin: Missions
 // @category       Info
-// @version        0.1.1.@@DATETIMEVERSION@@
+// @version        0.1.2.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] View missions. Marking progress on waypoints/missions basis. Showing mission paths on the map.
-// @include        https://www.ingress.com/intel*
-// @include        http://www.ingress.com/intel*
-// @match          https://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
-// @include        https://www.ingress.com/mission/*
-// @include        http://www.ingress.com/mission/*
-// @match          https://www.ingress.com/mission/*
-// @match          http://www.ingress.com/mission/*
+// @include        https://*.ingress.com/intel*
+// @include        http://*.ingress.com/intel*
+// @match          https://*.ingress.com/intel*
+// @match          http://*.ingress.com/intel*
+// @include        https://*.ingress.com/mission/*
+// @include        http://*.ingress.com/mission/*
+// @match          https://*.ingress.com/mission/*
+// @match          http://*.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -228,13 +228,17 @@ window.plugin.missions = {
 	},
 
 	zoomToMission: function(mission) {
+		map.fitBounds(this.getMissionBounds(mission), {maxZoom: 17});
+	},
+
+	getMissionBounds: function(mission) {
 		var latlngs = mission.waypoints.filter(function(waypoint) {
 			return !!waypoint.portal;
 		}).map(function(waypoint) {
 			return [waypoint.portal.latE6/1E6, waypoint.portal.lngE6/1E6];
 		});
 		
-		map.fitBounds(L.latLngBounds(latlngs), {maxZoom: 17});
+		return L.latLngBounds(latlngs);
 	},
 
 	loadMissionsInBounds: function(bounds, callback, errorcallback) {
@@ -382,7 +386,7 @@ window.plugin.missions = {
 				return latlng1.distanceTo(latlng2);
 			}).reduce(function(a, b) {
 				return a + b;
-			});
+			}, 0);
 			
 			if(len > 0) {
 				if(len > 1000)
@@ -857,10 +861,21 @@ window.plugin.missions = {
 	},
 
 	// called after IITC and all plugin loaded
-	registerFieldForSyncing: function() {
-		if(!window.plugin.sync) return;
-		window.plugin.sync.registerMapForSync('missions', 'checkedMissions', this.syncCallback.bind(this), this.syncInitialed.bind(this));
-		window.plugin.sync.registerMapForSync('missions', 'checkedWaypoints', this.syncCallback.bind(this), this.syncInitialed.bind(this));
+	onIITCLoaded: function() {
+		var match = location.pathname.match(/\/mission\/([0-9a-z.]+)/);
+		if(match && match[1]) {
+			var mid = match[1];
+			
+			this.loadMission(mid, function(mission) {
+				this.openMission(mid);
+				this.zoomToMission(mission);
+			}.bind(this));
+		}
+		
+		if(window.plugin.sync) {
+			window.plugin.sync.registerMapForSync('missions', 'checkedMissions', this.syncCallback.bind(this), this.syncInitialed.bind(this));
+			window.plugin.sync.registerMapForSync('missions', 'checkedWaypoints', this.syncCallback.bind(this), this.syncInitialed.bind(this));
+		}
 	},
 
 	// called after local or remote change uploaded
@@ -962,12 +977,7 @@ window.plugin.missions = {
 			
 			// mission may be a cached mission or contain the full details
 			if(mission.waypoints) {
-				var latlngs = mission.waypoints.filter(function(waypoint) {
-					return !!waypoint.portal;
-				}).map(function(waypoint) {
-					return [waypoint.portal.latE6/1E6, waypoint.portal.lngE6/1E6];
-				});
-				result.bounds = L.latLngBounds(latlngs)
+				result.bounds = this.getMissionBounds(mission);
 			}
 			if(mission.typeNum) {
 				result.icon = this.missionTypeImages[mission.typeNum] || this.missionTypeImages[0];
@@ -1078,13 +1088,8 @@ window.plugin.missions = {
 		window.addHook('plugin-missions-missions-refreshed',  this.onMissionsRefreshed.bind(this));
 		window.addHook('plugin-missions-waypoint-changed',    this.onWaypointChanged.bind(this));
 		window.addHook('plugin-missions-waypoints-refreshed', this.onWaypointsRefreshed.bind(this));
-		window.addHook('iitcLoaded', this.registerFieldForSyncing.bind(this));
 
-		var match = location.pathname.match(/\/mission\/([0-9a-z.]+)/);
-		if(match && match[1]) {
-			var mid = match[1];
-			this.openMission(mid);
-		}
+		window.addHook('iitcLoaded', this.onIITCLoaded.bind(this));
 	}
 };
 

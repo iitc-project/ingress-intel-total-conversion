@@ -7,10 +7,10 @@
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Use the portal fill color to denote the number of outbound links. Red: 8 (i.e. no more outbound links possible). Orange: 6 or 7. Yellow: 4 or 5.
-// @include        https://www.ingress.com/intel*
-// @include        http://www.ingress.com/intel*
-// @match          https://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        https://*.ingress.com/intel*
+// @include        http://*.ingress.com/intel*
+// @match          https://*.ingress.com/intel*
+// @match          http://*.ingress.com/intel*
 // @grant          none
 // ==/UserScript==
 

@@ -36,6 +36,14 @@ window.getPosition = function() {
     return {center: new L.LatLng(lat, lng), zoom: z};
   }
 
+  if(getURLParam('pll')) {
+    console.log("mappos: reading stock Intel URL portal params");
+    var lat = parseFloat(getURLParam('pll').split(",")[0]) || 0.0;
+    var lng = parseFloat(getURLParam('pll').split(",")[1]) || 0.0;
+    var z = parseInt(getURLParam('z')) || 17;
+    return {center: new L.LatLng(lat, lng), zoom: z};
+  }
+
   if(readCookie('ingress.intelmap.lat') && readCookie('ingress.intelmap.lng')) {
     console.log("mappos: reading cookies");
     var lat = parseFloat(readCookie('ingress.intelmap.lat')) || 0.0;
