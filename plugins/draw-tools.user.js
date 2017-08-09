@@ -36,6 +36,7 @@ window.plugin.drawTools.loadExternals = function() {
 
   $('head').append('<style>@@INCLUDESTRING:external/leaflet.draw.css@@</style>');
   $('head').append('<style>@@INCLUDESTRING:external/spectrum/spectrum.css@@</style>');
+  $('head').append('<style>@@INCLUDESTRING:plugins/draw-tools.css@@</style>');
 }
 
 window.plugin.drawTools.getMarkerIcon = function(color) {
@@ -271,17 +272,107 @@ window.plugin.drawTools.save = function() {
   console.log('draw-tools: saved to localStorage');
 }
 
-window.plugin.drawTools.load = function() {
-  try {
-    var dataStr = localStorage['plugin-draw-tools-layer'];
-    if (dataStr === undefined) return;
+window.plugin.drawTools.isIntelURL = function(url) {
+  return url.match(new RegExp("^(https?://)?(www\\.)ingress\\.com/intel.*[?&]pls="));
+}
 
-    var data = JSON.parse(dataStr);
+window.plugin.drawTools.loadFromIntelURL = function(isAddedToExisting, data) {
+  if(isAddedToExisting && data)
     window.plugin.drawTools.import(data);
+  window.plugin.drawTools.importFromIntelURL(isAddedToExisting);
+}
 
-  } catch(e) {
-    console.warn('draw-tools: failed to load data from localStorage: '+e);
+window.plugin.drawTools.load = function() {
+  var dataStr = localStorage['plugin-draw-tools-layer'];
+  var data = (!dataStr) ? null : JSON.parse(dataStr);
+
+  if (window.plugin.drawTools.isIntelURL(document.URL)) {
+    try {
+      console.log('draw-tools: Loading from Intel URL.')
+      if(data) {
+        dialog({
+          html: "<div id='drawtools-load-intel'><div id='drawtools-load-intel-info'><span>Add the links in the URL to currently drawn items?</span></div>",
+          modal: true,
+          buttons : [
+            {
+              text: "Yes",
+              click: function() {
+                window.plugin.drawTools.loadFromIntelURL(true, data);
+                $(this).dialog('close');
+              }
+            },
+            {
+              text: "No",
+              click: function() {
+                window.plugin.drawTools.loadFromIntelURL(false);
+                $(this).dialog('close');
+              }
+            }
+          ],
+          dialogClass: 'ui-dialog-drawtoolsSet',
+          title: "Add to Existing Links?",
+          width: 400,
+          height: 100,
+        });
+      } else {
+        window.plugin.drawTools.loadFromIntelURL(false);
+      }
+    } catch(e) {
+        console.warn('draw-tools: failed to load data from Intel URL: ' + e);
+    }
+  } else {
+    try {
+      if (!data) return;
+      console.log('draw-tools: Loading from local data.');
+      window.plugin.drawTools.import(data);
+
+    } catch(e) {
+      console.warn('draw-tools: failed to load data from localStorage: '+e);
+    }
   }
+}
+
+window.plugin.drawTools.importFromIntelURL = function(isAddedToExisting) {
+  var url = document.URL;
+  var items = url.split(/[?&]/);
+  var foundAt = -1;
+  for (var i=0; i<items.length; i++) {
+    if (items[i].substr(0,4) == "pls=") {
+      foundAt = i;
+    }
+  }
+
+  if (foundAt == -1) throw ("No drawn items found in intel URL");
+
+  var newLines = [];
+  var linesStr = items[foundAt].substr(4).split('_');
+  for (var i=0; i<linesStr.length; i++) {
+    var floats = linesStr[i].split(',').map(Number);
+    if (floats.length != 4) throw("URL item not a set of four floats");
+    for (var j=0; j<floats.length; j++) {
+      if (isNaN(floats[j])) throw("URL item had invalid number");
+    }
+    var layer = L.geodesicPolyline([[floats[0],floats[1]],[floats[2],floats[3]]], window.plugin.drawTools.lineOptions);
+    if(newLines.indexOf(layer) == -1)
+      newLines.push(layer);
+  }
+
+  // all parsed OK - clear and insert
+  if(!isAddedToExisting)
+    window.plugin.drawTools.drawnItems.clearLayers();
+
+  for (var i=0; i<newLines.length; i++) {
+    if(!window.plugin.drawTools.layerIsAlreadyDrawn(newLines[i])) {
+      window.plugin.drawTools.drawnItems.addLayer(newLines[i]);
+    }
+  }
+  runHooks('pluginDrawTools', {event: 'import'});
+
+  console.log('DRAWTOOLS: reset and imported drawn items from stock URL');
+  window.plugin.drawTools.optAlert('Import Successful.');
+
+  // Save to local storage
+  window.plugin.drawTools.save();
 }
 
 window.plugin.drawTools.import = function(data) {
@@ -310,7 +401,7 @@ window.plugin.drawTools.import = function(data) {
         console.warn('unknown layer type "'+item.type+'" when loading draw tools layer');
         break;
     }
-    if (layer) {
+    if (layer && !window.plugin.drawTools.layerIsAlreadyDrawn(layer)) {
       window.plugin.drawTools.drawnItems.addLayer(layer);
     }
   });
@@ -319,6 +410,16 @@ window.plugin.drawTools.import = function(data) {
 
 }
 
+window.plugin.drawTools.layerIsAlreadyDrawn = function(layer) {
+  var layers = window.plugin.drawTools.drawnItems.getLayers();
+  for (var i = 0; i < layers.length; i++) {
+    if(layers[i].getBounds().equals(layer.getBounds())) {
+      console.log("draw-tools: Duplicate layer detected:" + layer.getLatLngs());
+      return true;
+    }
+  }
+  return false;
+}
 
 //Draw Tools Options
 
@@ -434,50 +535,20 @@ window.plugin.drawTools.optExport = function() {
   }
 }
 
-window.plugin.drawTools.optPaste = function() {
-  var promptAction = prompt('Press CTRL+V to paste (draw-tools data or stock intel URL).', '');
-  if(promptAction !== null && promptAction !== '') {
+window.plugin.drawTools.processPastedData = function(data, isAddedToExisting) {
+  if(data && data != '') {
     try {
       // first see if it looks like a URL-format stock intel link, and if so, try and parse out any stock drawn items
       // from the pls parameter
-      if (promptAction.match(new RegExp("^(https?://)?(www\\.)?ingress\\.com/intel.*[?&]pls="))) {
-        //looks like a ingress URL that has drawn items...
-        var items = promptAction.split(/[?&]/);
-        var foundAt = -1;
-        for (var i=0; i<items.length; i++) {
-          if (items[i].substr(0,4) == "pls=") {
-            foundAt = i;
-          }
-        }
 
-        if (foundAt == -1) throw ("No drawn items found in intel URL");
-
-        var newLines = [];
-        var linesStr = items[foundAt].substr(4).split('_');
-        for (var i=0; i<linesStr.length; i++) {
-          var floats = linesStr[i].split(',').map(Number);
-          if (floats.length != 4) throw("URL item not a set of four floats");
-          for (var j=0; j<floats.length; j++) {
-            if (isNaN(floats[j])) throw("URL item had invalid number");
-          }
-          var layer = L.geodesicPolyline([[floats[0],floats[1]],[floats[2],floats[3]]], window.plugin.drawTools.lineOptions);
-          newLines.push(layer);
-        }
-
-        // all parsed OK - clear and insert
-        window.plugin.drawTools.drawnItems.clearLayers();
-        for (var i=0; i<newLines.length; i++) {
-          window.plugin.drawTools.drawnItems.addLayer(newLines[i]);
-        }
-        runHooks('pluginDrawTools', {event: 'import'});
-
-        console.log('DRAWTOOLS: reset and imported drawn items from stock URL');
-        window.plugin.drawTools.optAlert('Import Successful.');
-
-
+      if (window.plugin.drawTools.isIntelURL(data)) {
+        window.plugin.drawTools.importFromIntelURL(isAddedToExisting);
       } else {
-        var data = JSON.parse(promptAction);
-        window.plugin.drawTools.drawnItems.clearLayers();
+        var data = JSON.parse(data);
+
+        if (!isAddedToExisting)
+          window.plugin.drawTools.drawnItems.clearLayers();
+
         window.plugin.drawTools.import(data);
         console.log('DRAWTOOLS: reset and imported drawn items');
         window.plugin.drawTools.optAlert('Import Successful.');
@@ -490,6 +561,33 @@ window.plugin.drawTools.optPaste = function() {
       window.plugin.drawTools.optAlert('<span style="color: #f88">Import failed</span>');
     }
   }
+}
+
+window.plugin.drawTools.optPaste = function() {
+  dialog({
+    html: "<div id='drawtools-paste-form'><div id='drawtools-paste-info'><span>Press CTRL+V to paste (draw-tools data or stock intel URL).</span></div>"
+          + "<div id='drawtools-paste-text'><input type='text' id='drawtools-paste-input'></input></div>"
+          + '<div id="drawtools-paste-check"><span onclick="$(\'#drawtools-paste-add-to-existing\').click();">Add to currently drawn items?</span><input type="checkbox" id="drawtools-paste-add-to-existing"></input></div></div>',
+    modal: true,
+    buttons : [
+      {
+        text: "OK",
+        click: function() {
+          window.plugin.drawTools.processPastedData($('#drawtools-paste-input').val(), $('#drawtools-paste-add-to-existing').prop('checked'));
+          $(this).dialog('close');
+        }
+      },
+      {
+        text: "Cancel",
+        click: function() {
+          $(this).dialog('close');
+        }
+      }
+    ],
+    dialogClass: 'ui-dialog-drawtoolsSet',
+    title: "Import Drawn Items",
+    width: 400,
+  });
 }
 
 window.plugin.drawTools.optImport = function() {
@@ -516,7 +614,6 @@ window.plugin.drawTools.optReset = function() {
   if(promptAction) {
     delete localStorage['plugin-draw-tools-layer'];
     window.plugin.drawTools.drawnItems.clearLayers();
-    window.plugin.drawTools.load();
     console.log('DRAWTOOLS: reset all drawn items');
     window.plugin.drawTools.optAlert('Reset Successful. ');
     runHooks('pluginDrawTools', {event: 'clear'});
