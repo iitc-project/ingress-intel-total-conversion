@@ -146,6 +146,14 @@
                     android:pathPattern=".*\\.user.js"
                     android:scheme="https"/>
             </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH"/>
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/pluginsearchable" />
         </activity>
 
         <activity
@@ -209,6 +217,12 @@
         <meta-data
             android:name="android.app.default_searchable"
             android:value="com.cradle.iitc_mobile.IITC_Mobile"/>
+
+        <provider
+            android:authorities="com.cradle.iitc_mobile.PluginProvider"
+            android:name="com.cradle.iitc_mobile.prefs.PluginProvider"
+            android:exported="false"
+            android:syncable="false" />
     </application>
 
 </manifest>

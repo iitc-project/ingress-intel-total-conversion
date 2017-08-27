@@ -1,5 +1,6 @@
 package com.cradle.iitc_mobile.prefs;
 
+import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -7,6 +8,7 @@ import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,11 +34,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class PluginPreferenceActivity extends PreferenceActivity {
+public class PluginPreferenceActivity extends PreferenceActivity implements SearchView.OnSuggestionListener {
+
+    // Custom search intent defined in pluginsearchable.xml
+    private final static String SEARCH_ACTION = "iitc.search.plugin";
 
     private final static int COPY_PLUGIN_REQUEST = 1;
 
@@ -51,6 +59,9 @@ public class PluginPreferenceActivity extends PreferenceActivity {
 
     private IITC_FileManager mFileManager;
 
+    // Plugin searching
+    private SearchView searchView;
+
     @Override
     public void setListAdapter(final ListAdapter adapter) {
         if (adapter == null) {
@@ -64,9 +75,11 @@ public class PluginPreferenceActivity extends PreferenceActivity {
     public void onBuildHeaders(final List<Header> target) {
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // notify about external plugins
-        final IITC_NotificationHelper nh = new IITC_NotificationHelper(this);
-        nh.showNotice(IITC_NotificationHelper.NOTICE_EXTPLUGINS);
+        // notify about external plugins unless search is occurring
+        if(getIntent().getAction() == null || !getIntent().getAction().equals(SEARCH_ACTION)) {
+            final IITC_NotificationHelper nh = new IITC_NotificationHelper(this);
+            nh.showNotice(IITC_NotificationHelper.NOTICE_EXTPLUGINS);
+        }
 
         mHeaders = target;
         // since the plugins container is static,
@@ -93,10 +106,21 @@ public class PluginPreferenceActivity extends PreferenceActivity {
 
         mFileManager = new IITC_FileManager(this);
 
-        final Uri uri = getIntent().getData();
-        if (uri != null) {
-            mFileManager.installPlugin(uri, true);
-        }
+        if(getIntent().getAction() != null)
+            switch(getIntent().getAction()) {
+                case SEARCH_ACTION:
+                    processSearchQuery(getIntent().getStringExtra(SearchManager.EXTRA_DATA_KEY),
+                            getIntent().getStringExtra(SearchManager.QUERY));
+                    break;
+                case Intent.ACTION_VIEW:
+                    final Uri uri = getIntent().getData();
+                    if (uri != null) {
+                        mFileManager.installPlugin(uri, true);
+                    }
+                    break;
+                default: // category clicked, will be shown
+            }
+
         super.onCreate(savedInstanceState);
     }
 
@@ -125,6 +149,19 @@ public class PluginPreferenceActivity extends PreferenceActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.plugins, menu);
+
+        // Set up searching
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        searchView = (SearchView) searchItem.getActionView();
+
+        SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+        if (searchView != null) {
+            searchView.setMaxWidth(Integer.MAX_VALUE); // take up entire toolbar
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+            searchView.setIconifiedByDefault(true);
+            searchView.setOnSuggestionListener(this);
+        }
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -168,9 +205,31 @@ public class PluginPreferenceActivity extends PreferenceActivity {
         }
     }
 
+    // Collapse search if active and back button pressed
+    @Override
+    public void onBackPressed() {
+        if(!searchView.isIconified())
+            searchView.onActionViewCollapsed();
+        else
+            super.onBackPressed();
+    }
+
     @Override
     protected boolean isValidFragment(final String s) {
         return true;
+    }
+
+    @Override
+    public boolean onSuggestionSelect(int position) {
+        return false;
+    }
+
+    // Called when plugin name tapped, close SearchView gracefully
+    @Override
+    public boolean onSuggestionClick(int position) {
+        searchView.onActionViewCollapsed();
+        searchView.setIconified(true);
+        return false;
     }
 
     // called by Plugins Fragment
@@ -225,11 +284,19 @@ public class PluginPreferenceActivity extends PreferenceActivity {
     void setUpPluginPreferenceScreen() {
         // get all plugins from asset manager
         final String[] assets = getAssetPlugins();
+
+        // Decide whether to populate plugin database
+        PluginDatabase db = new PluginDatabase(this);
+        final boolean shouldPopulateDB = db.pluginCount() == 0;
+        Hashtable<String, String> pluginData = null;
+        if(shouldPopulateDB)
+            pluginData = new Hashtable<>(assets.length);
+
         for (final String asset : assets) {
             // find user plugin name for user readable entries
             try {
                 final InputStream is = getAssets().open("plugins/" + asset);
-                addPluginPreference(IITC_FileManager.readStream(is), asset, false);
+                addPluginPreference(IITC_FileManager.readStream(is), asset, false, pluginData);
             } catch (final FileNotFoundException e) {
                 Log.e(asset + " not found", e);
             } catch (final IOException e) {
@@ -237,19 +304,23 @@ public class PluginPreferenceActivity extends PreferenceActivity {
             }
         }
 
+        // Got plugin filenames and titles, populate database
+        if(shouldPopulateDB)
+            db.addPlugins(pluginData);
+
         // load user plugins from <storage-path>/IITC_Mobile/plugins/
         final File[] files = getUserPlugins();
         for (final File file : files) {
             try {
                 final InputStream is = new FileInputStream(file);
-                addPluginPreference(IITC_FileManager.readStream(is), file.toString(), true);
+                addPluginPreference(IITC_FileManager.readStream(is), file.toString(), true, null);
             } catch (final FileNotFoundException e) {
                 Log.e("couldn't read plugin " + file.toString(), e);
             }
         }
     }
 
-    void addPluginPreference(final String src, final String plugin_key, final boolean userPlugin) {
+    void addPluginPreference(final String src, final String plugin_key, final boolean userPlugin, final Hashtable<String, String> pluginData) {
         // parse plugin name, description and category
         // we need default versions here otherwise iitcm may crash
         final HashMap<String, String> info = IITC_FileManager.getScriptInfo(src);
@@ -265,6 +336,11 @@ public class PluginPreferenceActivity extends PreferenceActivity {
         if (plugin_cat.equals("Deleted") || plugin_cat.equals("Stock")) {
             mDeletedPlugins++;
             return;
+        }
+
+        // If populating database, add name and category
+        if(pluginData != null) {
+            pluginData.put(plugin_name, plugin_cat);
         }
 
         // now we have all stuff together and can build the preference
@@ -321,6 +397,21 @@ public class PluginPreferenceActivity extends PreferenceActivity {
         newHeader.fragmentArguments = bundle;
         newHeader.fragment = "com.cradle.iitc_mobile.fragments.PluginsFragment";
         mHeaders.add(newHeader);
+    }
+
+    // Find the plugin, toggle its selection, and exit because new activity starts to handle this
+    // Preference checkbox state isn't always consistent, so we must get the value ourselves and toggle it.
+    private void processSearchQuery(String cat, String title) {
+        ArrayList<PluginPreference> plugins = sAssetPlugins.get(cat);
+
+        for(PluginPreference plugin : plugins) {
+            if(title.equals(plugin.getTitle())) {
+                boolean checked = !PreferenceManager.getDefaultSharedPreferences(this).getBoolean(plugin.getKey(), false);
+                PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean(plugin.getKey(), checked).apply();
+                Toast.makeText(this, String.format(Locale.getDefault(), "%s is now %s", title, checked ? "enabled" : "disabled"), Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        }
     }
 
     /*

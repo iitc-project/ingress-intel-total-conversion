@@ -218,6 +218,7 @@
     <string name="choose_account_to_login">Choose account to login</string>
     <string name="login_failed">Login failed.</string>
     <string name="search_hint">Search Locations</string>
+    <string name="search_hint_plugin">Search Plugins</string>
     <string name="intent_error">Address could not be opened</string>
     <string name="msg_copied">Copied to clipboard…</string>
     <string name="notice_do_not_show_again">Do not show again</string>
