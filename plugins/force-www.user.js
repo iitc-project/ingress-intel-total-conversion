@@ -1,5 +1,5 @@
 // ==UserScript==
-// @id             force-www@jonatkins
+// @id             force-www
 // @name           IITC plugin: force ingress.com/intel to load https://www.ingress.com/intel
 // @category       Tweaks
 // @version        0.1.0.@@DATETIMEVERSION@@
