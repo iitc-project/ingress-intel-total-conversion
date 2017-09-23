@@ -112,20 +112,26 @@ window.artifact.processResult = function (portals) {
     // store the decoded data - needed for lat/lng for layer markers
     artifact.portalInfo[guid]._data = data;
 
-    for(var type in data.artifactBrief.target) {
-      if (!artifact.artifactTypes[type]) artifact.artifactTypes[type] = {};
+    if(data.artifactBrief){
+      for(var type in data.artifactBrief.target) {
+        if (!artifact.artifactTypes[type]) artifact.artifactTypes[type] = {};
 
-      if (!artifact.portalInfo[guid][type]) artifact.portalInfo[guid][type] = {};
+        if (!artifact.portalInfo[guid][type]) artifact.portalInfo[guid][type] = {};
 
-      artifact.portalInfo[guid][type].target = TEAM_NONE;  // as we no longer know the team...
+        artifact.portalInfo[guid][type].target = TEAM_NONE;  // as we no longer know the team...
+      }
+
+      for(var type in data.artifactBrief.fragment) {
+        if (!artifact.artifactTypes[type]) artifact.artifactTypes[type] = {};
+
+        if (!artifact.portalInfo[guid][type]) artifact.portalInfo[guid][type] = {};
+
+        artifact.portalInfo[guid][type].fragments = true; //as we no longer have a list of the fragments there
+      }
     }
-
-    for(var type in data.artifactBrief.fragment) {
-      if (!artifact.artifactTypes[type]) artifact.artifactTypes[type] = {};
-
-      if (!artifact.portalInfo[guid][type]) artifact.portalInfo[guid][type] = {};
-
-      artifact.portalInfo[guid][type].fragments = true; //as we no longer have a list of the fragments there
+    else{
+      console.log("artifactBrief is null");
+      console.log(data);
     }
 
 
