@@ -476,19 +476,19 @@ window.plugin.drawTools.optPaste = function() {
 
 
       } else {
-		var data;
-        try{
-			data = JSON.parse(promptAction);
-        } catch(e) {
-			// invalid json, filter out any leading or trailing text and try again
-			var mutatedPromptAction = promptAction;
-			if(!mutatedPromptAction.match(new RegExp('^\\[\\{'))) {
-				mutatedPromptAction = mutatedPromptAction.slice(mutatedPromptAction.indexOf('[{'));
-			}
-			if(!mutatedPromptAction.match(new RegExp('\\}\\]$'))) {
-				mutatedPromptAction = mutatedPromptAction.slice(0, mutatedPromptAction.lastIndexOf('}]') + 2);
-			}
-			data = JSON.parse(mutatedPromptAction); // throws a new exception if we still didn't get good data, which is handled by the outer enclosure
+        var data;
+          try{
+            data = JSON.parse(promptAction);
+          } catch(e) {
+            // invalid json, filter out any leading or trailing text and try again
+            var mutatedPromptAction = promptAction;
+            if(!mutatedPromptAction.match(new RegExp('^\\[\\{'))) {
+              mutatedPromptAction = mutatedPromptAction.slice(mutatedPromptAction.indexOf('[{'));
+            }
+            if(!mutatedPromptAction.match(new RegExp('\\}\\]$'))) {
+              mutatedPromptAction = mutatedPromptAction.slice(0, mutatedPromptAction.lastIndexOf('}]') + 2);
+            }
+            data = JSON.parse(mutatedPromptAction); // throws a new exception if we still didn't get good data, which is handled by the outer enclosure
         }
         window.plugin.drawTools.drawnItems.clearLayers();
         window.plugin.drawTools.import(data);
