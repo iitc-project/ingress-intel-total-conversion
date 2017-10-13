@@ -65,6 +65,7 @@ window.search.Query.prototype.show = function() {
 window.search.Query.prototype.hide = function() {
   this.container.remove();
   this.removeSelectedResult();
+  this.removeHoverResult();
 };
 window.search.Query.prototype.addResult = function(result) {
   if(this.results.length == 0) {
@@ -78,6 +79,12 @@ window.search.Query.prototype.addResult = function(result) {
     .attr('tabindex', '0')
     .on('click dblclick', function(ev) {
       this.onResultSelected(result, ev);
+    }.bind(this))
+    .on('mouseover', function(ev) {
+      this.onResultHoverStart(result, ev);
+    }.bind(this))
+    .on('mouseout', function(ev) {
+      this.onResultHoverEnd(result, ev);
     }.bind(this))
     .keypress(function(ev) {
       if((ev.keyCode || ev.charCode || ev.which) == 32) {
@@ -109,8 +116,30 @@ window.search.Query.prototype.addResult = function(result) {
       .append($('<em>')
         .append(result.description));
   }
-
 };
+
+window.search.Query.prototype.resultLayer = function(result) {
+  if(result.layer !== null && !result.layer) {
+    result.layer = L.layerGroup();
+
+    if(result.position) {
+      createGenericMarker(result.position, 'red', {
+        title: result.title
+      }).addTo(result.layer);
+    }
+
+    if(result.bounds) {
+      L.rectangle(result.bounds, {
+        title: result.title,
+        clickable: false,
+        color: 'red',
+        fill: false,
+      }).addTo(result.layer);
+    }
+  }
+  return result.layer;
+};
+
 window.search.Query.prototype.onResultSelected = function(result, ev) {
   this.removeSelectedResult();
   this.selectedResult = result;
@@ -133,36 +162,44 @@ window.search.Query.prototype.onResultSelected = function(result, ev) {
     }
   }
 
-  if(result.layer !== null && !result.layer) {
-    result.layer = L.layerGroup();
-
-    if(result.position) {
-      createGenericMarker(result.position, 'red', {
-        title: result.title
-      }).addTo(result.layer);
-    }
-
-    if(result.bounds) {
-      L.rectangle(result.bounds, {
-        title: result.title,
-        clickable: false,
-        color: 'red',
-        fill: false,
-      }).addTo(result.layer);
-    }
-  }
+  result.layer = this.resultLayer(result);
 
   if(result.layer)
     map.addLayer(result.layer);
 
   if(window.isSmartphone()) window.show('map');
 }
+
 window.search.Query.prototype.removeSelectedResult = function() {
   if(this.selectedResult) {
     if(this.selectedResult.layer) map.removeLayer(this.selectedResult.layer);
     if(this.selectedResult.onRemove) this.selectedResult.onRemove(this.selectedResult);
   }
 }
+
+window.search.Query.prototype.onResultHoverStart = function(result, ev) {
+  this.removeHoverResult();
+  this.hoverResult = result;
+
+  if(result === this.selectedResult) return;
+
+  result.layer = this.resultLayer(result);
+
+  if(result.layer) map.addLayer(result.layer);
+};
+
+window.search.Query.prototype.removeHoverResult = function() {
+  if(this.hoverResult !== this.selectedResult) {
+    if(this.hoverResult) {
+      if(this.hoverResult.layer) { map.removeLayer(this.hoverResult.layer); }
+    }
+  }
+  this.hoverResult = null;
+};
+
+window.search.Query.prototype.onResultHoverEnd = function(result, ev) {
+  this.removeHoverResult();
+};
 
 window.search.doSearch = function(term, confirmed) {
   term = term.trim();
