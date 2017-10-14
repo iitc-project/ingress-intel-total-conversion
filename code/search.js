@@ -296,6 +296,7 @@ addHook('search', function(query) {
   var viewbox = '&viewbox=' + mapBounds.getSouthWest().lng + ',' + mapBounds.getSouthWest().lat + ',' + mapBounds.getNorthEast().lng + ',' + mapBounds.getNorthEast().lat;
 
   var resultCount = 0;
+  var resultMap = {};
   function onQueryResult(isViewboxResult, data) {
     resultCount += data.length;
     if(isViewboxResult) {
@@ -314,6 +315,9 @@ addHook('search', function(query) {
     }
 
     data.forEach(function(item) {
+      if(resultMap[item.place_id]) { return; } // duplicate
+      resultMap[item.place_id] = true;
+
       var result = {
         title: item.display_name,
         description: 'Type: ' + item.type,
