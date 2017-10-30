@@ -7,15 +7,15 @@
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Force intel map to load from ingress.com. If the intel map is accessed via www.ingress.com, it redirects to the non-www version.
-// @include        https://www.ingress.com/intel
-// @include        http://www.ingress.com/intel
-// @match          https://www.ingress.com/intel
-// @match          http://www.ingress.com/intel
+// @include        https://www.ingress.com/intel*
+// @include        http://www.ingress.com/intel*
+// @match          https://www.ingress.com/intel*
+// @match          http://www.ingress.com/intel*
 // @grant          none
 // ==/UserScript==
 
 //NOTE: plugin authors - due to the unique requirements of this plugin, it doesn't use the standard IITC
 //plugin architecture. do NOT use it as a template for other plugins
 
-window.location = 'https://ingress.com/intel';
+window.location = window.location.href.replace('//www.ingress.com/intel', '//ingress.com/intel');
 throw('Need to load ' + window.location + '.');
