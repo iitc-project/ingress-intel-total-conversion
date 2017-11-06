@@ -11,6 +11,7 @@
 // @include        http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
 // @match          http://www.ingress.com/intel*
+// @run-at         document-start
 // @grant          none
 // ==/UserScript==
 
