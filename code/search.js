@@ -141,6 +141,7 @@ window.search.Query.prototype.resultLayer = function(result) {
 };
 
 window.search.Query.prototype.onResultSelected = function(result, ev) {
+  this.removeHoverResult();
   this.removeSelectedResult();
   this.selectedResult = result;
 
