@@ -27,7 +27,8 @@ window.iitcBuildDate = '@@BUILDDATE@@';
 window.onload = function() {};
 document.body.onload = function() {};
 
-
+//fix error loading on firefox 57
+window.PLAYER = unsafeWindow.PLAYER;
 //originally code here parsed the <Script> tags from the page to find the one that defined the PLAYER object
 //however, that's already been executed, so we can just access PLAYER - no messing around needed!
 
