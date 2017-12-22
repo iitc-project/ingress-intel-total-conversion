@@ -1229,6 +1229,18 @@ table.artifact .portal {
 .cellscore .ui-accordion-header-active:before {
 	content: "⊟";
 }
+
+.cellscore .ui-accordion-content {
+  overflow:hidden !important;
+}
+
+@-moz-document url-prefix() {
+ .cellscore .logscale {
+    transform: scale(0.5) translate(0,-18px);
+    vertical-align: top !important;
+  }
+}
+
 g.checkpoint:hover circle {
   fill-opacity: 1;
   stroke-width: 2px;
