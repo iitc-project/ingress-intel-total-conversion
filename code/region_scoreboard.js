@@ -153,12 +153,9 @@ RegionScoreboard = (function () {
         onRequestFailure);
   }
 
-  // TODO: DEPRECATED replace with "window.RegionScoreboard.showDialog();"
-  window.regionScoreboard = showDialog;
-
   function onRequestFailure() {
     mainDialog.html('Failed to load region scores - try again');
-   }
+  }
 
   function onRequestSuccess(data) {
       if (data.result === undefined) {
@@ -168,7 +165,7 @@ RegionScoreboard = (function () {
       regionScore = new RegionScore(data.result);
       updateDialog();
       startTimer();
-   }
+  }
 
   function updateDialog(logscale) {
 
@@ -238,7 +235,6 @@ RegionScoreboard = (function () {
   function onDialogClose() {
     stopTimer();
   }
-
 
   function createHistoryTable() {
 
@@ -414,8 +410,12 @@ RegionScoreboard = (function () {
     return ('0'+time.getDate()).slice(-2)+'.'+('0'+(time.getMonth()+1)).slice(-2)+' '+('0'+time.getHours()).slice(-2)+':00';
   }
 
+  function setup() {
+    $('#toolbox').append('<a onclick="window.RegionScoreboard.showDialog()" title="View regional scoreboard">Region scores</a>')
+  }
 
   return {
+    setup : setup,
     showDialog: showDialog
   };
 
@@ -608,3 +608,6 @@ RegionScoreboard.HistoryChart = (function () {
   };
 
 }());
+
+
+ 
