@@ -239,15 +239,30 @@ window.getPortalShieldMitigation = function(d) {
   return mitigation;
 }
 
+window.getPortalLinkDefenseBoost = function(d) {
+  var ultraLinkAmps = getPortalModsByType(d, 'ULTRA_LINK_AMP');
+
+  var linkDefenseBoost = 1;
+
+  $.each(ultraLinkAmps, function (index, ultraLinkAmp) {
+    linkDefenseBoost *= parseInt(ultraLinkAmp.stats.LINK_DEFENSE_BOOST) / 1000;
+  });
+
+  return Math.round(10 * linkDefenseBoost) / 10;
+}
+
 window.getPortalLinksMitigation = function(linkCount) {
   var mitigation = Math.round(400/9*Math.atan(linkCount/Math.E));
   return mitigation;
 }
 
 window.getPortalMitigationDetails = function(d,linkCount) {
+  var linkDefenseBoost = getPortalLinkDefenseBoost(d);
+
   var mitigation = {
     shields: getPortalShieldMitigation(d),
-    links: getPortalLinksMitigation(linkCount)
+    links: getPortalLinksMitigation(linkCount) * linkDefenseBoost,
+    linkDefenseBoost: linkDefenseBoost
   };
 
   // mitigation is limited to 95% (as confirmed by Brandon Badger on G+)

@@ -226,7 +226,7 @@ window.getMitigationText = function(d,linkCount) {
             + '- excess:\t'+mitigationDetails.excess+'\n'
             + 'From\n'
             + '- shields:\t'+mitigationDetails.shields+'\n'
-            + '- links:\t'+mitigationDetails.links;
+            + '- links:\t'+mitigationDetails.links+' ('+mitigationDetails.linkDefenseBoost+'x)';
 
   return ['shielding', mitigationShort, title];
 }
