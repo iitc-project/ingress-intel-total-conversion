@@ -6,8 +6,13 @@ root = true
 [*.{js,py}]
 charset = utf-8
 indent_style = space
-indent_size = 2
 trim_trailing_whitespace = true
+
+[*.js]
+indent_size = 2
+
+[*.py]
+indent_size = 4
 
 # Following JS code style rules do not have EditorConfig support yet:
 # - Use identity operators (===) over equality operators (==).
