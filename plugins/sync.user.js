@@ -2,7 +2,7 @@
 // @id             iitc-plugin-sync@xelio
 // @name           IITC plugin: Sync
 // @category       Misc
-// @version        0.2.3.@@DATETIMEVERSION@@
+// @version        0.2.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -702,7 +702,13 @@ window.plugin.sync.toggleDialogLink = function() {
   authed = plugin.sync.authorizer.isAuthed();
   anyFail = plugin.sync.registeredPluginsFields.anyFail;
 
-  $('#sync-show-dialog').toggleClass('sync-show-dialog-error', !authed || anyFail);
+  if (anyFail) {
+    $('#plugin-sync-icon').css('color', '#FF2222').text('sync_problem');
+  } else if (!authed) {
+    $('#plugin-sync-icon').css('color', 'gray').text('sync_disabled');
+  } else {
+    $('#plugin-sync-icon').css('color', COLORS[TEAM_ENL]).text('sync');
+  }
 }
 
 window.plugin.sync.showDialog = function() {
@@ -719,7 +725,11 @@ window.plugin.sync.setupDialog = function() {
                          + 'disabled="disabled">Authorize</button>'
                          + '<div id="sync-log"></div>'
                          + '</div>';
-  $('#toolbox').append('<a id="sync-show-dialog" onclick="window.plugin.sync.showDialog();">Sync</a> ');
+  $('#toolbox').append(
+    '<a id="sync-show-dialog" onclick="window.plugin.sync.showDialog();" title="Open Sync plugin settings dialog">' +
+    '<span id="plugin-sync-icon" class="material-icons" style="font-size:18px;vertical-align:middle;">sync</span>' +
+    '</a>'
+  );
 }
 
 window.plugin.sync.setupCSS = function() {
@@ -740,6 +750,11 @@ window.plugin.sync.setupCSS = function() {
             overflow-y: auto;\
           }")
   .appendTo("head");
+  // add Google Material icons.
+  $("head").append(
+    '<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">'
+  );
+
 }
 
 var setup =  function() {
