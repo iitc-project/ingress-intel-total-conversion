@@ -403,6 +403,17 @@ window.plugin.drawTools.optCopy = function() {
           stockLinks.push([latLngs[latLngs.length-1].lat,latLngs[latLngs.length-1].lng,latLngs[0].lat,latLngs[0].lng]);
         }
       });
+      function onlyUnique(value, index, self) {
+        var index = self.indexOf(value);
+	      for (var i=0; i < index; i++) { 
+          if (value[0] == self[i][0] && value[1] == self[i][1] && value[2] == self[i][2] && value[3] == self[i][3])
+            return false;
+          if (value[2] == self[i][0] && value[3] == self[i][1] && value[0] == self[i][2] && value[1] == self[i][3])
+            return false;
+        }
+        return true;
+      }
+      stockLinks = stockLinks.filter( onlyUnique );
       var stockUrl = 'https://www.ingress.com/intel?ll='+map.getCenter().lat+','+map.getCenter().lng+'&z='+map.getZoom()+'&pls='+stockLinks.map(function(link){return link.join(',');}).join('_');
       var stockWarnTexts = [];
       if (stockWarnings.polyAsLine) stockWarnTexts.push('Note: polygons are exported as lines');
