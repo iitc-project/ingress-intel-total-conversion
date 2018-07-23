@@ -3,19 +3,8 @@
 // @name           IITC plugin: Bookmarks for maps and portals
 // @category       Controls
 // @version        0.2.12.@@DATETIMEVERSION@@
-// @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
-// @updateURL      @@UPDATEURL@@
-// @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Save your favorite Maps and Portals and move the intel map with a click. Works with sync.
-// @include        https://*.ingress.com/intel*
-// @include        http://*.ingress.com/intel*
-// @match          https://*.ingress.com/intel*
-// @match          http://*.ingress.com/intel*
-// @include        https://*.ingress.com/mission/*
-// @include        http://*.ingress.com/mission/*
-// @match          https://*.ingress.com/mission/*
-// @match          http://*.ingress.com/mission/*
-// @grant          none
+@@METAINFO@@
 // ==/UserScript==
 
 @@PLUGINSTART@@

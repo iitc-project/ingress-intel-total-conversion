@@ -3,19 +3,8 @@
 // @name           IITC plugin: Mini map
 // @category       Controls
 // @version        0.2.0.@@DATETIMEVERSION@@
-// @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
-// @updateURL      @@UPDATEURL@@
-// @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Show a mini map on the corner of the map.
-// @include        https://*.ingress.com/intel*
-// @include        http://*.ingress.com/intel*
-// @match          https://*.ingress.com/intel*
-// @match          http://*.ingress.com/intel*
-// @include        https://*.ingress.com/mission/*
-// @include        http://*.ingress.com/mission/*
-// @match          https://*.ingress.com/mission/*
-// @match          http://*.ingress.com/mission/*
-// @grant          none
+@@METAINFO@@
 // ==/UserScript==
 
 @@PLUGINSTART@@

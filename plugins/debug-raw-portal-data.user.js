@@ -4,18 +4,8 @@
 // @category       Debug
 // @version        0.2.4.@@DATETIMEVERSION@@
 // @namespace      rawdata
-// @updateURL      @@UPDATEURL@@
-// @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Developer debugging aid: Add a link to the portal details to show the raw data of a portal.
-// @include        https://*.ingress.com/intel*
-// @include        http://*.ingress.com/intel*
-// @match          https://*.ingress.com/intel*
-// @match          http://*.ingress.com/intel*
-// @include        https://*.ingress.com/mission/*
-// @include        http://*.ingress.com/mission/*
-// @match          https://*.ingress.com/mission/*
-// @match          http://*.ingress.com/mission/*
-// @grant          none
+@@METAINFO@@
 // ==/UserScript==
 
 @@PLUGINSTART@@

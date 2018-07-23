@@ -3,20 +3,10 @@
 // @name           IITC plugin: draw tools
 // @category       Layer
 // @version        0.7.0.@@DATETIMEVERSION@@
-// @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
-// @updateURL      @@UPDATEURL@@
-// @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Allow drawing things onto the current map so you may plan your next move.
-// @include        https://*.ingress.com/intel*
-// @include        http://*.ingress.com/intel*
-// @match          https://*.ingress.com/intel*
-// @match          http://*.ingress.com/intel*
-// @include        https://*.ingress.com/mission/*
-// @include        http://*.ingress.com/mission/*
-// @match          https://*.ingress.com/mission/*
-// @match          http://*.ingress.com/mission/*
-// @grant          none
+@@METAINFO@@
 // ==/UserScript==
+
 
 @@PLUGINSTART@@
 
@@ -403,7 +393,7 @@ window.plugin.drawTools.optCopy = function() {
           stockLinks.push([latLngs[latLngs.length-1].lat,latLngs[latLngs.length-1].lng,latLngs[0].lat,latLngs[0].lng]);
         }
       });
-      var stockUrl = 'https://www.ingress.com/intel?ll='+map.getCenter().lat+','+map.getCenter().lng+'&z='+map.getZoom()+'&pls='+stockLinks.map(function(link){return link.join(',');}).join('_');
+      var stockUrl = 'https://intel.ingress.com/intel?ll='+map.getCenter().lat+','+map.getCenter().lng+'&z='+map.getZoom()+'&pls='+stockLinks.map(function(link){return link.join(',');}).join('_');
       var stockWarnTexts = [];
       if (stockWarnings.polyAsLine) stockWarnTexts.push('Note: polygons are exported as lines');
       if (stockLinks.length>40) stockWarnTexts.push('Warning: Stock intel may not work with more than 40 line segments - there are '+stockLinks.length);
