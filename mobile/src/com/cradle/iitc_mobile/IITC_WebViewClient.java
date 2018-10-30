@@ -35,14 +35,14 @@ public class IITC_WebViewClient extends WebViewClient {
 
     public static final boolean isIntelUrl(String url) {
         return
-            url.startsWith("http://ingress.com/intel") ||
-            url.startsWith("https://ingress.com/intel") ||
-            url.startsWith("http://ingress.com/mission/") ||
-            url.startsWith("https://ingress.com/mission/") ||
-            url.startsWith("http://www.ingress.com/intel") ||
-            url.startsWith("https://www.ingress.com/intel") ||
-            url.startsWith("http://www.ingress.com/mission/") ||
-            url.startsWith("https://www.ingress.com/mission/");
+            url.startsWith("https://intel.ingress.com") ||
+            url.startsWith("https://intel.ingress.com/intel") ||
+            url.startsWith("https://intel.ingress.com/mission/") ||
+
+            // legacy non-https
+            url.startsWith("http://intel.ingress.com") ||
+            url.startsWith("http://intel.ingress.com/intel") ||
+            url.startsWith("http://intel.ingress.com/mission/");
     }
 
     private final IITC_Mobile mIitc;
