@@ -53,19 +53,19 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
 
                 <data
-                    android:host="intel.ingress.com"
+                    android:host="*.ingress.com"
                     android:pathPrefix="/intel"
                     android:scheme="https"/>
                 <data
-                    android:host="intel.ingress.com"
+                    android:host="*.ingress.com"
                     android:pathPrefix="/intel"
                     android:scheme="http"/>
                 <data
-                    android:host="intel.ingress.com"
+                    android:host="*.ingress.com"
                     android:pathPrefix="/mission/"
                     android:scheme="https"/>
                 <data
-                    android:host="intel.ingress.com"
+                    android:host="*.ingress.com"
                     android:pathPrefix="/mission/"
                     android:scheme="http"/>
             </intent-filter>
