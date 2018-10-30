@@ -37,6 +37,8 @@ public class IITC_WebViewClient extends WebViewClient {
         return
             url.startsWith("http://intel.ingress.com/intel") ||
             url.startsWith("https://intel.ingress.com/intel") ||
+            url.startsWith("http://intel.ingress.com/mission/") ||
+            url.startsWith("https://intel.ingress.com/mission/") ||
             url.startsWith("http://ingress.com/intel") ||
             url.startsWith("https://ingress.com/intel") ||
             url.startsWith("http://ingress.com/mission/") ||
