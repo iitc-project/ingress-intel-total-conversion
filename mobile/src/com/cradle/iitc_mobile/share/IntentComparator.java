@@ -78,12 +78,8 @@ public class IntentComparator implements Comparator<Intent> {
         if (lCount < rCount) return 1;
 
         // still no order. fall back to alphabetical order
-        try {
-            order = IntentGenerator.getTitle(lhs).compareTo(IntentGenerator.getTitle(rhs));
-            if (order != 0) return order;
-        } catch(IllegalArgumentException e) {
-            Log.w(e);
-        }
+        order = IntentGenerator.getTitle(lhs).compareTo(IntentGenerator.getTitle(rhs));
+        if (order != 0) return order;
         order = lComponent.getPackageName().compareTo(rComponent.getPackageName());
         if (order != 0) return order;
 

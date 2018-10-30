@@ -23,13 +23,13 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
     private class HighlighterAdapter extends ArrayAdapter<String> {
         private final HighlighterComparator mComparator = new HighlighterComparator();
 
-        private HighlighterAdapter(int resource) {
+        private HighlighterAdapter(final int resource) {
             super(mIitc, resource);
             clear();
         }
 
         @Override
-        public void add(String object) {
+        public void add(final String object) {
             super.remove(object); // to avoid duplicates
             super.add(object);
             super.sort(mComparator);
@@ -44,7 +44,7 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
 
     private class HighlighterComparator implements Comparator<String> {
         @Override
-        public int compare(String lhs, String rhs) {
+        public int compare(final String lhs, final String rhs) {
             // Move "No Highlights" on top. Sort the rest alphabetically
             if (lhs.equals("No Highlights")) {
                 return -1000;
@@ -68,14 +68,14 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
     }
 
     private class LayerAdapter extends ArrayAdapter<Layer> {
-        public LayerAdapter(int resource) {
+        public LayerAdapter(final int resource) {
             super(mIitc, resource);
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            Layer item = getItem(position);
-            View view = super.getView(position, convertView, parent);
+        public View getView(final int position, final View convertView, final ViewGroup parent) {
+            final Layer item = getItem(position);
+            final View view = super.getView(position, convertView, parent);
 
             if (view instanceof CheckedTextView) {
                 ((CheckedTextView) view).setChecked(item.active);
@@ -98,8 +98,9 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
     private int mActiveLayer;
 
     private boolean mLoading = true;
+    private boolean mDisableListeners = false;
 
-    public IITC_MapSettings(IITC_Mobile activity) {
+    public IITC_MapSettings(final IITC_Mobile activity) {
         mIitc = activity;
 
         mHighlighters = new HighlighterAdapter(R.layout.list_item_narrow);
@@ -109,8 +110,8 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
         mHighlighters.setDropDownViewResource(R.layout.list_item_selectable);
         mBaseLayers.setDropDownViewResource(R.layout.list_item_selectable);
 
-        LayoutInflater inflater = (LayoutInflater) mIitc.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View header = inflater.inflate(R.layout.map_options_header, null);
+        final LayoutInflater inflater = (LayoutInflater) mIitc.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final View header = inflater.inflate(R.layout.map_options_header, null);
 
         mSpinnerHighlighter = (Spinner) header.findViewById(R.id.spinnerHighlighter);
         mSpinnerBaseMap = (Spinner) header.findViewById(R.id.spinnerBaseLayer);
@@ -128,14 +129,14 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
         mListViewOverlayLayers.setOnItemLongClickListener(this);
     }
 
-    private void setLayer(Layer layer) {
+    private void setLayer(final Layer layer) {
         if (!mLoading) {
             mIitc.getWebView().loadUrl(
                     "javascript: window.layerChooser.showLayer(" + layer.id + "," + layer.active + ");");
         }
     }
 
-    public void addPortalHighlighter(String name) {
+    public void addPortalHighlighter(final String name) {
         mHighlighters.add(name);
 
         // to select active highlighter. must be called every time because of sorting
@@ -144,26 +145,27 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
 
     public void onBootFinished() {
         mLoading = false;
-        updateLayers();
     }
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    public void onItemClick(final AdapterView<?> parent, final View view, int position, final long id) {
+        if (mDisableListeners) return;
         position--; // The ListView header counts as an item as well.
 
-        Layer item = mOverlayLayers.getItem(position);
+        final Layer item = mOverlayLayers.getItem(position);
         item.active = !item.active;
         setLayer(item);
         mOverlayLayers.notifyDataSetChanged();
     }
 
     @Override
-    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+    public boolean onItemLongClick(final AdapterView<?> parent, final View view, int position, final long id) {
+        if (mDisableListeners) return false;
         position--; // The ListView header counts as an item as well.
-        boolean active = !mOverlayLayers.getItem(position).active;
+        final boolean active = !mOverlayLayers.getItem(position).active;
 
         for (int i = 0; i < mOverlayLayers.getCount(); i++) {
-            Layer item = mOverlayLayers.getItem(i);
+            final Layer item = mOverlayLayers.getItem(i);
             if (item.name.contains("DEBUG")) continue;
             if (active == item.active) continue; // no need to set same value again
             item.active = active;
@@ -176,23 +178,24 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
     }
 
     @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+    public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id) {
         if (mLoading) return;
+        if (mDisableListeners) return;
 
         if (parent.equals(mSpinnerHighlighter)) {
-            String name = mHighlighters.getItem(position);
+            final String name = mHighlighters.getItem(position);
             mIitc.getWebView().loadUrl("javascript: window.changePortalHighlights('" + name + "')");
         } else if (parent.equals(mSpinnerBaseMap)) {
             mBaseLayers.getItem(mActiveLayer).active = false; // set old layer to hidden, but no need to really hide
 
-            Layer layer = mBaseLayers.getItem(position);
+            final Layer layer = mBaseLayers.getItem(position);
             layer.active = true;
             setLayer(layer);
         }
     }
 
     @Override
-    public void onNothingSelected(AdapterView<?> parent) {
+    public void onNothingSelected(final AdapterView<?> parent) {
         // ignore
     }
 
@@ -206,10 +209,10 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
         mLoading = true;
     }
 
-    public void setActiveHighlighter(String name) {
+    public void setActiveHighlighter(final String name) {
         mActiveHighlighter = name;
 
-        int position = mHighlighters.getPosition(mActiveHighlighter);
+        final int position = mHighlighters.getPosition(mActiveHighlighter);
         if (position >= 0 && position < mHighlighters.getCount()) {
             mSpinnerHighlighter.setSelection(position);
         }
@@ -217,7 +220,7 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
         mIitc.getNavigationHelper().setHighlighter(name);
     }
 
-    public void setLayers(String base_layer, String overlay_layer) {
+    public void setLayers(final String base_layer, final String overlay_layer) {
         /*
          * the layer strings have a form like:
          * [{"layerId":27,"name":"MapQuest OSM","active":true},
@@ -230,18 +233,20 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
         try {
             base_layers = new JSONArray(base_layer);
             overlay_layers = new JSONArray(overlay_layer);
-        } catch (JSONException e) {
+        } catch (final JSONException e) {
             Log.w(e);
             return;
         }
+
+        mDisableListeners = true;
 
         mActiveLayer = 0;
         mBaseLayers.setNotifyOnChange(false);
         mBaseLayers.clear();
         for (int i = 0; i < base_layers.length(); i++) {
             try {
-                JSONObject layerObj = base_layers.getJSONObject(i);
-                Layer layer = new Layer();
+                final JSONObject layerObj = base_layers.getJSONObject(i);
+                final Layer layer = new Layer();
 
                 layer.id = layerObj.getInt("layerId");
                 layer.name = layerObj.getString("name");
@@ -254,7 +259,7 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
                 }
 
                 mBaseLayers.add(layer);
-            } catch (JSONException e) {
+            } catch (final JSONException e) {
                 Log.w(e);
             }
         }
@@ -265,24 +270,20 @@ public class IITC_MapSettings implements OnItemSelectedListener, OnItemClickList
         mOverlayLayers.clear();
         for (int i = 0; i < overlay_layers.length(); i++) {
             try {
-                JSONObject layerObj = overlay_layers.getJSONObject(i);
-                Layer layer = new Layer();
+                final JSONObject layerObj = overlay_layers.getJSONObject(i);
+                final Layer layer = new Layer();
 
                 layer.id = layerObj.getInt("layerId");
                 layer.name = layerObj.getString("name");
                 layer.active = layerObj.getBoolean("active");
 
                 mOverlayLayers.add(layer);
-            } catch (JSONException e) {
+            } catch (final JSONException e) {
                 Log.w(e);
             }
         }
         mOverlayLayers.notifyDataSetChanged();
-    }
 
-    public void updateLayers() {
-        if (!mLoading) {
-            mIitc.getWebView().loadUrl("javascript: window.layerChooser.getLayers()");
-        }
+        mDisableListeners = false;
     }
 }

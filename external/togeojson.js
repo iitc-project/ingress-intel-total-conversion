@@ -96,6 +96,8 @@ toGeoJSON = (function() {
                         for (j = 0; j < geomNodes.length; j++) {
                             geomNode = geomNodes[j];
                             if (geotypes[i] == 'Point') {
+                                if(nodeVal(get1(geomNode, 'coordinates')) === null)
+                                    continue;
                                 geoms.push({
                                     type: 'Point',
                                     coordinates: coord1(nodeVal(get1(geomNode, 'coordinates')))

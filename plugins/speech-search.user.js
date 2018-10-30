@@ -6,10 +6,14 @@
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Allow speech input for location search (webkit only for now - NOT Firefox).
-// @include        https://www.ingress.com/intel*
-// @include        http://www.ingress.com/intel*
-// @match          https://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        https://*.ingress.com/intel*
+// @include        http://*.ingress.com/intel*
+// @match          https://*.ingress.com/intel*
+// @match          http://*.ingress.com/intel*
+// @include        https://*.ingress.com/mission/*
+// @include        http://*.ingress.com/mission/*
+// @match          https://*.ingress.com/mission/*
+// @match          http://*.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -22,10 +26,10 @@ window.plugin.speechSearch = function() {};
 
 window.plugin.speechSearch.setup = function() {
     // Give the search input the speech attribute
-    $("#geosearch").attr("x-webkit-speech", "");
+    $("#search").attr("x-webkit-speech", "");
     // Immediately search without further input
-    $("#geosearch").bind("webkitspeechchange", function() {
-        $("#geosearch").trigger($.Event("keypress", {keyCode: 13}));
+    $("#search").bind("webkitspeechchange", function() {
+        $("#search").trigger($.Event("keypress", {keyCode: 13}));
     });
 };
 

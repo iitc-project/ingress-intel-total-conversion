@@ -168,6 +168,7 @@ window.setupRedeem = function() {
     if((e.keyCode ? e.keyCode : e.which) !== 13) return;
 
     var passcode = $(this).val();
+    passcode = passcode.replace(/[^\x20-\x7E]+/g, ''); //removes non-printable characters
     if(!passcode) return;
 
     var jqXHR = window.postAjax('redeemReward', {passcode:passcode}, window.handleRedeemResponse, function(response) {

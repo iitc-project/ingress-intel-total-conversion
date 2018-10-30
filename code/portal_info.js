@@ -69,26 +69,22 @@ window.getPortalRange = function(d) {
 
 window.getLinkAmpRangeBoost = function(d) {
   // additional range boost calculation
-  // (at the time of writing, only rare link amps have been seen in the wild, so there's a little guesswork at how
-  // the stats work and combine - jon 2013-06-26)
 
   // link amps scale: first is full, second a quarter, the last two an eighth
   var scale = [1.0, 0.25, 0.125, 0.125];
 
   var boost = 0.0;  // initial boost is 0.0 (i.e. no boost over standard range)
-  var count = 0;
 
   var linkAmps = getPortalModsByType(d, 'LINK_AMPLIFIER');
 
-  $.each(linkAmps, function(ind, mod) {
+  linkAmps.forEach(function(mod, i) {
     // link amp stat LINK_RANGE_MULTIPLIER is 2000 for rare, and gives 2x boost to the range
     // and very-rare is 7000 and gives 7x the range
     var baseMultiplier = mod.stats.LINK_RANGE_MULTIPLIER/1000;
-    boost += baseMultiplier*scale[count];
-    count++;
+    boost += baseMultiplier*scale[i];
   });
 
-  return (count > 0) ? boost : 1.0;
+  return (linkAmps.length > 0) ? boost : 1.0;
 }
 
 
@@ -211,7 +207,8 @@ window.getPortalModsByType = function(d, type) {
     TURRET: 'HIT_BONUS',  // and/or ATTACK_FREQUENCY??
     HEATSINK: 'HACK_SPEED',
     MULTIHACK: 'BURNOUT_INSULATION',
-    LINK_AMPLIFIER: 'LINK_RANGE_MULTIPLIER'
+    LINK_AMPLIFIER: 'LINK_RANGE_MULTIPLIER',
+    ULTRA_LINK_AMP: 'OUTGOING_LINKS_BONUS', // and/or LINK_DEFENSE_BOOST??
   };
 
   var stat = typeToStat[type];
@@ -261,6 +258,17 @@ window.getPortalMitigationDetails = function(d,linkCount) {
   return mitigation;
 }
 
+window.getMaxOutgoingLinks = function(d) {
+  var linkAmps = getPortalModsByType(d, 'ULTRA_LINK_AMP');
+
+  var links = 8;
+
+  linkAmps.forEach(function(mod, i) {
+    links += parseInt(mod.stats.OUTGOING_LINKS_BONUS);
+  });
+
+  return links;
+};
 
 window.getPortalHackDetails = function(d) {
 
@@ -316,3 +324,42 @@ window.getPortalSummaryData = function(d) {
     type: 'portal'
   };
 }
+
+window.getPortalAttackValues = function(d) {
+  var forceamps = getPortalModsByType(d, 'FORCE_AMP');
+  var turrets = getPortalModsByType(d, 'TURRET');
+
+  // at the time of writing, only rare force amps and turrets have been seen in the wild, so there's a little guesswork
+  // at how the stats work and combine
+  // algorithm has been compied from getLinkAmpRangeBoost
+  // FIXME: only extract stats and put the calculation in a method to be used for link range, force amplifier and attack
+  // frequency
+  // note: scanner shows rounded values (adding a second FA shows: 2.5x+0.2x=2.8x, which should be 2.5x+0.25x=2.75x)
+
+  // amplifier scale: first is full, second a quarter, the last two an eighth
+  var scale = [1.0, 0.25, 0.125, 0.125];
+
+  var attackValues = {
+    hit_bonus: 0,
+    force_amplifier: 0,
+    attack_frequency: 0,
+  };
+
+  forceamps.forEach(function(mod, i) {
+    // force amp stat FORCE_AMPLIFIER is 2000 for rare, and gives 2x boost to the range
+    var baseMultiplier = mod.stats.FORCE_AMPLIFIER / 1000;
+    attackValues.force_amplifier += baseMultiplier * scale[i];
+  });
+
+  turrets.forEach(function(mod, i) {
+    // turret stat ATTACK_FREQUENCY is 2000 for rare, and gives 2x boost to the range
+    var baseMultiplier = mod.stats.ATTACK_FREQUENCY / 1000;
+    attackValues.attack_frequency += baseMultiplier * scale[i];
+
+    attackValues.hit_bonus += mod.stats.HIT_BONUS / 10000;
+  });
+
+  return attackValues;
+}
+
+

@@ -59,6 +59,7 @@ public class IITC_WebView extends WebView {
         mSettings.setDatabasePath(getContext().getApplicationInfo().dataDir + "/databases/");
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            setWebContentsDebuggingEnabled(true);
             mJsInterface = new IITC_JSInterfaceKitkat(mIitc);
         } else {
             mJsInterface = new IITC_JSInterface(mIitc);
@@ -168,6 +169,7 @@ public class IITC_WebView extends WebView {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
         getHandler().removeCallbacks(mNavHider);
@@ -221,6 +223,7 @@ public class IITC_WebView extends WebView {
             loadUrl("javascript: $('#updatestatus').show();");
         }
         mIitc.getWindow().setAttributes(attrs);
+        mIitc.invalidateOptionsMenu();
     }
 
     void updateFullscreenStatus() {

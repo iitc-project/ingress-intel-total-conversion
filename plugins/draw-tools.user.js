@@ -2,15 +2,19 @@
 // @id             iitc-plugin-draw-tools@breunigs
 // @name           IITC plugin: draw tools
 // @category       Layer
-// @version        0.6.6.@@DATETIMEVERSION@@
+// @version        0.7.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Allow drawing things onto the current map so you may plan your next move.
-// @include        https://www.ingress.com/intel*
-// @include        http://www.ingress.com/intel*
-// @match          https://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        https://*.ingress.com/intel*
+// @include        http://*.ingress.com/intel*
+// @match          https://*.ingress.com/intel*
+// @match          http://*.ingress.com/intel*
+// @include        https://*.ingress.com/mission/*
+// @include        http://*.ingress.com/mission/*
+// @match          https://*.ingress.com/mission/*
+// @match          http://*.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -89,11 +93,15 @@ window.plugin.drawTools.setDrawColor = function(color) {
   window.plugin.drawTools.currentColor = color;
   window.plugin.drawTools.currentMarker = window.plugin.drawTools.getMarkerIcon(color);
 
-  window.plugin.drawTools.drawControl.setDrawingOptions({
-    'polygon': { 'shapeOptions': { color: color } },
-    'polyline': { 'shapeOptions': { color: color } },
-    'circle': { 'shapeOptions': { color: color } },
-    'marker': { 'icon': window.plugin.drawTools.currentMarker },
+  window.plugin.drawTools.lineOptions.color = color;
+  window.plugin.drawTools.polygonOptions.color = color;
+  window.plugin.drawTools.markerOptions.icon = window.plugin.drawTools.currentMarker;
+
+  plugin.drawTools.drawControl.setDrawingOptions({
+    polygon:  { shapeOptions: plugin.drawTools.polygonOptions },
+    polyline: { shapeOptions: plugin.drawTools.lineOptions },
+    circle:   { shapeOptions: plugin.drawTools.polygonOptions },
+    marker:   { icon:         plugin.drawTools.markerOptions.icon },
   });
 }
 
@@ -334,6 +342,7 @@ window.plugin.drawTools.manualOpt = function() {
 
   dialog({
     html: html,
+    id: 'plugin-drawtools-options',
     dialogClass: 'ui-dialog-drawtoolsSet',
     title: 'Draw Tools Options'
   });
@@ -344,6 +353,7 @@ window.plugin.drawTools.manualOpt = function() {
     showInput: false,
     showButtons: false,
     showPalette: true,
+    showPaletteOnly: false,
     showSelectionPalette: false,
     palette: [ ['#a24ac3','#514ac3','#4aa8c3','#51c34a'],
                ['#c1c34a','#c38a4a','#c34a4a','#c34a6f'],
@@ -364,8 +374,53 @@ window.plugin.drawTools.optCopy = function() {
     if (typeof android !== 'undefined' && android && android.shareString) {
         android.shareString(localStorage['plugin-draw-tools-layer']);
     } else {
+      var stockWarnings = {};
+      var stockLinks = [];
+      window.plugin.drawTools.drawnItems.eachLayer( function(layer) {
+        if (layer instanceof L.GeodesicCircle || layer instanceof L.Circle) {
+          stockWarnings.noCircle = true;
+          return; //.eachLayer 'continue'
+        } else if (layer instanceof L.GeodesicPolygon || layer instanceof L.Polygon) {
+          stockWarnings.polyAsLine = true;
+          // but we can export them
+        } else if (layer instanceof L.GeodesicPolyline || layer instanceof L.Polyline) {
+          // polylines are fine
+        } else if (layer instanceof L.Marker) {
+          stockWarnings.noMarker = true;
+          return; //.eachLayer 'continue'
+        } else {
+          stockWarnings.unknown = true; //should never happen
+          return; //.eachLayer 'continue'
+        }
+        // only polygons and polylines make it through to here
+        var latLngs = layer.getLatLngs();
+        // stock only handles one line segment at a time
+        for (var i=0; i<latLngs.length-1; i++) {
+          stockLinks.push([latLngs[i].lat,latLngs[i].lng,latLngs[i+1].lat,latLngs[i+1].lng]);
+        }
+        // for polygons, we also need a final link from last to first point
+        if (layer instanceof L.GeodesicPolygon || layer instanceof L.Polygon) {
+          stockLinks.push([latLngs[latLngs.length-1].lat,latLngs[latLngs.length-1].lng,latLngs[0].lat,latLngs[0].lng]);
+        }
+      });
+      var stockUrl = 'https://www.ingress.com/intel?ll='+map.getCenter().lat+','+map.getCenter().lng+'&z='+map.getZoom()+'&pls='+stockLinks.map(function(link){return link.join(',');}).join('_');
+      var stockWarnTexts = [];
+      if (stockWarnings.polyAsLine) stockWarnTexts.push('Note: polygons are exported as lines');
+      if (stockLinks.length>40) stockWarnTexts.push('Warning: Stock intel may not work with more than 40 line segments - there are '+stockLinks.length);
+      if (stockWarnings.noCircle) stockWarnTexts.push('Warning: Circles cannot be exported to stock intel');
+      if (stockWarnings.noMarker) stockWarnTexts.push('Warning: Markers cannot be exported to stock intel');
+      if (stockWarnings.unknown) stockWarnTexts.push('Warning: UNKNOWN ITEM TYPE');
+
+      var html = '<p><a onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p>'
+                +'<textarea readonly onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">'+localStorage['plugin-draw-tools-layer']+'</textarea>'
+                +'<p>or, export as a link for the standard intel map (for non IITC users)</p>'
+                +'<input onclick="event.target.select();" type="text" size="90" value="'+stockUrl+'"/>';
+      if (stockWarnTexts.length>0) {
+        html += '<ul><li>'+stockWarnTexts.join('</li><li>')+'</li></ul>';
+      }
+
       dialog({
-        html: '<p><a onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">Select all</a> and press CTRL+C to copy it.</p><textarea readonly onclick="$(\'.ui-dialog-drawtoolsSet-copy textarea\').select();">'+localStorage['plugin-draw-tools-layer']+'</textarea>',
+        html: html,
         width: 600,
         dialogClass: 'ui-dialog-drawtoolsSet-copy',
         title: 'Draw Tools Export'
@@ -380,14 +435,53 @@ window.plugin.drawTools.optExport = function() {
 }
 
 window.plugin.drawTools.optPaste = function() {
-  var promptAction = prompt('Press CTRL+V to paste it.', '');
+  var promptAction = prompt('Press CTRL+V to paste (draw-tools data or stock intel URL).', '');
   if(promptAction !== null && promptAction !== '') {
     try {
-      var data = JSON.parse(promptAction);
-      window.plugin.drawTools.drawnItems.clearLayers();
-      window.plugin.drawTools.import(data);
-      console.log('DRAWTOOLS: reset and imported drawn tiems');
-      window.plugin.drawTools.optAlert('Import Successful.');
+      // first see if it looks like a URL-format stock intel link, and if so, try and parse out any stock drawn items
+      // from the pls parameter
+      if (promptAction.match(new RegExp("^(https?://)?(www\\.)?ingress\\.com/intel.*[?&]pls="))) {
+        //looks like a ingress URL that has drawn items...
+        var items = promptAction.split(/[?&]/);
+        var foundAt = -1;
+        for (var i=0; i<items.length; i++) {
+          if (items[i].substr(0,4) == "pls=") {
+            foundAt = i;
+          }
+        }
+
+        if (foundAt == -1) throw ("No drawn items found in intel URL");
+
+        var newLines = [];
+        var linesStr = items[foundAt].substr(4).split('_');
+        for (var i=0; i<linesStr.length; i++) {
+          var floats = linesStr[i].split(',').map(Number);
+          if (floats.length != 4) throw("URL item not a set of four floats");
+          for (var j=0; j<floats.length; j++) {
+            if (isNaN(floats[j])) throw("URL item had invalid number");
+          }
+          var layer = L.geodesicPolyline([[floats[0],floats[1]],[floats[2],floats[3]]], window.plugin.drawTools.lineOptions);
+          newLines.push(layer);
+        }
+
+        // all parsed OK - clear and insert
+        window.plugin.drawTools.drawnItems.clearLayers();
+        for (var i=0; i<newLines.length; i++) {
+          window.plugin.drawTools.drawnItems.addLayer(newLines[i]);
+        }
+        runHooks('pluginDrawTools', {event: 'import'});
+
+        console.log('DRAWTOOLS: reset and imported drawn items from stock URL');
+        window.plugin.drawTools.optAlert('Import Successful.');
+
+
+      } else {
+        var data = JSON.parse(promptAction);
+        window.plugin.drawTools.drawnItems.clearLayers();
+        window.plugin.drawTools.import(data);
+        console.log('DRAWTOOLS: reset and imported drawn items');
+        window.plugin.drawTools.optAlert('Import Successful.');
+      }
 
       // to write back the data to localStorage
       window.plugin.drawTools.save();

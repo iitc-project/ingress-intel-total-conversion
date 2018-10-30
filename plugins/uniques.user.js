@@ -2,15 +2,19 @@
 // @id             iitc-plugin-uniques@3ch01c
 // @name           IITC plugin: Uniques
 // @category       Misc
-// @version        0.2.3.@@DATETIMEVERSION@@
+// @version        0.2.4.@@DATETIMEVERSION@@
 // @namespace      https://github.com/3ch01c/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Allow manual entry of portals visited/captured. Use the 'highlighter-uniques' plugin to show the uniques on the map, and 'sync' to share between multiple browsers or desktop/mobile. It will try and guess which portals you have captured from COMM/portal details, but this will not catch every case.
-// @include        https://www.ingress.com/intel*
-// @include        http://www.ingress.com/intel*
-// @match          https://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        https://*.ingress.com/intel*
+// @include        http://*.ingress.com/intel*
+// @match          https://*.ingress.com/intel*
+// @match          http://*.ingress.com/intel*
+// @include        https://*.ingress.com/mission/*
+// @include        http://*.ingress.com/mission/*
+// @match          https://*.ingress.com/mission/*
+// @match          http://*.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -52,6 +56,7 @@ window.plugin.uniques.onPortalDetailsUpdated = function() {
 		nickname = window.PLAYER.nickname;
 	if(details) {
 		if(details.owner == nickname) {
+			//FIXME: a virus flip will set the owner of the portal, but doesn't count as a unique capture
 			plugin.uniques.updateCaptured(true);
 			// no further logic required
 		} else {
@@ -71,11 +76,10 @@ window.plugin.uniques.onPortalDetailsUpdated = function() {
 
 window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 	var nick = window.PLAYER.nickname;
-	data.raw.success.forEach(function(msg) {
+	data.result.forEach(function(msg) {
 		var plext = msg[2].plext,
 			markup = plext.markup;
 
-		// search for "x deployed an Ly Resonator on z"
 		if(plext.plextType == 'SYSTEM_BROADCAST'
 		&& markup.length==5
 		&& markup[0][0] == 'PLAYER'
@@ -86,26 +90,33 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[3][0] == 'TEXT'
 		&& markup[3][1].plain == ' Resonator on '
 		&& markup[4][0] == 'PORTAL') {
+			// search for "x deployed an Ly Resonator on z"
 			var portal = markup[4][1];
 			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
 			if(guid) plugin.uniques.setPortalVisited(guid);
-		}
-
-		// search for "x captured y"
-		if(plext.plextType == 'SYSTEM_BROADCAST'
+		} else if(plext.plextType == 'SYSTEM_BROADCAST'
+		&& markup.length==3
+		&& markup[0][0] == 'PLAYER'
+		&& markup[0][1].plain == nick
+		&& markup[1][0] == 'TEXT'
+		&& markup[1][1].plain == ' deployed a Resonator on '
+		&& markup[2][0] == 'PORTAL') {
+			// search for "x deployed a Resonator on z"
+			var portal = markup[2][1];
+			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
+			if(guid) plugin.uniques.setPortalVisited(guid);
+		} else if(plext.plextType == 'SYSTEM_BROADCAST'
 		&& markup.length==3
 		&& markup[0][0] == 'PLAYER'
 		&& markup[0][1].plain == nick
 		&& markup[1][0] == 'TEXT'
 		&& markup[1][1].plain == ' captured '
 		&& markup[2][0] == 'PORTAL') {
+			// search for "x captured y"
 			var portal = markup[2][1];
 			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
 			if(guid) plugin.uniques.setPortalCaptured(guid);
-		}
-
-		// search for "x linked y to z"
-		if(plext.plextType == 'SYSTEM_BROADCAST'
+		} else if(plext.plextType == 'SYSTEM_BROADCAST'
 		&& markup.length==5
 		&& markup[0][0] == 'PLAYER'
 		&& markup[0][1].plain == nick
@@ -115,13 +126,11 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[3][0] == 'TEXT'
 		&& markup[3][1].plain == ' to '
 		&& markup[4][0] == 'PORTAL') {
+			// search for "x linked y to z"
 			var portal = markup[2][1];
 			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
 			if(guid) plugin.uniques.setPortalVisited(guid);
-		}
-
-		// search for "Your Lx Resonator on y was destroyed by z"
-		if(plext.plextType == 'SYSTEM_NARROWCAST'
+		} else if(plext.plextType == 'SYSTEM_NARROWCAST'
 		&& markup.length==6
 		&& markup[0][0] == 'TEXT'
 		&& markup[0][1].plain == 'Your '
@@ -132,13 +141,11 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[4][0] == 'TEXT'
 		&& markup[4][1].plain == ' was destroyed by '
 		&& markup[5][0] == 'PLAYER') {
+			// search for "Your Lx Resonator on y was destroyed by z"
 			var portal = markup[3][1];
 			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
 			if(guid) plugin.uniques.setPortalVisited(guid);
-		}
-
-		// search for "Your Lx Resonator on y has decayed"
-		if(plext.plextType == 'SYSTEM_NARROWCAST'
+		} else if(plext.plextType == 'SYSTEM_NARROWCAST'
 		&& markup.length==5
 		&& markup[0][0] == 'TEXT'
 		&& markup[0][1].plain == 'Your '
@@ -148,14 +155,11 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[3][0] == 'PORTAL'
 		&& markup[4][0] == 'TEXT'
 		&& markup[4][1].plain == ' has decayed') {
+		    // search for "Your Lx Resonator on y has decayed"
 			var portal = markup[3][1];
 			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
 			if(guid) plugin.uniques.setPortalVisited(guid);
-		}
-
-		// search for "Your Portal x neutralized by y"
-		// search for "Your Portal x is under attack by y"
-		if(plext.plextType == 'SYSTEM_NARROWCAST'
+		} else if(plext.plextType == 'SYSTEM_NARROWCAST'
 		&& markup.length==4
 		&& markup[0][0] == 'TEXT'
 		&& markup[0][1].plain == 'Your Portal '
@@ -163,6 +167,8 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[2][0] == 'TEXT'
 		&& (markup[2][1].plain == ' neutralized by ' || markup[2][1].plain == ' is under attack by ')
 		&& markup[3][0] == 'PLAYER') {
+		    // search for "Your Portal x neutralized by y"
+		    // search for "Your Portal x is under attack by y"
 			var portal = markup[1][1];
 			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
 			if(guid) plugin.uniques.setPortalVisited(guid);
@@ -175,7 +181,7 @@ window.plugin.uniques.updateCheckedAndHighlight = function(guid) {
 
 	if (guid == window.selectedPortal) {
 
-		var uniqueInfo = plugin.uniques.uniques[guid];
+		var uniqueInfo = plugin.uniques.uniques[guid],
 			visited = (uniqueInfo && uniqueInfo.visited) || false,
 			captured = (uniqueInfo && uniqueInfo.captured) || false;
 		$('#visited').prop('checked', visited);
@@ -193,6 +199,8 @@ window.plugin.uniques.updateCheckedAndHighlight = function(guid) {
 window.plugin.uniques.setPortalVisited = function(guid) {
 	var uniqueInfo = plugin.uniques.uniques[guid];
 	if (uniqueInfo) {
+		if(uniqueInfo.visited) return;
+
 		uniqueInfo.visited = true;
 	} else {
 		plugin.uniques.uniques[guid] = {
@@ -208,6 +216,8 @@ window.plugin.uniques.setPortalVisited = function(guid) {
 window.plugin.uniques.setPortalCaptured = function(guid) {
 	var uniqueInfo = plugin.uniques.uniques[guid];
 	if (uniqueInfo) {
+		if(uniqueInfo.visited && uniqueInfo.captured) return;
+
 		uniqueInfo.visited = true;
 		uniqueInfo.captured = true;
 	} else {
@@ -232,6 +242,8 @@ window.plugin.uniques.updateVisited = function(visited, guid) {
 		};
 	}
 
+	if(visited == uniqueInfo.visited) return;
+
 	if (visited) {
 		uniqueInfo.visited = true;
 	} else { // not visited --> not captured
@@ -254,6 +266,8 @@ window.plugin.uniques.updateCaptured = function(captured, guid) {
 		};
 	}
 
+	if(captured == uniqueInfo.captured) return;
+
 	if (captured) { // captured --> visited
 		uniqueInfo.captured = true;
 		uniqueInfo.visited = true;
@@ -267,7 +281,7 @@ window.plugin.uniques.updateCaptured = function(captured, guid) {
 
 // stores the gived GUID for sync
 plugin.uniques.sync = function(guid) {
-	plugin.uniques.updatingQueue[guid] = true;
+	plugin.uniques.updateQueue[guid] = true;
 	plugin.uniques.storeLocal('uniques');
 	plugin.uniques.storeLocal('updateQueue');
 	plugin.uniques.syncQueue();
@@ -494,19 +508,83 @@ window.plugin.uniques.setupPortalsList = function() {
 	});
 }
 
+window.plugin.uniques.onMissionChanged = function(data) {
+	if(!data.local) return;
+	
+	var mission = window.plugin.missions && window.plugin.missions.getMissionCache(data.mid, false);
+	if(!mission) return;
+	
+	window.plugin.uniques.checkMissionWaypoints(mission);
+};
+
+window.plugin.uniques.onMissionLoaded = function(data) {
+	// the mission has been loaded, but the dialog isn't visible yet.
+	// we'll wait a moment so the mission dialog is opened behind the confirmation prompt
+	setTimeout(function() {
+		window.plugin.uniques.checkMissionWaypoints(data.mission);
+	}, 0);
+};
+
+window.plugin.uniques.checkMissionWaypoints = function(mission) {
+	if(!(window.plugin.missions && window.plugin.missions.checkedMissions[mission.guid])) return;
+	
+	if(!mission.waypoints) return;
+	
+	function isValidWaypoint(wp) {
+		// might be hidden or field trip card
+		if(!(wp && wp.portal && wp.portal.guid)) return false;
+		
+		// only use hack, deploy, link, field and upgrade; ignore photo and passphrase
+		if(wp.objectiveNum <= 0 || wp.objectiveNum > 5) return false;
+		
+		return true;
+	}
+	function isVisited(wp) {
+		var guid = wp.portal.guid,
+			uniqueInfo = plugin.uniques.uniques[guid],
+			visited = (uniqueInfo && uniqueInfo.visited) || false;
+		
+		return visited;
+	}
+	
+	// check if all waypoints are already visited
+	if(mission.waypoints.every(function(wp) {
+		if(!isValidWaypoint(wp)) return true;
+		return isVisited(wp);
+	})) return;
+	
+	if(!confirm('The mission ' + mission.title + ' contains waypoints not yet marked as visited.\n\n' +
+			'Do you want to set them to \'visited\' now?'))
+		return;
+	
+	mission.waypoints.forEach(function(wp) {
+		if(!isValidWaypoint(wp)) return;
+		if(isVisited(wp)) return;
+		
+		plugin.uniques.setPortalVisited(wp.portal.guid);
+	});
+};
+
+
 var setup = function() {
-	if($.inArray('pluginUniquesUpdateUniques', window.VALID_HOOKS) < 0)
-		window.VALID_HOOKS.push('pluginUniquesUpdateUniques');
-	if($.inArray('pluginUniquesRefreshAll', window.VALID_HOOKS) < 0)
-		window.VALID_HOOKS.push('pluginUniquesRefreshAll');
+	window.pluginCreateHook('pluginUniquesUpdateUniques');
+	window.pluginCreateHook('pluginUniquesRefreshAll');
+	
+	// to mark mission portals as visited
+	window.pluginCreateHook('plugin-missions-mission-changed');
+	window.pluginCreateHook('plugin-missions-loaded-mission');
+	
 	window.plugin.uniques.setupCSS();
 	window.plugin.uniques.setupContent();
 	window.plugin.uniques.loadLocal('uniques');
+	window.addPortalHighlighter('Uniques', window.plugin.uniques.highlighter);
 	window.addHook('portalDetailsUpdated', window.plugin.uniques.onPortalDetailsUpdated);
 	window.addHook('publicChatDataAvailable', window.plugin.uniques.onPublicChatDataAvailable);
 	window.addHook('iitcLoaded', window.plugin.uniques.registerFieldForSyncing);
-		window.addPortalHighlighter('Uniques', window.plugin.uniques.highlighter);
-
+	
+	window.addHook('plugin-missions-mission-changed', window.plugin.uniques.onMissionChanged);
+	window.addHook('plugin-missions-loaded-mission', window.plugin.uniques.onMissionLoaded);
+	
 	if(window.plugin.portalslist) {
 		window.plugin.uniques.setupPortalsList();
 	} else {

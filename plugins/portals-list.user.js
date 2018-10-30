@@ -2,15 +2,19 @@
 // @id             iitc-plugin-portals-list@teo96
 // @name           IITC plugin: show list of portals
 // @category       Info
-// @version        0.2.0.@@DATETIMEVERSION@@
+// @version        0.2.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Display a sortable list of all visible portals with full details about the team, resonators, links, etc.
-// @include        https://www.ingress.com/intel*
-// @include        http://www.ingress.com/intel*
-// @match          https://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        https://*.ingress.com/intel*
+// @include        http://*.ingress.com/intel*
+// @match          https://*.ingress.com/intel*
+// @match          http://*.ingress.com/intel*
+// @include        https://*.ingress.com/mission/*
+// @include        http://*.ingress.com/mission/*
+// @match          https://*.ingress.com/mission/*
+// @match          http://*.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -84,7 +88,8 @@ window.plugin.portalslist.fields = [
       $(cell)
         .addClass("alignR")
         .text(portal.options.team===TEAM_NONE ? '-' : value+'%');
-    }
+    },
+    defaultOrder: -1,
   },
   {
     title: "Res",
@@ -93,7 +98,8 @@ window.plugin.portalslist.fields = [
       $(cell)
         .addClass("alignR")
         .text(value);
-    }
+    },
+    defaultOrder: -1,
   },
   {
     title: "Links",
@@ -105,7 +111,8 @@ window.plugin.portalslist.fields = [
         .addClass('help')
         .attr('title', 'In:\t' + value.in.length + '\nOut:\t' + value.out.length)
         .text(value.in.length+value.out.length);
-    }
+    },
+    defaultOrder: -1,
   },
   {
     title: "Fields",
@@ -114,7 +121,8 @@ window.plugin.portalslist.fields = [
       $(cell)
         .addClass("alignR")
         .text(value);
-    }
+    },
+    defaultOrder: -1,
   },
   {
     title: "AP",
@@ -126,7 +134,7 @@ window.plugin.portalslist.fields = [
     sortValue: function(value, portal) { return value.enemyAp; },
     format: function(cell, portal, value) {
       var title = '';
-      if (PLAYER.team == portal.options.data.team) {
+      if (teamStringToId(PLAYER.team) == portal.options.team) {
         title += 'Friendly AP:\t'+value.friendlyAp+'\n'
                + '- deploy '+(8-portal.options.data.resCount)+' resonator(s)\n'
                + '- upgrades/mods unknown\n';
@@ -140,7 +148,8 @@ window.plugin.portalslist.fields = [
         .addClass('help')
         .prop('title', title)
         .html(digits(value.enemyAp));
-    }
+    },
+    defaultOrder: -1,
   },
 ];
 
@@ -202,7 +211,8 @@ window.plugin.portalslist.getPortals = function() {
 
 window.plugin.portalslist.displayPL = function() {
   var list;
-  window.plugin.portalslist.sortBy = 1;
+  // plugins (e.g. bookmarks) can insert fields before the standard ones - so we need to search for the 'level' column
+  window.plugin.portalslist.sortBy = window.plugin.portalslist.fields.map(function(f){return f.title;}).indexOf('Level');
   window.plugin.portalslist.sortOrder = -1;
   window.plugin.portalslist.enlP = 0;
   window.plugin.portalslist.resP = 0;
@@ -245,6 +255,9 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
       return sortOrder * sortField.sort(valueA, valueB, a.portal, b.portal);
     }
 
+//FIXME: sort isn't stable, so re-sorting identical values can change the order of the list.
+//fall back to something constant (e.g. portal name?, portal GUID?),
+//or switch to a stable sort so order of equal items doesn't change
     return sortOrder *
       (valueA < valueB ? -1 :
       valueA > valueB ?  1 :
@@ -385,7 +398,7 @@ var setup =  function() {
     android.addPane("plugin-portalslist", "Portals list", "ic_action_paste");
     addHook("paneChanged", window.plugin.portalslist.onPaneChanged);
   } else {
-    $('#toolbox').append(' <a onclick="window.plugin.portalslist.displayPL()" title="Display a list of portals in the current view">Portals list</a>');
+    $('#toolbox').append('<a onclick="window.plugin.portalslist.displayPL()" title="Display a list of portals in the current view [t]" accesskey="t">Portals list</a>');
   }
 
   $("<style>")

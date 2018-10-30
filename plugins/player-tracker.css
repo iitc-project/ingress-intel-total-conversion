@@ -1,0 +1,7 @@
+.plugin-player-tracker-popup a {
+	color: inherit;
+	text-decoration: underline;
+	text-decoration-style: dashed;
+	-moz-text-decoration-style: dashed;
+	-webkit-text-decoration-style: dashed;
+}

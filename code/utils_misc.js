@@ -38,7 +38,7 @@ window.aboutIITC = function() {
   + '  <div>Ingress Intel Total Conversion</div> '
   + '  <hr>'
   + '  <div>'
-  + '    <a href="http://iitc.jonatkins.com/" target="_blank">IITC Homepage</a><br />'
+  + '    <a href="http://iitc.me/" target="_blank">IITC Homepage</a><br />'
   + '     On the script’s homepage you can:'
   + '     <ul>'
   + '       <li>Find Updates</li>'
@@ -76,22 +76,26 @@ window.layerGroupLength = function(layerGroup) {
 
 // retrieves parameter from the URL?query=string.
 window.getURLParam = function(param) {
-  var v = document.URL;
-  var i = v.indexOf(param);
-  if(i <= -1) return '';
-  v = v.substr(i);
-  i = v.indexOf("&");
-  if(i >= 0) v = v.substr(0, i);
-  return v.replace(param+"=","");
+  var items = window.location.search.substr(1).split('&');
+  if (items == "") return "";
+
+  for (var i=0; i<items.length; i++) {
+    var item = items[i].split('=');
+
+    if (item[0] == param) {
+      var val = item.length==1 ? '' : decodeURIComponent (item[1].replace(/\+/g,' '));
+      return val;
+    }
+  }
+
+  return '';
 }
 
 // read cookie by name.
 // http://stackoverflow.com/a/5639455/1684530 by cwolves
-var cookies;
-window.readCookie = function(name,c,C,i){
-  if(cookies) return cookies[name];
-  c = document.cookie.split('; ');
-  cookies = {};
+window.readCookie = function(name){
+  var C, i, c = document.cookie.split('; ');
+  var cookies = {};
   for(i=c.length-1; i>=0; i--){
     C = c[i].split('=');
     cookies[C[0]] = unescape(C[1]);
@@ -100,7 +104,8 @@ window.readCookie = function(name,c,C,i){
 }
 
 window.writeCookie = function(name, val) {
-  document.cookie = name + "=" + val + '; expires=Thu, 31 Dec 2020 23:59:59 GMT; path=/';
+  var d = new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000).toUTCString();
+  document.cookie = name + "=" + val + '; expires='+d+'; path=/';
 }
 
 window.eraseCookie = function(name) {
@@ -263,6 +268,26 @@ window.zoomToAndShowPortal = function(guid, latlng) {
     urlPortal = guid;
 }
 
+window.selectPortalByLatLng = function(lat, lng) {
+  if(lng === undefined && lat instanceof Array) {
+    lng = lat[1];
+    lat = lat[0];
+  } else if(lng === undefined && lat instanceof L.LatLng) {
+    lng = lat.lng;
+    lat = lat.lat;
+  }
+  for(var guid in window.portals) {
+    var latlng = window.portals[guid].getLatLng();
+    if(latlng.lat == lat && latlng.lng == lng) {
+      renderPortalDetails(guid);
+      return;
+    }
+  }
+
+  // not currently visible
+  urlPortalLL = [lat, lng];
+  map.setView(urlPortalLL, 17);
+};
 
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
@@ -310,10 +335,11 @@ window.uniqueArray = function(arr) {
 window.genFourColumnTable = function(blocks) {
   var t = $.map(blocks, function(detail, index) {
     if(!detail) return '';
+    var title = detail[2] ? ' title="'+escapeHtmlSpecialChars(detail[2]) + '"' : '';
     if(index % 2 === 0)
-      return '<tr><td>'+detail[1]+'</td><th>'+detail[0]+'</th>';
+      return '<tr><td'+title+'>'+detail[1]+'</td><th'+title+'>'+detail[0]+'</th>';
     else
-      return '    <th>'+detail[0]+'</th><td>'+detail[1]+'</td></tr>';
+      return '    <th'+title+'>'+detail[0]+'</th><td'+title+'>'+detail[1]+'</td></tr>';
   }).join('');
   if(t.length % 2 === 1) t + '<td></td><td></td></tr>';
   return t;
@@ -388,6 +414,16 @@ window.addLayerGroup = function(name, layerGroup, defaultDisplay) {
   layerChooser.addOverlay(layerGroup, name);
 }
 
+window.removeLayerGroup = function(layerGroup) {
+  if(!layerChooser._layers[layerGroup._leaflet_id]) throw('Layer was not found');
+  // removing the layer will set it's default visibility to false (store if layer gets added again)
+  var name = layerChooser._layers[layerGroup._leaflet_id].name;
+  var enabled = isLayerGroupDisplayed(name);
+  map.removeLayer(layerGroup);
+  layerChooser.removeLayer(layerGroup);
+  updateDisplayedLayerGroup(name, enabled);
+};
+
 window.clampLat = function(lat) {
   // the map projection used does not handle above approx +- 85 degrees north/south of the equator
   if (lat > 85.051128)
@@ -413,6 +449,32 @@ window.clampLatLng = function(latlng) {
 window.clampLatLngBounds = function(bounds) {
   return new L.LatLngBounds ( clampLatLng(bounds.getSouthWest()), clampLatLng(bounds.getNorthEast()) );
 }
+
+window.getGenericMarkerSvg = function(color) {
+  var markerTemplate = '@@INCLUDESTRING:images/marker-icon.svg.template@@';
+
+  return markerTemplate.replace(/%COLOR%/g, color);
+}
+
+window.getGenericMarkerIcon = function(color,className) {
+  return L.divIcon({
+    iconSize: new L.Point(25, 41),
+    iconAnchor: new L.Point(12, 41),
+    html: getGenericMarkerSvg(color),
+    className: className || 'leaflet-iitc-divicon-generic-marker'
+  });
+}
+
+window.createGenericMarker = function(ll,color,options) {
+  options = options || {};
+
+  var markerOpt = $.extend({
+    icon: getGenericMarkerIcon(color || '#a24ac3')
+  }, options);
+
+  return L.marker(ll, markerOpt);
+}
+
 
 
 // Fix Leaflet: handle touchcancel events in Draggable

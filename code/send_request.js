@@ -34,7 +34,6 @@ window.postAjax = function(action, data, successCallback, errorCallback) {
 
   var onSuccess = function(data, textStatus, jqXHR) {
     window.requests.remove(jqXHR);
-    iitc_bg.process_response_params(action,data);
 
     // the Niantic server can return a HTTP success, but the JSON response contains an error. handle that sensibly
     if (data && data.error && data.error == 'out of date') {
@@ -65,7 +64,7 @@ window.postAjax = function(action, data, successCallback, errorCallback) {
   }
 
   var versionStr = niantic_params.CURRENT_VERSION;
-  var post_data = JSON.stringify($.extend({}, data, {v: versionStr}, iitc_bg.extra_request_params(action)));
+  var post_data = JSON.stringify($.extend({}, data, {v: versionStr}));
 
   var result = $.ajax({
     url: '/r/'+action,
@@ -96,7 +95,7 @@ window.outOfDateUserPrompt = function()
 
     dialog({
       title: 'Reload IITC',
-      html: '<p>IITC is using an outdated version code. This will happen when Niantic update the standard intel site.</p>'
+      html: '<p>IITC is using an outdated version code. This will happen when Niantic updates the standard intel site.</p>'
            +'<p>You need to reload the page to get the updated changes.</p>'
            +'<p>If you have just reloaded the page, then an old version of the standard site script is cached somewhere.'
            +'In this case, try clearing your cache, or waiting 15-30 minutes for the stale data to expire.</p>',

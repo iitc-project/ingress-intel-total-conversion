@@ -41,46 +41,13 @@ window.renderPortalDetails = function(guid) {
  
 
   var img = fixPortalImageUrl(details ? details.image : data.image);
-  var title = data.title;
+  var title = (details && details.title) || (data && data.title) || 'null';
 
   var lat = data.latE6/1E6;
   var lng = data.lngE6/1E6;
 
-  var imgTitle = details ? getPortalDescriptionFromDetails(details) : data.title;
-  imgTitle += '\n\nClick to show full image.';
-  var portalDetailObj = details ? window.getPortalDescriptionFromDetailsExtended(details) : undefined;
+  var imgTitle = title+'\n\nClick to show full image.';
 
-  var portalDetailedDescription = '';
-
-  if(portalDetailObj) {
-    portalDetailedDescription = '<table description="Portal Photo Details" class="portal_details">';
-
-    // TODO (once the data supports it) - portals can have multiple photos. display all, with navigation between them
-    // (at this time the data isn't returned from the server - although a count of images IS returned!)
-
-    if(portalDetailObj.submitter.name.length > 0) {
-      if(portalDetailObj.submitter.team) {
-        submitterSpan = '<span class="' + (portalDetailObj.submitter.team === 'RESISTANCE' ? 'res' : 'enl') + ' nickname">';
-      } else {
-        submitterSpan = '<span class="none">';
-      }
-      portalDetailedDescription += '<tr><th>Photo by:</th><td>' + submitterSpan
-                                + escapeHtmlSpecialChars(portalDetailObj.submitter.name) + '</span>'+(portalDetailObj.submitter.voteCount !== undefined ? ' (' + portalDetailObj.submitter.voteCount + ' votes)' : '')+'</td></tr>';
-    }
-    if(portalDetailObj.submitter.link.length > 0) {
-      portalDetailedDescription += '<tr><th>Photo from:</th><td><a href="'
-                                + escapeHtmlSpecialChars(portalDetailObj.submitter.link) + '">' + escapeHtmlSpecialChars(portalDetailObj.submitter.link) + '</a></td></tr>';
-    }
-
-    if(portalDetailObj.description) {
-      portalDetailedDescription += '<tr class="padding-top"><th>Description:</th><td>' + escapeHtmlSpecialChars(portalDetailObj.description) + '</td></tr>';
-    }
-//    if(d.descriptiveText.map.ADDRESS) {
-//      portalDetailedDescription += '<tr><th>Address:</th><td>' + escapeHtmlSpecialChars(d.descriptiveText.map.ADDRESS) + '</td></tr>';
-//    }
-
-    portalDetailedDescription += '</table>';
-  }
 
   // portal level. start with basic data - then extend with fractional info in tooltip if available
   var levelInt = (teamStringToId(data.team) == TEAM_NONE) ? 0 : data.level;
@@ -127,7 +94,7 @@ window.renderPortalDetails = function(guid) {
     .html('') //to ensure it's clear
     .attr('class', TEAM_TO_CSS[teamStringToId(data.team)])
     .append(
-      $('<h3>').attr({class:'title'}).text(data.title),
+      $('<h3>').attr({class:'title'}).text(title),
 
       $('<span>').attr({
         class: 'close',
@@ -141,7 +108,6 @@ window.renderPortalDetails = function(guid) {
       .attr({class:'imgpreview', title:imgTitle, style:"background-image: url('"+img+"')"})
       .append(
         $('<span>').attr({id:'level', title: levelDetails}).text(levelInt),
-        $('<div>').attr({class:'portalDetails'}).html(portalDetailedDescription),
         $('<img>').attr({class:'hide', src:img})
       ),
 
@@ -169,11 +135,15 @@ window.getPortalMiscDetails = function(guid,d) {
 
     // collect some random data that’s not worth to put in an own method
     var linkInfo = getPortalLinks(guid);
+    var maxOutgoing = getMaxOutgoingLinks(d);
     var linkCount = linkInfo.in.length + linkInfo.out.length;
     var links = {incoming: linkInfo.in.length, outgoing: linkInfo.out.length};
 
-    function linkExpl(t) { return '<tt title="'+links.outgoing+' links out (8 max)\n'+links.incoming+' links in\n('+(links.outgoing+links.incoming)+' total)">'+t+'</tt>'; }
-    var linksText = [linkExpl('links'), linkExpl(links.outgoing+' out / '+links.incoming+' in')];
+    var title = 'at most ' + maxOutgoing + ' outgoing links\n' +
+                links.outgoing + ' links out\n' +
+                links.incoming + ' links in\n' +
+                '(' + (links.outgoing+links.incoming) + ' total)'
+    var linksText = ['links', links.outgoing+' out / '+links.incoming+' in', title];
 
     var player = d.owner
       ? '<span class="nickname">' + d.owner + '</span>'
@@ -187,48 +157,49 @@ window.getPortalMiscDetails = function(guid,d) {
 
     var apGainText = getAttackApGainText(d,fieldCount,linkCount);
 
+    var attackValues = getPortalAttackValues(d);
+
 
     // collect and html-ify random data
-    var randDetailsData = [];
-    if (true) {  // or "if (d.owner) {" ...? but this makes the info panel look rather empty for unclaimed portals
+
+    var randDetailsData = [
       // these pieces of data are only relevant when the portal is captured
-      randDetailsData.push (
-        playerText, getRangeText(d),
-        linksText, fieldsText,
-        getMitigationText(d,linkCount), getEnergyText(d)
-      );
-    }
+      // maybe check if portal is captured and remove?
+      // But this makes the info panel look rather empty for unclaimed portals
+      playerText, getRangeText(d),
+      linksText, fieldsText,
+      getMitigationText(d,linkCount), getEnergyText(d),
+      // and these have some use, even for uncaptured portals
+      apGainText, getHackDetailsText(d),
+    ];
 
-    // and these have some use, even for uncaptured portals
-    randDetailsData.push (
-      apGainText, getHackDetailsText(d)
-    );
-
-    // artifact details
-
-    // 2014-02-06: stock site changed from supporting 'jarvis shards' to 'amar artifacts'(?) - so let's see what we can do to be generic...
-    $.each(artifact.getArtifactTypes(),function(index,type) {
-      var artdata = artifact.getPortalData (guid, type);
-      if (artdata) {
-        var details = artifact.getArtifactDescriptions(type);
-        if (details) {
-          // the genFourColumnTable function below doesn't handle cases where one column is null and the other isn't - so default to *something* in both columns
-          var target = ['',''], shards = [details.fragmentName,'(none)'];
-          if (artdata.target) {
-            target = ['target', '<span class="'+TEAM_TO_CSS[artdata.target]+'">'+(artdata.target==TEAM_RES?'Resistance':'Enlightened')+'</span>'];
-          }
-          if (artdata.fragments) {
-            shards = [details.fragmentName, '#'+artdata.fragments.join(', #')];
-          }
-
-          randDetailsData.push (target, shards);
-        } else {
-          console.warn('Unknown artifact type '+type+': no names, so cannot display');
-        }
-      }
-    });
+    if(attackValues.attack_frequency != 0)
+      randDetailsData.push([
+        '<span title="attack frequency" class="text-overflow-ellipsis">attack frequency</span>',
+        '×'+attackValues.attack_frequency]);
+    if(attackValues.hit_bonus != 0)
+      randDetailsData.push(['hit bonus', attackValues.hit_bonus+'%']);
+    if(attackValues.force_amplifier != 0)
+      randDetailsData.push([
+        '<span title="force amplifier" class="text-overflow-ellipsis">force amplifier</span>',
+        '×'+attackValues.force_amplifier]);
 
     randDetails = '<table id="randdetails">' + genFourColumnTable(randDetailsData) + '</table>';
+
+
+    // artifacts - tacked on after (but not as part of) the 'randdetails' table
+    // instead of using the existing columns....
+
+    if (d.artifactBrief && d.artifactBrief.target && Object.keys(d.artifactBrief.target).length > 0) {
+      var targets = Object.keys(d.artifactBrief.target);
+//currently (2015-07-10) we no longer know the team each target portal is for - so we'll just show the artifact type(s) 
+       randDetails += '<div id="artifact_target">Target portal: '+targets.map(function(x) { return x.capitalize(); }).join(', ')+'</div>';
+    }
+
+    // shards - taken directly from the portal details
+    if (d.artifactDetail) {
+      randDetails += '<div id="artifact_fragments">Shards: '+d.artifactDetail.displayName+' #'+d.artifactDetail.fragments.join(', ')+'</div>';
+    }
 
   }
 

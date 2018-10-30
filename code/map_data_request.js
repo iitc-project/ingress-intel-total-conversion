@@ -42,19 +42,22 @@ window.MapDataRequest = function() {
 
 
   // a short delay between one request finishing and the queue being run for the next request.
-  this.RUN_QUEUE_DELAY = 0.05;
+  this.RUN_QUEUE_DELAY = 0;
 
   // delay before processing the queue after failed requests
-  this.BAD_REQUEST_RUN_QUEUE_DELAY = 10; // longer delay before doing anything after errors (other than TIMEOUT)
+  this.BAD_REQUEST_RUN_QUEUE_DELAY = 5; // longer delay before doing anything after errors (other than TIMEOUT)
+
+  // delay before processing the queue after empty responses
+  this.EMPTY_RESPONSE_RUN_QUEUE_DELAY = 5; // also long delay - empty responses are likely due to some server issues
 
   // delay before processing the queue after error==TIMEOUT requests. this is 'expected', so minimal extra delay over the regular RUN_QUEUE_DELAY
-  this.TIMEOUT_REQUEST_RUN_QUEUE_DELAY = 0.1;
+  this.TIMEOUT_REQUEST_RUN_QUEUE_DELAY = 0;
 
 
   // render queue
   // number of items to process in each render pass. there are pros and cons to smaller and larger values
   // (however, if using leaflet canvas rendering, it makes sense to push as much as possible through every time)
-  this.RENDER_BATCH_SIZE = L.Path.CANVAS ? 1E9 : 500;
+  this.RENDER_BATCH_SIZE = L.Path.CANVAS ? 1E9 : 1500;
 
   // delay before repeating the render loop. this gives a better chance for user interaction
   this.RENDER_PAUSE = (typeof android === 'undefined') ? 0.1 : 0.2; //100ms desktop, 200ms mobile
@@ -62,10 +65,19 @@ window.MapDataRequest = function() {
 
   this.REFRESH_CLOSE = 300;  // refresh time to use for close views z>12 when not idle and not moving
   this.REFRESH_FAR = 900;  // refresh time for far views z <= 12
-  this.FETCH_TO_REFRESH_FACTOR = 2;  //minumum refresh time is based on the time to complete a data fetch, times this value
+  this.FETCH_TO_REFRESH_FACTOR = 2;  //minimum refresh time is based on the time to complete a data fetch, times this value
 
   // ensure we have some initial map status
   this.setStatus ('startup', undefined, -1);
+
+  // add a portalDetailLoaded hook, so we can use the extended details to update portals on the map
+  var _this = this;
+  addHook('portalDetailLoaded', function(data){
+    if(data.success) {
+      _this.render.processGameEntities([data.ent]);
+    }
+  });
+
 }
 
 
@@ -229,12 +241,15 @@ window.MapDataRequest.prototype.refresh = function() {
 
   this.render.startRenderPass(tileParams.level, dataBounds);
 
+  var _render = this.render;
+  window.runHooks ('mapDataEntityInject', {callback: function(ents) { _render.processGameEntities(ents);}});
+
 
   this.render.processGameEntities(artifact.getArtifactEntities());
 
   var logMessage = 'requesting data tiles at zoom '+dataZoom;
   if (tileParams.level != tileParams.maxLevel) {
-    logMessage += ' (L'+tileParams.level+'+ portals - could have doneug L'+tileParams.maxLevel+'+';
+    logMessage += ' (L'+tileParams.level+'+ portals - could have done L'+tileParams.maxLevel+'+';
   } else {
     logMessage += ' (L'+tileParams.level+'+ portals';
   }
@@ -485,21 +500,36 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
 
   var successTiles = [];
   var errorTiles = [];
+  var retryTiles = [];
   var timeoutTiles = [];
+  var unaccountedTiles = tiles.slice(0); // Clone
 
   if (!success || !data || !data.result) {
     console.warn('Request.handleResponse: request failed - requeuing...'+(data && data.error?' error: '+data.error:''));
 
     //request failed - requeue all the tiles(?)
 
-    for (var i in tiles) {
-      var id = tiles[i];
-      errorTiles.push(id);
-      this.debugTiles.setState (id, 'request-fail');
+    if (data && data.error && data.error == 'RETRY') {
+      // the server can sometimes ask us to retry a request. this is botguard related, I believe
+
+      for (var i in tiles) {
+        var id = tiles[i];
+        retryTiles.push(id);
+        this.debugTiles.setState (id, 'retrying');
+      }
+
+      window.runHooks('requestFinished', {success: false});
+
+    } else {
+      for (var i in tiles) {
+        var id = tiles[i];
+        errorTiles.push(id);
+        this.debugTiles.setState (id, 'request-fail');
+      }
+
+      window.runHooks('requestFinished', {success: false});
     }
-
-    window.runHooks('requestFinished', {success: false});
-
+    unaccountedTiles = [];
   } else {
 
     // TODO: use result.minLevelOfDetail ??? stock site doesn't use it yet...
@@ -508,7 +538,7 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
 
     for (var id in m) {
       var val = m[id];
-
+      unaccountedTiles.splice(unaccountedTiles.indexOf(id), 1);
       if ('error' in val) {
         // server returned an error for this individual data tile
 
@@ -548,11 +578,20 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
   }
 
   // set the queue delay based on any errors or timeouts
+  // NOTE: retryTimes are retried at the regular delay - no longer wait as for error/timeout cases
   var nextQueueDelay = errorTiles.length > 0 ? this.BAD_REQUEST_RUN_QUEUE_DELAY :
+                       unaccountedTiles.length > 0 ? this.EMPTY_RESPONSE_RUN_QUEUE_DELAY :
                        timeoutTiles.length > 0 ? this.TIMEOUT_REQUEST_RUN_QUEUE_DELAY :
                        this.RUN_QUEUE_DELAY;
+  var statusMsg = 'getEntities status: '+tiles.length+' tiles: ';
+  statusMsg += successTiles.length+' successful';
+  if (retryTiles.length) statusMsg += ', '+retryTiles.length+' retried';
+  if (timeoutTiles.length) statusMsg += ', '+timeoutTiles.length+' timed out';
+  if (errorTiles.length) statusMsg += ', '+errorTiles.length+' failed';
+  if (unaccountedTiles.length) statusMsg += ', '+unaccountedTiles.length+' unaccounted';
+  statusMsg += '. delay '+nextQueueDelay+' seconds';
+  console.log (statusMsg);
 
-  console.log ('getEntities status: '+tiles.length+' tiles: '+successTiles.length+' successful, '+timeoutTiles.length+' timed out, '+errorTiles.length+' failed. delay '+nextQueueDelay+' seconds');
 
   // requeue any 'timeout' tiles immediately
   if (timeoutTiles.length > 0) {
@@ -564,9 +603,26 @@ window.MapDataRequest.prototype.handleResponse = function (data, tiles, success)
     }
   }
 
+  if (retryTiles.length > 0) {
+    for (var i in retryTiles) {
+      var id = retryTiles[i];
+      delete this.requestedTiles[id];
+
+      this.requeueTile(id, false);  //tiles from a error==RETRY request are requeued without counting it as an error
+    }
+  }
+
   if (errorTiles.length > 0) {
     for (var i in errorTiles) {
       var id = errorTiles[i];
+      delete this.requestedTiles[id];
+      this.requeueTile(id, true);
+    }
+  }
+
+  if (unaccountedTiles.length > 0) {
+    for (var i in unaccountedTiles) {
+      var id = unaccountedTiles[i];
       delete this.requestedTiles[id];
       this.requeueTile(id, true);
     }

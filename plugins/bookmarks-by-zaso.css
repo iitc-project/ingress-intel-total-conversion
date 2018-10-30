@@ -283,7 +283,7 @@
 	cursor:pointer;
 }
 #bkmrksTrigger, .bkmrksStar span, .portal-list-bookmark span {
-	background-image:url(@@INCLUDEIMAGE:plugins/bookmarks-img.png@@);
+	background-image:url(@@INCLUDEIMAGE:images/bookmarks-img.png@@);
 }
 .bkmrksStar span{
 	display:inline-block;
@@ -639,8 +639,12 @@
 	text-indent:10px;
 	padding:2px 0;
 }
-#bkmrksAutoDrawer .bookmarkFolder div,
-#bkmrksAutoDrawer p{
+#bkmrksAutoDrawer .longdistance {
+	color: #FFCC00;
+	font-weight: bold;
+	border-bottom: 1px dashed currentColor;
+}
+#bkmrksAutoDrawer .bookmarkFolder div {
 	display:none;
 }
 #bkmrksAutoDrawer a.bkmrk.selected{

@@ -35,7 +35,7 @@ window.artifact.requestData = function() {
   if (isIdle()) {
     artifact.idle = true;
   } else {
-    window.postAjax('artifacts', {}, artifact.handleSuccess, artifact.handleError);
+    window.postAjax('getArtifactPortals', {}, artifact.handleSuccess, artifact.handleError);
   }
 }
 
@@ -65,34 +65,16 @@ window.artifact.handleFailure = function(data) {
 
 window.artifact.processData = function(data) {
 
-  if (data.error || !data.artifacts) {
-    console.warn('Failed to find artifacts in artifact response');
+  if (data.error || !data.result) {
+    console.warn('Failed to find result in getArtifactPortals response');
     return;
   }
 
+  var oldArtifacts = artifact.entities;
   artifact.clearData();
 
-  $.each (data.artifacts, function(i,artData) {
-    // if we have no descriptions for a type, we don't know about it
-    if (!artifact.getArtifactDescriptions(artData.artifactId)) {
-      // jarvis and amar artifacts - fragmentInfos and targetInfos
-      // (future types? completely unknown at this time!)
-      console.warn('Note: unknown artifactId '+artData.artifactId+' - guessing how to handle it');
-    }
-
-    artifact.artifactTypes[artData.artifactId] = artData.artifactId;
-
-    if (artData.fragmentInfos) {
-      artifact.processFragmentInfos (artData.artifactId, artData.fragmentInfos);
-    }
-
-    if (artData.targetInfos) {
-      artifact.processTargetInfos (artData.artifactId, artData.targetInfos);
-    }
-
-    // other data in future? completely unknown!
-  });
-
+  artifact.processResult(data.result);
+  runHooks('artifactsUpdated', {old: oldArtifacts, 'new': artifact.entities});
 
   // redraw the artifact layer
   artifact.updateLayer();
@@ -101,38 +83,57 @@ window.artifact.processData = function(data) {
 
 
 window.artifact.clearData = function() {
-
   artifact.portalInfo = {};
   artifact.artifactTypes = {};
+
+  artifact.entities = [];
 }
 
-window.artifact.processFragmentInfos = function (id, fragments) {
-  $.each(fragments, function(i, fragment) {
-    if (!artifact.portalInfo[fragment.portalGuid]) {
-      artifact.portalInfo[fragment.portalGuid] = { _entityData: fragment.portalInfo };
+
+window.artifact.processResult = function (portals) {
+  // portals is an object, keyed from the portal GUID, containing the portal entity array
+
+  for (var guid in portals) {
+    var ent = portals[guid];
+    var data = decodeArray.portalSummary(ent);
+    
+    if (!data.artifactBrief) {
+      // 2/12/2017 - Shard removed from a portal leaves it in artifact results but has no artifactBrief
+      continue;
     }
 
-    if (!artifact.portalInfo[fragment.portalGuid][id]) artifact.portalInfo[fragment.portalGuid][id] = {};
+    // we no longer know the faction for the target portals, and we don't know which fragment numbers are at the portals
+    // all we know, from the portal summary data, for each type of artifact, is that each artifact portal is
+    // - a target portal or not - no idea for which faction
+    // - has one (or more) fragments, or not
 
-    if (!artifact.portalInfo[fragment.portalGuid][id].fragments) artifact.portalInfo[fragment.portalGuid][id].fragments = [];
+    if (!artifact.portalInfo[guid]) artifact.portalInfo[guid] = {};
 
-    $.each(fragment.fragments, function(i,f) {
-      artifact.portalInfo[fragment.portalGuid][id].fragments.push(f);
-    });
+    // store the decoded data - needed for lat/lng for layer markers
+    artifact.portalInfo[guid]._data = data;
 
-  });
-}
+    for(var type in data.artifactBrief.target) {
+      if (!artifact.artifactTypes[type]) artifact.artifactTypes[type] = {};
 
-window.artifact.processTargetInfos = function (id, targets) {
-  $.each(targets, function(i, target) {
-    if (!artifact.portalInfo[target.portalGuid]) {
-      artifact.portalInfo[target.portalGuid] = { _entityData: target.portalInfo };
+      if (!artifact.portalInfo[guid][type]) artifact.portalInfo[guid][type] = {};
+
+      artifact.portalInfo[guid][type].target = TEAM_NONE;  // as we no longer know the team...
     }
 
-    if (!artifact.portalInfo[target.portalGuid][id]) artifact.portalInfo[target.portalGuid][id] = {};
+    for(var type in data.artifactBrief.fragment) {
+      if (!artifact.artifactTypes[type]) artifact.artifactTypes[type] = {};
 
-    artifact.portalInfo[target.portalGuid][id].target = target.team === 'RESISTANCE' ? TEAM_RES : TEAM_ENL;
-  });
+      if (!artifact.portalInfo[guid][type]) artifact.portalInfo[guid][type] = {};
+
+      artifact.portalInfo[guid][type].fragments = true; //as we no longer have a list of the fragments there
+    }
+
+
+    // let's pre-generate the entities needed to render the map - array of [guid, timestamp, ent_array]
+    artifact.entities.push ( [guid, data.timestamp, ent] );
+
+  }
+
 }
 
 window.artifact.getArtifactTypes = function() {
@@ -143,28 +144,9 @@ window.artifact.isArtifact = function(type) {
   return type in artifact.artifactTypes;
 }
 
-window.artifact.getArtifactDescriptions = function(type) {
-  var descriptions = {
-    'jarvis': { 'title': "Jarvis Shards", 'fragmentName': "shards" },
-    'amar': { 'title': "Amar Artifacts", 'fragmentName': "artifacts" },
-    'helios': { 'title': "Helios Artifacts", 'fragmentName': "artifacts" },
-  };
-
-  return descriptions[type];
-}
-
 // used to render portals that would otherwise be below the visible level
 window.artifact.getArtifactEntities = function() {
-  var entities = [];
-
-  // create fake entities from the artifact data
-  $.each (artifact.portalInfo, function(guid,data) {
-    var timestamp = 0; // we don't have a valid timestamp - so let's use 0
-    var ent = [ guid, timestamp, data._entityData ];
-    entities.push(ent);
-  });
-
-  return entities;
+  return artifact.entities;
 }
 
 window.artifact.getInterestingPortals = function() {
@@ -185,75 +167,53 @@ window.artifact.updateLayer = function() {
   artifact._layer.clearLayers();
 
   $.each(artifact.portalInfo, function(guid,data) {
-    var latlng = L.latLng ([data._entityData.latE6/1E6, data._entityData.lngE6/1E6]);
+    var latlng = L.latLng ([data._data.latE6/1E6, data._data.lngE6/1E6]);
 
-    // jarvis shard icon
-    var iconUrl = undefined;
-    var iconSize = 0;
-    var opacity = 1.0;
+    $.each(data, function(type,detail) {
 
-    // redundant as of 2014-02-05 - jarvis shards removed
-    if (data.jarvis) {
-      if (data.jarvis.target) {
-        // target portal - show the target marker. use the count of fragments at the target to pick the right icon - it has segments that fill up
+      // we'll construct the URL form the type - stock seems to do that now
 
-        var count = data.jarvis.fragments ? data.jarvis.fragments.length : 0;
+      var iconUrl;
+      if (data[type].target !== undefined) {
+        // target portal
+        var iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/'+type+'_shard_target.png'
+        var iconSize = 100/2;
+        var opacity = 1.0;
 
-        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/jarvis_shard_target_'+count+'.png';
-        iconSize = 100/2; // 100 pixels - half that size works better
-      } else if (data.jarvis.fragments) {
-        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/jarvis_shard.png';
-        iconSize = 60/2; // 60 pixels - half that size works better
-        opacity = 0.6; // these often hide portals - let's make them semi transparent
+        var icon = L.icon({
+          iconUrl: iconUrl,
+          iconSize: [iconSize,iconSize],
+          iconAnchor: [iconSize/2,iconSize/2],
+          className: 'no-pointer-events'  // the clickable: false below still blocks events going through to the svg underneath
+        });
+
+        var marker = L.marker (latlng, {icon: icon, clickable: false, keyboard: false, opacity: opacity });
+
+        artifact._layer.addLayer(marker);
+
+      } else if (data[type].fragments) {
+        // fragment(s) at portal
+
+        var iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/'+type+'_shard.png'
+        var iconSize = 60/2;
+        var opacity = 0.6;
+
+        var icon = L.icon({
+          iconUrl: iconUrl,
+          iconSize: [iconSize,iconSize],
+          iconAnchor: [iconSize/2,iconSize/2],
+          className: 'no-pointer-events'  // the clickable: false below still blocks events going through to the svg underneath
+        });
+
+        var marker = L.marker (latlng, {icon: icon, clickable: false, keyboard: false, opacity: opacity });
+
+        artifact._layer.addLayer(marker);
+
       }
 
-    }
-    // 2014-02-06: a guess at whats needed for the new artifacts
-    if (data.amar) {
-      if (data.amar.target) {
-        // target portal - show the target marker. use the count of fragments at the target to pick the right icon - it has segments that fill up
+    });  //end $.each(data, function(type,detail)
 
-        var count = data.amar.fragments ? data.amar.fragments.length : 0;
-
-        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/amar_shard_target_'+count+'.png';
-        iconSize = 100/2; // 100 pixels - half that size works better
-      } else if (data.amar.fragments) {
-        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/amar_shard.png';
-        iconSize = 60/2; // 60 pixels - half that size works better
-        opacity = 0.6; // these often hide portals - let's make them semi transparent
-      }
-
-    }
-
-    // 2014-08-09 - helios artifacts. original guess was slightly wrong
-    if (data.helios) {
-      if (data.helios.target) {
-        // target portal - show the target marker. helios target marker doesn't fill like the earlier jarvis/amar targets
-        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/helios_shard_target.png';
-        iconSize = 100/2; // 100 pixels - half that size works better
-      } else if (data.helios.fragments) {
-        iconUrl = '//commondatastorage.googleapis.com/ingress.com/img/map_icons/marker_images/helios_shard.png';
-        iconSize = 60/2; // 60 pixels - half that size works better
-        opacity = 0.6; // these often hide portals - let's make them semi transparent
-      }
-
-    }
-
-    if (iconUrl) {
-      var icon = L.icon({
-        iconUrl: iconUrl,
-        iconSize: [iconSize,iconSize],
-        iconAnchor: [iconSize/2,iconSize/2],
-        className: 'no-pointer-events'  // the clickable: false below still blocks events going through to the svg underneath
-      });
-
-      var marker = L.marker (latlng, {icon: icon, clickable: false, keyboard: false, opacity: opacity });
-
-      artifact._layer.addLayer(marker);
-    } else {
-      console.warn('Oops! no URL for artifact portal icon?!');
-    }
-  });
+  }); //end $.each(artifact.portalInfo, function(guid,data)
 
 }
 
@@ -265,12 +225,15 @@ window.artifact.showArtifactList = function() {
     html += '<i>No artifacts at this time</i>';
   }
 
+  var first = true;
   $.each(artifact.artifactTypes, function(type,type2) {
-    var description = artifact.getArtifactDescriptions(type);
+    // no nice way to convert the Niantic internal name into the correct display name
+    // (we do get the description string once a portal with that shard type is selected - could cache that somewhere?)
+    var name = type.capitalize() + ' shards';
 
-    var name = description ? description.title : ('unknown artifact type: '+type);
-
-    html += '<hr><div><b>'+name+'</b></div>';
+    if (!first) html += '<hr>';
+    first = false;
+    html += '<div><b>'+name+'</b></div>';
 
     html += '<table class="artifact artifact-'+type+'">';
     html += '<tr><th>Portal</th><th>Details</th></tr>';
@@ -281,28 +244,32 @@ window.artifact.showArtifactList = function() {
       if (type in data) {
         // this portal has data for this artifact type - add it to the table
 
-        var sortVal = 0;
-
-        var onclick = 'zoomToAndShowPortal(\''+guid+'\',['+data._entityData.latE6/1E6+','+data._entityData.lngE6/1E6+'])';
-        var row = '<tr><td class="portal"><a onclick="'+onclick+'">'+escapeHtmlSpecialChars(data._entityData.title)+'</a></td>';
+        var onclick = 'zoomToAndShowPortal(\''+guid+'\',['+data._data.latE6/1E6+','+data._data.lngE6/1E6+'])';
+        var row = '<tr><td class="portal"><a onclick="'+onclick+'">'+escapeHtmlSpecialChars(data._data.title)+'</a></td>';
 
         row += '<td class="info">';
 
-        if (data[type].target) {
-          row += '<span class="target '+TEAM_TO_CSS[data[type].target]+'">'+(data[type].target==TEAM_RES?'Resistance':'Enlightened')+' target</span> ';
-          sortVal = 100000+data[type].target;
+        if (data[type].target !== undefined) {
+          if (data[type].target == TEAM_NONE) {
+            row += '<span class="target">Target Portal</span> ';
+          } else {
+            row += '<span class="target '+TEAM_TO_CSS[data[type].target]+'">'+(data[type].target==TEAM_RES?'Resistance':'Enlightened')+' target</span> ';
+          }
         }
 
         if (data[type].fragments) {
-          if (data[type].target) {
+          if (data[type].target !== undefined) {
             row += '<br>';
           }
-          var fragmentName = description ? description.fragmentName : 'fragment';
-          row += '<span class="fragments'+(data[type].target?' '+TEAM_TO_CSS[data[type].target]:'')+'">'+fragmentName+': #'+data[type].fragments.join(', #')+'</span> ';
-          sortVal = Math.min.apply(null, data[type].fragments); // use min shard number at portal as sort key
+          var fragmentName = 'shard';
+//          row += '<span class="fragments'+(data[type].target?' '+TEAM_TO_CSS[data[type].target]:'')+'">'+fragmentName+': #'+data[type].fragments.join(', #')+'</span> ';
+          row += '<span class="fragments'+(data[type].target?' '+TEAM_TO_CSS[data[type].target]:'')+'">'+fragmentName+': yes</span> ';
         }
 
         row += '</td></tr>';
+
+        // sort by target portals first, then by portal GUID
+        var sortVal = (data[type].target !== undefined ? 'A' : 'Z') + guid;
 
         tableRows.push ( [sortVal, row] );
       }
@@ -315,7 +282,9 @@ window.artifact.showArtifactList = function() {
 
     // sort the rows
     tableRows.sort(function(a,b) {
-      return a[0]-b[0];
+      if (a[0] == b[0]) return 0;
+      else if (a[0] < b[0]) return -1;
+      else return 1;
     });
 
     // and add them to the table
@@ -325,6 +294,13 @@ window.artifact.showArtifactList = function() {
     html += '</table>';
   });
 
+
+  html += "<hr />"
+        + "<p>In Summer 2015, Niantic changed the data format for artifact portals. We no longer know:</p>"
+        + "<ul><li>Which team each target portal is for - only that it is a target</li>"
+        + "<li>Which shards are at each portal, just that it has one or more shards</li></ul>"
+        + "<p>You can select a portal and the detailed data contains the list of shard numbers, but there's still no"
+        + " more information on targets.</p>";
 
   dialog({
     title: 'Artifacts',

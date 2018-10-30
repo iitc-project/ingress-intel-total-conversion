@@ -7,10 +7,14 @@
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Save your favorite Maps and Portals and move the intel map with a click. Works with sync.
-// @include        https://www.ingress.com/intel*
-// @include        http://www.ingress.com/intel*
-// @match          https://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        https://*.ingress.com/intel*
+// @include        http://*.ingress.com/intel*
+// @match          https://*.ingress.com/intel*
+// @match          http://*.ingress.com/intel*
+// @include        https://*.ingress.com/mission/*
+// @include        http://*.ingress.com/mission/*
+// @match          https://*.ingress.com/mission/*
+// @match          http://*.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -45,6 +49,8 @@
   window.plugin.bookmarks.updateQueue = {};
   window.plugin.bookmarks.updatingQueue = {};
 
+  window.plugin.bookmarks.IDcount = 0;
+
   window.plugin.bookmarks.enableSync = false;
 
   window.plugin.bookmarks.starLayers = {};
@@ -63,7 +69,8 @@
   // Generate an ID for the bookmark (date time + random number)
   window.plugin.bookmarks.generateID = function() {
     var d = new Date();
-    var ID = d.getTime()+(Math.floor(Math.random()*99)+1);
+    var ID = d.getTime().toString() + window.plugin.bookmarks.IDcount.toString() + (Math.floor(Math.random()*99)+1);
+    window.plugin.bookmarks.IDcount++;
     var ID = 'id'+ID.toString();
     return ID;
   }
@@ -288,21 +295,36 @@
   }
 
   // Append a 'star' flag in sidebar.
-  window.plugin.bookmarks.addStarToSidebar = function() {
-    if(typeof(Storage) === "undefined") {
-      $('#portaldetails > .imgpreview').after(plugin.bookmarks.htmlDisabledMessage);
-      return;
-    }
+  window.plugin.bookmarks.onPortalSelectedPending = false;
+  window.plugin.bookmarks.onPortalSelected = function() {
     $('.bkmrksStar').remove();
 
-    // Prepend a star to mobile status-bar
-    if(window.plugin.bookmarks.isSmart) {
-      $('#updatestatus').prepend(plugin.bookmarks.htmlStar);
-      $('#updatestatus .bkmrksStar').attr('title', '');
+    if(window.selectedPortal == null) return;
+
+    if (!window.plugin.bookmarks.onPortalSelectedPending) {
+      window.plugin.bookmarks.onPortalSelectedPending = true;
+
+      setTimeout(function() { // the sidebar is constructed after firing the hook
+        window.plugin.bookmarks.onPortalSelectedPending = false;
+
+        $('.bkmrksStar').remove();
+
+        if(typeof(Storage) === "undefined") {
+          $('#portaldetails > .imgpreview').after(plugin.bookmarks.htmlDisabledMessage);
+          return;
+        }
+
+        // Prepend a star to mobile status-bar
+        if(window.plugin.bookmarks.isSmart) {
+          $('#updatestatus').prepend(plugin.bookmarks.htmlStar);
+          $('#updatestatus .bkmrksStar').attr('title', '');
+        }
+
+        $('#portaldetails > h3.title').before(plugin.bookmarks.htmlStar);
+        window.plugin.bookmarks.updateStarPortal();
+      }, 0);
     }
 
-    $('#portaldetails > h3.title').before(plugin.bookmarks.htmlStar);
-    window.plugin.bookmarks.updateStarPortal();
   }
 
   // Update the status of the star (when a portal is selected from the map/bookmarks-list)
@@ -473,6 +495,55 @@
     window.plugin.bookmarks.mobileSortIDf = newFold;
     console.log('Move Bookmarks '+type+' ID:'+idBkmrk+' from folder ID:'+oldFold+' to folder ID:'+newFold);
   }
+
+  window.plugin.bookmarks.onSearch = function(query) {
+    var term = query.term.toLowerCase();
+
+    $.each(plugin.bookmarks.bkmrksObj.maps, function(id, folder) {
+      $.each(folder.bkmrk, function(id, bookmark) {
+        if(bookmark.label.toLowerCase().indexOf(term) === -1) return;
+
+        query.addResult({
+          title: escapeHtmlSpecialChars(bookmark.label),
+          description: 'Map in folder "' + escapeHtmlSpecialChars(folder.label) + '"',
+          icon: '@@INCLUDEIMAGE:images/icon-bookmark-map.png@@',
+          position: L.latLng(bookmark.latlng.split(",")),
+          zoom: bookmark.z,
+          onSelected: window.plugin.bookmarks.onSearchResultSelected,
+        });
+      });
+    });
+
+    $.each(plugin.bookmarks.bkmrksObj.portals, function(id, folder) {
+      $.each(folder.bkmrk, function(id, bookmark) {
+        if(bookmark.label.toLowerCase().indexOf(term) === -1) return;
+
+        query.addResult({
+          title: escapeHtmlSpecialChars(bookmark.label),
+          description: 'Bookmark in folder "' + escapeHtmlSpecialChars(folder.label) + '"',
+          icon: '@@INCLUDEIMAGE:images/icon-bookmark.png@@',
+          position: L.latLng(bookmark.latlng.split(",")),
+          guid: bookmark.guid,
+          onSelected: window.plugin.bookmarks.onSearchResultSelected,
+        });
+      });
+    });
+  };
+
+  window.plugin.bookmarks.onSearchResultSelected = function(result, event) {
+    if(result.guid) { // portal
+      var guid = result.guid;
+      if(event.type == 'dblclick')
+        zoomToAndShowPortal(guid, result.position);
+      else if(window.portals[guid])
+        renderPortalDetails(guid);
+      else
+        window.selectPortalByLatLng(result.position);
+    } else if(result.zoom) { // map
+      map.setView(result.position, result.zoom);
+    }
+    return true; // prevent default behavior
+  };
 
 /***************************************************************************************************************************************************************/
 
@@ -744,6 +815,7 @@
         }
       }
     });
+    window.plugin.bookmarks.autoDrawOnSelect();
   }
 
   window.plugin.bookmarks.draw = function(view) {
@@ -754,8 +826,7 @@
     });
 
     if(latlngs.length >= 2 && latlngs.length <= 3) {
-      // TODO: add an API to draw-tools rather than assuming things about it's internals
-      window.plugin.drawTools.setOptions();
+      // TODO: add an API to draw-tools rather than assuming things about its internals
 
       var layer, layerType;
       if(latlngs.length == 2) {
@@ -784,45 +855,49 @@
       }
 
       if(view) {
-        map.fitBounds(newItem.getBounds());
+        map.fitBounds(layer.getBounds());
       }
-    }
-    else{
-      $('#bkmrksAutoDrawer p').toggle().delay('2500').fadeOut('500');
     }
   }
 
-  window.plugin.bookmarks.autoDrawCalcDistance = function() {
+  window.plugin.bookmarks.autoDrawOnSelect = function() {
     var latlngs = [];
     var uuu = $('#bkmrksAutoDrawer a.bkmrk.selected').each(function(i) {
       var tt = $(this).data('latlng');
       latlngs[i] = tt;
     });
 
-    var distance = null;
+    var text = "You must select 2 or 3 portals!";
+    var color = "red";
+
+    function formatDistance(distance) {
+      var text = digits(distance > 10000 ? (distance/1000).toFixed(2) + "km" : (Math.round(distance) + "m"));
+      return distance >= 200000
+        ? '<em title="Long distance link" class="help longdistance">'+text+'</em>'
+        : text;
+    }
+
     if(latlngs.length == 2) {
-      distance = L.latLng(latlngs[0]).distanceTo(latlngs[1]);
+      var distance = L.latLng(latlngs[0]).distanceTo(latlngs[1]);
+      text = 'Distance between portals: ' + formatDistance(distance);
+      color = "";
+    } else if(latlngs.length == 3) {
+      var longdistance = false;
+      var distances = latlngs.map(function(ll1, i, latlngs) {
+        var ll2 = latlngs[(i+1)%3];
+        return formatDistance(L.latLng(ll1).distanceTo(ll2));
+      });
+      text = 'Distances: ' + distances.join(", ");
+      color = "";
     }
 
-    $('#bkmrksAutoDrawerDistance').remove();
-    if(distance !== null) {
-      distance = Math.round(distance);
-
-      var text = 'Distance between portals: ';
-      if(distance > 1000)
-        text += digits(distance / 1000) + 'km';
-      else
-        text += digits(distance) + 'm';
-
-      $('<div>')
-        .html(text)
-        .attr('id', 'bkmrksAutoDrawerDistance')
-        .appendTo('#bkmrksAutoDrawer');
-    }
+    $('#bkmrksAutoDrawer p')
+      .html(text)
+      .css("color", color);
   }
 
   window.plugin.bookmarks.dialogLoadList = function() {
-    var r = 'The "<a href="http://iitc.jonatkins.com/?page=desktop#plugin-draw-tools" target="_BLANK"><strong>Draw Tools</strong></a>" plugin is required.</span>';
+    var r = 'The "<a href="http://iitc.me/desktop/#plugin-draw-tools" target="_BLANK"><strong>Draw Tools</strong></a>" plugin is required.</span>';
 
     if(!window.plugin.bookmarks || !window.plugin.drawTools) {
       $('.ui-dialog-autodrawer .ui-dialog-buttonset .ui-button:not(:first)').hide();
@@ -869,8 +944,8 @@
         + '<label style="margin-bottom: 9px; display: block;">'
         + '<input style="vertical-align: middle;" type="checkbox" id="bkmrkClearSelection" checked>'
         + ' Clear selection after drawing</label>'
-        + '<p style="color:red;text-align:center;margin-bottom:9px;">You must select 2 or 3 portals.</p>'
-        + '<div onclick="window.plugin.bookmarks.autoDrawCalcDistance();return false;">'
+        + '<p style="margin-bottom:9px;color:red">You must select 2 or 3 portals!</p>'
+        + '<div onclick="window.plugin.bookmarks.autoDrawOnSelect();return false;">'
         + element
         + '</div>'
         + '</div>';
@@ -1050,7 +1125,7 @@
 /***************************************************************************************************************************************************************/
 
   window.plugin.bookmarks.setupCSS = function() {
-    $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:plugins/bookmarks-css.css@@').appendTo('head');
+    $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:plugins/bookmarks-by-zaso.css@@').appendTo('head');
   }
 
   window.plugin.bookmarks.setupPortalsList = function() {
@@ -1193,13 +1268,6 @@
       if(window.useAndroidPanes())
         android.addPane("plugin-bookmarks", "Bookmarks", "ic_action_star");
       window.addHook('paneChanged', window.plugin.bookmarks.onPaneChanged);
-
-      // Remove the star
-      window.addHook('portalSelected', function(data) {
-        if(data.selectedPortalGuid === null) {
-          $('.bkmrksStar').remove();
-        }
-      });
     }
     $('#toolbox').append(window.plugin.bookmarks.htmlCallSetBox+window.plugin.bookmarks.htmlCalldrawBox);
 
@@ -1215,7 +1283,8 @@
     if(window.plugin.bookmarks.statusBox['show'] === 0) { window.plugin.bookmarks.switchStatusBkmrksBox(0); }
     if(window.plugin.bookmarks.statusBox['page'] === 1) { $('#bookmarksBox h5.bkmrk_portals').trigger('click'); }
 
-    window.addHook('portalDetailsUpdated', window.plugin.bookmarks.addStarToSidebar);
+    window.addHook('portalSelected', window.plugin.bookmarks.onPortalSelected);
+    window.addHook('search', window.plugin.bookmarks.onSearch);
 
     // Sync
     window.addHook('pluginBkmrksEdit', window.plugin.bookmarks.syncBkmrks);

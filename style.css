@@ -197,7 +197,8 @@ a:hover {
 #chatcontrols a.active {
   border-color: #FFCE00;
   border-bottom-width:0px;
-  font-weight:bold
+  font-weight:bold;
+  background: rgb(8, 48, 78);
 }
 
 #chatcontrols a.active + a {
@@ -219,6 +220,32 @@ a:hover {
   border-top: 10px solid #FFCE00;
 }
 
+#chatcontrols .loading {
+  background-color: rgba(255,0,0,0.3);
+  -webkit-animation: chatloading 1.2s infinite linear;
+  -moz-animation: chatloading 1.2s infinite linear;
+  animation: chatloading 1.2s infinite linear;
+}
+
+@-webkit-keyframes chatloading {
+    0% { background-color: rgba(255,0,0,0.4) }
+   50% { background-color: rgba(255,0,0,0.1) }
+  100% { background-color: rgba(255,0,0,0.4) }
+}
+
+@-moz-keyframes chatloading {
+    0% { background-color: rgba(255,0,0,0.4) }
+   50% { background-color: rgba(255,0,0,0.1) }
+  100% { background-color: rgba(255,0,0,0.4) }
+}
+
+@keyframes chatloading {
+    0% { background-color: rgba(255,0,0,0.4) }
+   50% { background-color: rgba(255,0,0,0.1) }
+  100% { background-color: rgba(255,0,0,0.4) }
+}
+
+
 
 #chat {
   position: absolute;
@@ -227,7 +254,6 @@ a:hover {
   left: 0;
   z-index: 3000;
   background: rgba(8, 48, 78, 0.9);
-  font-size: 12.6px;
   line-height: 15px;
   color: #eee;
   border: 1px solid #20A8B1;
@@ -247,9 +273,6 @@ em {
   top: 25px;
 }
 
-#chatpublic, #chatfull, #chatcompact {
-  display: none;
-}
 
 #chat > div {
   overflow-x:hidden;
@@ -265,7 +288,7 @@ em {
 #chat table, #chatinput table {
   width: 100%;
   table-layout: fixed;
-  border-spacing: 0m;
+  border-spacing: 0;
   border-collapse: collapse;
 }
 
@@ -274,7 +297,7 @@ em {
 }
 
 #chat td, #chatinput td {
-  font-size: 12.6px;
+  font-size: 13px;
   vertical-align: top;
   padding-bottom: 3px;
 }
@@ -334,6 +357,7 @@ summary {
   padding: 0 2px;
   background: rgba(8, 48, 78, 0.9);
   width: 708px;
+  height: 23px;
   border: 1px solid #20A8B1;
   z-index: 3001;
   -webkit-box-sizing: border-box;
@@ -349,7 +373,6 @@ summary {
 
 #chatinput input {
   background: transparent;
-  font-size: 12.6px;
   color: #EEEEEE;
   width: 100%;
   height: 100%;
@@ -462,8 +485,11 @@ h2 sup, h2 sub {
 }
 
 
-/* geosearch input, and others */
-input {
+/* search input, and others */
+input:not([type]), .input,
+input[type="text"], input[type="password"],
+input[type="number"], input[type="email"],
+input[type="search"], input[type="url"] {
   background-color: rgba(0, 0, 0, 0.3);
   color: #ffce00;
   height: 24px;
@@ -476,23 +502,71 @@ input {
   box-sizing: border-box;
 }
 
-#geosearch{
-  width:272px;
+#searchwrapper {
+  position: relative;
+}
+#search {
+  width: 100%;
+  padding-right: 24px;
+}
+#buttongeolocation {
+  position: absolute;
+  right: 0;
+  top: 0;
+  margin: 0;
+  border: 0 none transparent;
+  padding: 0 2px 0 0;
+  height: 24px;
   background-color: transparent;
 }
-#geosearchwrapper {
-  height:25px;  
-  background-color: rgba(0, 0, 0, 0.3);
+#buttongeolocation:focus {
+  outline: 1px dotted #ffce00;
 }
-#geosearchwrapper img{
-  vertical-align: bottom;
-  margin-bottom: 2px;
+#buttongeolocation img {
+  display: block;
+}
+#searchwrapper h3 {
+  font-size: 1em;
+  height: auto;
   cursor: pointer;
 }
-
-.search_not_found{
-  color:red;
-  font-style: italic;
+.searchquery {
+  max-height: 25em;
+  overflow-y: auto;
+}
+#searchwrapper .ui-accordion-header::before {
+  font-size: 18px;
+  margin-right: 2px;
+  font-weight: normal;
+  line-height: 1em;
+  content: "⊞";
+}
+#searchwrapper .ui-accordion-header-active::before {
+  content: "⊟";
+}
+#searchwrapper .ui-accordion-content {
+  margin: 0;
+  overflow: hidden;
+}
+#searchwrapper ul {
+  padding-left: 14px;
+}
+#searchwrapper li {
+  cursor: pointer;
+}
+#searchwrapper li a {
+  margin-left: -14px;
+  padding-left: 14px;
+  background-position: 1px center;
+  background-repeat: no-repeat;
+  background-size: 12px 12px;
+}
+#searchwrapper li:focus a, #searchwrapper li:hover a {
+  text-decoration: underline;
+}
+#searchwrapper li em {
+  color: #ccc;
+  font-size: 0.9em;
 }
 
 ::-webkit-input-placeholder {
@@ -520,7 +594,7 @@ h3 {
   margin:0;
   height: 23px;
   width: 100%;
-  overflow:hidden;
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   -webkit-box-sizing: border-box;
@@ -608,7 +682,6 @@ h3 {
   vertical-align: top;
   white-space: nowrap;
   width: 50%;
-  width: calc(50% - 62px);
 }
 
 #randdetails th, #resodetails th {
@@ -647,6 +720,15 @@ h3 {
   font-family: inherit;
   cursor: help;
 }
+
+#artifact_target, #artifact_fragments {
+  margin-top: 4px;
+  margin-bottom: 4px;
+
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
 
 /* resonators */
 #resodetails {
@@ -710,13 +792,11 @@ h3 {
 .linkdetails aside {
   display: inline-block;
   white-space: nowrap;
-  font-size: 12px;
   margin-left: 5px;
   margin-right: 5px;
 }
 
 #toolbox {
-  font-size: 12px;
   text-align: left;    /* centre didn't look as nice here as it did above in .linkdetails */
 }
 
@@ -859,6 +939,7 @@ h3 {
   cursor: pointer;
   border: 1px solid rgb(32, 168, 177);
   background-color: rgba(0, 0, 0, 0);
+  padding: 0;
 }
 
 .ui-dialog-titlebar-button:active {
@@ -878,7 +959,36 @@ h3 {
 }
 
 .ui-dialog-titlebar-button-collapse-collapsed {
-   background-color: rgb(32, 168, 177);
+  background-color: rgb(32, 168, 177);
+}
+
+.ui-dialog-titlebar-button-collapse::after,
+.ui-dialog-titlebar-button-close::after,
+.ui-dialog-titlebar-button-close::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  width: 11px;
+  margin-left: -6px;
+  height: 0;
+  border-top: 2px solid rgb(32, 168, 177);
+}
+.ui-dialog-titlebar-button-close::after {
+  transform: translateY(3.5px) rotate(45deg);
+  -webkit-transform: translateY(3.5px) rotate(45deg);
+}
+.ui-dialog-titlebar-button-close::before {
+  transform: translateY(3.5px) rotate(-45deg);
+  -webkit-transform: translateY(3.5px) rotate(-45deg);
+}
+.ui-dialog-titlebar-button.ui-state-active::after,
+.ui-dialog-titlebar-button.ui-state-active::before,
+.ui-dialog-titlebar-button.ui-dialog-titlebar-button-collapse-collapsed::after,
+.ui-dialog-titlebar-button.ui-dialog-titlebar-button-collapse-collapsed::before,
+.ui-dialog-titlebar-button:active::after,
+.ui-dialog-titlebar-button:active::before {
+  border-top-color: rgba(8, 60, 78, 0.9);
 }
 
 .ui-dialog-content {
@@ -970,7 +1080,6 @@ td + td {
   color: #ffd652;
   display: inline-block;
   float: left;
-  font-size: 12px;
   height: 18px;
   text-align: center;
 }
@@ -1038,7 +1147,11 @@ table.artifact tr > * {
 }
 
 table.artifact td.info {
-  min-width: 110px;
+  min-width: 110px; /* min-width for info column, to ensure really long portal names don't crowd things out */
+}
+
+table.artifact .portal {
+  min-width: 200px; /* min-width for portal names, to ensure really long lists of artifacts don't crowd names out */
 }
 
 
@@ -1097,3 +1210,97 @@ table.artifact td.info {
   margin: 8px;
   text-align: center;
 }
+
+/* region scores */
+.cellscore .ui-accordion-header, .cellscore .ui-accordion-content {
+	border: 1px solid #20a8b1;
+	margin-top: -1px;
+	display: block;
+}
+.cellscore .ui-accordion-header {
+	color: #ffce00;
+	outline: none
+}
+.cellscore .ui-accordion-header:before {
+	font-size: 18px;
+	margin-right: 2px;
+	content: "⊞";
+}
+.cellscore .ui-accordion-header-active:before {
+	content: "⊟";
+}
+g.checkpoint:hover circle {
+  fill-opacity: 1;
+  stroke-width: 2px;
+}
+.checkpoint_table {
+	border-collapse: collapse;
+}
+.checkpoint_table td {
+	text-align: right;
+	padding-left: 10px;
+}
+
+.text-overflow-ellipsis {
+	display: inline-block;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	vertical-align: text-bottom;
+	width: 100%;
+}
+
+/* tabs */
+.ui-tabs-nav {
+	display: block;
+	border-bottom: 1px solid #20a8b1;
+	border-top: 1px solid transparent;
+	margin: 3px 0 0;
+	padding: 0;
+}
+.ui-tabs-nav::after {
+	content: '';
+	clear: left;
+	display: block;
+	height: 0;
+	width: 0;
+}
+.ui-tabs-nav li {
+	list-style: none;
+	display: block;
+	float:left;
+	margin: 0 0 -1px;
+	border: 1px solid #20a8b1;
+}
+.ui-tabs-nav li.ui-tabs-active {
+	border-bottom-color: #0F2C3F;
+	background: #0F2C3F;
+	border-width: 2px 2px 1px;
+	font-weight: bold;
+	margin: -1px 1px;
+}
+.ui-tabs-nav a {
+	display: inline-block;
+	padding: 0.2em 0.7em;
+}
+.ui-tabs-nav .ui-icon {
+	display: inline-block;
+	font-size: 0;
+	height: 22px;
+	overflow: hidden;
+	position: relative;
+	vertical-align: top;
+	width: 16px;
+}
+.ui-tabs-nav .ui-icon-close::before {
+	content: "×";
+	font-size: 16px;
+	height: 16px;
+	position: absolute;
+	text-align: center;
+	top: 2px;
+	vertical-align: baseline;
+	width: 16px;
+	cursor: pointer;
+}
+

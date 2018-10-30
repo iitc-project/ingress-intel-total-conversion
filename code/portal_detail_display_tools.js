@@ -15,64 +15,12 @@ window.getRangeText = function(d) {
   return ['range',
       '<a onclick="window.rangeLinkClick()"'
     + (range.isLinkable ? '' : ' style="text-decoration:line-through;"')
-    + ' title="'+title+'">'
+    + '>'
     + (range.range > 1000
       ? Math.floor(range.range/1000) + ' km'
       : Math.floor(range.range)      + ' m')
-    + '</a>'];
-}
-
-// generates description text from details for portal
-window.getPortalDescriptionFromDetails = function(details) {
-  return details.title || '(untitled)';
-
-//  var descObj = details.descriptiveText.map;
-//  // FIXME: also get real description?
-//  var desc = descObj.TITLE;
-//  if(descObj.ADDRESS)
-//    desc += '\n' + descObj.ADDRESS;
-////  if(descObj.ATTRIBUTION)
-////    desc += '\nby '+descObj.ATTRIBUTION+' ('+descObj.ATTRIBUTION_LINK+')';
-//  return desc;
-}
-
-// Grabs more info, including the submitter name for the current main
-// portal image
-window.getPortalDescriptionFromDetailsExtended = function(details) {
-  var descObj = details.title;
-  var photoStreamObj = details.photoStreamInfo;
-
-  var submitterObj = new Object();
-  submitterObj.type = "";
-  submitterObj.name = "";
-  submitterObj.team = "";
-  submitterObj.link = "";
-  submitterObj.voteCount = undefined;
-
-  if(photoStreamObj && photoStreamObj.hasOwnProperty("coverPhoto") && photoStreamObj.coverPhoto.hasOwnProperty("attributionMarkup")) {
-    submitterObj.name = "Unknown";
-
-    var attribution = photoStreamObj.coverPhoto.attributionMarkup;
-    submitterObj.type = attribution[0];
-    if(attribution[1].hasOwnProperty("plain"))
-      submitterObj.name = attribution[1].plain;
-    if(attribution[1].hasOwnProperty("team"))
-      submitterObj.team = attribution[1].team;
-    if(attribution[1].hasOwnProperty("attributionLink"))
-      submitterObj.link = attribution[1].attributionLink;
-    if(photoStreamObj.coverPhoto.hasOwnProperty("voteCount"))
-      submitterObj.voteCount = photoStreamObj.coverPhoto.voteCount;
-  }
-
-
-  var portalDetails = {
-    title: descObj.TITLE,
-    description: descObj.DESCRIPTION,
-    address: descObj.ADDRESS,
-    submitter: submitterObj
-  };
-
-  return portalDetails;
+    + '</a>',
+    title];
 }
 
 
@@ -107,14 +55,16 @@ window.getModDetails = function(d) {
           if (!mod.stats.hasOwnProperty(key)) continue;
           var val = mod.stats[key];
 
-//          if (key === 'REMOVAL_STICKINESS' && val == 0) continue;  // stat on all mods recently - unknown meaning, not displayed in stock client
+          // if (key === 'REMOVAL_STICKINESS' && val == 0) continue;  // stat on all mods recently - unknown meaning, not displayed in stock client
 
           // special formatting for known mod stats, where the display of the raw value is less useful
-          if (key === 'HACK_SPEED') val = (val/10000)+'%'; // 500000 = 50%
-          else if (key === 'FORCE_AMPLIFIER') val = (val/1000)+'x';  // 2000 = 2x
-          else if (key === 'LINK_RANGE_MULTIPLIER') val = (val/1000)+'x' // 2000 = 2x
-          else if (key === 'HIT_BONUS') val = (val/10000)+'%'; // 2000 = 0.2% (although this seems pretty small to be useful?)
-          else if (key === 'ATTACK_FREQUENCY') val = (val/1000)+'x' // 2000 = 2x
+          if      (key === 'HACK_SPEED')            val = (val/10000)+'%'; // 500000 = 50%
+          else if (key === 'HIT_BONUS')             val = (val/10000)+'%'; // 300000 = 30%
+          else if (key === 'ATTACK_FREQUENCY')      val = (val/1000) +'x'; // 2000 = 2x
+          else if (key === 'FORCE_AMPLIFIER')       val = (val/1000) +'x'; // 2000 = 2x
+          else if (key === 'LINK_RANGE_MULTIPLIER') val = (val/1000) +'x'; // 2000 = 2x
+          else if (key === 'LINK_DEFENSE_BOOST')    val = (val/1000) +'x'; // 1500 = 1.5x
+          else if (key === 'REMOVAL_STICKINESS' && val > 100) val = (val/10000)+'%'; // an educated guess
           // else display unmodified. correct for shield mitigation and multihack - unknown for future/other mods
 
           modTooltip += '\n+' +  val + ' ' + key.capitalize().replace(/_/g,' ');
@@ -149,9 +99,9 @@ window.getModDetails = function(d) {
 window.getEnergyText = function(d) {
   var currentNrg = getCurrentPortalEnergy(d);
   var totalNrg = getTotalPortalEnergy(d);
-  var inf = currentNrg + ' / ' + totalNrg;
+  var title = currentNrg + ' / ' + totalNrg;
   var fill = prettyEnergy(currentNrg) + ' / ' + prettyEnergy(totalNrg)
-  return ['energy', '<tt title="'+inf+'">' + fill + '</tt>'];
+  return ['energy', fill, title];
 }
 
 
@@ -235,22 +185,19 @@ window.getAttackApGainText = function(d,fieldCount,linkCount) {
   var breakdown = getAttackApGain(d,fieldCount,linkCount);
   var totalGain = breakdown.enemyAp;
 
-  function tt(text) {
-    var t = '';
-    if (PLAYER.team == d.team) {
-      totalGain = breakdown.friendlyAp;
-      t += 'Friendly AP:\t' + breakdown.friendlyAp + '\n';
-      t += '  Deploy ' + breakdown.deployCount + ', ';
-      t += 'Upgrade ' + breakdown.upgradeCount + '\n';
-      t += '\n';
-    }
-    t += 'Enemy AP:\t' + breakdown.enemyAp + '\n';
-    t += '  Destroy AP:\t' + breakdown.destroyAp + '\n';
-    t += '  Capture AP:\t' + breakdown.captureAp + '\n';
-    return '<tt title="' + t + '">' + text + '</tt>';
+  var t = '';
+  if (teamStringToId(PLAYER.team) == teamStringToId(d.team)) {
+    totalGain = breakdown.friendlyAp;
+    t += 'Friendly AP:\t' + breakdown.friendlyAp + '\n';
+    t += '  Deploy ' + breakdown.deployCount + ', ';
+    t += 'Upgrade ' + breakdown.upgradeCount + '\n';
+    t += '\n';
   }
+  t += 'Enemy AP:\t' + breakdown.enemyAp + '\n';
+  t += '  Destroy AP:\t' + breakdown.destroyAp + '\n';
+  t += '  Capture AP:\t' + breakdown.captureAp + '\n';
 
-  return [tt('AP Gain'), tt(digits(totalGain))];
+  return ['AP Gain', digits(totalGain), t];
 }
 
 
@@ -259,16 +206,12 @@ window.getHackDetailsText = function(d) {
 
   var shortHackInfo = hackDetails.hacks+' @ '+formatInterval(hackDetails.cooldown);
 
-  function tt(text) {
-    var t = 'Hacks available every 4 hours\n';
-    t += 'Hack count:\t'+hackDetails.hacks+'\n';
-    t += 'Cooldown time:\t'+formatInterval(hackDetails.cooldown)+'\n';
-    t += 'Burnout time:\t'+formatInterval(hackDetails.burnout)+'\n';
+  var title = 'Hacks available every 4 hours\n'
+            + 'Hack count:\t'+hackDetails.hacks+'\n'
+            + 'Cooldown time:\t'+formatInterval(hackDetails.cooldown)+'\n'
+            + 'Burnout time:\t'+formatInterval(hackDetails.burnout);
 
-    return '<span title="'+t+'">'+text+'</span>';
-  }
-
-  return [tt('hacks'), tt(shortHackInfo)];
+  return ['hacks', shortHackInfo, title];
 }
 
 
@@ -278,16 +221,12 @@ window.getMitigationText = function(d,linkCount) {
   var mitigationShort = mitigationDetails.total;
   if (mitigationDetails.excess) mitigationShort += ' (+'+mitigationDetails.excess+')';
 
-  function tt(text) {
-    var t = 'Total shielding:\t'+(mitigationDetails.shields+mitigationDetails.links)+'\n'
-          + '- active:\t'+mitigationDetails.total+'\n'
-          + '- excess:\t'+mitigationDetails.excess+'\n'
-          + 'From\n'
-          + '- shields:\t'+mitigationDetails.shields+'\n'
-          + '- links:\t'+mitigationDetails.links;
+  var title = 'Total shielding:\t'+(mitigationDetails.shields+mitigationDetails.links)+'\n'
+            + '- active:\t'+mitigationDetails.total+'\n'
+            + '- excess:\t'+mitigationDetails.excess+'\n'
+            + 'From\n'
+            + '- shields:\t'+mitigationDetails.shields+'\n'
+            + '- links:\t'+mitigationDetails.links;
 
-    return '<span title="'+t+'">'+text+'</span>';
-  }
-
-  return [tt('shielding'), tt(mitigationShort)];
+  return ['shielding', mitigationShort, title];
 }

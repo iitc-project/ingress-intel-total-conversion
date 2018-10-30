@@ -28,19 +28,19 @@
         <br>
         <b>by <a href="https://github.com/leCradle">cradle</a>, <a href="https://github.com/fkloft">fkloft</a> and
         contributors</b><br><br>
-        <b>Icon by <a href="http://www.ludolab.net">Giuseppe Lucido</a></b><br><br>
+        <b>Icon by <a href="http://be.net/giuseppelucido">Giuseppe Lucido</a></b><br><br>
         IITC Mobile is an optimized mobile browser for the
         Ingress Intel Total Conversion (IITC) userscript by <a href="https://github.com/breunigs"><b>breunigs</b></a>.
         After Niantic asked the main developer to shut down his github project, development
         is continued on a fork of <a href="https://github.com/jonatkins"><b>jonatkins</b></a>.
         <h3>Community:</h3>
-        • Visit the <a href="http://iitc.jonatkins.com/">IITC website</a> for new releases and the desktop version.<br>
+        • Visit the <a href="http://iitc.me/">IITC website</a> for new releases and the desktop version.<br>
         • Follow the <a href="https://plus.google.com/105383756361375410867">IITC Google+ page</a>
         for release announcements.<br>
         • Join the <a href="https://plus.google.com/communities/105647403088015055797">IITC Google+ community</a>
         - a place to ask for help and discuss with other users.
         <h3>Developers:</h3>
-        <a href="https://github.com/jonatkins/ingress-intel-total-conversion">IITC on Github</a>
+        <a href="https://github.com/iitc-project/ingress-intel-total-conversion">IITC on Github</a>
         <h3>IITC Licence:</h3>
         Copyright © 2013 Stefan Breunig, Jon Atkins, Philipp Schäfer and others<br><br>
 
@@ -66,9 +66,9 @@
         • Layers/Highlights: swipe from the right edge of your screen (or click the layer-chooser icon in the ActionBar)
         to evoke the Layer Drawer.<br><br>
         • You can quickly send the current portal link/permalink to another device if both devices support NFC (hold
-        both devices back-to-back and tap the screen to beam the map to the other device).
+        both devices back-to-back and tap the screen to beam the map to the other device).<br><br>
         • You can add official plugins in the settings.<br><br>
-        • For external plugins please have a look at the <a href="http://iitc.jonatkins.com/?page=faq#mobile-plugins">FAQ.]]>
+        • For external plugins please have a look at the <a href="http://iitc.me/faq/#mobile-plugins">FAQ.]]>
     </string>
     <string name="notice_info">
         <![CDATA[Hint: Alternative ways to open the info screen:<br><br>
@@ -110,7 +110,7 @@
     <string name="pref_persistent_zoom_sum">Don\'t change zoom level when locate button is pressed</string>
     <string name="pref_user_zoom">Show zoom control</string>
     <string name="pref_user_zoom_sum">Shows +/- buttons even on multitouch capable devices.</string>
-    <string name="pref_fullscreen">Hide in fullscreen mode</string>
+    <string name="pref_fullscreen">Configure fullscreen mode</string>
     <string name="pref_fullscreen_sum">Which elements should be hidden in fullscreen mode.
         Note: IITCm can still be controlled via the Navigation Drawers</string>
     <string name="pref_force_desktop">Force desktop mode</string>
@@ -142,10 +142,10 @@
     <string name="pref_secure_updates_sum">If enabled, only https updates are handled</string>
 
     <string-array name="pref_hide_fullscreen">
-        <item>System Bar</item>
-        <item>Action Bar</item>
+        <item>System Notification Bar</item>
+        <item>IITC Action Bar</item>
         <item>IITC Status Bar</item>
-        <item>Navigation Bar</item>
+        <item>System Navigation Bar</item>
     </string-array>
     <string-array name="pref_hide_fullscreen_vals">
         <item>2</item>
@@ -205,7 +205,7 @@
     </string-array>
 
     <string name="menu_reload">Reload IITC</string>
-    <string name="menu_toggle_fullscreen">Toggle fullscreen</string>
+    <string name="menu_toggle_fullscreen">Fullscreen</string>
     <string name="menu_layer_chooser">Layer Chooser</string>
     <string name="menu_locate">Get Location</string>
     <string name="menu_clear_cookies">Clear Cookies</string>

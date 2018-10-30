@@ -33,6 +33,18 @@ public class IITC_WebViewClient extends WebViewClient {
             "body, #dashboard_container, #map_canvas { background: #000 !important; }"
                     .getBytes());
 
+    public static final boolean isIntelUrl(String url) {
+        return
+            url.startsWith("http://ingress.com/intel") ||
+            url.startsWith("https://ingress.com/intel") ||
+            url.startsWith("http://ingress.com/mission/") ||
+            url.startsWith("https://ingress.com/mission/") ||
+            url.startsWith("http://www.ingress.com/intel") ||
+            url.startsWith("https://www.ingress.com/intel") ||
+            url.startsWith("http://www.ingress.com/mission/") ||
+            url.startsWith("https://www.ingress.com/mission/");
+    }
+
     private final IITC_Mobile mIitc;
     private boolean mIitcInjected = false;
     private final String mIitcPath;
@@ -119,8 +131,7 @@ public class IITC_WebViewClient extends WebViewClient {
 
     @Override
     public void onPageFinished(final WebView view, final String url) {
-        if (url.startsWith("http://www.ingress.com/intel")
-                || url.startsWith("https://www.ingress.com/intel")) {
+        if(isIntelUrl(url)) {
             if (mIitcInjected) return;
             Log.d("injecting iitc..");
             loadScripts((IITC_WebView) view);
@@ -181,10 +192,11 @@ public class IITC_WebViewClient extends WebViewClient {
         // if any tiles are requested, handle it with IITC_TileManager
         if (url.matches(".*tile.*jpg.*") // mapquest tiles | ovi tiles
                 || url.matches(".*tile.*png.*") // cloudmade tiles
-                || url.matches(".*mts.*googleapis.*smartmaps") // google tiles
+                || url.matches(".*mts.*googleapis.*") // google tiles
                 || url.matches(".*khms.*googleapis.*") // google satellite tiles
                 || url.matches(".*tile.*jpeg.*") // bing tiles
                 || url.matches(".*maps.*yandex.*tiles.*") // yandex maps
+                || url.matches(".*cartocdn.*png.*") // cartoDB tiles
         ) {
             try {
                 return mTileManager.getTile(url);
@@ -224,11 +236,17 @@ public class IITC_WebViewClient extends WebViewClient {
     // start non-ingress-intel-urls in another app...
     @Override
     public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
+        Uri uri = Uri.parse(url);
+        
         if (url.contains("conflogin") || url.contains("ServiceLogin") || url.contains("appengine.google.com")) {
             Log.d("Google login");
             return false;
         }
-        else if (url.contains("ingress.com/intel")) {
+        else if (uri.getHost().contains(".google.") && "/url".equals(uri.getPath()) && uri.getQueryParameter("q") != null) {
+            Log.d("redirect to: " + uri.getQueryParameter("q"));
+            return shouldOverrideUrlLoading(view, uri.getQueryParameter("q"));
+        }
+        else if (isIntelUrl(url)) {
             Log.d("intel link requested, reset app and load " + url);
             mIitc.reset();
             mIitc.setLoadingState(true);
@@ -236,6 +254,8 @@ public class IITC_WebViewClient extends WebViewClient {
         } else {
             Log.d("no ingress intel link, start external app to load url: " + url);
             final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            // make new activity independent from iitcm
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mIitc.startActivity(intent);
         }
         return true;

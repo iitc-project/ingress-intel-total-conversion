@@ -7,10 +7,14 @@
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Add the native OpenStreetMap.org map tiles as an optional layer.
-// @include        https://www.ingress.com/intel*
-// @include        http://www.ingress.com/intel*
-// @match          https://www.ingress.com/intel*
-// @match          http://www.ingress.com/intel*
+// @include        https://*.ingress.com/intel*
+// @include        http://*.ingress.com/intel*
+// @match          https://*.ingress.com/intel*
+// @match          http://*.ingress.com/intel*
+// @include        https://*.ingress.com/mission/*
+// @include        http://*.ingress.com/mission/*
+// @match          https://*.ingress.com/mission/*
+// @match          http://*.ingress.com/mission/*
 // @grant          none
 // ==/UserScript==
 
@@ -20,18 +24,27 @@
 
 
 // use own namespace for plugin
-window.plugin.mapTileOpenStreetMap = function() {};
+window.plugin.mapTileOpenStreetMap = {
+  addLayer: function() {
+    // OpenStreetMap tiles - we shouldn't use these by default - https://wiki.openstreetmap.org/wiki/Tile_usage_policy
+    // "Heavy use (e.g. distributing an app that uses tiles from openstreetmap.org) is forbidden without prior permission from the System Administrators"
 
-window.plugin.mapTileOpenStreetMap.addLayer = function() {
+    var osmOpt = {
+      attribution: 'Map data © OpenStreetMap contributors',
+      maxNativeZoom: 18,
+      maxZoom: 21,
+    };
 
-  //OpenStreetMap tiles - we shouldn't use these by default - https://wiki.openstreetmap.org/wiki/Tile_usage_policy
-  // "Heavy use (e.g. distributing an app that uses tiles from openstreetmap.org) is forbidden without prior permission from the System Administrators"
+    var layers = {
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png': 'OpenStreetMap',
+      'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png': 'Humanitarian',
+    };
 
-  osmAttribution = 'Map data © OpenStreetMap contributors';
-  var osmOpt = {attribution: osmAttribution, maxNativeZoom: 18, maxZoom: 21};
-  var osm = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', osmOpt);
-
-  layerChooser.addBaseLayer(osm, "OpenStreetMap");
+    for(var url in layers) {
+      var layer = new L.TileLayer(url, osmOpt);
+      layerChooser.addBaseLayer(layer, layers[url]);
+    }
+  },
 };
 
 var setup =  window.plugin.mapTileOpenStreetMap.addLayer;

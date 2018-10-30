@@ -7,15 +7,32 @@ window.renderUpdateStatusTimer_ = undefined;
 window.renderUpdateStatus = function() {
   var progress = 1;
 
-  // portal level display
-  var t = '<span class="help portallevel" title="Indicates portal levels displayed.  Zoom in to display lower level portals.">';
-  if(!window.isSmartphone()) // space is valuable
-    t += '<b>portals</b>: ';
-  var minlvl = getMinPortalLevel();
-  if(minlvl === 0)
-    t+= '<span id="loadlevel">all</span>';
-  else
-    t+= '<span id="loadlevel" style="background:'+COLORS_LVL[minlvl]+'">L'+minlvl+(minlvl<8?'+':'') + '</span>';
+  // portal/limk level display
+
+  var zoom = map.getZoom();
+  zoom = getDataZoomForMapZoom(zoom);
+  var tileParams = getMapZoomTileParameters(zoom);
+
+  var t = '<span class="help portallevel" title="Indicates portal levels/link lengths displayed.  Zoom in to display more.">';
+
+  if (tileParams.hasPortals) {
+    // zoom level includes portals (and also all links/fields)
+    if(!window.isSmartphone()) // space is valuable
+      t += '<b>portals</b>: ';
+    if(tileParams.level === 0)
+      t += '<span id="loadlevel">all</span>';
+    else
+      t += '<span id="loadlevel" style="background:'+COLORS_LVL[tileParams.level]+'">L'+tileParams.level+(tileParams.level<8?'+':'') + '</span>';
+  } else {
+    if(!window.isSmartphone()) // space is valuable
+      t += '<b>links</b>: ';
+
+    if (tileParams.minLinkLength > 0)
+      t += '<span id="loadlevel">&gt;'+(tileParams.minLinkLength>1000?tileParams.minLinkLength/1000+'km':tileParams.minLinkLength+'m')+'</span>';
+    else
+      t += '<span id="loadlevel">all links</span>';
+  }
+
   t +='</span>';
 
 

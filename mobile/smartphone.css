@@ -102,12 +102,14 @@ body {
   margin-left: 5px !important;
 }
 
-#geosearch {
-  width: 100%;
+#searchwrapper {
+  font-size: 1.2em;
 }
-
-#geosearchwrapper img {
-  display: none;
+#searchwrapper .ui-accordion-header {
+  padding: 0.3em 0;
+}
+#searchwrapper li {
+  line-height: 1.3em;
 }
 
 #chatcontrols {

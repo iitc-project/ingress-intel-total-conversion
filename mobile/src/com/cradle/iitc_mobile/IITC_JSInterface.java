@@ -15,6 +15,7 @@ import com.cradle.iitc_mobile.share.ShareActivity;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.NullPointerException;
 
 // provide communication between IITC script and android app
 public class IITC_JSInterface {
@@ -205,14 +206,20 @@ public class IITC_JSInterface {
         mIitc.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (progress != -1) {
-                    // maximum for setProgress is 10,000
-                    mIitc.setProgressBarIndeterminate(false);
-                    mIitc.setProgress((int) Math.round(progress * 10000));
-                }
-                else {
-                    mIitc.setProgressBarIndeterminate(true);
-                    mIitc.setProgress(1);
+                try {
+                    if (progress != -1) {
+                        // maximum for setProgress is 10,000
+                        mIitc.setProgressBarIndeterminate(false);
+                        mIitc.setProgress((int) Math.round(progress * 10000));
+                    }
+                    else {
+                        mIitc.setProgressBarIndeterminate(true);
+                        mIitc.setProgress(1);
+                    }
+                } catch(NullPointerException e) {
+                    // for some reason, setProgressBarIndeterminate throws a NullPointerException on some devices
+                    e.printStackTrace();
+                    mIitc.setProgress(10000); // hide the progress bar
                 }
             }
         });
