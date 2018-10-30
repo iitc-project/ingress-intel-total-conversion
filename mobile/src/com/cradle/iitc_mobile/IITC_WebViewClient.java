@@ -36,8 +36,8 @@ public class IITC_WebViewClient extends WebViewClient {
     public static final boolean isIntelUrl(String url) {
         return
             url.startsWith("https://intel.ingress.com") ||
-            url.matches("^https?://(?:.*\\.)?ingress\\.com/intel.*") ||
-            url.matches("^https?://(?:.*\\.)?ingress\\.com/mission.*");
+            url.matches("^https?://(?:intel\\.)?ingress\\.com/intel.*") ||
+            url.matches("^https?://(?:intel\\.)?ingress\\.com/mission.*");
     }
 
     private final IITC_Mobile mIitc;
