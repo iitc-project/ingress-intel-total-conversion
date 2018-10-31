@@ -23,7 +23,7 @@ android {
     buildToolsVersion '28.0.3'
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 14
         targetSdkVersion 28
         versionCode = getVersionCode()
         versionName "0.26-prime"
