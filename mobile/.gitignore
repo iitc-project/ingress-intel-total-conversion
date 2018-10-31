@@ -1,37 +1,6 @@
-.settings/
-assets/total-conversion-build.user.js
-assets/user-location.user.js
-assets/plugins/
-
-# built application files
-*.apk
-*.ap_
-
-# files for the dex VM
-*.dex
-
-# Java class files
-*.class
-
-# generated files
-bin/
-gen/
-out/
-
-# private ant configs
-ant.properties
-
-# Local configuration file (sdk path, etc)
+.gradle
+.idea
+*.iml
 local.properties
-
-# Eclipse project files
-.classpath
-.project
-
-# IntelliJ IDEA user settings
-*.iws
-.idea/workspace.xml
-.idea/tasks.xml
-
-# Proguard logs
-proguard_logs/
+signing.properties
+.DS_Store

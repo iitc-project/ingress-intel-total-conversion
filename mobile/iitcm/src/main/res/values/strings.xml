@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="toggle_map">Toggle map visibility</string>
+    <string name="clear_log">Clear log</string>
+    <string name="debug_run">Run</string>
+    <string name="activity_settings">IITC Mobile Settings</string>
+    <string name="activity_plugins">IITC Plugins</string>
+    <string name="activity_share">Share using…</string>
+    <string name="activity_share_to_clipboard">Copy to clipboard</string>
+    <string name="activity_save_to_file">Save to file</string>
+    <string name="action_settings">Settings</string>
+    <string name="drawer_open">Show navigation menu</string>
+    <string name="drawer_close">Hide navigation menu</string>
+    <string name="version">Print Version</string>
+    <string name="close">Close</string>
+    <string name="download_description">Downloading latest intel package…</string>
+
+
+    <!-- Title for a JavaScript dialog. "The page at <url of current page> says:" -->
+    <string name="js_dialog_title">The page at \"%s\" says:</string>
+    <!-- Default title for a javascript dialog -->
+    <string name="js_dialog_title_default">JavaScript</string>
+    <!-- Title for the unload javascript dialog -->
+    <string name="js_dialog_before_unload_title">Confirm Navigation</string>
+    <!-- Text for the positive button on the unload javascript dialog -->
+    <string name="js_dialog_before_unload_positive_button">Leave this Page</string>
+    <!-- Text for the negative button on the unload javascript dialog -->
+    <string name="js_dialog_before_unload_negative_button">Stay on this Page</string>
+    <!-- Message in a javascript dialog asking if the user wishes to leave the current page -->
+    <string name="js_dialog_before_unload">%s\n\nAre you sure you want to navigate away from this page?</string>
+
+    <string name="pref_about_title">About IITC Mobile</string>
+    <!-- Use CDATA to prevent android from parsing html tags....we are doing this with Html.fromHtml() -->
+    <string name="pref_about_text">
+        <![CDATA[
+        <h1>Ingress Intel Total Conversion Mobile</h1>
+        <b>Build Version: %1$s</b><br>
+        <b>IITC Version: %2$s</b><br>
+        <br>
+        <b>by <a href="https://github.com/leCradle">cradle</a>, <a href="https://github.com/fkloft">fkloft</a> and
+        contributors</b><br><br>
+        <b>Icon by <a href="http://be.net/giuseppelucido">Giuseppe Lucido</a></b><br><br>
+        IITC Mobile is an optimized mobile browser for the
+        Ingress Intel Total Conversion (IITC) userscript by <a href="https://github.com/breunigs"><b>breunigs</b></a>.
+        After Niantic asked the main developer to shut down his github project, development
+        is continued on a fork of <a href="https://github.com/jonatkins"><b>jonatkins</b></a>.
+        <h3>Community:</h3>
+        • Visit the <a href="http://iitc.me/">IITC website</a> for new releases and the desktop version.<br>
+        • Follow the <a href="https://plus.google.com/105383756361375410867">IITC Google+ page</a>
+        for release announcements.<br>
+        • Join the <a href="https://plus.google.com/communities/105647403088015055797">IITC Google+ community</a>
+        - a place to ask for help and discuss with other users.
+        <h3>Developers:</h3>
+        <a href="https://github.com/iitc-project/ingress-intel-total-conversion">IITC on Github</a>
+        <h3>IITC Licence:</h3>
+        Copyright © 2013 Stefan Breunig, Jon Atkins, Philipp Schäfer and others<br><br>
+
+        Permission to use, copy, modify, and/or distribute this software for
+        any purpose with or without fee is hereby granted, provided that the
+        above copyright notice and this permission notice appear in all
+        copies.<br><br>
+
+        THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHORS DISCLAIM ALL
+        WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
+        WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE
+        AUTHORS BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
+        DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA
+        OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+        TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+        PERFORMANCE OF THIS SOFTWARE.
+        ]]>
+    </string>
+    <string name="notice_how_to">
+        <![CDATA[<b>How to use IITCm:</b><br><br>
+        • Navigation: swipe from the left edge of your screen (or click the app icon) to evoke the Navigation Drawer.
+        Click the app icon again to return to the map.<br><br>
+        • Layers/Highlights: swipe from the right edge of your screen (or click the layer-chooser icon in the ActionBar)
+        to evoke the Layer Drawer.<br><br>
+        • You can quickly send the current portal link/permalink to another device if both devices support NFC (hold
+        both devices back-to-back and tap the screen to beam the map to the other device).<br><br>
+        • You can add official plugins in the settings.<br><br>
+        • For external plugins please have a look at the <a href="http://iitc.me/faq/#mobile-plugins">FAQ.]]>
+    </string>
+    <string name="notice_info">
+        <![CDATA[Hint: Alternative ways to open the info screen:<br><br>
+        • tap and hold a portal for a second<br>
+        • tap on the left half of the status bar]]>
+    </string>
+    <string name="notice_panes">
+        <![CDATA[Hint:<br><br>
+        Some plugins (e.g. portals list and bookmarks) now appear in the navigation drawer for quick access.<br>
+        They won\'t appear in the info pane any more.<br><br>
+        Swipe from the left edge of your screen (or click the app icon) to seem them.]]>
+    </string>
+    <string name="notice_extplugins">
+        <![CDATA[Hint:<br><br>
+        IITC Mobile is able to load external plugins too!<br><br>
+        Add them by clicking the (+) icon at the top right.
+        The plugin files have to end with \'.user.js\' and are copied to <b>%1$s</b><br>]]>
+    </string>
+    <string name="notice_sharing">
+        <![CDATA[With <em>Share portal</em> you can:<br>
+        • send the portal link to other people<br>
+        • view the selected portal\'s position in another app<br>
+        • open the portal link in a webbrowser<br>
+        <br>
+        Hint: By selecting Google Maps (or any other installed navigation software), you can quickly navigate to the
+        selected portal.<br>
+        <br>
+        These hints also apply for the <em>permalink</em>.]]>
+    </string>
+
+    <string name="pref_ui_cat">UI</string>
+    <string name="pref_misc_cat">Misc</string>
+    <string name="pref_tweaks_cat">Tweaks</string>
+    <string name="pref_plugins">IITC Plugins</string>
+    <string name="pref_plugins_sum">Plugins extend/modify the IITC experience. Most plugins known from desktop IITC can be found here.</string>
+    <string name="pref_plugins_title">Available plugins</string>
+    <string name="pref_user_location">Display user location on map</string>
+    <string name="pref_persistent_zoom">Persistent zoom level</string>
+    <string name="pref_persistent_zoom_sum">Don\'t change zoom level when locate button is pressed</string>
+    <string name="pref_user_zoom">Show zoom control</string>
+    <string name="pref_user_zoom_sum">Shows +/- buttons even on multitouch capable devices.</string>
+    <string name="pref_fullscreen">Configure fullscreen mode</string>
+    <string name="pref_fullscreen_sum">Which elements should be hidden in fullscreen mode.
+        Note: IITCm can still be controlled via the Navigation Drawers</string>
+    <string name="pref_force_desktop">Force desktop mode</string>
+    <string name="pref_force_desktop_sum">Nice for tablets, looks awful on smartphones</string>
+    <string name="pref_force_https">Force https</string>
+    <string name="pref_force_https_sum">Disabling may improve performance</string>
+    <string name="pref_external_storage">Move tiles cache to external storage</string>
+    <string name="pref_external_storage_sum">Restart required! Write cache to sdCard.
+        External storage has to be mounted.</string>
+    <string name="pref_press_twice_to_exit">Press back button twice to exit</string>
+    <string name="pref_press_twice_to_exit_sum">Avoids accidental exits</string>
+    <string name="pref_advanced_options">Advanced Settings</string>
+    <string name="pref_advanced_options_sum">Developer options and advanced tweaks</string>
+    <string name="pref_enable_dev_mode">Enable developer mode</string>
+    <string name="pref_enable_dev_mode_sum">If enabled, all IITC sources will be loaded from external storage of the Android device.
+      Please copy all sources from $IITC_folder/build/mobile/ to /sdcard/IITC_Mobile/dev/.</string>
+    <string name="pref_disable_splash">Disable Splash Screen</string>
+    <string name="pref_fake_user_agent">Fake User Agent</string>
+    <string name="pref_fake_user_agent_sum">Let IITCm appear as a desktop browser for the intel site.
+        Note: If just want to use the desktop mode use the \'force desktop mode\' setting</string>
+    <string name="pref_android_menu">Configure IITCm menu</string>
+    <string name="pref_android_menu_sum">Toggle visibility of IITCm menu entries</string>
+    <string name="pref_update_plugins_cat">User plugin updates</string>
+    <string name="pref_update_plugins_interval">Configure plugin update interval</string>
+    <string name="pref_update_plugins_interval_sum">How often IITCm should search for new plugin versions</string>
+    <string name="pref_force_plugin_update">Force plugin update</string>
+    <string name="pref_force_plugin_update_sum">Update all enabled user plugins</string>
+    <string name="pref_secure_updates">Require secure updates</string>
+    <string name="pref_secure_updates_sum">If enabled, only https updates are handled</string>
+
+    <string-array name="pref_hide_fullscreen">
+        <item>System Notification Bar</item>
+        <item>IITC Action Bar</item>
+        <item>IITC Status Bar</item>
+        <item>System Navigation Bar</item>
+    </string-array>
+    <string-array name="pref_hide_fullscreen_vals">
+        <item>2</item>
+        <item>4</item>
+        <item>8</item>
+        <item>16</item>
+    </string-array>
+    <string-array name="pref_hide_fullscreen_defaults">
+        <item>2</item>
+        <item>4</item>
+    </string-array>
+
+    <string-array name="pref_android_menu_entries">
+        <item>@string/menu_search</item>
+        <item>@string/menu_locate</item>
+        <item>@string/menu_layer_chooser</item>
+        <item>@string/menu_toggle_fullscreen</item>
+        <item>@string/menu_reload</item>
+        <item>@string/menu_send_screenshot</item>
+        <item>@string/menu_clear_cookies</item>
+        <item>@string/menu_debug</item>
+    </string-array>
+    <string-array name="pref_android_menu_default">
+        <item>@string/menu_search</item>
+        <item>@string/menu_locate</item>
+        <item>@string/menu_layer_chooser</item>
+        <item>@string/menu_toggle_fullscreen</item>
+        <item>@string/menu_reload</item>
+        <item>@string/menu_send_screenshot</item>
+    </string-array>
+
+    <string-array name="pref_user_location_titles">
+        <item>Don\'t show user position</item>
+        <item>Show user position on map</item>
+        <item>Show user position and orientation on map</item>
+    </string-array>
+    <string-array name="pref_user_location_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="pref_update_plugins_interval_titles">
+        <item>Disable</item>
+        <item>1 day</item>
+        <item>2 days</item>
+        <item>1 week</item>
+        <item>2 weeks</item>
+    </string-array>
+
+    <string-array name="pref_update_plugins_interval_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>7</item>
+        <item>14</item>
+    </string-array>
+
+    <string name="menu_reload">Reload IITC</string>
+    <string name="menu_toggle_fullscreen">Fullscreen</string>
+    <string name="menu_layer_chooser">Layer Chooser</string>
+    <string name="menu_locate">Get Location</string>
+    <string name="menu_clear_cookies">Clear cookies</string>
+    <string name="menu_search">Search</string>
+    <string name="menu_debug">Debug</string>
+    <string name="menu_send_screenshot">Send screenshot</string>
+    <string name="menu_plugins_add">Add external plugins</string>
+    <string name="menu_copy">Copy</string>
+    <string name="menu_delete">Delete</string>
+    <string name="choose_account_to_login">Choose account to login</string>
+    <string name="login_failed">Login failed.</string>
+    <string name="search_hint">Search locations</string>
+    <string name="intent_error">Address could not be opened</string>
+    <string name="msg_copied">Copied to clipboard…</string>
+    <string name="notice_do_not_show_again">Do not show again</string>
+
+    <string name="sign_in_to">Sign in to %1$s %2$s"</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="sign_in_action">Sign in</string>
+
+    <string name="tab_map">Locate</string>
+    <string name="tab_share">Share</string>
+    <string name="tab_browser">Intel</string>
+
+    <string name="label_highlighter">Highlighter</string>
+    <string name="label_base_layer">Base Layer</string>
+    <string name="label_overlay_layers">Overlay Layers</string>
+
+    <string name="install_dialog_top">Install external plugin?</string>
+    <string name="install_dialog_msg">
+        <![CDATA[IITCm was requested to install the following javascript file:<br><br>%1$s<br><br>
+        <b>Be careful:</b> Javascript from external sources may contain harmful code (spyware etc.)!<br><br>
+        Are you sure you want to proceed?]]>
+    </string>
+
+</resources>

@@ -1,0 +1,70 @@
+apply plugin: 'com.android.application';
+
+def keystorePropertiesFile = rootProject.file("signing.properties")
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
+def getVersionCode = { ->
+    def git = 'git rev-list HEAD --count'
+
+    def proc = git.execute()
+    proc.waitFor()
+    def desc = "${proc.in.text}".trim()
+
+    if (desc.isEmpty()) {
+        println "ERROR setting version code"
+        return -1
+    }
+    return Integer.parseInt(desc)
+}
+
+android {
+    compileSdkVersion 28
+    buildToolsVersion '28.0.3'
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 28
+        versionCode = getVersionCode()
+        versionName "0.26-prime"
+    }
+
+    signingConfigs {
+        config {
+            keyAlias keystoreProperties['keystore.key']
+            keyPassword keystoreProperties['keystore.key.password']
+            storeFile file(keystoreProperties['keystore.file'])
+            storePassword keystoreProperties['keystore.password']
+        }
+    }
+
+    buildTypes {
+        release {
+            apply plugin: 'idea'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            minifyEnabled false
+            applicationVariants.all { variant ->
+                variant.outputs.all {
+                    outputFileName = "${variant.applicationId}-${variant.name}-${variant.versionName}.apk"
+                }
+            }
+            signingConfig signingConfigs.config
+        }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            applicationVariants.all { variant ->
+                variant.outputs.all {
+                    outputFileName = "${variant.applicationId}-${variant.name}-${variant.versionName}.apk"
+                }
+            }
+            signingConfig signingConfigs.config
+        }
+    }
+}
+
+dependencies {
+    implementation 'com.android.support:appcompat-v7:28.+'
+    implementation 'com.squareup.okhttp3:okhttp:3.11.0'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+}

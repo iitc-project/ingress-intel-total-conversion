@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+        Base application theme, dependent on API level. This theme is replaced
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+    -->
+    <style name="AppBaseTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="colorPrimary">@color/iitc_blue</item>
+        <item name="colorPrimaryDark">@color/iitc_blue_dark</item>
+    </style>
+
+    <style name="NavDrawerTheme" parent="@style/Theme.AppCompat">
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <color name="iitc_blue">#ff0e3d4e</color>
+    <color name="iitc_blue_dark">#ff0b303e</color>
+
+    <!-- Application theme. -->
+    <style name="AppTheme" parent="AppBaseTheme">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+
+    <!-- ActionBar styles -->
+    <style name="ActionBarTheme" parent="@android:style/Widget.Holo.Light.ActionBar">
+        <item name="android:displayOptions">showHome|homeAsUp|showTitle</item>
+        <item name="displayOptions">showHome|homeAsUp|showTitle</item>
+        <item name="android:background">@drawable/iitc_blue</item>
+        <item name="android:icon">@android:color/transparent</item>
+        <item name="android:titleTextStyle">@style/ActionBarTitleTextMaterial</item>
+    </style>
+
+    <!-- ActionBar title text -->
+    <style name="ActionBarTitleTextMaterial"
+           parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/abc_primary_text_material_dark</item>
+    </style>
+
+    <!-- ActionBar tabs text styles -->
+    <style name="ActionBarTabTextMaterial"
+           parent="@android:style/Widget.Holo.ActionBar.TabText">
+        <item name="android:textColor">@color/abc_primary_text_material_dark</item>
+    </style>
+
+    <style name="AppPrefBaseTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+    </style>
+
+    <!-- Application theme. -->
+    <style name="AppPrefTheme" parent="AppPrefBaseTheme">
+        <item name="android:actionBarStyle">@style/ActionBarTheme</item>
+        <item name="android:actionBarTabTextStyle">@style/ActionBarTabTextMaterial</item>
+    </style>
+
+    <color name="drawer_background">#990e3d4e</color>
+
+</resources>

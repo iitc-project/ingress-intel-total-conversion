@@ -24,7 +24,7 @@ Debugging IITC(M) **before** it has booted requires the Android Developer Tools.
 Building the APK
 ----------------
 
-- **ant:**
+- **gradle:**
   Set the ANDROID_HOME environment variable:
   ```export ANDROID_HOME=/path/to/android_sdk```
   Then build the app via the build.py script ```./build.py mobile```
