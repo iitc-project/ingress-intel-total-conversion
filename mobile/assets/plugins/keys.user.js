@@ -2,11 +2,11 @@
 // @id             iitc-plugin-keys@xelio
 // @name           IITC plugin: Keys
 // @category       Keys
-// @version        0.3.0.20181030.90244
+// @version        0.3.0.20181101.60209
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [mobile-2018-10-30-090244] Allow manual entry of key counts for each portal. Use the 'keys-on-map' plugin to show the numbers on the map, and 'sync' to share between multiple browsers or desktop/mobile.
+// @description    [mobile-2018-11-01-060209] Allow manual entry of key counts for each portal. Use the 'keys-on-map' plugin to show the numbers on the map, and 'sync' to share between multiple browsers or desktop/mobile.
 // @include        https://*.ingress.com/intel*
 // @include        http://*.ingress.com/intel*
 // @match          https://*.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'mobile';
-plugin_info.dateTimeVersion = '20181030.90244';
+plugin_info.dateTimeVersion = '20181101.60209';
 plugin_info.pluginId = 'keys';
 //END PLUGIN AUTHORS NOTE
 

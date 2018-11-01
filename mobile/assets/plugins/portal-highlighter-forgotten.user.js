@@ -2,11 +2,11 @@
 // @id             iitc-plugin-highlight-forgotten@jonatkins
 // @name           IITC plugin: Inactive portals. Hightlight unclaimed portals with no recent activity
 // @category       Highlighter
-// @version        0.1.0.20181030.90244
+// @version        0.1.0.20181101.60209
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [mobile-2018-10-30-090244] Use the portal fill color to denote if the portal is unclaimed with no recent activity. Shades of red from one week to one month, then tinted to purple for longer. May also highlight captured portals that are stuck and fail to decay every 24 hours.
+// @description    [mobile-2018-11-01-060209] Use the portal fill color to denote if the portal is unclaimed with no recent activity. Shades of red from one week to one month, then tinted to purple for longer. May also highlight captured portals that are stuck and fail to decay every 24 hours.
 // @include        https://*.ingress.com/intel*
 // @include        http://*.ingress.com/intel*
 // @match          https://*.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'mobile';
-plugin_info.dateTimeVersion = '20181030.90244';
+plugin_info.dateTimeVersion = '20181101.60209';
 plugin_info.pluginId = 'portal-highlighter-forgotten';
 //END PLUGIN AUTHORS NOTE
 

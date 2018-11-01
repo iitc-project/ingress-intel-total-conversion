@@ -2,11 +2,11 @@
 // @id             iitc-plugin-uniques@3ch01c
 // @name           IITC plugin: Uniques
 // @category       Misc
-// @version        0.2.4.20181030.90244
+// @version        0.2.4.20181101.60209
 // @namespace      https://github.com/3ch01c/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [mobile-2018-10-30-090244] Allow manual entry of portals visited/captured. Use the 'highlighter-uniques' plugin to show the uniques on the map, and 'sync' to share between multiple browsers or desktop/mobile. It will try and guess which portals you have captured from COMM/portal details, but this will not catch every case.
+// @description    [mobile-2018-11-01-060209] Allow manual entry of portals visited/captured. Use the 'highlighter-uniques' plugin to show the uniques on the map, and 'sync' to share between multiple browsers or desktop/mobile. It will try and guess which portals you have captured from COMM/portal details, but this will not catch every case.
 // @include        https://*.ingress.com/intel*
 // @include        http://*.ingress.com/intel*
 // @match          https://*.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'mobile';
-plugin_info.dateTimeVersion = '20181030.90244';
+plugin_info.dateTimeVersion = '20181101.60209';
 plugin_info.pluginId = 'uniques';
 //END PLUGIN AUTHORS NOTE
 

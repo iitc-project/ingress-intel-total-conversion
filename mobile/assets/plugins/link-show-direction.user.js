@@ -2,11 +2,11 @@
 // @id             iitc-plugin-link-show-direction
 // @name           IITC plugin: Show the direction of links on the map
 // @category       Tweaks
-// @version        0.2.1.20181030.90244
+// @version        0.2.1.20181101.60209
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none
-// @description    [mobile-2018-10-30-090244] Show the direction of links on the map by adding short dashes to the line at the origin portal.
+// @description    [mobile-2018-11-01-060209] Show the direction of links on the map by adding short dashes to the line at the origin portal.
 // @include        https://*.ingress.com/intel*
 // @include        http://*.ingress.com/intel*
 // @match          https://*.ingress.com/intel*
@@ -26,7 +26,7 @@ if(typeof window.plugin !== 'function') window.plugin = function() {};
 //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
 //(leaving them in place might break the 'About IITC' page or break update checks)
 plugin_info.buildName = 'mobile';
-plugin_info.dateTimeVersion = '20181030.90244';
+plugin_info.dateTimeVersion = '20181101.60209';
 plugin_info.pluginId = 'link-show-direction';
 //END PLUGIN AUTHORS NOTE
 

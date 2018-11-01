@@ -2,7 +2,7 @@
 // @id             iitc-plugin-highlight-portals-my-8-portals@vita10gy
 // @name           IITC plugin: highlight my level 8's on portals
 // @category  Deleted
-// @version        0.1.0.20181030.90244
+// @version        0.1.0.20181101.60209
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      none
 // @downloadURL    none

@@ -68,3 +68,15 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.11.0'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
+
+task copyUserscripts(type: Copy)
+
+copyUserscripts {
+    description = 'Updating prebuilt plugins'
+    from '../assets'
+    into 'src/main/assets'
+    include('*')
+    include('**/*')
+}
+
+preBuild.dependsOn copyUserscripts
