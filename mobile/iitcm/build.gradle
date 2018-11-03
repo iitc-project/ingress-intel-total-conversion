@@ -1,9 +1,5 @@
 apply plugin: 'com.android.application';
 
-def keystorePropertiesFile = rootProject.file("signing.properties")
-def keystoreProperties = new Properties()
-keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-
 def getVersionCode = { ->
     def git = 'git rev-list HEAD --count'
 
@@ -31,10 +27,10 @@ android {
 
     signingConfigs {
         config {
-            keyAlias keystoreProperties['keystore.key']
-            keyPassword keystoreProperties['keystore.key.password']
-            storeFile file(keystoreProperties['keystore.file'])
-            storePassword keystoreProperties['keystore.password']
+            keyAlias rootProject.ext.signKeyAlias 
+            keyPassword rootProject.ext.signKeyPassword
+            storeFile file(rootProject.ext.signKeyStore)
+            storePassword rootProject.ext.signKeyStorePassword
         }
     }
 
@@ -58,7 +54,6 @@ android {
                     outputFileName = "${variant.applicationId}-${variant.name}-${variant.versionName}.apk"
                 }
             }
-            signingConfig signingConfigs.config
         }
     }
 }

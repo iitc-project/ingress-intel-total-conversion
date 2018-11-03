@@ -18,3 +18,10 @@ allprojects {
         jcenter()
     }
 }
+
+ext {
+    signKeyAlias = ""
+    signKeyPassword = ""
+    signKeyStore = "release.jks"
+    signKeyStorePassword = ""
+}
