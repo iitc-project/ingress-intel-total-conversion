@@ -69,7 +69,7 @@ public class ShareActivity extends FragmentActivity implements ActionBar.TabList
 
     private String getIntelUrl(final String ll, final int zoom, final boolean isPortal) {
         final String scheme = mSharedPrefs.getBoolean("pref_force_https", true) ? "https" : "http";
-        String url = scheme + "://www.ingress.com/intel?ll=" + ll + "&z=" + zoom;
+        String url = scheme + "://intel.ingress.com/intel?ll=" + ll + "&z=" + zoom;
         if (isPortal) {
             url += "&pll=" + ll;
         }

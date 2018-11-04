@@ -2,7 +2,7 @@
 
 <p>
 Ingress Intel Total Conversion (IITC) is a browser modification to the <a href="http://www.ingress.com/">Ingress</a>
-<a href="http://www.ingress.com/intel">intel map</a>.
+<a href="http://intel.ingress.com/intel">intel map</a>.
 </p>
 
 <p>
