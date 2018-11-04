@@ -440,7 +440,7 @@ window.plugin.drawTools.optPaste = function() {
     try {
       // first see if it looks like a URL-format stock intel link, and if so, try and parse out any stock drawn items
       // from the pls parameter
-      if (promptAction.match(new RegExp("^(https?://)?(www\\.)?ingress\\.com/intel.*[?&]pls="))) {
+      if (promptAction.match(new RegExp("^(https?://)?(www\.)|(intel\.)?ingress\\.com/intel.*[?&]pls="))) {
         //looks like a ingress URL that has drawn items...
         var items = promptAction.split(/[?&]/);
         var foundAt = -1;
