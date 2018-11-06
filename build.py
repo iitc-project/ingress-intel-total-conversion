@@ -61,7 +61,7 @@ distUrlBase = settings.get('distUrlBase')
 buildMobile = settings.get('buildMobile')
 antOptions = settings.get('antOptions','')
 antBuildFile = settings.get('antBuildFile', 'mobile/build.xml');
-
+targetHost = settings.get('targetHost') or 'intel.ingress.com'
 
 # plugin wrapper code snippets. handled as macros, to ensure that
 # 1. indentation caused by the "function wrapper()" doesn't apply to the plugin code body
@@ -150,7 +150,7 @@ def extractUserScriptMeta(var):
 
 
 
-def doReplacements(script,updateUrl,downloadUrl,pluginName=None):
+def doReplacements(script,updateUrl,downloadUrl,targetHost,pluginName=None):
 
     script = re.sub('@@INJECTCODE@@',loadCode,script)
 
@@ -175,6 +175,7 @@ def doReplacements(script,updateUrl,downloadUrl,pluginName=None):
 
     script = script.replace('@@UPDATEURL@@', updateUrl)
     script = script.replace('@@DOWNLOADURL@@', downloadUrl)
+    script = script.replace('@@TARGETHOST@@', targetHost)
 
     if (pluginName):
         script = script.replace('@@PLUGINNAME@@', pluginName);
@@ -231,7 +232,7 @@ main = readfile('main.js')
 
 downloadUrl = distUrlBase and distUrlBase + '/total-conversion-build.user.js' or 'none'
 updateUrl = distUrlBase and distUrlBase + '/total-conversion-build.meta.js' or 'none'
-main = doReplacements(main,downloadUrl=downloadUrl,updateUrl=updateUrl)
+main = doReplacements(main, downloadUrl=downloadUrl, updateUrl=updateUrl, targetHost=targetHost)
 
 saveScriptAndMeta(main, outDir, 'total-conversion-build.user.js', oldDir)
 
@@ -248,7 +249,7 @@ for fn in glob.glob("plugins/*.user.js"):
     downloadUrl = distUrlBase and distUrlBase + '/' + fn.replace("\\","/") or 'none'
     updateUrl = distUrlBase and downloadUrl.replace('.user.js', '.meta.js') or 'none'
     pluginName = os.path.splitext(os.path.splitext(os.path.basename(fn))[0])[0]
-    script = doReplacements(script, downloadUrl=downloadUrl, updateUrl=updateUrl, pluginName=pluginName)
+    script = doReplacements(script, downloadUrl=downloadUrl, updateUrl=updateUrl, pluginName=pluginName, targetHost=targetHost)
 
     saveScriptAndMeta(script, outDir, fn, oldDir)
 
@@ -262,7 +263,7 @@ if buildMobile:
     script = readfile("mobile/plugins/" + fn)
     downloadUrl = distUrlBase and distUrlBase + '/' + fn.replace("\\","/") or 'none'
     updateUrl = distUrlBase and downloadUrl.replace('.user.js', '.meta.js') or 'none'
-    script = doReplacements(script, downloadUrl=downloadUrl, updateUrl=updateUrl, pluginName='user-location')
+    script = doReplacements(script, downloadUrl=downloadUrl, updateUrl=updateUrl, pluginName='user-location', targetHost=targetHost)
 
     saveScriptAndMeta(script, outDir, fn)
 

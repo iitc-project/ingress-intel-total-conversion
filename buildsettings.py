@@ -16,6 +16,7 @@ buildSettings = {
     'local': {
         'resourceUrlBase': None,
         'distUrlBase': None,
+        'targetHost': 'intel.ingress.com',
     },
 
     # local8000: if you need to modify external resources, this build will load them from
@@ -25,6 +26,7 @@ buildSettings = {
     'local8000': {
         'resourceUrlBase': 'http://0.0.0.0:8000/dist',
         'distUrlBase': None,
+        'targetHost': 'intel.ingress.com',
     },
 
     # mobile: default entry that also builds the mobile .apk
@@ -33,6 +35,7 @@ buildSettings = {
         'resourceUrlBase': None,
         'distUrlBase': None,
         'buildMobile': 'debug',
+        'targetHost': 'intel.ingress.com',
     },
 
 
