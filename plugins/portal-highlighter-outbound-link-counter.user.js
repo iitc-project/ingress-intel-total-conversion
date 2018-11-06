@@ -7,13 +7,9 @@
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description   PLUGIN CURRENTLY UNAVAILABLE
-// @include        https://*.ingress.com/intel*
-// @include        http://*.ingress.com/intel*
-// @match          https://*.ingress.com/intel*
-// @match          http://*.ingress.com/intel*
-// @include        https://*.ingress.com/mission/*
-// @include        http://*.ingress.com/mission/*
-// @match          https://*.ingress.com/mission/*
-// @match          http://*.ingress.com/mission/*
+// @include        https://@@TARGETHOST@@/*
+// @include        http://@@TARGETHOST@@/*
+// @match          https://@@TARGETHOST@@/*
+// @match          http://@@TARGETHOST@@/*
 // @grant          none
 // ==/UserScript==
