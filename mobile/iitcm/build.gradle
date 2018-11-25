@@ -41,7 +41,7 @@ android {
             minifyEnabled false
             applicationVariants.all { variant ->
                 variant.outputs.all {
-                    outputFileName = "${variant.applicationId}-${variant.name}-${variant.versionName}.apk"
+                    outputFileName = "${variant.applicationId}-${variant.name}.apk"
                 }
             }
             signingConfig signingConfigs.config
@@ -51,7 +51,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
             applicationVariants.all { variant ->
                 variant.outputs.all {
-                    outputFileName = "${variant.applicationId}-${variant.name}-${variant.versionName}.apk"
+                    outputFileName = "${variant.applicationId}-${variant.name}.apk"
                 }
             }
         }
