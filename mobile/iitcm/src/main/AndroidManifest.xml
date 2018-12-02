@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <application
@@ -60,6 +61,23 @@
                     android:host="*.ingress.com"
                     android:pathPrefix="/mission/"
                     android:scheme="http"/>
+
+                <data
+                    android:host="intel.ingress.com"
+                    android:pathPrefix="/intel"
+                    android:scheme="https" />
+                <data
+                    android:host="intel.ingress.com"
+                    android:pathPrefix="/intel"
+                    android:scheme="http" />
+                <data
+                    android:host="intel.ingress.com"
+                    android:pathPrefix="/mission/"
+                    android:scheme="https" />
+                <data
+                    android:host="intel.ingress.com"
+                    android:pathPrefix="/mission/"
+                    android:scheme="http" />
             </intent-filter>
 
             <!-- Handles geo: URIs -->
