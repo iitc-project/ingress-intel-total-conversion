@@ -1,5 +1,6 @@
 package com.cradle.iitc_mobile;
 
+import android.Manifest;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
@@ -24,6 +25,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
@@ -68,6 +70,7 @@ import java.util.regex.Pattern;
 public class IITC_Mobile extends AppCompatActivity
         implements OnSharedPreferenceChangeListener, NfcAdapter.CreateNdefMessageCallback, OnItemLongClickListener {
     private static final String mIntelUrl = "https://intel.ingress.com/intel";
+    private static final int REQ_PERMISSIONS_STORAGE = 0x0000FF02;
 
     private SharedPreferences mSharedPrefs;
     private IITC_FileManager mFileManager;
@@ -111,7 +114,7 @@ public class IITC_Mobile extends AppCompatActivity
         // enable progress bar above action bar
         // must be called BEFORE calling parent method
         requestWindowFeature(Window.FEATURE_PROGRESS);
-
+        requestStoragePermissions();
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
@@ -194,6 +197,15 @@ public class IITC_Mobile extends AppCompatActivity
         if (nfc != null) nfc.setNdefPushMessageCallback(this, this);
 
         handleIntent(getIntent(), true);
+    }
+
+    private void requestStoragePermissions() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQ_PERMISSIONS_STORAGE);
+        }
     }
 
     @Override
@@ -1031,16 +1043,25 @@ public class IITC_Mobile extends AppCompatActivity
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == IITC_UserLocation.REQ_PERMISSIONS_LOCATION && mUserLocation != null) {
-            int grantedCount = 0;
-            for (int i = 0; i < grantResults.length; i++) {
-                if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                    grantedCount++;
-                }
-            }
-            if (grantedCount > 0) {
+            if (grantedCount(grantResults) > 0) {
                 mUserLocation.onRuntimePermissionsGranted();
             }
         }
+        if (requestCode == REQ_PERMISSIONS_STORAGE) {
+            if (grantedCount(grantResults) > 0) {
+                Toast.makeText(this, "Storage permissions acquired", Toast.LENGTH_SHORT).show();
+            }
+        }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    private int grantedCount(int[] grantResults) {
+        int grantedCount = 0;
+        for (int i = 0; i < grantResults.length; i++) {
+            if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                grantedCount++;
+            }
+        }
+        return grantedCount;
     }
 }
