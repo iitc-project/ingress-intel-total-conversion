@@ -115,8 +115,6 @@ to avoid IITC making excessive requests in some cases, possibly leading to intel
 <p>
 This has, unfortunately, required the removal of the full/compact/public COMM tabs, instead IITC has an 'all' tab,
 just like the standard intel site. Also, the 'alerts' tab from the standard site has been added to IITC.
-See <a href="https://plus.google.com/105383756361375410867/posts/b9ihAer4Fxm">this post</a>
-for details about why this was needed.
 </p>
 <p>
 Also, other various tweaks and bugfixes.
@@ -247,8 +245,7 @@ IITC 0.17.3 and IITC Mobile 0.11.3 have just been released. Changes include:
 </p>
 <ul>
 <li>Leaflet updated: some bugfixes for the map engine IITC uses.</li>
-<li>Keyboard shortcuts: limited testing so far, so considered experimental. More details in 
-<a href="https://plus.google.com/116983602532788146323/posts/7omuVsv3c1g">this post</a>.</li>
+<li>Keyboard shortcuts: limited testing so far, so considered experimental.</li>
 <li>New plugin "Cross Links". This works with the "draw tools" plugin, highlighting any existing links that cross
 drawn lines/polygons. Very useful to see what needs clearing when planning large fields.</li>
 <li>and, as always, other minor tweaks and bugfixes</li>
@@ -270,8 +267,7 @@ were caused by Niantic removing the obsfucation of data requests one bit at a ti
 </p>
 <p>
 <b>Lost bookmarks? Drawn items?</b> In the latest Niantic site update they changed the server to always go to the
-<code>http<b>s</b></code> version. It is possible to copy your data to the new location - further details
-<a href="https://plus.google.com/105383756361375410867/posts/749UX2nQcaP">here</a>.
+<code>http<b>s</b></code> version. It is possible to copy your data to the new location.
 </p>
 <p>
 Additionally, a few bugs were fixed since the previous release, and now most map layers support zooming in closer than before.
@@ -362,8 +358,7 @@ due to a change made by Niantic to the intel site protocol. Also, the following 
 </p>
 <ul>
 <li>Portal markers are now reduced in size when you zoom out, reducing clutter when viewing large areas of the map</li>
-<li>Blocked a 3rd party plugin, arc, from running - it had spyware features hidden within it
-(<a href="https://plus.google.com/105383756361375410867/posts/4b2EjP3Du42">details here</a>).</li>
+<li>Blocked a 3rd party plugin, arc, from running - it had spyware features hidden within it.</li>
 <li>Plugins
  <ul>
  <li>add-kml: support for opening files on mobile added</li>
@@ -421,8 +416,7 @@ Changes include
 <p>
 Niantic have just released a minor update to the standard intel site. Good news - recent IITC changes have made it
 successfully detect the protocol changes in most cases, so no update is needed. You may need to reload the page,
-and for IITC Mobile you may need to change a cache setting. See 
-<a href="https://plus.google.com/105383756361375410867/posts/1yTb59HGDm3">this G+ post</a> for more details.
+and for IITC Mobile you may need to change a cache setting.
 </p>
 
 <h4>2nd December 2013</h3>
@@ -456,10 +450,6 @@ extra data, not displayed by the standard site, was it' big feature.
 <p>
 We will look into what can be done to get it working again, but it will take some time. Many plugins won't be practical 
 as the data will not be available.
-</p>
-<p>
-More details, and discussion, available in the
-<a href="https://plus.google.com/105383756361375410867/posts/E65qngRjR2T">Google+ post</a>.
 </p>
 <p>
 <b>Update</b> I've created a 'dummy' version of the desktop plugin that will, for now, disable IITC if you leave it installed.
@@ -643,12 +633,6 @@ Important IITC release 0.13.0, to fix enlightened from showing up as the wrong c
  </ul>
 <li>plus various other tweaks, bug fixes, etc</li>
 </ul>
-
-<h4>20th July 2013</h4>
-<p>
-IITC now has a <a href="https://plus.google.com/communities/105647403088015055797">Google+ Community</a>.
-This is a great place to ask questions and discuss IITC with other users.
-</p>
 
 <h4>1st July 2013</h4>
 <p>
