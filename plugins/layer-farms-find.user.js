@@ -78,7 +78,7 @@ window.plugin.farmFind.checkPortals = function(){
     //console.log(window.portals.length);
 	$.each(window.portals, function(i, portal) {
         
-		if (window.plugin.farmFind.getNearbyPortalCount(portal) > window.plugin.farmFind.minNearby)
+		if (window.plugin.farmFind.getNearbyPortalCount(portal) > window.plugin.farmFind.minNearby && portal.options.level >= window.plugin.farmFind.minLevel)
         {
          	//console.log("Farm identified");
             possibleFarmPortals.push(portal);
