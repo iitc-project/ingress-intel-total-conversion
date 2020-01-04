@@ -30,9 +30,27 @@ window.PLAYER_TRACKER_LINE_COLOUR = '#FF00FD';
 // use own namespace for plugin
 window.plugin.playerTracker = function() {};
 
+window.plugin.playerTracker.setupCSS = function() {
+  $("<style>").prop("type", "text/css").html(''
+  +'.plugin-user-names{'
+    +'color:#FFFFBB;'
+    +'font-size:11px;line-height:12px;'
+    +'text-align:center;padding: 2px;'  // padding needed so shadow doesn't clip
+    +'overflow:hidden;'
+// could try this if one-line names are used
+//    +'white-space: nowrap;text-overflow:ellipsis;'
+    +'text-shadow:1px 1px #000,1px -1px #000,-1px 1px #000,-1px -1px #000, 0 0 5px #000;'
+    +'pointer-events:none;'
+    +'z-index: 999 !important;'
+  +'}'
+  ).appendTo("head");
+}
+
 window.plugin.playerTracker.setup = function() {
   $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:plugins/player-tracker.css@@').appendTo('head');
-
+  
+  window.plugin.playerTracker.setupCSS()
+   
   var iconEnlImage = '@@INCLUDEIMAGE:images/marker-green.png@@';
   var iconEnlRetImage = '@@INCLUDEIMAGE:images/marker-green-2x.png@@';
   var iconResImage = '@@INCLUDEIMAGE:images/marker-blue.png@@';
@@ -49,13 +67,22 @@ window.plugin.playerTracker.setup = function() {
 
   plugin.playerTracker.drawnTracesEnl = new L.LayerGroup();
   plugin.playerTracker.drawnTracesRes = new L.LayerGroup();
+  plugin.playerTracker.drawnTracesEnlNames = new L.LayerGroup();
+  plugin.playerTracker.drawnTracesResNames = new L.LayerGroup();
   // to avoid any favouritism, we'll put the player's own faction layer first
   if (PLAYER.team == 'RESISTANCE') {
     window.addLayerGroup('Player Tracker Resistance', plugin.playerTracker.drawnTracesRes, true);
+ 	window.addLayerGroup('Player Tracker Resistance Names', plugin.playerTracker.drawnTracesResNames, true);
+   
     window.addLayerGroup('Player Tracker Enlightened', plugin.playerTracker.drawnTracesEnl, true);
+ 	window.addLayerGroup('Player Tracker Enlightened Names', plugin.playerTracker.drawnTracesEnlNames, true);
+  
   } else {
     window.addLayerGroup('Player Tracker Enlightened', plugin.playerTracker.drawnTracesEnl, true);
+    window.addLayerGroup('Player Tracker Enlightened Names', plugin.playerTracker.drawnTracesEnlNames, true);
+  
     window.addLayerGroup('Player Tracker Resistance', plugin.playerTracker.drawnTracesRes, true);
+    window.addLayerGroup('Player Tracker Resistance Names', plugin.playerTracker.drawnTracesResNames, true);
   }
   map.on('layeradd',function(obj) {
     if(obj.layer === plugin.playerTracker.drawnTracesEnl || obj.layer === plugin.playerTracker.drawnTracesRes) {
@@ -105,6 +132,9 @@ window.plugin.playerTracker.zoomListener = function() {
     if (!window.isTouchDevice()) plugin.playerTracker.closeIconTooltips();
     plugin.playerTracker.drawnTracesEnl.clearLayers();
     plugin.playerTracker.drawnTracesRes.clearLayers();
+    plugin.playerTracker.drawnTracesEnlNames.clearLayers();
+    plugin.playerTracker.drawnTracesResNames.clearLayers();
+    
     ctrl.addClass('disabled').attr('title', 'Zoom in to show those.');
     //note: zoomListener is also called at init time to set up things, so we only need to do this in here
     window.chat.backgroundChannelData('plugin.playerTracker', 'all', false);   //disable this plugin's interest in 'all' COMM
@@ -398,6 +428,26 @@ window.plugin.playerTracker.drawData = function() {
     // as per OverlappingMarkerSpiderfier docs, click events (popups, etc) must be handled via it rather than the standard
     // marker click events. so store the popup text in the options, then display it in the oms click handler
     var m = L.marker(gllfe(last), {icon: icon, referenceToPortal: closestPortal, opacity: absOpacity, desc: popup[0], title: tooltip});
+    
+    //names under markers
+    let iColor = playerData.team == 'RESISTANCE' ? 'blue' : 'green' 
+    var styleStr = 'display: inline-block;background:white; width:auto; height: 15px; color: ' + iColor + '; font-weight: 900;'
+    /*var mname = new L.Marker(gllfe(last), {
+      icon: new L.DivIcon({
+        className: 'my-div-icon',
+        html: "<div id='pNameDiv-"+playerData.nick+"' style='" + styleStr + "'> <b id='pName-" + playerData.nick + "' style='display: inline-block' >" + playerData.nick + "</b></div>"
+      })
+    }).addTo(map);*/
+
+  var mname = L.marker(gllfe(last), {
+      icon: L.divIcon({
+        className: 'plugin-user-names',
+        iconAnchor: [80/2,0],
+        iconSize: [80,23],
+        html: playerData.nick
+      })
+    });
+
     m.addEventListener('spiderfiedclick', plugin.playerTracker.onClickListener);
 
     // m.bindPopup(title);
@@ -408,8 +458,11 @@ window.plugin.playerTracker.drawData = function() {
     }
 
     playerData.marker = m;
+    playerData.nameMarker = mname;
 
     m.addTo(playerData.team === 'RESISTANCE' ? plugin.playerTracker.drawnTracesRes : plugin.playerTracker.drawnTracesEnl);
+    mname.addTo(playerData.team === 'RESISTANCE' ? plugin.playerTracker.drawnTracesResNames : plugin.playerTracker.drawnTracesEnlNames);
+    
     window.registerMarkerForOMS(m);
 
     // jQueryUI doesn’t automatically notice the new markers
@@ -484,6 +537,9 @@ window.plugin.playerTracker.handleData = function(data) {
 
   plugin.playerTracker.drawnTracesEnl.clearLayers();
   plugin.playerTracker.drawnTracesRes.clearLayers();
+  plugin.playerTracker.drawnTracesResNames.clearLayers();
+  plugin.playerTracker.drawnTracesEnlNames.clearLayers();
+
   plugin.playerTracker.drawData();
 }
 
