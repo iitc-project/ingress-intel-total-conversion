@@ -2,7 +2,7 @@
 // @id             iitc-plugin-score-cycle-times@jonatkins
 // @name           IITC plugin: Show scoreboard cycle/checkpoint times
 // @category       Info
-// @version        0.1.0.@@DATETIMEVERSION@@
+// @version        0.2.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -40,7 +40,45 @@ window.plugin.scoreCycleTimes.setup  = function() {
   window.plugin.scoreCycleTimes.update();
 };
 
+window.plugin.scoreCycleTimes.formatTime = function(time) {
+    var timeStr = unixTimeToString(time,true);
+    timeStr = timeStr.replace(/:00$/,''); //FIXME: doesn't remove seconds from AM/PM formatted dates
+    return timeStr;
+}
 
+window.plugin.scoreCycleTimes.showAllCheckPoints = function() {
+  var now = new Date().getTime();
+
+  var ts = Math.floor(now / (window.plugin.scoreCycleTimes.CYCLE*1000)) * (window.plugin.scoreCycleTimes.CYCLE*1000);
+
+  var html = '<div>';
+    var oldDat = "";
+    for (var i=0;i<36;i++) {
+        var tsStr = window.plugin.scoreCycleTimes.formatTime(ts);
+        var currDat = tsStr.substring(0, 10);
+        var currTime = tsStr.substring(11, 16);
+        if (oldDat != currDat) {
+            if (oldDat != "") {
+                html += "<br/>";
+            }
+            html += '<span style="color:#bbbbbb">' + currDat + "</span> ";
+            oldDat = currDat;
+        }
+        if (ts < now) {
+            html += '<span style="color:#999999">' + currTime + '</span> ';
+        } else {
+           html += '<span style="color:rgb(255,206,0)">' + currTime + '</span> ';
+        }
+        ts += window.plugin.scoreCycleTimes.CHECKPOINT*1000;
+    }
+    html += '</div>';
+
+  dialog({
+    html: html,
+    dialogClass: 'ui-dialog-scoreCycleTimes',
+    title: 'All checkpoints in cycle'
+  });
+}
 
 window.plugin.scoreCycleTimes.update = function() {
 
@@ -67,10 +105,9 @@ window.plugin.scoreCycleTimes.update = function() {
   };
 
   var html = '<table>'
-           + formatRow('Cycle start', cycleStart)
-           + formatRow('Previous checkpoint', checkpointStart)
            + formatRow('Next checkpoint', checkpointEnd)
            + formatRow('Cycle end', cycleEnd)
+           + '<tr><td colspan="2"><a onclick="window.plugin.scoreCycleTimes.showAllCheckPoints();return false;">Show all checkpoints in cycle</a></td></tr>'
            + '</table>';
 
   $('#score_cycle_times_display').html(html);
