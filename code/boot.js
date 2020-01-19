@@ -145,6 +145,7 @@ function createDefaultBaseMapLayers() {
   };
   baseLayers['Google Default Ingress Map'] = new L.Google('ROADMAP',{maxZoom:21, mapOptions:ingressGMapOptions});
   baseLayers['Google Roads'] = new L.Google('ROADMAP',{maxZoom:21});
+  baseLayers['Google Roads + Traffic'] = new L.GoogleTraffic('ROADMAP',{maxZoom:21});
   baseLayers['Google Satellite'] = new L.Google('SATELLITE',{maxZoom:21});
   baseLayers['Google Hybrid'] = new L.Google('HYBRID',{maxZoom:21});
   baseLayers['Google Terrain'] = new L.Google('TERRAIN',{maxZoom:15});
@@ -711,6 +712,7 @@ try { console.log('Loading included JS now'); } catch(e) {}
 // modified version of https://github.com/shramov/leaflet-plugins. Also
 // contains the default Ingress map style.
 @@INCLUDERAW:external/Google.js@@
+@@INCLUDERAW:external/GoogleTraffic.js@@
 @@INCLUDERAW:external/autolink.js@@
 @@INCLUDERAW:external/oms.min.js@@
 
