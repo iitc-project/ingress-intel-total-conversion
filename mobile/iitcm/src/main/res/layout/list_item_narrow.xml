@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:attr/activatedBackgroundIndicator"
+    android:theme="@style/NavDrawerTheme"
+    android:textColor="@color/abc_primary_text_material_dark"
+    android:drawablePadding="?android:attr/listPreferredItemPaddingLeft"
+    android:gravity="center_vertical"
+    android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
+    android:paddingRight="?android:attr/listPreferredItemPaddingRight"
+    android:textAppearance="?android:attr/textAppearanceListItemSmall"/>

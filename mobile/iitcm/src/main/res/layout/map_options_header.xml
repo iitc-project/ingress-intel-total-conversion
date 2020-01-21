@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:theme="@style/NavDrawerTheme"
+    android:orientation="vertical">
+
+    <TextView
+        style="?android:attr/listSeparatorTextViewStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/abc_primary_text_material_dark"
+        android:labelFor="@+id/spinnerHighlighter"
+        android:paddingLeft="5dip"
+        android:text="@string/label_highlighter"/>
+
+    <Spinner
+        android:id="@+id/spinnerHighlighter"
+        android:theme="@style/NavDrawerTheme"
+        android:textColor="@color/abc_primary_text_material_dark"
+        android:popupBackground="@color/iitc_blue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        style="?android:attr/listSeparatorTextViewStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/abc_primary_text_material_dark"
+        android:labelFor="@+id/spinnerBaseLayer"
+        android:paddingLeft="5dip"
+        android:text="@string/label_base_layer"/>
+
+    <Spinner
+        android:id="@+id/spinnerBaseLayer"
+        android:theme="@style/NavDrawerTheme"
+        android:textColor="@color/abc_primary_text_material_dark"
+        android:popupBackground="@color/iitc_blue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        style="?android:attr/listSeparatorTextViewStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/abc_primary_text_material_dark"
+        android:paddingLeft="5dip"
+        android:text="@string/label_overlay_layers"/>
+
+</LinearLayout>

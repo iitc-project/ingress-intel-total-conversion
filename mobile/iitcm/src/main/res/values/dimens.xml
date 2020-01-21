@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="app_defaultsize_w">640dip</dimen>
+    <dimen name="app_defaultsize_h">400dip</dimen>
+    <dimen name="app_minimumsize_w">400dip</dimen>
+    <dimen name="app_minimumsize_h">200dip</dimen>
+
+    <!-- margin around app icons in share activity -->
+    <dimen name="icon_margin">8dp</dimen>
+
+    <!-- button size for debug views -->
+    <dimen name="button_size">36dp</dimen>
+
+</resources>

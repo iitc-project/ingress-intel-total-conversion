@@ -1,0 +1,77 @@
+apply plugin: 'com.android.application';
+
+def getVersionCode = { ->
+    def git = 'git rev-list HEAD --count'
+
+    def proc = git.execute()
+    proc.waitFor()
+    def desc = "${proc.in.text}".trim()
+
+    if (desc.isEmpty()) {
+        println "ERROR setting version code"
+        return -1
+    }
+    return Integer.parseInt(desc)
+}
+
+android {
+    compileSdkVersion 28
+    buildToolsVersion '28.0.3'
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 28
+        versionCode = getVersionCode()
+        versionName "0.26-prime"
+    }
+
+    signingConfigs {
+        config {
+            keyAlias rootProject.ext.signKeyAlias 
+            keyPassword rootProject.ext.signKeyPassword
+            storeFile file(rootProject.ext.signKeyStore)
+            storePassword rootProject.ext.signKeyStorePassword
+        }
+    }
+
+    buildTypes {
+        release {
+            apply plugin: 'idea'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            minifyEnabled false
+            applicationVariants.all { variant ->
+                variant.outputs.all {
+                    outputFileName = "${variant.applicationId}-${variant.name}.apk"
+                }
+            }
+            signingConfig signingConfigs.config
+        }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            applicationVariants.all { variant ->
+                variant.outputs.all {
+                    outputFileName = "${variant.applicationId}-${variant.name}.apk"
+                }
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation 'com.android.support:appcompat-v7:28.+'
+    implementation 'com.squareup.okhttp3:okhttp:3.11.0'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+task copyUserscripts(type: Copy)
+
+copyUserscripts {
+    description = 'Updating prebuilt plugins'
+    from '../assets'
+    into 'src/main/assets'
+    include('*')
+    include('**/*')
+}
+
+preBuild.dependsOn copyUserscripts

@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/IITC_Mobile.iml" filepath="$PROJECT_DIR$/IITC_Mobile.iml" />
+      <module fileurl="file://$PROJECT_DIR$/iitcm/iitcm.iml" filepath="$PROJECT_DIR$/iitcm/iitcm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mobile.iml" filepath="$PROJECT_DIR$/mobile.iml" />
     </modules>
   </component>
 </project>
-
