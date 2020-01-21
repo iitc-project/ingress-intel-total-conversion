@@ -68,10 +68,6 @@ So, was 'IITC' sent a takedown request? No - this website, and the IITC G+ page,
 END
 ),
 
-# for reference:
-# Some notes from a Hangout available <a href="https://plus.google.com/111333123856542807695/posts/QtiFdoRuh6w">here</a>
-
-
 'less-data' => Array ( "IITC does not show as much data, many plugins are not available",
 <<<'END'
 <p>
@@ -144,11 +140,6 @@ there too - usually you just need to zoom out once or twice. To make IITC behavi
 <li>Disable the 'show more portals' plugin</li>
 <li>Install/enable the 'default intel detail level' plugin</li>
 </ul>
-<p>
-Some community posts discussing this issue are
-<a href="https://plus.google.com/115049949416134175118/posts/ZVjk7cR1nfT">here</a>, and
-<a href="https://plus.google.com/110237353326976863775/posts/UCMk1VvoHMg">here</a>.
-</p>
 <p>
 Other reasons.
 </p>

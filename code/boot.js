@@ -278,7 +278,7 @@ window.setupMap = function() {
 
   window.layerChooser = new L.Control.Layers(baseLayers, addLayers);
 
-  // Remove the hidden layer after layerChooser built, to avoid messing up ordering of layers 
+  // Remove the hidden layer after layerChooser built, to avoid messing up ordering of layers
   $.each(hiddenLayer, function(ind, layer){
     map.removeLayer(layer);
 
@@ -646,7 +646,7 @@ function boot() {
   if(window.bootPlugins) {
     // check to see if a known 'bad' plugin is installed. If so, alert the user, and don't boot any plugins
     var badPlugins = {
-      'arc': 'Contains hidden code to report private data to a 3rd party server: <a href="https://plus.google.com/105383756361375410867/posts/4b2EjP3Du42">details here</a>',
+      'arc': 'Contains hidden code to report private data to a 3rd party server',
     };
 
     // remove entries from badPlugins which are not installed

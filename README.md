@@ -8,12 +8,6 @@ Since the [breunigs](https://github.com/breunigs/ingress-intel-total-conversion)
 
 Just want to download/install IITC? Go to http://iitc.me/
 
-For keeping up with the latest news, release announcements, etc, Follow IITC on G+
-https://plus.google.com/105383756361375410867/posts
-
-If you have questions, need help or advice with IITC, the Google+ community is a good place to start.
-https://plus.google.com/communities/105647403088015055797
-
 Want to report a bug? Post it to the issues page
 https://github.com/iitc-project/ingress-intel-total-conversion/issues
 

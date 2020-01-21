@@ -57,14 +57,16 @@ if ( file_exists ( 'tracking.php' ) )
 
 
  <!-- **** top alert box **** -->
+<!--
  <div class="alert alert-block alert-info">
   Follow the
-  <b><a href="https://plus.google.com/105383756361375410867"><span class="icon-google-plus"></span> IITC page</a></b>
+  <b><a href="FIXME"><span class="icon-google-plus"></span> IITC page</a></b>
   for release announcements.
   Join the
-  <b><a href="https://plus.google.com/communities/105647403088015055797"><span class="icon-google-plus"></span> IITC Community</a></b>
+  <b><a href="FIXME"><span class="icon-google-plus"></span> IITC Community</a></b>
   - a place to ask for help and discuss with other users.
  </div>
+-->
 
  <!-- **** alert box when standard intel site changes **** -->
  <?php
@@ -74,8 +76,6 @@ if ( file_exists ( 'tracking.php' ) )
  <div class="alert alert-block alert-danger">
   <b>Note</b>: A change has been detected to the standard intel website. Such changes may break IITC.
   The developers have been notified of the update, and will be looking to fix things as soon as possible.
-  See the <a href="https://plus.google.com/communities/105647403088015055797">IITC Community</a>
-  for the latest details.
  </div>
  <?php
  }
