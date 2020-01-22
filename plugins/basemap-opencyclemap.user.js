@@ -22,34 +22,38 @@
 
 // PLUGIN START ////////////////////////////////////////////////////////
 
-
 // use own namespace for plugin
 window.plugin.mapTileOpenCycleMap = {
   addLayer: function() {
     //the Thunderforest (OpenCycleMap) tiles are free to use - http://www.thunderforest.com/terms/
-
-    var ocmOpt = {
-      attribution: 'Tiles © OpenCycleMap, Map data © OpenStreetMap',
+    // to get an api_key please read: http://www.thunderforest.com/docs/apikeys/
+    let api_key = '';
+    
+    let ocmOpt = {
+      attribution: 'Maps © www.thunderforest.com, Data © www.osm.org/copyright',
       maxNativeZoom: 18,
       maxZoom: 21,
     };
 
-    var layers = {
+    let layers = {
       'cycle': 'OpenCycleMap',
       'transport': 'Transport',
       'transport-dark': 'Transport Dark',
       'outdoors': 'Outdoors',
       'landscape': 'Landscape',
+      //'spinal-map': 'Spinal-Map',
+      //'pioneer': 'Pioneer',
+      //'neighbourhood': 'Neighbourhood',
     };
 
-    for(var i in layers) {
-      var layer = new L.TileLayer('http://{s}.tile.thunderforest.com/' + i + '/{z}/{x}/{y}.png', ocmOpt);
+    for(let i in layers) {
+      let layer = new L.TileLayer('https://{s}.tile.thunderforest.com/' + i + '/{z}/{x}/{y}.png?apikey=' + api_key , ocmOpt);
       layerChooser.addBaseLayer(layer, 'Thunderforest ' + layers[i]);
     }
   },
 };
 
-var setup =  window.plugin.mapTileOpenCycleMap.addLayer;
+let setup =  window.plugin.mapTileOpenCycleMap.addLayer;
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
