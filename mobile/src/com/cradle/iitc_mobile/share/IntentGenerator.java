@@ -39,7 +39,7 @@ public class IntentGenerator {
     public static String getTitle(final Intent intent) {
         String title = "";
         if (intent.hasExtra(EXTRA_FLAG_TITLE))
-            title = intent.getStringExtra(EXTRA_FLAG_TITLE);
+            title = intent.getCharSequenceExtra(EXTRA_FLAG_TITLE).toString();
 
         // Samsung WiFi Direct Sharing seems to not provide a title.
         // Not directly reproducible without having a Samsung device.
