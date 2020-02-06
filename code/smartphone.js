@@ -139,7 +139,7 @@ window.runOnSmartphonesAfterBoot = function() {
   $('#mobileinfo').html('<div style="text-align: center"><b>tap here for info screen</b></div>');
 
   // disable img full view
-  $('#portaldetails').off('click', '**');
+  $('div[class=imgpreview]').off('click', '**');
 
   // make buttons in action bar flexible
   var l = $('#chatcontrols a:visible');
