@@ -1241,6 +1241,10 @@ g.checkpoint:hover circle {
 	padding-left: 10px;
 }
 
+.scores_total span {
+    padding: 0 1.5em;
+}
+
 .text-overflow-ellipsis {
 	display: inline-block;
 	overflow: hidden;

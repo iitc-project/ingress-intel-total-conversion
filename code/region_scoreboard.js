@@ -130,11 +130,17 @@ function regionScoreboardScoreHistoryTable(result) {
   var history = result.scoreHistory;
   var table = '<table class="checkpoint_table"><thead><tr><th>Checkpoint</th><th>Enlightened</th><th>Resistance</th></tr></thead>';
 
+  var sum = [0, 0];
+
   for(var i=0; i<history.length; i++) {
+    sum[0] +=  parseInt(history[i][1]);
+    sum[1] +=  parseInt(history[i][2]);
     table += '<tr><td>' + history[i][0] + '</td><td>' + digits(history[i][1]) + '</td><td>' + digits(history[i][2]) + '</td></tr>';
   }
-
   table += '</table>';
+
+  table = '<div class="scores_total">Total: <span class="enl">' + digits(sum[0]) + '</span><span class="res">' + digits(sum[1]) + '</span></div>' + table;
+  
   return table;
 }
 
