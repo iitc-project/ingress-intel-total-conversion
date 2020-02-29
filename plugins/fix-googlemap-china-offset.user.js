@@ -66,70 +66,189 @@ window.plugin.fixChinaOffset = {};
 // The algorithm of transforming WGS-84 to GCJ-02 comes from:
 // https://on4wp7.codeplex.com/SourceControl/changeset/view/21483#353936
 // There is no official algorithm because it is classified information.
+//
+// Here we use the PRCoords implementation of this algorithm, which contains
+// a more careful yet still rough "China area" check in "insane_is_in_china.js".
+// Comments and code style have been adapted, mainly to remove profanity.
+// https://github.com/Artoria2e5/PRCoords
 
-/////////// begin WGS84 to GCJ-02 transformer /////////
-var WGS84transformer = window.plugin.fixChinaOffset.WGS84transformer = function() {};
-// Krasovsky 1940
-// 
-// a = 6378245.0, 1/f = 298.3
-// b = a * (1 - f)
-// ee = (a^2 - b^2) / a^2;
-WGS84transformer.prototype.a = 6378245.0;
-WGS84transformer.prototype.ee = 0.00669342162296594323;
-
-WGS84transformer.prototype.transform = function(wgLat, wgLng) {
-
-  if(this.isOutOfChina(wgLat, wgLng))
-    return {lat: wgLat, lng: wgLng};
-
-  dLat = this.transformLat(wgLng - 105.0, wgLat - 35.0);
-  dLng = this.transformLng(wgLng - 105.0, wgLat - 35.0);
-  radLat = wgLat / 180.0 * Math.PI;
-  magic = Math.sin(radLat);
-  magic = 1 - this.ee * magic * magic;
-  sqrtMagic = Math.sqrt(magic);
-  dLat = (dLat * 180.0) / ((this.a * (1 - this.ee)) / (magic * sqrtMagic) * Math.PI);
-  dLng = (dLng * 180.0) / (this.a / sqrtMagic * Math.cos(radLat) * Math.PI);
-  mgLat = wgLat + dLat;
-  mgLng = wgLng + dLng;
-
-  return {lat: mgLat, lng: mgLng};
-
-};
-
-WGS84transformer.prototype.isOutOfChina = function(lat, lng) {
+/////////// begin WGS84 to GCJ-02 obfuscator /////////
+var PRCoords = window.plugin.fixChinaOffset.PRCoords = (function(){
+  // This set of points roughly illustrates the scope of Google's
+  // distortion. It has nothing to do with national borders etc.
+  // Points around Hong Kong/Shenzhen are mapped with a little more precision,
+  // in hope that it will make agents work a bit more smoothly there.
+  //
+  // Edits around these points are welcome.
+  var POINTS = [
+    // start hkmo
+    114.433722, 22.064310,
+    114.009458, 22.182105,
+    113.599275, 22.121763,
+    113.583463, 22.176002,
+    113.530900, 22.175318,
+    113.529542, 22.210608,
+    113.613377, 22.227435,
+    113.938514, 22.483714,
+    114.043449, 22.500274,
+    114.138506, 22.550640,
+    114.222984, 22.550960,
+    114.366803, 22.524255,
+    // end hkmo
+    115.254019, 20.235733,
+    121.456316, 26.504442,
+    123.417261, 30.355685,
+    124.289197, 39.761103,
+    126.880509, 41.774504,
+    127.887261, 41.370015,
+    128.214602, 41.965359,
+    129.698745, 42.452788,
+    130.766139, 42.668534,
+    131.282487, 45.037051,
+    133.142361, 44.842986,
+    134.882453, 48.370596,
+    132.235531, 47.785403,
+    130.980075, 47.804860,
+    130.659026, 48.968383,
+    127.860252, 50.043973,
+    125.284310, 53.667091,
+    120.619316, 53.100485,
+    119.403751, 50.105903,
+    117.070862, 49.690388,
+    115.586019, 47.995542,
+    118.599613, 47.927785,
+    118.260771, 46.707335,
+    113.534759, 44.735134,
+    112.093739, 45.001999,
+    111.431259, 43.489381,
+    105.206324, 41.809510,
+    96.485703, 42.778692,
+    94.167961, 44.991668,
+    91.130430, 45.192938,
+    90.694601, 47.754437,
+    87.356293, 49.232005,
+    85.375791, 48.263928,
+    85.876055, 47.109272,
+    82.935423, 47.285727,
+    81.929808, 45.506317,
+    79.919457, 45.108122,
+    79.841455, 42.178752,
+    73.334917, 40.076332,
+    73.241805, 39.062331,
+    79.031902, 34.206413,
+    78.738395, 31.578004,
+    80.715812, 30.453822,
+    81.821692, 30.585965,
+    85.501663, 28.208463,
+    92.096061, 27.754241,
+    94.699781, 29.357171,
+    96.079442, 29.429559,
+    98.910308, 27.140660,
+    97.404057, 24.494701,
+    99.400021, 23.168966,
+    100.697449, 21.475914,
+    102.976870, 22.616482,
+    105.476997, 23.244292,
+    108.565621, 20.907735,
+    107.730505, 18.193406,
+    110.669856, 17.754550,
+  ]
+  var HK_LENGTH = 12 // for future use (e.g. with Baidu)
+  var lats = POINTS.filter(function (_, idx) { return idx % 2 == 1; })
+  var lngs = POINTS.filter(function (_, idx) { return idx % 2 == 0; })
+  POINTS = null // not needed anyway...
   
-  if(lng < 72.004 || lng > 137.8347) return true;
-  if(lat < 0.8293 || lat > 55.8271) return true;
+  /// *** pnpoly *** ///
+  // Wm. Franklin's 8-line point-in-polygon C program
+  // Copyright (c) 1970-2003, Wm. Randolph Franklin
+  // Copyright (c) 2017, Mingye Wang (js translation)
+  //
+  // Permission is hereby granted, free of charge, to any person obtaining
+  // a copy of this software and associated documentation files (the
+  // "Software"), to deal in the Software without restriction, including
+  // without limitation the rights to use, copy, modify, merge, publish,
+  // distribute, sublicense, and/or sell copies of the Software, and to
+  // permit persons to whom the Software is furnished to do so, subject to
+  // the following conditions:
+  //
+  //   1. Redistributions of source code must retain the above copyright
+  //      notice, this list of conditions and the following disclaimers.
+  //   2. Redistributions in binary form must reproduce the above
+  //      copyright notice in the documentation and/or other materials
+  //      provided with the distribution.
+  //   3. The name of W. Randolph Franklin may not be used to endorse or
+  //      promote products derived from this Software without specific
+  //      prior written permission. 
+  //
+  // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  var pnpoly = function(xs, ys, x, y) {
+    if (! (xs.length === ys.length))
+      throw new Error('pnpoly: assert(xs.length === ys.length)')
+    var inside = 0
+    for (let i = 0, j = xs.length - 1; i < xs.length; j = i++)
+      inside ^= (((ys[i] > y) !== (ys[j] > y)) &&
+                (x < (xs[j] - xs[i]) * (y - ys[i]) / (ys[j] - ys[i]) + xs[i]))
+    return !!inside
+  }
+  /// ^^^ pnpoly ^^^ ///
   
-  return false;
-
-};
-
-WGS84transformer.prototype.transformLat = function(x, y) {
+  var isInGoogle = function(coords) {
+    // Yank out South China Sea as it's not distorted.
+    return coords.lat >= 17.754 && coords.lat <= 55.8271  &&
+           coords.lng >= 72.004 && coords.lng <= 137.8347 &&
+           pnpoly(lats, lngs, coords.lat, coords.lng)
+  }
   
-  var ret = -100.0 + 2.0 * x + 3.0 * y + 0.2 * y * y + 0.1 * x * y + 0.2 * Math.sqrt(Math.abs(x));
-  ret += (20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) * 2.0 / 3.0;
-  ret += (20.0 * Math.sin(y * Math.PI) + 40.0 * Math.sin(y / 3.0 * Math.PI)) * 2.0 / 3.0;
-  ret += (160.0 * Math.sin(y / 12.0 * Math.PI) + 320 * Math.sin(y * Math.PI / 30.0)) * 2.0 / 3.0;
+  /// Krasovsky 1940 ellipsoid
+  /// @const
+  var GCJ_A = 6378245
+  var GCJ_EE = 0.00669342162296594323 // f = 1/298.3; e^2 = 2*f - f**2
+
+  var gcjObfs = function(wgs) {
+    if(!isInGoogle(wgs)) {
+       return wgs
+    }
+    
+    var x = wgs.lng - 105, y = wgs.lat - 35
+    // These distortion functions accept (x = lon - 105, y = lat - 35).
+    // They return distortions in terms of arc lengths, in meters.
+    var dLat_m = -100 + 2 * x + 3 * y + 0.2 * y * y + 0.1 * x * y + 0.2 * Math.sqrt(Math.abs(x)) +
+      20 / 3 * (
+        2 * Math.sin(x * 6 * Math.PI) + 2 * Math.sin(x * 2 * Math.PI) +
+        2 * Math.sin(y * Math.PI) + 4 * Math.sin(y / 3 * Math.PI) +
+        16 * Math.sin(y / 12 * Math.PI) + 32 * Math.sin(y / 30 * Math.PI)) 
+    var dLon_m = 300 + x + 2 * y + 0.1 * x * x + 0.1 * x * y + 0.1 * Math.sqrt(Math.abs(x)) +
+      20 / 3 * (
+        2 * Math.sin(x * 6 * Math.PI) + 2 * Math.sin(x * 2 * Math.PI) +
+        2 * Math.sin(x * Math.PI) + 4 * Math.sin(x / 3 * Math.PI) +
+        15 * Math.sin(x / 12 * Math.PI) + 30 * Math.sin(x / 30 * Math.PI))
+
+    var radLat = wgs.lat / 180 * Math.PI
+    var magic = 1 - GCJ_EE * Math.pow(Math.sin(radLat), 2) // just a common expr
+
+    // Arc lengths per degree, on the wrong ellipsoid
+    var lat_deg_arclen = (Math.PI / 180) * (GCJ_A * (1 - GCJ_EE)) * Math.pow(magic, 1.5)
+    var lon_deg_arclen = (Math.PI / 180) * (GCJ_A * Math.cos(radLat) / Math.sqrt(magic))
+
+    return {
+      lat: wgs.lat + (dLat_m / lat_deg_arclen),
+      lng: wgs.lng + (dLon_m / lon_deg_arclen),
+    }
+  }
   
-  return ret;
+  return {
+    gcjObfs: gcjObfs,
+    isInGoogle: isInGoogle,
+  }
+})();
 
-};
-
-WGS84transformer.prototype.transformLng = function(x, y) {
-  
-  var ret = 300.0 + x + 2.0 * y + 0.1 * x * x + 0.1 * x * y + 0.1 * Math.sqrt(Math.abs(x));
-  ret += (20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) * 2.0 / 3.0;
-  ret += (20.0 * Math.sin(x * Math.PI) + 40.0 * Math.sin(x / 3.0 * Math.PI)) * 2.0 / 3.0;
-  ret += (150.0 * Math.sin(x / 12.0 * Math.PI) + 300.0 * Math.sin(x / 30.0 * Math.PI)) * 2.0 / 3.0;
-  
-  return ret;
-
-};
-/////////// end WGS84 to GCJ-02 transformer /////////
-
-var WGS84toGCJ02 = new WGS84transformer();
+/////////// end WGS84 to GCJ-02 obfuscator /////////
 
 /////////// begin overwrited L.Google /////////
 window.plugin.fixChinaOffset.L = {};
@@ -173,7 +292,7 @@ window.plugin.fixChinaOffset.getLatLng = function(pos, type) {
   
   // No offsets in satellite and hybrid maps  
   if(type !== 'SATELLITE' && type !== 'HYBRID') {
-    var newPos = WGS84toGCJ02.transform(pos.lat, pos.lng);
+    var newPos = PRCoords.gcjObfs(pos);
     return new google.maps.LatLng(newPos.lat, newPos.lng);
   } else {
     return new google.maps.LatLng(pos.lat, pos.lng);
