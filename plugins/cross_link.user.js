@@ -25,6 +25,7 @@
 
 window.plugin.crossLinks = function() {};
 
+window.plugin.crossLinks.currentMatchColor = '#a24ac3';
 
 window.plugin.crossLinks.greatCircleArcIntersect = function(a0,a1,b0,b1) {
   // based on the formula at http://williams.best.vwh.net/avform.htm#Int
@@ -193,12 +194,12 @@ window.plugin.crossLinks.testLink = function (link) {
 
     for (var i in plugin.drawTools.drawnItems._layers) { // leaflet don't support breaking out of the loop
        var layer = plugin.drawTools.drawnItems._layers[i];
-       if (layer instanceof L.GeodesicPolygon) {
+       if (layer instanceof L.GeodesicPolygon && layer.options.color == window.plugin.crossLinks.currentMatchColor) {
            if (plugin.crossLinks.testPolyLine(layer, link,true)) {
                plugin.crossLinks.showLink(link);
                break;
            }
-        } else if (layer instanceof L.GeodesicPolyline) {
+        } else if (layer instanceof L.GeodesicPolyline && layer.options.color == window.plugin.crossLinks.currentMatchColor) {
             if (plugin.crossLinks.testPolyLine(layer, link)) {
                 plugin.crossLinks.showLink(link);
                 break;
@@ -238,11 +239,11 @@ window.plugin.crossLinks.testAllLinksAgainstLayer = function (layer) {
     $.each(window.links, function(guid, link) {
         if (!plugin.crossLinks.linkLayerGuids[link.options.guid])
         {
-            if (layer instanceof L.GeodesicPolygon) {
+            if (layer instanceof L.GeodesicPolygon && layer.options.color == window.plugin.crossLinks.currentMatchColor) {
                 if (plugin.crossLinks.testPolyLine(layer, link,true)) {
                     plugin.crossLinks.showLink(link);
                 }
-            } else if (layer instanceof L.GeodesicPolyline) {
+            } else if (layer instanceof L.GeodesicPolyline && layer.options.color == window.plugin.crossLinks.currentMatchColor) {
                 if (plugin.crossLinks.testPolyLine(layer, link)) {
                     plugin.crossLinks.showLink(link);
                 }
@@ -287,6 +288,38 @@ window.plugin.crossLinks.createLayer = function() {
     }
 }
 
+// Options
+window.plugin.crossLinks.manualOpt = function() {
+  var html = '<div class="crosslinksMatchColor">'
+           + '<input type="color" name="matchColor" id="crosslinks_matchcolor"></input>'
+           + '</div>'
+           + '</div>';
+  dialog({
+    html: html,
+    dialogClass: 'ui-dialog-crosslinksSet',
+    title: 'Cross Links Options'
+  });
+
+  $('#crosslinks_matchcolor').spectrum({
+    flat: false,
+    showInput: false,
+    showButtons: false,
+    showPalette: true,
+    showSelectionPalette: false,
+    palette: [ ['#a24ac3','#514ac3','#4aa8c3','#51c34a'],
+               ['#c1c34a','#c38a4a','#c34a4a','#c34a6f'],
+               ['#000000','#666666','#bbbbbb','#ffffff']
+    ],
+    change: function(color) { window.plugin.crossLinks.setMatchColor(color.toHexString()); },
+    color: window.plugin.crossLinks.currentMatchColor,
+  });
+}
+
+window.plugin.crossLinks.setMatchColor = function(color) {
+  window.plugin.crossLinks.currentMatchColor = color;
+  window.plugin.crossLinks.checkAllLinks();
+}
+
 var setup = function() {
     if (window.plugin.drawTools === undefined) {
        alert("'Cross-Links' requires 'draw-tools'");
@@ -295,6 +328,9 @@ var setup = function() {
 
     // this plugin also needs to create the draw-tools hook, in case it is initialised before draw-tools
     window.pluginCreateHook('pluginDrawTools');
+
+    // Add options menu
+    $('#toolbox').append('<a onclick="window.plugin.crossLinks.manualOpt(); return false;">Cross Links Opt</a>');
 
     window.plugin.crossLinks.createLayer();
 
