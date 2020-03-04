@@ -30,6 +30,9 @@ window.plugin.flyLinks.MAX_PORTALS_TO_LINK = 100;
 // zoom level used for projecting points between latLng and pixel coordinates. may affect precision of triangulation
 window.plugin.flyLinks.PROJECT_ZOOM = 16;
 
+window.plugin.flyLinks.CREATE_LINK = 313;
+window.plugin.flyLinks.CREATE_FIELD = 1250;
+
 
 window.plugin.flyLinks.linksLayerGroup = null;
 window.plugin.flyLinks.fieldsLayerGroup = null;
@@ -265,6 +268,8 @@ window.plugin.flyLinks.updateLayer = function() {
       clickable: false,
     });
   });
+
+  window.plugin.flyLinks.updateAP(edges.length, triangles.length);
 }
 
 window.plugin.flyLinks.Edge = function(a, b, depth) {
@@ -280,7 +285,22 @@ window.plugin.flyLinks.Triangle = function(a, b, c, depth) {
   this.depth = depth;
 }
 
+window.plugin.flyLinks.updateAP = function(numLinks, numFields) {
+  numLinks = numLinks || 0;
+  numFields = numFields || 0;
+
+  var ap = numLinks * window.plugin.flyLinks.CREATE_LINK +
+           numFields * window.plugin.flyLinks.CREATE_FIELD;
+  var html = '<table><tr><td>Fly Links - Possible AP:</td><td style="text-align:right">' + digits(ap) + '</td></tr>'
+             + '<tr><td colspan="2">(' + numLinks + ' Links, ' + numFields + ' Fields)</td></tr></table>';
+
+  $('#flylinks_ap').html(html);
+};
+
 window.plugin.flyLinks.setup = function() {
+  $('#sidebar').append('<div id="flylinks_ap"></div>');
+  $('#flylinks_ap').css({ 'color': '#ffce00', 'font-size': '90%', 'padding': '4px 2px' });
+
   window.plugin.flyLinks.linksLayerGroup = new L.LayerGroup();
   window.plugin.flyLinks.fieldsLayerGroup = new L.LayerGroup();
   
