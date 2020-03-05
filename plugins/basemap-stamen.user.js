@@ -24,48 +24,45 @@
 
 
 // use own namespace for plugin
-window.plugin.mapTileStamen = function() {};
-
+  window.plugin.mapTileStamen = function() {};
 
 window.plugin.mapTileStamen.addLayer = function() {
-
-  var types = {
+  let types = {
     'toner': [ 'Toner', 'png', 0, 20 ],
 //    'toner-hybrid': [ ' Toner Hybrid', 'png', 0, 20 ],  // transparent layer. could be useful over satellite imagery or similar
 //    'toner-labels': [ 'Toner Labels', 'png', 0, 20 ],  // transparent layer. could be useful over satellite imagery or similar
 //    'toner-lines': [ 'Toner Lines', 'png', 0, 20 ],  // transparent layer. could be useful over satellite imagery or similar
-    'toner-background': [ 'Toner Background', 'png', 0, 20 ],
+//    'toner-background': [ 'Toner Background', 'png', 0, 20 ], //does not exist anymore
     'toner-lite': [ 'Toner Lite', 'png', 0, 20 ],
     'watercolor': [ 'Watercolor', 'jpg', 1, 16 ],
   };
-
-  var baseUrl = window.location.protocol == 'https:' ? 'https://stamen-tiles-{s}.a.ssl.fastly.net/' : 'http://{s}.tile.stamen.com/';
-
-
-  for (var layer in types) {
-    var info = types[layer];
-
-    var name = info[0];
-    var type = info[1];
-    var minZoom = info[2];
-    var maxZoom = info[3];
-
-    var mapLayer = new L.TileLayer (baseUrl+'{layer}/{z}/{x}/{y}.{type}', {
-      attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.',
-      subdomains: 'abcd',    
-      layer: layer,
-      type: type,
-      minZoom: minZoom,
+  
+  // the certificate from steamen.com is not configured correctly - thatswhy you need to add a security exception for this domain.
+  let baseUrl = window.location.protocol === 'https:' ? 'https://{s}.tile.stamen.com/' : 'http://{s}.tile.stamen.com/'
+  
+  for (let layer in types) {
+    let info = types[layer];
+    let name = info[0];
+    let type = info[1];
+    let minZoom = info[2];
+    let maxZoom = info[3];
+  
+    let mapLayer = new L.TileLayer (baseUrl+'{layer}/{z}/{x}/{y}.{type}', {
+      attribution  : 'Map tiles by <a href="https://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.',
+      subdomains   : 'abcd',
+      layer        : layer,
+      type         : type,
+      minZoom      : minZoom,
       maxNativeZoom: maxZoom,
-      maxZoom: 21
+      maxZoom      : 21
     });
-
+  
     layerChooser.addBaseLayer(mapLayer,'Stamen '+name);
   }
-
+  
 };
 
-var setup =  window.plugin.mapTileStamen.addLayer;
+let setup =  window.plugin.mapTileStamen.addLayer;
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
