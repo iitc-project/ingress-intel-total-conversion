@@ -216,7 +216,7 @@ window.plugin.missions = {
 			collapseCallback: this.collapseFix,
 			expandCallback: this.collapseFix,
 		}).dialog('option', 'buttons', {
-			'Create new mission': function() { open('//mission-author-dot-betaspike.appspot.com'); },
+			'Create new mission': function() { open('//missions.ingress.com'); },
 			'OK': function() { $(this).dialog('close'); },
 		});
 	},
