@@ -22,23 +22,32 @@
 
 // PLUGIN START ////////////////////////////////////////////////////////
 
-
 // use own namespace for plugin
-window.plugin.mapTileKartverketMap = function() {};
-
-window.plugin.mapTileKartverketMap.addLayer = function() {
-
-  // Map data from Kartverket (http://statkart.no/en/)
-  kartverketAttribution = 'Map data © Kartverket';
-  var kartverketOpt = {attribution: kartverketAttribution, maxNativeZoom: 18, maxZoom: 21, subdomains: ['opencache', 'opencache2', 'opencache3']};
-  var kartverketTopo2 = new L.TileLayer('http://{s}.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo2&zoom={z}&x={x}&y={y}', kartverketOpt);
-  var kartverketTopo2Grayscale = new L.TileLayer('http://{s}.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo2graatone&zoom={z}&x={x}&y={y}', kartverketOpt);
-
-  layerChooser.addBaseLayer(kartverketTopo2, "Norway Topo");
-  layerChooser.addBaseLayer(kartverketTopo2Grayscale, "Norway Topo Grayscale");
+  window.plugin.mapTileKartverketMap = {
+  addLayer: function() {
+    let kartverketOpt = {
+      attribution  : 'Map data © Kartverket', // Map data from Kartverket (http://statkart.no/en/)
+      maxNativeZoom: 18,
+      maxZoom      : 21,
+      subdomains   : [ 'opencache', 'opencache2', 'opencache3' ]
+    };
+    
+    let layers = {
+      'topo4'        : 'Norway Topo',
+      'topo4graatone': 'Norway Topo Grayscale',
+      'kartdata2'    : 'Norway Kartdata2',
+      'toporaster3'  : 'Norway Toporaster3',
+      'europa'       : 'Norway Europa',
+    };
+    
+    for(let i in layers) {
+      let layer = new L.TileLayer('https://{s}.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=' + i + '&zoom={z}&x={x}&y={y}', kartverketOpt);
+      layerChooser.addBaseLayer(layer, 'Kartverket ' + layers[ i ]);
+    }
+  },
 };
 
-var setup =  window.plugin.mapTileKartverketMap.addLayer;
+let setup = window.plugin.mapTileKartverketMap.addLayer;
 
 // PLUGIN END //////////////////////////////////////////////////////////
 
