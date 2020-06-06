@@ -232,27 +232,36 @@ public class IITC_WebViewClient extends WebViewClient {
     @Override
     public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
         Uri uri = Uri.parse(url);
-        
-        if (url.contains("conflogin") || url.contains("ServiceLogin") || url.contains("appengine.google.com")) {
+        String host = uri.getHost();
+
+        if (host.contains(".google.") || host.startsWith("google.")) {
+            String q = uri.getQueryParameter("q");
+            if (uri.getPath().startsWith("/url") && q != null) {
+                Log.d("redirect to: " + uri.getQueryParameter("q"));
+                return shouldOverrideUrlLoading(view, q);
+            }
+
             Log.d("Google login");
             return false;
         }
-        else if (uri.getHost().contains(".google.") && "/url".equals(uri.getPath()) && uri.getQueryParameter("q") != null) {
-            Log.d("redirect to: " + uri.getQueryParameter("q"));
-            return shouldOverrideUrlLoading(view, uri.getQueryParameter("q"));
+
+        if ((host.equals("facebook.com") || host.endsWith(".facebook.com")) && url.contains("oauth")) {
+            Log.d("Facebook login");
+            return false;
         }
-        else if (isIntelUrl(url)) {
+    
+        if (isIntelUrl(url)) {
             Log.d("intel link requested, reset app and load " + url);
             mIitc.reset();
             mIitc.setLoadingState(true);
             return false;
-        } else {
-            Log.d("no ingress intel link, start external app to load url: " + url);
-            final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            // make new activity independent from iitcm
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            mIitc.startActivity(intent);
         }
+
+        Log.d("no ingress intel link, start external app to load url: " + url);
+        final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        // make new activity independent from iitcm
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mIitc.startActivity(intent);
         return true;
     }
 }
