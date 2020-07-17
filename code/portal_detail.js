@@ -29,9 +29,7 @@ window.portalDetail.isFresh = function(guid) {
 }
 
 
-var handleResponse = function(guid, data, success) {
-  delete requestQueue[guid];
-
+var handleResponse = function(deferred, guid, data, success) {
   if (!data || data.error || !data.result) {
     success = false;
   }
@@ -51,29 +49,38 @@ var handleResponse = function(guid, data, success) {
       renderPortalDetails(guid);
     }
 
+    deferred.resolve(dict);
     window.runHooks ('portalDetailLoaded', {guid:guid, success:success, details:dict, ent:ent});
 
   } else {
     if (data && data.error == "RETRY") {
       // server asked us to try again
-      portalDetail.request(guid);
+      doRequest(deferred, guid);
     } else {
+      deferred.reject();
       window.runHooks ('portalDetailLoaded', {guid:guid, success:success});
     }
   }
 
 }
 
+var doRequest = function(deferred, guid) {
+  window.postAjax('getPortalDetails', {guid:guid},
+    function(data,textStatus,jqXHR) { handleResponse(deferred, guid, data, true); },
+    function() { handleResponse(deferred, guid, undefined, false); }
+  );
+}
+
 window.portalDetail.request = function(guid) {
   if (!requestQueue[guid]) {
-    requestQueue[guid] = true;
+    var deferred = $.Deferred();
+    requestQueue[guid] = deferred.promise();
+    deferred.always(function() { delete requestQueue[guid]; });
 
-    window.postAjax('getPortalDetails', {guid:guid},
-      function(data,textStatus,jqXHR) { handleResponse(guid, data, true); },
-      function() { handleResponse(guid, undefined, false); }
-    );
+    doRequest(deferred, guid);
   }
 
+  return requestQueue[guid];
 }
 
 
