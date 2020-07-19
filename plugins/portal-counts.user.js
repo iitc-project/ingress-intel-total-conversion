@@ -58,6 +58,10 @@ window.plugin.portalcounts.getPortals = function (){
 
   self.PortalsEnl = new Array();
   self.PortalsRes = new Array();
+
+  self.resosEnl = 0;
+  self.resosRes = 0;
+
   for(var level = window.MAX_PORTAL_LEVEL; level > 0; level--){
     self.PortalsEnl[level] = 0;
     self.PortalsRes[level] = 0;
@@ -72,10 +76,12 @@ window.plugin.portalcounts.getPortals = function (){
       case 1 :
         self.resP++;
         self.PortalsRes[level]++;
+        if(portal.options.data.resCount) self.resosRes += portal.options.data.resCount;
         break;
       case 2 :
         self.enlP++;
         self.PortalsEnl[level]++;
+        if(portal.options.data.resCount) self.resosEnl += portal.options.data.resCount;
         break;
       default:
         self.neuP++;
@@ -100,6 +106,7 @@ window.plugin.portalcounts.getPortals = function (){
     }
 
     counts += '<tr><th>Total:</th><td class="enl">'+self.enlP+'</td><td class="res">'+self.resP+'</td></tr>';
+    counts += '<tr><th>Resos:</td><td class="enl">'+self.resosEnl+'</td><td class="res">'+self.resosRes+'</td></tr>';
 
     counts += '<tr><td>Neutral:</td><td colspan="2">';
     if(minlvl > 0)
