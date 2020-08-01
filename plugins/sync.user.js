@@ -750,11 +750,12 @@ window.plugin.sync.setupCSS = function() {
             overflow-y: auto;\
           }")
   .appendTo("head");
-  // add Google Material icons.
-  $("head").append(
-    '<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">'
-  );
-
+  // add Google Material icons if nobody did yet
+  if ( $( "#material-icons-stylesheet" ).length == 0 ) {
+    $("head").append(
+      '<link id="material-icons-stylesheet" rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">'
+    );
+  }
 }
 
 var setup =  function() {
