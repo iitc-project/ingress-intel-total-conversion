@@ -172,7 +172,7 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 		&& markup[0][1].plain == 'You claimed Scout Controller on '
 		&& markup[1][0] == 'PORTAL'
 		&& markup[2][0] == 'TEXT'
-		&& markup[1][1].plain == ' by uploading more Portal Scans than any Agent.' 
+		&& markup[2][1].plain == ' by uploading more Portal Scans than any Agent.' 
 		){
 			// search for "You claimed Scout Controller on x by uploading more Portal Scans than any Agent."
 			var portal = markup[1][1];
@@ -260,7 +260,7 @@ window.plugin.uniques.setPortalScouted = function(guid) {
 		};
 	}
 
-	plugin.uniques.updateCheckedAndHighlight(guid);
+//	plugin.uniques.updateCheckedAndHighlight(guid);
 	plugin.uniques.sync(guid);
 }
 
