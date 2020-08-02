@@ -166,6 +166,18 @@ window.plugin.uniques.onPublicChatDataAvailable = function(data) {
 			var portal = markup[1][1];
 			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
 			if(guid) plugin.uniques.setPortalVisited(guid);
+		} else if(plext.plextType == 'SYSTEM_NARROWCAST'
+		&& markup.length==3
+		&& markup[0][0] == 'TEXT'
+		&& markup[0][1].plain == 'You claimed Scout Controller on '
+		&& markup[1][0] == 'PORTAL'
+		&& markup[2][0] == 'TEXT'
+		&& markup[1][1].plain == ' by uploading more Portal Scans than any Agent.' 
+		){
+			// search for "You claimed Scout Controller on x by uploading more Portal Scans than any Agent."
+			var portal = markup[1][1];
+			var guid = window.findPortalGuidByPositionE6(portal.latE6, portal.lngE6);
+			if(guid) plugin.uniques.setPortalScouted(guid);
 		}
 	});
 }
@@ -226,6 +238,25 @@ window.plugin.uniques.setPortalCaptured = function(guid) {
 			captured: true,
 			dronevisited : false,
 			scouted : false
+		};
+	}
+
+	plugin.uniques.updateCheckedAndHighlight(guid);
+	plugin.uniques.sync(guid);
+}
+
+window.plugin.uniques.setPortalScouted = function(guid) {
+	var uniqueInfo = plugin.uniques.uniques[guid];
+	if (uniqueInfo) {
+		if(uniqueInfo.scouted) return;
+
+		uniqueInfo.scouted = true;
+	} else {
+		plugin.uniques.uniques[guid] = {
+			visited: false,
+			captured: false,
+			dronevisited : false,
+			scouted : true
 		};
 	}
 
