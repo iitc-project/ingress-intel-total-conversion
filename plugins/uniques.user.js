@@ -177,10 +177,10 @@ window.plugin.uniques.updateCheckedAndHighlight = function(guid) {
 
 		var uniqueInfo = plugin.uniques.uniques[guid],
 			visited = (uniqueInfo && uniqueInfo.visited) || false,
-			captured = (uniqueInfo && uniqueInfo.captured) || false;
+			captured = (uniqueInfo && uniqueInfo.captured) || false,
 			dronevisited = (uniqueInfo && uniqueInfo.dronevisited) || false,
 			scouted = (uniqueInfo && uniqueInfo.scouted) || false;
-		
+
 		$('#visited').prop('checked', visited);
 		$('#captured').prop('checked', captured);
 		$('#dronevisited').prop('checked', dronevisited);
@@ -193,7 +193,6 @@ window.plugin.uniques.updateCheckedAndHighlight = function(guid) {
 		}
 	}
 }
-
 
 window.plugin.uniques.setPortalVisited = function(guid) {
 	var uniqueInfo = plugin.uniques.uniques[guid];
@@ -304,7 +303,7 @@ window.plugin.uniques.updateDroneVisited = function(dronevisited, guid) {
 
 	if (dronevisited) {
 		uniqueInfo.dronevisited = true;
-	} else { 
+	} else {
 		uniqueInfo.dronevisited = false;
 	}
 
@@ -314,7 +313,6 @@ window.plugin.uniques.updateDroneVisited = function(dronevisited, guid) {
 }
 
 window.plugin.uniques.updateScouted = function(scouted, guid) {
-	
 	if(guid == undefined) guid = window.selectedPortal;
 
 	var uniqueInfo = plugin.uniques.uniques[guid];
@@ -337,7 +335,7 @@ window.plugin.uniques.updateScouted = function(scouted, guid) {
 
 //	plugin.uniques.updateCheckedAndHighlight(guid);
 	plugin.uniques.sync(guid);
-	
+
 }
 
 // stores the gived GUID for sync
@@ -351,9 +349,9 @@ plugin.uniques.sync = function(guid) {
 // sync the queue, but delay the actual sync to group a few updates in a single request
 window.plugin.uniques.syncQueue = function() {
 	if(!plugin.uniques.enableSync) return;
-	
+
 	clearTimeout(plugin.uniques.syncTimer);
-	
+
 	plugin.uniques.syncTimer = setTimeout(function() {
 		plugin.uniques.syncTimer = null;
 
