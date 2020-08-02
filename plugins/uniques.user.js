@@ -1,20 +1,14 @@
 // ==UserScript==
-// @id             iitc-plugin-uniques@3ch01c
+// @id             iitc-plugin-uniques@3ch01c-AlterTobi
 // @name           IITC plugin: Uniques
 // @category       Misc
-// @version        0.2.4.@@DATETIMEVERSION@@
+// @version        0.3.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/3ch01c/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
 // @description    [@@BUILDNAME@@-@@BUILDDATE@@] Allow manual entry of portals visited/captured. Use the 'highlighter-uniques' plugin to show the uniques on the map, and 'sync' to share between multiple browsers or desktop/mobile. It will try and guess which portals you have captured from COMM/portal details, but this will not catch every case.
-// @include        https://*.ingress.com/intel*
-// @include        http://*.ingress.com/intel*
-// @match          https://*.ingress.com/intel*
-// @match          http://*.ingress.com/intel*
-// @include        https://*.ingress.com/mission/*
-// @include        http://*.ingress.com/mission/*
-// @match          https://*.ingress.com/mission/*
-// @match          http://*.ingress.com/mission/*
+// @include        https://intel.ingress.com/*
+// @match          https://intel.ingress.com/*
 // @grant          none
 // ==/UserScript==
 
@@ -184,8 +178,13 @@ window.plugin.uniques.updateCheckedAndHighlight = function(guid) {
 		var uniqueInfo = plugin.uniques.uniques[guid],
 			visited = (uniqueInfo && uniqueInfo.visited) || false,
 			captured = (uniqueInfo && uniqueInfo.captured) || false;
+			dronevisited = (uniqueInfo && uniqueInfo.dronevisited) || false,
+			scouted = (uniqueInfo && uniqueInfo.scouted) || false;
+		
 		$('#visited').prop('checked', visited);
 		$('#captured').prop('checked', captured);
+		$('#dronevisited').prop('checked', dronevisited);
+		$('#scouted').prop('checked', scouted);
 	}
 
 	if (window.plugin.uniques.isHighlightActive) {
@@ -205,7 +204,9 @@ window.plugin.uniques.setPortalVisited = function(guid) {
 	} else {
 		plugin.uniques.uniques[guid] = {
 			visited: true,
-			captured: false
+			captured: false,
+			dronevisited : false,
+			scouted : false
 		};
 	}
 
@@ -223,7 +224,9 @@ window.plugin.uniques.setPortalCaptured = function(guid) {
 	} else {
 		plugin.uniques.uniques[guid] = {
 			visited: true,
-			captured: true
+			captured: true,
+			dronevisited : false,
+			scouted : false
 		};
 	}
 
@@ -238,7 +241,9 @@ window.plugin.uniques.updateVisited = function(visited, guid) {
 	if (!uniqueInfo) {
 		plugin.uniques.uniques[guid] = uniqueInfo = {
 			visited: false,
-			captured: false
+			captured: false,
+			dronevisited : false,
+			scouted : false
 		};
 	}
 
@@ -262,7 +267,9 @@ window.plugin.uniques.updateCaptured = function(captured, guid) {
 	if (!uniqueInfo) {
 		plugin.uniques.uniques[guid] = uniqueInfo = {
 			visited: false,
-			captured: false
+			captured: false,
+			dronevisited : false,
+			scouted : false
 		};
 	}
 
@@ -277,6 +284,60 @@ window.plugin.uniques.updateCaptured = function(captured, guid) {
 
 	plugin.uniques.updateCheckedAndHighlight(guid);
 	plugin.uniques.sync(guid);
+}
+
+window.plugin.uniques.updateDroneVisited = function(dronevisited, guid) {
+
+	if(guid == undefined) guid = window.selectedPortal;
+
+	var uniqueInfo = plugin.uniques.uniques[guid];
+	if (!uniqueInfo) {
+		plugin.uniques.uniques[guid] = uniqueInfo = {
+			visited: false,
+			captured: false,
+			dronevisited : false,
+			scouted : false
+		};
+	}
+
+	if(dronevisited == uniqueInfo.dronevisited) return;
+
+	if (dronevisited) {
+		uniqueInfo.dronevisited = true;
+	} else { 
+		uniqueInfo.dronevisited = false;
+	}
+
+//	plugin.uniques.updateCheckedAndHighlight(guid);
+	plugin.uniques.sync(guid);
+
+}
+
+window.plugin.uniques.updateScouted = function(scouted, guid) {
+	
+	if(guid == undefined) guid = window.selectedPortal;
+
+	var uniqueInfo = plugin.uniques.uniques[guid];
+	if (!uniqueInfo) {
+		plugin.uniques.uniques[guid] = uniqueInfo = {
+			visited: false,
+			captured: false,
+			dronevisited : false,
+			scouted : false
+		};
+	}
+
+	if(scouted == uniqueInfo.scouted) return;
+
+	if (scouted) {
+		uniqueInfo.scouted = true;
+	} else {
+		uniqueInfo.scouted = false;
+	}
+
+//	plugin.uniques.updateCheckedAndHighlight(guid);
+	plugin.uniques.sync(guid);
+	
 }
 
 // stores the gived GUID for sync
@@ -426,7 +487,9 @@ window.plugin.uniques.setupCSS = function() {
 window.plugin.uniques.setupContent = function() {
 	plugin.uniques.contentHTML = '<div id="uniques-container">'
 		+ '<label><input type="checkbox" id="visited" onclick="window.plugin.uniques.updateVisited($(this).prop(\'checked\'))"> Visited</label>'
-		+ '<label><input type="checkbox" id="captured" onclick="window.plugin.uniques.updateCaptured($(this).prop(\'checked\'))"> Captured</label>'
+		+ '<label><input type="checkbox" id="captured" onclick="window.plugin.uniques.updateCaptured($(this).prop(\'checked\'))"> Captured</label><br/>'
+		+ '<label><input type="checkbox" id="dronevisited" onclick="window.plugin.uniques.updateDroneVisited($(this).prop(\'checked\'))"> Drone Visited</label>'
+		+ '<label><input type="checkbox" id="scouted" onclick="window.plugin.uniques.updateScouted($(this).prop(\'checked\'))"> ScoutController</label>'
 		+ '</div>';
 	plugin.uniques.disabledMessage = '<div id="uniques-container" class="help" title="Your browser does not support localStorage">Plugin Uniques disabled</div>';
 }
