@@ -64,7 +64,7 @@ window.plugin.regions.CODE_WORDS = [
 // This regexp is quite forgiving. Dashes are allowed between all components, each dash and leading zero is optional.
 // All whitespace is removed in onSearch(). If the first or both the first and second component are omitted, they are
 // replaced with the current cell's coordinates (=the cell which contains the center point of the map). If the last
-// component is ommited, the 4x4 cell group is used.
+// component is omitted, the 4x4 cell group is used.
 window.plugin.regions.REGEXP = new RegExp('^(?:(?:(' + plugin.regions.FACE_NAMES.join('|') + ')-?)?((?:1[0-6])|(?:0?[1-9]))-?)?(' +
   plugin.regions.CODE_WORDS.join('|') + ')(?:-?((?:1[0-5])|(?:0?\\d)))?$', 'i');
 
