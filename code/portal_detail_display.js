@@ -90,12 +90,18 @@ window.renderPortalDetails = function(guid) {
 
   }
 
+  var zoomOnClick = 'zoomToAndShowPortal(\''+guid+'\',['+data.latE6/1E6+','+data.lngE6/1E6+']);';
+    
   $('#portaldetails')
     .html('') //to ensure it's clear
     .attr('class', TEAM_TO_CSS[teamStringToId(data.team)])
     .append(
-      $('<h3>').attr({class:'title'}).text(title),
-
+      $('<h3>').attr({
+        class:'title',
+        title: title + '\n\nDouble click to move to portal.',
+        ondblclick: zoomOnClick,
+      }).text(title),
+      
       $('<span>').attr({
         class: 'close',
         title: 'Close [w]',
