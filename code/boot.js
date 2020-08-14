@@ -9,16 +9,23 @@ window.setupLargeImagePreview = function() {
     var details = $(this).find('div.portalDetails')[0];
     //dialogs have 12px padding around the content
     var dlgWidth = Math.max(img.naturalWidth+24,500);
+    // This might be a case where multiple dialogs make sense, for example
+    // someone might want to compare images of multiple portals.  But
+    // usually we only want to show one version of each image.
+    // To support that, we'd need a unique key per portal.  Example, guid.
+    // So that would have to be in the html fetched into details.
     if (details) {
       dialog({
         html: '<div style="text-align: center">' + img.outerHTML + '</div>' + details.outerHTML,
         title: $(this).parent().find('h3.title').text(),
+        id: 'iitc-portal-image',
         width: dlgWidth,
       });
     } else {
       dialog({
         html: '<div style="text-align: center">' + img.outerHTML + '</div>',
         title: $(this).parent().find('h3.title').text(),
+        id: 'iitc-portal-image',
         width: dlgWidth,
       });
     }

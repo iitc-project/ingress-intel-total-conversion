@@ -292,6 +292,7 @@ window.plugin.updateCheck.showReport = function(data) {
   dialog({
     width: 700,
     title: 'Update check',
+    id: 'plugin-update-check',
     html: result
   });
 }

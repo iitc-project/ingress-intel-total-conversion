@@ -344,6 +344,7 @@ window.plugin.drawTools.manualOpt = function() {
     html: html,
     id: 'plugin-drawtools-options',
     dialogClass: 'ui-dialog-drawtoolsSet',
+    id: 'plugin-drawtools-options',
     title: 'Draw Tools Options'
   });
 
@@ -423,6 +424,7 @@ window.plugin.drawTools.optCopy = function() {
         html: html,
         width: 600,
         dialogClass: 'ui-dialog-drawtoolsSet-copy',
+        id: 'plugin-drawtools-export',
         title: 'Draw Tools Export'
         });
     }

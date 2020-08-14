@@ -204,6 +204,7 @@ window.plugin.portalcounts.getPortals = function (){
     dialog({
       html: '<div id="portalcounts">' + counts + '</div>',
       title: 'Portal counts: ' + title,
+      id: 'plugin-portal-counts',
       width: 'auto'
     });
   }
