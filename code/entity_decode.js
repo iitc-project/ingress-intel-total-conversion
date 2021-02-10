@@ -77,6 +77,10 @@
 
   var SUMMARY_PORTAL_DATA_LENGTH = 14;
   function summaryPortalData(a) {
+    var VISITED = 1;
+    var CAPTURED = 2;
+    var SCOUT_CONTROLLED = 4;
+    var historyLevel = a[18] || 0;
     return {
       level:         a[4],
       health:        a[5],
@@ -87,11 +91,15 @@
       mission:       a[10],
       mission50plus: a[11],
       artifactBrief: parseArtifactBrief(a[12]),
-      timestamp:     a[13]
+      timestamp:     a[13],
+      visited: (historyLevel & VISITED) === VISITED,
+      captured: (historyLevel & CAPTURED) === CAPTURED,
+      scoutControlled: (historyLevel & SCOUT_CONTROLLED) === SCOUT_CONTROLLED,
     };
   };
 
-  var DETAILED_PORTAL_DATA_LENGTH = SUMMARY_PORTAL_DATA_LENGTH+4;
+  var DETAILED_PORTAL_DATA_LENGTH = SUMMARY_PORTAL_DATA_LENGTH + 4;
+  var WITH_HISTORY_PORTAL_DATA_LENGTH = DETAILED_PORTAL_DATA_LENGTH + 1;
 
 
   window.decodeArray.portalSummary = function(a) {
@@ -105,7 +113,7 @@
 
     // NOTE: allow for either summary or detailed portal data to be passed in here, as details are sometimes
     // passed into code only expecting summaries
-    if (a.length != SUMMARY_PORTAL_DATA_LENGTH && a.length != DETAILED_PORTAL_DATA_LENGTH) {
+    if (![SUMMARY_PORTAL_DATA_LENGTH, DETAILED_PORTAL_DATA_LENGTH, WITH_HISTORY_PORTAL_DATA_LENGTH].includes(a.length)) {
       console.warn('Portal summary length changed - portal details likely broken!');
       debugger;
     }
