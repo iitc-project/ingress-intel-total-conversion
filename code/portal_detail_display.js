@@ -32,6 +32,7 @@ window.renderPortalDetails = function(guid) {
   }
 
 
+  var historyData = details ? getPortalHistoryData(details) : '';
   var modDetails = details ? '<div class="mods">'+getModDetails(details)+'</div>' : '';
   var miscDetails = details ? getPortalMiscDetails(guid,details) : '';
   var resoDetails = details ? getResonatorDetails(details) : '';
@@ -96,6 +97,8 @@ window.renderPortalDetails = function(guid) {
     .append(
       $('<h3>').attr({class:'title'}).text(title),
 
+      historyData,
+
       $('<span>').attr({
         class: 'close',
         title: 'Close [w]',
@@ -125,7 +128,20 @@ window.renderPortalDetails = function(guid) {
   }
 }
 
-
+window.getPortalHistoryData = function(d) {
+  return $('<span>')
+    .attr({ style: 'padding-left: 4px'})
+    .text(
+      'history: ' + [
+        ['visited', d.visited],
+        ['captured', d.captured],
+        ['scout controlled', d.scoutControlled]
+      ]
+        .filter(([, checked]) => checked)
+        .map(([label]) => label)
+        .join(', ')
+    );
+}
 
 window.getPortalMiscDetails = function(guid,d) {
 
@@ -159,10 +175,12 @@ window.getPortalMiscDetails = function(guid,d) {
 
     var attackValues = getPortalAttackValues(d);
 
+    var { visited, captured, scoutControlled } = window.portals[guid].options.data;
+
     var historyText = ['history', [
-      ['v', d.visited],
-      ['c', d.captured],
-      ['s', d.scoutControlled]
+      ['v', visited],
+      ['c', captured],
+      ['s', scoutControlled]
     ].filter(([, checked]) => checked).map(([label]) => label).join(',')];
 
     // collect and html-ify random data
