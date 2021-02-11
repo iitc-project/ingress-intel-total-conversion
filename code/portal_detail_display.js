@@ -175,14 +175,6 @@ window.getPortalMiscDetails = function(guid,d) {
 
     var attackValues = getPortalAttackValues(d);
 
-    var { visited, captured, scoutControlled } = window.portals[guid].options.data;
-
-    var historyText = ['history', [
-      ['v', visited],
-      ['c', captured],
-      ['s', scoutControlled]
-    ].filter(([, checked]) => checked).map(([label]) => label).join(',')];
-
     // collect and html-ify random data
 
     var randDetailsData = [
@@ -194,7 +186,6 @@ window.getPortalMiscDetails = function(guid,d) {
       getMitigationText(d,linkCount), getEnergyText(d),
       // and these have some use, even for uncaptured portals
       apGainText, getHackDetailsText(d),
-      historyText
     ];
 
     if(attackValues.attack_frequency != 0)
