@@ -159,12 +159,10 @@ window.getPortalMiscDetails = function(guid,d) {
 
     var attackValues = getPortalAttackValues(d);
 
-    var { visited, captured, scoutControlled } = window.portals[guid].options.data;
-
     var historyText = ['history', [
-      ['v', visited],
-      ['c', captured],
-      ['s', scoutControlled]
+      ['v', d.visited],
+      ['c', d.captured],
+      ['s', d.scoutControlled]
     ].filter(([, checked]) => checked).map(([label]) => label).join(',')];
 
     // collect and html-ify random data

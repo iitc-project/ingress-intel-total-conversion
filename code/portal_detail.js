@@ -28,6 +28,19 @@ window.portalDetail.isFresh = function(guid) {
   return cache.isFresh(guid);
 }
 
+// get portal history data (history, captured, scout controlled) from portal summary data cache.
+window.portalDetail.getPortalHistoryData = function (guid) {
+  var portal = window.portals[guid];
+    if (portal == null) {
+      return { // default false
+        visited: false,
+        captured: false,
+        scoutControlled: false,
+      };
+    }
+    var { visited, captured, scoutControlled } = portal.options.data;
+    return { visited, captured, scoutControlled };
+}
 
 var handleResponse = function(guid, data, success) {
   delete requestQueue[guid];
@@ -38,7 +51,10 @@ var handleResponse = function(guid, data, success) {
 
   if (success) {
 
-    var dict = decodeArray.portalDetail(data.result);
+    var dict = {
+      ...decodeArray.portalDetail(data.result),
+      ...window.portalDetail.getPortalHistoryData(guid)
+    };
 
     // entity format, as used in map data
     var ent = [guid,dict.timestamp,data.result];
