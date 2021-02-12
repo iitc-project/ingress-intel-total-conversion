@@ -2,7 +2,7 @@
 // @id             iitc-plugin-user-location@cradle
 // @name           IITC plugin: User Location
 // @category       Tweaks
-// @version        0.2.0.@@DATETIMEVERSION@@
+// @version        0.2.1.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -25,13 +25,18 @@
 window.plugin.userLocation = function() {};
 
 window.plugin.userLocation.follow = false;
+window.plugin.userLocation.user = { latlng:null, direction:null };
 
 window.plugin.userLocation.setup = function() {
+  window.pluginCreateHook('pluginUserLocation');
+
   $('<style>').prop('type', 'text/css').html('@@INCLUDESTRING:mobile/plugins/user-location.css@@').appendTo('head');
 
   $('<div style="position:absolute; left:-9999em; top:-9999em;">').html('@@INCLUDESTRING:mobile/plugins/user-location.svg@@').prependTo('body');
 
   var cssClass = PLAYER.team === 'RESISTANCE' ? 'res' : 'enl';
+
+  var latlng = new L.LatLng(0,0);
 
   var icon = L.divIcon({
     iconSize: L.point(32, 32),
@@ -40,13 +45,13 @@ window.plugin.userLocation.setup = function() {
     html: '<div class="container ' + cssClass + ' circle"><div class="outer"></div><div class="inner"></div></div>'
   });
 
-  var marker = L.marker(new L.LatLng(0,0), {
+  var marker = L.marker(latlng, {
     icon: icon,
     zIndexOffset: 300,
     clickable: false
   });
 
-  var circle = new L.Circle(new L.LatLng(0,0), 40, {
+  var circle = new L.Circle(latlng, 40, {
     stroke: false,
     opacity: 0.7,
     fillOpacity: 1,
@@ -61,12 +66,17 @@ window.plugin.userLocation.setup = function() {
   window.plugin.userLocation.locationLayer.addTo(window.map);
   window.addLayerGroup('User location', window.plugin.userLocation.locationLayer, true);
 
+  window.plugin.userLocation.user.latlng = latlng;
+
   window.plugin.userLocation.marker = marker;
   window.plugin.userLocation.circle = circle;
   window.plugin.userLocation.icon = icon;
 
   window.map.on('zoomend', window.plugin.userLocation.onZoomEnd);
   window.plugin.userLocation.onZoomEnd();
+
+  // HOOK: fired when the marker is drawn the first time
+  window.runHooks('pluginUserLocation', { event:'setup', data:window.plugin.userLocation.user });
 };
 
 window.plugin.userLocation.onZoomEnd = function() {
@@ -113,6 +123,7 @@ window.plugin.userLocation.onLocationChange = function(lat, lng) {
   if(!window.plugin.userLocation.marker) return;
 
   var latlng = new L.LatLng(lat, lng);
+  window.plugin.userLocation.user.latlng = latlng;
   window.plugin.userLocation.marker.setLatLng(latlng);
   window.plugin.userLocation.circle.setLatLng(latlng);
 
@@ -129,10 +140,15 @@ window.plugin.userLocation.onLocationChange = function(lat, lng) {
 
     window.map.setView(latlng);
   }
+
+  // HOOK: fired when the marker location is changed
+  window.runHooks('pluginUserLocation', {event:'onLocationChange', data:window.plugin.userLocation.user });
 };
 
 window.plugin.userLocation.onOrientationChange = function(direction) {
   if(!window.plugin.userLocation.marker) return;
+
+  window.plugin.userLocation.user.direction = direction;
 
   var container = $(".container", window.plugin.userLocation.marker._icon);
 
@@ -153,6 +169,13 @@ window.plugin.userLocation.onOrientationChange = function(direction) {
         "webkitTransform": "rotate(" + direction + "deg)"
       });
   }
+
+  // HOOK: fired when the marker direction is changed
+  window.runHooks('pluginUserLocation', {event: 'onOrientationChange', data:window.plugin.userLocation.user });
+}
+
+window.plugin.userLocation.getUser = function() {
+  return window.plugin.userLocation.user;
 }
 
 var setup = window.plugin.userLocation.setup;
