@@ -179,7 +179,7 @@ window.setupRedeem = function() {
         extra = 'No status code was returned.';
       }
       dialog({
-        title: 'Request failed: ' + data.passcode,
+        title: 'Request failed: ' + passcode,
         html: '<strong>The HTTP request failed.</strong> ' + extra
       });
     });
