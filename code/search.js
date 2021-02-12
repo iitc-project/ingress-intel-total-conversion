@@ -291,17 +291,33 @@ addHook('search', function(query) {
 addHook('search', function(query) {
   if(!query.confirmed) return;
 
-  $.getJSON(NOMINATIM + encodeURIComponent(query.term), function(data) {
-    if(data.length == 0) {
-      query.addResult({
-        title: 'No results on OpenStreetMap',
-        icon: '//www.openstreetmap.org/favicon.ico',
-        onSelected: function() {return true;},
-      });
-      return;
+  // Viewbox search orders results so they're closer to the viewbox
+  var mapBounds = map.getBounds();
+  var viewbox = '&viewbox=' + mapBounds.getSouthWest().lng + ',' + mapBounds.getSouthWest().lat + ',' + mapBounds.getNorthEast().lng + ',' + mapBounds.getNorthEast().lat;
+
+  var resultCount = 0;
+  var resultMap = {};
+  function onQueryResult(isViewboxResult, data) {
+    resultCount += data.length;
+    if(isViewboxResult) {
+      // Search for things outside the viewbox
+      $.getJSON(NOMINATIM + encodeURIComponent(query.term) + viewbox, onQueryResult.bind(null, false));
+      if(resultCount === 0) { return; }
+    } else {
+      if(resultCount === 0) {
+        query.addResult({
+          title: 'No results on OpenStreetMap',
+          icon: '//www.openstreetmap.org/favicon.ico',
+          onSelected: function() {return true;},
+        });
+        return;
+      }
     }
 
     data.forEach(function(item) {
+      if(resultMap[item.place_id]) { return; } // duplicate
+      resultMap[item.place_id] = true;
+
       var result = {
         title: item.display_name,
         description: 'Type: ' + item.type,
@@ -331,6 +347,12 @@ addHook('search', function(query) {
 
       query.addResult(result);
     });
-  });
+  }
+
+  // Bounded search allows amenity-only searches (e.g. "amenity=toilet") via special phrases
+  // http://wiki.openstreetmap.org/wiki/Nominatim/Special_Phrases/EN
+  var bounded = '&bounded=1';
+
+  $.getJSON(NOMINATIM + encodeURIComponent(query.term) + viewbox + bounded, onQueryResult.bind(null, true));
 });
 
