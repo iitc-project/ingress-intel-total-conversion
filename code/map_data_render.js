@@ -31,6 +31,8 @@ window.Render.prototype.startRenderPass = function(level,bounds) {
 
 
   this.rescalePortalMarkers();
+
+  this.placeholderQueue = [];
 }
 
 window.Render.prototype.clearPortalsOutsideBounds = function(bounds) {
@@ -136,6 +138,10 @@ window.Render.prototype.processGameEntities = function(entities) {
     if (ent[2][0] == 'p' && !(ent[0] in this.deletedGuid)) {
       this.createPortalEntity(ent);
     }
+  }
+
+  for (var i in this.placeholderQueue) {
+	  this.createPortalEntity(this.placeholderQueue.pop());
   }
 }
 
@@ -251,7 +257,7 @@ window.Render.prototype.deleteFieldEntity = function(guid) {
 }
 
 
-window.Render.prototype.createPlaceholderPortalEntity = function(guid,latE6,lngE6,team) {
+window.Render.prototype.queuePlaceholderPortalEntity = function(guid,latE6,lngE6,team) {
   // intel no longer returns portals at anything but the closest zoom
   // stock intel creates 'placeholder' portals from the data in links/fields - IITC needs to do the same
   // we only have the portal guid, lat/lng coords, and the faction - no other data
@@ -270,21 +276,8 @@ window.Render.prototype.createPlaceholderPortalEntity = function(guid,latE6,lngE
     ]
   ];
 
-  // placeholder portals don't have a useful timestamp value - so the standard code that checks for updated
-  // portal details doesn't apply
-  // so, check that the basic details are valid and delete the existing portal if out of date
-  if (guid in window.portals) {
-    var p = window.portals[guid];
-    if (team != p.options.data.team || latE6 != p.options.data.latE6 || lngE6 != p.options.data.lngE6) {
-      // team or location have changed - delete existing portal
-      this.deletePortalEntity(guid);
-    }
-  }
-
-  this.createPortalEntity(ent);
-
+  this.placeholderQueue.push(ent);
 }
-
 
 window.Render.prototype.createPortalEntity = function(ent) {
   this.seenPortalsGuid[ent[0]] = true;  // flag we've seen it
@@ -296,7 +289,12 @@ window.Render.prototype.createPortalEntity = function(ent) {
     // yes. now check to see if the entity data we have is newer than that in place
     var p = window.portals[ent[0]];
 
-    if (p.options.timestamp >= ent[1]) return; // this data is identical or older - abort processing
+    if (ent[1] == 0) {
+      // this is a placeholder portal
+      if (ent[2][1] == p.options.data.team) return; // owner hasn't changed - abort processing
+    } else {
+      if (p.options.timestamp >= ent[1]) return; // this data is identical or older - abort processing
+    }
 
     // the data we have is newer. many data changes require re-rendering of the portal
     // (e.g. level changed, so size is different, or stats changed so highlighter is different)
@@ -380,7 +378,7 @@ window.Render.prototype.createFieldEntity = function(ent) {
   //create placeholder portals for field corners. we already do links, but there are the odd case where this is useful
   for (var i=0; i<3; i++) {
     var p=data.points[i];
-    this.createPlaceholderPortalEntity(p.guid, p.latE6, p.lngE6, data.team);
+    this.queuePlaceholderPortalEntity(p.guid, p.latE6, p.lngE6, data.team);
   }
 
   // check if entity already exists
@@ -447,8 +445,8 @@ window.Render.prototype.createLinkEntity = function(ent,faked) {
   };
 
   // create placeholder entities for link start and end points (before checking if the link itself already exists
-  this.createPlaceholderPortalEntity(data.oGuid, data.oLatE6, data.oLngE6, data.team);
-  this.createPlaceholderPortalEntity(data.dGuid, data.dLatE6, data.dLngE6, data.team);
+  this.queuePlaceholderPortalEntity(data.oGuid, data.oLatE6, data.oLngE6, data.team);
+  this.queuePlaceholderPortalEntity(data.dGuid, data.dLatE6, data.dLngE6, data.team);
 
 
   // check if entity already exists
