@@ -39,6 +39,7 @@
   window.plugin.bookmarks.KEY_OTHER_BKMRK = 'idOthers';
   window.plugin.bookmarks.KEY_STORAGE = 'plugin-bookmarks';
   window.plugin.bookmarks.KEY_STATUS_BOX = 'plugin-bookmarks-box';
+  window.plugin.bookmarks.KEY_SETTINGS = 'plugin-bookmarks-settings';
 
   window.plugin.bookmarks.KEY = {key: window.plugin.bookmarks.KEY_STORAGE, field: 'bkmrksObj'};
   window.plugin.bookmarks.UPDATE_QUEUE = {key: 'plugin-bookmarks-queue', field: 'updateQueue'};
@@ -46,6 +47,7 @@
 
   window.plugin.bookmarks.bkmrksObj = {};
   window.plugin.bookmarks.statusBox = {};
+  window.plugin.bookmarks.settings = {};
   window.plugin.bookmarks.updateQueue = {};
   window.plugin.bookmarks.updatingQueue = {};
 
@@ -103,6 +105,16 @@
     window.plugin.bookmarks.statusBox = JSON.parse(localStorage[plugin.bookmarks.KEY_STATUS_BOX]);
   }
 
+  // Save settings to localStorage
+  window.plugin.bookmarks.saveSettings = function() {
+    localStorage[plugin.bookmarks.KEY_SETTINGS] = JSON.stringify(window.plugin.bookmarks.settings);
+  }
+  // Load settings from localStorage
+  window.plugin.bookmarks.loadSettings = function() {
+    window.plugin.bookmarks.settings = JSON.parse(localStorage[plugin.bookmarks.KEY_SETTINGS]);
+  }
+
+
   window.plugin.bookmarks.upgradeToNewStorage = function() {
     if(localStorage['plugin-bookmarks-portals-data'] && localStorage['plugin-bookmarks-maps-data']) {
       var oldStor_1 = JSON.parse(localStorage['plugin-bookmarks-maps-data']);
@@ -129,6 +141,10 @@
       window.plugin.bookmarks.statusBox.page = 0;
       window.plugin.bookmarks.statusBox.pos = {x:100,y:100};
       window.plugin.bookmarks.saveStorageBox();
+    }
+    if(!localStorage[window.plugin.bookmarks.KEY_SETTINGS]) {
+      window.plugin.bookmarks.settings = {};
+      window.plugin.bookmarks.saveSettings();
     }
   }
 
@@ -206,6 +222,21 @@
     window.runHooks('pluginBkmrksEdit', {"target": "folder", "action": newFlag?"open":"close", "id": ID});
   }
 
+  // Sort bookmarks (return array of Ids)
+  window.plugin.bookmarks.getSortedIds = function(obj) {
+    var keys = []; for(var key in obj) keys.push(key);
+    if (window.plugin.bookmarks.settings['sort-order'] == 'name') {
+      return keys.sort(function(a,b){
+        return (obj[a]['label'] > obj[b]['label']) ? 1 : -1;
+      });
+    }
+    else {
+      // Return default unsorted keys
+      return keys;
+    }
+  }
+
+
   // Load the HTML bookmarks
   window.plugin.bookmarks.loadList = function(typeList) {
     var element = '';
@@ -219,8 +250,10 @@
 
     // For each folder
     var list = window.plugin.bookmarks.bkmrksObj[typeList];
+    var sortedFolderIds = window.plugin.bookmarks.getSortedIds(list);
 
-    for(var idFolders in list) {
+    for(var folderIndex = 0; folderIndex < sortedFolderIds.length; folderIndex++) {
+      var idFolders = sortedFolderIds[folderIndex];
       var folders = list[idFolders];
       var active = '';
 
@@ -239,7 +272,10 @@
 
       // For each bookmark
       var fold = folders['bkmrk'];
-      for(var idBkmrk in fold) {
+      var sortedBookmarkIds = window.plugin.bookmarks.getSortedIds(fold);
+
+      for(var bookmarkIndex = 0; bookmarkIndex < sortedBookmarkIds.length; bookmarkIndex++) {
+        var idBkmrk = sortedBookmarkIds[bookmarkIndex];
         var btn_link;
         var btn_remove = '<a class="bookmarksRemoveFrom" onclick="window.plugin.bookmarks.removeElement(this, \''+typeList+'\');return false;" title="Remove from bookmarks">X</a>';
 
@@ -727,6 +763,24 @@
     }
   }
 
+  // Popup dialog with sorting options
+  window.plugin.bookmarks.optSort = function() {
+    dialog({
+      html: 'Sort: <select id="bkmrksSortOrder" type="select" onchange="window.plugin.bookmarks.setSortOrder(this.value);">'+
+        '<option value="default">Unsorted</option>'+
+        '<option value="name"'+(window.plugin.bookmarks.settings['sort-order'] === 'name' ? ' selected ' : '')+'>By Name</option></select>',
+      dialogClass: 'ui-dialog-bkmrksSet-sort',
+      title: 'Bookmarks Sort'
+    });
+  }
+
+  // Change the sort order
+  window.plugin.bookmarks.setSortOrder = function(orderBy) {
+    window.plugin.bookmarks.settings['sort-order'] = orderBy;
+    window.plugin.bookmarks.saveSettings();
+    window.plugin.bookmarks.refreshBkmrks();
+  }
+
   window.plugin.bookmarks.dialogLoadListFolders = function(idBox, clickAction, showOthersF, scanType/*0 = maps&portals; 1 = maps; 2 = portals*/) {
     var list = JSON.parse(localStorage['plugin-bookmarks']);
     var listHTML = '';
@@ -910,7 +964,10 @@
 
       // For each folder
       var list = portalsList.portals;
-      for(var idFolders in list) {
+      var sortedFolderIds = window.plugin.bookmarks.getSortedIds(list);
+
+      for(var folderIndex = 0; folderIndex < sortedFolderIds.length; folderIndex++) {
+        var idFolders = sortedFolderIds[folderIndex];
         var folders = list[idFolders];
 
         // Create a label and a anchor for the sortable
@@ -921,7 +978,10 @@
 
         // For each bookmark
         var fold = folders['bkmrk'];
-        for(var idBkmrk in fold) {
+        var sortedBookmarkIds = window.plugin.bookmarks.getSortedIds(fold);
+
+        for(var bookmarkIndex = 0; bookmarkIndex < sortedBookmarkIds.length; bookmarkIndex++) {
+          var idBkmrk = sortedBookmarkIds[bookmarkIndex];
           var bkmrk = fold[idBkmrk];
           var label = bkmrk['label'];
           var latlng = bkmrk['latlng'];
@@ -1231,6 +1291,7 @@
       actions += '<a onclick="window.plugin.bookmarks.optBox(\'save\');return false;">Save box position</a>';
       actions += '<a onclick="window.plugin.bookmarks.optBox(\'reset\');return false;">Reset box position</a>';
     }
+    actions += '<a onclick="window.plugin.bookmarks.optSort();return false;">Sorting</a>'
     plugin.bookmarks.htmlSetbox = '<div id="bkmrksSetbox">' + actions + '</div>';
   }
 
@@ -1253,6 +1314,7 @@
     // Load data from localStorage
     window.plugin.bookmarks.loadStorage();
     window.plugin.bookmarks.loadStorageBox();
+    window.plugin.bookmarks.loadSettings();
     window.plugin.bookmarks.setupContent();
     window.plugin.bookmarks.setupCSS();
 
